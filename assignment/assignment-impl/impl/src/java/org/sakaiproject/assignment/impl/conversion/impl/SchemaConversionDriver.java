@@ -23,13 +23,17 @@ package org.sakaiproject.assignment.impl.conversion.impl;
 
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @author ieb
  *
  */
 public class SchemaConversionDriver
 {
-
+	private static final Log log = LogFactory.getLog(SchemaConversionDriver.class);
+	
 	private Properties p;
 	private String base;
 
@@ -165,6 +169,7 @@ public class SchemaConversionDriver
 			catch (Exception e)
 			{
 				count = 0;
+				log.warn(this + ":getMultiValuedProperty " + e.getMessage());
 			}
 		}
 		if(count <= 0)

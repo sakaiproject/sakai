@@ -270,6 +270,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		}
 		catch (ParserConfigurationException e)
 		{
+			log.warn(this + ":parse " + e.getMessage());
 			throw new SAXException("Failed to get a parser ", e);
 		}
 		final Map<String, Object> props = new HashMap<String, Object>();
@@ -384,6 +385,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 							}
 							catch (Exception e)
 							{
+								log.warn(this + ":parse grade " + e.getMessage());
 							}
 						}
 					}
@@ -401,6 +403,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					catch (Exception e)
 					{
 						// use 0 for feedbackAttachmentCount
+						log.warn(this + ":parse feedbackAttachmentCount " + e.getMessage());
 					}
 					for(int i = 0; i < feedbackAttachmentCount; i++)
 					{
@@ -419,6 +422,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					catch (Exception e)
 					{
 						// use 0 for submittedAttachmentCount
+						log.warn(this + ":parse submittedAttachmentCount " + e.getMessage());
 					}
 					for(int i = 0; i < submittedAttachmentCount; i++)
 					{
@@ -448,6 +452,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					catch (Exception e)
 					{
 						// use 0 for submittedAttachmentCount
+						log.warn(this + ":Parse " + e.getMessage());
 					}
 					for(int i = 0; i < submitterCount; i++)
 					{

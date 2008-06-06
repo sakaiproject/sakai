@@ -60,15 +60,15 @@ public class SchemaConversionController
 		}
 		catch (Exception e)
 		{
-			log.error("Failed to perform migration setup ",e);
+			log.error(this + ":init Failed to perform migration setup ",e);
 			try
 			{
 				connection.rollback();
-				log.error("Rollback Sucessfull ",e);
+				log.error(this + ":Rollback Sucessfull ",e);
 			}
 			catch (Exception ex)
 			{
-				log.error("Rollback Failed ",e);
+				log.error(this + ":Rollback Failed ",e);
 			}
 			throw new SchemaConversionException("Schema Conversion has been aborted due to earlier errors, please investigate ");
 
@@ -83,7 +83,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-
+				log.error(this + ":init close " + ex.getMessage());
 			}
 
 		}
@@ -189,7 +189,7 @@ public class SchemaConversionController
 		}
 		catch (Exception e)
 		{
-			log.error("Failed to perform migration ",e);
+			log.error(this + ":Failed to perform migration ",e);
 			try
 			{
 				connection.rollback();
@@ -197,7 +197,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-				log.error("Rollback Failed ",e);
+				log.error(this + ":Rollback Failed ",e);
 			}
 			throw new SchemaConversionException("Schema Conversion has been aborted due to earlier errors, please investigate ");
 
@@ -210,7 +210,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-
+				log.error(this + ":migrate rs.close " + ex.getMessage());
 			}
 			try
 			{
@@ -218,7 +218,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-
+				log.error(this + ":migrate selectNextBatch.close " + ex.getMessage());
 			}
 			try
 			{
@@ -226,7 +226,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-
+				log.error(this + ":migrate markNextBatch.close " + ex.getMessage());
 			}
 			try
 			{
@@ -234,7 +234,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-
+				log.error(this + ":migrate completeNextBatch.close " + ex.getMessage());
 			}
 			try
 			{
@@ -242,7 +242,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-
+				log.error(this + ":migrate selectRecord.close " + ex.getMessage());
 			}
 			try
 			{
@@ -250,7 +250,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-
+				log.error(this + ":migrate selectValidateRecord.close " + ex.getMessage());
 			}
 			try
 			{
@@ -258,7 +258,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-
+				log.error(this + ":migrate updateRecord.close " + ex.getMessage());
 			}
 
 			try
@@ -268,7 +268,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
-
+				log.error(this + ":migrate connection.close " + ex.getMessage());
 			}
 
 		}
@@ -309,7 +309,7 @@ public class SchemaConversionController
 						}
 						catch(Exception e)
 						{
-							log.info("Unable to execute SQL while dropping register table: " + statement);
+							log.info(this + ":dropRegisterTable Unable to execute SQL while dropping register table: " + statement + e.getMessage());
 						}
 					}
 				}
@@ -323,6 +323,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
+				log.error(this + ":dropRegisterTable " + ex.getMessage());
 			}
 		}
 	}
@@ -372,6 +373,7 @@ public class SchemaConversionController
 					}
 					catch (Exception ex)
 					{
+						log.error(this + ":addColumns " + ex.getMessage());
 					}
 				}
 			}
@@ -405,6 +407,7 @@ public class SchemaConversionController
 			}
 			catch (SQLException sqle)
 			{
+				log.error(this + ":crateRegisterTable SQLException " + sqle.getMessage());
 				String[] sql = driver.getCreateMigrateTable();
 				if(sql == null)
 				{
@@ -427,7 +430,7 @@ public class SchemaConversionController
 							}
 							catch(Exception e)
 							{
-								log.info("Unable to execute SQL while creating register table: " + statement);
+								log.info(this+":createRegisterTable Unable to execute SQL while creating register table: " + statement);
 							}
 						}
 					}
@@ -441,6 +444,7 @@ public class SchemaConversionController
 				}
 				catch (Exception ex)
 				{
+					log.error(this + ":createRegisterTable rs.close " + ex.getMessage());
 				}
 			}
 			if (nrecords == 0)
@@ -467,6 +471,7 @@ public class SchemaConversionController
 				}
 				catch (Exception ex)
 				{
+					log.error(this + ":createRegisterTable 2 rs.close " + ex.getMessage());
 				}
 			}
 
@@ -479,6 +484,7 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
+				log.error(this + ":createRegisterTable stmt.close " + ex.getMessage());
 			}
 		}
 

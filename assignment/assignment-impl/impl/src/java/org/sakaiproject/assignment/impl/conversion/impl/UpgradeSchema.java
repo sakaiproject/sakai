@@ -65,7 +65,7 @@ public class UpgradeSchema
 		}
 		catch (Exception ex)
 		{
-			log.info("Failed to perform conversion ", ex);
+			log.info("Assignment UpgradeSchema main Failed to perform conversion ", ex);
 		}
 	}
 
@@ -167,7 +167,7 @@ public class UpgradeSchema
 		}
 		catch (Exception ex)
 		{
-			log.info("Failed ", ex);
+			log.info(this + ":doMigrate Failed ", ex);
 		}
 	}
 }

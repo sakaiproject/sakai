@@ -89,7 +89,7 @@ public class SubmitterIdAssignmentsConversionHandler implements SchemaConversion
 		}
 		catch (Exception e1)
 		{
-			log.warn("Failed to parse " + id + "[" + xml + "]", e1);
+			log.warn(this + ":convertSource Failed to parse " + id + "[" + xml + "]", e1);
 			return false;
 		}
 
@@ -120,7 +120,7 @@ public class SubmitterIdAssignmentsConversionHandler implements SchemaConversion
 		}
 		catch (Exception e)
 		{
-			log.warn("Failed to process record " + id, e);
+			log.warn(this + ":convertSource Failed to process record " + id, e);
 		}
 		return false;
 

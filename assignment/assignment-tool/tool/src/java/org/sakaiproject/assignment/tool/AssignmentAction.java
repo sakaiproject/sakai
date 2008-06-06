@@ -47,6 +47,8 @@ import java.util.zip.ZipInputStream;
 import java.nio.channels.*;
 import java.nio.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
@@ -138,6 +140,9 @@ import org.sakaiproject.contentreview.service.ContentReviewService;
 public class AssignmentAction extends PagedResourceActionII
 {
 	private static ResourceLoader rb = new ResourceLoader("assignment");
+	
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(AssignmentAction.class);
 
 	private static final String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
 	
@@ -690,7 +695,7 @@ public class AssignmentAction extends PagedResourceActionII
 		 s = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
 		}
 		catch (IdUnusedException iue) {
-			Log.warn("chef", "Site not found!");
+			M_log.warn(this + ":buildMainPanelContext: Site not found!" + iue.getMessage());
 		}
 		getContentReviewService();
 		if (allowReviewService && contentReviewService.isSiteAcceptable(s)) {
@@ -911,10 +916,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_student_view_submission " + e.getMessage());
 			addAlert(state, rb.getString("cannot_find_assignment"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_student_view_submission " + e.getMessage());
 			addAlert(state, rb.getString("youarenot16"));
 		}
 
@@ -974,7 +981,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception ignore)
 		{
-			Log.warn("chef", this + ignore.getMessage() + " siteId= " + contextString);
+			M_log.warn(this + ":buildStudentViewSubmission " + ignore.getMessage() + " siteId= " + contextString);
 		}
 		
 		// get assignment and submission information
@@ -1003,10 +1010,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_student_view_submission " + e.getMessage());
 			addAlert(state, rb.getString("cannot_find_assignment"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_student_view_submission " + e.getMessage());
 			addAlert(state, rb.getString("youarenot16"));
 		}	
 
@@ -1034,10 +1043,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_student_view_assignment " + e.getMessage());
 			addAlert(state, rb.getString("cannot_find_assignment"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_student_view_assignment " + e.getMessage());
 			addAlert(state, rb.getString("youarenot14"));
 		}
 
@@ -1074,10 +1085,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_student_preview_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("cannotfin3"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_student_preview_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("youarenot16"));
 		}
 
@@ -1112,10 +1125,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_student_view_grade_context " + e.getMessage());
 			addAlert(state, rb.getString("cannotfin5"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_student_view_grade_context " + e.getMessage());
 			addAlert(state, rb.getString("not_allowed_to_get_submission"));
 		}
 
@@ -1249,7 +1264,8 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception ignore)
 		{
-			Log.warn("chef", this + ignore.getMessage() + " siteId= " + contextString);
+			M_log.warn(this + ":build_list_assignments_context " + ignore.getMessage());
+			M_log.warn(this + ignore.getMessage() + " siteId= " + contextString);
 		}
 
 		boolean allowSubmit = AssignmentService.allowAddSubmission(contextString);
@@ -1308,10 +1324,12 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
+				M_log.warn(this + ":build_instructor_new_edit_assignment_context " + e.getMessage());
 				addAlert(state, rb.getString("cannotfin3") + ": " + assignmentId);
 			}
 			catch (PermissionException e)
 			{
+				M_log.warn(this + ":build_instructor_new_edit_assignment_context " + e.getMessage());
 				addAlert(state, rb.getString("youarenot14") + ": " + assignmentId);
 			}
 		}
@@ -1468,7 +1486,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 						catch (Exception ee)
 						{
-							// ignore
+							M_log.warn(this + ":setAssignmentFormContext " + ee.getMessage());
 						}
 					}
 				}
@@ -1476,7 +1494,7 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (Exception e)
 			{
 				// not able to link to Gradebook
-				Log.warn("chef", this + e.getMessage());
+				M_log.warn(this + "setAssignmentFormContext " + e.getMessage());
 			}
 			
 			if (StringUtil.trimToNull((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK)) == null)
@@ -1507,6 +1525,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception ignore)
 		{
+			M_log.warn(this + ":setAssignmentFormContext " + ignore.getMessage());
 		}
 
 		if (AssignmentService.getAllowGroupAssignments())
@@ -1660,7 +1679,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", this + e.getMessage() + assignmentId);
+				M_log.warn(this + ":build_instructor_preview_assignment " +  e.getMessage() + assignmentId);
 			}
 		}
 		else
@@ -1702,10 +1721,12 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
+				M_log.warn(this + ":build_instructor_delete_assignment_context " + e.getMessage());
 				addAlert(state, rb.getString("cannotfin3"));
 			}
 			catch (PermissionException e)
 			{
+				M_log.warn(this + ":build_instructor_delete_assignment_context " + e.getMessage());
 				addAlert(state, rb.getString("youarenot14"));
 			}
 		}
@@ -1739,10 +1760,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_instructor_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("cannotfin5"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_instructor_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 
@@ -1817,10 +1840,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_instructor_grade_submission_context 2" + e.getMessage());
 			addAlert(state, rb.getString("cannotfin5"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_instructor_grade_submission_context 2" + e.getMessage());
 			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 
@@ -1962,10 +1987,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_intructor_preview_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("cannotfin3"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_intructor_preview_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("youarenot14"));
 		}
 
@@ -1976,10 +2003,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_intructor_preview_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("cannotfin5"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_intructor_preview_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 
@@ -2102,10 +2131,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":build_intructor_grade_assignment_context " + e.getMessage());
 			addAlert(state, rb.getString("cannotfin3"));
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":build_intructor_grade_assignment_context " + e.getMessage());
 			addAlert(state, rb.getString("youarenot14"));
 		}
 
@@ -2176,12 +2207,12 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (Exception ee)
 				{
-					Log.warn("chef", this + ee.getMessage());
+					M_log.warn(this + ":updateNonElectronicSubmission " + ee.getMessage());
 				}
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", this + e.getMessage());
+				M_log.warn(this + ":updateNonElectronicSubmission " + e.getMessage());
 			}
 		}
 	}
@@ -2210,15 +2241,18 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (Exception ee)
 			{
 				context.put("creator", creatorId);
+				M_log.warn(this + ":build_instructor_view_assignment_context " + ee.getMessage());
 			}
 		}
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin3"));
+			M_log.warn(this + ":build_instructor_view_assignment_context " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot14"));
+			M_log.warn(this + ":build_instructor_view_assignment_context " + e.getMessage());
 		}
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
@@ -2282,6 +2316,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception ignore)
 		{
+			M_log.warn(this + ":build_instructor_reorder_assignment_context " + ignore.getMessage());
 		}
 	
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -2314,7 +2349,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (Exception ee)
 			{
-				Log.warn("chef", this + ee.getMessage());
+				M_log.warn(this + ":build_instructor_view_student_assignment_context " + ee.getMessage());
 			}
 		}
 		
@@ -2352,7 +2387,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (Exception ee)
 				{
-					Log.warn("chef", this + ee.getMessage());
+					M_log.warn(this + ":build_instructor_view_student_assignment_context " + ee.getMessage());
 				}
 			}
 			
@@ -2413,7 +2448,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			Log.debug("chef", this + rb.getString("addtogradebook.alertMessage") + "\n" + e.getMessage());
+			M_log.debug(this + "isGradebookDefined " + rb.getString("addtogradebook.alertMessage") + "\n" + e.getMessage());
 		}
 
 		return rv;
@@ -2506,26 +2541,28 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (AssignmentHasIllegalPointsException e)
 					{
 						addAlert(state, rb.getString("addtogradebook.illegalPoints"));
+						M_log.warn(this + ":integrateGradebook " + e.getMessage());
 					}
 					catch (ConflictingAssignmentNameException e)
 					{
 						// add alert prompting for change assignment title
 						addAlert(state, rb.getString("addtogradebook.nonUniqueTitle"));
+						M_log.warn(this + ":integrateGradebook " + e.getMessage());
 					}
 					catch (ConflictingExternalIdException e)
 					{
 						// this shouldn't happen, as we have already checked for assignment reference before. Log the error
-						Log.warn("chef", this + e.getMessage());
+						M_log.warn(this + ":integrateGradebook " + e.getMessage());
 					}
 					catch (GradebookNotFoundException e)
 					{
 						// this shouldn't happen, as we have checked for gradebook existence before
-						Log.warn("chef", this + e.getMessage());
+						M_log.warn(this + ":integrateGradebook " + e.getMessage());
 					}
 					catch (Exception e)
 					{
 						// ignore
-						Log.warn("chef", this + e.getMessage());
+						M_log.warn(this + ":integrateGradebook " + e.getMessage());
 					}
 				}
 				else if (addUpdateRemoveAssignment.equals("update"))
@@ -2542,7 +2579,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					    catch(Exception e)
 				        {
-				        		Log.warn("chef", rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
+					    	M_log.warn(this + ":integrateGradebook " + rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
 				        }
 					}
 				}	// addUpdateRemove != null
@@ -2649,7 +2686,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 							catch (Exception e)
 							{
-								Log.warn("chef", "Cannot find submission " + submissionRef + ": " + e.getMessage());
+								M_log.warn(this + ":integrateGradebook Cannot find submission " + submissionRef + ": " + e.getMessage());
 							}
 						}
 
@@ -2689,14 +2726,14 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 							catch (Exception e)
 							{
-								Log.warn("chef", "Cannot find submission " + submissionRef + ": " + e.getMessage());
+								M_log.warn(this + ":integrateGradebook: Cannot find submission " + submissionRef + ": " + e.getMessage());
 							}
 						}
 					}
 				}
 				catch (Exception e)
 				{
-					Log.warn("chef", rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
+					M_log.warn(this + ":integrateGradebook " + rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
 				}
 			} // updateRemoveSubmission != null
 		}
@@ -2771,10 +2808,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin5"));
+			M_log.warn(this + ":doView_submission " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("not_allowed_to_view"));
+			M_log.warn(this + ":doView_submission " + e.getMessage());
 		} // try
 
 	} // doView_submission
@@ -3265,13 +3304,16 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
+			M_log.warn(this + ":grade_submission_option " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + ":grade_submission_option " + e.getMessage());
 		}
 		catch (InUseException e)
 		{
 			addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
+			M_log.warn(this + ":grade_submission_option " + e.getMessage());
 		} // try
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -3346,14 +3388,17 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (IdUnusedException e)
 					{
 						addAlert(state, rb.getString("cannotfin2") + " " + a.getTitle());
+						M_log.warn(this + ":doSave_submission " + e.getMessage());
 					}
 					catch (PermissionException e)
 					{
 						addAlert(state, rb.getString("youarenot12"));
+						M_log.warn(this + ":doSave_submission " + e.getMessage());
 					}
 					catch (InUseException e)
 					{
 						addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
+						M_log.warn(this + ":doSave_submission " + e.getMessage());
 					}
 				}
 				else
@@ -3384,16 +3429,19 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (PermissionException e)
 					{
 						addAlert(state, rb.getString("youarenot4"));
+						M_log.warn(this + ":doSave_submission " + e.getMessage());
 					}
 				}
 			}
 			catch (IdUnusedException e)
 			{
 				addAlert(state, rb.getString("cannotfin5"));
+				M_log.warn(this + ":doSave_submission " + e.getMessage());
 			}
 			catch (PermissionException e)
 			{
 				addAlert(state, rb.getString("not_allowed_to_view"));
+				M_log.warn(this + ":doSave_submission " + e.getMessage());
 			}
 		}
 
@@ -3421,10 +3469,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin2"));
+			M_log.warn(this + ":doPost_submission " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot14"));
+			M_log.warn(this + ":doPost_submission " + e.getMessage());
 		}
 		
 		if (AssignmentService.canSubmit(contextString, a))
@@ -3652,14 +3702,17 @@ public class AssignmentAction extends PagedResourceActionII
 						catch (IdUnusedException e)
 						{
 							addAlert(state, rb.getString("cannotfin2") + " " + a.getTitle());
+							M_log.warn(this + ":doPost_submission " + e.getMessage());
 						}
 						catch (PermissionException e)
 						{
 							addAlert(state, rb.getString("no_permissiion_to_edit_submission"));
+							M_log.warn(this + ":doPost_submission " + e.getMessage());
 						}
 						catch (InUseException e)
 						{
 							addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
+							M_log.warn(this + ":doPost_submission " + e.getMessage());
 						}
 					}
 					else
@@ -3701,16 +3754,19 @@ public class AssignmentAction extends PagedResourceActionII
 						catch (PermissionException e)
 						{
 							addAlert(state, rb.getString("youarenot13"));
+							M_log.warn(this + ":doPost_submission " + e.getMessage());
 						}
 					} // if -else
 				}
 				catch (IdUnusedException e)
 				{
 					addAlert(state, rb.getString("cannotfin5"));
+					M_log.warn(this + ":doPost_submission " + e.getMessage());
 				}
 				catch (PermissionException e)
 				{
 					addAlert(state, rb.getString("not_allowed_to_view"));
+					M_log.warn(this + ":doPost_submission " + e.getMessage());
 				}
 	
 			} // if
@@ -4469,7 +4525,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", this + e.getMessage());
+				M_log.warn(this + ":postOrSaveAssignment " + e.getMessage());
 			}
 
 
@@ -4531,7 +4587,7 @@ public class AssignmentAction extends PagedResourceActionII
 								}
 								catch (Exception e)
 								{
-									Log.debug("chef", this + e.getMessage() + s.getReference());
+									M_log.warn(this + ":postOrSaveAssignment " + e.getMessage() + s.getReference());
 								}
 							}
 						}
@@ -4553,6 +4609,7 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (AssignmentHasIllegalPointsException e)
 					{
 						addAlert(state, rb.getString("addtogradebook.illegalPoints"));
+						M_log.warn(this + ":postOrSaveAssignment " + e.getMessage());
 					}
 	
 				} //if
@@ -4620,7 +4677,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", this + e.toString() + "error adding submission for userId = " + userId);
+				M_log.warn(this + ":addRemoveSubmissionsForNonElectronicAssignment " + e.toString() + "error adding submission for userId = " + userId);
 			}
 		}
 		
@@ -4648,7 +4705,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (Exception e)
 				{
-					Log.warn("chef", this + e.toString() + " error remove submission for userId = " + userId);
+					M_log.warn(this + ":addRemoveSubmissionsForNonElectronicAssignment " + e.toString() + " error remove submission for userId = " + userId);
 				}
 			}
 		}
@@ -4687,7 +4744,7 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (Exception ignore)
 					{
 						// ignore the exception
-						Log.warn("chef", rb.getString("cannotfin2") + ref);
+						M_log.warn(this + ":initIntegratewithGradebook " + rb.getString("cannotfin2") + ref);
 					}
 					integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
 				}
@@ -4721,6 +4778,7 @@ public class AssignmentAction extends PagedResourceActionII
 						catch (NumberFormatException nE)
 						{
 							alertInvalidPoint(state, gradePoints);
+							M_log.warn(this + ":initIntegrateWithGradebook " + nE.getMessage()); 
 						}
 					}
 					else
@@ -4791,11 +4849,11 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (IdUnusedException e)
 					{
-						Log.warn("chef", e.getMessage());
+						M_log.warn(this + ":integrateWithAnnouncement " + e.getMessage());
 					}
 					catch (PermissionException e)
 					{
-						Log.warn("chef", e.getMessage());
+						M_log.warn(this + ":integrateWithAnnouncement " + e.getMessage());
 					}
 				}
 
@@ -4860,7 +4918,7 @@ public class AssignmentAction extends PagedResourceActionII
 							catch (Exception exception)
 							{
 								// log
-								Log.warn("chef", exception.getMessage());
+								M_log.warn(this + ":integrateWithAnnouncement " + exception.getMessage());
 							}
 						}
 						else
@@ -4888,13 +4946,13 @@ public class AssignmentAction extends PagedResourceActionII
 						catch (Exception ignore)
 						{
 							// ignore the exception
-							Log.warn("chef", rb.getString("cannotfin2") + ref);
+							M_log.warn(this + ":IntegrateWithAnnouncement " + rb.getString("cannotfin2") + ref);
 						}
 	
 					}
 					catch (PermissionException ee)
 					{
-						Log.warn("chef", rb.getString("cannotmak"));
+						M_log.warn(this + ":IntegrateWithAnnouncement " + rb.getString("cannotmak"));
 					}
 				}
 			}
@@ -4923,11 +4981,11 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (IdUnusedException ee)
 					{
-						Log.warn("chef", "The old event has been deleted: event id=" + oldEventId + ". ");
+						M_log.warn(this + ":integrateWithCalender The old event has been deleted: event id=" + oldEventId + ". ");
 					}
 					catch (PermissionException ee)
 					{
-						Log.warn("chef", "You do not have the permission to view the schedule event id= "
+						M_log.warn(this + ":integrateWithCalender You do not have the permission to view the schedule event id= "
 								+ oldEventId + ".");
 					}
 				}
@@ -4966,15 +5024,15 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (PermissionException ee)
 					{
-						Log.warn("chef", rb.getString("cannotrem") + " " + title + ". ");
+						M_log.warn(this + ":integrateWithCalender " + rb.getString("cannotrem") + " " + title + ". ");
 					}
 					catch (InUseException ee)
 					{
-						Log.warn("chef", rb.getString("somelsis") + " " + rb.getString("calen"));
+						M_log.warn(this + ":integrateWithCalender " + rb.getString("somelsis") + " " + rb.getString("calen"));
 					}
 					catch (IdUnusedException ee)
 					{
-						Log.warn("chef", rb.getString("cannotfin6") + e.getId());
+						M_log.warn(this + ":integrateWithCalender " + rb.getString("cannotfin6") + e.getId());
 					}
 				}
 			}
@@ -5033,15 +5091,15 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (IdUnusedException ee)
 					{
-						Log.warn("chef", ee.getMessage());
+						M_log.warn(this + ":integrateWithCalender " + ee.getMessage());
 					}
 					catch (PermissionException ee)
 					{
-						Log.warn("chef", rb.getString("cannotfin1"));
+						M_log.warn(this + ":integrateWithCalender " + rb.getString("cannotfin1"));
 					}
 					catch (Exception ee)
 					{
-						Log.warn("chef", ee.getMessage());
+						M_log.warn(this + ":integrateWithCalender " + ee.getMessage());
 					}
 					// try-catch
 
@@ -5051,7 +5109,7 @@ public class AssignmentAction extends PagedResourceActionII
 				catch (Exception ignore)
 				{
 					// ignore the exception
-					Log.warn("chef", rb.getString("cannotfin2") + ref);
+					M_log.warn(this + ":integrateWithCalender " + rb.getString("cannotfin2") + ref);
 				}
 			} // if
 		}
@@ -5098,6 +5156,7 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot1"));
+			M_log.warn(this + ":commitAssignmentEdit " + rb.getString("youarenot1") + e.getMessage());
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -5167,6 +5226,7 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (NumberFormatException e)
 			{
 				alertInvalidPoint(state, gradePoints);
+				M_log.warn(this + ":commitAssignmentContentEdit " + e.getMessage());
 			}
 		}
 		ac.setGroupProject(true);
@@ -5252,6 +5312,7 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (PermissionException e)
 			{
 				addAlert(state, rb.getString("youarenot1"));
+				M_log.warn(this + ":getAssignmentEdit " + e.getMessage());
 			}
 		}
 		else
@@ -5264,14 +5325,17 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (InUseException e)
 			{
 				addAlert(state, rb.getString("theassicon"));
+				M_log.warn(this + ":getAssignmentEdit " + e.getMessage());
 			}
 			catch (IdUnusedException e)
 			{
 				addAlert(state, rb.getString("cannotfin3"));
+				M_log.warn(this + ":getAssignmentEdit " + e.getMessage());
 			}
 			catch (PermissionException e)
 			{
 				addAlert(state, rb.getString("youarenot14"));
+				M_log.warn(this + ":getAssignmentEdit " + e.getMessage());
 			} // try-catch
 		} // if-else
 		return a;
@@ -5290,6 +5354,7 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (PermissionException e)
 			{
 				addAlert(state, rb.getString("youarenot3"));
+				M_log.warn(this + ":getAssignmentContentEdit " + e.getMessage());
 			}
 		}
 		else
@@ -5302,14 +5367,17 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (InUseException e)
 			{
 				addAlert(state, rb.getString("theassicon"));
+				M_log.warn(this + ":getAssignmentContentEdit " + e.getMessage());
 			}
 			catch (IdUnusedException e)
 			{
 				addAlert(state, rb.getString("cannotfin4"));
+				M_log.warn(this + ":getAssignmentContentEdit " + e.getMessage());
 			}
 			catch (PermissionException e)
 			{
 				addAlert(state, rb.getString("youarenot15"));
+				M_log.warn(this + ":getAssignmentContentEdit " + e.getMessage());
 			}
 
 		}
@@ -5461,10 +5529,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin3"));
+			M_log.warn(this + ":getViewAssignment " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot14"));
+			M_log.warn(this + ":getViewAssignment " + e.getMessage());
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -5689,10 +5759,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin3"));
+			M_log.warn(this + ":getEditAssignment " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot14"));
+			M_log.warn(this + ":getEditAssignment " + e.getMessage());
 		}
 
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT);
@@ -5782,6 +5854,8 @@ public class AssignmentAction extends PagedResourceActionII
 							catch (Exception eee)
 							{
 								addAlert(state, rb.getString("youarenot11_s") + " " + s.getReference() + ". ");
+
+								M_log.warn(this + ":doDelete_assignment " + eee.getMessage());
 							}
 						}
 					}
@@ -5794,6 +5868,7 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (Exception eee)
 					{
 						addAlert(state, rb.getString("youarenot11_c") + " " + aEdit.getContentReference() + ". ");
+						M_log.warn(this + ":doDelete_assignment " + eee.getMessage());
 					}
 					
 					try
@@ -5804,6 +5879,7 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (Exception ee)
 					{
 						addAlert(state, rb.getString("youarenot11") + " " + aEdit.getTitle() + ". ");
+						M_log.warn(this + ":doDelete_assignment " + ee.getMessage());
 					}
 
 				}
@@ -5821,6 +5897,7 @@ public class AssignmentAction extends PagedResourceActionII
 						catch (Exception ee)
 						{
 							addAlert(state, rb.getString("youarenot11_c") + " " + aEdit.getContentReference() + ". ");
+							M_log.warn(this + ":doDelete_assignment " + ee.getMessage());
 						}
 						
 						try
@@ -5844,6 +5921,7 @@ public class AssignmentAction extends PagedResourceActionII
 						catch (PermissionException ee)
 						{
 							addAlert(state, rb.getString("youarenot11") + " " + aEdit.getTitle() + ". ");
+							M_log.warn(this + ":doDelete_assignment " + ee.getMessage());
 						}
 					}
 					else
@@ -5861,14 +5939,17 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (InUseException e)
 			{
 				addAlert(state, rb.getString("somelsis") + " " + rb.getString("assig2"));
+				M_log.warn(this + ":doDelete_assignment " + e.getMessage());
 			}
 			catch (IdUnusedException e)
 			{
 				addAlert(state, rb.getString("cannotfin3"));
+				M_log.warn(this + ":doDelete_assignment " + e.getMessage());
 			}
 			catch (PermissionException e)
 			{
 				addAlert(state, rb.getString("youarenot6"));
+				M_log.warn(this + ":doDelete_assignment " + e.getMessage());
 			}
 		} // for
 
@@ -5905,9 +5986,11 @@ public class AssignmentAction extends PagedResourceActionII
 				catch (IdUnusedException ee)
 				{
 					// no action needed for this condition
+					M_log.warn(this + ":removeCalendarEvent " + ee.getMessage());
 				}
 				catch (PermissionException ee)
 				{
+					M_log.warn(this + ":removeCalendarEvent " + ee.getMessage());
 				}
 			}
 			else
@@ -5938,15 +6021,15 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (PermissionException ee)
 				{
-					Log.warn("chef", rb.getString("cannotrem") + " " + title + ". ");
+					M_log.warn(this + ":removeCalendarEvent " + rb.getString("cannotrem") + " " + title + ". ");
 				}
 				catch (InUseException ee)
 				{
-					Log.warn("chef", rb.getString("somelsis") + " " + rb.getString("calen"));
+					M_log.warn(this + ":removeCalendarEvent " + rb.getString("somelsis") + " " + rb.getString("calen"));
 				}
 				catch (IdUnusedException ee)
 				{
-					Log.warn("chef", rb.getString("cannotfin6") + e.getId());
+					M_log.warn(this + ":removeCalendarEvent " + rb.getString("cannotfin6") + e.getId());
 				}
 			}
 		}
@@ -5988,19 +6071,23 @@ public class AssignmentAction extends PagedResourceActionII
 				catch (PermissionException e)
 				{
 					addAlert(state, rb.getString("youarenot11") + " " + a.getTitle() + ". ");
+					M_log.warn(this + ":doDeep_delete_assignment " + e.getMessage());
 				}
 			}
 			catch (IdUnusedException e)
 			{
 				addAlert(state, rb.getString("cannotfin3"));
+				M_log.warn(this + ":doDeep_delete_assignment " + e.getMessage());
 			}
 			catch (PermissionException e)
 			{
 				addAlert(state, rb.getString("youarenot14"));
+				M_log.warn(this + ":doDeep_delete_assignment " + e.getMessage());
 			}
 			catch (InUseException e)
 			{
 				addAlert(state, rb.getString("somelsis") + " " +  rb.getString("assig2"));
+				M_log.warn(this + ":doDeep_delete_assignment " + e.getMessage());
 			}
 		}
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -6043,17 +6130,21 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (PermissionException e)
 			{
 				addAlert(state, rb.getString("youarenot5"));
+				M_log.warn(this + ":doDuplicate_assignment " + e.getMessage());
 			}
 			catch (IdInvalidException e)
 			{
 				addAlert(state, rb.getString("theassiid") + " " + assignmentId + " " + rb.getString("isnotval"));
+				M_log.warn(this + ":doDuplicate_assignment " + e.getMessage());
 			}
 			catch (IdUnusedException e)
 			{
 				addAlert(state, rb.getString("theassiid") + " " + assignmentId + " " + rb.getString("hasnotbee"));
+				M_log.warn(this + ":doDuplicate_assignment " + e.getMessage());
 			}
 			catch (Exception e)
 			{
+				M_log.warn(this + ":doDuplicate_assignment " + e.getMessage());
 			}
 
 		}
@@ -6090,10 +6181,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin5"));
+			M_log.warn(this + ":doGrade_submission " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("not_allowed_to_view"));
+			M_log.warn(this + ":doGrade_submission " + e.getMessage());
 		}
 
 		try
@@ -6136,10 +6229,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin5"));
+			M_log.warn(this + ":doGrade_submission " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("not_allowed_to_view"));
+			M_log.warn(this + ":doGrade_submission " + e.getMessage());
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -6214,14 +6309,17 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin3"));
+			M_log.warn(this + ":doRelease_grades " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot14"));
+			M_log.warn(this + ":doRelease_grades " + e.getMessage());
 		}
 		catch (InUseException e)
 		{
 			addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
+			M_log.warn(this + ":doRelease_grades " + e.getMessage());
 		}
 
 	} // doRelease_grades
@@ -6293,10 +6391,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin3"));
+			M_log.warn(this + ":doGrade_assignment " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot14"));
+			M_log.warn(this + ":doGrade_assignment " + e.getMessage());
 		}
 	} // doGrade_assignment
 
@@ -6624,6 +6724,7 @@ public class AssignmentAction extends PagedResourceActionII
 								catch (NumberFormatException e)
 								{
 									alertInvalidPoint(state, grade);
+									M_log.warn(this + ":readGradeForm " + e.getMessage());
 								}
 							}
 							
@@ -6642,10 +6743,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin5"));
+			M_log.warn(this + ":readGradeForm " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("not_allowed_to_view"));
+			M_log.warn(this + ":readGradeForm " + e.getMessage());
 		}
 		
 		// allow resubmit number and due time
@@ -6779,18 +6882,19 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 						catch (IdUnusedException e)
 						{
-							Log.info("chef", "No calendar found for site " + siteId);
 							state.removeAttribute(CALENDAR);
+							M_log.warn(this + ":initState No calendar found for site " + siteId + e.getMessage());
 						}
 						catch (PermissionException e)
 						{
-							Log.info("chef", "No permission to get the calender. ");
 							state.removeAttribute(CALENDAR);
+							M_log.warn(this + ":initState No permission to get the calender. " + e.getMessage());
 						}
 						catch (Exception ex)
 						{
-							Log.info("chef", "Assignment : Action : init state : calendar exception : " + ex);
 							state.removeAttribute(CALENDAR);
+							M_log.warn(this + ":initState Assignment : Action : init state : calendar exception : " + ex.getMessage());
+							
 						}
 					}
 				}
@@ -6828,16 +6932,16 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 							catch (IdUnusedException e)
 							{
-								Log.warn("chef", "No announcement channel found. ");
+								M_log.warn(this + ":initState No announcement channel found. " + e.getMessage());
 								state.removeAttribute(ANNOUNCEMENT_CHANNEL);
 							}
 							catch (PermissionException e)
 							{
-								Log.warn("chef", "No permission to annoucement channel. ");
+								M_log.warn(this + ":initState No permission to annoucement channel. " + e.getMessage());
 							}
 							catch (Exception ex)
 							{
-								Log.warn("chef", "Assignment : Action : init state : calendar exception : " + ex);
+								M_log.warn(this + ":initState Assignment : Action : init state : calendar exception : " + ex.getMessage());
 							}
 						}
 					}
@@ -6974,7 +7078,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			Log.info("chef", this + e.getMessage() + siteId);
+			M_log.warn(this + "siteHasTool" + e.getMessage() + siteId);
 		}
 		return rv;
 	}
@@ -7488,6 +7592,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (Exception ignore)
 				{
+					M_log.warn(this + ":getAssignmentRange" + ignore.getMessage());
 				}
 			}
 
@@ -7685,10 +7790,12 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (IdUnusedException e)
 				{
+					M_log.warn(this + ":AssignmentComparator compare" + e.getMessage());
 					return 1;
 				}
 				catch (PermissionException e)
 				{
+					M_log.warn(this + ":AssignmentComparator compare" + e.getMessage());
 					return 1;
 				}
 			}
@@ -7714,10 +7821,12 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (IdUnusedException e)
 				{
+					M_log.warn(this + ":AssignmentComparator compare" + e.getMessage());
 					return 1;
 				}
 				catch (PermissionException e)
 				{
+					M_log.warn(this + ":AssignmentComparator compare" + e.getMessage());
 					return 1;
 				}
 			}
@@ -7735,6 +7844,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (NumberFormatException e)
 				{
+					M_log.warn(this + ":AssignmentComparator compare" + e.getMessage());
 					// otherwise do an alpha-compare
 					result = compareString(maxGrade1, maxGrade2);
 				}
@@ -8149,6 +8259,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (NumberFormatException e)
 				{
+					M_log.warn(this + ":AssignmentComparator compare" + e.getMessage());
 					// otherwise do an alpha-compare
 					result = maxGrade1.compareTo(maxGrade2);
 				}
@@ -8203,6 +8314,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// in case either grade1 or grade2 cannot be parsed as Double
 				result = compareString(grade1, grade2);
+				M_log.warn(this + ":AssignmentComparator compareDouble " + formatException.getMessage());
 			}
 			return result;
 		} // compareDouble
@@ -8437,10 +8549,12 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (IdUnusedException e)
 					{
 						addAlert(state, rb.getString("cannotfin3"));
+						M_log.warn(this + ":sizeResources " + e.getMessage());
 					}
 					catch (PermissionException e)
 					{
 						addAlert(state, rb.getString("youarenot14"));
+						M_log.warn(this + ":sizeResources " + e.getMessage());
 					}
 				}
 			}
@@ -8500,6 +8614,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (Exception e)
 					{
+						M_log.warn(this + ":sizeResources " + e.getMessage());
 					}
 				}
 			}
@@ -8542,7 +8657,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (Exception e)
 					{
-						Log.warn("chef", e.getMessage() + " groupId=" + allOrOneGroup);
+						M_log.warn(this + "sizeResources " + e.getMessage() + " groupId=" + allOrOneGroup);
 					}
 				}
 
@@ -8618,7 +8733,7 @@ public class AssignmentAction extends PagedResourceActionII
 									}
 									catch (Exception e)
 									{
-										Log.warn("chef", this + e.toString() + " here userId = " + userId);
+										M_log.warn(this + ":sizeResources " + e.getMessage() + " userId = " + userId);
 									}
 									
 									// add userId into set to prevent showing user multiple times
@@ -8629,7 +8744,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 						catch (Exception eee)
 						{
-							Log.warn("chef", eee.getMessage() + " authGroupId=" + authzGroupRef);
+							M_log.warn(this + ":sizeResources " + eee.getMessage() + " authGroupId=" + authzGroupRef);
 						}
 					}
 				}
@@ -8637,10 +8752,12 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
+				M_log.warn(this + ":sizeResources " + e.getMessage());
 				addAlert(state, rb.getString("cannotfin3"));
 			}
 			catch (PermissionException e)
 			{
+				M_log.warn(this + ":sizeResources " + e.getMessage());
 				addAlert(state, rb.getString("youarenot14"));
 			}
 
@@ -8774,6 +8891,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 							catch (NumberFormatException e)
 							{
+								M_log.warn(this + ":validPointGrade " + e.getMessage());
 								alertInvalidPoint(state, gradeString);
 							}
 						}
@@ -8794,6 +8912,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (NumberFormatException e)
 					{
+						M_log.warn(this + ":validPointGrade " + e.getMessage());
 						alertInvalidPoint(state, gradeString);
 					}
 				}
@@ -8884,6 +9003,7 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (NumberFormatException e)
 					{
 						alertInvalidPoint(state, grade);
+						M_log.warn(this + ":displayGrade " + e.getMessage());
 					}
 				}
 			}
@@ -8969,7 +9089,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", this + ": ", e);
+			M_log.warn(this + ":processFormattedTextFromBrowser " + e.getMessage());
 			return strFromBrowser;
 		}
 	}
@@ -9267,6 +9387,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (NumberFormatException e)
 					{
+						M_log.warn(this + ":setDefaultNotGradedNonElectronicScore " + e.getMessage());
 						alertInvalidPoint(state, grade);
 					}
 				}
@@ -9301,8 +9422,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", e.toString());
-		
+			M_log.warn(this + ":setDefaultNOtGradedNonElectronicScore " + e.getMessage());
 		}
 		
 		
@@ -9359,6 +9479,7 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (NumberFormatException e)
 					{
 						alertInvalidPoint(state, grade);
+						M_log.warn(this + ":setDefaultNoSubmissionScore " + e.getMessage());
 					}
 				}
 				
@@ -9437,8 +9558,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", e.toString());
-		
+			M_log.warn(this + ":setDefaultNoSubmissionScore " + e.getMessage());
 		}
 		
 		
@@ -9559,7 +9679,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", e.toString());
+				M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
 			}
 			
 			// see if the user uploaded a file
@@ -9579,6 +9699,7 @@ public class AssignmentAction extends PagedResourceActionII
 				// in the properties file, use 1 MB as a default
 				max_file_size_mb = "1";
 				max_bytes = 1024 * 1024;
+				M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
 			}
 			
 			if(fileFromUpload == null)
@@ -9659,7 +9780,7 @@ public class AssignmentAction extends PagedResourceActionII
 									        		}
 									        		catch (Exception e )
 									        		{
-									        			Log.warn("chef", e.toString());
+									        			M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
 									        		}
 								        		}
 								        }
@@ -9764,7 +9885,7 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						// uploaded file is not a valid archive
 						addAlert(state, rb.getString("uploadall.alert.zipFile"));
-						
+						M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
 					}
 				}
 			}
@@ -9882,7 +10003,7 @@ public class AssignmentAction extends PagedResourceActionII
 								}
 								catch (Exception ee)
 								{
-									Log.debug("chef", ee.toString());
+									M_log.warn(this + ":doUpload_all_upload " + ee.getMessage());
 								}
 							}
 						}	
@@ -9953,7 +10074,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception ee)
 		{
-			Log.warn("chef", ee.toString());
+			M_log.warn(this + ":doUploadZipAttachments " + ee.getMessage());
 		}
 	}
 
@@ -9966,7 +10087,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IOException e)
 		{
-			Log.debug("chef", this + " " + e.toString());
+			M_log.warn(this + ":getBodyTextFromZipHtml " + e.getMessage());
 		}
 		if (rv != null)
 		{
@@ -10031,7 +10152,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (IOException e)
 			{
-				Log.debug("chef", "readIntoString " + e.toString());
+				M_log.warn(this + ":readIntoString " + e.getMessage());
 			}
          }
 		return buffer.toString();

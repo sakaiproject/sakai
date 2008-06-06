@@ -495,6 +495,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 				{
 					// ignore
 					decodedRText = rText;
+					log.warn(this + ":combine " + ignore.getMessage());
 				}
 			}
 			
@@ -517,6 +518,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 						catch (UnsupportedEncodingException e)
 						{
 							decodedText = text;
+							log.warn(this + ":combine " + e.getMessage());
 						}
 					}
 					
@@ -533,6 +535,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 							catch (java.io.UnsupportedEncodingException e)
 							{
 								// ignore
+								log.warn(this + ":combine 2 " + e.getMessage());
 							}
 						}
 						else
@@ -627,6 +630,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 		catch (Exception e)
 		{
 			// ignore
+			log.warn(this + ":getIntegerObject " + e.getMessage());
 		}
 		return rv;
 	}

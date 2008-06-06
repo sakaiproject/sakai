@@ -538,6 +538,7 @@ public class DbAssignmentService extends BaseAssignmentService
 					}
 					catch (SQLException ignore)
 					{
+						M_log.warn(this + ":convertToContext " + ignore.getMessage());
 						return null;
 					}
 				}
@@ -582,6 +583,7 @@ public class DbAssignmentService extends BaseAssignmentService
 					}
 					catch (SQLException ignore)
 					{
+						M_log.warn(this + ":convertToContext SqlReader " + ignore.getMessage());
 						return null;
 					}
 				}
@@ -626,6 +628,7 @@ public class DbAssignmentService extends BaseAssignmentService
 					}
 					catch (SQLException ignore)
 					{
+						M_log.warn(this + ":convertToContext:SqlReader " + ignore.getMessage());
 						return null;
 					}
 				}
