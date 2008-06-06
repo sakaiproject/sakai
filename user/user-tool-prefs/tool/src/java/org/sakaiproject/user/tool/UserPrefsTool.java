@@ -24,9 +24,11 @@ package org.sakaiproject.user.tool;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -781,42 +783,9 @@ public class UserPrefsTool
 	public String processActionMoveUp()
 	{
 		LOG.debug("processActionMoveUp()");
-		tabUpdated = false; // reset successful text message if existing in jsp
-		String[] selvalues = getSelectedOrderItems();
-		if (!(selvalues.length == 1))
-		{
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(msgs.getString("move_up_msg")));
-			return m_TabOutcome;
-		}
-		int itmPos = 0;
-		SelectItem swapData = null;
-		Iterator iterUp = getPrefOrderItems().iterator();
-		while (iterUp.hasNext())
-		{
-			SelectItem dataUpSite = (SelectItem) iterUp.next();
-			if (selectedOrderItems[0].equals(dataUpSite.getValue()))
-			{
-				break;
-			}
-			else
-			{
-				swapData = dataUpSite;
-			}
-			itmPos++;
-		}
-		// Swap the position
-		if (swapData != null)
-		{
-			if (itmPos >= 1 && (itmPos + 1 <= prefOrderItems.size()))
-			{
-				SelectItem temp = (SelectItem) prefOrderItems.get(itmPos - 1);
-				prefOrderItems.set(itmPos - 1, prefOrderItems.get(itmPos));
-				prefOrderItems.set(itmPos, temp);
-			}
-		}
-		return m_TabOutcome;
+		return doSiteMove(true, false); //moveUp = true, absolute = false
 	}
-
+	
 	/**
 	 * Move down the selected item in Ordered List
 	 * 
@@ -825,37 +794,73 @@ public class UserPrefsTool
 	public String processActionMoveDown()
 	{
 		LOG.debug("processActionMoveDown()");
-		tabUpdated = false; // reset successful text message if existing in jsp
-		String[] values = getSelectedOrderItems();
-		if (!(values.length == 1))
-		{
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(msgs.getString("move_down_msg")));
-			return m_TabOutcome;
-		}
-		SelectItem swapDataSite = null;
-		int elemPos = 0;
-		Iterator iter = getPrefOrderItems().iterator();
-		while (iter.hasNext())
-		{
-			elemPos++;
-			SelectItem dataSite = (SelectItem) iter.next();
-			if (selectedOrderItems[0].equals(dataSite.getValue()))
-			{
-				if (iter.hasNext()) swapDataSite = (SelectItem) iter.next();
-				break;
+		return doSiteMove(false, false); //moveUp = false, absolute = false
+	}
+
+	public String processActionMoveTop()
+	{
+		LOG.debug("processActionMoveTop()");
+		return doSiteMove(true, true); //moveUp = true, absolute = true
+	}
+	
+	public String processActionMoveBottom()
+	{
+		LOG.debug("processActionMoveBottom()");
+		return doSiteMove(false, true); //moveUp = false, absolute = true
+	}
+	
+	private String doSiteMove(boolean moveUp, boolean absolute) {
+		tabUpdated = false;
+		Set<String> selected   = new HashSet(Arrays.asList(getSelectedOrderItems()));
+		List<SelectItem> toMove = new ArrayList<SelectItem>();
+		
+		//Prune bad selections and split lists if moving absolutely
+		for (Iterator i = prefOrderItems.iterator(); i.hasNext(); ) {
+			SelectItem item = (SelectItem) i.next();
+			if (selected.contains(item.getValue())) {
+				toMove.add(item);
+				if (absolute)
+					i.remove();
 			}
 		}
-		// swap the position - elemPos is the final moving position
-		if (swapDataSite != null)
-		{
-			if (elemPos >= 1 && (elemPos < prefOrderItems.size()))
-			{
-				SelectItem temp = (SelectItem) prefOrderItems.get(elemPos);
-				prefOrderItems.set(elemPos, prefOrderItems.get(elemPos - 1));
-				prefOrderItems.set(elemPos - 1, temp);
+
+		if (toMove.size() == 0) {
+			String message = msgs.getString(moveUp ? "move_up_msg" : "move_down_msg");
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(message));
+		}
+		else {
+			if (absolute) {
+				//Move the selected list, in order to the right spot.
+				if (moveUp)
+					prefOrderItems.addAll(0, toMove);
+				else
+					prefOrderItems.addAll(toMove);
+			}
+			else {
+				//Iterate in the right direction
+				int start = 0;
+				int interval = 1;
+				int end = prefOrderItems.size() - 1;
+				
+				if (!moveUp) {
+					start = prefOrderItems.size() - 1;
+					interval = -1;
+					end = 0;
+				}
+				
+				for (int i = start; i != end; i += interval) {
+					SelectItem cur  = (SelectItem) prefOrderItems.get(i);
+					SelectItem next = (SelectItem) prefOrderItems.get(i + interval);
+					if (toMove.contains(next) && !toMove.contains(cur)) {
+						prefOrderItems.set(i, next);
+						prefOrderItems.set(i + interval, cur);
+						toMove.remove(next);
+					}
+				}
 			}
 		}
 		return m_TabOutcome;
+		
 	}
 
 	/**
