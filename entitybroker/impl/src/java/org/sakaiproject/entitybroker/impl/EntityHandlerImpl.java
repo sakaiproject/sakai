@@ -1102,7 +1102,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             StringBuilder sb = new StringBuilder();
             // make header
             if (Formats.JSON.equals(format)) {
-               sb.append("{\""+ENTITY_PREFIX+"\": "+ref.getPrefix() + ", \"" + ref.getPrefix() + COLLECTION + "\": [\n");
+               sb.append("{\""+ENTITY_PREFIX+"\": \""+ref.getPrefix() + "\", \"" + ref.getPrefix() + COLLECTION + "\": [\n");
             } else { // assume XML
                sb.append("<" + ref.getPrefix() + COLLECTION + " " + ENTITY_PREFIX + "=\"" + ref.getPrefix() + "\">\n");
             }
