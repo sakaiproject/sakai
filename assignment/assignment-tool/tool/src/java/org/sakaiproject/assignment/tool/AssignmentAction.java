@@ -697,12 +697,10 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException iue) {
 			M_log.warn(this + ":buildMainPanelContext: Site not found!" + iue.getMessage());
 		}
+		
+		// Check whether content review service is enabled, present and enabled for this site
 		getContentReviewService();
-		if (allowReviewService && contentReviewService.isSiteAcceptable(s)) {
-			context.put("allowReviewService", allowReviewService);
-		} else {
-			context.put("allowReviewService", false);
-		}
+		context.put("allowReviewService", allowReviewService && contentReviewService != null && contentReviewService.isSiteAcceptable(s));
 
 		// grading option
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
