@@ -45,6 +45,16 @@ public interface SectionFieldProvider {
 	 * @return
 	 */
 	public String getSectionEid(String academicSessionEid, List<SectionField> fields);
+	
+	/**
+	 * Generates a Section title from a list of fields. 
+	 * This title will be used ONLY if the section cannot be find from CourseManagementService
+	 * otherwise, the title given by CourseManagementService will be used for the section
+	 * @param academicSessionEid
+	 * @param fields
+	 * @return
+	 */
+	public String getSectionTitle(String academicSessionEid, List<SectionField> fields);
 
 	/**
 	 * Gets the List of SectionFields to use in the UI.

@@ -58,8 +58,26 @@ public class SectionFieldProviderImpl implements SectionFieldProvider {
 		
 		ResourceLoader resourceLoader = new ResourceLoader("SectionFields");
 		String sectionEid = resourceLoader.getFormattedMessage("section_eid", values);
-		if(log.isDebugEnabled()) log.debug("Generated section eid = " + sectionEid);
+		if(log.isDebugEnabled()) log.debug(this + ":getSectionEid: Generated section eid = " + sectionEid);
 		return sectionEid;
+	}
+	
+	public String getSectionTitle(String academicSessionEid, List<SectionField> fields) {
+		if(fields == null || fields.isEmpty()) {
+			if(log.isDebugEnabled()) log.debug(this + ":getSectionTitle: Returning an empty section title for an empty (or null) list of fields");
+			return "";
+		}
+		
+		String rv = "";
+		
+		String[] values = new String[fields.size()+1];
+		for(int i = 0; i < fields.size(); i++) {
+			SectionField sf = fields.get(i);
+			rv += sf.getValue() + " ";
+		}
+		rv += academicSessionEid;
+		
+		return rv;
 	}
 
 	public void init() {

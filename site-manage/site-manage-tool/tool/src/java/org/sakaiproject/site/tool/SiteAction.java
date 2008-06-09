@@ -4318,11 +4318,12 @@ public class SiteAction extends PagedResourceActionII {
 			String sectionEid = sectionFieldProvider.getSectionEid(t.getEid(),
 					(List) multiCourseInputs.get(0));
 			// default title
-			String title = sectionEid;
+			String title = sectionFieldProvider.getSectionTitle(t.getEid(), (List) multiCourseInputs.get(0));
 			try {
 				title = cms.getSection(sectionEid).getTitle();
-			} catch (Exception e) {
-				// ignore
+			} catch (IdNotFoundException e) {
+				// cannot find section, use the default title 
+				M_log.warn(this + ":readCourseSectionInfo: cannot find section with eid=" + sectionEid);
 			}
 			siteInfo.title = title;
 		}
