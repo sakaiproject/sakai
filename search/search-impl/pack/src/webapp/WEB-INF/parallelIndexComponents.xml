@@ -256,6 +256,7 @@
 			<property name="managementOperation"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.concurrentSearchIndexBuilderWorkerImpl" /></property>
 			<property name="delay"><value>60000</value></property>
 			<property name="period"><value>10000</value></property>
+    		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
     </bean>
 	<bean 
     	class="org.sakaiproject.search.journal.impl.IndexManagementTimerTask" 
@@ -265,6 +266,7 @@
 			<property name="managementOperation"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.mergeUpdateOperation" /></property>
 			<property name="delay"><value>60000</value></property>
 			<property name="period"><value>100000</value></property>
+    		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
     </bean>
 	<bean 
     	class="org.sakaiproject.search.journal.impl.IndexManagementTimerTask" 
@@ -274,6 +276,7 @@
 			<property name="managementOperation"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.optimizeIndexOperation" /></property>
 			<property name="delay"><value>60000</value></property>
 			<property name="period"><value>100000</value></property>
+    		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
     </bean>
 	<bean 
     	class="org.sakaiproject.search.journal.impl.IndexManagementTimerTask" 
@@ -283,6 +286,7 @@
 			<property name="managementOperation"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.journalOptimizationOperation" /></property>
 			<property name="delay"><value>60000</value></property>
 			<property name="period"><value>10000</value></property>
+    		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
     </bean>
     <!--
      central storage beans 

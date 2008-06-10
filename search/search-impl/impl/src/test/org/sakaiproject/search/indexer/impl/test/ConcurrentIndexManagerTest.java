@@ -32,6 +32,8 @@ import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.impl.ConcurrentIndexManager;
 import org.sakaiproject.search.journal.impl.IndexManagementTimerTask;
 import org.sakaiproject.search.mock.MockSearchService;
+import org.sakaiproject.search.mock.MockThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * @author ieb
@@ -78,12 +80,14 @@ public class ConcurrentIndexManagerTest extends TestCase
 	 */
 	public final void testInit() throws InterruptedException
 	{
+		ThreadLocalManager threadLocalManager = new MockThreadLocalManager();
 		log.info("================================== "+this.getClass().getName()+".testInit");
 		ConcurrentIndexManager cim = new ConcurrentIndexManager();
 		List<IndexManagementTimerTask> limtt = new ArrayList<IndexManagementTimerTask>();
 		for (int i = 1; i < 11; i++)
 		{
 			IndexManagementTimerTask imtt = new IndexManagementTimerTask();
+			imtt.setThreadLocalManager(threadLocalManager);
 			imtt.setManagementOperation(new ManagementOperation()
 			{
 

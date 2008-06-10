@@ -288,6 +288,10 @@ public class SearchIndexerNode
 		IndexManagementTimerTask indexer = new IndexManagementTimerTask();
 		IndexManagementTimerTask merger = new IndexManagementTimerTask();
 		IndexManagementTimerTask optimizer = new IndexManagementTimerTask();
+		
+		indexer.setThreadLocalManager(threadLocalManager);
+		merger.setThreadLocalManager(threadLocalManager);
+		optimizer.setThreadLocalManager(threadLocalManager);
 
 		MockComponentManager componentManager = new MockComponentManager();
 		MockEventTrackingService eventTrackingService = new MockEventTrackingService();
@@ -323,6 +327,7 @@ public class SearchIndexerNode
 		optimizer.setPeriod(10000);
 
 		IndexManagementTimerTask docloader = new IndexManagementTimerTask();
+		docloader.setThreadLocalManager(threadLocalManager);
 		docloader.setDelay(5);
 		docloader.setPeriod(500);
 		docloader.setManagementOperation(new ManagementOperation()
@@ -415,6 +420,7 @@ public class SearchIndexerNode
 		journalOptimizationOperation.init();
 
 		IndexManagementTimerTask journalOptimizer = new IndexManagementTimerTask();
+		journalOptimizer.setThreadLocalManager(threadLocalManager);
 		journalOptimizer.setManagementOperation(journalOptimizationOperation);
 		journalOptimizer.setDelay(10);
 		journalOptimizer.setPeriod(1000);

@@ -26,6 +26,7 @@ import java.util.TimerTask;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.journal.api.ManagementOperation;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * A timer Task for a management operation in the search code
@@ -48,6 +49,8 @@ public class IndexManagementTimerTask extends TimerTask
 	private boolean closed = false;
 
 	private ConcurrentIndexManager manager;
+
+	private ThreadLocalManager threadLocalManager;
 
 	/**
 	 * 
@@ -132,7 +135,9 @@ public class IndexManagementTimerTask extends TimerTask
 		try
 		{
 			ConcurrentIndexManager.setRunning(managementOperation);
+			threadLocalManager.clear();
 			managementOperation.runOnce();
+			threadLocalManager.clear();
 		
 		}
 		catch (Throwable t)
@@ -175,6 +180,14 @@ public class IndexManagementTimerTask extends TimerTask
 	public void setClosed(boolean closed)
 	{
 		this.closed = closed;
+	}
+
+	public ThreadLocalManager getThreadLocalManager() {
+		return threadLocalManager;
+	}
+
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		this.threadLocalManager = threadLocalManager;
 	}
 
 
