@@ -576,7 +576,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable
             }
             else if ( tok.getValue().equals("_count") )
             {
-               if ( mRecords != null && mRecords.size() > 0)
+               if ( mRecords != null)
                {
                   oInfo.mElement = new Count(mRecords.size());
 

@@ -193,7 +193,8 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 			
 			if (log.isDebugEnabled()) {
 				log.debug("Processing " + callNumber);
-				log.debug("Sco: " + scoBean.getScoId());
+				if (scoBean != null)
+					log.debug("Sco: " + scoBean.getScoId());
 			}
 				
 			Object[] args = new Object[numArgs];
