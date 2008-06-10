@@ -323,7 +323,7 @@ public class EntityHandlerImplTest extends TestCase {
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
       assertTrue(fo.contains(TestData.PREFIX4));
-      assertTrue(fo.contains("\"id\": \"4-one\","));
+      assertTrue(fo.contains("\"id\":\"4-one\","));
       assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
 
       // HTML test valid resolveable entity
@@ -481,7 +481,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(json);
          assertTrue(json.length() > 20);
          assertTrue(json.contains(TestData.PREFIX4));
-         assertTrue(json.contains("\"id\": \"4-one\","));
+         assertTrue(json.contains("\"id\":\"4-one\","));
          assertTrue(json.contains(EntityXStream.SAKAI_ENTITY));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
