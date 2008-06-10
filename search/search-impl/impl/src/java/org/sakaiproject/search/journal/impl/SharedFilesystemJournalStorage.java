@@ -187,11 +187,14 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 			log.error("======================================= Lost Shared Segment ================= \n" +
 					"\t"+f[0] + "\n" +
 					"\tThe above file does not exist, this should not happen and should be investigated ");
-		}
-		FileInputStream source = new FileInputStream(f[0]);
-		FileUtils.unpack(source, ws);
+		} 
+		else 
+		{
+			FileInputStream source = new FileInputStream(f[0]);
+			FileUtils.unpack(source, ws);
 
-		source.close();
+			source.close();
+		}
 
 	}
 
