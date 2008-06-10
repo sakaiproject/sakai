@@ -112,7 +112,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		customProperties.add("dc_issued.http://purl.org/dc/terms/issued");
 		customProperties.add("Tdc_abstract.http://purl.org/dc/terms/abstract");
 		customProperties.add("Tdc_contributor.http://purl.org/dc/elements/1.1/contributor");
-
+		customProperties.add("tag.tag");
 	}
 
 	public void init()
@@ -624,7 +624,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			ContentResource contentResource;
 			contentResource = contentHostingService.getResource(reference.getId());
 
-			Map<String, String> cp = new HashMap<String, String>();
+			Map<String, String[]> cp = new HashMap<String, String[]>();
 			
 			
 			
@@ -633,11 +633,10 @@ public class ContentHostingContentProducer implements EntityContentProducer
 				String[] propKey = propname.split("\\.", 2);
 				if (propKey.length == 2)
 				{
-					String prop = contentResource.getProperties().getProperty(propKey[1]);
+					List<?> prop = contentResource.getProperties().getPropertyList(propKey[1]);
 					if (prop != null)
 					{
-						cp.put(propKey[0], prop);
-
+						cp.put(propKey[0], prop.toArray(new String[0]));
 					}
 				}
 			}
