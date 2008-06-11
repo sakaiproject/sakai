@@ -100,7 +100,7 @@
 			#end
 		#end
 		<input type="hidden" name="back" value="$!backIndex" />
-		<input type="hidden" name="templateIndex" value="$!templateIndex" />>
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continue" />
 		<div class="act">
 			<input type="button" name="Continue" 
