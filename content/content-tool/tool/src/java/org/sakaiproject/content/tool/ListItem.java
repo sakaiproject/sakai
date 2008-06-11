@@ -115,6 +115,18 @@ public class ListItem
 	/** A long representing the number of milliseconds in one week.  Used for date calculations */
 	public static final long ONE_WEEK = 7L * ONE_DAY;
 
+	/** 
+	 ** Comparator for sorting Group objects
+	 **/
+	private static class GroupComparator implements Comparator {
+		public int compare(Object o1, Object o2) {
+			return ((Group)o1).getTitle().compareToIgnoreCase( ((Group)o2).getTitle() );
+		}
+	}
+	
+	// sort groups before display
+	private static GroupComparator groupComparator = new GroupComparator();
+	
 	/**
 	 * @param entity
 	 * @param parent
@@ -722,7 +734,7 @@ public class ListItem
 		this.setCreatedTime(props.getPropertyFormatted(ResourceProperties.PROP_CREATION_DATE));
 		
 		Site site = null;
-		Collection<Group> site_groups = new ArrayList<Group>();
+		ArrayList<Group> site_groups = new ArrayList<Group>();
 		
 		String context = ToolManager.getCurrentPlacement().getContext();
 		site = getSiteObject(context);
@@ -743,6 +755,8 @@ public class ListItem
 					site_groups.add(gr);
 				}
 			}
+			
+			Collections.sort( site_groups, groupComparator );
 		}
 //		if(isOptionalPropertiesEnabled())
 //		{
