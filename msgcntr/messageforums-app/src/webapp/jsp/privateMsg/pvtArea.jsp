@@ -38,15 +38,15 @@
           <h:panelGrid columns="2" summary="layout" width="100%"  cellpadding="0" cellspacing="0"  styleClass="listHier" style="margin:0">
     	        <h:panelGroup   rendered="#{!topic.topic.mutable}">
    			       <h:graphicImage url="/images/dir_closed.gif" alt="" />
-					<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopic}" immediate="true" title=" #{topic.topic.title}"> 
+					<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopic}" immediate="true" title=" #{msgs[topic.topic.title]}"> 
     			        <h:outputText value="  " />    
-    			        <h:outputText value="#{topic.topic.title}" /> 
+    			        <h:outputText value="#{msgs[topic.topic.title]}" /> 
     			        <%-- <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/> --%>
     			        <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
     		        </h:commandLink>
     		        <h:outputText value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}" rendered="#{topic.totalNoMessages < 2}" styleClass="textPanelFooter"/>
 	    		      <h:outputText value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs}" rendered="#{topic.totalNoMessages > 1}" styleClass="textPanelFooter"/>
-    		        <h:outputText value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}" rendered="#{topic.topic.title == 'Received'}" styleClass="textPanelFooter"/>
+    		        <h:outputText value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}" rendered="#{topic.topic.title == 'pvt_received'}" styleClass="textPanelFooter"/>
     		        <h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
     	        </h:panelGroup>
     	        <h:panelGroup rendered="#{!topic.topic.mutable}"><h:outputText value=" " /></h:panelGroup>
@@ -60,7 +60,7 @@
 	    			      <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
 	    			    </h:commandLink>
 	    		      <h:outputText value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}" styleClass="textPanelFooter" />
-    		        <h:outputText value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}" rendered="#{topic.topic.title == 'Received' || topic.topic.title == 'Deleted'}" styleClass="textPanelFooter"/>
+    		        <h:outputText value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}" rendered="#{topic.topic.title == 'pvt_received' || topic.topic.title == 'pvt_deleted'}" styleClass="textPanelFooter"/>
     		        <h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
     	        </h:panelGroup>
     	        <h:panelGroup styleClass="itemAction msgNav" rendered="#{topic.topic.mutable}">

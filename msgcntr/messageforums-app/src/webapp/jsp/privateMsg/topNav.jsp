@@ -11,11 +11,11 @@
 			<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
 			<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			
-			<h:outputText value="#{PrivateMessagesTool.selectedTopic.topic.title}" rendered="#{PrivateMessagesTool.searchPvtMsgsEmpty}" />
+			<h:outputText value="#{msgs[PrivateMessagesTool.selectedTopic.topic.title]}" rendered="#{PrivateMessagesTool.searchPvtMsgsEmpty && (PrivateMessagesTool.selectedTopic.topic.title == 'pvt_received' || PrivateMessagesTool.selectedTopic.topic.title == 'pvt_sent' || PrivateMessagesTool.selectedTopic.topic.title == 'pvt_deleted') }" />
+			<h:outputText value="#{PrivateMessagesTool.selectedTopic.topic.title}" rendered="#{PrivateMessagesTool.searchPvtMsgsEmpty  && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted'}" />
 		
-			<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.selectedTopic.topic.title}" title=" #{msgs.cdfm_message_forums}"
-								rendered="#{! PrivateMessagesTool.searchPvtMsgsEmpty}" />
-			<h:outputText value=" " />
+			<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}" title=" #{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}" rendered="#{! PrivateMessagesTool.searchPvtMsgsEmpty}"/>
+			
 			<h:outputText value=" / " rendered="#{! PrivateMessagesTool.searchPvtMsgsEmpty}" />
 			<h:outputText value=" " />
 			

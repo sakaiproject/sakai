@@ -187,10 +187,10 @@ public class PrivateMessagesTool
   
   //need to modified to support internationalization by huxt
   /** portlet configuration parameter values**/
-  public static final String PVTMSG_MODE_RECEIVED = "Received";
-  public static final String PVTMSG_MODE_SENT = "Sent";
-  public static final String PVTMSG_MODE_DELETE = "Deleted";
-  public static final String PVTMSG_MODE_DRAFT = "Drafts";
+  public static final String PVTMSG_MODE_RECEIVED = "pvt_received";
+  public static final String PVTMSG_MODE_SENT = "pvt_sent";
+  public static final String PVTMSG_MODE_DELETE = "pvt_deleted";
+  public static final String PVTMSG_MODE_DRAFT = "pvt_drafts";
   public static final String PVTMSG_MODE_CASE = "Personal Folders";
   
   public static final String RECIPIANTS_ENTIRE_CLASS= "All Participants";
@@ -314,48 +314,6 @@ public class PrivateMessagesTool
   public PrivateMessagesTool()
   {    
   }
-
-  private String getLanguage(String navName)
-  {
-	  String Tmp= new String();
-	  Locale loc = null;
-	  //getLocale( String userId )
-	  ResourceLoader rl = new ResourceLoader();
-	  loc = rl.getLocale();//( userId);//SessionManager.getCurrentSessionUserId() );
-	 
-	  List topicsbyLocalization= new ArrayList();// only three folder supported, if need more, please modifify here
-	 
-	  String local_received=getResourceBundleString("pvt_received");
-	  String local_sent = getResourceBundleString("pvt_sent");
-	  String local_deleted= getResourceBundleString("pvt_deleted");
-	  
-	  String current_NAV= getResourceBundleString("pvt_message_nav");
-	  
-	  topicsbyLocalization.add(local_received);
-  	  topicsbyLocalization.add(local_sent);
-      topicsbyLocalization.add(local_deleted);
-	  
-	  String localLanguage=loc.getLanguage();
-	  
-	  if(navName.equals("Received")||navName.equals("Sent")||navName.equals("Deleted"))
-		  {
-		  Tmp = "en";
-			  }
-	  else if(navName.equals("Recibidos")||navName.equals("Enviados")||navName.equals("Borrados"))
-	  {
-		  
-		  Tmp ="es";
-		  
-	  }
-	  
-	  
-	  else//english language
-	  {		  
-		  Tmp="en";		  
-	  }
-    	
-	  return Tmp;	  
-  }
   
   /**
    * @return
@@ -402,22 +360,7 @@ public class PrivateMessagesTool
   public void initializePrivateMessageArea()
   {           
     /** get area per request */
-//===huxt bgein
-	  
-	  /** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
-		String APPLICATION_ID = "sakai:resourceloader";
-
-		/** Preferences key for user's regional language locale */
-		String LOCALE_KEY = "locale";
-
-  
-	  Locale loc = null;
-	  //getLocale( String userId )
-	  ResourceLoader rl = new ResourceLoader();
-	  loc = rl.getLocale();//( userId);//SessionManager.getCurrentSessionUserId() );
-	  
-	
-    area = prtMsgManager.getPrivateMessageArea();
+	area = prtMsgManager.getPrivateMessageArea();
     
     
     if (! area.getEnabled() && isMessages()) {
@@ -483,27 +426,7 @@ public class PrivateMessagesTool
       PrivateForumDecoratedBean decoratedForum = new PrivateForumDecoratedBean(getForum()) ;
       
       
-      /** only load topics/counts if area is enabled */
-      
-       	  Locale loc = null;
-    	
-    	  ResourceLoader rl = new ResourceLoader();
-    	  loc = rl.getLocale();//( userId);//SessionManager.getCurrentSessionUserId() );
-    	    	  
-    	  List topicsbyLocalization= new ArrayList();// only three folder supported, if need more, please modifify here
-    	  
-    	  String local_received=getResourceBundleString("pvt_received");
-    	  String local_sent = getResourceBundleString("pvt_sent");
-    	  String local_deleted= getResourceBundleString("pvt_deleted");
-    	  
-    	  String current_NAV= getResourceBundleString("pvt_message_nav");
-    	  
-    	  topicsbyLocalization.add(local_received);
-	  	  topicsbyLocalization.add(local_sent);
-	      topicsbyLocalization.add(local_deleted);
-    	  
-    	  String localLanguage=loc.getLanguage();
-	    	
+      /** only load topics/counts if area is enabled */	    	
     	  
       if (getPvtAreaEnabled()){  
     	  
@@ -527,19 +450,9 @@ public class PrivateMessagesTool
           	
             PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
            
-            String typeUuid="";  // folder uuid
-            if(getLanguage(CurrentTopicTitle).toString().equals(getLanguage(current_NAV).toString()))
-            {
-             typeUuid = getPrivateMessageTypeFromContext(topicsbyLocalization.get(countForFolderNum).toString());
-            
-            
-            }
-            else
-            {
-            	
-             typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
-                              	
-            }
+            // folder uuid
+            String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
+             
             countForFolderNum++;
             
             decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid, aggregateList));
@@ -588,18 +501,6 @@ public class PrivateMessagesTool
   	    solution -- only call during render_response phase
   	    8/29/07 JLR - if coming from the synoptic tool, we need to process
   	*/
-
-	  /** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
-		String APPLICATION_ID = "sakai:resourceloader";
-
-		/** Preferences key for user's regional language locale */
-		String LOCALE_KEY = "locale";
-
-		Locale loc = null;
-	  //getLocale( String userId )
-		ResourceLoader rl = new ResourceLoader();
-		loc=rl.getLocale();//===country = "US"  language="en"
-	
 	  
   	if (!FacesContext.getCurrentInstance().getRenderResponse() && !viewChanged &&
   			getExternalParameterByKey(EXTERNAL_WHICH_TOPIC) == null) { 
@@ -624,8 +525,6 @@ public class PrivateMessagesTool
   	String typeUuid;
   	
    	typeUuid = getPrivateMessageTypeFromContext(msgNavMode);//=======Recibidios by huxt
-   	
-    String current_NAV= getResourceBundleString("pvt_message_nav");
 
   	/** support for sorting */
   	/* if the view was changed to "All Messages", we want to retain the previous
@@ -2882,13 +2781,13 @@ private   int   getNum(char letter,   String   a)
         prtMsgManager.deletePrivateMessage(element, getPrivateMessageTypeFromContext(msgNavMode)) ;        
       }      
       
-      if ("Deleted".equals(msgNavMode))
+      if ("pvt_deleted".equals(msgNavMode))
     	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_REMOVE, getEventMessage((Message) element), false));
     }
     
     if (deleted)
     {
-    	if ("Deleted".equals(msgNavMode))
+    	if ("pvt_deleted".equals(msgNavMode))
     		multiDeleteSuccessMsg = getResourceBundleString(PERM_DELETE_SUCCESS_MSG);
     	else
     		multiDeleteSuccessMsg = getResourceBundleString(MULTIDELETE_SUCCESS_MSG);
@@ -4134,59 +4033,17 @@ private   int   getNum(char letter,   String   a)
     return returnSet;    
   }
       
-  private String getPrivateMessageTypeFromContext(String navMode){
-	 
-      Locale loc = null;
-    	  //getLocale( String userId )
-     ResourceLoader rl = new ResourceLoader();
-     loc = rl.getLocale();//( userId);//SessionManager.getCurrentSessionUserId() );
-    
-	  List topicsbyLocalization= new ArrayList();// only three folder supported, if need more, please modifify here
-	 
-
-	  String local_received=getResourceBundleString("pvt_received");
-	  String local_sent = getResourceBundleString("pvt_sent");
-	  String local_deleted= getResourceBundleString("pvt_deleted");
-	
-	  
-	  String current_NAV= getResourceBundleString("pvt_message_nav");
-	  
-	  topicsbyLocalization.add(local_received);
-  	  topicsbyLocalization.add(local_sent);
-      topicsbyLocalization.add(local_deleted);
-	  
-		  
-	  
-	 
-    
-      String stringCurrentTopicTitle=new String();
-      stringCurrentTopicTitle=navMode;//most important
-      
-      String current_NAV2= getResourceBundleString("pvt_message_nav");
-      String typeUuid="";  // folder uuid
-   
-    
-    //need to add more dictionary to support more language
-    if (((String) topicsbyLocalization.get(0)).equalsIgnoreCase(navMode)||"Recibidos".equalsIgnoreCase(navMode)||"Received".equalsIgnoreCase(navMode)){
-      return typeManager.getReceivedPrivateMessageType();
-    }
-    else if (((String) topicsbyLocalization.get(1)).equalsIgnoreCase(navMode)||"Enviados".equalsIgnoreCase(navMode)||"Sent".equalsIgnoreCase(navMode)){
-      return typeManager.getSentPrivateMessageType();
-    }
-    else if (((String) topicsbyLocalization.get(2)).equalsIgnoreCase(navMode)||"Borrados".equalsIgnoreCase(navMode)||"Deleted".equalsIgnoreCase(navMode)){
-      return typeManager.getDeletedPrivateMessageType(); 
-    }
-    else if (PVTMSG_MODE_DRAFT.equalsIgnoreCase(navMode)){
-      return typeManager.getDraftPrivateMessageType();
-    }
-    else{
-      return typeManager.getCustomTopicType(navMode);
-    }    
-    
-    
-    
-    
-    
+  private String getPrivateMessageTypeFromContext(String navMode){    
+    if(navMode.equals("pvt_received"))
+        return typeManager.getReceivedPrivateMessageType();
+   	else if(navMode.equals("pvt_sent"))
+        return typeManager.getSentPrivateMessageType();
+   	else if(navMode.equals("pvt_deleted"))
+        return typeManager.getDeletedPrivateMessageType(); 
+   	else if (PVTMSG_MODE_DRAFT.equalsIgnoreCase(navMode))
+   		return typeManager.getDraftPrivateMessageType();
+   	else
+   		return typeManager.getCustomTopicType(navMode);    
   }
 
   //////// GETTER AND SETTER  ///////////////////  

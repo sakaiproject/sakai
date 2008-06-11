@@ -104,21 +104,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private ContentHostingService contentHostingService;
   
   
-  // SAK-11130:  modified to support sakai localization 	 SAK-11130
-  
-  private static final String Local_Dictionary="Spain";
-  private static final String Language="Spanish";//"Spanish(Spain)";
-
-  private static final String Spanish_Received="Recibidos";
-  private static final String Spanish_Sent="Enviados";
-  private static final String Spanish_Deleted="Borrados";
-
-  ////
   private static final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
   
   private static final String PVT_RECEIVED = "pvt_received";     // Recibidos ( 0 mensajes )-->Received ( 8 messages - 8 unread )
   private static final String PVT_SENT = "pvt_sent";             // Enviados ( 0 mensajes )--> Sent ( 0 message )
   private static final String PVT_DELETED = "pvt_deleted";       // Borrados ( 0 mensajes )-->Deleted ( 0 message )
+  private static final String PVT_DRAFTS = "pvt_drafts";
  
   /** String ids for email footer messsage */
   private static final String EMAIL_FOOTER1 = "pvt_email_footer1";
@@ -188,29 +179,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   //==============Need to be modified to support localization huxt
   public PrivateForum initializePrivateMessageArea(Area area, List aggregateList)
   {
-	  /** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
-		String APPLICATION_ID = "sakai:resourceloader";
-
-		/** Preferences key for user's regional language locale */
-		String LOCALE_KEY = "locale";
 
     String userId = getCurrentUser();
-    
-    //huxt-begin
-    //added by huxt for test localization
-	  Locale loc = null;
-	  //getLocale( String userId )
-	  ResourceLoader rl = new ResourceLoader();
-	  loc = rl.getLocale( userId);//SessionManager.getCurrentSessionUserId() );//country="ES" language="es"
-	  
-	  
-	  Preferences prefs = PreferencesService.getPreferences(userId);
-		ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
-		String localeString = locProps.getProperty(LOCALE_KEY);
-	  
-	  //loc = new Locale(locValues[0], locValues[1]); // language, country
-	  //huxt -end
-	  
     
     aggregateList.clear();
     aggregateList.addAll(initializeMessageCounts());
@@ -231,16 +201,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       //pf.setArea(area);
       //areaManager.saveArea(area);
       
-      PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(getResourceBundleString(PVT_RECEIVED), true,false,
+      PrivateTopic receivedTopic = forumManager.createPrivateForumTopic(PVT_RECEIVED, true,false,
           userId, pf.getId());     
 
-      PrivateTopic sentTopic = forumManager.createPrivateForumTopic(getResourceBundleString(PVT_SENT), true,false,
+      PrivateTopic sentTopic = forumManager.createPrivateForumTopic(PVT_SENT, true,false,
           userId, pf.getId());      
 
-      PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(getResourceBundleString(PVT_DELETED), true,false,
+      PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(PVT_DELETED, true,false,
           userId, pf.getId());      
 
-      //PrivateTopic draftTopic = forumManager.createPrivateForumTopic("Drafts", true,false,
+      //PrivateTopic draftTopic = forumManager.createPrivateForumTopic("PVT_DRAFTS", true,false,
       //    userId, pf.getId());
     
       /** save individual topics - required to add to forum's topic set */
@@ -267,8 +237,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     			PrivateTopic currentTopic = (PrivateTopic) pvtTopics.get(i);
     			if(currentTopic != null)
     			{
-    				if(!currentTopic.getTitle().equals("Received") && !currentTopic.getTitle().equals("Sent") && !currentTopic.getTitle().equals("Deleted") 
-    						&& !currentTopic.getTitle().equals("Drafts") && area.getContextId().equals(currentTopic.getContextId()))
+    				if(!currentTopic.getTitle().equals(PVT_RECEIVED) && !currentTopic.getTitle().equals(PVT_SENT) && !currentTopic.getTitle().equals(PVT_DELETED) 
+    						&& !currentTopic.getTitle().equals(PVT_DRAFTS) && area.getContextId().equals(currentTopic.getContextId()))
     				{
     					currentTopic.setPrivateForum(pf);
     		      forumManager.savePrivateForumTopic(currentTopic);
@@ -534,11 +504,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public static final String PVTMSG_MODE_SENT = "pvt_sent";
   public static final String PVTMSG_MODE_DELETE = "pvt_deleted";
   public static final String PVTMSG_MODE_DRAFT = "pvt_drafts";
-  
-/*  public static final String PVTMSG_MODE_RECEIVED = "Received";
-  public static final String PVTMSG_MODE_SENT = "Sent";
-  public static final String PVTMSG_MODE_DELETE = "Deleted";
-  public static final String PVTMSG_MODE_DRAFT = "Drafts"; */
 
   public void movePvtMsgTopic(PrivateMessage message, Topic oldTopic, Topic newTopic)
   {
@@ -552,6 +517,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     for (Iterator iter = recipients.iterator(); iter.hasNext();)
     {
       PrivateMessageRecipient element = (PrivateMessageRecipient) iter.next();
+      LOG.info("element.getTypeUuid(): "+element.getTypeUuid()+", oldTopicTypeUuid: "+oldTopicTypeUuid+", element.getUserId(): "+element.getUserId()+ ", getCurrentUser(): "+getCurrentUser());
       if (element.getTypeUuid().equals(oldTopicTypeUuid) && (element.getUserId().equals(getCurrentUser())))
       {
         element.setTypeUuid(newTopicTypeUuid);
@@ -1451,19 +1417,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     String topicTypeUuid;
 
-    if(getResourceBundleString(PVTMSG_MODE_RECEIVED).equals(topicTitle))
+    if(PVTMSG_MODE_RECEIVED.equals(topicTitle))
     {
       topicTypeUuid=typeManager.getReceivedPrivateMessageType();
     }
-    else if(getResourceBundleString(PVTMSG_MODE_SENT).equals(topicTitle))
+    else if(PVTMSG_MODE_SENT.equals(topicTitle))
     {
       topicTypeUuid=typeManager.getSentPrivateMessageType();
     }
-    else if(getResourceBundleString(PVTMSG_MODE_DELETE).equals(topicTitle))
+    else if(PVTMSG_MODE_DELETE.equals(topicTitle))
     {
       topicTypeUuid=typeManager.getDeletedPrivateMessageType();
     }
-    else if(getResourceBundleString(PVTMSG_MODE_DRAFT).equals(topicTitle))
+    else if(PVTMSG_MODE_DRAFT.equals(topicTitle))
     {
       topicTypeUuid=typeManager.getDraftPrivateMessageType();
     }

@@ -57,6 +57,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.messageforums.PrivateMessagesTool;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 
@@ -1738,7 +1739,7 @@ public class MessageForumSynopticBean {
 				if (mcTool != null) {
 					pvtTopicMessageUrl = ServerConfigurationService.getPortalUrl() + "/directtool/"
 		    					+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsg?pvtMsgTopicId=" 
-		    					+ receivedTopicUuid + "&contextId=" + contextId + "&selectedTopic=Received";
+		    					+ receivedTopicUuid + "&contextId=" + contextId + "&selectedTopic=" + PrivateMessagesTool.PVTMSG_MODE_RECEIVED;
 	    			return pvtTopicMessageUrl;
 	    		}
 	    	}

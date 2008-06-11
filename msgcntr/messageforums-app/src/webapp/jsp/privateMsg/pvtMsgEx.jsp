@@ -110,14 +110,14 @@
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
 		  </h:column>			
-		  <h:column rendered="#{PrivateMessagesTool.msgNavMode != 'Sent'}">
+		  <h:column rendered="#{PrivateMessagesTool.msgNavMode != 'pvt_sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
-		  <h:column rendered="#{PrivateMessagesTool.msgNavMode == 'Sent'}">
+		  <h:column rendered="#{PrivateMessagesTool.msgNavMode == 'pvt_sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_to}"/>
 		    </f:facet>		     		    

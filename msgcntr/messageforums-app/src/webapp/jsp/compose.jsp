@@ -20,7 +20,7 @@
 				  	<f:verbatim>&nbsp; / </f:verbatim>
 				  </h:panelGroup>
 				  <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_pvtarea}"/> /
-				  <h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" title=" #{msgs.cdfm_message_forums}" 
+				  <h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}" title=" #{msgs.cdfm_message_forums}" 
 									rendered="#{! PrivateMessagesTool.fromMain}" />
 				  <h:outputText escape="false" value=" / " rendered="#{! PrivateMessagesTool.fromMain}" />
 				  <h:outputText value="#{msgs.pvt_compose1}" />
@@ -64,9 +64,9 @@
 	
 				<h:outputLabel for="viewlist"><h:outputText value="#{msgs.pvt_label}" /></h:outputLabel>
 				<h:selectOneListbox size="1" id="viewlist" value="#{PrivateMessagesTool.selectedLabel}">
-            <f:selectItem itemValue="Normal" itemLabel="#{msgs.pvt_priority_normal}"/>
-            <f:selectItem itemValue="Low" itemLabel="#{msgs.pvt_priority_low}"/>
-            <f:selectItem itemValue="High" itemLabel="#{msgs.pvt_priority_high}"/>
+            <f:selectItem itemValue="#{msgs.pvt_priority_normal}" itemLabel="#{msgs.pvt_priority_normal}"/>
+            <f:selectItem itemValue="#{msgs.pvt_priority_low}" itemLabel="#{msgs.pvt_priority_low}"/>
+            <f:selectItem itemValue="#{msgs.pvt_priority_high}" itemLabel="#{msgs.pvt_priority_high}"/>
         </h:selectOneListbox>
 				
 				<h:panelGroup styleClass="shorttext required">

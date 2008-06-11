@@ -100,9 +100,9 @@
 								<h:panelGroup rendered="#{!topic.topic.mutable}">
 									<h:graphicImage url="/images/dir_closed.gif" alt="" />
 									<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopic}"
-										             immediate="true" title=" #{topic.topic.title}">
+										             immediate="true" title=" #{msgs[topic.topic.title]}">
 										<h:outputText value="  " />
-										<h:outputText value="#{topic.topic.title}" />
+										<h:outputText value="#{msgs[topic.topic.title]}" />
 										<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId" />
 									</h:commandLink>
 									<h:outputText	value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}"
@@ -112,7 +112,7 @@
 										            rendered="#{topic.totalNoMessages > 1}"
 										            styleClass="textPanelFooter" />
 									<h:outputText	value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}"
-										            rendered="#{topic.topic.title != 'Sent'}"
+										            rendered="#{topic.topic.title != 'pvt_sent'}"
 										            styleClass="textPanelFooter" />
 									<h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter" />
 								</h:panelGroup>

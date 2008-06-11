@@ -179,7 +179,7 @@
     	left join topic.privateForum forum
     	left join forum.area a 
     	where a.contextId IN ( :siteList ) and
-    	    topic.title = 'Received' and
+    	    topic.title = 'pvt_received' and
     	    owner = :userId
     ]]>
  </query>
