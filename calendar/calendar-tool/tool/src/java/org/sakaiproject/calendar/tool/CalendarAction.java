@@ -2574,19 +2574,6 @@ extends VelocityPortletStateAction
 			Collection groups = calendarObj.getGroupsAllowAddEvent();
 			if (groups.size() > 0)
 			{
-				/*
-				String sort = (String) sstate.getAttribute(STATE_CURRENT_SORTED_BY);
-				boolean asc = sstate.getAttribute(STATE_CURRENT_SORT_ASC)!=null?((Boolean) sstate.getAttribute(STATE_CURRENT_SORT_ASC)).booleanValue():true;;
-				if (sort == null || (!sort.equals(SORT_GROUPTITLE) && !sort.equals(SORT_GROUPDESCRIPTION)))
-				{
-					sort = SORT_GROUPTITLE;
-					sstate.setAttribute(STATE_CURRENT_SORTED_BY, sort);
-					state.setCurrentSortedBy(sort);
-					state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
-				}
-				context.put("groups", new SortedIterator(groups.iterator(), new AnnouncementComparator(sort, asc)));
-				*/
-				//TODO:render the group list better
 				context.put("groups", groups);
 			}
 		}

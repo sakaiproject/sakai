@@ -31,6 +31,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -197,6 +198,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
    
    private ContentHostingService contentHostingService;
    
+	private GroupComparator groupComparator = new GroupComparator();
+	
 	/**
 	 * Access this service from the inner classes.
 	 */
@@ -3432,7 +3435,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		protected Collection getGroupsAllowFunction(String function)
 		{
-			Collection rv = new Vector();
+			Vector rv = new Vector();
 
 			try
 			{
@@ -3444,7 +3447,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				if ((SecurityService.isSuperUser()) || (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(m_context))
 						&& unlockCheck(function, getReference())))
 				{
-					return groups;
+					rv.addAll( groups );
+					Collections.sort( rv, groupComparator );
+					return (Collection)rv;
 				}
 	
 				// otherwise, check the groups for function
@@ -3472,7 +3477,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			}
 			catch (IdUnusedException ignore) {}
 
-			return rv;
+			Collections.sort( rv, groupComparator );
+			return (Collection)rv;
 			
 		} // getGroupsAllowFunction
 
@@ -7179,5 +7185,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		}
 	}
 
+	/** 
+	 ** Comparator for sorting Group objects
+	 **/
+	private class GroupComparator implements Comparator {
+		public int compare(Object o1, Object o2) {
+			return ((Group)o1).getTitle().compareToIgnoreCase( ((Group)o2).getTitle() );
+		}
+	}
+	
 } // BaseCalendarService
 
