@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -51,10 +52,11 @@ import uk.org.ponder.messageutil.TargettedMessageList;
  */
 public class SiteManageGroupHandler {
 	
-	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SiteManageGroupHandler.class);
-	
-	private Collection<Member> groupMembers;
+    /** Our log (commons). */
+    private static Log M_log = LogFactory.getLog(SiteManageGroupHandler.class);
+   
+    private Collection<Member> groupMembers;
+    private GroupComparator groupComparator = new GroupComparator();
 	
     public Site site = null;
     public SiteService siteService = null;
@@ -156,18 +158,20 @@ public class SiteManageGroupHandler {
             groups = new Vector<Group>();
             if (site != null)
             {   
-                // only show groups created by WSetup tool itself
-    			Collection allGroups = (Collection) site.getGroups();
-    			for (Iterator gIterator = allGroups.iterator(); gIterator.hasNext();) {
-    				Group gNext = (Group) gIterator.next();
-    				String gProp = gNext.getProperties().getProperty(
-    						SiteConstants.GROUP_PROP_WSETUP_CREATED);
-    				if (gProp != null && gProp.equals(Boolean.TRUE.toString())) {
-    					groups.add(gNext);
-    				}
-    			}
+               // only show groups created by WSetup tool itself
+               Collection allGroups = (Collection) site.getGroups();
+               for (Iterator gIterator = allGroups.iterator(); gIterator.hasNext();) {
+                  Group gNext = (Group) gIterator.next();
+                  String gProp = gNext.getProperties().getProperty(
+                     SiteConstants.GROUP_PROP_WSETUP_CREATED);
+                  if (gProp != null && gProp.equals(Boolean.TRUE.toString())) {
+                     groups.add(gNext);
+                  }
+               }
             }
         }
+        
+        Collections.sort( groups, groupComparator );
         return groups;
     }
     
@@ -519,5 +523,13 @@ public class SiteManageGroupHandler {
         return toolManager.getCurrentTool();
     }
    
+   /** 
+    ** Comparator for sorting Group objects
+    **/
+   private class GroupComparator implements Comparator {
+      public int compare(Object o1, Object o2) {
+         return ((Group)o1).getTitle().compareToIgnoreCase( ((Group)o2).getTitle() );
+      }
+   }
 }
 
