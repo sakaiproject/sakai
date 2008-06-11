@@ -93,7 +93,7 @@
 </h:panelGrid>
 
 <div class="navPanel">
-  <div style="float:left; display:inline; width: 33%; padding-top: 0.5em;">
+  <div style="float:left; display:inline; width: auto; padding-top: 0.5em;">
     <%-- Mark All As Read --%>
   	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread" title="#{msgs.cdfm_mark_check_as_read}" >
  		<h:graphicImage value="/../../library/image/silk/email.png" />
