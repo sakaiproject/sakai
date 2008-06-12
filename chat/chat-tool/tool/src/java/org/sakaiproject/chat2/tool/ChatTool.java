@@ -541,7 +541,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       try {
           String url = "sakai.permissions.helper.helper/tool?" +
                   "session." + PermissionsHelper.DESCRIPTION + "=" +
-                  getPermissionsMessage() +
+                  org.sakaiproject.util.Web.escapeUrl(getPermissionsMessage()) +
                   "&session." + PermissionsHelper.TARGET_REF + "=" +
                   getWorksite().getReference() +
                   "&session." + PermissionsHelper.PREFIX + "=" +
