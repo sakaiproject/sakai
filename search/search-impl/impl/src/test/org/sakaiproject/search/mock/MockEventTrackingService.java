@@ -91,6 +91,15 @@ public class MockEventTrackingService implements EventTrackingService
 	}
 
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.event.api.EventTrackingService#newEvent(java.lang.String, java.lang.String, java.lang.String, boolean, int)
+	 */
+	public Event newEvent(String event, String resource, String context, boolean modify, int priority)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.event.api.EventTrackingService#post(org.sakaiproject.event.api.Event)
 	 */
 	public void post(Event event)
