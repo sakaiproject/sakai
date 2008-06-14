@@ -112,3 +112,5 @@ alter table osp_wizard add reviewerGroupAccess number(10, 0) default '0' not nul
 --SAK-6216 Optional ability to store client hostname (resolved IP) in SAKAI_SESSION
 alter table SAKAI_SESSION add SESSION_HOSTNAME varchar2(255) NULL;
 
+--SAK-10801 Add CONTEXT field to SAKAI_EVENT
+alter table SAKAI_EVENT add CONTEXT varchar2(255) NULL;
