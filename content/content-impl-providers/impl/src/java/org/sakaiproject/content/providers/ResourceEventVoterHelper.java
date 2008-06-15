@@ -16,6 +16,8 @@ import org.sakaiproject.time.api.Time;
 
 public class ResourceEventVoterHelper
 {
+	private boolean autoDdl;
+
 	private static final Log LOG = LogFactory.getLog(ResourceEventVoterHelper.class);
 	private static final String DELAY_WRITE_SQL = "insert into SAKAI_EVENT_DELAY (EVENT, MODIFY, PRIORITY, RESOURCE, USER_ID) VALUES (?, ?, ?, ?, ?)";
 	private static final String DELAY_READ_SQL = "select EVENT_DELAY_ID, EVENT, MODIFY, PRIORITY, RESOURCE, USER_ID from SAKAI_EVENT_DELAY where EVENT_DELAY_ID = ?";
@@ -35,6 +37,20 @@ public class ResourceEventVoterHelper
 	public void setSchedInvocMgr(ScheduledInvocationManager schedInvocMgr)
 	{
 		this.schedInvocMgr = schedInvocMgr;
+	}
+
+	public void setAutoDdl(boolean autoDdl)
+	{
+		this.autoDdl = autoDdl;
+	}
+
+	public void init()
+	{
+		if (autoDdl)
+		{
+			// load the base ddl
+			sqlService.ddl(this.getClass().getClassLoader(), "sakai_event_delay");
+		}
 	}
 
 	/**

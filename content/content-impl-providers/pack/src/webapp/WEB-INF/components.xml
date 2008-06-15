@@ -38,7 +38,9 @@
 	</bean>
 
 	<bean id="org.sakaiproject.content.providers.ResourceEventVoterHelper"
-		  class="org.sakaiproject.content.providers.ResourceEventVoterHelper">
+		  class="org.sakaiproject.content.providers.ResourceEventVoterHelper"
+		  init-method="init">
+		<property name="autoDdl" value="${auto.ddl}" />
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
 		<property name="schedInvocMgr" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
 	</bean>
