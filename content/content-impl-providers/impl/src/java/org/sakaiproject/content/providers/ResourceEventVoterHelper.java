@@ -200,6 +200,7 @@ public class ResourceEventVoterHelper
 		private boolean modify;
 		private int priority;
 		private String resource;
+		private String context;
 		private String sessionId;
 		private String userId;
 
@@ -210,6 +211,7 @@ public class ResourceEventVoterHelper
 			this.priority = priority;
 			this.resource = resource;
 			this.userId = userId;
+			this.context = null;
 		}
 
 		public String getEvent()
@@ -241,5 +243,11 @@ public class ResourceEventVoterHelper
 		{
 			return userId;
 		}
+		
+		public String getContext()
+		{
+			return context;
+		}
+
 	}
 }
