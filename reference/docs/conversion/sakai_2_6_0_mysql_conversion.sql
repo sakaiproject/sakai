@@ -116,3 +116,6 @@ alter table SAKAI_SESSION add column SESSION_HOSTNAME varchar(255);
 --SAK-10801 Add CONTEXT field to SAKAI_EVENT
 alter table SAKAI_EVENT add column CONTEXT varchar(255);
 
+--SAK-13310 Poll description field too small
+alter table POLL_POLL change POLL_DETAILS POLL_DETAILS text; 
+
