@@ -19,6 +19,7 @@ public class FakeEvent implements Event {
 
    private String event = "test.event.name";
    private String resource = "/prefix/id";
+   private String context = null;
    private boolean modify = true;
    private int priority = 3;
 
@@ -67,6 +68,15 @@ public class FakeEvent implements Event {
     */
    public String getResource() {
       return resource;
+   }
+
+   /*
+    * (non-Javadoc)
+    * 
+    * @see org.sakaiproject.event.api.Event#getContext()
+    */
+   public String getContext() {
+      return context;
    }
 
    /*
