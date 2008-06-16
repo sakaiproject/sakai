@@ -145,7 +145,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	 */
 	public void setExternalLocks(String value)
 	{
-		m_useExternalLocks = new Boolean(value).booleanValue();
+		m_useExternalLocks = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: to run the ddl on init or not. */
@@ -159,7 +159,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/*************************************************************************************************************************************************
@@ -236,7 +236,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				try
 				{
 					int count = result.getInt(1);
-					return new Integer(count);
+					return Integer.valueOf(count);
 				}
 				catch (SQLException ignore)
 				{
@@ -318,7 +318,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				try
 				{
 					int count = result.getInt(1);
-					return new Integer(count);
+					return Integer.valueOf(count);
 				}
 				catch (SQLException ignore)
 				{
@@ -825,7 +825,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						try
 						{
 							int realm_key = result.getInt(1);
-							return new Integer(realm_key);
+							return Integer.valueOf(realm_key);
 						}
 						catch (Throwable e)
 						{
@@ -848,7 +848,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 				// Count the number of users already in the realm
 				sql = dbAuthzGroupSql.getSelectRealmSize();
-				fields[0] = new Integer(realm_key);
+				fields[0] = Integer.valueOf(realm_key);
 
 				List resultsSize = m_sql.dbRead(sql, fields, new SqlReader()
 				{
@@ -857,7 +857,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						try
 						{
 							int count = result.getInt(1);
-							return new Integer(count);
+							return Integer.valueOf(count);
 						}
 						catch (Throwable e)
 						{
@@ -1423,7 +1423,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				}
 
 				// the special local integer 'db' id field, read after the field list
-				Integer dbid = new Integer(result.getInt(8));
+				Integer dbid = Integer.valueOf(result.getInt(8));
 
 				// create the Resource from these fields
 				return new BaseAuthzGroup(DbAuthzGroupService.this,dbid, id, providerId, maintainRole, createdBy, createdOn, modifiedBy, modifiedOn);
@@ -1458,7 +1458,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					try
 					{
 						int count = result.getInt(1);
-						return new Integer(count);
+						return Integer.valueOf(count);
 					}
 					catch (SQLException ignore)
 					{
@@ -1530,7 +1530,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					try
 					{
 						int count = result.getInt(1);
-						return new Integer(count);
+						return Integer.valueOf(count);
 					}
 					catch (SQLException ignore)
 					{
@@ -1740,7 +1740,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						String roleName = result.getString(2);
 						String active = result.getString(3);
 						String provided = result.getString(4);
-						return new RealmAndRole(new Integer(realmKey), roleName, "1".equals(active), "1".equals(provided));
+						return new RealmAndRole(Integer.valueOf(realmKey), roleName, "1".equals(active), "1".equals(provided));
 					}
 					catch (Throwable ignore)
 					{
@@ -1813,7 +1813,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						{
 							int id = result.getInt(1);
 							String provider = result.getString(2);
-							return new RealmAndProvider(new Integer(id), provider);
+							return new RealmAndProvider(Integer.valueOf(id), provider);
 						}
 						catch (Throwable ignore)
 						{

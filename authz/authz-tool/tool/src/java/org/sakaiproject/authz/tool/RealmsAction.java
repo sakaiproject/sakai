@@ -141,41 +141,41 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			template = buildListContext(state, context);
 		}
-		else if (mode.equals("new"))
+		else if ("new".equals(mode))
 		{
 			template = buildNewContext(state, context);
 		}
-		else if (mode.equals("edit"))
+		else if ("edit".equals(mode))
 		{
 			template = buildEditContext(state, context);
 		}
-		else if (mode.equals("confirm"))
+		else if ("confirm".equals(mode))
 		{
 			template = buildConfirmRemoveContext(state, context);
 		}
-		else if (mode.equals("saveas"))
+		else if ("saveas".equals(mode))
 		{
 			template = buildSaveasContext(state, context);
 		}
 
-		else if (mode.equals("newRole"))
+		else if ("newRole".equals(mode))
 		{
 			template = buildNewRoleContext(state, context);
 		}
-		else if (mode.equals("editRole"))
+		else if ("editRole".equals(mode))
 		{
 			template = buildEditRoleContext(state, context);
 		}
-		else if (mode.equals("saveasRole"))
+		else if ("saveasRole".equals(mode))
 		{
 			template = buildSaveasRoleContext(state, context);
 		}
 
-		else if (mode.equals("newUser"))
+		else if ("newUser".equals(mode))
 		{
 			template = buildNewUserContext(state, context);
 		}
-		else if (mode.equals("editUser"))
+		else if ("editUser".equals(mode))
 		{
 			template = buildEditUserContext(state, context);
 		}
