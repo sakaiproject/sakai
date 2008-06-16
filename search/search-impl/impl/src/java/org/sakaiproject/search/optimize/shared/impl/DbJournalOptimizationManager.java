@@ -412,7 +412,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			try
 			{
-				lockEarlierSavePoints.close();
+				if (lockEarlierSavePoints != null) lockEarlierSavePoints.close();
 			}
 			catch (Exception ex)
 			{
@@ -420,7 +420,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			try
 			{
-				listJournal.close();
+				if (listJournal != null) listJournal.close();
 			}
 			catch (Exception ex)
 			{
@@ -428,7 +428,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			try
 			{
-				listMergeSet.close();
+				if (listMergeSet != null) listMergeSet.close();
 			}
 			catch (Exception ex)
 			{
