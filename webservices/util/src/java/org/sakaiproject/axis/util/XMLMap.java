@@ -441,7 +441,7 @@ public class XMLMap {
     private static boolean badSelection(String selection)
     {
         if ( selection == null ) return true;
-        if ( selection.equals("/") ) return true;
+        if ( "/".equals(selection) ) return true;
         if ( selection.length() < 2 ) return true;
         if ( ! selection.startsWith("/") ) return true;
 	return false;
