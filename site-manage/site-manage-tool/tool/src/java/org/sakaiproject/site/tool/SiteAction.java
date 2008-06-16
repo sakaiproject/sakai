@@ -8708,10 +8708,14 @@ public class SiteAction extends PagedResourceActionII {
 				if (officialAccount != null) {
 					// automaticially add nonOfficialAccount account
 					Participant participant = new Participant();
+					User u = null;
 					try {
-							//Changed user lookup to satisfy BSP-1010 (jholtzman)
-						User u = null;
-						// First try looking for the user by their email address
+						// look for user based on eid first
+						u = UserDirectoryService.getUserByEid(officialAccount);
+					} catch (UserNotDefinedException e) {
+						M_log.warn(this + ".checkAddParticipant: " + officialAccount + " " + rb.getString("java.username") + " ", e);
+						//Changed user lookup to satisfy BSP-1010 (jholtzman)
+						// continue to look for the user by their email address
 						Collection usersWithEmail = UserDirectoryService.findUsersByEmail(officialAccount);
 						if(usersWithEmail != null) {
 							if(usersWithEmail.size() == 0) {
@@ -8727,28 +8731,21 @@ public class SiteAction extends PagedResourceActionII {
 								u = (User)usersWithEmail.iterator().next();
 							}
 						}
-						// We didn't find anyone via email address, so try getting the user by EID
-						if(u == null) {
-							u = UserDirectoryService.getUserByEid(officialAccount);
-						}
+					}
 						
-						if (u != null)
-						{
-							M_log.info("found user with eid " + officialAccount);
-							if (site != null && site.getUserRole(u.getId()) != null) {
-								// user already exists in the site, cannot be added
-								// again
-								existingUsers.add(officialAccount);
-							} else {
-								participant.name = u.getDisplayName();
-								participant.uniqname = u.getEid();
-								participant.active = true;
-								pList.add(participant);
-							}
+					if (u != null)
+					{
+						M_log.info("found user with eid " + officialAccount);
+						if (site != null && site.getUserRole(u.getId()) != null) {
+							// user already exists in the site, cannot be added
+							// again
+							existingUsers.add(officialAccount);
+						} else {
+							participant.name = u.getDisplayName();
+							participant.uniqname = u.getEid();
+							participant.active = true;
+							pList.add(participant);
 						}
-					} catch (UserNotDefinedException e) {
-						addAlert(state, officialAccount + " " + rb.getString("java.username") + " ");
-						M_log.warn(this + ".checkAddParticipant: " + officialAccount + " " + rb.getString("java.username") + " ", e);
 					}
 				}
 			}
