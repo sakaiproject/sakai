@@ -95,6 +95,7 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -553,6 +554,7 @@ public class SiteAction extends PagedResourceActionII {
 
 	// Special tool id for Home page
 	private static final String HOME_TOOL_ID = "home";
+	private static final String SITE_INFORMATION_TOOL="sakai.iframe.site";
 
 	private static final String STATE_CM_LEVELS = "site.cm.levels";
 	
@@ -1355,7 +1357,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("serverName", ServerConfigurationService
 					.getServerName());
 
-			// The "Home" tool checkbox needs special treatment to be selected
+			// The Home tool checkbox needs special treatment to be selected
 			// by
 			// default.
 			Boolean checkHome = (Boolean) state
@@ -6816,7 +6818,10 @@ public class SiteAction extends PagedResourceActionII {
 							
 							Site site = SiteService.addSite(nSiteId,
 									getStateSite(state));
-
+							
+							// get the new site icon url
+							site.setIconUrl(transferSiteResource(oSiteId, nSiteId, site.getIconUrl()));
+							
 							try {
 								SiteService.save(site);
 							} catch (IdUnusedException e) {
@@ -7092,6 +7097,58 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 	}// actionFor Template
+
+	/**
+	 * This is used to update exsiting site attributes with encoded site id in it. A new resource item is added to new site when needed
+	 * 
+	 * @param oSiteId
+	 * @param nSiteId
+	 * @param siteAttribute
+	 * @return the new migrated resource url
+	 */
+	private String transferSiteResource(String oSiteId, String nSiteId, String siteAttribute) {
+		String rv = "";
+		
+		String accessUrl = ServerConfigurationService.getAccessUrl();
+		if (siteAttribute.indexOf(oSiteId) != -1 && accessUrl != null)
+		{
+			// stripe out the access url, get the relative form of "url"
+			Reference ref = EntityManager.newReference(siteAttribute.replaceAll(accessUrl, ""));
+			try
+			{
+				ContentResource resource = m_contentHostingService.getResource(ref.getId());
+				// the new resource
+				ContentResource nResource = null;
+				String nResourceId = resource.getId().replaceAll(oSiteId, nSiteId);
+				try
+				{
+					nResource = m_contentHostingService.getResource(nResourceId);
+				}
+				catch (Exception n2Exception)
+				{
+					// copy the resource then
+					try
+					{
+						nResourceId = m_contentHostingService.copy(resource.getId(), nResourceId);
+						nResource = m_contentHostingService.getResource(nResourceId);
+					}
+					catch (Exception n3Exception)
+					{
+					}
+				}
+				
+				// get the new resource url
+				rv = nResource != null?nResource.getUrl(false):"";
+				
+			}
+			catch (Exception refException)
+			{
+				M_log.warn(this + ":transferSiteResource: cannot find resource with ref=" + ref.getReference() + " " + refException.getMessage());
+			}
+		}
+		
+		return rv;
+	}
 	
 	/**
 	 * 
@@ -7124,8 +7181,7 @@ public class SiteAction extends PagedResourceActionII {
 				List pageToolList = page.getTools();
 				String toolId = ((ToolConfiguration) pageToolList
 						.get(0)).getTool().getId();
-				if (toolId
-						.equalsIgnoreCase("sakai.resources")) {
+				if (toolId.equalsIgnoreCase("sakai.resources")) {
 					// handle
 					// resource
 					// tool
@@ -7136,7 +7192,12 @@ public class SiteAction extends PagedResourceActionII {
 									.getSiteCollection(oSiteId),
 							m_contentHostingService
 									.getSiteCollection(nSiteId));
-				} else {
+				} else if (toolId.equalsIgnoreCase(SITE_INFORMATION_TOOL)) {
+					// handle Home tool specially, need to update the site infomration display url if needed
+					String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
+					site.setInfoUrl(newSiteInfoUrl);
+				}
+				else {
 					// other
 					// tools
 					transferCopyEntities(toolId,
@@ -7898,8 +7959,8 @@ public class SiteAction extends PagedResourceActionII {
 
 				// Add worksite information tool
 				ToolConfiguration tool = page.addTool();
-				Tool reg = ToolManager.getTool("sakai.iframe.site");
-				tool.setTool("sakai.iframe.site", reg);
+				Tool reg = ToolManager.getTool("SITE_INFORMATION_TOOL");
+				tool.setTool("SITE_INFORMATION_TOOL", reg);
 				tool.setTitle(reg.getTitle());
 				tool.setLayoutHints("0,0");
 			}
@@ -8110,8 +8171,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (pageList != null && pageList.size() != 0) {
 				for (ListIterator i = pageList.listIterator(); i.hasNext();) {
 					SitePage page = (SitePage) i.next();
-					if (rb.getString("java.home").equals(page.getTitle()))// if
-					// ("Home".equals(page.getTitle()))
+					if (rb.getString("java.home").equals(page.getTitle()))
 					{
 						homePage = page;
 						break;
@@ -8416,8 +8476,8 @@ public class SiteAction extends PagedResourceActionII {
 
 					// Add worksite information tool
 					ToolConfiguration tool = page.addTool();
-					Tool wsInfoTool = ToolManager.getTool("sakai.iframe.site");
-					tool.setTool("sakai.iframe.site", wsInfoTool);
+					Tool wsInfoTool = ToolManager.getTool("SITE_INFORMATION_TOOL");
+					tool.setTool("SITE_INFORMATION_TOOL", wsInfoTool);
 					tool.setTitle(wsInfoTool != null?wsInfoTool.getTitle():"");
 					tool.setLayoutHints("0,0");
 
