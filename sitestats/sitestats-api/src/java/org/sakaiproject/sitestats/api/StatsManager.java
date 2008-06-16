@@ -32,6 +32,7 @@ public interface StatsManager {
 	public final static int		PREFS_RESOURCES_PAGE		= 2;
 	public final static String	SEPARATOR					= "/";
 	public final static String	SITEVISIT_EVENTID			= "pres.begin";
+	public final static String	RESOURCE_EVENTID_PREFIX		= "content.";
 	public final static String	SITESTATS_TOOLID			= "sakai.sitestats";
 	public final static String	RESOURCES_TOOLID			= "sakai.resources";
 	public final static String	PARSERTIP_FOR_CONTEXTID		= "contextId";

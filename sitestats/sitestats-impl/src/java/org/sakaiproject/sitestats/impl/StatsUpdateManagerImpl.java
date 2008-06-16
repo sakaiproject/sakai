@@ -388,6 +388,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	}
 	
 	private synchronized void consolidateEvent(Date date, String eventId, String resourceRef, String userId, String siteId) {
+		if(eventId == null)
+			return;
 		// update		
 		if(registeredEvents.contains(eventId)){	
 			// add to eventStatMap
@@ -405,7 +407,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				eventStatMap.put(key, e1);
 			}
 			
-			if(!eventId.equals("pres.begin")){
+			if(!StatsManager.SITEVISIT_EVENTID.equals(eventId)){
 				// add to activityMap
 				String key2 = siteId+date+eventId;
 				synchronized(activityMap){
@@ -422,7 +424,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 		}	
 		
-		if(eventId.startsWith("content.")){
+		if(eventId.startsWith(StatsManager.RESOURCE_EVENTID_PREFIX)){
 			// add to resourceStatMap
 			String resourceAction = null;
 			try{
@@ -445,7 +447,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				resourceStatMap.put(key, e1);
 			}
 			
-		}else if(eventId.equals("pres.begin")){
+		}else if(StatsManager.SITEVISIT_EVENTID.equals(eventId)){
 			// add to visitsMap
 			String key = siteId+date;
 			synchronized(visitsMap){
@@ -683,7 +685,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	// Utility methods
 	// ################################################################	
 	private synchronized boolean isValidEvent(Event e) {
-		if(e.getEvent().startsWith("content")){
+		if(e.getEvent().startsWith(StatsManager.RESOURCE_EVENTID_PREFIX)){
 			String ref = e.getResource();	
 			if(ref.trim().equals("")) return false;			
 			try{
@@ -719,7 +721,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		
 		// MessageCenter (OLD) CASE: Handle old MessageCenter events */
 		if (event!=null){
-			if(event.startsWith("content.") && resource.startsWith("MessageCenter")) {
+			if(event.startsWith(StatsManager.RESOURCE_EVENTID_PREFIX) && resource.startsWith("MessageCenter")) {
 				resource = resource.replaceFirst("MessageCenter::", "/MessageCenter/site/");
 				resource = resource.replaceAll("::", "/");
 				return M_ets.newEvent(
@@ -738,83 +740,39 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		String eventId = e.getEvent();
 		String eventRef = e.getResource();
 		
-		try{
-			if(eventId.equals(StatsManager.SITEVISIT_EVENTID)) {
-				
-				// presence (site visit) syntax (/presence/SITE_ID-presence)
-				String[] parts = eventRef.split("/");
-				if(parts[2].endsWith(PRESENCE_SUFFIX))
-					return parts[2].substring(0, parts[2].length() - PRESENCE_SUFFIX_LENGTH);
-				else
-					return null;	
-				
-			}else {
-
-				// use <eventParserTip>
-				ToolInfo toolInfo = eventIdToolMap.get(eventId);
-				EventParserTip parserTip = toolInfo.getEventParserTip();
-				if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)) {
-					if (eventRef!=null){
-						int index = Integer.parseInt(parserTip.getIndex());
-						return eventRef.split(parserTip.getSeparator())[index];
-					}else{
-						return null;
-					}
+		// get contextId (siteId) from event reference
+		if(eventRef != null) {
+			try{
+				if(StatsManager.SITEVISIT_EVENTID.equals(eventId)) {
+					
+					// presence (site visit) syntax (/presence/SITE_ID-presence)
+					String[] parts = eventRef.split("/");
+					if(parts[2].endsWith(PRESENCE_SUFFIX))
+						return parts[2].substring(0, parts[2].length() - PRESENCE_SUFFIX_LENGTH);
+									
 				}else {
-					// try with most common syntax (/abc/cde/SITE_ID/...)
-					return eventRef.split("/")[3];
-				}
-			}
-		}catch(Exception ex){
-			LOG.warn("Unable to parse contextId from event: " + eventId + " | " + eventRef, ex);
-		}
-		return null;
-	}
 	
-	/*
-	private String parseSiteId_Old(String ref){
-		try{
-			String[] parts = ref.split("/");
-			if(parts == null)
-				return null;
-			if(parts.length == 1){
-				// try with OLD MessageCenter syntax (MessageCenter::SITE_ID::...)
-				parts = ref.split("::");
-				return parts.length > 1 ? parts[1] : null;
+					// use <eventParserTip>
+					ToolInfo toolInfo = eventIdToolMap.get(eventId);
+					EventParserTip parserTip = toolInfo.getEventParserTip();
+					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)) {
+						if (eventRef != null){
+							int index = Integer.parseInt(parserTip.getIndex());
+							return eventRef.split(parserTip.getSeparator())[index];
+						}else{
+							return null;
+						}
+					}else {
+						// try with most common syntax (/abc/cde/SITE_ID/...)
+						return eventRef.split("/")[3];
+					}
+				}
+			}catch(Exception ex){
+				LOG.warn("Unable to parse contextId from event: " + eventId + " | " + eventRef, ex);
 			}
-			if(parts[0].equals("MessageCenter")){
-				// MessageCenter without initial '/'
-				return parts[2];
-			}
-			if(parts[0].equals("")){
-				if(parts[1].equals("presence"))
-					// try with presence syntax (/presence/SITE_ID-presence)
-					if(parts[2].endsWith("-presence"))
-						return parts[2].substring(0,parts[2].length()-9);
-					else
-						return null;
-				else if(parts[1].equals("syllabus"))
-					// try with Syllabus syntax (/syllabus/SITE_ID/...)
-					return parts[2];
-				else if(parts[1].equals("site"))
-					// try with Section Info syntax (/site/SITE_ID/...)
-					return parts[2];
-				else if(parts[1].equals("gradebook"))
-					// try with Gradebook syntax (/gradebook/SITE_ID/...)
-					return parts[2];
-				else if(parts[1].equals("tasklist") || parts[1].equals("todolist"))
-					// try with Tasklist/TodoList syntax (/tasklist/SITE_ID/...)
-					return parts[2];
-				else
-					// try with most common syntax (/abc/cde/SITE_ID/...)
-					return parts[3];
-			}
-		}catch(Exception e){
-			LOG.debug("Unable to parse site ID from "+ref, e);
 		}
 		return null;
 	}
-	*/
 	
 	private Date getToday() {
 		Calendar c = Calendar.getInstance();
