@@ -150,6 +150,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   private List locales;
 
   private Boolean initialized = Boolean.FALSE;
+  private Object initializedLock = new Object();
 
   private Glossary glossary;
   private String supportEmailAddress;
@@ -855,7 +856,10 @@ public List getActiveContexts(Map session)
    * Reinitialize help content from UI
    */
   public void reInitialize(){
-    initialized = Boolean.FALSE;
+	synchronized (initializedLock)
+		{   
+			initialized = Boolean.FALSE;
+		}
     initialize();
   }
 
@@ -871,7 +875,7 @@ public List getActiveContexts(Map session)
     }
     else
     {
-      synchronized (initialized)
+      synchronized (initializedLock)
       {
         if (!initialized.booleanValue())
         {

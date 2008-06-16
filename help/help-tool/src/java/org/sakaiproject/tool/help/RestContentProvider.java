@@ -66,6 +66,7 @@ public class RestContentProvider
   private static final String XML_PREPROCESS_XSL = "/xsl/kbxml-preprocess.xsl";
   private static final String XML_KB_XSL = "/xsl/kb.xsl";
   private static Boolean XSL_INITIALIZED = Boolean.FALSE;
+  private static Object XSL_INITIALIZED_LOCK = new Object();
 
   private static Document xslDocumentPreprocess;
   private static Document xslDocumentAllInOne;
@@ -277,7 +278,7 @@ public class RestContentProvider
     }
     else
     {
-      synchronized (XSL_INITIALIZED)
+      synchronized (XSL_INITIALIZED_LOCK)
       {
         if (!XSL_INITIALIZED.booleanValue())
         {
