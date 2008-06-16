@@ -2297,7 +2297,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 					SegmentInfo sgi = SegmentInfoImpl.newLocalSegmentInfo(files[i],
 							localStructuredStorage, searchIndexDirectory);
-					if (sgi != null || sgi.isClusterSegment())
+					if (sgi != null && sgi.isClusterSegment())
 					{
 						String name = files[i].getName();
 						long lsize = sgi.getLocalSegmentSize();
