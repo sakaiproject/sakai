@@ -63,9 +63,9 @@ public class DataLoadTest extends SectionsTestBase {
 		Course course3 = courseManager.createCourse("site3", "A Course for Site #3", false, false, false);
 
 		// Load sections
-    	CourseSection lab1 = sectionManager.addSection(course1.getUuid(), "Lab 1", "section.category.lab", new Integer(20), "Dank basement lab", new Time(new Date().getTime()), new Time(new Date().getTime()), true, false, true,  false, false, false, false);
-    	CourseSection lab2 = sectionManager.addSection(course1.getUuid(), "Lab 2", "section.category.lab", new Integer(20), "Dank basement lab", new Time(new Date().getTime()), new Time(new Date().getTime()), false, true, false, true, false, false, false);
-    	CourseSection disc1 = sectionManager.addSection(course1.getUuid(), "Disc 1", "section.category.discussion", new Integer(30), "Sunny classroom", new Time(new Date().getTime()), new Time(new Date().getTime()), true, false, true,  false, true, false, false);
+    	CourseSection lab1 = sectionManager.addSection(course1.getUuid(), "Lab 1", "section.category.lab", Integer.valueOf(20), "Dank basement lab", new Time(new Date().getTime()), new Time(new Date().getTime()), true, false, true,  false, false, false, false);
+    	CourseSection lab2 = sectionManager.addSection(course1.getUuid(), "Lab 2", "section.category.lab", Integer.valueOf(20), "Dank basement lab", new Time(new Date().getTime()), new Time(new Date().getTime()), false, true, false, true, false, false, false);
+    	CourseSection disc1 = sectionManager.addSection(course1.getUuid(), "Disc 1", "section.category.discussion", Integer.valueOf(30), "Sunny classroom", new Time(new Date().getTime()), new Time(new Date().getTime()), true, false, true,  false, true, false, false);
 		
 		// Load students
 		User studenta = userManager.createUser("studenta", "Joe Student", "Student, Joe", "jstudent");

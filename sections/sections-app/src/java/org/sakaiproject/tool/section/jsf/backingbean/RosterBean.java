@@ -195,9 +195,9 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 		String sortColumn = getPrefs().getRosterSortColumn();
 		boolean sortAscending = getPrefs().isRosterSortAscending();
 
-		if(sortColumn.equals("studentName")) {
+		if("studentName".equals(sortColumn)) {
 			return EnrollmentDecorator.getNameComparator(sortAscending);
-		} else if(sortColumn.equals("displayId")) {
+		} else if("displayId".equals(sortColumn)) {
 			return EnrollmentDecorator.getDisplayIdComparator(sortAscending);
 		} else {
 			return EnrollmentDecorator.getCategoryComparator(sortColumn, sortAscending);

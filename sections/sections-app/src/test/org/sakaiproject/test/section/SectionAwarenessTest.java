@@ -72,7 +72,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	Course course = secMgr.getCourse(siteContext);
     	
     	String firstCategory = (String)categories.get(0);
-    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, Integer.valueOf(10), null, null, null, false,  false, false,  false, false, false, false);
 
     	// Assert that the course exists at this context
     	Assert.assertTrue(secMgr.getCourse(siteContext).getUuid().equals(course.getUuid()));
@@ -105,14 +105,14 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	String firstCategory = (String)categories.get(0);
     	String secondCategory = (String)categories.get(1);
     	
-    	CourseSection sec1 = secMgr.addSection(course.getUuid(), "aSection", firstCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
-    	CourseSection sec2 = secMgr.addSection(course.getUuid(), "bSection", firstCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec1 = secMgr.addSection(course.getUuid(), "aSection", firstCategory, Integer.valueOf(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec2 = secMgr.addSection(course.getUuid(), "bSection", firstCategory, Integer.valueOf(10), null, null, null, false,  false, false,  false, false, false, false);
 
-    	CourseSection sec3 = secMgr.addSection(course.getUuid(), "aaSection", secondCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
-    	CourseSection sec4 = secMgr.addSection(course.getUuid(), "bbSection", secondCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec3 = secMgr.addSection(course.getUuid(), "aaSection", secondCategory, Integer.valueOf(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec4 = secMgr.addSection(course.getUuid(), "bbSection", secondCategory, Integer.valueOf(10), null, null, null, false,  false, false,  false, false, false, false);
     	
-    	CourseSection sec5 = secMgr.addSection(course.getUuid(), "aaaSection", null, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
-    	CourseSection sec6 = secMgr.addSection(course.getUuid(), "bbbSection", null, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec5 = secMgr.addSection(course.getUuid(), "aaaSection", null, Integer.valueOf(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec6 = secMgr.addSection(course.getUuid(), "bbbSection", null, Integer.valueOf(10), null, null, null, false,  false, false,  false, false, false, false);
 
     	List sections = secAware.getSections(siteContext);
     	
@@ -140,7 +140,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	courseMgr.createCourse(siteContext, "A course", false, false, false);
     	Course course = secMgr.getCourse(siteContext);
     	String firstCategory = (String)categories.get(0);
-    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, Integer.valueOf(10), null, null, null, false,  false, false,  false, false, false, false);
     	
 		// Load students
 		User student1 = userMgr.createUser("student1", "Joe Student", "Student, Joe", "jstudent");
@@ -225,7 +225,7 @@ public class SectionAwarenessTest extends SectionsTestBase{
     	Course course = courseMgr.createCourse(siteContext, "A course", false, false, false);
     	
     	String firstCategory = (String)categories.get(0);
-    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, new Integer(10), null, null, null, false,  false, false,  false, false, false, false);
+    	CourseSection sec = secMgr.addSection(course.getUuid(), "A section", firstCategory, Integer.valueOf(10), null, null, null, false,  false, false,  false, false, false, false);
 
 		// Load students
 		User student1 = userMgr.createUser("student1", "Joe Student", "Student, Joe", "jstudent");

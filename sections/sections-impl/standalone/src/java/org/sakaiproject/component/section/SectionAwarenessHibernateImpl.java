@@ -183,7 +183,7 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
             	Course course = getCourse(siteContext, session);
             	if(course == null) {
             		if(log.isInfoEnabled()) log.info("No course founf for siteContext " + siteContext);
-            		return new Boolean(false);
+            		return Boolean.valueOf(false);
             	}
                 Query q = session.getNamedQuery("checkForSiteMembershipInRole");
                 q.setParameter("course", course);
@@ -208,14 +208,14 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
         	ParticipationRecord record = (ParticipationRecord)list.get(0);
         	if(record.getRole().equals(role)) {
         		if(log.isDebugEnabled()) log.debug("This user is in role " + role.getDescription());
-            	return new Boolean(true);
+            	return Boolean.valueOf(true);
         	} else {
         		if(log.isDebugEnabled()) log.debug("This user is not in role " + role.getDescription());
-            	return new Boolean(false);
+            	return Boolean.valueOf(false);
         	}
         } else if(list.size() == 0){
     		if(log.isDebugEnabled()) log.debug("This user has no role in this learning context.");
-        	return new Boolean(false);
+        	return Boolean.valueOf(false);
         } else {
         	throw new RuntimeException("There are multiple participation records for this user in this learning context.");
         }

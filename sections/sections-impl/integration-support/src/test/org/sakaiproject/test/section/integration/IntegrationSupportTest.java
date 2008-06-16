@@ -107,7 +107,7 @@ public class IntegrationSupportTest extends AbstractTransactionalSpringContextTe
     	log.info("Creating section...");
 
     	CourseSection section1 = integrationSupport.createSection(course.getUuid(), "Lecture 1",
-			"category.lecture", new Integer(100), "noplace special", null, null, false,
+			"category.lecture", Integer.valueOf(100), "noplace special", null, null, false,
 			false, false, false, false, false, false);
     	
     	log.info("Adding site membership");

@@ -1437,8 +1437,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		ResourceProperties props = site.getProperties();
 		
 		// Get the existing join and switch settings, so we know what's changed
-		boolean oldJoin = new Boolean(props.getProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED)).booleanValue();
-		boolean oldSwitch = new Boolean(props.getProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED)).booleanValue();
+		boolean oldJoin = Boolean.valueOf(props.getProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED)).booleanValue();
+		boolean oldSwitch = Boolean.valueOf(props.getProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED)).booleanValue();
 		
 		props.addProperty(CourseImpl.STUDENT_REGISTRATION_ALLOWED, Boolean.toString(joinAllowed));
 		props.addProperty(CourseImpl.STUDENT_SWITCHING_ALLOWED, Boolean.toString(switchAllowed));

@@ -156,7 +156,7 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 
 		// Add a section "manually"
 		CourseSection section = sectionManager.addSection(site.getReference(),
-				"a manual section", "lec", new Integer(10), null, null, null, false, false,
+				"a manual section", "lec", Integer.valueOf(10), null, null, null, false, false,
 				false, false, false, false, false);
 		
 		// Now change this "manual by default" site to be externally controlled (automatic)

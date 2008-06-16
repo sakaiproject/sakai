@@ -50,7 +50,7 @@ public class StudentSectionDecorator extends SectionDecorator
 			boolean memberOtherSection, boolean showNegativeSpots) {
 		super(courseSection, categoryForDisplay, instructorNames, totalEnrollments, showNegativeSpots);
 		this.member = member;
-		if( ! this.member && this.spotsAvailable.equals("0")) {
+		if( ! this.member && "0".equals(this.spotsAvailable)) {
 			this.full = true;
 		}
 		if( ! this.member && ! this.full) {

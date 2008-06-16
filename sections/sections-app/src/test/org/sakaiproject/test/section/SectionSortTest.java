@@ -73,7 +73,7 @@ public class SectionSortTest extends TestCase {
 		endCal.set(Calendar.HOUR_OF_DAY, 9);
 		
 		sectionA = new CourseSectionImpl(course, "a section",
-				"a section uuid", "a category", new Integer(10), "a section location",
+				"a section uuid", "a category", Integer.valueOf(10), "a section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				true, true, false, false, false, false, false);
 
@@ -81,7 +81,7 @@ public class SectionSortTest extends TestCase {
 		endCal.set(Calendar.HOUR_OF_DAY, 10);
 
 		sectionB = new CourseSectionImpl(course, "B section",
-				"b section uuid", "a category", new Integer(20), "b section location",
+				"b section uuid", "a category", Integer.valueOf(20), "b section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, true, false, false, false, false, false);
 
@@ -89,7 +89,7 @@ public class SectionSortTest extends TestCase {
 		endCal.set(Calendar.HOUR_OF_DAY, 11);
 
 		sectionC = new CourseSectionImpl(course, "c section",
-				"c section uuid", "b category", new Integer(5), "c section location",
+				"c section uuid", "b category", Integer.valueOf(5), "c section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, true, false, false, false, false, false);
 
@@ -98,7 +98,7 @@ public class SectionSortTest extends TestCase {
 		endCal.set(Calendar.HOUR_OF_DAY, 12);
 
 		sectionD = new CourseSectionImpl(course, "D section",
-				"d section uuid", "b category", new Integer(15), "d section location",
+				"d section uuid", "b category", Integer.valueOf(15), "d section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, false, true, true, false, false, false);
 		
@@ -106,14 +106,14 @@ public class SectionSortTest extends TestCase {
 		endCal.set(Calendar.HOUR_OF_DAY, 13);
 
 		sectionE = new CourseSectionImpl(course, "E section",
-				"e section uuid", "b category", new Integer(15), "e section location",
+				"e section uuid", "b category", Integer.valueOf(15), "e section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, false, false, true, true, false, false);
 
 		// Keep these times the same as sectionE
 		
 		sectionF = new CourseSectionImpl(course, "F section",
-				"f section uuid", "b category", new Integer(15), "f section location",
+				"f section uuid", "b category", Integer.valueOf(15), "f section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, false, false, false, true, true, true);
 

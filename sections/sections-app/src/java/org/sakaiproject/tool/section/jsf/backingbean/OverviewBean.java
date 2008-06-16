@@ -75,19 +75,19 @@ public class OverviewBean extends FilteredSectionListingBean implements Serializ
 		String sortColumn = getPrefs().getOverviewSortColumn();
 		boolean sortAscending = getPrefs().isOverviewSortAscending();
 
-		if(sortColumn.equals("title")) {
+		if("title".equals(sortColumn)) {
 			return SectionDecorator.getTitleComparator(sortAscending);
-		} else if(sortColumn.equals("managers")) {
+		} else if("managers".equals(sortColumn)) {
 			return SectionDecorator.getManagersComparator(sortAscending);
-		} else if(sortColumn.equals("totalEnrollments")) {
+		} else if("totalEnrollments".equals(sortColumn)) {
 			return SectionDecorator.getEnrollmentsComparator(sortAscending, false);
-		} else if(sortColumn.equals("available")) {
+		} else if("available".equals(sortColumn)) {
 			return SectionDecorator.getEnrollmentsComparator(sortAscending, true);
-		} else if(sortColumn.equals("meetingDays")) {
+		} else if("meetingDays".equals(sortColumn)) {
 			return SectionDecorator.getDayComparator(sortAscending);
-		} else if(sortColumn.equals("meetingTimes")) {
+		} else if("meetingTimes".equals(sortColumn)) {
 			return SectionDecorator.getTimeComparator(sortAscending);
-		} else if(sortColumn.equals("location")) {
+		} else if("location".equals(sortColumn)) {
 			return SectionDecorator.getLocationComparator(sortAscending);
 		}
 		log.error("Invalid sort specified.");
