@@ -33,7 +33,7 @@
 			$tlang.getString("ediacc.sitsta")
 		</h4>
 		<p class="instruction">
-			$tlang.getString("ediacc.pubyousit")
+			$tlang.getString("ediacc.pubyousit")#if(!$!site)$tlang.getString("ediacc.pubyousit1")#end
 		</p>
 		<p class="checkbox indnt1">
 			#if ($!site)
