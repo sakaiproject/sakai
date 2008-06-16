@@ -1001,7 +1001,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		} catch (RoleConfigurationException e1) {
 			log.error("Can't find the student role for section" + sectionUuid);
 		}
-		if(studentRole != null && studentRole.equals(member.getRole())) {
+		if(studentRole != null && studentRole.equals(member.getRole().getId())) {
 			// We can not drop students from a section in externally managed sites
 			ensureInternallyManaged(section.getCourse().getUuid());
 		}
