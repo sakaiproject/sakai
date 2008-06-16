@@ -73,33 +73,33 @@ public interface SearchBuilderItem
 	/**
 	 * Action Unknown, usually becuase the record has just been created
 	 */
-	public static final Integer ACTION_UNKNOWN = new Integer(0);
+	public static final Integer ACTION_UNKNOWN = Integer.valueOf(0);
 
 	/**
 	 * Action ADD the record to the search engine, if the doc ID is set, then
 	 * remove first, if not set, check its not there.
 	 */
-	public static final Integer ACTION_ADD = new Integer(1);
+	public static final Integer ACTION_ADD = Integer.valueOf(1);
 
 	/**
 	 * Action DELETE the record from the search engine, once complete delete the
 	 * record
 	 */
-	public static final Integer ACTION_DELETE = new Integer(2);
+	public static final Integer ACTION_DELETE = Integer.valueOf(2);
 
 	/**
 	 * The action REBUILD causes the indexer thread to rebuild the index from
 	 * scratch, refetching all entities This sould only ever appear on the
 	 * master record
 	 */
-	public static final Integer ACTION_REBUILD = new Integer(11);
+	public static final Integer ACTION_REBUILD = Integer.valueOf(11);
 
 	/**
 	 * The action REFRESH causes the indexer thread to refresh the search index
 	 * from the current set of entities. If a Rebuild is in progress, the
 	 * refresh will not overrise the rebuild
 	 */
-	public static final Integer ACTION_REFRESH = new Integer(10);
+	public static final Integer ACTION_REFRESH = Integer.valueOf(10);
 
 	/**
 	 * The state of the record
@@ -118,33 +118,33 @@ public interface SearchBuilderItem
 	/**
 	 * Unknown state
 	 */
-	public static final Integer STATE_UNKNOWN = new Integer(0);
+	public static final Integer STATE_UNKNOWN = Integer.valueOf(0);
 
 	/**
 	 * Operation pending
 	 */
-	public static final Integer STATE_PENDING = new Integer(1);
+	public static final Integer STATE_PENDING = Integer.valueOf(1);
 
 	/**
 	 * Operation completed
 	 */
-	public static final Integer STATE_COMPLETED = new Integer(2);
+	public static final Integer STATE_COMPLETED = Integer.valueOf(2);
 
-	public static final Integer STATE_PENDING_2 = new Integer(3);
+	public static final Integer STATE_PENDING_2 = Integer.valueOf(3);
 	
 	/**
 	 * Locked for processng
 	 */
-	public static final Integer STATE_LOCKED = new Integer(5);
+	public static final Integer STATE_LOCKED = Integer.valueOf(5);
 	
-	public static final Integer STATE_FAILED = new Integer(6);
+	public static final Integer STATE_FAILED = Integer.valueOf(6);
 
 
-	public static final Integer ITEM = new Integer(0);
+	public static final Integer ITEM = Integer.valueOf(0);
 	
-	public static final Integer ITEM_GLOBAL_MASTER = new Integer(1);
+	public static final Integer ITEM_GLOBAL_MASTER = Integer.valueOf(1);
 	
-	public static final Integer ITEM_SITE_MASTER = new Integer(2);
+	public static final Integer ITEM_SITE_MASTER = Integer.valueOf(2);
 
 	/**
 	 * The last update to the record

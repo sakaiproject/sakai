@@ -48,7 +48,7 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		if (dbtype.equals("hsqldb"))
+		if ("hsqldb".equals(dbtype))
 		{
 			Properties properties = new Properties();
 			properties.setProperty("driverClassName", "org.hsqldb.jdbcDriver");
@@ -87,7 +87,7 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 			c.close();
 		}
 
-		if (dbtype.equals("mysql"))
+		if ("mysql".equals(dbtype))
 		{
 			Properties properties = new Properties();
 			properties.setProperty("driverClassName", "com.mysql.jdbc.Driver");

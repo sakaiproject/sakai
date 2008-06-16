@@ -996,10 +996,10 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	{
 		sbi.setName(rst.getString(1));
 		sbi.setContext(rst.getString(2));
-		sbi.setSearchaction(new Integer(rst.getInt(3)));
-		sbi.setSearchstate(new Integer(rst.getInt(4)));
+		sbi.setSearchaction(Integer.valueOf(rst.getInt(3)));
+		sbi.setSearchstate(Integer.valueOf(rst.getInt(4)));
 		sbi.setVersion(rst.getDate(5));
-		sbi.setItemscope(new Integer(rst.getInt(6)));
+		sbi.setItemscope(Integer.valueOf(rst.getInt(6)));
 		sbi.setId(rst.getString(7));
 	}
 

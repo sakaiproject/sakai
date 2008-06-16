@@ -175,7 +175,7 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 			public Object doInHibernate(Session session)
 					throws HibernateException
 			{
-				return new Integer(countPending(session.connection()));
+				return Integer.valueOf(countPending(session.connection()));
 			}
 		};
 

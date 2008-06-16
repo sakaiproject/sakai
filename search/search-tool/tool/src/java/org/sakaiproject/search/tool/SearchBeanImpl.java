@@ -268,7 +268,7 @@ public class SearchBeanImpl implements SearchBean
 						FormattedText.escapeHtml(sr.getTool(), false),
 						FormattedText.escapeHtml(sr.getUrl(), false),
 						FormattedText.escapeHtml(sr.getTitle(), false),
-						sr.getSearchResult(), new Double(sr.getScore()),
+						sr.getSearchResult(), Double.valueOf(sr.getScore()),
 						String.valueOf(sr.getIndex() + 1) }));
 			}
 		}
@@ -457,8 +457,8 @@ public class SearchBeanImpl implements SearchBean
 			end = Math.min(start + sr.size(), total);
 			start++;
 		}
-		return MessageFormat.format(headerFormat, new Object[] { new Integer(start),
-				new Integer(end), new Integer(total), new Double(timeTaken) });
+		return MessageFormat.format(headerFormat, new Object[] { Integer.valueOf(start),
+				Integer.valueOf(end), Integer.valueOf(total), Double.valueOf(timeTaken) });
 	}
 
 	/**
@@ -922,8 +922,8 @@ public class SearchBeanImpl implements SearchBean
 			start++;
 		}
 		return MessageFormat.format(Messages.getString("jsp_found_line"), new Object[] {
-				new Integer(start), new Integer(end), new Integer(total),
-				new Double(timeTaken) });
+				Integer.valueOf(start), Integer.valueOf(end), Integer.valueOf(total),
+				Double.valueOf(timeTaken) });
 
 	}
 

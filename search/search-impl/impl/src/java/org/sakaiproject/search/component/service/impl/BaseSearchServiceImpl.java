@@ -174,7 +174,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 */
 	public void setAutoDdl(String value)
 	{
-		autoDdl = new Boolean(value).booleanValue();
+		autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 	/**
 	 */

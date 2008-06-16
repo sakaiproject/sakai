@@ -160,10 +160,10 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getString(String name)
 	{
-		if ( name.equals("search.enable") ) {
+		if ( "search.enable".equals(name) ) {
 			return "true";
 		}
-		if ( name.equals("search.indexbuild") ) {
+		if ( "search.indexbuild".equals(name) ) {
 			return "true";
 		}
 		return null;
@@ -174,10 +174,10 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getString(String name, String dflt)
 	{
-		if ( name.equals("search.enable") ) {
+		if ( "search.enable".equals(name) ) {
 			return "true";
 		}
-		if ( name.equals("search.indexbuild") ) {
+		if ( "search.indexbuild".equals(name) ) {
 			return "true";
 		}
 		return dflt;
