@@ -296,6 +296,30 @@
 	</tool>
 	
 	
+	<!-- test center (mneme) -->
+	<tool 
+		toolId="sakai.mneme"
+		selected="true">
+		<event eventId="mneme.answer" selected="true"/>
+		<event eventId="mneme.assessment.delete" selected="true"/>
+		<event eventId="mneme.assessment.edit" selected="true"/>
+		<event eventId="mneme.assessment.new" selected="true"/>
+		<event eventId="mneme.assessment.publish" selected="true"/>
+		<event eventId="mneme.assessment.unpublish" selected="true"/>
+		<event eventId="mneme.auto_complete" selected="true"/>
+		<event eventId="mneme.complete" selected="true"/>
+		<event eventId="mneme.continue" selected="true"/>
+		<event eventId="mneme.enter" selected="true"/>
+		<event eventId="mneme.grade" selected="true"/>
+		<event eventId="mneme.pool.delete" selected="true"/>
+		<event eventId="mneme.pool.edit" selected="true"/>
+		<event eventId="mneme.pool.new" selected="true"/>
+		<event eventId="mneme.question.edit" selected="true"/>
+		<event eventId="mneme.question.new" selected="true"/>
+		<event eventId="mneme.review" selected="true"/>
+	</tool>
+	
+	
 	<!-- wiki (available in sakai 2.3+) -->
 	<tool 
 		toolId="sakai.rwiki"
