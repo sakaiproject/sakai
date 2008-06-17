@@ -5829,56 +5829,16 @@ public class AssignmentAction extends PagedResourceActionII
 
 				String title = aEdit.getTitle();
 
-				// remove releted event if there is one
-				String isThereEvent = pEdit.getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-				if (isThereEvent != null && isThereEvent.equals(Boolean.TRUE.toString()))
-				{
-					removeCalendarEvent(state, aEdit, pEdit, title);
-				} // if-else
+				// remove related event if there is one
+				removeCalendarEvent(state, aEdit, pEdit, title);
+				
+				// remove related announcement if there is one
+				removeAnnouncement(state, pEdit);
 
 				if (aEdit.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-				{
-					// if this is non-electronic submission, remove all the submissions
-					List submissions = AssignmentService.getSubmissions(aEdit);
-					if (submissions != null)
-					{
-						for (Iterator sIterator=submissions.iterator(); sIterator.hasNext();)
-						{
-							AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
-							try
-							{
-								AssignmentService.removeSubmission(AssignmentService.editSubmission((s.getReference())));
-							}
-							catch (Exception eee)
-							{
-								addAlert(state, rb.getString("youarenot11_s") + " " + s.getReference() + ". ");
-
-								M_log.warn(this + ":doDelete_assignment " + eee.getMessage());
-							}
-						}
-					}
-					
-					try
-					{
-						// remove the assignment content
-						AssignmentService.removeAssignmentContent(AssignmentService.editAssignmentContent(aEdit.getContent().getReference()));
-					}
-					catch (Exception eee)
-					{
-						addAlert(state, rb.getString("youarenot11_c") + " " + aEdit.getContentReference() + ". ");
-						M_log.warn(this + ":doDelete_assignment " + eee.getMessage());
-					}
-					
-					try
-					{
-						// remove the assignment afterwards
-						AssignmentService.removeAssignment(aEdit);
-					}
-					catch (Exception ee)
-					{
-						addAlert(state, rb.getString("youarenot11") + " " + aEdit.getTitle() + ". ");
-						M_log.warn(this + ":doDelete_assignment " + ee.getMessage());
-					}
+				{					
+					// remove assignment submissions, assignment content and assignment
+					deleteAssignmentObjects(state, aEdit, true);
 
 				}
 				else
@@ -5887,40 +5847,7 @@ public class AssignmentAction extends PagedResourceActionII
 					if (!AssignmentService.getSubmissions(aEdit).iterator().hasNext())
 					{
 						// there is no submission to this assignment yet, delete the assignment and assignment content record completely
-						try
-						{
-							// remove the assignment content
-							AssignmentService.removeAssignmentContent(AssignmentService.editAssignmentContent(aEdit.getContent().getReference()));
-						}
-						catch (Exception ee)
-						{
-							addAlert(state, rb.getString("youarenot11_c") + " " + aEdit.getContentReference() + ". ");
-							M_log.warn(this + ":doDelete_assignment " + ee.getMessage());
-						}
-						
-						try
-						{
-							TaggingManager taggingManager = (TaggingManager) ComponentManager
-									.get("org.sakaiproject.taggable.api.TaggingManager");
-	
-							AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
-									.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
-	
-							if (taggingManager.isTaggable()) {
-								for (TaggingProvider provider : taggingManager
-										.getProviders()) {
-									provider.removeTags(assignmentActivityProducer
-											.getActivity(aEdit));
-								}
-							}
-							
-							AssignmentService.removeAssignment(aEdit);
-						}
-						catch (PermissionException ee)
-						{
-							addAlert(state, rb.getString("youarenot11") + " " + aEdit.getTitle() + ". ");
-							M_log.warn(this + ":doDelete_assignment " + ee.getMessage());
-						}
+						deleteAssignmentObjects(state, aEdit, false);
 					}
 					else
 					{
@@ -5963,71 +5890,169 @@ public class AssignmentAction extends PagedResourceActionII
 
 	} // doDelete_Assignment
 
-	private void removeCalendarEvent(SessionState state, AssignmentEdit aEdit, ResourcePropertiesEdit pEdit, String title) throws PermissionException 
-	{
-		// remove the associated calender event
-		Calendar c = (Calendar) state.getAttribute(CALENDAR);
-		if (c != null)
+
+	/**
+	 * private function to remove assignment related announcement
+	 * @param state
+	 * @param pEdit
+	 */
+	private void removeAnnouncement(SessionState state,
+			ResourcePropertiesEdit pEdit) {
+		AnnouncementChannel channel = (AnnouncementChannel) state.getAttribute(ANNOUNCEMENT_CHANNEL);
+		if (channel != null)
 		{
-			// already has calendar object
-			// get the old event
-			CalendarEvent e = null;
-			boolean found = false;
-			String oldEventId = pEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-			if (oldEventId != null)
+			String openDateAnnounced = StringUtil.trimToNull(pEdit.getProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+			String openDateAnnouncementId = StringUtil.trimToNull(pEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+			if (openDateAnnounced != null && openDateAnnouncementId != null)
 			{
 				try
 				{
-					e = c.getEvent(oldEventId);
-					found = true;
+					channel.removeMessage(openDateAnnouncementId);
 				}
-				catch (IdUnusedException ee)
+				catch (PermissionException e)
 				{
-					// no action needed for this condition
-					M_log.warn(this + ":removeCalendarEvent " + ee.getMessage());
-				}
-				catch (PermissionException ee)
-				{
-					M_log.warn(this + ":removeCalendarEvent " + ee.getMessage());
+					M_log.warn(this + ":removeAnnouncement " + e.getMessage());
 				}
 			}
-			else
+		}
+	}
+
+	/**
+	 * private method to remove assignment and related objects
+	 * @param state
+	 * @param aEdit
+	 * @param removeSubmissions Whether or not to remove the submission objects
+	 */
+	private void deleteAssignmentObjects(SessionState state, AssignmentEdit aEdit, boolean removeSubmissions) {
+		
+		if (removeSubmissions)
+		{
+			// if this is non-electronic submission, remove all the submissions
+			List submissions = AssignmentService.getSubmissions(aEdit);
+			if (submissions != null)
 			{
-				TimeBreakdown b = aEdit.getDueTime().breakdownLocal();
-				// TODO: check- this was new Time(year...), not local! -ggolden
-				Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
-				Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
-				Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null).iterator();
-				while ((!found) && (events.hasNext()))
+				for (Iterator sIterator=submissions.iterator(); sIterator.hasNext();)
 				{
-					e = (CalendarEvent) events.next();
-					if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
+					AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
+					try
 					{
-						found = true;
+						AssignmentService.removeSubmission(AssignmentService.editSubmission((s.getReference())));
+					}
+					catch (Exception eee)
+					{
+						addAlert(state, rb.getString("youarenot11_s") + " " + s.getReference() + ". ");
+
+						M_log.warn(this + ":deleteAssignmentObjects " + eee.getMessage());
 					}
 				}
 			}
-			// remove the founded old event
-			if (found)
+		}
+		
+		try
+		{
+			// remove the assignment content
+			AssignmentService.removeAssignmentContent(AssignmentService.editAssignmentContent(aEdit.getContent().getReference()));
+		}
+		catch (Exception ee)
+		{
+			addAlert(state, rb.getString("youarenot11_c") + " " + aEdit.getContentReference() + ". ");
+			M_log.warn(this + ":deleteAssignmentObjects " + ee.getMessage());
+		}
+		
+		try
+		{
+			TaggingManager taggingManager = (TaggingManager) ComponentManager
+					.get("org.sakaiproject.taggable.api.TaggingManager");
+
+			AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
+					.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
+
+			if (taggingManager.isTaggable()) {
+				for (TaggingProvider provider : taggingManager
+						.getProviders()) {
+					provider.removeTags(assignmentActivityProducer
+							.getActivity(aEdit));
+				}
+			}
+			
+			AssignmentService.removeAssignment(aEdit);
+		}
+		catch (PermissionException ee)
+		{
+			addAlert(state, rb.getString("youarenot11") + " " + aEdit.getTitle() + ". ");
+			M_log.warn(this + ":deleteAssignmentObjects " + ee.getMessage());
+		}
+	}
+
+	private void removeCalendarEvent(SessionState state, AssignmentEdit aEdit, ResourcePropertiesEdit pEdit, String title) throws PermissionException 
+	{
+		String isThereEvent = pEdit.getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+		if (isThereEvent != null && isThereEvent.equals(Boolean.TRUE.toString()))
+		{
+			// remove the associated calendar event
+			Calendar c = (Calendar) state.getAttribute(CALENDAR);
+			if (c != null)
 			{
-				// found the old event delete it
-				try
+				// already has calendar object
+				// get the old event
+				CalendarEvent e = null;
+				boolean found = false;
+				String oldEventId = pEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+				if (oldEventId != null)
 				{
-					c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
-					pEdit.removeProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-					pEdit.removeProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+					try
+					{
+						e = c.getEvent(oldEventId);
+						found = true;
+					}
+					catch (IdUnusedException ee)
+					{
+						// no action needed for this condition
+						M_log.warn(this + ":removeCalendarEvent " + ee.getMessage());
+					}
+					catch (PermissionException ee)
+					{
+						M_log.warn(this + ":removeCalendarEvent " + ee.getMessage());
+					}
 				}
-				catch (PermissionException ee)
+				else
 				{
-					M_log.warn(this + ":removeCalendarEvent " + rb.getString("cannotrem") + " " + title + ". ");
+					TimeBreakdown b = aEdit.getDueTime().breakdownLocal();
+					// TODO: check- this was new Time(year...), not local! -ggolden
+					Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
+					Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
+					Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null).iterator();
+					while ((!found) && (events.hasNext()))
+					{
+						e = (CalendarEvent) events.next();
+						if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
+						{
+							found = true;
+						}
+					}
 				}
-				catch (InUseException ee)
+				// remove the founded old event
+				if (found)
 				{
-					M_log.warn(this + ":removeCalendarEvent " + rb.getString("somelsis") + " " + rb.getString("calen"));
-				}
-				catch (IdUnusedException ee)
-				{
-					M_log.warn(this + ":removeCalendarEvent " + rb.getString("cannotfin6") + e.getId());
+					// found the old event delete it
+					try
+					{
+						c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
+						pEdit.removeProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+						pEdit.removeProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+					}
+					catch (PermissionException ee)
+					{
+						M_log.warn(this + ":removeCalendarEvent " + rb.getString("cannotrem") + " " + title + ". ");
+					}
+					catch (InUseException ee)
+					{
+						M_log.warn(this + ":removeCalendarEvent " + rb.getString("somelsis") + " " + rb.getString("calen"));
+					}
+					catch (IdUnusedException ee)
+					{
+						M_log.warn(this + ":removeCalendarEvent " + rb.getString("cannotfin6") + e.getId());
+					}
 				}
 			}
 		}
