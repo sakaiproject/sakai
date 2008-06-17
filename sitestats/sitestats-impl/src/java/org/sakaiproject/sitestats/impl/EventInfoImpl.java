@@ -16,7 +16,7 @@ public class EventInfoImpl implements EventInfo {
 	private boolean			selected;
 	
 	public EventInfoImpl(String eventId) {
-		this.eventId = eventId;
+		this.eventId = eventId.trim();
 	}
 
 	/* (non-Javadoc)
@@ -30,7 +30,7 @@ public class EventInfoImpl implements EventInfo {
 	 * @see org.sakaiproject.sitestats.api.EventInfo#setEventId(java.lang.String)
 	 */
 	public void setEventId(String eventId) {
-		this.eventId = eventId;
+		this.eventId = eventId.trim();
 	}
 
 	/* (non-Javadoc)
@@ -38,7 +38,7 @@ public class EventInfoImpl implements EventInfo {
 	 */
 	public String getEventName() {
 		try{
-			eventName = msgs.getString(getEventId().trim());
+			eventName = msgs.getString(getEventId(), getEventId());
 		}catch(RuntimeException e){
 			eventName = getEventId().trim();
 			LOG.info("No translation found for eventId: " + eventId.trim() + ". Please specify it in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/");

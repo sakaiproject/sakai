@@ -800,7 +800,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			return "";
 		String eventName = null;
 		try{
-			eventName = msgs.getString(eventId);
+			eventName = msgs.getString(eventId, eventId);
 		}catch(MissingResourceException e){
 			LOG.warn("Missing resource bundle for event id: "+eventId, e);
 			eventName = eventId;
