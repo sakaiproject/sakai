@@ -588,7 +588,7 @@ public class SiteAction extends PagedResourceActionII {
 	// the string for course site type
 	private static final String STATE_COURSE_SITE_TYPE = "state_course_site_type";
 	
-	private static final String SITE_TEMPLATE_PREFIX = "!template";
+	private static final String SITE_TEMPLATE_PREFIX = "template";
 	
 	private static final String STATE_TYPE_SELECTED = "state_type_selected";
 
@@ -4011,9 +4011,14 @@ public class SiteAction extends PagedResourceActionII {
 					SitePage page = (SitePage) i.next();
 
 					List pageToolList = page.getTools();
-					String toolId = ((ToolConfiguration) pageToolList
-							.get(0)).getTool().getId();
-					toolIdsSelected.add(toolId);
+					if (pageToolList != null && pageToolList.size() > 0)
+					{
+						Tool tConfig = ((ToolConfiguration) pageToolList.get(0)).getTool();
+						if (tConfig != null)
+						{
+							toolIdsSelected.add(tConfig.getId());
+						}
+					}
 				}
 			}
 			state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, toolIdsSelected);
