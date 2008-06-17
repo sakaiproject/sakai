@@ -77,10 +77,10 @@
 		       
 			<h:panelGrid styleClass="sectionContainerNav" style="width:100%" columns="2" columnClasses="halfSize,halfSize">
 				<%-- Visits --%>
-				<t:htmlTag id="what-visits-option" value="span" style="#{not ReportsBean.visitsInfoAvailable? 'display:none': ''}">
+				<t:htmlTag id="what-visits-option" value="span" style="#{not ServiceBean.siteVisitsEnabled? 'display:none': ''}">
 					<t:radio index="0" for="what"/>
 				</t:htmlTag>
-                <t:outputText  id="what-visits-spacer" value="" style="#{not ReportsBean.visitsInfoAvailable? 'display:none': ''}" />
+                <t:outputText  id="what-visits-spacer" value="" style="#{not ServiceBean.siteVisitsEnabled? 'display:none': ''}" />
 				
 				<%-- Events --%>
 				<t:div>

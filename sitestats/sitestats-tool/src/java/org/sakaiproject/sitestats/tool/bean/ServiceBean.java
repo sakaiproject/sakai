@@ -306,7 +306,7 @@ public class ServiceBean {
 
 	
 	public boolean getSiteVisitsEnabled() {
-		return SST_sm.isEnableSiteVisits();
+		return SST_sm.isEnableSiteVisits() && SST_sm.isVisitsInfoAvailable();
 	}
 	
 	public boolean getSiteActivityEnabled(){

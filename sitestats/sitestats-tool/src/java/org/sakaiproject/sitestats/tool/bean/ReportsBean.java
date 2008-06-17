@@ -136,10 +136,6 @@ public class ReportsBean {
 	private String							message					= null;
 	private Collator						collator				= Collator.getInstance();	
 	
-
-	public boolean getVisitsInfoAvailable(){
-		return this.SST_sm.isVisitsInfoAvailable() && this.SST_sm.isEnableSiteVisits();
-	}
 	
 	// ######################################################################################
 	// ManagedBean property methods

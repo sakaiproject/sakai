@@ -105,7 +105,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private boolean						enableSiteVisits						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("display.users.present", false)
 																					|| org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("presence.events.log", false);
 	private boolean                     enableSiteActivity						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("enableSiteActivity@org.sakaiproject.sitestats.api.StatsManager", true);
-	private boolean 				    visitsInfoAvailable						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean( "display.users.present", true);
+	private boolean 				    visitsInfoAvailable						= enableSiteVisits; //org.sakaiproject.component.cover.ServerConfigurationService.getBoolean( "display.users.present", true);
 	private String						customToolEventsDefinitionFile			= null;
 	private String						customToolEventsAddDefinitionFile		= null;
 	private String						customToolEventsRemoveDefinitionFile	= null;
