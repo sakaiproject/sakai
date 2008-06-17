@@ -74,7 +74,7 @@
     <sakai.spring.mock.version>2.0.6</sakai.spring.mock.version>
     <sakai.commons.lang.version>2.1</sakai.commons.lang.version>
     <sakai.commons.fileupload.version>1.1.1</sakai.commons.fileupload.version>
-    <sakai.tomcat.version>tomcat-5.5.23</sakai.tomcat.version>
+    <sakai.tomcat.version>tomcat-5.5.26</sakai.tomcat.version>
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate</sakai.hibernate.artifactId>
     <sakai.hibernate.version>3.2.5.ga</sakai.hibernate.version>
