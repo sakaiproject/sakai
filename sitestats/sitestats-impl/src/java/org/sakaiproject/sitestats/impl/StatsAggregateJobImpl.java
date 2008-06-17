@@ -43,33 +43,33 @@ public class StatsAggregateJobImpl implements StatefulJob {
 	private Object				extDbdriver			= null;
 	private String				sqlGetEvent			= null;
 	private boolean				isOracle 			= false;
-	// Statement below has performance problems in MySQL (STAT-58)
-//	private final static String MYSQL_GET_EVENT		= "select EVENT_ID as EVENT_ID,EVENT_DATE as EVENT_DATE,EVENT as EVENT,REF as REF,SESSION_USER as SESSION_USER,e.SESSION_ID as SESSION_ID " +
-//														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
-//														"where EVENT_ID >= ? " +
-//														"order by EVENT_ID asc " +
-//														"limit ? offset ?";
-	private final static String MYSQL_GET_EVENT		= "select EVENT_ID as EVENT_ID,EVENT_DATE as EVENT_DATE,EVENT as EVENT,REF as REF,SESSION_USER as SESSION_USER,e.SESSION_ID as SESSION_ID " +
+	private boolean				isEventContextSupported = false;
+
+	private final static String LAST_EVENT_ID		= "select max(EVENT_ID) LAST_ID from SAKAI_EVENT";
+	private final static String MYSQL_DEFAULT_COLUMNS  = "EVENT_ID as EVENT_ID,EVENT_DATE as EVENT_DATE,EVENT as EVENT,REF as REF,SESSION_USER as SESSION_USER,e.SESSION_ID as SESSION_ID";
+	private final static String ORACLE_DEFAULT_COLUMNS = "EVENT_ID,EVENT_DATE,EVENT,REF,SESSION_USER,e.SESSION_ID SESSION_ID";
+	private final static String MYSQL_CONTEXT_COLUMN   = ",CONTEXT as CONTEXT";
+	private final static String ORACLE_CONTEXT_COLUMN  = ",CONTEXT";
+	private String MYSQL_GET_EVENT					= "select " + MYSQL_DEFAULT_COLUMNS + MYSQL_CONTEXT_COLUMN + " " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
 														"where EVENT_ID >= ? and EVENT_ID < ? " +
 														"order by EVENT_ID asc ";
-	private final static String ORACLE_GET_EVENT	= "SELECT * FROM ( " +
+	private String ORACLE_GET_EVENT					= "SELECT * FROM ( " +
 														"SELECT " +
-															" ROW_NUMBER() OVER (ORDER BY EVENT_ID ASC) AS rn," +
-															" EVENT_ID,EVENT_DATE,EVENT,REF,SESSION_USER,e.SESSION_ID SESSION_ID " +
+															" ROW_NUMBER() OVER (ORDER BY EVENT_ID ASC) AS rn, " +
+															ORACLE_DEFAULT_COLUMNS + ORACLE_CONTEXT_COLUMN + " " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
 														"where EVENT_ID >= ? " +
 														") " +
 														"WHERE rn BETWEEN ? AND  ?";
-	private final static String LAST_EVENT_ID		= "select max(EVENT_ID) LAST_ID from SAKAI_EVENT";
 	
 	// Services
 	private StatsUpdateManager	statsUpdateManager	= null;
 	private SqlService			sqlService			= null;
 
 	public void init(){
-		LOG.info("StatsAggregateJobImpl.init()");
-		doInitialCheck();		
+		doInitialCheck();
+		LOG.info("StatsAggregateJobImpl.init()");		
 	}
 	
 	private void doInitialCheck() {
@@ -83,9 +83,10 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			if(getStartEventId() < 0){
 				LOG.warn("First StatsAggregateJob job run will use last SAKAI_EVENT.EVENT_ID (id = "+getLastEventIdInTable()+"). To override this, please specify a new eventId in sakai.properties (property: startEventId@org.sakaiproject.sitestats.api.StatsAggregateJob=n, where n>=0). This value is for the first job run only.");
 			}else{
-				LOG.warn("First jStatsAggregateJob job run will use 'startEventId' ("+getStartEventId()+") specified in sakai.properties. This value is for the first job run only.");
+				LOG.warn("First StatsAggregateJob job run will use 'startEventId' ("+getStartEventId()+") specified in sakai.properties. This value is for the first job run only.");
 			}
 		}
+		
 	}
 	
 	// ################################################################
@@ -114,6 +115,10 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		}
 		
 		LOG.info("Starting job: " + jobName);
+		
+		// check for SAKAI_EVENT.CONTEXT column
+		checkForContextColumn();
+		LOG.info("SAKAI_EVENT.CONTEXT exists? "+isEventContextSupported);
 
 		// configure job
 		JobRun lastJobRun;
@@ -201,15 +206,12 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				abortIteration = true;
 				st.clearParameters();		
 				if(!isOracle){
-					// old statement parameters
-//					st.setLong(2, SQL_BLOCK_SIZE);			// MySQL limit	
-//					st.setLong(3, offset);					// MySQL offset
 					if(firstEventIdProcessed == -1)
 						offset = eventIdLowerLimit;
 					st.setLong(1, offset);					// MySQL >= startId	
 					st.setLong(2, sqlBlockSize + offset);	// MySQL < endId
 				}else{
-					st.setLong(1, eventIdLowerLimit);		// lower limit	
+					st.setLong(1, eventIdLowerLimit);		// Oracle lower limit	
 					st.setLong(2, offset);					// Oracle offset
 					st.setLong(3, sqlBlockSize + offset);	// Oracle limit	
 				}
@@ -220,6 +222,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 					Date date = null;
 					String event = null;
 					String ref = null;
+					String context = null;
 					String sessionUser = null;
 					String sessionId = null;
 					try{
@@ -229,7 +232,9 @@ public class StatsAggregateJobImpl implements StatefulJob {
 						ref = rs.getString("REF");
 						sessionUser = rs.getString("SESSION_USER");
 						sessionId = rs.getString("SESSION_ID");
-						eventsQueue.add( statsUpdateManager.buildEvent(date, event, ref, sessionUser, sessionId) );
+						if(isEventContextSupported)
+							context = rs.getString("CONTEXT");
+						eventsQueue.add( statsUpdateManager.buildEvent(date, event, ref, context, sessionUser, sessionId) );
 						
 						counter++;					
 						lastProcessedEventId = rs.getInt("EVENT_ID");
@@ -341,10 +346,17 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				connection = sqlService.borrowConnection();
 				if(sqlService.getVendor().equals("oracle")){
 					isOracle = true;
-					sqlGetEvent = ORACLE_GET_EVENT;
+					if(isEventContextSupported)
+						sqlGetEvent = ORACLE_GET_EVENT;
+					else
+						sqlGetEvent = ORACLE_GET_EVENT.replaceAll(ORACLE_CONTEXT_COLUMN, "");
+					
 				}else{
 					isOracle = false;
-					sqlGetEvent = MYSQL_GET_EVENT;
+					if(isEventContextSupported)
+						sqlGetEvent = MYSQL_GET_EVENT;
+					else
+						sqlGetEvent = MYSQL_GET_EVENT.replaceAll(MYSQL_CONTEXT_COLUMN, "");
 				}
 			}catch(SQLException e){
 				LOG.error("Unable to connect Sakai Db", e);
@@ -360,10 +372,16 @@ public class StatsAggregateJobImpl implements StatefulJob {
 					extDbdriver = Class.forName(getDriverClassName()).newInstance();
 					if(getDriverClassName().equals("oracle.jdbc.driver.OracleDriver")){
 						isOracle = true;
-						sqlGetEvent = ORACLE_GET_EVENT;
+						if(isEventContextSupported)
+							sqlGetEvent = ORACLE_GET_EVENT;
+						else
+							sqlGetEvent = ORACLE_GET_EVENT.replaceAll(ORACLE_CONTEXT_COLUMN, "");
 					}else{
 						isOracle = false;
-						sqlGetEvent = MYSQL_GET_EVENT;
+						if(isEventContextSupported)
+							sqlGetEvent = MYSQL_GET_EVENT;
+						else
+							sqlGetEvent = MYSQL_GET_EVENT.replaceAll(MYSQL_CONTEXT_COLUMN, "");
 					}
 				}
 				connection = DriverManager.getConnection(getUrl(), getUsername(), getPassword());
@@ -392,6 +410,40 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				LOG.error("Unable to close connection " + getUrl(), e);
 			}
 		}
+	}
+
+	private void checkForContextColumn() {
+		// Check for SAKAI_EVENT.CONTEXT table column
+		Connection connection = getEventDbConnection();
+		try{
+			if(isOracle)
+				sqlGetEvent = ORACLE_GET_EVENT;
+			else
+				sqlGetEvent = MYSQL_GET_EVENT;
+			PreparedStatement st = connection.prepareStatement(sqlGetEvent);
+			ResultSet rs = null;	
+			if(!isOracle){
+				st.setLong(1, 0);	// MySQL >= startId	
+				st.setLong(2, 1);	// MySQL < endId
+			}else{
+				st.setLong(1, 0);	// Oracle lower limit	
+				st.setLong(2, 0);	// Oracle offset
+				st.setLong(3, 1);	// Oracle limit	
+			}
+			rs = st.executeQuery();			
+			if(rs.next()){
+				rs.getString("CONTEXT");
+			}
+			rs.close();			
+			st.close();
+			
+			isEventContextSupported = true;
+			LOG.debug("SAKAI_EVENT.CONTEXT IS present.");
+		}catch(SQLException e){
+			LOG.debug("SAKAI_EVENT.CONTEXT is NOT present.");
+			isEventContextSupported = false;
+		}
+		closeEventDbConnection(connection);
 	}
 
 	// ################################################################

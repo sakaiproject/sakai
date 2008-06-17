@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -186,7 +188,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public Event buildEvent(Date date, String event, String ref, String sessionUser, String sessionId) {
 		return new CustomEventImpl(date, event, ref, sessionUser, sessionId);
 	}
-	
+
+	public Event buildEvent(Date date, String event, String ref, String context, String sessionUser, String sessionId) {
+		return new CustomEventImpl(date, event, ref, context, sessionUser, sessionId);
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#collectEvent(org.sakaiproject.event.api.Event)
@@ -738,9 +743,22 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 	private String parseSiteId(Event e){
 		String eventId = e.getEvent();
-		String eventRef = e.getResource();
+		
+		// get contextId (siteId) from new Event.getContext() method, if available
+		if(M_sm.isEventContextSupported()) {
+			String contextId = null;
+			try{
+				contextId = (String) e.getClass().getMethod("getContext", null).invoke(e, null);
+				LOG.debug("Context read from Event.getContext() for event: " + eventId + " - context: " + contextId);
+			}catch(Exception ex){
+				LOG.warn("Unable to get Event.getContext() for event: " + eventId, ex);
+			}
+			if(contextId != null)
+				return contextId; 
+		}
 		
 		// get contextId (siteId) from event reference
+		String eventRef = e.getResource();
 		if(eventRef != null) {
 			try{
 				if(StatsManager.SITEVISIT_EVENTID.equals(eventId)) {
@@ -756,15 +774,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					ToolInfo toolInfo = eventIdToolMap.get(eventId);
 					EventParserTip parserTip = toolInfo.getEventParserTip();
 					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)) {
-						if (eventRef != null){
-							int index = Integer.parseInt(parserTip.getIndex());
-							return eventRef.split(parserTip.getSeparator())[index];
-						}else{
-							return null;
-						}
+						int index = Integer.parseInt(parserTip.getIndex());
+						return eventRef.split(parserTip.getSeparator())[index];
 					}else {
+						LOG.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
 						// try with most common syntax (/abc/cde/SITE_ID/...)
-						return eventRef.split("/")[3];
+						//return eventRef.split("/")[3];
 					}
 				}
 			}catch(Exception ex){

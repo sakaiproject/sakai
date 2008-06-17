@@ -400,4 +400,7 @@ public interface StatsManager {
 	// ################################################################
 	/** Get site initial activity date. */
 	public Date getInitialActivityDate(String siteId);
+	
+	/** Checks whether Event.getContext is implemented in Event (from Event API) */
+	public boolean isEventContextSupported();
 }

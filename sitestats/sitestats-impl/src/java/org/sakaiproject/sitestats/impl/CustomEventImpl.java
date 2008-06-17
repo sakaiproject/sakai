@@ -9,18 +9,24 @@ public class CustomEventImpl implements Event {
 	private Date	date;
 	private String	event;
 	private String	ref;
+	private String	context;
 	private String	sessionUser;
 	private String	sessionId;
 	private boolean	modify;
 
 	public CustomEventImpl(Date date, String event, String ref, String sessionUser, String sessionId) {
-		this(date, event, ref, sessionUser, sessionId, 'm');
+		this(date, event, ref, null, sessionUser, sessionId, 'm');
 	}
 
-	public CustomEventImpl(Date date, String event, String ref, String sessionUser, String sessionId, char eventCode) {
+	public CustomEventImpl(Date date, String event, String ref, String context, String sessionUser, String sessionId) {
+		this(date, event, ref, context, sessionUser, sessionId, 'm');
+	}
+
+	public CustomEventImpl(Date date, String event, String ref, String context, String sessionUser, String sessionId, char eventCode) {
 		this.date = date;
 		this.event = event;
 		this.ref = ref;
+		this.context = context;
 		this.sessionUser = sessionUser;
 		this.sessionId = sessionId;
 		this.modify = ('m' == eventCode);
@@ -36,6 +42,10 @@ public class CustomEventImpl implements Event {
 
 	public String getResource() {
 		return ref;
+	}
+	
+	public String getContext() {
+		return context;
 	}
 
 	public String getUserId() {

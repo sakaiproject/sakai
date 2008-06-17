@@ -18,6 +18,7 @@
  **********************************************************************************/
 package org.sakaiproject.sitestats.impl;
 
+import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import java.io.StringBufferInputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,6 +54,7 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
@@ -110,6 +114,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private float						chartTransparency						= 0.80f;
 	private boolean						itemLabelsVisible						= false;
 	private boolean						lastJobRunDateVisible					= true;
+	private boolean						isEventContextSupported					= false;
 
 	/** Controller fields */
 	private List<ToolInfo>				toolEventsDefinition					= null;
@@ -256,16 +261,22 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	// Spring init/destroy methods
 	// ################################################################	
 	public void init(){
+		// Create missing db indexes, if appropriate
 		if (autoDdl && M_sql != null) {
 			DBHelper dbHelper = new DBHelper(M_sql);
 			dbHelper.updateIndexes();
 		}
 		
+		// Checks whether Event.getContext is implemented in Event (from Event API)
+		checkForEventContextSupport();
+		
+		// Load events definition file
 		loadToolEventsDefinitionFile();
-		logger.info("init(): - (site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
-								enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);		
+		
+		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
+							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);		
 	}
-
+	
 
 	// ################################################################
 	// Registered/configured events
@@ -2564,6 +2575,27 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			return new Date(0);
 		}
 		return date;
+	}
+	
+	public boolean isEventContextSupported() {
+		return isEventContextSupported;
+	}
+	
+	private void checkForEventContextSupport() {
+		try{
+			Event.class.getMethod("getContext", null);
+			isEventContextSupported = true;
+			logger.info("init(): - Event.getContext() method IS supported.");
+		}catch(SecurityException e){
+			isEventContextSupported = false;
+			logger.warn("init(): - security exception while checking for Event.getContext() method.", e);
+		}catch(NoSuchMethodException e){
+			isEventContextSupported = false;
+			logger.info("init(): - Event.getContext() method is NOT supported.");
+		}catch(Exception e){
+			isEventContextSupported = false;
+			logger.warn("init(): - unknown exception while checking for Event.getContext() method.", e);
+		}
 	}
 	
 	private List<String> searchUsers(String searchKey, String siteId){

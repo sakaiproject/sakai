@@ -87,6 +87,18 @@ public interface StatsUpdateManager {
 	 */
 	public Event buildEvent(Date date, String event, String ref, String sessionUser, String sessionId);
 	
+	/**
+	 * Construct a new Event object using specified arguments. Useful for building Events read from SAKAI_EVENT and SAKAI_SESSION table.
+	 * @param date The SAKAI_EVENT.EVENT_DATE field
+	 * @param event The SAKAI_EVENT.EVENT field
+	 * @param ref The SAKAI_EVENT.REF field
+	 * @param context The SAKAI_EVENT.CONTEXT field
+	 * @param sessionUser The SAKAI_SESSION.SESSION_USER field
+	 * @param sessionId The SAKAI_SESSION.SESSION_ID field
+	 * @return An Event object
+	 */
+	public Event buildEvent(Date date, String event, String ref, String context, String sessionUser, String sessionId);
+	
 	public boolean saveJobRun(JobRun jobRun);
 	public JobRun getLatestJobRun() throws Exception;
 	public Date getEventDateFromLatestJobRun() throws Exception;

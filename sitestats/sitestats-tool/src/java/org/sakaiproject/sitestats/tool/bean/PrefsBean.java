@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.tree2.TreeNode;
 import org.apache.myfaces.custom.tree2.TreeNodeBase;
 import org.sakaiproject.sitestats.api.EventInfo;
+import org.sakaiproject.sitestats.api.EventParserTip;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.ToolInfo;
@@ -103,22 +104,43 @@ public class PrefsBean extends InitializableBean {
 		Iterator<ToolInfo> iT = toolImpls.iterator();
 		while(iT.hasNext()){
 			ToolInfo t = iT.next();
-			ToolNodeBase toolNode = new ToolNodeBase("tool", t.getToolName(), t.getToolId(), false, t.isSelected());
-			int totalEvents = 0;
-			int selectedEvents = 0;
-			Iterator<EventInfo> iTE = t.getEvents().iterator();
-			while(iTE.hasNext()){
-				EventInfo e = iTE.next();
-				toolNode.getChildren().add(new ToolNodeBase("event", e.getEventName(), e.getEventId(), true, e.isSelected()));
-				totalEvents++;
-				if(e.isSelected())
-					selectedEvents++;
+			if(isToolSupported(t)) {			
+				ToolNodeBase toolNode = new ToolNodeBase("tool", t.getToolName(), t.getToolId(), false, t.isSelected());
+				int totalEvents = 0;
+				int selectedEvents = 0;
+				Iterator<EventInfo> iTE = t.getEvents().iterator();
+				while(iTE.hasNext()){
+					EventInfo e = iTE.next();
+					toolNode.getChildren().add(new ToolNodeBase("event", e.getEventName(), e.getEventId(), true, e.isSelected()));
+					totalEvents++;
+					if(e.isSelected())
+						selectedEvents++;
+				}
+				toolNode.setAllChildsSelected(t.isSelected() && (selectedEvents == totalEvents));
+				treeData.getChildren().add(toolNode);
 			}
-			toolNode.setAllChildsSelected(t.isSelected() && (selectedEvents == totalEvents));
-			treeData.getChildren().add(toolNode);
 		}
 
 		return treeData;
+	}
+		
+	private boolean isToolSupported(ToolInfo toolInfo) {
+		if(SST_sm.isEventContextSupported()) {
+			return true;
+		} else {
+			List<ToolInfo> siteTools = SST_sm.getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
+			Iterator<ToolInfo> i = siteTools.iterator();
+			while(i.hasNext()) {
+				ToolInfo t = i.next();
+				if(t.getToolId().equals(toolInfo.getToolId())) {
+					EventParserTip parserTip = t.getEventParserTip();
+					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 	public void setTreeData(TreeNode treeNode) {

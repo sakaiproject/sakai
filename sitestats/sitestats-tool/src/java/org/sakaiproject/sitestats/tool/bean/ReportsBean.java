@@ -56,6 +56,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventInfo;
+import org.sakaiproject.sitestats.api.EventParserTip;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.Report;
 import org.sakaiproject.sitestats.api.ReportParams;
@@ -197,7 +198,9 @@ public class ReportsBean {
 		Iterator<ToolInfo> i = siteTools.iterator();
 		while(i.hasNext()){
 			ToolInfo toolInfo = i.next();
-			tools.add(new SelectItem(toolInfo.getToolId(), toolInfo.getToolName()));
+			if(isToolSupported(toolInfo)) {
+				tools.add(new SelectItem(toolInfo.getToolId(), toolInfo.getToolName()));
+			}
 		}
 		return tools;
 	}
@@ -209,16 +212,18 @@ public class ReportsBean {
 		Iterator<ToolInfo> i = siteTools.iterator();
 		while(i.hasNext()){
 			ToolInfo toolInfo = i.next();
-			List<EventInfo> eventInfos = toolInfo.getEvents();
-			SelectItem[] eventsSelectItem = new SelectItem[eventInfos.size()];
-			int eCount = 0;
-			Iterator<EventInfo> iE = eventInfos.iterator();
-			while(iE.hasNext()){
-				EventInfo e = iE.next();
-				eventsSelectItem[eCount++] = new SelectItem(e.getEventId(), e.getEventName());
+			if(isToolSupported(toolInfo)) {
+				List<EventInfo> eventInfos = toolInfo.getEvents();
+				SelectItem[] eventsSelectItem = new SelectItem[eventInfos.size()];
+				int eCount = 0;
+				Iterator<EventInfo> iE = eventInfos.iterator();
+				while(iE.hasNext()){
+					EventInfo e = iE.next();
+					eventsSelectItem[eCount++] = new SelectItem(e.getEventId(), e.getEventName());
+				}
+				SelectItemGroup siGroup = new SelectItemGroup(toolInfo.getToolName(), toolInfo.getToolName(), true, eventsSelectItem);
+				tools.add(siGroup);
 			}
-			SelectItemGroup siGroup = new SelectItemGroup(toolInfo.getToolName(), toolInfo.getToolName(), true, eventsSelectItem);
-			tools.add(siGroup);
 		}
 		
 		return tools;
@@ -1046,6 +1051,17 @@ public class ReportsBean {
 		response.setHeader("Pragma", "public"); // Override old-style cache
 												// control
 		response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0"); // New-style
+	}
+		
+	private boolean isToolSupported(ToolInfo toolInfo) {
+		if(SST_sm.isEventContextSupported()) {
+			return true;
+		} else {
+			EventParserTip parserTip = toolInfo.getEventParserTip();
+			if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID))
+				return true;
+		}
+		return false;
 	}
 
 	
