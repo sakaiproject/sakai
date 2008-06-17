@@ -227,7 +227,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 					String sessionId = null;
 					try{
 						//If an exception is launched, iteration is not aborted but no event is added to event queue
-						date = new Date(rs.getDate("EVENT_DATE").getTime());
+						date = new Date(rs.getTimestamp("EVENT_DATE").getTime());
 						event = rs.getString("EVENT");
 						ref = rs.getString("REF");
 						sessionUser = rs.getString("SESSION_USER");
