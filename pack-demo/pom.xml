@@ -19,7 +19,7 @@
   </organization>
   <properties>
     <sakai.plugin.version>2.2</sakai.plugin.version>
-    <sakai.tomcat.version>5.5.23</sakai.tomcat.version>
+    <sakai.tomcat.version>5.5.26</sakai.tomcat.version>
   </properties>
   <dependencies>
     <dependency>
@@ -43,11 +43,11 @@
                 <delete dir="${basedir}/target/unpack"/>
                 <delete dir="${basedir}/target/pack"/>
                 
-                <!-- expand the tomcat 5.5.23 zip from the repo into the target -->
-                <unzip src="${settings.localRepository}/tomcat/tomcat/tomcat/5.5.23/tomcat-5.5.23.zip"
+                <!-- expand the tomcat zip from the repo into the target -->
+                <unzip src="${settings.localRepository}/tomcat/tomcat/tomcat/${sakai.tomcat.version}/tomcat-${sakai.tomcat.version}.zip"
                                         dest="${basedir}/target/unpack"
                                         overwrite="true" />
-                <move file="${basedir}/target/unpack/apache-tomcat-5.5.23" tofile="${basedir}/target/pack" overwrite="true" />
+                <move file="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}" tofile="${basedir}/target/pack" overwrite="true" />
                 <delete dir="${basedir}/target/unpack"/>
                  <echo>Executing cd ../;mvn -Dmaven.tomcat.home=${basedir}/target/pack -Dmaven.test.skip=true clean install sakai:deploy</echo> 
                  <exec dir="../" executable="mvn" failonerror="true" >
