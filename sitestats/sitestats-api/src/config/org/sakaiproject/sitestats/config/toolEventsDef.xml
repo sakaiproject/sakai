@@ -252,7 +252,7 @@
 	<tool 
 		toolId="sakai.poll"
 		selected="true">
-		<event eventId="poll.vote" selected="true"/>
+		<event eventId="poll.vote" selected="true" anonymous="true"/>
 		<event eventId="poll.add" selected="true"/>
 		<event eventId="poll.update" selected="true"/>
 		<event eventId="poll.delete" selected="true"/>

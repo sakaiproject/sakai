@@ -13,7 +13,7 @@ public class UserIdEidConverter extends CharacterConverter {
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		String userEid = null;
 		if(value == null){
-			userEid = "";
+			userEid = "-";
 		}else{
 			if(value instanceof String){
 				String userId = (String) value;

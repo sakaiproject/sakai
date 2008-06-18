@@ -392,6 +392,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 //        digester.addSetProperties(prefix + "toolEventsDef/tool/event" );
         digester.addBeanPropertySetter(prefix + "toolEventsDef/tool/event/eventId", "eventId" );
         digester.addBeanPropertySetter(prefix + "toolEventsDef/tool/event/selected", "selected" );
+        digester.addBeanPropertySetter(prefix + "toolEventsDef/tool/event/anonymous", "anonymous" );
         digester.addSetNext(prefix + "toolEventsDef/tool/event", "addEvent" );
         
         return digester;
@@ -1301,6 +1302,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 		report.setReportData(data);
 		
+		// consolidate anonymous events
+		report = consolidateAnonymousEvents(report);
 		
 		// add report generation date
 		if(report != null)
@@ -1309,6 +1312,49 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 	
 	
+	private Report consolidateAnonymousEvents(Report report) {
+		List<CommonStatGrpByDate> consolidated = new ArrayList<CommonStatGrpByDate>();
+		List<CommonStatGrpByDate> list = report.getReportData();
+
+		Map<String,CommonStatGrpByDate> anonMap = new HashMap<String, CommonStatGrpByDate>();
+
+		for(CommonStatGrpByDate s : list) {
+			String eventId = s.getRef();
+			if(!isAnonymousEvent(eventId)) {
+				consolidated.add(s);
+			} else {
+				CommonStatGrpByDate sMapped = anonMap.get(eventId);
+				if(sMapped != null) {
+					sMapped.setCount(sMapped.getCount() + s.getCount());
+					if(s.getDate().after(sMapped.getDate()))
+						sMapped.setDate(s.getDate());
+					anonMap.put(eventId, sMapped);
+				}else{
+					s.setUserId(null);
+					anonMap.put(eventId, s);
+				}
+			}
+		}
+		
+		for(CommonStatGrpByDate s : anonMap.values()) {
+			consolidated.add(s);
+		}
+		
+		report.setReportData(consolidated);
+		return report;
+	}
+	
+	private boolean isAnonymousEvent(String eventId) {
+		for(ToolInfo ti : toolEventsDefinition) {
+			for(EventInfo ei : ti.getEvents()) {
+				if(ei.getEventId().equals(eventId)) {
+					return ei.isAnonymous();
+				}
+			}
+		}
+		return false;
+	}
+
 	// ################################################################
 	// EventInfo related methods
 	// ################################################################

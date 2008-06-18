@@ -13,5 +13,8 @@ public interface EventInfo {
 	public boolean isSelected();
 
 	public void setSelected(boolean selected);
+	
+	public boolean isAnonymous();
 
+	public void setAnonymous(boolean anonymous);
 }

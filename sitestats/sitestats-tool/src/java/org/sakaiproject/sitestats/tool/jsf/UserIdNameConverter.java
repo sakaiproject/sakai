@@ -12,13 +12,13 @@ public class UserIdNameConverter extends CharacterConverter {
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		String name = null;
 		if (value == null) {
-			name = "";
+			name = "-";
 		} else {
 			if (value instanceof String) {
 				try{
 					name = UserDirectoryService.getUser((String)value).getDisplayName();
 				}catch(UserNotDefinedException e1){
-					name = "";
+					name = "-";
 				}
 			}
 			name = super.getAsString(context, component, (Object)name);

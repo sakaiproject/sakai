@@ -14,6 +14,7 @@ public class EventInfoImpl implements EventInfo {
 	private String			eventId;
 	private String			eventName;
 	private boolean			selected;
+	private boolean			anonymous;
 	
 	public EventInfoImpl(String eventId) {
 		this.eventId = eventId.trim();
@@ -66,6 +67,20 @@ public class EventInfoImpl implements EventInfo {
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}	
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.EventInfo#isAnonymous()
+	 */
+	public boolean isAnonymous() {
+		return anonymous;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.EventInfo#setAnonymous(boolean)
+	 */
+	public void setAnonymous(boolean anonymous) {
+		this.anonymous = anonymous;
+	}
 	
 	@Override
 	public boolean equals(Object arg0) {
