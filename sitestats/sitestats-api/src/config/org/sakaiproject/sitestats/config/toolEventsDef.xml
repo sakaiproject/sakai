@@ -304,6 +304,14 @@
 	</tool>
 	
 	
+	<!-- search -->
+	<tool 
+		toolId="sakai.search"
+		selected="true">
+		<event eventId="search.query" selected="true"/>
+	</tool>
+	
+	
 	<!-- scheduler -->
 	<tool 
 		toolId="sakai.schedule"
