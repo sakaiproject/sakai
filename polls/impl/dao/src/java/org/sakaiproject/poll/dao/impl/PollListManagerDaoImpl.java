@@ -225,10 +225,12 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 
 		//we need to get the options here
 		DetachedCriteria d = DetachedCriteria.forClass(Option.class)
-		.add( Restrictions.eq("pollId", poll.getPollId()));
+		.add( Restrictions.eq("pollId", poll.getPollId()))
+		//add an explicit order - needed by Oracle
+		.addOrder(Order.asc("optionId"));
 		List optionList = PollUtil.optionCollectionToList(getHibernateTemplate().findByCriteria(d));
 		return optionList;
-
+		
 	}
 
 
