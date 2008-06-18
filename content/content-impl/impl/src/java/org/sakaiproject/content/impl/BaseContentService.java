@@ -8572,7 +8572,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
    					i.remove();
    				}
    			}
-   			else if (currentType != null && type.equals(ResourceProperties.FILE_TYPE))
+   			else if (currentType != null && type != null && type.equals(ResourceProperties.FILE_TYPE))
    			{
    				// this one is a structured object, get rid of it
    				i.remove();
