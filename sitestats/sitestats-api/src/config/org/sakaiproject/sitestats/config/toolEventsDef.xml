@@ -334,6 +334,20 @@
 	</tool>
 	
 	
+	<!-- sakai.siteinfo -->
+	<tool 
+		toolId="sakai.siteinfo"
+		selected="true">
+		<!-- Events below are generated with the contextId from the site that trigered the action (typically, My Workspace):
+		<event eventId="site.add" selected="true"/>
+		<event eventId="site.del" selected="true"/> -->
+		<event eventId="site.upd" selected="true"/>
+		<!-- Events below are not correctly generated:
+		<event eventId="site.upd.site.mbrshp" selected="true"/> -->
+		<eventParserTip for="contextId" separator="/" index="2"/>
+	</tool>
+	 
+	
 	<!-- syllabus -->
 	<tool 
 		toolId="sakai.syllabus"
