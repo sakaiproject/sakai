@@ -120,7 +120,7 @@ public class ToolInfoImpl implements ToolInfo {
 			try{
 				LOG.info("No sakai tool found for toolId: " + toolId
 						+ " (tool undeployed?). Using bundle (if supplied) in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/ for tool name.");
-				toolName = msgs.getString(toolId);
+				toolName = msgs.getString(toolId, toolId);
 			}catch(Exception e1){
 				LOG.info("No translation found for toolId: " + toolId
 						+ " - using toolId as tool name. Please specify it in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/");
@@ -139,7 +139,7 @@ public class ToolInfoImpl implements ToolInfo {
 					try{
 						LOG.info("No sakai tool found for (additional) toolId: " + toolId
 								+ " (tool undeployed?). Using bundle (if supplied) in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/ for tool name.");
-						toolName += "/" + msgs.getString(tId);
+						toolName += "/" + msgs.getString(tId, tId);
 					}catch(Exception e1){
 						LOG.info("No translation found for (additional) toolId: " + toolId
 								+ " - using toolId as tool name. Please specify it in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/");
