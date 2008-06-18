@@ -487,6 +487,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		CREATE,
 		EDIT,
 		ERROR,
+		ERROR_FATAL,
 		LIST,
 		ADD_CITATIONS,
 		IMPORT_CITATIONS,
@@ -537,6 +538,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String TEMPLATE_CREATE = "citation/create";
 	protected static final String TEMPLATE_EDIT = "citation/edit";
 	protected static final String TEMPLATE_ERROR = "citation/error";
+	protected static final String TEMPLATE_ERROR_FATAL = "citation/error_fatal";
 	protected static final String TEMPLATE_LIST = "citation/list";
 	protected static final String TEMPLATE_ADD_CITATIONS = "citation/add_citations";
 	protected static final String TEMPLATE_IMPORT_CITATIONS = "citation/import_citations";
@@ -852,6 +854,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    return TEMPLATE_ERROR;
     }
 
+    private String buildErrorFatalPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
+    {
+		//context.put("sakai_onload", "setPopupHeight('error');");
+		//context.put("sakai_onunload", "window.opener.parent.popups['error']=null;");
+
+	    return TEMPLATE_ERROR_FATAL;
+    }
 	/**
 	 * build the context.
 	 *
@@ -1085,6 +1094,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				break;
 			case ERROR:
 				template = buildErrorPanelContext(portlet, context, rundata, state);
+				break;
+			case ERROR_FATAL:
+				template = buildErrorFatalPanelContext(portlet, context, rundata, state);
 				break;
 			case LIST:
 				template = buildListPanelContext(portlet, context, rundata, state);
@@ -1458,14 +1470,25 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	*/
 	public void doFinish ( RunData data)
 	{
+    	SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		if (pipe == null)
+		{
+			logger.warn( "doFinish() pipe = null");
+
+			setMode(state, Mode.ERROR_FATAL);
+			
+			return;			
+		}
 
 		int citationCount = 0;
 
 		if(pipe.getAction().getActionType() == ResourceToolAction.ActionType.CREATE)
 		{
-			SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+			/* PIPE remove */
+//			SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
 	    	// delete the temporary resource
 			String temporaryResourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
@@ -1531,7 +1554,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// set the alternative_reference to point to reference_root for CitationService
 		pipe.setRevisedResourceProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
 
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		/* PIPE remove */
+//		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		// get the collection we're now working on
 		CitationCollection collection = getCitationCollection(state, true);
 
@@ -1568,6 +1592,15 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 
+		if (pipe == null)
+		{
+			logger.warn( "doCancel() pipe = null");
+
+			setMode(state, Mode.ERROR_FATAL);
+			
+			return;			
+		}
+		
 		if(pipe.getAction().getActionType() == ResourceToolAction.ActionType.CREATE)
 		{
 			// TODO: delete the citation collection and all citations
@@ -3085,6 +3118,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		// TODO: if not entering as a helper, will we need to create pipe???
 
+		if (pipe == null)
+		{
+			logger.warn( "initHelper() pipe = null");
+
+			setMode(state, Mode.ERROR_FATAL);
+			
+			return true;
+			
+		}
+		
 		if(pipe.isActionCompleted())
 		{
 			return true;
