@@ -2420,17 +2420,20 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 								c.setSiteId((String)s[0]);
 								c.setCount(((Long)s[1]).longValue());
 							}
-							String toolId = eventIdToolMap.get((String)s[2]).getToolId();
-							SiteActivityByTool existing = toolidSABT.get(toolId);
-							if(existing != null){
-								// increment count for same tool
-								existing.setCount(existing.getCount() + c.getCount());
-								toolidSABT.put(toolId, existing);
-							}else{
-								// add new tool count
-								int ix = allTools.indexOf(new ToolInfoImpl(toolId));
-								c.setTool(allTools.get(ix));
-								toolidSABT.put(toolId, c);
+							ToolInfo toolInfo = eventIdToolMap.get((String)s[2]);
+							if(toolInfo != null) {
+								String toolId = toolInfo.getToolId();
+								SiteActivityByTool existing = toolidSABT.get(toolId);
+								if(existing != null){
+									// increment count for same tool
+									existing.setCount(existing.getCount() + c.getCount());
+									toolidSABT.put(toolId, existing);
+								}else{
+									// add new tool count
+									int ix = allTools.indexOf(new ToolInfoImpl(toolId));
+									c.setTool(allTools.get(ix));
+									toolidSABT.put(toolId, c);
+								}
 							}
 						}
 						// aggregate
