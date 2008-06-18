@@ -153,6 +153,86 @@
 	</tool>
 	
 	
+	<!-- OSP: Glossary -->
+	<tool
+		toolId="osp.glossary"
+		selected="true">
+		<event eventId="org.theospi.glossary.updateAdd" selected="true"/>
+		<event eventId="org.theospi.glossary.delete" selected="true"/>
+	</tool>
+	<!-- OSP: Portfolio Layouts -->
+	<tool
+		toolId="osp.presLayout"
+		selected="true">
+		<event eventId="org.theospi.layout.add" selected="true"/>
+		<event eventId="org.theospi.layout.revise" selected="true"/>
+		<event eventId="org.theospi.layout.delete" selected="true"/>
+	</tool>	
+	<!-- OSP: Matrices -->
+	<tool
+		toolId="osp.matrix"
+		selected="true">
+		<event eventId="org.theospi.scaffold.addRevise" selected="true"/>
+		<event eventId="org.theospi.scaffold.delete" selected="true"/>
+		<event eventId="org.theospi.scaffold.publish" selected="true"/>
+		<event eventId="org.theospi.form.addRevise" selected="true"/>
+		<event eventId="org.theospi.form.delete" selected="true"/>
+		<event eventId="org.theospi.review.add" selected="true"/>
+		<event eventId="org.theospi.review.revise" selected="true"/>
+		<event eventId="org.theospi.review.delete" selected="true"/>
+	</tool>
+	<!-- OSP: Forms -->
+	<tool
+		toolId="sakai.metaobj"
+		selected="true">
+		<event eventId="org.theospi.form.addRevise" selected="true"/>
+		<event eventId="org.theospi.form.delete" selected="true"/>
+	</tool>
+	<!-- OSP: Portfolios -->
+	<tool
+		toolId="osp.presentation"
+		selected="true">
+		<event eventId="org.theospi.presentation.add" selected="true"/>
+		<event eventId="org.theospi.presentation.revise" selected="true"/>
+		<event eventId="org.theospi.presentation.delete" selected="true"/>
+	</tool>
+	<!-- OSP: Evaluations -->
+	<tool
+		toolId="osp.evaluation"
+		selected="true">
+		<event eventId="org.theospi.review.add" selected="true"/>
+		<event eventId="org.theospi.review.revise" selected="true"/>
+		<event eventId="org.theospi.review.delete" selected="true"/>
+		<event eventId="org.theospi.form.addRevise" selected="true"/>
+		<event eventId="org.theospi.form.delete" selected="true"/>
+	</tool>
+	<!-- OSP: Styles -->
+	<tool
+		toolId="osp.style"
+		selected="true">
+		<event eventId="org.theospi.style.add" selected="true"/>
+		<event eventId="org.theospi.style.revise" selected="true"/>
+		<event eventId="org.theospi.style.delete" selected="true"/>
+	</tool>
+	<!-- OSP: Portfolio Templates -->
+	<tool
+		toolId="osp.presTemplate"
+		selected="true">
+		<event eventId="org.theospi.template.add" selected="true"/>
+		<event eventId="org.theospi.template.revise" selected="true"/>
+		<event eventId="org.theospi.template.delete" selected="true"/>
+	</tool>
+	<!-- OSP: Wizards -->
+	<tool
+		toolId="osp.wizard"
+		selected="true">
+		<event eventId="org.theospi.wizard.add" selected="true"/>
+		<event eventId="org.theospi.wizard.revise" selected="true"/>
+		<event eventId="org.theospi.wizard.delete" selected="true"/>
+		<event eventId="org.theospi.wizard.publish" selected="true"/>
+	</tool>
+	
+	
 	<!-- podcasts (available in sakai 2.4+) -->
 	<!-- (see SAK-10807) -->
 	<tool 
