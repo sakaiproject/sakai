@@ -110,6 +110,19 @@
 	</tool>
 
 
+	<!-- news feeds -->
+	<tool 
+		toolId="sakai.feeds"
+		selected="true">
+		<event eventId="feeds.read" selected="true"/>
+		<event eventId="feeds.subscribe.institutional" selected="true"/>
+		<event eventId="feeds.subscribe.user" selected="true"/>
+		<event eventId="feeds.unsubscribe.institutional" selected="true"/>
+		<event eventId="feeds.unsubscribe.user" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="2"/>
+	</tool>
+
+
 	<!-- message center: uncomment only the selected message center behavior
 	 configured for your installation -->
 	<!-- message center (single tool - available in sakai 2.3+) -->
