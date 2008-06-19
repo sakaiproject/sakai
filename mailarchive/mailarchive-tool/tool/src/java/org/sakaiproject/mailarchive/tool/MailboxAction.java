@@ -78,6 +78,8 @@ public class MailboxAction extends PagedResourceActionII
 	private static final String PARAM_CHANNEL = "channel";
 
 	private static final String PARAM_SITE = "site";
+	
+	private static final String PARAM_SHOW_NON_ALIAS = "showNonAlias";
 
 	/** Configure form field names. */
 	private static final String FORM_CHANNEL = "channel";
@@ -105,6 +107,8 @@ public class MailboxAction extends PagedResourceActionII
 	private static final String STATE_OPTION_OPEN = "optOpen";
 
 	private static final String STATE_OPTION_ALIAS = "optAlias";
+
+	private static final String STATE_SHOW_NON_ALIAS = "showNonAlias";
 	
 	private static final String STATE_ALERT_MESSAGE = "alertMessage";
 	
@@ -396,6 +400,12 @@ public class MailboxAction extends PagedResourceActionII
 			}
 			state.setAttribute(STATE_CHANNEL_REF, channel);
 
+			if (state.getAttribute(STATE_SHOW_NON_ALIAS) == null)
+			{
+				Boolean showNonAlias = Boolean.parseBoolean(config.getInitParameter(PARAM_SHOW_NON_ALIAS, "false"));
+				state.setAttribute(STATE_SHOW_NON_ALIAS, showNonAlias);
+			}
+			
 			if (state.getAttribute(STATE_ASCENDING) == null)
 			{
 				state.setAttribute(STATE_ASCENDING, new Boolean(false));
@@ -666,7 +676,12 @@ public class MailboxAction extends PagedResourceActionII
 		all.addAll(AliasService.getAliases(siteRef));
 
 		context.put("aliases", all);
-		context.put("nonAlias", channelRef.getContext());
+		
+		if (all.size() == 0 || (Boolean)state.getAttribute(STATE_SHOW_NON_ALIAS))
+		{
+			context.put("nonAlias", channelRef.getContext());
+		}
+		
 		context.put("serverName", ServerConfigurationService.getServerName());
 
 		// if the user has permission to send mail, drop in the email address

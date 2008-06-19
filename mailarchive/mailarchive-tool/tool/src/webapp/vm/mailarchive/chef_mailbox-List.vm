@@ -21,7 +21,9 @@
 					#foreach ($alias in $aliases)
 						<li><a href="mailto:${alias.getId()}@${serverName}" title="$tlang.getString("lis.sendmailto") ${alias.getId()}@${serverName}">${alias.getId()}@${serverName}</a></li>
 					#end
-					<li><a href="mailto:${nonAlias}@${serverName}" title="$tlang.getString("lis.sendmailto") ${nonAlias}@${serverName}">${nonAlias}@${serverName}</a></li>
+					#if(${nonAlias})
+						<li><a href="mailto:${nonAlias}@${serverName}" title="$tlang.getString("lis.sendmailto") ${nonAlias}@${serverName}">${nonAlias}@${serverName}</a></li>
+					#end
 				</ul>
 			#else
 				<p class="instruction"> $tlang.getString("lis.youarenot")</p>	

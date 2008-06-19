@@ -217,6 +217,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 		{
 			super(m_cTableName, "CHANNEL_ID", m_rTableName, "MESSAGE_ID", "CHANNEL_ID", "MESSAGE_DATE", "OWNER", "DRAFT",
 					"PUBVIEW", FIELDS, m_locksInDb, "channel", "message", user, m_sqlService);
+			m_locksAreInTable = false;
 
 		} // DbStorage
         

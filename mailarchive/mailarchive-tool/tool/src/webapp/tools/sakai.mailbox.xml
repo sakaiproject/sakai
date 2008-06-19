@@ -9,10 +9,11 @@
 
 		<configuration name="channel" value="" />
 		<configuration name="pagesize" value="20" />
+		<configuration name="showNonAlias" value="false" />
 
 		<category name="course" />
 		<category name="project" />
-      		<category name="portfolio" />
+		<category name="portfolio" />
 
 		<configuration name="functions.require" value="mail.read" /> 
 
