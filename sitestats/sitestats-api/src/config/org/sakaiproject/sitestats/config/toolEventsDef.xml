@@ -358,7 +358,7 @@
 	<!-- sakai.siteinfo -->
 	<tool 
 		toolId="sakai.siteinfo"
-		selected="true">
+		selected="false">
 		<!-- Events below are generated with the contextId from the site that trigered the action (typically, My Workspace):
 		<event eventId="site.add" selected="true"/>
 		<event eventId="site.del" selected="true"/> -->
