@@ -506,7 +506,7 @@ public class UserPrefsTool
 	{
 		if (LOG.isDebugEnabled())
 		{
-			LOG.debug("setSelectedExcludeItems(String[] " + selectedExcludeItems + ")");
+			LOG.debug("setSelectedExcludeItems(String[] " + Arrays.toString(selectedExcludeItems) + ")");
 		}
 
 		this.selectedExcludeItems = selectedExcludeItems;
@@ -528,7 +528,7 @@ public class UserPrefsTool
 	{
 		if (LOG.isDebugEnabled())
 		{
-			LOG.debug("setSelectedOrderItems(String[] " + selectedOrderItems + ")");
+			LOG.debug("setSelectedOrderItems(String[] " + Arrays.toString(selectedOrderItems) + ")");
 		}
 
 		this.selectedOrderItems = selectedOrderItems;
