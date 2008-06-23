@@ -474,7 +474,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
 					.isPopUp());
-			String alias = lookupPageToAlias(site, p);
+			String alias = lookupPageToAlias(site.getId(), p);
 			String pagerefUrl = pageUrl + Web.escapeUrl((alias != null)?alias:p.getId());
 
 			if (doPages || p.isPopUp())
@@ -936,7 +936,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return page;
 	}
 
-	public String lookupPageToAlias(Site site, SitePage page)
+	public String lookupPageToAlias(String siteId, SitePage page)
 	{
 		String alias = null;
 		List<Alias> aliases = AliasService.getAliases(page.getReference());
@@ -944,12 +944,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		{	
 			if (aliases.size() > 1 && log.isWarnEnabled())
 			{
-				log.warn("More than one alias for: "+site.getId()+ ":"+ page.getId());
+				log.warn("More than one alias for: "+siteId+ ":"+ page.getId());
 				// Sort on ID so it is consistent in the alias it uses.
 				Collections.sort(aliases, getAliasComparator());
 			}
 			alias = aliases.get(0).getId();
-			alias = parseAlias(alias, site);
+			alias = parseAlias(alias, siteId);
 		}
 		return alias;
 	}
@@ -959,9 +959,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 * @param alias
 	 * @return
 	 */
-	private String parseAlias(String aliasId, Site site)
+	private String parseAlias(String aliasId, String siteId)
 	{
-		String prefix = PAGE_ALIAS+ site.getId()+ Entity.SEPARATOR;
+		String prefix = PAGE_ALIAS+ siteId+ Entity.SEPARATOR;
 		String alias = null;
 		if (aliasId.startsWith(prefix))
 		{

@@ -105,7 +105,13 @@ public interface PortalSiteHelper
 	 */
 	SiteView getSitesView(View view, HttpServletRequest req, Session session, String siteId);
 
-
+	/**
+	 * Find an alias for a page.
+	 * @param siteId
+	 * @param page
+	 * @return <code>null</code> if no alias was found, otherwise the short alias for the page.
+	 */
+	public String lookupPageToAlias(String siteId, SitePage page);
 
 
 }
