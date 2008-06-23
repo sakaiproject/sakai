@@ -41,11 +41,26 @@ public class AliasingSiteAdvisor implements SiteAdvisor
 	
 	private ServerConfigurationService serverConfigurationService;
 
+	/**
+	 * Maximum length of a page alias.
+	 */
+	private int maxLength;
+
+	public int getMaxLength()
+	{
+		return maxLength;
+	}
+
+	public void setMaxLength(int maxLength)
+	{
+		this.maxLength = maxLength;
+	}
+
 	public void init()
 	{
-		log.info("Init");
 		if (serverConfigurationService.getBoolean(PORTAL_USE_PAGE_ALIASES, false))
 		{
+			log.info("Page aliases will be generated.");
 			siteService.addSiteAdvisor(this);
 		}
 	}
@@ -116,13 +131,16 @@ public class AliasingSiteAdvisor implements SiteAdvisor
 	private String resolvePageName(Site site, SitePage page, String title)
 	{
 		String alias = title.toLowerCase();
-        alias = alias.replaceAll("[^a-z,0-9,_ ]", ""); // Replace everything but good characters
-        alias = alias.replaceAll(" ", "_"); // Translate spaces to underscores
-        alias = alias.replaceAll("_+", "_"); // Trim multiple underscores to one
-        alias = alias.substring(0, (alias.length()>12)?10:alias.length()); // If longer than 12 characters trim to 10
-        if (alias.endsWith("_")) { // Trim trailing underscore
-            alias = alias.substring(0, alias.length()-1);
-        }
+		alias = alias.replaceAll("[^a-z,0-9,_ ]", ""); // Replace everything but good characters
+		alias = alias.replaceAll(" ", "_"); // Translate spaces to underscores
+		alias = alias.replaceAll("_+", "_"); // Trim multiple underscores to one
+		if (alias.length() > maxLength) // Trim if longer than maxlength
+		{
+			alias = alias.substring(0, maxLength); 
+		}
+		if (alias.endsWith("_")) { // Trim trailing underscore
+			alias = alias.substring(0, alias.length()-1);
+		}
 		return alias;
 	}
 
