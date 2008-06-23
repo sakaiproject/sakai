@@ -3758,19 +3758,25 @@ public class DiscussionForumTool
     return deleteMsg;
   }
 
-  private String getEventReference(Message message) {
-	  String eventRef;
-	  
-	  if (isForumsTool()) {
-		  eventRef = "/forums/";
-	  }
-	  else {
-		  eventRef="/messages&Forums/";
-	  }
-	  
-	  eventRef += message.getId() + "/del by/" + getUserNameOrEid();
-	  
-	  return eventRef;
+  /**
+   * Construct the proper String reference for an Event
+   * 
+   * @param message
+   * @return
+   */
+  private String getEventReference(Message message) 
+  {
+	  String eventMessagePrefix = "";
+	  final String toolId = ToolManager.getCurrentTool().getId();
+  	
+	  if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
+		  eventMessagePrefix = "/messagesAndForums";
+  	  else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
+  		  eventMessagePrefix = "/messages";
+  	  else
+  		  eventMessagePrefix = "/forums";
+  	
+	  return eventMessagePrefix + getContextSiteId() + "/" + message.toString() + "/" + SessionManager.getCurrentSessionUserId();
   }
   
   /**
