@@ -205,7 +205,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
    // hours * minutes * seconds * milliseconds
    private static final long MILLISECONDS_IN_DAY = (24 * 60 * 60 * 1000);
-   private static final long FUTURE_DAYS = 30;
+   private static final long FUTURE_DAYS = 7;
    
    private static final String HIDDEN = "hidden";
    private static final String SPECIFY_DATES  = "specify";
