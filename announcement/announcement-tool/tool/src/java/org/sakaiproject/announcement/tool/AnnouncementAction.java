@@ -1417,7 +1417,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			{
 				// public announcements
 				aMessage.setRange(rb.getString("range.public"));
-				rv.add(new AnnouncementWrapper(aMessage));
+				//rv.add(new AnnouncementWrapper(aMessage));
 			}
 			else
 			{
@@ -1425,7 +1425,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				{
 					// site announcements
 					aMessage.setRange(rb.getString("range.allgroups"));
-					rv.add(new AnnouncementWrapper(aMessage));
+					//rv.add(new AnnouncementWrapper(aMessage));
 				}
 				else
 				{
