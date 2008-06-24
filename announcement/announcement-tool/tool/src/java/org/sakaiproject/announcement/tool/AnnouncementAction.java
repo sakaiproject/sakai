@@ -1780,7 +1780,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						sort = SORT_GROUPTITLE;
 						sstate.setAttribute(STATE_CURRENT_SORTED_BY, sort);
 						state.setCurrentSortedBy(sort);
-						state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
+						state.setCurrentSortAsc(Boolean.FALSE.booleanValue());
 					}
 					Collection sortedGroups = new Vector();
 					for (Iterator i = new SortedIterator(groups.iterator(), new AnnouncementComparator(sort, asc)); i.hasNext();)
