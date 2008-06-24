@@ -1780,7 +1780,8 @@ public class AnnouncementAction extends PagedResourceActionII
 						sort = SORT_GROUPTITLE;
 						sstate.setAttribute(STATE_CURRENT_SORTED_BY, sort);
 						state.setCurrentSortedBy(sort);
-						state.setCurrentSortAsc(Boolean.FALSE.booleanValue());
+						//state.setCurrentSortAsc(Boolean.FALSE.booleanValue());
+						state.setCurrentSortAsc(state.getCurrentSortAsc());
 					}
 					Collection sortedGroups = new Vector();
 					for (Iterator i = new SortedIterator(groups.iterator(), new AnnouncementComparator(sort, asc)); i.hasNext();)
@@ -2787,7 +2788,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			state.setCurrentSortedBy(SORT_DATE);
 			//state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
 			sstate.setAttribute(STATE_CURRENT_SORTED_BY, SORT_DATE);
-			sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.FALSE);
+			sstate.setAttribute(STATE_CURRENT_SORT_ASC, state.getCurrentSortAsc());
 
 			// make sure auto-updates are enabled
 			enableObservers(sstate);
@@ -3345,8 +3346,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setCurrentSortedBy(SORT_DATE);
 		//state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
 		sstate.setAttribute(STATE_CURRENT_SORTED_BY, SORT_DATE);
-		sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.FALSE);
+		//sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.FALSE);
 
+		sstate.setAttribute(STATE_CURRENT_SORT_ASC, state.getCurrentSortAsc());
+		
 		// we are done with customization... back to the main (list) mode
 		sstate.removeAttribute(STATE_MODE);
 
@@ -3440,10 +3443,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		else
 		{
-			// if the messages are not already sorted by subject, set the sort sequence to be ascending
+			// if the messages are not already sorted by subject, set the sort sequence to be descending
 			state.setCurrentSortedBy(field);
 			state.setCurrentSortAsc(true);
-			sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.TRUE);
+			sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.FALSE);
 		}
 	} // setupSort
 
