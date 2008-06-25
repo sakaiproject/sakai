@@ -252,9 +252,16 @@ public class WikiAccessServlet extends HttpServlet
 
 		// if path is just "/", we don't really know if the request was to .../SERVLET or .../SERVLET/ - we want to preserve the trailing slash
 		// the request URI will tell us
-		if ("/".equals(path) && !(req.getRequestURI().endsWith("/"))) return "/wiki";
-
-		return "/wiki" + path;
+		if ("/".equals(path) && !(req.getRequestURI().endsWith("/"))) {
+            return "/wiki";
+        } else {
+			// to relax the URL: allow /wiki/site/siteId and also allow /wiki/siteId
+			if (path.startsWith("/site/")) {
+                return "/wiki" + path;
+            } else {
+			    return "/wiki/site" + path;
+            }
+		}
 	}
 
 	/**
