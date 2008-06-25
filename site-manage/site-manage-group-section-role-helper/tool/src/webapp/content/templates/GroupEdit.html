@@ -24,7 +24,7 @@
 	opt.saveNewRightOptions("newRight");
 	</SCRIPT>
 </head>
-<body onLoad="opt.init(document.forms[0])">
+<body>
 <div class="portletBody">
 	<div rsf:id="error-row:">
 		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
@@ -82,6 +82,9 @@
 			<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
 		</p>			
 	</form>
+	<SCRIPT LANGUAGE="JavaScript">
+		opt.init(document.forms[0]);
+	</SCRIPT>
 </div>
 </body>
 </html>
