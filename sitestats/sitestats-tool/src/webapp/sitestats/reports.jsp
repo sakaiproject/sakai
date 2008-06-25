@@ -14,7 +14,9 @@
 	<%/* #####  JAVASCRIPT  ##### */%>
 	<sakai:script path="/sitestats/script/common.js"/>
 	<sakai:script path="/sitestats/script/reports.js"/>
-	<sakai:script contextBase="/sakai-jsf-resource/" path="/inputDate/inputDate.js"/>
+	<sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/inputDate.js"/>		
+	<sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/calendar1.js"/>		
+	<sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/calendar2.js"/>
 
 	<%/* #####  FACES MESSAGES  ##### */%>
 	<f:subview id="allowed" rendered="#{!ServiceBean.allowed}">
