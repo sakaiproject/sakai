@@ -123,7 +123,7 @@
 							<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")" title="$tlang.getString('mb.joinsite') $!validator.escapeHtml($!site.Title)">$tlang.getString('mb.join')</a>
 						</div>	
 						</td>
-						<td headers="description">$!validator.escapeHtml($!site.Description)</td>
+						<td headers="description">$!site.Description</td>
 					</tr>
 				#end	
 			</table>

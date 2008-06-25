@@ -49,7 +49,7 @@
 							#end
 						</td>
 						<td headers="description">
-							$!validator.escapeHtml($!site.Description)
+							$!site.Description
 						</td>
 					</tr>
 				#end
