@@ -120,13 +120,13 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 		return returnedString;
 	}
 	
-	protected String plainTextContent() {
-		String content = htmlContent();
+	protected String plainTextContent(Event event) {
+		String content = htmlContent(event);
 		content = FormattedText.convertFormattedTextToPlaintext(content);
 		return content;
 	}
 	
-	protected String htmlContent() {
+	protected String htmlContent(Event event) {
 		StringBuilder buf = new StringBuilder();
 		
 		String newline = "<br />\n";
