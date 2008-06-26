@@ -106,6 +106,12 @@ alter table osp_wizard add itemFeedbackOption number(10,0) DEFAULT '0' NOT NULL;
 update osp_wizard set generalFeedbackOption=0;
 update osp_wizard set itemFeedbackOption=0;
 
+
+-- SAK-13345
+create index ISEARCHBUILDERITEM_STA_ACT on searchbuilderitem (SEARCHSTATE,SEARCHACTION); 
+drop index ISEARCHBUILDERITEM_STA; 
+
+
 --OSP SAK-11545
 alter table osp_wizard add reviewerGroupAccess number(10, 0) default '0' not null;
 
