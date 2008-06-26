@@ -167,7 +167,7 @@ public class SAK11204Fix
 	{
 
 		{
-			String test = "select count(*) from CALENDAR_EVENT where (RANGE_START is null) or (RANGE_START is null)  ";
+			String test = "select count(*) from CALENDAR_EVENT where (RANGE_START is null) or (RANGE_END is null)";
 			Connection connection = null;
 			Statement s = null;
 			ResultSet rs = null;
