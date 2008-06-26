@@ -142,7 +142,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected String htmlContent()
+	protected String htmlContent(Event event)
 	{
 		StringBuilder buf = new StringBuilder();
 		String newline = "<br />\n";
@@ -393,8 +393,8 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	}
 
 	@Override
-	protected String plainTextContent() {
-		String content = htmlContent();
+	protected String plainTextContent(Event event) {
+		String content = htmlContent(event);
 		content = FormattedText.convertFormattedTextToPlaintext(content);
 		return content;
 	}
