@@ -134,7 +134,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 
 	
 	@Override
-	protected String htmlContent() {
+	protected String htmlContent(Event event) {
 		StringBuilder buf = new StringBuilder();
 
 		// get the message
@@ -179,7 +179,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 	}
 
 	@Override
-	protected String plainTextContent() {
+	protected String plainTextContent(Event event) {
 		StringBuilder buf = new StringBuilder();
 
 		// get the message
