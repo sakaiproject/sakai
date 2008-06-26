@@ -61,22 +61,22 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	private static Log log = LogFactory.getLog(SiteEmailNotificationContent.class);
 	private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
 	
-	protected String plainTextContent() {
-		return generateContentForType(false);
+	protected String plainTextContent(Event event) {
+		return generateContentForType(false, event);
 	}
 	
-	protected String htmlContent() {
-		return generateContentForType(true);
+	protected String htmlContent(Event event) {
+		return generateContentForType(true, event);
 	}
 
-	private String generateContentForType(boolean shouldProduceHtml) {
+	private String generateContentForType(boolean shouldProduceHtml, Event event) {
 		// get the content & properties
-		Reference ref = EntityManager.newReference(this.event.getResource());
+		Reference ref = EntityManager.newReference(event.getResource());
 		// TODO:  ResourceProperties props = ref.getProperties();
 
 		// get the function
-		String function = this.event.getEvent();
-		String subject = getSubject(this.event);
+		String function = event.getEvent();
+		String subject = getSubject(event);
 
 		// use either the configured site, or if not configured, the site (context) of the resource
 		String siteId = (getSite() != null) ? getSite() : ref.getContext();
