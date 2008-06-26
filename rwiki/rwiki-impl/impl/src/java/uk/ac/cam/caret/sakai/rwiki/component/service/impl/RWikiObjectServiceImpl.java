@@ -59,6 +59,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.StringUtil;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.w3c.dom.Document;
@@ -143,6 +144,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	private AliasService aliasService;
 
+	private UserDirectoryService userDirectoryService;
+
 	/**
 	 * Configuration: to run the ddl on init or not.
 	 * 
@@ -181,6 +184,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		preferenceService = (PreferenceService) load(cm,
 				PreferenceService.class.getName());
 
+		userDirectoryService = (UserDirectoryService) load(cm,UserDirectoryService.class.getName());
 		entityManager.registerEntityProducer(this,
 				RWikiObjectService.REFERENCE_ROOT);
 		if (ServerConfigurationService.getBoolean("wiki.notification", true)) //$NON-NLS-1$
@@ -204,7 +208,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					this.renderService, this.preferenceService,
 					this.siteService, this.securityService, this.entityManager,
 					this.threadLocalManager, this.timeService,
-					this.digestService));
+					this.digestService, this.userDirectoryService));
 		}
 		
 		

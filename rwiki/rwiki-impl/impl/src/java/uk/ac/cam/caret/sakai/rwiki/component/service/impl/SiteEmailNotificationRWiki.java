@@ -44,6 +44,8 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.SiteEmailNotification;
 import org.sakaiproject.util.Web;
 
@@ -105,6 +107,8 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 
 	private MessageContent messageContent;
 
+	private UserDirectoryService userDirectoryService;
+
 
 	/**
 	 * Construct.
@@ -113,7 +117,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 			RenderService renderService, PreferenceService preferenceService,
 			SiteService siteService, SecurityService securityService,
 			EntityManager entityManager, ThreadLocalManager threadLocalManager,
-			TimeService timeService, DigestService digestService) {
+			TimeService timeService, DigestService digestService, UserDirectoryService userDirectoryService) {
 		this.renderService = renderService;
 		this.rwikiObjectService = rwikiObjectService;
 		this.preferenceService = preferenceService;
@@ -123,6 +127,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		this.threadLocalManager = threadLocalManager;
 		this.timeService = timeService;
 		this.digestService = digestService;
+		this.userDirectoryService = userDirectoryService;
 	}
 
 	/**
@@ -132,7 +137,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 			RenderService renderService, PreferenceService preferenceService,
 			SiteService siteService, SecurityService securityService,
 			EntityManager entityManager, ThreadLocalManager threadLocalManager,
-			TimeService timeService, DigestService digestService, String siteId) {
+			TimeService timeService, DigestService digestService, UserDirectoryService userDirectoryService, String siteId) {
 		super(siteId);
 		this.renderService = renderService;
 		this.rwikiObjectService = rwikiObjectService;
@@ -143,6 +148,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		this.threadLocalManager = threadLocalManager;
 		this.timeService = timeService;
 		this.digestService = digestService;
+		this.userDirectoryService = userDirectoryService;
 
 	}
 
@@ -153,7 +159,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		SiteEmailNotificationRWiki clone = new SiteEmailNotificationRWiki(
 				rwikiObjectService, renderService, preferenceService,
 				siteService, securityService, entityManager,
-				threadLocalManager, timeService, digestService);
+				threadLocalManager, timeService, digestService, userDirectoryService);
 		clone.set(this);
 
 		return clone;
@@ -176,7 +182,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 	 */
 	protected String getPlainMessage(Event event) {
 
-		MessageContent mc = getMessageContent();
+		MessageContent mc = getMessageContent(event);
 		
 		String message = Messages.getString("SiteEmailNotificationRWiki.5") + mc.title + Messages.getString("SiteEmailNotificationRWiki.6") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -193,7 +199,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 	
 	protected String getHtmlMessage(Event event) {
 
-		MessageContent mc = getMessageContent();
+		MessageContent mc = getMessageContent(event);
 		String message = 
 			    Messages.getString("SiteEmailNotificationRWiki.5") + mc.title + Messages.getString("SiteEmailNotificationRWiki.6") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -206,7 +212,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		return message;
 	}
 
-	private MessageContent getMessageContent() {
+	private MessageContent getMessageContent(Event event) {
 		if ( messageContent == null ) {
 			messageContent = new MessageContent();
 			// get the content & properties
@@ -234,7 +240,13 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 			String pageName = props.getProperty(RWikiEntity.RP_NAME);
 			String realm = props.getProperty(RWikiEntity.RP_REALM);
 			messageContent.localName = NameHelper.localizeName(pageName, realm);
-			messageContent.user = props.getProperty(RWikiEntity.RP_USER);
+			String userId = props.getProperty(RWikiEntity.RP_USER);
+			try {
+				User u = userDirectoryService.getUser(userId);
+				messageContent.user = u.getDisplayId();
+			} catch (UserNotDefinedException e) {
+				messageContent.user = userId;
+			}
 			messageContent.moddate = new Date(Long.parseLong(props
 					.getProperty(RWikiEntity.RP_VERSION))).toString();
 			try {
@@ -256,13 +268,13 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 	}
 
 	@Override
-	protected String plainTextContent() {
-		return getPlainMessage(this.event);
+	protected String plainTextContent(Event event) {
+		return getPlainMessage(event);
 	}
 
 	@Override
-	protected String htmlContent() {
-		return getHtmlMessage(this.event);
+	protected String htmlContent(Event event) {
+		return getHtmlMessage(event);
 	}
 
 	/**
