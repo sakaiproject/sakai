@@ -223,8 +223,8 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		return message;
 	}
 	
-	protected String plainTextContent() {
-		return getMessage(this.event);
+	protected String plainTextContent(Event event) {
+		return getMessage(event);
 	}
 
 	/**
