@@ -6502,7 +6502,12 @@ public class AssignmentAction extends PagedResourceActionII
 	public void doAssignment_form(RunData data)
 	{
 		ParameterParser params = data.getParameters();
+		//Added by Branden Visser: Grab the submission id from the query string
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		String actualGradeSubmissionId = (String) params.getString("submissionId");
 
+		Log.debug("chef", "doAssignment_form(): actualGradeSubmissionId = " + actualGradeSubmissionId);
+		
 		String option = (String) params.getString("option");
 		if (option != null)
 		{
@@ -6553,18 +6558,27 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else if (option.equals("returngrade"))
 			{
-				// return grading
-				doReturn_grade_submission(data);
+				//Added by Branden Visser - Check that the state is consistent
+				if (checkSubmissionStateConsistency(state, actualGradeSubmissionId)) {
+					// return grading
+					doReturn_grade_submission(data);
+				}
 			}
 			else if (option.equals("savegrade"))
 			{
-				// save grading
-				doSave_grade_submission(data);
+				//Added by Branden Visser - Check that the state is consistent
+				if (checkSubmissionStateConsistency(state, actualGradeSubmissionId)) {
+					// save grading
+					doSave_grade_submission(data);
+				}
 			}
 			else if (option.equals("previewgrade"))
 			{
-				// preview grading
-				doPreview_grade_submission(data);
+				//Added by Branden Visser - Check that the state is consistent
+				if (checkSubmissionStateConsistency(state, actualGradeSubmissionId)) {
+					// preview grading
+					doPreview_grade_submission(data);
+				}
 			}
 			else if (option.equals("cancelgrade"))
 			{
@@ -6615,6 +6629,18 @@ public class AssignmentAction extends PagedResourceActionII
 
 
 		}
+	}
+	
+	// added by Branden Visser - Check that the state is consistent
+	boolean checkSubmissionStateConsistency(SessionState state, String actualGradeSubmissionId) {
+		String stateGradeSubmissionId = (String)state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
+		Log.debug("chef", "doAssignment_form(): stateGradeSubmissionId = " + stateGradeSubmissionId);
+		boolean is_good = stateGradeSubmissionId.equals(actualGradeSubmissionId);
+		if (!is_good) {
+		    Log.warn("chef", "doAssignment_form(): State is inconsistent! Aborting grade save.");
+		    addAlert(state, rb.getString("grading.alert.multiTab"));
+		}
+		return is_good;
 	}
 
 	/**
