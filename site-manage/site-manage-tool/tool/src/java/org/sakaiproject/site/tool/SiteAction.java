@@ -7964,7 +7964,7 @@ public class SiteAction extends PagedResourceActionII {
 
 				// Add worksite information tool
 				ToolConfiguration tool = page.addTool();
-				Tool reg = ToolManager.getTool("SITE_INFORMATION_TOOL");
+				Tool reg = ToolManager.getTool(SITE_INFORMATION_TOOL);
 				tool.setTool("SITE_INFORMATION_TOOL", reg);
 				tool.setTitle(reg.getTitle());
 				tool.setLayoutHints("0,0");
@@ -8481,7 +8481,7 @@ public class SiteAction extends PagedResourceActionII {
 
 					// Add worksite information tool
 					ToolConfiguration tool = page.addTool();
-					Tool wsInfoTool = ToolManager.getTool("SITE_INFORMATION_TOOL");
+					Tool wsInfoTool = ToolManager.getTool(SITE_INFORMATION_TOOL);
 					tool.setTool("SITE_INFORMATION_TOOL", wsInfoTool);
 					tool.setTitle(wsInfoTool != null?wsInfoTool.getTitle():"");
 					tool.setLayoutHints("0,0");
