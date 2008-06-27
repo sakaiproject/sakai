@@ -496,9 +496,9 @@ public class SignupMeeting implements MeetingTypes {
 	 */
 	public boolean isMeetingCrossDays() {
 		cal.setTime(getStartTime());
-		int startingDay = cal.get(Calendar.DAY_OF_MONTH);
+		int startingDay = cal.get(Calendar.DAY_OF_YEAR);
 		cal.setTime(getEndTime());
-		int endingDay = cal.get(Calendar.DAY_OF_MONTH);
+		int endingDay = cal.get(Calendar.DAY_OF_YEAR);
 		return (startingDay != endingDay);
 	}
 	

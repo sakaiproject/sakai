@@ -65,8 +65,9 @@
 						<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.endTime}">
 							<f:convertDateTime timeStyle="short" />
 						</h:outputText>
+						<h:outputText value=",&nbsp;" escape="false" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}"/>
 						<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}" >
-								<f:convertDateTime pattern=", EEEEEEEE" />
+								<f:convertDateTime dateStyle="full"/>
 						</h:outputText>	
 					</h:panelGroup>	
 
@@ -120,14 +121,17 @@
 								styleClass="longtext">
 								<f:convertDateTime timeStyle="short"/>
 							</h:outputText>
+							<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+								<f:convertDateTime pattern=", EEE" />
+							</h:outputText>	
 							<h:outputText value="#{msgs.timeperiod_divider}" escape="false"
 								styleClass="longtext" />
 							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}"
 								styleClass="longtext">
 								<f:convertDateTime timeStyle="short"/>
 							</h:outputText>
-							<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-								<f:convertDateTime pattern=", EEEEEEEE" />
+							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+								<f:convertDateTime pattern=", EEE" />
 						</h:outputText>	
 						</h:panelGroup>
 					</h:column>

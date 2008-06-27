@@ -93,11 +93,17 @@ public class AttendeeSignupEmail extends SignupEmailBase {
 		message.append(rb.getString("body.greeting") + space + makeFirstCapLetter(creator.getDisplayName()) + "," + newline);
 		message.append(newline + makeFirstCapLetter(currentUser.getDisplayName()) + space + rb.getString("body.attendee.hasSignup"));
 		message.append(newline + newline + rb.getString("body.meetingTopic") + space + meeting.getTitle());			
-		message.append(newline + rb.getString("body.timeslot") + space
-				+ getTime(timeslot.getStartTime()).toStringLocalTime() 
-				+ " - "
-				+ getTime(timeslot.getEndTime()).toStringLocalTime() + space + rb.getString("body.on") + space
-				+ getTime(timeslot.getStartTime()).toStringLocalDate());
+		if(!meeting.isMeetingCrossDays())
+			message.append(newline + rb.getString("body.timeslot") + space
+					+ getTime(timeslot.getStartTime()).toStringLocalTime() 
+					+ " - "
+					+ getTime(timeslot.getEndTime()).toStringLocalTime() + space + rb.getString("body.on") + space
+					+ getTime(timeslot.getStartTime()).toStringLocalDate());
+		else
+			message.append(newline + rb.getString("body.timeslot") + space
+					+ getTime(timeslot.getStartTime()).toStringLocalTime() + ", " + getTime(timeslot.getStartTime()).toStringLocalShortDate()
+					+ "  -  "
+					+ getTime(timeslot.getEndTime()).toStringLocalTime() + ", " + getTime(timeslot.getEndTime()).toStringLocalShortDate());
 		
 		/*footer*/
 		message.append(newline + getFooter(newline));

@@ -22,12 +22,15 @@
 		  		   		<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.startTime}">
 							<f:convertDateTime timeStyle="short" />
 						</h:outputText>
+						<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.startTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+								<f:convertDateTime pattern=", EEEEEEEE" />
+						</h:outputText>	
 						<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 						<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.endTime}">
 							<f:convertDateTime timeStyle="short" />
 						</h:outputText>
 						<h:outputText value=",&nbsp;" escape="false"></h:outputText>
-						<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.startTime}" styleClass="longtext">
+						<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.endTime}" styleClass="longtext">
 							<f:convertDateTime dateStyle="full"/>
 						</h:outputText>
 					</h:panelGroup>			

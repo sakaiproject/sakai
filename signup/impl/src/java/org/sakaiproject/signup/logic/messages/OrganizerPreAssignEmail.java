@@ -91,9 +91,14 @@ public class OrganizerPreAssignEmail extends SignupEmailBase {
 		message.append(rb.getString("body.greeting") + space + makeFirstCapLetter(user.getDisplayName()) + "," + newline);
 		message.append(newline + rb.getString("body.organizerPreAssign.appointment") + space + organizer.getDisplayName() + rb.getString("body.word.period"));
 		message.append(newline + newline + rb.getString("body.meetingTopic") + space + meeting.getTitle());
-		message.append(newline + rb.getString("body.meeting.time") + space + getTime(timeslot.getStartTime()).toStringLocalTime() + " - "
+		if(!meeting.isMeetingCrossDays())
+			message.append(newline + rb.getString("body.meeting.time") + space + getTime(timeslot.getStartTime()).toStringLocalTime() + " - "
 				+ getTime(timeslot.getEndTime()).toStringLocalTime() + space + rb.getString("body.on") + space
 				+ getTime(timeslot.getStartTime()).toStringLocalDate());
+		else
+			message.append(newline + rb.getString("body.meeting.time") + space + getTime(timeslot.getStartTime()).toStringLocalTime() +", " 
+					+ getTime(timeslot.getStartTime()).toStringLocalShortDate() + space + " - " + space
+					+ getTime(timeslot.getEndTime()).toStringLocalTime() + ", " + getTime(timeslot.getEndTime()).toStringLocalShortDate());
 		
 		message.append(newline + rb.getString("body.meeting.place") + space + meeting.getLocation());
 		message.append(newline + newline + meeting.getDescription());

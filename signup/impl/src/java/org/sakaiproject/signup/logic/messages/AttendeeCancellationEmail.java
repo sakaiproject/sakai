@@ -105,11 +105,18 @@ public class AttendeeCancellationEmail extends SignupEmailBase {
 		message.append(newline + rb.getString("body.timeslot") + space );
 		/* Currently, we only consider the first one */
 		if (intiatorItem.getRemovedFromTimeslot() != null && !intiatorItem.getRemovedFromTimeslot().isEmpty())
-			message.append(getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime()
+			if(!meeting.isMeetingCrossDays())
+				message.append(getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime()
 					+ " - "
 					+ getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime() + space
 					+ rb.getString("body.on")+ space
 					+ getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalDate());
+			else
+				message.append(getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime() + ", " 
+						+ getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalShortDate()
+						+ "  -  "
+						+ getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime()
+						+ ", " + getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalShortDate());
 
 		message.append(newline + getFooter(newline));
 		return message.toString();

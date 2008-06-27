@@ -93,10 +93,15 @@ public class AddAttendeeEmail extends SignupEmailBase {
 		message.append(newline + makeFirstCapLetter(organizer.getDisplayName()) + space + rb.getString("body.assigned.new.appointment"));
 		message.append(newline + newline + rb.getString("body.meetingTopic")+ space + meeting.getTitle());	
 			
-		message.append(newline + rb.getString("body.timeslot") + space
+		if(!meeting.isMeetingCrossDays())
+			message.append(newline + rb.getString("body.timeslot") + space
 				+ getTime(item.getAddToTimeslot().getStartTime()).toStringLocalTime() + " - "
 				+ getTime(item.getAddToTimeslot().getEndTime()).toStringLocalTime() + space + rb.getString("body.on")
 				+ space + getTime(item.getAddToTimeslot().getStartTime()).toStringLocalDate());
+		else
+			message.append(newline + rb.getString("body.timeslot") + space
+					+ getTime(item.getAddToTimeslot().getStartTime()).toStringLocalTime() + ", " + getTime(item.getAddToTimeslot().getStartTime()).toStringLocalShortDate() + space + " - " + space
+					+ getTime(item.getAddToTimeslot().getEndTime()).toStringLocalTime() + ", " + getTime(item.getAddToTimeslot().getEndTime()).toStringLocalShortDate());
 		
 		message.append(newline + newline+ rb.getString("body.attendeeCheck.meetingStatus.B"));
 		

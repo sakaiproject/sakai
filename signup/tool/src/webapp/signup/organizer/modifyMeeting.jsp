@@ -73,7 +73,7 @@
 							<h:panelGroup styleClass="longtext" rendered="#{!EditMeetingSignupMBean.individualType}">
 								<h:inputText id="totalDuration" value="#{EditMeetingSignupMBean.totalEventDuration}" styleClass="editText" 
 									required="true" >
-									<f:validateLongRange minimum="1" maximum="10000"/>
+									<f:validateLongRange minimum="1" maximum="1000000"/>
 								</h:inputText>
 								<h:message for="totalDuration" errorClass="alertMessageInline"/>
 							</h:panelGroup>
@@ -121,7 +121,7 @@
 							<h:panelGroup rendered="#{EditMeetingSignupMBean.individualType}">
 								<h:inputText id="durationOfTS" value="#{EditMeetingSignupMBean.durationOfTslot}" styleClass="editText" 
 									required="true" rendered="#{EditMeetingSignupMBean.individualType}" >
-									<f:validateLongRange minimum="1" maximum="1000"/>
+									<f:validateLongRange minimum="1" maximum="1000000"/>
 								</h:inputText>
 								<h:message for="durationOfTS" errorClass="alertMessageInline"/>
 							</h:panelGroup>

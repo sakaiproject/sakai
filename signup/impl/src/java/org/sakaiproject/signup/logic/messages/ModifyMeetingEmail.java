@@ -81,9 +81,16 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 		message.append(newline + rb.getString("body.organizerModified.meeting") + space + makeFirstCapLetter(organizer.getDisplayName()) + ":");
 		
 		message.append(newline + newline + rb.getString("body.meetingTopic") + space + meeting.getTitle());
-		message.append(newline + rb.getString("body.meeting.time") + space + getTime(meeting.getStartTime()).toStringLocalDate() + space + " -" + space + rb.getString("body.word.from") + space
+		if(!meeting.isMeetingCrossDays())
+			message.append(newline + rb.getString("body.meeting.time") + space + getTime(meeting.getStartTime()).toStringLocalDate() + space + " -" + space + rb.getString("body.word.from") + space
 				+ getTime(meeting.getStartTime()).toStringLocalTime() + space + rb.getString("body.word.to") + space
 				+ getTime(meeting.getEndTime()).toStringLocalTime());
+		else
+			message.append(newline + rb.getString("body.meeting.time") + space 
+					+ getTime(meeting.getStartTime()).toStringLocalTime() + ", " + getTime(meeting.getStartTime()).toStringLocalShortDate()
+					+ space + space + rb.getString("body.word.to") + space + space 
+					+ getTime(meeting.getEndTime()).toStringLocalTime() + ", " + getTime(meeting.getEndTime()).toStringLocalShortDate());
+			
 		message.append(newline + rb.getString("body.meeting.place") + space + meeting.getLocation());
 		
 		message.append(newline + newline + meeting.getDescription());

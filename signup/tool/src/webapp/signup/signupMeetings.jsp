@@ -113,9 +113,15 @@
 								<h:outputText value="#{wrapper.meeting.startTime}">
 									<f:convertDateTime timeStyle="short" />
 								</h:outputText>
+								<h:outputText value="#{wrapper.meeting.startTime}" rendered="#{wrapper.meeting.meetingCrossDays}">
+											<f:convertDateTime pattern=", EEE" />
+								</h:outputText>
 								<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 								<h:outputText value="#{wrapper.meeting.endTime}">
 									<f:convertDateTime timeStyle="short" />
+								</h:outputText>
+								<h:outputText value="#{wrapper.meeting.endTime}" rendered="#{wrapper.meeting.meetingCrossDays}">
+											<f:convertDateTime pattern=", EEE" />
 								</h:outputText>	
 							</h:panelGroup>	
 						</t:column>

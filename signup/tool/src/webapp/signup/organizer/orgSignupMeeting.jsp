@@ -54,12 +54,16 @@
 							<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.startTime}">
 								<f:convertDateTime timeStyle="short" />
 							</h:outputText>
+							<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+								<f:convertDateTime pattern=", EEEEEEEE" />
+							</h:outputText>
 							<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 							<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.endTime}">
 								<f:convertDateTime timeStyle="short" />
 							</h:outputText>
+							<h:outputText value=",&nbsp;" escape="false" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}"/>
 							<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-									<f:convertDateTime  pattern=", EEEEEEEE" />
+									<f:convertDateTime dateStyle="full"/>
 							</h:outputText>
 						</h:panelGroup>		
 						
@@ -119,24 +123,30 @@
 									   			<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}">
 													<f:convertDateTime timeStyle="short" />
 												</h:outputText>
+												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+													<f:convertDateTime pattern=", EEE" />
+												</h:outputText>
 												<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}">
 													<f:convertDateTime timeStyle="short" />
 												</h:outputText>
-												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-													<f:convertDateTime pattern=", EEEEEEEE" />
+												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+													<f:convertDateTime pattern=", EEE" />
 												</h:outputText>
 											</h:outputLink>
 											<h:panelGroup rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}">
 													<f:convertDateTime timeStyle="short" />
 												</h:outputText>
+												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+													<f:convertDateTime pattern=", EEE" />
+												</h:outputText>
 												<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}">
 													<f:convertDateTime timeStyle="short" />
 												</h:outputText>
-												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-													<f:convertDateTime pattern=", EEEEEEEE" />
+												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+													<f:convertDateTime pattern=", EEE" />
 												</h:outputText>
 											</h:panelGroup>
 										</h:panelGroup>

@@ -90,10 +90,17 @@ public class PromoteAttendeeEmail extends SignupEmailBase {
 		message.append(newline + newline + rb.getString("body.meetingTopic") + space + meeting.getTitle());
 		message.append(newline + rb.getString("body.timeslot") + space + meeting.getTitle());
 
-		message.append(newline + rb.getString("body.timeslot") + space
+		if(!meeting.isMeetingCrossDays())
+			message.append(newline + rb.getString("body.timeslot") + space
 				+ getTime(item.getAddToTimeslot().getStartTime()).toStringLocalTime() + " - "
 				+ getTime(item.getAddToTimeslot().getEndTime()).toStringLocalTime() + space + rb.getString("body.on")
 				+ space + getTime(item.getAddToTimeslot().getStartTime()).toStringLocalDate());
+		else
+			message.append(newline + rb.getString("body.timeslot") + space
+				+ getTime(item.getAddToTimeslot().getStartTime()).toStringLocalTime() + ", " + getTime(item.getAddToTimeslot().getStartTime()).toStringLocalShortDate()
+				+ "  -  "
+				+ getTime(item.getAddToTimeslot().getEndTime()).toStringLocalTime() + ", "
+				+ getTime(item.getAddToTimeslot().getEndTime()).toStringLocalShortDate());
 
 		/*If you want more detail info, include the following block*/
 		/*if (getCancelledSlots() !=null){

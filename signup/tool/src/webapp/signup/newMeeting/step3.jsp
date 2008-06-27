@@ -35,7 +35,7 @@
 					<h:outputText value="#{msgs.event_duration_each_timeslot_not_bold}" styleClass="titleText" escape="false"/>
 					<h:panelGroup>
 						<h:inputText id="timeperiod" value="#{NewSignupMeetingBean.timeSlotDuration}" styleClass="editText" onkeyup="reCalculateTime();return false;">
-							<f:validateLongRange minimum="1" maximum="1000"/>
+							<f:validateLongRange minimum="1" maximum="1000000"/>
 						</h:inputText>
 						<h:message for="timeperiod" errorClass="alertMessageInline"/>
 					</h:panelGroup>																								

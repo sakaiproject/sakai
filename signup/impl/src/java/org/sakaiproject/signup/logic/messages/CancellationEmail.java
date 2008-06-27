@@ -124,9 +124,15 @@ public class CancellationEmail extends SignupEmailBase {
 		List<SignupTimeslot> removedFromTimeslots = item.getRemovedFromTimeslot();
 		if (!removedFromTimeslots.isEmpty()) {
 			for (SignupTimeslot timeslot : removedFromTimeslots) {
-				message.append(getTime(timeslot.getStartTime()).toStringLocalTime() + " - "
+				if(!meeting.isMeetingCrossDays())
+					message.append(getTime(timeslot.getStartTime()).toStringLocalTime() + " - "
 						+ getTime(timeslot.getEndTime()).toStringLocalTime() + space + rb.getString("body.on") + space
 						+ getTime(timeslot.getStartTime()).toStringLocalDate() + newline);
+				else
+					message.append(getTime(timeslot.getStartTime()).toStringLocalTime() + ", " + getTime(timeslot.getStartTime()).toStringLocalShortDate() 
+							+ "  -  "
+							+ getTime(timeslot.getEndTime()).toStringLocalTime() + ", "
+							+ getTime(timeslot.getEndTime()).toStringLocalShortDate() + newline);
 			}
 		}
 
