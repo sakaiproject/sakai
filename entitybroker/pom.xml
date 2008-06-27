@@ -35,14 +35,40 @@
     </parent>
 
     <!-- Define the modules that are part of this -->
-    <modules>
-        <module>api</module>
-        <module>impl</module>
-        <module>tool</module>
-        <module>pack</module>
-        <module>mocks</module>
-        <module>utils</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>full</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>api</module>
+                <module>impl</module>
+                <module>tool</module>
+                <module>pack</module>
+                <module>mocks</module>
+                <module>utils</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>tool</id>
+            <modules>
+                <module>tool</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>api</id>
+            <modules>
+                <module>api</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>utils</id>
+            <modules>
+                <module>utils</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <!-- Project developers -->
     <developers>
