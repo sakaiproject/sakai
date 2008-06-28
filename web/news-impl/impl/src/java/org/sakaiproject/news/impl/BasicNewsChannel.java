@@ -236,7 +236,8 @@ public class BasicNewsChannel implements NewsChannel
 			{
 				SyndEnclosure syndEnclosure = (SyndEnclosure) syndEnclosures.get(j);
 
-				enclosures.add(new BasicNewsItemEnclosure(syndEnclosure.getUrl(), 
+				enclosures.add(new BasicNewsItemEnclosure(
+								FormattedText.processEscapedHtml(syndEnclosure.getUrl()), 
 								syndEnclosure.getType(), syndEnclosure.getLength()));
 
 			}

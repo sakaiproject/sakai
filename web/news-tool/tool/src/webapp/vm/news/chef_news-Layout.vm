@@ -30,7 +30,7 @@
 		#end
 		<p class="textPanelFooter">
 		#if($channel.Link)
-			<a href="$validator.escapeHtml($channel.Link)" target="_blank" title="$channel.Title">($graphic_version)</a>
+			<a href="$channel.Link" target="_blank" title="$channel.Title">($graphic_version)</a>
 		#end
 		#if($channel.Copyright)
 			- $channel.Copyright
@@ -48,9 +48,9 @@
 			#if($item.Title)
 				<h4 class="textPanelHeader">
 					#if($item.Link)
-						<a href="$validator.escapeHtml($item.Link)" target="_blank" title="$tlang.getString("goto.item")">
+						<a href="$item.Link" target="_blank" title="$tlang.getString("goto.item")">
 					#end
-					$validator.escapeHtml($item.Title)
+					$item.Title
 					#if($item.Link)
 						</a>
 					#end
@@ -62,10 +62,10 @@
 				</div>	
 				<p class="textPanelFooter">
 			#if($item.Link)
-				 <a href="$validator.escapeHtml($item.Link)" target="_blank" title="$tlang.getString("goto.item")">($full_story)</a>
+				 <a href="$item.Link" target="_blank" title="$tlang.getString("goto.item")">($full_story)</a>
 			 #end
 			#foreach ($enc in $item.Enclosures)
-			 	<a href="$validator.escapeHtml($enc.Url)" target="_blank" title="$validator.escapeHtml($enc.Url)">$validator.escapeHtml($enc.Url)</a> ($enc.Type, $enc.Length Bytes) <br>
+			 	<a href="$enc.Url" target="_blank" title="$enc.Ur)">$enc.Url</a> ($enc.Type, $enc.Length Bytes) <br>
 			#end
 			 #if($item.Pubdate && !($item.Pubdate == ""))
 				($item.Pubdate)
