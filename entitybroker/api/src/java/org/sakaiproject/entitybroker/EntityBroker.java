@@ -88,6 +88,25 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
    public String getEntityURL(String reference, String viewKey, String extension);
 
    /**
+    * Get the {@link EntityView} object which represents a specific view
+    * of an entity or entity collection, this is similar to {@link #getEntityURL(String, String, String)}
+    * but allows the developer to deal with the {@link EntityView} object if desired
+    * 
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optionally the local id
+    * @param viewKey the specific view type to get the URL for,
+    * use the VIEW_* constants from {@link EntityView} (e.g. {@link EntityView#VIEW_LIST}),
+    * can be null to determine the key automatically
+    * @param extension the optional extension to add to the end 
+    * which defines the expected data which is returned,
+    * use constants in {@link Outputable} (e.g. {@link Outputable#XML}),
+    * can be null to use no extension,  default is assumed to be html if none is set
+    * @return an EntityView object if one can be formed
+    * @throws IllegalArgumentException if the params cannot be made into an EntityView 
+    */
+   public EntityView getEntityView(String reference, String viewKey, String extension);
+
+   /**
     * Fire an event to Sakai with the specified name, targetted at the supplied reference, which
     * should be a reference to an existing entity managed by this broker<br/>
     * <b>NOTE:</b> This will allow events to be fired for references without a broker or invalid references

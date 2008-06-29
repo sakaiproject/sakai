@@ -455,6 +455,7 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       return toolURL;
    }
 
+
    // PERMISSIONS
 
    public void registerPermission(String permission) {

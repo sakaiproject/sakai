@@ -189,10 +189,32 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return url;
    }
 
+   public int fireEntityRequestParams(String reference, String viewKey, String format, Map<String, String> params) {
+      // TODO
+      /**
+      String url = entityBroker.getEntityURL(reference);
+      HttpClient httpClient= new HttpClient();
+      PostMethod postMethod = new PostMethod(url);
+      postMethod.addParameter("markup", "You loaded the feed tool!");
+
+      try {
+         httpClient.executeMethod(postMethod);
+      } catch(Exception e) {
+         //Log it!
+      }
+      **/
+      return 0;
+   }
+
+   public int fireEntityRequestObject(String reference, String viewKey, String format, Object entity) {
+      // TODO
+      return 0;
+   }
+
    /**
     * Reduce code duplication and ensure custom templates are used
     */
-   private EntityView makeEntityView(EntityReference ref, String viewKey, String extension) {
+   public EntityView makeEntityView(EntityReference ref, String viewKey, String extension) {
       EntityView view = new EntityView();
       EntityViewUrlCustomizable custom = (EntityViewUrlCustomizable) entityProviderManager
       .getProviderByPrefixAndCapability(ref.getPrefix(), EntityViewUrlCustomizable.class);

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- Aaron Zeckoski (aaronz@vt.edu) -->
+<beans>
+    <!-- providers which are supplied as part of the entity broker itself are defined here -->
+
+    <bean id="org.sakaiproject.entitybroker.providers.UserEntityProvider" 
+            class="org.sakaiproject.entitybroker.providers.UserEntityProvider">
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
+
+</beans>

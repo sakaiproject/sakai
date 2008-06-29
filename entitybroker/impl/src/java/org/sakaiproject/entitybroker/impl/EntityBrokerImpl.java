@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.dao.EntityProperty;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -109,6 +110,15 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     */
    public String getEntityURL(String reference, String viewKey, String extension) {
       return entityHandler.getEntityURL(reference, viewKey, extension);
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#getEntityView(java.lang.String, java.lang.String, java.lang.String)
+    */
+   public EntityView getEntityView(String reference, String viewKey, String extension) {
+      EntityReference ref = parseReference(reference);
+      EntityView ev = entityHandler.makeEntityView(ref, viewKey, extension);
+      return ev;
    }
 
    /* (non-Javadoc)
