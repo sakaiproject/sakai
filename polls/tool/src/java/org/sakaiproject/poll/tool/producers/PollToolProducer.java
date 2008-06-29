@@ -218,7 +218,7 @@ DefaultView,NavigationCaseReporter {
 		UIMessage.make(deleteForm, "poll-remove-title", "poll_remove_title");
 
 		StringList deletable = new StringList();
-		m_log.debug("got a list of " + polls.size() + " polls");
+		
 		for (int i = 0 ; i < polls.size(); i++) {
 			Poll poll = (Poll)polls.get(i);
 			boolean canVote = pollIsVotable(poll);

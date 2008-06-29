@@ -97,7 +97,6 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker arg2) {
 		m_log.debug("rendering view");
-		Poll poll = null;
 		
 		UIOutput.make(tofill,"confirm_delete",messageLocator.getMessage("delete_confirm"));
 		UIOutput.make(tofill,"error",messageLocator.getMessage("delete_option_message"));
@@ -109,7 +108,12 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 			// passed in an id so we should be modifying an item if we can find it
 			option = pollListManager.getOptionById(Long.valueOf(aivp.id));
 		} 
-
+		
+		if (option == null) {
+			m_log.error("no such option found!");
+			return;
+		}
+		
 		UIVerbatim.make(tofill,"poll_text",option.getOptionText());
 		UIForm form = UIForm.make(tofill,"opt-form");
 		UIInput.make(form,"opt-text","#{option.optionText}",option.getOptionText());

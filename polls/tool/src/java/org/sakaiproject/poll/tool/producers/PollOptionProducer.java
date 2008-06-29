@@ -163,7 +163,10 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 			UIMessage.make(tofill,"new-option-title","new_option_title");
 		}
 
-
+		if (poll == null) {
+			m_log.warn("no poll found");
+			return;
+		}
 		
 
 		UIOutput.make(tofill,"poll_text",poll.getText());
