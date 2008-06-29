@@ -1060,11 +1060,3 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 
 INSERT INTO SAKAI_REALM_RL_FN
 SELECT DISTINCT SR.REALM_KEY, SRR.ROLE_KEY, SRF.FUNCTION_KEY  from SAKAI_REALM SR, SAKAI_REALM_ROLE SRR, SAKAI_REALM_FUNCTION SRF where SR.REALM_ID like '/site/~%' AND SRR.ROLE_NAME = 'maintain' AND SRF.FUNCTION_NAME = 'osp.matrix.scaffolding.use';
-
-----------------------------------------------------------------------------------------------------------------------------------------
--- Reports Tool Moved
-----------------------------------------------------------------------------------------------------------------------------------------
-
--- reports tool registration has changed... SAK-13643
-
-UPDATE SAKAI_SITE_TOOL SET REGISTRATION='sakai.reports' WHERE REGISTRATION='osp.reports';
