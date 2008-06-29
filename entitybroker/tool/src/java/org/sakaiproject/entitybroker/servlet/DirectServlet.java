@@ -50,43 +50,28 @@ public class DirectServlet extends HttpServlet {
 
    private static Log log = LogFactory.getLog(DirectServlet.class);
 
-   // must be the same as the string in EntityHandlerImpl with the same name
-   private static final String ORIGINAL_METHOD = "_originalMethod";
+   private transient BasicAuth basicAuth;
+   private transient EntityRequestHandler entityRequestHandler;
 
    /**
-    * set to true when initialization complete
-    */
-   private boolean initComplete = false;
-
-   private BasicAuth basicAuth;
-
-   private EntityRequestHandler entityRequestHandler;
-
-   /**
-    * Checks dependencies and loads/inits them if needed<br/> <br/> Note: There is currently no way
+    * Initializes the servlet<br/>
+    * <br/> Note: There is currently no way
     * with the current component manager to check whether it is initialised without causing it to
     * initialise. This method is here as a placeholder to invoke this function when it is available.
     * All members which require the component manager to be initialised should be initialised in
     * this method.
     */
-   private void checkDependencies() {
+   public void init(ServletConfig config) {
       try {
          basicAuth = new BasicAuth();
          basicAuth.init();
          entityRequestHandler = (EntityRequestHandler) ComponentManager.get("org.sakaiproject.entitybroker.EntityRequestHandler");
-         if (entityRequestHandler != null) {
-            initComplete = true;
+         if (entityRequestHandler == null) {
+            throw new RuntimeException("FAILED to load EntityRequestHandler");
          }
       } catch (Exception e) {
-         log.error("Error initialising DirectServlet", e);
+         throw new IllegalStateException("FAILURE during init direct servlet", e);
       }
-   }
-
-   /**
-    * Initialises the servlet
-    */
-   public void init(ServletConfig config) {
-      checkDependencies();
    }
 
    /**
@@ -137,12 +122,6 @@ public class DirectServlet extends HttpServlet {
       String path = req.getPathInfo();
       if (path == null) {
          path = "";
-      }
-
-      if (! initComplete) {
-         sendError(res, HttpServletResponse.SC_SERVICE_UNAVAILABLE, 
-               "Could not initialize the needed Sakai components");
-         return;
       }
 
       // mark the direct entity request for this session
