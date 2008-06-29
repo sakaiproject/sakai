@@ -26,8 +26,11 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.FunctionManager;
+import org.sakaiproject.exception.IdUnusedException;
+
 import uk.org.ponder.rsf.components.UIBoundBoolean; 
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -108,63 +111,71 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 			ComponentChecker arg2) {
 		
 		
-		try {
+		
 			
 			//populate the site name ect
 			UIOutput.make(tofill,"permissions-title",messageLocator.getMessage("permissions_title"));
 			UIOutput.make(tofill,"permissions-instruction",messageLocator.getMessage("permissions_instruction"));
-			
-			Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
-			UIOutput.make(tofill,"site-name",site.getTitle());
-			
-		//we need a list of permissions	
-		
-		String[] perms = new String[]{
-				PollListManager.PERMISSION_VOTE,
-				PollListManager.PERMISSION_ADD,
-				PollListManager.PERMISSION_DELETE_OWN,
-				PollListManager.PERMISSION_DELETE_ANY,
-				PollListManager.PERMISSION_EDIT_OWN,
-				PollListManager.PERMISSION_EDIT_ANY
-		};
-		for (int i =0; i < perms.length;i++){
-			String thisPerm = (String)perms[i];
-			thisPerm = thisPerm.substring(thisPerm.indexOf('.') + 1);
-			UIBranchContainer b = UIBranchContainer.make(tofill,"head-row:", Integer.valueOf(i).toString());
-			UIOutput.make(b,"perm-name",thisPerm);
-		}
-		
-		AuthzGroup group = AuthzGroupService.getAuthzGroup("/site/" + toolManager.getCurrentPlacement().getContext());
-		Set roles = group.getRoles();
-		Iterator i = roles.iterator();
-		UIForm form = UIForm.make(tofill,"perm-form");
-		UIOutput.make(form,"permissions-role",messageLocator.getMessage("permissions_role"));
-			while ( i.hasNext()){
-				Role role = (Role)i.next();
-				m_log.debug("got role " + role.getId());
-				UIBranchContainer row = UIBranchContainer.make(form,"permission-row:",role.getId());
-				UIOutput.make(row,"role",role.getId());
-				//now iterate through the permissions
-				
-				String prefix = PathUtil.composePath("roleperms",role.getId());
-				for (int ip =0; ip < perms.length;ip++){
-					String thisPerm = (String)perms[ip];
+
+			Site site;
+			try {
+				site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+				UIOutput.make(tofill,"site-name",site.getTitle());
+
+
+				//we need a list of permissions	
+
+				String[] perms = new String[]{
+						PollListManager.PERMISSION_VOTE,
+						PollListManager.PERMISSION_ADD,
+						PollListManager.PERMISSION_DELETE_OWN,
+						PollListManager.PERMISSION_DELETE_ANY,
+						PollListManager.PERMISSION_EDIT_OWN,
+						PollListManager.PERMISSION_EDIT_ANY
+				};
+				for (int i =0; i < perms.length;i++){
+					String thisPerm = (String)perms[i];
 					thisPerm = thisPerm.substring(thisPerm.indexOf('.') + 1);
-					UIBranchContainer col = UIBranchContainer.make(row,"box-row:", thisPerm);
-					m_log.debug("drawing box for "+ thisPerm + " for role " + role.getId());
-					//Boolean.valueOf(role.isAllowed((String)perms[ip]))
-					UIBoundBoolean.make(col, "perm-box","#{" + prefix +"."+ thisPerm + "}", Boolean.valueOf(role.isAllowed((String)perms[ip])));
-					 									  
+					UIBranchContainer b = UIBranchContainer.make(tofill,"head-row:", Integer.valueOf(i).toString());
+					UIOutput.make(b,"perm-name",thisPerm);
 				}
-			}
-			UICommand sub = UICommand.make(form, "submit",messageLocator.getMessage("new_poll_submit"), "#{permissionAction.setPermissions}");
+
+				AuthzGroup group = AuthzGroupService.getAuthzGroup("/site/" + toolManager.getCurrentPlacement().getContext());
+				Set roles = group.getRoles();
+				Iterator i = roles.iterator();
+				UIForm form = UIForm.make(tofill,"perm-form");
+				UIOutput.make(form,"permissions-role",messageLocator.getMessage("permissions_role"));
+				while ( i.hasNext()){
+					Role role = (Role)i.next();
+					m_log.debug("got role " + role.getId());
+					UIBranchContainer row = UIBranchContainer.make(form,"permission-row:",role.getId());
+					UIOutput.make(row,"role",role.getId());
+					//now iterate through the permissions
+
+					String prefix = PathUtil.composePath("roleperms",role.getId());
+					for (int ip =0; ip < perms.length;ip++){
+						String thisPerm = (String)perms[ip];
+						thisPerm = thisPerm.substring(thisPerm.indexOf('.') + 1);
+						UIBranchContainer col = UIBranchContainer.make(row,"box-row:", thisPerm);
+						m_log.debug("drawing box for "+ thisPerm + " for role " + role.getId());
+						//Boolean.valueOf(role.isAllowed((String)perms[ip]))
+						UIBoundBoolean.make(col, "perm-box","#{" + prefix +"."+ thisPerm + "}", Boolean.valueOf(role.isAllowed((String)perms[ip])));
+
+					}
+				}
+				UICommand sub = UICommand.make(form, "submit",messageLocator.getMessage("new_poll_submit"), "#{permissionAction.setPermissions}");
 				sub.parameters.add(new UIELBinding("#{permissionAction.submissionStatus}", "submit"));
-		   UICommand cancel = UICommand.make(form, "cancel",messageLocator.getMessage("vote_cancel"),"#{permissionAction.cancel}");
-		   cancel.parameters.add(new UIELBinding("#{permissionAction.submissionStatus}", "cancel"));
-		}
-		catch (Exception e){
-			e.printStackTrace();
-		}
+				UICommand cancel = UICommand.make(form, "cancel",messageLocator.getMessage("vote_cancel"),"#{permissionAction.cancel}");
+				cancel.parameters.add(new UIELBinding("#{permissionAction.submissionStatus}", "cancel"));
+
+			} catch (IdUnusedException e) {
+				// TODO Auto-generated catch block
+				m_log.warn("site not found!");
+			} catch (GroupNotDefinedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	
 	}
 	
 	  public List reportNavigationCases() {
