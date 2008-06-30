@@ -5834,20 +5834,21 @@ public class AssignmentAction extends PagedResourceActionII
 				
 				// remove related announcement if there is one
 				removeAnnouncement(state, pEdit);
-
-				if (aEdit.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-				{					
-					// remove assignment submissions, assignment content and assignment
-					deleteAssignmentObjects(state, aEdit, true);
-
-				}
-				else
+				
+				if (ServerConfigurationService.getBoolean("assignment.delete.cascade.submission", false))
 				{
-					// for assignment with other type of submission
-					if (!AssignmentService.getSubmissions(aEdit).iterator().hasNext())
-					{
-						// there is no submission to this assignment yet, delete the assignment and assignment content record completely
-						deleteAssignmentObjects(state, aEdit, false);
+					// delete assignment and its submissions altogether
+					deleteAssignmentObjects(state, aEdit, true);
+					
+				} else
+				{
+					if (aEdit.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION 
+							|| !AssignmentService.getSubmissions(aEdit).iterator().hasNext())
+					{					
+						// remove assignment submissions, assignment content and assignment for non electronic assignment
+						// or there is no submission to this assignment yet
+						deleteAssignmentObjects(state, aEdit, true);
+	
 					}
 					else
 					{
