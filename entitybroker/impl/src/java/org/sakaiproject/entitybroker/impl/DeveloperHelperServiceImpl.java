@@ -230,6 +230,11 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       return getUserRefFromUserId(userId);
    }
 
+   public String getCurrentUserId() {
+      String userId = sessionManager.getCurrentSessionUserId();
+      return userId;
+   }
+
    public String getUserIdFromRef(String userReference) {
       String userId = null;
       if (userReference != null) {
@@ -275,6 +280,18 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
          location = null;
       }
       return location;
+   }
+
+   public String getCurrentLocationId() {
+      String locationId = null;
+      try {
+         String context = toolManager.getCurrentPlacement().getContext();
+         locationId = context;
+      } catch (Exception e) {
+         // sakai failed to get us a location so we can assume we are not inside the portal
+         locationId = null;
+      }
+      return locationId;
    }
 
    public String getLocationIdFromRef(String locationReference) {

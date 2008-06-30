@@ -8,6 +8,13 @@
     <bean id="org.sakaiproject.entitybroker.providers.UserEntityProvider" 
             class="org.sakaiproject.entitybroker.providers.UserEntityProvider">
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+    </bean>
+
+    <bean id="org.sakaiproject.entitybroker.providers.SiteEntityProvider" 
+            class="org.sakaiproject.entitybroker.providers.SiteEntityProvider">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
     </bean>
 
 </beans>

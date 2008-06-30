@@ -16,11 +16,10 @@ package org.sakaiproject.entitybroker.providers;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -47,6 +46,11 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
    private UserDirectoryService userDirectoryService;
    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
       this.userDirectoryService = userDirectoryService;
+   }
+
+   private DeveloperHelperService developerHelperService;
+   public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
+      this.developerHelperService = developerHelperService;
    }
 
    public static String PREFIX = "user";
@@ -78,7 +82,7 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
             throw new SecurityException("Could not create user, permission denied: " + ref, e);
          }
       } else if (entity.getClass().isAssignableFrom(EntityUser.class)) {
-         // if they instead pass in the myuser object
+         // if they instead pass in the EntityUser object
          EntityUser user = (EntityUser) entity;
          if (userId == null && user.getId() != null) {
             userId = user.getId();
@@ -183,15 +187,17 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
          throw new IllegalArgumentException("Cannot delete, No userId in provided reference: " + ref);
       }
       User user = getUserByIdEid(userId);
-      try {
-         UserEdit edit = userDirectoryService.editUser(user.getId());
-         userDirectoryService.removeUser(edit);
-      } catch (UserNotDefinedException e) {
-         throw new IllegalArgumentException("Invalid user: " + ref + ":" + e.getMessage());
-      } catch (UserPermissionException e) {
-         throw new SecurityException("Permission denied: User cannot be removed: " + ref);
-      } catch (UserLockedException e) {
-         throw new RuntimeException("Something strange has failed with Sakai: " + e.getMessage());
+      if (user != null) {
+         try {
+            UserEdit edit = userDirectoryService.editUser(user.getId());
+            userDirectoryService.removeUser(edit);
+         } catch (UserNotDefinedException e) {
+            throw new IllegalArgumentException("Invalid user: " + ref + ":" + e.getMessage());
+         } catch (UserPermissionException e) {
+            throw new SecurityException("Permission denied: User cannot be removed: " + ref);
+         } catch (UserLockedException e) {
+            throw new RuntimeException("Something strange has failed with Sakai: " + e.getMessage());
+         }
       }
    }
 
@@ -213,7 +219,7 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
          }
          if (restrict != null) {
             // search users but match
-            users = userDirectoryService.searchUsers(restrict.value.toString(), 1, 50);
+            users = userDirectoryService.searchUsers(restrict.value + "", 1, 50);
          }
       }
       if (restrict == null) {

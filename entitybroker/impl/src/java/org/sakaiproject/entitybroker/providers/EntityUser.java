@@ -14,17 +14,17 @@
 
 package org.sakaiproject.entitybroker.providers;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -37,8 +37,10 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@SuppressWarnings("unchecked")
 public class EntityUser implements User {
 
+   @EntityId
    private String id;
    private String eid;
    private String password;
@@ -54,12 +56,13 @@ public class EntityUser implements User {
    public EntityUser() {}
 
    /**
-    * Construct an Entityuser from a legacy user object
+    * Construct an EntityUser from a legacy user object
     * @param user a legacy user or user edit
     */
    @SuppressWarnings("unchecked")
    public EntityUser(User user) {
       this.user = user;
+      this.id = user.getId();
       this.eid = user.getEid();
       this.email = user.getEmail();
       this.firstName = user.getFirstName();
@@ -86,10 +89,16 @@ public class EntityUser implements User {
    }
 
    public void setProperty(String key, String value) {
+      if (props == null) {
+         props = new HashMap<String, String>();
+      }
       props.put(key, value);
    }
 
    public String getProperty(String key) {
+      if (props == null) {
+         return null;
+      }
       return props.get(key);
    }
 

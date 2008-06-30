@@ -106,9 +106,20 @@ public interface DeveloperHelperService {
     * of the current user if there is one,
     * this is not equivalent to the current user id
     * 
-    * @return the user entity reference (e.g. /user/{userId} - not id, eid, or username)
+    * @return the user entity reference (e.g. /user/{userId} - not id, eid, or username) or null if none
     */
    public String getCurrentUserReference();
+   
+   /**
+    * Get the user entity id (e.g. not eid or username) 
+    * of the current user if there is one,
+    * this is not equivalent to the current user reference
+    * <br/>
+    * recommend you use {@link #getCurrentUserReference()} instead
+    * 
+    * @return the user id or null if there is no current user
+    */
+   public String getCurrentUserId();
 
    /**
     * Translate the user entity reference into a userId
@@ -164,14 +175,22 @@ public interface DeveloperHelperService {
    // LOCATION
 
    /**
-    * @return the entity reference of the current location for the current session
+    * @return the entity reference (/site/{siteId}) of the current location for the current session
     * (represents the current site/group of the current user in the system)
     */
    public String getCurrentLocationReference();
 
    /**
-    * @param locationReference
-    * @return
+    * @return the entity id of the current location for the current session
+    * (represents the current site/group of the current user in the system)
+    * <br/>
+    * recommend you use {@link #getCurrentLocationReference()} instead
+    */
+   public String getCurrentLocationId();
+
+   /**
+    * @param locationReference the location reference (/site/{siteId})
+    * @return the location id 
     */
    public String getLocationIdFromRef(String locationReference);
 
