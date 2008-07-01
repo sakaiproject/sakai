@@ -151,7 +151,7 @@ public class BeanCollectorAutoRegistrar implements ApplicationListener, Applicat
     * 
     * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
     */
-   private class OrderComparator implements Comparator<Object> {
+   private static class OrderComparator implements Comparator<Object> {
       public int compare(Object arg0, Object arg1) {
          if (arg0 instanceof OrderedBean &&
                arg1 instanceof OrderedBean) {
