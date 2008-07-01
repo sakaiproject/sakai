@@ -458,6 +458,10 @@ public class ReferenceMap<K, V> implements Map<K, V>, Serializable {
       delegate.remove(keyReference, this);
     }
 
+    @Override public int hashCode() {
+       return this.hashCode() + 42;
+    }
+
     @Override public boolean equals(Object obj) {
       return referenceEquals(this, obj);
     }
@@ -475,6 +479,10 @@ public class ReferenceMap<K, V> implements Map<K, V>, Serializable {
 
     public void finalizeReferent() {
       delegate.remove(keyReference, this);
+    }
+
+    @Override public int hashCode() {
+       return this.hashCode() + 42;
     }
 
     @Override public boolean equals(Object obj) {
