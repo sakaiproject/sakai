@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -205,10 +206,10 @@ public class TemplateParseUtil {
       }
       String reference = template;
       int replacements = 0;
-      for (String key : segments.keySet()) {
-         String keyBraces = "{"+key+"}";
+      for (Entry<String, String> es : segments.entrySet()) {
+         String keyBraces = "{"+es.getKey()+"}";
          if (reference.contains(keyBraces)) {
-            reference = reference.replace(keyBraces, segments.get(key));
+            reference = reference.replace(keyBraces, es.getValue());
             replacements++;
          }
       }
