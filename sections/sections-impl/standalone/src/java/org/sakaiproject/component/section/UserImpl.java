@@ -41,9 +41,6 @@ public class UserImpl extends AbstractPersistentObject implements User, Serializ
 	protected String sortName;
 	protected String displayId;
 	protected String displayName;
-	
-    protected long id;
-    protected int version;
 
     /**
 	 * No-arg constructor needed for hibernate
