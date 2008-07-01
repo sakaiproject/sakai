@@ -32,6 +32,9 @@ public class EntityBrokerEntity implements Entity {
    }
 
    private ResourceProperties properties;
+   public void setProperties(ResourceProperties properties) {
+      this.properties = properties;
+   }
    // we use only two fields in Reference - type -> parsed.prefix, id -> parsed.id
    private Reference reference;
 
