@@ -19,7 +19,7 @@ package org.sakaiproject.entitybroker.mocks;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class MockHttpServletRequest extends org.springframework.mock.web.MockHttpServletRequest {
+public class MockEBHttpServletRequest extends org.springframework.mock.web.MockHttpServletRequest {
 
    /**
     * @param method GET, POST, PUT, DELETE (PUT and DELETE not supported by browsers),
@@ -28,7 +28,7 @@ public class MockHttpServletRequest extends org.springframework.mock.web.MockHtt
     * after the servlet path but before the query string in the request URL
     * Example: http://server/servlet/extra/path/info?thing=1, pathInfo = /extra/path/info
     */
-   public MockHttpServletRequest(String method, String pathInfo) {
+   public MockEBHttpServletRequest(String method, String pathInfo) {
       super(method, "");
       if (method == null || method == "") {
          super.setMethod("POST");
@@ -41,7 +41,7 @@ public class MockHttpServletRequest extends org.springframework.mock.web.MockHtt
     * this will be set to POST if null or unset
     * @param params alternating keys and values (starting with keys) to place into the request parameters
     */
-   public MockHttpServletRequest(String method, String... params) {
+   public MockEBHttpServletRequest(String method, String... params) {
       super(method, "");
       if (method == null || method == "") {
          super.setMethod("POST");

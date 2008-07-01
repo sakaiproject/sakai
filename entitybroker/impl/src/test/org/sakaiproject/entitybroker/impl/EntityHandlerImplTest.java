@@ -35,7 +35,7 @@ import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.mocks.EntityViewAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
-import org.sakaiproject.entitybroker.mocks.MockHttpServletRequest;
+import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -217,16 +217,16 @@ public class EntityHandlerImplTest extends TestCase {
     */
    public void testMakeSearchFromRequest() {
       Search search = null;
-      MockHttpServletRequest req = null;
+      MockEBHttpServletRequest req = null;
 
-      req = new MockHttpServletRequest("GET", new String[] {});
+      req = new MockEBHttpServletRequest("GET", new String[] {});
       search = entityHandler.makeSearchFromRequest(req);
       assertNotNull(search);
       assertTrue( search.isEmpty() );
       assertEquals(0, search.getRestrictions().length);
       search.addOrder( new Order("test") );
 
-      req = new MockHttpServletRequest("GET", "test", "stuff");
+      req = new MockEBHttpServletRequest("GET", "test", "stuff");
       search = entityHandler.makeSearchFromRequest(req);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
@@ -235,7 +235,7 @@ public class EntityHandlerImplTest extends TestCase {
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
 
       // make sure _method is ignored
-      req = new MockHttpServletRequest("GET", "test", "stuff", "_method", "PUT");
+      req = new MockEBHttpServletRequest("GET", "test", "stuff", "_method", "PUT");
       search = entityHandler.makeSearchFromRequest(req);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
@@ -243,7 +243,7 @@ public class EntityHandlerImplTest extends TestCase {
       assertNotNull( search.getRestrictionByProperty("test") );
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
 
-      req = new MockHttpServletRequest("GET", "test", "stuff", "other", "more");
+      req = new MockEBHttpServletRequest("GET", "test", "stuff", "other", "more");
       search = entityHandler.makeSearchFromRequest(req);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
@@ -406,18 +406,18 @@ public class EntityHandlerImplTest extends TestCase {
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)}.
     */
    public void testHandleEntityAccess() {
-      MockHttpServletRequest req = null;
+      MockEBHttpServletRequest req = null;
       MockHttpServletResponse res = null;
 
       // test valid entity
-      req = new MockHttpServletRequest("GET", TestData.REF1);
+      req = new MockEBHttpServletRequest("GET", TestData.REF1);
       res = new MockHttpServletResponse();
 
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
 
       // test invalid prefix
-      req = new MockHttpServletRequest("GET", "/fake/thing");
+      req = new MockEBHttpServletRequest("GET", "/fake/thing");
       res = new MockHttpServletResponse();
 
       try {
@@ -429,7 +429,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // test invalid id
-      req = new MockHttpServletRequest("GET", TestData.REF1_INVALID);
+      req = new MockEBHttpServletRequest("GET", TestData.REF1_INVALID);
       res = new MockHttpServletResponse();
 
       try {
@@ -442,7 +442,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // test invalid path format
-      req = new MockHttpServletRequest("GET", "xxxxxxxxxxxxxxxx");
+      req = new MockEBHttpServletRequest("GET", "xxxxxxxxxxxxxxxx");
       res = new MockHttpServletResponse();
 
       try {
@@ -454,7 +454,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // XML test valid resolveable entity
-      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.XML);
+      req = new MockEBHttpServletRequest("GET", TestData.REF4 + "." + Formats.XML);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -471,7 +471,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // JSON test valid resolveable entity
-      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.JSON);
+      req = new MockEBHttpServletRequest("GET", TestData.REF4 + "." + Formats.JSON);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -488,7 +488,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // HTML test valid resolveable entity
-      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.HTML);
+      req = new MockEBHttpServletRequest("GET", TestData.REF4 + "." + Formats.HTML);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -503,7 +503,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // types that cannot handle the return requested
-      req = new MockHttpServletRequest("GET", TestData.REF4 + ".xxxx");
+      req = new MockEBHttpServletRequest("GET", TestData.REF4 + ".xxxx");
       res = new MockHttpServletResponse();
       try {
          entityHandler.handleEntityAccess(req, res, null);
@@ -515,7 +515,7 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
    public void testHandleEntityAccessInputHTML() {
-      MockHttpServletRequest req = null;
+      MockEBHttpServletRequest req = null;
       MockHttpServletResponse res = null;
 
       // test the REST and CRUD methods
@@ -523,7 +523,7 @@ public class EntityHandlerImplTest extends TestCase {
 
       // test creating an entity
       // invalid space is invalid
-      req = new MockHttpServletRequest("POST", "/xxxxxxxxxxxxxx/new");
+      req = new MockEBHttpServletRequest("POST", "/xxxxxxxxxxxxxx/new");
       res = new MockHttpServletResponse();
       try {
          entityHandler.handleEntityAccess(req, res, null);
@@ -534,7 +534,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // create without data is invalid
-      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new");
+      req = new MockEBHttpServletRequest("POST", TestData.SPACE6 + "/new");
       res = new MockHttpServletResponse();
       try {
          entityHandler.handleEntityAccess(req, res, null);
@@ -544,7 +544,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertEquals(HttpServletResponse.SC_BAD_REQUEST, e.responseCode);
       }
 
-      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new");
+      req = new MockEBHttpServletRequest("POST", TestData.SPACE6 + "/new");
       req.addParameter("stuff", "TEST"); // now fill in the fields to create the entity in the request (html)
       req.addParameter("number", "5");
       res = new MockHttpServletResponse();
@@ -561,7 +561,7 @@ public class EntityHandlerImplTest extends TestCase {
       assertEquals(5, me.getNumber());
 
       // make sure the .html works
-      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.HTML);
+      req = new MockEBHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.HTML);
       req.addParameter("stuff", "TEST2"); // now fill in the fields to create the entity in the request (html)
       req.addParameter("number", "6");
       res = new MockHttpServletResponse();
@@ -579,7 +579,7 @@ public class EntityHandlerImplTest extends TestCase {
 
       // test modifying an entity
       // modify without data is invalid
-      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId);
+      req = new MockEBHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId);
       res = new MockHttpServletResponse();
       try {
          entityHandler.handleEntityAccess(req, res, null);
@@ -590,7 +590,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // invalid id is invalid
-      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/xxxxxxx");
+      req = new MockEBHttpServletRequest("PUT", TestData.SPACE6 + "/xxxxxxx");
       res = new MockHttpServletResponse();
       try {
          entityHandler.handleEntityAccess(req, res, null);
@@ -600,7 +600,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertEquals(HttpServletResponse.SC_NOT_FOUND, e.responseCode);
       }
 
-      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId);
+      req = new MockEBHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId);
       req.addParameter("stuff", "TEST-PUT"); // now fill in the fields to create the entity in the request (html)
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
@@ -615,7 +615,7 @@ public class EntityHandlerImplTest extends TestCase {
       assertEquals(5, me.getNumber());
 
       // make sure the .html works
-      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId2 + "." + Formats.HTML);
+      req = new MockEBHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId2 + "." + Formats.HTML);
       req.addParameter("stuff", "TEST-PUT2"); // now fill in the fields to create the entity in the request (html)
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
@@ -632,7 +632,7 @@ public class EntityHandlerImplTest extends TestCase {
       // test deleting an entity
 
       // space delete is invalid
-      req = new MockHttpServletRequest("DELETE", TestData.SPACE6);
+      req = new MockEBHttpServletRequest("DELETE", TestData.SPACE6);
       res = new MockHttpServletResponse();
       try {
          entityHandler.handleEntityAccess(req, res, null);
@@ -643,7 +643,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // invalid id is invalid
-      req = new MockHttpServletRequest("DELETE", TestData.SPACE6 + "/xxxxxxx");
+      req = new MockEBHttpServletRequest("DELETE", TestData.SPACE6 + "/xxxxxxx");
       res = new MockHttpServletResponse();
       try {
          entityHandler.handleEntityAccess(req, res, null);
@@ -655,14 +655,14 @@ public class EntityHandlerImplTest extends TestCase {
 
       // entity delete is allowed
       assertTrue( td.entityProvider6.myEntities.containsKey(TestData.IDS6[3]) );
-      req = new MockHttpServletRequest("DELETE", TestData.REF6_4);
+      req = new MockEBHttpServletRequest("DELETE", TestData.REF6_4);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
       assertFalse( td.entityProvider6.myEntities.containsKey(TestData.IDS6[3]) );
 
       assertTrue( td.entityProvider6.myEntities.containsKey(entityId2) );
-      req = new MockHttpServletRequest("DELETE", TestData.SPACE6 + "/" + entityId2 + "." + Formats.HTML);
+      req = new MockEBHttpServletRequest("DELETE", TestData.SPACE6 + "/" + entityId2 + "." + Formats.HTML);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
@@ -671,14 +671,14 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
    public void testHandleEntityAccessRESTXML() {
-      MockHttpServletRequest req = null;
+      MockEBHttpServletRequest req = null;
       MockHttpServletResponse res = null;
 
       // test the REST and CRUD methods
       // XML testing
 
       // test creating an entity
-      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.XML);
+      req = new MockEBHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.XML);
       req.setContent(
             makeUTF8Bytes("<"+TestData.PREFIX6+"><stuff>TEST</stuff><number>5</number></"+TestData.PREFIX6+">")
          );
@@ -696,7 +696,7 @@ public class EntityHandlerImplTest extends TestCase {
       assertEquals(5, me.getNumber());
 
       // test modifying an entity
-      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId + "." + Formats.XML);
+      req = new MockEBHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId + "." + Formats.XML);
       req.setContent(
             makeUTF8Bytes("<"+TestData.PREFIX6+"><stuff>TEST-PUT</stuff></"+TestData.PREFIX6+">")
          );
@@ -714,7 +714,7 @@ public class EntityHandlerImplTest extends TestCase {
 
       // test deleting an entity (extension should have no effect)
       assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
-      req = new MockHttpServletRequest("DELETE", TestData.SPACE6 + "/" + entityId + "." + Formats.XML);
+      req = new MockEBHttpServletRequest("DELETE", TestData.SPACE6 + "/" + entityId + "." + Formats.XML);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
@@ -723,14 +723,14 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
    public void testHandleEntityAccessRESTJSON() {
-      MockHttpServletRequest req = null;
+      MockEBHttpServletRequest req = null;
       MockHttpServletResponse res = null;
 
       // test the REST and CRUD methods
       // JSON testing
 
       // test creating an entity
-      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.JSON);
+      req = new MockEBHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.JSON);
       req.setContent(
             makeUTF8Bytes("{\""+TestData.PREFIX6+"\" : { \"stuff\" : \"TEST\", \"number\" : 5 }}")
          );
@@ -748,7 +748,7 @@ public class EntityHandlerImplTest extends TestCase {
       assertEquals(5, me.getNumber());
 
       // test modifying an entity
-      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId + "." + Formats.JSON);
+      req = new MockEBHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId + "." + Formats.JSON);
       req.setContent(
             makeUTF8Bytes("{\""+TestData.PREFIX6+"\" : { \"stuff\" : \"TEST-PUT\" }}")
          );
@@ -766,7 +766,7 @@ public class EntityHandlerImplTest extends TestCase {
 
       // test deleting an entity (extension should have no effect)
       assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
-      req = new MockHttpServletRequest("DELETE", TestData.SPACE6 + "/" + entityId + "." + Formats.JSON);
+      req = new MockEBHttpServletRequest("DELETE", TestData.SPACE6 + "/" + entityId + "." + Formats.JSON);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
@@ -775,11 +775,11 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
    public void testHandleEntityAccessDescribe() {
-      MockHttpServletRequest req = null;
+      MockEBHttpServletRequest req = null;
       MockHttpServletResponse res = null;
 
       // test describe all entities
-      req = new MockHttpServletRequest("GET", "/" + EntityRequestHandler.DESCRIBE);
+      req = new MockEBHttpServletRequest("GET", "/" + EntityRequestHandler.DESCRIBE);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -797,7 +797,7 @@ public class EntityHandlerImplTest extends TestCase {
          fail("failure trying to get string content");
       }
 
-      req = new MockHttpServletRequest("GET", "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
+      req = new MockEBHttpServletRequest("GET", "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -816,7 +816,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // test describe single entity space
-      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX1 + "/" + EntityRequestHandler.DESCRIBE);
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX1 + "/" + EntityRequestHandler.DESCRIBE);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -831,7 +831,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // XML
-      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX1 + "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX1 + "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -845,7 +845,7 @@ public class EntityHandlerImplTest extends TestCase {
          fail("failure trying to get string content");
       }
 
-      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX4 + "/" + EntityRequestHandler.DESCRIBE);
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX4 + "/" + EntityRequestHandler.DESCRIBE);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -859,7 +859,7 @@ public class EntityHandlerImplTest extends TestCase {
          fail("failure trying to get string content");
       }
 
-      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX6 + "/" + EntityRequestHandler.DESCRIBE);
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX6 + "/" + EntityRequestHandler.DESCRIBE);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -874,7 +874,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // XML
-      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX6 + "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX6 + "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
@@ -889,7 +889,7 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // test invalid describe
-      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX9 + "/" + EntityRequestHandler.DESCRIBE);
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX9 + "/" + EntityRequestHandler.DESCRIBE);
       res = new MockHttpServletResponse();
       try {
          entityHandler.handleEntityAccess(req, res, null);
