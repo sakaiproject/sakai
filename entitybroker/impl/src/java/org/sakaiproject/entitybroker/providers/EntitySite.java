@@ -440,28 +440,28 @@ public class EntitySite implements Site {
 
    public void loadAll() {
       if (site != null) {
-         loadAll();
+         site.loadAll();
       }
       throw new NotImplementedException();
    }
 
    public void regenerateIds() {
       if (site != null) {
-         regenerateIds();
+         site.regenerateIds();
       }
       throw new NotImplementedException();
    }
 
    public void removeGroup(Group arg0) {
       if (site != null) {
-         removeGroup(arg0);
+         site.removeGroup(arg0);
       }
       throw new NotImplementedException();
    }
 
    public void removePage(SitePage arg0) {
       if (site != null) {
-         removePage(arg0);
+         site.removePage(arg0);
       }
       throw new NotImplementedException();
    }
@@ -492,7 +492,7 @@ public class EntitySite implements Site {
    }
 
    public String getReference(String arg0) {
-      return getReference();
+      return this.getReference();
    }
 
    public String getUrl() {
