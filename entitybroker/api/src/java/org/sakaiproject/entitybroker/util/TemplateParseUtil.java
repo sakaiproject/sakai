@@ -158,7 +158,7 @@ public class TemplateParseUtil {
     * @param template a parse template
     */
    public static void validateTemplate(String template) {
-      if (template == null || template == "") {
+      if (template == null || "".equals(template)) {
          throw new IllegalArgumentException("Template cannot be null or empty string");
       } else if (template.charAt(0) != SEPARATOR) {
          throw new IllegalArgumentException("Template must start with " + SEPARATOR);
