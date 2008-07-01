@@ -521,7 +521,7 @@ public class ReferenceMap<K, V> implements Map<K, V>, Serializable {
     };
   };
 
-  private static PutStrategy defaultPutStrategy;
+  public static PutStrategy defaultPutStrategy;
 
   protected PutStrategy getPutStrategy() {
     return defaultPutStrategy;
