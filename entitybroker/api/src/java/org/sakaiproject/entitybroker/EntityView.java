@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
@@ -211,11 +212,11 @@ public class EntityView {
 
       String prefix = null;
       String id = null;
-      for (String key : segments.keySet()) {
-         if (PREFIX.equals(key)) {
-            prefix = segments.get(key);
-         } else if (ID.equals(key)) {
-            id = segments.get(key);
+      for (Entry<String, String> se : segments.entrySet()) {
+         if (PREFIX.equals(se.getKey())) {
+            prefix = se.getValue();
+         } else if (ID.equals(se.getKey())) {
+            id = se.getValue();
          }
       }
       if (prefix == null) {
