@@ -1581,11 +1581,40 @@ public class DiscussionForumTool
     return displayTopicById("previousTopicId");
   }
 
+  public  String formatStringByRemoveLastEmptyLine(String inputStr)
+	{		
+		final String pattern1 = "<br/>";
+		final String pattern2 = "<br>";
+		if (inputStr==null || "".equals(inputStr))
+			return null;
+		String tmpStr=inputStr.trim();
+		while(tmpStr.endsWith(pattern1)||tmpStr.endsWith(pattern2))
+		{
+			if(tmpStr.endsWith(pattern1))
+			{
+				tmpStr= tmpStr.substring(0, tmpStr.length()-pattern1.length());
+				tmpStr=tmpStr.trim();
+			}
+			if(tmpStr.endsWith(pattern2))
+			{
+				tmpStr= tmpStr.substring(0, tmpStr.length()-pattern2.length());
+				tmpStr=tmpStr.trim();
+			}
+		}
+		return tmpStr;
+		
+	}
   /**
    * @return Returns the selectedMessage.
    */
   public DiscussionMessageBean getSelectedMessage()
   {
+	  if((selectedMessage!=null)&&(!"".equals(selectedMessage.getMessage().getBody())))
+	  {
+		 String messageBody= selectedMessage.getMessage().getBody();
+		 String messageBodyWithoutLastEmptyLine=formatStringByRemoveLastEmptyLine(messageBody);
+		 selectedMessage.getMessage().setBody(messageBodyWithoutLastEmptyLine); 		 
+	  }
     return selectedMessage;
   }
   
@@ -1700,12 +1729,31 @@ public class DiscussionForumTool
 	    		selectedThreadHead.setPreThreadId(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId());
 	    	}
 	    }
-
+	    formatMessagesByRemovelastEmptyLines(msgsList);
 	    recursiveGetThreadedMsgsFromList(msgsList, orderedList, selectedThreadHead);
 	    selectedThread.addAll(orderedList);
 	    
 	    return THREAD_VIEW;
   }
+/**
+ *  remove last empty lines of every massage in thread view
+ */ 
+ public void formatMessagesByRemovelastEmptyLines(List messages)
+ {
+		if(messages==null) return;		
+		Iterator it=messages.iterator();
+		while(it.hasNext())
+		{
+			 DiscussionMessageBean messageBean=	(DiscussionMessageBean) it.next();		
+			 if((messageBean!=null)&&(!"".equals(messageBean.getMessage().getBody())))
+			  {
+				 String messageBody= messageBean.getMessage().getBody();
+				 String messageBodyWithoutLastEmptyLine=formatStringByRemoveLastEmptyLine(messageBody);
+				 messageBean.getMessage().setBody(messageBodyWithoutLastEmptyLine); 		 
+			  }
+		}
+		 return ;
+ }
   /**
    * @return
    */
