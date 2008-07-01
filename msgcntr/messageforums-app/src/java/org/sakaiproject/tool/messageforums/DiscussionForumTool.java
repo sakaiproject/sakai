@@ -1462,12 +1462,12 @@ public class DiscussionForumTool
       return gotoMain();
     }
   
-    if (redirectTo.equals("displayHome"))
+    if ("displayHome".equals(redirectTo))
     {
       displayHomeWithExtendedForumDescription();
       return gotoMain();
     }
-    if (redirectTo.equals("processActionDisplayForum"))
+    if ("processActionDisplayForum".equals(redirectTo))
     {
       if (selectedForum.isReadFullDesciption())
       {
@@ -1493,11 +1493,11 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(NOT_FOUND_REDIRECT_PAGE));
       return gotoMain();
     }
-    if (redirectTo.equals("displayHome"))
+    if ("displayHome".equals(redirectTo))
     {
       return displayHomeWithExtendedTopicDescription();
     }
-    if (redirectTo.equals("processActionDisplayTopic"))
+    if ("processActionDisplayTopic".equals(redirectTo))
     {
     	if(selectedTopic == null)
     	{
@@ -1514,7 +1514,7 @@ public class DiscussionForumTool
       }
       return ALL_MESSAGES;
     }
-    if (redirectTo.equals("processActionDisplayMessage"))
+    if ("processActionDisplayMessage".equals(redirectTo))
     {
     	if(selectedTopic == null)
     	{
@@ -1531,7 +1531,7 @@ public class DiscussionForumTool
       }
       return MESSAGE_VIEW;
     }
-    if (redirectTo.equals("processActionGradeMessage"))
+    if ("processActionGradeMessage".equals(redirectTo))
     {
     	if(selectedTopic == null)
     	{
@@ -1758,8 +1758,8 @@ public class DiscussionForumTool
 	    }
 	    setTopicBeanAssign();
 	    String currentForumId = getExternalParameterByKey(FORUM_ID);
-	    if (currentForumId != null && (!currentForumId.trim().equals(""))
-	        && (!currentForumId.trim().equals("null")))
+	    if (currentForumId != null && (!"".equals(currentForumId.trim()))
+	        && (!"null".equals(currentForumId.trim())))
 	    {
 	      DiscussionForum forum = forumManager
 	          .getForumById(new Long(currentForumId));
@@ -1830,8 +1830,8 @@ public class DiscussionForumTool
     }
     setTopicBeanAssign();
     String currentForumId = getExternalParameterByKey(FORUM_ID);
-    if (currentForumId != null && (!currentForumId.trim().equals(""))
-        && (!currentForumId.trim().equals("null")))
+    if (currentForumId != null && (!"".equals(currentForumId.trim()))
+        && (!"null".equals(currentForumId.trim())))
     {
       DiscussionForum forum = forumManager
           .getForumById(new Long(currentForumId));
@@ -2662,7 +2662,7 @@ public class DiscussionForumTool
       }
     }
 
-    if ((attachId != null) && (!attachId.equals("")) && attachments != null)
+    if ((attachId != null) && (!"".equals(attachId)) && attachments != null)
     {
       for (int i = 0; i < attachments.size(); i++)
       {
@@ -2841,9 +2841,9 @@ public class DiscussionForumTool
     	LOG.debug("redirectTo or selectedTopic is null in isDisplayForumDeleteOption");
       return gotoMain();
     }
-    if (redirectTo.equals("dfCompose"))
+    if ("dfCompose".equals(redirectTo))
     {
-      if ((expand != null) && (expand.equalsIgnoreCase("true")))
+      if ((expand != null) && ("true".equalsIgnoreCase(expand)))
       {
         selectedTopic.setReadFullDesciption(true);
       }
@@ -2853,9 +2853,9 @@ public class DiscussionForumTool
       }
       return MESSAGE_COMPOSE;
     }
-    if (redirectTo.equals(MESSAGE_VIEW))
+    if (MESSAGE_VIEW.equals(redirectTo))
     {
-      if ((expand != null) && (expand.equalsIgnoreCase("true")))
+      if ((expand != null) && ("true".equalsIgnoreCase(expand)))
       {
         selectedTopic.setReadFullDesciption(true);
       }
@@ -2865,9 +2865,9 @@ public class DiscussionForumTool
       }
       return MESSAGE_VIEW;
     }
-    if (redirectTo.equals("dfTopicReply"))
+    if ("dfTopicReply".equals(redirectTo))
     {
-      if ((expand != null) && (expand.equalsIgnoreCase("true")))
+      if ((expand != null) && ("true".equalsIgnoreCase(expand)))
       {
         selectedTopic.setReadFullDesciption(true);
       }
@@ -3391,7 +3391,7 @@ public class DiscussionForumTool
       }
     }
 
-    if ((attachId != null) && (!attachId.equals("")))
+    if ((attachId != null) && (!"".equals(attachId)))
     {
       for (int i = 0; i < attachments.size(); i++)
       {
@@ -4268,7 +4268,7 @@ public class DiscussionForumTool
 
   public void saveForumSelectedAssignment(DiscussionForum forum)
   {
-    if(selectedForum.getGradeAssign() != null && !selectedForum.getGradeAssign().equals(DEFAULT_GB_ITEM))
+    if(selectedForum.getGradeAssign() != null && !DEFAULT_GB_ITEM.equals(selectedForum.getGradeAssign()))
     {
       forum.setDefaultAssignName( ((SelectItem)assignments.get( new Integer(selectedForum.getGradeAssign()).intValue())).getLabel());
     }
@@ -4328,7 +4328,7 @@ public class DiscussionForumTool
   		return;
   	}
   	
-    if(selectedTopic.getGradeAssign() != null && !selectedTopic.getGradeAssign().equals(DEFAULT_GB_ITEM))
+    if(selectedTopic.getGradeAssign() != null && !DEFAULT_GB_ITEM.equals(selectedTopic.getGradeAssign()))
     {
       topic.setDefaultAssignName( ((SelectItem)assignments.get( new Integer(selectedTopic.getGradeAssign()).intValue())).getLabel());
     }
@@ -4406,7 +4406,7 @@ public class DiscussionForumTool
       }
     }
 
-    if ((attachId != null) && (!attachId.equals("")))
+    if ((attachId != null) && (!"".equals(attachId)))
     {
       for (int i = 0; i < attachments.size(); i++)
       {
@@ -4633,7 +4633,7 @@ public class DiscussionForumTool
 			  selectedAssign = changeAssign; 
 			  resetGradeInfo();
 
-			  if(!selectedAssign.equalsIgnoreCase(DEFAULT_GB_ITEM)) {
+			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
 				  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
 				  String selAssignName = ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel();		  
 				  String studentId = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
@@ -4722,7 +4722,7 @@ public class DiscussionForumTool
   	
 	  gbItemScore = gradePoint;
 	  gbItemComment = gradeComment;
-	  if(selectedAssign == null || selectedAssign.trim().length()==0 || selectedAssign.equalsIgnoreCase(DEFAULT_GB_ITEM)) 
+	  if(selectedAssign == null || selectedAssign.trim().length()==0 || DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) 
 	    { 
 			setErrorMessage(getResourceBundleString(NO_ASSGN)); 
 		    return null; 
@@ -4905,7 +4905,7 @@ public class DiscussionForumTool
   
   public void processActionToggleExpanded()
   {
-	  if(expanded.equals("true")){
+	  if("true".equals(expanded)){
 		  expanded = "false";
 	  } else {
 		  expanded = "true";
@@ -4931,7 +4931,7 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(FAILED_REND_MESSAGE));
       return;
     }
-    if (changeView.equals(ALL_MESSAGES))
+    if (ALL_MESSAGES.equals(changeView))
     {
     	if(selectedTopic == null)
     	{ 
@@ -4949,7 +4949,7 @@ public class DiscussionForumTool
       return;
     }
     else
-      if (changeView.equals(UNREAD_VIEW))
+      if (UNREAD_VIEW.equals(changeView))
       {
       	//threaded = false;
         this.displayUnreadOnly = true;
@@ -5005,7 +5005,7 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(FAILED_REND_MESSAGE));
 	      return;
 	  }
-	  if (changeShow.equals(ENTIRE_MSG)){
+	  if (ENTIRE_MSG.equals(changeShow)){
 		  //threaded = false;
 		  selectedMessageShow = ENTIRE_MSG;
 		  expandedView = true;
@@ -5044,19 +5044,19 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(FAILED_REND_MESSAGE));
 	      return;
 	  }
-	  if(changeOrganize.equals("thread")){
+	  if("thread".equals(changeOrganize)){
 		  threaded = true;
 		  orderAsc = true;
 		  displayUnreadOnly = false;
-	  } else if(changeOrganize.equals("date_desc")){
+	  } else if("date_desc".equals(changeOrganize)){
 		  threaded = false;
 		  orderAsc = false;
 		  displayUnreadOnly = false;
-	  } else if(changeOrganize.equals("date")){
+	  } else if("date".equals(changeOrganize)){
 		  orderAsc = true;
 		  threaded = false;
 		  displayUnreadOnly = false;
-	  } else if (changeOrganize.equals("unread")){
+	  } else if ("unread".equals(changeOrganize)){
 		  orderAsc = true;
 		  threaded = false;
 		  displayUnreadOnly = true;
@@ -5744,7 +5744,7 @@ public class DiscussionForumTool
            {
              String level = (String) iter.next();
              levels.add(new SelectItem(level));
-             if(level.equals("Custom"))
+             if("Custom".equals(level))
                  {
                    hasCustom =true;
                  }
@@ -5900,11 +5900,11 @@ public class DiscussionForumTool
 	{
 		if (permissionMode == null)
 			return true;
-		else if (permissionMode.equals(PERMISSION_MODE_TEMPLATE) && template != null)
+		else if (PERMISSION_MODE_TEMPLATE.equals(permissionMode) && template != null)
 			return !template.isAreaModerated();
-		else if (permissionMode.equals(PERMISSION_MODE_FORUM) && selectedForum != null)
+		else if (PERMISSION_MODE_FORUM.equals(permissionMode) && selectedForum != null)
 			return !selectedForum.isForumModerated();
-		else if (permissionMode.equals(PERMISSION_MODE_TOPIC) && selectedTopic != null)
+		else if (PERMISSION_MODE_TOPIC.equals(permissionMode) && selectedTopic != null)
 			return !selectedTopic.isTopicModerated();
 		else
 			return true;
@@ -6016,12 +6016,12 @@ public class DiscussionForumTool
 	   {
 		   String returnToPage = fromPage;
 		   fromPage = "";
-		   if(returnToPage.equals(ALL_MESSAGES) && selectedTopic != null)
+		   if(ALL_MESSAGES.equals(returnToPage) && selectedTopic != null)
 		   {
 			   selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
 			   return ALL_MESSAGES;
 		   }
-		   if(returnToPage.equals(FORUM_DETAILS) && selectedForum != null)
+		   if(FORUM_DETAILS.equals(returnToPage) && selectedForum != null)
 		   {
 			   selectedForum = getDecoratedForum(selectedForum.getForum());
 			   return FORUM_DETAILS;
@@ -6034,8 +6034,8 @@ public class DiscussionForumTool
    private void setFromMainOrForumOrTopic()
    {
 	   String originatingPage = getExternalParameterByKey(FROM_PAGE);
-	   if(originatingPage != null && (originatingPage.equals(MAIN) || originatingPage.equals(ALL_MESSAGES) || originatingPage.equals(FORUM_DETAILS)
-			   	|| originatingPage.equals(THREAD_VIEW) || originatingPage.equals(FLAT_VIEW)))
+	   if(originatingPage != null && (MAIN.equals(originatingPage) || ALL_MESSAGES.equals(originatingPage) || FORUM_DETAILS.equals(originatingPage)
+			   	|| THREAD_VIEW.equals(originatingPage) || FLAT_VIEW.equals(originatingPage)))
 	   {
 		   fromPage = originatingPage;
 	   }
@@ -6146,7 +6146,7 @@ public class DiscussionForumTool
 		 return selGBItemRestricted;
 	 }
 	 public boolean isNoItemSelected() {
-		 return selectedAssign == null || selectedAssign.equalsIgnoreCase(DEFAULT_GB_ITEM);
+		 return selectedAssign == null || DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign);
 	 }
 	 
 	 public boolean getShowForumLinksInNav() {
