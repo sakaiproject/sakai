@@ -16,6 +16,8 @@ package org.sakaiproject.entitybroker.impl.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
 import com.thoughtworks.xstream.converters.Converter;
@@ -44,9 +46,9 @@ public class MapConverter implements Converter {
    public void marshal(Object value, HierarchicalStreamWriter writer,
          MarshallingContext context) {
       Map m = (Map) value;
-      for (Object key : m.keySet()) {
-         writer.startNode(key.toString());
-         context.convertAnother(m.get(key));
+      for (Entry es : (Set<Entry>) m.entrySet()) {
+         writer.startNode(es.getKey().toString());
+         context.convertAnother(es.getValue());
          writer.endNode();         
       }
    }
