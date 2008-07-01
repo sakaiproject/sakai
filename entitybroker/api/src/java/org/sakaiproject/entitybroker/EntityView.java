@@ -297,10 +297,12 @@ public class EntityView {
          // just load in the already processed and made templates and preproced templates for efficiency
          parseTemplates.addAll(TemplateParseUtil.defaultTemplates);
          anazlyzedTemplates = new ArrayList<PreProcessedTemplate>(TemplateParseUtil.defaultPreprocessedTemplates);
-      }
-      for (PreProcessedTemplate preProcessedTemplate : preprocessedTemplates) {
-         anazlyzedTemplates.add(preProcessedTemplate);
-         parseTemplates.add( new Template(preProcessedTemplate.templateKey, preProcessedTemplate.template) );
+      } else {
+         // load in the ones that were provided
+         for (PreProcessedTemplate preProcessedTemplate : preprocessedTemplates) {
+            anazlyzedTemplates.add(preProcessedTemplate);
+            parseTemplates.add( new Template(preProcessedTemplate.templateKey, preProcessedTemplate.template) );
+         }
       }
    }
 
