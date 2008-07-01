@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -438,18 +439,17 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       // build the params map into a string
       boolean firstParamUsed = false;
       if (parameters != null && parameters.size() > 0) {
-         for (String key : parameters.keySet()) {
-            String value = parameters.get(key);
-            if (value != null) {
+         for (Entry<String, String> es : parameters.entrySet()) {
+            if (es.getValue() != null) {
                if (firstParamUsed) {
                   viewURL.append("&");
                } else {
                   viewURL.append("?");
                   firstParamUsed = true;
                }
-               viewURL.append(key);
+               viewURL.append(es.getKey());
                viewURL.append("=");
-               viewURL.append(parameters.get(key));
+               viewURL.append(es.getValue());
             }
          }
       }
