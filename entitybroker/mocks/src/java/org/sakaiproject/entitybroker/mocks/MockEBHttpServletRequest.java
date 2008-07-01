@@ -30,7 +30,7 @@ public class MockEBHttpServletRequest extends org.springframework.mock.web.MockH
     */
    public MockEBHttpServletRequest(String method, String pathInfo) {
       super(method, "");
-      if (method == null || method == "") {
+      if (method == null || "".equals(method)) {
          super.setMethod("POST");
       }
       super.setPathInfo(pathInfo);
@@ -43,7 +43,7 @@ public class MockEBHttpServletRequest extends org.springframework.mock.web.MockH
     */
    public MockEBHttpServletRequest(String method, String... params) {
       super(method, "");
-      if (method == null || method == "") {
+      if (method == null || "".equals(method)) {
          super.setMethod("POST");
       }
       for (int i = 0; i < params.length; i++) {
