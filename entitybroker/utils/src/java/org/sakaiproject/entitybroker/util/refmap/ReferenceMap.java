@@ -56,6 +56,7 @@ import java.util.concurrent.ConcurrentMap;
  * <p>In other words, this class is great for caching but not atomicity.
  *
  * @author crazybob@google.com (Bob Lee)
+ * @author azeckoski minor fixes
  */
 @SuppressWarnings("unchecked")
 public class ReferenceMap<K, V> implements Map<K, V>, Serializable {
@@ -379,7 +380,7 @@ public class ReferenceMap<K, V> implements Map<K, V>, Serializable {
 
     public boolean equals(Object obj) {
       // defer to reference's equals() logic.
-      return obj.equals(this);
+      return obj == null ? false : obj.equals(this);
     }
   }
 
