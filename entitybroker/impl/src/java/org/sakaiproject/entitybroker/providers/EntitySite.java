@@ -49,6 +49,8 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 @SuppressWarnings("unchecked")
 public class EntitySite implements Site {
 
+   private static final long serialVersionUID = 7526472295622776147L;
+
    @EntityId
    private String id;
    private String title;
