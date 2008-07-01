@@ -119,7 +119,7 @@ public class EntityBrokerDaoImpl extends JdbcBasicGenericDao implements EntityBr
 
       String sql = makeSQL(getDeleteTemplate(EntityProperty.class), 
             getTableNameFromClass(EntityProperty.class), 
-            StatementMapper.WHERE, whereSQL.toString());
+            StatementMapper.WHERE, whereSQL);
 
       return getJdbcTemplate().update(sql, params.toArray());
    }
