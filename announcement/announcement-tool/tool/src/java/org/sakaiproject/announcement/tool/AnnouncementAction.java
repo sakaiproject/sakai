@@ -3767,7 +3767,8 @@ public class AnnouncementAction extends PagedResourceActionII
 		Menu bar = new MenuImpl(portlet, rundata, "AnnouncementAction");
 		boolean buttonRequiringCheckboxesPresent = false;
 
-		if (!displayOptions.isShowOnlyOptionsButton())
+		//if (!displayOptions.isShowOnlyOptionsButton()) ##SAK-13434
+		if (displayOptions != null && !displayOptions.isShowOnlyOptionsButton())
 		{
 			String statusName = state.getStatus();
 			if (statusName != null)
