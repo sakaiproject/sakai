@@ -550,13 +550,13 @@
 										#end
 									</th>
 									
-									#if ($!view != "view.bygroup")
+									##if ($!view != "view.bygroup") ## SAK-13850 The delete option must be there even when it is viewed by groups
 										#if ($allow_delete)
 											<th class="screenOnly" id="checkbox">
 												 $tlang.getString("gen.remove_question")
 											</th>
 										#end
-									#end
+									
 								</tr>
 							 #set ($rowCount=0)
 							 #foreach ($ann_item in $showMessagesList)
@@ -635,7 +635,7 @@
 									#set ($ref = $entityManager.newReference($ann_item.Reference))
 									#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container))
 
-									#if ($!view != "view.bygroup")
+									##if ($!view != "view.bygroup") ## SAK-13850 The delete option must be there even when it is viewed by groups
 										#if ($channel.allowRemoveMessage($ann_item.Message))
 											#if ($origChannelRef.equals($channel.Reference))
 											<td headers="checkbox" class="screenOnly">
@@ -653,7 +653,6 @@
 												#end
 											#end		
 										#end
-									#end
 								</tr>
 								#if ($displayOptions.isShowAnnouncementBody()) 
 									<tr>

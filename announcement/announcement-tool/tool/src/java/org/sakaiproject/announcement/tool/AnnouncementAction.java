@@ -1429,12 +1429,13 @@ public class AnnouncementAction extends PagedResourceActionII
 				}
 				else
 				{
-					for (Iterator k = aMessage.getAnnouncementHeader().getGroups().iterator(); k.hasNext();)
+					//for (Iterator k = aMessage.getAnnouncementHeader().getGroups().iterator(); k.hasNext();)
 					{
 						// announcement by group
-						AnnouncementWrapper m = new AnnouncementWrapper(aMessage);
-						m.setRange(site.getGroup((String) k.next()).getTitle());
-						rv.add(m);
+						//AnnouncementWrapper m = new AnnouncementWrapper(aMessage);
+						//m.setRange(site.getGroup((String) k.next()).getTitle());
+						//rv.add(m);
+						rv.add(aMessage);
 					}
 				}
 
