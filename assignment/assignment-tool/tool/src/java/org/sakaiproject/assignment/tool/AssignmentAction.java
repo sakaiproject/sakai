@@ -7696,11 +7696,11 @@ public class AssignmentAction extends PagedResourceActionII
 					
 					if (t1!=null && t2!=null && t1.before(t2))
 					{
-						result = -1;
+						result = 1;
 					}
 					else
 					{
-						result = 1;
+						result = -1;
 					}
 				}				
 				else if ( s1 == 0 && s2 > 0 ) // order has not been set on this object, so put it at the bottom of the list
