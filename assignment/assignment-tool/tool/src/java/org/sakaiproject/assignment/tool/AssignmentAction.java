@@ -1743,6 +1743,7 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_grade_submission_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
+		String submissionId="";
 		int gradeType = -1;
 
 		// need to show the alert for grading drafts?
@@ -1773,6 +1774,7 @@ public class AssignmentAction extends PagedResourceActionII
 			AssignmentSubmission s = AssignmentService.getSubmission((String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID));
 			if (s != null)
 			{
+				submissionId = s.getId();
 				context.put("submission", s);
 				
 				// show alert if student is working on a draft
@@ -1885,10 +1887,75 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		context.put("alertGradeDraft", Boolean.valueOf(addGradeDraftAlert));
 		
+		// for the navigation purpose
+		List<UserSubmission> userSubmissions = state.getAttribute(USER_SUBMISSIONS) != null ? (List<UserSubmission>) state.getAttribute(USER_SUBMISSIONS):null;
+		if (userSubmissions != null)
+		{
+			for (int i = 0; i < userSubmissions.size(); i++)
+			{
+				if (((UserSubmission) userSubmissions.get(i)).getSubmission().getId().equals(submissionId))
+				{
+					boolean goPT = false;
+					boolean goNT = false;
+					if ((i - 1) >= 0)
+					{
+						goPT = true;
+					}
+					if ((i + 1) < userSubmissions.size())
+					{
+						goNT = true;
+					}
+					context.put("goPTButton", new Boolean(goPT));
+					context.put("goNTButton", new Boolean(goNT));
+					
+					if (i>0)
+					{
+						// retrieve the previous submission id
+						context.put("prevSubmissionId", ((UserSubmission) userSubmissions.get(i-1)).getSubmission().getId());
+					}
+					
+					if (i < userSubmissions.size() - 1)
+					{
+						// retrieve the next submission id
+						context.put("nextSubmissionId", ((UserSubmission) userSubmissions.get(i+1)).getSubmission().getId());
+					}
+				}
+			}
+		}
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
 
 	} // build_instructor_grade_submission_context
+	
+	/**
+	 * Responding to the request of going to next submission
+	 */
+	public void doNext_submission(RunData rundata, Context context)
+	{
+		navigateToSubmission(rundata, "nextSubmissionId");
+
+	} // doNext_submission
+
+
+	private void navigateToSubmission(RunData rundata, String paramString) {
+		ParameterParser params = rundata.getParameters();
+		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
+
+		String submissionId = StringUtil.trimToNull(params.getString(paramString));
+		if (submissionId != null)
+		{
+			state.setAttribute(GRADE_SUBMISSION_SUBMISSION_ID, submissionId);
+		}
+	}
+
+	/**
+	 * Responding to the request of going to previous submission
+	 */
+	public void doPrev_submission(RunData rundata, Context context)
+	{
+		navigateToSubmission(rundata, "prevSubmissionId");
+
+	} // doPrev_submission
 
 	/**
 	 * Parse time value and put corresponding values into state
@@ -2123,7 +2190,7 @@ public class AssignmentAction extends PagedResourceActionII
 				updateNonElectronicSubmissions(state, assignment);
 			}
 			
-			List userSubmissions = prepPage(state);
+			List<UserSubmission> userSubmissions = prepPage(state);
 			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
 			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
 		}
