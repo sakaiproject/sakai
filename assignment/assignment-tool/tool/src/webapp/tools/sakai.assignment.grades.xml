@@ -14,6 +14,7 @@
 		<configuration name="pagesize" value="200" />
 		<configuration name="withGrades" value="TRUE" type="final" />
 		<configuration name="help.id" value="sakai.assignment" type="final" />
+		<configuration name="showNumSubmissionColumn" value="TRUE" />
 
 	</tool>
 

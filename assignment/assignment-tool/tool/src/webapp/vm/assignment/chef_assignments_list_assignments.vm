@@ -226,6 +226,7 @@ function allowClick(object)
 					</th>
 					#if ($!allowGradeSubmission)
 						#if ($!view.equals('lisofass1'))
+						#if ($!showNumSubmissionColumn)
 						<th id="num_submissions">
 							<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
 								#if ($sortedBy.equals("num_submissions")) 
@@ -249,6 +250,7 @@ function allowClick(object)
 									</a>	
 								#end
 						</th>
+						#end
 						#end
 					#end
 					#if ($withGrade && $!allowGradeSubmission)
@@ -486,6 +488,7 @@ function allowClick(object)
 							</td>
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
+								#if ($!showNumSubmissionColumn)
 								<td headers="num_submissions" class="specialLink">
 								#if ($!service.allowGradeSubmission($assignment.getReference()))
 									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
@@ -505,6 +508,7 @@ function allowClick(object)
 									$!totalNumber/$!ungradedNumber</a>
 								#end
 								</td>
+								#end
 								#end
 							#end
 							#if ($withGrade && $!allowGradeSubmission)

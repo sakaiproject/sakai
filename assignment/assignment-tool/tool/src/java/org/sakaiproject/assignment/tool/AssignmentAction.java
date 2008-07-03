@@ -610,6 +610,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The configuration choice of with grading option or not */
 	private static final String WITH_GRADES = "with_grades";
+	
+	/** The configuration choice of showing or hiding the number of submissions column  */
+	private static final String SHOW_NUMBER_SUBMISSION_COLUMN = "showNumSubmissionColumn";
 
 	/** The alert flag when doing global navigation from improper mode */
 	private static final String ALERT_GLOBAL_NAVIGATION = "alert_global_navigation";
@@ -1276,6 +1279,9 @@ public class AssignmentAction extends PagedResourceActionII
 		// the type int for non-electronic submission
 		context.put("typeNonElectronic", Integer.valueOf(Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION));
 
+		// show or hide the number of submission column
+		context.put(SHOW_NUMBER_SUBMISSION_COLUMN, state.getAttribute(SHOW_NUMBER_SUBMISSION_COLUMN));
+		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_LIST_ASSIGNMENTS;
 
@@ -7152,6 +7158,19 @@ public class AssignmentAction extends PagedResourceActionII
 				withGrades = Boolean.FALSE.toString();
 			}
 			state.setAttribute(WITH_GRADES, new Boolean(withGrades));
+		}
+		
+		// whether to display the number of submission/ungraded submission column
+		// default to show
+		if (state.getAttribute(SHOW_NUMBER_SUBMISSION_COLUMN) == null)
+		{
+			PortletConfig config = portlet.getPortletConfig();
+			String value = StringUtil.trimToNull(config.getInitParameter(SHOW_NUMBER_SUBMISSION_COLUMN));
+			if (value == null)
+			{
+				value = Boolean.TRUE.toString();
+			}
+			state.setAttribute(SHOW_NUMBER_SUBMISSION_COLUMN, new Boolean(value));
 		}
 		
 		// whether the choice of emails instructor submission notification is available in the installation
