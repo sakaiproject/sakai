@@ -4,7 +4,7 @@
 
 CREATE TABLE ANNOUNCEMENT_CHANNEL
 (
-    CHANNEL_ID VARCHAR2 (99) NOT NULL,
+    CHANNEL_ID VARCHAR2 (255) NOT NULL,
 	NEXT_ID INT,
     XML LONG
 );
@@ -19,7 +19,7 @@ CREATE UNIQUE INDEX ANNOUNCEMENT_CHANNEL_INDEX ON ANNOUNCEMENT_CHANNEL
 -----------------------------------------------------------------------------
 
 CREATE TABLE ANNOUNCEMENT_MESSAGE (
-       CHANNEL_ID           VARCHAR2(99 BYTE) NOT NULL,
+       CHANNEL_ID           VARCHAR2(255 BYTE) NOT NULL,
        MESSAGE_ID           VARCHAR2(36 BYTE) NOT NULL,
        DRAFT                CHAR(1) NULL
                                    CHECK (DRAFT IN (1, 0)),

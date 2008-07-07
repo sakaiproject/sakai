@@ -4,7 +4,7 @@
 
 CREATE TABLE ANNOUNCEMENT_CHANNEL
 (
-    CHANNEL_ID VARCHAR (99) NOT NULL,
+    CHANNEL_ID VARCHAR (255) NOT NULL,
 	NEXT_ID INT,
     XML LONGVARCHAR,
     CONSTRAINT ANNOUNCEMENT_CHANNEL_INDEX UNIQUE (CHANNEL_ID)
@@ -15,7 +15,7 @@ CREATE TABLE ANNOUNCEMENT_CHANNEL
 -----------------------------------------------------------------------------
 
 CREATE TABLE ANNOUNCEMENT_MESSAGE (
-       CHANNEL_ID           VARCHAR(99) NOT NULL,
+       CHANNEL_ID           VARCHAR(255) NOT NULL,
        MESSAGE_ID           VARCHAR(36) NOT NULL,
        DRAFT                CHAR(1) NULL,
  --                                  CHECK (DRAFT IN (1, 0)),
