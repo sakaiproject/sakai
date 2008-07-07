@@ -125,6 +125,7 @@ import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteComparator;
+import org.sakaiproject.site.util.ToolComparator;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.time.api.Time;
@@ -10027,28 +10028,6 @@ public class SiteAction extends PagedResourceActionII {
 						selectedParticipantList);
 
 	} // setSelectedParticipantRol3es
-
-	private class ToolComparator implements Comparator {
-		/**
-		 * implementing the Comparator compare function
-		 * 
-		 * @param o1
-		 *            The first object
-		 * @param o2
-		 *            The second object
-		 * @return The compare result. 1 is o1 < o2; 0 is o1.equals(o2); -1
-		 *         otherwise
-		 */
-		public int compare(Object o1, Object o2) {
-			try {
-				return ((Tool) o1).getTitle().compareTo(((Tool) o2).getTitle());
-			} catch (Exception e) {
-			}
-			return -1;
-
-		} // compare
-
-	} // ToolComparator
 
 	public class MyIcon {
 		protected String m_name = null;
