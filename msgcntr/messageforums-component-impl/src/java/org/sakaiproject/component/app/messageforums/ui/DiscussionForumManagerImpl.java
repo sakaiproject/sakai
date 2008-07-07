@@ -2125,11 +2125,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     	final String toolId = ToolManager.getCurrentTool().getId();
     	
     		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
-    			eventMessagePrefix = "/messagesAndForums/site/";
+    			eventMessagePrefix = "/messagesAndForums";
     		else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
-    			eventMessagePrefix = "/messages/site/";
+    			eventMessagePrefix = "/messages";
     		else
-    			eventMessagePrefix = "/forums/site/";
+    			eventMessagePrefix = "/forums";
     	
     	return eventMessagePrefix + getContextSiteId() + "/" + object.toString() + "/" + sessionManager.getCurrentSessionUserId();
     }
