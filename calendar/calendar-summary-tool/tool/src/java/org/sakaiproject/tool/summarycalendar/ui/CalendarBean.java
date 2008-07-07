@@ -255,6 +255,10 @@ public class CalendarBean {
 		return siteId;
 	}
 	
+	public String getUserId() {
+		return M_sm.getCurrentSessionUserId();
+	}
+	
 	private CalendarEventVector getEventsFromSchedule() {
 		if(calendarEventVector == null) {
 			Calendar firstDay;

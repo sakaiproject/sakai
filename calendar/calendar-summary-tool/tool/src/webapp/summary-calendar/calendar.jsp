@@ -21,7 +21,7 @@
 
 	<h:form id="calendarForm">
 	<h:panelGroup>
-       <sakai:tool_bar>
+       <sakai:tool_bar rendered="#{CalBean.userId ne null}">
 			<sakai:tool_bar_item action="#{MenuBean.processPreferences}" value="#{msgs.menu_prefs}" immediate="true" />
 		</sakai:tool_bar>
     </h:panelGroup>
