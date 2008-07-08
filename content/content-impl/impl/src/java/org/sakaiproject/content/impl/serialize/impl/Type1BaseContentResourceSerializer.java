@@ -387,6 +387,9 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 							{
 								groups.add(ds.readUTF());
 							}
+							if ( sz > 0 ) {
+								access = AccessMode.GROUPED;
+							}
 							break;
 						case BLOCK4:
 							baseResourcePropertiesSerializer.parse(sc

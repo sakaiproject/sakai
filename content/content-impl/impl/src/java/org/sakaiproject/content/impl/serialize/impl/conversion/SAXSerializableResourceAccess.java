@@ -483,15 +483,15 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 					}
 
 					filePath = StringUtil.trimToNull(attributes.getValue("filePath"));
-					AccessMode access = AccessMode.INHERITED;
+					accessMode = AccessMode.INHERITED;
 					String access_mode = attributes.getValue("sakai:access_mode");
 					if (access_mode != null && !access_mode.trim().equals(""))
 					{
-						access = AccessMode.fromString(access_mode);
+						accessMode = AccessMode.fromString(access_mode);
 					}
-					if (access == null || AccessMode.SITE == access)
+					if (accessMode == null || AccessMode.SITE == accessMode)
 					{
-						access = AccessMode.INHERITED;
+						accessMode = AccessMode.INHERITED;
 					}
 
 					String shidden = attributes.getValue("sakai:hidden");
