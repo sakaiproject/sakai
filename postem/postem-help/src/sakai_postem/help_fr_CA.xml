@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="postemOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>athq</value></property>
+      <property name="name"><value>Post'Em Overview</value></property>
+      <property name="location"><value>/sakai_postem/athq.html</value></property>
+      <property name="defaultForTool"><value>sakai.postem</value></property>
+   </bean>
+   
+   <bean id="postemUsing" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atik</value></property>
+      <property name="name"><value>Using Post'Em</value></property>
+      <property name="location"><value>/sakai_postem/atik.html</value></property>
+   </bean>
+
+   <bean id="postemUpdating" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auiq</value></property>
+      <property name="name"><value>Downloading, updating, or deleting a Post'Em file</value></property>
+      <property name="location"><value>/sakai_postem/auiq.html</value></property>
+   </bean>
+
+   <bean id="postemFeedback" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auir</value></property>
+      <property name="name"><value>Viewing feedback in a Post'Em file</value></property>
+      <property name="location"><value>/sakai_postem/auir.html</value></property>
+   </bean>
+   
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="podcastsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Post'Em</value></property>
+               <property name="resources">
+                  <list>
+       			<ref bean="postemOverview"/>
+			<ref bean="postemUsing"/>
+			<ref bean="postemUpdating"/>
+			<ref bean="postemFeedback"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
