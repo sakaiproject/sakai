@@ -1,14 +1,14 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-   <!-- <bean id="accessibility" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arkn_fr_CA</value></property>
+   <bean id="accessibility" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arkn</value></property>
       <property name="name"><value>Accessibility Information</value></property>
       <property name="location"><value>/sakai_accessibility/arkn.html</value></property>
-   </bean> -->
-   
-   <!--
+      <property name="defaultForTool"><value>sakai.accessibility</value></property> 
+   </bean>
+         
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       <property name="name"><value>root</value></property>
@@ -18,12 +18,11 @@
                <property name="name"><value>Accessibility</value></property>
                <property name="resources">
                   <list>
-                    <ref bean="accessibility"/>
+                     <ref bean="accessibility"/>
                   </list>
                </property>
             </bean>
            </list>
          </property>
        </bean>
-       -->
 </beans>
