@@ -44,6 +44,7 @@ public interface Resolvable extends EntityProvider {
     * an empty entity object if only the prefix is supplied (do NOT return null)
     * @throws IllegalArgumentException if the id is invalid for this type of entity,
     * <b>NOTE:</b> a null id means you should return a default constructed object)
+    * @throws SecurityException if access to this entity is not allowed
     * @throws IllegalStateException for all other errors
     */
    public Object getEntity(EntityReference ref);
