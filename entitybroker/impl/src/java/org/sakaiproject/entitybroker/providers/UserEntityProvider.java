@@ -176,9 +176,15 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
       }
       String userId = ref.getId();
       User user = getUserByIdEid(userId);
-      // convert
-      EntityUser eu = convertUser(user);
-      return eu;
+      // TODO - open this up a little bit more later on
+      String currentUserId = developerHelperService.getCurrentUserId();
+      if (developerHelperService.isUserAdmin(currentUserId) 
+            || currentUserId.equals(user.getId())) {
+         // convert
+         EntityUser eu = convertUser(user);
+         return eu;         
+      }
+      throw new SecurityException("Current user ("+currentUserId+") cannot access information about " + ref);
    }
 
    public void deleteEntity(EntityReference ref) {
@@ -204,6 +210,10 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
    @SuppressWarnings("unchecked")
    public List<?> getEntities(EntityReference ref, Search search) {
       Collection<User> users = new ArrayList<User>();
+      String currentUserRef = developerHelperService.getCurrentUserReference();
+      if (! developerHelperService.isUserAdmin(currentUserRef)) {
+         throw new SecurityException("Only the admin can access a list of users");
+      }
       Restriction restrict = search.getRestrictionByProperty("email");
       if (restrict != null) {
          // search users by email
@@ -246,22 +256,6 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
    @SuppressWarnings("unchecked")
    public EntityUser convertUser(User user) {
       EntityUser eu = new EntityUser(user);
-      /** handled in constructor now
-      eu.setDisplayName(user.getDisplayName());
-      eu.setEid(user.getEid());
-      eu.setEmail(user.getEmail());
-      eu.setFirstName(user.getFirstName());
-      eu.setId(user.getId());
-      eu.setLastName(user.getLastName());
-      eu.setType(user.getType());
-      // properties
-      ResourceProperties rp = user.getProperties();
-      for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
-         String name = iterator.next();
-         String value = rp.getProperty(name);
-         eu.setProperty(name, value);
-      }
-      **/
       return eu;
    }
 

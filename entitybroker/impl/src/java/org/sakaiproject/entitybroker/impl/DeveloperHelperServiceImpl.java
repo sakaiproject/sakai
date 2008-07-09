@@ -239,8 +239,13 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
    public String getUserIdFromRef(String userReference) {
       String userId = null;
       if (userReference != null) {
-         // assume the form of "/user/userId" (the UDS method is protected)
-         userId = new EntityReference(userReference).getId();
+         if (userReference.startsWith("/")) {
+            // assume the form of "/user/userId" (the UDS method is protected)
+            userId = new EntityReference(userReference).getId();
+         } else {
+            // otherwise assume this is the id
+            userId = userReference;
+         }
       }
       return userId;
    }
