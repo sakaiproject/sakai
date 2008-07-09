@@ -72,9 +72,27 @@
            </a4j:region>
            
 		
+	       <a4j:region id="reportChartRegion">					
+				<%/* #####  ACTIVITY CHART  ##### */%>
+				<a4j:status id="reportChartStatus" startText="..." stopText=" " startStyleClass="ajaxLoading" layout="inline"/>
+	            <a4j:outputPanel id="reportChartPanel">
+          			<a4j:mediaOutput 
+						id="reportChart"
+						element="img" cacheable="false"
+						createContent="#{ServerWideReportBean.generateReportChart}" 
+						value="#{ChartParams}"
+						mimeType="image/png"
+                        rendered="#{ChartParams.renderReportChart}"
+					/>       
+	            </a4j:outputPanel>
+            </a4j:region>
+           
+           
 			<%/* #####  BUTTONS  ##### */%>
 			<sakai:button_bar>
-				<t:commandButton value="#{msgs.overview_back}" action="overview" actionListener="#{ChartParams.restoreSize}" styleClass="active"/>
+				<t:commandButton value="#{msgs.overview_back}" action="overview" actionListener="#{ChartParams.restoreSize}" styleClass="active" rendered="#{ChartParams.maximizedVisits}"/>
+				<t:commandButton value="#{msgs.overview_back}" action="overview" actionListener="#{ChartParams.restoreSize}" styleClass="active" rendered="#{ChartParams.maximizedActivity}"/>
+				<t:commandButton value="#{msgs.serverwide_back}" action="serverwide" actionListener="#{ChartParams.restoreSize}" styleClass="active" rendered="#{ChartParams.maximizedReport}"/>
 			</sakai:button_bar>
 			
 			<f:verbatim>
@@ -104,6 +122,15 @@
 		   	<f:param name="siteId" value="#{ServiceBean.siteId}"/>
 		</a4j:jsFunction>
 		    
+		<a4j:jsFunction name="renderReportChart"
+			actionListener="#{ChartParams.renderReportChart}"
+		    reRender="reportChartPanel" status="reportChartStatus"
+		    immediate="true">  
+		    <a4j:actionparam name="chartWidth"/>
+		   	<a4j:actionparam name="chartHeight"/>
+		    <a4j:actionparam name="backgroundColor"/>          
+        </a4j:jsFunction>
+		    
 		<%/* #####  Set chart params in bean ##### */%>
 		<a4j:jsFunction name="setChartParameters"
 			actionListener="#{ChartParams.setChartParameters}" immediate="true" >
@@ -126,6 +153,11 @@
 		<f:subview id="activityLoader" rendered="#{ChartParams.maximizedActivity}">
 			<f:verbatim>
 	        	<script type="text/javascript">renderActivityChart(getChartWidth(), getChartHeight(), 'white');</script>
+			</f:verbatim>
+		</f:subview>
+		<f:subview id="reportLoader" rendered="#{ChartParams.maximizedReport}">
+			<f:verbatim>
+	        	<script type="text/javascript">renderReportChart(getChartWidth(), getChartHeight(), 'white');</script>
 			</f:verbatim>
 		</f:subview>
 		

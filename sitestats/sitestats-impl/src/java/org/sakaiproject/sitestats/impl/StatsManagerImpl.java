@@ -106,6 +106,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 																					|| org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("presence.events.log", false);
 	private boolean                     enableSiteActivity						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("enableSiteActivity@org.sakaiproject.sitestats.api.StatsManager", true);
 	private boolean 				    visitsInfoAvailable						= enableSiteVisits; //org.sakaiproject.component.cover.ServerConfigurationService.getBoolean( "display.users.present", true);
+	private boolean						enableServerWideStats				= false;
 	private String						customToolEventsDefinitionFile			= null;
 	private String						customToolEventsAddDefinitionFile		= null;
 	private String						customToolEventsRemoveDefinitionFile	= null;
@@ -169,6 +170,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 
 	public void setEnableSiteActivity(boolean enableSiteActivity) {
 		this.enableSiteActivity = enableSiteActivity;
+	}
+
+	public void setServerWideStatsEnabled(boolean enableServerWideStats) {
+		this.enableServerWideStats = enableServerWideStats;
+	}
+
+	public boolean isServerWideStatsEnabled() {
+		return enableServerWideStats;
 	}
 	
 	public boolean isEnableSiteActivity() {

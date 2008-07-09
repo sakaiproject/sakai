@@ -22,6 +22,16 @@ public class ChartParamsBean implements Serializable {
 	public static final String	VIEW_YEAR							= StatsManager.VIEW_YEAR;
 	public static final String	CHATTYPE_BAR						= StatsManager.CHATTYPE_BAR;
 	public static final String	CHATTYPE_PIE						= StatsManager.CHATTYPE_PIE;
+
+	// server wide stats
+	public static final String MONTHLY_LOGIN_REPORT = StatsManager.MONTHLY_LOGIN_REPORT;
+	public static final String WEEKLY_LOGIN_REPORT = StatsManager.WEEKLY_LOGIN_REPORT;
+    public static final String DAILY_LOGIN_REPORT = StatsManager.DAILY_LOGIN_REPORT;
+	public static final String REGULAR_USERS_REPORT = StatsManager.REGULAR_USERS_REPORT;
+	public static final String HOURLY_USAGE_REPORT = StatsManager.HOURLY_USAGE_REPORT;
+	public static final String TOP_ACTIVITIES_REPORT = StatsManager.TOP_ACTIVITIES_REPORT;
+	public static final String TOOL_REPORT = StatsManager.TOOL_REPORT;
+        
 	private static final int	DEFAULT_CHART_WIDTH					= 400;
 	private static final int	DEFAULT_CHART_HEIGHT				= 200;
 	private static final int	MIN_CHART_WIDTH						= 240;
@@ -34,6 +44,7 @@ public class ChartParamsBean implements Serializable {
 	private String				selectedVisitsView					= VIEW_WEEK;
 	private String				selectedActivityView				= VIEW_WEEK;
 	private String				selectedActivityChartType			= CHATTYPE_PIE;
+	private String				selectedReportChartType				= "";
 	private int					mainAreaWidth						= 640;
 	private int					chartWidth							= DEFAULT_CHART_WIDTH;
 	private int					chartHeight							= DEFAULT_CHART_HEIGHT;
@@ -41,8 +52,10 @@ public class ChartParamsBean implements Serializable {
 	/** Rendering control vars */
 	private boolean				renderVisitsChart					= false;
 	private boolean				renderActivityChart					= false;
+	private boolean				renderReportChart					= false;
 	private boolean				maximizedVisitsSelected				= false;
 	private boolean				maximizedActivitySelected			= false;
+	private boolean				maximizedReportSelected			= false;
 	private float				foregroundAlpha						= 0.80f;
 	private String				backgroundColor						= "white";
 
@@ -131,6 +144,47 @@ public class ChartParamsBean implements Serializable {
 		this.selectedActivityChartType = CHATTYPE_BAR;
 		this.renderActivityChart = true;
 	}
+	
+	public String getSelectedReportType() {
+		return selectedReportChartType;
+	}
+
+	public void selectMonthlyLoginReportType (ActionEvent e){
+		this.selectedReportChartType = MONTHLY_LOGIN_REPORT;
+		this.renderReportChart = true;
+	}
+
+	public void selectWeeklyLoginReportType (ActionEvent e){
+		this.selectedReportChartType = WEEKLY_LOGIN_REPORT;
+		this.renderReportChart = true;
+	}
+
+	public void selectDailyLoginReportType (ActionEvent e){
+		this.selectedReportChartType = DAILY_LOGIN_REPORT;
+		this.renderReportChart = true;
+	}
+
+	public void selectRegularUsersReportType (ActionEvent e){
+		this.selectedReportChartType = REGULAR_USERS_REPORT;
+		this.renderReportChart = true;
+	}
+
+	public void selectHourlyUsageReportType (ActionEvent e){
+		this.selectedReportChartType = HOURLY_USAGE_REPORT;
+		this.renderReportChart = true;
+	}
+
+	public void selectTopActivitiesReportType (ActionEvent e){
+		this.selectedReportChartType = TOP_ACTIVITIES_REPORT;
+		this.renderReportChart = true;
+	}
+
+	public void selectToolReportType (ActionEvent e){
+		this.selectedReportChartType = TOOL_REPORT;
+		this.renderReportChart = true;
+	}
+
+	
 
 	// ######################################################################################
 	// Chart parameters (ActionEvent) methods
@@ -218,9 +272,19 @@ public class ChartParamsBean implements Serializable {
 		this.renderActivityChart = true;
 	}
 	
+	public boolean isRenderReportChart() {
+		return renderReportChart;
+	}
+	
+	public void renderReportChart(ActionEvent e) {
+		setChartParameters(e);	
+		this.renderReportChart = true;
+	}
+	
 	public void setAllRenderFalse(ActionEvent e) {
 		this.renderVisitsChart = false;
-		this.renderActivityChart = false;		
+		this.renderActivityChart = false;
+		this.renderReportChart = false;
 	}
 	
 	public void setVisitsRenderFalse(ActionEvent e) {
@@ -239,11 +303,21 @@ public class ChartParamsBean implements Serializable {
 		this.renderActivityChart = true;	
 	}
 	
+	public void setReportRenderFalse(ActionEvent e) {
+		this.renderReportChart = false;	
+	}
+	
+	public void setReportRenderTrue(ActionEvent e) {
+		this.renderReportChart = true;	
+	}
+	
 	public void selectMaximizedVisits(ActionEvent e) {
 		this.maximizedVisitsSelected = true;	
 		this.maximizedActivitySelected = false;	
 		this.renderVisitsChart = false;	
 		this.renderActivityChart = false;	
+		this.maximizedReportSelected = false;	
+		this.renderReportChart = false;	
 	}
 	
 	public boolean isMaximizedVisits(){
@@ -255,11 +329,27 @@ public class ChartParamsBean implements Serializable {
 		this.maximizedActivitySelected = true;	
 		this.renderVisitsChart = false;	
 		this.renderActivityChart = false;	
+		this.maximizedReportSelected = false;	
+		this.renderReportChart = false;	
+	}
+	
+	public void selectMaximizedReport(ActionEvent e) {
+		this.maximizedVisitsSelected = false;	
+		this.maximizedActivitySelected = false;	
+		this.renderVisitsChart = false;	
+		this.renderActivityChart = false;	
+		this.maximizedReportSelected = true;	
+		this.renderReportChart = false;	
+	}
+	
+	public boolean isMaximizedReport(){
+		return this.maximizedReportSelected;
 	}
 	
 	public void restoreSize(ActionEvent e) {
 		this.maximizedVisitsSelected = false;	
 		this.maximizedActivitySelected = false;	
+		this.maximizedReportSelected = false;	
 	}
 	
 	public boolean isMaximizedActivity(){

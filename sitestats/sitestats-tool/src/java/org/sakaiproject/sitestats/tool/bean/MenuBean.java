@@ -28,6 +28,10 @@ public class MenuBean implements Serializable {
 		return "sitelist";
 	}
 	
+	public String processServerWide(){
+		return "serverwide";
+	}
+	
 	public String processOverview(){
 		return "overview";
 	}

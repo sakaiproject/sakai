@@ -47,6 +47,18 @@
 	/*width: 160px;*/
 }
 
+.left30 {
+	vertical-align: top;
+	text-align: left;
+	width: 30%;
+}
+
+.left70 {
+	vertical-align: top;
+	text-align: left;
+	width: 70%;
+}
+
 /* Summary Header separator */
 .summaryHeader {
 	border-bottom: 1px solid silver;
@@ -85,6 +97,20 @@ label.indnt1 {
 	margin: 0pt;
 	margin-top: 3px;
 	float: right;
+}
+
+.description {
+	color: #333333;
+	font-size: 100%;
+	font-weight: normal;
+	margin: 0pt;
+}
+
+.notes {
+	color: #333333;
+	font-size: 90%;
+	font-weight: normal;
+	margin: 0pt;
 }
 
 /* Ajax loading */

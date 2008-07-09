@@ -46,6 +46,9 @@
 
 			<!-- Enable/disable site activity charts -->
 			<!-- <property name="enableSiteActivity" value="true" /> -->
+
+			<!-- Enable/disable sakai-wide statistics -->
+			<!-- <property name="serverWideStatsEnabled" value="false" /> -->
 			
 			<!-- Default chart background color (default: white) -->
 			<property name="chartBackgroundColor" value="#ffffff" />
@@ -124,6 +127,24 @@
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
 		</property>
 	</bean>
+
+	<!-- ServerWideReportManager ____________________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.ServerWideReportManager"
+		class="org.sakaiproject.sitestats.impl.ServerWideReportManagerImpl"
+		singleton="true"
+		lazy-init="true"
+		init-method="init"
+		destroy-method="destroy">
+		
+		<!-- Sakai services -->
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
+        <!--
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        -->
+	</bean>    
 
 
 	<!-- Authz _________________________________________________________________________________________ -->

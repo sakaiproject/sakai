@@ -84,6 +84,21 @@
 		</managed-property>
 	</managed-bean>
 	
+	<managed-bean>
+		<description>Server Wide Report Bean</description>
+		<managed-bean-name>ServerWideReportBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.sitestats.tool.bean.ServerWideReportBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>serviceBean</property-name>
+			<value>#{ServiceBean}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>serverWideReportManager</property-name>
+			<value>#{org_sakaiproject_sitestats_api_ServerWideReportManager}</value>
+		</managed-property>        
+	</managed-bean>
+	
 	<!-- Helper beans -->
 	
 	<managed-bean>
@@ -177,6 +192,12 @@
           <navigation-case>
             <from-outcome>sitelist</from-outcome>
             <to-view-id>/sitestats/sitelist.jsp</to-view-id>
+            <redirect/>
+          </navigation-case>
+
+          <navigation-case>
+            <from-outcome>serverwide</from-outcome>
+            <to-view-id>/sitestats/serverwide.jsp</to-view-id>
             <redirect/>
           </navigation-case>
 
