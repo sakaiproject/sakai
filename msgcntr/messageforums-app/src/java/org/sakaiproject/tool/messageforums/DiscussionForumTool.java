@@ -207,6 +207,7 @@ public class DiscussionForumTool
   private static final String MSGS_DENIED = "cdfm_deny_msgs_success";
   private static final String MSG_REPLY_PREFIX = "cdfm_reply_prefix";
   private static final String NO_GRADE_PTS = "cdfm_no_points_for_grade";
+  private static final String TOO_LARGE_GRADE = "cdfm_too_large_grade";
   private static final String NO_ASSGN = "cdfm_no_assign_for_grade";
   private static final String CONFIRM_DELETE_MESSAGE="cdfm_delete_msg";
   private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE = "cdfm_insufficient_privileges_delete_msg";
@@ -292,6 +293,8 @@ public class DiscussionForumTool
   private Boolean forumsTool = null;
   private Boolean messagesandForums = null;
   private List postingOptions = null;
+  
+  private boolean grade_too_large_make_sure = false;
   
   /**
    * 
@@ -3124,7 +3127,9 @@ public class DiscussionForumTool
   		LOG.debug("selectedTopic is null in processDfMsgGrd");
   		return gotoMain();
   	}
-  		
+  	
+  	grade_too_large_make_sure = false;
+  	
 	  selectedAssign = DEFAULT_GB_ITEM; 
 	  resetGradeInfo();
 
@@ -4781,10 +4786,23 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(NO_GRADE_PTS)); 
 	      return null; 
 	 } 
+	  
+	  try {
+		  if(Double.parseDouble(gradePoint) > Double.parseDouble(gbItemPointsPossible) && !grade_too_large_make_sure) {
+			  setErrorMessage(getResourceBundleString(TOO_LARGE_GRADE));
+			  grade_too_large_make_sure = true;
+			  return null;
+		  } else {
+			  LOG.info("the user confirms he wants to give student higher grade");
+		  }		  
+	  } catch(NumberFormatException e) {
+		  LOG.info("number format problem.");
+	  }	  
+
     
     if(!validateGradeInput())
       return null;
-      
+    
     try 
     {   
         GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
