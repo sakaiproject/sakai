@@ -46,7 +46,7 @@ public class ContentReviewItem {
 	
 	public static final Long SUBMISSION_ERROR_RETRY_EXCEEDED = new Long(9);
 	
-	private long id; //hibernate uses this as a primary key
+	private Long id; //hibernate uses this as a primary key
 	private String contentId; //Sakai contentId
 	private String userId; // Sakai userId
 	private String siteId; // Sakai siteId
@@ -106,6 +106,7 @@ public class ContentReviewItem {
 		this.status = status;
 		this.reviewScore = null;
 		this.taskId = taskId;
+		this.id = null;
 	}
 
 	/**
@@ -203,11 +204,11 @@ public class ContentReviewItem {
 		this.status = status;
 	}
 	
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
