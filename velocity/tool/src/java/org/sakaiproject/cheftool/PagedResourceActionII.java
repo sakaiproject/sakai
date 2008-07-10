@@ -478,6 +478,7 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 		{
 			int topMsgPos = ((Integer) state.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue() + 1;
 			context.put("topMsgPos", Integer.toString(topMsgPos));
+			context.put("topMsgPosInt", new Integer(topMsgPos));
 			int btmMsgPos = topMsgPos + ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue() - 1;
 			if (state.getAttribute(STATE_NUM_MESSAGES) != null)
 			{
@@ -485,6 +486,7 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 				if (btmMsgPos > allMsgNumber) btmMsgPos = allMsgNumber;
 			}
 			context.put("btmMsgPos", Integer.toString(btmMsgPos));
+			context.put("btmMsgPosInt", new Integer(btmMsgPos));
 		}
 
 		boolean goPPButton = state.getAttribute(STATE_PREV_PAGE_EXISTS) != null;
