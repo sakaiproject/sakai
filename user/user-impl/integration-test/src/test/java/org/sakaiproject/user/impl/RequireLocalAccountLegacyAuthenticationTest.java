@@ -98,8 +98,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiTestBase {
 	private static void oneTimeSetupAfter() throws Exception {
 		userDirectoryProvider = new TestProvider();
 		
-		// This is a workaround until we can make it easier to load sakai.properties
-		// for specific integration tests.
+		// Alternatively, we could point at a test-specific sakai.properties file....
 		DbUserService dbUserService = (DbUserService)getService(UserDirectoryService.class.getName());
 		dbUserService.setProvider(userDirectoryProvider);
 

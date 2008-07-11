@@ -60,7 +60,7 @@ public class AuthenticationCacheTest extends SakaiTestBase {
 				try {
 					oneTimeSetup();
 				} catch (Exception e) {
-					log.warn(e);
+					log.warn(e, e);
 				}
 				if (log.isDebugEnabled()) log.debug("finished setup");
 			}
