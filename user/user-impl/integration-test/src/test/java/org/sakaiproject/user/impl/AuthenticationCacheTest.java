@@ -22,7 +22,6 @@
 
 package org.sakaiproject.user.impl;
 
-import java.net.URL;
 import junit.extensions.TestSetup;
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -46,17 +45,19 @@ public class AuthenticationCacheTest extends SakaiTestBase {
 	private static String[] USER_DATA_1 = {"localonly1user", null, "First", "Last1", "local1@edu", "local1password"};
 	private static String[] USER_DATA_2 = {"localonly2user", null, "First", "Last2", "local2@edu", "local2password"};
 	private static IdPwEvidence USER_EVIDENCE_1 = new IdPwEvidence(USER_DATA_1[0], USER_DATA_1[5]);
-	private static IdPwEvidence USER_EVIDENCE_2 = new IdPwEvidence(USER_DATA_2[0], USER_DATA_2[5]);
 
 	private AuthenticationManager authenticationManager;
 	private AuthenticationCache authenticationCache;
 	private UserDirectoryService userDirectoryService;
+	
+	static {
+		setSakaiHome(AuthenticationCacheTest.class);
+	}
 
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(AuthenticationCacheTest.class)) {
 			protected void setUp() throws Exception {
 				if (log.isDebugEnabled()) log.debug("starting setup");
-				initializeSakaiHome();
 				try {
 					oneTimeSetup();
 				} catch (Exception e) {
@@ -149,16 +150,6 @@ public class AuthenticationCacheTest extends SakaiTestBase {
 		}
 		if (log.isDebugEnabled()) log.debug("Checked cache successfully " + nbrReads + " times before timing out or giving up");
 		Assert.assertTrue(nbrReads < 10);
-	}
-
-	public static void initializeSakaiHome() {
-		URL propertiesUrl = AuthenticationCacheTest.class.getClassLoader().getResource("sakai.properties");
-		if (log.isDebugEnabled()) log.debug("propertiesUrl=" + propertiesUrl);
-		if (propertiesUrl != null) {
-			String propertiesFileName = propertiesUrl.getFile();
-			String sakaiHomeDir = propertiesFileName.substring(0, propertiesFileName.lastIndexOf("sakai.properties") - 1);
-			System.setProperty("test.sakai.home", sakaiHomeDir);
-		}
 	}
 
 }

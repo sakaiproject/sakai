@@ -22,7 +22,6 @@
 
 package org.sakaiproject.user.impl;
 
-import java.net.URL;
 import java.util.Collection;
 
 import junit.extensions.TestSetup;
@@ -34,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.test.SakaiTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.user.api.AuthenticatedUserProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -68,6 +66,10 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiTestBase {
 	private static String PROVIDED_PWD = "provideduser-pwd";
 	private static String PROVIDED_EMAIL = "provideduser@somewhere.edu";
 	
+	static {
+		setSakaiHome(AuthenticatedUserProviderTest.class, "nocache");
+	}
+	
 	/**
 	 * A complete integration test run is a lot of overhead to take on for
 	 * such a small suite of tests. But since the tests rely on being set up with
@@ -78,7 +80,6 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiTestBase {
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(RequireLocalAccountLegacyAuthenticationTest.class)) {
 			protected void setUp() throws Exception {
-				initializeSakaiHome();
 				if (log.isDebugEnabled()) log.debug("starting setup");
 				try {
 					oneTimeSetup();
@@ -132,16 +133,6 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiTestBase {
 		user = userDirectoryService.authenticate(PROVIDED_EID, PROVIDED_PWD);
 		Assert.assertTrue(user.getEmail().equals(PROVIDED_EMAIL));
 		clearUserFromServiceCaches(user.getId());
-	}
-	
-	public static void initializeSakaiHome() {
-		URL propertiesUrl = AuthenticatedUserProvider.class.getClassLoader().getResource("nocache/sakai.properties");
-		if (log.isDebugEnabled()) log.debug("propertiesUrl=" + propertiesUrl);
-		if (propertiesUrl != null) {
-			String propertiesFileName = propertiesUrl.getFile();
-			String sakaiHomeDir = propertiesFileName.substring(0, propertiesFileName.lastIndexOf("sakai.properties") - 1);
-			System.setProperty("test.sakai.home", sakaiHomeDir);
-		}		
 	}
 
 	/**

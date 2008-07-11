@@ -22,7 +22,6 @@
 
 package org.sakaiproject.user.impl;
 
-import java.net.URL;
 import java.util.Collection;
 
 import junit.extensions.TestSetup;
@@ -49,25 +48,28 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class AuthenticatedUserProviderTest extends SakaiTestBase {
 	private static Log log = LogFactory.getLog(AuthenticatedUserProviderTest.class);
-	
+
 	private UserDirectoryService userDirectoryService;
 	private static TestProvider userDirectoryProvider;
-	
+
 	// These services are only used to clear out various caches to make sure
 	// we're fetching from the DB.
 	private ThreadLocalManager threadLocalManager;
-	
+
+	static {
+		setSakaiHome(AuthenticatedUserProviderTest.class, "nocache");
+	}
+
 	/**
 	 * A complete integration test run is a lot of overhead to take on for
 	 * such a small suite of tests. But since the tests rely on being set up with
 	 * specially tailored providers, there's not much choice....
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(AuthenticatedUserProviderTest.class)) {
 			protected void setUp() throws Exception {
-				initializeSakaiHome();
 				if (log.isDebugEnabled()) log.debug("starting setup");
 				try {
 					oneTimeSetup();
@@ -77,21 +79,18 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 				}
 				if (log.isDebugEnabled()) log.debug("finished setup");
 			}
-			protected void tearDown() throws Exception {	
+			protected void tearDown() throws Exception {
 				oneTimeTearDown();
 			}
 		};
 		return setup;
 	}
-	
+
 	private static void oneTimeSetupAfter() throws Exception {
 		userDirectoryProvider = new TestProvider();
-		
-		// This is a workaround until we can make it easier to load sakai.properties
-		// for specific integration tests.
 		DbUserService dbUserService = (DbUserService)getService(UserDirectoryService.class.getName());
 		dbUserService.setProvider(userDirectoryProvider);
-		
+
 		// Inject service so that provider can create new user records or search
 		// for existing ones.
 		userDirectoryProvider.setUserFactory(dbUserService);
@@ -100,17 +99,17 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 	}
 
 	public void setUp() throws Exception {
-		log.debug("Setting up UserDirectoryServiceIntegrationTest");		
+		log.debug("Setting up UserDirectoryServiceIntegrationTest");
 		userDirectoryService = (UserDirectoryService)getService(UserDirectoryService.class.getName());
 		threadLocalManager = (ThreadLocalManager)getService(ThreadLocalManager.class.getName());
 	}
-	
+
 	public void testLocalUserFallThrough() throws Exception {
 		User user = userDirectoryService.addUser(null, "local", null, null, null, "localPW", null, null);
 		User authUser = userDirectoryService.authenticate("local", "localPW");
 		Assert.assertTrue(authUser.getId().equals(user.getId()));
 	}
-	
+
 	public void testExistingProvidedUser() throws Exception {
 		User user = userDirectoryService.getUserByEid("provideduser");
 		Assert.assertTrue(user != null);
@@ -119,7 +118,7 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 		User failedUser = userDirectoryService.authenticate("LOGINprovideduser", "BadPassword");
 		Assert.assertTrue(failedUser == null);
 	}
-	
+
 	public void testNewProvidedUsers() throws Exception {
 		User providedByAuthn = userDirectoryService.authenticate("LOGINprovidedauthn", "providedauthnPW");
 		Assert.assertTrue(providedByAuthn != null);
@@ -130,21 +129,21 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 		user = userDirectoryService.getUserByEid("providernotfirst");
 		Assert.assertTrue(user.getId().equals(providedByDelayedAuthn.getId()));
 	}
-	
+
 	public void testProviderCreatedAndUpdatedLocalUsers() throws Exception {
 		// Authenticate a user who will then magically appear in the Sakai user tables.
 		User providedByAuthn = userDirectoryService.authenticate("LOGINprovidercreated", "providercreatedPW");
 		String eid = providedByAuthn.getEid();
 		Assert.assertTrue(eid.equals("providercreated"));
 		String userId = providedByAuthn.getId();
-		
+
 		// This is the tough part: make sure we get the new user from Sakai's user
 		// DB rather than any of the three caches.
 		clearUserFromServiceCaches(userId);
 
 		providedByAuthn = userDirectoryService.getUserByEid(eid);
 		Assert.assertTrue(providedByAuthn.getLastName().equals("Last Name, Sr."));
-		
+
 		// Now authenticate the same user and make sure the Sakai-maintained
 		// user record was updated.
 		providedByAuthn = userDirectoryService.authenticate("LOGINprovidercreated", "providercreatedPW");
@@ -152,7 +151,7 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 		providedByAuthn = userDirectoryService.getUserByEid(eid);
 		Assert.assertTrue(providedByAuthn.getLastName().equals("Last Name, Jr."));
 	}
-	
+
 	/**
 	 * WARNING: There seems to be NO easy way to reset the UserDirectoryService MemoryService-managed
 	 * cache, and so the only way currently to test for real DB storage is to have this line
@@ -165,16 +164,6 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 		threadLocalManager.set(ref, null);
 	}
 
-	public static void initializeSakaiHome() {
-		URL propertiesUrl = AuthenticatedUserProvider.class.getClassLoader().getResource("nocache/sakai.properties");
-		if (log.isDebugEnabled()) log.debug("propertiesUrl=" + propertiesUrl);
-		if (propertiesUrl != null) {
-			String propertiesFileName = propertiesUrl.getFile();
-			String sakaiHomeDir = propertiesFileName.substring(0, propertiesFileName.lastIndexOf("sakai.properties") - 1);
-			System.setProperty("test.sakai.home", sakaiHomeDir);
-		}		
-	}
-	
 	public static class TestProvider implements UserDirectoryProvider, AuthenticatedUserProvider {
 		private UserFactory userFactory;
 		private UserDirectoryService userDirectoryService;
@@ -225,14 +214,14 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 				} else {
 					// Thoroughly provided user.
 					UserEdit user = userFactory.newUser();
-					user.setEid(eid);				
+					user.setEid(eid);
 					return user;
 				}
 			} else {
 				return null;
 			}
 		}
-		
+
 		/**
 		 * Sakai framework APIs don't always clearly distinguish between internal core utility services
 		 * (which just do their specialized job) and application-facing support services (which
@@ -240,7 +229,7 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 		 * were originally written for application support, and so they check the permissions of the
 		 * current user. During the authentication process, there is no current user, and so
 		 * if we want to modify the Sakai-stored user record, we need to push a SecurityAdvisor
-		 * to bypass the checks. 
+		 * to bypass the checks.
 		 */
 		private UserEdit createOrUpdateUserAfterAuthentication(String eid, String password) {
 			// User record is created by provider but stored by core Sakai.
@@ -283,7 +272,7 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 					securityService.clearAdvisors();
 				}
 			}
-			return user;			
+			return user;
 		}
 
 		public void setUserFactory(UserFactory userFactory) {
