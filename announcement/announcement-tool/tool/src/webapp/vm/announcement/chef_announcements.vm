@@ -77,9 +77,9 @@
 					<select id="view" name="view" size="1" onchange="blur();document.viewForm.submit();">
 						<option value="view.all" #if ($!view == "view.all")selected="selected"#end >$!tlang.getString('view.all')</option>
 						<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
-						#if ($!groups)
+						##if ($!groups)
 							<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
-						#end 
+						##end 
 					</select>
 				</form>
 			</div>
@@ -315,7 +315,9 @@
 			<div class="instruction clear">
 				#if ($!view == "view.public")
 					$tlang.getString("gen.therearepublic")
-				#else
+				#elseif ($!view == "view.bygroup")
+					$tlang.getString("gen.therearegroup")
+				#else 
 					$tlang.getString("gen.thereare")
 					#end
 			</div>
@@ -398,9 +400,9 @@
 								<select id="view" name="view" size="1" onchange="blur();document.viewForm.submit();">
 									<option value="view.all" #if ($!view == "'view.all")selected="selected"#end >$!tlang.getString('view.all')</option>
 									<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
-									#if ($!groups)
+									##if ($!groups)
 										<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
-									#end 
+									##end 
 								</select>
 							</form>
 						</div>
@@ -670,6 +672,8 @@
 							<div class="instruction clear">
 								#if ($!view == "view.public")
 									$tlang.getString("gen.therearepublic")
+								#elseif ($!view == "view.bygroup")
+									$tlang.getString("gen.therearegroup")
 								#else
 									$tlang.getString("gen.thereare")
 								#end
