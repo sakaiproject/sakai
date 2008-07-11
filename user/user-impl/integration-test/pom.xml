@@ -94,6 +94,10 @@
               <value>${test.tomcat.home}</value>
             </property>
             <property>
+              <name>maven.tomcat.home</name>
+              <value>${maven.tomcat.home}</value>
+            </property>
+            <property>
               <name>test.sakai.home</name>
               <value>${test.sakai.home}</value>
             </property>
