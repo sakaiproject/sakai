@@ -2646,33 +2646,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 		return SecurityService.isSuperUser() // super user can always see it
 			|| assignment.getCreator().equals(UserDirectoryService.getCurrentUser().getId()) // the creator can see it
-			|| (unlockCheck(SECURE_SHARE_DRAFTS, SiteService.siteReference(context)) && isCurrentUserInSameRoleAsCreator(assignment.getCreator(), context)); // same role user with share draft permission
-	}
-	
-	/**
-	 * is current user has same role as the specified one?
-	 * @param assignment
-	 * @param context
-	 * @return
-	 */
-	private boolean isCurrentUserInSameRoleAsCreator(String creatorUserId, String context) 
-	{	
-		try {
-			User currentUser = UserDirectoryService.getCurrentUser();
-			
-			AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(context));
-			
-			Member currentUserMember = group.getMember(currentUser.getId());
-			Member creatorMember = group.getMember(creatorUserId);
-			Role role = currentUserMember.getRole();
-		
-			return role != null && role.getId().equals(creatorMember.getRole().getId());
-		
-		} catch (GroupNotDefinedException gnde) {
-			M_log.warn("No group defined for this site " + context);
-		}
-		
-		return false;
+			|| (unlockCheck(SECURE_SHARE_DRAFTS, SiteService.siteReference(context))); // any role user with share draft permission
 	}
 	
 	/**
