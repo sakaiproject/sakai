@@ -53,6 +53,9 @@ function handleEnterKeyPress(ev)
 }; 
 $('.inlinecoms').hide();
 $('.gencoms').hide();
+$('.attachcoms').hide();
+$('.gradecoms').hide();
+
 $('#toggleInline').click(function(){
 	$('.inlinecoms').fadeToggle();
 	if ($('#toggleInline').is('.toggleAnchor')){
@@ -67,6 +70,7 @@ $('#toggleInline').click(function(){
   resizeFrame('grow');
 	return false;
 });
+// toggle the previous feedback text
 $('#toggleGen').click(function(){
 $('.gencoms').fadeToggle();
 if ($('#toggleGen').is('.toggleAnchor')){
@@ -80,6 +84,35 @@ else {
  resizeFrame('grow');
  	return false;
 });
+// toggle the previous attachment list
+$('#toggleAttach').click(function(){
+	$('.attachcoms').fadeToggle();
+	if ($('#toggleAttach').is('.toggleAnchor')){
+		$('#toggleAttach').removeClass('toggleAnchor')
+		$('#toggleAttach').addClass('toggleAnchorOpen')
+		}
+	else {
+		$('#toggleAttach').removeClass('toggleAnchorOpen')
+			$('#toggleAttach').addClass('toggleAnchor')
+	}	
+  resizeFrame('grow');
+	return false;
+});
+// toggle the previous grade
+$('#toggleGrade').click(function(){
+	$('.gradecoms').fadeToggle();
+	if ($('#toggleGrade').is('.toggleAnchor')){
+		$('#toggleGrade').removeClass('toggleAnchor')
+		$('#toggleGrade').addClass('toggleAnchorOpen')
+		}
+	else {
+		$('#toggleGrade').removeClass('toggleAnchorOpen')
+			$('#toggleGrade').addClass('toggleAnchor')
+	}	
+  resizeFrame('grow');
+	return false;
+});
+
 });
 //this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
 	function resizeFrame(updown) 
@@ -479,26 +512,20 @@ else {
 								<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='attach';document.gradeForm.submit();return false;" accesskey="a"/>
 							#end
 						</p>
+						#if ($!prevFeedbackAttachments)
 						## show previous grading/feedback attachments if any
-						#if ($!prevFeedbackAttachments && $prevFeedbackAttachments.size()>0)
-							<h4>
-								$tlang.getString("gradingsub.prefeedbackAttachments")
-							</h4>
-							#set ($size = 0)
-							#set ($props = false)
-							#foreach ($attachment in $!prevFeedbackAttachments) 
-								#set ($props = $attachment.Properties) 
-								#if ($!props)
-									#set ($size = $size + 1)
-								#end
-							#end
+						<h4 id="toggleAttach" class="toggleAnchor">
+							$tlang.getString("gradingsub.prefeedbackAttachments")
+						</h4>
+						<div class="attachcoms  toggledContent">
+							#set ($size = $prevFeedbackAttachments.size())
 							#if ($size == 0)
 								<p class="instruction">$tlang.getString("gen.noatt")</p>
 							#else
 								<ul class="attachList indnt1">
-									#foreach ($attachment in $!prevFeedbackAttachments) 
+									#foreach ($prevAttachment in $!prevFeedbackAttachments) 
 										#set ($props = false)
-										#set ($props = $attachment.Properties) 
+										#set ($props = $prevAttachment.Properties) 
 										#if ($!props)
 											<li>
 												#if ($props.getBooleanProperty($props.NamePropIsCollection))
@@ -514,8 +541,9 @@ else {
 										#end
 									#end
 								</ul>
-							#end	
-						#end	
+							#end
+						</div>		
+						#end
 #*					<!-- Grade types
 						GRADE_TYPE_NOT_SET: -1; 
 						UNGRADED_GRADE_TYPE: 1; 
@@ -568,13 +596,18 @@ else {
 										#end
 									</p>	
 								#end
+							</div>	
+							## the previous grades
 								#set ($previousGrades =  $submission.Properties.getProperty($submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
 								#if ($!previousGrades.length() != 0 )
-									<h4>$tlang.getString("gradingsub.pregra")</h4>
-									<table border="0" style="margin:.5em 0"> $previousGrades</table>
+									<h4 id="toggleGrade" class="toggleAnchor">
+										$tlang.getString("gradingsub.pregra")
+									</h4>
+									<div class="gradecoms  toggledContent">										
+										$previousGrades
+									</div>
 								#end
-						</div>	
-						#end
+					#end
 					#if ($nonElectronic)
 						## hidden value for non-electronic submission
 						<input type="hidden" name="$name_allowResubmitNumber" id="allowResubmitNumber" value="0" />

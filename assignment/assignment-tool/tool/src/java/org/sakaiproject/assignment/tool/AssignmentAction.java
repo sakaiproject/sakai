@@ -3678,7 +3678,7 @@ public class AssignmentAction extends PagedResourceActionII
 										previousGrades = "";
 									}
 								}
-								previousGrades =  "<tr><td style=\"padding:0 1em 0 0\">" + now.toStringLocalFull() +  "</td><td><span class=\"highlight\"><strong>" + sEdit.getGradeDisplay() + "</strong></span></td></tr>" +previousGrades;
+								previousGrades =  "<h4>" + now.toStringLocalFull() + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getGradeDisplay() + "</div>" +previousGrades;
 
 								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES,
 										previousGrades);
@@ -3712,10 +3712,11 @@ public class AssignmentAction extends PagedResourceActionII
 										.getProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS)
 										: "";
 								List feedbackAttachments = sEdit.getFeedbackAttachments();
-								String att = "<h5>" +  now.toStringLocalFull() + "</h5>";
+								String att = "";
 								for (int k = 0; k<feedbackAttachments.size();k++)
 								{
-									att = att + ((Reference) feedbackAttachments.get(k)).getReference() + "<br />";
+									// use comma as separator for attachments
+									att = att + ((Reference) feedbackAttachments.get(k)).getReference() + ",";
 								}
 								feedbackAttachmentHistory = att + feedbackAttachmentHistory;
 									
