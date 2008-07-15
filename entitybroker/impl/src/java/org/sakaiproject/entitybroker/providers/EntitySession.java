@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.tool.api.ContextSession;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
@@ -35,6 +36,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 @SuppressWarnings("unchecked")
 public class EntitySession implements Session {
 
+   @EntityId
    private String id;
    private long creationTime;
    private long lastAccessedTime;
@@ -69,7 +71,7 @@ public class EntitySession implements Session {
 
    public EntitySession() {}
 
-   private Session session = null;
+   private transient Session session = null;
    public EntitySession(Session session) {
       this.session = session;
       this.creationTime = session.getCreationTime();
