@@ -181,7 +181,7 @@ public class SessionEntityProvider implements EntityProvider, CRUDable, Inputabl
     */
    private void checkSessionOwner(Session s) {
       String currentUser = developerHelperService.getCurrentUserReference();
-      String currentUserId = developerHelperService.getCurrentUserId();
+      String currentUserId = developerHelperService.getUserIdFromRef(currentUser);
       if (developerHelperService.isUserAdmin(currentUser)) {
          return;
       } else {

@@ -177,7 +177,8 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
       String userId = ref.getId();
       User user = getUserByIdEid(userId);
       // TODO - open this up a little bit more later on
-      String currentUserId = developerHelperService.getCurrentUserId();
+      String currentUserRef = developerHelperService.getCurrentUserReference();
+      String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
       if (developerHelperService.isUserAdmin(currentUserId) 
             || currentUserId.equals(user.getId())) {
          // convert
