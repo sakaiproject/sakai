@@ -4,8 +4,8 @@
 		<configExtension>xml</configExtension>
 	</configExtensions>
 	<configs>
-		<config>sitestats-impl/pack/src/webapp/WEB-INF/components.xml</config>
-		<config>sitestats-impl/pack/src/webapp/WEB-INF/hibernate-hbms.xml</config>
+		<config>sitestats-pack/src/webapp/WEB-INF/components.xml</config>
+		<config>sitestats-pack/src/webapp/WEB-INF/hibernate-hbms.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

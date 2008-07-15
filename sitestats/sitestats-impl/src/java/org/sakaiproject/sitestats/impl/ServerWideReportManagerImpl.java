@@ -51,6 +51,10 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	{
 	}
 
+	public void destroy ()
+	{
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
