@@ -17,4 +17,11 @@
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
     </bean>
 
+    <bean id="org.sakaiproject.entitybroker.providers.SessionEntityProvider" 
+            class="org.sakaiproject.entitybroker.providers.SessionEntityProvider">
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
+
 </beans>
