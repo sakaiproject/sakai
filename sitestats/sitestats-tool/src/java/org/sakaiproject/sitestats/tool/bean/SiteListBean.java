@@ -93,17 +93,15 @@ public class SiteListBean implements Serializable {
 		this.serviceBean = serviceBean;
 		this.SST_authz = serviceBean.getSstAuthz();
 		this.M_ss = serviceBean.getSiteService();
+		// initialize pager data
+		if(isAllowed()){
+			getSiteRows();
+		}
 	}	
 
 	// ################################################################
 	// Bean methods
 	// ################################################################		
-	public void SiteListBean() {
-		if(isAllowed()){
-			getSiteRows();
-		}
-	}
-	
 	public boolean isAllowed() {
 		boolean allowed = SST_authz.isUserAbleToViewSiteStatsAdmin(ToolManager.getCurrentPlacement().getContext());
 		

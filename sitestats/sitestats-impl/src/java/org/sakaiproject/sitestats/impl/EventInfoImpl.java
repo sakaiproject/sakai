@@ -91,6 +91,11 @@ public class EventInfoImpl implements EventInfo {
 			return getEventId().equals(other.getEventId());
 		}
 	}
+	
+	@Override
+	public int hashCode() {
+		return getEventId().hashCode();
+	}
 
 	public String toString() {
 		StringBuffer buff = new StringBuffer();

@@ -46,8 +46,6 @@ public abstract class InitializableBean implements PhaseAware {
 	 * abstract.
 	 */
 	protected void init() {
-        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-        //messageBundle =ResourceBundle.getBundle(bundleName);
 	}
 
 	/**

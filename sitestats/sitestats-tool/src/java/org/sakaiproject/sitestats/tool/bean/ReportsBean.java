@@ -280,7 +280,7 @@ public class ReportsBean {
 				ContentResource cr = iR.next();
 				String path = StatsManager.SEPARATOR;
 				ContentCollection cc = cr.getContainingCollection();
-				while(cc != null && !cc.equals(siteCollectionId) && !M_chs.isRootCollection(cc.getId())){
+				while(cc != null && !cc.getId().equals(siteCollectionId) && !M_chs.isRootCollection(cc.getId())){
 					path = StatsManager.SEPARATOR + cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + path;
 					cc = cc.getContainingCollection();
 				}
@@ -358,7 +358,7 @@ public class ReportsBean {
 	}
 	
 	public boolean isUsersLoaded() {
-		return usersLoaded && usersLoadedForSite.equals(serviceBean.getSite());
+		return usersLoaded && usersLoadedForSite.equals(serviceBean.getSite().getId());
 	}
 	
 	public void processLoadUsers(ActionEvent e) {

@@ -730,8 +730,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 	
 	private void removeFromToolEventsDefinition(List<ToolInfo> removals) {
-		List<ToolInfo> toBeRemoved = new ArrayList<ToolInfo>();
-		
 		// iterate REMOVES list, remove tool if found in DEFAULT list
 		Iterator<ToolInfo> iREMOVES = removals.iterator();
 		while(iREMOVES.hasNext()){

@@ -168,6 +168,11 @@ public class ToolInfoImpl implements ToolInfo {
 		}
 	}
 	
+	@Override
+	public int hashCode() {
+		return getToolId().hashCode();
+	}
+	
 	public EventParserTip getEventParserTip() {
 		return eventParserTip;
 	}
