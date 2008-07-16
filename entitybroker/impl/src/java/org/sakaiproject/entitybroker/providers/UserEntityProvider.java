@@ -176,16 +176,23 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
       }
       String userId = ref.getId();
       User user = getUserByIdEid(userId);
-      // TODO - open this up a little bit more later on
+      // convert
+      EntityUser eu = convertUser(user);
+      return eu;         
+      // TODO add in security if needed
+      /** this is too restrictive right now though
       String currentUserRef = developerHelperService.getCurrentUserReference();
-      String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
-      if (developerHelperService.isUserAdmin(currentUserId) 
-            || currentUserId.equals(user.getId())) {
-         // convert
-         EntityUser eu = convertUser(user);
-         return eu;         
+      if (currentUserRef != null) {
+         String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
+         if (developerHelperService.isUserAdmin(currentUserId) 
+               || currentUserId.equals(user.getId())) {
+            // convert
+            EntityUser eu = convertUser(user);
+            return eu;         
+         }
       }
       throw new SecurityException("Current user ("+currentUserId+") cannot access information about " + ref);
+      **/
    }
 
    public void deleteEntity(EntityReference ref) {
