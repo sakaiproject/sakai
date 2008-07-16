@@ -670,7 +670,7 @@ public class ItemAddListener
           if (!update) {
             if ( (itemauthor.getInsertPosition() == null) ||
                 ("".equals(itemauthor.getInsertPosition()))
-                || !section.getSequence().equals(itemauthor.getInsertToSection())) {
+                || !section.getSequence().toString().equals(itemauthor.getInsertToSection())) {
               // if adding to the end
               if (section.getItemSet() != null) {
             	  item.setSequence(new Integer(section.getItemSet().size() + 1));
