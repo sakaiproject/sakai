@@ -452,7 +452,7 @@ public class AuthoringXml
     while (iterator.hasNext())
     {
       Element parent = (Element) iterator.next();
-      if (!parent.equals(element.getOwnerDocument()))
+      if (!parent.getOwnerDocument().equals(element.getOwnerDocument()))
       {
         element = (Element) parent.getOwnerDocument().importNode(element, true);
       }

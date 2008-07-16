@@ -2302,10 +2302,10 @@ public class DeliveryBean
 	      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
 	      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
 	      if (timedAG != null){
-	        int timeElapsed  = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000); //in sec
+	        int timeElapsed  = Math.round((float)((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000.0f); //in sec
 	        // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
 	        // later time, we need to account for the time taht he used before
-	        int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
+	        int timeTakenBefore = timedAG.getTimeLimit() - timedAG.getTimeLeft(); // in sec
 	        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
 	        adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
 	        GradingService gradingService = new GradingService();
@@ -2324,7 +2324,7 @@ public class DeliveryBean
 		      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
 		      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
 		      if (timedAG != null){
-		        int timeElapsed  = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000); //in sec
+		        int timeElapsed  = Math.round((float)((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000.0f); //in sec
 		        // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
 		        // later time, we need to account for the time taht he used before
 		        int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
@@ -2774,7 +2774,7 @@ public class DeliveryBean
 		log.debug("actualNumberRetake =" + actualNumberRetake);
   	    if (!("previewAssessment").equals(actionString) && 
   	    	(this.dueDate != null && !acceptLateSubmission && actualNumberRetake >= numberRetake)) {
-			int timeBeforeDue  = Math.round((this.dueDate.getTime() - (new Date()).getTime())/1000); //in sec
+			int timeBeforeDue  = Math.round((float)(this.dueDate.getTime() - (new Date()).getTime())/1000.0f); //in sec
 			if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 				return String.valueOf(timeBeforeDue);
 			}

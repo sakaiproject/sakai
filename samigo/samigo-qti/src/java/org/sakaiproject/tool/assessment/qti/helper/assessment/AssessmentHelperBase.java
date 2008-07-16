@@ -61,8 +61,6 @@ public abstract class AssessmentHelperBase
 {
   private static Log log = LogFactory.getLog(AssessmentHelperBase.class);
 
-  private Document doc;
-
   abstract protected int getQtiVersion();
 
   /**
@@ -604,6 +602,9 @@ public abstract class AssessmentHelperBase
     Section sectionXml = null;
 
     Collection secs = assessment.getSections();
+    if (secs == null) {
+    	return sectionXml;
+    }
     Iterator iter = secs.iterator();
     if ( (secs != null) && (secs.size() > 0) && (sectionTitle != null))
     {

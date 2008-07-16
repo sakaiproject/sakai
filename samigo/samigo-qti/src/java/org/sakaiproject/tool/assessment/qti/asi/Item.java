@@ -99,12 +99,15 @@ public class Item extends ASIBaseClass
       case QTIVersion.VERSION_1_2:
         basePath = QTIConstantStrings.ITEM; // for v 1.2
         identity = QTIConstantStrings.IDENT;
+        break;
       case QTIVersion.VERSION_2_0:
         basePath = QTIConstantStrings.ASSESSMENTITEM;// for v 2.0
         identity = QTIConstantStrings.AITEM_IDENT;
+        break;
       default:
         basePath = QTIConstantStrings.ITEM; // DEFAULT
         identity = QTIConstantStrings.IDENT;
+        break;
     }
 
     QTIHelperFactory factory = new QTIHelperFactory();
@@ -152,6 +155,9 @@ public class Item extends ASIBaseClass
    */
   public void update(ItemDataIfc item)
   {
+    if(item == null) {
+    	return;
+    }
     // metadata
     setFieldentry("ITEM_OBJECTIVE",
       item.getItemMetaDataByLabel(ItemMetaDataIfc.OBJECTIVE ));
@@ -170,7 +176,7 @@ public class Item extends ASIBaseClass
     			item.getTriesAllowed().toString());
     }
     //  rshastri: SAK-1824
-    if(item !=null &&(item.getTypeId().equals(TypeIfc.TRUE_FALSE) ||
+    if((item.getTypeId().equals(TypeIfc.TRUE_FALSE) ||
     		item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE)||
     		item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT)) && item.getHasRationale() !=null)
     {	

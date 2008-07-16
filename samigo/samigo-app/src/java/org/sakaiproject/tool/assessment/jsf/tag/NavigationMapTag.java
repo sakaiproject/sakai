@@ -51,8 +51,6 @@ public class NavigationMapTag
   private String style;
   private String linkStyle;
 
-  private TagUtil util;
-
   public String getComponentType()
   {
     return ("javax.faces.Output");
@@ -68,10 +66,10 @@ public class NavigationMapTag
 
     super.setProperties(component);
 
-    util.setMap(component, "map", map);
-    util.setString(component, "separator", separator);
-    util.setString(component, "style", style);
-    util.setString(component, "linkStyle", linkStyle);
+    TagUtil.setMap(component, "map", map);
+    TagUtil.setString(component, "separator", separator);
+    TagUtil.setString(component, "style", style);
+    TagUtil.setString(component, "linkStyle", linkStyle);
   }
 
   /**

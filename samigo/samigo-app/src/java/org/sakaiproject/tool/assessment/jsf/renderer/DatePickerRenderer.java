@@ -58,8 +58,6 @@ public class DatePickerRenderer extends Renderer
   //moved to properties
   //private static final String CLICKALT = "Click Here to Pick Date";
 
-  private RendererUtil rUtil;
-
   public boolean supportsComponentType(UIComponent component)
   {
     return (component instanceof UIInput);
@@ -73,7 +71,7 @@ public class DatePickerRenderer extends Renderer
   public void decode(FacesContext context, UIComponent component)
   {
     // we haven't added these attributes--yet--defensive programming...
-    if(rUtil.isDisabledOrReadonly(component))
+    if(RendererUtil.isDisabledOrReadonly(component))
     {
       return;
     }

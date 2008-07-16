@@ -98,6 +98,10 @@ public class ManifestGenerator {
 			log.error(e.getMessage());
 			e.printStackTrace();
 		}
+		if (document == null) {
+			log.info("document == null");
+			return "";
+		}
 		String xmlString = XmlUtil.getDOMString(document);
 		String newXmlString = xmlString;
 		if (xmlString.startsWith("<?xml version")) {

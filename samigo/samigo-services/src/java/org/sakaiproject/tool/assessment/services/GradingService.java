@@ -1299,7 +1299,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
             	//Temporal. Directamente contar\? como mala.
             }
             log.info("studentAnswerNum= " + studentAnswerNum);  	   
-            if (!(studentAnswerNum ==  Float.NaN || answer1Num ==  Float.NaN|| answer2Num ==  Float.NaN)){ 	   
+            if (!(Float.isNaN(studentAnswerNum) || Float.isNaN(answer1Num) || Float.isNaN(answer2Num))){ 	   
             matchresult=((answer1Num <= studentAnswerNum) && (answer2Num >= studentAnswerNum)) ;
           	}
             
@@ -1327,7 +1327,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           	studentAnswerNum =  Float.NaN;
           }
           log.info("studentAnswerNum= " + studentAnswerNum);  	   
-          if (!(studentAnswerNum ==  Float.NaN || answerNum ==  Float.NaN)){ 	   
+          if (!(Float.isNaN(studentAnswerNum) || Float.isNaN(answerNum))){ 	   
           matchresult=(answerNum == studentAnswerNum) ;
           }
         }

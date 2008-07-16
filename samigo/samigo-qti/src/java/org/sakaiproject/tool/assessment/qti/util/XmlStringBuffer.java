@@ -645,7 +645,7 @@ public class XmlStringBuffer
 
         if(
           (nextSibling != null) &&
-            ! nextSibling.equals(element.getOwnerDocument()))
+            ! nextSibling.getOwnerDocument().equals(element.getOwnerDocument()))
         {
           element = (Element) parent.getOwnerDocument().importNode(element, true);
           parent.insertBefore(element, nextSibling);
@@ -727,7 +727,7 @@ public class XmlStringBuffer
     while(iterator.hasNext())
     {
       Element parent = (Element) iterator.next();
-      if(! parent.equals(element.getOwnerDocument()))
+      if(! parent.getOwnerDocument().equals(element.getOwnerDocument()))
       {
         element = (Element) parent.getOwnerDocument().importNode(element, true);
       }

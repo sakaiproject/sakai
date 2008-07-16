@@ -79,7 +79,7 @@ public class Iso8601DateFormat
    */
   public Iso8601DateFormat(String simpleDateFormatPattern)
   {
-    log.debug("new Iso8601DateFormat(String " + pattern + ")");
+    log.debug("new Iso8601DateFormat(String " + simpleDateFormatPattern + ")");
     this.pattern = simpleDateFormatPattern;
   }
 

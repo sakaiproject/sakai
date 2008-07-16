@@ -62,20 +62,8 @@ public class PersistenceService{
         private AuthzQueriesFacadeAPI authzQueriesFacade;
         private SectionAwareness sectionAwareness;
 
-	private static PersistenceService INSTANCE;
-
 	public static PersistenceService getInstance(){
-          if (INSTANCE != null){
-            return INSTANCE;
-          }
-          else{
 	    return (PersistenceService)ComponentManager.get("PersistenceService");
-	      /*
-            SpringBeanLocator locator = SpringBeanLocator.getInstance();
-            return INSTANCE = (PersistenceService)locator.getBean("PersistenceService");
-	    //return INSTANCE = (PersistenceService) ApplicationContextLocator.getInstance().getBean("PersistenceService");
-	    */
-          }
 	}
 
         private Integer deadlockInterval; // in ms

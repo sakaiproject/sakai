@@ -77,8 +77,6 @@ public class PagerButtonTag
   private String nextDisabled;
   private String totalItems;
 
-  private TagUtil util;
-
   public String getComponentType()
   {
     return ("javax.faces.Output");
@@ -100,18 +98,18 @@ public class PagerButtonTag
       nextDisabled = "false";
     component.getAttributes().put("dataTableId", dataTableId);
     component.getAttributes().put("formId", formId);
-    util.setString(component, "name", "value");
-    util.setString(component, "firstItem", firstItem);
-    util.setString(component, "lastItem", lastItem);
-    util.setString(component, "prevText", prevText);
-    util.setString(component, "nextText", nextText);
-    util.setString(component, "numItems", numItems);
-    util.setString(component, "totalItems", totalItems);
+    TagUtil.setString(component, "name", "value");
+    TagUtil.setString(component, "firstItem", firstItem);
+    TagUtil.setString(component, "lastItem", lastItem);
+    TagUtil.setString(component, "prevText", prevText);
+    TagUtil.setString(component, "nextText", nextText);
+    TagUtil.setString(component, "numItems", numItems);
+    TagUtil.setString(component, "totalItems", totalItems);
     // we explicitly disable prev/next at end ranges
     if ("1".equals(firstItem)) prevDisabled = "true";
     if (("" + totalItems).equals(lastItem)) nextDisabled = "true";
-    util.setString(component, "prevDisabled", prevDisabled);
-    util.setString(component, "nextDisabled", nextDisabled);
+    TagUtil.setString(component, "prevDisabled", prevDisabled);
+    TagUtil.setString(component, "nextDisabled", nextDisabled);
 
   }
 

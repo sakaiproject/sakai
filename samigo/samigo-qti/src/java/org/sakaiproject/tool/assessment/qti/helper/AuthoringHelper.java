@@ -574,7 +574,9 @@ public class AuthoringHelper
           // end lydia
 
           ItemFacade item = new ItemFacade();
-          exHelper.updateItem(item, itemMap);
+          if (itemMap != null) {
+        	  exHelper.updateItem(item, itemMap);
+          }
           // make sure required fields are set
           item.setCreatedBy(me);
           item.setCreatedDate(assessment.getCreatedDate());
