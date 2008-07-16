@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
@@ -80,6 +81,10 @@ public class DirectServlet extends HttpServlet {
    @Override
    protected void service(HttpServletRequest req, HttpServletResponse res)
          throws ServletException, IOException {
+      // force all response encoding to UTF-8 / html by default
+      res.setContentType(Formats.HTML_MIME_TYPE);
+      res.setCharacterEncoding(Formats.UTF_8);
+      // now handle the request
       handleRequest(req, res);
    }
 

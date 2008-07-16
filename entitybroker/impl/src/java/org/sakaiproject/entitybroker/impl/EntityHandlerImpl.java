@@ -466,13 +466,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             if (format == null) {
                format = Formats.HTML;
             }
+            setResponseEncoding(format, res);
             String output = makeDescribeAll(format);
             try {
                res.getWriter().write(output);
             } catch (IOException e) {
                throw new RuntimeException("Failed to put output into the response writer: " + e.getMessage(), e);
             }
-            setResponseEncoding(format, res);
             res.setStatus(HttpServletResponse.SC_OK);
             handledReference = EntityView.SEPARATOR+"";
          } else {
@@ -495,6 +495,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                if (format == null) {
                   format = Formats.HTML;
                }
+               setResponseEncoding(format, res);
                String entityId = req.getParameter("_id");
                if (entityId == null || "".equals(entityId)) {
                   entityId = FAKE_ID;
@@ -505,7 +506,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                } catch (IOException e) {
                   throw new RuntimeException("Failed to put output into the response writer: " + e.getMessage(), e);
                }
-               setResponseEncoding(format, res);
                res.setStatus(HttpServletResponse.SC_OK);
                handledReference = view.getEntityReference().getSpaceReference() + EntityView.SEPARATOR + DESCRIBE;
             } else if (! entityExists(view.getEntityReference()) ) {
