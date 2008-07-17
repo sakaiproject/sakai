@@ -17,7 +17,7 @@ public class ToolComparator implements Comparator {
 	 */
 	public int compare(Object o1, Object o2) {
 		try {
-			return ((Tool) o1).getTitle().compareTo(((Tool) o2).getTitle());
+			return ((Tool) o1).getTitle().compareToIgnoreCase(((Tool) o2).getTitle());
 		} catch (Exception e) {
 		}
 		return -1;
