@@ -70,7 +70,7 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
 
    public Object getEntity(EntityReference ref) {
       if (ref.getId() == null) {
-         return new EntitySession();
+         return new EntityServerConfig();
       }
       String name = ref.getId();
       Object value = getConfig(name);
