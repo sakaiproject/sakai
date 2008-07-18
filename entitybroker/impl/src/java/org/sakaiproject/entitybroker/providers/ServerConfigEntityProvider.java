@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -57,6 +58,11 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
          "auto.ddl",
          "display.users.present"
       };
+
+   public DeveloperHelperService developerHelperService;
+   public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
+      this.developerHelperService = developerHelperService;
+   }
 
    private ServerConfigurationService serverConfigurationService;
    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
@@ -119,27 +125,32 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
       if (known.containsKey(name)) {
          value = known.get(name);
       } else {
-         // now check the service
-         value = serverConfigurationService.getString(name);
-         if (value == null) {
-            // could not find it so get the array instead
-            value = serverConfigurationService.getStrings(name);
+         // now check the service is super admin (to protect sensitive settings)
+         String currentUserRef = developerHelperService.getCurrentUserReference();
+         if (! developerHelperService.isUserAdmin(currentUserRef)) {
+            throw new SecurityException("Only admins can access config properties outside of the basic set, user is not an admin: " + currentUserRef);
          } else {
-            String sValue = (String) value;
-            if (sValue.length() > 0) {
-               // try to convert this to an integer first
-               try {
-                  Integer i = Integer.parseInt(sValue);
-                  value = i.intValue();
-               } catch (NumberFormatException e) {
-                  // next try to convert it to a boolean
-                  if (sValue.equalsIgnoreCase("true")) {
-                     value = true;
-                  } else if (sValue.equalsIgnoreCase("false")) {
-                     value = false;
+            value = serverConfigurationService.getString(name);
+            if (value == null) {
+               // could not find it so get the array instead
+               value = serverConfigurationService.getStrings(name);
+            } else {
+               String sValue = (String) value;
+               if (sValue.length() > 0) {
+                  // try to convert this to an integer first
+                  try {
+                     Integer i = Integer.parseInt(sValue);
+                     value = i.intValue();
+                  } catch (NumberFormatException e) {
+                     // next try to convert it to a boolean
+                     if (sValue.equalsIgnoreCase("true")) {
+                        value = true;
+                     } else if (sValue.equalsIgnoreCase("false")) {
+                        value = false;
+                     }
                   }
+                  // otherwise leave it as a string
                }
-               // otherwise leave it as a string
             }
          }
       }
@@ -165,6 +176,11 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
       m.put("serverUrl", serverConfigurationService.getServerUrl());
       m.put("toolUrl", serverConfigurationService.getToolUrl());
       m.put("userHomeUrl", serverConfigurationService.getUserHomeUrl());
+      // special handling for DB properties
+      Object o = getConfig("vendor@org.sakaiproject.db.api.SqlService");
+      if (o != null) m.put("database.vendor", o);
+      o = getConfig("webdav.ignore");
+      if (o != null) m.put("webdav.ignore", o);
       // now we get the known String settings
       for (int i = 0; i < includedStringSettings.length; i++) {
          String name = includedStringSettings[i];
