@@ -34,11 +34,11 @@
 							#if (${tool.toolJSR168Help} )
 						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
 							#else
-								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								<a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" 
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
 							#end
-									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" border="0" /></a>
 						#end
 									</div>
 								</div>
@@ -55,10 +55,10 @@
 									</div>
 									<div class="action">
 						#if (${tool.toolShowHelpButton})
-								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								<a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" 
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolTitle}" border="0" /></a>
 						#end
 									</div>
 								</div>
@@ -114,11 +114,11 @@
 							#if (${tool.toolJSR168Help} )
 						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
 							#else
-								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								<a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" 
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
 							#end
-									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}"  border="0" /></a>
 						#end
 									</div>
 								</div>
@@ -135,10 +135,10 @@
 									</div>
 									<div class="action">
 						#if (${tool.toolShowHelpButton})
-								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								<a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" 
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolTitle}"  border="0" /></a>
 						#end
 									</div>
 								</div>
