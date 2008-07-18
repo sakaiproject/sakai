@@ -612,6 +612,11 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		catch (Exception ex)
 		{
+			if (log.isDebugEnabled())
+			{
+				log.debug("Current user cannot read ref: " + ref, ex);
+			}
+
 			return false;
 		}
 	}
