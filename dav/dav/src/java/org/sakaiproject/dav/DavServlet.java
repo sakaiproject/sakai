@@ -2465,36 +2465,16 @@ public class DavServlet extends HttpServlet
 		InputStream inputStream = req.getInputStream();
 		contentType = req.getContentType();
 		int contentLength = req.getContentLength();
+		String transferCoding = req.getHeader("Transfer-Encoding");
+		boolean chunked = transferCoding != null && transferCoding.equalsIgnoreCase("chunked");
+
 		if (M_log.isDebugEnabled()) M_log.debug("  req.contentType() =" + contentType + " len=" + contentLength);
 
-		if (contentLength < 0)
+		if (!chunked && contentLength < 0)
 		{
 			M_log.warn("SAKAIDavServlet.doPut() content length (" + contentLength + ") less than zero " + path);
 			resp.sendError(HttpServletResponse.SC_CONFLICT);
 			return;
-		}
-
-		// Convert to byte array for the content service
-		byte[] byteContent = new byte[contentLength];
-
-		if (contentLength > 0)
-		{
-			try
-			{
-				int lenRead = 0;
-				while (lenRead < contentLength)
-				{
-					int read = inputStream.read(byteContent, lenRead, contentLength - lenRead);
-					if (read <= 0) break;
-					lenRead += read;
-				}
-			}
-			catch (IOException e)
-			{
-				M_log.warn("SAKAIDavServlet.doPut() IOException " + path);
-				resp.sendError(HttpServletResponse.SC_CONFLICT);
-				return;
-			}
 		}
 
 		if (contentType == null)
@@ -2521,7 +2501,7 @@ public class DavServlet extends HttpServlet
 			// to match, and I'd just as soon be able to create items with no extension anyway
 			ContentResourceEdit edit = contentHostingService.addResource(adjustId(path));
 			edit.setContentType(contentType);
-			edit.setContent(byteContent);
+			edit.setContent(inputStream);
 			ResourcePropertiesEdit p = edit.getPropertiesEdit();
 
 			// copy old props, if any
