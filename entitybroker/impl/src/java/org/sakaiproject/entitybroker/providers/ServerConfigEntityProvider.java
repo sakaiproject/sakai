@@ -83,7 +83,7 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
       if (value == null) {
          throw new IllegalArgumentException("Cannot find server config setting with name: " + name);
       }
-      EntityServerConfig esc = new EntityServerConfig(name, value, value.getClass().getName());
+      EntityServerConfig esc = makeESC(name, value);
       return esc;
    }
 
@@ -95,7 +95,7 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
          String name = (String) search.getRestrictionByProperty("name").value;
          Object value = getConfig(name);
          if (value != null) {
-            EntityServerConfig esc = new EntityServerConfig(name, value, value.getClass().getName());
+            EntityServerConfig esc = makeESC(name, value);
             escs.add(esc);
          }
       } else {
@@ -104,7 +104,7 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
             String name = entry.getKey();
             Object value = entry.getValue();
             if (value != null) {
-               EntityServerConfig esc = new EntityServerConfig(name, value, value.getClass().getName());
+               EntityServerConfig esc = makeESC(name, value);
                escs.add(esc);
             }
          }
@@ -117,7 +117,8 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
       return new String[] { Formats.XML, Formats.JSON };
    }
 
-   
+
+
    public Object getConfig(String name) {
       Object value = null;
       // check in the local group of settings first
@@ -130,28 +131,7 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
          if (! developerHelperService.isUserAdmin(currentUserRef)) {
             throw new SecurityException("Only admins can access config properties outside of the basic set, user is not an admin: " + currentUserRef);
          } else {
-            value = serverConfigurationService.getString(name);
-            if (value == null) {
-               // could not find it so get the array instead
-               value = serverConfigurationService.getStrings(name);
-            } else {
-               String sValue = (String) value;
-               if (sValue.length() > 0) {
-                  // try to convert this to an integer first
-                  try {
-                     Integer i = Integer.parseInt(sValue);
-                     value = i.intValue();
-                  } catch (NumberFormatException e) {
-                     // next try to convert it to a boolean
-                     if (sValue.equalsIgnoreCase("true")) {
-                        value = true;
-                     } else if (sValue.equalsIgnoreCase("false")) {
-                        value = false;
-                     }
-                  }
-                  // otherwise leave it as a string
-               }
-            }
+            value = getConfigValue(name);
          }
       }
       return value;
@@ -177,9 +157,9 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
       m.put("toolUrl", serverConfigurationService.getToolUrl());
       m.put("userHomeUrl", serverConfigurationService.getUserHomeUrl());
       // special handling for DB properties
-      Object o = getConfig("vendor@org.sakaiproject.db.api.SqlService");
+      Object o = getConfigValue("vendor@org.sakaiproject.db.api.SqlService");
       if (o != null) m.put("database.vendor", o);
-      o = getConfig("webdav.ignore");
+      o = getConfigValue("webdav.ignore");
       if (o != null) m.put("webdav.ignore", o);
       // now we get the known String settings
       for (int i = 0; i < includedStringSettings.length; i++) {
@@ -203,4 +183,85 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
          return o1.getName().compareTo(o2.getName());
       }
    }
+
+
+   /**
+    * Internal method to get a value from the SCS directly
+    * @param name the config name
+    * @return the value of null if none found
+    */
+   private Object getConfigValue(String name) {
+      Object value = serverConfigurationService.getString(name);
+      if (value == null || "".equals(value)) { // oddly this returns empty string if the item is an array
+         // could not find it so get the array instead
+         String[] array = serverConfigurationService.getStrings(name);
+         if (array != null && array.length > 0) {
+            value = array;
+         }
+      } else {
+         String sValue = (String) value;
+         if (sValue.length() > 0) {
+            // try to convert this to an integer first
+            try {
+               Integer i = Integer.parseInt(sValue);
+               value = i.intValue();
+            } catch (NumberFormatException e) {
+               // next try to convert it to a boolean
+               if (sValue.equalsIgnoreCase("true")) {
+                  value = true;
+               } else if (sValue.equalsIgnoreCase("false")) {
+                  value = false;
+               }
+            }
+            // otherwise leave it as a string
+         }
+      }
+      return value;
+   }
+
+   /**
+    * Internal method to determine a printable type
+    * @param value any object
+    * @return a string representing the type (readable)
+    */
+   private String getConfigType(Object value) {
+      String type = "null";
+      if (value != null) {
+         Class<?> c = value.getClass();
+         if (String.class.equals(c)) {
+            type = "string";
+         } else if (Integer.class.equals(c)) {
+            type = "int";
+         } else if (Boolean.class.equals(c)) {
+            type = "boolean";
+         } else if (c.isArray()) {
+            StringBuilder sb = new StringBuilder("array(");
+            if (String.class.equals(c.getComponentType())) {
+               sb.append("string");
+            } else if (Integer.class.equals(c.getComponentType())) {
+               sb.append("int");
+            } else if (Boolean.class.equals(c.getComponentType())) {
+               sb.append("boolean");
+            } else {
+               sb.append(c.getName());
+            }
+            sb.append(")");
+            type = sb.toString();
+         } else {
+            type = c.getName();
+         }
+      }
+      return type;
+   }
+
+   /**
+    * Construct an entity object from name and value
+    * @param name
+    * @param value
+    * @return an ESC entity
+    */
+   private EntityServerConfig makeESC(String name, Object value) {
+      return new EntityServerConfig(name, value, getConfigType(value));
+   }
+
 }
