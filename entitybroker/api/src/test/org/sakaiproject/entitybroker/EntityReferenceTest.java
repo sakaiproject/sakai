@@ -79,6 +79,8 @@ public class EntityReferenceTest extends TestCase {
       EntityReference.checkPrefixId("ABCdef123-AZ_AZ:AZ;AZ.AZ", "anID");
       EntityReference.checkPrefixId("azeckoski", "ABCdef123-AZ_AZ:AZ;AZ.AZ");
 
+      EntityReference.checkPrefixId("my_crazy-PREFIX", "This.is,a-really_insane:id(very)");
+
       EntityReference.checkPrefixId("eval-config", "ENABLE_XLS_REPORT_EXPORT:java.lang.Boolean");
 
       try {
