@@ -21,7 +21,7 @@ import java.util.List;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -41,7 +41,7 @@ import org.sakaiproject.user.api.UserPermissionException;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class UserEntityProvider implements EntityProvider, RESTful, AutoRegisterEntityProvider {
+public class UserEntityProvider implements CoreEntityProvider, RESTful, AutoRegisterEntityProvider {
 
    private UserDirectoryService userDirectoryService;
    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -56,6 +56,20 @@ public class UserEntityProvider implements EntityProvider, RESTful, AutoRegister
    public static String PREFIX = "user";
    public String getEntityPrefix() {
       return PREFIX;
+   }
+
+   public boolean entityExists(String id) {
+      if (id == null) {
+         return false;
+      }
+      if ("".equals(id)) {
+         return true;
+      }
+      User u = getUserByIdEid(id);
+      if (u != null) {
+         return true;
+      }
+      return false;
    }
 
    public String createEntity(EntityReference ref, Object entity) {

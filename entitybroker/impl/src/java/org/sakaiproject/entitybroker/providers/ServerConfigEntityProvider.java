@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
@@ -40,7 +40,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class ServerConfigEntityProvider implements EntityProvider, Outputable, Resolvable, CollectionResolvable, AutoRegisterEntityProvider {
+public class ServerConfigEntityProvider implements CoreEntityProvider, Outputable, Resolvable, CollectionResolvable, AutoRegisterEntityProvider {
 
    public String[] includedStringSettings = new String[] {
          "portalPath",
@@ -72,6 +72,20 @@ public class ServerConfigEntityProvider implements EntityProvider, Outputable, R
    public static String PREFIX = "server-config";
    public String getEntityPrefix() {
       return PREFIX;
+   }
+
+   public boolean entityExists(String id) {
+      if (id == null) {
+         return false;
+      }
+      if ("".equals(id)) {
+         return true;
+      }
+      Object config = getConfig(id);
+      if (config != null) {
+         return true;
+      }
+      return false;
    }
 
    public Object getEntity(EntityReference ref) {

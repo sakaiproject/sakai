@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
@@ -38,7 +38,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class SessionEntityProvider implements EntityProvider, CRUDable, Inputable, Outputable, RequestAware, Describeable, AutoRegisterEntityProvider {
+public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Inputable, Outputable, RequestAware, Describeable, AutoRegisterEntityProvider {
 
    public static String AUTH_USERNAME = "_username";
    public static String AUTH_PASSWORD = "_password";
@@ -61,6 +61,20 @@ public class SessionEntityProvider implements EntityProvider, CRUDable, Inputabl
    public static String PREFIX = "session";
    public String getEntityPrefix() {
       return PREFIX;
+   }
+
+   public boolean entityExists(String id) {
+      if (id == null) {
+         return false;
+      }
+      if ("".equals(id)) {
+         return true;
+      }
+      Session s = sessionManager.getSession(id);
+      if (s != null) {
+         return true;
+      }
+      return false;
    }
 
    public String createEntity(EntityReference ref, Object entity) {

@@ -20,7 +20,7 @@ import java.util.List;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -41,7 +41,7 @@ import org.sakaiproject.site.api.SiteService.SortType;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class SiteEntityProvider implements EntityProvider, RESTful, AutoRegisterEntityProvider {
+public class SiteEntityProvider implements CoreEntityProvider, RESTful, AutoRegisterEntityProvider {
 
    private SiteService siteService;
    public void setSiteService(SiteService siteService) {
@@ -58,6 +58,20 @@ public class SiteEntityProvider implements EntityProvider, RESTful, AutoRegister
       return PREFIX;
    }
 
+   public boolean entityExists(String id) {
+      if (id == null) {
+         return false;
+      }
+      if ("".equals(id)) {
+         return true;
+      }
+      Site s = getSiteById(id);
+      if (s != null) {
+         return true;
+      }
+      return false;
+   }
+   
    public String createEntity(EntityReference ref, Object entity) {
       String siteId = null;
       if (ref.getId() != null && ref.getId().length() > 0) {
