@@ -187,6 +187,7 @@
 				<directory>${basedir}/src/java</directory>
 				<includes>
 					<include>**/*.xml</include>
+                    <include>**/*.properties</include>
 				</includes>
 				<filtering>false</filtering>
 			</resource>

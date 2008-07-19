@@ -7,12 +7,17 @@ package org.sakaiproject.entitybroker.mocks.data;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.mocks.CoreEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.DescribePropertiesableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.DescribeableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.EntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.PropertyableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.RESTfulEntityProviderMock;
@@ -140,6 +145,20 @@ public class TestData {
    public static String REF6_4 = EntityReference.SEPARATOR + PREFIX6
          + EntityReference.SEPARATOR + IDS6[3];
 
+   public static String PREFIX7 = "describe-prefix";
+   public static String[] IDS7 = new String[] { "seven", "7" };
+   public static String REF7 = EntityReference.SEPARATOR + PREFIX7
+         + EntityReference.SEPARATOR + IDS7[0];
+   public static String REF7_2 = EntityReference.SEPARATOR + PREFIX7
+         + EntityReference.SEPARATOR + IDS7[1];
+
+   public static String PREFIX8 = "custom";
+   public static String[] IDS8 = new String[] { "eight", "8" };
+   public static String REF8 = EntityReference.SEPARATOR + PREFIX8
+         + EntityReference.SEPARATOR + IDS8[0];
+   public static String REF8_2 = EntityReference.SEPARATOR + PREFIX8
+         + EntityReference.SEPARATOR + IDS8[1];
+
    public static String PREFIX9 = "unregPrefix9";
    public static String[] IDS9 = new String[] { "ninety", "9and1" };
    public static String REF9 = EntityReference.SEPARATOR + PREFIX9
@@ -205,6 +224,14 @@ public class TestData {
     * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful}
     */
    public RESTfulEntityProviderMock entityProvider6 = new RESTfulEntityProviderMock(PREFIX6, IDS6);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link Describeable}
+    */
+   public DescribeableEntityProviderMock entityProvider7 = new DescribeableEntityProviderMock(PREFIX7, IDS7);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link DescribePropertiesable}
+    */
+   public DescribePropertiesableEntityProviderMock entityProvider8 = new DescribePropertiesableEntityProviderMock(PREFIX8, IDS8);
 
    /**
     * Unregistered provider

@@ -29,6 +29,8 @@ import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
@@ -49,8 +51,22 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    public void setRequestGetter(RequestGetter requestGetter) {
       this.requestGetter = requestGetter;
    }
+   /**
+    * For internal use and testing only
+    */
    public RequestGetter getRequestGetter() {
       return requestGetter;
+   }
+
+   private EntityPropertiesService entityProperties;
+   public void setEntityProperties(EntityPropertiesService entityProperties) {
+      this.entityProperties = entityProperties;
+   }
+   /**
+    * For internal use and testing only
+    */
+   public EntityPropertiesService getEntityProperties() {
+      return entityProperties;
    }
 
    protected Map<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.WEAK);
@@ -62,6 +78,20 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    public void init() {
       log.info("init");
+      // register the describe prefix to reserve it and load up the describe properties
+      registerEntityProvider(
+            new DescribePropertiesable() {
+               public String getEntityPrefix() {
+                  return EntityRequestHandler.DESCRIBE;
+               }
+               public String getBaseName() {
+                  return getEntityPrefix();
+               }
+               public ClassLoader getResourceClassLoader() {
+                  return EntityProviderManagerImpl.class.getClassLoader();
+               }
+            }
+      );
    }
 
    /* (non-Javadoc)
@@ -146,9 +176,10 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    public void registerEntityProvider(EntityProvider entityProvider) {
       String prefix = new String( entityProvider.getEntityPrefix() ); // copy to make sure this string is in the EB classloader
       new EntityReference(prefix, ""); // this checks the prefix is valid
-      if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
-         throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be used");
-      }
+      // we are now registering describe ourselves
+//      if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
+//         throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be used");
+//      }
       List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
       int count = 0;
       for (Class<? extends EntityProvider> superclazz : superclasses) {
@@ -156,7 +187,20 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
          count++;
          // special handling for certain EPs if needed
          if (superclazz.equals(RequestAware.class)) {
+            // need to shove in the requestGetter on registration
             ((RequestAware)entityProvider).setRequestGetter(requestGetter);
+         } else if (superclazz.equals(Describeable.class)) {
+            // need to load up the default properties into the cache
+            if (! superclasses.contains(DescribePropertiesable.class)) {
+               // only load if the props are not defined elsewhere
+               ClassLoader cl = entityProvider.getClass().getClassLoader();
+               entityProperties.loadProperties(prefix, null, cl);
+            }
+         } else if (superclazz.equals(DescribePropertiesable.class)) {
+            // load up the properties from the provided CL and basename
+            ClassLoader cl = ((DescribePropertiesable)entityProvider).getResourceClassLoader();
+            String baseName = ((DescribePropertiesable)entityProvider).getBaseName();
+            entityProperties.loadProperties(prefix, baseName, cl);
          }
       }
       log.info("EntityBroker: Registered entity provider ("+entityProvider.getClass().getName()
@@ -169,6 +213,9 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     */
    public void unregisterEntityProvider(EntityProvider entityProvider) {
       final String prefix = entityProvider.getEntityPrefix();
+      if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
+         throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be unregistered");
+      }
       List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
       int count = 0;
       for (Class<? extends EntityProvider> superclazz : superclasses) {
@@ -188,6 +235,9 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             count++;
          }
       }
+      // clean up the properties cache
+      entityProperties.unloadProperties(prefix);
+
       log.info("EntityBroker: Unregistered entity provider ("+entityProvider.getClass().getName()+") and "+count+" capabilities");
    }
 

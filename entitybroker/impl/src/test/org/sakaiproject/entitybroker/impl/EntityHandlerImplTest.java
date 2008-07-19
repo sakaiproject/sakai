@@ -63,6 +63,7 @@ public class EntityHandlerImplTest extends TestCase {
       entityHandler.setEntityViewAccessProviderManager( new EntityViewAccessProviderManagerMock() );
       entityHandler.setAccessProviderManager( new HttpServletAccessProviderManagerMock() );
       entityHandler.setRequestGetter( epm.getRequestGetter() );
+      entityHandler.setEntityProperties( epm.getEntityProperties() );
       entityHandler.setServerConfigurationService( new FakeServerConfigurationService() );
    }
 
@@ -793,6 +794,9 @@ public class EntityHandlerImplTest extends TestCase {
          assertTrue(content.contains(TestData.PREFIX3));
          assertTrue(content.contains(TestData.PREFIX4));
          assertTrue(content.contains(TestData.PREFIX5));
+         assertTrue(content.contains(TestData.PREFIX6));
+         assertTrue(content.contains(TestData.PREFIX7));
+         assertTrue(content.contains(TestData.PREFIX8));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
@@ -811,6 +815,9 @@ public class EntityHandlerImplTest extends TestCase {
          assertTrue(content.contains(TestData.PREFIX3));
          assertTrue(content.contains(TestData.PREFIX4));
          assertTrue(content.contains(TestData.PREFIX5));
+         assertTrue(content.contains(TestData.PREFIX6));
+         assertTrue(content.contains(TestData.PREFIX7));
+         assertTrue(content.contains(TestData.PREFIX8));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
@@ -884,6 +891,76 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(content);
          assertTrue(content.length() > 80);
          assertTrue(content.contains(TestData.PREFIX6));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // test an entity which is describeable
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX7 + "/" + EntityRequestHandler.DESCRIBE);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX7));
+         assertTrue(content.contains("describe-prefix test description of an entity"));
+         assertTrue(content.contains("This is a test description of Createable"));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // XML
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX7 + "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX7));
+         assertTrue(content.contains("<description>"));
+         assertTrue(content.contains("describe-prefix test description of an entity"));
+         assertTrue(content.contains("This is a test description of Createable"));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // test an entity which is DescribePropertiesable
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX8 + "/" + EntityRequestHandler.DESCRIBE);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX8));
+         assertTrue(content.contains("CUSTOM description"));
+         assertTrue(content.contains("CUSTOM Deleteable"));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // XML
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX8 + "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX8));
+         assertTrue(content.contains("<description>"));
+         assertTrue(content.contains("CUSTOM description"));
+         assertTrue(content.contains("CUSTOM Deleteable"));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }

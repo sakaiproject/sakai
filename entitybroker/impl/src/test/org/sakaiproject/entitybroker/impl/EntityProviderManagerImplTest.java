@@ -27,6 +27,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
+import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
@@ -52,6 +53,7 @@ public class EntityProviderManagerImplTest extends TestCase {
    public EntityProviderManagerImpl makeEntityProviderManager(TestData td) {
       EntityProviderManagerImpl entityProviderManager = new EntityProviderManagerImpl();
       entityProviderManager.setRequestGetter( new RequestGetterImpl() );
+      entityProviderManager.setEntityProperties( new EntityPropertiesService() );
 
       entityProviderManager.init();
 
@@ -61,6 +63,8 @@ public class EntityProviderManagerImplTest extends TestCase {
       entityProviderManager.registerEntityProvider(td.entityProvider4);
       entityProviderManager.registerEntityProvider(td.entityProvider5);
       entityProviderManager.registerEntityProvider(td.entityProvider6);
+      entityProviderManager.registerEntityProvider(td.entityProvider7);
+      entityProviderManager.registerEntityProvider(td.entityProvider8);
 
       entityProviderManager.registerEntityProvider(td.entityProvider1T);
       

@@ -27,6 +27,8 @@
         init-method="init">
         <property name="requestGetter"
             ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
+        <property name="entityProperties" 
+            ref="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager"
@@ -109,6 +111,8 @@
             ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
         <property name="requestGetter"
             ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
+        <property name="entityProperties" 
+            ref="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
     </bean>
 
     <bean
@@ -136,5 +140,8 @@
     <bean id="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter"
         class="org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl">
     </bean>
+
+    <bean id="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" 
+        class="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
 
 </beans>
