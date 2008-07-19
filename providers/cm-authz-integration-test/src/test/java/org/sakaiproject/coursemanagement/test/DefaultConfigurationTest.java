@@ -22,8 +22,6 @@
 
 package org.sakaiproject.coursemanagement.test;
 
-import static org.sakaiproject.test.ComponentContainerEmulator.actAsUserEid;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,8 +36,10 @@ import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiDependencyInjectionTests;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * Test the default configuration of the Course Management Group provider.
@@ -66,7 +66,6 @@ public class DefaultConfigurationTest extends SakaiDependencyInjectionTests {
 	private static String expelledStudentALec1 = "expelledStudentALec1";
 	private static String unofficialStudentALec1 = "unofficialStudentALec1";
 	private static String gsiALec1 = "gsiALec1";
-	private static String gsiADis1 = "gsiADis1";
 	
 	private static String term1 = "term1";
 	private static String courseOfferingA = "courseOfferingA";
@@ -81,6 +80,9 @@ public class DefaultConfigurationTest extends SakaiDependencyInjectionTests {
 	private static String enrollmentBLec1 = "enrollmentBLec1";
 	private static String sectionBLec1 = "sectionBLec1";
 
+	static {
+		setSakaiHome(DefaultConfigurationTest.class, "default");
+	}
 
 	protected void onSetUp() throws Exception {
 		super.onSetUp();
@@ -123,7 +125,6 @@ public class DefaultConfigurationTest extends SakaiDependencyInjectionTests {
 		addUser(expelledStudentALec1);
 		addUser(unofficialStudentALec1);
 		addUser(gsiALec1);
-		addUser(gsiADis1);
 		
 		courseManagementAdmin.createCourseSet(deptA, deptA, deptA, "DEPT", null);
 		courseManagementAdmin.addOrUpdateCourseSetMembership(deptAdminOfADept, "DeptAdmin", deptA, "active");
@@ -135,17 +136,17 @@ public class DefaultConfigurationTest extends SakaiDependencyInjectionTests {
 		courseManagementAdmin.createCourseOffering(courseOfferingA, courseOfferingA, courseOfferingA, "open", term1, canonicalA, null, null);
 		courseManagementAdmin.addOrUpdateCourseOfferingMembership(adminOfOfferingA, "CourseAdmin", courseOfferingA, null);
 		courseManagementAdmin.createCourseOffering(courseOfferingB, courseOfferingB, courseOfferingB, "open", term1, canonicalB, null, null);
-		courseManagementAdmin.addCanonicalCourseToCourseSet(deptA, canonicalA);
-		courseManagementAdmin.addCanonicalCourseToCourseSet(deptB, canonicalB);
+		courseManagementAdmin.addCourseOfferingToCourseSet(deptA, courseOfferingA);
+		courseManagementAdmin.addCourseOfferingToCourseSet(deptB, courseOfferingB);
 		
 		Set<String> officialInstructors = new HashSet<String>();
 		officialInstructors.add(officialInstructorOfA);
-		courseManagementAdmin.createEnrollmentSet(enrollmentALec1, enrollmentALec1, enrollmentALec1, "lec", "4", courseOfferingA, officialInstructors);
-		courseManagementAdmin.createEnrollmentSet(enrollmentBLec1, enrollmentBLec1, enrollmentBLec1, "lec", "4", courseOfferingB, null);
+		courseManagementAdmin.createEnrollmentSet(enrollmentALec1, enrollmentALec1, enrollmentALec1, "lecture", "4", courseOfferingA, officialInstructors);
+		courseManagementAdmin.createEnrollmentSet(enrollmentBLec1, enrollmentBLec1, enrollmentBLec1, "lecture", "4", courseOfferingB, null);
 		
-		courseManagementAdmin.createSection(sectionALec1, sectionALec1, sectionALec1, "lec", null, courseOfferingA, enrollmentALec1);
-		courseManagementAdmin.createSection(sectionADis1, sectionADis1, sectionADis1, "dis", null, courseOfferingA, null);
-		courseManagementAdmin.createSection(sectionBLec1, sectionBLec1, sectionBLec1, "lec", null, courseOfferingB, enrollmentBLec1);
+		courseManagementAdmin.createSection(sectionALec1, sectionALec1, sectionALec1, "lecture", null, courseOfferingA, enrollmentALec1);
+		courseManagementAdmin.createSection(sectionADis1, sectionADis1, sectionADis1, "discussion", null, courseOfferingA, null);
+		courseManagementAdmin.createSection(sectionBLec1, sectionBLec1, sectionBLec1, "lecture", null, courseOfferingB, enrollmentBLec1);
 		
 		courseManagementAdmin.addOrUpdateCourseOfferingMembership(unofficialInstructorOfA, "I", courseOfferingA, "active");
 		
@@ -157,15 +158,14 @@ public class DefaultConfigurationTest extends SakaiDependencyInjectionTests {
 		
 		courseManagementAdmin.addOrUpdateSectionMembership(studentADis1, "S", sectionADis1, "active");
 		courseManagementAdmin.addOrUpdateSectionMembership(gsiALec1, "GSI", sectionALec1, "active");
-		courseManagementAdmin.addOrUpdateSectionMembership(gsiADis1, "GSI", sectionADis1, "active");
 		courseManagementAdmin.addOrUpdateSectionMembership(instructorOfB, "I", sectionBLec1, "active");
 		
 		// Now let's make some course sites.
 		Site site = siteService.addSite(courseOfferingA, "course");
 		site.setProviderGroupId(sectionALec1 + "+" + sectionADis1);
 		siteService.save(site);
-		
-		// Add an unofficial student to the site.
+
+		// Add an unofficial student to the site. The save will wipe out the provided users!
 		AuthzGroup authzGroup = authzGroupService.getAuthzGroup(site.getReference());
 		authzGroup.addMember(unofficialStudentALec1, "Student", true, false);
 		authzGroupService.save(authzGroup);
@@ -182,13 +182,92 @@ public class DefaultConfigurationTest extends SakaiDependencyInjectionTests {
 	public void testSiteRoles() throws Exception {
 		actAsUserEid(officialInstructorOfA);
 		Site site = siteService.getSite(courseOfferingA);
-		Member member = site.getMember(unofficialStudentALec1);
+		
+		// Check for the officially enrolled (but waitlisted) student.
+		Member member = site.getMember(waitListedStudentALec1);
+		Assert.assertNotNull(member);
+		Assert.assertEquals("Student", member.getRole().getId());		
+
+		// Check for the student who was added directly to the site.
+		member = site.getMember(unofficialStudentALec1);
 		Assert.assertNotNull(member);
 		Assert.assertEquals("Student", member.getRole().getId());
+
+		// Check for the expelled student.
+		member = site.getMember(expelledStudentALec1);
+		Assert.assertNull(member);
+		
+		// Check for the dropped student.
+		member = site.getMember(droppedStudentALec1);
+		Assert.assertNull(member);
+		
+		// Check for the student in a discussion section.
+		member = site.getMember(studentADis1);
+		Assert.assertNotNull(member);
+		Assert.assertEquals("Student", member.getRole().getId());
+		
+		// Check for a student in another course site.
+		member = site.getMember(enrolledStudentBLec1);
+		Assert.assertNull(member);
+		
+		// Check for the TA.
+		member = site.getMember(gsiALec1);
+		Assert.assertNotNull(member);
+		Assert.assertEquals("Teaching Assistant", member.getRole().getId());
+		
+		// Check for the official instructor of the enrollment set.
+		member = site.getMember(officialInstructorOfA);
+		Assert.assertNotNull(member);
+		Assert.assertEquals("Instructor", member.getRole().getId());
+		
+		// Check for the course offering member in the instructor role.
+		member = site.getMember(officialInstructorOfA);
+		Assert.assertNotNull(member);
+		Assert.assertEquals("Instructor", member.getRole().getId());
+		
+		// Check for the department administrator.
+		member = site.getMember(deptAdminOfADept);
+		Assert.assertNotNull(member);
+		Assert.assertEquals("Instructor", member.getRole().getId());
+		
+		// Check for the course admin.
+		member = site.getMember(adminOfOfferingA);
+		Assert.assertNotNull(member);
+		Assert.assertEquals("Instructor", member.getRole().getId());
+		
+		// Check for an instructor in another course site.
+		member = site.getMember(instructorOfB);
+		Assert.assertNull(member);
+		
+		// Check for another department's administrator.
+		member = site.getMember(deptAdminOfBDept);
+		Assert.assertNull(member);
 	}
 	
 	private void addUser(String userEid) throws Exception {
 		userDirectoryService.addUser(userEid, userEid);
+	}
+	
+	/**
+	 * Convenience routine to support the frequent testing need to switch authn/authz identities.
+	 * TODD Find some central place for this frequently-needed helper logic. It can easily be made
+	 * static.
+	 *
+	 * @param userEid
+	 */
+	public void actAsUserEid(String userEid) {
+		if (log.isDebugEnabled()) log.debug("actAsUserEid=" + userEid);
+		String userId;
+		try {
+			userId = userDirectoryService.getUserId(userEid);
+		} catch (UserNotDefinedException e) {
+			log.error("Could not act as user EID=" + userEid, e);
+			return;
+		}
+		Session session = sessionManager.getCurrentSession();
+		session.setUserEid(userEid);
+		session.setUserId(userId);
+		authzGroupService.refreshUser(userId);
 	}
 	
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
@@ -201,7 +280,6 @@ public class DefaultConfigurationTest extends SakaiDependencyInjectionTests {
 		this.courseManagementAdmin = courseManagementAdmin;
 	}
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		log.warn("userDirectoryService set to " + userDirectoryService);
 		this.userDirectoryService = userDirectoryService;
 	}
 	public void setSessionManager(SessionManager sessionManager) {
