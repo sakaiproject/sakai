@@ -29,15 +29,11 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-component</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
         <dependency>
-            <groupId>${sakai.spring.groupId}</groupId>
-            <artifactId>${sakai.spring.artifactId}</artifactId>
-            <version>${sakai.spring.version}</version>
-            <scope>provided</scope>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
         </dependency>
 
         <!-- required for bean cloning and reflection -->
@@ -53,7 +49,13 @@
             <artifactId>commons-collections</artifactId>
             <version>3.2</version>
             <type>jar</type>
-            <scope>provided</scope>
+        </dependency>
+
+        <!-- required for sending http requests -->
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
         </dependency>
 
 	</dependencies>

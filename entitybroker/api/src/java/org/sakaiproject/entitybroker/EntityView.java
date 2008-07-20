@@ -308,13 +308,25 @@ public class EntityView {
    }
 
    /**
-    * @return the string version of this {@link TemplateParseUtil#TEMPLATE_SHOW} entity reference or 
+    * @return the entity URL of the internal reference based on the
+    * internal viewKey and extension, defaults to {@link TemplateParseUtil#TEMPLATE_SHOW} or 
     * the {@link TemplateParseUtil#TEMPLATE_LIST} one if there is no id,
     * example: /prefix if there is no id or /prefix/id if there is an id
     * @throws IllegalArgumentException if there is not enough information to generate a URL
     */
    @Override
    public String toString() {
+      // correctly set the viewKey if none is set
+      if (this.viewKey == null) {
+         if (this.entityReference == null) {
+            throw new IllegalArgumentException("There is no entity reference information in this view, ref is null");
+         }
+         if (this.entityReference.getId() == null) {
+            this.viewKey = VIEW_LIST;
+         } else {
+            this.viewKey = VIEW_SHOW;
+         }
+      }
       String ref = getEntityURL(this.viewKey, this.extension);
       return ref;
    }

@@ -17,6 +17,7 @@ package org.sakaiproject.entitybroker;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -27,6 +28,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchProvider;
+import org.sakaiproject.entitybroker.util.EntityResponse;
 
 /**
  * This service interface defines the capabilities of the entity broker system<br/> 
@@ -114,10 +116,34 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * @param eventName a string which represents the name of the event (e.g. announcement.create),
     * cannot be null or empty
     * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and optional segments,
+    * consists of the entity prefix and optionally the local id,
     * cannot be null or empty
     */
    public void fireEvent(String eventName, String reference);
+
+   /**
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optionally the local id,
+    * cannot be null or empty
+    * @param viewKey specifies what kind of request this is (create, read/show, etc.),
+    * must correspond to the VIEW constants in {@link EntityView}, example: {@link EntityView#VIEW_SHOW}
+    * @param format (optional) this is the format for this request (from {@link Formats}, e.g. XML),
+    * if nothing is specified then the default will be used: {@link Formats#HTML}
+    * @param params (optional) any params you want to send along with the request should
+    * be included here, they will be placed into the query string or the request body
+    * depending on the type of request this is
+    * @param entity (optional) leave this null in most cases,
+    * if you supply an entity object here it will be encoded based on the supplied format
+    * (only if the entity supports output formatting) and then decoded on the other end
+    * (only if the entity supports input translation), in most cases it is better to supply
+    * the entity values in the params
+    * @return the response information encoded in an object,
+    * you must check this to see what the results of the request were
+    * (getting a response back does not mean the request succeeded)
+    * @throws IllegalArgumentException if the inputs are invalid
+    * @throws RuntimeException if the http request has an unrecoverable failure or an encoding failure occurs
+    */
+   public EntityResponse fireEntityRequest(String reference, String viewKey, String format, Map<String, String> params, Object entity);
 
    /**
     * Parses an entity reference into a concrete object, of type {@link EntityReference}, or some

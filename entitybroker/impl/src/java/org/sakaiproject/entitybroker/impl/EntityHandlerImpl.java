@@ -14,6 +14,8 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
@@ -69,7 +72,11 @@ import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
+import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+import org.sakaiproject.entitybroker.util.http.HttpResponse;
+import org.sakaiproject.entitybroker.util.http.HttpUtils;
+import org.sakaiproject.entitybroker.util.http.HttpUtils.Method;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
@@ -198,26 +205,79 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return url;
    }
 
-   public int fireEntityRequestParams(String reference, String viewKey, String format, Map<String, String> params) {
-      // TODO
-      /**
-      String url = entityBroker.getEntityURL(reference);
-      HttpClient httpClient= new HttpClient();
-      PostMethod postMethod = new PostMethod(url);
-      postMethod.addParameter("markup", "You loaded the feed tool!");
-
-      try {
-         httpClient.executeMethod(postMethod);
-      } catch(Exception e) {
-         //Log it!
+   /**
+    * @see EntityBroker#fireEntityRequest(String, String, String, Map, Object)
+    */
+   public EntityResponse fireEntityRequestInternal(String reference, String viewKey, String format, Map<String, String> params, Object entity) {
+      if (reference == null) {
+         throw new IllegalArgumentException("reference must not be null");
       }
-      **/
-      return 0;
-   }
-
-   public int fireEntityRequestObject(String reference, String viewKey, String format, Object entity) {
-      // TODO
-      return 0;
+      // convert the reference/key/format into a URL
+      EntityReference ref = new EntityReference(reference);
+      EntityView ev = new EntityView();
+      ev.setEntityReference( ref );
+      if (viewKey != null 
+            && ! "".equals(viewKey)) {
+         ev.setViewKey(viewKey);
+      }
+      if (format != null 
+            && ! "".equals(format)) {
+         ev.setExtension(format);
+      }
+      String URL = ev.toString();
+      // get the right method to use
+      Method method = Method.GET;
+      if (EntityView.VIEW_DELETE.equals(ev.getViewKey())) {
+         method = Method.DELETE;
+      } else if (EntityView.VIEW_EDIT.equals(ev.getViewKey())) {
+         method = Method.PUT;
+      } else if (EntityView.VIEW_NEW.equals(ev.getViewKey())) {
+         method = Method.POST;
+      } else {
+         method = Method.GET;
+      }
+      // handle entity if one was included
+      Object data = null;
+      if (entity != null) {
+         String prefix = ref.getPrefix();
+         Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
+         if (inputable == null) {
+            throw new IllegalArgumentException("This entity ("+ref+") is not Inputable so there is no reason to provide "
+            		+ "a non-null entity, you should leave the entity null when firing requests to this entity");
+         }
+         Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+         if (outputable == null) {
+            throw new IllegalArgumentException("This entity ("+ref+") is not Outputable so there is no reason to provide "
+               + "a non-null entity, you should leave the entity null when firing requests to this entity");
+         } else {
+            String[] formats = outputable.getHandledOutputFormats();
+            if ( ReflectUtil.contains(formats, format) ) {
+               List<Object> entities = new ArrayList<Object>();
+               entities.add(entity);
+               // need to make sure the reference has an id set
+               ref = new EntityReference(ref.getPrefix(), ref.getId() == null ? "new" : ref.getId());
+               // setup the output stream
+               ByteArrayOutputStream output = new ByteArrayOutputStream();
+               OutputFormattable formattable = entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
+               if (formattable == null) {
+                  // handle internally or fail
+                  internalOutputFormatter(ref, format, entities, output, null);
+               } else {
+                  // use provider's formatter
+                  formattable.formatOutput(ref, format, entities, output);
+               }
+               data = new ByteArrayInputStream(output.toByteArray());
+            } else {
+               throw new IllegalArgumentException("This entity ("+reference+") is not outputable in this format ("+format+")," +
+                     " only the following formats are supported: " + ReflectUtil.arrayToString(formats));
+            }
+         }
+      }
+      HttpResponse httpResponse = HttpUtils.fireRequest(URL, method, params, data, true);
+      // translate response to correct kind
+      EntityResponse response = new EntityResponse(httpResponse.getResponseCode(), 
+            httpResponse.getResponseMessage(), httpResponse.getResponseBody(), httpResponse.getResponseHeaders());
+      return response;
    }
 
    /**

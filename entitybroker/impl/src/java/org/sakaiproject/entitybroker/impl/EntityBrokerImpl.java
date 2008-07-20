@@ -44,6 +44,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
+import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -163,6 +164,14 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       Event event = eventTrackingService.newEvent(eventName, refName, true,
             NotificationService.PREF_IMMEDIATE);
       eventTrackingService.post(event);
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#fireEntityRequest(java.lang.String, java.lang.String, java.lang.String, java.util.Map, java.lang.Object)
+    */
+   public EntityResponse fireEntityRequest(String reference, String viewKey, String format,
+         Map<String, String> params, Object entity) {
+      return entityHandler.fireEntityRequestInternal(reference, viewKey, format, params, entity);
    }
 
    /* (non-Javadoc)
