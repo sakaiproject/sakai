@@ -1157,11 +1157,14 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	 */
 	public void setStatus(String status)
 	{
-		// if there's a change
-		if (!status.equals(m_status))
+		if (status!=null)
 		{
-			// remember the new
-			m_status = status;
+			// if there's a change
+			if (!status.equals(m_status))
+			{
+				// remember the new
+				m_status = status;
+			}
 		}
 
 	}
