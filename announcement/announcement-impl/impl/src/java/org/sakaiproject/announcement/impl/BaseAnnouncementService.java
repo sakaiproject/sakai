@@ -1294,6 +1294,24 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			return (AnnouncementMessageEdit) editMessage(messageId);
 
 		} // editAnnouncementMessage
+		
+		
+	/**
+	 * A cover for removeMessage. Deletes the messages specified by the message id.
+	 * 
+	 * @param messageId
+	 *        The id of the message to get.
+	 * @exception PermissionException
+	 *            If the user does not have any permissions to delete the message.
+	 */
+		public void removeAnnouncementMessage(String messageId) throws PermissionException
+				
+		{
+			removeMessage(messageId);
+			//return (AnnouncementMessageEdit) removeMessage(messageId);
+
+		} // editAnnouncementMessage
+		
 
 		/**
 		 * A (AnnouncementMessageEdit) cover for addMessage. Add a new message to this channel. Must commitEdit() to make official, or cancelEdit() when done!
