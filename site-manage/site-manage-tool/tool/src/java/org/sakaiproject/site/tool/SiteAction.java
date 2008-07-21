@@ -6826,7 +6826,10 @@ public class SiteAction extends PagedResourceActionII {
 									getStateSite(state));
 							
 							// get the new site icon url
-							site.setIconUrl(transferSiteResource(oSiteId, nSiteId, site.getIconUrl()));
+							if (site.getIconUrl() != null)
+							{
+								site.setIconUrl(transferSiteResource(oSiteId, nSiteId, site.getIconUrl()));
+							}
 							
 							try {
 								SiteService.save(site);
@@ -7185,8 +7188,8 @@ public class SiteAction extends PagedResourceActionII {
 				SitePage page = (SitePage) i.next();
 
 				List pageToolList = page.getTools();
-				String toolId = ((ToolConfiguration) pageToolList
-						.get(0)).getTool().getId();
+				Tool tool = ((ToolConfiguration) pageToolList.get(0)).getTool();
+				String toolId = tool != null?tool.getId():"";
 				if (toolId.equalsIgnoreCase("sakai.resources")) {
 					// handle
 					// resource
@@ -7966,7 +7969,7 @@ public class SiteAction extends PagedResourceActionII {
 				// Add worksite information tool
 				ToolConfiguration tool = page.addTool();
 				Tool reg = ToolManager.getTool(SITE_INFORMATION_TOOL);
-				tool.setTool("SITE_INFORMATION_TOOL", reg);
+				tool.setTool(SITE_INFORMATION_TOOL, reg);
 				tool.setTitle(reg.getTitle());
 				tool.setLayoutHints("0,0");
 			}
@@ -8483,7 +8486,7 @@ public class SiteAction extends PagedResourceActionII {
 					// Add worksite information tool
 					ToolConfiguration tool = page.addTool();
 					Tool wsInfoTool = ToolManager.getTool(SITE_INFORMATION_TOOL);
-					tool.setTool("SITE_INFORMATION_TOOL", wsInfoTool);
+					tool.setTool(SITE_INFORMATION_TOOL, wsInfoTool);
 					tool.setTitle(wsInfoTool != null?wsInfoTool.getTitle():"");
 					tool.setLayoutHints("0,0");
 
