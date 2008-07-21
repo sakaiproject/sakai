@@ -2844,8 +2844,9 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (channel.allowRemoveMessage(message))
 				{
 					// remove message from channel
-					AnnouncementMessageEdit edit = channel.editAnnouncementMessage(message.getId());
-					channel.removeMessage(edit);
+					//AnnouncementMessageEdit edit = channel.editAnnouncementMessage(message.getId());
+					//channel.removeMessage(edit); 
+					channel.removeAnnouncementMessage(message.getId());
 
 					// make sure auto-updates are enabled
 					enableObservers(sstate);
@@ -2867,13 +2868,6 @@ public class AnnouncementAction extends PagedResourceActionII
 			catch (NoSuchElementException e)
 			{
 				if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
-			}
-			catch (InUseException e)
-			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + "doPost()",e);
-				// addAlert(sstate, "this announcement is being edited by someone else");
-
-				disableObservers(sstate);
 			}
 		}
 
