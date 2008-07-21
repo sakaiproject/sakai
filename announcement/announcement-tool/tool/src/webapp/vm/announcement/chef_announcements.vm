@@ -684,14 +684,14 @@
 						
 						#if ($messageListVector.iterator().hasNext())
 							#if ($isOnWorkspaceTab.equals("false"))
-								#if ($EnableItemCheckBoxes)
+								##if ($EnableItemCheckBoxes)  ## SAK-14021. This checks for new ann permission, which is not a requirement to have update and cancel buttons
 									#if ($allow_delete)
 										<p class="act">
 											<input type="submit" class="active" name="eventSubmit_doDeleteannouncement" value="$tlang.getString("gen.update")"  accesskey="s" />
 											<input type="reset" name="reset" id="reset" value="$tlang.getString("gen.cancel")"  accesskey="x" />
 										</p>
 									#end
-								#end
+								##end
 							#end
 						</form>
 					#end
