@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * This is here to contain the information we get back from an http request fired
- * by the methods in {@link HttpUtils}
+ * by the methods in {@link HttpRESTUtils}
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */

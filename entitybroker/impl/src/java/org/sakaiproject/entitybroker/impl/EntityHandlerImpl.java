@@ -75,8 +75,8 @@ import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
-import org.sakaiproject.entitybroker.util.http.HttpUtils;
-import org.sakaiproject.entitybroker.util.http.HttpUtils.Method;
+import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
+import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
@@ -273,7 +273,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             }
          }
       }
-      HttpResponse httpResponse = HttpUtils.fireRequest(URL, method, params, data, true);
+      HttpResponse httpResponse = HttpRESTUtils.fireRequest(URL, method, params, data, true);
       // translate response to correct kind
       EntityResponse response = new EntityResponse(httpResponse.getResponseCode(), 
             httpResponse.getResponseMessage(), httpResponse.getResponseBody(), httpResponse.getResponseHeaders());

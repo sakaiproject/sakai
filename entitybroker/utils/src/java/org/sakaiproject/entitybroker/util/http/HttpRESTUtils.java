@@ -47,7 +47,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class HttpUtils {
+public class HttpRESTUtils {
 
    public static final String CONTENT_TYPE_UTF8 = "text/xml; charset=UTF-8";
    public static final String ENCODING_UTF8 = "UTF-8";
