@@ -129,7 +129,7 @@
 								</tr>
 								<tr>
 									<th>
-										Announce the open date:
+										$tlang.getString("gen.opendate.annc")
 									</th>
 									<td>
 										#if ($value_CheckAutoAnnounce=="true")
