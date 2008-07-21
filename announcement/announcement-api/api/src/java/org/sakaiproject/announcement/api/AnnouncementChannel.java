@@ -63,6 +63,16 @@ public interface AnnouncementChannel extends MessageChannel
 	 */
 	public AnnouncementMessageEdit editAnnouncementMessage(String messageId) throws IdUnusedException, PermissionException,
 			InUseException;
+	
+	/**
+	 * A cover for removeMessage. Deletes the messages specified by the message id.
+	 * 
+	 * @param messageId
+	 *        The id of the message to get.
+	 * @exception PermissionException
+	 *            If the user does not have any permissions to delete the message.
+	 */
+	public void removeAnnouncementMessage(String messageId) throws PermissionException;
 
 	/**
 	 * a (AnnouncementMessage) cover for addMessage to add a new message to this channel. Must commitEdit() to make official, or cancelEdit() when done!
