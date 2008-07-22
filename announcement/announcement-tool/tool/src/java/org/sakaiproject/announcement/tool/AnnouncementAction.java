@@ -4185,7 +4185,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setStatus(null);
 
 		sstate.removeAttribute(STATE_MODE);
-	} // doUpdate} // AnnouncementAction
+		
+		state.setStatus(CANCEL_STATUS); //SAK-14001	It goes to the main page after saving the merge options.
+		
+	}
 
 	/**
 	 * This handles the "doUpdate" if we're in a processing an update from the options page.
@@ -4243,6 +4246,8 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setStatus(null);
 
 		sstate.removeAttribute(STATE_MODE);
+		
+		state.setStatus(CANCEL_STATUS); //SAK-14001	It goes to the main page after updating the Options.
 	}
 
 	/*
