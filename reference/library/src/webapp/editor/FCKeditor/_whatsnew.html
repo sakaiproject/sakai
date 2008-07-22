@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -33,41 +33,53 @@
 	<h1>
 		FCKeditor ChangeLog - What's New?</h1>
 	<h3>
-		Version 2.5.1</h3>
+		Version 2.6.2</h3>
 	<p>
 		New Features and Improvements:</p>
 	<ul>
-		<li><strong>FCKeditor.Net 2.5</strong> compatibility.</li>
-		<li>JavaScript integration file:
-			<ul>
-				<li>The new "<strong>FCKeditor.ReplaceAllTextareas</strong>" function is being introduced,
-					making it possible to replace many (or unknown) &lt;textarea&gt; elements in a single
-					call. The replacement can be also filtered by CSS class name, or by a custom function
-					evaluator. </li>
-				<li>It is now possible to set the default BasePath for all editor instances by setting
-					<strong>FCKeditor.BasePath</strong>. This is extremely useful when working with
-					the ReplaceAllTextareas function. </li>
-			</ul>
-		</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2043">#2043</a>] The debug
+			script is not any more part of the compressed files. If FCKeditor native debugging
+			features (FCKDebug) are required, the _source folder must be present in your installation.</li>
 	</ul>
 	<p>
 		Fixed Bugs:</p>
 	<ul>
-		<li>[<a href="http://dev.fckeditor.net/ticket/339" target="_blank">#339</a>] [<a
-			href="http://dev.fckeditor.net/ticket/681" target="_blank">#681</a>] The SpellerPages
-			spell checker will now completely ignore the presence of HTML tags in the text.
-		</li>
-		<li>[<a href="http://dev.fckeditor.net/ticket/1643" target="_blank">#1643</a>] Resolved
-			several "strict warning" messages in Firefox when running FCKeditor. </li>
-		<li>[<a href="http://dev.fckeditor.net/ticket/1603" target="_blank">#1603</a>] Certain
-			specific markup was making FCKeditor entering in a loop, blocking its execution.
-		</li>
-		<li>[<a href="http://dev.fckeditor.net/ticket/1664" target="_blank">#1664</a>] The ENTER
-			key will not any more swap the order of the tags when hit at the end of paragraphs.
-		</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2248">#2248</a>] Calling
+			FCK.InsertHtml( 'nbsp;') was inserting a plain space instead of a non breaking space
+			character.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2273">#2273</a>] The dragresizetable
+			plugin now works in Firefox 3 as well.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2254">#2254</a>] Minor
+			fix in FCKSelection for nodeTagName object.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/1614">#1614</a>] Unified
+			FCKConfig.FullBasePath with FCKConfig.BasePath.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2127">#2127</a>] Changed
+			floating dialogs to use fixed positioning so that they are no longer affected by
+			scrolling.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2018">#2018</a>] Reversed
+			the fix for <a target="_blank" href="http://dev.fckeditor.net/ticket/183">#183</a>
+			which broke FCKeditorAPI's cleanup logic. A new configuration directive <strong>MsWebBrowserControlCompat</strong>
+			has been added for those who wish to force the #183 fix to be enabled.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2276">#2276</a>] [<a
+			target="_blank" href="http://dev.fckeditor.net/ticket/2279">#2279</a>] On Opera
+			and Firefox 3, the entire page was scrolling on ENTER.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2149">#2149</a>] CSS urls
+			with querystring parameters were not being accepted for CSS values in the configuration
+			file (like EditorAreaCSS).</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2287">#2287</a>] On some
+			specific cases, with Firefox 2, some extra spacing was appearing in the final HTML
+			on posting, if inserting two successive tables.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2287">#2287</a>] Block
+			elements (like tables or horizontal rules) will be inserted correctly now when the
+			cursor is at the start or the end of blocks. No extra paragraphs will be included
+			in this operation.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2149">#2197</a>] The TAB
+			key will now have the default browser behavior if TabSpaces=0. It will move the
+			focus out of the editor (expect on Safari).</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/2296">#2296</a>] Fixed
+			permission denied error on clicking on files in the file browser.</li>
 	</ul>
 	<p>
-		<a href="_whatsnew_history.html">See previous versions history</a>
-	</p>
+		<a href="_whatsnew_history.html">See previous versions history</a></p>
 </body>
 </html>

@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -31,26 +31,120 @@ FCKTools.CreateBogusBR = function( targetDocument )
 	return eBR ;
 }
 
-// Returns a reference to the appended style sheet or an array with all the appended references
-FCKTools.AppendStyleSheet = function( documentElement, cssFileUrlOrArray )
+/**
+ * Fixes relative URL entries defined inside CSS styles by appending a prefix
+ * to them.
+ * @param (String) cssStyles The CSS styles definition possibly containing url()
+ *		paths.
+ * @param (String) urlFixPrefix The prefix to append to relative URLs.
+ */
+FCKTools.FixCssUrls = function( urlFixPrefix, cssStyles )
 {
-	if ( typeof( cssFileUrlOrArray ) == 'string' )
-		return this._AppendStyleSheet( documentElement, cssFileUrlOrArray ) ;
+	if ( !urlFixPrefix || urlFixPrefix.length == 0 )
+		return cssStyles ;
+
+	return cssStyles.replace( /url\s*\(([\s'"]*)(.*?)([\s"']*)\)/g, function( match, opener, path, closer )
+		{
+			if ( /^\/|^\w?:/.test( path ) )
+				return match ;
+			else
+				return 'url(' + opener + urlFixPrefix + path + closer + ')' ;
+		} ) ;
+}
+
+FCKTools._GetUrlFixedCss = function( cssStyles, urlFixPrefix )
+{
+	var match = cssStyles.match( /^([^|]+)\|([\s\S]*)/ ) ;
+
+	if ( match )
+		return FCKTools.FixCssUrls( match[1], match[2] ) ;
+	else
+		return cssStyles ;
+}
+
+/**
+ * Appends a <link css> or <style> element to the document.
+ * @param (Object) documentElement The DOM document object to which append the
+ *		stylesheet.
+ * @param (Variant) cssFileOrDef A String pointing to the CSS file URL or an
+ *		Array with many CSS file URLs or the CSS definitions for the <style>
+ *		element.
+ * @return {Array} An array containing all elements created in the target
+ *		document. It may include <link> or <style> elements, depending on the
+ *		value passed with cssFileOrDef.
+ */
+FCKTools.AppendStyleSheet = function( domDocument, cssFileOrArrayOrDef )
+{
+	if ( !cssFileOrArrayOrDef )
+		return [] ;
+
+	if ( typeof( cssFileOrArrayOrDef ) == 'string' )
+	{
+		// Test if the passed argument is an URL.
+		if ( /[\\\/\.][^{}]*$/.test( cssFileOrArrayOrDef ) )
+		{
+			// The string may have several URLs separated by comma.
+			return this.AppendStyleSheet( domDocument, cssFileOrArrayOrDef.split(',') ) ;
+		}
+		else
+			return [ this.AppendStyleString( domDocument, FCKTools._GetUrlFixedCss( cssFileOrArrayOrDef ) ) ] ;
+	}
 	else
 	{
-		var aStyleSheeArray = new Array() ;
-
-		for ( var i = 0 ; i < cssFileUrlOrArray.length ; i++ )
-			aStyleSheeArray.push(this._AppendStyleSheet( documentElement, cssFileUrlOrArray[i] ) ) ;
-
-		return aStyleSheeArray ;
+		var styles = [] ;
+		for ( var i = 0 ; i < cssFileOrArrayOrDef.length ; i++ )
+			styles.push( this._AppendStyleSheet( domDocument, cssFileOrArrayOrDef[i] ) ) ;
+		return styles ;
 	}
 }
 
-FCKTools.AppendStyleString = function ( documentElement, cssStyles )
+FCKTools.GetStyleHtml = (function()
 {
-	this._AppendStyleString( documentElement, cssStyles ) ;
-}
+	var getStyle = function( styleDef, markTemp )
+	{
+		if ( styleDef.length == 0 )
+			return '' ;
+
+		var temp = markTemp ? ' _fcktemp="true"' : '' ;
+		return '<' + 'style type="text/css"' + temp + '>' + styleDef + '<' + '/style>' ;
+	}
+
+	var getLink = function( cssFileUrl, markTemp )
+	{
+		if ( cssFileUrl.length == 0 )
+			return '' ;
+
+		var temp = markTemp ? ' _fcktemp="true"' : '' ;
+		return '<' + 'link href="' + cssFileUrl + '" type="text/css" rel="stylesheet" ' + temp + '/>' ;
+	}
+
+	return function( cssFileOrArrayOrDef, markTemp )
+	{
+		if ( !cssFileOrArrayOrDef )
+			return '' ;
+
+		if ( typeof( cssFileOrArrayOrDef ) == 'string' )
+		{
+			// Test if the passed argument is an URL.
+			if ( /[\\\/\.][^{}]*$/.test( cssFileOrArrayOrDef ) )
+			{
+				// The string may have several URLs separated by comma.
+				return this.GetStyleHtml( cssFileOrArrayOrDef.split(','), markTemp ) ;
+			}
+			else
+				return getStyle( this._GetUrlFixedCss( cssFileOrArrayOrDef ), markTemp ) ;
+		}
+		else
+		{
+			var html = '' ;
+
+			for ( var i = 0 ; i < cssFileOrArrayOrDef.length ; i++ )
+				html += getLink( cssFileOrArrayOrDef[i], markTemp ) ;
+
+			return html ;
+		}
+	}
+})() ;
 
 FCKTools.GetElementDocument = function ( element )
 {
@@ -366,8 +460,8 @@ FCKTools.CreateEventListener = function( func, params )
 FCKTools.IsStrictMode = function( document )
 {
 	// There is no compatMode in Safari, but it seams that it always behave as
-	// CSS1Compat, so let's assume it as the default.
-	return ( 'CSS1Compat' == ( document.compatMode || 'CSS1Compat' ) ) ;
+	// CSS1Compat, so let's assume it as the default for that browser.
+	return ( 'CSS1Compat' == ( document.compatMode || ( FCKBrowserInfo.IsSafari ? 'CSS1Compat' : null ) ) ) ;
 }
 
 // Transforms a "arguments" object to an array.
@@ -451,7 +545,7 @@ FCKTools.GetDocumentPosition = function( w, node )
 				curNode = curWindow.frameElement ;
 				prevNode = null ;
 				if ( curNode )
-					curWindow = FCKTools.GetElementWindow( curNode ) ;
+					curWindow = curNode.contentWindow.parent ;
 			}
 			else
 				curNode = null ;
@@ -462,8 +556,8 @@ FCKTools.GetDocumentPosition = function( w, node )
 	// 1. It matters if document.body itself is a positioned element;
 	// 2. It matters is when we're in IE and the element has no positioned ancestor.
 	// Otherwise the values should be ignored.
-	if ( FCKDomTools.GetCurrentElementStyle( w, w.document.body, 'position') != 'static' 
-			|| ( FCKBrowserInfo.IsIE && FCKDomTools.GetPositionedAncestor( w, node ) == null ) )
+	if ( FCKDomTools.GetCurrentElementStyle( w.document.body, 'position') != 'static'
+			|| ( FCKBrowserInfo.IsIE && FCKDomTools.GetPositionedAncestor( node ) == null ) )
 	{
 		x += w.document.body.offsetLeft ;
 		y += w.document.body.offsetTop ;
@@ -611,11 +705,45 @@ FCKTools.NormalizeCssText = function( unparsedCssText )
 }
 
 /**
- * Utility function to wrap a call to an object's method,
- * so it can be passed for example to an event handler,
- * and then it will be executed with 'this' being the object.
+ * Binding the "this" reference to an object for a function.
  */
-FCKTools.Hitch = function( obj, methodName )
+FCKTools.Bind = function( subject, func )
 {
-  return function() { obj[methodName].apply(obj, arguments); } ;
+  return function(){ return func.apply( subject, arguments ) ; } ;
+}
+
+/**
+ * Retrieve the correct "empty iframe" URL for the current browser, which
+ * causes the minimum fuzz (e.g. security warnings in HTTPS, DNS error in
+ * IE5.5, etc.) for that browser, making the iframe ready to DOM use whithout
+ * having to loading an external file.
+ */
+FCKTools.GetVoidUrl = function()
+{
+	if ( FCK_IS_CUSTOM_DOMAIN )
+		return "javascript: void( function(){" +
+			"document.open();" +
+			"document.write('<html><head><title></title></head><body></body></html>');" +
+			"document.domain = '" + FCK_RUNTIME_DOMAIN + "';" +
+			"document.close();" +
+			"}() ) ;";
+
+	if ( FCKBrowserInfo.IsIE )
+	{
+		if ( FCKBrowserInfo.IsIE7 || !FCKBrowserInfo.IsIE6 )
+			return "" ;					// IE7+ / IE5.5
+		else
+			return "javascript: '';" ;	// IE6+
+	}
+
+	return "javascript: void(0);" ;		// All other browsers.
+}
+
+FCKTools.ResetStyles = function( element )
+{
+	element.style.cssText = 'margin:0;' +
+		'padding:0;' +
+		'border:0;' +
+		'background-color:transparent;' +
+		'background-image:none;' ;
 }

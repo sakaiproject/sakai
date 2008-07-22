@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -39,11 +39,11 @@ FCKConfig.PluginsPath = FCKConfig.BasePath.substr(0, FCKConfig.BasePath.length -
 //		FCKConfig.Plugins.Add( pluginName, availableLanguages )
 //			pluginName: The plugin name. The plugin directory must match this name.
 //			availableLanguages: a list of available language files for the plugin (separated by a comma).
-FCKConfig.Plugins.Add( 'findreplace', 'en,it,fr' ) ;
+FCKConfig.Plugins.Add( 'findreplace', 'en,fr,it' ) ;
 FCKConfig.Plugins.Add( 'samples' ) ;
 
 // If you want to use plugins found on other directories, just use the third parameter.
 var sOtherPluginPath = FCKConfig.BasePath.substr(0, FCKConfig.BasePath.length - 7) + 'editor/plugins/' ;
-FCKConfig.Plugins.Add( 'placeholder', 'en,it,de,fr', sOtherPluginPath ) ;
+FCKConfig.Plugins.Add( 'placeholder', 'de,en,es,fr,it,pl', sOtherPluginPath ) ;
 FCKConfig.Plugins.Add( 'tablecommands', null, sOtherPluginPath ) ;
 FCKConfig.Plugins.Add( 'simplecommands', null, sOtherPluginPath ) ;

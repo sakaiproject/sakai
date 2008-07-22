@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -26,21 +26,24 @@ var s = navigator.userAgent.toLowerCase() ;
 var FCKBrowserInfo =
 {
 	IsIE		: /*@cc_on!@*/false,
-	IsIE7		: /*@cc_on!@*/false && ( parseFloat( s.match( /msie ([\d|\.]+)/ )[1] ) >= 7 ),
-	IsGecko		: s.Contains('gecko/'),
+	IsIE7		: /*@cc_on!@*/false && ( parseInt( s.match( /msie (\d+)/ )[1], 10 ) >= 7 ),
+	IsIE6		: /*@cc_on!@*/false && ( parseInt( s.match( /msie (\d+)/ )[1], 10 ) >= 6 ),
 	IsSafari	: s.Contains(' applewebkit/'),		// Read "IsWebKit"
 	IsOpera		: !!window.opera,
+	IsAIR		: s.Contains(' adobeair/'),
 	IsMac		: s.Contains('macintosh')
 } ;
 
 // Completes the browser info with further Gecko information.
 (function( browserInfo )
 {
+	browserInfo.IsGecko = ( navigator.product == 'Gecko' ) && !browserInfo.IsSafari && !browserInfo.IsOpera ;
 	browserInfo.IsGeckoLike = ( browserInfo.IsGecko || browserInfo.IsSafari || browserInfo.IsOpera ) ;
 
 	if ( browserInfo.IsGecko )
 	{
-		var geckoVersion = s.match( /gecko\/(\d+)/ )[1] ;
+		var geckoMatch = s.match( /rv:(\d+\.\d+)/ ) ;
+		var geckoVersion = geckoMatch && parseFloat( geckoMatch[1] ) ;
 
 		// Actually "10" refers to Gecko versions before Firefox 1.5, when
 		// Gecko 1.8 (build 20051111) has been released.
@@ -49,11 +52,10 @@ var FCKBrowserInfo =
 		// than 20051111, so we must also check for the revision number not to
 		// be 1.7 (we are assuming that rv < 1.7 will not have build > 20051111).
 
-		// TODO: Future versions may consider the rv number only, but it is
-		// still to check that all Gecko based browser present the rv number.
-		browserInfo.IsGecko10 = ( ( geckoVersion < 20051111 ) || ( /rv:1\.7/.test(s) ) ) ;
-		browserInfo.IsGecko19 = /rv:1\.9/.test(s) ;
+		if ( geckoVersion )
+		{
+			browserInfo.IsGecko10 = ( geckoVersion < 1.8 ) ;
+			browserInfo.IsGecko19 = ( geckoVersion > 1.8 ) ;
+		}
 	}
-	else
-		browserInfo.IsGecko10 = false ;
 })(FCKBrowserInfo) ;

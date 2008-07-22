@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -146,7 +146,7 @@ FCKXHtml.TagProcessors['label'] = function( node, htmlNode )
 	return node ;
 }
 
-// Fix behavior for IE, it doesn't read back the .name on newly created maps 
+// Fix behavior for IE, it doesn't read back the .name on newly created maps
 FCKXHtml.TagProcessors['map'] = function( node, htmlNode )
 {
 	if ( ! node.attributes.getNamedItem( 'name' ) )

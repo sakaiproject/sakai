@@ -1,6 +1,6 @@
 ﻿<%
  ' FCKeditor - The text editor for Internet - http://www.fckeditor.net
- ' Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ ' Copyright (C) 2003-2008 Frederico Caldeira Knabben
  '
  ' == BEGIN LICENSE ==
  '
@@ -103,7 +103,7 @@ Sub CreateFolder( resourceType, currentFolder )
 	Else
 		' Map the virtual path to the local server path of the current folder.
 		Dim sServerDir
-		sServerDir = ServerMapFolder( resourceType, CombinePaths(currentFolder, sNewFolderName), "CreateFolder" )
+		sServerDir = ServerMapFolder( resourceType, CombineLocalPaths(currentFolder, sNewFolderName), "CreateFolder" )
 
 		On Error Resume Next
 
@@ -171,7 +171,7 @@ Sub FileUpload( resourceType, currentFolder, sCommand )
 
 			Do While ( True )
 				Dim sFilePath
-				sFilePath = sServerDir & sFileName
+				sFilePath = CombineLocalPaths(sServerDir, sFileName)
 
 				If ( oFSO.FileExists( sFilePath ) ) Then
 					iCounter = iCounter + 1
@@ -190,7 +190,7 @@ Sub FileUpload( resourceType, currentFolder, sCommand )
 
 	dim sFileUrl
 	sFileUrl = CombinePaths( GetResourceTypePath( resourceType, sCommand ) , currentFolder )
-	sFileUrl = CombinePaths( sFileUrl, sFileName ) 
+	sFileUrl = CombinePaths( sFileUrl, sFileName )
 
 	SendUploadResults sErrorNumber, sFileUrl, sFileName, ""
 End Sub

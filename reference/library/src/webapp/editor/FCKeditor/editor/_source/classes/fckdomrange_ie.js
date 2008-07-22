@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -82,7 +82,7 @@ FCKDomRange.prototype.SelectBookmark = function( bookmark, forceExpand )
 
 	// Create marker tags for the start and end boundaries.
 	var eStartMarker = this.GetBookmarkNode( bookmark, true ) ;
-	
+
 	if ( !eStartMarker )
 		return ;
 
@@ -112,8 +112,8 @@ FCKDomRange.prototype.SelectBookmark = function( bookmark, forceExpand )
 	else
 	{
 		bIsStartMakerAlone = ( forceExpand || !eStartMarker.previousSibling || eStartMarker.previousSibling.nodeName.toLowerCase() == 'br' ) && !eStartMarker.nextSibing ;
-		
-		// Append a temporary <span>&nbsp;</span> before the selection.
+
+		// Append a temporary <span>&#65279;</span> before the selection.
 		// This is needed to avoid IE destroying selections inside empty
 		// inline elements, like <b></b> (#253).
 		// It is also needed when placing the selection right after an inline
@@ -121,7 +121,7 @@ FCKDomRange.prototype.SelectBookmark = function( bookmark, forceExpand )
 		dummySpan = this.Window.document.createElement( 'span' ) ;
 		dummySpan.innerHTML = '&#65279;' ;	// Zero Width No-Break Space (U+FEFF). See #1359.
 		eStartMarker.parentNode.insertBefore( dummySpan, eStartMarker ) ;
-		
+
 		if ( bIsStartMakerAlone )
 		{
 			// To expand empty blocks or line spaces after <br>, we need
@@ -131,7 +131,7 @@ FCKDomRange.prototype.SelectBookmark = function( bookmark, forceExpand )
 			eStartMarker.parentNode.insertBefore( this.Window.document.createTextNode( '\ufeff' ), eStartMarker ) ;
 		}
 	}
-	
+
 	if ( !this._Range )
 		this._Range = this.CreateRange() ;
 
@@ -143,9 +143,9 @@ FCKDomRange.prototype.SelectBookmark = function( bookmark, forceExpand )
 	{
 		if ( bIsStartMakerAlone )
 		{
-			// Move the selection start to include the temporary &nbsp;.
+			// Move the selection start to include the temporary &#65279;.
 			oIERange.moveStart( 'character', -1 ) ;
-			
+
 			oIERange.select() ;
 
 			// Remove our temporary stuff.

@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -92,6 +92,8 @@ FCKDomRangeIterator.prototype =
 		var currentNode = this._NextNode ;
 		var lastNode = this._LastNode ;
 
+		this._NextNode = null ;
+
 		while ( currentNode )
 		{
 			// closeRange indicates that a paragraph boundary has been found,
@@ -110,7 +112,7 @@ FCKDomRangeIterator.prototype =
 			{
 				var nodeName = currentNode.nodeName.toLowerCase() ;
 
-				if ( boundarySet[ nodeName ] )
+				if ( boundarySet[ nodeName ] && ( !FCKBrowserInfo.IsIE || currentNode.scopeName == 'HTML' ) )
 				{
 					// <br> boundaries must be part of the range. It will
 					// happen only if ForceBrBreak.
@@ -128,7 +130,14 @@ FCKDomRangeIterator.prototype =
 					// The range must finish right before the boundary,
 					// including possibly skipped empty spaces. (#1603)
 					if ( range )
+					{
 						range.SetEnd( currentNode, 3, true ) ;
+
+						// The found boundary must be set as the next one at this
+						// point. (#1717)
+						if ( nodeName != 'br' )
+							this._NextNode = currentNode ;
+					}
 
 					closeRange = true ;
 				}
@@ -201,15 +210,15 @@ FCKDomRangeIterator.prototype =
 			if ( ( closeRange || isLast ) && range )
 			{
 				range._UpdateElementInfo() ;
-				
-				if ( range.StartNode == range.EndNode 
-						&& range.StartNode.parentNode == range.StartBlockLimit 
+
+				if ( range.StartNode == range.EndNode
+						&& range.StartNode.parentNode == range.StartBlockLimit
 						&& range.StartNode.getAttribute && range.StartNode.getAttribute( '_fck_bookmark' ) )
 					range = null ;
 				else
 					break ;
 			}
-			
+
 			if ( isLast )
 				break ;
 
@@ -271,7 +280,6 @@ FCKDomRangeIterator.prototype =
 
 					removePreviousBr = !splitInfo.WasStartOfBlock ;
 					removeLastBr = !splitInfo.WasEndOfBlock ;
-					FCKDebug.Output( 'removePreviousBr=' + removePreviousBr + ',removeLastBr=' + removeLastBr ) ;
 
 					// Insert the new block into the DOM.
 					range.InsertNode( block ) ;
@@ -311,7 +319,8 @@ FCKDomRangeIterator.prototype =
 		// Get a reference for the next element. This is important because the
 		// above block can be removed or changed, so we can rely on it for the
 		// next interation.
-		this._NextNode = ( isLast || block == lastNode ) ? null : FCKDomTools.GetNextSourceNode( block, true, null, lastNode ) ;
+		if ( !this._NextNode )
+			this._NextNode = ( isLast || block == lastNode ) ? null : FCKDomTools.GetNextSourceNode( block, true, null, lastNode ) ;
 
 		return block ;
 	}

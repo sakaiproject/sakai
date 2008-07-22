@@ -1,7 +1,7 @@
 <cfsetting enablecfoutputonly="Yes">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -26,7 +26,8 @@
 	Config = StructNew() ;
 
 	// SECURITY: You must explicitly enable this "connector". (Set enabled to "true")
-	Config.Enabled = true ;
+	Config.Enabled = false ;
+
 
 	// Path to uploaded files relative to the document root.
 	Config.UserFilesPath = "/userfiles/" ;
@@ -56,6 +57,11 @@
 	// (This feature works in MX 6.0 and above))
 	Config.HtmlExtensions					= "html,htm,xml,xsd,txt,js" ;
 
+	//Due to known issues with GetTempDirectory function, it is
+	//recommended to set this vairiable to a valid directory
+	//instead of using the GetTempDirectory function
+	//(used by MX 6.0 and above)
+	Config.TempDirectory = GetTempDirectory();
 
 //	Configuration settings for each Resource Type
 //

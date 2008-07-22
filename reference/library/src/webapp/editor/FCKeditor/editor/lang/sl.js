@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -359,7 +359,6 @@ DlgPasteMsg2	: "Prosim prilepite v sleči okvir s pomočjo tipkovnice (<STRONG>C
 DlgPasteSec		: "Zaradi varnostnih nastavitev vašega brskalnika urejevalnik ne more neposredno dostopati do odložišča. Vsebino odložišča ponovno prilepite v to okno.",
 DlgPasteIgnoreFont		: "Prezri obliko pisave",
 DlgPasteRemoveStyles	: "Odstrani nastavitve stila",
-DlgPasteCleanBox		: "Počisti okvir",
 
 // Color Picker
 ColorAutomatic	: "Samodejno",

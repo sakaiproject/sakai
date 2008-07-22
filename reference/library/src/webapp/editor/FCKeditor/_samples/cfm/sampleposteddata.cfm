@@ -1,7 +1,7 @@
 <!---
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -38,23 +38,22 @@
 	<cfif isDefined( 'FORM.fieldnames' )>
 		<cfoutput>
 		<hr />
-		<style>
-		<!--
-			td, th { font: 11px Verdana, Arial, Helv, Helvetica, sans-serif; }
-		-->
-		</style>
-		<table border="1" cellspacing="0" cellpadding="2" bordercolor="darkblue" bordercolordark="darkblue" bordercolorlight="darkblue">
+		<table border="1" cellspacing="0" id="outputSample">
+			<colgroup><col width="80"><col></colgroup>
+			<thead>
+				<tr>
+					<th>Field Name</th>
+					<th>Value</th>
+				</tr>
+			</thead>
 		<tr>
-			<th colspan="2" bgcolor="darkblue"><font color="white"><strong>Dump of FORM Variables</strong></font></th>
-		</tr>
-		<tr>
-			<td bgcolor="lightskyblue">FieldNames</td>
+			<th>FieldNames</th>
 			<td>#FORM.fieldNames#</td>
 		</tr>
 		<cfloop list="#FORM.fieldnames#" index="key">
 		<tr>
-			<td valign="top" bgcolor="lightskyblue">#key#</td>
-			<td style="white-space:pre">#HTMLEditFormat( evaluate( "FORM.#key#" ) )#</td>
+			<th>#key#</th>
+			<td><pre>#HTMLEditFormat( evaluate( "FORM.#key#" ) )#</pre></td>
 		</tr>
 		</cfloop>
 		</table>

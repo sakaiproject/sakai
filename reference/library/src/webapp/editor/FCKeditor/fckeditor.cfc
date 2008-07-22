@@ -2,7 +2,7 @@
 
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -112,19 +112,21 @@
 	hint="Create a textarea field for non-compatible browsers."
 >
 	<cfset var result = "" />
+	<cfset var sWidthCSS = "" />
+	<cfset var sHeightCSS = "" />
 
 	<cfscript>
-	// append unit "px" for numeric width and/or height values
-	if( isNumeric( this.width ) )
-		this.width = this.width & "px";
-	if( isNumeric( this.height ) )
-		this.height = this.height & "px";
-	</cfscript>
+	if( Find( "%", this.width ) gt 0)
+		sWidthCSS = this.width;
+	else
+		sWidthCSS = this.width & "px";
 
-	<cfscript>
-	result = result & "<div>" & chr(13) & chr(10);
-	result = result & "<textarea name=""#this.instanceName#"" rows=""4"" cols=""40"" style=""WIDTH: #this.width#; HEIGHT: #this.height#"">#HTMLEditFormat(this.value)#</textarea>" & chr(13) & chr(10);
-	result = result & "</div>" & chr(13) & chr(10);
+	if( Find( "%", this.width ) gt 0)
+		sHeightCSS = this.height;
+	else
+		sHeightCSS = this.height & "px";
+
+	result = "<textarea name=""#this.instanceName#"" rows=""4"" cols=""40"" style=""width: #sWidthCSS#; height: #sHeightCSS#"">#HTMLEditFormat(this.value)#</textarea>" & chr(13) & chr(10);
 	</cfscript>
 	<cfreturn result />
 </cffunction>
@@ -153,11 +155,9 @@
 	</cfscript>
 
 	<cfscript>
-	result = result & "<div>" & chr(13) & chr(10);
 	result = result & "<input type=""hidden"" id=""#this.instanceName#"" name=""#this.instanceName#"" value=""#HTMLEditFormat(this.value)#"" style=""display:none"" />" & chr(13) & chr(10);
 	result = result & "<input type=""hidden"" id=""#this.instanceName#___Config"" value=""#GetConfigFieldString()#"" style=""display:none"" />" & chr(13) & chr(10);
 	result = result & "<iframe id=""#this.instanceName#___Frame"" src=""#sURL#"" width=""#this.width#"" height=""#this.height#"" frameborder=""0"" scrolling=""no""></iframe>" & chr(13) & chr(10);
-	result = result & "</div>" & chr(13) & chr(10);
 	</cfscript>
 	<cfreturn result />
 </cffunction>
@@ -190,7 +190,7 @@
 	lConfigKeys = lConfigKeys & ",FillEmptyBlocks,FormatSource,FormatOutput,FormatIndentator";
 	lConfigKeys = lConfigKeys & ",StartupFocus,ForcePasteAsPlainText,AutoDetectPasteFromWord,ForceSimpleAmpersand";
 	lConfigKeys = lConfigKeys & ",TabSpaces,ShowBorders,SourcePopup,ToolbarStartExpanded,ToolbarCanCollapse";
-	lConfigKeys = lConfigKeys & ",IgnoreEmptyParagraphValue,PreserveSessionOnFileBrowser,FloatingPanelsZIndex,TemplateReplaceAll,TemplateReplaceCheckbox";
+	lConfigKeys = lConfigKeys & ",IgnoreEmptyParagraphValue,FloatingPanelsZIndex,TemplateReplaceAll,TemplateReplaceCheckbox";
 	lConfigKeys = lConfigKeys & ",ToolbarLocation,ToolbarSets,EnterMode,ShiftEnterMode,Keystrokes";
 	lConfigKeys = lConfigKeys & ",ContextMenu,BrowserContextMenuOnCtrl,FontColors,FontNames,FontSizes";
 	lConfigKeys = lConfigKeys & ",FontFormats,StylesXmlPath,TemplatesXmlPath,SpellChecker,IeSpellDownloadUrl";

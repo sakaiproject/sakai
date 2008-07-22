@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -85,7 +85,7 @@ function CreateEditor()
 	// Automatically calculates the editor base path based on the _samples directory.
 	// This is usefull only for these samples. A real application should use something like this:
 	// oFCKeditor.BasePath = '/fckeditor/' ;	// '/fckeditor/' is the default value.
-	var sBasePath = document.location.pathname.substring(0,document.location.pathname.lastIndexOf('_samples')) ;
+	var sBasePath = document.location.href.substring(0,document.location.href.lastIndexOf('_samples')) ;
 
 	// Create an instance of FCKeditor (using the target textarea as the name).
 	var oFCKeditor = new FCKeditor( 'DataFCKeditor' ) ;
@@ -125,7 +125,7 @@ function PrepareSave()
 		operations so it will work even if the internal implementation changes.
 	</div>
 	<hr />
-	<form action="sampleposteddata.asp" method="post" target="_blank" onsubmit="PrepareSave();">
+	<form action="../php/sampleposteddata.php" method="post" target="_blank" onsubmit="PrepareSave();">
 		<div id="Textarea">
 			<input type="button" value="Switch to FCKeditor" onclick="Toggle()" />
 			<br />

@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -48,7 +48,9 @@ var FCKLanguageManager = FCK.Language =
 		fi		: 'Finnish',
 		fo		: 'Faroese',
 		fr		: 'French',
+		'fr-ca'	: 'French (Canada)',
 		gl		: 'Galician',
+		gu		: 'Gujarati',
 		he		: 'Hebrew',
 		hi		: 'Hindi',
 		hr		: 'Croatian',

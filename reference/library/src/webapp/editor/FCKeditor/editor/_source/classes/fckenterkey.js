@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -43,17 +43,21 @@ var FCKEnterKey = function( targetWindow, enterMode, shiftEnterMode, tabSpaces )
 	oKeystrokeHandler.SetKeystrokes( [
 		[ 13		, 'Enter' ],
 		[ SHIFT + 13, 'ShiftEnter' ],
-		[ 9 		, 'Tab' ],
 		[ 8			, 'Backspace' ],
-		[ CTRL + 8		, 'CtrlBackspace' ],
+		[ CTRL + 8	, 'CtrlBackspace' ],
 		[ 46		, 'Delete' ]
 	] ) ;
 
-	if ( tabSpaces > 0 )
+	this.TabText = '' ;
+
+	// Safari by default inserts 4 spaces on TAB, while others make the editor
+	// loose focus. So, we need to handle it here to not include those spaces.
+	if ( tabSpaces > 0 || FCKBrowserInfo.IsSafari )
 	{
-		this.TabText = '' ;
-		while ( tabSpaces-- > 0 )
+		while ( tabSpaces-- )
 			this.TabText += '\xa0' ;
+
+		oKeystrokeHandler.SetKeystrokes( [ 9, 'Tab' ] );
 	}
 
 	oKeystrokeHandler.AttachToElement( targetWindow.document ) ;
@@ -161,6 +165,28 @@ FCKEnterKey.prototype.DoBackspace = function()
 		}
 
 		return false ;
+	}
+
+	// On IE, it is better for us handle the deletion if the caret is preceeded
+	// by a <br> (#1383).
+	if ( FCKBrowserInfo.IsIE )
+	{
+		var previousElement = FCKDomTools.GetPreviousSourceElement( oRange.StartNode, true ) ;
+
+		if ( previousElement && previousElement.nodeName.toLowerCase() == 'br' )
+		{
+			// Create a range that starts after the <br> and ends at the
+			// current range position.
+			var testRange = oRange.Clone() ;
+			testRange.SetStart( previousElement, 4 ) ;
+
+			// If that range is empty, we can proceed cleaning that <br> manually.
+			if ( testRange.CheckIsEmpty() )
+			{
+				previousElement.parentNode.removeChild( previousElement ) ;
+				return true ;
+			}
+		}
 	}
 
 	var oStartBlock = oRange.StartBlock ;
@@ -393,9 +419,7 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag, range )
 	// Get the current selection.
 	var oRange = range || new FCKDomRange( this.Window ) ;
 
-	var oSplitInfo = oRange.SplitBlock() ;
-
-	// FCKDebug.OutputObject( oSplitInfo ) ;
+	var oSplitInfo = oRange.SplitBlock( blockTag ) ;
 
 	if ( oSplitInfo )
 	{
@@ -406,16 +430,32 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag, range )
 		var bIsStartOfBlock	= oSplitInfo.WasStartOfBlock ;
 		var bIsEndOfBlock	= oSplitInfo.WasEndOfBlock ;
 
+		// If there is one block under a list item, modify the split so that the list item gets split as well. (Bug #1647)
+		if ( eNextBlock )
+		{
+			if ( eNextBlock.parentNode.nodeName.IEquals( 'li' ) )
+			{
+				FCKDomTools.BreakParent( eNextBlock, eNextBlock.parentNode ) ;
+				FCKDomTools.MoveNode( eNextBlock, eNextBlock.nextSibling, true ) ;
+			}
+		}
+		else if ( ePreviousBlock && ePreviousBlock.parentNode.nodeName.IEquals( 'li' ) )
+		{
+			FCKDomTools.BreakParent( ePreviousBlock, ePreviousBlock.parentNode ) ;
+			oRange.MoveToElementEditStart( ePreviousBlock.nextSibling );
+			FCKDomTools.MoveNode( ePreviousBlock, ePreviousBlock.previousSibling ) ;
+		}
+
 		// If we have both the previous and next blocks, it means that the
 		// boundaries were on separated blocks, or none of them where on the
 		// block limits (start/end).
-		if ( !oSplitInfo.WasStartOfBlock && !oSplitInfo.WasEndOfBlock )
+		if ( !bIsStartOfBlock && !bIsEndOfBlock )
 		{
 			// If the next block is an <li> with another list tree as the first child
 			// We'll need to append a placeholder or the list item wouldn't be editable. (Bug #1420)
 			if ( eNextBlock.nodeName.IEquals( 'li' ) && eNextBlock.firstChild
 					&& eNextBlock.firstChild.nodeName.IEquals( ['ul', 'ol'] ) )
-				eNextBlock.insertBefore( eNextBlock.ownerDocument.createTextNode( '\xa0' ), eNextBlock.firstChild ) ;
+				eNextBlock.insertBefore( FCKTools.GetElementDocument( eNextBlock ).createTextNode( '\xa0' ), eNextBlock.firstChild ) ;
 			// Move the selection to the end block.
 			if ( eNextBlock )
 				oRange.MoveToElementEditStart( eNextBlock ) ;
@@ -462,7 +502,7 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag, range )
 
 					if ( element == elementPath.Block || element == elementPath.BlockLimit )
 						break ;
-					
+
 					if ( FCKListsLib.InlineChildReqElements[ element.nodeName.toLowerCase() ] )
 					{
 						element = FCKDomTools.CloneElement( element ) ;
@@ -482,7 +522,7 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag, range )
 			if ( FCKBrowserInfo.IsIE )
 			{
 				// Move the selection to the new block.
-				oRange.MoveToNodeContents( eNewBlock ) ;
+				oRange.MoveToElementEditStart( eNewBlock ) ;
 				oRange.Select() ;
 			}
 
@@ -490,10 +530,8 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag, range )
 			oRange.MoveToElementEditStart( bIsStartOfBlock && !bIsEndOfBlock ? eNextBlock : eNewBlock ) ;
 		}
 
-		if ( FCKBrowserInfo.IsSafari )
+		if ( FCKBrowserInfo.IsGeckoLike )
 			FCKDomTools.ScrollIntoView( eNextBlock || eNewBlock, false ) ;
-		else if ( FCKBrowserInfo.IsGeckoLike )
-			( eNextBlock || eNewBlock ).scrollIntoView( false ) ;
 
 		oRange.Select() ;
 	}

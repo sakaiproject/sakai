@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -359,7 +359,6 @@ DlgPasteMsg2	: "Transfira o link usado no box usando o teclado com (<STRONG>Ctrl
 DlgPasteSec		: "As configurações de segurança do seu navegador não permitem que o editor acesse os dados da área de transferência diretamente. Por favor cole o conteúdo novamente nesta janela.",
 DlgPasteIgnoreFont		: "Ignorar definições de fonte",
 DlgPasteRemoveStyles	: "Remove definições de estilo",
-DlgPasteCleanBox		: "Limpar Box",
 
 // Color Picker
 ColorAutomatic	: "Automático",

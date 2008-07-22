@@ -47,6 +47,7 @@ FCKConfig.PreloadImages = [ FCKConfig.SkinPath + 'images/toolbar.start.gif', FCK
 
 FCKConfig.PluginsPath = FCKConfig.BasePath + 'plugins/' ;
 
+FCKConfig.Plugins.Add( 'attachments' ) ;
 FCKConfig.Plugins.Add( 'resourcesearch', 'en' ) ;
 
 // FCKConfig.Plugins.Add( 'autogrow' ) ;

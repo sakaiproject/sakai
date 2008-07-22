@@ -2,7 +2,7 @@
 
 #####
 #  FCKeditor - The text editor for Internet - http://www.fckeditor.net
-#  Copyright (C) 2003-2007 Frederico Caldeira Knabben
+#  Copyright (C) 2003-2008 Frederico Caldeira Knabben
 #
 #  == BEGIN LICENSE ==
 #
@@ -174,6 +174,8 @@ my $dir;
 			$dir  = $ENV{'PATH_INFO'};
 		} elsif($ENV{'FILEPATH_INFO'}) {
 			$dir  = $ENV{'FILEPATH_INFO'};
+		} elsif($ENV{'REQUEST_URI'}) {
+			$dir  = $ENV{'REQUEST_URI'};
 		}
 	}
 	return($dir);

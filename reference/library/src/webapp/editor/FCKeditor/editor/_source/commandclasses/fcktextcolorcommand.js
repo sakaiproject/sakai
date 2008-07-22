@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -39,9 +39,10 @@ var FCKTextColorCommand = function( type )
 		oWindow = window.parent ;
 
 	this._Panel = new FCKPanel( oWindow ) ;
-	this._Panel.AppendStyleSheet( FCKConfig.SkinPath + 'fck_editor.css' ) ;
+	this._Panel.AppendStyleSheet( FCKConfig.SkinEditorCSS ) ;
 	this._Panel.MainNode.className = 'FCK_Panel' ;
 	this._CreatePanelBody( this._Panel.Document, this._Panel.MainNode ) ;
+	FCK.ToolbarSet.ToolbarItems.GetItem( this.Name ).RegisterPanel( this._Panel ) ;
 
 	FCKTools.DisableSelection( this._Panel.Document.body ) ;
 }
@@ -75,6 +76,8 @@ FCKTextColorCommand.prototype.SetColor = function( color )
 
 FCKTextColorCommand.prototype.GetState = function()
 {
+	if ( FCK.EditMode != FCK_EDITMODE_WYSIWYG )
+		return FCK_TRISTATE_DISABLED ;
 	return FCK_TRISTATE_OFF ;
 }
 
@@ -106,7 +109,8 @@ function FCKTextColorCommand_MoreOnClick( ev, command )
 {
 	this.className = 'ColorDeselected' ;
 	command._Panel.Hide() ;
-	FCKDialog.OpenDialog( 'FCKDialog_Color', FCKLang.DlgColorTitle, 'dialog/fck_colorselector.html', 400, 330, FCKTools.Hitch(command, 'SetColor') ) ;
+	FCKDialog.OpenDialog( 'FCKDialog_Color', FCKLang.DlgColorTitle, 'dialog/fck_colorselector.html', 410, 320,
+			FCKTools.Bind( command, command.SetColor ) ) ;
 }
 
 FCKTextColorCommand.prototype._CreatePanelBody = function( targetDocument, targetDiv )

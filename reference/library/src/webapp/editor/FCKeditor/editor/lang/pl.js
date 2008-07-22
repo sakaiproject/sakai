@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -359,7 +359,6 @@ DlgPasteMsg2	: "Proszę wkleić w poniższym polu używając klawiaturowego skr�
 DlgPasteSec		: "Zabezpieczenia przeglądarki uniemożliwiają wklejenie danych bezpośrednio do edytora. Proszę dane wkleić ponownie w tym okienku.",
 DlgPasteIgnoreFont		: "Ignoruj definicje 'Font Face'",
 DlgPasteRemoveStyles	: "Usuń definicje Stylów",
-DlgPasteCleanBox		: "Wyczyść",
 
 // Color Picker
 ColorAutomatic	: "Automatycznie",

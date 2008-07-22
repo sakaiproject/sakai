@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -25,7 +25,7 @@ var FCKBlockQuoteCommand = function()
 {
 }
 
-FCKBlockQuoteCommand.prototype = 
+FCKBlockQuoteCommand.prototype =
 {
 	Execute : function()
 	{
@@ -45,10 +45,10 @@ FCKBlockQuoteCommand.prototype =
 		{
 			var bStart	= range.GetBookmarkNode( bookmark, true ) ;
 			var bEnd	= range.GetBookmarkNode( bookmark, false ) ;
-			
+
 			var cursor ;
-			
-			if ( bStart 
+
+			if ( bStart
 					&& bStart.parentNode.nodeName.IEquals( 'blockquote' )
 					&& !bStart.previousSibling )
 			{
@@ -60,7 +60,7 @@ FCKBlockQuoteCommand.prototype =
 				}
 			}
 
-			if ( bEnd 
+			if ( bEnd
 					&& bEnd.parentNode.nodeName.IEquals( 'blockquote' )
 					&& !bEnd.previousSibling )
 			{
@@ -126,7 +126,7 @@ FCKBlockQuoteCommand.prototype =
 				block = tmp.shift() ;
 				if ( block.nodeName.IEquals( 'blockquote' ) )
 				{
-					var docFrag = block.ownerDocument.createDocumentFragment() ;
+					var docFrag = FCKTools.GetElementDocument( block ).createDocumentFragment() ;
 					while ( block.firstChild )
 					{
 						docFrag.appendChild( block.removeChild( block.firstChild ) ) ;
@@ -203,17 +203,17 @@ FCKBlockQuoteCommand.prototype =
 					var firstTime = true ;
 					if ( node.nodeName.IEquals( 'div' ) )
 					{
-						var docFrag = node.ownerDocument.createDocumentFragment() ;
-						var needBeginBr = firstTime && node.previousSibling && 
+						var docFrag = FCKTools.GetElementDocument( node ).createDocumentFragment() ;
+						var needBeginBr = firstTime && node.previousSibling &&
 							!FCKListsLib.BlockBoundaries[node.previousSibling.nodeName.toLowerCase()] ;
 						if ( firstTime && needBeginBr )
-							docFrag.appendChild( node.ownerDocument.createElement( 'br' ) ) ;
-						var needEndBr = node.nextSibling && 
+							docFrag.appendChild( FCKTools.GetElementDocument( node ).createElement( 'br' ) ) ;
+						var needEndBr = node.nextSibling &&
 							!FCKListsLib.BlockBoundaries[node.nextSibling.nodeName.toLowerCase()] ;
 						while ( node.firstChild )
 							docFrag.appendChild( node.removeChild( node.firstChild ) ) ;
 						if ( needEndBr )
-							docFrag.appendChild( node.ownerDocument.createElement( 'br' ) ) ;
+							docFrag.appendChild( FCKTools.GetElementDocument( node ).createElement( 'br' ) ) ;
 						node.parentNode.replaceChild( docFrag, node ) ;
 						firstTime = false ;
 					}

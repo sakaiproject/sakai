@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -35,43 +35,50 @@ var FCKPanel = function( parentWindow )
 	if ( FCKBrowserInfo.IsIE )
 	{
 		// Create the Popup that will hold the panel.
+		// The popup has to be created before playing with domain hacks, see #1666.
 		this._Popup	= this._Window.createPopup() ;
+
+		// this._Window cannot be accessed while playing with domain hacks, but local variable is ok.
+		// See #1666.
+		var pDoc = this._Window.document ;
+
+		// This is a trick to IE6 (not IE7). The original domain must be set
+		// before creating the popup, so we are able to take a refence to the
+		// document inside of it, and the set the proper domain for it. (#123)
+		if ( FCK_IS_CUSTOM_DOMAIN && !FCKBrowserInfo.IsIE7 )
+		{
+			pDoc.domain = FCK_ORIGINAL_DOMAIN ;
+			document.domain = FCK_ORIGINAL_DOMAIN ;
+		}
+
 		oDocument = this.Document = this._Popup.document ;
+
+		// Set the proper domain inside the popup.
+		if ( FCK_IS_CUSTOM_DOMAIN )
+		{
+			oDocument.domain = FCK_RUNTIME_DOMAIN ;
+			pDoc.domain = FCK_RUNTIME_DOMAIN ;
+			document.domain = FCK_RUNTIME_DOMAIN ;
+		}
 
 		FCK.IECleanup.AddItem( this, FCKPanel_Cleanup ) ;
 	}
 	else
 	{
 		var oIFrame = this._IFrame = this._Window.document.createElement('iframe') ;
+		FCKTools.ResetStyles( oIFrame );
 		oIFrame.src					= 'javascript:void(0)' ;
 		oIFrame.allowTransparency	= true ;
 		oIFrame.frameBorder			= '0' ;
 		oIFrame.scrolling			= 'no' ;
-		oIFrame.width = oIFrame.height = 0 ;
+		oIFrame.style.width = oIFrame.style.height = '0px' ;
 		FCKDomTools.SetElementStyles( oIFrame,
 			{
 				position	: 'absolute',
 				zIndex		: FCKConfig.FloatingPanelsZIndex
 			} ) ;
 
-		if ( this._Window == window.parent && window.frameElement )
-		{
-			var scrollPos = null ;
-			if ( FCKBrowserInfo.IsGecko && FCK && FCK.EditorDocument )
-				scrollPos = [ FCK.EditorDocument.body.scrollLeft, FCK.EditorDocument.body.scrollTop ] ;
-			window.frameElement.parentNode.insertBefore( oIFrame, window.frameElement ) ;
-			if ( scrollPos )
-			{
-				var restoreFunc = function()
-				{
-					FCK.EditorDocument.body.scrollLeft = scrollPos[0] ;
-					FCK.EditorDocument.body.scrollTop = scrollPos[1] ;
-				}
-				setTimeout( restoreFunc, 500 ) ;
-			}
-		}
-		else
-			this._Window.document.body.appendChild( oIFrame ) ;
+		this._Window.document.body.appendChild( oIFrame ) ;
 
 		var oIFrameWindow = oIFrame.contentWindow ;
 
@@ -86,6 +93,9 @@ var FCKPanel = function( parentWindow )
 		oDocument.open() ;
 		oDocument.write( '<html><head>' + sBase + '<\/head><body style="margin:0px;padding:0px;"><\/body><\/html>' ) ;
 		oDocument.close() ;
+
+		if( FCKBrowserInfo.IsAIR )
+			FCKAdobeAIR.Panel_Contructor( oDocument, window.document.location ) ;
 
 		FCKTools.AddEventListenerEx( oIFrameWindow, 'focus', FCKPanel_Window_OnFocus, this ) ;
 		FCKTools.AddEventListenerEx( oIFrameWindow, 'blur', FCKPanel_Window_OnBlur, this ) ;
@@ -174,9 +184,20 @@ FCKPanel.prototype.Show = function( x, y, relElement, width, height )
 			FCKPanel_Window_OnBlur( null, this.ParentPanel ) ;
 		}
 
+		// Toggle the iframe scrolling attribute to prevent the panel
+		// scrollbars from disappearing in FF Mac. (#191)
+		if ( FCKBrowserInfo.IsGecko && FCKBrowserInfo.IsMac )
+		{
+			this._IFrame.scrolling = '' ;
+			FCKTools.RunFunction( function(){ this._IFrame.scrolling = 'no'; }, this ) ;
+		}
+
 		// Be sure we'll not have more than one Panel opened at the same time.
-		if ( FCKPanel._OpenedPanel )
-			FCKPanel._OpenedPanel.Hide() ;
+		// Do not unlock focus manager here because we're displaying another floating panel
+		// instead of returning the editor to a "no panel" state (Bug #1514).
+		if ( FCK.ToolbarSet.CurrentInstance.GetInstanceObject( 'FCKPanel' )._OpenedPanel &&
+				FCK.ToolbarSet.CurrentInstance.GetInstanceObject( 'FCKPanel' )._OpenedPanel != this )
+			FCK.ToolbarSet.CurrentInstance.GetInstanceObject( 'FCKPanel' )._OpenedPanel.Hide( false, true ) ;
 
 		FCKDomTools.SetElementStyles( eMainNode,
 			{
@@ -205,7 +226,7 @@ FCKPanel.prototype.Show = function( x, y, relElement, width, height )
 				relElement ) ;
 
 		// Minus the offsets provided by any positioned parent element of the panel iframe.
-		var positionedAncestor = FCKDomTools.GetPositionedAncestor( FCKTools.GetElementWindow( this._IFrame ), this._IFrame.parentNode ) ;
+		var positionedAncestor = FCKDomTools.GetPositionedAncestor( this._IFrame.parentNode ) ;
 		if ( positionedAncestor )
 		{
 			var nPos = FCKTools.GetDocumentPosition( FCKTools.GetElementWindow( positionedAncestor ), positionedAncestor ) ;
@@ -241,9 +262,6 @@ FCKPanel.prototype.Show = function( x, y, relElement, width, height )
 				y -= y + eMainNode.offsetHeight - iViewPaneHeight ;
 		}
 
-		if ( x < 0 )
-			 x = 0 ;
-
 		// Set the context menu DIV in the specified location.
 		FCKDomTools.SetElementStyles( this._IFrame,
 			{
@@ -251,24 +269,27 @@ FCKPanel.prototype.Show = function( x, y, relElement, width, height )
 				top		: y + 'px'
 			} ) ;
 
-		var iWidth	= iMainWidth ;
-		var iHeight	= eMainNode.offsetHeight ;
-
-		this._IFrame.width	= iWidth ;
-		this._IFrame.height = iHeight ;
-
 		// Move the focus to the IFRAME so we catch the "onblur".
 		this._IFrame.contentWindow.focus() ;
+		this._IsOpened = true ;
 
-		FCKPanel._OpenedPanel = this ;
+		var me = this ;
+		this._resizeTimer = setTimeout( function()
+			{
+				var iWidth = eMainNode.offsetWidth || eMainNode.firstChild.offsetWidth ;
+				var iHeight = eMainNode.offsetHeight ;
+				me._IFrame.style.width = iWidth + 'px' ;
+				me._IFrame.style.height = iHeight + 'px' ;
+
+			}, 0 ) ;
+
+		FCK.ToolbarSet.CurrentInstance.GetInstanceObject( 'FCKPanel' )._OpenedPanel = this ;
 	}
-
-	this._IsOpened = true ;
 
 	FCKTools.RunFunction( this.OnShow, this ) ;
 }
 
-FCKPanel.prototype.Hide = function( ignoreOnHide )
+FCKPanel.prototype.Hide = function( ignoreOnHide, ignoreFocusManagerUnlock )
 {
 	if ( this._Popup )
 		this._Popup.hide() ;
@@ -278,14 +299,20 @@ FCKPanel.prototype.Hide = function( ignoreOnHide )
 			return ;
 
 		// Enable the editor to fire the "OnBlur".
-		if ( typeof( FCKFocusManager ) != 'undefined' )
+		if ( typeof( FCKFocusManager ) != 'undefined' && !ignoreFocusManagerUnlock )
 			FCKFocusManager.Unlock() ;
 
 		// It is better to set the sizes to 0, otherwise Firefox would have
 		// rendering problems.
-		this._IFrame.width = this._IFrame.height = 0 ;
+		this._IFrame.style.width = this._IFrame.style.height = '0px' ;
 
 		this._IsOpened = false ;
+
+		if ( this._resizeTimer )
+		{
+			clearTimeout( this._resizeTimer ) ;
+			this._resizeTimer = null ;
+		}
 
 		if ( this.ParentPanel )
 			this.ParentPanel.Unlock() ;

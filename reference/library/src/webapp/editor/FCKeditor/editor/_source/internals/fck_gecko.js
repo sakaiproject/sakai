@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -28,8 +28,8 @@ FCK.Description = "FCKeditor for Gecko Browsers" ;
 FCK.InitializeBehaviors = function()
 {
 	// When calling "SetData", the editing area IFRAME gets a fixed height. So we must recalculate it.
-	if ( FCKBrowserInfo.IsGecko )		// Not for Safari/Opera.
-		Window_OnResize() ;
+	if ( window.onresize )		// Not for Safari/Opera.
+		window.onresize() ;
 
 	FCKFocusManager.AddWindow( this.EditorWindow ) ;
 
@@ -45,6 +45,7 @@ FCK.InitializeBehaviors = function()
 			FCK.MouseDownFlag = false ;
 			return ;
 		}
+
 		if ( FCKConfig.ForcePasteAsPlainText )
 		{
 			if ( evt.dataTransfer )
@@ -56,11 +57,10 @@ FCK.InitializeBehaviors = function()
 			}
 			else if ( FCKConfig.ShowDropDialog )
 				FCK.PasteAsPlainText() ;
+
+			evt.preventDefault() ;
+			evt.stopPropagation() ;
 		}
-		else if ( FCKConfig.ShowDropDialog )
-			FCKDialog.OpenDialog( 'FCKDialog_Paste', FCKLang.Paste, 'dialog/fck_paste.html', 400, 330, 'Security' ) ;
-		evt.preventDefault() ;
-		evt.stopPropagation() ;
 	}
 
 	this._ExecCheckCaret = function( evt )
@@ -88,7 +88,7 @@ FCK.InitializeBehaviors = function()
 
 		var moveCursor = function()
 		{
-			var selection = FCK.EditorWindow.getSelection() ;
+			var selection = FCKSelection.GetSelection() ;
 			var range = selection.getRangeAt(0) ;
 			if ( ! range || ! range.collapsed )
 				return ;
@@ -104,7 +104,7 @@ FCK.InitializeBehaviors = function()
 
 			// only perform the patched behavior if we're in an <a> tag, or the End key is pressed.
 			var parentTag = node.parentNode.tagName.toLowerCase() ;
-			if ( ! (  parentTag == 'a' ||
+			if ( ! (  parentTag == 'a' || ( !FCKBrowserInfo.IsOpera && String(node.parentNode.contentEditable) == 'false' ) ||
 					( ! ( FCKListsLib.BlockElements[parentTag] || FCKListsLib.NonEmptyBlockElements[parentTag] )
 					  && keyCode == 35 ) ) )
 				return ;
@@ -172,7 +172,7 @@ FCK.InitializeBehaviors = function()
 						}
 
 						var stopTag = stopNode.tagName.toLowerCase() ;
-						if ( FCKListsLib.BlockElements[stopTag] || FCKListsLib.EmptyElements[stopTag] 
+						if ( FCKListsLib.BlockElements[stopTag] || FCKListsLib.EmptyElements[stopTag]
 							|| FCKListsLib.NonEmptyBlockElements[stopTag] )
 							break ;
 						stopNode = stopNode.nextSibling ;
@@ -301,10 +301,7 @@ FCK.GetNamedCommandState = function( commandName )
 FCK.RedirectNamedCommands =
 {
 	Print	: true,
-	Paste	: true,
-
-	Cut	: true,
-	Copy	: true
+	Paste	: true
 } ;
 
 // ExecuteNamedCommand overload for Gecko.
@@ -326,14 +323,6 @@ FCK.ExecuteRedirectedNamedCommand = function( commandName, commandParameter )
 					FCK.ExecuteNamedCommand( 'Paste', null, true ) ;
 			}
 			catch (e)	{ FCKDialog.OpenDialog( 'FCKDialog_Paste', FCKLang.Paste, 'dialog/fck_paste.html', 400, 330, 'Security' ) ; }
-			break ;
-		case 'Cut' :
-			try			{ FCK.ExecuteNamedCommand( 'Cut', null, true ) ; }
-			catch (e)	{ alert(FCKLang.PasteErrorCut) ; }
-			break ;
-		case 'Copy' :
-			try			{ FCK.ExecuteNamedCommand( 'Copy', null, true ) ; }
-			catch (e)	{ alert(FCKLang.PasteErrorCopy) ; }
 			break ;
 		default :
 			FCK.ExecuteNamedCommand( commandName, commandParameter ) ;
@@ -360,6 +349,8 @@ FCK._ExecPaste = function()
 // selected content if any.
 FCK.InsertHtml = function( html )
 {
+	var doc = FCK.EditorDocument ;
+
 	html = FCKConfig.ProtectedSource.Protect( html ) ;
 	html = FCK.ProtectEvents( html ) ;
 	html = FCK.ProtectUrls( html ) ;
@@ -368,9 +359,40 @@ FCK.InsertHtml = function( html )
 	// Save an undo snapshot first.
 	FCKUndo.SaveUndoStep() ;
 
+	if ( FCKBrowserInfo.IsGecko )
+	{
+		// Using the following trick, &nbsp; present at the beginning and at
+		// the end of the HTML are preserved (#2248).
+		html = '<span id="__fakeFCKRemove1__" style="display:none;">fakeFCKRemove</span>' + html + '<span id="__fakeFCKRemove2__" style="display:none;">fakeFCKRemove</span>' ;
+	}
+
 	// Insert the HTML code.
-	this.EditorDocument.execCommand( 'inserthtml', false, html ) ;
+	doc.execCommand( 'inserthtml', false, html ) ;
+
+	if ( FCKBrowserInfo.IsGecko )
+	{
+		// Remove the fake nodes.
+		FCKDomTools.RemoveNode( doc.getElementById('__fakeFCKRemove1__') ) ;
+		FCKDomTools.RemoveNode( doc.getElementById('__fakeFCKRemove2__') ) ;
+	}
+
 	this.Focus() ;
+
+	// Save the caret position before calling document processor.
+	var range = new FCKDomRange( this.EditorWindow ) ;
+	range.MoveToSelection() ;
+	var bookmark = range.CreateBookmark() ;
+
+	FCKDocumentProcessor.Process( doc ) ;
+
+	// Restore caret position, ignore any errors in case the document
+	// processor removed the bookmark <span>s for some reason.
+	try
+	{
+		range.MoveToBookmark( bookmark ) ;
+		range.Select() ;
+	}
+	catch ( e ) {}
 
 	// For some strange reason the SaveUndoStep() call doesn't activate the undo button at the first InsertHtml() call.
 	this.Events.FireEvent( "OnSelectionChange" ) ;
@@ -410,6 +432,12 @@ FCK.CreateLink = function( url, noUndo )
 	// Creates the array that will be returned. It contains one or more created links (see #220).
 	var aCreatedLinks = new Array() ;
 
+	// Only for Safari, a collapsed selection may create a link. All other
+	// browser will have no links created. So, we check it here and return
+	// immediatelly, having the same cross browser behavior.
+	if ( FCKSelection.GetSelection().isCollapsed )
+		return aCreatedLinks ;
+
 	FCK.ExecuteNamedCommand( 'Unlink', null, false, !!noUndo ) ;
 
 	if ( url.length > 0 )
@@ -428,12 +456,6 @@ FCK.CreateLink = function( url, noUndo )
 		{
 			var oLink = oLinksInteractor.snapshotItem( i ) ;
 			oLink.href = url ;
-
-			// It may happen that the browser (aka Safari) decides to use the
-			// URL as the link content to not leave it empty. In this case,
-			// let's reset it.
-			if ( sTempUrl == oLink.innerHTML )
-				oLink.innerHTML = '' ;
 
 			aCreatedLinks.push( oLink ) ;
 		}
@@ -457,7 +479,7 @@ FCK._FillEmptyBlock = function( emptyBlockNode )
 FCK._ExecCheckEmptyBlock = function()
 {
 	FCK._FillEmptyBlock( FCK.EditorDocument.body.firstChild ) ;
-	var sel = FCK.EditorWindow.getSelection() ;
+	var sel = FCKSelection.GetSelection() ;
 	if ( !sel || sel.rangeCount < 1 )
 		return ;
 	var range = sel.getRangeAt( 0 );

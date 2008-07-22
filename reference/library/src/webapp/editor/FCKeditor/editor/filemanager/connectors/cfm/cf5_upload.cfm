@@ -1,7 +1,7 @@
 <cfsetting enablecfoutputonly="Yes">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -47,6 +47,9 @@
 	function SendUploadResults(errorNumber, fileUrl, fileName, customMsg)
 	{
 		WriteOutput('<script type="text/javascript">');
+		// Minified version of the document.domain automatic fix script (#1919).
+		// The original script can be found at _dev/domain_fix_template.js
+		WriteOutput("(function(){var d=document.domain;while (true){try{var A=window.parent.document.domain;break;}catch(e) {};d=d.replace(/.*?(?:\.|$)/,'');if (d.length==0) break;try{document.domain=d;}catch (e){break;}}})();");
 		WriteOutput('window.parent.OnUploadCompleted(' & errorNumber & ', "' & JSStringFormat(fileUrl) & '", "' & JSStringFormat(fileName) & '", "' & JSStringFormat(customMsg) & '");' );
 		WriteOutput('</script>');
 	}
@@ -67,7 +70,7 @@
 	<cfabort>
 </cfif>
 
-<cfif find( "..", url.currentFolder)>
+<cfif find( "..", url.currentFolder) or find( "\", url.currentFolder)>
 	<cfset SendUploadResults(102)>
 	<cfabort>
 </cfif>

@@ -1,6 +1,6 @@
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -21,7 +21,7 @@
  * Styles used in the samples pages.
  */
 
-body, td, input, select, textarea
+body, td, th, input, select, textarea
 {
 	font-size: 12px;
 	font-family: Arial, Verdana, Sans-Serif;
@@ -36,15 +36,38 @@ h1
 
 form
 {
-	margin: 0px 0px 0px 0px;
-	padding: 0px 0px 0px 0px;
+	margin: 0;
+	padding: 0;
+}
+
+#outputSample
+{
+	table-layout:fixed;
 }
 
 pre
 {
-	margin:0px;
-	padding:0px;
-	white-space: pre-wrap; /* css-3 */
-	white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-	word-wrap: break-word; /* Internet Explorer 5.5+ */
+	margin: 0;
+	padding: 0;
+
+	white-space: pre; /* CSS2 */
+	white-space: -moz-pre-wrap; /* Mozilla*/
+	white-space: -o-pre-wrap; /* Opera 7 */
+	white-space: pre-wrap; /* CSS 2.1 */
+	white-space: pre-line; /* CSS 3 (and 2.1 as well, actually) */
+	word-wrap: break-word; /* IE */
+}
+
+#outputSample thead th
+{
+	color: #dddddd;
+	background-color: #999999;
+	padding: 4px;
+	white-space: nowrap;
+}
+
+#outputSample tbody th
+{
+	vertical-align: top;
+	text-align: left;
 }

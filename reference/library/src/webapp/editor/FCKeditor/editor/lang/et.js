@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -359,7 +359,6 @@ DlgPasteMsg2	: "Palun kleebi järgnevasse kasti kasutades klaviatuuri klahvikomb
 DlgPasteSec		: "Sinu veebisirvija turvaseadete tõttu, ei oma redaktor otsest ligipääsu lõikelaua andmetele. Sa pead kleepima need uuesti siia aknasse.",
 DlgPasteIgnoreFont		: "Ignoreeri kirja definitsioone",
 DlgPasteRemoveStyles	: "Eemalda stiilide definitsioonid",
-DlgPasteCleanBox		: "Puhasta kast",
 
 // Color Picker
 ColorAutomatic	: "Automaatne",

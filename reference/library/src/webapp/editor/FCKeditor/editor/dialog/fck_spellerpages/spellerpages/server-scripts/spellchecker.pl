@@ -179,5 +179,3 @@ wordWindowObj.writeBody();
 </body>
 </html>
 EOF
-
-

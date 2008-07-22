@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -517,6 +517,15 @@ var FCKDomTools =
 		return element.removeAttribute( attributeName, 0 ) ;
 	},
 
+	/**
+	 * Removes an array of attributes from an element
+	 */
+	RemoveAttributes : function (element, aAttributes )
+	{
+		for ( var i = 0 ; i < aAttributes.length ; i++ )
+			this.RemoveAttribute( element, aAttributes[i] );
+	},
+
 	GetAttributeValue : function( element, att )
 	{
 		var attName = att ;
@@ -569,7 +578,7 @@ var FCKDomTools =
 	 *		<b>This <i>is some<span /> sample</i> test text</b>
 	 * If element = <span />, we have these results:
 	 *		<b>This <i>is some</i><span /><i> sample</i> test text</b>			(If parent = <i>)
-	 *		<b>This <i>is some</i></b><span /><b<i> sample</i> test text</b>	(If parent = <b>)
+	 *		<b>This <i>is some</i></b><span /><b><i> sample</i> test text</b>	(If parent = <b>)
 	 */
 	BreakParent : function( element, parent, reusableRange )
 	{
@@ -609,7 +618,7 @@ var FCKDomTools =
 	GetNodeAddress : function( node, normalized )
 	{
 		var retval = [] ;
-		while ( node && node != node.ownerDocument.documentElement )
+		while ( node && node != FCKTools.GetElementDocument( node ).documentElement )
 		{
 			var parentNode = node.parentNode ;
 			var currentIndex = -1 ;
@@ -767,7 +776,7 @@ var FCKDomTools =
 			baseIndex = 0 ;
 		if ( ! listArray || listArray.length < baseIndex + 1 )
 			return null ;
-		var doc = listArray[baseIndex].parent.ownerDocument ;
+		var doc = FCKTools.GetElementDocument( listArray[baseIndex].parent ) ;
 		var retval = doc.createDocumentFragment() ;
 		var rootNode = null ;
 		var currentIndex = baseIndex ;
@@ -924,36 +933,55 @@ var FCKDomTools =
 			style[ styleName ] = styleDict[ styleName ] ;
 	},
 
-	GetCurrentElementStyle : function( w, element, attrName )
+	SetOpacity : function( element, opacity )
 	{
 		if ( FCKBrowserInfo.IsIE )
-			return element.currentStyle[attrName] ;
+		{
+			opacity = Math.round( opacity * 100 ) ;
+			element.style.filter = ( opacity > 100 ? '' : 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + opacity + ')' ) ;
+		}
 		else
-			return w.getComputedStyle( element, '' )[attrName] ;
+			element.style.opacity = opacity ;
 	},
 
-	GetPositionedAncestor : function( w, element )
+	GetCurrentElementStyle : function( element, propertyName )
+	{
+		if ( FCKBrowserInfo.IsIE )
+			return element.currentStyle[ propertyName ] ;
+		else
+			return element.ownerDocument.defaultView.getComputedStyle( element, '' ).getPropertyValue( propertyName ) ;
+	},
+
+	GetPositionedAncestor : function( element )
 	{
 		var currentElement = element ;
-		while ( currentElement != currentElement.ownerDocument.documentElement )
+
+		while ( currentElement != FCKTools.GetElementDocument( currentElement ).documentElement )
 		{
-			if ( this.GetCurrentElementStyle( w, currentElement, 'position' ) != 'static' )
+			if ( this.GetCurrentElementStyle( currentElement, 'position' ) != 'static' )
 				return currentElement ;
-			currentElement = currentElement.parentNode ;
+
+			if ( currentElement == FCKTools.GetElementDocument( currentElement ).documentElement
+					&& currentWindow != w )
+				currentElement = currentWindow.frameElement ;
+			else
+				currentElement = currentElement.parentNode ;
 		}
+
 		return null ;
 	},
 
 	/**
-	 * Current implementation for ScrollIntoView (due to #1462). We don't have
-	 * a complete implementation here, just the things that fit our needs.
+	 * Current implementation for ScrollIntoView (due to #1462 and #2279). We
+	 * don't have a complete implementation here, just the things that fit our
+	 * needs.
 	 */
 	ScrollIntoView : function( element, alignTop )
 	{
 		// Get the element window.
 		var window = FCKTools.GetElementWindow( element ) ;
 		var windowHeight = FCKTools.GetViewPaneSize( window ).Height ;
-		
+
 		// Starts the offset that will be scrolled with the negative value of
 		// the visible window height.
 		var offset = windowHeight * -1 ;
@@ -962,23 +990,36 @@ var FCKDomTools =
 		if ( alignTop === false )
 		{
 			offset += element.offsetHeight ;
-			
+
 			// Consider the margin in the scroll, which is ok for our current
 			// needs, but needs investigation if we will be using this function
 			// in other places.
-			offset += parseInt( this.GetCurrentElementStyle( window, element, 'marginBottom' ) || 0, 10 ) ;
+			offset += parseInt( this.GetCurrentElementStyle( element, 'marginBottom' ) || 0, 10 ) ;
 		}
 
 		// Appends the offsets for the entire element hierarchy.
 		offset += element.offsetTop ;
 		while ( ( element = element.offsetParent ) )
 			offset += element.offsetTop || 0 ;
-		
+
 		// Scroll the window to the desired position, if not already visible.
 		var currentScroll = FCKTools.GetScrollPosition( window ).Y ;
 		if ( offset > 0 && offset > currentScroll )
 			window.scrollTo( 0, offset ) ;
+	},
+
+	/**
+	 * Check if the element can be edited inside the browser.
+	 */
+	CheckIsEditable : function( element )
+	{
+		// Get the element name.
+		var nodeName = element.nodeName.toLowerCase() ;
+
+		// Get the element DTD (defaults to span for unknown elements).
+		var childDTD = FCK.DTD[ nodeName ] || FCK.DTD.span ;
+
+		// In the DTD # == text node.
+		return ( childDTD['#'] && !FCKListsLib.NonEditableElements[ nodeName ] ) ;
 	}
 } ;
-
-

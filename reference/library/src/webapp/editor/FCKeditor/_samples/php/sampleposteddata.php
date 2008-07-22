@@ -1,7 +1,7 @@
 <?php
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -28,17 +28,20 @@
 		<title>FCKeditor - Samples - Posted Data</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="robots" content="noindex, nofollow">
-		<link href="../sample.css" rel="stylesheet" type="text/css" />
+		<link href="../sample.css" rel="stylesheet" type="text/css" >
 	</head>
 	<body>
 		<h1>FCKeditor - Samples - Posted Data</h1>
 		This page lists all data posted by the form.
 		<hr>
-		<table width="100%" border="1" cellspacing="0" bordercolor="#999999">
-			<tr style="FONT-WEIGHT: bold; COLOR: #dddddd; BACKGROUND-COLOR: #999999">
-				<td nowrap>Field Name&nbsp;&nbsp;</td>
-				<td>Value</td>
-			</tr>
+		<table border="1" cellspacing="0" id="outputSample">
+			<colgroup><col width="80"><col></colgroup>
+			<thead>
+				<tr>
+					<th>Field Name</th>
+					<th>Value</th>
+				</tr>
+			</thead>
 <?php
 
 if ( isset( $_POST ) )
@@ -55,8 +58,8 @@ foreach ( $postArray as $sForm => $value )
 
 ?>
 			<tr>
-				<td valign="top" nowrap><b><?=$sForm?></b></td>
-				<td width="100%" style="white-space:pre"><?=$postedValue?></td>
+				<th><?php echo $sForm?></th>
+				<td><pre><?php echo $postedValue?></pre></td>
 			</tr>
 <?php
 }

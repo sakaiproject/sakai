@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -98,12 +98,15 @@ FCKDomRange.prototype =
 			this._UpdateElementInfo() ;
 			return docFrag ;
 		}
+		return null ;
 	},
 
 	CheckIsCollapsed : function()
 	{
 		if ( this._Range )
 			return this._Range.collapsed ;
+
+		return false ;
 	},
 
 	Collapse : function( toStart )
@@ -145,12 +148,20 @@ FCKDomRange.prototype =
 	// is "<p><b><i>^</i></b> Text</p>" (inside <i>).
 	MoveToElementEditStart : function( targetElement )
 	{
-		var child ;
+		var editableElement ;
 
-		while ( ( child = targetElement.firstChild ) && child.nodeType == 1 && FCKListsLib.EmptyElements[ child.nodeName.toLowerCase() ] == null )
-			targetElement = child ;
+		while ( targetElement && targetElement.nodeType == 1 )
+		{
+			if ( FCKDomTools.CheckIsEditable( targetElement ) )
+				editableElement = targetElement ;
+			else if ( editableElement )
+				break ;		// If we already found an editable element, stop the loop.
 
-		this.MoveToElementStart( targetElement ) ;
+			targetElement = targetElement.firstChild ;
+		}
+
+		if ( editableElement )
+			this.MoveToElementStart( editableElement ) ;
 	},
 
 	InsertNode : function( node )
@@ -447,13 +458,13 @@ FCKDomRange.prototype =
 		// Also note that the node that we use for "address base" would change during backtracking.
 		var addrStart = this._Range.startContainer ;
 		var addrEnd = this._Range.endContainer ;
-		while ( curStart && curStart.nodeType == 3 )
+		while ( curStart && addrStart.nodeType == 3 )
 		{
 			bookmark.Start[0] += curStart.length ;
 			addrStart = curStart ;
 			curStart = curStart.previousSibling ;
 		}
-		while ( curEnd && curEnd.nodeType == 3 )
+		while ( curEnd && addrEnd.nodeType == 3 )
 		{
 			bookmark.End[0] += curEnd.length ;
 			addrEnd = curEnd ;
@@ -736,7 +747,7 @@ FCKDomRange.prototype =
 	 * It returns and object with the following properties:
 	 *		- PreviousBlock	: a reference to the block element that preceeds
 	 *		  the range after the split.
-	 *		- NextBlock : a reference to the block element that preceeds the
+	 *		- NextBlock : a reference to the block element that follows the
 	 *		  range after the split.
 	 *		- WasStartOfBlock : a boolean indicating that the range was
 	 *		  originaly at the start of the block.
@@ -747,8 +758,10 @@ FCKDomRange.prototype =
 	 * and the PreviousBlock value will be null. The same is valid for the
 	 * NextBlock value if the range was at the end of the block.
 	 */
-	SplitBlock : function()
+	SplitBlock : function( forceBlockTag )
 	{
+		var blockTag = forceBlockTag || FCKConfig.EnterMode ;
+
 		if ( !this._Range )
 			this.MoveToSelection() ;
 
@@ -760,16 +773,16 @@ FCKDomRange.prototype =
 			var eEndBlock		= this.EndBlock ;
 			var oElementPath	= null ;
 
-			if ( FCKConfig.EnterMode != 'br' )
+			if ( blockTag != 'br' )
 			{
 				if ( !eStartBlock )
 				{
-					eStartBlock = this.FixBlock( true ) ;
+					eStartBlock = this.FixBlock( true, blockTag ) ;
 					eEndBlock	= this.EndBlock ;	// FixBlock may have fixed the EndBlock too.
 				}
 
 				if ( !eEndBlock )
-					eEndBlock = this.FixBlock( false ) ;
+					eEndBlock = this.FixBlock( false, blockTag ) ;
 			}
 
 			// Get the range position.
@@ -832,7 +845,7 @@ FCKDomRange.prototype =
 	},
 
 	// Transform a block without a block tag in a valid block (orphan text in the body or td, usually).
-	FixBlock : function( isStart )
+	FixBlock : function( isStart, blockTag )
 	{
 		// Bookmark the range so we can restore it later.
 		var oBookmark = this.CreateBookmark() ;
@@ -844,11 +857,17 @@ FCKDomRange.prototype =
 		this.Expand( 'block_contents' ) ;
 
 		// Create the fixed block.
-		var oFixedBlock = this.Window.document.createElement( FCKConfig.EnterMode ) ;
+		var oFixedBlock = this.Window.document.createElement( blockTag ) ;
 
 		// Move the contents of the temporary range to the fixed block.
 		this.ExtractContents().AppendTo( oFixedBlock ) ;
 		FCKDomTools.TrimNode( oFixedBlock ) ;
+
+		// If the fixed block is empty (not counting bookmark nodes)
+		// Add a <br /> inside to expand it.
+		if ( FCKDomTools.CheckIsEmptyElement(oFixedBlock, function( element ) { return element.getAttribute('_fck_bookmark') != 'true' ; } )
+				&& FCKBrowserInfo.IsGeckoLike )
+				FCKTools.AppendBogusBr( oFixedBlock ) ;
 
 		// Insert the fixed block into the DOM.
 		this.InsertNode( oFixedBlock ) ;
