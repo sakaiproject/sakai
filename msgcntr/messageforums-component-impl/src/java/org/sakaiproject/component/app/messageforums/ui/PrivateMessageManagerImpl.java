@@ -1225,6 +1225,77 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     	}
     }
   }
+  
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#markMessageAsReadForUser(org.sakaiproject.api.app.messageforums.PrivateMessage)
+   */
+
+  public void markMessageAsUnreadForUser(final PrivateMessage message)
+
+  {
+	  markMessageAsUnreadForUser(message, getContextId());
+  }
+
+
+  /**
+   * FOR SYNOPTIC TOOL:
+   * 	Need to pass in contextId also
+   */
+
+  public void markMessageAsUnreadForUser(final PrivateMessage message,
+		  final String contextId) {
+
+	  if (LOG.isDebugEnabled()) {
+		  LOG.debug("markMessageAsUnreadForUser(message: " + message + ")");
+	  }
+
+	  if (message == null) {
+		  throw new IllegalArgumentException("Null Argument");
+	  }
+
+	  final String userId = getCurrentUser();
+
+	  /** fetch recipients for message */
+
+	  PrivateMessage pvtMessage = getPrivateMessageWithRecipients(message);
+
+	  /** create PrivateMessageRecipientImpl to search for recipient to update */
+	  PrivateMessageRecipientImpl searchRecipient = new PrivateMessageRecipientImpl(
+			  userId, typeManager.getReceivedPrivateMessageType(), contextId,
+			  Boolean.TRUE);
+
+	  List recipientList = pvtMessage.getRecipients();
+
+	  if (recipientList == null || recipientList.size() == 0)
+	  {
+		  LOG.error("markMessageAsUnreadForUser(message: " + message
+				  + ") has empty recipient list");
+		  throw new Error("markMessageAsUnreadForUser(message: " + message
+				  + ") has empty recipient list");
+
+	  }
+
+	  int recordIndex = -1;
+	  for(int i  = 0; i < pvtMessage.getRecipients().size(); i++) {
+		  if(((PrivateMessageRecipientImpl) pvtMessage.getRecipients().get(i)).getUserId().equals(searchRecipient.getUserId())){
+			  recordIndex = i;
+		  }      
+	  }
+
+	  if (recordIndex != -1)
+	  {
+		  if (((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
+				  .getRead()) {
+			  ((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
+			  .setRead(Boolean.FALSE);
+			  EventTrackingService.post(EventTrackingService.newEvent(
+					  DiscussionForumService.EVENT_MESSAGES_UNREAD,
+					  getEventMessage(pvtMessage), false));
+		  }
+	  }
+  }
+
+  
 
   private PrivateMessage getPrivateMessageWithRecipients(
       final PrivateMessage message)

@@ -3,14 +3,14 @@
 	
 	// storage for onclick properties of bulk operations
 	// for enabling/disabling
-	var readOnClick, deleteOnClick, moveOnClick;
+	var readOnClick, unreadOnClick, deleteOnClick, moveOnClick;
 	
 	// needed for visual disabling in non-IE browsers
-	var readTextColor, deleteTextColor, moveTextColor;
+	var readTextColor, unreadTextColor, deleteTextColor, moveTextColor;
 	
 	// storage for style information of bulk operations
 	// so if 'disabled', remove underline
-	var readStyle, deleteStyle, moveStyle;
+	var readStyle, unreadStyle, deleteStyle, moveStyle;
 	
 	function toggleDisplay(show,hide) 
 	{
@@ -55,9 +55,10 @@
 	function toggleBulkOperations(anyChecked, formRef)
 	{ 
 		// stores link object since multiple access methods
-		var readEl, deleteEl, moveEl;
+		var readEl, unreadEl, deleteEl, moveEl;
 		var IEbrowser;
 		var markAsread = formRef + ':markAsread';
+		var markAsUnread = formRef + ':markAsUnread';
 		var deleteMarked = formRef + ':deleteMarked';
 		var deleteChecked = formRef + ':deleteChecked';
 		var moveChecked = formRef + ':moveCheckedToFolder';
@@ -65,6 +66,7 @@
 		if (document.all)
 		{
 			readEl = document.all[markAsread];
+			unreadEl = document.all[markAsUnread];
 			if (document.all[deleteMarked])
 				deleteEl = document.all[deleteMarked];
 			else
@@ -75,6 +77,7 @@
 		else
 		{
 			readEl = document.getElementById(markAsread);
+			unreadEl = document.getElementById(markAsUnread);
 			if (document.getElementById(deleteMarked))
 				deleteEl = document.getElementById(deleteMarked);
 			else
@@ -87,18 +90,21 @@
 		{ 
 			// toggle onclick functionality
 			readEl.onclick = readOnClick;
+			unreadEl.onclick = unreadOnClick;
 			deleteEl.onclick = deleteOnClick;
 			moveEl.onclick = moveOnClick;
 
 			if (IEbrowser) 
 			{	// IE - just set disabled property to false	
 				readEl.disabled =  false;
+				unreadEl.disabled = false;
 				deleteEl.disabled = false;
 				moveEl.disabled = false;
 			}
 			else
 			{ // non-IE - reset text color
 				readEl.style.color = readTextColor;
+				unreadEl.style.color = unreadTextColor;
 				deleteEl.style.color = deleteTextColor;
 				moveEl.style.color = moveTextColor;
 			}
@@ -107,17 +113,20 @@
 		{
 			// toggle onclick functionality
 			readOnClick = readEl.onclick;
+			unreadOnClick = unreadEl.onclick;
 			deleteOnClick = deleteEl.onclick;
 			moveOnClick = moveEl.onclick;
 
 			// 'disable'
 			readEl.onclick = 'return false;';
+			unreadEl.onclick = 'return false;';
 			deleteEl.onclick = 'return false;';
 			moveEl.onclick = 'return false;';
 
 			if (IEbrowser) 
 			{ // IE - set disabled property to true
 				readEl.disabled = true;
+				unreadEl.disabled = true;
 				deleteEl.disabled = true;
 				moveEl.disabled = true;
 			}
@@ -125,6 +134,9 @@
 			{ // non-IE - set color to grey and onclick to return false
 				readTextColor = readEl.style.color;
 				readEl.style.color = 'grey';
+				
+				unreadTextColor = unreadEl.style.color;
+				unreadEl.style.color = 'grey';
 
 				deleteTextColor = deleteEl.style.color;
 				deleteEl.style.color = 'grey';

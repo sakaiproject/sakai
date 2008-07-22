@@ -4223,6 +4223,10 @@ private   int   getNum(char letter,   String   a)
 		return markCheckedMessages(true);
 	}
 	
+	public String processActionMarkCheckedAsUnread() {
+		return markCheckedMessages(false);
+	}
+	
 	public String processActionDeleteChecked() {
 	    LOG.debug("processActionDeleteChecked()");
 
@@ -4313,8 +4317,12 @@ private   int   getNum(char letter,   String   a)
 			if(decoMessage.getIsSelected())
 			{
 				msgSelected = true;
-				prtMsgManager.markMessageAsReadForUser(decoMessage.getMsg());
-				
+				if (readStatus) {
+					prtMsgManager.markMessageAsReadForUser(decoMessage.getMsg());
+				} else {
+					prtMsgManager.markMessageAsUnreadForUser(decoMessage.getMsg());
+				}
+
 				if (searchMode)
 				{
 					// Although the change was made in the db, the search

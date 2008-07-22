@@ -37,6 +37,8 @@ public interface DiscussionForumService extends EntityProducer
 	public static final String EVENT_MESSAGES_FOLDER_REVISE = "messages.revisefolder";
 
 	public static final String EVENT_MESSAGES_READ = "messages.read";
+	
+	public static final String EVENT_MESSAGES_UNREAD = "messages.unread";
 
 	public static final String EVENT_MESSAGES_REMOVE = "messages.delete";
 	

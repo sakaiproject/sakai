@@ -96,8 +96,16 @@
   <div style="float:left; display:inline; width: auto; padding-top: 0.5em;">
     <%-- Mark All As Read --%>
   	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread" title="#{msgs.cdfm_mark_check_as_read}" >
- 		<h:graphicImage value="/../../library/image/silk/email.png" />
+ 		<h:graphicImage value="/../../library/image/silk/email_open.png" />
  		<h:outputText value=" #{msgs.cdfm_mark_check_as_read}" />
+	</h:commandLink> 	
+
+    <%-- Mark Checked As Unread --%>
+	<h:outputText value="  | " /><h:outputText value=" " />
+  	
+  	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsUnread}" id="markAsUnread" title="#{msgs.cdfm_mark_check_as_unread}" >
+  		<h:graphicImage value="/../../library/image/silk/email.png" />
+		<h:outputText value=" #{msgs.cdfm_mark_check_as_unread}" />		
  	</h:commandLink>
  	
 	<%-- Delete Checked 
