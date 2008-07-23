@@ -63,12 +63,6 @@
           <include>**/*.xml</include>
         </includes>
       </resource>
-      <resource>
-        <directory>${basedir}/src/java/edu/indiana/lib/twinpeaks/search/singlesearch/web2</directory>
-        <includes>
-          <include>**/*.xsl</include>
-        </includes>
-      </resource>
     </resources>
 <!-- java source -->
     <sourceDirectory>src/java</sourceDirectory>

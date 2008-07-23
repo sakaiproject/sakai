@@ -78,6 +78,12 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 			_log.error(t.getMessage());
 		}
 		_log.debug("new HTTP Repository(): " + displayName + ", id: " + this.id);
+
+		try
+		{
+		  _log.debug("    HTTP Repository(): " + this.id.getIdString() + ", is equal? " + this.id.isEqual(idManager.getId(this.idString)));
+		}
+		catch (Throwable ignore) { }
 	}
 
 	public String getDisplayName()

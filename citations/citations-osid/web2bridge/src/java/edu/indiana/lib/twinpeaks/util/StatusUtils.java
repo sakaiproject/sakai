@@ -10,12 +10,13 @@ public class StatusUtils
 {
 
 private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils.class);
+
 	/**
-	 * Set up initial status information (done before LOGON)
+	 * Set up initial status information
 	 */
 	public static void initialize(SessionContext sessionContext, String targets)
 	{
-		StringTokenizer parser 		= new StringTokenizer(targets);
+		StringTokenizer parser 		= new StringTokenizer(targets, " \t,");
 		ArrayList				dbList		= new ArrayList();
 		HashMap					targetMap	= getNewStatusMap(sessionContext);
 
@@ -170,7 +171,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 
 		if ((targetMap = getStatusMapForTarget(sessionContext, target)) == null)
 		{
-			throw new SearchException("No status map for target database " + target);
+			throw new SearchException("No status map found for target database " + target);
 		}
   	_log.debug("Map for target " + target + ": " + targetMap);
 		/*
@@ -178,7 +179,6 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 		 */
 		hits 	= (String) targetMap.get("HITS");
 		total = Integer.parseInt(hits) + 1;
-
 		targetMap.put("HITS", String.valueOf(total));
 		/*
 		 * Have we collected all available results?
@@ -207,7 +207,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 	}
 
 	/**
-	 * Fetch the estimated hiots for a specified target (database)
+	 * Fetch the estimated hits for a specified target (database)
 	 * @param sessionContext Active SessionContext
 	 * @param target Database name
 	 * @return Updated hit count

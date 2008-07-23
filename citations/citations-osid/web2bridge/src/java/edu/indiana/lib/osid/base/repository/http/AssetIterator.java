@@ -367,9 +367,9 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 			addAsset(asset);
 			assetsAdded++;
 
-			_log.debug("populate() Added " + asset
-						+  	 ", vector size = "  + assetVectorSize()
-						+    ", populated = "    + populated);
+//			_log.debug("populate() Added " + asset
+//						+  	 ", vector size = "  + assetVectorSize()
+//						+    ", populated = "    + populated);
 
 			if (populated >= maximumRecords)
 			{

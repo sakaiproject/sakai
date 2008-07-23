@@ -25,18 +25,15 @@ import java.util.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 
 import org.w3c.dom.*;
 import org.w3c.dom.html.*;
 import org.xml.sax.*;
 
-
-
-public class DomUtils {
-
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.class);
+public class DomUtils
+{
+  private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.class);
 	/**
 	 * Default encoding (NekoHTML)
 	 */
@@ -134,10 +131,69 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    * @param parent the node containing text
    * @return Text (trimmed of leading/trailing whitespace, null if none)
    */
-  public static String getText(Node parent) {
+  public static String getText(Node parent)
+  {
     return textSearch(parent, false);
   }
 
+  /**
+   * Get the text associated with a specified element, at this level only
+   * @param parent the node containing text
+   * @param elementName Element with the text we want to fetch
+   * @return Text (trimmed of leading/trailing whitespace, null if none)
+   */
+  public static String getText(Node parent, String elementName)
+  {
+    Element element = getElement((Element) parent, elementName);
+
+    if (element == null)
+    {
+      return null;
+    }
+    return textSearch(element, false);
+  }
+
+  /**
+   * Get the text associated with a specified element, at this level
+   * only - namespace aware
+   *
+   * @param namespace Namespace URI
+   * @param parent the node containing text
+   * @param elementName Element with the text we want to fetch
+   * @return Text (trimmed of leading/trailing whitespace, null if none)
+   */
+  public static String getTextNS(String namespace, Node parent, String elementName)
+  {
+    Element element = getElementNS(namespace, (Element) parent, elementName);
+
+    if (element == null)
+    {
+      return null;
+    }
+    return textSearch(element, false);
+  }
+
+  /**
+   * Get the text associated with a specified element, at this level
+   * only - namespace aware
+   *
+   * @param namespace Namespace URI
+   * @param parent the node containing text
+   * @param elementName Element with the text we want to fetch
+   * @return Text (trimmed of leading/trailing whitespace, null if none)
+   */
+/*
+  public static String getTextNS(String namespace, Element parent, String elementName)
+  {
+    Element element = getElementNS(namespace, parent, elementName);
+
+    if (element == null)
+    {
+      return null;
+    }
+    return textSearch(element, false);
+  }
+*/
   /**
    * Get the text associated with this element, at all suboordinate levels
    * @param parent the node containing text
@@ -277,6 +333,18 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
   }
 
   /**
+   * Return a list of specified namespace:Elements
+   * @param namespace Namespace URI
+   * @param element the containing Element
+   * @param name the tag name
+   * @return NodeList of matching elements
+   */
+  public static NodeList getElementListNS(String namespace, Element element, String name)
+  {
+    return element.getElementsByTagNameNS(namespace, name);
+  }
+
+  /**
    * Return a list of named Elements with a specific attribute value.
    * @param element the containing Element
    * @param name the tag name
@@ -336,13 +404,86 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
   }
 
   /**
-   * Return the first named Element found.  Null if none.
+   * Return a list of named Elements with a specific attribute
+   * value (namespace aware)
+   *
+   * @param namespace Namespace URI
+   * @param element the containing Element
+   * @param name the tag name
+   * @param attribute Attribute name
+   * @param value Attribute value
+   * @return List of matching elements
+   */
+  public static List selectElementsByAttributeValueNS(String namespace,
+                                                      Element element,
+                                                      String name,
+  																									  String attribute,
+  																									  String value)
+  {
+		return selectElementsByAttributeValueNS(namespace, element, name,
+																				    attribute, value, false);
+	}
+
+  /**
+   * Return a list of named Elements with a specific attribute
+   * value (namespace aware)
+   *
+   * @param namespace Namespace URI
+   * @param element the containing Element
+   * @param name the tag name
+   * @param attribute Attribute name
+   * @param value Attribute value
+   * @param returnFirst Return only the first matching value?
+   * @return List of matching elements
+   */
+  public static List selectElementsByAttributeValueNS(String namespace,
+                                                      Element element,
+                                                      String name,
+  																									  String attribute,
+  																									  String value,
+  																									  boolean returnFirst)
+  {
+    NodeList 	elementList = element.getElementsByTagNameNS(namespace, name);
+    List 			resultList	= new ArrayList();
+
+    for (int i = 0; i < elementList.getLength(); i++)
+    {
+    	if (getAttribute((Element) elementList.item(i), attribute).equals(value))
+    	{
+    		resultList.add(elementList.item(i));
+    		if (returnFirst)
+    		{
+    			break;
+    		}
+    	}
+    }
+		return resultList;
+  }
+
+  /**
+   * Return the first named Element found.
    * @param element the containing Element
    * @param name the tag name
    * @return matching Element (null if none)
    */
-  public static Element getElement(Element element, String name) {
+  public static Element getElement(Element element, String name)
+  {
     NodeList nodeList = getElementList(element, name);
+
+    return (nodeList.getLength() == 0) ? null : (Element) nodeList.item(0);
+  }
+
+  /**
+   * Return the first named Element found - namespace aware
+   * @param namespace Namespace URI
+   * @param element the containing Element
+   * @param name the tag name
+   * @return matching Element (null if none)
+   */
+  public static Element getElementNS(String namespace, Element element, String name)
+  {
+    NodeList nodeList = getElementListNS(namespace, element, name);
+
     return (nodeList.getLength() == 0) ? null : (Element) nodeList.item(0);
   }
 
@@ -431,16 +572,42 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    * @return The DocumentBuilder
    * @throws DomException
    */
-  public static DocumentBuilder getXmlDocumentBuilder() throws DomException {
-    try {
+  public static DocumentBuilder getXmlDocumentBuilder() throws DomException
+  {
+    return getXmlDocumentBuilder(false);
+  }
+
+  /**
+   * Get a DOM Document builder - namespace aware
+   * @return The DocumentBuilder
+   * @throws DomException
+   */
+  public static DocumentBuilder getXmlDocumentBuilderNS() throws DomException
+  {
+    return getXmlDocumentBuilder(true);
+  }
+
+  /**
+   * Get a DOM Document builder.
+   * @param namespaceAware true if we're to handle namespace details
+   * @return The DocumentBuilder
+   * @throws DomException
+   */
+  public static DocumentBuilder getXmlDocumentBuilder(boolean namespaceAware) throws DomException
+  {
+    try
+    {
       DocumentBuilderFactory factory;
 
       factory = DocumentBuilderFactory.newInstance();
-      factory.setNamespaceAware(false);
+      factory.setNamespaceAware(namespaceAware);
 
+      _log.debug("DOM parse: namespace aware = " + namespaceAware);
       return factory.newDocumentBuilder();
 
-    } catch (Exception e) {
+    }
+    catch (Exception e)
+    {
       throw new DomException(e.toString());
     }
   }
@@ -515,6 +682,22 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
   }
 
   /**
+   * Parse XML text (from an input stream) into a Document - namespace aware.
+   * @param xmlStream The XML text stream
+   * @return DOM Document
+   * @throws DomException
+   */
+  public static Document parseXmlStreamNS(InputStream xmlStream)
+      															  								throws DomException {
+    try {
+      return getXmlDocumentBuilderNS().parse(new InputSource(xmlStream));
+
+    } catch (Exception e) {
+      throw new DomException(e.toString());
+    }
+  }
+
+  /**
    * Parse XML text (from a Reader) into a Document.
    * @param xmlReader The XML Reader
    * @return DOM Document
@@ -538,6 +721,16 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    */
   public static Document parseXmlBytes(byte[] xml) throws DomException {
     return parseXmlStream(new ByteArrayInputStream(xml));
+  }
+
+  /**
+   * Parse XML text (from a raw byte array) into a Document - namespace aware.
+   * @param xml The XML text
+   * @return DOM Document
+   * @throws DomException
+   */
+  public static Document parseXmlBytesNS(byte[] xml) throws DomException {
+    return parseXmlStreamNS(new ByteArrayInputStream(xml));
   }
 
   /**
@@ -654,7 +847,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    *    <code>parseHtmlStream(new ByteArrayInputStream(html));</code>
    */
   public static Document parseHtmlBytes(byte[] html) throws DomException {
-    return parseXmlStream(new ByteArrayInputStream(html));
+    return parseXmlStreamNS(new ByteArrayInputStream(html));
   }
 
   /**
@@ -677,9 +870,11 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    * @throws DomException
    */
   public static void serializeXml(Node node, OutputStream target)
-      throws DomException {
+                                  throws DomException
+  {
     try {
       Transformer transformer = TransformerFactory.newInstance().newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
       transformer.transform(new DOMSource(node), new StreamResult(target));
 
     } catch (Exception e) {
@@ -696,6 +891,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
   public static void serializeXml(Node node, Writer writer) throws DomException {
     try {
       Transformer transformer = TransformerFactory.newInstance().newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
       transformer.transform(new DOMSource(node), new StreamResult(writer));
 
     } catch (Exception e) {
