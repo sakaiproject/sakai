@@ -28,7 +28,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
-import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
+import org.sakaiproject.entitybroker.impl.EntityBrokerManager;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -53,9 +53,9 @@ public class EntityBrokerHttpAccess implements HttpAccess {
       this.sessionManager = sessionManager;
    }
 
-   private EntityHandlerImpl entityHandler;
-   public void setEntityHandler(EntityHandlerImpl entityHandler) {
-      this.entityHandler = entityHandler;
+   private EntityBrokerManager entityBrokerManager;
+   public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+      this.entityBrokerManager = entityBrokerManager;
    }
 
 
@@ -71,7 +71,7 @@ public class EntityBrokerHttpAccess implements HttpAccess {
       HttpServletAccessProvider provider = null;
       EntityReference entityref = null;
       try {
-         entityref = entityHandler.parseReference(reference);
+         entityref = entityBrokerManager.parseReference(reference);
          String prefix = EntityReference.getPrefix(reference);
          provider = accessProviderManager.getProvider(prefix);
          if (provider == null) {

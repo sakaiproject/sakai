@@ -30,6 +30,7 @@ public interface EntityRequestHandler {
     * The reserved word used to trigger entity descriptions
     */
    public static String DESCRIBE = "describe";
+   public static final String SLASH_DESCRIBE = EntityReference.SEPARATOR + DESCRIBE;
    /**
     * This is the name of the header which will contain the id of newly created entities
     */

@@ -30,7 +30,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 /**
  * This service allows us to track all the properties files related to describing the capabilities
  * of our entities and the entities themselves, it allows lookup of strings as well<br/>
- * NOTE: For internal use only
+ * NOTE: For internal use only, has no dependencies
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */

@@ -19,14 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
@@ -43,44 +36,27 @@ import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
-import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribeDefineable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
-import org.sakaiproject.entitybroker.entityprovider.extension.BasicEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.exception.EncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
-import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
-import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
+import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
-
-import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-import com.thoughtworks.xstream.io.xml.XppDomDriver;
 
 /**
  * Common implementation of the handler for the EntityBroker system. This should be used in
@@ -93,19 +69,8 @@ import com.thoughtworks.xstream.io.xml.XppDomDriver;
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
 
-   private static final String SLASH_DESCRIBE = EntityReference.SEPARATOR + DESCRIBE;
-   private static final String DIRECT = "/direct";
-   private static final String POST_METHOD = "_method";
-   private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
-   private static final String XHTML_HEADER = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" " +
-   "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
-   "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
-   "<head>\n" +
-   "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
-   "  <title>Describe Entities</title>\n" +
-   "</head>\n" +
-   "<body>\n";
-   private static final String XHTML_FOOTER = "\n</body>\n</html>\n";
+   protected static final String DIRECT = "/direct";
+   protected static final String POST_METHOD = "_method";
 
    private static Log log = LogFactory.getLog(EntityHandlerImpl.class);
 
@@ -117,6 +82,21 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       this.entityProviderManager = entityProviderManager;
    }
 
+   private EntityBrokerManager entityBrokerManager;
+   public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+      this.entityBrokerManager = entityBrokerManager;
+   }
+
+   private EntityEncodingManager entityEncodingManager;
+   public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
+      this.entityEncodingManager = entityEncodingManager;
+   }
+
+   private EntityDescriptionManager entityDescriptionManager;
+   public void setEntityDescriptionManager(EntityDescriptionManager entityDescriptionManager) {
+      this.entityDescriptionManager = entityDescriptionManager;
+   }
+   
    private HttpServletAccessProviderManager accessProviderManager;
    public void setAccessProviderManager(HttpServletAccessProviderManager accessProviderManager) {
       this.accessProviderManager = accessProviderManager;
@@ -131,380 +111,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    private RequestGetter requestGetter;
    public void setRequestGetter(RequestGetter requestGetter) {
       this.requestGetter = requestGetter;
-   }
-
-   private EntityPropertiesService entityProperties;
-   public void setEntityProperties(EntityPropertiesService entityProperties) {
-      this.entityProperties = entityProperties;
-   }
-
-   private ServerConfigurationService serverConfigurationService;
-   public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-      this.serverConfigurationService = serverConfigurationService;
-   }
-
-   public static final String UTF_8 = Formats.UTF_8;
-   private static final String ENTITY_PREFIX = "entityPrefix";
-   private static final String COLLECTION = "-collection";
-
-   private ReflectUtil reflectUtil = new ReflectUtil();
-   public ReflectUtil getReflectUtil() {
-      return reflectUtil;
-   }
-
-   /**
-    * Determines if an entity exists based on the reference
-    * 
-    * @param reference an entity reference object
-    * @return true if entity exists, false otherwise
-    */
-   public boolean entityExists(EntityReference ref) {
-      boolean exists = false;
-      if (ref != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefix(ref.getPrefix());
-         if (provider == null) {
-            // no provider found so no entity can't exist
-            exists = false;
-         } else if (!(provider instanceof CoreEntityProvider)) {
-            // no core provider so assume it does exist
-            exists = true;
-         } else {
-            if (ref.getId() == null) {
-               // currently we assume exists if it is only a prefix
-               exists = true;
-            } else {
-               exists = ((CoreEntityProvider) provider).entityExists( ref.getId() );
-            }
-         }
-      }
-      return exists;
-   }
-
-   /**
-    * Creates the full URL to an entity using the sakai {@link ServerConfigurationService}, 
-    * (e.g. http://server:8080/direct/entity/123/)<br/>
-    * <br/>
-    * <b>Note:</b> the webapp name (relative URL path) of the direct servlet, of "/direct" 
-    * is hardcoded into this method, and the
-    * {@link org.sakaiproject.entitybroker.servlet.DirectServlet} must be deployed there on this
-    * server.
-    * 
-    * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and optionally the local id
-    * @param viewKey the specific view type to get the URL for,
-    * can be null to determine the key automatically
-    * @param extension the optional extension to add to the end,
-    * can be null to use no extension
-    * @return the full URL to a specific entity or space
-    */
-   public String getEntityURL(String reference, String viewKey, String extension) {
-      // ensure this is a valid reference first
-      EntityReference ref = parseReference(reference);
-      EntityView view = makeEntityView(ref, viewKey, extension);
-      String url = makeFullURL(view.toString());
-      return url;
-   }
-
-   /**
-    * @see EntityBroker#fireEntityRequest(String, String, String, Map, Object)
-    */
-   public EntityResponse fireEntityRequestInternal(String reference, String viewKey, String format, Map<String, String> params, Object entity) {
-      if (reference == null) {
-         throw new IllegalArgumentException("reference must not be null");
-      }
-      // convert the reference/key/format into a URL
-      EntityReference ref = new EntityReference(reference);
-      EntityView ev = new EntityView();
-      ev.setEntityReference( ref );
-      if (viewKey != null 
-            && ! "".equals(viewKey)) {
-         ev.setViewKey(viewKey);
-      }
-      if (format != null 
-            && ! "".equals(format)) {
-         ev.setExtension(format);
-      }
-      String URL = ev.toString();
-      // get the right method to use
-      Method method = Method.GET;
-      if (EntityView.VIEW_DELETE.equals(ev.getViewKey())) {
-         method = Method.DELETE;
-      } else if (EntityView.VIEW_EDIT.equals(ev.getViewKey())) {
-         method = Method.PUT;
-      } else if (EntityView.VIEW_NEW.equals(ev.getViewKey())) {
-         method = Method.POST;
-      } else {
-         method = Method.GET;
-      }
-      // handle entity if one was included
-      Object data = null;
-      if (entity != null) {
-         String prefix = ref.getPrefix();
-         Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
-         if (inputable == null) {
-            throw new IllegalArgumentException("This entity ("+ref+") is not Inputable so there is no reason to provide "
-            		+ "a non-null entity, you should leave the entity null when firing requests to this entity");
-         }
-         Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
-         if (outputable == null) {
-            throw new IllegalArgumentException("This entity ("+ref+") is not Outputable so there is no reason to provide "
-               + "a non-null entity, you should leave the entity null when firing requests to this entity");
-         } else {
-            String[] formats = outputable.getHandledOutputFormats();
-            if ( ReflectUtil.contains(formats, format) ) {
-               List<Object> entities = new ArrayList<Object>();
-               entities.add(entity);
-               // need to make sure the reference has an id set
-               ref = new EntityReference(ref.getPrefix(), ref.getId() == null ? "new" : ref.getId());
-               // setup the output stream
-               ByteArrayOutputStream output = new ByteArrayOutputStream();
-               OutputFormattable formattable = entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
-               if (formattable == null) {
-                  // handle internally or fail
-                  internalOutputFormatter(ref, format, entities, output, null);
-               } else {
-                  // use provider's formatter
-                  formattable.formatOutput(ref, format, entities, output);
-               }
-               data = new ByteArrayInputStream(output.toByteArray());
-            } else {
-               throw new IllegalArgumentException("This entity ("+reference+") is not outputable in this format ("+format+")," +
-                     " only the following formats are supported: " + ReflectUtil.arrayToString(formats));
-            }
-         }
-      }
-      HttpResponse httpResponse = HttpRESTUtils.fireRequest(URL, method, params, data, true);
-      // translate response to correct kind
-      EntityResponse response = new EntityResponse(httpResponse.getResponseCode(), 
-            httpResponse.getResponseMessage(), httpResponse.getResponseBody(), httpResponse.getResponseHeaders());
-      return response;
-   }
-
-   /**
-    * Reduce code duplication and ensure custom templates are used
-    */
-   public EntityView makeEntityView(EntityReference ref, String viewKey, String extension) {
-      EntityView view = new EntityView();
-      EntityViewUrlCustomizable custom = (EntityViewUrlCustomizable) entityProviderManager
-      .getProviderByPrefixAndCapability(ref.getPrefix(), EntityViewUrlCustomizable.class);
-      if (custom == null) {
-         view.setEntityReference(ref);
-      } else {
-         // use the custom parsing templates
-         view.loadParseTemplates( custom.getParseTemplates() );
-      }
-      view.setEntityReference(ref);
-      if (viewKey != null) {
-         view.setViewKey(viewKey);
-      }
-      if (extension != null) {
-         view.setExtension(extension);
-      }
-      return view;
-   }
-
-   /**
-    * Make a full URL (http://....) from just a path URL (/prefix/id.xml)
-    */
-   private String makeFullURL(String pathURL) {
-      String url = serverConfigurationService.getServerUrl() + DIRECT + pathURL;
-      return url;
-   }
-
-   /**
-    * @param ev an entity view
-    * @return a copy of this entityView including the internal templates and parsed template cache
-    */
-   private EntityView makeEVfromEV(EntityView ev) {
-      EntityView togo = new EntityView();
-      EntityReference ref = ev.getEntityReference();
-      togo.setEntityReference( new EntityReference(ref.getPrefix(), ref.getId() == null ? "" : ref.getId()) );
-      togo.preloadParseTemplates( ev.getAnazlyzedTemplates() );
-      togo.setExtension( ev.getExtension() );
-      togo.setViewKey( ev.getViewKey() );
-      return togo;
-   }
-
-
-
-   /**
-    * Parses an entity reference into the appropriate reference form
-    * 
-    * @param reference a unique entity reference
-    * @return the entity reference object or 
-    * null if there is no provider found for the prefix parsed out
-    * @throws IllegalArgumentException if there is a failure during parsing
-    */
-   public EntityReference parseReference(String reference) {
-      String prefix = EntityReference.getPrefix(reference);
-      EntityReference ref = null;
-      if (entityProviderManager.getProviderByPrefix(prefix) != null) {
-         ReferenceParseable provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
-         if (provider == null) {
-            ref = new EntityReference(reference);
-         } else {
-            EntityReference exemplar = provider.getParsedExemplar();
-            if (exemplar.getClass() == EntityReference.class) {
-               ref = new EntityReference(reference);
-            } else {
-               // construct the custom class and then return it
-               try {
-                  Constructor<? extends Object> m = exemplar.getClass().getConstructor(String.class);
-                  ref = (EntityReference) m.newInstance(reference);
-               } catch (Exception e) {
-                  throw new RuntimeException("Failed to invoke a constructor which takes a single string "
-                        + "(reference="+reference+") for class: " + exemplar.getClass(), e);
-               }
-            }
-         }
-      }
-      return ref;
-   }
-
-   /**
-    * Parses an entity URL into an entity view object,
-    * handles custom parsing templates
-    * 
-    * @param entityURL an entity URL
-    * @return the entity view object representing this URL or 
-    * null if there is no provider found for the prefix parsed out
-    * @throws IllegalArgumentException if there is a failure during parsing
-    */
-   public EntityView parseEntityURL(String entityURL) {
-      EntityView view = null;
-      // first get the prefix
-      String prefix = EntityReference.getPrefix(entityURL);
-      // get the basic provider to see if this prefix is valid
-      EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
-      if (provider != null) {
-         // this prefix is valid so check for custom entity templates
-         EntityViewUrlCustomizable custom = (EntityViewUrlCustomizable) entityProviderManager
-         .getProviderByPrefixAndCapability(prefix, EntityViewUrlCustomizable.class);
-         if (custom == null) {
-            view = new EntityView(entityURL);
-         } else {
-            // use the custom parsing templates to build the object
-            view = new EntityView();
-            view.loadParseTemplates( custom.getParseTemplates() );
-            view.parseEntityURL(entityURL);
-         }
-      }
-      return view;
-   }
-
-
-
-   /**
-    * This looks at search parameters and returns anything it finds in the
-    * request parameters that can be put into the search
-    * 
-    * @param req a servlet request
-    * @return a search filter object
-    */
-   @SuppressWarnings("unchecked")
-   public Search makeSearchFromRequest(HttpServletRequest req) {
-      Search search = new Search();
-      try {
-         if (req != null) {
-            Map<String, String[]> params = req.getParameterMap();
-            if (params != null) {
-               for (String key : params.keySet()) {
-                  if (POST_METHOD.equals(key) 
-                        || ORIGINAL_METHOD.equals(key)) {
-                     // skip the method
-                     continue;
-                  }
-                  Object value = null;
-                  String[] values = req.getParameterValues(key);
-                  if (values == null) {
-                     // in theory this should not happen
-                     continue;
-                  } else if (values.length > 1) {
-                     value = values;
-                  } else if (values.length == 1) {
-                     value = values[0];
-                  }
-                  search.addRestriction( new Restriction(key, value) );
-               }
-            }
-         }
-      } catch (Exception e) {
-         // failed to translate the request to a search, not really much to do here
-         log.warn("Could not translate entity request into search params: " + e.getMessage(), e);
-      }
-      return search;
-   }
-
-
-   /**
-    * Get an entity object of some kind for this reference if it has an id,
-    * will simply return null if no id is available in this reference
-    * 
-    * @param reference a unique string representing an entity
-    * @return the entity object for this reference or null if none can be retrieved
-    */
-   public Object getEntityObject(EntityReference ref) {
-      Object entity = null;
-      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Resolvable.class);
-      if (provider != null) {
-         entity = ((Resolvable)provider).getEntity(ref);
-      }
-      return entity;
-   }
-
-   /**
-    * Get the list of entities based on a reference and supplied search,
-    * passes through to the EP methods if available
-    * 
-    * @param ref an entity reference
-    * @param search an optional search
-    * @return the list of entities if they can be retrieved or null these entities cannot be resolved
-    */
-   @SuppressWarnings("unchecked")
-   protected List<?> fetchEntityList(EntityReference ref, Search search) {
-      List entities = null;
-      if (ref.getId() == null) {
-         // encoding a collection of entities
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), CollectionResolvable.class);
-         if (provider != null) {
-            entities = new ArrayList( ((CollectionResolvable)provider).getEntities(ref, search) );
-         }
-      } else {
-         // encoding a single entity
-         Object entity = getEntityObject(ref);
-         if (entity == null) {
-            throw new EntityException("Failed to retrieve entity (" + ref + "), entity object could not be found",
-                  ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-         }
-         entities = new ArrayList();
-         entities.add(entity);
-      }
-      return entities;
-   }
-
-   /**
-    * This will set the response mime type correctly based on the format constant,
-    * also sets the response encoding to UTF_8
-    * @param format the format constant, example {@link Formats#XML}
-    * @param res the current outgoing response
-    */
-   protected void setResponseEncoding(String format, HttpServletResponse res) {
-      String encoding;
-      if (Formats.XML.equals(format)) {
-         encoding = Formats.XML_MIME_TYPE;
-      } else if (Formats.HTML.equals(format)) {
-         encoding = Formats.HTML_MIME_TYPE;
-      } else if (Formats.JSON.equals(format)) {
-         encoding = Formats.JSON_MIME_TYPE;
-      } else if (Formats.RSS.equals(format)) {
-         encoding = Formats.RSS_MIME_TYPE;                        
-      } else if (Formats.ATOM.equals(format)) {
-         encoding = Formats.ATOM_MIME_TYPE;                        
-      } else {
-         encoding = Formats.TXT_MIME_TYPE;
-      }
-      res.setContentType(encoding);
-      res.setCharacterEncoding(UTF_8);
    }
 
 
@@ -537,7 +143,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                format = Formats.HTML;
             }
             setResponseEncoding(format, res);
-            String output = makeDescribeAll(format);
+            String output = entityDescriptionManager.makeDescribeAll(format);
             try {
                res.getWriter().write(output);
             } catch (IOException e) {
@@ -549,7 +155,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
             EntityView view;
             try {
-               view = parseEntityURL(path);
+               view = entityBrokerManager.parseEntityURL(path);
             } catch (IllegalArgumentException e) {
                // indicates we could not parse the reference
                throw new EntityException("Could not parse entity path ("+path+"): " + e.getMessage(), path, HttpServletResponse.SC_BAD_REQUEST);
@@ -570,7 +176,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                if (entityId == null || "".equals(entityId)) {
                   entityId = FAKE_ID;
                }
-               String output = makeDescribeEntity(view.getEntityReference().getPrefix(), entityId, format, true, null);
+               String output = entityDescriptionManager.makeDescribeEntity(view.getEntityReference().getPrefix(), entityId, format);
                try {
                   res.getWriter().write(output);
                } catch (IOException e) {
@@ -578,7 +184,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                }
                res.setStatus(HttpServletResponse.SC_OK);
                handledReference = view.getEntityReference().getSpaceReference() + SLASH_DESCRIBE;
-            } else if (! entityExists(view.getEntityReference()) ) {
+            } else if (! entityBrokerManager.entityExists(view.getEntityReference()) ) {
                // invalid entity reference (entity does not exist)
                throw new EntityException( "Attempted to access an entity URL path (" + path + ") for an entity ("
                      + view.getEntityReference() + ") that does not exist", 
@@ -671,7 +277,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
                               // get the entities to output
                               Search search = makeSearchFromRequest(req);
-                              List<?> entities = fetchEntityList(view.getEntityReference(), search);
+                              List<?> entities = entityBrokerManager.fetchEntityList(view.getEntityReference(), search);
                               OutputStream outputStream = null;
                               try {
                                  outputStream = res.getOutputStream();
@@ -682,7 +288,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                               OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
                               if (formattable == null) {
                                  // handle internally or fail
-                                 internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view);
+                                 entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view);
                               } else {
                                  // use provider's formatter
                                  formattable.formatOutput(view.getEntityReference(), view.getExtension(), entities, outputStream);
@@ -723,7 +329,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                  InputTranslatable translatable = (InputTranslatable) entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
                                  if (translatable == null) {
                                     // use internal translators or fail
-                                    entity = internalInputTranslator(view.getEntityReference(), 
+                                    entity = entityEncodingManager.internalInputTranslator(view.getEntityReference(), 
                                           view.getExtension(), inputStream, req);
                                  } else {
                                     // use provider's translator
@@ -796,365 +402,188 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return handledReference;
    }
 
-   /**
-    * Generate a description of all entities in the system,
-    * this is only available as XML and XHTML
-    * 
-    * @param format XML or HTML (default is HTML)
-    * @return the description string for all known entities
-    */
-   protected String makeDescribeAll(String format) {
-      Map<String, List<Class<? extends EntityProvider>>> map = entityProviderManager.getRegisteredEntityCapabilities();
-      String describeURL = makeFullURL("") + SLASH_DESCRIBE;
-      String output = "";
-      if (Formats.XML.equals(format)) {
-         // XML available in case someone wants to parse this in javascript or whatever
-         StringBuilder sb = new StringBuilder();
-         sb.append(XML_HEADER);
-         sb.append("<describe>\n");
-         sb.append("  <describeURL>" + describeURL + "</describeURL>\n");
-         sb.append("  <prefixes>\n");
-         ArrayList<String> prefixes = new ArrayList<String>(map.keySet());
-         Collections.sort(prefixes);
-         for (int i = 0; i < prefixes.size(); i++) {
-            String prefix = prefixes.get(i);
-            describeEntity(sb, prefix, FAKE_ID, format, false, map.get(prefix));
-         }
-         sb.append("  </prefixes>\n");
-         sb.append("</describe>\n");
-         output = sb.toString();
-      } else {
-         // just do HTML if not one of the handled ones
-         Locale locale = entityProperties.getLocale();
-         StringBuilder sb = new StringBuilder();
-         sb.append(XML_HEADER);
-         sb.append(XHTML_HEADER);
-         sb.append("<h1><a href='"+ describeURL +"'>Describe all</a> registered entities"
-               + makeFormatUrlHtml(describeURL, Formats.XML) +"</h1>\n");
-         sb.append("  <i>RESTful URLs: <a href='http://microformats.org/wiki/rest/urls'>http://microformats.org/wiki/rest/urls</a></i><br/>\n");
-         sb.append("  <h2>"+entityProperties.getProperty(DESCRIBE, "describe.all", locale)+" ("
-               +entityProperties.getProperty(DESCRIBE, "describe.registered.entities", locale)+"): "
-               +map.size()+"</h2>\n");
-         ArrayList<String> prefixes = new ArrayList<String>(map.keySet());
-         Collections.sort(prefixes);
-         for (int i = 0; i < prefixes.size(); i++) {
-            String prefix = prefixes.get(i);
-            describeEntity(sb, prefix, FAKE_ID, format, false, map.get(prefix));
-         }
-         sb.append(XHTML_FOOTER);
-         output = sb.toString();
-      }
-      return output;
-   }
 
    /**
-    * Generate a description of an entity type
-    * 
-    * @param prefix an entity prefix
-    * @param id the entity id to use for generating URLs
-    * @param format a format to output, HTML and XML supported
-    * @param extra if true then include URLs and extra data, if false then include basic info only
-    * @param caps (optional) a list of capabilities, this will be looked up if this is null
-    * @return the description string
+    * @see EntityBroker#fireEntityRequest(String, String, String, Map, Object)
     */
-   protected String makeDescribeEntity(String prefix, String id, String format, boolean extra, List<Class<? extends EntityProvider>> caps) {
-      if (caps == null) {
-         caps = entityProviderManager.getPrefixCapabilities(prefix);
+   public EntityResponse fireEntityRequestInternal(String reference, String viewKey, String format, Map<String, String> params, Object entity) {
+      if (reference == null) {
+         throw new IllegalArgumentException("reference must not be null");
       }
-      StringBuilder sb = new StringBuilder();
-      if (Formats.XML.equals(format)) {
-         sb.append(XML_HEADER);
-         describeEntity(sb, prefix, id, format, extra, caps);
+      // convert the reference/key/format into a URL
+      EntityReference ref = new EntityReference(reference);
+      EntityView ev = new EntityView();
+      ev.setEntityReference( ref );
+      if (viewKey != null 
+            && ! "".equals(viewKey)) {
+         ev.setViewKey(viewKey);
+      }
+      if (format != null 
+            && ! "".equals(format)) {
+         ev.setExtension(format);
+      }
+      String URL = ev.toString();
+      // get the right method to use
+      Method method = Method.GET;
+      if (EntityView.VIEW_DELETE.equals(ev.getViewKey())) {
+         method = Method.DELETE;
+      } else if (EntityView.VIEW_EDIT.equals(ev.getViewKey())) {
+         method = Method.PUT;
+      } else if (EntityView.VIEW_NEW.equals(ev.getViewKey())) {
+         method = Method.POST;
       } else {
-         // just do HTML if not one of the handled ones
-         sb.append(XML_HEADER);
-         sb.append(XHTML_HEADER);
-         describeEntity(sb, prefix, id, format, extra, caps);
-         sb.append(XHTML_FOOTER);
+         method = Method.GET;
       }
-      return sb.toString();
-   }
-
-   /**
-    * This is reducing code duplication
-    * @param sb
-    * @param prefix
-    * @param id
-    * @param format
-    * @param extra
-    * @param caps
-    * @return
-    */
-   protected String describeEntity(StringBuilder sb, String prefix, String id, String format, boolean extra, List<Class<? extends EntityProvider>> caps) {
-      if (caps == null) {
-         caps = entityProviderManager.getPrefixCapabilities(prefix);
-      }
-      String directUrl = makeFullURL("");
-      if (Formats.XML.equals(format)) {
-         // XML available in case someone wants to parse this in javascript or whatever
-         String describePrefixUrl = directUrl + "/" + prefix + SLASH_DESCRIBE;
-         sb.append("    <prefix>\n");
-         sb.append("      <prefix>" + prefix + "</prefix>\n");
-         sb.append("      <describeURL>" + describePrefixUrl + "</describeURL>\n");
-         String description = getEntityDescription(prefix, null);
-         if (description != null) {
-            sb.append("      <description>" + description + "</description>\n");            
+      // handle entity if one was included
+      Object data = null;
+      if (entity != null) {
+         String prefix = ref.getPrefix();
+         Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
+         if (inputable == null) {
+            throw new IllegalArgumentException("This entity ("+ref+") is not Inputable so there is no reason to provide "
+                  + "a non-null entity, you should leave the entity null when firing requests to this entity");
          }
-         if (extra) {
-            // URLs
-            EntityView ev = makeEntityView(new EntityReference(prefix, id), null, null);
-            if (caps.contains(CollectionResolvable.class)) {
-               sb.append("      <collectionURL>" + ev.getEntityURL(EntityView.VIEW_LIST, null) + "</collectionURL>\n");
-            }
-            if (caps.contains(Createable.class)) {
-               sb.append("      <createURL>" + ev.getEntityURL(EntityView.VIEW_NEW, null) + "</createURL>\n");
-            }
-            sb.append("      <showURL>" + ev.getEntityURL(EntityView.VIEW_SHOW, null) + "</showURL>\n");
-            if (caps.contains(Updateable.class)) {
-               sb.append("      <updateURL>" + ev.getEntityURL(EntityView.VIEW_EDIT, null) + "</updateURL>\n");
-            }
-            if (caps.contains(Deleteable.class)) {
-               sb.append("      <deleteURL>" + ev.getEntityURL(EntityView.VIEW_DELETE, null) + "</deleteURL>\n");
-            }
-            // Formats
-            String[] outputFormats = getFormats(prefix, true);
-            sb.append("      <outputFormats>\n");
-            for (int i = 0; i < outputFormats.length; i++) {
-               sb.append("        <format>"+outputFormats[i]+"</format>\n");               
-            }
-            sb.append("      </outputFormats>\n");
-            String[] inputFormats = getFormats(prefix, false);
-            sb.append("      <inputFormats>\n");
-            for (int i = 0; i < inputFormats.length; i++) {
-               sb.append("        <format>"+inputFormats[i]+"</format>\n");               
-            }
-            sb.append("      </inputFormats>\n");
-            // Resolvable Entity Info
-            Object entity = getSampleEntityObject(prefix);
-            if (entity != null) {
-               sb.append("      <entityClass>\n");
-               sb.append("        <class>"+ entity.getClass().getName() +"</class>\n");
-               Map<String, Class<?>> entityTypes = reflectUtil.getFieldTypes(entity.getClass());
-               ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
-               Collections.sort(keys);
-               for (String key : keys) {
-                  Class<?> type = entityTypes.get(key);
-                  sb.append("        <"+ key +">"+ type.getName() +"</"+key+">\n");
-               }
-               sb.append("      </entityClass>\n");
-            }
-         }
-         sb.append("      <capabilities>\n");
-         for (Class<? extends EntityProvider> class1 : caps) {
-            sb.append("        <capability>\n");
-            sb.append("          <name>"+class1.getSimpleName()+"</name>\n");
-            sb.append("          <type>"+class1.getName()+"</type>\n");
-            if (extra) {
-               String capabilityDescription = getEntityDescription(prefix, class1);
-               if (capabilityDescription != null) {
-                  sb.append("          <description>" + capabilityDescription + "</description>\n");                  
-               }
-            }
-            sb.append("        </capability>\n");
-         }
-         sb.append("      </capabilities>\n");
-         sb.append("    </prefix>\n");
-      } else {
-         Locale locale = entityProperties.getLocale();
-         // just do HTML if not one of the handled ones
-         String describePrefixUrl = directUrl + "/" + prefix + SLASH_DESCRIBE;
-         sb.append("    <h3><a href='"+describePrefixUrl+"'>"+prefix+"</a>"
-               + makeFormatUrlHtml(describePrefixUrl, Formats.XML) +"</h3>\n");
-         String description = getEntityDescription(prefix, null);
-         if (description != null) {
-            sb.append("      <div style='font-style: italics; padding-left:0.5em; padding-bottom:0.4em; width:90%;'>" + description + "</div>\n");
-         }
-         if (extra) {
-            sb.append("      <div style='font-style: italics; padding-left:1em;'>" +
-            		"RESTful URLs: <a href='http://microformats.org/wiki/rest/urls'>http://microformats.org/wiki/rest/urls</a></div>\n");
-            String[] outputFormats = getFormats(prefix, true);
-            // URLs
-            EntityView ev = makeEntityView(new EntityReference(prefix, id), null, null);
-            String url = "";
-            sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.sample.urls", locale)
-                  +" (_id='"+id+"') ["
-                  +entityProperties.getProperty(DESCRIBE, "describe.entity.may.be.invalid", locale)+"]:</h4>\n");
-            sb.append("        <ul>\n");
-            if (caps.contains(CollectionResolvable.class)) {
-               url = ev.getEntityURL(EntityView.VIEW_LIST, null);
-               sb.append("          <li>"+entityProperties.getProperty(DESCRIBE, "describe.entity.collection.url", locale)+": <a href='"+ directUrl+url +"'>"+url+"<a/>"
-                     + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</li>\n");
-            }
-            if (caps.contains(Createable.class)) {
-               url = ev.getEntityURL(EntityView.VIEW_NEW, null);
-               sb.append("          <li>"+entityProperties.getProperty(DESCRIBE, "describe.entity.create.url", locale)+": <a href='"+ directUrl+url +"'>"+url+"<a/></li>\n");
-            }
-            url = ev.getEntityURL(EntityView.VIEW_SHOW, null);
-            sb.append("          <li>"+entityProperties.getProperty(DESCRIBE, "describe.entity.show.url", locale)+": <a href='"+ directUrl+url +"'>"+url+"<a/>"
-                  + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</li>\n");
-            if (caps.contains(Updateable.class)) {
-               url = ev.getEntityURL(EntityView.VIEW_EDIT, null);
-               sb.append("          <li>"+entityProperties.getProperty(DESCRIBE, "describe.entity.update.url", locale)+": <a href='"+ directUrl+url +"'>"+url+"<a/></li>\n");
-            }
-            if (caps.contains(Deleteable.class)) {
-               url = ev.getEntityURL(EntityView.VIEW_DELETE, null);
-               sb.append("          <li>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)+": <a href='"+ directUrl+url +"'>"+url+"<a/></li>\n");
-            }
-            sb.append("        </ul>\n");
-            // Formats
-            sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.output.formats", locale)+" : "+ makeFormatsString(outputFormats) +"</h4>\n");
-            String[] inputFormats = getFormats(prefix, false);
-            sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.input.formats", locale)+" : "+ makeFormatsString(inputFormats) +"</h4>\n");
-            // Resolvable Entity Info
-            Object entity = getSampleEntityObject(prefix);
-            if (entity != null) {
-               sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entity.getClass().getName() +"</h4>\n");
-               sb.append("        <ul>\n");
-               Map<String, Class<?>> entityTypes = reflectUtil.getFieldTypes(entity.getClass());
-               ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
-               Collections.sort(keys);
-               for (String key : keys) {
-                  Class<?> type = entityTypes.get(key);
-                  sb.append("          <li>"+ key +" : "+ type.getName() +"</li>\n");                  
-               }
-               sb.append("        </ul>\n");
-            }
-         }
-         sb.append("      <div style='font-size:1.1em; font-weight:bold; font-style:italic; padding-left:0.5em;'>"
-               +entityProperties.getProperty(DESCRIBE, "describe.capabilities", locale)+": "+caps.size()+"</div>\n");
-         sb.append("      <table width='95%' style='padding-left:1.5em;'>\n");
-         sb.append("        <tr style='font-size:0.9em;'><th width='1%'></th><th width='14%'>"
-               +entityProperties.getProperty(DESCRIBE, "describe.capabilities.name", locale)
-               +"</th><th width='30%'>"
-               +entityProperties.getProperty(DESCRIBE, "describe.capabilities.type", locale)
-               +"</th>");
-         if (extra) {   sb.append("<th width='55%'>"
-               +entityProperties.getProperty(DESCRIBE, "describe.capabilities.description", locale)
-               +"</th>"); }
-         sb.append("</tr>\n");
-         int counter = 1;
-         for (Class<? extends EntityProvider> class1 : caps) {
-            sb.append("        <tr style='font-size:0.9em;'><td>");
-            sb.append(counter++);
-            sb.append("</td><td>");
-            sb.append(class1.getSimpleName());
-            sb.append("</td><td>");
-            sb.append(class1.getName());
-            sb.append("</td><td>");
-            if (extra) {
-               String capabilityDescription = getEntityDescription(prefix, class1);
-               if (capabilityDescription != null) {
-                  sb.append(capabilityDescription);
-               }
-            }
-            sb.append("</td></tr>\n");
-         }
-         sb.append("      </table>\n");
-      }
-      return sb.toString();
-   }
-
-   // DESCRIBE formatting utilities
-
-   protected String[] getFormats(String prefix, boolean output) {
-      String[] formats;
-      try {
-         if (output) {
-            formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats();
+         Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+         if (outputable == null) {
+            throw new IllegalArgumentException("This entity ("+ref+") is not Outputable so there is no reason to provide "
+               + "a non-null entity, you should leave the entity null when firing requests to this entity");
          } else {
-            formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats();
-         }
-      } catch (NullPointerException e) {
-         formats = new String[] {};
-      }
-      if (formats == null) {
-         formats = new String[] {};
-      }
-      return formats;
-   }
-
-   protected String makeFormatsUrlHtml(String url, String[] formats) {
-      StringBuilder sb = new StringBuilder();
-      if (formats != null) {
-         for (String format : formats) {
-            sb.append( makeFormatUrlHtml(url, format) );
-         }
-      }
-      return sb.toString();
-   }
-
-   protected String makeFormatsString(String[] formats) {
-      String s = ReflectUtil.arrayToString( formats );
-      if ("".equals(s)) {
-         s = "<i>NONE</i>";
-      }
-      return s;
-   }
-
-   protected String makeFormatUrlHtml(String url, String format) {
-      return " (<a href='"+url+"."+format+"'>"+format+"</a>)";
-   }
-
-   /**
-    * Get the descriptions for an entity OR its capabilites
-    * @param prefix an entity prefix
-    * @param capability (optional)
-    * @return the description (may be blank) OR null if there is none
-    */
-   protected String getEntityDescription(String prefix, Class<? extends EntityProvider> capability) {
-      String value = null;
-      Locale locale = entityProperties.getLocale();
-      // get from EP first if possible
-      DescribeDefineable describer = entityProviderManager.getProviderByPrefixAndCapability(prefix, DescribeDefineable.class);
-      if (describer != null) {
-         value = describer.getDescription(locale, capability);
-      }
-      // now from the default location if null
-      if (value == null) {
-         String key = prefix;
-         if (capability != null) {
-            // try simple name first
-            key += "." + capability.getSimpleName();
-         }
-         value = entityProperties.getProperty(prefix, key, locale);
-         if (capability != null 
-               && value == null) {
-            // try full name also
-            key += "." + capability.getName();
-            value = entityProperties.getProperty(prefix, key, locale);
-         }
-      }
-      if ("".equals(value)) {
-         value = null;
-      }
-      return value;
-   }
-
-   /**
-    * Safely get the sample entity object for descriptions
-    */
-   protected Object getSampleEntityObject(String prefix) {
-      Object entity = null;
-      try {
-         Resolvable resolvable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Resolvable.class);
-         if (resolvable != null) {
-            entity = resolvable.getEntity(new EntityReference(prefix, ""));
-         }
-      } catch (RuntimeException e) {
-         entity = null;
-      }
-      if (entity == null) {
-         try {
-            Createable createable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Createable.class);
-            if (createable != null) {
-               entity = createable.getSampleEntity();
+            String[] formats = outputable.getHandledOutputFormats();
+            if ( ReflectUtil.contains(formats, format) ) {
+               List<Object> entities = new ArrayList<Object>();
+               entities.add(entity);
+               // need to make sure the reference has an id set
+               ref = new EntityReference(ref.getPrefix(), ref.getId() == null ? "new" : ref.getId());
+               // setup the output stream
+               ByteArrayOutputStream output = new ByteArrayOutputStream();
+               OutputFormattable formattable = entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
+               if (formattable == null) {
+                  // handle internally or fail
+                  entityEncodingManager.internalOutputFormatter(ref, format, entities, output, null);
+               } else {
+                  // use provider's formatter
+                  formattable.formatOutput(ref, format, entities, output);
+               }
+               data = new ByteArrayInputStream(output.toByteArray());
+            } else {
+               throw new IllegalArgumentException("This entity ("+reference+") is not outputable in this format ("+format+")," +
+                     " only the following formats are supported: " + ReflectUtil.arrayToString(formats));
             }
-         } catch (RuntimeException e) {
-            entity = null;
          }
       }
-      return entity;
+      HttpResponse httpResponse = HttpRESTUtils.fireRequest(URL, method, params, data, true);
+      // translate response to correct kind
+      EntityResponse response = new EntityResponse(httpResponse.getResponseCode(), 
+            httpResponse.getResponseMessage(), httpResponse.getResponseBody(), httpResponse.getResponseHeaders());
+      return response;
    }
+
+   /**
+    * This looks at search parameters and returns anything it finds in the
+    * request parameters that can be put into the search,
+    * supports the page params
+    * 
+    * @param req a servlet request
+    * @return a search filter object
+    */
+   @SuppressWarnings("unchecked")
+   public Search makeSearchFromRequest(HttpServletRequest req) {
+      Search search = new Search();
+      int page = -1;
+      int limit = -1;
+      try {
+         if (req != null) {
+            Map<String, String[]> params = req.getParameterMap();
+            if (params != null) {
+               for (String key : params.keySet()) {
+                  if (POST_METHOD.equals(key) 
+                        || ORIGINAL_METHOD.equals(key)) {
+                     // skip the method
+                     continue;
+                  }
+                  Object value = null;
+                  String[] values = req.getParameterValues(key);
+                  if (values == null) {
+                     // in theory this should not happen
+                     continue;
+                  } else if (values.length > 1) {
+                     value = values;
+                  } else if (values.length == 1) {
+                     value = values[0];
+                     // get paging values out if possible
+                     if ("_limit".equals(key) 
+                           || "_perpage".equals(key)
+                           || ":perpage".equals(key)) {
+                        try {
+                           limit = Integer.valueOf(value.toString()).intValue();
+                           search.setLimit(limit);
+                        } catch (NumberFormatException e) {
+                           log.warn("Invalid non-number passed in for _limit/_perpage param: " + value, e);
+                        }
+                     } else if ("_start".equals(key)) {
+                        try {
+                           int start = Integer.valueOf(value.toString()).intValue();
+                           search.setStart(start);
+                        } catch (NumberFormatException e) {
+                           log.warn("Invalid non-number passed in for '_start' param: " + value, e);
+                        }
+                     } else if ("_page".equals(key)
+                           || ":page".equals(key)) {
+                        try {
+                           page = Integer.valueOf(value.toString()).intValue();
+                        } catch (NumberFormatException e) {
+                           log.warn("Invalid non-number passed in for '_page' param: " + value, e);
+                        }
+                     }
+                  }
+                  search.addRestriction( new Restriction(key, value) );
+               }
+            }
+         }
+      } catch (Exception e) {
+         // failed to translate the request to a search, not really much to do here
+         log.warn("Could not translate entity request into search params: " + e.getMessage(), e);
+      }
+      // translate page into start/limit
+      if (page > -1) {
+         if (limit <= -1) {
+            limit = 10; // set to a default value
+            search.setLimit(limit);
+            log.warn("page is set without a limit per page, setting per page limit to default value of 10");
+         }
+         search.setStart( page * limit );
+      }
+      return search;
+   }
+
+
+
+   /**
+    * This will set the response mime type correctly based on the format constant,
+    * also sets the response encoding to UTF_8
+    * @param format the format constant, example {@link Formats#XML}
+    * @param res the current outgoing response
+    */
+   protected void setResponseEncoding(String format, HttpServletResponse res) {
+      String encoding;
+      if (Formats.XML.equals(format)) {
+         encoding = Formats.XML_MIME_TYPE;
+      } else if (Formats.HTML.equals(format)) {
+         encoding = Formats.HTML_MIME_TYPE;
+      } else if (Formats.JSON.equals(format)) {
+         encoding = Formats.JSON_MIME_TYPE;
+      } else if (Formats.RSS.equals(format)) {
+         encoding = Formats.RSS_MIME_TYPE;                        
+      } else if (Formats.ATOM.equals(format)) {
+         encoding = Formats.ATOM_MIME_TYPE;                        
+      } else {
+         encoding = Formats.TXT_MIME_TYPE;
+      }
+      res.setContentType(encoding);
+      res.setCharacterEncoding(Formats.UTF_8);
+   }
+
+   
 
 
    /**
@@ -1219,278 +648,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          Thread.currentThread().setContextClassLoader(currentClassLoader);
       }
       // END classloader protection
-   }
-
-
-   /**
-    * Handled the internal encoding of data into an entity object
-    * 
-    * @param ref the entity reference
-    * @param format the format which the input is encoded in
-    * @param input the data being input
-    * @return the entity object based on the data
-    * @throws EntityException if there is a failure in translation
-    */
-   @SuppressWarnings("unchecked")
-   public Object internalInputTranslator(EntityReference ref, String format, InputStream input, HttpServletRequest req) {
-      Object entity = null;
-
-      // get the encoder to use
-      EntityXStream encoder = getEncoderForFormat(format, false);
-
-      Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Inputable.class);
-      if (inputable != null) {
-         // get a the current entity object or a sample
-         Object current = null;
-         if (ref.getId() == null) {
-            // get a sample
-            current = inputable.getSampleEntity();
-         } else {
-            // get the current entity
-            current = inputable.getEntity(ref);
-         }
-
-         if (current != null) {
-            if (Formats.HTML.equals(format) || format == null || "".equals(format)) {
-               // html req handled specially
-               if (req != null) {
-                  Map<String, String[]> params = req.getParameterMap();
-                  if (params != null && params.size() > 0) {
-                     entity = current;
-                     try {
-                        reflectUtil.populateFromParams(entity, params);
-                     } catch (Exception e) {
-                        throw new IllegalArgumentException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), e);
-                     }
-                  } else {
-                     // no request params, bad request
-                     throw new EntityException("No request params for html input request (there must be at least one) for reference: " + ref, 
-                           ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
-                  }
-               }
-            } else if (encoder != null) {
-               if (input == null) {
-                  // no request params, bad request
-                  throw new EntityException("No input for input translation (input cannot be null) for reference: " + ref, 
-                        ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
-               } else {
-                  encoder.alias(ref.getPrefix(), current.getClass());
-                  // START classloader protection
-                  ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-                  try {
-                     Object classloaderIndicator = current;
-                     ClassLoader newClassLoader = classloaderIndicator.getClass().getClassLoader();
-                     encoder.setClassLoader(newClassLoader);
-                     // translate using the encoder
-                     entity = encoder.fromXML(input, current);
-                     // END run in classloader
-                  } catch (RuntimeException e) {
-                     throw new EncodingException("Failure during internal input encoding of entity: " + ref, ref.toString(), e);
-                  } finally {
-                     encoder.setClassLoader(currentClassLoader);
-                  }
-                  // END classloader protection
-               }
-            }
-         }
-      } else {
-         throw new IllegalArgumentException("This entity ("+ref+") does not allow input translation");
-      }
-
-      if (entity == null) {
-         throw new EntityException("Unable to encode entity from input for reference: " + ref, ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
-      }
-      return entity;
-   }
-
-
-   /**
-    * Format entities for output based on the reference into a format,
-    * use the provided list or get the entities
-    * 
-    * @param ref the entity reference for this, 
-    * if this is a reference to a collection then this will be rendered as a collection of entities,
-    * if a reference to a single entity then only the matching one from the collection will be used
-    * @param format the format to use for the output data
-    * @param entities (optional) if this is null then the entities will be fetched
-    * @param output the outputstream to place the encoded data into
-    * @param view (optional) 
-    */
-   public void internalOutputFormatter(EntityReference ref, String format, List<?> entities, OutputStream output, EntityView view) {
-      if (format == null) { format = Outputable.HTML; }
-      if (view == null) {
-         view = makeEntityView(ref, null, null);
-      }
-      // create a scrap view from the current view, this should be more efficient
-      EntityView workingView = makeEVfromEV(view);
-
-      // get the entities if not supplied
-      if (entities == null) {
-         entities = fetchEntityList(ref, new Search());
-      }
-      if (entities.isEmpty()) {
-         // just log this for now
-         log.info("No entities to format ("+format+") and output for ref (" + ref + ")");
-      }
-
-      // get the encoder to use
-      EntityXStream encoder = getEncoderForFormat(format, true);
-
-      String encoded = null;
-      if (EntityView.VIEW_LIST.equals(view.getViewKey()) 
-            || ref.getId() == null) {
-         // encoding a collection of entities
-         if (encoder != null) {
-            Class<?> entityClass = ReflectUtil.getClassFromCollection((Collection<?>)entities);
-            encoder.alias(ref.prefix, entityClass);
-            StringBuilder sb = new StringBuilder();
-            // make header
-            if (Formats.JSON.equals(format)) {
-               sb.append("{\""+ENTITY_PREFIX+"\": \""+ref.getPrefix() + "\", \"" + ref.getPrefix() + COLLECTION + "\": [\n");
-            } else { // assume XML
-               sb.append("<" + ref.getPrefix() + COLLECTION + " " + ENTITY_PREFIX + "=\"" + ref.getPrefix() + "\">\n");
-            }
-            // loop through and encode items
-            int encodedEntities = 0;
-            for (Object entity : entities) {
-               String encode = encodeEntity(ref, workingView, entity, encoder);
-               if (encode.length() > 3) {
-                  if (Formats.JSON.equals(format)) {
-                     if (encodedEntities > 0) {
-                        sb.append(",\n");
-                     }
-                     // special JSON cleanup (strips off the {"stuff": ... })
-                     encode = encode.substring(encode.indexOf(':')+1, encode.length()-1);
-                  } else {
-                     if (encodedEntities > 0) {
-                        sb.append("\n");
-                     }
-                  }
-                  sb.append(encode);                     
-                  encodedEntities++;
-               }
-            }
-            // make footer
-            if (Formats.JSON.equals(format)) {
-               sb.append("\n]}");
-            } else { // assume XML
-               sb.append("\n</" + ref.getPrefix() + COLLECTION + ">");
-            }
-            encoded = sb.toString();
-         } else {
-            // just dump the whole thing to a string
-            encoded = encodeEntity(ref, workingView, entities, null);
-         }
-      } else {
-         // encoding a single entity
-         Object toEncode = entities.get(0);
-         if (toEncode == null) {
-            throw new EncodingException("Failed to encode data for entity (" + ref 
-                  + "), entity object to encode could not be found", ref.toString());
-         } else {
-            Class<?> encodeClass = toEncode.getClass();
-            if (encoder != null) {
-               encoder.alias(ref.getPrefix(), encodeClass); // add alias for the current entity prefix
-            }
-            try {
-               encoded = encodeEntity(ref, workingView, toEncode, encoder);
-            } catch (RuntimeException e) {
-               throw new EncodingException("Failure during internal output encoding of entity: " + ref, ref.toString(), e);
-            }
-         }
-      }
-      // put the encoded data into the OS
-      try {
-         byte[] b = encoded.getBytes(UTF_8);
-         output.write(b);
-      } catch (UnsupportedEncodingException e) {
-         throw new EncodingException("Failed to encode UTF-8: " + ref, ref.toString(), e);
-      } catch (IOException e) {
-         throw new EncodingException("Failed to encode into output stream: " + ref, ref.toString(), e);
-      }
-   }
-
-
-   /**
-    * stores the various xstream processors for handling the different types of data
-    */
-   private Map<String, EntityXStream> xstreams = new HashMap<String, EntityXStream>();
-   /**
-    * @param format
-    * @param output if true then get the encode for output, if false then for input
-    * @return the appropriate encoder for the format
-    */
-   private EntityXStream getEncoderForFormat(String format, boolean output) {
-      EntityXStream encoder = null;
-      if (Formats.JSON.equals(format)) {
-         // http://jira.sakaiproject.org/jira/browse/SAK-13681
-//       if (output) {
-//       if (! xstreams.containsKey(format)) {
-//       xstreams.put( format, new EntityXStream(new JsonHierarchicalStreamDriver()) );
-//       }
-//       } else {
-//       format += "-IN";
-//       if (! xstreams.containsKey(format)) {
-//       xstreams.put( format, new EntityXStream(new JettisonMappedXmlDriver()) );
-//       }
-//       }
-         if (! xstreams.containsKey(format)) {
-            xstreams.put( format, new EntityXStream(new JettisonMappedXmlDriver()) );
-         }
-         encoder = xstreams.get(format);
-      } else if (Formats.XML.equals(format)) {
-         if (! xstreams.containsKey(format)) {
-            xstreams.put( format, new EntityXStream(new XppDomDriver()) );
-         }
-         encoder = xstreams.get(format);
-      } else if (Formats.TXT.equals(format)) {
-         // TODO Add in plaintext encoder/decoder
-      } else {
-         encoder = null; // do a toString dump
-      }
-      return encoder;
-   }
-
-   /**
-    * @param ref the entity reference
-    * @param workingView this is a working view which can be changed around as needed to generate URLs,
-    * always go to the EntityReference for original data
-    * @param toEncode entity to encode
-    * @param encoder enhanced xstream encoder or null if no encoder available
-    * @return the encoded entity or "" if encoding fails
-    */
-   private String encodeEntity(EntityReference ref, EntityView workingView, Object toEncode, EntityXStream encoder) {
-      String encoded = "";
-      if (encoder != null) {
-         // generate entity meta data
-         Class<?> entityClass = toEncode.getClass();
-         Map<String, Object> entityData = null;
-         if (! BasicEntity.class.equals(entityClass)) {
-            entityData = new HashMap<String, Object>();
-            entityData.put(EntityXStream.EXTRA_DATA_CLASS, entityClass);
-            String entityId = ref.getId();
-            if (entityId == null) {
-               // try to get it from the toEncode object
-               entityId = reflectUtil.getFieldValueAsString(toEncode, "id", EntityId.class);
-            }
-            if (entityId != null) {
-               entityData.put("ID", entityId);
-               workingView.setEntityReference( new EntityReference(ref.getPrefix(), entityId) );
-               String url = makeFullURL( workingView.getEntityURL(EntityView.VIEW_SHOW, null) );
-               entityData.put("URL", url);
-            } else {
-               String url = makeFullURL( workingView.getEntityURL(EntityView.VIEW_LIST, null) );
-               entityData.put("URL", url);               
-            }
-         }
-
-         // encode the object
-         encoded = encoder.toXML(toEncode, entityData);
-      } else {
-         // just to string this and dump it out
-         encoded = "<b>" + ref.getPrefix() + "</b>: " + toEncode.toString();
-      }
-      return encoded;
    }
 
 }

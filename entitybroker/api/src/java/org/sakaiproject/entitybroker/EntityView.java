@@ -332,6 +332,17 @@ public class EntityView {
    }
 
    /**
+    * @return the entity URL of the internal reference based on the
+    * internal viewKey and extension, defaults to {@link TemplateParseUtil#TEMPLATE_SHOW} or 
+    * the {@link TemplateParseUtil#TEMPLATE_LIST} one if there is no id,
+    * example: /prefix if there is no id or /prefix/id if there is an id
+    * @throws IllegalArgumentException if there is not enough information to generate a URL
+    */
+   public String getEntityURL() {
+      return this.toString();
+   }
+
+   /**
     * Get an entityUrl by merging a specific template with the data in this EB object
     * 
     * @param viewKey a key which uniquely identifies a view, 
@@ -379,6 +390,18 @@ public class EntityView {
       return template;
    }
 
+   @Override
+   public Object clone() throws CloneNotSupportedException {
+      return copy(this);
+   }
+
+   /**
+    * @return a copy of this object
+    * @see #copy(EntityView)
+    */
+   public EntityView copy() {
+      return copy(this);
+   }
 
    // STATIC METHODS
 
@@ -393,6 +416,28 @@ public class EntityView {
             || SEPARATOR != entityURL.charAt(0) )
       throw new IllegalArgumentException("Invalid entity Url for EntityBroker: "
             + entityURL + " - these begin with " + SEPARATOR + " and cannot be null");      
+   }
+
+   /**
+    * Makes a copy of an EntityView which can be changed independently
+    * @param ev any EntityView
+    * @return the copy
+    * @throws IllegalArgumentException if the input is null OR not completely constructed
+    */
+   public static EntityView copy(EntityView ev) {
+      if (ev == null) {
+         throw new IllegalArgumentException("input entity view must not be null");
+      }
+      if (ev.viewKey == null || ev.entityReference == null) {
+         throw new IllegalArgumentException("input entity view must be completely constructed");         
+      }
+      EntityView togo = new EntityView();
+      EntityReference ref = ev.getEntityReference();
+      togo.setEntityReference( new EntityReference(ref.getPrefix(), ref.getId() == null ? "" : ref.getId()) );
+      togo.preloadParseTemplates( ev.getAnazlyzedTemplates() );
+      togo.setExtension( ev.getExtension() );
+      togo.setViewKey( ev.getViewKey() );
+      return togo;
    }
 
 }

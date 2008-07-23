@@ -185,6 +185,19 @@ public class EntityReference {
       return makeEntityReference(false);
    }
 
+   @Override
+   protected Object clone() throws CloneNotSupportedException {
+      return copy(this);
+   }
+
+   /**
+    * @return a copy of this reference
+    * @see #copy(EntityReference)
+    */
+   public EntityReference copy() {
+      return copy(this);
+   }
+   
    // STATIC METHODS
 
    /**
@@ -282,6 +295,20 @@ public class EntityReference {
       if (! prefixOK || ! idOK ) {
          throw new IllegalArgumentException("prefix ("+prefix+") and id ("+id+") must contain only valid chars: " + TemplateParseUtil.VALID_VAR_CHARS);
       }
+   }
+
+   /**
+    * Creates a copy of an entity reference
+    * @param ref an entity reference object
+    * @return the new copy of the ref
+    * @throws IllegalArgumentException if the ref is invalid OR null
+    */
+   public static EntityReference copy(EntityReference ref) {
+      if (ref == null) {
+         throw new IllegalArgumentException("input entity reference must not be null");
+      }
+      EntityReference copy = new EntityReference(ref.getPrefix(), ref.getId() == null ? "" : ref.getId());
+      return copy;
    }
 
 }

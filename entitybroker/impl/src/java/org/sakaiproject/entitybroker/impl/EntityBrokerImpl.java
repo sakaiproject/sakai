@@ -34,10 +34,6 @@ import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.dao.EntityProperty;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
@@ -45,7 +41,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.util.EntityResponse;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -72,8 +67,18 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       this.eventTrackingService = eventTrackingService;
    }
 
+   private EntityEncodingManager entityEncodingManager;
+   public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
+      this.entityEncodingManager = entityEncodingManager;
+   }
+
+   private EntityBrokerManager entityBrokerManager;
+   public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+      this.entityBrokerManager = entityBrokerManager;
+   }
+
    private EntityHandlerImpl entityHandler;
-   public void setEntityHandler(EntityHandlerImpl entityHandler) {
+   public void setEntityRequestHandler(EntityHandlerImpl entityHandler) {
       this.entityHandler = entityHandler;
    }
 
@@ -95,22 +100,22 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     * @see org.sakaiproject.entitybroker.EntityBroker#entityExists(java.lang.String)
     */
    public boolean entityExists(String reference) {
-      EntityReference ref = entityHandler.parseReference(reference);
-      return entityHandler.entityExists(ref);
+      EntityReference ref = entityBrokerManager.parseReference(reference);
+      return entityBrokerManager.entityExists(ref);
    }
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#getEntityURL(java.lang.String)
     */
    public String getEntityURL(String reference) {
-      return entityHandler.getEntityURL(reference, null, null);
+      return entityBrokerManager.getEntityURL(reference, null, null);
    }
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#getEntityURL(java.lang.String, java.lang.String, java.lang.String)
     */
    public String getEntityURL(String reference, String viewKey, String extension) {
-      return entityHandler.getEntityURL(reference, viewKey, extension);
+      return entityBrokerManager.getEntityURL(reference, viewKey, extension);
    }
 
    /* (non-Javadoc)
@@ -118,7 +123,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     */
    public EntityView getEntityView(String reference, String viewKey, String extension) {
       EntityReference ref = parseReference(reference);
-      EntityView ev = entityHandler.makeEntityView(ref, viewKey, extension);
+      EntityView ev = entityBrokerManager.makeEntityView(ref, viewKey, extension);
       return ev;
    }
 
@@ -133,7 +138,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     * @see org.sakaiproject.entitybroker.EntityBroker#parseReference(java.lang.String)
     */
    public EntityReference parseReference(String reference) {
-      return entityHandler.parseReference(reference);
+      return entityBrokerManager.parseReference(reference);
    }
 
    /* (non-Javadoc)
@@ -149,7 +154,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       String refName = reference;
       try {
          // parse the reference string to validate it and remove any extra bits
-         EntityReference ref = entityHandler.parseReference(reference);
+         EntityReference ref = entityBrokerManager.parseReference(reference);
          if (ref != null) {
             refName = ref.toString();
          } else {
@@ -179,7 +184,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     */
    public Object fetchEntity(String reference) {
       Object entity = null;
-      EntityReference ref = entityHandler.parseReference(reference);
+      EntityReference ref = entityBrokerManager.parseReference(reference);
       if (ref == null) {
          // not handled in EB so attempt to parse out a prefix and try to get entity from the legacy system
          try {
@@ -201,65 +206,11 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    }
 
    public void formatAndOutputEntity(String reference, String format, List<?> entities, OutputStream output) {
-      if (reference == null || format == null || output == null) {
-         throw new IllegalArgumentException("reference, format, and output cannot be null");
-      }
-      EntityReference ref = entityHandler.parseReference(reference);
-      if (ref == null) {
-         throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
-      }
-      String prefix = ref.getPrefix();
-      Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
-      if (outputable != null) {
-         String[] formats = outputable.getHandledOutputFormats();
-         if ( ReflectUtil.contains(formats, format) ) {
-            OutputFormattable formattable = entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
-            if (formattable == null) {
-               // handle internally or fail
-               entityHandler.internalOutputFormatter(ref, format, entities, output, null);
-            } else {
-               // use provider's formatter
-               formattable.formatOutput(ref, format, entities, output);
-            }
-         } else {
-            throw new IllegalArgumentException("This entity ("+reference+") is not outputable in this format ("+format+")," +
-            		" only the following formats are supported: " + ReflectUtil.arrayToString(formats));
-         }
-      } else {
-         throw new IllegalArgumentException("This entity ("+reference+") is not outputable");
-      }
+      entityEncodingManager.formatAndOutputEntity(reference, format, entities, output);
    }
 
    public Object translateInputToEntity(String reference, String format, InputStream input) {
-      if (reference == null || format == null || input == null) {
-         throw new IllegalArgumentException("reference, format, and input cannot be null");
-      }
-      EntityReference ref = entityHandler.parseReference(reference);
-      if (ref == null) {
-         throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
-      }
-      Object entity = null;
-      String prefix = ref.getPrefix();
-      Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
-      if (inputable != null) {
-         String[] formats = inputable.getHandledInputFormats();
-         if ( ReflectUtil.contains(formats, format) ) {
-            InputTranslatable translatable = entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
-            if (translatable == null) {
-               // handle internally or fail
-               entity = entityHandler.internalInputTranslator(ref, format, input, null);
-            } else {
-               // use provider's formatter
-               entity = translatable.translateFormattedData(ref, format, input);
-            }
-         } else {
-            throw new IllegalArgumentException("This entity ("+reference+") is not inputable in this format ("+format+")," +
-                  " only the following formats are supported: " + ReflectUtil.arrayToString(formats));
-         }
-      } else {
-         throw new IllegalArgumentException("This entity ("+reference+") is not inputable");
-      }
-      return entity;
+      return entityEncodingManager.translateInputToEntity(reference, format, input);
    }
 
 
@@ -377,7 +328,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       }
 
       Map<String, String> m = new HashMap<String, String>();
-      EntityReference ref = entityHandler.parseReference(reference);
+      EntityReference ref = entityBrokerManager.parseReference(reference);
       if (ref != null) {
          EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), PropertyProvideable.class);
          if (provider != null) {
@@ -405,7 +356,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       }
 
       String value = null;
-      EntityReference ref = entityHandler.parseReference(reference);
+      EntityReference ref = entityBrokerManager.parseReference(reference);
       if (ref != null) {
          EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), PropertyProvideable.class);
          if (provider != null) {
@@ -435,7 +386,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                + "), entity does not exist");
       }
 
-      EntityReference ref = entityHandler.parseReference(reference);
+      EntityReference ref = entityBrokerManager.parseReference(reference);
       if (ref == null) {
          throw new IllegalArgumentException("Invalid reference (" + reference
                + "), entity type not handled");
@@ -476,7 +427,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
       Set<String> tags = new HashSet<String>();
 
-      EntityReference ref = entityHandler.parseReference(reference);
+      EntityReference ref = entityBrokerManager.parseReference(reference);
       if (ref != null) {
          EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Taggable.class);
          if (provider != null) {
@@ -501,7 +452,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                + "), entity does not exist");
       }
 
-      EntityReference ref = entityHandler.parseReference(reference);
+      EntityReference ref = entityBrokerManager.parseReference(reference);
       if (ref != null) {
          EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Taggable.class);
          if (provider != null) {

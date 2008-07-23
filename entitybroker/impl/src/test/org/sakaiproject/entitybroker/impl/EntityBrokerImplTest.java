@@ -21,11 +21,8 @@ import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.mocks.FakeEvent;
-import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
-import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -98,22 +95,16 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       eventTrackingServiceControl.replay();
 
       // setup fake internal services
-
-      // Fully functional entity provider manager
-      EntityProviderManagerImpl entityProviderManagerImpl = new EntityProviderManagerImplTest().makeEntityProviderManager(td);
-
-      // Fully functional entity handler
-      EntityHandlerImpl entityHandler = new EntityHandlerImpl();
-      entityHandler.setAccessProviderManager( new HttpServletAccessProviderManagerMock() );
-      entityHandler.setEntityProviderManager( entityProviderManagerImpl );
-      entityHandler.setServerConfigurationService( new FakeServerConfigurationService() );
+      TestManager tm = new TestManager(td);
 
       // create and setup the object to be tested
       entityBroker = new EntityBrokerImpl();
       entityBroker.setDao(dao);
-      entityBroker.setEntityHandler(entityHandler);
-      entityBroker.setEntityProviderManager(entityProviderManagerImpl);
+      entityBroker.setEntityBrokerManager( tm.entityBrokerManager );
+      entityBroker.setEntityEncodingManager( tm.entityEncodingManager );
       entityBroker.setEntityManager(entityManager);
+      entityBroker.setEntityProviderManager( tm.entityProviderManager );
+      entityBroker.setEntityRequestHandler( tm.entityRequestHandler );
       entityBroker.setEventTrackingService(eventTrackingService);
 
       // run the init (just like what would normally happen)

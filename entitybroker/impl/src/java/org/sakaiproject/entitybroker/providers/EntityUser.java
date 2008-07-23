@@ -167,6 +167,9 @@ public class EntityUser implements User {
    }
 
    public Map<String, String> getProps() {
+      if (props == null) {
+         props = new HashMap<String,String>();
+      }
       return props;
    }
 

@@ -27,9 +27,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 
 /**
@@ -47,30 +45,9 @@ public class EntityProviderManagerImplTest extends TestCase {
       super.setUp();
       // setup things
       td = new TestData();
-      entityProviderManager = makeEntityProviderManager(td);
+      entityProviderManager = new TestManager(td).entityProviderManager;
    }
 
-   public EntityProviderManagerImpl makeEntityProviderManager(TestData td) {
-      EntityProviderManagerImpl entityProviderManager = new EntityProviderManagerImpl();
-      entityProviderManager.setRequestGetter( new RequestGetterImpl() );
-      entityProviderManager.setEntityProperties( new EntityPropertiesService() );
-
-      entityProviderManager.init();
-
-      entityProviderManager.registerEntityProvider(td.entityProvider1);
-      entityProviderManager.registerEntityProvider(td.entityProvider2);
-      entityProviderManager.registerEntityProvider(td.entityProvider3);
-      entityProviderManager.registerEntityProvider(td.entityProvider4);
-      entityProviderManager.registerEntityProvider(td.entityProvider5);
-      entityProviderManager.registerEntityProvider(td.entityProvider6);
-      entityProviderManager.registerEntityProvider(td.entityProvider7);
-      entityProviderManager.registerEntityProvider(td.entityProvider8);
-
-      entityProviderManager.registerEntityProvider(td.entityProvider1T);
-      
-      return entityProviderManager;
-   }
-   
    /**
     * Test method for
     * {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#init()}.

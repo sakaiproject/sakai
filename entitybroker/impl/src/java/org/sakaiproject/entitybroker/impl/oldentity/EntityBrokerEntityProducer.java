@@ -30,7 +30,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
+import org.sakaiproject.entitybroker.impl.EntityBrokerManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -52,9 +52,9 @@ public class EntityBrokerEntityProducer implements EntityProducer {
       this.entityProviderManager = entityProviderManager;
    }
 
-   private EntityHandlerImpl entityHandler;
-   public void setEntityHandler(EntityHandlerImpl entityHandler) {
-      this.entityHandler = entityHandler;
+   private EntityBrokerManager entityBrokerManager;
+   public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+      this.entityBrokerManager = entityBrokerManager;
    }
 
    private HttpAccess httpAccess;
@@ -92,7 +92,7 @@ public class EntityBrokerEntityProducer implements EntityProducer {
     */
    private Entity newEntity(Reference ref) {
       EntityBrokerEntity togo = new EntityBrokerEntity();
-      togo.setEntityHandler(entityHandler);
+      togo.setEntityBrokerManager(entityBrokerManager);
       togo.setReference(ref);
       return togo;
    }
@@ -102,7 +102,7 @@ public class EntityBrokerEntityProducer implements EntityProducer {
     * @see org.sakaiproject.entity.api.EntityProducer#getEntityUrl(org.sakaiproject.entity.api.Reference)
     */
    public String getEntityUrl(Reference ref) {
-      return entityHandler.getEntityURL(ref.getReference(), null, null);
+      return entityBrokerManager.getEntityURL(ref.getReference(), null, null);
    }
 
    /*
@@ -122,7 +122,7 @@ public class EntityBrokerEntityProducer implements EntityProducer {
    public boolean parseEntityReference(String reference, Reference ref) {
       EntityReference entityref = null;
       try {
-         entityref = entityHandler.parseReference(reference);
+         entityref = entityBrokerManager.parseReference(reference);
          if (entityref == null) {
             return false;
          }

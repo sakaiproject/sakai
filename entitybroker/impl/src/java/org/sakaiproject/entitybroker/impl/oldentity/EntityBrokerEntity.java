@@ -19,16 +19,15 @@ import java.util.Stack;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
+import org.sakaiproject.entitybroker.impl.EntityBrokerManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class EntityBrokerEntity implements Entity {
 
-   private EntityHandlerImpl entityHandler;
-
-   public void setEntityHandler(EntityHandlerImpl entityHandler) {
-      this.entityHandler = entityHandler;
+   private EntityBrokerManager entityBrokerManager;
+   public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+      this.entityBrokerManager = entityBrokerManager;
    }
 
    private ResourceProperties properties;
@@ -59,11 +58,11 @@ public class EntityBrokerEntity implements Entity {
    }
 
    public String getUrl() {
-      return entityHandler.getEntityURL(reference.getReference(), null, null);
+      return entityBrokerManager.getEntityURL(reference.getReference(), null, null);
    }
 
    public String getUrl(String rootProperty) {
-      return entityHandler.getEntityURL(reference.getReference(), null, null);
+      return entityBrokerManager.getEntityURL(reference.getReference(), null, null);
    }
 
    @SuppressWarnings("unchecked")

@@ -72,6 +72,9 @@ public class EntitySite implements Site {
 
    public Map<String, String> props;
    public Map<String, String> getProps() {
+      if (props == null) {
+         props = new HashMap<String,String>();
+      }
       return props;
    }
 

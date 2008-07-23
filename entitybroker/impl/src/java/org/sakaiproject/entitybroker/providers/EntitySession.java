@@ -52,6 +52,9 @@ public class EntitySession implements Session {
    }
 
    public Map<String, Object> getAttributes() {
+      if (attributes == null) {
+         attributes = new HashMap<String, Object>();
+      }
       return attributes;
    }
 

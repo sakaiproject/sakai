@@ -79,14 +79,14 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
    private static Log log = LogFactory.getLog(DeveloperHelperService.class);
 
    // INTERNAL
-   private EntityHandlerImpl entityHandler;
-   public void setEntityHandler(EntityHandlerImpl entityHandler) {
-      this.entityHandler = entityHandler;
-   }
-
    private EntityBroker entityBroker;
    public void setEntityBroker(EntityBroker entityBroker) {
       this.entityBroker = entityBroker;
+   }
+
+   private EntityBrokerManager entityBrokerManager;
+   public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+      this.entityBrokerManager = entityBrokerManager;
    }
 
    // SAKAI
@@ -566,7 +566,7 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
     * @see org.sakaiproject.entitybroker.DeveloperHelperService#cloneBean(java.lang.Object, int, java.lang.String[])
     */
    public <T> T cloneBean(T bean, int maxDepth, String[] propertiesToSkip) {
-      return entityHandler.getReflectUtil().clone(bean, maxDepth, propertiesToSkip);
+      return entityBrokerManager.getReflectUtil().clone(bean, maxDepth, propertiesToSkip);
    }
 
    /* (non-Javadoc)
@@ -574,14 +574,14 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
     */
    public void copyBean(Object orig, Object dest, int maxDepth, String[] fieldNamesToSkip,
          boolean ignoreNulls) {
-      entityHandler.getReflectUtil().copy(orig, dest, maxDepth, fieldNamesToSkip, ignoreNulls);
+      entityBrokerManager.getReflectUtil().copy(orig, dest, maxDepth, fieldNamesToSkip, ignoreNulls);
    }
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.DeveloperHelperService#populate(java.lang.Object, java.util.Map)
     */
    public List<String> populate(Object object, Map<String, Object> properties) {
-      return entityHandler.getReflectUtil().populate(object, properties);
+      return entityBrokerManager.getReflectUtil().populate(object, properties);
    }
 
 }

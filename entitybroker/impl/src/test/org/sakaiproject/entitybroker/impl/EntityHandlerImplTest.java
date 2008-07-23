@@ -14,27 +14,18 @@
 
 package org.sakaiproject.entitybroker.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
-import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
-import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Order;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
-import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
-import org.sakaiproject.entitybroker.mocks.EntityViewAccessProviderManagerMock;
-import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
@@ -56,162 +47,9 @@ public class EntityHandlerImplTest extends TestCase {
       // setup things
       td = new TestData();
 
-      EntityProviderManagerImpl epm = new EntityProviderManagerImplTest().makeEntityProviderManager(td);
-
-      entityHandler = new EntityHandlerImpl();
-      entityHandler.setEntityProviderManager( epm );
-      entityHandler.setEntityViewAccessProviderManager( new EntityViewAccessProviderManagerMock() );
-      entityHandler.setAccessProviderManager( new HttpServletAccessProviderManagerMock() );
-      entityHandler.setRequestGetter( epm.getRequestGetter() );
-      entityHandler.setEntityProperties( epm.getEntityProperties() );
-      entityHandler.setServerConfigurationService( new FakeServerConfigurationService() );
+      entityHandler = new TestManager(td).entityRequestHandler;
    }
 
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#entityExists(java.lang.String)}.
-    */
-   public void testEntityExists() {
-      EntityReference ref = null;
-      boolean exists = false;
-
-      ref = new EntityReference(TestData.REF1);
-      exists = entityHandler.entityExists(ref);
-      assertTrue(exists);
-
-      ref = new EntityReference(TestData.REF1_1);
-      exists = entityHandler.entityExists(ref);
-      assertTrue(exists);
-
-      ref = new EntityReference(TestData.REF2);
-      exists = entityHandler.entityExists(ref);
-      assertTrue(exists);
-
-      // test that invalid id with valid prefix does not pass
-      ref = new EntityReference(TestData.REF1_INVALID);
-      exists = entityHandler.entityExists(ref);
-      assertFalse(exists);
-
-      // test that unregistered ref does not pass
-      ref = new EntityReference(TestData.REF9);
-      exists = entityHandler.entityExists(ref);
-      assertFalse(exists);
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#getEntityURL(java.lang.String)}.
-    */
-   public void testGetEntityURL() {
-      String url = null;
-
-      url = entityHandler.getEntityURL(TestData.REF1, null, null);
-      assertEquals(TestData.URL1, url);
-
-      url = entityHandler.getEntityURL(TestData.REF2, null, null);
-      assertEquals(TestData.URL2, url);
-
-      url = entityHandler.getEntityURL(TestData.REF1_INVALID, null, null);
-
-      try {
-         url = entityHandler.getEntityURL(TestData.INVALID_REF, null, null);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#parseReference(java.lang.String)}.
-    */
-   public void testParseReference() {
-      EntityReference er = null;
-
-      er = entityHandler.parseReference(TestData.REF1);
-      assertNotNull(er);
-      assertEquals(TestData.PREFIX1, er.getPrefix());
-      assertEquals(TestData.IDS1[0], er.getId());
-
-      er = entityHandler.parseReference(TestData.REF2);
-      assertNotNull(er);
-      assertEquals(TestData.PREFIX2, er.getPrefix());
-
-      // test parsing a defined reference
-      er = entityHandler.parseReference(TestData.REF3A);
-      assertNotNull(er);
-      assertEquals(TestData.PREFIX3, er.getPrefix());
-
-      // parsing of unregistered entity references returns null
-      er = entityHandler.parseReference(TestData.REF9);
-      assertNull(er);
-
-      // parsing with nonexistent prefix returns null
-      er = entityHandler.parseReference("/totallyfake/notreal");
-      assertNull(er);
-
-      // TODO test handling custom ref objects
-
-      try {
-         er = entityHandler.parseReference(TestData.INVALID_REF);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-   }
-
-   /**
-    * Test method for {@link EntityHandlerImpl#parseEntityURL(String)}
-    */
-   public void testParseEntityURL() {
-      EntityView view = null;
-
-      view = entityHandler.parseEntityURL(TestData.INPUT_URL1);
-      assertNotNull(view);
-      assertEquals(EntityView.VIEW_SHOW, view.getViewKey());
-      assertEquals(TestData.PREFIX1, view.getEntityReference().getPrefix());
-      assertEquals(TestData.IDS1[0], view.getEntityReference().getId());
-
-      // TODO add more tests
-
-      // parsing of URL related to unregistered entity references returns null
-      view = entityHandler.parseEntityURL(TestData.REF9);
-      assertNull(view);
-
-      // TODO test custom parse rules
-
-      try {
-         view = entityHandler.parseEntityURL(TestData.INVALID_URL);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-   }
-
-
-   @SuppressWarnings("unchecked")
-   public void testGetEntityObject() {
-      Object entity = null;
-      EntityReference ref = null;
-
-      // first for resolveable
-      ref = entityHandler.parseReference(TestData.REF4);
-      assertNotNull(ref);
-      entity = entityHandler.getEntityObject(ref);
-      assertNotNull(entity);
-      assertEquals(MyEntity.class, entity.getClass());
-      assertEquals(TestData.entity4, entity);
-
-      ref = entityHandler.parseReference(TestData.REF4_two);
-      assertNotNull(ref);
-      entity = entityHandler.getEntityObject(ref);
-      assertNotNull(entity);
-      assertEquals(MyEntity.class, entity.getClass());
-      assertEquals(TestData.entity4_two, entity);
-
-      // now for non-resolveable
-      ref = entityHandler.parseReference(TestData.REF5);
-      assertNotNull(ref);
-      entity = entityHandler.getEntityObject(ref);
-      assertNull(entity);
-   }
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#makeSearchFromRequest(javax.servlet.http.HttpServletRequest)}.
@@ -255,153 +93,6 @@ public class EntityHandlerImplTest extends TestCase {
       assertEquals("more", search.getRestrictionByProperty("other").value);
    }
 
-
-   /**
-    * Test method for {@link EntityHandlerImpl#internalOutputFormatter(EntityView, javax.servlet.http.HttpServletRequest, HttpServletResponse)}
-    **/
-   public void testInternalOutputFormatter() {
-
-      String fo = null;
-      EntityView view = null;
-      OutputStream output = null;
-
-      // XML test valid resolveable entity
-      output = new ByteArrayOutputStream();
-      view = entityHandler.parseEntityURL(TestData.REF4 + "." + Formats.XML);
-      assertNotNull(view);
-      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
-      fo = output.toString();
-      assertNotNull(fo);
-      assertTrue(fo.length() > 20);
-      assertTrue(fo.contains(TestData.PREFIX4));
-      assertTrue(fo.contains("<id>4-one</id>"));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
-
-      // test null view
-      output = new ByteArrayOutputStream();
-      entityHandler.internalOutputFormatter(new EntityReference(TestData.REF4), Formats.XML, null, output, null);
-      fo = output.toString();
-      assertNotNull(fo);
-      assertTrue(fo.length() > 20);
-      assertTrue(fo.contains(TestData.PREFIX4));
-      assertTrue(fo.contains("<id>4-one</id>"));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
-      
-      // test list of entities
-      ArrayList<MyEntity> testEntities = new ArrayList<MyEntity>();
-      testEntities.add(TestData.entity4);
-      testEntities.add(TestData.entity4_two);
-      output = new ByteArrayOutputStream();
-      entityHandler.internalOutputFormatter(new EntityReference(TestData.PREFIX4, ""), Formats.XML, testEntities, output, null);
-      fo = output.toString();
-      assertNotNull(fo);
-      assertTrue(fo.length() > 20);
-      assertTrue(fo.contains(TestData.PREFIX4));
-      assertTrue(fo.contains("<id>4-one</id>"));
-      assertTrue(fo.contains("<id>4-two</id>"));
-      assertFalse(fo.contains("<id>4-three</id>"));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
-
-      // test single entity
-      testEntities.clear();
-      testEntities.add(TestData.entity4_3);
-      output = new ByteArrayOutputStream();
-      entityHandler.internalOutputFormatter(new EntityReference(TestData.REF4_3), Formats.XML, testEntities, output, null);
-      fo = output.toString();
-      assertNotNull(fo);
-      assertTrue(fo.length() > 20);
-      assertTrue(fo.contains(TestData.PREFIX4));
-      assertTrue(fo.contains("<id>4-three</id>"));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
-
-
-      // JSON test valid resolveable entity
-      output = new ByteArrayOutputStream();
-      view = entityHandler.parseEntityURL(TestData.REF4 + "." + Formats.JSON);
-      assertNotNull(view);
-      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
-      fo = output.toString();
-      assertNotNull(fo);
-      assertTrue(fo.length() > 20);
-      assertTrue(fo.contains(TestData.PREFIX4));
-      assertTrue(fo.contains("\"id\":\"4-one\","));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
-
-      // HTML test valid resolveable entity
-      output = new ByteArrayOutputStream();
-      view = entityHandler.parseEntityURL(TestData.REF4 + "." + Formats.HTML);
-      assertNotNull(view);
-      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
-      fo = output.toString();
-      assertNotNull(fo);
-      assertTrue(fo.length() > 20);
-      assertTrue(fo.contains(TestData.PREFIX4));
-
-      // test for unresolvable entities
-
-      // JSON test valid unresolvable entity
-      output = new ByteArrayOutputStream();
-      view = entityHandler.parseEntityURL(TestData.REF1 + "." + Formats.JSON);
-      assertNotNull(view);
-      try {
-         entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
-         fail("Should have thrown exception");
-      } catch (EntityException e) {
-         assertNotNull(e.getMessage());
-         assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
-      }
-
-      // HTML test valid unresolvable entity
-      output = new ByteArrayOutputStream();
-      view = entityHandler.parseEntityURL(TestData.REF1); // blank
-      assertNotNull(view);
-      try {
-         entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
-         fail("Should have thrown exception");
-      } catch (EntityException e) {
-         assertNotNull(e.getMessage());
-         assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
-      }
-
-      // test resolveable collections
-      // XML
-      output = new ByteArrayOutputStream();
-      view = entityHandler.parseEntityURL(TestData.SPACE4 + "." + Formats.XML);
-      assertNotNull(view);
-      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
-      fo = output.toString();
-      assertNotNull(fo);
-      assertTrue(fo.length() > 20);
-      assertTrue(fo.contains(TestData.PREFIX4));
-      assertTrue(fo.contains(TestData.IDS4[0]));
-      assertTrue(fo.contains(TestData.IDS4[1]));
-      assertTrue(fo.contains(TestData.IDS4[2]));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
-
-      // JSON
-      output = new ByteArrayOutputStream();
-      view = entityHandler.parseEntityURL(TestData.SPACE4 + "." + Formats.JSON);
-      assertNotNull(view);
-      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
-      fo = output.toString();
-      assertNotNull(fo);
-      assertTrue(fo.length() > 20);
-      assertTrue(fo.contains(TestData.PREFIX4));
-      assertTrue(fo.contains(TestData.IDS4[0]));
-      assertTrue(fo.contains(TestData.IDS4[1]));
-      assertTrue(fo.contains(TestData.IDS4[2]));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
-
-      // test for invalid refs
-      try {
-         entityHandler.internalOutputFormatter( new EntityReference("/fakey/fake"), null, null, output, null);
-         fail("Should have thrown exception");
-      } catch (EntityException e) {
-         assertNotNull(e.getMessage());
-         assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
-      }
-
-   }
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)}.
