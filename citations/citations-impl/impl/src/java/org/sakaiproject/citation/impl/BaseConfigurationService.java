@@ -120,6 +120,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
   // which osid impl to use
     protected String m_osidImpl;
+  // extended repository id (optional, leave as null if not used)
+    protected String m_extendedRepositoryId;
 
   // openURL parameters -->
     protected String m_openUrlLabel;
@@ -292,6 +294,17 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     String value = getConfigurationParameter("osid-impl");
 
     return (value != null) ? value : getOsidImpl();
+  }
+
+  /**
+   * Fetch the site specific extended Repository ID
+   * @return The Repository ID
+   */
+  public synchronized String getSiteConfigExtendedRepositoryId()
+  {
+    String value = getConfigurationParameter("extended-repository-id");
+
+    return (value != null) ? value : getExtendedRepositoryId();
   }
 
   /**
@@ -610,12 +623,13 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       saveParameter(document, parameterMap, "library-search-enabled");
 
       saveParameter(document, parameterMap, "osid-impl");
+      saveParameter(document, parameterMap, "extended-repository-id");
 
       saveParameter(document, parameterMap, "metasearch-username");
       saveParameter(document, parameterMap, "metasearch-password");
       saveParameter(document, parameterMap, "metasearch-baseurl");
 
-      saveParameter(document, parameterMap, "openurl-label");           // obsolete?
+      saveParameter(document, parameterMap, "openurl-label");
       saveParameter(document, parameterMap, "openurl-resolveraddress");
 
       saveParameter(document, parameterMap, "google-baseurl");
@@ -864,6 +878,21 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   public void setOsidImpl(String osidImpl)
   {
     m_osidImpl = osidImpl;
+  }
+  /**
+   * @return the extended Repository ID
+   */
+  public String getExtendedRepositoryId()
+  {
+    return m_extendedRepositoryId;
+  }
+
+  /**
+   * @param extendedRepositoryId the extended Repository ID
+   */
+  public void setExtendedRepositoryId(String extendedRepositoryId)
+  {
+    m_extendedRepositoryId = extendedRepositoryId;
   }
 
   /**
@@ -1368,7 +1397,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
      * Is library search enabled for the current user?
      * @return true if so
      */
-  	public boolean librarySearchEnabled() 
+  	public boolean librarySearchEnabled()
 	{
 		return isLibrarySearchEnabled() && isConfigurationXmlAvailable() && isDatabaseHierarchyXmlAvailable();
 	}

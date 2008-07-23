@@ -1706,6 +1706,25 @@ public class BaseSearchManager implements SearchManager, Observer
 
 				// only one repository should be in the iterator
 				Repository repository = rit.nextRepository();
+        String extendedId = m_configService.getSiteConfigExtendedRepositoryId();
+
+        if ((extendedId != null) && (extendedId.length() > 0))
+        {
+          while (repository != null)
+          {
+            m_log.debug("Matching Repositories? "
+                      + repository.getId().getIdString()
+                      + " VS "
+                      + extendedId);
+
+            if (repository.getId().getIdString().equals(extendedId))
+            {
+              break;
+            }
+            repository = rit.nextRepository();
+          }
+        }
+
 				if( repository == null )
 				{
 					m_log.warn( "getRepository() failed getting repository " +
