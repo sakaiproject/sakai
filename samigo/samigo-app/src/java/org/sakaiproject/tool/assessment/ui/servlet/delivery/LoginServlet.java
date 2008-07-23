@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -50,6 +52,8 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
+import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
+import org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
@@ -191,7 +195,23 @@ public class LoginServlet
           path = "/jsf/delivery/accessDenied.faces";
         }
       }
-
+      if ("true".equals(req.getParameter("fromDirect"))) {
+        // send the user directly into taking the assessment... they already clicked start from the direct servlet
+        if (delivery.getNavigation().trim() != null && "1".equals(delivery.getNavigation().trim())) {
+          LinearAccessDeliveryActionListener linearDeliveryListener = new LinearAccessDeliveryActionListener();
+          linearDeliveryListener.processAction(null);
+        }
+        else {
+          DeliveryActionListener deliveryListener = new DeliveryActionListener();
+          deliveryListener.processAction(null);
+        }
+        
+        //TODO: Should be something a bit more robust as validate() can retun a lot of things...
+        if ("takeAssessment".equals(delivery.validate())) {
+          path = "/jsf/delivery/deliverAssessment.faces";
+        }
+        
+      }
     log.debug("***path"+path);
     if (relativePath){
       dispatcher = req.getRequestDispatcher(path);

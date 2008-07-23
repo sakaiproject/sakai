@@ -242,6 +242,12 @@
               singleton="true" init-method="init" destroy-method="destroy">
     </bean>
 
+  <bean id ="org.sakaiproject.tool.assessment.entity.api.PublishedEntityProvider"
+      class="org.sakaiproject.tool.assessment.entity.impl.PublishedAssessmentEntityProviderImpl">
+    <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
+    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+  </bean>
+
 </beans>
 
 

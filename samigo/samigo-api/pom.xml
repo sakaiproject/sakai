@@ -19,6 +19,14 @@
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-api</artifactId>
+      <version>1.2.0</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
   <build>
     <resources>
       <resource>
