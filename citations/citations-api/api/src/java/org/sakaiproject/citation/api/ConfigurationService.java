@@ -62,14 +62,14 @@ public interface ConfigurationService
   public boolean isDatabaseHierarchyXmlAvailable();
 
   /**
-   * Fetch the reference string for the folder in ContentHosting containing 
+   * Fetch the reference string for the folder in ContentHosting containing
    * the config files, or null if access from CHS is not enabled.
    * @return the reference string (eg /content/group/citationsAdmin/config/)
    */
   public String getConfigFolderReference();
 
   /**
-   * Fetch the collection-id for the folder in ContentHosting containing 
+   * Fetch the collection-id for the folder in ContentHosting containing
    * the config files, or null if access from CHS is not enabled.
    * @return the resource-id string (eg /group/citationsAdmin/config/)
    */
@@ -86,6 +86,12 @@ public interface ConfigurationService
    * @return Repository Package (eg org.sakaibrary.osid.repository.xserver)
    */
   public String getSiteConfigOsidPackageName();
+
+  /**
+   * Fetch the site specific extended Repository ID
+   * @return The Repository ID
+   */
+  public String getSiteConfigExtendedRepositoryId();
 
   /**
    * Fetch the meta-search username
@@ -128,19 +134,19 @@ public interface ConfigurationService
    * @return the key text
    */
   public String getSiteConfigSakaiServerKey();
-  
+
   /**
    * Enable/disable Citations Helper by default
    * @param state true to set default 'On'
    */
   public void setCitationsEnabledByDefault(boolean state);
-  
+
   /**
    * Is Citations Helper by default enabled?
    * @return true if so
    */
   public boolean isCitationsEnabledByDefault();
-  
+
   /**
    * Enable/disable site by site Citations Helper override
    * @param state true to enable site by site Citations Helper
@@ -152,7 +158,7 @@ public interface ConfigurationService
    * @return true if so
    */
   public boolean isAllowSiteBySiteOverride();
-  
+
   /**
    * Enable/disable Google support
    * @param state true to enable Google support

@@ -140,6 +140,19 @@ public class ConfigurationService
 	}
 
   /**
+   * Fetch the site specific extended Repository ID
+   */
+	public static String getSiteConfigExtendedRepositoryId()
+	{
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return null;
+		}
+		return instance.getSiteConfigExtendedRepositoryId();
+	}
+
+  /**
    * Fetch the meta-search username
    */
 	public static String getSiteConfigMetasearchUsername()
@@ -333,7 +346,7 @@ public class ConfigurationService
 		}
 		return instance.isAllowSiteBySiteOverride();
 	}
-  
+
   public static boolean librarySearchEnabled()
   {
 		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
@@ -341,6 +354,6 @@ public class ConfigurationService
 		{
 			return false;
 		}
-		return instance.librarySearchEnabled();	  
+		return instance.librarySearchEnabled();
   }
 }
