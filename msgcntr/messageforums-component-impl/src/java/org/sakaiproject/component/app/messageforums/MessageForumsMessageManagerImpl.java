@@ -1038,23 +1038,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   {
   	try
   	{
-      String tempString = contentHostingService.getResource(id).getUrl();
-      String newString = new String();
-      char[] oneChar = new char[1];
-      for (int i = 0; i < tempString.length(); i++)
-      {
-        if (tempString.charAt(i) != ' ')
-        {
-          oneChar[0] = tempString.charAt(i);
-          String concatString = new String(oneChar);
-          newString = newString.concat(concatString);
-        }
-        else
-        {
-          newString = newString.concat("%20");
-        }
-      }
-  		
+      String tempString = contentHostingService.getResource(id).getUrl(true);
+      String newString = org.sakaiproject.util.Web.escapeUrl(tempString);  		
   		return newString; 
   	}
   	catch(Exception e)
