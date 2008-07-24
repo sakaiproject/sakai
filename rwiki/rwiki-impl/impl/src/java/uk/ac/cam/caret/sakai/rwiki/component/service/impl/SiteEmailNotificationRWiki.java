@@ -101,12 +101,6 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 
 	private DigestService digestService;
 
-	protected Thread senderThread = null;
-
-	protected Vector sendList = new Vector();
-
-	private MessageContent messageContent;
-
 	private UserDirectoryService userDirectoryService;
 
 
@@ -213,56 +207,53 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 	}
 
 	private MessageContent getMessageContent(Event event) {
-		if ( messageContent == null ) {
-			messageContent = new MessageContent();
-			// get the content & properties
-			Reference ref = entityManager.newReference(event.getResource());
-			ResourceProperties props = ref.getProperties();
-	
-			// get the function
-			// String function = event.getEvent();
-	
-			// use either the configured site, or if not configured, the site
-			// (context) of the resource
-			String siteId = (getSite() != null) ? getSite() : getSiteId(ref
-					.getContext());
-			try {
-				Site site = siteService.getSite(siteId);
-				messageContent.title = site.getTitle();
-			} catch (IdUnusedException e) {
-				messageContent.title = siteId;
-			}
-	
-			// get the URL and resource name.
-			// StringBuffer buf = new StringBuffer();
-			messageContent.url = ref.getUrl() + "html"; //$NON-NLS-1$
-			
-			String pageName = props.getProperty(RWikiEntity.RP_NAME);
-			String realm = props.getProperty(RWikiEntity.RP_REALM);
-			messageContent.localName = NameHelper.localizeName(pageName, realm);
-			String userId = props.getProperty(RWikiEntity.RP_USER);
-			try {
-				User u = userDirectoryService.getUser(userId);
-				messageContent.user = u.getDisplayId();
-			} catch (UserNotDefinedException e) {
-				messageContent.user = userId;
-			}
-			messageContent.moddate = new Date(Long.parseLong(props
-					.getProperty(RWikiEntity.RP_VERSION))).toString();
-			try {
-				RWikiEntity rwe = (RWikiEntity) rwikiObjectService.getEntity(ref);
-				RWikiObject rwikiObject = rwe.getRWikiObject();
-	
-				String pageSpace = NameHelper.localizeSpace(pageName, realm);
-				ComponentPageLinkRenderImpl cplr = new ComponentPageLinkRenderImpl(
-						pageSpace, true);
-				messageContent.contentHTML = renderService.renderPage(rwikiObject, pageSpace, cplr);
-				messageContent.content = DigestHtml.digest(messageContent.contentHTML);
-	
-			} catch (Exception ex) {
-	
-			}
+		MessageContent messageContent = new MessageContent();
+		// get the content & properties
+		Reference ref = entityManager.newReference(event.getResource());
+		ResourceProperties props = ref.getProperties();
+
+		// get the function
+		// String function = event.getEvent();
+
+		// use either the configured site, or if not configured, the site
+		// (context) of the resource
+		String siteId = (getSite() != null) ? getSite() : getSiteId(ref
+				.getContext());
+		try {
+			Site site = siteService.getSite(siteId);
+			messageContent.title = site.getTitle();
+		} catch (IdUnusedException e) {
+			messageContent.title = siteId;
+		}
+
+		// get the URL and resource name.
+		// StringBuffer buf = new StringBuffer();
+		messageContent.url = ref.getUrl() + "html"; //$NON-NLS-1$
 		
+		String pageName = props.getProperty(RWikiEntity.RP_NAME);
+		String realm = props.getProperty(RWikiEntity.RP_REALM);
+		messageContent.localName = NameHelper.localizeName(pageName, realm);
+		String userId = props.getProperty(RWikiEntity.RP_USER);
+		try {
+			User u = userDirectoryService.getUser(userId);
+			messageContent.user = u.getDisplayId();
+		} catch (UserNotDefinedException e) {
+			messageContent.user = userId;
+		}
+		messageContent.moddate = new Date(Long.parseLong(props
+				.getProperty(RWikiEntity.RP_VERSION))).toString();
+		try {
+			RWikiEntity rwe = (RWikiEntity) rwikiObjectService.getEntity(ref);
+			RWikiObject rwikiObject = rwe.getRWikiObject();
+
+			String pageSpace = NameHelper.localizeSpace(pageName, realm);
+			ComponentPageLinkRenderImpl cplr = new ComponentPageLinkRenderImpl(
+					pageSpace, true);
+			messageContent.contentHTML = renderService.renderPage(rwikiObject, pageSpace, cplr);
+			messageContent.content = DigestHtml.digest(messageContent.contentHTML);
+
+		} catch (Exception ex) {
+
 		}
 		return messageContent;
 	}
