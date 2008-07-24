@@ -37,14 +37,16 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 public class RequestStorageImpl implements RequestStorage {
 
    private ThreadLocal<ConcurrentHashMap<String, Object>> requestStore = new ThreadLocal<ConcurrentHashMap<String,Object>>();
+   protected ConcurrentHashMap<String, Object> getInternalMap() {
+      if (requestStore.get() == null) {
+         requestStore.set( new ConcurrentHashMap<String, Object>() );
+      }
+      return requestStore.get();
+   }
 
    private RequestGetter requestGetter;
    public void setRequestGetter(RequestGetter requestGetter) {
       this.requestGetter = requestGetter;
-   }
-
-   public RequestStorageImpl() {
-      requestStore.set( new ConcurrentHashMap<String, Object>() );
    }
 
    /* (non-Javadoc)
@@ -64,7 +66,7 @@ public class RequestStorageImpl implements RequestStorage {
    public Map<String, Object> getStorageMapCopy() {
       HashMap<String, Object> m = new HashMap<String, Object>();
       m.putAll( getRequestValues() ); // put in the request ones first
-      m.putAll( requestStore.get() );
+      m.putAll( getInternalMap() );
       return m;
    }
 
@@ -98,7 +100,7 @@ public class RequestStorageImpl implements RequestStorage {
     * Resets the request storage and purges all stored values (has no effect on the data in the request)
     */
    public void reset() {
-      requestStore.get().clear();
+      getInternalMap().clear();
       HttpServletRequest request = requestGetter.getRequest();
       if (request != null) {
          Enumeration<String> aEnum = request.getAttributeNames();
@@ -121,12 +123,12 @@ public class RequestStorageImpl implements RequestStorage {
       if (request != null) {
          request.setAttribute(key, value);
       } else {
-         requestStore.get().put(key, value);
+         getInternalMap().put(key, value);
       }
    }
 
    protected Object getRequestValue(String key) {
-      Object value = requestStore.get().get(key);
+      Object value = getInternalMap().get(key);
       if (value == null) {
          value = getRequestValues().get(key);
       }

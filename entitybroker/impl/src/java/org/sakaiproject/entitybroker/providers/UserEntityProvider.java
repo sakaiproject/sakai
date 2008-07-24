@@ -24,7 +24,9 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.user.api.User;
@@ -41,7 +43,7 @@ import org.sakaiproject.user.api.UserPermissionException;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class UserEntityProvider implements CoreEntityProvider, RESTful, AutoRegisterEntityProvider {
+public class UserEntityProvider implements CoreEntityProvider, RESTful, RequestStorable, AutoRegisterEntityProvider {
 
    private UserDirectoryService userDirectoryService;
    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -57,6 +59,11 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, AutoRegi
    public String getEntityPrefix() {
       return PREFIX;
    }
+
+   private RequestStorage requestStorage;
+   public void setRequestStorage(RequestStorage requestStorage) {
+      this.requestStorage = requestStorage;
+   };
 
    public boolean entityExists(String id) {
       if (id == null) {
@@ -184,31 +191,6 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, AutoRegi
       }
    }
 
-   public Object getEntity(EntityReference ref) {
-      if (ref.getId() == null) {
-         return new EntityUser();
-      }
-      String userId = ref.getId();
-      User user = getUserByIdEid(userId);
-      // convert
-      EntityUser eu = convertUser(user);
-      return eu;         
-      // TODO add in security if needed
-      /** this is too restrictive right now though
-      String currentUserRef = developerHelperService.getCurrentUserReference();
-      if (currentUserRef != null) {
-         String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
-         if (developerHelperService.isUserAdmin(currentUserId) 
-               || currentUserId.equals(user.getId())) {
-            // convert
-            EntityUser eu = convertUser(user);
-            return eu;         
-         }
-      }
-      throw new SecurityException("Current user ("+currentUserId+") cannot access information about " + ref);
-      **/
-   }
-
    public void deleteEntity(EntityReference ref) {
       String userId = ref.getId();
       if (userId == null || "".equals(userId)) {
@@ -229,13 +211,56 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, AutoRegi
       }
    }
 
+   public Object getEntity(EntityReference ref) {
+      if (ref.getId() == null) {
+         return new EntityUser();
+      }
+      String userId = ref.getId();
+      User user = getUserByIdEid(userId);
+      if (isInternalRequest(ref.toString())) {
+         // internal lookups are allowed to get everything
+      } else {
+         // external lookups require auth
+         boolean allowed = false;
+         String currentUserRef = developerHelperService.getCurrentUserReference();
+         if (currentUserRef != null) {
+            String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
+            if (developerHelperService.isUserAdmin(currentUserId) 
+                  || currentUserId.equals(user.getId())) {
+               // allowed to access the user data
+               allowed = true;
+            }
+         }
+         if (! allowed) {
+            throw new SecurityException("Current user ("+currentUserRef+") cannot access information about user: " + ref);
+         }
+      }
+      // convert
+      EntityUser eu = convertUser(user);
+      return eu;         
+   }
+
    @SuppressWarnings("unchecked")
    public List<?> getEntities(EntityReference ref, Search search) {
       Collection<User> users = new ArrayList<User>();
-      String currentUserRef = developerHelperService.getCurrentUserReference();
-      if (! developerHelperService.isUserAdmin(currentUserRef)) {
-         throw new SecurityException("Only the admin can access a list of users");
+      if (isInternalRequest(ref.toString())) {
+         // internal lookups are allowed to get everything
+      } else {
+         // external lookups require auth
+         boolean allowed = false;
+         String currentUserRef = developerHelperService.getCurrentUserReference();
+         if (currentUserRef != null) {
+            String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
+            if ( developerHelperService.isUserAdmin(currentUserId) ) {
+               // allowed to access the user data
+               allowed = true;
+            }
+         }
+         if (! allowed) {
+            throw new SecurityException("Only admin can access multiple users, current user ("+currentUserRef+") cannot access ref: " + ref);
+         }
       }
+
       Restriction restrict = search.getRestrictionByProperty("email");
       if (restrict != null) {
          // search users by email
@@ -281,21 +306,50 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, AutoRegi
       return eu;
    }
 
-   private User getUserByIdEid(String userId) {
+   private User getUserByIdEid(String userEid) {
       User user = null;
-      if (userId != null) {
+      if (userEid != null) {
          try {
-            user = userDirectoryService.getUser(userId);
+            user = userDirectoryService.getUserByEid(userEid);
          } catch (UserNotDefinedException e) {
+            String userId = userEid;
+            if (userId.length() > 3 
+                  && userId.startsWith("id=") ) {
+               userId = userEid.substring(3);
+            }
             try {
-               user = userDirectoryService.getUserByEid(userId);
+               user = userDirectoryService.getUser(userId);
             } catch (UserNotDefinedException e1) {
-               throw new IllegalArgumentException("Could not find user with id: " + userId + " :: "
+               throw new IllegalArgumentException("Could not find user with eid="+userEid+" or id="+userId+" :: "
                      + e1.getMessage(), e);
             }
          }
       }
       return user;
+   }
+
+   /**
+    * Checks to see if a request is internal and therefore can bypass some or all security
+    * @param reference an entity reference string
+    * @return true if internal OR false if external or REST
+    */
+   private boolean isInternalRequest(String reference) {
+      boolean internal = false;
+      String origin = (String) requestStorage.getStoredValue(RequestStorage.ReservedKeys._requestOrigin.name());
+      if (RequestStorage.RequestOrigin.INTERNAL.name().equals(origin)) {
+         internal = true;
+      } else {
+         if (reference != null) {
+            String ref = (String) requestStorage.getStoredValue(RequestStorage.ReservedKeys._requestEntityReference.name());
+            if (reference.equals(ref)) {
+               // if this ref was the one requested from outside it is definitely not internal
+               internal = false;
+            } else {
+               internal = true;
+            }
+         }
+      }
+      return internal;
    }
 
 }
