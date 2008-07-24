@@ -555,24 +555,23 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		if (id == null) throw new IdUnusedException("<null>");
 
 		Site rv = getCachedSite(id);
+		if ( rv != null ) return rv;
 
 		rv = m_storage.get(id);
 
 		// if not found
 		if (rv == null) throw new IdUnusedException(id);
 
-		// get all of the site loaded
-		rv.loadAll();
-
-		// track it - we don't track site access -ggolden
-		// EventTrackingService.post(EventTrackingService.newEvent(SECURE_ACCESS_SITE, site.getReference()));
-
-		// cache a copy
+		// Thanks to the SiteCacheImpl class lurking beneath the
+		// surface, caching the site will have the side-effect
+		// of doing a "loadAll()" plus more.
 		if (m_siteCache != null)
 		{
-			Site copy = new BaseSite(this,rv, true);
-			String ref = siteReference(id);
-			m_siteCache.put(ref, copy, m_cacheSeconds);
+			m_siteCache.put(siteReference(id), rv, m_cacheSeconds);
+			// Return a copy.
+			rv = new BaseSite(this, rv, true);
+		} else {
+			rv.loadAll();
 		}
 
 		return rv;
