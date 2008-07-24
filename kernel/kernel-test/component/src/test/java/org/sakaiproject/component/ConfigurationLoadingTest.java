@@ -22,8 +22,6 @@
 
 package org.sakaiproject.component;
 
-import java.net.URL;
-
 import junit.extensions.TestSetup;
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -44,10 +42,13 @@ public class ConfigurationLoadingTest extends SakaiTestBase {
 	
 	private ServerConfigurationService serverConfigurationService;
 	
+	static {
+		setSakaiHome(ConfigurationLoadingTest.class, "filesystem");
+	}
+
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(ConfigurationLoadingTest.class)) {
 			protected void setUp() throws Exception {
-				initializeSakaiHome();
 				try {
 					oneTimeSetup();
 				} catch (Exception e) {
@@ -96,15 +97,5 @@ public class ConfigurationLoadingTest extends SakaiTestBase {
 		// <alias name="org.sakaiproject.component.test.ITestComponent" alias="testAliasRetention"/>
 		Object aliasedObject = getService("testAliasRetention");
 		Assert.assertTrue(aliasedObject instanceof ITestComponent);
-	}
-	
-	public static void initializeSakaiHome() {
-		URL propertiesUrl = ConfigurationLoadingTest.class.getClassLoader().getResource("filesystem/sakai.properties");
-		if (log.isDebugEnabled()) log.debug("propertiesUrl=" + propertiesUrl);
-		if (propertiesUrl != null) {
-			String propertiesFileName = propertiesUrl.getFile();
-			String sakaiHomeDir = propertiesFileName.substring(0, propertiesFileName.lastIndexOf("sakai.properties") - 1);
-			System.setProperty("test.sakai.home", sakaiHomeDir);
-		}		
 	}
 }

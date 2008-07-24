@@ -22,8 +22,6 @@
 
 package org.sakaiproject.component;
 
-import java.net.URL;
-
 import junit.extensions.TestSetup;
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -43,10 +41,13 @@ public class DynamicConfigurationTest extends SakaiTestBase {
 
 	private ServerConfigurationService serverConfigurationService;
 
+	static {
+		setSakaiHome(DynamicConfigurationTest.class, "dynamic");
+	}
+
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(DynamicConfigurationTest.class)) {
 			protected void setUp() throws Exception {
-				initializeSakaiHome();
 				try {
 					oneTimeSetup();
 				} catch (Exception e) {
@@ -76,16 +77,6 @@ public class DynamicConfigurationTest extends SakaiTestBase {
 		// Test for dynamic property setting and retrieval using AOP?
 		// Not really needed for testing SAK-8315 changes, but could
 		// be interesting for developers to see.
-	}
-
-	public static void initializeSakaiHome() {
-		URL propertiesUrl = ConfigurationLoadingTest.class.getClassLoader().getResource("dynamic/sakai.properties");
-		if (log.isDebugEnabled()) log.debug("propertiesUrl=" + propertiesUrl);
-		if (propertiesUrl != null) {
-			String propertiesFileName = propertiesUrl.getFile();
-			String sakaiHomeDir = propertiesFileName.substring(0, propertiesFileName.lastIndexOf("sakai.properties") - 1);
-			System.setProperty("test.sakai.home", sakaiHomeDir);
-		}
 	}
 
 }
