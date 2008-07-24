@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at
  * 
- *      http://www.opensource.org/licenses/ecl1.php
+ *		  http://www.opensource.org/licenses/ecl1.php
  * 
  * Unless required by applicable law or agreed to in writing, software 
  * distributed under the License is distributed on an "AS IS" BASIS, 
@@ -37,16 +37,16 @@ import org.sakaiproject.site.cover.SiteService;
  */
 public class MergedList extends ArrayList
 {
-    /**
-     * Used to create a reference.  This is unique to each caller, so we
-     * need an interface.
-     */
-    public interface ChannelReferenceMaker
-    {
-        
-        String makeReference(String siteId);
-    }
-    
+	 /**
+	  * Used to create a reference.	This is unique to each caller, so we
+	  * need an interface.
+	  */
+	 public interface ChannelReferenceMaker
+	 {
+		  
+		  String makeReference(String siteId);
+	 }
+	 
 	/**
 	 * channel entry used to communicate with the Velocity templates when dealing with merged channels.
 	 */
@@ -58,7 +58,7 @@ public class MergedList extends ArrayList
 		public String getDisplayName();
 
 		/**
-		 * Returns the ID of the group.  (The ID is used as a key.)
+		 * Returns the ID of the group.	(The ID is used as a key.)
 		 */
 		public String getReference();
 
@@ -85,7 +85,7 @@ public class MergedList extends ArrayList
 
 	/**
 	 * This interface is used to describe a generic list entry provider so that
-	 * a variety of list entries can be used.  This currently serves merged sites
+	 * a variety of list entries can be used.	 This currently serves merged sites
 	 * for the schedule and merged channels for announcements.
 	 */
 	public interface EntryProvider
@@ -119,17 +119,17 @@ public class MergedList extends ArrayList
 		 */
 		public ResourceProperties getProperties(Object obj);
 
-        
-        public boolean isUserChannel(Object channel);
+		  
+		  public boolean isUserChannel(Object channel);
 
-        
-        public boolean isSpecialSite(Object channel);
+		  
+		  public boolean isSpecialSite(Object channel);
 
-        
-        public String getSiteUserId(Object channel);
+		  
+		  public String getSiteUserId(Object channel);
 
-        
-        public Site getSite(Object channel);
+		  
+		  public Site getSite(Object channel);
 
 	}
 
@@ -212,15 +212,15 @@ public class MergedList extends ArrayList
 	
 	/**
 	 * Selects and loads channels from a list provided by the entryProvider
-	 * parameter.  The algorithm for loading channels is a bit complex, and
+	 * parameter.	The algorithm for loading channels is a bit complex, and
 	 * depends on whether or not the user is currently in their "My Workspace", etc.
 	 * 
 	 * This function formerly filtered through a list of all sites.  It still
 	 * goes through the motions of filtering, and deciding how to flag the channels
-	 * as to whether or not they are merged, hidden, etc.  However, it has been
+	 * as to whether or not they are merged, hidden, etc.	 However, it has been
 	 * modified to take all of its information from an EntryProvider parameter,
 	 * This list is now customized and is no longer "all sites in existence". 
-	 * When sites are being selected for merging, this list can be quite long.  
+	 * When sites are being selected for merging, this list can be quite long.	 
 	 * This function is more often called just to display merged events, so 
 	 * passing a more restricted list makes for better performance.
 	 * 
@@ -231,8 +231,8 @@ public class MergedList extends ArrayList
 	 * 
 	 */
 	public void loadChannelsFromDelimitedString(boolean isOnWorkspaceTab,
-            EntryProvider entryProvider, String userId, String[] channelArray,
-            boolean isSuperUser, String currentSiteId)
+				EntryProvider entryProvider, String userId, String[] channelArray,
+				boolean isSuperUser, String currentSiteId)
 	{
 		// Remove any initial list contents.
 		this.clear();
@@ -248,10 +248,10 @@ public class MergedList extends ArrayList
 		{
 			Object channel = it.next();
 			
-			// Watch out for null channels.  Ignore them if they are there.
+			// Watch out for null channels.	Ignore them if they are there.
 			if ( channel == null )
 			{
-			    continue;
+				 continue;
 			}
 
 			// If true, this channel will be added to the list of
@@ -276,11 +276,11 @@ public class MergedList extends ArrayList
 			boolean isSpecialSite = entryProvider.isSpecialSite(channel);
 
 			if ( thisIsUserChannel
-                    && userId.equals(
-                            entryProvider.getSiteUserId(channel)) )
-            {
-                thisIsTheUsersMyWorkspaceChannel = true;
-            }
+						  && userId.equals(
+									 entryProvider.getSiteUserId(channel)) )
+				{
+					 thisIsTheUsersMyWorkspaceChannel = true;
+				}
 
 			//
 			// Don't put the channels of other users in the merge list.
@@ -298,7 +298,7 @@ public class MergedList extends ArrayList
 				if (thisIsTheUsersMyWorkspaceChannel)
 				{
 					// Don't merge the user's channel in with a
-					// group channel.  If we're on the "My Workspace"
+					// group channel.	 If we're on the "My Workspace"
 					// tab, then it's okay to merge.
 					if (isOnWorkspaceTab)
 					{
@@ -313,7 +313,7 @@ public class MergedList extends ArrayList
 				{
 					//
 					// If we're the admin, and we're on our "My Workspace" tab, then only
-					// use our channel (handled above).  We'd be overloaded if we could
+					// use our channel (handled above).	 We'd be overloaded if we could
 					// see everyone's events.
 					//
 					if (isSuperUser && isOnWorkspaceTab)
@@ -352,49 +352,49 @@ public class MergedList extends ArrayList
 				String siteDisplayName = "";
 				
 				// There is no point in getting the display name for hidden
-                // items.
-                if (!hidden)
-                {
-                    String displayNameProperty = entryProvider.getProperties(
-                            channel).getProperty(
-                            entryProvider.getProperties(channel)
-                                    .getNamePropDisplayName());
+					 // items.
+					 if (!hidden)
+					 {
+						  String displayNameProperty = entryProvider.getProperties(
+									 channel).getProperty(
+									 entryProvider.getProperties(channel)
+												.getNamePropDisplayName());
 
-                    // If the channel has a displayName property and use that
-                    // instead.
-                    if (displayNameProperty != null
-                            && displayNameProperty.length() != 0)
-                    {
-                        siteDisplayName = displayNameProperty;
-                    } 
-                    else
-                    {
-                        String channelName = "";
+						  // If the channel has a displayName property and use that
+						  // instead.
+						  if (displayNameProperty != null
+									 && displayNameProperty.length() != 0)
+						  {
+								siteDisplayName = displayNameProperty;
+						  } 
+						  else
+						  {
+								String channelName = "";
 
-                        Site site = entryProvider.getSite(channel);
+								Site site = entryProvider.getSite(channel);
 
-                        if (site != null)
-                        {
-                            boolean isCurrentSite = currentSiteId.equals(site.getId());
+								if (site != null)
+								{
+									 boolean isCurrentSite = currentSiteId.equals(site.getId());
 
-                            //
-                            // Hide and force the current site to be merged.
-                            //
-                            if (isCurrentSite)
-                            {
-                                hidden = true;
-                                merged = true;
-                            } 
-                            else
-                            {
-                                // Else just get the name.
-                                channelName = site.getTitle();
-                                siteDisplayName = channelName + " ("
-                                        + site.getId() + ") ";
-                            }
-                        }
-                    }
-                }
+									 //
+									 // Hide and force the current site to be merged.
+									 //
+									 if (isCurrentSite)
+									 {
+										  hidden = true;
+										  merged = true;
+									 } 
+									 else
+									 {
+										  // Else just get the name.
+										  channelName = site.getTitle();
+										  siteDisplayName = channelName + " ("
+													 + site.getId() + ") ";
+									 }
+								}
+						  }
+					 }
 
 				this.add(
 					new MergedChannelEntryImpl(
@@ -414,30 +414,30 @@ public class MergedList extends ArrayList
 	 */
 	public String[] getAllPermittedChannels(ChannelReferenceMaker refMaker)
 	{
-	    List finalList = new ArrayList();
-	    String [] returnArray = null;
+		 List finalList = new ArrayList();
+		 String [] returnArray = null;
 
 		List siteList = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 						null, null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
-	    
-	    Iterator it = siteList.iterator();
-	    
-	    // Add all the references to the list.
-	    while ( it.hasNext() )
-	    {
+		 
+		 Iterator it = siteList.iterator();
+		 
+		 // Add all the references to the list.
+		 while ( it.hasNext() )
+		 {
 			Site site = (Site) it.next();
 			finalList.add(refMaker.makeReference(site.getId()));
-	    }
-	    
-	    // Make the array that we'll return
-	    returnArray = new String[finalList.size()];
-	    
-	    for ( int i=0; i < finalList.size(); i++ )
-	    {
-	        returnArray[i] = (String) finalList.get(i);
-	    }
-	    
-	    return returnArray;	    
+		 }
+		 
+		 // Make the array that we'll return
+		 returnArray = new String[finalList.size()];
+		 
+		 for ( int i=0; i < finalList.size(); i++ )
+		 {
+			  returnArray[i] = (String) finalList.get(i);
+		 }
+		 
+		 return returnArray;		 
 	}
 	
 	/**
@@ -450,7 +450,7 @@ public class MergedList extends ArrayList
 	{
 		String mergedChannels = null;
 
-		// Get a list of the currently merged channels.  This is a delimited list.
+		// Get a list of the currently merged channels.	 This is a delimited list.
 		mergedChannels =
 			StringUtil.trimToNull(
 				mergedInitParameterValue);
@@ -473,11 +473,11 @@ public class MergedList extends ArrayList
 	} // getChannelReferenceArrayFromDelimitedString
 	
 	/**
-     * Create a channel reference map from an array of channel references.
-     */
-    private Map makeChannelMap(String[] mergedChannelArray)
-    {
-        // Make a map of those channels that are currently merged.
+	  * Create a channel reference map from an array of channel references.
+	  */
+	 private Map makeChannelMap(String[] mergedChannelArray)
+	 {
+		  // Make a map of those channels that are currently merged.
 		Map currentlyMergedchannels = new HashMap();
 
 		if (mergedChannelArray != null)
@@ -489,12 +489,12 @@ public class MergedList extends ArrayList
 					Boolean.valueOf(true));
 			}
 		}
-        return currentlyMergedchannels;
-    }
+		  return currentlyMergedchannels;
+	 }
 
-    /**
+	 /**
 	 * Loads data input by the user into this list and then saves the list to
-	 * the portlet config information.  The initContextForMergeOptions() function
+	 * the portlet config information.	The initContextForMergeOptions() function
 	 * must have previously been called.
 	 */
 	public void loadFromRunData(ParameterParser params)
@@ -506,7 +506,7 @@ public class MergedList extends ArrayList
 			MergedEntry entry = (MergedEntry) it.next();
 
 			// If the group is even mentioned in the parameters, then
-			// it means that the checkbox was selected.  Deselected checkboxes
+			// it means that the checkbox was selected.	Deselected checkboxes
 			// will not be present in the parameter list.
 			if (params.getString(entry.getReference())
 				!= null)
@@ -529,7 +529,7 @@ public class MergedList extends ArrayList
 
 	/**
 	 * Loads data input by the user into this list and then saves the list to
-	 * the portlet config information.  The initContextForMergeOptions() function
+	 * the portlet config information.	The initContextForMergeOptions() function
 	 * must have previously been called.
 	 */
 	public String getDelimitedChannelReferenceString()
