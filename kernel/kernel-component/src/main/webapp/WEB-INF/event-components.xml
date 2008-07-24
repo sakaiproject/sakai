@@ -28,6 +28,9 @@
         <lookup-method name="timeService"                bean="org.sakaiproject.time.api.TimeService"/>
         <lookup-method name="usageSessionService"        bean="org.sakaiproject.event.api.UsageSessionService"/>
         <lookup-method name="sessionManager"             bean="org.sakaiproject.tool.api.SessionManager"/>
+        <lookup-method name="securityService"            bean="org.sakaiproject.authz.api.SecurityService"/>
+        <lookup-method name="toolManager"                bean="org.sakaiproject.tool.api.ToolManager"/>
+        <lookup-method name="entityManager"              bean="org.sakaiproject.entity.api.EntityManager"/>
 
         <property name="checkDb">    <value>true</value>         </property>
         <property name="autoDdl">    <value>${auto.ddl}</value>  </property>

@@ -130,12 +130,12 @@
        Implementation -->
   <bean id="org.sakaiproject.content.migration.api.ContentToJCRCopier"
     class="org.sakaiproject.content.migration.ContentToJCRCopierImpl">
-    <property name="jcrService" ref="org.sakaiproject.jcr.api.JCRService"></property>
     <property name="jcrStorageUser" ref="org.sakaiproject.content.api.ContentHostingService.storageUser"></property>
     <property name="oldCHSService" ref="org.sakaiproject.content.api.ContentHostingService.dbservice"></property>
   </bean>
 
   <!-- Used to track CHS Events while we're migrating. -->
+  <!-- 
   <bean id="org.sakaiproject.content.migration.api.ContentToJCRCopier.observer"
   	  class="org.sakaiproject.content.migration.MigrationInProgressObserver"
       init-method="init" destroy-method="destroy">
@@ -143,26 +143,18 @@
     <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
     <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
   </bean>
+  -->
 
-  <!-- Migration Status -->
-  <bean id="org.sakaiproject.content.migration.api.MigrationStatusReporter"
-    class="org.sakaiproject.content.migration.MigrationStatusReporterImpl"
-    init-method="init" destroy-method="destroy" >
-	<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>      
-    <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
-  </bean>
-
-  <!-- The actual Migrator with the algorithm -->
+  <!-- The actual Migrator with the algorithm 
+       This also is the MigrationStatusReporter. I would use a Spring alias but
+       I've problems using that part of Spring in the Sakai CompMgr before.-->
   <bean id="org.sakaiproject.content.migration.api.CHStoJCRMigrator"
     class="org.sakaiproject.content.migration.CHStoJCRMigratorImpl"
     init-method="init" destroy-method="destroy" >
-        
-    
     <property name="contentToJCRCopier" ref="org.sakaiproject.content.migration.api.ContentToJCRCopier" />
     <property name="jcrService" ref="org.sakaiproject.jcr.api.UnboundJCRService" />
-    <property name="migrationStatusReporter" ref="org.sakaiproject.content.migration.api.MigrationStatusReporter" />
     <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
-    
+    <property name="dataSource" ref="javax.sql.DataSource" />
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
@@ -170,7 +162,30 @@
     <property name="autoDDL" ><value>${auto.ddl}</value></property>
   </bean>
 
+<!-- 
+  <bean id="CopierRunnable" class="org.sakaiproject.content.migration.CopierRunnable"
+    singleton="false">
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="copier" ref="org.sakaiproject.content.migration.api.ContentToJCRCopier" />
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+    <property name="jcrService" ref="org.sakaiproject.jcr.api.JCRService" />
+    <property name="oldContentService" ref="org.sakaiproject.content.api.ContentHostingService.dbservice" />
+    <property name="testUser">
+      <value>admin</value>
+    </property>
+  </bean>
+-->
 
+	<!-- Recursive Migration Test -->
+	<bean id="org.sakaiproject.content.migration.RecursiveMigrator"
+		class="org.sakaiproject.content.migration.RecursiveMigratorImpl" >
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService.dbservice"/>
+		<property name="contentToJCRCopier" ref="org.sakaiproject.content.migration.api.ContentToJCRCopier" />
+		<property name="jcrService" ref="org.sakaiproject.jcr.api.UnboundJCRService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
 	
 
 </beans>
