@@ -1282,6 +1282,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public ToolConfiguration findTool(String id)
 	{
+		if (id == null)
+			return null;
+		
 		ToolConfiguration rv = null;
 
 		// check the site cache
@@ -1327,6 +1330,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public SitePage findPage(String id)
 	{
+		if (id == null)
+			return null;
+		
 		SitePage rv = null;
 
 		// check the site cache
@@ -2672,6 +2678,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public Group findGroup(String refOrId)
 	{
+		if (refOrId == null)
+			return null;
+		
 		Group rv = null;
 
 		// parse the reference or id
