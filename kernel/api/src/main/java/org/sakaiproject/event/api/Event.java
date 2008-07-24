@@ -43,6 +43,13 @@ public interface Event
 	String getResource();
 
 	/**
+	 * Access the event context
+	 * 
+	 * @return The event context
+	 */
+	String getContext();
+	
+	/**
 	 * Access the UsageSession id. If null, check for a User id.
 	 * 
 	 * @return The UsageSession id string.

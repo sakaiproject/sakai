@@ -19,23 +19,28 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.db.api;
-
-import java.sql.ResultSet;
+package org.sakaiproject.javax;
 
 /**
  * <p>
- * SqlReader is the Interface for objects that can read stuff from a SQL request ResultSet.
+ * SearchFilter is a paricular kind of Filter where the code using the filter
+ * may choose do something other than retrieve all the objects sequentally and 
+ * present them for acceptance.  When code is using a SearchFilter the 
+ * code may decide to consult a search index to more efficiently retrieve 
+ * results.  This also might result in objects returned by relevance 
+ * order.  SearchFilter objects must implement the accept() method 
+ * because the calling code may or may not know how to peer inside 
+ * the particular objects being searched.  If the calling code 
+ * has no optimisation for search it may revert to an approach of retrieving
+ * all items and presenting them to the accept() method of a SearchFilter.
  * </p>
  */
-public interface SqlReader 
+public interface SearchFilter extends Filter
 {
 	/**
-	 * Read fields from this result set, creating one object which is returned.
+	 * Returns the search string for this filter.
 	 * 
-	 * @param result
-	 *        The SQL ResultSet, set to the proper record.
-	 * @return The object read.
+	 * @return the search string for this filter.
 	 */
-	Object readSqlResultRecord(ResultSet result) throws SqlReaderFinishedException;
+	String getSearchString();
 }

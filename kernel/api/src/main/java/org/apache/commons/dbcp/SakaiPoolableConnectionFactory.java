@@ -271,7 +271,7 @@ public class SakaiPoolableConnectionFactory extends PoolableConnectionFactory
 			{
 				conn.setReadOnly(_defaultReadOnly.booleanValue());
 			}
-			if ((_defaultCatalog != null) && (conn.getCatalog() != _defaultCatalog))
+			if ((_defaultCatalog != null) && (!_defaultCatalog.equals(conn.getCatalog())))
 			{
 				conn.setCatalog(_defaultCatalog);
 			}

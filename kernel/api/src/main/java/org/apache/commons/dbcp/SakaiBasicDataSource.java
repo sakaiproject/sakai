@@ -91,7 +91,7 @@ public class SakaiBasicDataSource extends BasicDataSource
 	 * @param value
 	 *        if true, rollback each connection when borrowed from the pool, if false, do not.
 	 */
-	public void setRollbackOnBorrow(boolean value)
+	public synchronized void setRollbackOnBorrow(boolean value)
 	{
 		m_rollbackOnReturn = value;
 	}

@@ -94,6 +94,13 @@ public interface UsageSession extends Comparable
 	String getIpAddress();
 
 	/**
+	 * Access the Hostname from which this session originated.
+	 * 
+	 * @return the Hostname resolved from the IP Address from which this session originated.
+	 */
+	String getHostName();
+	
+	/**
 	 * Access the User Agent string describing the browser used in this session.
 	 * 
 	 * @return the User Agent string describing the browser used in this session.

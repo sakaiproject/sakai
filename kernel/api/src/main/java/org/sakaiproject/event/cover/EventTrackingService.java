@@ -88,6 +88,15 @@ public class EventTrackingService
 		return service.newEvent(param0, param1, param2, param3);
 	}
 
+	public static org.sakaiproject.event.api.Event newEvent(java.lang.String param0, java.lang.String param1,  java.lang.String param2, boolean param3,
+			int param4)
+	{
+		org.sakaiproject.event.api.EventTrackingService service = getInstance();
+		if (service == null) return null;
+
+		return service.newEvent(param0, param1, param2, param3, param4);
+	}
+
 	public static void addObserver(java.util.Observer param0)
 	{
 		org.sakaiproject.event.api.EventTrackingService service = getInstance();

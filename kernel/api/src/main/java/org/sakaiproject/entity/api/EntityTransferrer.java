@@ -48,4 +48,18 @@ public interface EntityTransferrer
 	 * @return
 	 */
 	String[] myToolIds();
+	
+	/**
+	 * transfer a copy of Entites from the source context into the destination context
+	 * 
+	 * @param fromContext
+	 *        The source context
+	 * @param toContext
+	 *        The destination context
+	 * @param ids
+	 *        when null, all entities will be imported; otherwise, only entities with those ids will be imported
+	 * @param cleanup
+	 *        
+	 */
+	void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup);
 }

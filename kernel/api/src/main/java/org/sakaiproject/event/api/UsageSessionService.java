@@ -35,8 +35,10 @@ import org.sakaiproject.user.api.Authentication;
  */
 public interface UsageSessionService
 {
-	/** Name for the event of logging in. */
+	/** Names for the events of logging in from well-known services. */
 	public static final String EVENT_LOGIN = "user.login";
+	public static final String EVENT_LOGIN_WS = "user.login.ws";
+	public static final String EVENT_LOGIN_DAV = "user.login.dav";
 
 	/** Name for the event of logging out. */
 	public static final String EVENT_LOGOUT = "user.logout";
@@ -165,6 +167,39 @@ public interface UsageSessionService
 	 * @return true if all went well, false if not (may fail if the userId is not a valid User)
 	 */
 	boolean login(Authentication authn, HttpServletRequest req);
+
+	/**
+	 * Start a usage session and do any other book-keeping needed to login a user who has already been authenticated.
+	 * Use this method to specify a login event other than the default (e.g. WebDAV clients)
+	 *  
+	 * @param authn
+	 *        The user authentication.
+	 * @param req
+	 *        The servlet request.
+	 * @param event
+	 *        The event code to post for this login.
+	 * @return true if all went well, false if not (may fail if the userId is not a valid User)
+	 */
+	public boolean login(Authentication authn, HttpServletRequest req, String event);
+
+	/**
+	 * Start a usage session and do any other book-keeping needed to login a user who has already been authenticated.
+	 * Use this method for logins that do not originate through the portal / request-filter (e.g. axis webservices)
+	 * where an HttpServletRequest is not available.
+	 * 
+	 * @param uid
+	 *        The user's uid
+	 * @param eid
+	 *        The user's eid
+	 * @param remoteaddr
+	 *        The IP address of the client
+	 * @param ua
+	 *        The client's user agent string
+	 * @param event
+	 *        The event code to post for this login.
+	 * @return true if all went well, false if not (may fail if the userId is not a valid User)
+	 */
+	public boolean login(String uid, String eid, String remoteaddr, String ua, String event);
 	
 	/**
 	 * End a usage session and otherwise cleanup from a login.

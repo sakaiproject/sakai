@@ -54,6 +54,8 @@ public class UsageSessionService
 	private static org.sakaiproject.event.api.UsageSessionService m_instance = null;
 
 	public static java.lang.String EVENT_LOGIN = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGIN;
+	public static java.lang.String EVENT_LOGIN_WS = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGIN_WS;
+	public static java.lang.String EVENT_LOGIN_DAV = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGIN_DAV;
 
 	public static java.lang.String EVENT_LOGOUT = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGOUT;
 
@@ -164,6 +166,22 @@ public class UsageSessionService
 		return service.login(param0, param1);
 	}
 
+	public static boolean login(org.sakaiproject.user.api.Authentication param0, javax.servlet.http.HttpServletRequest param1, String param2)
+	{
+		org.sakaiproject.event.api.UsageSessionService service = getInstance();
+		if (service == null) return false;
+
+		return service.login(param0, param1, param2);
+	}
+
+	public static boolean login(String param0, String param1, String param2, String param3, String param4)
+	{
+		org.sakaiproject.event.api.UsageSessionService service = getInstance();
+		if (service == null) return false;
+
+		return service.login(param0, param1, param2, param3, param4);
+	}
+	
 	public static void logout()
 	{
 		org.sakaiproject.event.api.UsageSessionService service = getInstance();

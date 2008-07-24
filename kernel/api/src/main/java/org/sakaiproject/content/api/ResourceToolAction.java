@@ -173,8 +173,17 @@ public interface ResourceToolAction
 		 * 		must implement the CustomToolAction interface to provide Resources tool with a way to 
 		 * 		determine permissions, as well as either InteractionAction or ServiceLevelAction.
 		 */
-		CUSTOM_TOOL_ACTION
-		
+		CUSTOM_TOOL_ACTION,
+ 		
+		/**
+		 * Compress a selected folder to a zip archive with the same name.
+		 */
+		COMPRESS_ZIP_FOLDER,
+				
+		/**
+		 * Expands a zip file into serveral folders and archives 
+		 */
+		EXPAND_ZIP_ARCHIVE
 	}
 	
 	public static final String CREATE = "create";
@@ -193,6 +202,8 @@ public interface ResourceToolAction
 	public static final String REORDER = "revise_order";
 	public static final String EXPAND = "expand";
 	public static final String COLLAPSE = "collapse";
+	public static final String COMPRESS_ZIP_FOLDER = "compress_zip_folder";
+	public static final String EXPAND_ZIP_ARCHIVE = "expand_zip_archive";
 	
 	public static final String ACTION_DELIMITER = ":";
 		
