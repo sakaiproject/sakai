@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2007 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -52,16 +52,16 @@ public class SpringCompMgr implements ComponentManager
 
 	/** System property to control if we close on jvm shutdown (if set) or on the loss of our last child (if not set). */
 	protected final static String CLOSE_ON_SHUTDOWN = "sakai.component.closeonshutdown";
-	
+
 	/** The Sakai configuration component package, which must be the last defined. */
 	protected final static String CONFIGURATION_COMPONENT_PACKAGE = "sakai-component-pack";
-	
+
 	/** The Sakai configuration components, which must be the first loaded. */
 	protected final static String[] CONFIGURATION_COMPONENTS = {
 		"org.sakaiproject.component.SakaiPropertyPromoter",
 		"org.sakaiproject.log.api.LogConfigurationManager"
 	};
-	
+
 	protected final static String DEFAULT_CONFIGURATION_FILE = "classpath:/org/sakaiproject/config/sakai-configuration.xml";
 	protected final static String CONFIGURATION_FILE_NAME = "sakai-configuration.xml";
 
@@ -79,7 +79,7 @@ public class SpringCompMgr implements ComponentManager
 
 	/**
 	 * Initialize.
-	 * 
+	 *
 	 * @param parent
 	 *        A ComponentManager in which this one gets nested, or NULL if this is this top one.
 	 */
@@ -97,14 +97,14 @@ public class SpringCompMgr implements ComponentManager
 	public void init()
 	{
 		if (m_ac != null) return;
-		
+
 		// Make sure a "sakai.home" system property is set.
 		ensureSakaiHome();
 		checkSecurityPath();
 
 		m_ac = new SakaiApplicationContext();
 		m_ac.setInitialSingletonNames(CONFIGURATION_COMPONENTS);
-		
+
 		List<String> configLocationList = new ArrayList<String>();
 		configLocationList.add(DEFAULT_CONFIGURATION_FILE);
 		String localConfigLocation = System.getProperty("sakai.home") + CONFIGURATION_FILE_NAME;
@@ -129,7 +129,7 @@ public class SpringCompMgr implements ComponentManager
 				}
 			});
 		}
-		
+
 		try
 		{
 			// get the singletons loaded
@@ -142,20 +142,12 @@ public class SpringCompMgr implements ComponentManager
 	}
 	/**
 	 * Access the ApplicationContext
-	 * 
+	 *
 	 * @return the ApplicationContext
 	 */
 	public ConfigurableApplicationContext getApplicationContext()
 	{
 		return m_ac;
-	}
-
-	/**
-	 * Finalize.
-	 */
-	protected void finalize()
-	{
-		close();
 	}
 
 	/**
@@ -338,7 +330,7 @@ public class SpringCompMgr implements ComponentManager
 
 	/**
 	 * Check the environment for catalina's base or home directory.
-	 * 
+	 *
 	 * @return Catalina's base or home directory.
 	 */
 	protected String getCatalina()
@@ -376,7 +368,7 @@ public class SpringCompMgr implements ComponentManager
 	{
 		return m_hasBeenClosed;
 	}
-	
+
 	private void ensureSakaiHome()
 	{
 		// find a path to sakai files on the app server - if not set, set it
@@ -412,11 +404,11 @@ public class SpringCompMgr implements ComponentManager
 						+ sakaiHomePath);
 			}
 		}
-		
+
 		// make sure it's set properly
 		System.setProperty("sakai.home", sakaiHomePath);
 	}
-	
+
 	private void checkSecurityPath()
 	{
 		// check for the security home
