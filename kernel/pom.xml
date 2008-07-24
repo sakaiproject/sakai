@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sakaiproject</groupId>
   <artifactId>kernel</artifactId>
@@ -11,17 +13,17 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <issueManagement>
-     <system>jira</system>
-     <url>http://bugs.sakaiproject.org/jira/browse/SAK</url>
+    <system>jira</system>
+    <url>http://bugs.sakaiproject.org/jira/browse/SAK</url>
   </issueManagement>
   <ciManagement>
-     <system>continuum</system>
-     <notifiers>
-        <notifier>
-            <type>mail</type>
-            <address>builds@collab.sakaiproject.org</address>
-        </notifier>
-     </notifiers>
+    <system>continuum</system>
+    <notifiers>
+      <notifier>
+        <type>mail</type>
+        <address>builds@collab.sakaiproject.org</address>
+      </notifier>
+    </notifiers>
   </ciManagement>
   <inceptionYear>2003</inceptionYear>
   <prerequisites>
@@ -29,58 +31,70 @@
   </prerequisites>
   <!-- Mailing Lists ======================================================= -->
 
-    <mailingLists>
-        <mailingList>
-            <name>Sakai User List</name>
-            <subscribe>https://collab.sakaiproject.org</subscribe>
-            <unsubscribe>https://collab.sakaiproject.org</unsubscribe>
-            <post>sakai-user@collab.sakaiproject.org</post>
-            <archive>http://news.gmane.org/group/gmane.comp.cms.sakai.user/last=/force_load=t</archive>
-        </mailingList>
-        <mailingList>
-            <name>Sakai Developer List</name>
-            <subscribe>https://collab.sakaiproject.org</subscribe>
-            <unsubscribe>https://collab.sakaiproject.org</unsubscribe>
-            <post>sakai-dev@collab.sakaiproject.org</post>
-            <archive>http://news.gmane.org/group/gmane.comp.cms.sakai.dev/last=/force_load=t</archive>
-        </mailingList>
-        <mailingList>
-            <name>Sakai SCM List</name>
-            <subscribe>https://collab.sakaiproject.org</subscribe>
-            <unsubscribe>https://collab.sakaiproject.org</unsubscribe>
-            <post>source@collab.sakaiproject.org</post>
-        </mailingList>
-    </mailingLists>
-    <licenses>
-        <license>
-            <name>Educational Community License, Version 1.0</name>
-            <url>http://www.opensource.org/licenses/ecl1.php</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-   <scm>
-     <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</connection>
-     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</developerConnection>
-     <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
-   </scm> 
-  
+  <mailingLists>
+    <mailingList>
+      <name>Sakai User List</name>
+      <subscribe>https://collab.sakaiproject.org</subscribe>
+      <unsubscribe>https://collab.sakaiproject.org</unsubscribe>
+      <post>sakai-user@collab.sakaiproject.org</post>
+      <archive>
+        http://news.gmane.org/group/gmane.comp.cms.sakai.user/last=/force_load=t
+      </archive>
+    </mailingList>
+    <mailingList>
+      <name>Sakai Developer List</name>
+      <subscribe>https://collab.sakaiproject.org</subscribe>
+      <unsubscribe>https://collab.sakaiproject.org</unsubscribe>
+      <post>sakai-dev@collab.sakaiproject.org</post>
+      <archive>
+        http://news.gmane.org/group/gmane.comp.cms.sakai.dev/last=/force_load=t
+      </archive>
+    </mailingList>
+    <mailingList>
+      <name>Sakai SCM List</name>
+      <subscribe>https://collab.sakaiproject.org</subscribe>
+      <unsubscribe>https://collab.sakaiproject.org</unsubscribe>
+      <post>source@collab.sakaiproject.org</post>
+    </mailingList>
+  </mailingLists>
+  <licenses>
+    <license>
+      <name>Educational Community License, Version 1.0</name>
+      <url>http://www.opensource.org/licenses/ecl1.php</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
+  </scm>
+
   <properties>
     <sakai.plugin.version>2.2</sakai.plugin.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring</sakai.spring.artifactId>
     <sakai.spring.version>2.0.6</sakai.spring.version>
-    <sakai.spring.mock.artifactId>spring-mock</sakai.spring.mock.artifactId>
+    <sakai.spring.mock.artifactId>
+      spring-mock
+    </sakai.spring.mock.artifactId>
     <sakai.spring.mock.version>2.0.6</sakai.spring.mock.version>
     <sakai.commons.lang.version>2.1</sakai.commons.lang.version>
-    <sakai.commons.fileupload.version>1.1.1</sakai.commons.fileupload.version>
+    <sakai.commons.fileupload.version>
+      1.1.1
+    </sakai.commons.fileupload.version>
     <sakai.tomcat.version>tomcat-5.5.23</sakai.tomcat.version>
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate</sakai.hibernate.artifactId>
     <sakai.hibernate.version>3.2.5.ga</sakai.hibernate.version>
-	<sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
-	<sakai.ehcache.artifactId>ehcache</sakai.ehcache.artifactId>
-	<sakai.ehcache.version>1.3.0</sakai.ehcache.version>
-	<sakai.servletapi.version>2.4</sakai.servletapi.version>
+    <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
+    <sakai.ehcache.artifactId>ehcache</sakai.ehcache.artifactId>
+    <sakai.ehcache.version>1.3.0</sakai.ehcache.version>
+    <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.pluto.version>1.1.2</sakai.pluto.version>
@@ -101,28 +115,28 @@
       <url>file:///tmp/site</url>
     </site>
   </distributionManagement>
-<pluginRepositories>
-  <pluginRepository>
-    <id>codehaus snapshot repository</id>
-    <url>http://snapshots.repository.codehaus.org/</url>
-    <releases>
-      <enabled>true</enabled>
-    </releases>
-  </pluginRepository>
-  <pluginRepository>
-    <id>Sakai Plugin Repo</id>
-    <url>http://source.sakaiproject.org/maven2</url>
-    <releases>
-      <enabled>true</enabled>
-    </releases>
-  </pluginRepository>
-</pluginRepositories>
-<repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>codehaus snapshot repository</id>
+      <url>http://snapshots.repository.codehaus.org/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>Sakai Plugin Repo</id>
+      <url>http://source.sakaiproject.org/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
+  <repositories>
     <repository>
       <id>sakai-maven</id>
       <name>Sakai Maven Repo</name>
       <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
+      <url>http://source.sakaiproject.org/maven2</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -131,7 +145,7 @@
       <id>sakai-ibiblio-mirror</id>
       <name>Sakai Ibiblio Mirror Repo</name>
       <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-ibiblio</url>
+      <url>http://source.sakaiproject.org/maven2-ibiblio</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -140,346 +154,348 @@
       <id>default</id>
       <name>Maven Repository Switchboard</name>
       <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
+      <url>http://repo1.maven.org/maven2</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
     </repository>
-<!--
-This is not needed now that pluto have been released
-    <repository>
+    <!--
+      This is not needed now that pluto have been released
+      <repository>
       <id>Pluto Repor</id>
       <name>Pluto Dev Repository</name>
       <layout>default</layout>
-            <url>http://people.apache.org/builds/portals-pluto/m2-staging-repository</url>
+      <url>http://people.apache.org/builds/portals-pluto/m2-staging-repository</url>
+      <snapshots>
+      <enabled>false</enabled>
+      </snapshots>
+      </repository>
+    -->
+    <repository>
+      <id>apache-repo</id>
+      <name>apache-repo</name>
+      <layout>default</layout>
+      <url>http://myfaces.zones.apache.org/dist/maven-repository</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
     </repository>
--->
-    <repository>
-    	<id>apache-repo</id>
-    	<name>apache-repo</name>
-    	<layout>default</layout>
-    	<url>http://myfaces.zones.apache.org/dist/maven-repository</url>
-		<snapshots>
-			<enabled>false</enabled>
-		</snapshots>
-    </repository>
-</repositories>
+  </repositories>
   <dependencyManagement>
-     <dependencies>
-<!-- provided by the JDK, here to ensure its not packaged in child poms 
-     child poms may still override if necessary -->
-		<dependency>
-			<groupId>xalan</groupId>
-			<artifactId>xalan</artifactId>
-			<version>2.6.0</version>
-                        <scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.6.2</version>
-                        <scope>provided</scope>
-		</dependency>
-      
-       <!-- common/lib -->
-	   <dependency>      
-      		<groupId>javax.servlet</groupId>
-      		<artifactId>jsp-api</artifactId>
-      		<version>2.0</version>
-                <scope>provided</scope>
-    	   </dependency>
-           <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>${sakai.servletapi.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>commons-el</groupId>
-                <artifactId>commons-el</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-           </dependency>
+    <dependencies>
+
+
+
+
+      <!-- provided by the JDK, here to ensure its not packaged in child poms 
+        child poms may still override if necessary -->
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.6.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>2.6.2</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- common/lib -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>jsp-api</artifactId>
+        <version>2.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>${sakai.servletapi.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>commons-el</groupId>
+        <artifactId>commons-el</artifactId>
+        <version>1.0</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- parser API inconsistancies -->
-	   <!-- force this version where used  -->
-           <dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xmlParserAPIs</artifactId>
-                <version>2.6.2</version>
-           </dependency>
-           <!-- block these versions if the user really wants them they will have to be specific  -->
-           <dependency>
-                <groupId>xml-apis</groupId>
-                <artifactId>xml-apis</artifactId>
-                <version>1.0.b2</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>xml-apis</groupId>
-                <artifactId>xmlParserAPIs</artifactId>
-                <version>2.0.2</version>
-                <scope>provided</scope>
-           </dependency>
-          <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.8</version>
-            <scope>provided</scope>
-          </dependency>
+      <!-- force this version where used  -->
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xmlParserAPIs</artifactId>
+        <version>2.6.2</version>
+      </dependency>
+      <!-- block these versions if the user really wants them they will have to be specific  -->
+      <dependency>
+        <groupId>xml-apis</groupId>
+        <artifactId>xml-apis</artifactId>
+        <version>1.0.b2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>xml-apis</groupId>
+        <artifactId>xmlParserAPIs</artifactId>
+        <version>2.0.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.12</version>
+        <scope>provided</scope>
+      </dependency>
 
       <!-- shared/lib -->
       <!-- 3rd party APIs/Implementations -->
-           <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
-                <version>${sakai.spring.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>1.0.2</version>
-                <scope>provided</scope>
-           </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring</artifactId>
+        <version>${sakai.spring.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-mock</artifactId>
+        <version>${sakai.spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.activation</groupId>
+        <artifactId>activation</artifactId>
+        <version>1.0.2</version>
+        <scope>provided</scope>
+      </dependency>
 
-           <dependency>
-                <groupId>antlr</groupId>
-                <artifactId>antlr</artifactId>
-                <version>2.7.6</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>castor</groupId>
-                <artifactId>castor</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
-                <version>2.1_3</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>3.1</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>1.2.2</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>${sakai.commons.fileupload.version}</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>1.2</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${sakai.commons.lang.version}</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.0.4</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>commons-math</groupId>
-                <artifactId>commons-math</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>commons-pool</groupId>
-                <artifactId>commons-pool</artifactId>
-                <version>1.3</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>zing</groupId>
-                <artifactId>cql-java-0.7</artifactId>
-                <version>0.7</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>dom4j</groupId>
-                <artifactId>dom4j</artifactId>
-                <version>1.6.1</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>${sakai.ehcache.version}</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate</artifactId>
-                <version>${sakai.hibernate.version}</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>1.8.0.7</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>jaxen</groupId>
-                <artifactId>jaxen</artifactId>
-                <version>1.1-beta-10</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>javax.jcr</groupId>
-                <artifactId>jcr</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>jdbc</groupId>
-                <artifactId>jdbc2_0-stdext</artifactId>
-                <version>h2.1.8</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>jdom</groupId>
-                <artifactId>jdom</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>jstl</artifactId>
-                <version>1.1.2</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>jta</groupId>
-                <artifactId>jta</artifactId>
-                <version>h2.1.8</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>mail</artifactId>
-                <version>1.3.1</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-container</artifactId>
-                <version>${sakai.pluto.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-descriptor-api</artifactId>
-                <version>${sakai.pluto.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-descriptor-impl</artifactId>
-                <version>${sakai.pluto.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-taglib</artifactId>
-                <version>${sakai.pluto.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>javax.portlet</groupId>
-                <artifactId>portlet-api</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>quartz</groupId>
-                <artifactId>quartz</artifactId>
-                <version>1.5.2</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>OKI</groupId>
-                <artifactId>OkiOSID</artifactId>
-                <version>2.0</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>javax.jcr</groupId>
-                <artifactId>jcr</artifactId>
-                <version>${sakai.jcr.version}</version>
-                <scope>provided</scope>
-           </dependency>
+      <dependency>
+        <groupId>antlr</groupId>
+        <artifactId>antlr</artifactId>
+        <version>2.7.6</version>
+        <scope>provided</scope>
+      </dependency>
 
 
-	<!-- kernel apis -->
-           <dependency>
-		<groupId>org.sakaiproject.kernel</groupId>
-		<artifactId>sakai-component-manager</artifactId>
-                <version>SNAPSHOT</version>
-		<scope>provided</scope>
-	   </dependency>
-           <dependency>
-		<groupId>org.sakaiproject.kernel</groupId>
-		<artifactId>sakai-kernel-api</artifactId>
-                <version>SNAPSHOT</version>
-		<scope>provided</scope>
-	   </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.component.api</groupId>
-                <artifactId>sakai-component-manager</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
+      <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib-nodep</artifactId>
+        <version>2.1_3</version>
+        <scope>provided</scope>
+      </dependency>
 
-	</dependencies>
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.1</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-dbcp</groupId>
+        <artifactId>commons-dbcp</artifactId>
+        <version>1.2.2</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>${sakai.commons.fileupload.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>1.2</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${sakai.commons.lang.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.0.4</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-math</groupId>
+        <artifactId>commons-math</artifactId>
+        <version>1.0</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-pool</groupId>
+        <artifactId>commons-pool</artifactId>
+        <version>1.3</version>
+        <scope>provided</scope>
+      </dependency>
+      
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>zing</groupId>
+        <artifactId>cql-java-0.7</artifactId>
+        <version>0.7</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>dom4j</groupId>
+        <artifactId>dom4j</artifactId>
+        <version>1.6.1</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache</artifactId>
+        <version>${sakai.ehcache.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate</artifactId>
+        <version>${sakai.hibernate.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>hsqldb</groupId>
+        <artifactId>hsqldb</artifactId>
+        <version>1.8.0.7</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>jaxen</groupId>
+        <artifactId>jaxen</artifactId>
+        <version>1.1-beta-10</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.jcr</groupId>
+        <artifactId>jcr</artifactId>
+        <version>1.0</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>jdbc</groupId>
+        <artifactId>jdbc2_0-stdext</artifactId>
+        <version>h2.1.8</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>jdom</groupId>
+        <artifactId>jdom</artifactId>
+        <version>1.0</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>jstl</artifactId>
+        <version>1.1.2</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>jta</groupId>
+        <artifactId>jta</artifactId>
+        <version>h2.1.8</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.mail</groupId>
+        <artifactId>mail</artifactId>
+        <version>1.3.1</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>OKI</groupId>
+        <artifactId>OkiOSID</artifactId>
+        <version>2.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.jcr</groupId>
+        <artifactId>jcr</artifactId>
+        <version>${sakai.jcr.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.jackrabbit</groupId>
+        <artifactId>jackrabbit-core</artifactId>
+        <version>1.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.jackrabbit</groupId>
+        <artifactId>jackrabbit-api</artifactId>
+        <version>1.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.jackrabbit</groupId>
+        <artifactId>jackrabbit-jcr-commons</artifactId>
+        <version>1.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.jackrabbit</groupId>
+        <artifactId>jackrabbit-jcr-commons</artifactId>
+        <version>1.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.jackrabbit</groupId>
+        <artifactId>jackrabbit-jcr-tests</artifactId>
+        <version>1.4</version>
+      </dependency>
+      <dependency>
+         <groupId>geronimo-spec</groupId>
+         <artifactId>geronimo-spec-jms</artifactId>
+         <version>1.1-rc4</version>
+     </dependency>
+
+      <!-- kernel apis -->
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-component-manager</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel.component.api</groupId>
+        <artifactId>sakai-component-manager</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+    </dependencies>
   </dependencyManagement>
 
-<!-- unit tests are a global dependency -->
+  <!-- unit tests are a global dependency -->
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -489,98 +505,100 @@ This is not needed now that pluto have been released
     </dependency>
   </dependencies>
 
-   <reporting>
-      <plugins>
-         <plugin>
-            <!-- javadocs -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-               <debug>true</debug>
-               <links>
-                  <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-               </links> 
-               <breakiterator>true</breakiterator>
-               <verbose>false</verbose>
-               <aggregate>true</aggregate>
-               <maxmemory>512m</maxmemory>
-               <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
-               <version>2.3</version>
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- junit test reports -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-         </plugin>
-         <plugin>
-            <!-- unit test coverage reporting -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>cobertura-maven-plugin</artifactId>
-            <version>2.0</version>
-         </plugin>
-         <plugin>
-            <!-- Code analysis report -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-pmd-plugin</artifactId>
-            <configuration>
-               <targetJdk>1.5</targetJdk>
-               <rulesets>
-                  <ruleset>/rulesets/basic.xml</ruleset>
-                  <ruleset>/rulesets/codesize.xml</ruleset>
-                  <ruleset>/rulesets/design.xml</ruleset>
-                  <ruleset>/rulesets/finalizers.xml</ruleset>
-                  <ruleset>/rulesets/imports.xml</ruleset>
-                  <ruleset>/rulesets/logging-java.xml</ruleset>
-                  <ruleset>/rulesets/migrating.xml</ruleset>
-                  <ruleset>/rulesets/strings.xml</ruleset>
-                  <ruleset>/rulesets/unusedcode.xml</ruleset>
-               </rulesets>
-             <!--  <format>xml</format> -->
-               <linkXref>true</linkXref>
-               <sourceEncoding>utf-8</sourceEncoding>
-               <minimumTokens>100</minimumTokens>
-            </configuration>
-         </plugin>
-<!--
-         <plugin>
-            <! - - Changelog report - - >
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-changelog-plugin</artifactId>
-            <configuration>
-               <type>range</type>
-               <range>90</range><! - - days - - >
-            </configuration>
-         </plugin>
--->
-         <plugin>
-            <!-- TODO tags report -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>taglist-maven-plugin</artifactId>
-            <configuration>
-               <tags>
-                  <tag>TODO</tag>
-                  <tag>FIXME</tag>
-                  <tag>@deprecated</tag>
-               </tags>
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- jdepend code analysis -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jdepend-maven-plugin</artifactId>
-         </plugin>
-         <plugin>
-            <!-- jxr source code cross linking -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jxr-plugin</artifactId>
-            <configuration>
-               <linkJavadoc>true</linkJavadoc>
-               <javadocDir>apidocs</javadocDir>
-            </configuration>
-         </plugin>
-      </plugins>
-   </reporting>
+  <reporting>
+    <plugins>
+      <plugin>
+        <!-- javadocs -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <debug>true</debug>
+          <links>
+            <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+          </links>
+          <breakiterator>true</breakiterator>
+          <verbose>false</verbose>
+          <aggregate>true</aggregate>
+          <maxmemory>512m</maxmemory>
+          <additionalJOption>
+            -J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m
+          </additionalJOption>
+          <version>2.3</version>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!-- junit test reports -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- unit test coverage reporting -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.0</version>
+      </plugin>
+      <plugin>
+        <!-- Code analysis report -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <targetJdk>1.5</targetJdk>
+          <rulesets>
+            <ruleset>/rulesets/basic.xml</ruleset>
+            <ruleset>/rulesets/codesize.xml</ruleset>
+            <ruleset>/rulesets/design.xml</ruleset>
+            <ruleset>/rulesets/finalizers.xml</ruleset>
+            <ruleset>/rulesets/imports.xml</ruleset>
+            <ruleset>/rulesets/logging-java.xml</ruleset>
+            <ruleset>/rulesets/migrating.xml</ruleset>
+            <ruleset>/rulesets/strings.xml</ruleset>
+            <ruleset>/rulesets/unusedcode.xml</ruleset>
+          </rulesets>
+          <!--  <format>xml</format> -->
+          <linkXref>true</linkXref>
+          <sourceEncoding>utf-8</sourceEncoding>
+          <minimumTokens>100</minimumTokens>
+        </configuration>
+      </plugin>
+      <!--
+        <plugin>
+        <! - - Changelog report - - >
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-changelog-plugin</artifactId>
+        <configuration>
+        <type>range</type>
+        <range>90</range><! - - days - - >
+        </configuration>
+        </plugin>
+      -->
+      <plugin>
+        <!-- TODO tags report -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+        <configuration>
+          <tags>
+            <tag>TODO</tag>
+            <tag>FIXME</tag>
+            <tag>@deprecated</tag>
+          </tags>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!-- jdepend code analysis -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- jxr source code cross linking -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <configuration>
+          <linkJavadoc>true</linkJavadoc>
+          <javadocDir>apidocs</javadocDir>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <build>
     <directory>target</directory>
@@ -594,55 +612,55 @@ This is not needed now that pluto have been released
       <testResource>
         <directory>${basedir}/src/test/java</directory>
         <excludes>
-	  <exclude>**/*.java</exclude>
+          <exclude>**/*.java</exclude>
         </excludes>
         <includes>
           <include>**/*</include>
         </includes>
       </testResource>
       <testResource>
-	   <directory>${basedir}/src/test/respources</directory>
-           <includes>
-		<include>**/*</include>
-           </includes>
+        <directory>${basedir}/src/test/respources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
       </testResource>
     </testResources>
 
     <resources>
-	<resource>
-	   <directory>${basedir}/src/main/java</directory>
-           <excludes>
-		<exclude>**/*.java</exclude>
-           </excludes>
-           <includes>
-		<include>**/*</include>
-           </includes>
-	</resource>
-	<resource>
-	   <directory>${basedir}/src/main/bundle</directory>
-           <includes>
-		<include>**/*</include>
-           </includes>
-	</resource>
-	<resource>
-	   <directory>${basedir}/src/main/resources</directory>
-           <includes>
-		<include>**/*</include>
-           </includes>
-	</resource>
-        <resource>
-           <directory>${basedir}/src/main/sql</directory>
-           <includes>
-             <include>**/*.sql</include>
-           </includes>
-         </resource>
-        <resource>
-           <directory>${basedir}/src/main/config</directory>
-           <includes>
-             <include>**/*.properties</include>
-             <include>**/*.xml</include>
-           </includes>
-         </resource>
+      <resource>
+        <directory>${basedir}/src/main/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/bundle</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/sql</directory>
+        <includes>
+          <include>**/*.sql</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/config</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
     </resources>
     <plugins>
       <plugin>
@@ -676,7 +694,9 @@ This is not needed now that pluto have been released
         <extensions>true</extensions>
         <configuration>
           <deployDirectory>${maven.tomcat.home}</deployDirectory>
-          <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+          <warSourceDirectory>
+            ${basedir}/src/main/webapp
+          </warSourceDirectory>
         </configuration>
       </plugin>
       <plugin>
@@ -685,7 +705,9 @@ This is not needed now that pluto have been released
         <artifactId>maven-war-plugin</artifactId>
         <version>2.0</version>
         <configuration>
-          <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+          <warSourceDirectory>
+            ${basedir}/src/main/webapp
+          </warSourceDirectory>
         </configuration>
       </plugin>
     </plugins>

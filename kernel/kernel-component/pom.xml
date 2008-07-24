@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>kernel</artifactId>
@@ -7,7 +9,7 @@
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai Kernel  Component Package</name>
+  <name>Sakai Kernel Component Package</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-pack</artifactId>
   <organization>
@@ -23,113 +25,113 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-alias-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-entity-util</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-event-util</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-db-storage</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-authz-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-cluster-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-component-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl.content.db</groupId>
       <artifactId>sakai-content-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
       <exclusions>
-	<exclusion>
-	  <groupId>org.sakaiproject.kernel.impl.content.db</groupId>
+        <exclusion>
+          <groupId>org.sakaiproject.kernel.impl.content.db</groupId>
           <artifactId>sakai-content-lock-hbm</artifactId>
-	</exclusion>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
-	<groupId>org.sakaiproject.kernel.impl.content</groupId>
-        <artifactId>sakai-content-bundles</artifactId>
-        <version>SNAPSHOT</version>
+      <groupId>org.sakaiproject.kernel.impl.content</groupId>
+      <artifactId>sakai-content-bundles</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-db-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-email-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-entity-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-event-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
-   <dependency>      
+    <dependency>
       <groupId>org.sakaiproject.kernel.impl.jcr</groupId>
       <artifactId>sakai-jackrabbit-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
-   <dependency>      
+    <dependency>
       <groupId>org.sakaiproject.kernel.impl.jcr</groupId>
       <artifactId>sakai-jcr-support-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-memory-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-site-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-tool-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-user-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-util-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>kernel</artifactId>
@@ -20,34 +22,27 @@
     <deploy.target>shared</deploy.target>
   </properties>
   <dependencies>
-
     <dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
-      <version>${sakai.hibernate.version}</version>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
     </dependency>
     <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
     </dependency>
     <dependency>
-	  <groupId>net.sf.ehcache</groupId>
+      <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
-      <version>${sakai.ehcache.version}</version>
-      <type>jar</type>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
-
   </dependencies>
 </project>

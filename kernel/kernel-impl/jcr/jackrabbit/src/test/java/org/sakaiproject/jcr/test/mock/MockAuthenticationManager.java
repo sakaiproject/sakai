@@ -20,7 +20,7 @@ import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.Evidence;
-import org.sakaiproject.util.IdPwEvidence;
+import org.sakaiproject.user.api.IdPwEvidence;
 
 /**
  * Mocking the authn manager for tests
