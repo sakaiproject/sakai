@@ -7,5 +7,5 @@ popd
 for i in `ls tmp`
 do
 	echo Applying tmp/$i
- 	patch --batch -p0 --dry-run < tmp/$i
+ 	patch --batch -p0  < tmp/$i
 done
