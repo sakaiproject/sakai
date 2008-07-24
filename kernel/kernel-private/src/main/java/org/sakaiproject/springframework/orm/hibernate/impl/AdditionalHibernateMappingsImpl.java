@@ -21,13 +21,14 @@
 
 package org.sakaiproject.springframework.orm.hibernate.impl;
 
-import java.io.IOException;
+import java.io.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.MappingException;
 import org.hibernate.cfg.Configuration;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
+import org.sakaiproject.springframework.orm.hibernate.cover.VendorHbmTransformer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -39,7 +40,7 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 
 	private Integer sortOrder = new Integer(Integer.MAX_VALUE);
 
-	public void setMappingResources(String[] mappingResources)
+    public void setMappingResources(String[] mappingResources)
 	{
 		this.mappingLocations = new Resource[mappingResources.length];
 		for (int i = 0; i < mappingResources.length; i++)
@@ -58,9 +59,10 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 		for (int i = 0; i < this.mappingLocations.length; i++)
 		{
 			try {
-				config.addInputStream(this.mappingLocations[i].getInputStream());
+            logger.info("Loading hbm: " + mappingLocations[i]);
+            config.addInputStream(VendorHbmTransformer.getTransformedMapping(this.mappingLocations[i].getInputStream()));
 			} catch (MappingException me) {
-				throw new MappingException("Failed to load "+ this.mappingLocations[i], me.getCause());
+				throw new MappingException("Failed to load "+ this.mappingLocations[i], me);
 			}
 		}
 	}
@@ -79,4 +81,5 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 	{
 		this.sortOrder = sortOrder;
 	}
+
 }
