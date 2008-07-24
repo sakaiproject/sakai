@@ -29,4 +29,12 @@ import org.apache.commons.logging.LogFactory;
  */
 public class SingleStorageSqlDb2 extends SingleStorageSqlDefault
 {
+   /**
+    * returns the sql statement which retrieves the xml field from the specified table and limits the result set.
+    */
+   public String getXmlSql(String field, String table, int first, int last)
+   {
+      return "with TEMP_QUERY as (select XML, ROW_NUMBER() over (order by " + field + ") as rank from " + table
+            + ") select XML from TEMP_QUERY where rank between ? and ?";
+   }
 }

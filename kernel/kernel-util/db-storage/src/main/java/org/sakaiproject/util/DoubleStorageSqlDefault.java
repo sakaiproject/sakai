@@ -71,6 +71,12 @@ public class DoubleStorageSqlDefault implements DoubleStorageSql
 	{
 		return recordId;
 	}
+    
+    // TODO: Perhaps should deal with the Nulls here
+    public String getCountSql(String table, String idField)
+    {
+        return "select count(*) from " + table + " where (" + idField + " = ? )";
+    }
 
 	public String getSelect1Sql(String table, String idField)
 	{
@@ -108,16 +114,17 @@ public class DoubleStorageSqlDefault implements DoubleStorageSql
 		return "select XML from " + table + " where (" + idField2 + " = ? ) and ( " + idField1 + " = ? )";
 	}
 
-	public String getSelectXml5Sql(String table, String idField, String orderField)
+	public String getSelectXml5Sql(String table, String idField, String orderField, boolean asc)
 	{
-		return "select XML from " + table + " where (" + idField + " = ? )" + ((orderField != null) ? (" order by " + orderField + " asc") : "");
+		return "select XML from " + table + " where (" + idField + " = ? )"
+        + ((orderField != null) ? (" order by " + orderField +  ( asc ? " asc" : " desc" )) : "");
 	}
 
-	public String getSelectXml5filterSql(String table, String idField, String orderField, String filter)
+	public String getSelectXml5filterSql(String table, String idField, String orderField, boolean asc, String filter)
 	{
 		return "select XML from " + table + " where (" + idField + " = ? )" 
 			+ ((filter != null) ? "and " + filter : "")
-			+ ((orderField != null) ? (" order by " + orderField + " asc") : "");
+			+ ((orderField != null) ? (" order by " + orderField + ( asc ? " asc" : " desc" )) : "");
 	}
 
 	public String getSelectXml6Sql(String table, String idField1, String idField2, String id, String ref)
@@ -133,5 +140,15 @@ public class DoubleStorageSqlDefault implements DoubleStorageSql
 	public String getUpdate2Sql(String table, String idField1, String idField2, String fieldList)
 	{
 		return "update " + table + " set " + fieldList + " XML = ? where (" + idField2 + " = ? ) and ( " + idField1 + " = ? )";
+	}
+
+	public String addLimitToQuery(String sqlIn, int startRec, int endRec)
+	{
+        	return null;
+	}
+    
+	public String addTopToQuery(String sqlIn, int endRec)
+	{
+		return null;
 	}
 }

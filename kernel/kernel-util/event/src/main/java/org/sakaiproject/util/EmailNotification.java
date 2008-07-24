@@ -56,9 +56,9 @@ import org.w3c.dom.Element;
  * <ul>
  * <li>getRecipients() - get a collection of Users to send the notification to</li>
  * <li>getHeaders() - form the complete message headers (like from: to: reply-to: date: subject: etc). from: and to: are for display only</li>
- * <li>getMessage() - form the complete message body (minus headers)</li>
+ * <li>htmlContent() - form the complete html message body (minus headers)</li>
+ * <li>plainTextContent() - form the complete plain text message body (minus headers)</li>
  * <li>getTag() - the part of the body at the end that identifies the list</li>
- * <li>isBodyHTML() - say if your body is html or not (not would be plain text)</li>
  * </ul>
  * </p>
  * <p>
@@ -75,7 +75,6 @@ public class EmailNotification implements NotificationAction
 	
 	/** The related site id. */
 	protected String m_siteId = null;
-	protected Event event = null;
 
 	/**
 	 * Construct.
@@ -156,25 +155,41 @@ public class EmailNotification implements NotificationAction
 	 */
 	public void notify(Notification notification, Event event)
 	{
-		this.event = event;
+		reNotify(notification.getId(), notification.getResourceFilter(), event.getPriority(), event);
+	}
+
+	/**
+	 * Resends a notification using the bits of data pulled from the original {@link Notification}
+	 * and {@link Event} objects passed into {@link notify(Notification, Event)}. Specifying the
+	 * bits of information to be used allows notifications to be partially serialized and delayed to
+	 * run later. This becomes prominent when sending out emails to unavailable resources.
+	 * 
+	 * @param notificationId
+	 *            ID of the original notification.
+	 * @param resourceFilter
+	 *            The resource filter to be used.
+	 * @param eventPriority
+	 *            The priority level of the event.
+	 */
+	public void reNotify(String notificationId, String resourceFilter, int eventPriority, Event event)
+	{
 		// ignore events marked for no notification
-		if (event.getPriority() == NotificationService.NOTI_NONE) return;
+		if (eventPriority == NotificationService.NOTI_NONE) return;
 
 		// get the list of potential recipients
 		List recipients = getRecipients(event);
 
 		// filter to actual immediate recipients
-		List immediate = immediateRecipients(recipients, notification, event);
+		List immediate = immediateRecipients(recipients, notificationId, resourceFilter, eventPriority, event);
 
 		// and the list of digest recipients
-		List digest = digestRecipients(recipients, notification, event);
+		List digest = digestRecipients(recipients, notificationId, resourceFilter, eventPriority, event);
 
 		// we may be done
 		if ((immediate.size() == 0) && (digest.size() == 0)) return;
 
 		// get the email elements - headers (including to: from: subject: date: and anything else we want in the message) and body
 		List headers = getHeaders(event);
-		String message = getMessage(event);
 
 		if ( "true".equals(ServerConfigurationService.getString("email.precedence.bulk", "false")) )  
 		{
@@ -185,49 +200,31 @@ public class EmailNotification implements NotificationAction
 			headers.add(bulkFlag);
 		}
 
-		// from = "\"" + ServerConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@" + ServerConfigurationService.getServerName() + ">";
-
-		// some info we will need to add the tag for immediate recipients
-		boolean isBodyHTML = isBodyHTML(event);
-		String newline = (isBodyHTML) ? "<br />\n" : "\n";
-
 		// for the immediates
 		if (immediate.size() > 0)
 		{
-			// get a site title: use either the configured site, or if not configured, the site (context) of the resource
-			Reference ref = EntityManager.newReference(event.getResource());
-			String title = (getSite() != null) ? getSite() : ref.getContext();
-			try
-			{
-				Site site = SiteService.getSite(title);
-				title = site.getTitle();
-			}
-			catch (Exception ignore)
-			{
-			}
-
-			// add the tag to the end message
-			String messageForImmediates = message + getTag(newline, title);
-
-			// send it: from: from, to: immediates, body: messageForImmediates, headers: headers
-			EmailService.sendToUsers(immediate, headers, messageForImmediates);
+			// get formatted message (including tag)
+			String message = getMessage(event);
+			
+			// send message to immediates, with headers
+			EmailService.sendToUsers(immediate, headers, message);
 		}
 
 		// for the digesters
 		if (digest.size() > 0)
 		{
-			// TODO: \n or newLine? text or htlm? -ggolden
+			String message = plainTextContent(event);
 
 			// modify the message to add header lines (we don't add a tag for each message, the digest adds a single one when sent)
 			StringBuilder messageForDigest = new StringBuilder();
 
 			String item = findHeader("From", headers);
-			if (item != null) messageForDigest.append(item);
+			if (item != null) messageForDigest.append(item+"\n");
 
 			item = findHeader("Date", headers);
 			if (item != null)
 			{
-				messageForDigest.append(item);
+				messageForDigest.append(item+"\n");
 			}
 			else
 			{
@@ -235,13 +232,13 @@ public class EmailNotification implements NotificationAction
 			}
 
 			item = findHeader("To", headers);
-			if (item != null) messageForDigest.append(item);
+			if (item != null) messageForDigest.append(item+"\n");
 
 			item = findHeader("Cc", headers);
-			if (item != null) messageForDigest.append(item);
+			if (item != null) messageForDigest.append(item+"\n");
 
 			item = findHeader("Subject", headers);
-			if (item != null) messageForDigest.append(item);
+			if (item != null) messageForDigest.append(item+"\n");
 
 			// and the body
 			messageForDigest.append("\n");
@@ -265,16 +262,31 @@ public class EmailNotification implements NotificationAction
 	 */
 	protected String getMessage(Event event)
 	{	
+		// get a site title: use either the configured site, or if not configured, the site (context) of the resource
+		Reference ref = EntityManager.newReference(event.getResource());
+		String title = (getSite() != null) ? getSite() : ref.getContext();
+		try
+		{
+			Site site = SiteService.getSite(title);
+			title = site.getTitle();
+		}
+		catch (Exception ignore) {}
+
 		StringBuilder message = new StringBuilder();
 		message.append(MIME_ADVISORY);
+		
 		message.append(BOUNDARY_LINE);
 		message.append(plainTextHeaders());
-		message.append(plainTextContent());
+		message.append(plainTextContent(event));
+		message.append( getTag(title, false) );
+		
 		message.append(BOUNDARY_LINE);
 		message.append(htmlHeaders());
-		message.append(htmlPreamble());
-		message.append(htmlContent());
+		message.append(htmlPreamble(event));
+		message.append(htmlContent(event));
+		message.append( getTag(title, true) );
 		message.append(htmlEnd());
+		
 		message.append(TERMINATION_LINE);
 		return message.toString();
 	}
@@ -283,7 +295,7 @@ public class EmailNotification implements NotificationAction
 		return "Content-Type: text/plain\n\n";
 	}
 	
-	protected String plainTextContent() {
+	protected String plainTextContent(Event event) {
 		return null;
 	}
 	
@@ -291,36 +303,34 @@ public class EmailNotification implements NotificationAction
 		return "Content-Type: text/html\n\n";
 	}
 	
-	protected String htmlPreamble() {
+	protected String htmlPreamble(Event event) {
 		StringBuilder buf = new StringBuilder();
 		buf.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n");
 		buf.append("    \"http://www.w3.org/TR/html4/loose.dtd\">\n");
-		buf.append("<html>\n");
+		buf.append("<html>");
 		buf.append("  <head><title>");
-		buf.append(getSubject());
-		buf.append("</title></head>\n");
-		buf.append("  <body>\n");
+		buf.append(getSubject(event));
+		buf.append("</title></head>");
+		buf.append("  <body>");
 		return buf.toString();
 	}
 	
-	protected String htmlContent() {
-		return Web.encodeUrlsAsHtml(FormattedText.escapeHtml(plainTextContent(),true));
+	protected String htmlContent(Event event) {
+		return Web.encodeUrlsAsHtml(FormattedText.escapeHtml(plainTextContent(event),true));
 	}
 	
 	protected String htmlEnd() {
-		return "\n  </body>\n</html>\n";
+		return "  </body></html>";
 	}
 
 	/**
 	 * Get the message tag, the text to display at the bottom of the message.
 	 * 
-	 * @param newline
-	 *        The newline character(s).
-	 * @param title
-	 *        The title string.
+	 * @param title The title string
+	 * @param shouldUseHtml if true, use html not plain text encoding in message
 	 * @return The message tag.
 	 */
-	protected String getTag(String newline, String title)
+	protected String getTag(String title, boolean shouldUseHtml)
 	{
 		return "";
 	}
@@ -340,18 +350,6 @@ public class EmailNotification implements NotificationAction
 		rv.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
 		
 		return rv;
-	}
-
-	/**
-	 * Return true if the body of the email message should be sent as HTML. If this returns true, getHeaders() should also return a "Content-Type: text/html" header of some kind.
-	 * 
-	 * @param event
-	 *        The event that matched criteria to cause the notification.
-	 * @return whether the body of the email message should be sent as HTML.
-	 */
-	protected boolean isBodyHTML(Event event)
-	{
-		return false;
 	}
 
 	/**
@@ -377,17 +375,40 @@ public class EmailNotification implements NotificationAction
 	}
 
 	/**
-	 * Filter the recipients Users into the list of those who get this one immediately. Combine the event's notification priority with the user's notification profile.
+	 * Filter the recipients Users into the list of those who get this one immediately. Combine the
+	 * event's notification priority with the user's notification profile. Alias call to
+	 * {@link immediateRecipients(List<String>, String, String, int)}
 	 * 
 	 * @param recipients
-	 *        The List (User) of potential recipients.
+	 *            The List (User) of potential recipients.
 	 * @param notification
-	 *        The notification responding to the event.
+	 *            The notification responding to the event.
 	 * @param event
-	 *        The event that matched criteria to cause the notification.
+	 *            The event that matched criteria to cause the notification.
 	 * @return The List (User) of immediate recipients.
 	 */
 	protected List immediateRecipients(List recipients, Notification notification, Event event)
+	{
+		return immediateRecipients(recipients, notification.getId(), notification.getResourceFilter(), event.getPriority(), event);
+	}
+
+	/**
+	 * Filter the recipients Users into the list of those who get this one immediately. Combine the
+	 * event's notification priority with the user's notification profile. Copy of
+	 * {@link immediateRecipients(List, Notification, Event)} that accepts more succinct data.
+	 * 
+	 * @param recipients
+	 *            The List of potential recipients.
+	 * @param notificationId
+	 *            ID of the notification.
+	 * @param resourceFilter
+	 *            The resource filter to be applied.
+	 * @param eventPriority
+	 *            The priority of the event.
+	 * @return The List of immediate recipients.
+	 */
+	protected List immediateRecipients(List<String> recipients, String notificationId,
+			String resourceFilter, int eventPriority, Event event)
 	{
 		int priority = event.getPriority();
 
@@ -403,11 +424,11 @@ public class EmailNotification implements NotificationAction
 			User user = (User) iUsers.next();
 
 			// get the user's priority preference for this event
-			int option = getOption(user, notification, event);
+			int option = getOption(user, notificationId, resourceFilter, eventPriority, event);
 
 			// if immediate is the option, or there is no option, select this user
 			// Note: required and none priority are already handled, so we know it's optional here.
-			if (isImmediateDeliveryOption(option, notification))
+			if (isImmediateDeliveryOption(option, resourceFilter))
 			{
 				rv.add(user);
 			}
@@ -417,7 +438,8 @@ public class EmailNotification implements NotificationAction
 	}
 
 	/**
-	 * Filter the preference option based on the notification resource type
+	 * Filter the preference option based on the notification resource type.  Alias call to
+	 * {@link isImmediateDeliveryOption(int, Sring)}.
 	 * 
 	 * @param option
 	 *        The preference option.
@@ -427,6 +449,20 @@ public class EmailNotification implements NotificationAction
 	 */
 	protected boolean isImmediateDeliveryOption(int option, Notification notification)
 	{
+		return isImmediateDeliveryOption(option, notification.getResourceFilter());
+	}
+
+	/**
+	 * Filter the preference option based on the notification resource type.
+	 * 
+	 * @param option
+	 *            The preference option.
+	 * @param resourceFilter
+	 *            The resource filter to use.
+	 * @return A boolean value which tells if the User is one of immediate recipients.
+	 */
+	protected boolean isImmediateDeliveryOption(int option, String resourceFilter)
+	{
 		if (option == NotificationService.PREF_IMMEDIATE)
 		{
 			return true;
@@ -435,10 +471,10 @@ public class EmailNotification implements NotificationAction
 		{
 			if (option == NotificationService.PREF_NONE)
 			{
-				String type = EntityManager.newReference(notification.getResourceFilter()).getType();
+				String type = EntityManager.newReference(resourceFilter).getType();
 				if (type != null)
 				{
-					if (type.equals("org.sakaiproject.mailarchive.api.MailArchiveService"))
+					if ("org.sakaiproject.mailarchive.api.MailArchiveService".equals(type))
 					{
 						return true;
 					}
@@ -449,17 +485,39 @@ public class EmailNotification implements NotificationAction
 	}
 
 	/**
-	 * Filter the recipients Users into the list of those who get this one by digest. Combine the event's notification priority with the user's notification profile.
+	 * Filter the recipients Users into the list of those who get this one by digest. Combine the
+	 * event's notification priority with the user's notification profile. Alias call to
+	 * {@link digestRecipients(List, String, String, int)}
 	 * 
 	 * @param recipients
-	 *        The List (User) of potential recipients.
+	 *            The List (User) of potential recipients.
 	 * @param notification
-	 *        The notification responding to the event.
+	 *            The notification responding to the event.
 	 * @param event
-	 *        The event that matched criteria to cause the notification.
+	 *            The event that matched criteria to cause the notification.
 	 * @return The List (User) of digest recipients.
 	 */
 	protected List digestRecipients(List recipients, Notification notification, Event event)
+	{
+		return digestRecipients(recipients, notification.getId(), notification.getResourceFilter(), event.getPriority(), event);
+	}
+
+	/**
+	 * Filter the recipients Users into the list of those who get this one by digest. Combine the
+	 * event's notification priority with the user's notification profile.
+	 * 
+	 * @param recipients
+	 *            The List (User) of potential recipients.
+	 * @param notificationId
+	 *            The ID of the notification responding to the event.
+	 * @param resourceFilter
+	 *            The resource filter to use for narrowing search.
+	 * @param eventPriority
+	 *            The event priority that matched criteria to cause the notification.
+	 * @return The List (User) of digest recipients.
+	 */
+	protected List digestRecipients(List recipients, String notificationId, String resourceFilter,
+			int eventPriority, Event event)
 	{
 		List rv = new Vector();
 
@@ -476,7 +534,7 @@ public class EmailNotification implements NotificationAction
 			User user = (User) iUsers.next();
 
 			// get the user's priority preference for this event
-			int option = getOption(user, notification, event);
+			int option = getOption(user, notificationId, resourceFilter, eventPriority, event);
 
 			// if digest is the option, select this user
 			if (option == NotificationService.PREF_DIGEST)
@@ -493,12 +551,28 @@ public class EmailNotification implements NotificationAction
 	 */
 	protected int getOption(User user, Notification notification, Event event)
 	{
+		return getOption(user, notification.getId(), notification.getResourceFilter(), event
+				.getPriority(), event);
+	}
+
+	/**
+	 * Get the user's notification option for this... one of the NotificationService's PREF_
+	 * settings
+	 * 
+	 * @param user
+	 * @param notificationId
+	 * @param resourceFilter
+	 * @param eventPriority
+	 * @return
+	 */
+	protected int getOption(User user, String notificationId, String resourceFilter, int eventPriority, Event event)
+	{
 		String priStr = Integer.toString(event.getPriority());
 
 		Preferences prefs = PreferencesService.getPreferences(user.getId());
 
 		// get the user's preference for this notification
-		ResourceProperties props = prefs.getProperties(NotificationService.PREFS_NOTI + notification.getId());
+		ResourceProperties props = prefs.getProperties(NotificationService.PREFS_NOTI + notificationId);
 		try
 		{
 			int option = (int) props.getLongProperty(priStr);
@@ -510,7 +584,7 @@ public class EmailNotification implements NotificationAction
 
 		// try the preference for the site from which resources are being watched for this notification
 		// Note: the getSite() is who is notified, not what we are watching; that's based on the notification filter -ggolden
-		String siteId = EntityManager.newReference(notification.getResourceFilter()).getContext();
+		String siteId = EntityManager.newReference(resourceFilter).getContext();
 		if (siteId != null)
 		{
 			props = prefs.getProperties(NotificationService.PREFS_SITE + siteId);
@@ -536,7 +610,7 @@ public class EmailNotification implements NotificationAction
 		}
 
 		// try the preference for the resource type service responsibile for resources of this notification
-		String type = EntityManager.newReference(notification.getResourceFilter()).getType();
+		String type = EntityManager.newReference(resourceFilter).getType();
 		if (type != null)
 		{
 			props = prefs.getProperties(NotificationService.PREFS_TYPE + type);
@@ -668,9 +742,9 @@ public class EmailNotification implements NotificationAction
 	 *        The event that matched criteria to cause the notification.
 	 * @return the subject for the email.
 	 */
-	protected String getSubject()
+	protected String getSubject(Event event)
 	{
-		return findHeaderValue("Subject", getHeaders(this.event));
+		return findHeaderValue("Subject", getHeaders(event));
 	}
 	
 }

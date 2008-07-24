@@ -29,4 +29,55 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FlatStorageSqlDb2 extends FlatStorageSqlDefault
 {
+	public String getIdField(String table)
+	{
+      // for DB2, the DEFAULT keyword must be specified for the identity column
+      // when it is included in the list of columns on the INSERT
+		return ", DEFAULT";
+	}
+
+   public String getSelectFieldsSql1(String table, String fieldList, String idField, String sortField1, String sortField2, int begin, int end)
+   {
+      return "with TEMP_QUERY as (select " + table + ".*,ROW_NUMBER() over (order by " + table + "." + sortField1
+            + (sortField2 == null ? "" : "," + table + "." + sortField2) + "," + table + "." + idField + ") as rank from " + table + ")";
+   }
+
+   public String getSelectFieldsSql2(String table, String fieldList, String idField, String sortField1, String sortField2, int begin, int end)
+   {
+      fieldList = fieldList.replaceAll(table + "\\.", "TEMP_QUERY.");
+      return "select " + fieldList + " from TEMP_QUERY where rank between ? and ? order by TEMP_QUERY." + sortField1
+            + (sortField2 == null ? "" : ", TEMP_QUERY." + sortField2) + (!idField.equals(sortField1) ? (", TEMP_QUERY." + idField) : "");
+   }
+
+   public String getSelectFieldsSql3(String table, String fieldList, String idField, String sortField1, String sortField2, int begin, int end,
+         String join, String where, String order)
+   {
+      return "with TEMP_QUERY as (select " + table + ".*,ROW_NUMBER() over (order by " + order + "," + table + "." + idField + ") as rank from "
+            + table + ((join == null) ? "" : ("," + join)) + (((where != null) && (where.length() > 0)) ? (" where " + where) : "") + ")";
+   }
+
+   public String getSelectFieldsSql4(String table, String fieldList, String idField, String sortField1, String sortField2, int begin, int end,
+         String join, String where, String order)
+   {
+      String sql = " select " + fieldList.replaceAll(table + "\\.", "TEMP_QUERY.") + " from TEMP_QUERY where rank between ? and ? order by ";
+      // here, need to replace table name with TEMP_QUERY in 'order'
+      String newOrder = new String(order);
+      newOrder = newOrder.replaceAll(table + "\\.", "TEMP_QUERY.");
+      sql += newOrder;
+      // only add next part if it's not already there
+      if (newOrder.indexOf("TEMP_QUERY." + idField) < 0) sql += ",TEMP_QUERY." + idField;
+
+      return sql;
+   }
+
+    public Object[] getSelectFieldsFields(int first, int last)
+   {
+      Object[] fields = new Object[2];
+
+      fields[0] = new Long(first);
+      fields[1] = new Long(last);
+
+      return fields;
+   }
+
 }

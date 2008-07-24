@@ -21,6 +21,8 @@
 
 package org.sakaiproject.util;
 
+import org.sakaiproject.javax.PagingPosition;
+
 /**
  * database methods.
  */
@@ -39,6 +41,8 @@ public interface DoubleStorageSql
 	public String getInsertSql3(String table, String fieldList, String params);
 
 	public String getRecordId(String recordId);
+    
+    public String getCountSql(String table, String idField);
 
 	public String getSelect1Sql(String table, String idField);
 
@@ -54,13 +58,18 @@ public interface DoubleStorageSql
 
 	public String getSelectXml4Sql(String table, String idField1, String idField2);
 
-	public String getSelectXml5Sql(String table, String idField, String orderField);
+	public String getSelectXml5Sql(String table, String idField, String orderField, boolean asc);
    
-	public String getSelectXml5filterSql(String table, String idField, String orderField, String filter);
+	public String getSelectXml5filterSql(String table, String idField, String orderField, boolean asc, String filter);
 
 	public String getSelectXml6Sql(String table, String idField1, String idField2, String id, String ref);
 
 	public String getUpdateSql(String table, String idField);
 
 	public String getUpdate2Sql(String table, String idField1, String idField2, String fieldList);
+
+	public String addLimitToQuery(String inSql, int startRec, int endRec);
+
+	public String addTopToQuery(String inSql, int endRec);
+        
 }

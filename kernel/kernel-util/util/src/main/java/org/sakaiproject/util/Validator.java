@@ -1,4 +1,4 @@
-/**********************************************************************************
+/*********************************************************************************a
  * $URL$
  * $Id$
  ***********************************************************************************
@@ -20,6 +20,12 @@
  **********************************************************************************/
 
 package org.sakaiproject.util;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Enumeration;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -462,7 +468,7 @@ public class Validator
 	 */
 	public static String escapeJavascript(String value)
 	{
-		if (value == null || value == "") return "";
+		if (value == null || "".equals(value)) return "";
 		try
 		{
 			StringBuilder buf = new StringBuilder();
@@ -953,5 +959,21 @@ public class Validator
 		}
 
 		return true;
+	}
+
+	public static String generateQueryString(HttpServletRequest req) {
+		StringBuilder sb = new StringBuilder();
+		try {
+		for ( Enumeration<?> e = req.getParameterNames(); e.hasMoreElements(); ) {
+			String name = (String) e.nextElement();
+			for ( String value : req.getParameterValues(name) ) {
+				sb.append(URLEncoder.encode(name,"UTF-8")).append("=").append(URLEncoder.encode(value,"UTF-8")).append("&");
+			}
+		}
+		} catch ( UnsupportedEncodingException ex) {
+			M_log.error("No UTF-8 Encoding on this JVM, !!!!");
+		}
+		if ( sb.length() < 1 ) return null;
+		return sb.substring(0, sb.length()-1);
 	}
 }

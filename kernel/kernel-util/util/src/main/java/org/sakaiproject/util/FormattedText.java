@@ -516,12 +516,11 @@ public class FormattedText
 	 */
 	public static String unEscapeHtml(String value)
 	{
-		if (value == null) return "";
-		if (value.equals("")) return "";
-		value.replaceAll("&lt;", "<");
-		value.replaceAll("&gt;", ">");
-		value.replaceAll("&amp;", "&");
-		value.replaceAll("&quot;", "\"");
+		if (value == null || value.equals("")) return "";
+		value = value.replaceAll("&lt;", "<");
+		value = value.replaceAll("&gt;", ">");
+		value = value.replaceAll("&amp;", "&");
+		value = value.replaceAll("&quot;", "\"");
 		return value;
 	}
 

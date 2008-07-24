@@ -95,7 +95,7 @@ public class Type1BaseResourcePropertiesSerializer implements DataStreamEntitySe
 								String key = ds.readUTF();
 								int n = ds.readInt();
 								List l = new Vector();
-								for (int j = 0; i < n; j++)
+								for (int j = 0; j < n; j++)
 								{
 									l.add(ds.readUTF());
 								}

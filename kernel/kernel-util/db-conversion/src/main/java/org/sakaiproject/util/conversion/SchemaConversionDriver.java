@@ -306,4 +306,24 @@ public class SchemaConversionDriver
 		return p.getProperty(base + ".remove.duplicates");
 	}
 
+	public String getErrorReportSql() 
+	{
+		return p.getProperty(base + ".report.error");
+	}
+
+	public String getCreateErrorTable() 
+	{
+		return p.getProperty(base + ".create.error.table");
+	}
+
+	public String getVerifyErrorTable() 
+	{
+		return p.getProperty(base + ".verify.error.table");
+	}
+
+	public String getEarlyTerminationSignal() 
+	{
+		return p.getProperty(base + ".early.termination.signal");
+	}
+
 }

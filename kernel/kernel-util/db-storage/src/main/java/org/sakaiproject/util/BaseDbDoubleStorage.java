@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
@@ -34,6 +35,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -43,6 +45,10 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.javax.SearchFilter;
 
 /**
  * <p>
@@ -133,7 +139,7 @@ public class BaseDbDoubleStorage
 
 	/** The db handler we are using. */
 	protected DoubleStorageSql doubleStorageSql;
-
+    
 	public void setDatabaseBeans(Map databaseBeans)
 	{
 		this.databaseBeans = databaseBeans;
@@ -153,7 +159,7 @@ public class BaseDbDoubleStorage
 		databaseBeans = new Hashtable<String, DoubleStorageSql>();
 		databaseBeans.put("db2", new DoubleStorageSqlDb2());
 		databaseBeans.put("default", new DoubleStorageSqlDefault());
-		databaseBeans.put("hsql", new DoubleStorageSqlHSql());
+		databaseBeans.put("hsqldb", new DoubleStorageSqlHSql());
 		databaseBeans.put("mssql", new DoubleStorageSqlMsSql());
 		databaseBeans.put("mysql", new DoubleStorageSqlMySql());
 		databaseBeans.put("oracle", new DoubleStorageSqlOracle());
@@ -743,6 +749,47 @@ public class BaseDbDoubleStorage
 
 		return entry;
 	}
+    
+	/**
+	 * Count all Resources
+	 * @param container
+	 *        The container for this resource.
+	 */
+	public int getCount(Entity container)
+	{
+		// read With or without a filter
+		String sql = doubleStorageSql.getCountSql(m_resourceTableName, m_resourceTableContainerIdField);
+		Object[] fields = new Object[1];
+		fields[0] = container.getReference();
+		List countList = m_sql.dbRead(sql, fields, null);
+		  
+		if ( countList.isEmpty() ) return 0;
+		
+		Object obj = countList.get(0);
+		String str = (String) obj;
+		return Integer.parseInt(str);
+	}
+
+	/**
+	 * Count all Resources
+	 * @param container
+	 *        The container for this resource.
+	 * @param filter
+	 *        A filter object to accept / reject the searches
+	 * @param search
+	 *        Search string
+	 */
+	public int getCount(Entity container, Filter filter)
+	{
+		if ( filter == null ) return getCount(container);
+
+		String sql = doubleStorageSql.getSelectXml5Sql(m_resourceTableName, m_resourceTableContainerIdField, null, false);
+		Object[] fields = new Object[1];
+		fields[0] = container.getReference();
+		List all = m_sql.dbRead(sql, fields, new SearchFilterReader(container, filter,  null, true));
+		int count = all.size();
+		return count;
+	}
 
 	/**
 	 * Get all Resources.
@@ -753,25 +800,7 @@ public class BaseDbDoubleStorage
 	 */
 	public List getAllResources(Entity container)
 	{
-		List all = new Vector();
-
-		// read all users from the db
-		String sql = doubleStorageSql.getSelectXml5Sql(m_resourceTableName, m_resourceTableContainerIdField, m_resourceTableOrderField);
-		Object[] fields = new Object[1];
-		fields[0] = container.getReference();
-		List xml = m_sql.dbRead(sql, fields, null);
-
-		// process all result xml into user objects
-		if (!xml.isEmpty())
-		{
-			for (int i = 0; i < xml.size(); i++)
-			{
-				Entity entry = readResource(container, (String) xml.get(i));
-				if (entry != null) all.add(entry);
-			}
-		}
-
-		return all;
+		return getAllResources(container, null, null, true, null);
 	}
 
 	/**
@@ -783,27 +812,175 @@ public class BaseDbDoubleStorage
 	 *        conditional for select statement
 	 * @return The list (Resource) of all Resources.
 	 */
-	public List getAllResources(Entity container, String filter)
+	public List getAllResources(Entity container, Filter filter)
+	{
+		return getAllResources(container, filter,  null, true, null);
+	}
+
+	/**
+	 * Get all Resources.
+	 * 
+	 * @param container
+	 *        The container for this resource.
+	 * @param sqlFilter
+	 *        conditional for select statement
+	 * @return The list (Resource) of all Resources.
+	 */
+	public List getAllResources(Entity container, String sqlFilter)
+	{
+		return getAllResources(container, null,  sqlFilter, true, null);
+	}
+	
+	/**
+	 * Get all Resources.
+	 * 
+	 * @param container
+	 *        The container for this resource.
+	 * @param softFilter
+	 *        an optional software filter
+	 * @param sqlFilter
+	 *        an optional conditional for select statement
+	 * @param asc
+	 *        true means ascending
+	 * @param pager
+	 *        an optional range of elements to return inclusive
+	 * @return The list (Resource) of all Resources.
+	 */
+	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager)
 	{
 		List all = new Vector();
-
-		// read all users from the db
-		String sql = doubleStorageSql.getSelectXml5filterSql(m_resourceTableName, m_resourceTableContainerIdField, m_resourceTableOrderField, filter);
-		Object[] fields = new Object[1];
-		fields[0] = container.getReference();
-		List xml = m_sql.dbRead(sql, fields, null);
-
-		// process all result xml into user objects
-		if (!xml.isEmpty())
+		// System.out.println("getAllResources e="+container+" sf="+softFilter+" sqlf="+sqlFilter+" asc="+asc+" pag="+pager);
+        
+		// read With or without a filter
+		String sql = doubleStorageSql.getSelectXml5Sql(m_resourceTableName, 
+				m_resourceTableContainerIdField, m_resourceTableOrderField, asc);
+		if ( sqlFilter != null ) 
 		{
-			for (int i = 0; i < xml.size(); i++)
+			sql = doubleStorageSql.getSelectXml5filterSql(m_resourceTableName, 
+				m_resourceTableContainerIdField, m_resourceTableOrderField, asc, sqlFilter);
+		}
+        
+		// If we are not doing a search and we have a record range
+		// see if we can use SQL to limit the range - if our database 
+		// does not support LIMIT (in one or another form), then lets
+		// at least try TOP to limit the overall number of records we
+		// display
+		boolean pagedInSql = false;
+		if ( pager != null && softFilter == null)
+		{
+			String limitedSql = doubleStorageSql.addLimitToQuery(sql, pager.getFirst()-1, pager.getLast()-1);
+ 
+			if ( limitedSql != null ) 
 			{
-				Entity entry = readResource(container, (String) xml.get(i));
-				if (entry != null) all.add(entry);
+				pagedInSql = true;
+				sql = limitedSql;
+			} else {
+				// We don't subtract 1 because TOP is a count, not zero based like LIMIT
+				String topSql = doubleStorageSql.addTopToQuery(sql, pager.getLast());
+				if ( topSql != null )
+				{
+					sql = topSql;
+				}
 			}
 		}
 
+		Object[] fields = new Object[1];
+		fields[0] = container.getReference();
+
+		// If we are paged in SQL - then do not pass in the pager
+		all = m_sql.dbRead(sql, fields, new SearchFilterReader(container, softFilter,  pagedInSql ? null : pager, false));
+		
 		return all;
+	}
+    
+	/** matchXml - Perform an optional pre-de-serialize match if desired
+	 *
+	 * This is just a dummy implementation - this wil be overridden in the
+	 * class that extends this class if a particular storage wants to take
+	 * advantage of this feature.
+	 *
+	 * Return value:
+	 * -1 indicates - definite "no"
+	 * 0 indicates - maybe - continue and parse the Xml
+	 * 1 indicates - "yes" - we know in this rouinte this is a match
+	 */
+	public int matchXml(String xml, String search)
+	{
+		return 0;
+	}
+    
+	public class SearchFilterReader implements SqlReader
+	{
+		private Filter m_filter;
+		private String m_search = null;
+		private PagingPosition m_pager;
+		private Entity m_container;
+		private boolean m_doCount = false;
+    	
+		private int count = 0;
+    	
+		// If we are only counting - return a tiny thing - not a big thing
+		private final Integer intValue = 1;
+    	
+		public SearchFilterReader(Entity container, Filter filter, PagingPosition pager, boolean doCount)
+		{
+			m_container = container;
+			m_filter = filter;
+			if ( filter instanceof SearchFilter ) m_search = ( (SearchFilter) filter).getSearchString();
+			m_pager = pager;
+			m_doCount = doCount;
+		}
+    	
+		public Object readSqlResultRecord(ResultSet result)
+			throws SqlReaderFinishedException
+		{
+			try
+			{
+				String theXml = result.getString(1);
+				if ( m_pager != null && count > m_pager.getLast() ) 
+				{
+					throw new SqlReaderFinishedException();
+				}
+				
+				int iTest = 0;  // Don't know if we have a match
+				if ( m_search != null )
+				{
+					iTest = matchXml(theXml, m_search);
+				}
+                
+				// If it is clearly rejected from pre-parse match
+				if ( iTest == -1 ) return null;
+                
+				// If it is a match and we are just counting - no parsing
+				// needed
+				if ( iTest == 1 && m_doCount ) return intValue;
+                
+				// If it is known to be accepted (1) or unsure (0), 
+				// parse the Xml and continue
+				Entity entry = readResource(m_container, theXml);
+				if ( entry == null ) return null;
+                    
+				// If there is no indication from matchXml
+				if ( iTest == 0 && m_search != null)
+				{
+					if ( ! m_filter.accept(entry) ) return null;
+				}
+				count++;
+				if ( m_pager != null && count < m_pager.getFirst() ) return null;
+                
+				if ( m_pager != null && count > m_pager.getLast() )
+				{
+					throw new SqlReaderFinishedException();
+				}
+                
+				if ( m_doCount ) return intValue;
+				return entry;
+			}
+			catch (SQLException ignore)
+			{
+				return null;
+			}
+		}
 	}
 
 	/**
@@ -1211,7 +1388,7 @@ public class BaseDbDoubleStorage
 
 		return buf.toString();
 	}
-
+    
 	/**
 	 * Get resources filtered by date and count and drafts, in descending (latest first) order
 	 * 
@@ -1257,6 +1434,9 @@ public class BaseDbDoubleStorage
 			{
 				buf.append("select top (" + limitedToLatest + ") XML from " + m_resourceTableName);
 			}
+         else if ("db2".equals(m_sql.getVendor())) {
+            buf.append("select XML from " + m_resourceTableName);
+         }
 			else
 			// if ("hsqldb".equals(m_sql.getVendor()))
 			{
@@ -1327,7 +1507,13 @@ public class BaseDbDoubleStorage
 				// explicitly do nothing here, we handle with 'top' clause above
 				useLimitField = false;
 			}
-			else
+         else if ("db2".equals(m_sql.getVendor()))
+         {
+            buf.append(" FETCH FIRST " + limitedToLatest + " ROWS ONLY");
+            useLimitField = false;
+         }
+
+         else
 			// if ("hsqldb".equals(m_sql.getVendor()))
 			{
 				// the limit clause appears elsewhere in HSQLDB SQL statements, not here.

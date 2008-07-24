@@ -56,7 +56,7 @@ public class FlatStorageSqlMsSql extends FlatStorageSqlDefault
 	public String getSelectFieldsSql4(String table, String fieldList, String idField, String sortField1, String sortField2, int begin, int end,
 			String join, String where, String order)
 	{
-		String sql = " select " + fieldList + " from TEMP_QUERY where rank between ? and ? order by ";
+		String sql = " select " + fieldList.replaceAll(table + "\\.", "TEMP_QUERY.") + " from TEMP_QUERY where rank between ? and ? order by ";
 		// here, need to replace table name with TEMP_QUERY in 'order'
 		String newOrder = new String(order);
 		newOrder = newOrder.replaceAll(table + "\\.", "TEMP_QUERY.");

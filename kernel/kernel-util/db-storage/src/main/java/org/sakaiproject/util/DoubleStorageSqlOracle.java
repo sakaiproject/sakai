@@ -33,4 +33,20 @@ public class DoubleStorageSqlOracle extends DoubleStorageSqlDefault
 	{
 		return "select XML from " + table + " where ( " + idField + " = '" + ref + "' ) for update nowait";
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.mailarchive.impl.DoubleStorageSqlDefault#addLimitToQuery(java.lang.String, int, int)
+	 * 
+	 * Since the limit is zero-based we must add one to the values.
+	 */
+	@Override
+	public String addLimitToQuery(String sqlIn, int startRec, int endRec)
+	{
+		if ( startRec > endRec ) return null;
+		String retval = "select * from ( select a.*, rownum rnum from ( " +sqlIn + 
+			" ) a where rownum <= "+(endRec+1)+" ) where rnum >= "+(startRec+1);
+		return retval;
+	}
+
 }

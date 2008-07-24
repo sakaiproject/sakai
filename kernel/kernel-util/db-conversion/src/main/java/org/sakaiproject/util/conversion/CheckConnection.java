@@ -146,6 +146,8 @@ public class CheckConnection
 				sout = rs.getString(1);
 			}
 
+			if(sout == null)
+				throw new IllegalStateException("String sout == null!");
 			cout = sout.toCharArray();
 			ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
 

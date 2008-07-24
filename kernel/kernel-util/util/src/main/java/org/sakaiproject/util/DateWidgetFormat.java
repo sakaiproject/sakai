@@ -42,21 +42,35 @@ public class DateWidgetFormat {
    private ResourceLoader loader = new ResourceLoader();
    private Date testDate;
 
-   public static DateFormat MM_DD_YYYY = new SimpleDateFormat("MM/dd/yyyy");
-   public static DateFormat DD_MM_YYYY = new SimpleDateFormat("dd-MM-yyyy");
+   public static DateFormat MM_DD_YYYY()
+	{
+		return new SimpleDateFormat("MM/dd/yyyy");
+	}
 
-   public static DateFormat MM_DD_YYYY_short = new SimpleDateFormat("M/d/yy");
-   public static DateFormat DD_MM_YYYY_short = new SimpleDateFormat("d/M/yy");
+	public static DateFormat DD_MM_YYYY()
+	{
+		return new SimpleDateFormat("dd-MM-yyyy");
+	}
+
+	public static DateFormat MM_DD_YYYY_short()
+	{
+		return new SimpleDateFormat("M/d/yy");
+	}
+
+	public static DateFormat DD_MM_YYYY_short()
+	{
+		return new SimpleDateFormat("d/M/yy");
+	}
 
    public DateWidgetFormat() {
       try {
-         testDate = MM_DD_YYYY.parse("12/31/1999");
+         testDate = MM_DD_YYYY().parse("12/31/1999");
       } catch (ParseException e) {
 
       }
       acceptableFormats = new Hashtable<String, DateFormat>();
-      acceptableFormats.put(MM_DD_YYYY_short.format(testDate), MM_DD_YYYY);
-      acceptableFormats.put(DD_MM_YYYY_short.format(testDate), DD_MM_YYYY);
+      acceptableFormats.put(MM_DD_YYYY_short().format(testDate), MM_DD_YYYY());
+      acceptableFormats.put(DD_MM_YYYY_short().format(testDate), DD_MM_YYYY());
    }
 
    public DateFormat getLocaleDateFormat() {
@@ -73,9 +87,9 @@ public class DateWidgetFormat {
    public DateFormat getDefaultDateFormat() {
       String defaultFormat = ServerConfigurationService.getString("dateWidget.defaultFormat");
       if ("dd/MM/yyyy".equals(defaultFormat)) {
-         return DD_MM_YYYY;
+         return DD_MM_YYYY();
       }
-      return MM_DD_YYYY;
+      return MM_DD_YYYY();
    }
 
 }

@@ -128,7 +128,7 @@ public class Web
 	 */
 	public static String escapeJavascript(String value)
 	{
-		if (value == null || value == "") return "";
+		if (value == null || "".equals(value)) return "";
 		try
 		{
 			StringBuilder buf = new StringBuilder();

@@ -48,13 +48,22 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 {
 	protected static Log M_log = LogFactory.getLog(ResourceLoader.class);
 
+	// name of ResourceBundle
 	protected String baseName = null;
 
+	// cached set of ResourceBundle objects
 	protected Hashtable bundles = new Hashtable();
-	
+
+	// current user id	
 	protected String userId = null;
 	
+	// session key string for determining validity of ResourceBundle cache
 	protected String LOCALE_SESSION_KEY = "sakai.locale.";
+
+	// Debugging variables for displaying ResourceBundle name & property	
+	protected String DEBUG_LOCALE = "en_DEBUG";
+	private   String DBG_PREFIX = "** ";
+	private   String DBG_SUFFIX = " **";
 
 	/**
 	 * Default constructor (may be used to find user's default locale 
@@ -88,6 +97,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		this.baseName = name; 
 	}
 
+	/**
+	 ** Return ResourceBundle properties as if Map.entrySet() 
+	 **/
 	public Set entrySet()
 	{
 		return getBundleAsMap().entrySet();
@@ -118,10 +130,14 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
     **/
 	public String getFormattedMessage(String key, Object[] args)
 	{
+		if ( getLocale().toString().equals(DEBUG_LOCALE) )
+			return formatDebugPropertiesString( key );
+			
 		String pattern = (String) get(key);
 		M_log.debug("getFormattedMessage(key,args) bundle name=" +
 			this.baseName + ", locale=" + getLocale().toString() +
 			", key=" + key + ", pattern=" + pattern);
+			
 		return (new MessageFormat(pattern, getLocale())).format(args, new StringBuffer(), null).toString();
 	}
 
@@ -188,6 +204,21 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		 } 
 
 		 return loc;
+	}
+	
+	/**
+	 ** This method formats a debugging string using the properties key.
+	 ** This allows easy identification of context for properties keys, and
+	 ** also highlights any hard-coded text, when the debug locale is selected
+	 **/
+	protected String formatDebugPropertiesString( String key )
+	{
+		StringBuilder dbgPropertiesString = new StringBuilder(DBG_PREFIX);
+		dbgPropertiesString.append( this.baseName );
+		dbgPropertiesString.append( " " );
+		dbgPropertiesString.append( key );
+		dbgPropertiesString.append( DBG_PREFIX );
+		return dbgPropertiesString.toString();
 	}
 
 	/**
@@ -273,7 +304,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	}
 
 	/**
-	 * * Return string value for specified property in current locale specific ResourceBundle * *
+	 * Return string value for specified property in current locale specific ResourceBundle
 	 * 
 	 * @param key
 	 *        property key to look up in current ResourceBundle * *
@@ -282,10 +313,12 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 * @author Sugiura, Tatsuki (University of Nagoya)
 	 * @author Jean-Francois Leveque (Universite Pierre et Marie Curie - Paris 6)
 	 *
-
 	 */
 	public String getString(String key)
 	{
+		if ( getLocale().toString().equals(DEBUG_LOCALE) )
+			return formatDebugPropertiesString( key );
+			
 		try
 		{
 			String value = getBundle().getString(key);
@@ -314,6 +347,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 */
 	public String getString(String key, String dflt)
 	{
+		if ( getLocale().toString().equals(DEBUG_LOCALE) )
+			return formatDebugPropertiesString( key );
+			
 		try
 		{
 			return getBundle().getString(key);
@@ -333,6 +369,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 */
 	public String[] getStrings(String key)
 	{
+		if ( getLocale().toString().equals(DEBUG_LOCALE) )
+			return new String[] { formatDebugPropertiesString(key) };
+			
 		// get the count
 		int count = getInt(key + ".count", 0);
 		if (count > 0)
@@ -357,6 +396,10 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		return null;
 	}
 
+
+	/**
+	 ** Return ResourçceBundle properties as if Map.keySet() 
+	 **/
 	public Set keySet()
 	{
 		return getBundleAsMap().keySet();
@@ -383,6 +426,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		this.baseName = name;
 	}
 
+	/**
+	 ** Return ResourceBundle properties as if Map.values() 
+	 **/
 	public Collection values()
 	{
 		return getBundleAsMap().values();
@@ -405,6 +451,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		return bundle;
 	}
 
+	/**
+	 ** Return the ResourceBundle properties as a Map object
+	 **/
 	protected Map getBundleAsMap()
 	{
 		Map bundle = new Hashtable();
