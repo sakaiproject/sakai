@@ -14,6 +14,8 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.mocks.CoreEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.DescribePropertiesableEntityProviderMock;
@@ -22,6 +24,7 @@ import org.sakaiproject.entitybroker.mocks.EntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.PropertyableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.RESTfulEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ReferenceParseableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.RequestStoreableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ResolvableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.TaggableEntityProviderMock;
 
@@ -165,6 +168,13 @@ public class TestData {
          + EntityReference.SEPARATOR + IDS9[0];
    public static String URL9 = SERVER_URL + DIRECT + REF9;
 
+   public static String PREFIXA = "requestPrefix";
+   public static String[] IDSA = new String[] { "aaaaaa", "A" };
+   public static String REFA = EntityReference.SEPARATOR + PREFIXA
+         + EntityReference.SEPARATOR + IDSA[0];
+   public static String REFA_2 = EntityReference.SEPARATOR + PREFIXA
+         + EntityReference.SEPARATOR + IDSA[1];
+
    public static String INVALID_REF = "invalid_reference-1";
    public static String INVALID_URL = "http://bkjskldsalkdsa/sdakljdskl/stuff";
 
@@ -237,6 +247,11 @@ public class TestData {
     * Unregistered provider
     */
    public EntityProvider entityProvider9 = new CoreEntityProviderMock(PREFIX9, IDS9);
+
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link RequestAware} and {@link RequestStorable}
+    */
+   public RequestStoreableEntityProviderMock entityProviderA = new RequestStoreableEntityProviderMock(PREFIXA, IDSA);
 
    /**
     * Basic constructor initializes test data if needed

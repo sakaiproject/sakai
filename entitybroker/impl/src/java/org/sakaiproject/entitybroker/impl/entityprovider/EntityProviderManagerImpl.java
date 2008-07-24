@@ -32,7 +32,9 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.entitybroker.util.refmap.ReferenceMap;
 import org.sakaiproject.entitybroker.util.refmap.ReferenceType;
@@ -47,26 +49,19 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    private static Log log = LogFactory.getLog(EntityProviderManagerImpl.class);
 
+   private RequestStorage requestStorage;
+   public void setRequestStorage(RequestStorage requestStorage) {
+      this.requestStorage = requestStorage;
+   }
+
    private RequestGetter requestGetter;
    public void setRequestGetter(RequestGetter requestGetter) {
       this.requestGetter = requestGetter;
-   }
-   /**
-    * For internal use and testing only
-    */
-   public RequestGetter getRequestGetter() {
-      return requestGetter;
    }
 
    private EntityPropertiesService entityProperties;
    public void setEntityProperties(EntityPropertiesService entityProperties) {
       this.entityProperties = entityProperties;
-   }
-   /**
-    * For internal use and testing only
-    */
-   public EntityPropertiesService getEntityProperties() {
-      return entityProperties;
    }
 
    protected Map<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.WEAK);
@@ -189,6 +184,8 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
          if (superclazz.equals(RequestAware.class)) {
             // need to shove in the requestGetter on registration
             ((RequestAware)entityProvider).setRequestGetter(requestGetter);
+         } else if (superclazz.equals(RequestStorable.class)) {
+            ((RequestStorable)entityProvider).setRequestStorage(requestStorage);
          } else if (superclazz.equals(Describeable.class)) {
             // need to load up the default properties into the cache
             if (! superclasses.contains(DescribePropertiesable.class)) {

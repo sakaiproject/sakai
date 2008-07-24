@@ -29,6 +29,8 @@
             ref="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
         <property name="requestGetter"
             ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
+        <property name="requestStorage"
+            ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager"
@@ -121,6 +123,8 @@
             ref="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager" />
         <property name="requestGetter" 
             ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
+        <property name="requestStorage"
+            ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.impl.EntityBrokerManager"
@@ -168,6 +172,11 @@
     <bean id="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
         class="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
         init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage"
+        class="org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl">
+        <property name="requestGetter" ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter"

@@ -57,6 +57,11 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
    private static Log log = LogFactory.getLog(EntityBrokerImpl.class);
 
+   private EntityBrokerDao dao;
+   public void setDao(EntityBrokerDao dao) {
+      this.dao = dao;
+   }
+
    private EntityProviderManager entityProviderManager;
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
       this.entityProviderManager = entityProviderManager;
@@ -87,11 +92,6 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       this.entityManager = entityManager;
    }
 
-   private EntityBrokerDao dao;
-   public void setDao(EntityBrokerDao dao) {
-      this.dao = dao;
-   }
-
    public void init() {
       log.info("init");
    }
@@ -101,21 +101,24 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     */
    public boolean entityExists(String reference) {
       EntityReference ref = entityBrokerManager.parseReference(reference);
-      return entityBrokerManager.entityExists(ref);
+      boolean exists = entityBrokerManager.entityExists(ref);
+      return exists;
    }
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#getEntityURL(java.lang.String)
     */
    public String getEntityURL(String reference) {
-      return entityBrokerManager.getEntityURL(reference, null, null);
+      String URL = entityBrokerManager.getEntityURL(reference, null, null);
+      return URL;
    }
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#getEntityURL(java.lang.String, java.lang.String, java.lang.String)
     */
    public String getEntityURL(String reference, String viewKey, String extension) {
-      return entityBrokerManager.getEntityURL(reference, viewKey, extension);
+      String URL = entityBrokerManager.getEntityURL(reference, viewKey, extension);
+      return URL;
    }
 
    /* (non-Javadoc)
@@ -128,17 +131,30 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    }
 
    /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#isPrefixRegistered(java.lang.String)
+    */
+   public boolean isPrefixRegistered(String prefix) {
+      boolean registered = false;
+      if (entityProviderManager.getProviderByPrefix(prefix) != null) {
+         registered = true;
+      }
+      return registered;
+   }
+
+   /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#getRegisteredPrefixes()
     */
    public Set<String> getRegisteredPrefixes() {
-      return entityProviderManager.getRegisteredPrefixes();
+      Set<String> prefixes = entityProviderManager.getRegisteredPrefixes();
+      return prefixes;
    }
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#parseReference(java.lang.String)
     */
    public EntityReference parseReference(String reference) {
-      return entityBrokerManager.parseReference(reference);
+      EntityReference ref = entityBrokerManager.parseReference(reference);
+      return ref;
    }
 
    /* (non-Javadoc)
@@ -210,7 +226,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    }
 
    public Object translateInputToEntity(String reference, String format, InputStream input) {
-      return entityEncodingManager.translateInputToEntity(reference, format, input);
+      Object entity = entityEncodingManager.translateInputToEntity(reference, format, input);
+      return entity;
    }
 
 

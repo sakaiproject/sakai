@@ -46,10 +46,12 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
+import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
@@ -111,6 +113,14 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    private RequestGetter requestGetter;
    public void setRequestGetter(RequestGetter requestGetter) {
       this.requestGetter = requestGetter;
+   }
+
+   /**
+    * This has to be the impl, we ONLY use the impl specific methods
+    */
+   private RequestStorageImpl requestStorage;
+   public void setRequestStorage(RequestStorageImpl requestStorage) {
+      this.requestStorage = requestStorage;
    }
 
 
@@ -203,6 +213,10 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                // store the current request and response
                ((RequestGetterImpl) requestGetter).setRequest(req);
                ((RequestGetterImpl) requestGetter).setResponse(res);
+               // set the request variables
+               requestStorage.setRequestValue(RequestStorage.ReservedKeys._requestEntityReference.name(), view.getEntityReference().toString());
+               requestStorage.setRequestValue(RequestStorage.ReservedKeys._requestOrigin.name(), RequestStorage.RequestOrigin.REST.name());
+               requestStorage.setRequestValue(RequestStorage.ReservedKeys._requestActive.name(), true);
 
                // handle the before interceptor
                RequestInterceptor interceptor = (RequestInterceptor) entityProviderManager.getProviderByPrefixAndCapability(prefix, RequestInterceptor.class);
@@ -385,17 +399,18 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      handleAccessProvider(view, req, res);
                   }
                }
+               handledReference = view.getEntityReference().toString();
+               requestStorage.setRequestValue(RequestStorage.ReservedKeys._requestEntityReference.name(), handledReference);
 
                // handle the after interceptor
                if (interceptor != null) {
                   interceptor.after(view, req, res);
                }
 
-               // clear the request getter
+               // clear the request data
                ((RequestGetterImpl) requestGetter).setRequest(null);
                ((RequestGetterImpl) requestGetter).setResponse(null);
-
-               handledReference = view.getEntityReference().toString();
+               requestStorage.reset();
             }
          }
       }

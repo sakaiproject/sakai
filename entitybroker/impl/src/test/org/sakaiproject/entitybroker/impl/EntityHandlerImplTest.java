@@ -669,6 +669,30 @@ public class EntityHandlerImplTest extends TestCase {
       
    }
 
+
+   public void testRequestStorageAware() {
+      MockEBHttpServletRequest req = null;
+      MockHttpServletResponse res = null;
+
+      // test doing a request to see what comes back
+      // currently this is just making sure the stuff gets set and does not die
+      req = new MockEBHttpServletRequest("GET", TestData.REFA + ".xml");
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIXA));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // TODO we need a better way to test this stuff
+   }
+
    /**
     * Convenience method for making byte content encoded into UTF-8
     */

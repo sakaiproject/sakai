@@ -17,6 +17,7 @@ package org.sakaiproject.entitybroker.impl;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
+import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
 import org.sakaiproject.entitybroker.mocks.EntityViewAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
@@ -31,6 +32,7 @@ import org.sakaiproject.entitybroker.mocks.data.TestData;
 public class TestManager {
 
    public FakeServerConfigurationService serverConfigurationService;
+   public RequestStorageImpl requestStorage;
    public RequestGetterImpl requestGetter;
    public EntityPropertiesService entityPropertiesService;
    public EntityProviderManagerImpl entityProviderManager;
@@ -49,8 +51,12 @@ public class TestManager {
       httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();
       entityViewAccessProviderManager = new EntityViewAccessProviderManagerMock();
 
+      requestStorage = new RequestStorageImpl();
+      requestStorage.setRequestGetter(requestGetter);
+
       entityProviderManager = new EntityProviderManagerImpl();
       entityProviderManager.setRequestGetter( requestGetter );
+      entityProviderManager.setRequestStorage( requestStorage );
       entityProviderManager.setEntityProperties( entityPropertiesService );
 
       entityProviderManager.init();
@@ -63,6 +69,7 @@ public class TestManager {
       entityProviderManager.registerEntityProvider(td.entityProvider6);
       entityProviderManager.registerEntityProvider(td.entityProvider7);
       entityProviderManager.registerEntityProvider(td.entityProvider8);
+      entityProviderManager.registerEntityProvider(td.entityProviderA);
 
       entityProviderManager.registerEntityProvider(td.entityProvider1T);
 
@@ -87,6 +94,7 @@ public class TestManager {
       entityRequestHandler.setEntityProviderManager( entityProviderManager );
       entityRequestHandler.setEntityViewAccessProviderManager( entityViewAccessProviderManager );
       entityRequestHandler.setRequestGetter( requestGetter );
+      entityRequestHandler.setRequestStorage( requestStorage );
    }
 
 }

@@ -53,6 +53,13 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
    public boolean entityExists(String reference);
 
    /**
+    * Check if a prefix is currently registered
+    * @param prefix the string which represents a type of entity handled by an entity provider
+    * @return true if the prefix is registered OR false if not
+    */
+   public boolean isPrefixRegistered(String prefix);
+
+   /**
     * Retrieve a complete set of all currently registered {@link EntityProvider} prefixes
     * 
     * @return all currently registered entity prefixes

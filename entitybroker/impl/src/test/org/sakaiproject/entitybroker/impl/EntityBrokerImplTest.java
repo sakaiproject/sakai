@@ -225,6 +225,17 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       assertEquals(TestData.URL1 + "/edit.xml", url);
    }
 
+   public void testIsPrefixRegistered() {
+      assertTrue( entityBroker.isPrefixRegistered(TestData.PREFIX1) );
+      assertTrue( entityBroker.isPrefixRegistered(TestData.PREFIX2) );
+      assertTrue( entityBroker.isPrefixRegistered(TestData.PREFIX3) );
+      assertTrue( entityBroker.isPrefixRegistered(TestData.PREFIX4) );
+      assertTrue( entityBroker.isPrefixRegistered(TestData.PREFIX5) );
+
+      assertFalse( entityBroker.isPrefixRegistered(TestData.PREFIX9) );
+      assertFalse( entityBroker.isPrefixRegistered("XXXXXX") );
+   }
+
    /**
     * Test method for
     * {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#getRegisteredPrefixes()}.
