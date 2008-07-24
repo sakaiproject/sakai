@@ -67,6 +67,8 @@
         <property name="entityBrokerManager"
             ref="org.sakaiproject.entitybroker.impl.EntityBrokerManager" />
         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="requestStorage"
+            ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="serverConfigurationService"
             ref="org.sakaiproject.component.api.ServerConfigurationService" />

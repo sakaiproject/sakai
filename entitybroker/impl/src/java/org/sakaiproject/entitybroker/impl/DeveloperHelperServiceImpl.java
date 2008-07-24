@@ -33,6 +33,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -128,6 +129,11 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
    private UserDirectoryService userDirectoryService;
    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
       this.userDirectoryService = userDirectoryService;
+   }
+
+   private RequestStorage requestStorage;
+   public void setRequestStorage(RequestStorage requestStorage) {
+      this.requestStorage = requestStorage;
    }
 
 
@@ -558,6 +564,30 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
          userRefs.add( getUserRefFromUserId(userId) );
       }
       return userRefs;
+   }
+
+   /**
+    * Checks to see if a request is internal and therefore can bypass some or all security
+    * @param reference an entity reference string
+    * @return true if internal OR false if external or REST
+    */
+   public boolean isEntityRequestInternal(String reference) {
+      boolean internal = false;
+      String origin = (String) requestStorage.getStoredValue(RequestStorage.ReservedKeys._requestOrigin.name());
+      if (RequestStorage.RequestOrigin.INTERNAL.name().equals(origin)) {
+         internal = true;
+      } else {
+         if (reference != null) {
+            String ref = (String) requestStorage.getStoredValue(RequestStorage.ReservedKeys._requestEntityReference.name());
+            if (reference.equals(ref)) {
+               // if this ref was the one requested from outside it is definitely not internal
+               internal = false;
+            } else {
+               internal = true;
+            }
+         }
+      }
+      return internal;
    }
 
    // BEANS

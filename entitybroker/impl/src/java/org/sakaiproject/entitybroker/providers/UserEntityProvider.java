@@ -23,10 +23,9 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.user.api.User;
@@ -43,7 +42,7 @@ import org.sakaiproject.user.api.UserPermissionException;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class UserEntityProvider implements CoreEntityProvider, RESTful, RequestStorable, AutoRegisterEntityProvider {
+public class UserEntityProvider implements CoreEntityProvider, RESTful, Describeable, AutoRegisterEntityProvider {
 
    private UserDirectoryService userDirectoryService;
    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -59,11 +58,6 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, RequestS
    public String getEntityPrefix() {
       return PREFIX;
    }
-
-   private RequestStorage requestStorage;
-   public void setRequestStorage(RequestStorage requestStorage) {
-      this.requestStorage = requestStorage;
-   };
 
    public boolean entityExists(String id) {
       if (id == null) {
@@ -217,7 +211,7 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, RequestS
       }
       String userId = ref.getId();
       User user = getUserByIdEid(userId);
-      if (isInternalRequest(ref.toString())) {
+      if (developerHelperService.isEntityRequestInternal(ref.toString())) {
          // internal lookups are allowed to get everything
       } else {
          // external lookups require auth
@@ -243,7 +237,7 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, RequestS
    @SuppressWarnings("unchecked")
    public List<?> getEntities(EntityReference ref, Search search) {
       Collection<User> users = new ArrayList<User>();
-      if (isInternalRequest(ref.toString())) {
+      if (developerHelperService.isEntityRequestInternal(ref.toString())) {
          // internal lookups are allowed to get everything
       } else {
          // external lookups require auth
@@ -326,30 +320,6 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, RequestS
          }
       }
       return user;
-   }
-
-   /**
-    * Checks to see if a request is internal and therefore can bypass some or all security
-    * @param reference an entity reference string
-    * @return true if internal OR false if external or REST
-    */
-   private boolean isInternalRequest(String reference) {
-      boolean internal = false;
-      String origin = (String) requestStorage.getStoredValue(RequestStorage.ReservedKeys._requestOrigin.name());
-      if (RequestStorage.RequestOrigin.INTERNAL.name().equals(origin)) {
-         internal = true;
-      } else {
-         if (reference != null) {
-            String ref = (String) requestStorage.getStoredValue(RequestStorage.ReservedKeys._requestEntityReference.name());
-            if (reference.equals(ref)) {
-               // if this ref was the one requested from outside it is definitely not internal
-               internal = false;
-            } else {
-               internal = true;
-            }
-         }
-      }
-      return internal;
    }
 
 }

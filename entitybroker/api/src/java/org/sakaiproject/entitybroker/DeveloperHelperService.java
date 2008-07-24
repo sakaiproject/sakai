@@ -22,7 +22,9 @@ import java.util.Set;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 
 /**
@@ -288,6 +290,16 @@ public interface DeveloperHelperService {
     * @param permission the permission key (e.g.: toolname.read.all, toolname.delete.owned)
     */
    public void registerPermission(String permission);
+
+   /**
+    * Checks to see if the current entity request is internal 
+    * (and therefore can optionally bypass some or all security),
+    * see the {@link RequestStorage} (from {@link RequestStorable} capability) for more info
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optional segments (normally the id at least)
+    * @return true if the current request is internal OR false if external or REST based
+    */
+   public boolean isEntityRequestInternal(String reference);
 
    // URLS
 
