@@ -21,6 +21,8 @@
 
 package org.sakaiproject.event.impl;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -150,7 +152,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** contains a map of the database dependent handlers. */
@@ -243,9 +245,25 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 						+ userId);
 			}
 
+			// resolve the hostname if required
+			String hostName = null;
+				
+			if (serverConfigurationService().getBoolean("session.resolvehostname", false)) 
+			{
+				try
+				{
+					InetAddress inet = InetAddress.getByName(remoteAddress);
+					hostName = inet.getHostName();
+				}
+				catch (UnknownHostException e)
+				{
+					M_log.debug("Cannot resolve host address " + remoteAddress);
+				}
+			}
+			
 			// create the usage session and bind it to the session
 			session = new BaseUsageSession(idManager().createUuid(), serverConfigurationService().getServerIdInstance(), userId,
-					remoteAddress, userAgent);
+					remoteAddress, hostName, userAgent);
 
 			// store
 			if (m_storage.addSession(session))
@@ -448,8 +466,24 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	 */
 	public boolean login(Authentication authn, HttpServletRequest req)
 	{
+		return login(authn.getUid(), authn.getEid(), req.getRemoteAddr(), req.getHeader("user-agent"), null);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean login(Authentication authn, HttpServletRequest req, String event)
+	{
+		return login(authn.getUid(), authn.getEid(), req.getRemoteAddr(), req.getHeader("user-agent"), event);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public boolean login(String uid, String eid, String remoteaddr, String ua, String event)
+	{
 		// establish the user's session - this has been known to fail
-		UsageSession session = startSession(authn.getUid(), req.getRemoteAddr(), req.getHeader("user-agent"));
+		UsageSession session = startSession(uid, remoteaddr, ua);
 		if (session == null)
 		{
 			return false;
@@ -457,18 +491,19 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 		// set the user information into the current session
 		Session sakaiSession = sessionManager().getCurrentSession();
-		sakaiSession.setUserId(authn.getUid());
-		sakaiSession.setUserEid(authn.getEid());
+		sakaiSession.setUserId(uid);
+		sakaiSession.setUserEid(eid);
 
 		// update the user's externally provided realm definitions
-		authzGroupService().refreshUser(authn.getUid());
+		authzGroupService().refreshUser(eid);
 
 		// post the login event
-		eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGIN, null, true));
+		eventTrackingService().post(eventTrackingService().newEvent(event != null ? event : EVENT_LOGIN, null, true));
 
 		return true;
 	}
 
+	
 	/**
 	 * @inheritDoc
 	 */
@@ -593,6 +628,9 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		/** The IP Address from which this session originated. */
 		protected String m_ip = null;
 
+		/** The Hostname from which this session originated. */
+		protected String m_hostname = null;
+		
 		/** The User Agent string describing the browser used in this session. */
 		protected String m_userAgent = null;
 
@@ -625,10 +663,11 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			m_server = result.getString(2);
 			m_user = result.getString(3);
 			m_ip = result.getString(4);
-			m_userAgent = result.getString(5);
-			m_start = timeService().newTime(result.getTimestamp(6, sqlService().getCal()).getTime());
-			m_end = timeService().newTime(result.getTimestamp(7, sqlService().getCal()).getTime());
-			Boolean isActive = result.getBoolean(8);
+			m_hostname = result.getString(5);
+			m_userAgent = result.getString(6);
+			m_start = timeService().newTime(result.getTimestamp(7, sqlService().getCal()).getTime());
+			m_end = timeService().newTime(result.getTimestamp(8, sqlService().getCal()).getTime());
+			Boolean isActive = result.getBoolean(9);
 			m_active = ((isActive != null) && isActive.booleanValue());
 			setBrowserId(m_userAgent);
 		}
@@ -647,12 +686,13 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		 * @param agent
 		 *        The User Agent string describing the browser used in this session.
 		 */
-		public BaseUsageSession(String id, String server, String user, String address, String agent)
+		public BaseUsageSession(String id, String server, String user, String address, String hostname, String agent)
 		{
 			m_id = id;
 			m_server = server;
 			m_user = user;
 			m_ip = address;
+			m_hostname = hostname;
 			m_userAgent = agent;
 			m_start = timeService().newTime();
 			m_end = m_start;
@@ -798,6 +838,14 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			return m_ip;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public String getHostName()
+		{
+			return m_hostname;
+		}
+		
 		/**
 		 * @inheritDoc
 		 */
@@ -1080,7 +1128,14 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			// and store it in the db
 			String statement = usageSessionServiceSql.getInsertSakaiSessionSql();
 
-			String userAgent = session.getUserAgent().length() > 255? session.getUserAgent().substring(0, 255) : session.getUserAgent();
+			String userAgent = (session.getUserAgent() != null && session.getUserAgent().length() > 255) ? 
+				session.getUserAgent().substring(0, 255) : session.getUserAgent();
+			
+			String hostName = session.getHostName();
+			
+			if (hostName != null && hostName.length() > 255) {
+				hostName = hostName.substring(0, 255);
+			}
 
 			// process the insert
 			boolean ok = sqlService().dbWrite(statement, new Object[] {
@@ -1088,10 +1143,11 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				session.getServer(),
 				session.getUserId(),
 				session.getIpAddress(),
+				hostName,
 				userAgent,
 				session.getStart(),
 				session.getEnd(),
-				session.isClosed() ? null : new Boolean(true)
+				session.isClosed() ? null : Boolean.valueOf(true)
 			});
 			if (!ok)
 			{
@@ -1216,7 +1272,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			// process the statement
 			boolean ok = sqlService().dbWrite(statement, new Object[]{
 				session.getEnd(),
-				session.isClosed() ? null : new Boolean(true),
+				session.isClosed() ? null : Boolean.valueOf(true),
 				session.getId()
 			});
 			if (!ok)

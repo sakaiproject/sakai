@@ -25,26 +25,26 @@ public interface CHStoJCRMigrator
 	 * we currently migrating?
 	 */
 	public boolean isCurrentlyMigrating();
-
+	
 	/*
-	 * This is number of files/folders that are copied before taking a delay
-	 * break, or checking to see if we stopped/paused the migration.
+	 * Returns number finished and total number to convert. example: There are
+	 * 32 out of 3000 files remaining. [ 32 , 3000 ]
 	 */
-	public int getBatchSize();
+	public int[] filesRemaining();
 
-	/*
-	 * Set the number of files/folders to copy at a time.
+	/**
+	 * Details whether the migration has been started. Really, we are just looking
+	 * at the database table that holds the queue to see if it has any rows yet
+	 * (which would mean that we did copy the original files to start and that
+	 * it has started).
 	 */
-	public void setBatchSize(int batchSize);
+	public boolean hasMigrationStarted();
 
-	/*
-	 * Get the amount of time we wait between copying each batch of files.
+	/**
+	 * Is the migration over?  Are all the items in the queue marked as finished?
+	 * 
+	 * @return
 	 */
-	public int getDelayBetweenBatchesMilliSeconds();
+	public boolean hasMigrationFinished();
 
-	/*
-	 * Set the number of milli seconds to delay between copying each batch of
-	 * files.
-	 */
-	public void setDelayBetweenBatchesMilliSeconds(int milliseconds);
 }

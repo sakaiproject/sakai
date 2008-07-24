@@ -102,7 +102,26 @@ public class BasicSqlServiceSqlDefault implements SqlServiceSql
 		return pstmt;
 	}
 
-    public boolean isDeadLockError(int errorCode){
+   /**
+    *  set a null in the given statement at the given postion
+    * @param pstmt
+    * @param pos
+    */
+   public PreparedStatement setNull(PreparedStatement pstmt, int pos) throws SQLException {
+      // treat a Java null as an SQL null,
+      // and ALSO treat a zero-length Java string as an SQL null
+      // This makes sure that Oracle vs MySQL use the same value
+      // for null.
+      pstmt.setObject(pos, null);
+      return pstmt;
+   }
+
+   public PreparedStatement setBytes(PreparedStatement pstmt, byte[] bytes, int pos) throws SQLException {
+      pstmt.setBytes(pos, bytes);
+      return pstmt;
+   }
+
+   public boolean isDeadLockError(int errorCode){
         return false;
     }
 

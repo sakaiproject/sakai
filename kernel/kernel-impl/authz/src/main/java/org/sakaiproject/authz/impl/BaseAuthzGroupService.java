@@ -22,6 +22,7 @@
 package org.sakaiproject.authz.impl;
 
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -308,6 +309,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		return m_storage.getAuthzGroups(criteria, page);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public List getAuthzUserGroupIds(ArrayList authzGroupIds, String userid)
+	{
+		return m_storage.getAuthzUserGroupIds(authzGroupIds, userid);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -839,7 +848,23 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	{
 		return m_storage.getUsersIsAllowed(function, azGroups);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Set<String[]> getUsersIsAllowedByGroup(String function, Collection<String> azGroups)
+	{
+		return m_storage.getUsersIsAllowedByGroup(function, azGroups);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public Map<String,Integer> getUserCountIsAllowed(String function, Collection<String> azGroups)
+	{
+		return m_storage.getUserCountIsAllowed(function, azGroups);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1198,6 +1223,17 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		List getAuthzGroups(String criteria, PagingPosition page);
 
 		/**
+		 * Access a list of AuthzGroups that meet specified criteria for a specified user_id
+		 * 
+		 * @param authzGroupIds
+		 *        AuthzGroup selection criteria (list of authz group ids)
+		 * @param user_id
+		 *        Return only groups with user_id as a member
+		 * @return The List (AuthzGroup) that meet specified criteria.
+		 */
+		List getAuthzUserGroupIds(ArrayList authzGroupIds, String user_id);
+
+		/**
 		 * Count the AuthzGroup objets that meet specified criteria.
 		 * 
 		 * @param criteria
@@ -1267,6 +1303,30 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		 */
 		Set getUsersIsAllowed(String function, Collection azGroups);
 
+		/**
+		 * Get the set of user ids per group of users who are allowed to perform the function in the named AuthzGroups.
+		 * 
+		 * @param function
+		 *        The function to check.
+		 * @param azGroups
+		 *        A collection of the ids of AuthzGroups to consult.
+		 * @return A Set of String arrays (userid, realm) with user ids per group who are allowed to perform the function in the named AuthzGroups.
+		 */
+		Set<String[]> getUsersIsAllowedByGroup(String function, Collection<String> azGroups);
+
+		
+		/**
+		 * Get the number of users per group who are allowed to perform the function in the given AuthzGroups.
+		 * 
+		 * @param function
+		 *        The function to check.
+		 * @param azGroups
+		 *        A collection of the ids of AuthzGroups to consult.
+		 * @return A Map (authzgroupid (String) -> user count (Integer) ) of the number of users who are allowed to perform the function in the given AuthzGroups.
+		 */
+		Map<String,Integer> getUserCountIsAllowed(String function, Collection<String> azGroups);
+
+		
 		/**
 		 * Get the set of functions that users with this role in these AuthzGroups are allowed to perform.
 		 * 

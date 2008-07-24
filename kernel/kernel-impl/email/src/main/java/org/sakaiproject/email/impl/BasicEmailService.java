@@ -76,6 +76,11 @@ public abstract class BasicEmailService implements EmailService
 	 * an invalid recipient address.
 	 */
 	protected static final String SMTP_SENDPARTIAL = "mail.smtp.sendpartial";
+	
+	/**
+	 * Hostname used in outgoing SMTP HELO commands.
+	 */
+	protected static final String SMTP_LOCALHOST = "mail.smtp.localhost";
 
 	protected static final String CONTENT_TYPE = "text/plain";
 
@@ -181,6 +186,21 @@ public abstract class BasicEmailService implements EmailService
 	{
 		m_oneMessagePerConnection = value;
 	}
+	
+	/** Hostname to use for SMTP HELO commands */
+	protected String m_smtpLocalhost = null;
+	
+	/**
+	 * Hostname to use for SMTP HELO commands.
+	 * RFC1123 section 5.2.5 and RFC2821 section 4.1.1.1
+	 * 
+	 *  @param value
+	 *  		The hostname (eg foo.example.com)
+	 */
+	public void setSmtpLocalhost(String value)
+	{
+		m_smtpLocalhost = value;
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -268,6 +288,12 @@ public abstract class BasicEmailService implements EmailService
 		if (m_smtpPort != null)
 		{
 			props.put(SMTP_PORT, m_smtpPort);
+		}
+		
+		// Set localhost name
+		if (m_smtpLocalhost != null)
+		{
+			props.put(SMTP_LOCALHOST, m_smtpLocalhost);
 		}
 
 		// set the mail envelope return address
@@ -366,12 +392,18 @@ public abstract class BasicEmailService implements EmailService
 			}
 			else if (canUseCharset(content, "ISO-8859-1"))
 			{
-				if (contentType != null && charset != null) contentType = contentType.replaceAll(charset, "ISO-8859-1");
+				if (contentType != null && charset != null) 
+					contentType = contentType.replaceAll(charset, "ISO-8859-1");
+				else if(contentType != null) 
+					contentType += "; charset=ISO-8859-1";
 				charset = "ISO-8859-1";
 			}
 			else if (canUseCharset(content, "windows-1252"))
 			{
-				if (contentType != null && charset != null) contentType = contentType.replaceAll(charset, "windows-1252");
+				if (contentType != null && charset != null) 
+					contentType = contentType.replaceAll(charset, "windows-1252");
+				else if(contentType != null) 
+					contentType += "; charset=windows-1252";
 				charset = "windows-1252";
 			}
 			else
@@ -396,8 +428,8 @@ public abstract class BasicEmailService implements EmailService
 			// (after setting the body of the message so that format=flowed is preserved)
 			if (contentType != null)
 			{
-				msg.addHeaderLine("Content-Transfer-Encoding: quoted-printable");
 				msg.addHeaderLine(contentType);
+				msg.addHeaderLine("Content-Transfer-Encoding: quoted-printable");
 			}
 
 			long preSend = 0;
@@ -894,11 +926,13 @@ public abstract class BasicEmailService implements EmailService
 				else if (canUseCharset(message, "ISO-8859-1"))
 				{
 					if (contentType != null && charset != null) contentType = contentType.replaceAll(charset, "ISO-8859-1");
+					else if(contentType != null) contentType += "; charset=ISO-8859-1";
 					charset = "ISO-8859-1";
 				}
 				else if (canUseCharset(message, "windows-1252"))
 				{
 					if (contentType != null && charset != null) contentType = contentType.replaceAll(charset, "windows-1252");
+					else if(contentType != null) contentType += "; charset=windows-1252";
 					charset = "windows-1252";
 				}
 				else
@@ -908,8 +942,6 @@ public abstract class BasicEmailService implements EmailService
 						contentType = contentType.replaceAll(charset, "UTF-8");
 					else if (contentType != null)
 						contentType += "; charset=UTF-8";
-					else
-						contentType = "Content-Type: text/plain; charset=UTF-8";
 					charset = "UTF-8";
 				}
 				
@@ -928,6 +960,7 @@ public abstract class BasicEmailService implements EmailService
 						}
 						MimeBodyPart bodyPart = new MimeBodyPart();
 						String mimeType = partLines[0].contains("text/html") ? "text/html" : "text/plain";
+						mimeType += " ; charset="+charset;
 						bodyPart.setContent(partText.toString(), mimeType);
 						multiPartContent.addBodyPart(bodyPart);
 					}

@@ -32,11 +32,12 @@ public class ClusterEventTrackingServiceSqlMySql extends ClusterEventTrackingSer
    public String getInsertEventSql()
    {
       // leave out the EVENT_ID as it will be automatically generated on the server
-      return "insert into SAKAI_EVENT (EVENT_DATE, EVENT, REF, SESSION_ID, EVENT_CODE) " +
+      return "insert into SAKAI_EVENT (EVENT_DATE, EVENT, REF, SESSION_ID, EVENT_CODE, CONTEXT) " +
               "values     (?, " + // date
                           "?, " + // event
                           "?, " + // reference
                           "?, " + // session id
-                          "?)";   // code
+                          "?, " + // code
+                          "?)";   // context
    }
 }

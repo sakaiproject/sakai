@@ -34,6 +34,7 @@ import org.sakaiproject.jcr.jackrabbit.RepositoryBuilder;
 import org.sakaiproject.jcr.jackrabbit.sakai.JCRSecurityServiceAdapterImpl;
 import org.sakaiproject.jcr.jackrabbit.sakai.SakaiJCRCredentials;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
@@ -60,6 +61,7 @@ public class MockComponentManager
 		UserDirectoryService uds = new MockUserDirectoryService();
 		FunctionManager fm = new MockFunctionManager();
 		MockServerConfiguratonService scs = new MockServerConfiguratonService();
+		MockAuthenticationManager mam = new MockAuthenticationManager();
 		
 		Map<String, String> configValues = new HashMap<String, String>();
 		
@@ -87,6 +89,7 @@ public class MockComponentManager
 		components.put(FunctionManager.class.getName(), fm);
 		components.put(ServerConfigurationService.class.getName(), scs);
 		components.put(SqlService.class.getName(), sqls);
+		components.put(AuthenticationManager.class.getName(), mam);
 
 		jcrImpl.setRepositoryBuilder(rb);
 		jcrImpl.setRepositoryCredentials(credentials);
@@ -103,7 +106,9 @@ public class MockComponentManager
 		rb.setDbPass("manager");
 		rb.setDbDriver("org.apache.derby.jdbc.EmbeddedDriver");
 		rb.setDbDialect("derby");
-		rb.setContentOnFilesystem("target/repository-content");
+		rb.setContentOnFilesystem("true");
+		rb.setUseSharedFSBlobStore("true");
+		rb.setSharedFSBlobLocation("target/repository-shared");
 		rb.setRepositoryHome("target/repository");
 		rb.setServerConfigurationService(scs);
 		rb.setSqlService(sqls);

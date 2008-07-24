@@ -43,9 +43,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
+import org.apache.jackrabbit.core.persistence.bundle.MSSqlPersistenceManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.jcr.api.internal.StartupAction;
+import org.sakaiproject.jcr.jackrabbit.persistance.BundleDbSharedPersistenceManager;
+import org.sakaiproject.jcr.jackrabbit.persistance.DerbySharedPersistenceManager;
+import org.sakaiproject.jcr.jackrabbit.persistance.MSSqlSharedPersistenceManager;
+import org.sakaiproject.jcr.jackrabbit.persistance.MySqlSharedPersistenceManager;
+import org.sakaiproject.jcr.jackrabbit.persistance.Oracle9SharedPersistenceManager;
+import org.sakaiproject.jcr.jackrabbit.persistance.OracleSharedPersistenceManager;
 import org.sakaiproject.jcr.jackrabbit.sakai.SakaiJCRCredentials;
 
 public class RepositoryBuilder
@@ -63,6 +70,10 @@ public class RepositoryBuilder
 
 	private static final String CONTENT_ID_DB = "\\$\\{content.filesystem\\}";
 
+	private static final String USE_SHARED_FS_BLOB_STORE = "\\$\\{content.shared\\}";
+	
+	private static final String SHARED_CONTENT_BLOB_LOCATION = "\\$\\{content.shared.location\\}";
+
 	private static final String DB_DIALECT = "\\$\\{db.dialect\\}";
 
 	private static final String CLUSTER_NODE_ID = "\\$\\{sakai.cluster\\}";
@@ -70,7 +81,7 @@ public class RepositoryBuilder
 	private static final String JOURNAL_LOCATION = "\\$\\{journal.location\\}";
 	
 	private static final String PERSISTANCE_MANAGER = "\\$\\{persistance.manager.class\\}";
-	
+
 
 	/*
 	 * These constants are the default Sakai Properties we will use if the
@@ -103,6 +114,10 @@ public class RepositoryBuilder
 	private String repositoryHome;
 
 	private String contentOnFilesystem;
+	
+	private String useSharedFSBlobStore;
+
+	private String sharedFSBlobLocation;
 
 	private String dbDialect;
 
@@ -146,12 +161,12 @@ public class RepositoryBuilder
 	{
 		// TODO, could map to special Persistance managers to make use of the
 		// Oracle Optimised version
-		persistanceManagers.put("mysql", "org.apache.jackrabbit.core.persistence.bundle.MySqlPersistenceManager");
-		persistanceManagers.put("oracle", "org.apache.jackrabbit.core.persistence.bundle.OraclePersistenceManager");
-		persistanceManagers.put("oracle9", "org.apache.jackrabbit.core.persistence.bundle.Oracle9PersistenceManager");
-		persistanceManagers.put("mssql", "org.apache.jackrabbit.core.persistence.bundle.MSSqlPersistenceManager");
-		persistanceManagers.put("derby", "org.apache.jackrabbit.core.persistence.bundle.DerbyPersistenceManager");
-		persistanceManagers.put("default", "org.apache.jackrabbit.core.persistence.bundle.BundleDbPersistenceManager");
+		persistanceManagers.put("mysql", MySqlSharedPersistenceManager.class.getName());
+		persistanceManagers.put("oracle", OracleSharedPersistenceManager.class.getName());
+		persistanceManagers.put("oracle9", Oracle9SharedPersistenceManager.class.getName());
+		persistanceManagers.put("mssql", MSSqlSharedPersistenceManager.class.getName());
+		persistanceManagers.put("derby", DerbySharedPersistenceManager.class.getName());
+		persistanceManagers.put("default", BundleDbSharedPersistenceManager.class.getName());
 	}
 
 	/**
@@ -219,6 +234,15 @@ public class RepositoryBuilder
 		if (contentOnFilesystem == null)
 		{
 			contentOnFilesystem = "false";
+		}
+
+		if ( useSharedFSBlobStore == null )
+		{
+			 useSharedFSBlobStore = "false";
+		}
+		if ( sharedFSBlobLocation == null ) 
+		{
+			 sharedFSBlobLocation="jcrblobs";
 		}
 
 		/*
@@ -309,6 +333,8 @@ public class RepositoryBuilder
 			contentStr = contentStr.replaceAll(DB_DRIVER, dbDriver);
 			contentStr = contentStr.replaceAll(DB_DIALECT, dbDialect);
 			contentStr = contentStr.replaceAll(CONTENT_ID_DB, contentOnFilesystem);
+			contentStr = contentStr.replaceAll(USE_SHARED_FS_BLOB_STORE, useSharedFSBlobStore);
+			contentStr = contentStr.replaceAll(SHARED_CONTENT_BLOB_LOCATION, sharedFSBlobLocation);
 			contentStr = contentStr.replaceAll(CLUSTER_NODE_ID, clusterNodeId);
 			contentStr = contentStr.replaceAll(JOURNAL_LOCATION, journalLocation);
 			contentStr = contentStr.replaceAll(PERSISTANCE_MANAGER, persistanceManagerClass);
@@ -629,6 +655,34 @@ public class RepositoryBuilder
 	public void setEnabled(boolean enabled)
 	{
 		this.enabled = enabled;
+	}
+
+	/**
+	 * If true, shared bobs will be stored on the file system
+	 * @return
+	 */
+	public String getUseSharedFSBlobStore() {
+		return useSharedFSBlobStore;
+	}
+
+	/**
+	 * 
+	 * @param useSharedFSBlobStore
+	 */
+	public void setUseSharedFSBlobStore(String useSharedFSBlobStore) {
+		this.useSharedFSBlobStore = useSharedFSBlobStore;
+	}
+
+	/**
+	 * The shared location of blobs stored on the filesystem
+	 * @return
+	 */
+	public String getSharedFSBlobLocation() {
+		return sharedFSBlobLocation;
+	}
+
+	public void setSharedFSBlobLocation(String sharedFSBlobLocation) {
+		this.sharedFSBlobLocation = sharedFSBlobLocation;
 	}
 
 }

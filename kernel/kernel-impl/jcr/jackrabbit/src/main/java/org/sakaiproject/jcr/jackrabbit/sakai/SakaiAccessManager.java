@@ -37,11 +37,10 @@ import org.apache.jackrabbit.core.HierarchyManager;
 import org.apache.jackrabbit.core.ItemId;
 import org.apache.jackrabbit.core.security.AMContext;
 import org.apache.jackrabbit.core.security.AccessManager;
-import org.apache.jackrabbit.name.MalformedPathException;
-import org.apache.jackrabbit.name.NamespaceResolver;
-import org.apache.jackrabbit.name.NoPrefixDeclaredException;
-import org.apache.jackrabbit.name.Path;
-import org.apache.jackrabbit.name.PathFormat;
+import org.apache.jackrabbit.spi.Path;
+import org.apache.jackrabbit.spi.commons.conversion.DefaultNamePathResolver;
+import org.apache.jackrabbit.spi.commons.conversion.MalformedPathException;
+import org.apache.jackrabbit.spi.commons.namespace.NamespaceResolver;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jcr.api.JCRSecurityServiceAdapter;
 import org.sakaiproject.jcr.api.internal.SakaiUserPrincipal;
@@ -71,6 +70,8 @@ public class SakaiAccessManager implements AccessManager
 
 	protected String sakaiUserId = ""; // a blank userId is the anon user
 
+	private DefaultNamePathResolver pathResolver;
+
 	public SakaiAccessManager()
 	{
 	}
@@ -90,6 +91,9 @@ public class SakaiAccessManager implements AccessManager
 		subject = context.getSubject();
 		hierMgr = context.getHierarchyManager();
 		resolver = context.getNamespaceResolver();
+		pathResolver = new DefaultNamePathResolver(resolver,true);
+
+
 
 		anonymous = !subject.getPrincipals(JCRAnonymousPrincipal.class).isEmpty();
 		if (!anonymous)
@@ -171,8 +175,9 @@ public class SakaiAccessManager implements AccessManager
 			{
 
 				Path path = hierMgr.getPath(item).getNormalizedPath();
-
-				String jcrPath = PathFormat.format(path, resolver);
+				
+				
+				String jcrPath = pathResolver.getJCRPath(path);
 
 				if ((AccessManager.WRITE & permission) == AccessManager.WRITE)
 				{
@@ -221,10 +226,6 @@ public class SakaiAccessManager implements AccessManager
 		catch (MalformedPathException mfpe)
 		{
 			throw new AccessDeniedException("Invalid path ", mfpe);
-		}
-		catch (NoPrefixDeclaredException e)
-		{
-			throw new AccessDeniedException("Invalid path ", e);
 		}
 
 		if ( log.isDebugEnabled() ) {

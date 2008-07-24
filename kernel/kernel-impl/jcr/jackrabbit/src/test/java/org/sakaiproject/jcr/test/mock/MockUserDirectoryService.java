@@ -291,7 +291,7 @@ public class MockUserDirectoryService implements UserDirectoryService
 	 */
 	public User getUser(String id) throws UserNotDefinedException
 	{
-		log.info("Getting " + id);
+		log.debug("Getting " + id);
 		if (MockTestUser.AUTH.equals(id))
 		{
 			return MockTestUser.AUTHUSER;

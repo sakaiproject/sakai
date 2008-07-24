@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -38,13 +39,13 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationAction;
-import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -62,9 +63,8 @@ import org.sakaiproject.util.StringUtil;
  * <ul>
  * <li>getRecipients() - get a collection of Users to send the notification to</li>
  * <li>getHeaders() - form the complete message headers (like from: to: reply-to: date: subject: etc). from: and to: are for display only</li>
- * <li>getMessage() - form the complete message body (minus headers)</li>
+ * <li>htmlContent() and plainTextContent() - form the complete message body (minus headers)</li>
  * <li>getTag() - the part of the body at the end that identifies the list</li>
- * <li>isBodyHTML() - say if your body is html or not (not would be plain text)</li>
  * </ul>
  * </p>
  * <p>
@@ -112,50 +112,6 @@ public class DropboxNotification extends EmailNotification
 		return rv;
 	}
 	
-//	/**
-//	 * Format a to address, sensitive to the notification service's replyable configuration.
-//	 * 
-//	 * @param event
-//	 * @return
-//	 */
-//	protected String getTo(Event event)
-//	{
-//		if (NotificationService.isNotificationToReplyable())
-//		{
-//			// to site title <email>
-//			return "To: " + getToSite(event);
-//		}
-//		else
-//		{
-//			// to the site, but with no reply
-//			return "To: " + getToSiteNoReply(event);
-//		}
-//	}
-
-
-	/**
-	 * Get the message for the email.
-	 * 
-	 * @param event
-	 *        The event that matched criteria to cause the notification.
-	 * @return the message for the email.
-	 */
-	protected String getMessage(Event event)
-	{	
-		StringBuilder message = new StringBuilder();
-		message.append(MIME_ADVISORY);
-		message.append(BOUNDARY_LINE);
-		message.append(plainTextHeaders());
-		message.append(plainTextContent());
-		message.append(BOUNDARY_LINE);
-		message.append(htmlHeaders());
-		message.append(htmlPreamble());
-		message.append(htmlContent());
-		message.append(htmlEnd());
-		message.append(TERMINATION_LINE);
-		return message.toString();
-	}
-
 	/**
 	 * Get the list of User objects who are eligible to receive the notification email.
 	 * 
@@ -232,41 +188,31 @@ public class DropboxNotification extends EmailNotification
 	 * @see org.sakaiproject.util.EmailNotification#getTag(java.lang.String, java.lang.String)
 	 */
 	@Override
-	protected String getTag(String newline, String title) 
+	protected String getTag(String title, boolean shouldUseHtml) 
 	{
-		// TODO Auto-generated method stub
-		return super.getTag(newline, title);
+		// tbd: move from addMessageText
+		return "";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.EmailNotification#isBodyHTML(org.sakaiproject.event.api.Event)
-	 */
-	@Override
-	protected boolean isBodyHTML(Event event) 
+	protected String plainTextContent(Event event) 
 	{
-		// TODO Auto-generated method stub
-		return super.isBodyHTML(event);
-	}
-
-	protected String plainTextContent() 
-	{
-		return generateContentForType(false);
+		return generateContentForType(false, event);
 	}
 	
-	protected String htmlContent() 
+	protected String htmlContent(Event event) 
 	{
-		return generateContentForType(true);
+		return generateContentForType(true, event);
 	}
 
-	private String generateContentForType(boolean shouldProduceHtml) 
+	private String generateContentForType(boolean shouldProduceHtml, Event event) 
 	{
 		// get the content & properties
-		Reference ref = EntityManager.newReference(this.event.getResource());
+		Reference ref = EntityManager.newReference(event.getResource());
 		// TODO:  ResourceProperties props = ref.getProperties();
 
 		// get the function
-		String function = this.event.getEvent();
-		String subject = getSubject(this.event);
+		String function = event.getEvent();
+		String subject = getSubject(event);
 
 		// use either the configured site, or if not configured, the site (context) of the resource
 		String siteId = (getSite() != null) ? getSite() : ref.getContext();
@@ -314,7 +260,7 @@ public class DropboxNotification extends EmailNotification
 		{
 			logger.warn("IdUnusedException trying to get title for individual dropbox: " + dropboxId);
 		}
-		
+
 		if ( doHtml ) 
 		{
 			siteTitle = FormattedText.escapeHtmlFormattedTextarea(siteTitle);

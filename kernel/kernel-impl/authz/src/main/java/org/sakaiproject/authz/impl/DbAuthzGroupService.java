@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -144,7 +145,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	 */
 	public void setExternalLocks(String value)
 	{
-		m_useExternalLocks = new Boolean(value).booleanValue();
+		m_useExternalLocks = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: to run the ddl on init or not. */
@@ -158,7 +159,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/*************************************************************************************************************************************************
@@ -235,7 +236,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				try
 				{
 					int count = result.getInt(1);
-					return new Integer(count);
+					return Integer.valueOf(count);
 				}
 				catch (SQLException ignore)
 				{
@@ -317,7 +318,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				try
 				{
 					int count = result.getInt(1);
-					return new Integer(count);
+					return Integer.valueOf(count);
 				}
 				catch (SQLException ignore)
 				{
@@ -628,6 +629,26 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		/**
 		 * {@inheritDoc}
 		 */
+		public List getAuthzUserGroupIds(ArrayList authzGroupIds, String userid)
+		{
+			if (authzGroupIds == null || userid == null || authzGroupIds.size() < 1)
+				return new ArrayList(); // empty list
+
+			String inClause = orInClause( authzGroupIds.size(), "SAKAI_REALM.REALM_ID" );
+			String statement = dbAuthzGroupSql.getSelectRealmUserGroupSql( inClause );
+			Object[] fields = new Object[authzGroupIds.size()+1];
+			for ( int i=0; i<authzGroupIds.size(); i++ )
+			{
+				fields[i] = authzGroupIds.get(i);
+			}
+			fields[authzGroupIds.size()] = userid;
+			
+			return sqlService().dbRead(statement, fields, null );
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
 		public int countAuthzGroups(String criteria)
 		{
 			int rv = 0;
@@ -804,7 +825,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						try
 						{
 							int realm_key = result.getInt(1);
-							return new Integer(realm_key);
+							return Integer.valueOf(realm_key);
 						}
 						catch (Throwable e)
 						{
@@ -827,7 +848,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 				// Count the number of users already in the realm
 				sql = dbAuthzGroupSql.getSelectRealmSize();
-				fields[0] = new Integer(realm_key);
+				fields[0] = Integer.valueOf(realm_key);
 
 				List resultsSize = m_sql.dbRead(sql, fields, new SqlReader()
 				{
@@ -836,7 +857,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						try
 						{
 							int count = result.getInt(1);
-							return new Integer(count);
+							return Integer.valueOf(count);
 						}
 						catch (Throwable e)
 						{
@@ -1402,7 +1423,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				}
 
 				// the special local integer 'db' id field, read after the field list
-				Integer dbid = new Integer(result.getInt(8));
+				Integer dbid = Integer.valueOf(result.getInt(8));
 
 				// create the Resource from these fields
 				return new BaseAuthzGroup(DbAuthzGroupService.this,dbid, id, providerId, maintainRole, createdBy, createdOn, modifiedBy, modifiedOn);
@@ -1437,7 +1458,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					try
 					{
 						int count = result.getInt(1);
-						return new Integer(count);
+						return Integer.valueOf(count);
 					}
 					catch (SQLException ignore)
 					{
@@ -1509,7 +1530,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					try
 					{
 						int count = result.getInt(1);
-						return new Integer(count);
+						return Integer.valueOf(count);
 					}
 					catch (SQLException ignore)
 					{
@@ -1566,6 +1587,110 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		/**
 		 * {@inheritDoc}
 		 */
+		public Set<String[]> getUsersIsAllowedByGroup(String lock, Collection<String> realms)
+		{
+			final Set<String[]> usersByGroup = new HashSet<String[]>(); 
+			
+			if ((lock == null) || (realms != null && realms.isEmpty())) return usersByGroup;
+			
+			String sql;
+			Object[] fields;
+			
+			if (realms != null) {
+				sql = dbAuthzGroupSql.getSelectRealmRoleGroupUserIdSql(orInClause(realms.size(), "REALM_ID"));
+				fields = new Object[realms.size() + 1];
+				int pos = 0;
+				fields[pos++] = lock;
+				for (Iterator i = realms.iterator(); i.hasNext();)
+				{
+					String roleRealm = (String) i.next();
+					fields[pos++] = roleRealm;
+				}
+			} else {
+				sql = dbAuthzGroupSql.getSelectRealmRoleGroupUserIdSql("true");
+				fields = new Object[1];
+				fields[0] = lock;				
+			}
+
+			// read the strings
+			m_sql.dbRead(sql, fields, new SqlReader()
+					{
+				public Object readSqlResultRecord(ResultSet result)
+				{
+					try
+					{
+						String[] useringroup = new String[2];
+						useringroup[0] = result.getString(1);
+						useringroup[1] = result.getString(2);
+						
+						usersByGroup.add( useringroup );
+					}
+					catch (SQLException ignore)
+					{
+					}
+
+					return null;
+				}
+			});
+						
+			return usersByGroup;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */		
+		public Map<String,Integer> getUserCountIsAllowed(String function, Collection<String> azGroups)
+		{
+			final Map<String, Integer> userCountByGroup = new HashMap<String, Integer>();
+			
+			if ((function == null) || (azGroups != null && azGroups.isEmpty())) return userCountByGroup;
+			
+			String sql;
+			Object[] fields;
+			
+			if (azGroups != null) {
+				sql = dbAuthzGroupSql.getSelectRealmRoleGroupUserCountSql(orInClause(azGroups.size(), "REALM_ID"));
+				fields = new Object[azGroups.size() + 1];
+				int pos = 0;
+				fields[pos++] = function;
+
+				for (Iterator i = azGroups.iterator(); i.hasNext();)
+				{
+					String roleRealm = (String) i.next();
+					fields[pos++] = roleRealm;
+				}				
+			} else {
+				sql = dbAuthzGroupSql.getSelectRealmRoleGroupUserCountSql("true");
+				fields = new Object[1];
+				fields[0] = function;
+			}
+
+			// read the realm size counts
+			m_sql.dbRead(sql, fields, new SqlReader()
+					{
+						public Object readSqlResultRecord(ResultSet result)
+						{
+							try
+							{
+								String realm = result.getString(1);
+								Integer size = result.getInt(2);
+								userCountByGroup.put(realm, size);
+							}
+							catch (SQLException ignore)
+							{
+							}
+
+							return null;
+						}
+					});
+			
+			return userCountByGroup;
+		}
+
+		
+		/**
+		 * {@inheritDoc}
+		 */
 		public Set getAllowedFunctions(String role, Collection realms)
 		{
 			if ((role == null) || (realms == null) || (realms.isEmpty())) return new HashSet();
@@ -1615,7 +1740,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						String roleName = result.getString(2);
 						String active = result.getString(3);
 						String provided = result.getString(4);
-						return new RealmAndRole(new Integer(realmKey), roleName, "1".equals(active), "1".equals(provided));
+						return new RealmAndRole(Integer.valueOf(realmKey), roleName, "1".equals(active), "1".equals(provided));
 					}
 					catch (Throwable ignore)
 					{
@@ -1688,7 +1813,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						{
 							int id = result.getInt(1);
 							String provider = result.getString(2);
-							return new RealmAndProvider(new Integer(id), provider);
+							return new RealmAndProvider(Integer.valueOf(id), provider);
 						}
 						catch (Throwable ignore)
 						{

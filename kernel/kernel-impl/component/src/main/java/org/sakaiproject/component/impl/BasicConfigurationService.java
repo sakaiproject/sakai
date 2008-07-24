@@ -309,7 +309,7 @@ public class BasicConfigurationService implements ServerConfigurationService
 		// if logged in, replace the UID in the pattern
 		if (loggedIn)
 		{
-			rv.replaceAll("#UID#", user);
+			rv = rv.replaceAll("#UID#", user);
 		}
 
 		// make it full, adding the server root

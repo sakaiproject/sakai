@@ -38,6 +38,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
@@ -383,7 +384,15 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 			public void startElement(String uri, String localName, String qName,
 					Attributes attributes) throws SAXException
 			{
-				if ("property".equals(qName))
+				if(qName == null)
+				{
+					// will be ignored
+				}
+				else
+				{
+					qName = qName.trim();
+				}
+				if ("property".equalsIgnoreCase(qName))
 				{
 
 					String name = attributes.getValue("name");
@@ -435,7 +444,7 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 						props.put(name, value);
 					}
 				}
-				else if ("resource".equals(qName))
+				else if ("resource".equalsIgnoreCase(qName))
 				{
 					id = attributes.getValue("id");
 					contentType = StringUtil.trimToNull(attributes
@@ -451,6 +460,11 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 					}
 					resourceType = StringUtil.trimToNull(attributes
 							.getValue("resource-type"));
+					
+					if(resourceType == null)
+					{
+						resourceType = ResourceType.TYPE_UPLOAD;
+					}
 
 					String enc = StringUtil.trimToNull(attributes.getValue("body"));
 					if (enc != null)
@@ -469,15 +483,15 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 					}
 
 					filePath = StringUtil.trimToNull(attributes.getValue("filePath"));
-					AccessMode access = AccessMode.INHERITED;
+					accessMode = AccessMode.INHERITED;
 					String access_mode = attributes.getValue("sakai:access_mode");
 					if (access_mode != null && !access_mode.trim().equals(""))
 					{
-						access = AccessMode.fromString(access_mode);
+						accessMode = AccessMode.fromString(access_mode);
 					}
-					if (access == null || AccessMode.SITE == access)
+					if (accessMode == null || AccessMode.SITE == accessMode)
 					{
-						access = AccessMode.INHERITED;
+						accessMode = AccessMode.INHERITED;
 					}
 
 					String shidden = attributes.getValue("sakai:hidden");
@@ -514,7 +528,7 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 						}
 					}
 				}
-				else if ("sakai:authzGroup".equals(qName))
+				else if ("sakai:authzGroup".equalsIgnoreCase(qName))
 				{
 					if (group == null)
 					{
@@ -522,13 +536,21 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 					}
 					group.add(attributes.getValue("sakai:group_name"));
 				}
-				else if ("properties".equals(qName))
+				else if ("properties".equalsIgnoreCase(qName))
 				{
 
 				}
+				else if ("members".equalsIgnoreCase(qName))
+				{
+					// ignore
+				}
+				else if ("member".equalsIgnoreCase(qName))
+				{
+					// ignore
+				}
 				else
 				{
-					log.warn("Unexpected Element " + qName);
+					log.warn("Unexpected Element \"" + qName + "\"");
 				}
 
 			}
@@ -587,7 +609,7 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 				|| (resourceType != null && sax2.resourceType == null))
 		{
 			sb.append("     ").append(
-					"ID not equal [" + resourceType + "]!=[" + sax2.resourceType + "]")
+					"resourceType not equal [" + resourceType + "]!=[" + sax2.resourceType + "]")
 					.append("\n");
 		}
 		if ((group == null && sax2.group != null)
@@ -658,6 +680,14 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 					"ContentLength not equal [" + contentLength + "]!=["
 							+ sax2.contentLength + "]").append("\n");
 		}
+		if(contentType != null && contentType.trim().equals(""))
+		{
+			contentType = null;
+		}
+		if(sax2.contentType != null && sax2.contentType.trim().equals(""))
+		{
+			sax2.contentType = null;
+		}
 		if ((contentType != null && !contentType.equals(sax2.contentType))
 				|| (contentType == null && sax2.contentType != null)
 				|| (contentType != null && sax2.contentType == null))
@@ -665,6 +695,14 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 			sb.append("     ").append(
 					"Content Type not equal [" + contentType + "]!=[" + sax2.contentType
 							+ "]").append("\n");
+		}
+		if(filePath != null && filePath.trim().equals(""))
+		{
+			filePath = null;
+		}
+		if(sax2.filePath != null && sax2.filePath.trim().equals(""))
+		{
+			sax2.filePath = null;
 		}
 		if ((filePath != null && !filePath.equals(sax2.filePath))
 				|| (filePath == null && sax2.filePath != null)

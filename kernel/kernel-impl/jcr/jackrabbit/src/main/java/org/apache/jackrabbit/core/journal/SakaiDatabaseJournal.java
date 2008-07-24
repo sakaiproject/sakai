@@ -29,7 +29,7 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import org.apache.jackrabbit.name.NamespaceResolver;
+import org.apache.jackrabbit.spi.commons.namespace.NamespaceResolver;
 import org.apache.jackrabbit.util.Text;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * <li><code>password</code>: password to specify when connecting</li>
  * </ul>
  */
-public class SakaiDatabaseJournal extends AbstractJournal
+public abstract class SakaiDatabaseJournal extends AbstractJournal
 {
 
 	/**
@@ -114,6 +114,8 @@ public class SakaiDatabaseJournal extends AbstractJournal
 	 * Locked revision.
 	 */
 	private long lockedRevision;
+
+	private NamespaceResolver resolver;
 
 	/**
 	 * {@inheritDoc}
@@ -181,7 +183,8 @@ public class SakaiDatabaseJournal extends AbstractJournal
 	/**
 	 * {@inheritDoc}
 	 */
-	protected RecordIterator getRecords(long startRevision) throws JournalException
+/*
+ 	protected RecordIterator getRecords(long startRevision) throws JournalException
 	{
 
 		try
@@ -191,8 +194,7 @@ public class SakaiDatabaseJournal extends AbstractJournal
 			selectRevisionsStmt.setLong(1, startRevision);
 			selectRevisionsStmt.execute();
 
-			return new DatabaseRecordIterator(selectRevisionsStmt.getResultSet(),
-					getResolver());
+			return new DatabaseRecordIterator(selectRevisionsStmt.getResultSet(), resolver);
 		}
 		catch (SQLException e)
 		{
@@ -200,7 +202,7 @@ public class SakaiDatabaseJournal extends AbstractJournal
 			throw new JournalException(msg, e);
 		}
 	}
-
+*/
 	/**
 	 * {@inheritDoc}
 	 */

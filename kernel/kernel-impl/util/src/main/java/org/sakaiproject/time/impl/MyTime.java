@@ -392,16 +392,12 @@ public class MyTime implements Time
 	}
 
 
-    	public static SimpleDateFormat RFC822DATEFORMAT
-        	// = new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z", Locale.US);
-        	= new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z");
-
 	/**
 	 * {@inheritDoc}
 	 */
 	public String toStringRFC822Local()
 	{
-        	return RFC822DATEFORMAT.format(new Date(getTime()));
+        	return new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z").format(new Date(getTime()));
 	}
 
 	/**

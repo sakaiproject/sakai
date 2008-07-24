@@ -2,20 +2,11 @@ package org.sakaiproject.content.migration;
 
 import java.util.Date;
 
-/* 
- CREATE TABLE MIGRATE_CHS_CONTENT_TO_JCR (
- id INT NOT NULL AUTO_INCREMENT,
- PRIMARY KEY (id),
- CONTENT_ID varchar(255),
- STATUS int NOT NULL DEFAULT 0,
- TIME_ADDED_TO_QUEUE datetime,
- -- ORIGINAL_MIGRATION will be used for the 
- -- original copy. Things added to the queue 
- -- later will use their actual event code, ex
- -- content.new, content.delete, etc
- EVENT_TYPE varchar(32) DEFAULT 'ORIGINAL_MIGRATION'
- 
- );
+
+/**
+ * A little class to model a single item in the queue that needs to be migrated.
+ * 
+ * @author sgithens
  */
 public class ThingToMigrate
 {

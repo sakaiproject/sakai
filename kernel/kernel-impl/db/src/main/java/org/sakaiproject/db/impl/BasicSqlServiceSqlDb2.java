@@ -21,9 +21,34 @@
 
 package org.sakaiproject.db.impl;
 
+import javax.sql.rowset.serial.SerialBlob;
+import java.sql.ParameterMetaData;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Blob;
+
 /**
  * methods for accessing sql service methods in a db2 database.
  */
 public class BasicSqlServiceSqlDb2 extends BasicSqlServiceSqlDefault
 {
+   public boolean getRecordAlreadyExists(SQLException ex)
+   {
+      return ex.getErrorCode() == -803;
+   }
+
+   public PreparedStatement setNull(PreparedStatement pstmt, int pos) throws SQLException
+   {
+      ParameterMetaData pmd = pstmt.getParameterMetaData() ;
+      pstmt.setNull(pos,  pmd.getParameterType(pos), null);
+      return pstmt;
+   }
+
+
+   public PreparedStatement setBytes(PreparedStatement pstmt, byte[] bytes, int pos) throws SQLException {
+      Blob blob = new SerialBlob(bytes);
+      pstmt.setBinaryStream(pos, blob.getBinaryStream(), (int)blob.length());
+      return pstmt;
+   }
+
 }

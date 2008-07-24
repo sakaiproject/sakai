@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -58,6 +58,7 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.AuthenticatedUserProvider;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
@@ -107,10 +108,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/** A user directory provider. */
 	protected UserDirectoryProvider m_provider = null;
-	
+
 	/** Component ID used to find the provider if it's not directly injected. */
 	protected String m_providerName = null;
-	
+
 	/** Key for current service caching of current user */
 	protected final String M_curUserKey = getClass().getName() + ".currentUser";
 
@@ -128,7 +129,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Access the partial URL that forms the root of resource URLs.
-	 * 
+	 *
 	 * @param relative
 	 *        if true, form within the access path only (i.e. starting with /content)
 	 * @return the partial URL that forms the root of resource URLs.
@@ -140,7 +141,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Access the internal reference which can be used to access the resource from within the system.
-	 * 
+	 *
 	 * @param id
 	 *        The user id string.
 	 * @return The the internal reference which can be used to access the resource from within the system.
@@ -155,7 +156,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Access the user id extracted from a user reference.
-	 * 
+	 *
 	 * @param ref
 	 *        The user reference string.
 	 * @return The the user id extracted from a user reference.
@@ -171,7 +172,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Check security permission.
-	 * 
+	 *
 	 * @param lock
 	 *        The lock id string.
 	 * @param resource
@@ -187,10 +188,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		return true;
 	}
-	
+
 	/**
 	 * Check security permission.
-	 * 
+	 *
 	 * @param lock
 	 *        A list of lock strings to consider.
 	 * @param resource
@@ -200,20 +201,20 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	protected boolean unlockCheck(List locks, String resource)
 	{
 		Iterator locksIterator = locks.iterator();
-		
+
 		while(locksIterator.hasNext()) {
-			
+
 			if(securityService().unlock((String) locksIterator.next(), resource))
 					return true;
-			
+
 		}
-	
+
 		return false;
 	}
 
 	/**
 	 * Check security permission.
-	 * 
+	 *
 	 * @param lock1
 	 *        The lock id string.
 	 * @param lock2
@@ -237,7 +238,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Check security permission.
-	 * 
+	 *
 	 * @param lock
 	 *        The lock id string.
 	 * @param resource
@@ -248,18 +249,18 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected String unlock(String lock, String resource) throws UserPermissionException
 	{
-		
+
 		if (!unlockCheck(lock, resource))
 		{
 			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
 		}
-		
+
 	    return lock;
 	}
 
 	/**
 	 * Check security permission.
-	 * 
+	 *
 	 * @param lock1
 	 *        The lock id string.
 	 * @param lock2
@@ -276,11 +277,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), lock1 + "/" + lock2, resource);
 		}
 	}
-	
+
 	/**
 	 * Check security permission.
-	 * 
-	 * 
+	 *
+	 *
 	 * @param locks
 	 *        The list of lock strings.
 	 * @param resource
@@ -289,39 +290,39 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 *            Thrown if the user does not have access to either.
 	 * @return A list of the lock strings that the user has access to.
 	 */
-	
+
 	protected List unlock(List locks, String resource) throws UserPermissionException
 	{
 		List locksSucceeded = new ArrayList();
 		String locksFailed = "";
-		
+
 		Iterator locksIterator = locks.iterator();
-		
+
 		while (locksIterator.hasNext()) {
-		
+
 			String lock = (String) locksIterator.next();
-			
+
 			if (unlockCheck(lock, resource))
 			{
 				locksSucceeded.add(lock);
-				
+
 			} else {
-				
+
 				locksFailed += lock + " ";
 			}
-			
+
 		}
-			
+
 		if (locksSucceeded.size() < 1) {
 			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), locksFailed, resource);
 		}
-		
+
 		return locksSucceeded;
 	}
 
 	/**
 	 * Make sure we have a good uuid for a user record. If id is specified, use that. Otherwise get one from the provider or allocate a uuid.
-	 * 
+	 *
 	 * @param id
 	 *        The proposed id.
 	 * @param eid
@@ -349,7 +350,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Configuration: set the user directory provider helper service.
-	 * 
+	 *
 	 * @param provider
 	 *        the user directory provider helper service.
 	 */
@@ -361,13 +362,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		m_providerName = StringUtil.trimToNull(userDirectoryProviderName);
 	}
-	
+
 	/** The # seconds to cache gets. 0 disables the cache. */
 	protected int m_cacheSeconds = 0;
 
 	/**
 	 * Set the # minutes to cache a get.
-	 * 
+	 *
 	 * @param time
 	 *        The # minutes to cache a get (as an integer string).
 	 */
@@ -381,7 +382,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Set the # minutes between cache cleanings.
-	 * 
+	 *
 	 * @param time
 	 *        The # minutes between cache cleanings. (as an integer string).
 	 */
@@ -395,7 +396,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Configuration: case sensitive user eid
-	 * 
+	 *
 	 * @param value
 	 *        The case sensitive user eid.
 	 */
@@ -409,7 +410,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Configuration: to use a separate value for id and eid for each user record, or not.
-	 * 
+	 *
 	 * @param value
 	 *        The separateIdEid setting.
 	 */
@@ -519,7 +520,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_PASSWORD);
 			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_TYPE);
 			functionManager().registerFunction(SECURE_UPDATE_USER_ANY);
-			
+
 			// if no provider was set, see if we can find one
 			if ((m_provider == null) && (m_providerName != null))
 			{
@@ -589,7 +590,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// not found
 		throw new UserNotDefinedException(eid);
 	}
-	
+
 	protected UserEdit getProvidedUserByEid(String id, String eid)
 	{
 		if (m_provider != null)
@@ -610,10 +611,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				return null;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	protected void ensureMappedIdForProvidedUser(UserEdit user)
 	{
 		if (user.getId() == null)
@@ -624,7 +625,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			user.setId(id);
 		}
 	}
-	
+
 	protected void checkAndEnsureMappedIdForProvidedUser(UserEdit user)
 	{
 		if (user.getId() == null)
@@ -666,7 +667,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					user = getProvidedUserByEid(id, eid);
 				}
 			}
-			
+
 			if (user != null)
 			{
 				putCachedUser(ref, user);
@@ -692,7 +693,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// clean up the eid
 		eid = cleanEid(eid);
 		if (eid == null) throw new UserNotDefinedException("null");
-		
+
 		String id = m_storage.checkMapForId(eid);
 		if (id != null)
 		{
@@ -758,7 +759,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					else
 					{
 						// this user is not internally defined, and we can't find an eid for it, so we skip it
-						M_log.warn("getUsers: cannot find eid for user id: " + id);							
+						M_log.warn("getUsers: cannot find eid for user id: " + id);
 					}
 				}
 			}
@@ -830,7 +831,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			locks.add(SECURE_UPDATE_USER_OWN_EMAIL);
 			locks.add(SECURE_UPDATE_USER_OWN_PASSWORD);
 			locks.add(SECURE_UPDATE_USER_OWN_TYPE);
-			
+
 			// own or any
 			return unlockCheck(locks, userReference(id));
 		}
@@ -840,7 +841,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// just any
 			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
 		}
-	}	
+	}
 
 	/**
 	 * @inheritDoc
@@ -850,7 +851,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// clean up the id
 		id = cleanId(id);
 		if (id == null) return false;
-		
+
 		//		 is this the user's own?
 		if (id.equals(sessionManager().getCurrentSessionUserId()))
 		{
@@ -858,8 +859,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			locks.add(SECURE_UPDATE_USER_OWN);
 			locks.add(SECURE_UPDATE_USER_ANY);
 			locks.add(SECURE_UPDATE_USER_OWN_NAME);
-			
-			
+
+
 			// own or any
 			return unlockCheck(locks, userReference(id));
 		}
@@ -869,9 +870,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// just any
 			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
 		}
-		
+
 	}
-	
+
 	/**
 	 * @inheritDoc
 	 */
@@ -880,7 +881,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// clean up the id
 		id = cleanId(id);
 		if (id == null) return false;
-		
+
 		//		 is this the user's own?
 		if (id.equals(sessionManager().getCurrentSessionUserId()))
 		{
@@ -888,8 +889,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			locks.add(SECURE_UPDATE_USER_OWN);
 			locks.add(SECURE_UPDATE_USER_ANY);
 			locks.add(SECURE_UPDATE_USER_OWN_EMAIL);
-			
-			
+
+
 			// own or any
 			return unlockCheck(locks, userReference(id));
 		}
@@ -899,9 +900,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// just any
 			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
 		}
-		
+
 	}
-	
+
 	/**
 	 * @inheritDoc
 	 */
@@ -910,7 +911,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// clean up the id
 		id = cleanId(id);
 		if (id == null) return false;
-		
+
 		//		 is this the user's own?
 		if (id.equals(sessionManager().getCurrentSessionUserId()))
 		{
@@ -918,8 +919,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			locks.add(SECURE_UPDATE_USER_OWN);
 			locks.add(SECURE_UPDATE_USER_ANY);
 			locks.add(SECURE_UPDATE_USER_OWN_PASSWORD);
-			
-			
+
+
 			// own or any
 			return unlockCheck(locks, userReference(id));
 		}
@@ -929,9 +930,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// just any
 			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
 		}
-		
+
 	}
-	
+
 
 	/**
 	 * @inheritDoc
@@ -941,7 +942,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// clean up the id
 		id = cleanId(id);
 		if (id == null) return false;
-		
+
 		//		 is this the user's own?
 		if (id.equals(sessionManager().getCurrentSessionUserId()))
 		{
@@ -949,8 +950,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			locks.add(SECURE_UPDATE_USER_OWN);
 			locks.add(SECURE_UPDATE_USER_ANY);
 			locks.add(SECURE_UPDATE_USER_OWN_TYPE);
-			
-			
+
+
 			// own or any
 			return unlockCheck(locks, userReference(id));
 		}
@@ -960,7 +961,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// just any
 			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
 		}
-		
+
 	}
 
 	/**
@@ -986,7 +987,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			locks.add(SECURE_UPDATE_USER_OWN_PASSWORD);
 			locks.add(SECURE_UPDATE_USER_OWN_TYPE);
 			locks.add(SECURE_UPDATE_USER_ANY);
-			
+
 			locksSucceeded = unlock(locks, userReference(id));
 			function = SECURE_UPDATE_USER_OWN;
 		}
@@ -1011,29 +1012,29 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				throw new UserLockedException(id);
 			}
 		}
-		
+
 		if(!locksSucceeded.contains(SECURE_UPDATE_USER_ANY) && !locksSucceeded.contains(SECURE_UPDATE_USER_OWN)) {
-			
+
 			// current session does not have permission to edit all properties for this user
 			// lock the properties the user does not have access to edit
-			
+
 			if(!locksSucceeded.contains(SECURE_UPDATE_USER_OWN_NAME)) {
 				user.restrictEditFirstName();
 			    user.restrictEditLastName();
 			}
-			
+
 			if(!locksSucceeded.contains(SECURE_UPDATE_USER_OWN_EMAIL)) {
 				user.restrictEditEmail();
 			}
-			
+
 			if(!locksSucceeded.contains(SECURE_UPDATE_USER_OWN_PASSWORD)) {
 				user.restrictEditPassword();
 			}
-			
+
 			if(!locksSucceeded.contains(SECURE_UPDATE_USER_OWN_TYPE)) {
 				user.restrictEditType();
 			}
-			
+
 		}
 
 		((BaseUserEdit) user).setEvent(function);
@@ -1063,7 +1064,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			((BaseUserEdit) user).closeEdit();
 			throw new UserAlreadyDefinedException(user.getEid());
 		}
-		
+
 		String ref = user.getReference();
 
 		// track it
@@ -1071,7 +1072,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		// close the edit object
 		((BaseUserEdit) user).closeEdit();
-		
+
 		// Update the caches to match any changed data.
 		putCachedUser(ref, user);
 	}
@@ -1173,7 +1174,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					providedUserRecords = Arrays.asList(new BaseUserEdit[] {edit});
 				}
 			}
-			
+
 			if (providedUserRecords != null)
 			{
 				for (BaseUserEdit user : providedUserRecords)
@@ -1319,7 +1320,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public void removeUser(UserEdit user) throws UserPermissionException
 	{
 		String ref = user.getReference();
-		
+
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
@@ -1351,13 +1352,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		catch (GroupNotDefinedException ignore)
 		{
 		}
-		
+
 		// Remove from cache.
 		removeCachedUser(ref);
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * <b>WARNING:</b> Do not call this method directly! Use {@link AuthenticationManager#authenticate(org.sakaiproject.user.api.Evidence)}
 	 */
 	public User authenticate(String loginId, String password)
 	{
@@ -1366,24 +1369,24 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		UserEdit user = null;
 		boolean authenticateWithProviderFirst = (m_provider != null) && m_provider.authenticateWithProviderFirst(loginId);
-		
+
 		if (authenticateWithProviderFirst)
 		{
 			user = getProviderAuthenticatedUser(loginId, password);
 			if (user != null) return user;
 		}
-		
+
 		user = getInternallyAuthenticatedUser(loginId, password);
 		if (user != null) return user;
-		
+
 		if ((m_provider != null) && !authenticateWithProviderFirst)
 		{
 			return getProviderAuthenticatedUser(loginId, password);
 		}
-		
+
 		return null;
 	}
-	
+
 	protected UserEdit getInternallyAuthenticatedUser(String eid, String password)
 	{
 		try
@@ -1396,7 +1399,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			return null;
 		}
 	}
-	
+
 	protected UserEdit getProviderAuthenticatedUser(String loginId, String password)
 	{
 		UserEdit user = null;
@@ -1483,7 +1486,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Adjust the id - trim it to null. Note: eid case insensitive option does NOT apply to id.
-	 * 
+	 *
 	 * @param id
 	 *        The id to clean up.
 	 * @return A cleaned up id.
@@ -1498,7 +1501,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * Adjust the eid - trim it to null, and lower case IF we are case insensitive.
-	 * 
+	 *
 	 * @param eid
 	 *        The eid to clean up.
 	 * @return A cleaned up eid.
@@ -1512,7 +1515,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		return StringUtil.trimToNull(eid);
 	}
-	
+
 	protected UserEdit getCachedUser(String ref)
 	{
 		UserEdit user = (UserEdit)threadLocalManager().get(ref);
@@ -1522,13 +1525,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		return user;
 	}
-	
+
 	protected void putCachedUser(String ref, UserEdit user)
 	{
 		threadLocalManager().set(ref, user);
 		if (m_callCache != null) m_callCache.put(ref, user, m_cacheSeconds);
 	}
-	
+
 	protected void removeCachedUser(String ref)
 	{
 		threadLocalManager().set(ref, null);
@@ -1744,26 +1747,26 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/** The time last modified. */
 		protected Time m_lastModifiedTime = null;
-		
-		/** If editing the first name is restricted **/ 
+
+		/** If editing the first name is restricted **/
 		protected boolean m_restrictedFirstName = false;
-		
-		/** If editing the last name is restricted **/ 
+
+		/** If editing the last name is restricted **/
 		protected boolean m_restrictedLastName = false;
-		
-		
-		/** If editing the email is restricted **/ 
+
+
+		/** If editing the email is restricted **/
 		protected boolean m_restrictedEmail = false;
-		
-		/** If editing the password is restricted **/ 
+
+		/** If editing the password is restricted **/
 		protected boolean m_restrictedPassword = false;
-		
-		/** If editing the type is restricted **/ 
+
+		/** If editing the type is restricted **/
 		protected boolean m_restrictedType = false;
-		
+
 		/**
 		 * Construct.
-		 * 
+		 *
 		 * @param id
 		 *        The user id.
 		 */
@@ -1781,7 +1784,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// add the automatic (live) properties
 			if ((m_id != null) && (m_id.length() > 0)) addLiveProperties(this);
 		}
-		
+
 		public BaseUserEdit(String id)
 		{
 			this(id, null);
@@ -1794,7 +1797,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Construct from another User object.
-		 * 
+		 *
 		 * @param user
 		 *        The user object to use for values.
 		 */
@@ -1805,7 +1808,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Construct from information in XML.
-		 * 
+		 *
 		 * @param el
 		 *        The XML DOM Element definining the user.
 		 */
@@ -1890,7 +1893,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * ReConstruct.
-		 * 
+		 *
 		 * @param id
 		 *        The id.
 		 * @param eid
@@ -1937,7 +1940,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Take all values from this object.
-		 * 
+		 *
 		 * @param user
 		 *        The user object to take values from.
 		 */
@@ -2120,7 +2123,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			{
 				rv = ((DisplayAdvisorUDP) m_provider).getDisplayName(this);
 			}
-			
+
 			if (rv == null)
 			{
 				// or do it this way
@@ -2131,12 +2134,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					buf.append(" ");
 					buf.append(m_lastName);
 				}
-	
+
 				if (buf.length() == 0)
 				{
 					rv = getEid();
 				}
-				
+
 				else
 				{
 					rv = buf.toString();
@@ -2239,7 +2242,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 				if (m_pw.equals(encoded)) return true;
 			}
-			
+
 			// otherwise deal with the full encoding
 			else
 			{
@@ -2266,7 +2269,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public int hashCode()
 		{
-			return getId().hashCode();
+			String id = getId();
+			if (id == null)
+			{
+				// Maintains consistency with Sakai 2.4.x behavior.
+				id = "";
+			}
+			return id.hashCode();
 		}
 
 		/**
@@ -2330,8 +2339,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setFirstName(String name)
 		{
-		    if(!m_restrictedFirstName) { 	
-		    	m_firstName = name;	 
+		    if(!m_restrictedFirstName) {
+		    	m_firstName = name;
 		    }
 		}
 
@@ -2340,7 +2349,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setLastName(String name)
 		{
-			if(!m_restrictedLastName) { 
+			if(!m_restrictedLastName) {
 		    	m_lastName = name;
 		    }
 		}
@@ -2349,8 +2358,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 * @inheritDoc
 		 */
 		public void setEmail(String email)
-		{	
-			if(!m_restrictedEmail) { 
+		{
+			if(!m_restrictedEmail) {
 				m_email = email;
 			}
 		}
@@ -2360,15 +2369,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setPassword(String pw)
 		{
-			
-			if(!m_restrictedPassword) { 
-		
+
+			if(!m_restrictedPassword) {
+
 				// to clear it
 				if (pw == null)
 				{
 					m_pw = null;
 				}
-				
+
 				// else encode the new one
 				else
 				{
@@ -2385,47 +2394,47 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public void setType(String type)
 		{
 			if(!m_restrictedType) {
-		
+
 				m_type = type;
-			
+
 			}
 		}
-		
+
 		public void restrictEditFirstName() {
-			
+
 			m_restrictedFirstName = true;
-			
+
 		}
-		
+
 		public void restrictEditLastName() {
-			
+
 			m_restrictedLastName = true;
-			
+
 		}
-		
-		
-		
+
+
+
 		public void restrictEditEmail() {
-			
+
 			m_restrictedEmail = true;
-			
+
 		}
-		
+
 		public void restrictEditPassword() {
-			
+
 			m_restrictedPassword = true;
-			
+
 		}
-		
+
 		public void restrictEditType() {
-			
+
 			m_restrictedType = true;
-			
+
 		}
 
 		/**
 		 * Take all values from this object.
-		 * 
+		 *
 		 * @param user
 		 *        The user object to take values from.
 		 */
@@ -2436,7 +2445,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Access the event code for this edit.
-		 * 
+		 *
 		 * @return The event code for this edit.
 		 */
 		protected String getEvent()
@@ -2446,7 +2455,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Set the event code for this edit.
-		 * 
+		 *
 		 * @param event
 		 *        The event code for this edit.
 		 */
@@ -2496,7 +2505,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Check this User object to see if it is selected by the criteria.
-		 * 
+		 *
 		 * @param criteria
 		 *        The critera.
 		 * @return True if the User object is selected by the criteria, false if not.
@@ -2556,7 +2565,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Check if a user by this id exists.
-		 * 
+		 *
 		 * @param id
 		 *        The user id.
 		 * @return true if a user by this id exists, false if not.
@@ -2565,7 +2574,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Get the user with this id, or null if not found.
-		 * 
+		 *
 		 * @param id
 		 *        The user id.
 		 * @return The user with this id, or null if not found.
@@ -2574,7 +2583,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Get the users with this email, or return empty if none found.
-		 * 
+		 *
 		 * @param id
 		 *        The user email.
 		 * @return The Collection (User) of users with this email, or an empty collection if none found.
@@ -2583,14 +2592,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Get all users.
-		 * 
+		 *
 		 * @return The List (UserEdit) of all users.
 		 */
 		public List getAll();
 
 		/**
 		 * Get all the users in record range.
-		 * 
+		 *
 		 * @param first
 		 *        The first record position to return.
 		 * @param last
@@ -2601,14 +2610,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Count all the users.
-		 * 
+		 *
 		 * @return The count of all users.
 		 */
 		public int count();
 
 		/**
 		 * Search for users with id or email, first or last name matching criteria, in range.
-		 * 
+		 *
 		 * @param criteria
 		 *        The search criteria.
 		 * @param first
@@ -2621,7 +2630,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Count all the users with id or email, first or last name matching criteria.
-		 * 
+		 *
 		 * @param criteria
 		 *        The search criteria.
 		 * @return The count of all aliases with id or target matching criteria.
@@ -2630,7 +2639,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Add a new user with this id and eid.
-		 * 
+		 *
 		 * @param id
 		 *        The user id.
 		 * @param eid
@@ -2641,7 +2650,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Get a lock on the user with this id, or null if a lock cannot be gotten.
-		 * 
+		 *
 		 * @param id
 		 *        The user id.
 		 * @return The locked User with this id, or null if this records cannot be locked.
@@ -2650,7 +2659,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Commit the changes and release the lock.
-		 * 
+		 *
 		 * @param user
 		 *        The user to commit.
 		 * @return true if successful, false if not (eid may not be unique).
@@ -2659,7 +2668,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Cancel the changes and release the lock.
-		 * 
+		 *
 		 * @param user
 		 *        The user to commit.
 		 */
@@ -2667,7 +2676,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Remove this user.
-		 * 
+		 *
 		 * @param user
 		 *        The user to remove.
 		 */
@@ -2675,7 +2684,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Read properties from storage into the edit's properties.
-		 * 
+		 *
 		 * @param edit
 		 *        The user to read properties for.
 		 */
@@ -2683,7 +2692,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Create a mapping between the id and eid.
-		 * 
+		 *
 		 * @param id
 		 *        The user id.
 		 * @param eid
@@ -2694,7 +2703,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Check the id -> eid mapping: lookup this id and return the eid if found
-		 * 
+		 *
 		 * @param id
 		 *        The user id to lookup.
 		 * @return The eid mapped to this id, or null if none.
@@ -2703,7 +2712,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		/**
 		 * Check the id -> eid mapping: lookup this eid and return the id if found
-		 * 
+		 *
 		 * @param eid
 		 *        The user eid to lookup.
 		 * @return The id mapped to this eid, or null if none.

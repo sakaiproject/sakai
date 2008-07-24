@@ -509,17 +509,16 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	}
 
 	/**
-	 * Access an already defined site object.
+	 * Access site object from Cache (if available)
 	 * 
 	 * @param id
 	 *        The site id string.
-	 * @return A site object containing the site information
-	 * @exception IdUnusedException
+	 * @return A site object containing the site information or null
 	 *            if not found
 	 */
-	protected Site getDefinedSite(String id) throws IdUnusedException
+	protected Site getCachedSite(String id) 
 	{
-		if (id == null) throw new IdUnusedException("<null>");
+		if (id == null) return null;
 
 		Site rv = null;
 
@@ -539,6 +538,23 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 				return rv;
 			}
 		}
+		return null;
+	}
+
+	/**
+	 * Access an already defined site object.
+	 * 
+	 * @param id
+	 *        The site id string.
+	 * @return A site object containing the site information
+	 * @exception IdUnusedException
+	 *            if not found
+	 */
+	protected Site getDefinedSite(String id) throws IdUnusedException
+	{
+		if (id == null) throw new IdUnusedException("<null>");
+
+		Site rv = getCachedSite(id);
 
 		rv = m_storage.get(id);
 
@@ -555,6 +571,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		if (m_siteCache != null)
 		{
 			Site copy = new BaseSite(this,rv, true);
+			String ref = siteReference(id);
 			m_siteCache.put(ref, copy, m_cacheSeconds);
 		}
 
@@ -981,6 +998,12 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_SITE, siteReference(id));
+		
+		
+		// SAK-12631
+		if (serverConfigurationService().getString("courseSiteType", "course").equals(type)) {
+			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));
+		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null
 		Site site = m_storage.put(id);
@@ -1020,6 +1043,11 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		else
 		{
 			unlock(SECURE_ADD_SITE, siteReference(id));
+		}
+		
+		// SAK=12631
+		if ( isCourseSite(other.getId()) ) {
+			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));			
 		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null

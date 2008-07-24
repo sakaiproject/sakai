@@ -21,11 +21,14 @@
 
 package org.sakaiproject.event.impl;
 
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * <p>
@@ -73,4 +76,29 @@ public class EventTrackingTest extends ClusterEventTracking
 	{
 		return null;
 	}
+
+	/**
+	 * @return the SecurityService collaborator.
+	 */
+	protected SecurityService securityService()
+	{
+		return null;
+	}
+	
+	/**
+	 * @return the toolManager collaborator.
+	 */
+	protected ToolManager toolManager()
+	{
+		return null;
+	}
+
+	/**
+	 * @return the entityManager collaborator.
+	 */
+	protected EntityManager entityManager()
+	{
+		return null;
+	}
+
 }

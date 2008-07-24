@@ -21,21 +21,29 @@
 
 package org.sakaiproject.content.impl;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.NotificationAction;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.SiteEmailNotification;
 import org.sakaiproject.util.StringUtil;
@@ -50,24 +58,25 @@ import org.sakaiproject.util.FormattedText;
  */
 public class SiteEmailNotificationContent extends SiteEmailNotification
 {
+	private static Log log = LogFactory.getLog(SiteEmailNotificationContent.class);
 	private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
 	
-	protected String plainTextContent() {
-		return generateContentForType(false);
+	protected String plainTextContent(Event event) {
+		return generateContentForType(false, event);
 	}
 	
-	protected String htmlContent() {
-		return generateContentForType(true);
+	protected String htmlContent(Event event) {
+		return generateContentForType(true, event);
 	}
 
-	private String generateContentForType(boolean shouldProduceHtml) {
+	private String generateContentForType(boolean shouldProduceHtml, Event event) {
 		// get the content & properties
-		Reference ref = EntityManager.newReference(this.event.getResource());
+		Reference ref = EntityManager.newReference(event.getResource());
 		// TODO:  ResourceProperties props = ref.getProperties();
 
 		// get the function
-		String function = this.event.getEvent();
-		String subject = getSubject(this.event);
+		String function = event.getEvent();
+		String subject = getSubject(event);
 
 		// use either the configured site, or if not configured, the site (context) of the resource
 		String siteId = (getSite() != null) ? getSite() : ref.getContext();
@@ -257,9 +266,9 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected String getTag(String newLine, String title)
+	protected String getTag(String title, boolean shouldUseHtml)
 	{
-		// We handle this in the bodies of the messages
+		// tbd: move here from generateContentForType 
 		return "";
 	}
 

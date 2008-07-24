@@ -22,19 +22,27 @@
 package org.sakaiproject.event.impl;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.EventVoter;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * <p>
@@ -54,6 +62,8 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/** An observable object helper for see-only-local-events observers. */
 	protected MyObservable m_localObservableHelper = new MyObservable();
+
+	protected ArrayList<EventVoter> eventVoters = new ArrayList<EventVoter>();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Observable implementation
@@ -130,6 +140,22 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 */
 	protected abstract SessionManager sessionManager();
 
+	/**
+	 * @return the SecurityService collaborator.
+	 */
+	protected abstract SecurityService securityService();
+
+	/**
+	 * @return the ToolManager collaborator.
+	 */
+	protected abstract ToolManager toolManager();
+
+	/**
+	 * @return the EntityManager collaborator.
+	 */
+	protected abstract EntityManager entityManager();
+
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -189,6 +215,26 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	}
 
 	/**
+	 * Construct a Event object.
+	 * 
+	 * @param event
+	 *        The Event id.
+	 * @param resource
+	 *        The resource reference.
+	 * @param context
+	 *        The Event's context.
+	 * @param modify
+	 *        Set to true if this event caused a resource modification, false if it was just an access.
+	 * @param priority
+	 *        The Event's notification priority.
+	 * @return A new Event object that can be used with this service.
+	 */
+	public Event newEvent(String event, String resource, String context, boolean modify, int priority)
+	{
+		return new BaseEvent(event, resource, context, modify, priority);
+	}
+	
+	/**
 	 * Post an event
 	 * 
 	 * @param event
@@ -196,12 +242,12 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 */
 	public void post(Event event)
 	{
+		BaseEvent be = ensureBaseEvent(event);
 		// get the session id or user id
 		String id = usageSessionService().getSessionId();
 		if (id != null)
 		{
-			((BaseEvent) event).setSessionId(id);
-			postEvent(event);
+			be.setSessionId(id);
 		}
 
 		// post for the session "thread" user
@@ -213,9 +259,12 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 				id = "?";
 			}
 
-			((BaseEvent) event).setUserId(id);
-			postEvent(event);
+			be.setUserId(id);
 		}
+
+		// poll the voters for response
+		if (pollVoters(be))
+			postEvent(be);
 	}
 
 	/**
@@ -228,11 +277,14 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 */
 	public void post(Event event, UsageSession session)
 	{
+		BaseEvent be = ensureBaseEvent(event);
 		String id = "?";
 		if (session != null) id = session.getId();
 
-		((BaseEvent) event).setSessionId(id);
-		postEvent(event);
+		be.setSessionId(id);
+
+		if (pollVoters(be))
+			postEvent(be);
 	}
 
 	/**
@@ -245,11 +297,74 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 */
 	public void post(Event event, User user)
 	{
+		BaseEvent be = ensureBaseEvent(event);
 		String id = "?";
 		if (user != null) id = user.getId();
 
-		((BaseEvent) event).setUserId(id);
-		postEvent(event);
+		be.setUserId(id);
+
+		// establish a security advisor if the user id is set on the event.  this ensures that
+		// false permission exceptions aren't encountered during an event refiring.
+		boolean useAdvisor = false;
+		if (be.getUserId() != null)
+		{
+			useAdvisor = true;
+			securityService().pushAdvisor(newResourceAdvisor(be.getUserId()));
+		}
+
+		// poll the voters for response
+		if (pollVoters(be))
+			postEvent(be);
+
+		// if an advisor was used, pop it off.
+		if (useAdvisor)
+			securityService().popAdvisor();
+	}
+
+	/**
+	 * Ensure that the provided event is an instance of BaseEvent.  If not, create a new BaseEvent
+	 * and transfer state.
+	 * 
+	 * @param e
+	 * @return
+	 */
+	private BaseEvent ensureBaseEvent(Event e)
+	{
+		BaseEvent event = null;
+		if (e instanceof BaseEvent)
+		{
+			event = (BaseEvent) e;
+		}
+		else
+		{
+			event = new BaseEvent(e.getEvent(), e.getResource(), e.getModify(), e.getPriority());
+			event.setSessionId(e.getSessionId());
+			event.setUserId(e.getUserId());
+		}
+		return event;
+	}
+
+	/**
+	 * Refired events can occur under a different user and session than was originally available.
+	 * To make sure permission exceptions aren't falsely encountered, a security advisor should be
+	 * pushed on the stack to recreate the correct environment for security checks.
+	 *  
+	 * @param userId
+	 */
+	private SecurityAdvisor newResourceAdvisor(final String eventUserId)
+	{
+		// security advisor is needed if an event is refired.  the refired event is under the
+		// auspices of the job scheduler user and needs to be advised by the original user.
+		return new SecurityAdvisor()
+		{
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				SecurityAdvice sa = SecurityAdvice.PASS;
+				if (userId.equals(eventUserId))
+					sa = SecurityAdvice.ALLOWED;
+				return sa;
+			}
+		};
 	}
 
 	/**
@@ -310,6 +425,49 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		m_localObservableHelper.deleteObserver(observer);
 	}
 
+	/**
+	 * Add an event voter.
+	 * 
+	 * @param voter
+	 *            The voter to add.
+	 */
+	public void addVoter(EventVoter voter)
+	{
+		eventVoters.add(voter);
+	}
+
+	/**
+	 * Delete an event voter.
+	 * 
+	 * @param voter
+	 *            The voter to delete.
+	 */
+	public void deleteVoter(EventVoter voter)
+	{
+		eventVoters.remove(voter);
+	}
+
+	/**
+	 * Check the event voters to see if anyone votes against an event. Any 'nay' votes will stop an
+	 * event from processing.
+	 * 
+	 * @param event
+	 * @return
+	 */
+	protected boolean pollVoters(Event event)
+	{
+		boolean result = true;
+		for (EventVoter voter: eventVoters)
+		{
+			result &= voter.vote(event);
+
+			// since the vote has to be unanimous, no need in waiting after a 'nay'
+			if (!result)
+				break;
+		}
+		return result;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Event implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -338,6 +496,9 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		/** The Event's resource reference string. */
 		protected String m_resource = "";
 
+		/** The Event's context. May be null. */
+		protected String m_context = null;
+		
 		/** The Event's session id string. May be null. */
 		protected String m_session = null;
 
@@ -373,6 +534,17 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			return m_resource;
 		}
 
+		/**
+		 * Access the resource reference.
+		 * 
+		 * @return The resource reference string.
+		 */
+		public String getContext()
+		{
+			return m_context;
+		}
+
+		
 		/**
 		 * Access the UsageSession id. If null, check for a User id.
 		 * 
@@ -431,8 +603,50 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			setResource(resource);
 			m_modify = modify;
 			m_priority = priority;
+
+			// Find the context using the reference (let the service that it belongs to parse it) 
+			if (resource != null && !"".equals(resource)) {
+				Reference ref = entityManager().newReference(resource);
+				if (ref != null) {
+					m_context = ref.getContext();
+				}
+			}
+			
+			// If we still need to find the context, try the tool placement 
+			if (m_context == null) {
+				Placement placement = toolManager().getCurrentPlacement();
+				if (placement != null) {
+					m_context = placement.getContext();
+				}
+			}
+			
 		}
 
+		/**
+		 * Construct
+		 * 
+		 * @param event
+		 *        The Event id.
+		 * @param resource
+		 *        The resource id.
+		 * @param modify
+		 *        If the event caused a modify, true, if it was just an access, false.
+		 * @param context
+		 *        The Event's context (may be null)
+		 * @param priority
+		 *        The Event's notification priority.
+		 */
+		public BaseEvent(String event, String resource, String context, boolean modify, int priority)
+		{
+			setEvent(event);
+			setResource(resource);
+			m_modify = modify;
+			m_priority = priority;
+			m_context = context;
+		}
+
+
+		
 		/**
 		 * Construct
 		 * 
@@ -447,9 +661,9 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		 * @param priority
 		 *        The Event's notification priority.
 		 */
-		public BaseEvent(long seq, String event, String resource, boolean modify, int priority)
+		public BaseEvent(long seq, String event, String resource, String context, boolean modify, int priority)
 		{
-			this(event, resource, modify, priority);
+			this(event, resource, context, modify, priority);
 			m_seq = seq;
 		}
 

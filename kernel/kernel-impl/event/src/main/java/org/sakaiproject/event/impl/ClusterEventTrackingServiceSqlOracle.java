@@ -30,13 +30,14 @@ public class ClusterEventTrackingServiceSqlOracle extends ClusterEventTrackingSe
     * returns the sql statement which inserts an event into the sakai_event table.
     */
    public String getInsertEventSql() {
-      return "insert into SAKAI_EVENT (EVENT_ID,EVENT_DATE,EVENT,REF,SESSION_ID,EVENT_CODE) " +
+      return "insert into SAKAI_EVENT (EVENT_ID,EVENT_DATE,EVENT,REF,SESSION_ID,EVENT_CODE,CONTEXT) " +
              "values      (SAKAI_EVENT_SEQ.NEXTVAL," + // form the id based on the sequence
                           "?, "                      + // date
                           "?, "                      + // event
                           "?, "                      + // reference
                           "?, "                      + // session id
-                          "?) ";                       // code
+                          "?, "                      + // code
+                          "?) ";                       // context
    }
 
    /**
@@ -45,7 +46,7 @@ public class ClusterEventTrackingServiceSqlOracle extends ClusterEventTrackingSe
 	public String getEventSql()
 	{
 		// this now has Oracle specific hint to improve performance with large tables -ggolden
-		return "select /*+ FIRST_ROWS */ EVENT_ID,EVENT_DATE,EVENT,REF,SAKAI_EVENT.SESSION_ID,EVENT_CODE,SESSION_SERVER "
+		return "select /*+ FIRST_ROWS */ EVENT_ID,EVENT_DATE,EVENT,REF,SAKAI_EVENT.SESSION_ID,EVENT_CODE,CONTEXT,SESSION_SERVER "
 				+ "from   SAKAI_EVENT,SAKAI_SESSION " + "where  (SAKAI_EVENT.SESSION_ID = SAKAI_SESSION.SESSION_ID(+)) and (EVENT_ID > ?)";
 	}
 }

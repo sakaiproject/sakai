@@ -26,4 +26,9 @@ package org.sakaiproject.cluster.impl;
  */
 public class SakaiClusterServiceSqlDb2 extends SakaiClusterServiceSqlDefault
 {
+   public String getListExpiredServers(long timeout)
+   {
+      return "select SERVER_ID from SAKAI_CLUSTER where SERVER_ID != ? and UPDATE_TIME < CURRENT TIMESTAMP - " + timeout + " SECONDS";
+   }
+
 }

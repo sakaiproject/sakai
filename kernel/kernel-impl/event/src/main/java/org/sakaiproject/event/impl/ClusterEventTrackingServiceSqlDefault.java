@@ -33,12 +33,13 @@ public class ClusterEventTrackingServiceSqlDefault implements ClusterEventTracki
     */
    public String getInsertEventSql()
    {
-      return "insert into SAKAI_EVENT (EVENT_ID,EVENT_DATE,EVENT,REF,SESSION_ID,EVENT_CODE) " +
+      return "insert into SAKAI_EVENT (EVENT_ID,EVENT_DATE,EVENT,REF,SESSION_ID,EVENT_CODE,CONTEXT) " +
              "values      (NEXT VALUE FOR SAKAI_EVENT_SEQ, "  + // form the id based on the sequence
                           "?, "                               + // date
                           "?, "                               + // event
                           "?, "                               + // reference
                           "?, "                               + // session id
+                          "?, "                               + // context
                           "? )";                                // code
    }
 
@@ -47,7 +48,7 @@ public class ClusterEventTrackingServiceSqlDefault implements ClusterEventTracki
 	 */
 	public String getEventSql()
 	{
-		return "select EVENT_ID,EVENT_DATE,EVENT,REF,SAKAI_EVENT.SESSION_ID,EVENT_CODE,SESSION_SERVER " + "from   SAKAI_EVENT,SAKAI_SESSION "
+		return "select EVENT_ID,EVENT_DATE,EVENT,REF,SAKAI_EVENT.SESSION_ID,EVENT_CODE,CONTEXT,SESSION_SERVER " + "from   SAKAI_EVENT,SAKAI_SESSION "
 				+ "where (SAKAI_EVENT.SESSION_ID = SAKAI_SESSION.SESSION_ID) and (EVENT_ID > ?)";
 	}
 

@@ -26,4 +26,33 @@ package org.sakaiproject.event.impl;
  */
 public class UsageSessionServiceSqlMsSql extends UsageSessionServiceSqlDefault
 {
+   public String getSakaiSessionSql1()
+   {
+      // SESSION_USER is a reserved word in mssql and db2
+      return "select SESSION_ID,SESSION_SERVER,[SESSION_USER],SESSION_IP,SESSION_USER_AGENT,SESSION_START,SESSION_END from SAKAI_SESSION where SESSION_ID = ?";
+   }
+
+   public String getInsertSakaiSessionSql()
+   {
+      // SESSION_USER is a reserved word in mssql and db2
+      return "insert into SAKAI_SESSION (SESSION_ID,SESSION_SERVER," +
+         "[SESSION_USER],SESSION_IP,SESSION_USER_AGENT,SESSION_START,SESSION_END) values (?, ?, ?, ?, ?, ?, ?)";
+   }
+
+
+   public String getSakaiSessionSql3(String alias, String joinAlias, String joinTable, String joinColumn, String joinCriteria)
+   {
+      return "select " + alias + ".SESSION_ID," + alias + ".SESSION_SERVER," + alias + ".[SESSION_USER]," + alias + ".SESSION_IP," + alias + ".SESSION_USER_AGENT," + alias + ".SESSION_START," + alias + ".SESSION_END," + alias + ".SESSION_ACTIVE " +
+             "from   SAKAI_SESSION " + alias                                    + " " +
+             "inner join " + joinTable + " " + joinAlias                        + " " +
+             "ON "    + alias + ".SESSION_ID = " + joinAlias + "." + joinColumn + " " +
+             "where " + joinCriteria;
+   }
+
+
+   public String getSakaiSessionSql2()
+   {
+      return "select [SESSION_USER],SESSION_IP,SESSION_USER_AGENT,SESSION_START,SESSION_END from SAKAI_SESSION where SESSION_ACTIVE=1 ORDER BY SESSION_SERVER ASC, SESSION_START ASC";
+   }
+
 }

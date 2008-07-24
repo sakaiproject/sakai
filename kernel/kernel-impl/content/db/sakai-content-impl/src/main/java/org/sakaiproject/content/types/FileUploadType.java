@@ -43,6 +43,7 @@ import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.impl.util.ZipContentUtil;
 import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -77,6 +78,7 @@ public class FileUploadType extends BaseResourceType
 		actions.put(ResourceToolAction.COPY, new FileUploadCopyAction());
 		actions.put(ResourceToolAction.MOVE, new FileUploadMoveAction());
 		actions.put(ResourceToolAction.DELETE, new FileUploadDeleteAction());
+		actions.put(ResourceToolAction.EXPAND_ZIP_ARCHIVE, new FileUploadExpandAction());
 		
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
@@ -741,6 +743,55 @@ public class FileUploadType extends BaseResourceType
         }
 	}
 		
+	public class FileUploadExpandAction implements ServiceLevelAction {
+						
+		private ZipContentUtil extractZipArchive = new ZipContentUtil();
+			
+		public void cancelAction(Reference reference) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public void finalizeAction(Reference reference) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public void initializeAction(Reference reference) {			
+			try {
+				extractZipArchive.extractArchive(reference);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+		}
+		
+		public boolean isMultipleItemAction() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+		public boolean available(ContentEntity entity) {
+			return entity.getId().toLowerCase().endsWith(".zip");
+		}
+		
+		public ActionType getActionType() {
+			return ResourceToolAction.ActionType.EXPAND_ZIP_ARCHIVE;
+		}
+		
+		public String getId() {
+			return ResourceToolAction.EXPAND_ZIP_ARCHIVE;
+		}
+		
+		public String getLabel() {
+			return rb.getString("action.expandziparchive"); 
+		}
+		
+		public String getTypeId() {
+			return typeId;
+		}
+			
+	}
+	
 	public ResourceToolAction getAction(String actionId) 
 	{
 		return (ResourceToolAction) actions.get(actionId);

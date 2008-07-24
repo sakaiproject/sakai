@@ -85,4 +85,24 @@ public interface SqlServiceSql
 	 *        number of column of bytes field.
 	 */
 	public PreparedStatement setTimestamp(PreparedStatement pstmt, Timestamp timestamp, GregorianCalendar calendar, int pos) throws SQLException;
+
+   /**
+    *  set a null in the given statement at the given postion
+    * @param pstmt
+    * @param pos
+    */
+   public PreparedStatement setNull(PreparedStatement pstmt, int pos) throws SQLException;
+
+   /**
+    * sets the value of a bytes field in the specified column. <br/><br/>
+    *
+    * @param pstmt
+    *        prepared statement
+    * @param var
+    *        value to bind to the last parameter in the sql statement.
+    * @param pos
+    *        number of column of bytes field.
+    */
+   public PreparedStatement setBytes(PreparedStatement pstmt, byte[] bytes, int pos) throws SQLException;
+
 }

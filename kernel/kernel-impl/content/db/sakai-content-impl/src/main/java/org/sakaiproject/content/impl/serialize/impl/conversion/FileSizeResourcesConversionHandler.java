@@ -21,9 +21,12 @@
 
 package org.sakaiproject.content.impl.serialize.impl.conversion;
 
+import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,7 +56,23 @@ public class FileSizeResourcesConversionHandler implements SchemaConversionHandl
 	 */
 	public Object getSource(String id, ResultSet rs) throws SQLException
 	{
-		return rs.getString(1);
+		ResultSetMetaData metadata = rs.getMetaData();
+		String rv = null;
+		switch(metadata.getColumnType(1))
+		{
+		case Types.CLOB:
+			Clob clob = rs.getClob(1); 
+			if(clob != null)
+			{
+				rv = clob.getSubString(1L, (int) clob.length());
+			}
+			break;
+		case Types.LONGVARCHAR:
+		case Types.VARCHAR:
+			rv = rs.getString(1);
+			break;
+		}
+		return rv;
 	}
 
 	/*

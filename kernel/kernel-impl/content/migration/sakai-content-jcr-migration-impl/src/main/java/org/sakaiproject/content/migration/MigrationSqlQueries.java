@@ -29,20 +29,4 @@ public class MigrationSqlQueries
 			+ " SELECT CONTENT_RESOURCE.RESOURCE_ID"
 			+ " FROM CONTENT_RESOURCE";
 
-	/*
-	 * Below is deprecated... maybe.
-	 */
-	/*
-	 * public static final String select_unfinished_collections = "SELECT
-	 * COLLECTION_ID" + " FROM MIGRATE_JCR_CONTENT_COLLECTION M" + " WHERE
-	 * STATUS = 0" + " LIMIT 0, ?"; public static final String
-	 * update_finished_collection = "UPDATE MIGRATE_JCR_CONTENT_COLLECTION" + "
-	 * SET STATUS = 1" + " WHERE COLLECTION_ID = ?"; public static final String
-	 * select_unfinished_resources = "SELECT RESOURCE_ID" + " FROM
-	 * MIGRATE_JCR_CONTENT_RESOURCE M" + " WHERE STATUS = 0" + " LIMIT 0, ?";
-	 * public static final String update_finished_resource = "UPDATE
-	 * MIGRATE_JCR_CONTENT_RESOURCE" + " SET STATUS = 1" + " WHERE RESOURCE_ID =
-	 * ?"; public static final String count_total_number_resources = "SELECT
-	 * COUNT(*) FROM" + " MIGRATE_JCR_CONTENT_RESOURCE M";
-	 */
 }

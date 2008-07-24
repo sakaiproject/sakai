@@ -192,7 +192,9 @@
             <param name="schema" value="${db.dialect}"/>
             <param name="driver" value="${db.driver}"/>
             <param name="schemaObjectPrefix" value="jcr_${wsp.name}_"/>
-            <param name="externalBLOBs" value="true"/>
+            <param name="externalBLOBs" value="${content.filesystem}"/>
+            <param name="useSharedFsBlobStore" value="${content.shared}" />
+            <param name="sharedLocation" value="${content.shared.location}/${wsp.name}" />
         </PersistenceManager>
         
         <!--
@@ -278,7 +280,9 @@
             <param name="schema" value="${db.dialect}"/>
             <param name="driver" value="${db.driver}"/>
             <param name="schemaObjectPrefix" value="jcrv_"/>
-            <param name="externalBLOBs" value="true"/>
+            <param name="externalBLOBs" value="${content.filesystem}"/>
+            <param name="useSharedFsBlobStore" value="${content.shared}" />
+            <param name="sharedLocation" value="${content.shared.location}/version" />
         </PersistenceManager>
     </Versioning>
     

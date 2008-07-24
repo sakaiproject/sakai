@@ -22,6 +22,7 @@
 package org.sakaiproject.jcr.test.mock;
 
 import org.sakaiproject.jcr.jackrabbit.sakai.SakaiLoginModule;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
@@ -40,6 +41,12 @@ public class MockSakaiLoginModule extends SakaiLoginModule
 	{
 		return (UserDirectoryService) MockComponentManager.get(UserDirectoryService.class
 				.getName());
+	}
+	
+	@Override
+	protected AuthenticationManager getAuthenticationManager() {
+      return (AuthenticationManager) MockComponentManager.get(AuthenticationManager.class
+            .getName());
 	}
 
 }

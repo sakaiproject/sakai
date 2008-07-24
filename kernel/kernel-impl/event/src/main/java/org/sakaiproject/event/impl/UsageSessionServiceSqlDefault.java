@@ -28,14 +28,14 @@ import java.util.List;
  */
 public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
 {
-	protected static final String USAGE_SESSION_COLUMNS = "SESSION_ID,SESSION_SERVER,SESSION_USER,SESSION_IP,SESSION_USER_AGENT,SESSION_START,SESSION_END,SESSION_ACTIVE";
+	protected static final String USAGE_SESSION_COLUMNS = "SESSION_ID,SESSION_SERVER,SESSION_USER,SESSION_IP,SESSION_HOSTNAME,SESSION_USER_AGENT,SESSION_START,SESSION_END,SESSION_ACTIVE";
 
    /**
 	 * returns the sql statement which inserts a sakai session into the sakai_session table.
 	 */
 	public String getInsertSakaiSessionSql()
 	{
-		return "insert into SAKAI_SESSION (" + USAGE_SESSION_COLUMNS + ") values (?, ?, ?, ?, ?, ?, ?, ?)";
+		return "insert into SAKAI_SESSION (" + USAGE_SESSION_COLUMNS + ") values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
 	 */
    public String getSakaiSessionSql3(String alias, String joinAlias, String joinTable, String joinColumn, String joinCriteria)
    {
-      return "select " + alias + ".SESSION_ID," + alias + ".SESSION_SERVER," + alias + ".SESSION_USER," + alias + ".SESSION_IP," + alias + ".SESSION_USER_AGENT," + alias + ".SESSION_START," + alias + ".SESSION_END," + alias + ".SESSION_ACTIVE " +
+      return "select " + alias + ".SESSION_ID," + alias + ".SESSION_SERVER," + alias + ".SESSION_USER," + alias + ".SESSION_IP," + alias + ".SESSION_HOSTNAME," + alias + ".SESSION_USER_AGENT," + alias + ".SESSION_START," + alias + ".SESSION_END," + alias + ".SESSION_ACTIVE " +
              "from   SAKAI_SESSION " + alias                                    + " " +
              "inner join " + joinTable + " " + joinAlias                        + " " +
              "ON "    + alias + ".SESSION_ID = " + joinAlias + "." + joinColumn + " " +

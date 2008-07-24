@@ -26,4 +26,14 @@ package org.sakaiproject.content.impl;
  */
 public class ContentServiceSqlDb2 extends ContentServiceSqlDefault
 {
+   public String getFilesizeColumnExistsSql()
+   {
+      return "select colname from syscat.columns where tabname = 'CONTENT_RESOURCE' and colname = 'FILE_SIZE'";
+   }
+
+   public String getAddFilesizeColumnSql(String table)
+   {
+      return "alter table " + table + " add FILE_SIZE BIGINT;";
+   }
+
 }

@@ -853,7 +853,7 @@ public class MemCache implements Cache, Observer
 
 		// do we have this in our cache?
 		Object oldValue = get(key);
-		if (oldValue != null)
+		if (containsKey(key))
 		{
 			// invalidate our copy
 			remove(key);

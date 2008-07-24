@@ -174,6 +174,22 @@ public class MockUsageSessionService implements UsageSessionService
 		return false;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.event.api.UsageSessionService#login(org.sakaiproject.user.api.Authentication, javax.servlet.http.HttpServletRequest, java.lang.String)
+	 */
+	public boolean login(Authentication authn, HttpServletRequest req, String event)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.event.api.UsageSessionService#login(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public boolean login(String uid, String eid, String remoteaddr, String ua, String event)	
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 }

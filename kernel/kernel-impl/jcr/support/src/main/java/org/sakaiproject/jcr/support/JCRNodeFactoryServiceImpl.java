@@ -141,11 +141,9 @@ public class JCRNodeFactoryServiceImpl implements JCRNodeFactoryService
 			// the node might already exist
 			if (n != null)
 			{
-				log.info("Found node in session ");
 				return n;
 			}
 
-			log.info("Found creating node ");
 			String vpath = getParentPath(id);
 			while (n == null && !"/".equals(vpath))
 			{
@@ -153,10 +151,6 @@ public class JCRNodeFactoryServiceImpl implements JCRNodeFactoryService
 				if (n == null)
 				{
 					vpath = getParentPath(vpath);
-				}
-				else
-				{
-					log.info("Got Path " + vpath + " as " + n);
 				}
 			}
 			if (n == null)

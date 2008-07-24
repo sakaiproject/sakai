@@ -387,6 +387,9 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 							{
 								groups.add(ds.readUTF());
 							}
+							if ( sz > 0 ) {
+								access = AccessMode.GROUPED;
+							}
 							break;
 						case BLOCK4:
 							baseResourcePropertiesSerializer.parse(sc
@@ -397,6 +400,10 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 							contentLength = ds.readLong();
 							filePath = ds.readUTF();
 
+							if(contentType == null)
+							{
+								contentType = "";
+							}
 							ResourceTypeRegistry registry = sc.getResourceTypeRegistry();
 							if (resourceType == null)
 							{
@@ -404,10 +411,6 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 								{
 									resourceType = registry
 											.mimetype2resourcetype(contentType);
-								}
-								if ( resourceType == null )
-								{
-									resourceType = ResourceType.TYPE_UPLOAD;
 								}
 							}
 
@@ -425,6 +428,10 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 			else
 			{
 				throw new EntityParseException("Unrecognised Record Type " + type);
+			}
+			if ( resourceType == null )
+			{
+				resourceType = ResourceType.TYPE_UPLOAD;
 			}
 			
 			sc.setSerializableId(id);

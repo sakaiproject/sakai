@@ -41,8 +41,13 @@ import org.apache.jackrabbit.core.security.CredentialsCallback;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jcr.jackrabbit.JCRAnonymousPrincipal;
 import org.sakaiproject.jcr.jackrabbit.JCRSystemPrincipal;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.IdPwEvidence;
 
 public class SakaiLoginModule implements LoginModule
 {
@@ -59,6 +64,11 @@ public class SakaiLoginModule implements LoginModule
 	private final Set principals = new HashSet();
 
 	private UserDirectoryService userDirectoryService;
+	
+	private AuthenticationManager authenticationManager;
+   public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+      this.authenticationManager = authenticationManager;
+   }
 
 	/**
 	 * Constructor
@@ -93,6 +103,10 @@ public class SakaiLoginModule implements LoginModule
 		{
 			userDirectoryService = getUserDirectoryService();
 		}
+      if (authenticationManager == null)
+      {
+         authenticationManager = getAuthenticationManager();
+      }
 
 		boolean authenticated = false;
 		principals.clear();
@@ -111,8 +125,21 @@ public class SakaiLoginModule implements LoginModule
 					SimpleCredentials sc = (SimpleCredentials) creds;
 					// authenticate
 
-					User u = userDirectoryService.authenticate(sc.getUserID(),
-							new String(sc.getPassword()));
+					User u = null;
+					try {
+                  Authentication auth = authenticationManager.authenticate( 
+                        new IdPwEvidence( sc.getUserID(), new String(sc.getPassword()) ) );
+                  u = userDirectoryService.getUser(auth.getUid());
+               } catch (NullPointerException e) {
+                  u = null;
+               } catch (AuthenticationException e) {
+                  u = null;
+               } catch (UserNotDefinedException e) {
+                  u = null;
+               }
+               // old way used UDS directly, no caching, new way above gets cached -AZ
+//					User u = userDirectoryService.authenticate(sc.getUserID(),
+//							new String(sc.getPassword()));
 					if (u == null)
 					{
 						principals.add(new JCRAnonymousPrincipal(SAKAI_ANON_USER));
@@ -172,6 +199,10 @@ public class SakaiLoginModule implements LoginModule
 	{
 		return (UserDirectoryService) ComponentManager.get(UserDirectoryService.class
 				.getName());
+	}
+
+	protected AuthenticationManager getAuthenticationManager() {
+	   return (AuthenticationManager) ComponentManager.get(AuthenticationManager.class.getName());
 	}
 
 	/**

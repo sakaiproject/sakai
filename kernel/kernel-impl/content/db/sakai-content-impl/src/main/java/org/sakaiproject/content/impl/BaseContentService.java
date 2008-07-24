@@ -126,6 +126,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadBound;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -1520,7 +1521,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			String userId = SessionManager.getCurrentSessionUserId();
 			
 			// available if user is creator
-			available = creator != null && userId != null && creator.equals(userId);
+			available = ( creator != null && userId != null && creator.equals(userId) ) 
+				|| ( creator == null && userId == null );
 			
 			if(! available)
 			{
@@ -2401,29 +2403,34 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		String currentUser = SessionManager.getCurrentSessionUserId();
 		String owner = "";
       
-      try
-      {
+		try
+		{
  			ResourceProperties props = getProperties(id);
 			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
-      }
-      catch ( Exception e ) 
-      {
-         // PermissionException can be thrown if not AUTH_RESOURCE_READ
-         return false;
-      }
+		}
+		catch ( Exception e ) 
+		{
+			// PermissionException can be thrown if not AUTH_RESOURCE_READ
+			return false;
+		}
       
 		// check security to delete any collection
 		if ( unlockCheck(AUTH_RESOURCE_WRITE_ANY, id) )
-         return true;
+			return true;
 
 		// check security to delete own collection
-		else if ( unlockCheck(AUTH_RESOURCE_WRITE_OWN, id)
-                && currentUser.equals(owner) )
-         return true;
+		else if ( currentUser != null && currentUser.equals(owner) 
+			&& unlockCheck(AUTH_RESOURCE_WRITE_OWN, id) )
+			return true;
+
+		// check security to delete own collection for anonymous users
+		else if ( currentUser == null && owner == null && 
+			unlockCheck(AUTH_RESOURCE_WRITE_OWN, id) )
+			return true;
             
-      // otherwise not authorized
-      else
-         return false;
+		// otherwise not authorized
+		else
+			return false;
 
 	} // allowUpdate
 
@@ -2450,30 +2457,36 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		String ref = getReference(id);
 		String currentUser = SessionManager.getCurrentSessionUserId();
-      String owner = "";
+		String owner = "";
       
-      try
-      {
+		try
+		{
  			ResourceProperties props = getProperties(id);
 			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
-      }
-      catch ( Exception e ) 
-      {
-         // PermissionException can be thrown if not RESOURCE_AUTH_READ
-         return false;
-      }
+		}
+		catch ( Exception e ) 
+		{
+			// PermissionException can be thrown if not RESOURCE_AUTH_READ
+			return false;
+		}
       
 		// check security to delete any collection
 		if ( unlockCheck(AUTH_RESOURCE_REMOVE_ANY, id) )
-         return true;
+			return true;
 
 		// check security to delete own collection
-		else if ( currentUser.equals(owner) && unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) )
-         return true;
+		else if ( currentUser != null && currentUser.equals(owner) && 
+			unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) )
+			return true;
+
+		// check security to delete own collection for anonymous users
+		else if ( currentUser == null && owner == null && 
+			unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) )
+			return true;
             
-      // otherwise not authorized
-      else
-         return false;
+		// otherwise not authorized
+		else
+			return false;
 
 	} // allowRemove
 
@@ -4001,6 +4014,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		if (resource == null) throw new InUseException(id);
 
 		resource.setEvent(EVENT_RESOURCE_WRITE);
+		
+		ThreadLocalManager.set(String.valueOf(resource), resource);
 
 		return resource;
 
@@ -4042,6 +4057,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		if (resource == null) throw new InUseException(id);
 
 		resource.setEvent(EVENT_RESOURCE_REMOVE);
+		
+		ThreadLocalManager.set(String.valueOf(resource), resource);
 
 		return resource;
 
@@ -4146,7 +4163,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		if (collection == null) throw new InUseException(id);
 	
 		collection.setEvent(EVENT_RESOURCE_WRITE);
-	
+		
+		ThreadLocalManager.set(String.valueOf(collection), collection);
+
 		return collection;
 	
 	} // editCollection
@@ -5985,13 +6004,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		List mySites = m_siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
 				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
 
-		// add in the user's myworkspace site, if we can find it
-		try
+		// add in the user's myworkspace site, if we can find it and if the user
+		// is not anonymous
+		String userId = SessionManager.getCurrentSessionUserId();
+		if ( userId != null )
 		{
-			mySites.add(m_siteService.getSite(m_siteService.getUserSiteId(SessionManager.getCurrentSessionUserId())));
-		}
-		catch (IdUnusedException e)
-		{
+			try
+			{
+				mySites.add(m_siteService.getSite(m_siteService.getUserSiteId(userId)));
+			}
+			catch (IdUnusedException e)
+			{
+			}
 		}
 
 		// check each one for dropbox and resources
@@ -8548,7 +8572,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
    					i.remove();
    				}
    			}
-   			else if (currentType != null && type.equals(ResourceProperties.FILE_TYPE))
+   			else if (currentType != null && type != null && type.equals(ResourceProperties.FILE_TYPE))
    			{
    				// this one is a structured object, get rid of it
    				i.remove();
@@ -8645,8 +8669,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return rv;
 		}
 
+		// Anonymous users do not get drop boxes
+		String userId = SessionManager.getCurrentSessionUserId();
+		if ( userId == null ) return rv;
+
 		// form the current user's dropbox collection within this site's
-		rv += StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()) + "/";
+		rv += StringUtil.trimToZero(userId) + "/";
 		return rv;
 	}
 
@@ -9000,24 +9028,26 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public Collection getGroupsWithRemovePermission(String collectionId)
 	{
 		Collection rv = new ArrayList();
-      String owner = "";
+		String owner = "";
 		String currentUser = SessionManager.getCurrentSessionUserId();
-		
-      try
-      {
+
+		try
+		{
  			ResourceProperties props = getProperties(collectionId);
 			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
-      }
-      catch ( Exception e ) 
-      {
+		}
+		catch ( Exception e ) 
+		{
 			// assume user is not owner
-      }
+		}
       
 		String refString = getReference(collectionId);
 		Reference ref = m_entityManager.newReference(refString);
       
 		Collection groups = null;
-      if ( currentUser.equals(owner) )
+		if ( currentUser != null && currentUser.equals(owner) )
+			groups = getGroupsAllowFunction(AUTH_RESOURCE_REMOVE_OWN, ref.getReference());
+		else if ( currentUser == null && owner == null )
 			groups = getGroupsAllowFunction(AUTH_RESOURCE_REMOVE_OWN, ref.getReference());
 		else
 			groups = getGroupsAllowFunction(AUTH_RESOURCE_REMOVE_ANY, ref.getReference());
@@ -9161,7 +9191,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * ContentEntity implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public abstract class BasicGroupAwareEdit implements GroupAwareEdit
+	public abstract class BasicGroupAwareEdit implements GroupAwareEdit, ThreadBound
 	{
 		/** Store the resource id */
 		protected String m_id = null;
@@ -9637,6 +9667,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *********************************************************************************************************************************************************************************************************************************************************/
 	public class BaseCollectionEdit extends BasicGroupAwareEdit implements ContentCollectionEdit, SessionBindingListener, SerializableEntity,  SerializableCollectionAccess
 	{
+		private boolean m_sessionBound = false;
 		/**
 		 * Construct with an id.
 		 * 
@@ -10382,10 +10413,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		public void valueBound(SessionBindingEvent event)
 		{
+			m_sessionBound = true;
 		}
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
+			m_sessionBound  = false;
 			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
@@ -10665,6 +10698,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_retractDate = retractDate;
 		}
 
+		public void unbind() {
+			if ( !m_sessionBound && m_active ) {
+				M_log.warn("Edit Object not closed correctly, Cancelling "+this.getId());
+				cancelCollection(this);
+			}			
+		}
+
 
 
 
@@ -10692,6 +10732,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		protected String m_filePath = null;
 
 		protected InputStream m_contentStream;
+
+		private boolean m_sessionBound = true;
 
 		/**
 		 * Construct.
@@ -11500,10 +11542,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		public void valueBound(SessionBindingEvent event)
 		{
+			m_sessionBound = true;
 		}
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
+			m_sessionBound  = false;
 			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
@@ -11819,6 +11863,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			m_retractDate = retractDate;
 		}
+		
+		
+		public void unbind() {
+			if ( !m_sessionBound && m_active ) {
+				M_log.warn("Edit Object not closed correctly, Cancelling "+this.getId());
+				cancelResource(this);
+			}			
+		}
 
 	} // BaseResourceEdit
 
@@ -12112,5 +12164,78 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return 0;
 	}
 
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		try
+		{
+			if(cleanup == true)
+			{
+				// Get the root collection
+				ContentCollection oCollection = getCollection(toContext);
+				
+				if(oCollection != null)
+				{
+					// Get the collection members from the old collection
+					List oResources = oCollection.getMemberResources();
+				
+					for (int i = 0; i < oResources.size(); i++)
+					{
+						// Get the original resource
+						Entity oResource = (Entity) oResources.get(i);
+					
+						String oId = oResource.getId();
+						
+						ResourceProperties oProperties = oResource.getProperties();
+						
+						boolean isCollection = false;
+						
+						try
+						{
+							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+						}
+						catch (Exception e)
+						{
+							M_log.debug("Get Folder Collection" + e);
+						}
+						
+						if (isCollection)
+						{
+							try
+							{
+								ContentCollectionEdit edit = editCollection(oId);
+						
+								m_storage.removeCollection(edit);
+							}
+							catch (Exception ee)
+							{
+								M_log.debug("remove folders resources" + ee);
+							}
+						}
+						else 
+						{
+							try
+							{
+								BaseResourceEdit edit = (BaseResourceEdit) editResourceForDelete(oId);
+											
+								m_storage.removeResource(edit);
+							}
+							catch (Exception ee)
+							{
+								M_log.debug("remove others resources" + ee);
+							}
+						}
+						
+					}
+					
+					
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.debug("BaseContentService Resources transferCopyEntities Error" + e);
+			}
+		transferCopyEntities(fromContext, toContext, ids);
+	}
 } // BaseContentService
 

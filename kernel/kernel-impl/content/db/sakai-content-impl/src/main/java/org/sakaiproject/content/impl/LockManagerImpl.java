@@ -98,7 +98,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 			return new org.sakaiproject.content.hbm.Lock();
 		}
 
-		if (expected == false)
+		if (expected == false && lock.isActive())
 		{
 			logger.warn("Lock not expected, but found anyway: " + assetId + ", " + qualifierId);
 		}
