@@ -30,6 +30,7 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.FormattedText;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -71,13 +72,14 @@ public class OptionValidator implements Validator {
 
 
 		Option option = (Option) obj;
-
+		String stripText = FormattedText.convertFormattedTextToPlaintext(option.getOptionText()).trim();
 		logger.debug("validating Option with id:" + option.getOptionId());
 		if (option.getStatus()!=null && (option.getStatus().equals("cancel") || option.getStatus().equals("delete")))
 			return;
 
 
-		if (option.getOptionText() == null || option.getOptionText().trim().length()==0) {
+		if (option.getOptionText() == null || option.getOptionText().trim().length()==0 ||
+				stripText == null || stripText.length()==0) {
 			logger.debug("OptionText is empty!");
 			errors.reject("option_empty","option empty");
 			return;
@@ -85,9 +87,10 @@ public class OptionValidator implements Validator {
 
 		//if where here option is not null or empty but could be something like "&nbsp;&nbsp;"
 		String text = option.getOptionText();
-
-
-		String check = text.substring(3, text.length());
+		
+		String check = "";
+		if (text.length() >3)
+			check = text.substring(3, text.length());
 
 		//if the only <p> tag is the one at the start we will trim off the start and end <p> tags
 		if (!org.sakaiproject.util.StringUtil.containsIgnoreCase(check, "<p>")) {
