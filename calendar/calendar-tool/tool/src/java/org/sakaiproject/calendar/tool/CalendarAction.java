@@ -1074,28 +1074,20 @@ extends VelocityPortletStateAction
 		CalendarActionState state,
 		SessionState sstate)
 		{			
-			MergedList calendarList = new MergedList();
-			
-			EntryProvider entryProvider = new EntryProvider();
-			
-			calendarList.loadChannelsFromDelimitedString(isOnWorkspaceTab(),
-						  entryProvider,
-						  StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()),
-
-						  calendarList.getChannelReferenceArrayFromDelimitedString(state
-									 .getPrimaryCalendarReference(), portlet
-									 .getPortletConfig().getInitParameter(
-												PORTLET_CONFIG_PARM_MERGED_CALENDARS)),
-						  SecurityService.isSuperUser(), ToolManager.getCurrentPlacement().getContext());
-			
+			// load all calendar channels (either primary or merged calendars)
+			MergedList calendarList = 
+				loadChannels( state.getPrimaryCalendarReference(), 
+								  portlet.getPortletConfig().getInitParameter(PORTLET_CONFIG_PARM_MERGED_CALENDARS),
+								  new EntryProvider() );
+		
 			// Place this object in the context so that the velocity template
 			// can get at it.
 			context.put(mergedCalendarsCollection, calendarList);
 			context.put("tlang",rb);
 			context.put("config",configProps);
 			sstate.setAttribute(
-			CalendarAction.SSTATE_ATTRIBUTE_MERGED_CALENDARS,
-			calendarList);
+									  CalendarAction.SSTATE_ATTRIBUTE_MERGED_CALENDARS,
+									  calendarList);
 		}
 		
 		/**
@@ -1179,12 +1171,27 @@ extends VelocityPortletStateAction
 			
 			// update the tool config
 			Placement placement = ToolManager.getCurrentPlacement();
-			if (mergedCalendarList != null)
+			
+			// myWorkspace is special (a null mergedCalendar list defaults to all channels),
+			// so we add the primary calendar here to indicate no other channels are wanted
+			if (mergedCalendarList != null && isOnWorkspaceTab())
+			{
+				String channelRef = mergedCalendarList.getDelimitedChannelReferenceString();
+				if (StringUtil.trimToNull(channelRef) == null )
+					channelRef = state.getPrimaryCalendarReference();
+				placement.getPlacementConfig().setProperty(
+											 PORTLET_CONFIG_PARM_MERGED_CALENDARS, channelRef );
+			}
+			
+			// Otherwise, just set the list as specified
+			else if (mergedCalendarList != null && !isOnWorkspaceTab())
 			{
 				placement.getPlacementConfig().setProperty(
-				PORTLET_CONFIG_PARM_MERGED_CALENDARS,
-				mergedCalendarList.getDelimitedChannelReferenceString());
+											 PORTLET_CONFIG_PARM_MERGED_CALENDARS,
+											 mergedCalendarList.getDelimitedChannelReferenceString());
 			}
+
+			// handle the case of no merge calendars			
 			else
 			{
 				placement.getPlacementConfig().remove(PORTLET_CONFIG_PARM_MERGED_CALENDARS);
@@ -1193,8 +1200,6 @@ extends VelocityPortletStateAction
 			// commit the change
 			saveOptions();
 			
-			updateObservationOfChannel(mergedCalendarList, runData, sstate, state);
-
 			// Turn the observer back on.
 			enableObserver(sstate, true);
 			
@@ -1899,9 +1904,6 @@ extends VelocityPortletStateAction
 				saveOptions();
 			}
 
-			// updateObservationOfChannel(mergedCalendarList, runData, sstate,
-			// state);
-
 			// Turn the observer back on.
 			enableObserver(sstate, true);
 
@@ -2232,16 +2234,9 @@ extends VelocityPortletStateAction
 		 * Returns true if the user is allowed to merge events from different calendars
 		 * within the default channel.
 		 */
-		static public boolean allowMergeCalendars(String calendarReference, boolean isOnWorkspaceTab)
+		static public boolean allowMergeCalendars(String calendarReference)
 		{
-			// Don't allow merging on the user's own tab.  This currently only works for groups.
-			// Note: if this is really what you want, then check if the "id" (really a reference) is to a user or group site
-			//			(for now, check that the id is "group-" -ggolden
-			//
-			// I wasn't quite sure how to check if the calendar reference that was formerly
-			// passed was a user or a group site.	This seems to do the job, but I'm leaving
-			// Glenn's comment intact in case this needs to be revistied.
-			return !isOnWorkspaceTab && CalendarService.allowMergeCalendar(calendarReference);
+			return CalendarService.allowMergeCalendar(calendarReference);
 		}
 		
 		/**
@@ -2286,8 +2281,6 @@ extends VelocityPortletStateAction
 	private final static String SSTATE_ATTRIBUTE_SUBSCRIPTIONS_SERVICE = "calendarSubscriptionsService";
 	private final static String SSTATE_ATTRIBUTE_SUBSCRIPTIONS = "calendarSubscriptions";
 	private final static String SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS = "addCalendarSubscriptions";
-	//private final static String SSTATE_ATTRIBUTE_SUBSCRIPTIONS_INTCALENDARS = "institutionalCalendarSubscriptions";
-	//private final static String SSTATE_ATTRIBUTE_SUBSCRIPTIONS_USERCALENDARS = "userCalendarSubscriptions";
 
 	private final static String STATE_NEW = "new";
 	
@@ -2313,8 +2306,7 @@ extends VelocityPortletStateAction
 	private final static String PAGE_ADDFIELDS = "addFields";
 	
 	/** The flag name and value in state to indicate an update to the portlet is needed. */
-	private final static String SSTATE_ATTRIBUTE_MERGED_CALENDARS =
-	"mergedCalendars";
+	private final static String SSTATE_ATTRIBUTE_MERGED_CALENDARS = "mergedCalendars";
 	
 	// String constants for user interface states
 	private final static String STATE_MERGE_CALENDARS = "mergeCalendars";
@@ -2335,14 +2327,11 @@ extends VelocityPortletStateAction
 	private CalendarSubscriptionsPage calendarSubscriptionsPage =	new CalendarSubscriptionsPage();
 	
 	/**
-	 * See if the current tab is the workspace tab.
+	 * See if the current tab is the workspace tab (i.e. user site)
 	 * @return true if we are currently on the "My Workspace" tab.
 	 */
 	private static boolean isOnWorkspaceTab()
 	{
-		// TODO: return to this question! -ggolden
-		// return false;
-		// we'll really answer the question - is the current request's site a user site?
 		return SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 	}
 	
@@ -2354,48 +2343,60 @@ extends VelocityPortletStateAction
 	}	 // getStateClass
 	
 	/**
+	 ** loadChannels -- load specified primaryCalendarReference 
+	 ** or merged calendars if initMergeList is defined
+	 **/
+	private MergedList loadChannels( String primaryCalendarReference, 
+												String initMergeList,
+												MergedList.EntryProvider entryProvider )
+	{
+		MergedList mergedCalendarList = new MergedList();		
+		String[] channelArray = null;
+		
+		// Figure out the list of channel references that we'll be using.
+		// MyWorkspace is special: if not superuser, and not otherwise defined, get all channels
+		if ( isOnWorkspaceTab()	 && !SecurityService.isSuperUser() && initMergeList == null )
+			 channelArray = mergedCalendarList.getAllPermittedChannels(new CalendarChannelReferenceMaker());
+		else
+			channelArray = mergedCalendarList.getChannelReferenceArrayFromDelimitedString(
+												primaryCalendarReference, initMergeList );
+												
+		if (entryProvider == null )
+		{
+			entryProvider = new MergedListEntryProviderFixedListWrapper(
+										  new EntryProvider(), 
+										  primaryCalendarReference,
+										  channelArray,
+										  new CalendarReferenceToChannelConverter());
+		}
+
+		mergedCalendarList.loadChannelsFromDelimitedString(
+								isOnWorkspaceTab(),
+								false,
+								entryProvider,
+								StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()),
+								channelArray, 
+								SecurityService.isSuperUser(),
+								ToolManager.getCurrentPlacement().getContext());
+								
+		return mergedCalendarList;
+	}
+	
+	/**
 	 * Gets an array of all the calendars whose events we can access.
 	 */
 	private List getCalendarReferenceList(VelocityPortlet portlet, String primaryCalendarReference, boolean isOnWorkspaceTab)
 	{
-		MergedList mergedCalendarList = new MergedList();
-
-		// TODO - MERGE FIX
-		String[] channelArray = null;
+		// load all calendar channels (either primary or merged calendars)
+		MergedList mergedCalendarList = 
+			loadChannels( primaryCalendarReference, 
+							  portlet.getPortletConfig().getInitParameter(PORTLET_CONFIG_PARM_MERGED_CALENDARS),
+							  null );
 		
-		// Figure out the list of channel references that we'll be using.
-		// If we're on the workspace tab, we get everything.
-		  // Don't do this if we're the super-user, since we'd be
-		  // overwhelmed.
-		if ( isOnWorkspaceTab()	 && !SecurityService.isSuperUser() )
-		  {
-			 channelArray = mergedCalendarList
-						  .getAllPermittedChannels(new CalendarChannelReferenceMaker());
-		  }
-		else
-		{
-			channelArray = mergedCalendarList
-				.getChannelReferenceArrayFromDelimitedString(
-						  primaryCalendarReference, portlet.getPortletConfig()
-									 .getInitParameter(
-												PORTLET_CONFIG_PARM_MERGED_CALENDARS));
-		}
-
-
-		  mergedCalendarList
-					 .loadChannelsFromDelimitedString(isOnWorkspaceTab,
-								new MergedListEntryProviderFixedListWrapper(
-										  new EntryProvider(), primaryCalendarReference,
-										  channelArray,
-										  new CalendarReferenceToChannelConverter()),
-						StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()),
-								channelArray, SecurityService.isSuperUser(),
-								ToolManager.getCurrentPlacement().getContext());
-
 		// add external calendar subscriptions
-        List referenceList = mergedCalendarList.getReferenceList();
-        Set subscriptionRefList = ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(referenceList);
-        referenceList.addAll(subscriptionRefList);
+      List referenceList = mergedCalendarList.getReferenceList();
+      Set subscriptionRefList = ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(referenceList);
+      referenceList.addAll(subscriptionRefList);
         
 		return referenceList;
 	}
@@ -3066,8 +3067,7 @@ extends VelocityPortletStateAction
 				state.getSelectedCalendarReference(),
 				state.getCalendarEventId()),
 			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference(),
-				isOnWorkspaceTab()),
+				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowModifyCalendarProperties(
 				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowImport(
@@ -3211,8 +3211,7 @@ extends VelocityPortletStateAction
 				state.getSelectedCalendarReference(),
 				state.getCalendarEventId()),
 			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference(),
-				isOnWorkspaceTab()),
+				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowModifyCalendarProperties(
 				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowImport(
@@ -3324,8 +3323,7 @@ extends VelocityPortletStateAction
 				state.getSelectedCalendarReference(),
 				state.getCalendarEventId()),
 			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference(),
-				isOnWorkspaceTab()),
+				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowModifyCalendarProperties(
 				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowImport(
@@ -3658,8 +3656,7 @@ extends VelocityPortletStateAction
 				state.getSelectedCalendarReference(),
 				state.getCalendarEventId()),
 			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference(),
-				isOnWorkspaceTab()),
+				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowModifyCalendarProperties(
 				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowImport(
@@ -3902,8 +3899,7 @@ extends VelocityPortletStateAction
 				state.getSelectedCalendarReference(),
 				state.getCalendarEventId()),
 			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference(),
-				isOnWorkspaceTab()),
+				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowModifyCalendarProperties(
 				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowImport(
@@ -7425,8 +7421,7 @@ extends VelocityPortletStateAction
 				state.getSelectedCalendarReference(),
 				state.getCalendarEventId()),
 			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference(),
-				isOnWorkspaceTab()),
+				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowModifyCalendarProperties(
 				state.getPrimaryCalendarReference()),
 			CalendarPermissions.allowImport(
@@ -7632,12 +7627,9 @@ extends VelocityPortletStateAction
 		bar.add( new MenuEntry(rb.getString("java.new"), null, allow_new, MenuItem.CHECKED_NA, "doNew") );
 		
 		//
-		// Don't allow the user to customize the "My Workspace" tab.
+		// See if we are allowed to merge items.
 		//
-		if ( !isOnWorkspaceTab() )
-		{
-			bar.add( new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID()) );
-		}
+		bar.add( new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID()) );
 
 		// See if we are allowed to import items.
 		if ( allow_import_export )
@@ -8004,49 +7996,16 @@ extends VelocityPortletStateAction
 
 		setPrimaryCalendarReferenceInState(portlet, calState);
 
-		//String channel = StringUtil.trimToNull(config.getInitParameter(PARAM_CHANNEL));
 		// setup the observer to notify our main panel
 		if (state.getAttribute(STATE_INITED) == null)
 		{
 			state.setAttribute(STATE_INITED,STATE_INITED);
 			
-			MergedList mergedCalendarList = new MergedList();
-
-				String[] channelArray = null;
-
-			// Figure out the list of channel references that we'll be using.
-			// If we're on the workspace tab, we get everything.
-				// Don't do this if we're the super-user, since we'd be
-				// overwhelmed.
-				if ( isOnWorkspaceTab()	 && !SecurityService.isSuperUser() )
-				{
-				 channelArray = mergedCalendarList
-								.getAllPermittedChannels(new CalendarChannelReferenceMaker());
-				}
-				else
-				{
-					 // Get the list of merged calendar sources.
-				// TODO - MERGE FIX
-					 channelArray = mergedCalendarList
-								.getChannelReferenceArrayFromDelimitedString(calState
-										  .getPrimaryCalendarReference(), portlet
-										  .getPortletConfig().getInitParameter(
-													 PORTLET_CONFIG_PARM_MERGED_CALENDARS));
-				}
-
-
-				mergedCalendarList.loadChannelsFromDelimitedString(
-						  isOnWorkspaceTab(),
-						  new MergedListEntryProviderFixedListWrapper(
-									 new EntryProvider(), calState
-												.getPrimaryCalendarReference(),
-									 channelArray,
-									 new CalendarReferenceToChannelConverter()),
-					StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()), channelArray,
-						  SecurityService.isSuperUser(), ToolManager.getCurrentPlacement().getContext());
-
-			// make sure the observer is in sync with state
-			updateObservationOfChannel(mergedCalendarList, rundata, state, calState);
+			// load all calendar channels (either primary or merged calendars)
+			MergedList mergedCalendarList = 
+				loadChannels( calState.getPrimaryCalendarReference(), 
+								  portlet.getPortletConfig().getInitParameter(PORTLET_CONFIG_PARM_MERGED_CALENDARS),
+								  null );
 		}
 		
 		// Initialize configuration properties
@@ -8064,24 +8023,6 @@ extends VelocityPortletStateAction
 		}
 		
 	} // initState
-
-	/**
-	 * Setup our observer to be watching for change events for our channel.
-	 */
-	private void updateObservationOfChannel(MergedList mergedCalendarList, RunData runData, SessionState state, CalendarActionState calState)
-	{
-//		String peid = ((JetspeedRunData) runData).getJs_peid();
-//		
-//		EventsObservingCourier observer =
-//		(EventsObservingCourier) state.getAttribute(STATE_OBSERVER);
-//
-//		addMergedCalendarsToObserver(mergedCalendarList, calState, observer);
-//
-//		// the delivery location for this tool
-//		String deliveryId = clientWindowId(state, peid);
-//		observer.setDeliveryId(deliveryId);
-
-	} // updateObservationOfChannel
 
 	/**
 	  *  Takes an array of tokens and converts into separator-separated string.
