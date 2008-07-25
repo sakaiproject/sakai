@@ -211,6 +211,8 @@ public class MergedList extends ArrayList
 	}
 	
 	/**
+	 * loadChannelsFromDelimitedString
+	 *
 	 * Selects and loads channels from a list provided by the entryProvider
 	 * parameter.	The algorithm for loading channels is a bit complex, and
 	 * depends on whether or not the user is currently in their "My Workspace", etc.
@@ -229,10 +231,41 @@ public class MergedList extends ArrayList
 	 * made not to tinker with the logic, so much as to reduce the set of data
 	 * that the function had to process.
 	 * 
+	 * @param isOnWorkspaceTab - true if this is the user's my workspace 
+	 * @param entryProvider - provides available channels for load/merge
+	 * @param userId - current userId
+	 * @param channelArray - array of selected channels for load/merge
+	 * @param isSuperUser - if true, then don't merge all available channels
+	 * @param currentSiteId - current worksite
 	 */
-	public void loadChannelsFromDelimitedString(boolean isOnWorkspaceTab,
-				EntryProvider entryProvider, String userId, String[] channelArray,
-				boolean isSuperUser, String currentSiteId)
+	public void loadChannelsFromDelimitedString(
+			boolean isOnWorkspaceTab,
+			EntryProvider entryProvider, String userId, String[] channelArray,
+			boolean isSuperUser, String currentSiteId)
+				
+	{
+		loadChannelsFromDelimitedString( isOnWorkspaceTab, true, entryProvider,
+													userId, channelArray, isSuperUser, currentSiteId );
+	}
+	
+	/**
+	 * loadChannelsFromDelimitedString
+	 *
+	 * (see description on above method)
+	 *
+	 * @param isOnWorkspaceTab - true if this is the user's my workspace 
+	 * @param mergeAllOnWorkspaceTab - if true, merge all channels in channelArray
+	 * @param entryProvider - provides available channels for load/merge
+	 * @param userId - current userId
+	 * @param channelArray - array of selected channels for load/merge
+	 * @param isSuperUser - if true, then don't merge all available channels
+	 * @param currentSiteId - current worksite
+	 */
+	public void loadChannelsFromDelimitedString(
+			boolean isOnWorkspaceTab,
+			boolean mergeAllOnWorkspaceTab,
+			EntryProvider entryProvider, String userId, String[] channelArray,
+			boolean isSuperUser, String currentSiteId)
 	{
 		// Remove any initial list contents.
 		this.clear();
@@ -265,22 +298,21 @@ public class MergedList extends ArrayList
 			// be shown to the user.
 			boolean hidden = false;
 
-			// If true, this is the channel associated with the current
-			// user.
-			boolean thisIsTheUsersMyWorkspaceChannel = false;
-
 			// If true, this is a user channel.
 			boolean thisIsUserChannel = entryProvider.isUserChannel(channel);
 
 			// If true, this is a "special" site.
 			boolean isSpecialSite = entryProvider.isSpecialSite(channel);
 
+			// If true, this is the channel associated with the current
+			// user.
+			boolean thisIsTheUsersMyWorkspaceChannel = false;
 			if ( thisIsUserChannel
 						  && userId.equals(
 									 entryProvider.getSiteUserId(channel)) )
-				{
-					 thisIsTheUsersMyWorkspaceChannel = true;
-				}
+			{
+				 thisIsTheUsersMyWorkspaceChannel = true;
+			}
 
 			//
 			// Don't put the channels of other users in the merge list.
@@ -322,12 +354,13 @@ public class MergedList extends ArrayList
 					}
 					else
 					{
-						// Set it to merged if the channel was specified in the merged
-						// channel list that we got from the portlet configuration.
-						if (isOnWorkspaceTab)
+						// merge all sites if onWorkspaceTab and mergeAll is enabled
+						if (isOnWorkspaceTab && mergeAllOnWorkspaceTab)
 						{
 							merged = true;
 						}
+						// Set it to merged if the channel was specified in the merged
+						// channel list that we got from the portlet configuration.
 						else
 						{
 							merged =
@@ -351,50 +384,49 @@ public class MergedList extends ArrayList
 			{
 				String siteDisplayName = "";
 				
-				// There is no point in getting the display name for hidden
-					 // items.
-					 if (!hidden)
+				// There is no point in getting the display name for hidden items
+				if (!hidden)
+				{
+					 String displayNameProperty = entryProvider.getProperties(
+								channel).getProperty(
+								entryProvider.getProperties(channel)
+										  .getNamePropDisplayName());
+
+					 // If the channel has a displayName property and use that
+					 // instead.
+					 if (displayNameProperty != null
+								&& displayNameProperty.length() != 0)
 					 {
-						  String displayNameProperty = entryProvider.getProperties(
-									 channel).getProperty(
-									 entryProvider.getProperties(channel)
-												.getNamePropDisplayName());
+						  siteDisplayName = displayNameProperty;
+					 } 
+					 else
+					 {
+						  String channelName = "";
 
-						  // If the channel has a displayName property and use that
-						  // instead.
-						  if (displayNameProperty != null
-									 && displayNameProperty.length() != 0)
+						  Site site = entryProvider.getSite(channel);
+
+						  if (site != null)
 						  {
-								siteDisplayName = displayNameProperty;
-						  } 
-						  else
-						  {
-								String channelName = "";
+								boolean isCurrentSite = currentSiteId.equals(site.getId());
 
-								Site site = entryProvider.getSite(channel);
-
-								if (site != null)
+								//
+								// Hide and force the current site to be merged.
+								//
+								if (isCurrentSite)
 								{
-									 boolean isCurrentSite = currentSiteId.equals(site.getId());
-
-									 //
-									 // Hide and force the current site to be merged.
-									 //
-									 if (isCurrentSite)
-									 {
-										  hidden = true;
-										  merged = true;
-									 } 
-									 else
-									 {
-										  // Else just get the name.
-										  channelName = site.getTitle();
-										  siteDisplayName = channelName + " ("
-													 + site.getId() + ") ";
-									 }
+									 hidden = true;
+									 merged = true;
+								} 
+								else
+								{
+									 // Else just get the name.
+									 channelName = site.getTitle();
+									 siteDisplayName = channelName + " ("
+												+ site.getId() + ") ";
 								}
 						  }
 					 }
+				}
 
 				this.add(
 					new MergedChannelEntryImpl(
