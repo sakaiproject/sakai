@@ -1,0 +1,87 @@
+/**
+ * $Id$
+ * $URL$
+ * CustomAction.java - entity-broker - Jul 25, 2008 2:49:39 PM - azeckoski
+ **************************************************************************
+ * Copyright (c) 2008 Aaron Zeckoski
+ * Licensed under the Apache License, Version 2.0
+ * 
+ * A copy of the Apache License has been included in this 
+ * distribution and is available at: http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ * Aaron Zeckoski (azeckoski @ gmail.com) (aaronz @ vt.edu) (aaron @ caret.cam.ac.uk)
+ */
+
+package org.sakaiproject.entitybroker.entityprovider.extension;
+
+import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+
+
+/**
+ * This defines a custom entity action,
+ * this will be used to define which custom actions are allowed to be performed on
+ * entities or collections of entities
+ * 
+ * @author Aaron Zeckoski (azeckoski @ gmail.com)
+ */
+public class CustomAction {
+
+   /**
+    * The action key which will be used to trigger the action (e.g. promote),
+    * will be triggered by a URL like so: /user/aaronz/promote
+    */
+   public String action;
+   /**
+    * Must match one of the VIEW constants from {@link EntityView}<br/>
+    * The view type which this action goes with, this
+    * roughly translates to the GET/POST/PUT/DELETE in http<br/>
+    * e.g. GET /user/action would be {@link EntityView#VIEW_LIST}
+    * while POST /user/aaronz/action would be {@link EntityView#VIEW_SHOW}
+    */
+   public String viewKey = EntityView.VIEW_SHOW;
+
+   /**
+    * Construct a custom action for entities
+    * @param action key which will be used to trigger the action (e.g. promote),
+    * will be triggered by a URL like so: /user/aaronz/promote, <br/>
+    * this cannot be null or empty string
+    * @param viewKey this is the view type which this action goes with, this
+    * roughly translates to the GET/POST/PUT/DELETE in http<br/>
+    * e.g. GET /user/action would be {@link EntityView#VIEW_LIST}
+    * while POST /user/aaronz/action would be {@link EntityView#VIEW_SHOW}<br/>
+    * this must match one of the VIEW constants from {@link EntityView}
+    */
+   public CustomAction(String action, String viewKey) {
+      if (action == null || "".equals(action)) {
+         throw new IllegalArgumentException("action must not be null or empty string");
+      }
+      this.action = action;
+      TemplateParseUtil.validateTemplateKey(viewKey);
+      this.viewKey = viewKey;
+   }
+
+   /**
+    * @return a copy of this object
+    */
+   public CustomAction copy() {
+      return copy(this);
+   }
+
+   /**
+    * @param ca
+    * @return a copy of the supplied object
+    */
+   public static CustomAction copy(CustomAction ca) {
+      if (ca == null) {
+         throw new IllegalArgumentException("action to copy must not be null");
+      }
+      return new CustomAction(ca.action, ca.viewKey);
+   }
+
+   @Override
+   public String toString() {
+      return this.action + ":" + this.viewKey;
+   }
+
+}

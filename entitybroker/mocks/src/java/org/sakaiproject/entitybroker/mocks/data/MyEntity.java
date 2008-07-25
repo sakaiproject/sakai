@@ -4,6 +4,7 @@
 
 package org.sakaiproject.entitybroker.mocks.data;
 
+
 /**
  * This is a sample entity object for testing, it is a bean with no default values and comparison
  * overrides
@@ -26,6 +27,12 @@ public class MyEntity {
    }
    
    public MyEntity(String stuff, int number) {
+      this.stuff = stuff;
+      this.number = number;
+   }
+
+   public MyEntity(String id, String stuff, int number) {
+      this.id = id;
       this.stuff = stuff;
       this.number = number;
    }
@@ -80,6 +87,25 @@ public class MyEntity {
 
    public void setNumber(int number) {
       this.number = number;
+   }
+
+   /**
+    * @return a copy of this object
+    */
+   public MyEntity copy() {
+      return copy(this);
+   }
+
+   /**
+    * @return a copy of the supplied object
+    */
+   public static MyEntity copy(MyEntity me) {
+      if (me == null) {
+         throw new IllegalArgumentException("entity to copy must not be null");
+      }
+      MyEntity togo = new MyEntity(me.id, me.stuff, me.number);
+      togo.extra = me.extra;
+      return togo;
    }
 
 }

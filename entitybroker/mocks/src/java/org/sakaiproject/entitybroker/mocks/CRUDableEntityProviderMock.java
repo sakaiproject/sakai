@@ -45,7 +45,7 @@ public class CRUDableEntityProviderMock extends EntityProviderMock implements Co
    public CRUDableEntityProviderMock(String prefix, String[] ids) {
       super(prefix);
       for (int i = 0; i < ids.length; i++) {
-         myEntities.put(ids[i], new MyEntity(ids[i], "aaron" + i) );
+         myEntities.put(ids[i], new MyEntity(ids[i], "aaron" + i, i) );
       }
    }
 

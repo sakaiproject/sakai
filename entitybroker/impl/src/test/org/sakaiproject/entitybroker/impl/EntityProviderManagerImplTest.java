@@ -14,12 +14,15 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
@@ -27,7 +30,11 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
+import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 
 /**
@@ -255,6 +262,15 @@ public class EntityProviderManagerImplTest extends TestCase {
       entityProviderManager.unregisterEntityProviderByPrefix(TestData.PREFIX1);
       assertNull(entityProviderManager.getProviderByPrefix(TestData.PREFIX1));
 
+      entityProviderManager.unregisterEntityProviderByPrefix(TestData.PREFIX7);
+      assertNull(entityProviderManager.getProviderByPrefix(TestData.PREFIX7));
+
+      entityProviderManager.unregisterEntityProviderByPrefix(TestData.PREFIX8);
+      assertNull(entityProviderManager.getProviderByPrefix(TestData.PREFIX8));
+
+      entityProviderManager.unregisterEntityProviderByPrefix(TestData.PREFIXA);
+      assertNull(entityProviderManager.getProviderByPrefix(TestData.PREFIXA));
+
       // test unregistering non registered EP
       entityProviderManager.unregisterEntityProviderByPrefix(TestData.PREFIX9);
 
@@ -290,6 +306,76 @@ public class EntityProviderManagerImplTest extends TestCase {
       } catch (NullPointerException e) {
          assertNotNull(e);
       }
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#setCustomActions(java.lang.String, java.util.Map)}.
+    */
+   public void testSetCustomActions() {
+      Map<String, CustomAction> actions = new HashMap<String, CustomAction>();
+      actions.put("test", new CustomAction("test", EntityView.VIEW_SHOW));
+      entityProviderManager.setCustomActions(TestData.PREFIXA1, actions);
+      assertNotNull(entityProviderManager.getCustomAction(TestData.PREFIXA1, "test"));
+
+      try {
+         entityProviderManager.setCustomActions(TestData.PREFIX2, actions);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#getCustomAction(java.lang.String, java.lang.String)}.
+    */
+   public void testGetCustomAction() {
+      assertNotNull( entityProviderManager.getCustomAction(TestData.PREFIXA1, "xxx") );
+      assertNotNull( entityProviderManager.getCustomAction(TestData.PREFIXA1, "double") );
+
+      assertNull( entityProviderManager.getCustomAction(TestData.PREFIXA1, "apple") );
+      assertNull( entityProviderManager.getCustomAction(TestData.PREFIX2, "action") );
+      assertNull( entityProviderManager.getCustomAction(TestData.PREFIX5, "action") );
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#removeCustomActions(java.lang.String)}.
+    */
+   public void testRemoveCustomActions() {
+      assertNotNull( entityProviderManager.getCustomAction(TestData.PREFIXA1, "xxx") );
+      entityProviderManager.removeCustomActions(TestData.PREFIXA1);
+      assertNull( entityProviderManager.getCustomAction(TestData.PREFIXA1, "xxx") );      
+   }
+
+   public void testCustomActions() {
+      ActionsEntityProviderMock aep = td.entityProviderA1;
+
+      // check double operation works
+      MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+      int num = me.getNumber();
+      ActionReturn ar = (ActionReturn) aep.doubleAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+      MyEntity doubleMe = (MyEntity) ar.entityData;
+      assertEquals(doubleMe.getNumber(), num * 2);
+      assertEquals(me.getId(), doubleMe.getId());
+
+      // make sure it works twice
+      ar = (ActionReturn) aep.doubleAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+      doubleMe = (MyEntity) ar.entityData;
+      assertEquals(doubleMe.getNumber(), num * 2);
+
+      // test xxx operation
+      MyEntity me1 = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+      assertFalse("xxx".equals(me1.extra));
+      assertFalse("xxx".equals(me1.getStuff()));
+      aep.xxxAction( new EntityReference(TestData.REFA1) );
+      MyEntity xxxMe = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+      assertEquals(me1.getId(), xxxMe.getId());
+      assertTrue("xxx".equals(xxxMe.extra));
+      assertTrue("xxx".equals(xxxMe.getStuff()));
+
+      // test clear
+      assertEquals(2, aep.myEntities.size());
+      aep.executeActions(new EntityView(new EntityReference(TestData.PREFIXA1, ""), EntityView.VIEW_NEW, null), "clear", null);
+      assertEquals(0, aep.myEntities.size());      
    }
 
 }

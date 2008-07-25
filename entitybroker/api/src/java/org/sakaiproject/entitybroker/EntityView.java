@@ -41,28 +41,37 @@ public class EntityView {
    public static final String ID = "id";
 
    /**
-    * Defines the view for the "list" operation,
-    * access a list of all entities of a type (possibly filtered by search params)
+    * Defines the view for the "list" (index) or collection operation,
+    * access a list/collection of all entities of a type (possibly filtered by search params),
+    * represents a GET to the entity space/collection,
+    * also indicates an action related to reading a collection of entities
     */
    public static final String VIEW_LIST = "list";
    /**
     * Defines the view for the "show" (read) operation,
-    * access a view of an entity OR POST (CRUD) operations related to a record
+    * access data or a view of an entity,
+    * represents a GET to a specific entity,
+    * also indicates an action related to reading a specific entity
     */
    public static final String VIEW_SHOW = "show";
    /**
     * Defines the view for the "new" (create) operation,
-    * access a form for creating a new record
+    * create a new record or access a form for creating a new record,
+    * represents a POST or PUT to the entity space/collection,
+    * also indicates an action related to writing a collection of entities
     */
    public static final String VIEW_NEW  = "new";
    /**
-    * Defines the view for the "edit" operation,
-    * access the data to modify a record
+    * Defines the view for the "edit" (update) operation,
+    * update an entity or access a form for updating an entity,
+    * represents a POST or PUT to a specific entity,
+    * also indicates an action related to writing a specific entity
     */
    public static final String VIEW_EDIT = "edit";
    /**
-    * Defines the view for the "delete" operation,
-    * access a form for removing a record
+    * Defines the view for the "delete" (destroy) operation,
+    * remove an entity or access a form for removing an entity,
+    * represents a DELETE to a specific entity
     */
    public static final String VIEW_DELETE = "delete";
 
@@ -189,7 +198,7 @@ public class EntityView {
     * @param segments a map of replaceable keys (e.g. {@link #PREFIX}) to values,
     * the replaceable variable names -> values (e.g. "prefix" -> "myPrefix"),
     * must contain at LEAST a key for the prefix (use constant {@link #PREFIX}) which is not set to null
-    * @param extension an optional extension related to this view (e.g. xml), do not include the period,
+    * @param extension (optional) format extension related to this view (e.g. xml), do not include the period,
     * leave this null for no extension
     */
    public EntityView(String viewKey, Map<String, String> segments, String extension) {
@@ -199,6 +208,28 @@ public class EntityView {
       }
       TemplateParseUtil.validateTemplateKey(viewKey);
       populateInternals(viewKey, segments, extension);
+   }
+
+   /**
+    * Construct an entity view based on a reference, view, and format extension
+    * 
+    * @param ref an EntityReference object which represents a unique entity reference
+    * @param viewKey (optional) a key which uniquely identifies a view, 
+    * from the set of template keys {@link #PARSE_TEMPLATE_KEYS}
+    * @param extension (optional) format extension related to this view (e.g. xml), do not include the period,
+    * leave this null for no extension
+    */
+   public EntityView(EntityReference ref, String viewKey, String extension) {
+      setEntityReference(ref);
+      if (viewKey == null) {
+         if (this.entityReference.getId() == null) {
+            viewKey = VIEW_LIST;
+         } else {
+            viewKey = VIEW_SHOW;
+         }
+      }
+      setViewKey(viewKey);
+      setExtension(extension);
    }
 
    /**
