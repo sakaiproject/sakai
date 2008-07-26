@@ -1602,6 +1602,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		context.put("subject", subject);
 		context.put("body", body);
 		context.put("user", UserDirectoryService.getCurrentUser());
+		context.put("newAnn", (state.getIsNewAnnouncement()) ? "true" : "else");
 
 		// Set date
 		AnnouncementMessageEdit edit = state.getEdit();
