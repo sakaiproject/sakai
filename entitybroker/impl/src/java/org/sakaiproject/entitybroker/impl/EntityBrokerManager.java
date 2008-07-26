@@ -17,6 +17,7 @@ package org.sakaiproject.entitybroker.impl;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,13 +26,14 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 
@@ -53,8 +55,11 @@ public class EntityBrokerManager {
    protected static final String DIRECT = "/direct";
    protected static final String POST_METHOD = "_method";
 
-   private EntityProviderManager entityProviderManager;
-   public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
+   /**
+    * This has to be the impl so we can get to the custom actions methods
+    */
+   private EntityProviderManagerImpl entityProviderManager;
+   public void setEntityProviderManager(EntityProviderManagerImpl entityProviderManager) {
       this.entityProviderManager = entityProviderManager;
    }
 
@@ -232,6 +237,15 @@ public class EntityBrokerManager {
       }
       return entity;
    }
+
+   /**
+    * Handles the execution of custom actions based on a request for execution
+    */
+   public ActionReturn handleCustomActionExecution(EntityView entityView, String action, Map<String, Object> actionParams) {
+      // TODO
+      throw new UnsupportedOperationException();
+   }
+
 
    /**
     * Get the list of entities based on a reference and supplied search,

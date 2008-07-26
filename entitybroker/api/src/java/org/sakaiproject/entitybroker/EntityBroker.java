@@ -24,6 +24,7 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
@@ -213,5 +214,21 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * @throws EncodingException is there is failure encoding the input
     */
    public Object translateInputToEntity(String reference, String format, InputStream input);
+
+   /**
+    * This will execute a custom action for an entity or space/collection of entities<br/>
+    * 
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optional segments
+    * @param action key which will be used to trigger the action (e.g. promote, double, photo),
+    * can be triggered by a URL like so: /user/aaronz/promote
+    * @param requestValues (optional) this is an array which contains passed in action params,
+    * can be left blank if there are no custom params or this action
+    * @return an {@link ActionReturn} which contains entity data or binary/string data OR null if there is no return for this action
+    * @throws UnsupportedOperationException if there is no action with this key for this entity
+    * @throws IllegalArgumentException if there are required params that are missing or invalid
+    * @throws IllegalStateException if the action cannot be performed for some reason
+    */
+   ActionReturn executeCustomAction(String reference, String action, Map<String, Object> actionParams);
 
 }

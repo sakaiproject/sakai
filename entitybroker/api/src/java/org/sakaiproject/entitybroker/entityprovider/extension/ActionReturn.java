@@ -15,6 +15,7 @@
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
 import java.io.OutputStream;
+import java.util.List;
 
 
 /**
@@ -44,9 +45,13 @@ public class ActionReturn {
     */
    public String outputString;
    /**
-    * An entity object or List of entities to return, leave as null if not used
+    * An entity object to return, leave as null if not used
     */
    public Object entityData;
+   /**
+    * A List of entities to return, leave as null if not used
+    */
+   public List<?> entitiesList;
    /**
     * A flag to indicate that entity processing should continue after the
     * action has executed, note that output will be lost if this happens
@@ -86,5 +91,10 @@ public class ActionReturn {
       this.entityData = entityData;
       this.continueProcessing = continueProcessing;
    }
-   
+
+   public ActionReturn(List<?> entitiesList, boolean continueProcessing) {
+      this.entitiesList = entitiesList;
+      this.continueProcessing = continueProcessing;
+   }
+
 }

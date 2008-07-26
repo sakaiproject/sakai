@@ -19,10 +19,12 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.impl.mocks.FakeEvent;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
+import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -433,6 +435,39 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       assertEquals(TestData.IDS6[1], me.getId());
       assertEquals("TEST-PUT", me.getStuff());
       assertEquals(8, me.getNumber());
+   }
+
+   public void testExecuteCustomAction() {
+      // TODO
+      ActionsEntityProviderMock aep = td.entityProviderA1;
+
+      // check double operation works
+      MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+      int num = me.getNumber();
+      ActionReturn ar = (ActionReturn) aep.doubleAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+      MyEntity doubleMe = (MyEntity) ar.entityData;
+      assertEquals(doubleMe.getNumber(), num * 2);
+      assertEquals(me.getId(), doubleMe.getId());
+
+      // make sure it works twice
+      ar = (ActionReturn) aep.doubleAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+      doubleMe = (MyEntity) ar.entityData;
+      assertEquals(doubleMe.getNumber(), num * 2);
+
+      // test xxx operation
+      MyEntity me1 = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+      assertFalse("xxx".equals(me1.extra));
+      assertFalse("xxx".equals(me1.getStuff()));
+      aep.xxxAction( new EntityReference(TestData.REFA1) );
+      MyEntity xxxMe = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+      assertEquals(me1.getId(), xxxMe.getId());
+      assertTrue("xxx".equals(xxxMe.extra));
+      assertTrue("xxx".equals(xxxMe.getStuff()));
+
+      // test clear
+      assertEquals(2, aep.myEntities.size());
+      aep.executeActions(new EntityView(new EntityReference(TestData.PREFIXA1, ""), EntityView.VIEW_NEW, null), "clear", null);
+      assertEquals(0, aep.myEntities.size());      
    }
 
    /**

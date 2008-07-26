@@ -39,6 +39,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.event.api.Event;
@@ -228,6 +229,12 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    public Object translateInputToEntity(String reference, String format, InputStream input) {
       Object entity = entityEncodingManager.translateInputToEntity(reference, format, input);
       return entity;
+   }
+
+   public ActionReturn executeCustomAction(String reference, String action,
+         Map<String, Object> actionParams) {
+      // TODO
+      throw new UnsupportedOperationException("Not working yet");
    }
 
 
