@@ -406,6 +406,39 @@ public class EntityView {
    }
 
    /**
+    * Get a segment value by position from the encoded URL for this view<br/>
+    * Position 0 is always the prefix <br/>
+    * Example: /user/aaronz/promote/stuff.xml <br/>
+    * position 0: 'user' <br/>
+    * position 1: 'aaronz' <br/>
+    * position 2: 'promote' <br/>
+    * position 3: 'stuff' <br/>
+    * position 4: null <br/>
+    * @param position the position number in the path segments, 0 is always the prefix
+    * @return the value at the given path position OR null if there is nothing at that position
+    */
+   public String getPathSegment(int position) {
+      String url = getOriginalEntityUrl();
+      if (url == null) {
+         url = getEntityURL();
+      }
+      String segment = null;
+      if (url != null) {
+         url = TemplateParseUtil.findExtension(url)[1];
+         String[] segments = url.split(SEPARATOR+"");
+         if (segments.length > 0) {
+            if ("".equals(segments[0])) {
+               position++;
+            }
+            if (position < segments.length) {
+               segment = segments[position];
+            }
+         }
+      }
+      return segment;
+   }
+
+   /**
     * @param templateKey a key from the set of template keys {@link #PARSE_TEMPLATE_KEYS},
     * should match with the viewKey
     * @return the template being used by this entity view for this key or null if none found

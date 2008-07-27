@@ -204,23 +204,19 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                String prefix = view.getEntityReference().getPrefix();
 
                // check for custom action
-               CustomAction customAction = entityActionsManager.getCustomAction(prefix, view.getPathSegment("id")); // TODO
+               CustomAction customAction = entityActionsManager.getCustomAction(prefix, view.getPathSegment(1));
                if (customAction == null) {
-                  entityActionsManager.getCustomAction(prefix, view.getPathSegment("id"));
+                  customAction = entityActionsManager.getCustomAction(prefix, view.getPathSegment(2));
                }
-               if (customAction != null) {
-                  // TODO
+               if (customAction == null) {
+                  // check to see if the entity exists
+                  if (! entityBrokerManager.entityExists(view.getEntityReference()) ) {
+                     // invalid entity reference (entity does not exist)
+                     throw new EntityException( "Attempted to access an entity URL path (" + path + ") for an entity ("
+                           + view.getEntityReference() + ") that does not exist", 
+                           view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
+                  }
                }
-
-               // check to see if the entity exists
-               if (! entityBrokerManager.entityExists(view.getEntityReference()) ) {
-                  // invalid entity reference (entity does not exist)
-                  throw new EntityException( "Attempted to access an entity URL path (" + path + ") for an entity ("
-                        + view.getEntityReference() + ") that does not exist", 
-                        view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
-               }
-
-
                res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
 
                // check for extensions
@@ -250,6 +246,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   handleClassLoaderAccess(handler, req, res, view);
                } else {
                   // handle the request internally if possible
+
+                  if (customAction != null) {
+                     // handle the custom action
+                     // TODO
+                  }
 
                   // identify the type of request (input or output) and the action (will be encoded in the viewKey)
                   boolean output = false;

@@ -263,4 +263,22 @@ public class EntityViewTest extends TestCase {
       }
    }
 
+   public void testGetPathSegmentInt() {
+      EntityView ev = null;
+
+      ev = new EntityView(INPUT_URL1);
+      assertNotNull(ev);
+      assertEquals(PREFIX1, ev.getPathSegment(0));
+      assertEquals(ID1, ev.getPathSegment(1));
+      assertEquals(null, ev.getPathSegment(2));
+
+      ev = new EntityView(INPUT_URL2);
+      assertNotNull(ev);
+      assertEquals(PREFIX2, ev.getPathSegment(0));
+      assertEquals(ID2, ev.getPathSegment(1));
+      assertEquals("extra", ev.getPathSegment(2));
+      assertEquals("junk", ev.getPathSegment(3));
+      assertEquals(null, ev.getPathSegment(4));
+   }
+
 }
