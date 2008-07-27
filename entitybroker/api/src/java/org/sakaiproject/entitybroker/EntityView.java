@@ -252,7 +252,7 @@ public class EntityView {
       }
       if (prefix == null) {
          throw new IllegalArgumentException("Cannot identify an entity space for this view," +
-         		"there appears to be no prefix that was parsed from the ");
+         		"there appears to be no prefix that was parsed from the url");
       }
       this.entityReference = new EntityReference(prefix, id == null ? "" : id);
    }

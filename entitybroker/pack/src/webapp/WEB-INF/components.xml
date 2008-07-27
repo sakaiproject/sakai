@@ -25,6 +25,8 @@
     <bean id="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"
             class="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl"
             init-method="init">
+        <property name="entityActionsManager"
+            ref="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
         <property name="entityProperties" 
             ref="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
         <property name="requestGetter"
@@ -45,6 +47,8 @@
     <bean id="org.sakaiproject.entitybroker.EntityBroker"
         class="org.sakaiproject.entitybroker.impl.EntityBrokerImpl" init-method="init">
         <property name="dao" ref="org.sakaiproject.entitybroker.dao.EntityBrokerDao" />
+        <property name="entityActionsManager"
+            ref="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
         <property name="entityBrokerManager"
             ref="org.sakaiproject.entitybroker.impl.EntityBrokerManager" />
         <property name="entityEncodingManager"
@@ -113,6 +117,8 @@
         class="org.sakaiproject.entitybroker.impl.EntityHandlerImpl">
         <property name="accessProviderManager"
             ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
+        <property name="entityActionsManager"
+            ref="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
         <property name="entityBrokerManager"
             ref="org.sakaiproject.entitybroker.impl.EntityBrokerManager" />
         <property name="entityDescriptionManager"
@@ -186,5 +192,8 @@
 
     <bean id="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" 
         class="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
+
+    <bean id="org.sakaiproject.entitybroker.impl.EntityActionsManager"
+        class="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
 
 </beans>

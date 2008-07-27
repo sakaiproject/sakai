@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,6 +37,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
+import org.sakaiproject.entitybroker.impl.EntityActionsManager;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.entitybroker.util.refmap.ReferenceMap;
 import org.sakaiproject.entitybroker.util.refmap.ReferenceType;
@@ -66,6 +65,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    private EntityPropertiesService entityProperties;
    public void setEntityProperties(EntityPropertiesService entityProperties) {
       this.entityProperties = entityProperties;
+   }
+
+   private EntityActionsManager entityActionsManager;
+   public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
+      this.entityActionsManager = entityActionsManager;
    }
 
    protected Map<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.WEAK);
@@ -206,7 +210,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                   }
                   actions.put(action, customAction);
                }
-               setCustomActions(prefix, actions);
+               entityActionsManager.setCustomActions(prefix, actions);
             }
          } else if (superclazz.equals(Describeable.class)) {
             // need to load up the default properties into the cache
@@ -275,7 +279,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       // do any cleanup that needs to be done when unregistering
       if (ActionsExecutable.class.equals(capability)) {
          // clean up the list of custom actions
-         removeCustomActions(prefix);
+         entityActionsManager.removeCustomActions(prefix);
       } else if (Describeable.class.isAssignableFrom(capability)) {
          // clean up properties cache
          entityProperties.unloadProperties(prefix);
@@ -322,71 +326,6 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       return getProviderByPrefix(ref.prefix);
    }
 
-
-   private Map<String, Map<String, CustomAction>> entityActions = new ConcurrentHashMap<String, Map<String,CustomAction>>();
-
-   /**
-    * Set the custom actions for this prefix
-    * @param prefix an entity prefix
-    * @param actions a map of action -> {@link CustomAction}
-    */
-   public void setCustomActions(String prefix, Map<String,CustomAction> actions) {
-      if (getProviderByPrefixAndCapability(prefix, ActionsExecutable.class) == null) {
-         throw new IllegalArgumentException("Cannot register custom actions for prefix ("+prefix+") which is not " + ActionsExecutable.class);
-      }
-      Map<String,CustomAction> cas = new HashMap<String, CustomAction>();
-      StringBuilder sb = new StringBuilder();
-      for (Entry<String, CustomAction> ca : actions.entrySet()) {
-         CustomAction action = ca.getValue();
-         if (sb.length() > 0) {
-            sb.append(", ");
-         }
-         sb.append(ca.getValue().toString());
-         cas.put(ca.getKey(), action.copy()); // make a copy to avoid holding objects from another ClassLoader
-      }
-      entityActions.put(prefix, actions);
-      log.info("Registered "+actions.size()+" custom actions for entity prefix ("+prefix+"): " + sb.toString());
-   }
-
-   /**
-    * Add a custom action for a prefix
-    * @param prefix an entity prefix
-    * @param customAction the custom action to add
-    */
-   public void addCustomAction(String prefix, CustomAction customAction) {
-      // NOTE: we are always creating a new map here to ensure there are no collisions
-      Map<String,CustomAction> actions = new HashMap<String, CustomAction>();
-      if (entityActions.containsKey(prefix)) {
-         // add the existing ones first
-         actions.putAll(entityActions.get(prefix));
-      }
-      // add the new one to the map
-      actions.put(customAction.action, customAction);
-      // put the new map into the store
-      setCustomActions(prefix, actions);
-   }
-
-   /**
-    * Get the {@link CustomAction} for a prefix and action if it exists
-    * @param prefix an entity prefix
-    * @param action an action key
-    * @return the custom action OR null if none found
-    */
-   public CustomAction getCustomAction(String prefix, String action) {
-      CustomAction ca = null;
-      if (entityActions.containsKey(prefix)) {
-         ca = entityActions.get(prefix).get(action);
-      }
-      return ca;
-   }
-
-   /**
-    * Remove any custom actions that are set for this prefix
-    * @param prefix an entity prefix
-    */
-   public void removeCustomActions(String prefix) {
-      entityActions.remove(prefix);
-   }
 
    // STATICS
 

@@ -156,8 +156,20 @@ public class RequestStorageImpl implements RequestStorage {
    }
 
    protected Map<String, Object> getRequestValues() {
-      HashMap<String, Object> m = new HashMap<String, Object>();
       HttpServletRequest request = requestGetter.getRequest();
+      return getRequestValues(request);
+   }
+
+   public class EntryComparator implements Comparator<Entry<String, Object>> {
+      public int compare(Entry<String, Object> o1, Entry<String, Object> o2) {
+         return o1.getKey().compareTo(o2.getKey());
+      }
+   }
+
+   // STATIC
+
+   public static Map<String, Object> getRequestValues(HttpServletRequest request) {
+      HashMap<String, Object> m = new HashMap<String, Object>();
       if (request != null) {
          Enumeration<String> headerEnum = request.getHeaderNames();
          if (headerEnum != null) {
@@ -196,12 +208,6 @@ public class RequestStorageImpl implements RequestStorage {
          m.put("pathInfo", request.getPathInfo() == null ? "" : request.getPathInfo());
       }
       return m;
-   }
-
-   public class EntryComparator implements Comparator<Entry<String, Object>> {
-      public int compare(Entry<String, Object> o1, Entry<String, Object> o2) {
-         return o1.getKey().compareTo(o2.getKey());
-      }
    }
 
 }

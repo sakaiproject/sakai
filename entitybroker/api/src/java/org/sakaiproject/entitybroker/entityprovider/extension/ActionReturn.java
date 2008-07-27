@@ -37,7 +37,7 @@ public class ActionReturn {
     */
    public String mimeType = Formats.XML_MIME_TYPE;
    /**
-    * the data to output, can be binary, leave this null if not used
+    * the data to output (should use a provided OutputStream), can be binary, leave this null if not used
     */
    public OutputStream output;
    /**
@@ -57,6 +57,24 @@ public class ActionReturn {
     * action has executed, note that output will be lost if this happens
     */
    public boolean continueProcessing = false;
+   
+   /**
+    * Set the outputstream to indicate it was used,
+    * uses default encoding UTF-8 and type of text/xml
+    * @param output
+    */
+   public ActionReturn(OutputStream output) {
+      this.output = output;
+   }
+   
+   /**
+    * Set a string of data to return,
+    * uses default encoding UTF-8 and type of text/xml
+    * @param outputString
+    */
+   public ActionReturn(String outputString) {
+      this.outputString = outputString;
+   }
 
    /**
     * Create a return that is appropriate for sending binary data or a large chunk of text

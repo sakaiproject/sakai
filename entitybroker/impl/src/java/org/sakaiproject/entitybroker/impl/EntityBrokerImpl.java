@@ -34,6 +34,7 @@ import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.dao.EntityProperty;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
@@ -61,6 +62,11 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    private EntityBrokerDao dao;
    public void setDao(EntityBrokerDao dao) {
       this.dao = dao;
+   }
+
+   private EntityActionsManager entityActionsManager;
+   public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
+      this.entityActionsManager = entityActionsManager;
    }
 
    private EntityProviderManager entityProviderManager;
@@ -232,9 +238,17 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    }
 
    public ActionReturn executeCustomAction(String reference, String action,
-         Map<String, Object> actionParams) {
-      // TODO
-      throw new UnsupportedOperationException("Not working yet");
+         Map<String, Object> actionParams, OutputStream outputStream) {
+      EntityReference ref = entityBrokerManager.parseReference(reference);
+      if (ref == null) {
+         throw new IllegalArgumentException("Invalid entity reference, no provider found to handle this ref: " + reference);
+      }
+      ActionsExecutable actionProvider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), ActionsExecutable.class);
+      if (actionProvider == null) {
+         throw new IllegalArgumentException("The provider for prefix ("+ref.getPrefix()+") cannot handle custom actions");
+      }
+      ActionReturn ar = entityActionsManager.handleCustomActionExecution(actionProvider, ref, action, actionParams, outputStream);
+      return ar;
    }
 
 

@@ -14,6 +14,7 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
+import java.io.OutputStream;
 import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityView;
@@ -52,6 +53,9 @@ public interface ActionsExecutable extends EntityProvider {
     * @param requestValues this is an array which contains passed in action params,
     * if this is running as a result of an http request this will include all the request variables,
     * otherwise this will just return any custom values needed to execute this action
+    * @param outputStream an OutputStream to place binary or long text data into,
+    * if this is used for binary data then the {@link ActionReturn} should be returned with the correct encoding information
+    * and the output variable set to the OutputStream
     * @return this should return one of the following: <br/>
     * 1) null (this is ok in most circumstances to indicate the method is done, use an exception to indicate failure) <br/>
     * 2) an {@link ActionReturn} (this is a special object used to indicate return states and handle binary data) <br/>
@@ -61,6 +65,6 @@ public interface ActionsExecutable extends EntityProvider {
     * @throws IllegalArgumentException if there are required params that are missing or invalid
     * @throws IllegalStateException if the action cannot be performed for some reason
     */
-   Object executeActions(EntityView entityView, String action, Map<String, Object> actionParams);
+   Object executeActions(EntityView entityView, String action, Map<String, Object> actionParams, OutputStream outputStream);
 
 }

@@ -35,6 +35,7 @@ public class TestManager {
    public RequestStorageImpl requestStorage;
    public RequestGetterImpl requestGetter;
    public EntityPropertiesService entityPropertiesService;
+   public EntityActionsManager entityActionsManager;
    public EntityProviderManagerImpl entityProviderManager;
    public EntityBrokerManager entityBrokerManager;
    public EntityDescriptionManager entityDescriptionManager;
@@ -47,6 +48,7 @@ public class TestManager {
       // initialize all the parts
       requestGetter = new RequestGetterImpl();
       entityPropertiesService = new EntityPropertiesService();
+      entityActionsManager = new EntityActionsManager();
       serverConfigurationService = new FakeServerConfigurationService();
       httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();
       entityViewAccessProviderManager = new EntityViewAccessProviderManagerMock();
@@ -58,6 +60,7 @@ public class TestManager {
       entityProviderManager.setRequestGetter( requestGetter );
       entityProviderManager.setRequestStorage( requestStorage );
       entityProviderManager.setEntityProperties( entityPropertiesService );
+      entityProviderManager.setEntityActionsManager( entityActionsManager );
 
       entityProviderManager.init();
 
@@ -96,6 +99,7 @@ public class TestManager {
       entityRequestHandler.setEntityViewAccessProviderManager( entityViewAccessProviderManager );
       entityRequestHandler.setRequestGetter( requestGetter );
       entityRequestHandler.setRequestStorage( requestStorage );
+      entityRequestHandler.setEntityActionsManager(entityActionsManager);
    }
 
 }

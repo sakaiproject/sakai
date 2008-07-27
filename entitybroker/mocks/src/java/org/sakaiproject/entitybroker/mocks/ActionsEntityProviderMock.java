@@ -14,6 +14,7 @@
 
 package org.sakaiproject.entitybroker.mocks;
 
+import java.io.OutputStream;
 import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityReference;
@@ -52,7 +53,7 @@ public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implem
       };
    }
 
-   public Object executeActions(EntityView entityView, String action, Map<String, Object> actionParams) {
+   public Object executeActions(EntityView entityView, String action, Map<String, Object> actionParams, OutputStream outputStream) {
       Object result = null;
       if ("double".equals(action)) {
          result = doubleAction(entityView);

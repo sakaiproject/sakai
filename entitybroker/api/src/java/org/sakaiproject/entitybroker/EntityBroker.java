@@ -224,11 +224,14 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * can be triggered by a URL like so: /user/aaronz/promote
     * @param requestValues (optional) this is an array which contains passed in action params,
     * can be left blank if there are no custom params or this action
+    * @param outputStream an OutputStream to place binary or long text data into,
+    * if this is used for binary data then the {@link ActionReturn} should be returned with the correct encoding information
+    * and the output variable set to the OutputStream
     * @return an {@link ActionReturn} which contains entity data or binary/string data OR null if there is no return for this action
     * @throws UnsupportedOperationException if there is no action with this key for this entity
     * @throws IllegalArgumentException if there are required params that are missing or invalid
     * @throws IllegalStateException if the action cannot be performed for some reason
     */
-   ActionReturn executeCustomAction(String reference, String action, Map<String, Object> actionParams);
+   ActionReturn executeCustomAction(String reference, String action, Map<String, Object> actionParams, OutputStream outputStream);
 
 }

@@ -178,6 +178,7 @@ public class TestData {
          + EntityReference.SEPARATOR + IDSA[1];
 
    public static String PREFIXA1 = "actionPrefix";
+   public static String SPACEA1 = EntityReference.SEPARATOR + PREFIXA1;
    public static String[] IDSA1 = new String[] { "bbbbbb", "BEE" };
    public static String REFA1 = EntityReference.SEPARATOR + PREFIXA1
          + EntityReference.SEPARATOR + IDSA1[0];

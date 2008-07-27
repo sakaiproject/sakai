@@ -44,6 +44,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
+import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
@@ -61,12 +62,11 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 /**
- * Common implementation of the handler for the EntityBroker system. This should be used in
- * preference to the EntityBroker directly by implementation classes part of the EntityBroker
- * scheme, rather than the user-facing EntityBroker directly.
+ * Implementation of the handler for the EntityBroker system<br/>
+ * This handles all the processing of incoming requests (http based) and includes
+ * method to process the request data and ensure classloader safety
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
- * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
@@ -113,6 +113,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    private RequestGetter requestGetter;
    public void setRequestGetter(RequestGetter requestGetter) {
       this.requestGetter = requestGetter;
+   }
+
+   private EntityActionsManager entityActionsManager;
+   public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
+      this.entityActionsManager = entityActionsManager;
    }
 
    /**
@@ -194,14 +199,28 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                }
                res.setStatus(HttpServletResponse.SC_OK);
                handledReference = view.getEntityReference().getSpaceReference() + SLASH_DESCRIBE;
-            } else if (! entityBrokerManager.entityExists(view.getEntityReference()) ) {
-               // invalid entity reference (entity does not exist)
-               throw new EntityException( "Attempted to access an entity URL path (" + path + ") for an entity ("
-                     + view.getEntityReference() + ") that does not exist", 
-                     view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
             } else {
                // reference successfully parsed
                String prefix = view.getEntityReference().getPrefix();
+
+               // check for custom action
+               CustomAction customAction = entityActionsManager.getCustomAction(prefix, view.getPathSegment("id")); // TODO
+               if (customAction == null) {
+                  entityActionsManager.getCustomAction(prefix, view.getPathSegment("id"));
+               }
+               if (customAction != null) {
+                  // TODO
+               }
+
+               // check to see if the entity exists
+               if (! entityBrokerManager.entityExists(view.getEntityReference()) ) {
+                  // invalid entity reference (entity does not exist)
+                  throw new EntityException( "Attempted to access an entity URL path (" + path + ") for an entity ("
+                        + view.getEntityReference() + ") that does not exist", 
+                        view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
+               }
+
+
                res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
 
                // check for extensions
