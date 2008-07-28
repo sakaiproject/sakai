@@ -36,12 +36,55 @@ public interface PermissionLevelManager {
 	public PermissionLevel getPermissionLevelByName(String name);
 	public String getPermissionLevelType(PermissionLevel level);  
 	public PermissionLevel createPermissionLevel(String name, String typeUuid, PermissionsMask mask);
+	
+	/**
+	 * 
+	 * @return the PermissionLevel representing the "Owner" level
+	 * @throws IllegalStateException if no "Owner" type exists or if no permission level
+	 * exists with the "Owner" type
+	 */
 	public PermissionLevel getDefaultOwnerPermissionLevel();
+	
+	/**
+	 * 
+	 * @return the PermissionLevel representing the "Author" level
+	 * @throws IllegalStateException if no "Author" type exists or if no permission level
+	 * exists with the "Author" type
+	 */
 	public PermissionLevel getDefaultAuthorPermissionLevel();
+	
+	/**
+	 * 
+	 * @return the PermissionLevel representing the "NoneditingAuthor" level
+	 * @throws IllegalStateException if no "NoneditingAuthor" type exists or if no permission level
+	 * exists with the "NoneditingAuthor" type
+	 */
 	public PermissionLevel getDefaultNoneditingAuthorPermissionLevel();
+	
+	/**
+	 * 
+	 * @return the PermissionLevel representing the "Reviewer" level
+	 * @throws IllegalStateException if no "Reviewer" type exists or if no permission level
+	 * exists with the "Reviewer" type
+	 */
 	public PermissionLevel getDefaultReviewerPermissionLevel();
+	
+	/**
+	 * 
+	 * @return the PermissionLevel representing the "Contributor" level
+	 * @throws IllegalStateException if no "Contributor" type exists or if no permission level
+	 * exists with the "Contributor" type
+	 */
 	public PermissionLevel getDefaultContributorPermissionLevel();
+	
+	/**
+	 * 
+	 * @return the PermissionLevel representing the "None" level
+	 * @throws IllegalStateException if no "None" type exists or if no permission level
+	 * exists with the "None" type
+	 */
 	public PermissionLevel getDefaultNonePermissionLevel();
+	
     public DBMembershipItem createDBMembershipItem(String name, String permissionLevelName, Integer type);
     public void saveDBMembershipItem(DBMembershipItem item);
     public void savePermissionLevel(PermissionLevel level);

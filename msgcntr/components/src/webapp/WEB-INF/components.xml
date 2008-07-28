@@ -49,10 +49,7 @@
         class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl" init-method="init" singleton="true">
         <property name="typeManager">
             <ref bean="org.sakaiproject.api.common.type.TypeManager"/>
-        </property>
-        <property name="autoDdl">
-      			<value>${auto.ddl}</value>
-		    </property>  
+        </property>  
 		    <property name="sqlService">
 		     		<ref bean="org.sakaiproject.db.api.SqlService"/>
 		    </property>        
@@ -169,6 +166,9 @@
         </property>
         <property name="target">
             <bean class="org.sakaiproject.component.app.messageforums.PermissionLevelManagerImpl" singleton="true" init-method="init">
+                <property name="autoDdl">
+      						<value>${auto.ddl}</value>
+		    				</property>
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>				
