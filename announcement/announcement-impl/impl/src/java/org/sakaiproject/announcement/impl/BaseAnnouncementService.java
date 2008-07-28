@@ -127,6 +127,16 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	private Transformer docTransformer = null;
 	
 	private ContentHostingService contentHostingService;
+	/**
+	 * Dependency: contentHostingService.
+	 * 
+	 * @param service
+	 *        The NotificationService.
+	 */
+	public void setContentHostingService(ContentHostingService service)
+	{
+		contentHostingService = service;
+	}
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -159,8 +169,6 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		{
 			super.init();
 
-			contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.contentHostingService");
-			
 			// register a transient notification for announcements
 			NotificationEdit edit = m_notificationService.addTransientNotification();
 
