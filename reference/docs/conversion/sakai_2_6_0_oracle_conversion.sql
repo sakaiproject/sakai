@@ -122,4 +122,4 @@ alter table SAKAI_SESSION add SESSION_HOSTNAME varchar2(255) NULL;
 alter table SAKAI_EVENT add CONTEXT varchar2(255) NULL;
 
 --SAK-13310 Poll description field too small
-alter table POLL_POLL modify POLL_DETAILS varchar
+alter table POLL_POLL modify POLL_DETAILS VARCHAR2(4000);
