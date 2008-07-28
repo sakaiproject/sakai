@@ -69,7 +69,7 @@ public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implem
       MyEntity me = (MyEntity) getEntity(view.getEntityReference());
       MyEntity togo = me.copy();
       togo.setNumber( togo.getNumber() * 2 );
-      return new ActionReturn(togo, true);
+      return new ActionReturn(togo, null);
    }
 
    public void xxxAction(EntityReference ref) {

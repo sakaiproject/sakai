@@ -34,7 +34,9 @@ import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
+import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 
 
 /**
@@ -76,17 +78,26 @@ public class EntityActionsManager {
       if (actionReturn != null) {
          if (actionReturn.output != null || actionReturn.outputString != null) {
             if (actionReturn.output == null) {
-               // write the string into the outputstream
+               // write the string into the response outputstream
                try {
                   outputStream.write( actionReturn.outputString.getBytes() );
                } catch (IOException e) {
                   throw new RuntimeException("Failed encoding for outputstring: " + actionReturn.outputString);
                }
+               actionReturn.output = outputStream;
             }
-            // now set the encoding, mimetype, and outputstream into the response
-            response.setCharacterEncoding(actionReturn.encoding);
-            response.setContentType(actionReturn.mimeType);
-            actionReturn.continueProcessing = false;
+            // now set the encoding, mimetype into the response
+            actionReturn.format = entityView.getExtension();
+            if (actionReturn.encoding == null || actionReturn.mimeType == null) {
+               // use default if not set
+               if (actionReturn.format == null) {
+                  actionReturn.format = Formats.XML;
+               }
+               RequestUtils.setResponseEncoding(actionReturn.format, response);
+            } else {
+               response.setCharacterEncoding(actionReturn.encoding);
+               response.setContentType(actionReturn.mimeType);
+            }
          }
          // other returns require no extra work here
       }
@@ -126,10 +137,10 @@ public class EntityActionsManager {
          } else if (String.class.isAssignableFrom(resultClass)) {
             actionReturn = new ActionReturn((String) result);
          } else if (List.class.isAssignableFrom(resultClass)) {
-            actionReturn = new ActionReturn((List<?>) result, false);
+            actionReturn = new ActionReturn((List<?>) result, null);
          } else {
             // assume this is an entity object
-            actionReturn = new ActionReturn(result, false);
+            actionReturn = new ActionReturn(result, null);
          }
       }
       return actionReturn;
@@ -145,12 +156,19 @@ public class EntityActionsManager {
       StringBuilder sb = new StringBuilder();
       for (Entry<String, CustomAction> ca : actions.entrySet()) {
          CustomAction action = ca.getValue();
-         if (action == null || ca.getKey() == null) {
+         if (action == null || ca.getKey() == null || "".equals(ca.getKey())) {
             throw new IllegalArgumentException("custom action object and action key must not be null");
          }
          if (reservedActions.contains(ca.getKey().toLowerCase())) {
+            StringBuilder rsb = new StringBuilder();
+            for (String reserved : reservedActions) {
+               if (rsb.length() > 0) {
+                  rsb.append(", ");
+               }
+               rsb.append(reserved);
+            }
             throw new IllegalArgumentException(ca.getKey() + " is a reserved word and cannot be used as a custom action key "
-            		+ ", reserved words include: describe, new, edit, delete");
+            		+ ", reserved words include: " + rsb);
          }
          if (sb.length() > 0) {
             sb.append(", ");

@@ -22,8 +22,6 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.entitybroker.entityprovider.search.Order;
-import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
@@ -49,50 +47,6 @@ public class EntityHandlerImplTest extends TestCase {
 
       entityHandler = new TestManager(td).entityRequestHandler;
    }
-
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#makeSearchFromRequest(javax.servlet.http.HttpServletRequest)}.
-    */
-   public void testMakeSearchFromRequest() {
-      Search search = null;
-      MockEBHttpServletRequest req = null;
-
-      req = new MockEBHttpServletRequest("GET", new String[] {});
-      search = entityHandler.makeSearchFromRequest(req);
-      assertNotNull(search);
-      assertTrue( search.isEmpty() );
-      assertEquals(0, search.getRestrictions().length);
-      search.addOrder( new Order("test") );
-
-      req = new MockEBHttpServletRequest("GET", "test", "stuff");
-      search = entityHandler.makeSearchFromRequest(req);
-      assertNotNull(search);
-      assertFalse( search.isEmpty() );
-      assertEquals(1, search.getRestrictions().length);
-      assertNotNull( search.getRestrictionByProperty("test") );
-      assertEquals("stuff", search.getRestrictionByProperty("test").value);
-
-      // make sure _method is ignored
-      req = new MockEBHttpServletRequest("GET", "test", "stuff", "_method", "PUT");
-      search = entityHandler.makeSearchFromRequest(req);
-      assertNotNull(search);
-      assertFalse( search.isEmpty() );
-      assertEquals(1, search.getRestrictions().length);
-      assertNotNull( search.getRestrictionByProperty("test") );
-      assertEquals("stuff", search.getRestrictionByProperty("test").value);
-
-      req = new MockEBHttpServletRequest("GET", "test", "stuff", "other", "more");
-      search = entityHandler.makeSearchFromRequest(req);
-      assertNotNull(search);
-      assertFalse( search.isEmpty() );
-      assertEquals(2, search.getRestrictions().length);
-      assertNotNull( search.getRestrictionByProperty("test") );
-      assertEquals("stuff", search.getRestrictionByProperty("test").value);
-      assertNotNull( search.getRestrictionByProperty("other") );
-      assertEquals("more", search.getRestrictionByProperty("other").value);
-   }
-
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)}.

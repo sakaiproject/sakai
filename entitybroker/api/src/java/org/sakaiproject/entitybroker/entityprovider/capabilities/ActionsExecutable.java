@@ -45,7 +45,8 @@ public interface ActionsExecutable extends EntityProvider {
     * This allows the developer to define how to execute custom actions on entities,
     * this method will be called every time a custom action execution is requested,
     * the incoming data provides the context for the action to be executed<br/>
-    * NOTE: The return data can be complex so please read carefully
+    * NOTE: The return data can be complex so please read carefully,
+    * entity data is returned as the default for the request if no format is specified
     * @param entityView an entity view, should contain all the information related to the incoming entity request or URL,
     * includes the entity reference and the requested format information
     * @param action key which will be used to trigger the action (e.g. promote),

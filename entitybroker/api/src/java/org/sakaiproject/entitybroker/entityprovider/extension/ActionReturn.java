@@ -53,10 +53,10 @@ public class ActionReturn {
     */
    public List<?> entitiesList;
    /**
-    * A flag to indicate that entity processing should continue after the
-    * action has executed, note that output will be lost if this happens
+    * Indicates the format (from {@link Formats}) to return the entity data in if there is any,
+    * if using an outputstream, use encoding and mimetype
     */
-   public boolean continueProcessing = false;
+   public String format;
    
    /**
     * Set the outputstream to indicate it was used,
@@ -101,18 +101,23 @@ public class ActionReturn {
    }
 
    /**
-    * Create a return that is appropriate for sending back an entity or a list of entities
-    * @param entityData an entity or List of entities
-    * @param continueProcessing true to continue normal processing
+    * Create a return that is appropriate for sending back an entity
+    * @param entityData an entity
+    * @param format (optional) the format to return this data in (from {@link Formats}), e.g. Formats.XML
     */
-   public ActionReturn(Object entityData, boolean continueProcessing) {
+   public ActionReturn(Object entityData, String format) {
       this.entityData = entityData;
-      this.continueProcessing = continueProcessing;
+      this.format = format;
    }
 
-   public ActionReturn(List<?> entitiesList, boolean continueProcessing) {
+   /**
+    * Create a return that is appropriate for sending back a list of entities
+    * @param entityData a List of entities (can be empty)
+    * @param format (optional) the format to return this data in (from {@link Formats}), e.g. Formats.XML
+    */
+   public ActionReturn(List<?> entitiesList, String format) {
       this.entitiesList = entitiesList;
-      this.continueProcessing = continueProcessing;
+      this.format = format;
    }
 
 }

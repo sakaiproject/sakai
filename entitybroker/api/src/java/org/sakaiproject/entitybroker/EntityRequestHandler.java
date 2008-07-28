@@ -47,6 +47,12 @@ public interface EntityRequestHandler {
     * The id used in generated URLs
     */
    public static String FAKE_ID = ":ID:";
+   /**
+    * This is the special indicator used to denote that POST should be translated to a PUT or DELETE
+    * in order to compensate for browser limitations,
+    * Example: /people/1?_method=PUT
+    */
+   public static String COMPENSATE_METHOD = "_method";
 
    /**
     * Handles the servlet request response cycle for all direct servlet accesses,

@@ -17,15 +17,19 @@ package org.sakaiproject.entitybroker.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
+import junit.framework.TestCase;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
-
-import junit.framework.TestCase;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -51,7 +55,58 @@ public class EntityActionsManagerTest extends TestCase {
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityActionsManager#handleCustomActionRequest(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityView, java.lang.String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
     */
    public void testHandleCustomActionRequest() {
-      //TODO fail("Not yet implemented");
+      MockEBHttpServletRequest request = null;
+      MockHttpServletResponse res = null;
+      ActionsEntityProviderMock actionProvider = td.entityProviderA1;
+      String action = null;
+      String URL = null;
+      ActionReturn actionReturn = null;
+
+      // double
+      action = "double";
+      URL = TestData.REFA1 + "/" + action;
+      MyEntity me = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
+      int num = me.getNumber();
+      request = new MockEBHttpServletRequest("GET", URL);
+      res = new MockHttpServletResponse();
+      actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
+            new EntityView(new EntityReference(URL), EntityView.VIEW_SHOW, null), action, request, res);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(actionReturn);
+      assertNotNull(actionReturn.entityData);
+      MyEntity doubleMe = (MyEntity) actionReturn.entityData;
+      assertEquals(doubleMe.getNumber(), num * 2);
+      assertEquals(me.getId(), doubleMe.getId());
+
+      // xxx
+      action = "xxx";
+      URL = TestData.REFA1 + "/" + action;
+      MyEntity me1 = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
+      assertFalse("xxx".equals(me1.extra));
+      assertFalse("xxx".equals(me1.getStuff()));
+      actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
+            new EntityView(new EntityReference(URL), EntityView.VIEW_EDIT, null), action, request, res);
+      assertNull(actionReturn);
+      MyEntity xxxMe = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
+      assertEquals(me1.getId(), xxxMe.getId());
+      assertTrue("xxx".equals(xxxMe.extra));
+      assertTrue("xxx".equals(xxxMe.getStuff()));
+
+      // clear
+      action = "clear";
+      URL = TestData.SPACEA1 + "/" + action;
+      assertEquals(2, actionProvider.myEntities.size());
+      actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
+            new EntityView(new EntityReference(URL), EntityView.VIEW_NEW, null), action, request, res);
+      assertEquals(0, actionProvider.myEntities.size());
+
+      // exceptions
+      try {
+         entityActionsManager.handleCustomActionRequest(actionProvider, null, action, request, res);
+         fail("should have thrown exeception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
    }
 
    /**
@@ -95,7 +150,7 @@ public class EntityActionsManagerTest extends TestCase {
       } catch (UnsupportedOperationException e) {
          assertNotNull(e.getMessage());
       }
-      
+
       try {
          entityActionsManager.handleCustomActionExecution(null, ref, "xxx", null, null);
          fail("should have thrown exeception");
