@@ -15,6 +15,7 @@
 package org.sakaiproject.entitybroker.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -257,6 +258,16 @@ public class EntityActionsManagerTest extends TestCase {
       assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "xxx") );
       entityActionsManager.removeCustomActions(TestData.PREFIXA1);
       assertNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "xxx") );      
+   }
+
+   public void testGetCustomActions() {
+      List<CustomAction> actions = entityActionsManager.getCustomActions(TestData.PREFIXA1);
+      assertNotNull(actions);
+      assertEquals(3, actions.size());
+
+      actions = entityActionsManager.getCustomActions(TestData.PREFIX3);
+      assertNotNull(actions);
+      assertEquals(0, actions.size());
    }
 
    public void testCustomActions() {
