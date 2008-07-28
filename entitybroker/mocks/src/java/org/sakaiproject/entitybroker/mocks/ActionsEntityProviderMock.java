@@ -21,6 +21,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomActi
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
@@ -36,7 +37,7 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implements CoreEntityProvider, ActionsExecutable {
+public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implements CoreEntityProvider, ActionsExecutable, Describeable {
 
    public ActionsEntityProviderMock(String prefix, String[] ids) {
       super(prefix, ids);

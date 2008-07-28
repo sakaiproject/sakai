@@ -33,6 +33,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
+import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
@@ -46,6 +47,7 @@ import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
  */
 public class EntityDescriptionManager {
 
+   protected static String ACTION_KEY_PREFIX = "action.";
    protected static String DESCRIBE = EntityRequestHandler.DESCRIBE;
    protected static String SLASH_DESCRIBE = EntityRequestHandler.SLASH_DESCRIBE;
    protected static String FAKE_ID = EntityRequestHandler.FAKE_ID;
@@ -75,6 +77,11 @@ public class EntityDescriptionManager {
    private EntityBrokerManager entityBrokerManager;
    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
       this.entityBrokerManager = entityBrokerManager;
+   }
+
+   private EntityActionsManager entityActionsManager;
+   public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
+      this.entityActionsManager = entityActionsManager;
    }
 
    /**
@@ -196,6 +203,22 @@ public class EntityDescriptionManager {
             if (caps.contains(Deleteable.class)) {
                sb.append("      <deleteURL>" + ev.getEntityURL(EntityView.VIEW_DELETE, null) + "</deleteURL>\n");
             }
+            // Custom Actions
+            List<CustomAction> customActions = entityActionsManager.getCustomActions(prefix);
+            if (! customActions.isEmpty()) {
+               for (CustomAction customAction : customActions) {
+                  sb.append("      <customActions>\n");
+                  sb.append("        <customAction>\n");
+                  sb.append("          <action>"+customAction.action+"</action>\n");
+                  sb.append("          <viewKey>"+customAction.viewKey+"</viewKey>\n");
+                  String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action);
+                  if (actionDesc != null) {
+                     sb.append("          <description>"+actionDesc+"</description>\n");
+                  }
+                  sb.append("        </customAction>\n");
+                  sb.append("      </customActions>\n");               
+               }
+            }
             // Formats
             String[] outputFormats = getFormats(prefix, true);
             sb.append("      <outputFormats>\n");
@@ -230,7 +253,7 @@ public class EntityDescriptionManager {
             sb.append("          <name>"+class1.getSimpleName()+"</name>\n");
             sb.append("          <type>"+class1.getName()+"</type>\n");
             if (extra) {
-               String capabilityDescription = getEntityDescription(prefix, class1);
+               String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName());
                if (capabilityDescription != null) {
                   sb.append("          <description>" + capabilityDescription + "</description>\n");                  
                }
@@ -281,6 +304,23 @@ public class EntityDescriptionManager {
                sb.append("          <li>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)+": <a href='"+ directUrl+url +"'>"+url+"<a/></li>\n");
             }
             sb.append("        </ul>\n");
+            // Custom Actions
+            List<CustomAction> customActions = entityActionsManager.getCustomActions(prefix);
+            if (! customActions.isEmpty()) {
+               sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.custom.actions", locale)+"</h4>\n");
+               sb.append("      <div style='padding-left:0.5em;'>\n");
+               for (CustomAction customAction : customActions) {
+                  sb.append("        <div>\n");
+                  sb.append("          <span style='font-weight:bold;'>"+customAction.action+"</span> : " +
+                  		"<span>"+customAction.viewKey+"</span><br/>\n");
+                  String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action);
+                  if (actionDesc != null) {
+                     sb.append("          <div style='font-style:italics;font-size:0.9em;'>"+actionDesc+"</div>\n");
+                  }
+                  sb.append("        </div>\n");
+               }
+               sb.append("      </div>\n");
+            }
             // Formats
             sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.output.formats", locale)+" : "+ makeFormatsString(outputFormats) +"</h4>\n");
             String[] inputFormats = getFormats(prefix, false);
@@ -322,7 +362,7 @@ public class EntityDescriptionManager {
             sb.append(class1.getName());
             sb.append("</td><td>");
             if (extra) {
-               String capabilityDescription = getEntityDescription(prefix, class1);
+               String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName());
                if (capabilityDescription != null) {
                   sb.append(capabilityDescription);
                }
@@ -376,33 +416,27 @@ public class EntityDescriptionManager {
    }
 
    /**
-    * Get the descriptions for an entity OR its capabilites
+    * Get the descriptions for an entity OR its capabilites OR custom actions
     * @param prefix an entity prefix
-    * @param capability (optional)
+    * @param descriptionkey (optional) the key (simplename for capability, action.actionkey for actions)
     * @return the description (may be blank) OR null if there is none
     */
-   protected String getEntityDescription(String prefix, Class<? extends EntityProvider> capability) {
+   protected String getEntityDescription(String prefix, String descriptionkey) {
       String value = null;
       Locale locale = entityProperties.getLocale();
       // get from EP first if possible
       DescribeDefineable describer = entityProviderManager.getProviderByPrefixAndCapability(prefix, DescribeDefineable.class);
       if (describer != null) {
-         value = describer.getDescription(locale, capability);
+         value = describer.getDescription(locale, descriptionkey);
       }
       // now from the default location if null
       if (value == null) {
          String key = prefix;
-         if (capability != null) {
+         if (descriptionkey != null) {
             // try simple name first
-            key += "." + capability.getSimpleName();
+            key += "." + descriptionkey;
          }
          value = entityProperties.getProperty(prefix, key, locale);
-         if (capability != null 
-               && value == null) {
-            // try full name also
-            key += "." + capability.getName();
-            value = entityProperties.getProperty(prefix, key, locale);
-         }
       }
       if ("".equals(value)) {
          value = null;

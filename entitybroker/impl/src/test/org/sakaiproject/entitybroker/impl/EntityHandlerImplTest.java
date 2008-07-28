@@ -610,6 +610,41 @@ public class EntityHandlerImplTest extends TestCase {
          fail("failure trying to get string content");
       }
 
+      // test an entity which is DescribePropertiesable
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIXA1 + "/" + EntityRequestHandler.DESCRIBE);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIXA1));
+         assertTrue(content.contains("double action"));
+         assertTrue(content.contains("xxx action"));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // XML
+      req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIXA1 + "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIXA1));
+         assertTrue(content.contains("<description>"));
+         assertTrue(content.contains("double action"));
+         assertTrue(content.contains("xxx action"));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
       // test invalid describe
       req = new MockEBHttpServletRequest("GET", "/" + TestData.PREFIX9 + "/" + EntityRequestHandler.DESCRIBE);
       res = new MockHttpServletResponse();

@@ -392,8 +392,10 @@ public class EntityActionsManager {
    public List<CustomAction> getCustomActions(String prefix) {
       List<CustomAction> actions = new ArrayList<CustomAction>();
       Map<String, CustomAction> actionMap = entityActions.get(prefix);
-      for (Entry<String, CustomAction> entry : actionMap.entrySet()) {
-         actions.add(entry.getValue());
+      if (actionMap != null) {
+         for (Entry<String, CustomAction> entry : actionMap.entrySet()) {
+            actions.add(entry.getValue());
+         }
       }
       return actions;
    }

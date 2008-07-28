@@ -87,6 +87,7 @@ public class TestManager {
       entityDescriptionManager.setEntityProviderManager( entityProviderManager );
       entityDescriptionManager.setEntityBrokerManager( entityBrokerManager );
       entityDescriptionManager.setEntityProperties( entityPropertiesService );
+      entityDescriptionManager.setEntityActionsManager( entityActionsManager );
 
       entityEncodingManager = new EntityEncodingManager();
       entityEncodingManager.setEntityProviderManager( entityProviderManager );

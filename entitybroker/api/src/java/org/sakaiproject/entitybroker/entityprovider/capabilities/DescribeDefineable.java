@@ -37,11 +37,12 @@ public interface DescribeDefineable extends Describeable {
     * returning an empty string will cause nothing to be shown for the description
     * 
     * @param locale this is the locale that the description should be created for
-    * @param capability (optional) if null then the general description of the entity should be created,
-    * otherwise provide the description for the capability that was provided
+    * @param descriptionKey (optional) if null then the general description of the entity should be created,
+    * otherwise provide the description for the capability that was provided (e.g. Resolveable) OR
+    * the custom action, starts with action.&lt;actionKey&gt; (e.g. action.promote)
     * @return the string which describes this entity or this capability for this entity,
     * return null to allow this to attempt to get the value from the properties
     */
-   public String getDescription(Locale locale, Class<? extends EntityProvider> capability);
+   public String getDescription(Locale locale, String descriptionKey);
 
 }
