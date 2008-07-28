@@ -74,6 +74,8 @@ public class TestManager {
       entityProviderManager.registerEntityProvider(td.entityProvider8);
       entityProviderManager.registerEntityProvider(td.entityProviderA);
       entityProviderManager.registerEntityProvider(td.entityProviderA1);
+      entityProviderManager.registerEntityProvider(td.entityProviderA2);
+      entityProviderManager.registerEntityProvider(td.entityProviderA3);
 
       entityProviderManager.registerEntityProvider(td.entityProvider1T);
 

@@ -29,7 +29,9 @@ import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsDefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutionControllable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
@@ -197,21 +199,33 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             ((RequestStorable)entityProvider).setRequestStorage(requestStorage);
          } else if (superclazz.equals(ActionsExecutable.class)) {
             // register the custom actions
-            CustomAction[] customActions = ((ActionsExecutable)entityProvider).defineActions();
-            if (customActions == null) {
-               log.warn("ActionsExecutable: defineActions returns null, it should return an array of custom actions");
-            } else {
-               Map<String,CustomAction> actions = new HashMap<String, CustomAction>();
-               for (CustomAction customAction : customActions) {
-                  String action = customAction.action;
-                  if (action == null || "".equals(action) || EntityRequestHandler.DESCRIBE.equals(action)) {
-                     throw new IllegalStateException("action keys cannot be null, '', or "
-                           +EntityRequestHandler.DESCRIBE+", invalid custom action defined in defineActions");
-                  }
-                  actions.put(action, customAction);
+            CustomAction[] customActions = new CustomAction[0];
+            if ( superclasses.contains(ActionsExecutionControllable.class) 
+                  || superclasses.contains(ActionsDefineable.class) ) {
+               customActions = ((ActionsDefineable)entityProvider).defineActions();
+               if (customActions == null) {
+                  throw new IllegalArgumentException("ActionsExecutable: defineActions returns null, " +
+                  		"it must return an array of custom actions (or you can use ActionsExecutable)");
                }
-               entityActionsManager.setCustomActions(prefix, actions);
+               if (!superclasses.contains(ActionsExecutionControllable.class)) {
+                  // do the actions defineable validation check
+                  EntityActionsManager.validateCustomActionMethods((ActionsDefineable)entityProvider);
+               }
+            } else {
+               // auto detect the custom actions
+               customActions = entityActionsManager.findCustomActions(entityProvider, true);
             }
+            // register the actions
+            Map<String,CustomAction> actions = new HashMap<String, CustomAction>();
+            for (CustomAction customAction : customActions) {
+               String action = customAction.action;
+               if (action == null || "".equals(action) || EntityRequestHandler.DESCRIBE.equals(action)) {
+                  throw new IllegalStateException("action keys cannot be null, '', or "
+                        +EntityRequestHandler.DESCRIBE+", invalid custom action defined in defineActions");
+               }
+               actions.put(action, customAction);
+            }
+            entityActionsManager.setCustomActions(prefix, actions);
          } else if (superclazz.equals(Describeable.class)) {
             // need to load up the default properties into the cache
             if (! superclasses.contains(DescribePropertiesable.class)) {

@@ -7,7 +7,9 @@ package org.sakaiproject.entitybroker.mocks.data;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsDefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutionControllable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
@@ -18,7 +20,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParsea
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
+import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.ActionsExecutionEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.CoreEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.DescribePropertiesableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.DescribeableEntityProviderMock;
@@ -179,11 +183,27 @@ public class TestData {
 
    public static String PREFIXA1 = "actionPrefix";
    public static String SPACEA1 = EntityReference.SEPARATOR + PREFIXA1;
-   public static String[] IDSA1 = new String[] { "bbbbbb", "BEE" };
+   public static String[] IDSA1 = new String[] { "a1a", "a1BEEE" };
    public static String REFA1 = EntityReference.SEPARATOR + PREFIXA1
          + EntityReference.SEPARATOR + IDSA1[0];
    public static String REFA1_2 = EntityReference.SEPARATOR + PREFIXA1
          + EntityReference.SEPARATOR + IDSA1[1];
+
+   public static String PREFIXA2 = "actionDefinable";
+   public static String SPACEA2 = EntityReference.SEPARATOR + PREFIXA2;
+   public static String[] IDSA2 = new String[] { "a21111", "a2bbb" };
+   public static String REFA2 = EntityReference.SEPARATOR + PREFIXA2
+         + EntityReference.SEPARATOR + IDSA2[0];
+   public static String REFA2_2 = EntityReference.SEPARATOR + PREFIXA2
+         + EntityReference.SEPARATOR + IDSA2[1];
+
+   public static String PREFIXA3 = "actionExecution";
+   public static String SPACEA3 = EntityReference.SEPARATOR + PREFIXA3;
+   public static String[] IDSA3 = new String[] { "a31", "a32" };
+   public static String REFA3 = EntityReference.SEPARATOR + PREFIXA3
+         + EntityReference.SEPARATOR + IDSA3[0];
+   public static String REFA3_2 = EntityReference.SEPARATOR + PREFIXA3
+         + EntityReference.SEPARATOR + IDSA3[1];
 
    public static String INVALID_REF = "invalid_reference-1";
    public static String INVALID_URL = "http://bkjskldsalkdsa/sdakljdskl/stuff";
@@ -266,6 +286,14 @@ public class TestData {
     * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link ActionsExecutable}
     */
    public ActionsEntityProviderMock entityProviderA1 = new ActionsEntityProviderMock(PREFIXA1, IDSA1);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link ActionsDefineable}
+    */
+   public ActionsDefineableEntityProviderMock entityProviderA2 = new ActionsDefineableEntityProviderMock(PREFIXA2, IDSA2);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link ActionsExecutionControllable}
+    */
+   public ActionsExecutionEntityProviderMock entityProviderA3 = new ActionsExecutionEntityProviderMock(PREFIXA3, IDSA3);
 
    /**
     * Basic constructor initializes test data if needed

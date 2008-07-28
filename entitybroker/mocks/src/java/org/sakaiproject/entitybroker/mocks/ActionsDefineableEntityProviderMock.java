@@ -17,12 +17,13 @@ package org.sakaiproject.entitybroker.mocks;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsDefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 
 
@@ -36,27 +37,32 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implements CoreEntityProvider, ActionsExecutable {
+public class ActionsDefineableEntityProviderMock extends CRUDableEntityProviderMock implements CoreEntityProvider, ActionsDefineable {
 
-   public ActionsEntityProviderMock(String prefix, String[] ids) {
+   public ActionsDefineableEntityProviderMock(String prefix, String[] ids) {
       super(prefix, ids);
    }
 
-   // this one will be picked up by name (CustomAction suffix)
-   public Object doubleCustomAction(EntityView view) {
+   public CustomAction[] defineActions() {
+      return new CustomAction[] {
+            new CustomAction("double", EntityView.VIEW_SHOW, "doubleUp"), // return the object with the number doubled
+            new CustomAction("xxx", EntityView.VIEW_EDIT, "xxxChange"), // change all text fields to 3 x's
+            new CustomAction("clear", EntityView.VIEW_LIST, "clearAll") // remove all items
+      };
+   }
+
+   public void clearAll() {
+      myEntities.clear();
+   }
+   
+   public Object doubleUp(EntityView view) {
       MyEntity me = (MyEntity) getEntity(view.getEntityReference());
       MyEntity togo = me.copy();
       togo.setNumber( togo.getNumber() * 2 );
       return new ActionReturn(togo, null);
    }
 
-   @EntityCustomAction(viewKey=EntityView.VIEW_NEW)
-   public void clear() {
-      myEntities.clear();
-   }
-
-   @EntityCustomAction(action="xxx")
-   public void xxxAction(EntityReference ref) {
+   public void xxxChange(EntityReference ref) {
       MyEntity me = (MyEntity) getEntity(ref);
       me.extra = "xxx";
       me.setStuff("xxx");

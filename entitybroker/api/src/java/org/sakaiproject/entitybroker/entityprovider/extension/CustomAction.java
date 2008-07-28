@@ -15,6 +15,7 @@
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 
@@ -40,6 +41,17 @@ public class CustomAction {
     * while POST /user/aaronz/action would be {@link EntityView#VIEW_SHOW}
     */
    public String viewKey = EntityView.VIEW_SHOW;
+   /**
+    * This will be non-null if there is a custom action method which was found or identified
+    * by the annotation {@link EntityCustomAction} or if the developer has defined this
+    * explicitly
+    */
+   public String methodName;
+   /**
+    * These are the argument types found in the custom action method in order,
+    * this should not be populated manually as any value in this will be overwritten
+    */
+   public Class<?>[] methodArgTypes;
 
    /**
     * Construct a custom action for entities
@@ -61,6 +73,11 @@ public class CustomAction {
       this.viewKey = viewKey;
    }
 
+   public CustomAction(String action, String viewKey, String methodName) {
+      this(action, viewKey);
+      this.methodName = methodName;
+   }
+
    /**
     * @return a copy of this object
     */
@@ -76,12 +93,14 @@ public class CustomAction {
       if (ca == null) {
          throw new IllegalArgumentException("action to copy must not be null");
       }
-      return new CustomAction(ca.action, ca.viewKey);
+      CustomAction togo = new CustomAction(ca.action, ca.viewKey, ca.methodName);
+      togo.methodArgTypes = ca.methodArgTypes;
+      return togo;
    }
 
    @Override
    public String toString() {
-      return this.action + ":" + this.viewKey;
+      return this.action + ":" + this.viewKey + ":" + this.methodName;
    }
 
 }

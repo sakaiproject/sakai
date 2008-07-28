@@ -25,6 +25,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
+import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
@@ -182,13 +183,13 @@ public class EntityActionsManagerTest extends TestCase {
       // check double operation works
       MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
       int num = me.getNumber();
-      ActionReturn ar = (ActionReturn) aep.doubleAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+      ActionReturn ar = (ActionReturn) aep.doubleCustomAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
       MyEntity doubleMe = (MyEntity) ar.entityData;
       assertEquals(doubleMe.getNumber(), num * 2);
       assertEquals(me.getId(), doubleMe.getId());
 
       // make sure it works twice
-      ar = (ActionReturn) aep.doubleAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+      ar = (ActionReturn) aep.doubleCustomAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
       doubleMe = (MyEntity) ar.entityData;
       assertEquals(doubleMe.getNumber(), num * 2);
 
@@ -204,7 +205,7 @@ public class EntityActionsManagerTest extends TestCase {
 
       // test clear
       assertEquals(2, aep.myEntities.size());
-      aep.executeActions(new EntityView(new EntityReference(TestData.PREFIXA1, ""), EntityView.VIEW_NEW, null), "clear", null, null);
+      aep.clear();
       assertEquals(0, aep.myEntities.size());      
    }
 
@@ -238,6 +239,12 @@ public class EntityActionsManagerTest extends TestCase {
       assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "xxx") );
       assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "double") );
 
+      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA2, "xxx") );
+      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA2, "clear") );
+
+      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA3, "clear") );
+      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA3, "double") );
+
       assertNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "apple") );
       assertNull( entityActionsManager.getCustomAction(TestData.PREFIX2, "action") );
       assertNull( entityActionsManager.getCustomAction(TestData.PREFIX5, "action") );
@@ -253,34 +260,34 @@ public class EntityActionsManagerTest extends TestCase {
    }
 
    public void testCustomActions() {
-      ActionsEntityProviderMock aep = td.entityProviderA1;
+      ActionsDefineableEntityProviderMock aep = td.entityProviderA2;
 
       // check double operation works
-      MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+      MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
       int num = me.getNumber();
-      ActionReturn ar = (ActionReturn) aep.doubleAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+      ActionReturn ar = (ActionReturn) aep.doubleUp(new EntityView(new EntityReference(TestData.REFA2), null, null));
       MyEntity doubleMe = (MyEntity) ar.entityData;
       assertEquals(doubleMe.getNumber(), num * 2);
       assertEquals(me.getId(), doubleMe.getId());
 
       // make sure it works twice
-      ar = (ActionReturn) aep.doubleAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+      ar = (ActionReturn) aep.doubleUp(new EntityView(new EntityReference(TestData.REFA2), null, null));
       doubleMe = (MyEntity) ar.entityData;
       assertEquals(doubleMe.getNumber(), num * 2);
 
       // test xxx operation
-      MyEntity me1 = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+      MyEntity me1 = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
       assertFalse("xxx".equals(me1.extra));
       assertFalse("xxx".equals(me1.getStuff()));
-      aep.xxxAction( new EntityReference(TestData.REFA1) );
-      MyEntity xxxMe = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+      aep.xxxChange( new EntityReference(TestData.REFA2) );
+      MyEntity xxxMe = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
       assertEquals(me1.getId(), xxxMe.getId());
       assertTrue("xxx".equals(xxxMe.extra));
       assertTrue("xxx".equals(xxxMe.getStuff()));
 
       // test clear
       assertEquals(2, aep.myEntities.size());
-      aep.executeActions(new EntityView(new EntityReference(TestData.PREFIXA1, ""), EntityView.VIEW_NEW, null), "clear", null, null);
+      aep.clearAll();
       assertEquals(0, aep.myEntities.size());      
    }
 
