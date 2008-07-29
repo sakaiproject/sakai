@@ -1,0 +1,306 @@
+Index: pom.xml
+===================================================================
+--- pom.xml	(revision 49419)
++++ pom.xml	(working copy)
+@@ -56,17 +56,10 @@
+         <module>archive/archive-api/api</module>
+         <module>archive/import-api</module>
+         <module>authz</module>
+-        <module>component</module>
+         <module>content</module>
+         <module>courier</module>
+         <module>course-management/cm-api/api</module>
+-        <module>cluster</module>
+         <module>dav</module>
+-        <module>db</module>
+-        <module>email</module>
+-        <module>entity</module>
+-        <module>event</module>
+-        <module>jcr</module>
+         <module>login</module>
+         <module>master</module>
+         <module>memory</module>
+@@ -81,7 +74,6 @@
+         <module>test-harness</module>
+         <module>tool</module>
+         <module>user</module>
+-        <module>util</module>
+         <module>velocity</module>
+         <module>web</module>
+       </modules>
+@@ -96,7 +88,6 @@
+         <module>authz/authz-api/api</module>
+         <module>authz/authz-impl/impl</module>
+         <module>authz/authz-impl/pack</module>
+-        <module>component</module>
+         <module>content/content-api/api</module>
+         <module>content/content-impl/impl</module>
+         <module>content/content-impl/pack</module>
+@@ -105,11 +96,6 @@
+         <module>courier/courier-impl/impl</module>
+         <module>courier/courier-impl/pack</module>
+         <module>courier/courier-util/util</module>
+-        <module>db</module>
+-        <module>email</module>
+-        <module>entity</module>
+-        <module>event</module>
+-        <module>jcr</module>
+         <module>jsf</module>
+         <module>login</module>
+         <module>master</module>
+@@ -145,7 +131,6 @@
+         <module>user/user-impl/impl</module>
+         <module>user/user-impl/pack</module>
+         <module>user/user-util/util</module>
+-        <module>util</module>
+         <module>velocity</module>
+       </modules>
+     </profile>
+@@ -166,22 +151,15 @@
+         <module>calendar</module>
+         <module>chat</module>
+         <module>citations</module>
+-        <module>cluster</module>
+-        <module>component</module>
+         <module>content</module>
+         <module>content-review</module>
+         <module>courier</module>
+         <module>course-management</module>
+         <module>dav</module>
+-        <module>db</module>
+-        <module>email</module>
+-        <module>entity</module>
+         <module>entitybroker</module>
+-        <module>event</module>
+         <module>gradebook</module>
+         <module>help</module>
+         <module>jobscheduler</module>
+-        <module>jcr</module>
+         <module>jsf</module>
+         <module>linktool</module>
+         <module>login</module>
+@@ -214,7 +192,6 @@
+         <module>textarea</module>
+         <module>tool</module>
+         <module>user</module>
+-        <module>util</module>
+         <module>velocity</module>
+         <module>web</module>
+         <module>webservices</module>
+Index: alias/pom.xml
+===================================================================
+--- alias/pom.xml	(revision 49419)
++++ alias/pom.xml	(working copy)
+@@ -19,9 +19,6 @@
+   </scm>
+ 
+   <modules>
+-    <module>alias-api/api</module>
+-    <module>alias-impl/impl</module>
+-    <module>alias-impl/pack</module>
+     <module>alias-tool/tool</module>
+   </modules>
+ </project>
+Index: authz/pom.xml
+===================================================================
+--- authz/pom.xml	(revision 49419)
++++ authz/pom.xml	(working copy)
+@@ -20,10 +20,6 @@
+ 
+ 
+   <modules>
+-    <module>authz-api/api</module>
+-    <module>authz-impl/impl</module>
+-    <module>authz-impl/integration-test</module>
+-    <module>authz-impl/pack</module>
+     <module>authz-tool/tool</module>
+   </modules>
+ </project>
+Index: content/pom.xml
+===================================================================
+--- content/pom.xml	(revision 49419)
++++ content/pom.xml	(working copy)
+@@ -23,29 +23,21 @@
+   <profile>
+         <id>framework</id>
+         <modules>
+-          <module>content-api/api</module>
+           <module>content-help</module>
+-          <module>content-impl/hbm</module>
+-          <module>content-impl/impl</module>
+           <module>content-tool</module>
+           <module>content-tool/tool</module>
+-          <module>content-util/util</module>
+           <module>content-impl/pack</module>
+         </modules>
+   </profile>
+   <profile>
+         <id>framework-jcr</id>
+         <modules>
+-          <module>content-api/api</module>
+           <module>content-help</module>
+-          <module>content-impl/hbm</module>
+-          <module>content-impl/impl</module>
+           <module>content-impl-jcr/impl</module>
+           <module>content-jcr-migration-api</module>
+           <module>content-jcr-migration-impl</module>
+           <module>content-tool</module>
+           <module>content-tool/tool</module>
+-          <module>content-util/util</module>
+           <module>content-impl-jcr/pack</module>
+           <module>contentmultiplex-impl/impl</module>
+         </modules>
+@@ -54,10 +46,7 @@
+   <profile>
+         <id>full-jcr</id>
+   <modules>
+-    <module>content-api/api</module>
+     <module>content-help</module>
+-    <module>content-impl/hbm</module>
+-    <module>content-impl/impl</module>
+     <module>content-jcr-migration-api</module>
+     <module>content-jcr-migration-impl</module>
+     <module>content-impl-jcr/impl</module>
+@@ -66,7 +55,6 @@
+     <module>content-impl-providers/pack</module>
+     <module>content-tool</module>
+     <module>content-tool/tool</module>
+-    <module>content-util/util</module>
+     <module>contentmultiplex-impl/impl</module>
+   </modules>
+   </profile>
+@@ -78,16 +66,11 @@
+           <activeByDefault>true</activeByDefault>
+         </activation>
+   <modules>
+-    <module>content-api/api</module>
+     <module>content-help</module>
+-    <module>content-impl/hbm</module>
+-    <module>content-impl/impl</module>
+-    <module>content-impl/pack</module>
+     <module>content-impl-providers/impl</module>
+     <module>content-impl-providers/pack</module>
+     <module>content-tool</module>
+     <module>content-tool/tool</module>
+-    <module>content-util/util</module>
+   </modules>
+   </profile>
+   </profiles>
+Index: memory/pom.xml
+===================================================================
+--- memory/pom.xml	(revision 49419)
++++ memory/pom.xml	(working copy)
+@@ -19,9 +19,6 @@
+   </scm>
+ 
+   <modules>
+-    <module>memory-api/api</module>
+-    <module>memory-impl/impl</module>
+-    <module>memory-impl/pack</module>
+     <module>memory-tool/tool</module>
+   </modules>
+ </project>
+Index: site/pom.xml
+===================================================================
+--- site/pom.xml	(revision 49419)
++++ site/pom.xml	(working copy)
+@@ -22,10 +22,7 @@
+  <profile>
+         <id>framework</id>
+   <modules>
+-    <module>site-api/api</module>
+     <module>site-help</module>
+-    <module>site-impl/impl</module>
+-    <module>site-impl/pack</module>
+     <module>site-tool/tool</module>
+   </modules>
+   </profile>
+@@ -37,10 +34,7 @@
+         </activation>
+ 
+   <modules>
+-    <module>site-api/api</module>
+     <module>site-help</module>
+-    <module>site-impl/impl</module>
+-    <module>site-impl/pack</module>
+     <module>site-tool/tool</module>
+     <module>mergedlist-util/util</module>
+   </modules>
+Index: tool/pom.xml
+===================================================================
+--- tool/pom.xml	(revision 49419)
++++ tool/pom.xml	(working copy)
+@@ -19,43 +19,7 @@
+   </scm>
+ 
+    
+-  <profiles>
+-    <profile>
+-        <id>framework</id>
+-        <modules>
+-            <module>tool-api/api</module>
+-            <module>tool-impl/impl</module>
+-            <module>tool-impl/pack</module>
+-            <module>tool-util/servlet</module>
+-            <module>tool-util/util</module>
+-            <module>tool-shared-deploy</module>
+-        </modules>
+-     </profile>
+-    <profile>
+-        <id>mini</id>
+-        <modules>
+-            <module>tool-api/api</module>
+-            <module>tool-impl/impl</module>
+-            <module>tool-impl/pack</module>
+-            <module>tool-util/servlet</module>
+-            <module>tool-util/util</module>
+-            <module>tool-shared-deploy</module>
+-        </modules>
+-     </profile>
+-     <profile>
+-        <id>full</id>
+-        <activation>
+-          <activeByDefault>true</activeByDefault>
+-        </activation>
+   	<modules>
+-	    <module>tool-api/api</module>
+-	    <module>tool-impl/impl</module>
+-	    <module>tool-impl/pack</module>
+ 	    <module>tool-tool/su</module>
+-	    <module>tool-util/servlet</module>
+-	    <module>tool-util/util</module>
+-	    <module>tool-shared-deploy</module>
+ 	</modules>
+-     </profile>
+-  </profiles>
+ </project>
+Index: user/pom.xml
+===================================================================
+--- user/pom.xml	(revision 49419)
++++ user/pom.xml	(working copy)
+@@ -22,11 +22,7 @@
+  <profile>
+         <id>framework</id>
+   <modules>
+-    <module>user-api/api</module>
+-    <module>user-impl/impl</module>
+-    <module>user-impl/pack</module>
+     <module>user-tool/tool</module>
+-    <module>user-util/util</module>
+   </modules>
+  </profile>
+ 
+@@ -37,13 +33,9 @@
+         </activation>
+ 
+   <modules>
+-    <module>user-api/api</module>
+-    <module>user-impl/impl</module>
+-    <module>user-impl/pack</module>
+     <module>user-tool/tool</module>
+     <module>user-tool-admin-prefs/admin-prefs</module>
+     <module>user-tool-prefs/tool</module>
+-    <module>user-util/util</module>
+   </modules>
+  </profile>
+  </profiles>
