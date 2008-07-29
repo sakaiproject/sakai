@@ -2098,3 +2098,186 @@ Index: master/pom.xml
      </plugins>
    </build>
  </project>
+Index: osp/xsltcharon/xsltcharon-portal/xsl-portal/pom.xml
+===================================================================
+--- osp/xsltcharon/xsltcharon-portal/xsl-portal/pom.xml	(revision 49427)
++++ osp/xsltcharon/xsltcharon-portal/xsl-portal/pom.xml	(working copy)
+@@ -1,12 +1,12 @@
+ <?xml version="1.0"?>
+ <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+-   <parent>
+-     <artifactId>osp-xsltcharon</artifactId>
+-     <groupId>org.sakaiproject.osp</groupId>
+-     <version>SNAPSHOT</version>
+-     <relativePath>../../pom.xml</relativePath>
+-   </parent>
++  <parent>
++    <artifactId>osp-xsltcharon</artifactId>
++    <groupId>org.sakaiproject.osp</groupId>
++    <version>SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
+   <name>xslt portal</name>
+   <groupId>org.sakaiproject</groupId>
+   <artifactId>xsl-portal</artifactId>
+@@ -17,71 +17,55 @@
+   <inceptionYear>2003</inceptionYear>
+   <packaging>war</packaging>
+   <dependencies>
+-     <dependency>
+-       <groupId>org.sakaiproject</groupId>
+-       <artifactId>sakai-portal-api</artifactId>
+-       <version>${sakai.version}</version>
+-     </dependency>
+-     <dependency>
+-       <groupId>org.sakaiproject</groupId>
+-       <artifactId>sakai-portal-render-api</artifactId>
+-       <version>${sakai.version}</version>
+-     </dependency>
+-     <dependency>
+-       <groupId>org.sakaiproject</groupId>
+-       <artifactId>sakai-user-api</artifactId>
+-       <version>${sakai.version}</version>
+-     </dependency>
+-     <dependency>
+-       <groupId>org.sakaiproject</groupId>
+-       <artifactId>sakai-tool-api</artifactId>
+-       <version>${sakai.version}</version>
+-     </dependency>
+-     <dependency>
+-       <groupId>org.sakaiproject</groupId>
+-       <artifactId>sakai-site-api</artifactId>
+-       <version>${sakai.version}</version>
+-     </dependency>
+-     <dependency>
+-       <groupId>org.sakaiproject</groupId>
+-       <artifactId>sakai-entity-api</artifactId>
+-       <version>${sakai.version}</version>
+-     </dependency>
+     <dependency>
+-      <groupId>org.sakaiproject</groupId>
+-      <artifactId>sakai-portal-impl</artifactId>
+-      <version>${sakai.version}</version>
++      <groupId>org.sakaiproject.kernel</groupId>
++      <artifactId>sakai-kernel-api</artifactId>
+     </dependency>
+     <dependency>
+-      <groupId>org.sakaiproject</groupId>
++      <groupId>org.sakaiproject.kernel</groupId>
++      <artifactId>sakai-component-manager</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>org.sakaiproject.kernel.util</groupId>
+       <artifactId>sakai-tool-util</artifactId>
+-      <version>${sakai.version}</version>
+     </dependency>
+     <dependency>
+-      <groupId>org.sakaiproject</groupId>
++      <groupId>org.sakaiproject.kernel.util</groupId>
+       <artifactId>sakai-user-util</artifactId>
+-      <version>${sakai.version}</version>
+     </dependency>
+     <dependency>
+-      <groupId>org.sakaiproject</groupId>
++      <groupId>org.sakaiproject.kernel.util</groupId>
++      <artifactId>sakai-webapp-util</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>org.sakaiproject.kernel.util</groupId>
+       <artifactId>sakai-util</artifactId>
+-      <version>${sakai.version}</version>
+     </dependency>
+     <dependency>
+       <groupId>org.sakaiproject</groupId>
+-      <artifactId>sakai-util-api</artifactId>
++      <artifactId>sakai-portal-api</artifactId>
+       <version>${sakai.version}</version>
+     </dependency>
+     <dependency>
+       <groupId>org.sakaiproject</groupId>
+-      <artifactId>sakai-component-api</artifactId>
++      <artifactId>sakai-portal-render-api</artifactId>
+       <version>${sakai.version}</version>
+     </dependency>
++<!--org.sakaiprojectsakai-user-api${sakai.version}-->
++<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
++<!--org.sakaiprojectsakai-site-api${sakai.version}-->
++<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
+     <dependency>
+       <groupId>org.sakaiproject</groupId>
+-      <artifactId>sakai-component</artifactId>
++      <artifactId>sakai-portal-impl</artifactId>
+       <version>${sakai.version}</version>
+     </dependency>
++<!--org.sakaiprojectsakai-tool-util${sakai.version}-->
++<!--org.sakaiprojectsakai-user-util${sakai.version}-->
++<!--org.sakaiprojectsakai-util${sakai.version}-->
++<!--org.sakaiprojectsakai-util-api${sakai.version}-->
++<!--org.sakaiprojectsakai-component-api${sakai.version}-->
++<!--org.sakaiprojectsakai-component${sakai.version}-->
+     <dependency>
+       <groupId>org.sakaiproject</groupId>
+       <artifactId>sakai-portal-util</artifactId>
+@@ -93,35 +77,34 @@
+       <version>${sakai.servletapi.version}</version>
+       <scope>provided</scope>
+     </dependency>
+-     <dependency>
+-       <groupId>${sakai.spring.groupId}</groupId>
+-       <artifactId>${sakai.spring.artifactId}</artifactId>
+-       <version>${sakai.spring.version}</version>
+-        <scope>provided</scope>
+-     </dependency>    
+-    
+-     <dependency>
+-       <groupId>org.sakaiproject</groupId>
+-       <artifactId>sakai-metaobj-tool-lib</artifactId>
+-       <version>${sakai.version}</version>
+-     </dependency>
++    <dependency>
++      <groupId>${sakai.spring.groupId}</groupId>
++      <artifactId>${sakai.spring.artifactId}</artifactId>
++      <version>${sakai.spring.version}</version>
++      <scope>provided</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.sakaiproject</groupId>
++      <artifactId>sakai-metaobj-tool-lib</artifactId>
++      <version>${sakai.version}</version>
++    </dependency>
+   </dependencies>
+   <build>
+-     <resources>
+-       <resource>
+-         <directory>src/bundle</directory>
+-         <includes>
+-           <include>**/*.properties</include>
+-           <include>**/*.xml</include>
+-         </includes>
+-       </resource>
+-       <resource>
+-         <directory>src/java</directory>
+-         <includes>
+-           <include>**/*.hbm.xml</include>
+-         </includes>
+-       </resource>
+-     </resources>
++    <resources>
++      <resource>
++        <directory>src/bundle</directory>
++        <includes>
++          <include>**/*.properties</include>
++          <include>**/*.xml</include>
++        </includes>
++      </resource>
++      <resource>
++        <directory>src/java</directory>
++        <includes>
++          <include>**/*.hbm.xml</include>
++        </includes>
++      </resource>
++    </resources>
+     <sourceDirectory>src/java</sourceDirectory>
+   </build>
+ </project>
