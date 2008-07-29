@@ -3,7 +3,7 @@
   <parent>
     <artifactId>db</artifactId>
     <groupId>org.sakaiproject.kernel.impl.content</groupId>
-    <version>1.0RC2</version>
+    <version>1.0RC3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Content DB Service Implementation</name>
