@@ -3,16 +3,9 @@
 <!--  Request-scope beans for TaskList - actually just the handler -->
 <beans>
 
-   <!-- rich text evolver bean def -->
-   <bean id="sakaiFCKTextEvolver2"
-   	class="org.sakaiproject.poll.tool.evolvers.SakaiFCKTextEvolver">
-   	<property name="contentHostingService"
-   		ref="org.sakaiproject.content.api.ContentHostingService" />
-   	<property name="context" ref="sakai-Context" />
-   </bean>
 
    <!-- rich text evolver bean def -->
-   <bean id="richTextEvolver" parent="sakaiFCKTextEvolver2" />
+   <bean id="richTextEvolver" parent="sakaiFCKTextEvolver" />
 
    <bean id="pollToolBean"
 		class="org.sakaiproject.poll.tool.params.PollToolBean">

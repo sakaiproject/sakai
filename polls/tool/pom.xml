@@ -32,7 +32,7 @@
 	</description>
 	<properties>
 		<sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-		<rsfutil.version>0.7.2</rsfutil.version>
+		<rsfutil.version>0.7.3</rsfutil.version>
 	</properties>
 	<packaging>war</packaging>
 
@@ -139,4 +139,15 @@
 			<type>war</type>
 		</dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>CARET-Maven2-dev</id>
+			<name>CARET Maven 2 Development Repository</name>
+			<url>http://www2.caret.cam.ac.uk/maven2dev</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 </project>

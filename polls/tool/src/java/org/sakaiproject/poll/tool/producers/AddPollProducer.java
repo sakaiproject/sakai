@@ -267,8 +267,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
 		  dateevolver.evolveDateInput(voteOpen, poll.getVoteOpen());
 		  dateevolver.evolveDateInput(voteClose, poll.getVoteClose());
-		  UILabelTargetDecorator.targetLabel(pollOpen, voteOpen);
-		  UILabelTargetDecorator.targetLabel(pollClose, voteClose);
+		  //UILabelTargetDecorator.targetLabel(pollOpen, voteOpen);
+		  //UILabelTargetDecorator.targetLabel(pollClose, voteClose);
 		  
 		  
 		  String[] minVotes = new String[]{"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
