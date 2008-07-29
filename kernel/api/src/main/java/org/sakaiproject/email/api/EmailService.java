@@ -23,8 +23,12 @@ package org.sakaiproject.email.api;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.internet.InternetAddress;
+
+import org.sakaiproject.email.api.EmailAddress.RecipientType;
+import org.sakaiproject.user.api.User;
 
 /**
  * <p>
@@ -52,8 +56,43 @@ public interface EmailService
 	 *        Additional email headers to send (List of String). For example, content type or forwarded headers (may be null)
 	 */
 	void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content, InternetAddress[] headerTo,
-			InternetAddress[] replyTo, List additionalHeaders);
+			InternetAddress[] replyTo, List<String> additionalHeaders);
 
+	/**
+	 * <p>
+	 * Creates and sends a generic text MIME message to the address contained in <code>to</code>.
+	 * </p>
+	 * 
+	 * <p>
+	 * Some character set constants are available in {@link CharacterSet}<br>
+	 * The content type should be of the format "text/plain; charset=windows-1252; format=flowed"
+	 * </p>
+	 * 
+	 * @param from
+	 *            The address this message is to be listed as coming from.
+	 * @param to
+	 *            The address(es) this message should be sent to. These addresses are used in the
+	 *            SMTP routing.
+	 * @param subject
+	 *            The subject of this message.
+	 * @param content
+	 *            The body of the message.
+	 * @param headerTo
+	 *            If specified, this is placed into the message header, but "to" is used for the
+	 *            actual recipients.
+	 * @param replyTo
+	 *            If specified, the reply-to header value.
+	 * @param additionalHeaders
+	 *            Additional email headers to send (List of String). For example, content type or
+	 *            forwarded headers (may be null)
+	 * @param attachments
+	 * @param contentType
+	 * @param charset
+	 */
+	void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
+			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
+			List<String> additionalHeaders, List<Attachment> attachments);
+	
 	/**
 	 * Creates and sends a generic text MIME message to the address contained in to.
 	 * 
@@ -73,7 +112,7 @@ public interface EmailService
 	 *        Additional email headers to send (List of String). For example, content type or forwarded headers (may be null)
 	 */
 	void send(String fromStr, String toStr, String subject, String content, String headerToStr, String replyToStr,
-			List additionalHeaders);
+			List<String> additionalHeaders);
 
 	/**
 	 * Send a single message to a set of Users.
@@ -85,5 +124,14 @@ public interface EmailService
 	 * @param message
 	 *        String body of the message.
 	 */
-	void sendToUsers(Collection users, Collection headers, String message);
+	void sendToUsers(Collection<User> users, Collection<String> headers, String message);
+
+	/**
+	 * Sends a single message to a set of users.
+	 * 
+	 * @param message
+	 *            {@link EmailMessage} that contains the parameters to create a message to the
+	 *            specified recipients.
+	 */
+	void send(EmailMessage message);
 }

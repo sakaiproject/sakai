@@ -13,7 +13,8 @@
         
     <bean id="org.sakaiproject.db.api.SqlService"
 			class="org.sakaiproject.db.impl.BasicSqlService"
-			init-method="init" destroy-method="destroy" singleton="true">
+			init-method="init" destroy-method="destroy" singleton="true"
+            depends-on="db.cache.SAKAI_SITE_PROPERTY,db.cache.SAKAI_SITE_PAGE_PROPERTY,db.cache.SAKAI_REALM_PROPERTY,db.cache.SAKAI_ALIAS_PROPERTY,db.cache.SAKAI_SITE_GROUP_PROPERTY,db.cache.SAKAI_USER_PROPERTY">
 
 		<lookup-method name="usageSessionService" bean="org.sakaiproject.event.api.UsageSessionService" />
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
@@ -182,16 +183,16 @@
 			<value>900000</value>
 		</property>
 
-	</bean>
+    </bean>
 
-	<!-- Shared DataSource for all pooled database connections -->
-	<bean id="javax.sql.DataSource" parent="javax.sql.BaseDataSource">
-	</bean>
+    <!-- Shared DataSource for all pooled database connections -->
+    <bean id="javax.sql.DataSource" parent="javax.sql.BaseDataSource">
+    </bean>
 
-	<!-- The "slow" connection pool for streaming downloads from db -->
-	<bean id="javax.sql.LongDataSource"
-			parent="javax.sql.BaseDataSource">
-	</bean>
+    <!-- The "slow" connection pool for streaming downloads from db -->
+    <bean id="javax.sql.LongDataSource"
+            parent="javax.sql.BaseDataSource">
+    </bean>
 
 	<!-- Base Hibernate SessionFactory -->
 	<bean
@@ -268,8 +269,45 @@
     	<property name="timeToLive" ><value>300</value></property>
     	<property name="timeToIdle" ><value>600</value></property>
   	</bean>
-	
-	<!-- enables JMX on hibernate -->
+
+    <!-- beans for use in caching DB flat (uses defaults) -->
+    <bean id="db.cache.SAKAI_ALIAS_PROPERTY"
+           class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_ALIAS_PROPERTY" />
+    </bean>
+
+    <bean id="db.cache.SAKAI_SITE_PROPERTY"
+           class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_SITE_PROPERTY" />
+    </bean>
+
+    <bean id="db.cache.SAKAI_SITE_PAGE_PROPERTY"
+           class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_SITE_PAGE_PROPERTY" />
+    </bean>
+
+    <bean id="db.cache.SAKAI_REALM_PROPERTY"
+           class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_REALM_PROPERTY" />
+    </bean>
+
+    <bean id="db.cache.SAKAI_SITE_GROUP_PROPERTY"
+           class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_SITE_GROUP_PROPERTY" />
+    </bean>
+
+    <bean id="db.cache.SAKAI_USER_PROPERTY"
+           class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_USER_PROPERTY" />
+    </bean>
+
+    <!-- enables JMX on hibernate -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase.jmxAgent" 
   			class="org.sakaiproject.springframework.orm.hibernate.HibernateJMXAgent"
   			init-method="init" >

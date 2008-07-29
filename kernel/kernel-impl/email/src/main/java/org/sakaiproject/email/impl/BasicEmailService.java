@@ -21,18 +21,25 @@
 
 package org.sakaiproject.email.impl;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -45,7 +52,14 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.Attachment;
+import org.sakaiproject.email.api.CharacterSet;
+import org.sakaiproject.email.api.ContentType;
+import org.sakaiproject.email.api.EmailAddress;
+import org.sakaiproject.email.api.EmailHeaders;
+import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -82,7 +96,7 @@ public abstract class BasicEmailService implements EmailService
 	 */
 	protected static final String SMTP_LOCALHOST = "mail.smtp.localhost";
 
-	protected static final String CONTENT_TYPE = "text/plain";
+	protected static final String CONTENT_TYPE = ContentType.TEXT_PLAIN;
 
 	/** Protocol name for smtp. */
 	protected static final String SMTP_PROTOCOL = "smtp";
@@ -95,6 +109,8 @@ public abstract class BasicEmailService implements EmailService
 	 * @return the ServerConfigurationService collaborator.
 	 */
 	protected abstract ServerConfigurationService serverConfigurationService();
+
+//	protected abstract ContentHostingService contentHostingService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration Note: keep these in sync with the TestEmailService, to make switching between them easier -ggolden
@@ -242,7 +258,23 @@ public abstract class BasicEmailService implements EmailService
 	 * {@inheritDoc}
 	 */
 	public void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content, InternetAddress[] headerTo,
-			InternetAddress[] replyTo, List additionalHeaders)
+			InternetAddress[] replyTo, List<String> additionalHeaders)
+	{
+		HashMap<RecipientType, InternetAddress[]> recipients = null;
+		if (headerTo != null)
+		{
+			recipients = new HashMap<RecipientType, InternetAddress[]>();
+			recipients.put(RecipientType.TO, headerTo);
+		}
+		sendMail(from, to, subject, content, recipients, replyTo, additionalHeaders, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
+			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
+			List<String> additionalHeaders, List<Attachment> attachments)
 	{
 		// some timing for debug
 		long start = 0;
@@ -286,15 +318,11 @@ public abstract class BasicEmailService implements EmailService
 
 		// set the port, if specified
 		if (m_smtpPort != null)
-		{
 			props.put(SMTP_PORT, m_smtpPort);
-		}
 		
 		// Set localhost name
 		if (m_smtpLocalhost != null)
-		{
 			props.put(SMTP_LOCALHOST, m_smtpLocalhost);
-		}
 
 		// set the mail envelope return address
 		props.put(SMTP_FROM, m_smtpFrom);
@@ -307,13 +335,13 @@ public abstract class BasicEmailService implements EmailService
 			String mid = null;
 			if (additionalHeaders != null)
 			{
-				Iterator i = additionalHeaders.iterator();
-				while (i.hasNext())
+				for (String header : additionalHeaders)
 				{
-					String header = (String) i.next();
-					if (header.toLowerCase().startsWith("message-id: "))
+					if (header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
 					{
+						// length of 'message-id: ' == 12
 						mid = header.substring(12);
+						break;
 					}
 				}
 			}
@@ -323,160 +351,104 @@ public abstract class BasicEmailService implements EmailService
 
 			// the FULL content-type header, for example:
 			// Content-Type: text/plain; charset=windows-1252; format=flowed
-			String contentType = null;
-
-			// the character set, for example, windows-1252 or UTF-8
-			String charset = null;
+			String contentTypeHeader = null;
 
 			// set the additional headers on the message
 			// but treat Content-Type specially as we need to check the charset
 			// and we already dealt with the message id
 			if (additionalHeaders != null)
 			{
-				Iterator i = additionalHeaders.iterator();
-				while (i.hasNext())
+				for (String header : additionalHeaders)
 				{
-					String header = (String) i.next();
-					if (header.toLowerCase().startsWith("content-type: "))
-					{
-						contentType = header;
-					}
-					else if (!header.toLowerCase().startsWith("message-id: "))
-					{
+					if (header.toLowerCase().startsWith(EmailHeaders.CONTENT_TYPE.toLowerCase() + ": "))
+						contentTypeHeader = header;
+					else if (!header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
 						msg.addHeaderLine(header);
-					}
 				}
 			}
 
 			// date
-			if (msg.getHeader("Date") == null)
-			{
+			if (msg.getHeader(EmailHeaders.DATE) == null)
 				msg.setSentDate(new Date(System.currentTimeMillis()));
-			}
 
+			// set the message sender
 			msg.setFrom(from);
 
-			if (msg.getHeader("To") == null)
-			{
-				if (headerTo != null)
-				{
-					msg.setRecipients(Message.RecipientType.TO, headerTo);
-				}
-			}
+			// set the message recipients (headers)
+			setRecipients(headerTo, msg);
 
-			if ((replyTo != null) && (msg.getHeader("Reply-To") == null))
-			{
+			// set the reply to
+			if ((replyTo != null) && (msg.getHeader(EmailHeaders.REPLY_TO) == null))
 				msg.setReplyTo(replyTo);
-			}
 
 			// figure out what charset encoding to use
 			//
 			// first try to use the charset from the forwarded
 			// Content-Type header (if there is one).
+			//
 			// if that charset doesn't work, try a couple others.
-			if (contentType != null)
-			{
-				// try and extract the charset from the Content-Type header
-				int charsetStart = contentType.toLowerCase().indexOf("charset=");
-				if (charsetStart != -1)
-				{
-					int charsetEnd = contentType.indexOf(";", charsetStart);
-					if (charsetEnd == -1) charsetEnd = contentType.length();
-					charset = contentType.substring(charsetStart + "charset=".length(), charsetEnd).trim();
-				}
-			}
+			// the character set, for example, windows-1252 or UTF-8
+			String charset = extractCharset(contentTypeHeader);
 
 			if (charset != null && canUseCharset(content, charset))
 			{
 				// use the charset from the Content-Type header
 			}
-			else if (canUseCharset(content, "ISO-8859-1"))
+			else if (canUseCharset(content, CharacterSet.ISO_8859_1))
 			{
-				if (contentType != null && charset != null) 
-					contentType = contentType.replaceAll(charset, "ISO-8859-1");
-				else if(contentType != null) 
-					contentType += "; charset=ISO-8859-1";
-				charset = "ISO-8859-1";
+				if (contentTypeHeader != null && charset != null)
+					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.ISO_8859_1);
+				else if (contentTypeHeader != null)
+					contentTypeHeader += "; " + CharacterSet.ISO_8859_1;
+				charset = CharacterSet.ISO_8859_1;
 			}
-			else if (canUseCharset(content, "windows-1252"))
+			else if (canUseCharset(content, CharacterSet.WINDOWS_1252))
 			{
-				if (contentType != null && charset != null) 
-					contentType = contentType.replaceAll(charset, "windows-1252");
-				else if(contentType != null) 
-					contentType += "; charset=windows-1252";
-				charset = "windows-1252";
+				if (contentTypeHeader != null && charset != null)
+					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.WINDOWS_1252);
+				else if (contentTypeHeader != null)
+					contentTypeHeader += "; " + CharacterSet.WINDOWS_1252;
+				charset = CharacterSet.ISO_8859_1;
 			}
 			else
 			{
 				// catch-all - UTF-8 should be able to handle anything
-				if (contentType != null && charset != null) 
-					contentType = contentType.replaceAll(charset, "UTF-8");
-				else if (contentType != null)
-					contentType += "; charset=UTF-8";
-				charset = "UTF-8";
+				if (contentTypeHeader != null && charset != null) 
+					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.UTF_8);
+				else if (contentTypeHeader != null)
+					contentTypeHeader += "; charset=" + CharacterSet.UTF_8;
+				else
+					contentTypeHeader = EmailHeaders.CONTENT_TYPE + ": "
+							+ ContentType.TEXT_PLAIN + "; charset="
+							+ CharacterSet.UTF_8;
+				charset = CharacterSet.UTF_8;
 			}
 
-			if ((subject != null) && (msg.getHeader("Subject") == null))
-			{
+			if ((subject != null) && (msg.getHeader(EmailHeaders.SUBJECT) == null))
 				msg.setSubject(subject, charset);
-			}
 
-			// fill in the body of the message
-			msg.setText(content, charset);
+			// extract just the content type value from the header
+			String contentType = null;
+			if (contentTypeHeader != null)
+			{
+				int colonPos = contentTypeHeader.indexOf(":");
+				contentType = contentTypeHeader.substring(colonPos + 1).trim();
+			}
+			setContent(content, attachments, msg, contentType, charset);
 
 			// if we have a full Content-Type header, set it NOW
 			// (after setting the body of the message so that format=flowed is preserved)
-			if (contentType != null)
+			if (contentTypeHeader != null)
 			{
-				msg.addHeaderLine(contentType);
-				msg.addHeaderLine("Content-Transfer-Encoding: quoted-printable");
+				msg.addHeaderLine(contentTypeHeader);			
+				msg.addHeaderLine(EmailHeaders.CONTENT_TRANSFER_ENCODING + ": quoted-printable");
 			}
 
-			long preSend = 0;
-			if (M_log.isDebugEnabled()) preSend = System.currentTimeMillis();
-
-			Transport.send(msg, to);
-
-			long end = 0;
-			if (M_log.isDebugEnabled()) end = System.currentTimeMillis();
-
-			if (M_log.isInfoEnabled())
-			{
-				StringBuilder buf = new StringBuilder();
-				buf.append("Email.sendMail: from: ");
-				buf.append(from);
-				buf.append(" subject: ");
-				buf.append(subject);
-				buf.append(" to:");
-				for (int i = 0; i < to.length; i++)
-				{
-					buf.append(" ");
-					buf.append(to[i]);
-				}
-				if (headerTo != null)
-				{
-					buf.append(" headerTo:");
-					for (int i = 0; i < headerTo.length; i++)
-					{
-						buf.append(" ");
-						buf.append(headerTo[i]);
-					}
-				}
-
-				if (M_log.isDebugEnabled())
-				{
-					buf.append(" time: ");
-					buf.append("" + (end - start));
-					buf.append(" in send: ");
-					buf.append("" + (end - preSend));
-				}
-
-				M_log.info(buf.toString());
-			}
+			sendMessageAndLog(from, to, subject, headerTo, start, msg);
 		}
 		catch (MessagingException e)
 		{
-			M_log.warn("Email.sendMail: exception: " + e, e);
+			M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
 		}
 	}
 
@@ -484,7 +456,7 @@ public abstract class BasicEmailService implements EmailService
 	 * {@inheritDoc}
 	 */
 	public void send(String fromStr, String toStr, String subject, String content, String headerToStr, String replyToStr,
-			List additionalHeaders)
+			List<String> additionalHeaders)
 	{
 		// if in test mode, use the test method
 		if (m_testMode)
@@ -553,7 +525,7 @@ public abstract class BasicEmailService implements EmailService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void sendToUsers(Collection users, Collection headers, String message)
+	public void sendToUsers(Collection<User> users, Collection<String> headers, String message)
 	{
 		if (headers == null)
 		{
@@ -587,10 +559,9 @@ public abstract class BasicEmailService implements EmailService
 		}
 
 		// form the list of to: addresses from the users users collection
-		Vector addresses = new Vector();
-		for (Iterator i = users.iterator(); i.hasNext();)
+		ArrayList<InternetAddress> addresses = new ArrayList<InternetAddress>();
+		for (User user : users)
 		{
-			User user = (User) i.next();
 			String email = user.getEmail();
 			if ((email != null) && (email.length() > 0))
 			{
@@ -612,7 +583,7 @@ public abstract class BasicEmailService implements EmailService
 		int numMessageSets = ((addresses.size() - 1) / m_maxRecipients) + 1;
 
 		// make an array for each and store them all in the collection
-		Collection messageSets = new Vector();
+		ArrayList<Address[]> messageSets = new ArrayList<Address[]>();
 		int posInAddresses = 0;
 		for (int i = 0; i < numMessageSets; i++)
 		{
@@ -631,7 +602,7 @@ public abstract class BasicEmailService implements EmailService
 			int posInToAddresses = 0;
 			while (posInToAddresses < thisSize)
 			{
-				toAddresses[posInToAddresses] = (Address) addresses.elementAt(posInAddresses);
+				toAddresses[posInToAddresses] = (Address) addresses.get(posInAddresses);
 				posInToAddresses++;
 				posInAddresses++;
 			}
@@ -673,9 +644,9 @@ public abstract class BasicEmailService implements EmailService
 			if (M_log.isDebugEnabled()) time4 = System.currentTimeMillis();
 
 			// loop the send for each message set
-			for (Iterator i = messageSets.iterator(); i.hasNext();)
+			for (Iterator<Address[]> i = messageSets.iterator(); i.hasNext();)
 			{
-				Address[] toAddresses = (Address[]) i.next();
+				Address[] toAddresses = i.next();
 
 				try
 				{
@@ -722,16 +693,14 @@ public abstract class BasicEmailService implements EmailService
 		{
 			StringBuilder buf = new StringBuilder();
 			buf.append("sendToUsers: headers[");
-			for (Iterator i = headers.iterator(); i.hasNext();)
+			for (String header : headers)
 			{
-				String header = (String) i.next();
 				buf.append(" ");
 				buf.append(cleanUp(header));
 			}
 			buf.append("]");
-			for (Iterator i = messageSets.iterator(); i.hasNext();)
+			for (Address[] toAddresses : messageSets)
 			{
-				Address[] toAddresses = (Address[]) i.next();
 				buf.append(" to[ ");
 				for (int a = 0; a < toAddresses.length; a++)
 				{
@@ -751,6 +720,112 @@ public abstract class BasicEmailService implements EmailService
 
 			M_log.info(buf.toString());
 		}
+	}
+
+	public void send(EmailMessage msg)
+	{
+		try
+		{
+			// convert EmailAddress things to InternetAddress things
+			InternetAddress from = new InternetAddress(msg.getFrom().getAddress(), true);
+			from.setPersonal(msg.getFrom().getPersonal());
+			InternetAddress[] to = emails2Internets(msg.getRecipients(RecipientType.TO));
+			InternetAddress[] cc = emails2Internets(msg.getRecipients(RecipientType.CC));
+			InternetAddress[] bcc = emails2Internets(msg.getRecipients(RecipientType.BCC));
+			InternetAddress[] actual = emails2Internets(msg.getRecipients(RecipientType.ACTUAL));
+			InternetAddress[] replyTo = emails2Internets(msg.getReplyTo());
+
+			// check that some actual addresses were given. if not, use a compilation of to, cc, bcc
+			if (actual.length == 0)
+			{
+				actual = new InternetAddress[to.length + cc.length + bcc.length];
+				int count = 0;
+				for (InternetAddress t : to)
+					actual[count++] = t;
+				for (InternetAddress c : cc)
+					actual[count++] = c;
+				for (InternetAddress b : bcc)
+					actual[count++] = b;
+			}
+
+			// rebundle addresses to expected param type
+			HashMap<RecipientType, InternetAddress[]> headerTo = new HashMap<RecipientType, InternetAddress[]>();
+			headerTo.put(RecipientType.TO, to);
+			headerTo.put(RecipientType.CC, cc);
+			headerTo.put(RecipientType.BCC, bcc);
+
+			// convert headers to expected format
+			List<String> headers = headerMap2List(msg.getHeaders());
+
+			// build the content type
+			String contentType = EmailHeaders.CONTENT_TYPE + ": " + msg.getContentType();
+			if (msg.getCharacterSet() != null && msg.getCharacterSet().trim().length() != 0)
+				contentType += "; charset=" + msg.getCharacterSet();
+			// message format is only used when content type is text/plain as specified in the rfc
+			if (ContentType.TEXT_PLAIN.equals(msg.getCharacterSet()) && msg.getFormat() != null
+					&& msg.getFormat().trim().length() != 0)
+				contentType += "; format=" + msg.getFormat();
+			// add the content type to the headers
+			headers.add(contentType);
+
+			// send the message
+			sendMail(from, actual, msg.getSubject(), msg.getBody(), headerTo, replyTo, headers, msg
+					.getAttachments());
+		}
+		catch (AddressException ae)
+		{
+			M_log.warn("Email.send: exception: " + ae.getMessage(), ae);
+		}
+		catch (UnsupportedEncodingException uee)
+		{
+			M_log.warn("Email.send: exception: " + uee.getMessage(), uee);
+		}
+	}
+
+	protected List<String> headerMap2List(Map<String, String> headers)
+	{
+		List<String> retval = null;
+		if (headers != null && !headers.isEmpty())
+		{
+			retval = new ArrayList<String>();
+			for (String key : headers.keySet())
+			{
+				String value = headers.get(key);
+				retval.add(key + ": " + value);
+			}
+		}
+		return retval;
+	}
+
+	/**
+	 * Converts a {@link java.util.List} of {@link EmailAddress} to
+	 * {@link javax.mail.internet.InternetAddress}.
+	 * 
+	 * @param emails
+	 * @return Array will be the same size as the list with converted addresses. If list is null,
+	 *         the array returned will be 0 length (non-null).
+	 * @throws AddressException
+	 * @throws UnsupportedEncodingException
+	 */
+	protected InternetAddress[] emails2Internets(List<EmailAddress> emails)
+			throws AddressException, UnsupportedEncodingException
+	{
+		InternetAddress[] addrs = null;
+		if (emails != null)
+		{
+			addrs = new InternetAddress[emails.size()];
+			for (int i = 0; i < emails.size(); i++)
+			{
+				EmailAddress email = emails.get(i);
+				addrs[i] = new InternetAddress(email.getAddress(), true);
+				addrs[i].setPersonal(email.getPersonal());
+			}
+		}
+		else
+		{
+			addrs = new InternetAddress[0];
+		}
+		return addrs;
 	}
 
 	protected String cleanUp(String str)
@@ -791,15 +866,60 @@ public abstract class BasicEmailService implements EmailService
 		return buf.toString();
 	}
 
-	protected String usersToStr(Collection users)
+	/**
+	 * Flatten a {@link java.util.Map} to a String
+	 * 
+	 * @param map
+	 * @return A string representation of the {@link java.util.Map}.  Examples of results include:
+	 *         Standard key/value pairs: [[key1:value1], [key2:value2]]
+	 *         List values: [[key1:value1, value2], [key2:value3, value4]]
+	 *         Map values: [[key1:[key2:value1]], [key3:[key4:value2]]]
+	 */
+	protected String mapToStr(Map map)
+	{
+		StringBuilder sb = new StringBuilder();
+		if (map != null)
+		{
+			sb.append("[");
+			for (Iterator i = map.keySet().iterator(); i.hasNext(); )
+			{
+				Object key = i.next();
+				sb.append("[").append(key).append(":");
+				Object value = map.get(key);
+				if (value instanceof Collection)
+				{
+					sb.append(listToStr((Collection) value));
+				}
+				else if (value instanceof Object[])
+				{
+					sb.append(arrayToStr((Object[]) value));
+				}
+				else if (value instanceof Map)
+				{
+					sb.append(mapToStr((Map) value));
+				}
+				else
+				{
+					sb.append(value);
+				}
+				sb.append("]");
+
+				if (i.hasNext())
+					sb.append(", ");
+			}
+			sb.append("]");
+		}
+		return sb.toString();
+	}
+
+	protected String usersToStr(Collection<User> users)
 	{
 		StringBuilder buf = new StringBuilder();
 		buf.append("[");
 		if (users != null)
 		{
-			for (Iterator i = users.iterator(); i.hasNext();)
+			for (User user : users)
 			{
-				User user = (User) i.next();
 				buf.append(user.getDisplayName() + "<" + user.getEmail() + "> ");
 			}
 		}
@@ -810,13 +930,89 @@ public abstract class BasicEmailService implements EmailService
 	}
 
 	/**
+	 * Sets the content for a message. Also attaches files to the message.
+	 * 
+	 * @param content
+	 * @param attachments
+	 * @param msg
+	 * @param charset
+	 * @throws MessagingException
+	 */
+	protected void setContent(String content, List<Attachment> attachments, MimeMessage msg,
+			String contentType, String charset) throws MessagingException
+	{
+		ArrayList<MimeBodyPart> embeddedAttachments = new ArrayList<MimeBodyPart>();
+		if (attachments != null && attachments.size() > 0)
+		{
+			// Add attachments to messages
+			for (Attachment attachment : attachments)
+			{
+				// attach the file to the message
+				embeddedAttachments.add(createAttachmentPart(attachment));
+			}
+		}
+
+		// if no direct attachments, keep the message simple and add the content as text.
+		if (embeddedAttachments.size() == 0)
+		{
+			// if no contentType specified, go with text/plain
+			if (contentType == null)
+				msg.setText(content, charset);
+			else
+				msg.setContent(content, contentType);
+		}
+		// the multipart was constructed (ie. attachments available), use it as the message content
+		else
+		{
+			// create a multipart container
+			Multipart multipart = new MimeMultipart();
+
+			// create a body part for the message text
+			MimeBodyPart msgBodyPart = new MimeBodyPart();
+			if (contentType == null)
+				msgBodyPart.setText(content, charset);
+			else
+				msgBodyPart.setContent(content, contentType);
+
+			// add the message part to the container
+			multipart.addBodyPart(msgBodyPart);
+
+			// add attachments
+			for (MimeBodyPart attachPart : embeddedAttachments)
+			{
+				multipart.addBodyPart(attachPart);
+			}
+
+			// set the multipart container as the content of the message
+			msg.setContent(multipart);
+		}
+	}
+
+	/**
+	 * Attaches a file as a body part to the multipart message
+	 * 
+	 * @param multipart
+	 * @param attachment
+	 * @throws MessagingException
+	 */
+	private MimeBodyPart createAttachmentPart(Attachment attachment) throws MessagingException
+	{
+		MimeBodyPart attachPart = new MimeBodyPart();
+		FileDataSource source = new FileDataSource(attachment.getFile());
+		attachPart = new MimeBodyPart();
+		attachPart.setDataHandler(new DataHandler(source));
+		attachPart.setFileName(attachment.getFile().getName());
+		return attachPart;
+	}
+
+	/**
 	 * test version of sendMail
 	 */
 	protected void testSendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
-			InternetAddress[] headerTo, InternetAddress[] replyTo, List additionalHeaders)
+			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo, List<String> additionalHeaders)
 	{
 		M_log.info("sendMail: from: " + from + " to: " + arrayToStr(to) + " subject: " + subject + " headerTo: "
-				+ arrayToStr(headerTo) + " replyTo: " + arrayToStr(replyTo) + " content: " + content + " additionalHeaders: "
+				+ mapToStr(headerTo) + " replyTo: " + arrayToStr(replyTo) + " content: " + content + " additionalHeaders: "
 				+ listToStr(additionalHeaders));
 	}
 
@@ -824,7 +1020,7 @@ public abstract class BasicEmailService implements EmailService
 	 * test version of send
 	 */
 	protected void testSend(String fromStr, String toStr, String subject, String content, String headerToStr, String replyToStr,
-			List additionalHeaders)
+			List<String> additionalHeaders)
 	{
 		M_log.info("send: from: " + fromStr + " to: " + toStr + " subject: " + subject + " headerTo: " + headerToStr + " replyTo: "
 				+ replyToStr + " content: " + content + " additionalHeaders: " + listToStr(additionalHeaders));
@@ -843,7 +1039,136 @@ public abstract class BasicEmailService implements EmailService
 		}
 	}
 
-	// inspired by http://java.sun.com/products/javamail/FAQ.html#msgid
+	protected void sendMessageAndLog(InternetAddress from, InternetAddress[] to, String subject,
+			Map<RecipientType, InternetAddress[]> headerTo, long start, MimeMessage msg)
+			throws MessagingException
+	{
+		long preSend = 0;
+		if (M_log.isDebugEnabled()) preSend = System.currentTimeMillis();
+
+		Transport.send(msg, to);
+
+		long end = 0;
+		if (M_log.isDebugEnabled()) end = System.currentTimeMillis();
+
+		if (M_log.isInfoEnabled())
+		{
+			StringBuilder buf = new StringBuilder();
+			buf.append("Email.sendMail: from: ");
+			buf.append(from);
+			buf.append(" subject: ");
+			buf.append(subject);
+			buf.append(" to:");
+			for (int i = 0; i < to.length; i++)
+			{
+				buf.append(" ");
+				buf.append(to[i]);
+			}
+			if (headerTo != null)
+			{
+				if (headerTo.containsKey(RecipientType.TO))
+				{
+					buf.append(" headerTo{to}:");
+					InternetAddress[] headerToTo = headerTo.get(RecipientType.TO);
+					for (int i = 0; i < headerToTo.length; i++)
+					{
+						buf.append(" ");
+						buf.append(headerToTo[i]);
+					}
+				}
+				if (headerTo.containsKey(RecipientType.CC))
+				{
+					buf.append(" headerTo{cc}:");
+					InternetAddress[] headerToCc = headerTo.get(RecipientType.CC);
+					for (int i = 0; i < headerToCc.length; i++)
+					{
+						buf.append(" ");
+						buf.append(headerToCc[i]);
+					}
+				}
+				if (headerTo.containsKey(RecipientType.BCC))
+				{
+					buf.append(" headerTo{bcc}:");
+					InternetAddress[] headerToBcc = headerTo.get(RecipientType.BCC);
+					for (int i = 0; i < headerToBcc.length; i++)
+					{
+						buf.append(" ");
+						buf.append(headerToBcc[i]);
+					}
+				}
+			}
+			try
+			{
+				if (msg.getContent() instanceof Multipart)
+				{
+					Multipart parts = (Multipart) msg.getContent();
+					buf.append(" with ").append(parts.getCount() - 1).append(" attachments");
+				}
+			}
+			catch (IOException ioe) {}
+
+			if (M_log.isDebugEnabled())
+			{
+				buf.append(" time: ");
+				buf.append("" + (end - start));
+				buf.append(" in send: ");
+				buf.append("" + (end - preSend));
+			}
+
+			M_log.info(buf.toString());
+		}
+	}
+
+	protected void setRecipients(Map<RecipientType, InternetAddress[]> headerTo, MimeMessage msg)
+			throws MessagingException
+	{
+		if (headerTo != null)
+		{
+			if (msg.getHeader(EmailHeaders.TO) == null && headerTo.containsKey(RecipientType.TO))
+			{
+				msg.setRecipients(Message.RecipientType.TO, headerTo.get(RecipientType.TO));
+			}
+			if (msg.getHeader(EmailHeaders.CC) == null && headerTo.containsKey(RecipientType.CC))
+			{
+				msg.setRecipients(Message.RecipientType.CC, headerTo.get(RecipientType.CC));
+			}
+			if (headerTo.containsKey(RecipientType.BCC))
+			{
+				msg.setRecipients(Message.RecipientType.BCC, headerTo.get(RecipientType.BCC));
+			}
+		}
+	}
+
+	protected String extractCharset(String contentType)
+	{
+		String charset = null;
+		if (contentType != null)
+		{
+			// try and extract the charset from the Content-Type header
+			int charsetStart = contentType.toLowerCase().indexOf("charset=");
+			if (charsetStart != -1)
+			{
+				int charsetEnd = contentType.indexOf(";", charsetStart);
+				if (charsetEnd == -1)
+					charsetEnd = contentType.length();
+				charset = contentType.substring(charsetStart + "charset=".length(), charsetEnd).trim();
+			}
+		}
+		return charset;
+	}
+
+	/**
+	 * inspired by http://java.sun.com/products/javamail/FAQ.html#msgid
+	 * 
+	 * From the FAQ<br>
+	 * <p>Q: I set a particular value for the Message-ID header of my new message, but
+	 * when I send this message that header is rewritten.</p>
+	 * <p>A: A new value for the Message-ID field is
+	 * set when the saveChanges method is called (usually implicitly when a message is sent),
+	 * overwriting any value you set yourself. If you need to set your own Message-ID and have it
+	 * retained, you will have to create your own MimeMessage subclass, override the updateMessageID
+	 * method and use an instance of this subclass.</p>
+	 */
 	protected class MyMessage extends MimeMessage
 	{
 		protected String m_id = null;
@@ -854,7 +1179,7 @@ public abstract class BasicEmailService implements EmailService
 			m_id = id;
 		}
 
-		public MyMessage(Session session, Collection headers, String message)
+		public MyMessage(Session session, Collection<String> headers, String message)
 		{
 			super(session);
 
@@ -866,10 +1191,8 @@ public abstract class BasicEmailService implements EmailService
 				// see if we have a message-id: in the headers, or content-type:, otherwise move the headers into the message
 				if (headers != null)
 				{
-					Iterator i = headers.iterator();
-					while (i.hasNext())
+					for (String header : headers)
 					{
-						String header = (String) i.next();
 
 						if (header.toLowerCase().startsWith("message-id: "))
 						{
@@ -889,7 +1212,7 @@ public abstract class BasicEmailService implements EmailService
 							}
 							catch (MessagingException e)
 							{
-								M_log.warn("Email.MyMessage: exception: " + e, e);
+								M_log.warn("Email.MyMessage: exception: " + e.getMessage(), e);
 							}
 						}
 					}
@@ -923,26 +1246,34 @@ public abstract class BasicEmailService implements EmailService
 				{
 					// use the charset from the Content-Type header
 				}
-				else if (canUseCharset(message, "ISO-8859-1"))
+				else if (canUseCharset(message, CharacterSet.ISO_8859_1))
 				{
-					if (contentType != null && charset != null) contentType = contentType.replaceAll(charset, "ISO-8859-1");
-					else if(contentType != null) contentType += "; charset=ISO-8859-1";
-					charset = "ISO-8859-1";
+					if (contentType != null && charset != null)
+						contentType = contentType.replaceAll(charset, CharacterSet.ISO_8859_1);
+					else if (contentType != null)
+						contentType += "; " + CharacterSet.ISO_8859_1;
+					charset = CharacterSet.ISO_8859_1;
 				}
-				else if (canUseCharset(message, "windows-1252"))
+				else if (canUseCharset(message, CharacterSet.WINDOWS_1252))
 				{
-					if (contentType != null && charset != null) contentType = contentType.replaceAll(charset, "windows-1252");
-					else if(contentType != null) contentType += "; charset=windows-1252";
-					charset = "windows-1252";
+					if (contentType != null && charset != null)
+						contentType = contentType.replaceAll(charset, CharacterSet.WINDOWS_1252);
+					else if (contentType != null)
+						contentType += "; " + CharacterSet.WINDOWS_1252;
+					charset = CharacterSet.WINDOWS_1252;
 				}
 				else
 				{
 					// catch-all - UTF-8 should be able to handle anything
 					if (contentType != null && charset != null) 
-						contentType = contentType.replaceAll(charset, "UTF-8");
+						contentType = contentType.replaceAll(charset, CharacterSet.UTF_8);
 					else if (contentType != null)
-						contentType += "; charset=UTF-8";
-					charset = "UTF-8";
+						contentType += "; charset=" + CharacterSet.UTF_8;
+					else
+						contentType = EmailHeaders.CONTENT_TYPE + ": "
+								+ ContentType.TEXT_PLAIN + "; charset="
+								+ CharacterSet.UTF_8;
+					charset = CharacterSet.UTF_8;
 				}
 				
 				if (contentType.contains("multipart/")) {
@@ -983,7 +1314,7 @@ public abstract class BasicEmailService implements EmailService
 			}
 			catch (MessagingException e)
 			{
-				M_log.warn("Email.MyMessage: exception: " + e, e);
+				M_log.warn("Email.MyMessage: exception: " + e.getMessage(), e);
 			}
 		}
 
