@@ -45,3 +45,7 @@ svn rm user/user-impl/integration-test/
 svn rm user/user-impl/pack/
 svn rm user/user-util/util/
 svn rm util
+
+
+svn propget svn:externals | grep -v "^cluster" | grep -v "^component" | grep -v "^db" | grep -v "^entity" | grep -v "^event" | grep -v "^jcr" | grep -v "^util" > .externals
+svn propset svn:externals --file .externals

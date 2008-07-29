@@ -31,8 +31,20 @@ run the deletecoreprojects.sh script
 perform the pombuildpatch
 perform the transform
 remove master/pom.xml
+remove reference/library/pom.xml
 svn update master/pom/xml
+svn update reference/library/pom.xml
 patch masterpom.patch
 
 mvn clean install
+
+
+
+TODO:
+
+Some kernel artifacts are being deployed by non kernel core projects
+Do we want Core performing the deployment or do we want a special core deployer for kernel (the latter I think)
+
+We need to update .externals
+
 
