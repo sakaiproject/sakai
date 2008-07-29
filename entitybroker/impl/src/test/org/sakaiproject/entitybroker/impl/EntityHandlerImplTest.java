@@ -47,7 +47,7 @@ public class EntityHandlerImplTest extends TestCase {
       // setup things
       td = new TestData();
 
-      entityHandler = new TestManager(td).entityRequestHandler;
+      entityHandler = new ServiceTestManager(td).entityRequestHandler;
    }
 
    /**

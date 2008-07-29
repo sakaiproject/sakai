@@ -45,7 +45,7 @@ public class EntityProviderManagerImplTest extends TestCase {
       super.setUp();
       // setup things
       td = new TestData();
-      entityProviderManager = new TestManager(td).entityProviderManager;
+      entityProviderManager = new ServiceTestManager(td).entityProviderManager;
    }
 
    /**

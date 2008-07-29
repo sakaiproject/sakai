@@ -34,7 +34,7 @@ public class EntityDescriptionManagerTest extends TestCase {
       super.setUp();
       // setup things
       td = new TestData();
-      entityDescriptionManager = new TestManager(td).entityDescriptionManager;
+      entityDescriptionManager = new ServiceTestManager(td).entityDescriptionManager;
    }
 
    public void testDescribeAll() {

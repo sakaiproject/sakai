@@ -97,7 +97,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       eventTrackingServiceControl.replay();
 
       // setup fake internal services
-      TestManager tm = new TestManager(td);
+      ServiceTestManager tm = new ServiceTestManager(td);
 
       // create and setup the object to be tested
       entityBroker = new EntityBrokerImpl();

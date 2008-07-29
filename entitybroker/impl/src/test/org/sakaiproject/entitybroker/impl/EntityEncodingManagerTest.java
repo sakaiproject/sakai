@@ -46,7 +46,7 @@ public class EntityEncodingManagerTest extends TestCase {
       super.setUp();
       // setup things
       td = new TestData();
-      TestManager tm = new TestManager(td);
+      ServiceTestManager tm = new ServiceTestManager(td);
       entityEncodingManager = tm.entityEncodingManager;
       entityBrokerManager = tm.entityBrokerManager;
    }

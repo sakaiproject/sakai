@@ -50,7 +50,7 @@ public class EntityActionsManagerTest extends TestCase {
       // setup things
       td = new TestData();
 
-      entityActionsManager = new TestManager(td).entityActionsManager;
+      entityActionsManager = new ServiceTestManager(td).entityActionsManager;
    }
 
    /**

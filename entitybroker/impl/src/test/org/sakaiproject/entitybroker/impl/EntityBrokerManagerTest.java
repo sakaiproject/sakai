@@ -37,7 +37,7 @@ public class EntityBrokerManagerTest extends TestCase {
       // setup things
       td = new TestData();
 
-      entityBrokerManager = new TestManager(td).entityBrokerManager;
+      entityBrokerManager = new ServiceTestManager(td).entityBrokerManager;
    }
 
 

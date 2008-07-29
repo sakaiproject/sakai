@@ -25,11 +25,13 @@ import org.sakaiproject.entitybroker.mocks.data.TestData;
 
 
 /**
- * Hopefully this will let us create the objects we need without too much confusion
+ * This creates all the needed services (as if it were the component manager),
+ * this will let us create the objects we need without too much confusion and ensure
+ * we are using the same ones
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class TestManager {
+public class ServiceTestManager {
 
    public FakeServerConfigurationService serverConfigurationService;
    public RequestStorageImpl requestStorage;
@@ -44,7 +46,7 @@ public class TestManager {
    public HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
    public EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
 
-   public TestManager(TestData td) {
+   public ServiceTestManager(TestData td) {
       // initialize all the parts
       requestGetter = new RequestGetterImpl();
       entityPropertiesService = new EntityPropertiesService();
