@@ -212,6 +212,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                            + view.getEntityReference() + ") that does not exist", 
                            view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
                   }
+               } else {
+                  // cleanup the entity reference, this has to be done because otherwise the custom action
+                  // on collections appears to be the id of an entity in the collection
+                  EntityReference cRef = view.getEntityReference();
+                  if (cRef.getId().equals(customAction.action)) {
+                     view.setEntityReference( new EntityReference(prefix, "") );
+                  }
                }
                res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
 
@@ -251,15 +258,15 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 //                if (req.getAttribute(ORIGINAL_METHOD) != null) {
 //                method = (String) req.getAttribute(ORIGINAL_METHOD);
 //                }
-                  if ("GET".equals(method)) {
+                  if (EntityView.Method.GET.name().equals(method)) {
                      output = true;
                   } else {
                      // identify the action based on the method type or "_method" attribute
-                     if ("DELETE".equals(method)) {
+                     if (EntityView.Method.DELETE.name().equals(method)) {
                         view.setViewKey(EntityView.VIEW_DELETE);
-                     } else if ("PUT".equals(method)) {
+                     } else if (EntityView.Method.PUT.name().equals(method)) {
                         view.setViewKey(EntityView.VIEW_EDIT);
-                     } else if ("POST".equals(method)) {
+                     } else if (EntityView.Method.POST.name().equals(method)) {
                         String _method = req.getParameter(EntityRequestHandler.COMPENSATE_METHOD);
                         if (_method == null) {
                            if (view.getEntityReference().getId() == null) {
@@ -271,9 +278,9 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                            }
                         } else {
                            _method = _method.toUpperCase().trim();
-                           if ("DELETE".equals(_method)) {
+                           if (EntityView.Method.DELETE.name().equals(_method)) {
                               view.setViewKey(EntityView.VIEW_DELETE);
-                           } else if ("PUT".equals(_method)) {
+                           } else if (EntityView.Method.PUT.equals(_method)) {
                               if (view.getEntityReference().getId() == null) {
                                  // this should be a modification of a list
                                  view.setViewKey(EntityView.VIEW_NEW);
@@ -307,9 +314,25 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      // handle the custom action
                      ActionsExecutable actionProvider = entityProviderManager.getProviderByPrefixAndCapability(prefix, ActionsExecutable.class);
                      if (actionProvider == null) {
-                        throw new IllegalStateException("The provider for prefix ("+prefix+") cannot handle custom actions");
+                        throw new EntityException( "The provider for prefix ("+prefix+") cannot handle custom actions", 
+                              view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
                      }
-                     actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, view, customAction.action, req, res);
+                     // make sure this request is a valid type for this action
+                     if (customAction.viewKey != null 
+                           && ! view.getViewKey().equals(customAction.viewKey)) {
+                        throw new EntityException( "Cannot execute custom action ("+customAction.action+") for request method " + method
+                        		+ ", The custom action view key ("+customAction.viewKey+") must match the request view key ("+view.getViewKey()+")", 
+                              view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
+                     }
+                     try {
+                        actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, view, customAction.action, req, res);
+                     } catch (IllegalArgumentException e) {
+                        throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Illegal arguments: " + e.getMessage(), 
+                              view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
+                     } catch (UnsupportedOperationException e) {
+                        throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Invalid action: " + e.getMessage(), 
+                              view.getEntityReference()+"", HttpServletResponse.SC_NOT_IMPLEMENTED );
+                     }
                      if (actionReturn == null 
                            || actionReturn.output != null) {
                         // custom action processing complete

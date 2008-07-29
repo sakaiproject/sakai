@@ -16,6 +16,7 @@ package org.sakaiproject.entitybroker.entityprovider.extension;
 
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsDefineable;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 
@@ -34,11 +35,13 @@ public class CustomAction {
     */
    public String action;
    /**
-    * Must match one of the VIEW constants from {@link EntityView}<br/>
+    * (optional) Must match one of the VIEW constants from {@link EntityView}<br/>
     * The view type which this action goes with, this
     * roughly translates to the GET/POST/PUT/DELETE in http<br/>
     * e.g. GET /user/action would be {@link EntityView#VIEW_LIST}
-    * while POST /user/aaronz/action would be {@link EntityView#VIEW_SHOW}
+    * while POST /user/aaronz/action would be {@link EntityView#VIEW_SHOW},
+    * can be null to match all viewkeys (i.e. to allow this action
+    * from any http method type and on collections and entities)
     */
    public String viewKey = EntityView.VIEW_SHOW;
    /**
@@ -58,21 +61,35 @@ public class CustomAction {
     * @param action key which will be used to trigger the action (e.g. promote),
     * will be triggered by a URL like so: /user/aaronz/promote, <br/>
     * this cannot be null or empty string
-    * @param viewKey this is the view type which this action goes with, this
+    * @param viewKey (optional) this is the view type which this action goes with, this
     * roughly translates to the GET/POST/PUT/DELETE in http<br/>
     * e.g. GET /user/action would be {@link EntityView#VIEW_LIST}
     * while POST /user/aaronz/action would be {@link EntityView#VIEW_SHOW}<br/>
-    * this must match one of the VIEW constants from {@link EntityView}
+    * this must match one of the VIEW constants from {@link EntityView},
+    * null indicates that this action can be run on entities and collections
+    * using any http method (POST, GET)
     */
    public CustomAction(String action, String viewKey) {
       if (action == null || "".equals(action)) {
          throw new IllegalArgumentException("action must not be null or empty string");
       }
       this.action = action;
-      TemplateParseUtil.validateTemplateKey(viewKey);
+      if ("".equals(viewKey)) { viewKey = null; }
+      if (viewKey != null) {
+         TemplateParseUtil.validateTemplateKey(viewKey);
+      }
       this.viewKey = viewKey;
    }
 
+   /**
+    * Adds the methodName arg,
+    * use this version when using this with {@link ActionsDefineable}
+    * @param action the action key
+    * @param viewKey the view key OR null
+    * @param methodName the name of the method in your entity provider to 
+    * execute when the custom action is requested
+    * @see CustomAction#CustomAction(String, String)
+    */
    public CustomAction(String action, String viewKey, String methodName) {
       this(action, viewKey);
       this.methodName = methodName;

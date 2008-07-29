@@ -20,10 +20,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
+import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
@@ -680,6 +682,125 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // TODO we need a better way to test this stuff
+   }
+
+   public void testCustomActions() {
+      ActionsEntityProviderMock actionProvider = td.entityProviderA1;
+      MockEBHttpServletRequest req = null;
+      MockHttpServletResponse res = null;
+      String action = null;
+
+      // double
+      MyEntity me = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1_2) );
+      int num = me.getNumber();
+      action = "double";
+      req = new MockEBHttpServletRequest("GET", TestData.REFA1_2 + "/" + action + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIXA1));
+         assertTrue(content.contains("<number>"+(num*2)+"</number>"));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // xxx
+      MyEntity me1 = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1_2) );
+      assertFalse("xxx".equals(me1.extra));
+      assertFalse("xxx".equals(me1.getStuff()));
+
+      action = "xxx";
+      req = new MockEBHttpServletRequest("POST", TestData.REFA1_2 + "/" + action + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() == 0);
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      MyEntity xxxMe = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1_2) );
+      assertEquals(me1.getId(), xxxMe.getId());
+      assertTrue("xxx".equals(xxxMe.extra));
+      assertTrue("xxx".equals(xxxMe.getStuff()));
+
+      // invalid method (GET), should be post
+      req = new MockEBHttpServletRequest("GET", TestData.REFA1_2 + "/" + "xxx" + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("should have thrown exeception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+      }
+
+      // clear
+      assertEquals(2, actionProvider.myEntities.size());
+
+      action = "clear";
+      req = new MockEBHttpServletRequest("POST", TestData.SPACEA1 + "/" + action);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() == 0);
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      assertEquals(0, actionProvider.myEntities.size());
+
+      // exceptions
+
+      // invalid action
+      req = new MockEBHttpServletRequest("GET", TestData.REFA1_2 + "/" + "INVALID");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("should have thrown exeception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+      }
+
+      // invalid method (GET), should be post
+      req = new MockEBHttpServletRequest("GET", TestData.SPACEA1 + "/" + "clear");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("should have thrown exeception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+      }
+
+      req = new MockEBHttpServletRequest("PUT", TestData.SPACEA1 + "/" + "clear");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("should have thrown exeception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+      }
+
+      req = new MockEBHttpServletRequest("DELETE", TestData.SPACEA1 + "/" + "clear");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("should have thrown exeception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+      }
    }
 
    /**

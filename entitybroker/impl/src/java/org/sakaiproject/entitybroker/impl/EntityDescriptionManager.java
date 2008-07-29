@@ -210,7 +210,14 @@ public class EntityDescriptionManager {
                   sb.append("      <customActions>\n");
                   sb.append("        <customAction>\n");
                   sb.append("          <action>"+customAction.action+"</action>\n");
-                  sb.append("          <viewKey>"+customAction.viewKey+"</viewKey>\n");
+                  sb.append("          <url>"+directUrl+makeActionURL(ev, customAction)+"</url>\n");
+                  if (customAction.viewKey == null) {
+                     sb.append("          <method/>\n");
+                     sb.append("          <viewKey/>\n");
+                  } else {
+                     sb.append("          <method>"+EntityView.translateViewKeyToMethod(customAction.viewKey)+"</method>\n");
+                     sb.append("          <viewKey>"+customAction.viewKey+"</viewKey>\n");
+                  }
                   String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action);
                   if (actionDesc != null) {
                      sb.append("          <description>"+actionDesc+"</description>\n");
@@ -311,8 +318,8 @@ public class EntityDescriptionManager {
                sb.append("      <div style='padding-left:0.5em;'>\n");
                for (CustomAction customAction : customActions) {
                   sb.append("        <div>\n");
-                  sb.append("          <span style='font-weight:bold;'>"+customAction.action+"</span> : " +
-                  		"<span>"+customAction.viewKey+"</span><br/>\n");
+                  sb.append("          <a style='font-weight:bold;' href='"+directUrl+makeActionURL(ev, customAction)+"'>"
+                        +customAction.action+"</a> : " + "<span>"+makeCustomActionKeyMethodText(customAction)+"</span><br/>\n");
                   String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action);
                   if (actionDesc != null) {
                      sb.append("          <div style='font-style:italics;font-size:0.9em;'>"+actionDesc+"</div>\n");
@@ -375,6 +382,28 @@ public class EntityDescriptionManager {
    }
 
    // DESCRIBE formatting utilities
+
+   /**
+    * @param customAction
+    * @return a URL for triggering the custom action (without http://server/direct)
+    */
+   protected String makeActionURL(EntityView ev, CustomAction customAction) {
+      String URL = ev.getEntityURL(customAction.viewKey, null) + EntityView.SEPARATOR + customAction.action;
+      return URL;
+   }
+
+   /**
+    * Create text to display for the CA key and method
+    * @param customAction
+    * @return
+    */
+   protected String makeCustomActionKeyMethodText(CustomAction customAction) {
+      String togo = "*";
+      if (customAction.viewKey == null) {
+         togo = customAction.viewKey+" ("+EntityView.translateViewKeyToMethod(customAction.viewKey)+")";
+      }
+      return togo;
+   }
 
    protected String[] getFormats(String prefix, boolean output) {
       String[] formats;

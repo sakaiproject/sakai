@@ -67,6 +67,18 @@ public class EntityActionsManager {
       reservedActions.add("delete");
    }
 
+   /**
+    * Execute a custom action request
+    * @param actionProvider
+    * @param entityView
+    * @param action
+    * @param request
+    * @param response
+    * @return an action return (may be null)
+    * @throws IllegalArgumentException if any args are invalid
+    * @throws UnsupportedOperationException if the action is not valid for this prefix
+    * @throws IllegalStateException if a failure occurs
+    */
    public ActionReturn handleCustomActionRequest(ActionsExecutable actionProvider, EntityView entityView, String action,
          HttpServletRequest request, HttpServletResponse response) {
       if (actionProvider == null || entityView == null || action == null || request == null || response == null) {
@@ -173,6 +185,13 @@ public class EntityActionsManager {
          } catch (IllegalAccessException e) {
             throw new RuntimeException("Fatal error trying to execute custom action method: " + customAction, e);
          } catch (InvocationTargetException e) {
+            if (e.getCause() != null) {
+               if (e.getCause().getClass().isAssignableFrom(IllegalArgumentException.class)) {
+                  throw new IllegalArgumentException(e.getCause().getMessage() + " (rethrown)", e.getCause());
+               } else if (e.getCause().getClass().isAssignableFrom(IllegalStateException.class)) {
+                  throw new IllegalStateException(e.getCause().getMessage() + " (rethrown)", e.getCause());
+               }
+            }
             throw new RuntimeException("Fatal error trying to execute custom action method: " + customAction, e);
          }
       }

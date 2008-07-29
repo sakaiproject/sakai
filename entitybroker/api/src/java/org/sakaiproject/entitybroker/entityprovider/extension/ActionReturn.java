@@ -120,4 +120,9 @@ public class ActionReturn {
       this.format = format;
    }
 
+   @Override
+   public String toString() {
+      return "actionReturn: encode=" + this.encoding + ": format=" + this.format + ": mime=" + this.mimeType 
+         + ": output=" + (this.output != null) + ": list=" + (this.entitiesList != null) + ": data=" + (this.entityData != null);
+   }
 }

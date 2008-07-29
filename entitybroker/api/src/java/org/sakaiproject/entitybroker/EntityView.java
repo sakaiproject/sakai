@@ -41,37 +41,42 @@ public class EntityView {
    public static final String ID = "id";
 
    /**
+    * Represents HTTP methods (GET, POST, etc.)
+    */
+   public static enum Method { POST, GET, PUT, DELETE }
+
+   /**
     * Defines the view for the "list" (index) or collection operation,
     * access a list/collection of all entities of a type (possibly filtered by search params),
-    * represents a GET to the entity space/collection,
+    * represents a {@link Method#GET} to the entity space/collection,
     * also indicates an action related to reading a collection of entities
     */
    public static final String VIEW_LIST = "list";
    /**
     * Defines the view for the "show" (read) operation,
     * access data or a view of an entity,
-    * represents a GET to a specific entity,
+    * represents a {@link Method#GET} to a specific entity,
     * also indicates an action related to reading a specific entity
     */
    public static final String VIEW_SHOW = "show";
    /**
     * Defines the view for the "new" (create) operation,
     * create a new record or access a form for creating a new record,
-    * represents a POST or PUT to the entity space/collection,
+    * represents a {@link Method#POST} (or PUT) to the entity space/collection,
     * also indicates an action related to writing a collection of entities
     */
    public static final String VIEW_NEW  = "new";
    /**
     * Defines the view for the "edit" (update) operation,
     * update an entity or access a form for updating an entity,
-    * represents a POST or PUT to a specific entity,
+    * represents a {@link Method#PUT} (or POST) to a specific entity,
     * also indicates an action related to writing a specific entity
     */
    public static final String VIEW_EDIT = "edit";
    /**
     * Defines the view for the "delete" (destroy) operation,
     * remove an entity or access a form for removing an entity,
-    * represents a DELETE to a specific entity
+    * represents a {@link Method#DELETE} to a specific entity
     */
    public static final String VIEW_DELETE = "delete";
 
@@ -502,6 +507,23 @@ public class EntityView {
       togo.setExtension( ev.getExtension() );
       togo.setViewKey( ev.getViewKey() );
       return togo;
+   }
+
+   /**
+    * Translate a viewkey into an http method
+    * @param viewKey 
+    * @return the method which matches this viewkey
+    */
+   public static Method translateViewKeyToMethod(String viewKey) {
+      Method m = Method.GET;
+      if (viewKey.equals(VIEW_DELETE)) {
+         m = Method.DELETE;
+      } else if (viewKey.equals(VIEW_EDIT)) {
+         m = Method.PUT;
+      } else if (viewKey.equals(VIEW_NEW)) {
+         m = Method.POST;
+      }
+      return m;
    }
 
 }

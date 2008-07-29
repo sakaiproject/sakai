@@ -22,8 +22,10 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 
 
@@ -37,7 +39,8 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implements CoreEntityProvider, ActionsExecutable, Describeable {
+public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implements CoreEntityProvider, ActionsExecutable, 
+   Describeable, RESTful {
 
    public ActionsEntityProviderMock(String prefix, String[] ids) {
       super(prefix, ids);
@@ -56,12 +59,20 @@ public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implem
       myEntities.clear();
    }
 
-   @EntityCustomAction(action="xxx")
+   @EntityCustomAction(action="xxx",viewKey=EntityView.VIEW_EDIT)
    public void xxxAction(EntityReference ref) {
       MyEntity me = (MyEntity) getEntity(ref);
       me.extra = "xxx";
       me.setStuff("xxx");
       myEntities.put(me.getId(), me);
+   }
+
+   public String[] getHandledOutputFormats() {
+      return new String[] {Formats.JSON, Formats.XML};
+   }
+
+   public String[] getHandledInputFormats() {
+      return new String[] {Formats.HTML, Formats.JSON, Formats.XML};
    }
 
 }
