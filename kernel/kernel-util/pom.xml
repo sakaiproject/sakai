@@ -22,5 +22,6 @@
     <module>tool</module>
     <module>user</module>
     <module>util</module>
+    <module>webapp</module>
   </modules>
 </project>
