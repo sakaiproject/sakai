@@ -147,6 +147,8 @@
         class="org.sakaiproject.entitybroker.impl.EntityDescriptionManager">
         <property name="entityBrokerManager"
             ref="org.sakaiproject.entitybroker.impl.EntityBrokerManager" />
+        <property name="entityActionsManager"
+            ref="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
         <property name="entityProperties"
             ref="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
         <property name="entityProviderManager"
