@@ -4,7 +4,7 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.0RC2-SNAPSHOT</version>
+    <version>1.0RC2</version>
     <relativePath>..</relativePath>
   </parent>
   <name>Sakai Kernel Site Skin</name>
