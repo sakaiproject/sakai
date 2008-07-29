@@ -4,7 +4,7 @@
   <parent>
     <artifactId>jcr</artifactId>
     <groupId>org.sakaiproject.kernel.impl.content</groupId>
-    <version>SNAPSHOT</version>
+    <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Content Service JCR Impementation</name>
@@ -23,27 +23,27 @@
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.content.component.db</groupId>
       <artifactId>sakai-content-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.db</groupId>
       <artifactId>sakai-db-storage</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>      
       <groupId>commons-logging</groupId>

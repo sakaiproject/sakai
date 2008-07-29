@@ -4,7 +4,7 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>SNAPSHOT</version>
+    <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Kernel Implementation Project</name>

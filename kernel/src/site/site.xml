@@ -16,7 +16,7 @@
   <skin>
     <groupId>org.sakaiproject.kernel</groupId>
     <artifactId>kernel-site</artifactId>
-    <version>SNAPSHOT</version>
+    <version>1.0RC2-SNAPSHOT</version>
   </skin>
   
   <body>

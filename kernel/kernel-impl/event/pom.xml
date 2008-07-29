@@ -6,7 +6,7 @@
   <parent>
     <artifactId>impl</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
-    <version>SNAPSHOT</version>
+    <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Event Component Implementation</name>

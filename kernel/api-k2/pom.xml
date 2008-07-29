@@ -3,13 +3,13 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>kernel</artifactId>
-    <version>SNAPSHOT</version>
+    <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>api</artifactId>
-  <version>1-SNAPSHOT</version>
+  <version>1.0RC2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Sakai Kernel Api</name>
   <description>

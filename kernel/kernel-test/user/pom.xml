@@ -4,7 +4,7 @@
   <parent>
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.user</groupId>
-    <version>SNAPSHOT</version>
+    <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai User Integration Test</name>
@@ -14,28 +14,28 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.test</groupId>
       <artifactId>sakai-test-harness</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-user-util</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-user-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
