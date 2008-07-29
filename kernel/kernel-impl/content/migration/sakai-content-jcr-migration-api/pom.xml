@@ -23,7 +23,6 @@
     <dependency>
         <groupId>javax.jcr</groupId>
         <artifactId>jcr</artifactId>
-        <version>${sakai.jcr.version}</version> 
     </dependency>
   </dependencies>
 </project>

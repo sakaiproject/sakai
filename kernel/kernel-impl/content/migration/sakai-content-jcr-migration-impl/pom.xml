@@ -58,7 +58,6 @@
     <dependency>      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
 
 <!-- jcr dependencies -->
@@ -66,7 +65,6 @@
     <dependency>
         <groupId>javax.jcr</groupId>
         <artifactId>jcr</artifactId>
-        <version>${sakai.jcr.version}</version> 
     </dependency>
 
 
