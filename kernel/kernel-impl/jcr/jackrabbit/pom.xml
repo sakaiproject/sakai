@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>jcr</artifactId>
 		<groupId>org.sakaiproject.kernel.impl</groupId>
-		<version>1.0RC3-SNAPSHOT</version>
+		<version>1.0RC2</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>Sakai Jackrabbit JCR Service Implementation</name>
