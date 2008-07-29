@@ -61,7 +61,6 @@ import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.impl.ReferenceComponent;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
