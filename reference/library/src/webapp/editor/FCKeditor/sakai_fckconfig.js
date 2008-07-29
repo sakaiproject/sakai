@@ -5,7 +5,7 @@ document.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor
  * @deprecated
  */
 function chef_setupfcktextarea(textarea_id, widthPx, heightPx, collectionId, tagsFocus, resourceSearch) {
-   function chef_setupfcktextarea(textarea_id, widthPx, heightPx, collectionId, resourceSearch) ;
+   return chef_setupfcktextarea(textarea_id, widthPx, heightPx, collectionId, resourceSearch);
 }
 
 function chef_setupfcktextarea(textarea_id, widthPx, heightPx, collectionId, resourceSearch) {
