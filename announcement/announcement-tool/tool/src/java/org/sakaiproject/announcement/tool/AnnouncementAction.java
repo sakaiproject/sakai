@@ -975,15 +975,35 @@ public class AnnouncementAction extends PagedResourceActionII
 				menu_delete = false;
 			} // if-else
 		} // try-catch
-
+				
 		// check the state status to decide which vm to render
 		String statusName = state.getStatus();
-
+		
 		AnnouncementActionState.DisplayOptions displayOptions = state.getDisplayOptions();
+		
+		if(statusName=="showMetadata")
+		{
+			String messageReference = state.getMessageReference();
+			AnnouncementMessage message;
+			try {
+				message = channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference));
+				menu_new = channel.allowAddMessage();
+				menu_delete = channel.allowRemoveMessage(message);
+				menu_revise = channel.allowEditMessage(message.getId());
+			} catch (IdUnusedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (PermissionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 
 		buildMenu(portlet, context, rundata, state, menu_new, menu_delete, menu_revise, this.isOkToShowMergeButton(statusName),
 				this.isOkToShowPermissionsButton(statusName), this.isOkToShowOptionsButton(statusName), displayOptions);
 
+			
 		// added by zqian for toolbar
 		context.put("allow_new", Boolean.valueOf(menu_new));
 		context.put("allow_delete", Boolean.valueOf(menu_delete));
