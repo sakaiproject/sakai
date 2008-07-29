@@ -81,7 +81,6 @@
       timeToLiveSeconds="300"
       overflowToDisk="false" />
 
-
     <cache 
       name="org.sakaiproject.user.api.UserDirectoryService"
       maxElementsInMemory="100000"
@@ -89,5 +88,39 @@
       timeToIdleSeconds="7200"
       timeToLiveSeconds="7200"
       overflowToDisk="false" />
+
+    <!-- Sample entries for the Db-Flat Caches
+    <cache 
+      name="DB-Flat.SAKAI_SITE"
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="300"
+      overflowToDisk="false" />
+
+    <cache 
+      name="DB-Flat.SAKAI_SITE_PROPERTY"
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="300"
+      overflowToDisk="false" />
+
+    <cache 
+      name="DB-Flat.SAKAI_SITE_PAGE_PROPERTY"
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="300"
+      overflowToDisk="false" />
+
+    <cache 
+      name="DB-Flat.SAKAI_REALM_PROPERTY"
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="300"
+      overflowToDisk="false" />
+-->
 
 </ehcache>
