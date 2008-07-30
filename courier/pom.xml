@@ -11,14 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>courier-base</artifactId>
   <packaging>pom</packaging>
-
- <scm>
+  <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/courier/trunk</url>
   </scm>
-
-
   <modules>
     <module>courier-api/api</module>
     <module>courier-impl/impl</module>
