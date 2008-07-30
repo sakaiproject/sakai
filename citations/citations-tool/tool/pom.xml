@@ -18,11 +18,26 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-content-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-impl</artifactId>
@@ -34,7 +49,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-util</artifactId>
@@ -45,75 +59,20 @@
           <artifactId>cql-java</artifactId>
         </exclusion>
       </exclusions>
-
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-content-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-content-util</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: true -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: true -->
-    </dependency>
+<!--org.sakaiprojectsakai-user-api${sakai.version}-->
+<!--org.sakaiprojectsakai-content-api${sakai.version}-->
+<!--org.sakaiprojectsakai-content-util${sakai.version}-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}-->
+<!--org.sakaiprojectsakai-component${sakai.version}-->
+<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
+<!--org.sakaiprojectsakai-event-api${sakai.version}-->
+<!--org.sakaiprojectsakai-site-api${sakai.version}-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}-->
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
+<!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
