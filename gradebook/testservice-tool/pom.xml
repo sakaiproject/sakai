@@ -11,6 +11,10 @@
   <name>sakai-gradebook-testservice</name>
   <packaging>war</packaging>
   <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
 <!-- Gradebook service -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -18,11 +22,7 @@
       <version>${sakai.version}</version>
     </dependency>
 <!-- Sakai2 Dependencies -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-util${sakai.version}-->
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -35,10 +35,10 @@
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
       <exclusions>
-      	<exclusion>
-      		<groupId>jsf</groupId>
-      		<artifactId>jsf-api</artifactId>
-      	</exclusion>
+        <exclusion>
+          <groupId>jsf</groupId>
+          <artifactId>jsf-api</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 <!-- sakai2 plugin -->

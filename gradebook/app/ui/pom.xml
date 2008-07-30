@@ -13,10 +13,10 @@
   <packaging>jar</packaging>
   <properties>
     <deploy.target/>
-        <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+    <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
     <rsfutil.version>0.7.2</rsfutil.version>
   </properties>
-    <repositories>
+  <repositories>
     <repository>
       <id>caret-dev</id>
       <name>Caret Dev Repo</name>
@@ -27,9 +27,16 @@
       </snapshots>
     </repository>
   </repositories>
-  
   <dependencies>
-  <dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>SakaiRSFComponents-templates</artifactId>
       <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
@@ -54,12 +61,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-		<groupId>uk.org.ponder.rsfutil</groupId>
-		<artifactId>RSFComponents-templates</artifactId>
-		<version>${rsfutil.version}</version>
-		<type>war</type>
-	</dependency>
-	
+      <groupId>uk.org.ponder.rsfutil</groupId>
+      <artifactId>RSFComponents-templates</artifactId>
+      <version>${rsfutil.version}</version>
+      <type>war</type>
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-app-business</artifactId>
@@ -81,11 +87,7 @@
       <version>${sakai.version}</version>
     </dependency>
 <!-- ToolManager -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!-- Section Awareness -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -123,46 +125,20 @@
 			integration support JAR.
 		-->
 <!-- Uuid generator -->
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+<!--
+      sakai-util-impl is a part of the kernel implementation, p:dependency removed
+      org.sakaiprojectsakai-util-impl${sakai.version}-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-api</artifactId>
+      <version>1.2.0</version>
+      <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-impl</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.sakaiproject.entitybroker</groupId>
-        <artifactId>entitybroker-api</artifactId>
-        <version>1.2.0</version>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-entity-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-site-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-user-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-    </dependency>
-    
+<!--org.sakaiprojectsakai-entity-api${sakai.version}provided-->
+<!--org.sakaiprojectsakai-site-api${sakai.version}provided-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}provided-->
 <!-- End Sakai2 Dependencies -->
 <!-- Database dependencies used for integration testing and schema generation -->
 <!-- Please contact the gradebook development team before removing these -->
@@ -307,12 +283,12 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- Spring dependency -->
+<!-- Spring dependency -->
     <dependency>
-        <groupId>${sakai.spring.groupId}</groupId>
-        <artifactId>${sakai.spring.artifactId}</artifactId>
-        <version>${sakai.spring.version}</version>
-        <scope>provided</scope>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.artifactId}</artifactId>
+      <version>${sakai.spring.version}</version>
+      <scope>provided</scope>
     </dependency>
 <!-- Needed by MyFaces ExtensionsFilter -->
     <dependency>
