@@ -15,11 +15,6 @@
     <deploy.target>components</deploy.target>
   </properties>
   <build>
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>
@@ -37,8 +32,6 @@
       </resource>
     </resources>
 <!-- java source -->
-    
-    
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>

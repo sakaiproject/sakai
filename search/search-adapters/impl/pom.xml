@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
   <properties>
     <deploy.target/>
-    <maven.test.jvmargs></maven.test.jvmargs>
+    <maven.test.jvmargs/>
   </properties>
   <build>
     <resources>
@@ -41,8 +41,6 @@
       </resource>
     </resources>
 <!-- java source -->
-    
-    
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>
@@ -72,6 +70,18 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
       <version>${sakai.version}</version>
@@ -83,48 +93,18 @@
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
+<!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
+<!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-util${sakai.version}jar-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}jar-->
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
@@ -138,6 +118,5 @@
       <version>1.0.4</version>
       <type>jar</type>
     </dependency>
-    
   </dependencies>
 </project>

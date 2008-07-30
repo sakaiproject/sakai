@@ -61,6 +61,10 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
@@ -69,14 +73,9 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-     <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
+<!--org.sakaiprojectsakai-util${sakai.version}jar-->
   </dependencies>
 </project>

@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
   <properties>
     <deploy.target/>
-    <maven.test.jvmargs></maven.test.jvmargs>
+    <maven.test.jvmargs/>
   </properties>
   <build>
     <resources>
@@ -41,8 +41,6 @@
       </resource>
     </resources>
 <!-- java source -->
-    
-    
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>
@@ -71,6 +69,18 @@
     </plugins>
   </build>
   <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
@@ -119,78 +129,18 @@
       <version>1.2.2</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-cluster-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-content-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
+<!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-component${sakai.version}jar-->
+<!--org.sakaiprojectsakai-util${sakai.version}jar-->
+<!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-cluster-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-tool-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-content-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-site-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-authz-api${sakai.version}jar-->
 <!--
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -199,12 +149,7 @@
       <type>jar</type>
     </dependency>
 -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-db-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
+<!--org.sakaiprojectsakai-db-api${sakai.version}jar-->
     <dependency>
       <groupId>jtidy</groupId>
       <artifactId>jtidy</artifactId>
@@ -246,7 +191,7 @@
       <version>3.0</version>
       <type>jar</type>
     </dependency>
-    <!--
+<!--
     HSQL DB does not have clean transaction isolation 
     and hence cannot be used to correctly test the 
     transaction sequence code, hence derby
@@ -265,6 +210,5 @@
       <type>jar</type>
       <scope>test</scope>
     </dependency>
-    
   </dependencies>
 </project>
