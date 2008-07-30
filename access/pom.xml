@@ -11,13 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>access-base</artifactId>
   <packaging>pom</packaging>
-
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/access/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/access/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/access/trunk</url>
   </scm>
-
   <modules>
     <module>access-impl/impl</module>
     <module>access-tool/tool</module>
