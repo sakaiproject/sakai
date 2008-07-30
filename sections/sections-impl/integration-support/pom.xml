@@ -21,6 +21,10 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
       <version>${sakai.version}</version>
@@ -30,15 +34,21 @@
       <artifactId>sakai-sections-impl-standalone</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+<!--
+      sakai-util-impl is a part of the kernel implementation, p:dependency removed
+      org.sakaiprojectsakai-util-impl${sakai.version}-->
+<!--
+Bindig directly to the kernel impl is not a good idea,
+It is liable to change.
+When a test harness becomes available this code should be ported.
+
+Hard coding the version so that we dont forget.
+-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-util-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>1.0RC2-SNAPSHOT</version>
     </dependency>
 <!-- Database dependencies -->
     <dependency>

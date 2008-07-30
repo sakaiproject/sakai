@@ -20,6 +20,10 @@
     <deploy.target/>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
 <!-- Standalone authn, authz, and context use faces context and http session -->
     <dependency>
       <groupId>org.apache.myfaces.core</groupId>
@@ -47,17 +51,9 @@
       <artifactId>sakai-sections-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!-- Uuid generator -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
     <dependency>
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>

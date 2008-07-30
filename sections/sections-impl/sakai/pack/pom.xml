@@ -27,38 +27,37 @@
       <artifactId>sakai-sections-impl</artifactId>
       <version>${sakai.version}</version>
       <exclusions>
-        <!-- most of these exclusions are an indication that the structure of the 
+<!-- most of these exclusions are an indication that the structure of the 
              dependency and the scoping of its dependencies is wrong -->
-      	<exclusion>
-    		<groupId>aopalliance</groupId>
-      		<artifactId>aopalliance</artifactId>
-      	</exclusion>
-      	<exclusion>
- 		<groupId>cglib</groupId>
-      		<artifactId>cglib-full</artifactId>
-      	</exclusion>
-      	<exclusion>
- 		<groupId>commons-beanutils</groupId>
-      		<artifactId>commons-beanutils</artifactId>
-      	</exclusion>
-      	<exclusion>
- 		<groupId>commons-digester</groupId>
-      		<artifactId>commons-digester</artifactId>
-      	</exclusion>
-      	<exclusion>
- 		<groupId>odmg</groupId>
-      		<artifactId>odmg</artifactId>
-      	</exclusion>
-      	<exclusion>
- 		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-sections-model</artifactId>
-      	</exclusion>
-      	<exclusion>
- 		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-util</artifactId>
-      	</exclusion>
+        <exclusion>
+          <groupId>aopalliance</groupId>
+          <artifactId>aopalliance</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>cglib</groupId>
+          <artifactId>cglib-full</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-beanutils</groupId>
+          <artifactId>commons-beanutils</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-digester</groupId>
+          <artifactId>commons-digester</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>odmg</groupId>
+          <artifactId>odmg</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-sections-model</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-util</artifactId>
+        </exclusion>
       </exclusions>
-
     </dependency>
   </dependencies>
   <build>

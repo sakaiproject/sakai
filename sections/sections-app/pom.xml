@@ -18,6 +18,14 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
       <version>${sakai.version}</version>
@@ -26,25 +34,29 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-model</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
 <!--properties:	war.bundle: false -->
     </dependency>
     <dependency>
@@ -52,32 +64,16 @@
       <artifactId>sakai-sections-app-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
+<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
+<!--org.sakaiprojectsakai-site-api${sakai.version}-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-      <dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-spreadsheet</artifactId>
       <version>${sakai.version}</version>
@@ -87,40 +83,21 @@
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
       <exclusions>
-	<exclusion>
-                <!-- we are pulling the myfaces version of this api -->
-      		<groupId>jsf</groupId>
-      		<artifactId>jsf-api</artifactId>
-	</exclusion>
+        <exclusion>
+<!-- we are pulling the myfaces version of this api -->
+          <groupId>jsf</groupId>
+          <artifactId>jsf-api</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-util${sakai.version}-->
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!-- Uuid generator -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-impl</artifactId>
-      <version>${sakai.version}</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
-    </dependency>
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+<!--
+      sakai-util-impl is a part of the kernel implementation, p:dependency removed
+      org.sakaiprojectsakai-util-impl${sakai.version}provided-->
 <!-- Sakai plugin -->
 <!-- End Sakai2 Dependencies -->
 <!-- Database dependencies -->
@@ -152,13 +129,15 @@
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.mock.artifactId}</artifactId>
       <version>${sakai.spring.mock.version}</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>jta</groupId>
@@ -179,7 +158,8 @@
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
       <version>2.1_3</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>antlr</groupId>
@@ -190,7 +170,8 @@
       <groupId>odmg</groupId>
       <artifactId>odmg</artifactId>
       <version>3.0</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>commons-dbcp</groupId>
@@ -302,7 +283,7 @@
   <reports/>
   <build>
     <plugins>
-       <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <version>2.0</version>
@@ -318,7 +299,6 @@
           </webResources>
         </configuration>
       </plugin>
-
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>

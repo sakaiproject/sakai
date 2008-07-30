@@ -21,6 +21,10 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
       <version>${sakai.version}</version>
@@ -62,11 +66,7 @@
       <version>${sakai.version}</version>
       <type>pom</type>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
@@ -83,13 +83,12 @@
         </includes>
       </resource>
       <resource>
-         <directory>${basedir}/src</directory>
-         <includes>
-         	<include>META-INF/*.tld</include>
-         	<include>META-INF/*.xml</include>
-         </includes>
+        <directory>${basedir}/src</directory>
+        <includes>
+          <include>META-INF/*.tld</include>
+          <include>META-INF/*.xml</include>
+        </includes>
       </resource>
-
     </resources>
     <sourceDirectory>src/java</sourceDirectory>
   </build>
