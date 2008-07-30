@@ -11,19 +11,12 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>authz-base</artifactId>
   <packaging>pom</packaging>
-
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/authz/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/authz/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/authz/trunk</url>
   </scm>
-
-
   <modules>
-    <module>authz-api/api</module>
-    <module>authz-impl/impl</module>
-    <module>authz-impl/integration-test</module>
-    <module>authz-impl/pack</module>
     <module>authz-tool/tool</module>
   </modules>
 </project>
