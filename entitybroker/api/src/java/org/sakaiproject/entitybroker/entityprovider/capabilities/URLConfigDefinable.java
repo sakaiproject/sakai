@@ -17,6 +17,7 @@ package org.sakaiproject.entitybroker.entityprovider.capabilities;
 import java.util.Map;
 
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 
 /**
@@ -39,8 +40,16 @@ public interface URLConfigDefinable extends URLConfigurable {
     * the redirect is always processed before anything validity checks happen<br/>
     * Some examples:<br/>
     * /myprefix/item/{id} => /my-item/{id} <br/>
-    * /myprefix/{year}/{month}/{day} => /myprefix/?date={year}-{month}-{day}
-    * @return the map of incoming URL pattern => outgoing URL pattern 
+    * /myprefix/{year}/{month}/{day} => /myprefix/?date={year}-{month}-{day}<br/>
+    * <b>incomingURL</b> is the URL template pattern to match including the /prefix using {name} to indicate variables <br/>
+    * Example: /{prefix}/{thing}/site/{siteId} will match the following URL: <br/>
+    * /myprefix/123/site/456, the variables will be {prefix => myprefix, thing => 123, siteId => 456} <br/>
+    * NOTE: all incoming URL templates must start with "/{prefix}" ({@link TemplateParseUtil#TEMPLATE_PREFIX}) <br/>
+    * <b>outgoingURL</b> is the URL template pattern to fill with values from the incoming pattern,
+    * this can start with anything, but will be processed as an external redirect if it starts with "http" or "/" 
+    * (unless it starts with "/{prefix}"), otherwise it will be processed as an internal forward
+    * 
+    * @return the map of incomingURL pattern => outgoingURL pattern 
     * OR null/empty if you have no simple mappings
     */
    public Map<String, String> defineURLMappings();

@@ -251,61 +251,14 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   // handle the request internally if possible
 
                   // identify the type of request (input or output) and the action (will be encoded in the viewKey)
-                  boolean output = false;
-                  String method = req.getMethod() == null ? "GET" : req.getMethod().toUpperCase().trim();
+                  boolean output = RequestUtils.isRequestOutput(req, view);
+
+                  //String method = req.getMethod() == null ? "GET" : req.getMethod().toUpperCase().trim();
                   // this fails because the original post gets lost therefore we are giving up on this for now
 //                // check to see if the original method value was set
 //                if (req.getAttribute(ORIGINAL_METHOD) != null) {
 //                method = (String) req.getAttribute(ORIGINAL_METHOD);
 //                }
-                  if (EntityView.Method.GET.name().equals(method)) {
-                     output = true;
-                  } else {
-                     // identify the action based on the method type or "_method" attribute
-                     if (EntityView.Method.DELETE.name().equals(method)) {
-                        view.setViewKey(EntityView.VIEW_DELETE);
-                     } else if (EntityView.Method.PUT.name().equals(method)) {
-                        view.setViewKey(EntityView.VIEW_EDIT);
-                     } else if (EntityView.Method.POST.name().equals(method)) {
-                        String _method = req.getParameter(EntityRequestHandler.COMPENSATE_METHOD);
-                        if (_method == null) {
-                           if (view.getEntityReference().getId() == null) {
-                              // this better be a create request or list post
-                              view.setViewKey(EntityView.VIEW_NEW);
-                           } else {
-                              // this could be an edit
-                              view.setViewKey(EntityView.VIEW_EDIT);
-                           }
-                        } else {
-                           _method = _method.toUpperCase().trim();
-                           if (EntityView.Method.DELETE.name().equals(_method)) {
-                              view.setViewKey(EntityView.VIEW_DELETE);
-                           } else if (EntityView.Method.PUT.equals(_method)) {
-                              if (view.getEntityReference().getId() == null) {
-                                 // this should be a modification of a list
-                                 view.setViewKey(EntityView.VIEW_NEW);
-                              } else {
-                                 // this better be an edit of an entity
-                                 view.setViewKey(EntityView.VIEW_EDIT);
-                              }
-                           } else {
-                              throw new EntityException("Unable to handle POST request with _method, unknown method (only PUT/DELETE allowed): " + _method, 
-                                    view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);                        
-                           }
-                        }
-                     } else {
-                        throw new EntityException("Unable to handle request method, unknown method (only GET/POST/PUT/DELETE allowed): " + method, 
-                              view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);
-                     }
-
-                     // check that the request is valid (delete requires an entity id)
-                     if ( EntityView.VIEW_DELETE.equals(view.getViewKey()) 
-                           && view.getEntityReference().getId() == null) {
-                        throw new EntityException("Unable to handle entity ("+prefix+") delete request without entity id, url=" 
-                              + view.getOriginalEntityUrl(), 
-                              view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);
-                     }
-                  }
 
                   boolean handled = false;
                   // PROCESS CUSTOM ACTIONS
@@ -320,7 +273,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      // make sure this request is a valid type for this action
                      if (customAction.viewKey != null 
                            && ! view.getViewKey().equals(customAction.viewKey)) {
-                        throw new EntityException( "Cannot execute custom action ("+customAction.action+") for request method " + method
+                        throw new EntityException( "Cannot execute custom action ("+customAction.action+") for request method " + req.getMethod()
                         		+ ", The custom action view key ("+customAction.viewKey+") must match the request view key ("+view.getViewKey()+")", 
                               view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
                      }

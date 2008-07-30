@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +38,9 @@ public class TemplateParseUtil {
 
    public static final String PREFIX = EntityView.PREFIX;
    public static final String ID = EntityView.ID;
+   public static final String PREFIX_VARIABLE = "{"+PREFIX+"}";
+   public static final String TEMPLATE_PREFIX = SEPARATOR + PREFIX_VARIABLE;
+   public static final String DIRECT_PREFIX = SEPARATOR + "direct";
 
    /**
     * Defines the parse template for the "list" operation,
@@ -109,11 +113,11 @@ public class TemplateParseUtil {
    static {
       defaultTemplates = new ArrayList<Template>();
       // this load order should match the array above
-      defaultTemplates.add( new Template(TEMPLATE_EDIT, SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "{"+ID+"}" + SEPARATOR + "edit") );
-      defaultTemplates.add( new Template(TEMPLATE_DELETE, SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "{"+ID+"}" + SEPARATOR + "delete") );
-      defaultTemplates.add( new Template(TEMPLATE_NEW,  SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "new") );
-      defaultTemplates.add( new Template(TEMPLATE_SHOW, SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "{"+ID+"}") );
-      defaultTemplates.add( new Template(TEMPLATE_LIST, SEPARATOR + "{"+PREFIX+"}") );
+      defaultTemplates.add( new Template(TEMPLATE_EDIT, TEMPLATE_PREFIX + SEPARATOR + "{"+ID+"}" + SEPARATOR + "edit") );
+      defaultTemplates.add( new Template(TEMPLATE_DELETE, TEMPLATE_PREFIX + SEPARATOR + "{"+ID+"}" + SEPARATOR + "delete") );
+      defaultTemplates.add( new Template(TEMPLATE_NEW,  TEMPLATE_PREFIX + SEPARATOR + "new") );
+      defaultTemplates.add( new Template(TEMPLATE_SHOW, TEMPLATE_PREFIX + SEPARATOR + "{"+ID+"}") );
+      defaultTemplates.add( new Template(TEMPLATE_LIST, TEMPLATE_PREFIX) );
 
       defaultPreprocessedTemplates = preprocessTemplates(defaultTemplates);
    }
@@ -165,8 +169,8 @@ public class TemplateParseUtil {
          throw new IllegalArgumentException("Template must start with " + SEPARATOR);
       } else if (template.charAt(template.length()-1) == SEPARATOR) {
          throw new IllegalArgumentException("Template cannot end with " + SEPARATOR);
-      } else if (! template.startsWith(SEPARATOR + "{"+PREFIX+"}")) {
-         throw new IllegalArgumentException("Template must start with: " + SEPARATOR + "{"+PREFIX+"}" 
+      } else if (! template.startsWith(TEMPLATE_PREFIX)) {
+         throw new IllegalArgumentException("Template must start with: " + TEMPLATE_PREFIX 
                + " :: that is SEPARATOR + \"{\"+PREFIX+\"}\"");
       } else if (template.indexOf("}{") != -1) {
          throw new IllegalArgumentException("Template replacement variables ({var}) " +
@@ -179,6 +183,35 @@ public class TemplateParseUtil {
          // take out {} and check if the template uses valid chars
          throw new IllegalArgumentException("Template can only contain the following (not counting []): " + VALID_TEMPLATE_CHARS);
       }
+   }
+
+   /**
+    * Validates an outgoing template to make sure it is valid
+    * @param template an outgoing template,
+    * if starts with / then it will be used as is and redirected to,
+    * otherwise it will have the direct URL prefixed and will be forwarded
+    * @return the template which should be completely valid
+    */
+   public static String validateOutgoingTemplate(String template) {
+      String validTemplate = template;
+      if (template == null || "".equals(template)) {
+         throw new IllegalArgumentException("Template cannot be null or empty string");
+      } else if (template.indexOf("{}") != -1) {
+         throw new IllegalArgumentException("Template replacement variables ({var}) " +
+               "cannot be empty ({}), there must be a value between them");
+      } else if (! template.matches(VALID_TEMPLATE_CHARS+"+")) {
+         // take out {} and check if the template uses valid chars
+         throw new IllegalArgumentException("Template can only contain the following (not counting []): " + VALID_TEMPLATE_CHARS);
+      }
+      if (template.startsWith(PREFIX_VARIABLE)) {
+         validTemplate = DIRECT_PREFIX + SEPARATOR + template;
+      } else if (template.startsWith(TEMPLATE_PREFIX)) {
+         validTemplate = DIRECT_PREFIX + template;
+      } else if (SEPARATOR != template.charAt(0)) {
+         // assume the user wants /direct/ added to the URL
+         validTemplate = DIRECT_PREFIX + SEPARATOR + template;
+      }
+      return validTemplate;
    }
 
    /**
@@ -249,16 +282,13 @@ public class TemplateParseUtil {
 
    /**
     * Parse a string and attempt to match it to a template and then 
-    * return the key of the matching template
-    * in the map as {@link #TEMPLATEKEY} -> key, 
-    * along with all the parsed out keys and values<br/>
+    * return the match information along with all the parsed out keys and values<br/>
     * 
     * @param input a string which we want to attempt to match to one of the templates
     * @param preprocessed the analyzed templates to attempt to match in the order they should attempt the match, 
     * can be a single template or multiples, use {@link #preprocessTemplates(List)} to create this
     * (recommend caching the preprocessed templates to avoid reprocessing them over and over)
-    * @return a map containing the matching template, templateKey, and all the replacement 
-    * variable names and values OR empty map if no templates matched
+    * @return a the processed template analysis object OR null if no matches
     */
    public static ProcessedTemplate parseTemplate(String input, List<PreProcessedTemplate> preprocessed) {
       if (preprocessed == null) {
@@ -317,27 +347,46 @@ public class TemplateParseUtil {
       }
       List<PreProcessedTemplate> analyzedTemplates = new ArrayList<PreProcessedTemplate>();
       for (Template t : templates) {
-         TemplateParseUtil.validateTemplate(t.template);
-         List<String> vars = new ArrayList<String>();
-         StringBuilder regex = new StringBuilder();
-         String[] parts = t.template.split(BRACES);
-         for (int j = 0; j < parts.length; j++) {
-            String part = parts[j];
-            if (j % 2 == 0) {
-               // odd parts are textual breaks
-               regex.append(part);
-            } else {
-               // even parts are replacement vars
-               vars.add(part);
-               regex.append("(");
-               regex.append(VALID_VAR_CHARS);
-               regex.append("+)");
-            }
-         }
-         analyzedTemplates.add(new PreProcessedTemplate(t.templateKey, 
-               t.template, regex.toString(), new ArrayList<String>(vars)) );
+         analyzedTemplates.add( preprocessTemplate(t) );
       }      
       return analyzedTemplates;
+   }
+
+   /**
+    * process a template into a preprocessed template which can be cached
+    * @param t the template
+    * @return the preprocessed template
+    */
+   public static PreProcessedTemplate preprocessTemplate(Template t) {
+      TemplateParseUtil.validateTemplate(t.template);
+      List<String> vars = new ArrayList<String>();
+      StringBuilder regex = new StringBuilder();
+      String[] parts = t.template.split(BRACES);
+      for (int j = 0; j < parts.length; j++) {
+         String part = parts[j];
+         if (j % 2 == 0) {
+            // odd parts are textual breaks
+            regex.append(part);
+         } else {
+            // even parts are replacement vars
+            vars.add(part);
+            regex.append("(");
+            regex.append(VALID_VAR_CHARS);
+            regex.append("+)");
+         }
+      }
+      return new PreProcessedTemplate(t.templateKey, 
+            t.template, regex.toString(), new ArrayList<String>(vars));
+   }
+
+   /**
+    * Convenience method for when we don't have keys
+    * @param template
+    * @return a preprocessed template
+    */
+   public static PreProcessedTemplate preprocessTemplate(String template) {
+      Template t = new Template(UUID.randomUUID().toString(), template);
+      return preprocessTemplate(t);
    }
 
    /**

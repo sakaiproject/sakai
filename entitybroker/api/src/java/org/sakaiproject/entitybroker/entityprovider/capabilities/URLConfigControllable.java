@@ -46,14 +46,18 @@ public interface URLConfigControllable extends URLConfigurable {
     * do some processing to turn it into an outgoing URL OR just do some processing OR
     * indicate that a failure has occurred<br/>
     *
-    * @param matchedPattern the pattern that was matched
-    * @param incomingURL the incoming URL the was matched by a URL pattern
+    * @param matchedPattern the template pattern that was matched
+    * @param incomingURL the incoming URL that was matched by a URL pattern
     * @param incomingSegments incoming URL segments, Example: /prefix/123/apple => {'prefix','123','apple'}
-    * @param incomingVariables a map of the values in the {}, 
+    * @param incomingVariables a map of the values in the {} (prefix is always included), 
     * Example: pattern: /prefix/{thing}/apple, url: /prefix/123/apple, would yield: 'thing' => '123'
-    * @return the URL to redirect to (relative) OR null/"" to not redirect and return OK
+    * @return should be one of the following: <br/>
+    * 1) the URL to redirect to, will be processed as an external redirect if it starts with "http" or "/" 
+    * (unless it starts with "/{prefix}"), otherwise it will be processed as an internal forward <br/>
+    * 2) "" (empty string) to not redirect and return an empty success response <br/>
+    * 3) null to not redirect and allow standard processing of the URL to continue <br/>
     * @throws IllegalStateException if there is a failure, this will cause the server to return a redirect failure
     */
-   public String handleRedirects(String matchedPattern, String incomingURL, String[] incomingSegments, Map<String, String> incomingVariables);
+   public String handleRedirects(String matchedTemplate, String incomingURL, String[] incomingSegments, Map<String, String> incomingVariables);
 
 }
