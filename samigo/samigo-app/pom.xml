@@ -33,6 +33,18 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>SakaiRSFComponents-templates</artifactId>
       <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
@@ -62,7 +74,6 @@
       <version>${rsfutil.version}</version>
       <type>war</type>
     </dependency>
-
 <!-- Samigo API -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -122,8 +133,8 @@
       <version>${sakai.version}</version>
       <exclusions>
         <exclusion>
-           <groupId>org.sakaiproject</groupId>
-           <artifactId>sakai-sections-model</artifactId>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-sections-model</artifactId>
         </exclusion>
       </exclusions>
 <!--properties:  war.bundle: integrated -->
@@ -157,7 +168,6 @@
       <artifactId>log4j</artifactId>
       <version>1.2.8</version>
 <!--properties:  war.bundle: standalone -->
-      
     </dependency>
     <dependency>
       <groupId>navigo</groupId>
@@ -169,23 +179,15 @@
       <artifactId>SakaiBaseFramework</artifactId>
       <version>1.0.a1</version>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: false -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: false -->
-    </dependency>
+<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
+<!--
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+-->
 <!-- need to use ToolManager, ToolSession, Placement -->
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
@@ -193,11 +195,7 @@
       <version>1.2.0</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -218,12 +216,7 @@
       <version>${sakai.version}</version>
       <type>pom</type>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: integrated -->
-    </dependency>
+<!--org.sakaiprojectsakai-util${sakai.version}-->
 <!-- For integration with the gradebook -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -232,36 +225,11 @@
 <!--properties:  war.bundle: false -->
     </dependency>
 <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: false -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: false -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-db-api</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: false -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: false -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
-<!--properties:  war.bundle: false -->
-    </dependency>
+<!--org.sakaiprojectsakai-site-api${sakai.version}-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}-->
+<!--org.sakaiprojectsakai-db-api${sakai.version}-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}-->
+<!--org.sakaiprojectsakai-component${sakai.version}-->
 <!-- need to registering samigo functions with sakai -->
 <!-- doesn't need this 
     <dependency>
@@ -271,22 +239,11 @@
     </dependency>
 -->
 <!-- Uuid generator -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-impl</artifactId>
-      <version>${sakai.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+<!--
+      sakai-util-impl is a part of the kernel implementation, p:dependency removed
+      org.sakaiprojectsakai-util-impl${sakai.version}provided-->
+<!--org.sakaiprojectsakai-event-api${sakai.version}-->
 <!-- end Sakai integration dependencies -->
 <!--**********************************************************-->
     <dependency>
@@ -376,10 +333,10 @@
       <artifactId>commons-jxpath</artifactId>
       <version>1.1</version>
       <exclusions>
-      	<exclusion>
-      		<groupId>xerces</groupId>
-      		<artifactId>xerces</artifactId>
-      	</exclusion>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xerces</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -463,7 +420,7 @@
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.1.2</version>
-      <scope>compile</scope> 
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>jta</groupId>
@@ -540,11 +497,7 @@
       <artifactId>wsdl4j</artifactId>
       <version>1.4</version>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-content-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-content-api${sakai.version}-->
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
@@ -581,7 +534,6 @@
       <artifactId>sakai-jsf-spreadsheet</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-
 <!-- for spreadsheet support -->
     <dependency>
       <groupId>poi</groupId>
@@ -596,7 +548,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <version>2.0</version>
         <configuration>
-   <!-- the resources order is important the first take precidence -->
+<!-- the resources order is important the first take precidence -->
           <webResources>
             <resource>
               <directory>${basedir}/sakai-samigo/webapp</directory>
@@ -614,15 +566,15 @@
         </configuration>
       </plugin>
       <plugin>
-	      <artifactId>maven-antrun-plugin</artifactId>
+        <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
             <phase>process-resources</phase>
             <configuration>
               <tasks>
                 <echo message="project.build.directory=${project.build.directory}"/>
-                <echo message="basedir=${basedir}"/>             
-                <echo message="basedir=${project.version}"/>             
+                <echo message="basedir=${basedir}"/>
+                <echo message="basedir=${project.version}"/>
                 <copy file="${basedir}/../samigo-audio/target/sakai-samigo-audio-${project.version}.jar" tofile="${project.build.directory}/samigo-${project.version}/applets/sakai-samigo-audio-dev.jar"/>
               </tasks>
             </configuration>
@@ -631,7 +583,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
     </plugins>
     <resources>
       <resource>

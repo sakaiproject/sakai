@@ -11,14 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>sam-base</artifactId>
   <packaging>pom</packaging>
-  
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/sam/trunk</url>
   </scm>
-  
-
   <modules>
     <module>samigo-api</module>
     <module>samigo-app</module>

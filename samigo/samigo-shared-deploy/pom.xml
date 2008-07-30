@@ -20,9 +20,7 @@
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
-
-  <!-- Share the O.K.I. OSID -->
-
+<!-- Share the O.K.I. OSID -->
   <dependencies>
     <dependency>
       <groupId>OKI</groupId>
@@ -31,7 +29,4 @@
       <scope>compile</scope>
     </dependency>
   </dependencies>
-
-
 </project>
-
