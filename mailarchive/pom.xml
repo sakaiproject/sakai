@@ -11,14 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>mailarchive-base</artifactId>
   <packaging>pom</packaging>
-  
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/mailarchive/trunk</url>
   </scm>
-  
-
   <modules>
     <module>mailarchive-api/api</module>
     <module>mailarchive-help</module>
