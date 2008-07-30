@@ -25,10 +25,10 @@
       <artifactId>sakai-postem-impl</artifactId>
       <version>${sakai.version}</version>
       <exclusions>
-      	<exclusion>
-      		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-postem-hbm</artifactId>
-      	</exclusion>
+        <exclusion>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-postem-hbm</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
   </dependencies>
