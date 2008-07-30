@@ -12,42 +12,26 @@
   <artifactId>sakai-coursemanagement-authz-provider-integration-test</artifactId>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-test-harness</artifactId>
       <version>${sakai.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-      <scope>test</scope>
-    </dependency>
+<!--org.sakaiprojectsakai-authz-apitest-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-coursemanagement-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-    </dependency>
-    <!-- This is dragged in purely because SiteService throws "PermissionException" -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-    </dependency>
-
+<!--org.sakaiprojectsakai-entity-api-->
+<!--org.sakaiprojectsakai-site-api-->
+<!--org.sakaiprojectsakai-tool-api-->
+<!--org.sakaiprojectsakai-user-api-->
+<!-- This is dragged in purely because SiteService throws "PermissionException" -->
+<!--org.sakaiprojectsakai-util-api-->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
@@ -59,7 +43,6 @@
       <version>${sakai.spring.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -72,13 +55,13 @@
     </dependency>
   </dependencies>
   <build>
-    <!-- TODO Fix in master POM -->
+<!-- TODO Fix in master POM -->
     <testSourceDirectory>src/test/java</testSourceDirectory>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!-- TODO These settings should all be set as defaults in the master POM -->
+<!-- TODO These settings should all be set as defaults in the master POM -->
         <version>2.4.3</version>
         <configuration>
           <systemProperties>
@@ -91,8 +74,7 @@
               <value>${test.sakai.home}</value>
             </property>
           </systemProperties>
-
-          <!-- Need to clear out static configuration data between tests. -->
+<!-- Need to clear out static configuration data between tests. -->
           <forkMode>pertest</forkMode>
         </configuration>
       </plugin>

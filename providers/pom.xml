@@ -11,14 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>providers-base</artifactId>
   <packaging>pom</packaging>
-
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/providers/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/providers/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/providers/trunk</url>
   </scm>
-
-
   <modules>
     <module>allhands</module>
     <module>cm-authz-provider</module>

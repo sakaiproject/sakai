@@ -21,112 +21,88 @@
     <maven.test.skip>true</maven.test.skip>
   </properties>
   <dependencies>
-  	
-
-  	<dependency>
-  		<groupId>commons-lang</groupId>
-  		<artifactId>commons-lang</artifactId>
-  		<version>${sakai.commons.lang.version}</version>
-  	</dependency>
-
-  	<dependency>
-  		<groupId>commons-logging</groupId>
-  		<artifactId>commons-logging</artifactId>
-  		<version>1.0.4</version>
-  	</dependency>
-  	
-  	<!-- This exists strictly so we can control logging
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>${sakai.commons.lang.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+<!-- This exists strictly so we can control logging
     	levels in Maven-executed unit tests -->
     <dependency>
-    	<groupId>log4j</groupId>
-    	<artifactId>log4j</artifactId>
-    	<version>1.2.8</version>
-    	<scope>test</scope>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+      <scope>test</scope>
     </dependency>
-  	
-
-  	<dependency>
-  		<groupId>openldap</groupId>
-  		<artifactId>ldap</artifactId>
-  		<version>2005.03.29</version>
-  	</dependency>
-
-  	<dependency>
-  		<groupId>org.sakaiproject</groupId>
-  		<artifactId>sakai-jldap-provider</artifactId>
-  		<version>${sakai.version}</version>
-  	</dependency>
-  	
-  	<dependency>
+    <dependency>
+      <groupId>openldap</groupId>
+      <artifactId>ldap</artifactId>
+      <version>2005.03.29</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jldap-provider</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jldap-provider-mock</artifactId>
       <version>${sakai.version}</version>
       <scope>test</scope>
     </dependency>
-  	
-  	<dependency>
-  		<groupId>org.sakaiproject</groupId>
-  		<artifactId>sakai-test-harness</artifactId>
-  		<version>${sakai.version}</version>
-  	</dependency>
-
-  	<dependency>
-  		<groupId>org.sakaiproject</groupId>
-  		<artifactId>sakai-component</artifactId>
-  		<version>${sakai.version}</version>
-  	</dependency>
-
-  	<dependency>
-  		<groupId>org.sakaiproject</groupId>
-  		<artifactId>sakai-entity-api</artifactId>
-  		<version>${sakai.version}</version>
-  	</dependency>
-
-  	<dependency>
-  		<groupId>org.sakaiproject</groupId>
-  		<artifactId>sakai-user-api</artifactId>
-  		<version>${sakai.version}</version>
-  	</dependency>
-
-  	<dependency>
-  		<groupId>org.sakaiproject</groupId>
-  		<artifactId>sakai-util</artifactId>
-  		<version>${sakai.version}</version>
-  	</dependency>
-
-  	<dependency>
-  		<groupId>org.sakaiproject</groupId>
-  		<artifactId>sakai-util-api</artifactId>
-  		<version>${sakai.version}</version>
-  	</dependency>
-
-  	<dependency>
-  		<groupId>${sakai.spring.groupId}</groupId>
-  		<artifactId>${sakai.spring.artifactId}</artifactId>
-  		<version>${sakai.spring.version}</version>
-  	</dependency>
-
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-test-harness</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+<!--org.sakaiprojectsakai-component${sakai.version}-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}-->
+<!--org.sakaiprojectsakai-util${sakai.version}-->
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+    <dependency>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.artifactId}</artifactId>
+      <version>${sakai.spring.version}</version>
+    </dependency>
   </dependencies>
   <build>
-  	<testSourceDirectory>src/test/java</testSourceDirectory>
-  	<plugins>
-    	<plugin>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <plugins>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!-- Note that these are skipped by default by virtue of the
+<!-- Note that these are skipped by default by virtue of the
         maven.test.skip property above. To enable tests, activate
         a profile with that property set to false. -->
         <configuration>
-        	<includes>
-            	<include>**/*TestSuite.java</include>
-				<include>**/*StubTest.java</include>
-          	</includes>
-        	<systemProperties>
-            	<property>
-              		<name>log4j.configuration</name>
-              		<value>log4j.properties</value>
-            	</property>
-          	</systemProperties>
+          <includes>
+            <include>**/*TestSuite.java</include>
+            <include>**/*StubTest.java</include>
+          </includes>
+          <systemProperties>
+            <property>
+              <name>log4j.configuration</name>
+              <value>log4j.properties</value>
+            </property>
+          </systemProperties>
         </configuration>
       </plugin>
     </plugins>
