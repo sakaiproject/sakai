@@ -20,17 +20,17 @@
     <deploy.target/>
   </properties>
   <dependencies>
-    <dependency>      
+    <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>org.sakaiproject.kernel.content.component.migration</groupId>
       <artifactId>sakai-content-jcr-migration-api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>

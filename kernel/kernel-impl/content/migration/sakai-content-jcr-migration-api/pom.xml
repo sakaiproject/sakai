@@ -21,8 +21,8 @@
   </properties>
   <dependencies>
     <dependency>
-        <groupId>javax.jcr</groupId>
-        <artifactId>jcr</artifactId>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
     </dependency>
   </dependencies>
 </project>

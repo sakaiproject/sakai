@@ -45,22 +45,15 @@
       <artifactId>sakai-util</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-
 <!-- jcr dependencies -->
-
     <dependency>
-        <groupId>javax.jcr</groupId>
-        <artifactId>jcr</artifactId>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
     </dependency>
-
 <!-- end jcr dependencies -->
-
-
-
-
   </dependencies>
 </project>

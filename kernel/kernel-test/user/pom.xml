@@ -26,7 +26,6 @@
       <artifactId>sakai-kernel-api</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-user-util</artifactId>
@@ -48,7 +47,6 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
-    </dependency>  
-
+    </dependency>
   </dependencies>
 </project>
