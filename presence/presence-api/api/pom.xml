@@ -21,10 +21,10 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
     </dependency>
+<!--org.sakaiprojectsakai-component${sakai.version}-->
   </dependencies>
   <build>
     <resources/>

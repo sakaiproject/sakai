@@ -11,14 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>presence-base</artifactId>
   <packaging>pom</packaging>
-  
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/presence/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/presence/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/presence/trunk</url>
   </scm>
-  
-
   <modules>
     <module>presence-api/api</module>
     <module>presence-impl/impl</module>
