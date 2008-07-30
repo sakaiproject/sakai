@@ -11,14 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>assignment-base</artifactId>
   <packaging>pom</packaging>
-  
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/assignment/trunk</url>
   </scm>
-  
-
   <modules>
     <module>assignment-api/api</module>
     <module>assignment-help</module>
