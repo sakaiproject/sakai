@@ -28,12 +28,12 @@
   </dependencies>
   <build>
     <resources>
-		<resource>
-			<directory>${basedir}/src/java</directory>
-			<includes>
-				<include>**/*.xml</include>
-			</includes>
-		</resource>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
     </resources>
   </build>
 </project>
