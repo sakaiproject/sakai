@@ -11,13 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>taggable-base</artifactId>
   <packaging>pom</packaging>
-
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/contrib/syracuse/taggable/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/syracuse/taggable/trunk</developerConnection>
     <url>https://source.sakaiproject.org/contrib/syracuse/taggable/trunk</url>
   </scm>
-
   <modules>
     <module>taggable-api/api</module>
     <module>taggable-hbm/hbm</module>
