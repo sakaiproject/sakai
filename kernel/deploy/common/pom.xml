@@ -7,8 +7,8 @@
     <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <description>Shared Deployment Descriptor for Component</description>
-  <name>Component Shared Deployment</name>
+  <description>Kernel Direct Common Deployer</description>
+  <name>Kernel Direct Common Deployer</name>
   <groupId>org.sakaiproject.kernel.common</groupId>
   <artifactId>deploy</artifactId>
   <organization>

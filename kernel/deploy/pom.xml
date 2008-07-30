@@ -12,7 +12,8 @@
   <artifactId>deploy</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>shared</module>
     <module>common</module>
+    <module>shared</module>
+    <module>assembly</module>
   </modules>
 </project>

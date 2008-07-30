@@ -2,25 +2,91 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>kernel</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>deploy</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <description>Kernel Direct Shared Deployer</description>
-  <name>Kernel Direct Shared Deployer</name>
-  <groupId>org.sakaiproject.kernel.shared</groupId>
-  <artifactId>deploy</artifactId>
+  <description>Kernel Assembly</description>
+  <name>Kernel Assembly</name>
+  <groupId>org.sakaiproject.kernel.deploy</groupId>
+  <artifactId>kernel-assembly</artifactId>
   <organization>
-    <name>University of Michigan</name>
+    <name>University of Cambridge</name>
     <url>http://sakaiproject.org/</url>
   </organization>
-  <inceptionYear>2003</inceptionYear>
+  <inceptionYear>2008</inceptionYear>
   <packaging>pom</packaging>
-  <properties>
-    <deploy.target>shared</deploy.target>
-  </properties>
   <dependencies>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-pack</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+
+
+    <!-- common -->
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util-log</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- shared -->
+
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject.kernel.impl.content.db</groupId>
+      <artifactId>sakai-content-lock-hbm</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-private</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
@@ -125,5 +191,27 @@
       <artifactId>jaxen</artifactId>
       <scope>compile</scope>
     </dependency>
+
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/deploy.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+            <phase>package</phase> <!-- append to the packaging phase. -->
+            <goals>
+              <goal>attached</goal> <!-- goals == mojos -->
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
