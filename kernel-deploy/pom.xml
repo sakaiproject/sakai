@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>kernel-deploy</artifactId>
+  <packaging>pom</packaging>
+  <name>Sakai Kernel Deploy</name>
+  <version>SNAPSHOT</version>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <properties>
+        <clean.targets>components/sakai-kernel-component</clean.targets>
+	<deploy.target>tomcat-overlay</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.deploy</groupId>
+      <artifactId>kernel-assembly</artifactId>
+      <classifier>tomcat-overlay</classifier>
+      <type>zip</type>
+    </dependency>
+  </dependencies>
+</project>

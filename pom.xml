@@ -11,14 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>base</artifactId>
   <packaging>pom</packaging>
-
-
   <url>http://www.sakaiproject.org/</url>
   <issueManagement>
     <system>Jira</system>
     <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
   </issueManagement>
-
   <licenses>
     <license>
       <name>Educational Community License, Version 1.0</name>
@@ -26,20 +23,15 @@
       <distribution>svn</distribution>
     </license>
   </licenses>
-
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/sakai/trunk</url>
   </scm>
-
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://www.sakaiproject.org/</url>
   </organization>
-
-
-
   <profiles>
     <profile>
       <id>pack-demo</id>
@@ -50,23 +42,17 @@
     <profile>
       <id>framework</id>
       <modules>
+        <module>kernel-deploy</module>
         <module>access</module>
         <module>alias</module>
         <module>announcement/announcement-api/api</module>
         <module>archive/archive-api/api</module>
         <module>archive/import-api</module>
         <module>authz</module>
-        <module>component</module>
         <module>content</module>
         <module>courier</module>
         <module>course-management/cm-api/api</module>
-        <module>cluster</module>
         <module>dav</module>
-        <module>db</module>
-        <module>email</module>
-        <module>entity</module>
-        <module>event</module>
-        <module>jcr</module>
         <module>login</module>
         <module>master</module>
         <module>memory</module>
@@ -81,7 +67,6 @@
         <module>test-harness</module>
         <module>tool</module>
         <module>user</module>
-        <module>util</module>
         <module>velocity</module>
         <module>web</module>
       </modules>
@@ -89,6 +74,7 @@
     <profile>
       <id>mini</id>
       <modules>
+        <module>kernel-deploy</module>
         <module>access</module>
         <module>alias/alias-api/api</module>
         <module>alias/alias-impl/impl</module>
@@ -96,7 +82,6 @@
         <module>authz/authz-api/api</module>
         <module>authz/authz-impl/impl</module>
         <module>authz/authz-impl/pack</module>
-        <module>component</module>
         <module>content/content-api/api</module>
         <module>content/content-impl/impl</module>
         <module>content/content-impl/pack</module>
@@ -105,11 +90,6 @@
         <module>courier/courier-impl/impl</module>
         <module>courier/courier-impl/pack</module>
         <module>courier/courier-util/util</module>
-        <module>db</module>
-        <module>email</module>
-        <module>entity</module>
-        <module>event</module>
-        <module>jcr</module>
         <module>jsf</module>
         <module>login</module>
         <module>master</module>
@@ -145,7 +125,6 @@
         <module>user/user-impl/impl</module>
         <module>user/user-impl/pack</module>
         <module>user/user-util/util</module>
-        <module>util</module>
         <module>velocity</module>
       </modules>
     </profile>
@@ -155,6 +134,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <modules>
+        <module>kernel-deploy</module>
         <module>master</module>
         <module>access</module>
         <module>alias</module>
@@ -166,22 +146,15 @@
         <module>calendar</module>
         <module>chat</module>
         <module>citations</module>
-        <module>cluster</module>
-        <module>component</module>
         <module>content</module>
         <module>content-review</module>
         <module>courier</module>
         <module>course-management</module>
         <module>dav</module>
-        <module>db</module>
-        <module>email</module>
-        <module>entity</module>
         <module>entitybroker</module>
-        <module>event</module>
         <module>gradebook</module>
         <module>help</module>
         <module>jobscheduler</module>
-        <module>jcr</module>
         <module>jsf</module>
         <module>linktool</module>
         <module>login</module>
@@ -214,7 +187,6 @@
         <module>textarea</module>
         <module>tool</module>
         <module>user</module>
-        <module>util</module>
         <module>velocity</module>
         <module>web</module>
         <module>webservices</module>
@@ -224,31 +196,30 @@
         <module>sakai-mock</module>
         <module>warehouse</module>
         <module>reports</module>
-	<module>reset-pass</module>
-	<module>taggable</module>
+        <module>reset-pass</module>
+        <module>taggable</module>
       </modules>
     </profile>
   </profiles>
-
   <reporting>
     <plugins>
-         <plugin>
-            <!-- javadocs -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-               <debug>true</debug>
-               <links>
-                  <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-               </links>
-               <breakiterator>true</breakiterator>
-               <verbose>false</verbose>
-               <aggregate>true</aggregate>
-               <maxmemory>512m</maxmemory>
-               <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
-               <version>2.3</version>
-            </configuration>
-         </plugin>
+      <plugin>
+<!-- javadocs -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <debug>true</debug>
+          <links>
+            <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+          </links>
+          <breakiterator>true</breakiterator>
+          <verbose>false</verbose>
+          <aggregate>true</aggregate>
+          <maxmemory>512m</maxmemory>
+          <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
+          <version>2.3</version>
+        </configuration>
+      </plugin>
 <!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -260,6 +231,4 @@
 -->
     </plugins>
   </reporting>
-
-
 </project>
