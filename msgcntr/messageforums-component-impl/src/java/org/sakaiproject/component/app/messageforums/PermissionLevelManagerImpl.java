@@ -75,6 +75,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			
 	public void init(){
 		LOG.info("init()");
+                try {
 
 		// add the default permission level and type data, if necessary
 		if (autoDdl != null && autoDdl) {
@@ -84,6 +85,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		// for performance, load the default permission level information now
 		// to make it reusable
 		initializePermissionLevelData();
+                } catch ( Exception ex ) {
+			LOG.error("Permissions Level Manager Failed to startup MSG Forums will not work ",ex);
+                }
 
 	}
 	
@@ -441,8 +445,10 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  LOG.debug("getDefaultPermissionLevel executing with typeUuid: " + typeUuid);
 	  }
 
-	  if(defaultPermissionsMap != null && defaultPermissionsMap.get(typeUuid) != null)
-		  return ((PermissionLevel)defaultPermissionsMap.get(typeUuid)).clone();
+	  if(defaultPermissionsMap != null && defaultPermissionsMap.get(typeUuid) != null) {
+		  PermissionLevel permissionLevel =  ((PermissionLevel)defaultPermissionsMap.get(typeUuid)).clone();
+                  LOG.debug("got Default PermissionLevel as "+permissionLevel);
+          }
 
 	  HibernateCallback hcb = new HibernateCallback() {
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -458,12 +464,15 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 				  // sets auto.ddl=true on more than one server
 				  level = permLevelList.get(0);
 			  }
-
+                          
+			  
+                          LOG.debug("QUery Permissiong Level was "+level);
 			  return level;
 		  }
 	  };
 
 	  PermissionLevel returnedLevel = (PermissionLevel) getHibernateTemplate().execute(hcb);
+          LOG.debug("Returned Permission Level was "+returnedLevel);
 
 	  return returnedLevel;
   }	
