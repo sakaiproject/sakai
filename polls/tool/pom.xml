@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 	Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
 	
@@ -14,130 +14,98 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>polls-base</artifactId>
-		<groupId>org.sakaiproject</groupId>
-		<version>SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<name>sakai-poll-tool</name>
-	<groupId>org.sakaiproject</groupId>
-	<artifactId>sakai-poll-tool</artifactId>
-	<description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>polls-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>sakai-poll-tool</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-poll-tool</artifactId>
+  <description>
 		This project creates a WAR containing the Poll Tool for Sakai.
 	</description>
-	<properties>
-		<sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-		<rsfutil.version>0.7.3</rsfutil.version>
-	</properties>
-	<packaging>war</packaging>
-
-	<dependencies>
-		<!-- Sakai dependencies (all RSF apps must have this) -->
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<!--to the tool Api -->
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-poll-model-api</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<!-- Webapp uses commons-logging internally -->
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>${sakai.commons.lang.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-poll-logic-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<!-- Other Sakai dependencies -->
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-event-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-content-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<!-- Spring dependency is required for validation within the webapp-->
-		<dependency>
-			<groupId>${sakai.spring.groupId}</groupId>
-			<artifactId>${sakai.spring.artifactId}</artifactId>
-			<version>${sakai.spring.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<!-- RSF dependencies -->
-		<dependency>
-			<groupId>uk.org.ponder.sakairsf</groupId>
-			<artifactId>sakairsf</artifactId>
-			<version>
+  <properties>
+    <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+    <rsfutil.version>0.7.3</rsfutil.version>
+  </properties>
+  <packaging>war</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
+<!-- Sakai dependencies (all RSF apps must have this) -->
+<!--org.sakaiprojectsakai-util${sakai.version}-->
+<!--to the tool Api -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-model-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+<!-- Webapp uses commons-logging internally -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>${sakai.commons.lang.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-logic-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+<!-- Other Sakai dependencies -->
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
+<!--org.sakaiprojectsakai-site-api${sakai.version}-->
+<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
+<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
+<!--org.sakaiprojectsakai-event-api${sakai.version}-->
+<!--org.sakaiprojectsakai-content-api${sakai.version}-->
+<!-- Spring dependency is required for validation within the webapp-->
+    <dependency>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.artifactId}</artifactId>
+      <version>${sakai.spring.version}</version>
+      <scope>provided</scope>
+    </dependency>
+<!-- RSF dependencies -->
+    <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>sakairsf</artifactId>
+      <version>
 				${rsfutil.version}-sakai_${sakairsf.sakai.version}
 			</version>
-		</dependency>
-		<dependency>
-			<groupId>uk.org.ponder.sakairsf</groupId>
-			<artifactId>SakaiRSFComponents-evolvers</artifactId>
-			<version>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>SakaiRSFComponents-evolvers</artifactId>
+      <version>
 				${rsfutil.version}-sakai_${sakairsf.sakai.version}
 			</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>uk.org.ponder.sakairsf</groupId>
-			<artifactId>SakaiRSFComponents-templates</artifactId>
-			<version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>SakaiRSFComponents-templates</artifactId>
+      <version>
 				${rsfutil.version}-sakai_${sakairsf.sakai.version}
 			</version>
-			<type>war</type>
-		</dependency>
-	</dependencies>
-
+      <type>war</type>
+    </dependency>
+  </dependencies>
 </project>
