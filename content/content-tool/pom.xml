@@ -12,6 +12,5 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>plugin-holder</artifactId>
   <inceptionYear>2005</inceptionYear>
-  <dependencies>
-  </dependencies>
+  <dependencies/>
 </project>
