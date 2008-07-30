@@ -11,14 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>syllabus-base</artifactId>
   <packaging>pom</packaging>
-  
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/syllabus/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/syllabus/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/syllabus/trunk</url>
   </scm>
-  
-
   <modules>
     <module>components</module>
     <module>help</module>
