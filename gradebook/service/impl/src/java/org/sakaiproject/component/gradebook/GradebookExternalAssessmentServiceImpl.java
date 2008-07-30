@@ -350,8 +350,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					//TODO: for ungraded items, needs to set ungraded-grades later...
 					Double oldPointsEarned = agr.getPointsEarned();
 					//Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
-					//TODO: may be better just to use a Double instead of a String since the map value is a Double
-					String newPointsEarnedString = Double.toString((Double)studentUidsToScores.get(studentUid));
+					String newPointsEarnedString = (String)studentUidsToScores.get(studentUid);
 					Double newPointsEarned = (newPointsEarnedString == null) ? null : new Double(newPointsEarnedString); 
 					if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) || ((newPointsEarned == null) && (oldPointsEarned != null)) ) {
 						agr.setDateRecorded(now);
@@ -368,8 +367,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					String studentUid = (String)iter.next();
 
 					// Don't save unnecessary null scores.
-					//TODO: may be better just to use a Double instead of a String since the map value is a Double
-					String newPointsEarned = Double.toString((Double)studentUidsToScores.get(studentUid));
+					String newPointsEarned = (String)studentUidsToScores.get(studentUid);
 					if (newPointsEarned != null) {
 						AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, new Double(newPointsEarned));
 						agr.setDateRecorded(now);
