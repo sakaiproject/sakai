@@ -11,51 +11,12 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>tool-base</artifactId>
   <packaging>pom</packaging>
-
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/tool/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/tool/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/tool/trunk</url>
   </scm>
-
-   
-  <profiles>
-    <profile>
-        <id>framework</id>
-        <modules>
-            <module>tool-api/api</module>
-            <module>tool-impl/impl</module>
-            <module>tool-impl/pack</module>
-            <module>tool-util/servlet</module>
-            <module>tool-util/util</module>
-            <module>tool-shared-deploy</module>
-        </modules>
-     </profile>
-    <profile>
-        <id>mini</id>
-        <modules>
-            <module>tool-api/api</module>
-            <module>tool-impl/impl</module>
-            <module>tool-impl/pack</module>
-            <module>tool-util/servlet</module>
-            <module>tool-util/util</module>
-            <module>tool-shared-deploy</module>
-        </modules>
-     </profile>
-     <profile>
-        <id>full</id>
-        <activation>
-          <activeByDefault>true</activeByDefault>
-        </activation>
-  	<modules>
-	    <module>tool-api/api</module>
-	    <module>tool-impl/impl</module>
-	    <module>tool-impl/pack</module>
-	    <module>tool-tool/su</module>
-	    <module>tool-util/servlet</module>
-	    <module>tool-util/util</module>
-	    <module>tool-shared-deploy</module>
-	</modules>
-     </profile>
-  </profiles>
+  <modules>
+    <module>tool-tool/su</module>
+  </modules>
 </project>
