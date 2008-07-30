@@ -11,13 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>message-base</artifactId>
   <packaging>pom</packaging>
-
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/message/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/message/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/message/trunk</url>
   </scm>
-
   <modules>
     <module>message-api/api</module>
     <module>message-impl/impl</module>
