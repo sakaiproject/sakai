@@ -11,14 +11,11 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>jsf-base</artifactId>
   <packaging>pom</packaging>
-
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/jsf/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jsf/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/jsf/trunk</url>
   </scm>
-
-
   <modules>
     <module>app</module>
     <module>resource</module>

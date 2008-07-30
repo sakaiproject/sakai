@@ -27,24 +27,24 @@
       <version>${sakai.version}</version>
       <exclusions>
         <exclusion>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-jsf-widgets-myfaces</artifactId>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-jsf-widgets-myfaces</artifactId>
         </exclusion>
         <exclusion>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-jsf-widgets</artifactId>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-jsf-widgets</artifactId>
         </exclusion>
         <exclusion>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-api</artifactId>
+          <groupId>org.apache.myfaces.core</groupId>
+          <artifactId>myfaces-api</artifactId>
         </exclusion>
         <exclusion>
-                <groupId>org.apache.myfaces.tomahawk</groupId>
-                <artifactId>tomahawk</artifactId>
+          <groupId>org.apache.myfaces.tomahawk</groupId>
+          <artifactId>tomahawk</artifactId>
         </exclusion>
         <exclusion>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-impl</artifactId>
+          <groupId>org.apache.myfaces.core</groupId>
+          <artifactId>myfaces-impl</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

@@ -51,12 +51,6 @@
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>
@@ -78,6 +72,5 @@
         </includes>
       </resource>
     </resources>
-    
   </build>
 </project>

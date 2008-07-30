@@ -27,12 +27,6 @@
 <!-- Sakai plugin -->
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/webapp</directory>
@@ -41,6 +35,5 @@
         </includes>
       </resource>
     </resources>
-    
   </build>
 </project>

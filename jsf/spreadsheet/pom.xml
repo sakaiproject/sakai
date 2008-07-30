@@ -20,33 +20,26 @@
   <properties>
     <deploy.target/>
   </properties>
-
   <dependencies>
-
     <dependency>
       <groupId>org.apache.myfaces.core</groupId>
       <artifactId>myfaces-api</artifactId>
       <version>1.1.5</version>
     </dependency>
-
     <dependency>
-		<groupId>commons-logging</groupId>
-		<artifactId>commons-logging</artifactId>
-		<version>1.0.4</version>
-	</dependency>
-
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>${sakai.servletapi.version}</version>
     </dependency>
-
-	<dependency>
-		<groupId>poi</groupId>
-		<artifactId>poi</artifactId>
-		<version>2.5.1</version>
-	</dependency>
-
+    <dependency>
+      <groupId>poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>2.5.1</version>
+    </dependency>
   </dependencies>
-
 </project>
