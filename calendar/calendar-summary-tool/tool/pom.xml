@@ -17,47 +17,27 @@
   <inceptionYear>2006</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+    </dependency>
 <!-- Sakai Project dependencies (general) -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-component${sakai.version}-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}-->
+<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
+<!--org.sakaiprojectsakai-site-api${sakai.version}-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-calendar-api</artifactId>
@@ -73,10 +53,10 @@
       <artifactId>sakai-mergedlist-util</artifactId>
       <version>${sakai.version}</version>
       <exclusions>
-      	<exclusion>
-      		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-velocity-tool</artifactId>
-      	</exclusion>
+        <exclusion>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-velocity-tool</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 <!-- Spring Framework -->
@@ -86,11 +66,7 @@
       <version>${sakai.spring.version}</version>
     </dependency>
 <!-- Sakai Project dependencies (Web/JSF related) -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+<!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
@@ -103,9 +79,9 @@
       <exclusions>
         <exclusion>
           <groupId>jsf</groupId>
-            <artifactId>jsf-api</artifactId>
-          </exclusion>
-        </exclusions>
+          <artifactId>jsf-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -114,9 +90,9 @@
       <exclusions>
         <exclusion>
           <groupId>org.apache.myfaces.tomahawk</groupId>
-            <artifactId>tomahawk</artifactId>
-          </exclusion>
-        </exclusions>
+          <artifactId>tomahawk</artifactId>
+        </exclusion>
+      </exclusions>
       <type>pom</type>
     </dependency>
 <!-- Apache Commons -->
