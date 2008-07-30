@@ -25,10 +25,10 @@
       <artifactId>sakai-messageforums-component-impl</artifactId>
       <version>${sakai.version}</version>
       <exclusions>
-	<exclusion>
-      		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-messageforums-hbm</artifactId>
-	</exclusion>
+        <exclusion>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-messageforums-hbm</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
   </dependencies>
