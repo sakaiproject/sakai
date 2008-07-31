@@ -348,7 +348,9 @@ function allowClick(object)
 												#end
 											#end
 											#if (!$assignment.draft && $!service.allowGradeSubmission($assignment.getReference()))#if($prevAction) | #end
-											<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >#if ($withGrade)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end										
+											#set ($gradeScale = $assignment.getContent().getTypeOfGrade())
+											## show "view submissions" link for ungraded type of assignment
+												<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end										
 										</div>
 									#else
 										#if ($!allowAddAssignment)
