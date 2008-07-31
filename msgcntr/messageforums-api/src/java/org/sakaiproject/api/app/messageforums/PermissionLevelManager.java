@@ -39,51 +39,57 @@ public interface PermissionLevelManager {
 	
 	/**
 	 * 
-	 * @return the PermissionLevel representing the "Owner" level
-	 * @throws IllegalStateException if no "Owner" type exists or if no permission level
-	 * exists with the "Owner" type
+	 * @return the PermissionLevel representing the "Owner" level. If no level
+	 * exists in MFR_PERMISSION_LEVEL_T, returns a default owner permission level.
+	 * @throws IllegalStateException if no "Owner" type exists 
 	 */
 	public PermissionLevel getDefaultOwnerPermissionLevel();
 	
 	/**
 	 * 
-	 * @return the PermissionLevel representing the "Author" level
-	 * @throws IllegalStateException if no "Author" type exists or if no permission level
-	 * exists with the "Author" type
+	 * @return the PermissionLevel representing the "Author" level. If no level
+	 * exists in MFR_PERMISSION_LEVEL_T, returns a default Author permission level.
+	 * @throws IllegalStateException if no "Author" type exists
 	 */
 	public PermissionLevel getDefaultAuthorPermissionLevel();
 	
 	/**
 	 * 
-	 * @return the PermissionLevel representing the "NoneditingAuthor" level
-	 * @throws IllegalStateException if no "NoneditingAuthor" type exists or if no permission level
-	 * exists with the "NoneditingAuthor" type
+	 * @return the PermissionLevel representing the "NoneditingAuthor" level. If no level
+	 * exists in MFR_PERMISSION_LEVEL_T, returns a default Nonediting Author permission level.
+	 * @throws IllegalStateException if no "NoneditingAuthor" type exists
 	 */
 	public PermissionLevel getDefaultNoneditingAuthorPermissionLevel();
 	
 	/**
 	 * 
-	 * @return the PermissionLevel representing the "Reviewer" level
-	 * @throws IllegalStateException if no "Reviewer" type exists or if no permission level
-	 * exists with the "Reviewer" type
+	 * @return the PermissionLevel representing the "Reviewer" level. If no level
+	 * exists in MFR_PERMISSION_LEVEL_T, returns a default owner permission level.
+	 * @throws IllegalStateException if no "Reviewer" type exists
 	 */
 	public PermissionLevel getDefaultReviewerPermissionLevel();
 	
 	/**
 	 * 
-	 * @return the PermissionLevel representing the "Contributor" level
-	 * @throws IllegalStateException if no "Contributor" type exists or if no permission level
-	 * exists with the "Contributor" type
+	 * @return the PermissionLevel representing the "Contributor" level. If no level
+	 * exists in MFR_PERMISSION_LEVEL_T, returns a default Contributor permission level.
+	 * @throws IllegalStateException if no "Contributor" type exists
 	 */
 	public PermissionLevel getDefaultContributorPermissionLevel();
 	
 	/**
 	 * 
-	 * @return the PermissionLevel representing the "None" level
-	 * @throws IllegalStateException if no "None" type exists or if no permission level
-	 * exists with the "None" type
+	 * @return the PermissionLevel representing the "None" level. If no level
+	 * exists in MFR_PERMISSION_LEVEL_T, returns a default None permission level.
+	 * @throws IllegalStateException if no "None" type exists
 	 */
 	public PermissionLevel getDefaultNonePermissionLevel();
+	
+	/**
+	 * 
+	 * @return a list of the default (non-custom) permission levels available
+	 */
+	public List<PermissionLevel> getDefaultPermissionLevels();
 	
     public DBMembershipItem createDBMembershipItem(String name, String permissionLevelName, Integer type);
     public void saveDBMembershipItem(DBMembershipItem item);

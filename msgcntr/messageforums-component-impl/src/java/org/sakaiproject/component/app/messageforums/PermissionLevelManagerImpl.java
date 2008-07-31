@@ -21,6 +21,7 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,7 +63,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private MessageForumsTypeManager typeManager;
 	private AreaManager areaManager;
 	
-	private Map defaultPermissionsMap;
+	private Map<String, PermissionLevel> defaultPermissionsMap;
 	
 	private static final String QUERY_BY_TYPE_UUID = "findPermissionLevelByTypeUuid";
 	private static final String QUERY_ORDERED_LEVEL_NAMES = "findOrderedPermissionLevelNames";
@@ -75,19 +76,19 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			
 	public void init(){
 		LOG.info("init()");
-                try {
+		try {
 
-		// add the default permission level and type data, if necessary
-		if (autoDdl != null && autoDdl) {
-			loadDefaultTypeAndPermissionLevelData();
+			// add the default permission level and type data, if necessary
+			if (autoDdl != null && autoDdl) {
+				loadDefaultTypeAndPermissionLevelData();
+			}
+
+			// for performance, load the default permission level information now
+			// to make it reusable
+			initializePermissionLevelData();
+		} catch ( Exception ex ) {
+			LOG.error("PermissionsLevelManager - a problem occurred loading default permission level data ",ex);
 		}
-
-		// for performance, load the default permission level information now
-		// to make it reusable
-		initializePermissionLevelData();
-                } catch ( Exception ex ) {
-			LOG.error("Permissions Level Manager Failed to startup MSG Forums will not work ",ex);
-                }
 
 	}
 	
@@ -119,21 +120,25 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 	}
 	
-  public  List getOrderedPermissionLevelNames(){
-						
+	public  List getOrderedPermissionLevelNames(){
+
 		if (LOG.isDebugEnabled()){
 			LOG.debug("getOrderedPermissionLevelNames executing");
 		}
-		
-		HibernateCallback hcb = new HibernateCallback() {
-      public Object doInHibernate(Session session) throws HibernateException, SQLException {
-          Query q = session.getNamedQuery(QUERY_ORDERED_LEVEL_NAMES);                      
-          return q.list();
-      }
-    };
-					
-    return (List) getHibernateTemplate().execute(hcb);
-  }	
+
+		List<String> levelNames = new ArrayList<String>();
+
+		List<PermissionLevel> levels = getDefaultPermissionLevels();
+		if (levels != null && !levels.isEmpty()) {
+			for (PermissionLevel level : levels) {
+				levelNames.add(level.getName());
+			}
+			
+			Collections.sort(levelNames);
+		}
+
+		return levelNames;
+	}	
 	
 	public String getPermissionLevelType(PermissionLevel level){
 		
@@ -306,9 +311,14 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {    
-		 throw new IllegalStateException("No permission level data exists for the Owner level. " +
-		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing default permission level data.");
+
+		  LOG.warn("No permission level data exists for the Owner level in the MFR_PERMISSION_LEVEL_T table. " +
+				  "If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
+		          "to insert the missing permission level data. Default owner permissions will be used.");
+
+		  // return the default owner permission
+		  PermissionsMask mask = getDefaultOwnerPermissionsMask();
+		  level = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER, typeUuid, mask);
 	  }
 		  
 	  return level;
@@ -329,9 +339,13 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  throw new IllegalStateException("No permission level data exists for the Author level. " +
-		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing default permission level data.");
+		  LOG.warn("No permission level data exists for the Author level in the MFR_PERMISSION_LEVEL_T table. " +
+				  "If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
+		          "to insert the missing permission level data. Default Author permission settings will be used.");
+
+		  // return the default author permission
+		  PermissionsMask mask = getDefaultAuthorPermissionsMask();
+		  level = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR, typeUuid, mask);
 	  }
 
 	  return level;
@@ -352,9 +366,14 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  throw new IllegalStateException("No permission level data exists for the NoneditingAuthor level. " +
+		  LOG.warn("No permission level data exists for the NoneditingAuthor level in the MFR_PERMISSION_LEVEL_T table. " +
 		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing default permission level data.");
+		  		"to insert the missing default permission level data. Default NoneditingAuthor permission settings will be used.");
+		  
+		  // return the default nonediting author permission
+		  PermissionsMask mask = getDefaultNoneditingAuthorPermissionsMask();
+		  level = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR, typeUuid, mask);
+
 	  }
 	  
 	  return level;
@@ -375,9 +394,14 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  throw new IllegalStateException("No permission level data exists for the Reviewer level. " +
+		  LOG.warn("No permission level data exists for the Reviewer level in the MFR_PERMISSION_LEVEL_T table. " +
 		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing default permission level data.");
+		  		"to insert the missing permission level data. Default Reviewer permissions will be used.");
+		  
+		  // return the default reviewer permission
+		  PermissionsMask mask = getDefaultReviewerPermissionsMask();
+		  level = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER, typeUuid, mask);
+
 	  }
 	  
 	  return level;
@@ -398,9 +422,14 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  throw new IllegalStateException("No permission level data exists for the Contributor level. " +
+		  LOG.warn("No permission level data exists for the Contributor level in the MFR_PERMISSION_LEVEL_T table. " +
 		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing default permission level data.");
+		  		"to insert the missing permission level data. Default Contributor permissions will be used.");
+		  
+		  // return the default contributor permission
+		  PermissionsMask mask = getDefaultContributorPermissionsMask();
+		  level = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, typeUuid, mask);
+
 	  }
 
 	  return level;	
@@ -421,9 +450,14 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {    
-		  throw new IllegalStateException("No permission level data exists for the None level. " +
+		  LOG.warn("No permission level data exists for the None level in the MFR_PERMISSION_LEVEL_T table. " +
 		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing default permission level data.");
+		  		"to insert the missing permission level data. Default None permissions will be used.");
+		  
+		// return the default None permission
+		  PermissionsMask mask = getDefaultNonePermissionsMask();
+		  level = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, typeUuid, mask);
+
 	  }
 	
 	  return level;
@@ -445,36 +479,30 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  LOG.debug("getDefaultPermissionLevel executing with typeUuid: " + typeUuid);
 	  }
 
-	  if(defaultPermissionsMap != null && defaultPermissionsMap.get(typeUuid) != null) {
-		  PermissionLevel permissionLevel =  ((PermissionLevel)defaultPermissionsMap.get(typeUuid)).clone();
-                  LOG.debug("got Default PermissionLevel as "+permissionLevel);
-          }
+	  PermissionLevel level = null;
 
-	  HibernateCallback hcb = new HibernateCallback() {
-		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.getNamedQuery(QUERY_BY_TYPE_UUID);
-			  q.setParameter("typeUuid", typeUuid);            
+	  if(defaultPermissionsMap != null && defaultPermissionsMap.containsKey(typeUuid)) {
+		  // check to see if it is already in the map that was created at startup
+		  level =  ((PermissionLevel)defaultPermissionsMap.get(typeUuid)).clone();
+		  if (LOG.isDebugEnabled()) LOG.debug("got Default PermissionLevel from defaultPermissionsMap as " + level);
+	  
+	  } else {
+		  // retrieve it from the table
+		  HibernateCallback hcb = new HibernateCallback() {
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.getNamedQuery(QUERY_BY_TYPE_UUID);
+				  q.setParameter("typeUuid", typeUuid);            
 
-			  PermissionLevel level = null;
-			  List<PermissionLevel> permLevelList = q.list();
-			  if (permLevelList != null && !permLevelList.isEmpty()) {
-				  // set the level to the first value in the list.
-				  // we may have duplicates because the insertion of the 
-				  // default permission levels is not cluster-safe if someone
-				  // sets auto.ddl=true on more than one server
-				  level = permLevelList.get(0);
+				  return q.uniqueResult();
 			  }
-                          
-			  
-                          LOG.debug("QUery Permissiong Level was "+level);
-			  return level;
-		  }
-	  };
+		  };
 
-	  PermissionLevel returnedLevel = (PermissionLevel) getHibernateTemplate().execute(hcb);
-          LOG.debug("Returned Permission Level was "+returnedLevel);
+		  level = (PermissionLevel) getHibernateTemplate().execute(hcb);
+		  if (LOG.isDebugEnabled()) LOG.debug("Returned Permission Level from query was "+level);
+	  }
 
-	  return returnedLevel;
+	  return level;
+
   }	
 	
 	public Boolean getCustomPermissionByName(String customPermName, PermissionLevel permissionLevel) {
@@ -867,5 +895,24 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 	public void setAutoDdl(Boolean autoDdl) {
 		this.autoDdl = autoDdl;
+	}
+	
+	public List<PermissionLevel> getDefaultPermissionLevels() {
+		// first, check for the levels in the map. if map is null,
+		// return the default permission level data
+		List<PermissionLevel> defaultLevels = new ArrayList<PermissionLevel>();
+		if (defaultPermissionsMap != null && !defaultPermissionsMap.isEmpty()) {
+			defaultLevels.addAll(defaultPermissionsMap.values());
+		} else {
+			if (LOG.isDebugEnabled()) LOG.debug("Default permissions map was null!! Loading defaults to return from getDefaultPermissionLevels");
+			defaultLevels.add(getDefaultOwnerPermissionLevel());
+			defaultLevels.add(getDefaultAuthorPermissionLevel());
+			defaultLevels.add(getDefaultContributorPermissionLevel());
+			defaultLevels.add(getDefaultNoneditingAuthorPermissionLevel());
+			defaultLevels.add(getDefaultNonePermissionLevel());
+			defaultLevels.add(getDefaultReviewerPermissionLevel());
+		}
+		
+		return defaultLevels;
 	}
  }
