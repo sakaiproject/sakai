@@ -62,6 +62,9 @@ public class AssignmentServiceTest extends TestCase
 	
 	// attachment reference
 	String attachmentReference = null;
+    
+	// test zip bunction of the JVM
+        boolean testZipFunction = false;
 	
 	String bigAttachmentContentString = null;
 	
@@ -253,7 +256,8 @@ public class AssignmentServiceTest extends TestCase
 	 *
 	 */
 	public void testZipSubmissionsWithoutFlushing() 
-	{	
+	{
+		if( testZipFunction ) {	
 		System.out.println("student number = " + userNumber);
 		System.out.println("attachment size = " + attachmentSize + "KB");
 		System.gc();
@@ -277,6 +281,7 @@ public class AssignmentServiceTest extends TestCase
 			System.out.println("*************");
 			// gc
 			System.gc();
+		}
 		}
 	}
 
