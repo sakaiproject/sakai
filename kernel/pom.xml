@@ -27,6 +27,9 @@
   <prerequisites>
     <maven>2.0.6</maven>
   </prerequisites>
+  <properties>
+      <url.localsite>file:///tmp/site</url.localsite>
+  </properties>
 <!-- Mailing Lists ======================================================= -->
   <mailingLists>
     <mailingList>
@@ -81,7 +84,7 @@
     <site>
       <id>local</id>
       <name>Local Test</name>
-      <url>file:///tmp/site</url>
+      <url>${url.localsite}</url>
     </site>
   </distributionManagement>
   <pluginRepositories>
@@ -458,7 +461,7 @@
          <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-checkstyle-plugin</artifactId>
          <configuration>
-          <configLocation>site/checkstyle.xml</configLocation>
+          <configLocation>src/site/checkstyle.xml</configLocation>
         </configuration>
        </plugin>
        <plugin>
