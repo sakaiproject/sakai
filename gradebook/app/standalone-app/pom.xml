@@ -87,6 +87,14 @@
 <!--
       sakai-util-impl is a part of the kernel implementation, p:dependency removed
       org.sakaiprojectsakai-util-impl${sakai.version}-->
+<!-- This should be part of the test framework -->
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-private</artifactId>
+      <version>1.0RC2-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!-- End Sakai2 Dependencies -->
