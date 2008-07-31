@@ -684,6 +684,7 @@
     <module>kernel-private</module>
     <module>kernel-component</module>
     <module>kernel-impl</module>
+    <module>kernel-impl-experimental</module>
 <!-- <module>kernel-test</module> -->
     <module>kernel-util</module>
     <module>loader</module>

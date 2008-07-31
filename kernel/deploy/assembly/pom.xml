@@ -30,7 +30,7 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-pack</artifactId>
+      <artifactId>sakai-kernel-component</artifactId>
       <version>${project.version}</version>
       <type>war</type>
     </dependency>
@@ -67,13 +67,6 @@
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
-      <version>${project.version}</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl.content.db</groupId>
-      <artifactId>sakai-content-lock-hbm</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>

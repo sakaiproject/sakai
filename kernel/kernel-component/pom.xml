@@ -9,7 +9,7 @@
   </parent>
   <name>Sakai Kernel Component Package</name>
   <groupId>org.sakaiproject.kernel</groupId>
-  <artifactId>sakai-kernel-pack</artifactId>
+  <artifactId>sakai-kernel-component</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
@@ -21,114 +21,8 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-alias-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-entity-util</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-event-util</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-db-storage</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-authz-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-cluster-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-component-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl.content.db</groupId>
-      <artifactId>sakai-content-impl</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.sakaiproject.kernel.impl.content.db</groupId>
-          <artifactId>sakai-content-lock-hbm</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl.content</groupId>
-      <artifactId>sakai-content-bundles</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-db-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-email-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-entity-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-event-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl.jcr</groupId>
-      <artifactId>sakai-jackrabbit-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl.jcr</groupId>
-      <artifactId>sakai-jcr-support-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-memory-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-site-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-tool-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-user-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.impl</groupId>
-      <artifactId>sakai-util-impl</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
