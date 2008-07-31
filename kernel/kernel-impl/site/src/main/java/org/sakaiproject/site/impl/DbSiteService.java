@@ -165,6 +165,10 @@ public abstract class DbSiteService extends BaseSiteService
 
 				// also load the 2.4.0 field insertion
 				sqlService().ddl(this.getClass().getClassLoader(), "sakai_site_2_4_0_001");
+
+				// also load the 2.5.3 removal of synoptic discussion
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_site_2_5_3");
+
 			}
 
 			super.init();
