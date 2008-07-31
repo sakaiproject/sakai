@@ -98,7 +98,7 @@ public class TemplateParseUtil {
    /**
     * Defines the valid chars for a template
     */
-   public static String VALID_TEMPLATE_CHARS = "[A-Za-z0-9\\\\(\\\\)\\.\\-_.=,:;!~"+SEPARATOR+"\\{\\}]";
+   public static String VALID_TEMPLATE_CHARS = "[A-Za-z0-9\\\\(\\\\)\\.\\-_.=,:;&!~"+SEPARATOR+"\\{\\}\\?]";
 
    /**
     * Stores the preloaded default templates
@@ -358,7 +358,11 @@ public class TemplateParseUtil {
     * @return the preprocessed template
     */
    public static PreProcessedTemplate preprocessTemplate(Template t) {
-      TemplateParseUtil.validateTemplate(t.template);
+      if (t.incoming) {
+         TemplateParseUtil.validateTemplate(t.template);
+      } else {
+         t.template = TemplateParseUtil.validateOutgoingTemplate(t.template);
+      }
       List<String> vars = new ArrayList<String>();
       StringBuilder regex = new StringBuilder();
       String[] parts = t.template.split(BRACES);
@@ -380,16 +384,6 @@ public class TemplateParseUtil {
    }
 
    /**
-    * Convenience method for when we don't have keys
-    * @param template
-    * @return a preprocessed template
-    */
-   public static PreProcessedTemplate preprocessTemplate(String template) {
-      Template t = new Template(UUID.randomUUID().toString(), template);
-      return preprocessTemplate(t);
-   }
-
-   /**
     * Represents a parseable template (which is basically a key and the template string),
     * the array which defines the set of template keys is {@link #PARSE_TEMPLATE_KEYS}<br/>
     * Rules for parse templates:
@@ -406,22 +400,43 @@ public class TemplateParseUtil {
     */
    public static class Template {
       /**
-       * the template key, from the set of template keys {@link #PARSE_TEMPLATE_KEYS}
+       * the template key, from the set of template keys {@link #PARSE_TEMPLATE_KEYS},
+       * or make one up for your own templates, should be unique for this set of templates
        */
       public String templateKey;
       /**
        * the template itself
        */
       public String template;
+      /**
+       * indicates the template is an incoming template if true, outgoing template if false
+       */
+      public boolean incoming = true;
 
       /**
-       * Used to create a template for loading
-       * @param templateKey template identifier, from the set of template keys {@link #PARSE_TEMPLATE_KEYS}
+       * Used to create a template for loading, defaults to an incoming template
+       * @param templateKey template identifier, from the set of template keys {@link #PARSE_TEMPLATE_KEYS},
+       * must be unique for this set of templates
        * @param template the parseable template
        */
       public Template(String templateKey, String template) {
+         if (templateKey == null || "".equals(templateKey)) {
+            templateKey = UUID.randomUUID().toString();
+         }
          this.templateKey = templateKey;
          this.template = template;
+      }
+
+      /**
+       * Used to create a template for loading
+       * @param templateKey template identifier, from the set of template keys {@link #PARSE_TEMPLATE_KEYS},
+       * must be unique for this set of templates
+       * @param template the parseable template
+       * @param incoming if true then this is an incoming template, otherwise it is an outgoing one
+       */
+      public Template(String templateKey, String template, boolean incoming) {
+         this(templateKey, template);
+         this.incoming = incoming;
       }
 
       @Override

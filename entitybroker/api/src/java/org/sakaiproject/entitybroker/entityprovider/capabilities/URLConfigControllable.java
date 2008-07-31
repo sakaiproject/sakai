@@ -39,10 +39,10 @@ public interface URLConfigControllable extends URLConfigurable {
     * {@link #handleRedirects(String, String[], Map)}
     * @return a list of all the handled URL patterns
     */
-   public String[] defineHandledPatterns();
+   public String[] defineHandledTemplatePatterns();
 
    /**
-    * Explicitly handles all the incoming URLs which match the patterns given by {@link #defineHandledPatterns()}
+    * Explicitly handles all the incoming URLs which match the patterns given by {@link #defineHandledTemplatePatterns()}
     * do some processing to turn it into an outgoing URL OR just do some processing OR
     * indicate that a failure has occurred<br/>
     *

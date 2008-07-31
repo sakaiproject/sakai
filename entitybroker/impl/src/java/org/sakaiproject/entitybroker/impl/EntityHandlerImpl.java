@@ -26,6 +26,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
@@ -43,6 +45,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigurable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -73,7 +76,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
    protected static final String DIRECT = "/direct";
 
-   //private static Log log = LogFactory.getLog(EntityHandlerImpl.class);
+   private static Log log = LogFactory.getLog(EntityHandlerImpl.class);
 
    private EntityProviderManager entityProviderManager;
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
@@ -114,6 +117,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    private EntityActionsManager entityActionsManager;
    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
       this.entityActionsManager = entityActionsManager;
+   }
+
+   private EntityRedirectsManager entityRedirectsManager;
+   public void setEntityRedirectsManager(EntityRedirectsManager entityRedirectsManager) {
+      this.entityRedirectsManager = entityRedirectsManager;
    }
 
    /**
@@ -198,6 +206,23 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             } else {
                // reference successfully parsed
                String prefix = view.getEntityReference().getPrefix();
+
+               // check for redirect
+               URLConfigurable urlConfigurable = entityProviderManager.getProviderByPrefixAndCapability(prefix, URLConfigurable.class);
+               if (urlConfigurable != null) {
+                  String redirectURL = entityRedirectsManager.checkForTemplateMatch(urlConfigurable, path);
+                  if (redirectURL != null) {
+                     if ("".equals(redirectURL)) {
+                        // do nothing but return an empty response
+                        res.setStatus(HttpServletResponse.SC_OK);
+                     } else {
+                        // do the redirect
+                        log.info("Entity Redirect: redirecting from ("+path+") to ("+redirectURL+")");
+                        RequestUtils.handleURLRedirect(redirectURL, true, req, res);
+                     }
+                     return EntityView.SEPARATOR + prefix; // exit here for redirects
+                  }
+               }
 
                // check for custom action
                CustomAction customAction = entityActionsManager.getCustomAction(prefix, view.getPathSegment(1));

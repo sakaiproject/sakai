@@ -36,10 +36,15 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropert
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigControllable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigDefinable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigurable;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.impl.EntityActionsManager;
+import org.sakaiproject.entitybroker.impl.EntityRedirectsManager;
+import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.entitybroker.util.refmap.ReferenceMap;
 import org.sakaiproject.entitybroker.util.refmap.ReferenceType;
@@ -72,6 +77,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    private EntityActionsManager entityActionsManager;
    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
       this.entityActionsManager = entityActionsManager;
+   }
+
+   private EntityRedirectsManager entityRedirectsManager;
+   public void setEntityRedirectsManager(EntityRedirectsManager entityRedirectsManager) {
+      this.entityRedirectsManager = entityRedirectsManager;
    }
 
    protected Map<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.WEAK);
@@ -238,6 +248,15 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             ClassLoader cl = ((DescribePropertiesable)entityProvider).getResourceClassLoader();
             String baseName = ((DescribePropertiesable)entityProvider).getBaseName();
             entityProperties.loadProperties(prefix, baseName, cl);
+         } else if (superclazz.equals(URLConfigurable.class)) {
+            URLRedirect[] redirects = entityRedirectsManager.findURLRedirectMethods(entityProvider);
+            entityRedirectsManager.addURLRedirects(prefix, redirects);
+         } else if (superclazz.equals(URLConfigDefinable.class)) {
+            URLRedirect[] redirects = EntityRedirectsManager.validateDefineableTemplates((URLConfigDefinable)entityProvider);
+            entityRedirectsManager.addURLRedirects(prefix, redirects);
+         } else if (superclazz.equals(URLConfigControllable.class)) {
+            URLRedirect[] redirects = EntityRedirectsManager.validateControllableTemplates((URLConfigControllable)entityProvider);
+            entityRedirectsManager.addURLRedirects(prefix, redirects);
          }
       }
       log.info("EntityBroker: Registered entity provider ("+entityProvider.getClass().getName()
@@ -295,8 +314,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
          // clean up the list of custom actions
          entityActionsManager.removeCustomActions(prefix);
       } else if (Describeable.class.isAssignableFrom(capability)) {
-         // clean up properties cache
+         // clean up properties record
          entityProperties.unloadProperties(prefix);
+      } else if (URLConfigurable.class.isAssignableFrom(capability)) {
+         // clean up the redirect URLs record
+         entityRedirectsManager.removeURLRedirects(prefix);
       }
       log.info("EntityBroker: Unregistered entity provider capability ("+capability.getName()+") for prefix ("+prefix+")");
    }

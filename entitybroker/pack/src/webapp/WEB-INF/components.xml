@@ -27,6 +27,8 @@
             init-method="init">
         <property name="entityActionsManager"
             ref="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
+        <property name="entityRedirectsManager"
+            ref="org.sakaiproject.entitybroker.impl.EntityRedirectsManager" />
         <property name="entityProperties" 
             ref="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
         <property name="requestGetter"
@@ -125,6 +127,8 @@
             ref="org.sakaiproject.entitybroker.impl.EntityDescriptionManager" />
         <property name="entityEncodingManager"
             ref="org.sakaiproject.entitybroker.impl.EntityEncodingManager" />
+        <property name="entityRedirectsManager"
+            ref="org.sakaiproject.entitybroker.impl.EntityRedirectsManager" />
         <property name="entityProviderManager"
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
         <property name="entityViewAccessProviderManager" 
@@ -197,5 +201,8 @@
 
     <bean id="org.sakaiproject.entitybroker.impl.EntityActionsManager"
         class="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
+
+    <bean id="org.sakaiproject.entitybroker.impl.EntityRedirectsManager"
+        class="org.sakaiproject.entitybroker.impl.EntityRedirectsManager" />
 
 </beans>

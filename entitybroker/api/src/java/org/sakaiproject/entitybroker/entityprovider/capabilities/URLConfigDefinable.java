@@ -14,9 +14,8 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
-import java.util.Map;
-
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 
@@ -49,9 +48,9 @@ public interface URLConfigDefinable extends URLConfigurable {
     * this can start with anything, but will be processed as an external redirect if it starts with "http" or "/" 
     * (unless it starts with "/{prefix}"), otherwise it will be processed as an internal forward
     * 
-    * @return the map of incomingURL pattern => outgoingURL pattern 
+    * @return the array of template mappings (incomingURL pattern => outgoingURL pattern) 
     * OR null/empty if you have no simple mappings
     */
-   public Map<String, String> defineURLMappings();
+   public TemplateMap[] defineURLMappings();
 
 }

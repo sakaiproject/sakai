@@ -20,6 +20,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
+import org.sakaiproject.entitybroker.EntityView.Method;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigurable;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
@@ -32,10 +33,14 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
  * Example: /{thing}/site/{siteId} will match the following URL: <br/>
  * /myprefix/123/site/456, the variables will be {prefix => myprefix, thing => 123, siteId => 456},
  * prefix is automatically included as a variable <br/>
+ * NOTE: The method template patterns will be compared in the order they appear in your
+ * source code so be careful that you do not have a really simple redirect pattern as the
+ * first one as this can cause the other patterns to never be reached<br/>
  * The methods that this annotates should return a {@link String} or void<br/>
  * They can have the following parameter types: <br/>
  * (type => data which will be given to the method) <br/>
  * {@link String} : incoming URL <br/>
+ * {@link Method} : the submission method (GET,POST,etc) <br/>
  * String[] : incoming URL segments, Example: /myprefix/123/apple => {'prefix','123','apple'}  <br/>
  * {@link Map} ({@link String} => {@link String}) : a map of the values in the {}, 
  * Example: pattern: /{prefix}/{thing}/apple, url: /myprefix/123/apple, would yield: {'thing' => '123','prefix' => 'mypreifx'} <br/>
@@ -61,10 +66,5 @@ public @interface EntityURLRedirect {
     * /myprefix/123/site/456, the variables will be {prefix => myprefix, thing => 123, siteId => 456}
     * NOTE: all incoming URL templates must start with "/{prefix}" ({@link TemplateParseUtil#TEMPLATE_PREFIX})
     */
-   String template();
-   /**
-    * @return an order indicator for this template,
-    * default is to use the order which these methods are listed in your provider
-    */
-   int order() default -1;
+   String value();
 }

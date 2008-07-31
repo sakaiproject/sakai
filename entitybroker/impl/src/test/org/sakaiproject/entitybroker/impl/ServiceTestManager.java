@@ -42,6 +42,7 @@ public class ServiceTestManager {
    public EntityBrokerManager entityBrokerManager;
    public EntityDescriptionManager entityDescriptionManager;
    public EntityEncodingManager entityEncodingManager;
+   public EntityRedirectsManager entityRedirectsManager;
    public EntityHandlerImpl entityRequestHandler;
    public HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
    public EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
@@ -51,6 +52,7 @@ public class ServiceTestManager {
       requestGetter = new RequestGetterImpl();
       entityPropertiesService = new EntityPropertiesService();
       entityActionsManager = new EntityActionsManager();
+      entityRedirectsManager = new EntityRedirectsManager();
       serverConfigurationService = new FakeServerConfigurationService();
       httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();
       entityViewAccessProviderManager = new EntityViewAccessProviderManagerMock();
@@ -63,10 +65,12 @@ public class ServiceTestManager {
       entityProviderManager.setRequestStorage( requestStorage );
       entityProviderManager.setEntityProperties( entityPropertiesService );
       entityProviderManager.setEntityActionsManager( entityActionsManager );
+      entityProviderManager.setEntityRedirectsManager(entityRedirectsManager);
 
       entityProviderManager.init();
 
       entityProviderManager.registerEntityProvider(td.entityProvider1);
+      entityProviderManager.registerEntityProvider(td.entityProvider1T);
       entityProviderManager.registerEntityProvider(td.entityProvider2);
       entityProviderManager.registerEntityProvider(td.entityProvider3);
       entityProviderManager.registerEntityProvider(td.entityProvider4);
@@ -78,8 +82,10 @@ public class ServiceTestManager {
       entityProviderManager.registerEntityProvider(td.entityProviderA1);
       entityProviderManager.registerEntityProvider(td.entityProviderA2);
       entityProviderManager.registerEntityProvider(td.entityProviderA3);
-
-      entityProviderManager.registerEntityProvider(td.entityProvider1T);
+      entityProviderManager.registerEntityProvider(td.entityProviderU1);
+      entityProviderManager.registerEntityProvider(td.entityProviderU2);
+      entityProviderManager.registerEntityProvider(td.entityProviderU3);
+      // add new providers here
 
       entityBrokerManager = new EntityBrokerManager();
       entityBrokerManager.setEntityProviderManager( entityProviderManager );
@@ -105,6 +111,7 @@ public class ServiceTestManager {
       entityRequestHandler.setRequestGetter( requestGetter );
       entityRequestHandler.setRequestStorage( requestStorage );
       entityRequestHandler.setEntityActionsManager(entityActionsManager);
+      entityRequestHandler.setEntityRedirectsManager(entityRedirectsManager);
    }
 
 }

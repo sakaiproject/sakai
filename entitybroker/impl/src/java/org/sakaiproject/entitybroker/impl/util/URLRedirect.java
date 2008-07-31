@@ -17,7 +17,6 @@ package org.sakaiproject.entitybroker.impl.util;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
-import org.sakaiproject.entitybroker.util.TemplateParseUtil.ProcessedTemplate;
 
 
 /**
@@ -36,35 +35,46 @@ public class URLRedirect {
    public String template;
    public PreProcessedTemplate preProcessedTemplate;
    /**
-    * (optional) the target template to place the variables into,
+    * (optional) the outgoing template to place the variables into,
     * leave null if using the methods
     */
-   public String targetTemplate;
-   public PreProcessedTemplate targetPreProcessedTemplate;
+   public String outgoingTemplate;
+   public PreProcessedTemplate outgoingPreProcessedTemplate;
    /**
-    * This will be non-null if there is a custom action method which was found or identified
+    * (optional) This will be non-null if there is a custom action method which was found or identified
     * by the annotation {@link EntityCustomAction} or if the developer has defined this
     * explicitly
     */
    public String methodName;
    /**
-    * These are the argument types found in the custom action method in order,
-    * this should not be populated manually as any value in this will be overwritten
+    * (optional) These are the argument types found in the custom action method in order,
+    * this should not be populated manually as any value in this will be overwritten<br/>
+    * Must be set if the methodName is set
     */
    public Class<?>[] methodArgTypes;
+   /**
+    * indicates that this is controllable or not, if this is controllable
+    * then all the other fields will be ignored and the redirects will be sent to the execute method
+    */
+   public boolean controllable = false;
 
    /**
-    * Will be set to non null if returned from the template finding method
+    * Use this for controllable template matches only
+    * @param template
     */
-   public ProcessedTemplate processedTemplate;
-
-   public URLRedirect(String template, String targetTemplate) {
+   public URLRedirect(String template) {
       setTemplate(template);
-      if (targetTemplate == null || "".equals(targetTemplate)) {
-         throw new IllegalArgumentException("targetTemplate must not be null or empty string");
+      controllable = true;
+   }
+
+   public URLRedirect(String template, String outgoingTemplate) {
+      setTemplate(template);
+      if (outgoingTemplate == null || "".equals(outgoingTemplate)) {
+         throw new IllegalArgumentException("outgoingTemplate must not be null or empty string");
       }
-      this.targetTemplate = targetTemplate;
-      this.targetPreProcessedTemplate = TemplateParseUtil.preprocessTemplate(targetTemplate);
+      this.outgoingPreProcessedTemplate = TemplateParseUtil.preprocessTemplate( 
+            new TemplateParseUtil.Template(null, outgoingTemplate, false) );
+      this.outgoingTemplate = this.outgoingPreProcessedTemplate.template;
    }
 
    public URLRedirect(String template, String methodName, Class<?>[] methodArgTypes) {
@@ -87,7 +97,8 @@ public class URLRedirect {
          throw new IllegalArgumentException("template must not be null or empty string");
       }
       this.template = template;
-      this.preProcessedTemplate = TemplateParseUtil.preprocessTemplate(template);
+      this.preProcessedTemplate = TemplateParseUtil.preprocessTemplate( 
+            new TemplateParseUtil.Template(null, template, true) );
    }
 
 
@@ -106,17 +117,38 @@ public class URLRedirect {
       if (redirect == null) {
          throw new IllegalArgumentException("redirect to copy must not be null");
       }
-      URLRedirect togo = new URLRedirect(redirect.template, redirect.targetTemplate);
+      URLRedirect togo = new URLRedirect(redirect.template, redirect.outgoingTemplate);
       togo.preProcessedTemplate = redirect.preProcessedTemplate;
-      togo.targetPreProcessedTemplate = redirect.targetPreProcessedTemplate;
+      togo.outgoingPreProcessedTemplate = redirect.outgoingPreProcessedTemplate;
       togo.methodName = redirect.methodName;
       togo.methodArgTypes = redirect.methodArgTypes;
       return togo;
    }
 
    @Override
+   public boolean equals(Object obj) {
+      if (null == obj)
+         return false;
+      if (!(obj instanceof URLRedirect))
+         return false;
+      else {
+         URLRedirect castObj = (URLRedirect) obj;
+         if (null == this.template || null == castObj.template)
+            return false;
+         else
+            return (this.template.equals(castObj.template));
+      }
+   }
+
+   @Override
+   public int hashCode() {
+      String hashStr = this.getClass().getName() + ":" + this.template.hashCode();
+      return hashStr.hashCode();
+   }
+
+   @Override
    public String toString() {
-      return "URLRedirect: " + this.template + ":" + this.targetTemplate + ":" + this.methodName;
+      return "URLRedirect: template=" + this.template + ": outgoing=" + this.outgoingTemplate + ": method=" + this.methodName + ": control=" + this.controllable;
    }
 
 }

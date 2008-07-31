@@ -16,10 +16,13 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropert
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigControllable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigDefinable;
 import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsExecutionEntityProviderMock;
@@ -33,6 +36,9 @@ import org.sakaiproject.entitybroker.mocks.ReferenceParseableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.RequestStoreableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ResolvableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.TaggableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.URLConfigControllableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.URLConfigDefineableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.URLConfigurableEntityProviderMock;
 
 /**
  * Contains test data for testing the entity broker
@@ -205,6 +211,30 @@ public class TestData {
    public static String REFA3_2 = EntityReference.SEPARATOR + PREFIXA3
          + EntityReference.SEPARATOR + IDSA3[1];
 
+   public static String PREFIXU1 = "redirect1";
+   public static String SPACEU1 = EntityReference.SEPARATOR + PREFIXU1;
+   public static String[] IDSU1 = new String[] { "rA", "rB" };
+   public static String REFU1 = EntityReference.SEPARATOR + PREFIXU1
+         + EntityReference.SEPARATOR + IDSU1[0];
+   public static String REFU1_2 = EntityReference.SEPARATOR + PREFIXU1
+         + EntityReference.SEPARATOR + IDSU1[1];
+
+   public static String PREFIXU2 = "redirect2";
+   public static String SPACEU2 = EntityReference.SEPARATOR + PREFIXU2;
+   public static String[] IDSU2 = new String[] { "rA", "rB" };
+   public static String REFU2 = EntityReference.SEPARATOR + PREFIXU2
+         + EntityReference.SEPARATOR + IDSU2[0];
+   public static String REFU2_2 = EntityReference.SEPARATOR + PREFIXU2
+         + EntityReference.SEPARATOR + IDSU2[1];
+
+   public static String PREFIXU3 = "redirect3";
+   public static String SPACEU3 = EntityReference.SEPARATOR + PREFIXU3;
+   public static String[] IDSU3 = new String[] { "rA", "rB" };
+   public static String REFU3 = EntityReference.SEPARATOR + PREFIXU3
+         + EntityReference.SEPARATOR + IDSU3[0];
+   public static String REFU3_2 = EntityReference.SEPARATOR + PREFIXU3
+         + EntityReference.SEPARATOR + IDSU3[1];
+
    public static String INVALID_REF = "invalid_reference-1";
    public static String INVALID_URL = "http://bkjskldsalkdsa/sdakljdskl/stuff";
 
@@ -294,6 +324,18 @@ public class TestData {
     * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link ActionsExecutionControllable}
     */
    public ActionsExecutionEntityProviderMock entityProviderA3 = new ActionsExecutionEntityProviderMock(PREFIXA3, IDSA3);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link URLConfigurable}
+    */
+   public URLConfigurableEntityProviderMock entityProviderU1 = new URLConfigurableEntityProviderMock(PREFIXU1, IDSU1);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link URLConfigDefinable}
+    */
+   public URLConfigDefineableEntityProviderMock entityProviderU2 = new URLConfigDefineableEntityProviderMock(PREFIXU2, IDSU2);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link URLConfigControllable}
+    */
+   public URLConfigControllableEntityProviderMock entityProviderU3 = new URLConfigControllableEntityProviderMock(PREFIXU3, IDSU3);
 
    /**
     * Basic constructor initializes test data if needed
