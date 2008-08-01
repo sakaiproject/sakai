@@ -14,7 +14,7 @@
       <excludes>
         <exclude>log4j:log4j</exclude>
         <exclude>commons-logging:commons-logging</exclude>
-        <exclude>org.sakaiproject.kernel.util:sakai-util-log</exclude>
+        <exclude>org.sakaiproject.kernel:sakai-kernel-common</exclude>
       </excludes>
       <unpack>false</unpack>
     </dependencySet>
@@ -23,7 +23,7 @@
       <includes>
         <include>log4j:log4j</include>
         <include>commons-logging:commons-logging</include>
-        <include>org.sakaiproject.kernel.util:sakai-util-log</include>
+        <include>org.sakaiproject.kernel:sakai-kernel-common</include>
       </includes>
       <unpack>false</unpack>
     </dependencySet>
