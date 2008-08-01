@@ -35,6 +35,10 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
@@ -77,12 +81,7 @@
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->
 <!-- Spring dependency is required for validation within the webapp-->
-    <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
-      <scope>provided</scope>
-    </dependency>
+<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}provided-->
 <!-- RSF dependencies -->
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
