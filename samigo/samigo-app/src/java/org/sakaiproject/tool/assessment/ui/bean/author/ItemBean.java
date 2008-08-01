@@ -57,6 +57,7 @@ public class ItemBean
   private String itemId;
   private String itemType;
   private String itemScore= "0";
+  private String itemDiscount= "0";
   private String[] answers;
   private String[] answerLabels;  //  such as A, B, C
   private String[] corrAnswers;  // store checkbox values(labels) for multiple correct answers, as in mcmc type
@@ -198,7 +199,24 @@ public class ItemBean
     this.itemScore= score;
   }
 
+  /**
+   * value of question discount
+   * @return discountit is worth
+   */
+  public String getItemDiscount()
+  {
+    return itemDiscount;
+  }
 
+  /**
+   * value of question discount
+   * @param discount
+   */
+  public void setItemDiscount(String discount)
+  {
+    this.itemDiscount= discount;
+  }
+  
   /**
    * value of question
    * @return score it is worth

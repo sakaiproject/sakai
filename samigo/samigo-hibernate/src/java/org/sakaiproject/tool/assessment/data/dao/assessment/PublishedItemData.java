@@ -61,6 +61,7 @@ public class PublishedItemData
   private Long typeId;
   private String grade;
   private Float score;
+  private Float discount;
   private String hint;
   private Boolean hasRationale;
   private Integer status;
@@ -81,7 +82,7 @@ public class PublishedItemData
   // this constructor should be deprecated, it is missing triesAllowed
   public PublishedItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Float score, String hint,
+                  Long typeId, String grade, Float score, Float discount, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -94,6 +95,7 @@ public class PublishedItemData
     this.typeId = typeId;
     this.grade = grade;
     this.score = score;
+    this.discount = discount;
     this.hint = hint;
     this.hasRationale = hasRationale;
     this.status = status;
@@ -108,7 +110,7 @@ public class PublishedItemData
 
   public PublishedItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Float score, String hint,
+                  Long typeId, String grade, Float score, Float discount, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -122,6 +124,7 @@ public class PublishedItemData
     this.typeId = typeId;
     this.grade = grade;
     this.score = score;
+    this.discount = discount;
     this.hint = hint;
     this.hasRationale = hasRationale;
     this.status = status;
@@ -216,6 +219,20 @@ public class PublishedItemData
     this.score = score;
   }
 
+  public Float getDiscount() {
+	  if (this.discount==null){
+		  this.discount=new Float(0);
+	  }
+	  return this.discount;
+  }
+
+  public void setDiscount(Float discount) {
+	  if (discount==null){
+		  discount=new Float(0);
+	  }
+	  this.discount = discount;
+  }
+	  
   public String getHint() {
     return this.hint;
   }

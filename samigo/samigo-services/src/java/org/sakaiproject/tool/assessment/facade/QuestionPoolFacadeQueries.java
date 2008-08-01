@@ -1229,6 +1229,7 @@ public class QuestionPoolFacadeQueries
   private ItemFacade getItemFacade(ItemDataIfc itemData) {
 	  ItemFacade item = new ItemFacade();
 	  item.setScore(itemData.getScore());
+	  item.setDiscount(itemData.getDiscount());
       item.setHint(itemData.getHint());
       item.setStatus(itemData.getStatus());
       item.setTypeId(itemData.getTypeId());
@@ -1274,8 +1275,8 @@ public class QuestionPoolFacadeQueries
 	    	  Iterator answerIter = fromAnswerSet.iterator();
 	    	  while (answerIter.hasNext()) {
 	    		  Answer fromAnswer = (Answer) answerIter.next();
-	    		  Answer toAnswer = new Answer(toItemText, fromAnswer.getText(), fromAnswer.getSequence(), fromAnswer.getLabel(), 
-	    				  fromAnswer.getIsCorrect(), fromAnswer.getGrade(), fromAnswer.getScore());
+	    		  Answer toAnswer = new Answer(toItemText, fromAnswer.getText(), fromAnswer.getSequence(), fromAnswer.getLabel(),
+	    				  fromAnswer.getIsCorrect(), fromAnswer.getGrade(), fromAnswer.getScore(), fromAnswer.getDiscount());
 	    		  
 	    		  HashSet toAnswerFeedbackSet = new HashSet();
 	    		  Set fromAnswerFeedbackSet = fromAnswer.getAnswerFeedbackSet();

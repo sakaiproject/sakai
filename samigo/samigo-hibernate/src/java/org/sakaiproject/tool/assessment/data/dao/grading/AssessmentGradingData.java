@@ -147,8 +147,17 @@ public class AssessmentGradingData
   public Float getTotalAutoScore() {
     return this.totalAutoScore;
   }
+  
   public void setTotalAutoScore(Float totalAutoScore) {
-    this.totalAutoScore = totalAutoScore;
+	  if (totalAutoScore != null){
+		  if (totalAutoScore.floatValue()< 0){
+			  this.totalAutoScore=new Float("0");
+		  }else{
+			  this.totalAutoScore = totalAutoScore;
+		  }
+	  }else{
+		  this.totalAutoScore = totalAutoScore;
+	  }
   }
 
   public Float getTotalOverrideScore() {

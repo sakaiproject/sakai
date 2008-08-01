@@ -60,6 +60,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -2788,4 +2789,48 @@ public class DeliveryBean
 		  }
 		  return true;
 	  }
+	  
+	  public String cleanRadioButton() {
+
+		  // Obtenemos el id de la pregunta
+		  String radioId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("radioId");
+
+		  ArrayList parts = this.pageContents.getPartsContents();
+
+		  for (int i=0; i<parts.size(); i++) {
+			  ArrayList items = ((SectionContentsBean)parts.get(i)).getItemContents();
+
+			  for (int j=0; j<items.size(); j++) {
+				  ItemContentsBean item = (ItemContentsBean)items.get(j);
+
+				  // Solamente borramos los checkbox de la pregunta actual
+				  if (!item.getItemData().getItemId().toString().equals(radioId)) continue;
+
+				  if (item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE.longValue() ||
+						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue()) {
+
+					  item.setUnanswered(true);
+					  for (int k=0; k<item.getSelectionArray().size(); k++) {
+						  SelectionBean selection = (SelectionBean)item.getSelectionArray().get(k);
+						  selection.setResponse(false);
+					  }
+				  }
+
+				  if (item.getItemData().getTypeId().longValue() == TypeIfc.TRUE_FALSE.longValue()) {
+
+					  item.setResponseId(null);
+
+					  Iterator iter = item.getItemGradingDataArray().iterator();
+					  if (iter.hasNext())
+					  {
+						  ItemGradingData data = (ItemGradingData) iter.next();
+						  data.setPublishedAnswerId(null);
+					  }
+				  }
+			  }
+		  }
+
+		  return "takeAssessment";
+	  }
+
 }

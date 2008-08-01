@@ -120,6 +120,7 @@ public class EditPartListener
     Iterator iter = metaDataSet.iterator();
     boolean isRandomizationTypeSet = false;
     boolean isPointValueHasOverrided = false;
+    boolean isDiscountValueHasOverrided = false;
     while (iter.hasNext()){
        SectionMetaData meta= (SectionMetaData) iter.next();
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
@@ -160,6 +161,13 @@ public class EditPartListener
     	   }
            bean.setRandomPartScore(meta.getEntry());
        }
+       if (meta.getLabel().equals(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION)){
+    	   if (meta.getEntry() != null && !meta.getEntry().equals("")) {
+    		   bean.setDiscountValueHasOverrided(true);
+    		   isDiscountValueHasOverrided = true;
+    	   }
+    	   bean.setRandomPartDiscount(meta.getEntry());
+       }
     }
     if (!isRandomizationTypeSet) {
  	   bean.setRandomizationType(SectionDataIfc.PER_SUBMISSION);
@@ -167,6 +175,10 @@ public class EditPartListener
     if (!isPointValueHasOverrided) {
         bean.setPointValueHasOverrided(false);
         bean.setRandomPartScore(null);
+    }
+    if (!isDiscountValueHasOverrided) {
+    	bean.setDiscountValueHasOverrided(false);
+    	bean.setRandomPartDiscount(null);
     }
   }
 

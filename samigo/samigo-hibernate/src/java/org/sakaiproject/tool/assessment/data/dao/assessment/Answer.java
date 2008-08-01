@@ -49,13 +49,14 @@ public class Answer
   private Boolean isCorrect;
   private String grade;
   private Float score;
+  private Float discount;
   private Set answerFeedbackSet;
   private HashMap answerFeedbackMap;
   private ItemData dat=new ItemData();
   public Answer() {}
 
   public Answer(ItemTextIfc itemText, String text, Long sequence, String label,
-                Boolean isCorrect, String grade, Float score) {
+                Boolean isCorrect, String grade, Float score, Float discount) {
     this.itemText = itemText;
     this.item = itemText.getItem();
     this.text = text;
@@ -64,10 +65,11 @@ public class Answer
     this.isCorrect = isCorrect;
     this.grade = grade;
     this.score = score;
+    this.discount=discount;
   }
 
   public Answer(ItemTextIfc itemText, String text, Long sequence, String label,
-                Boolean isCorrect, String grade, Float score,
+                Boolean isCorrect, String grade, Float score, Float discount,
                 Set answerFeedbackSet) {
     this.itemText = itemText;
     this.item = itemText.getItem();
@@ -77,6 +79,7 @@ public class Answer
     this.isCorrect = isCorrect;
     this.grade = grade;
     this.score = score;
+    this.discount=discount;
     this.answerFeedbackSet = answerFeedbackSet;
   }
 
@@ -152,6 +155,20 @@ public class Answer
     this.score = score;
   }
 
+  public Float getDiscount() {
+	  if (this.discount==null){
+		  this.discount=new Float(0);
+	  }
+	  return this.discount;
+  }
+
+  public void setDiscount(Float discount) {
+	  if (discount==null){
+		  discount=new Float(0);
+	  }
+	  this.discount = discount;
+  }
+	  
   public Set getAnswerFeedbackSet() {
     return answerFeedbackSet;
   }

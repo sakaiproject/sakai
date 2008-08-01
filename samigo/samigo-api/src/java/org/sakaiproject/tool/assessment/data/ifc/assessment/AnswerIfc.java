@@ -58,6 +58,10 @@ public  interface AnswerIfc
 
   void setIsCorrect(Boolean isCorrect);
 
+  Float getDiscount();
+  
+  void setDiscount(Float discount);
+  
   String getGrade();
 
   void setGrade(String grade);

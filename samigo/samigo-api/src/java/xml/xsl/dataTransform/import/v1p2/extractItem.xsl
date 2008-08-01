@@ -33,6 +33,14 @@
       </xsl:if>
     </xsl:for-each>
   </score>
+  <discount>
+    <xsl:value-of
+     select="//resprocessing/outcomes/decvar[@varname='SCORE']/@minvalue"/>
+    <!-- Respondus multiple correct answer -->
+    <xsl:value-of
+     select="//resprocessing/outcomes/decvar[@varname='que_score']/@minvalue"/>
+    <!-- Respondus single correct answer -->
+  </discount>
   <hint></hint>
   <!-- <hasRationale></hasRationale>rshastri :SAK-1824-->
   <status></status>

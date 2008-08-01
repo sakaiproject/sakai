@@ -59,6 +59,15 @@
  <h:message for="answerptr" styleClass="validate"/>
   </div><br/>
 
+<!-- DISCOUNT -->
+<div class="longtext">
+  <h:outputLabel value="#{authorMessages.answer_discount_value}"/>
+  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true"  size="6">
+<f:validateDoubleRange />
+</h:inputText>
+<h:message for="answerdsc" styleClass="validate"/>
+</div><br/>
+
   <!-- 2 TEXT -->
  <div class="longtext">
   <h:outputLabel value="#{authorMessages.q_text}" />

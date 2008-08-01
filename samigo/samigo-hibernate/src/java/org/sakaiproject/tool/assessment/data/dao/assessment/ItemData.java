@@ -40,6 +40,7 @@ public class ItemData
   private Long typeId;
   private String grade;
   private Float score;
+  private Float discount;
   private String hint;
   private Boolean hasRationale;
   private Integer status;
@@ -59,7 +60,7 @@ public class ItemData
   // this constructor should be deprecated, it is missing triesAllowed
   public ItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Float score, String hint,
+                  Long typeId, String grade, Float score, Float discount, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -72,6 +73,7 @@ public class ItemData
     this.typeId = typeId;
     this.grade = grade;
     this.score = score;
+    this.discount = discount;
     this.hint = hint;
     this.hasRationale = hasRationale;
     this.status = status;
@@ -86,7 +88,7 @@ public class ItemData
 
   public ItemData(SectionDataIfc section, Integer sequence,
                   Integer duration, String instruction, String description,
-                  Long typeId, String grade, Float score, String hint,
+                  Long typeId, String grade, Float score, Float discount, String hint,
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
@@ -100,6 +102,7 @@ public class ItemData
     this.typeId = typeId;
     this.grade = grade;
     this.score = score;
+    this.discount = discount;
     this.hint = hint;
     this.hasRationale = hasRationale;
     this.status = status;
@@ -286,8 +289,22 @@ public class ItemData
     this.score = score;
   }
 
+  public Float getDiscount() {
+	  if (this.discount==null){
+		  this.discount=new Float(0);
+	  }
+	  return this.discount;
+  }
+
+  public void setDiscount(Float discount) {
+	  if (discount==null){
+		  discount=new Float(0);
+	  }
+	  this.discount = discount;
+  }
+
   public String getHint() {
-    return this.hint;
+	  return this.hint;
   }
 
   public void setHint(String hint) {
@@ -299,7 +316,8 @@ public class ItemData
   }
 
   public void setHasRationale(Boolean hasRationale) {
-    this.hasRationale = hasRationale;
+	  if (hasRationale == null) this.hasRationale = new Boolean(false);
+	  else this.hasRationale = hasRationale;
   }
 
   public Integer getStatus() {

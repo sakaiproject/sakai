@@ -79,6 +79,8 @@ public class ItemContentsBean implements Serializable {
 	private String[] responseIds = null;
 
 	private float points;
+	
+	private float discount;
 
 	private float maxPoints;
 
@@ -238,6 +240,56 @@ public class ItemContentsBean implements Serializable {
 		}
 		setPoints(Float.parseFloat(pointsForEdit));
 	}
+	
+    /**
+     * String representation of the rounded discount.
+     *
+     * @return String representation of the discount.
+     */
+    public float getDiscount() {
+    	 return SectionContentsBean.roundTo2Decimals(discount);
+    }
+
+    /**
+     * String representation of the exact points (unrounded discount)
+     *
+     * @return String representation of the discount.
+     */
+    public float getExactDiscount() {
+    	return discount;
+    }
+
+    /**
+     * String representation of the Discount.
+     *
+     * @param discount
+     *            String representation of the Discount.
+     */
+    public void setDiscount(float discount) {
+    	this.discount = discount;
+    }
+
+    /**
+     * String representation of the rounded Discount.
+     *
+     * @return String representation of the Discount.
+     */
+    public String getDiscountForEdit() {
+    	return Float.toString(getDiscount());
+    }
+ 
+    /**
+     * String representation of the discount.
+     *
+     * @param discount
+     *            String representation of the discount.
+     */
+    public void setDiscountForEdit(String discountForEdit) {
+    	if (discountForEdit == null || discountForEdit.equals("")) {
+    		discountForEdit = "0";
+    	}
+    	setDiscount(Float.parseFloat(discountForEdit));
+    }
 	
 	public boolean getReview() {
 		if (getItemGradingDataArray().isEmpty()) {

@@ -70,7 +70,9 @@ public class ItemHelper12Impl extends ItemHelperBase
   private AuthoringXml authoringXml;
   private List allIdents;
   private Float currentMaxScore = new Float(0);
+  private Float currentMinScore = new Float(0);
   private float currentPerItemScore = 0;
+  private float currentPerItemDiscount = 0;
 
   /**
    *
@@ -119,10 +121,15 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param score
    * @param itemXml
    */
-  public void addMinScore(Float score, Item itemXml)
+  public void addMinScore(Float discount, Item itemXml)
   {
-    String xPath = "item/resprocessing/outcomes/decvar/@minvalue";
-    updateItemXml(itemXml, xPath, "0");
+	  String xPath = "item/resprocessing/outcomes/decvar/@minvalue";
+	  if (discount == null)
+	  {
+		  discount = new Float(0);
+	  }
+	  currentMinScore = discount;
+	  updateItemXml(itemXml, xPath, "" + discount.toString());
   }
 
   /**
@@ -363,6 +370,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     if (itSize > 0)
     {
       currentPerItemScore = currentMaxScore.floatValue() / itSize;
+      currentPerItemDiscount = currentMinScore.floatValue();
     }
     int respCondCount = 0; //used to count the respconditions
 

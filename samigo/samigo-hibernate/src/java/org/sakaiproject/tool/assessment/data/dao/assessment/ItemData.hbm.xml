@@ -22,6 +22,7 @@
     <property name="typeId" type="long" column="TYPEID" not-null="true" />
     <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
     <property name="score" type="float" column="SCORE" not-null="false" />
+    <property name="discount" type="float" column="DISCOUNT" not-null="false" />
     <property name="hint" type="string" length="4000" column="HINT" not-null="false" />
     <property name="hasRationale" type="boolean" column="HASRATIONALE" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
@@ -114,7 +115,8 @@
     <property name="isCorrect" type="boolean" column="ISCORRECT" not-null="false" />
     <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
     <property name="score" type="float" column="SCORE" not-null="false" />
-
+    <property name="discount" type="float" column="DISCOUNT" not-null="false" />
+   
     <set name="answerFeedbackSet" table="SAM_ANSWERFEEDBACK_T" cascade="all" inverse="true" lazy="false">
       <key column="ANSWERID" />
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback" />

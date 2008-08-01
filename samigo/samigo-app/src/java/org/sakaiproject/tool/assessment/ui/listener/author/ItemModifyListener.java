@@ -144,6 +144,19 @@ public class ItemModifyListener implements ActionListener
          score ="0.0";
        }
       bean.setItemScore(score);
+
+      Float discountpoints = itemfacade.getDiscount();
+      String discount;
+      if (discountpoints!=null)
+      {
+    	  discount = discountpoints.toString();
+      }
+      else // cover modifying an imported XML assessment that has no score yet
+      {
+    	  discount ="0.0";
+      }
+      bean.setItemDiscount(discount);
+
       if (itemfacade.getHasRationale() !=null) {
         bean.setRationale(itemfacade.getHasRationale().toString());
       }

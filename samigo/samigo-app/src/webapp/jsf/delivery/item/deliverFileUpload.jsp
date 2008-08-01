@@ -43,7 +43,7 @@ should be included in file importing DeliveryMessages
   <f:verbatim>&nbsp;&nbsp;</f:verbatim>
   <h:commandButton id="upl" accesskey="#{deliveryMessages.a_upload}" value="#{deliveryMessages.upload}" action="#{delivery.getOutcome}" onclick="showNotif('submitnotif',this.name,'takeAssessmentForm');"/>
 </h:panelGroup>
-<h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> Processing.....</span>"/>
+<h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> #{deliveryMessages.processing}</span>"/>
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
                        || delivery.actionString=='reviewAssessment' 
                        || delivery.actionString=='gradeAssessment'}">

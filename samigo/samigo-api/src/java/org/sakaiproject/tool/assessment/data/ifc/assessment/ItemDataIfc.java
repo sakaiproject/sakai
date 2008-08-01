@@ -78,6 +78,10 @@ public interface ItemDataIfc extends java.io.Serializable {
   Float getScore();
 
   void setScore(Float score);
+  
+  Float getDiscount();
+
+  void setDiscount(Float discount);
 
   String getHint();
 

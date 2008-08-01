@@ -74,6 +74,7 @@ public class QuestionScoresBean
   private Collection sections;
   private Collection deliveryItem;
   private String score;
+  private String discount;
   private String answer;
   private String questionScoreComments;
   //private String sortProperty;
@@ -523,6 +524,25 @@ public class QuestionScoresBean
     score = pScore;
   }
 
+  /**
+   *
+   * @return the discount
+   */
+  public String getDiscount()
+  {
+    return Validator.check(discount, "N/A");
+  }
+ 
+  /**
+   * set the discount
+   *
+   * @param pDiscount the discount
+   */
+  public void setDiscount(String pDiscount)
+  {
+    discount = pDiscount;
+  }
+  
   /**
    * get the answer text
    *

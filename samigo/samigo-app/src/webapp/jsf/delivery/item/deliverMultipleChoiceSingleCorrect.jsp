@@ -92,6 +92,14 @@ should be included in file importing DeliveryMessages
                  || delivery.actionString=='gradeAssessment'}" />
   </h:panelGroup>
 
+<h:commandLink id="cmdclean" value="#{deliveryMessages.cleanRadioButton}" action="#{delivery.cleanRadioButton}" 
+	rendered="#{(delivery.actionString=='previewAssessment' || delivery.actionString=='previewAssessmentPublished'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1'}">
+	<f:param name="radioId" value="#{question.itemData.itemId}" />
+</h:commandLink>
+
 <f:verbatim><br /></f:verbatim>
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" 
    rendered="#{(delivery.actionString=='previewAssessment'

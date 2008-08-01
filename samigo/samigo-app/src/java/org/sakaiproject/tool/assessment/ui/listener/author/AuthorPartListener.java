@@ -74,6 +74,8 @@ public class AuthorPartListener implements ActionListener
     
     sectionBean.setPointValueHasOverrided(false);
     sectionBean.setRandomPartScore(null);
+    sectionBean.setDiscountValueHasOverrided(false);
+    sectionBean.setRandomPartDiscount(null);
     // new part has no attachment, VERY IMPORTANT to clean up any leftover
     // before modifying a new part
     sectionBean.setResourceHash(null);

@@ -396,7 +396,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			PublishedItemData publishedItem = new PublishedItemData(
 					publishedSection, item.getSequence(), item.getDuration(),
 					item.getInstruction(), item.getDescription(), item
-							.getTypeId(), item.getGrade(), item.getScore(),
+							.getTypeId(), item.getGrade(), item.getScore(), item.getDiscount(),
 					item.getHint(), item.getHasRationale(), item.getStatus(),
 					item.getCreatedBy(), item.getCreatedDate(), item
 							.getLastModifiedBy(), item.getLastModifiedDate(),
@@ -603,7 +603,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			PublishedAnswer publishedAnswer = new PublishedAnswer(
 					publishedItemText, answer.getText(), answer.getSequence(),
 					answer.getLabel(), answer.getIsCorrect(),
-					answer.getGrade(), answer.getScore(), null);
+					answer.getGrade(), answer.getScore(), answer.getDiscount(), null);
 			Set publishedAnswerFeedbackSet = preparePublishedAnswerFeedbackSet(
 					publishedAnswer, answer.getAnswerFeedbackSet());
 			publishedAnswer.setAnswerFeedbackSet(publishedAnswerFeedbackSet);

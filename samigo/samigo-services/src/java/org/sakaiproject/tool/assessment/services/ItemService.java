@@ -232,9 +232,9 @@ public class ItemService
   public ItemData cloneItem(ItemDataIfc item){
     ItemData cloned= new ItemData(
         item.getSection(),item.getSequence(), item.getDuration(), item.getInstruction(),
-	item.getDescription(),item.getTypeId(),item.getGrade(),item.getScore(),
-	item.getHint(),item.getHasRationale(),item.getStatus(),item.getCreatedBy(),
-	item.getCreatedDate(),item.getLastModifiedBy(),item.getLastModifiedDate(),
+        item.getDescription(),item.getTypeId(),item.getGrade(),item.getScore(), item.getDiscount(),
+        item.getHint(),item.getHasRationale(),item.getStatus(),item.getCreatedBy(),
+        item.getCreatedDate(),item.getLastModifiedBy(),item.getLastModifiedDate(),
         null, null, null, item.getTriesAllowed());
 
     // perform deep copy, set ItemTextSet, itemMetaDataSet and itemFeedbackSet
@@ -271,7 +271,7 @@ public class ItemService
       Answer newAnswer = new Answer(
           newItemText, answer.getText(), answer.getSequence(),
           answer.getLabel(),
-          answer.getIsCorrect(), answer.getGrade(), answer.getScore(), null);
+      	  answer.getIsCorrect(), answer.getGrade(), answer.getScore(), answer.getDiscount(), null);
       Set newAnswerFeedbackSet = copyAnswerFeedbackSet(
           newAnswer, answer.getAnswerFeedbackSet());
       newAnswer.setAnswerFeedbackSet(newAnswerFeedbackSet);

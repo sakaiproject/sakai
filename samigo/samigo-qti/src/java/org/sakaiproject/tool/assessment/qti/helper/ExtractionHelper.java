@@ -1296,6 +1296,7 @@ public class ExtractionHelper
 	  
 
     String score = (String) itemMap.get("score");
+    String discount = (String) itemMap.get("discount");
     String hasRationale =  item.getItemMetaDataByLabel("hasRationale");//rshastri :SAK-1824
     String status = (String) itemMap.get("status");
     String createdBy = (String) itemMap.get("createdBy");
@@ -1332,6 +1333,15 @@ public class ExtractionHelper
     else {
     	item.setScore(new Float(0));
     }
+    
+    if (notNullOrEmpty(discount))
+    {
+    	item.setDiscount(new Float(discount));
+    }
+    else {
+    	item.setDiscount(new Float(0));
+    }
+
     item.setHint( (String) itemMap.get("hint"));
     if (notNullOrEmpty(hasRationale))
     {
@@ -1484,6 +1494,7 @@ public class ExtractionHelper
 
           // correct answer and score
           float score = 0;
+          float discount = 0;
           // if label matches correct answer it is correct
           if (isCorrectLabel(label, correctLabels))
           {
@@ -1499,8 +1510,11 @@ public class ExtractionHelper
           // manual authoring disregards correctness
           // so we will do the same.
           score = getCorrectScore(item, 1);
+          discount = getCorrectDiscount(item);
           log.debug("setting answer" + label + " score to:" + score);
           answer.setScore(new Float(score));
+          log.debug("setting answer " + label + " discount to:" + discount);
+          answer.setDiscount(new Float(discount));
 
           answer.setText(makeFCKAttachment(answerText));
           answer.setItemText(itemText);
@@ -1544,6 +1558,16 @@ public class ExtractionHelper
     return score;
   }
 
+  private float getCorrectDiscount(ItemDataIfc item)
+  {
+	  float discount =0;
+	  if (item!=null && item.getDiscount()!=null)
+	  {
+		  discount = item.getDiscount().floatValue();
+	  }
+	  return discount;
+  }
+  
   /**
    * Check to find out it response label is in the list of correct responses
    * @param testLabel response label
@@ -1652,11 +1676,15 @@ public class ExtractionHelper
         // manual authoring disregards the number of partial answers
         // so we will do the same.
         float score = getCorrectScore(item, 1);
+        float discount = getCorrectDiscount(item);
 //        float score = getCorrectScore(item, answerList.size());
 
         log.debug("setting answer " + label + " score to:" + score);
         answer.setScore(new Float(score));
-
+        
+        log.debug("setting answer " + label + " discount to:" + discount);
+        answer.setDiscount(new Float(discount));
+        
         answer.setItem(item.getData());
         int sequence = a + 1;
         answer.setSequence(new Long(sequence));
@@ -1835,7 +1863,8 @@ public class ExtractionHelper
         // or whether the answer is correct so we will do the same.
 //        float score = 0;
         float score = getCorrectScore(item, 1);
-
+        float discount = getCorrectDiscount(item);
+        
         // if this answer is the indexed one, flag as correct
         if (a + 1 == targetIndex)
         {
@@ -1849,6 +1878,7 @@ public class ExtractionHelper
         }
         log.debug("setting answer " + a + " score to:" + score);
         target.setScore(new Float(score));
+        target.setDiscount(new Float(discount));
 
         if (answerFeedbackList != null)
         {

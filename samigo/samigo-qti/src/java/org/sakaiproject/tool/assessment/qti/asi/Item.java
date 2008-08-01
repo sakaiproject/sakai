@@ -188,7 +188,7 @@ public class Item extends ASIBaseClass
     if (!this.isSurvey()) //surveys are unscored
     {
       helper.addMaxScore(item.getScore(), this);
-      helper.addMinScore(item.getScore(), this);
+      helper.addMinScore(item.getDiscount(), this);
     }
 
     if(item !=null &&(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK))) {

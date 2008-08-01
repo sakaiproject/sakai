@@ -225,6 +225,7 @@ public class QTIConstantStrings
   public static final  String TYPE_LABEL = "type_label";
   public static final  String STATUS = "status";
   public static final  String SCORE = "score";
+  public static final  String DISCOUNT = "discount";
   public static final  String EXTENSION_SUMMARY_RESULT = "extension_summary_result";
   public static final  String GRADE = "grade";
   public static final  String ASI_METADATA = "asi_metadata";

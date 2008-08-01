@@ -83,12 +83,14 @@ private ArrayList poolsAvailable;  // selectItems for pools
 private ArrayList items;
 private boolean random;
 private String randomPartScore;
+private String randomPartDiscount;
 private String removeAllQuestions; // 1=Yes, 0=No
 private SectionFacade section;
 private AssessmentIfc assessment;
 private String destSectionId; //destinated section where questions will be moved to
 private String randomizationType;
 private boolean pointValueHasOverrided;
+private boolean discountValueHasOverrided;
 
 private String numberSelected;
 private String selectedPool;  // pool id for the item to be added to
@@ -533,6 +535,28 @@ private List attachmentList;
   {
     randomPartScore = score;
   }
+  
+  public String getRandomPartDiscount()
+  {
+    if (randomPartDiscount != null)
+       return randomPartDiscount;
+
+    if (section == null)
+       return "";
+
+    if (section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) != null) {
+       return section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION);
+    }
+    else {
+       return "";
+    }
+  }
+
+  public void setRandomPartDiscount(String discount)
+  {
+    randomPartDiscount = discount;
+  }
+
   /**
    * If removing part, do questions go with it?
    * @return true if questions are deleted too.
@@ -829,4 +853,12 @@ private List attachmentList;
       this.pointValueHasOverrided = pointValueHasOverrided;
   }
   
+  public boolean getDiscountValueHasOverrided() {
+      return discountValueHasOverrided;
+  }
+
+  public void setDiscountValueHasOverrided(boolean discountValueHasOverrided)
+  {
+      this.discountValueHasOverrided = discountValueHasOverrided;
+  }
 }

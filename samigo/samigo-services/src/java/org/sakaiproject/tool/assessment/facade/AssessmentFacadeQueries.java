@@ -2014,7 +2014,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			ItemData newItem = new ItemData(newSection, item.getSequence(),
 					item.getDuration(), item.getInstruction(), item
 							.getDescription(), item.getTypeId(), item
-							.getGrade(), item.getScore(), item.getHint(), item
+							.getGrade(), item.getScore(), item.getDiscount(), item.getHint(), item
 							.getHasRationale(), item.getStatus(), item
 							.getCreatedBy(), item.getCreatedDate(), item
 							.getLastModifiedBy(), item.getLastModifiedDate(),
@@ -2182,7 +2182,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			Answer answer = (Answer) l.next();
 			Answer newAnswer = new Answer(newItemText, answer.getText(), answer
 					.getSequence(), answer.getLabel(), answer.getIsCorrect(),
-					answer.getGrade(), answer.getScore(), null);
+					answer.getGrade(), answer.getScore(), answer.getDiscount(), null);
 			Set newAnswerFeedbackSet = prepareAnswerFeedbackSet(newAnswer,
 					answer.getAnswerFeedbackSet());
 			newAnswer.setAnswerFeedbackSet(newAnswerFeedbackSet);

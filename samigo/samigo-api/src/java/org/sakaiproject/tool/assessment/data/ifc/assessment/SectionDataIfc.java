@@ -49,6 +49,8 @@ public interface SectionDataIfc
   public static String PER_STUDENT = "2";
   
   public static String POINT_VALUE_FOR_QUESTION = "POINT_VALUE_FOR_QUESTION";
+  public static String DISCOUNT_VALUE_FOR_QUESTION = "DISCOUNT_VALUE_FOR_QUESTION";
+
   
    Long getSectionId() ;
 
