@@ -126,15 +126,22 @@
     
      <!--f:selectItems value="#{sectionBean.poolsAvailable}" /-->
   <!--/h:selectOneMenu-->
-   <h:panelGrid>
-   <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
-   </h:panelGrid>
+  <h:panelGrid>
+    <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
+  </h:panelGrid>
 
-   <h:outputText value="#{authorMessages.point_value_of_questons}"  />
-   <h:panelGrid>
-   <h:inputText id="numPointsRandom" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.randomPartScore}" />
-   <h:outputText value="#{authorMessages.note_point_value_for_question}" rendered="#{!sectionBean.pointValueHasOverrided}"/>
-   </h:panelGrid>
+  <h:outputText value="#{authorMessages.point_value_of_questons}"  />
+  <h:panelGrid>
+    <h:inputText id="numPointsRandom" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.randomPartScore}" />
+    <h:outputText value="#{authorMessages.note_point_value_for_question}" rendered="#{!sectionBean.pointValueHasOverrided}"/>
+  </h:panelGrid>
+   
+  <h:outputText value="#{authorMessages.discount_value_of_questons}"  />
+  
+  <h:panelGrid>
+    <h:inputText id="numDiscountRandom" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.randomPartDiscount}" />
+    <h:outputText value="#{authorMessages.note_discount_value_for_question}" rendered="#{!sectionBean.discountValueHasOverrided}"/>
+  </h:panelGrid>
 
   <h:outputText value="#{authorMessages.type_of_randomization}" />
   <h:selectOneRadio value="#{sectionBean.randomizationType}" layout="pageDirection" disabled="#{sectionBean.type == '1'}" id="randomizationType">
