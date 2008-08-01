@@ -127,3 +127,8 @@ alter table SAKAI_EVENT add column CONTEXT varchar(255);
 --SAK-13310 Poll description field too small
 alter table POLL_POLL change POLL_DETAILS POLL_DETAILS text; 
 
+-- SAK-14106
+alter table SAM_ITEM_T add column DISCOUNT float NULL;
+alter table SAM_ANSWER_T add column DISCOUNT float NULL;
+alter table SAM_PUBLISHEDITEM_T add column DISCOUNT float NULL;
+alter table SAM_PUBLISHEDANSWER_T add column DISCOUNT float NULL;

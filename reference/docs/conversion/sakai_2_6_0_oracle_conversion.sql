@@ -123,3 +123,9 @@ alter table SAKAI_EVENT add CONTEXT varchar2(255) NULL;
 
 --SAK-13310 Poll description field too small
 alter table POLL_POLL modify POLL_DETAILS VARCHAR2(4000);
+
+-- SAK-14106
+alter table SAM_ITEM_T add DISCOUNT float NULL;
+alter table SAM_ANSWER_T add DISCOUNT float NULL;
+alter table SAM_PUBLISHEDITEM_T add DISCOUNT float NULL;
+alter table SAM_PUBLISHEDANSWER_T add DISCOUNT float NULL;
