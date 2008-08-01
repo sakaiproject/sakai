@@ -45,6 +45,12 @@ public class EntitySession implements Session {
    private String userId;
    private boolean active = true;
 
+   private long currentTime = System.currentTimeMillis();
+   public long getCurrentTime() {
+      currentTime = System.currentTimeMillis();
+      return currentTime;
+   }
+
    public Map<String, Object> attributes;
 
    public void setAttributes(Map<String, Object> attributes) {

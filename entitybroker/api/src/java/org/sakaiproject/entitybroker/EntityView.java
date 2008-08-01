@@ -134,7 +134,8 @@ public class EntityView {
       return entityReference;
    }
    /**
-    * Allows for easy chained construction of EntityViews by setting an EntityReference
+    * Allows for easy chained construction of EntityViews by setting an EntityReference,
+    * does not set the viewkey or extension unless they are unset, maintains current extension
     */
    public EntityView setEntityReference(EntityReference ref) {
       if (ref == null) {
@@ -147,7 +148,7 @@ public class EntityView {
          segments.put(ID, ref.getId());
          viewKey = VIEW_SHOW;
       }
-      populateInternals(viewKey, segments, null);
+      populateInternals(viewKey, segments, getExtension());
       this.entityReference = ref;
       return this;
    }

@@ -473,7 +473,7 @@ public class EntityDescriptionManager {
     */
    protected String makeCustomActionKeyMethodText(CustomAction customAction) {
       String togo = "*";
-      if (customAction.viewKey == null) {
+      if (customAction.viewKey != null) {
          togo = customAction.viewKey+" ("+EntityView.translateViewKeyToMethod(customAction.viewKey)+")";
       }
       return togo;
