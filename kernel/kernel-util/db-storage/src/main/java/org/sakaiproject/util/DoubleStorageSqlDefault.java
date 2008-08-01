@@ -24,6 +24,8 @@ package org.sakaiproject.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.javax.Order;
+
 /**
  * methods for accessing double storage data in a database.
  */
@@ -72,11 +74,11 @@ public class DoubleStorageSqlDefault implements DoubleStorageSql
 		return recordId;
 	}
     
-    // TODO: Perhaps should deal with the Nulls here
-    public String getCountSql(String table, String idField)
-    {
-        return "select count(*) from " + table + " where (" + idField + " = ? )";
-    }
+	// TODO: Perhaps should deal with the Nulls here
+	public String getCountSql(String table, String idField)
+	{
+		return "select count(*) from " + table + " where (" + idField + " = ? )";
+	}
 
 	public String getSelect1Sql(String table, String idField)
 	{
@@ -120,12 +122,6 @@ public class DoubleStorageSqlDefault implements DoubleStorageSql
         + ((orderField != null) ? (" order by " + orderField +  ( asc ? " asc" : " desc" )) : "");
 	}
 
-	public String getSelectXml5filterSql(String table, String idField, String orderField, boolean asc, String filter)
-	{
-		return "select XML from " + table + " where (" + idField + " = ? )" 
-			+ ((filter != null) ? "and " + filter : "")
-			+ ((orderField != null) ? (" order by " + orderField + ( asc ? " asc" : " desc" )) : "");
-	}
 
 	public String getSelectXml6Sql(String table, String idField1, String idField2, String id, String ref)
 	{
@@ -150,5 +146,57 @@ public class DoubleStorageSqlDefault implements DoubleStorageSql
 	public String addTopToQuery(String sqlIn, int endRec)
 	{
 		return null;
+	}
+
+	public String getSearchWhereClause(String[] searchFields)
+	{
+		String retval = "";
+		for(String str : searchFields)
+		{
+			if ( retval.length() > 0 ) retval = retval + " or ";
+			retval = retval + str + " like ? ";
+		}
+		if ( retval.length() > 0 )
+		{
+			return "( " + retval + " )";
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	public String getOrderClause(Order [] orders,  String orderField, boolean asc)
+	{
+		if ( orders == null || orders.length < 1 ) 
+		{
+			return "order by " + orderField +  ( asc ? " asc" : " desc" );
+		}
+		else
+		{
+			String retval = "";
+			for ( Order order : orders )
+			{
+				if ( retval.length() > 1 ) retval = retval + ", ";
+				retval = retval + order.property + " ";
+				retval = retval + ( order.ascending ? " asc" : " desc" );
+			}
+			return "order by " + retval;
+		}
+	}
+
+	public String getSelectXml5filterSql(String table, String idField, String orderString, String filter)
+	{
+		return "select XML from " + table + " " +
+		   " where (" + idField + " = ? )" +
+	           ((filter != null ) ? " and " + filter + " " : "") +
+                   ((orderString != null) ? orderString : "") ;
+	}
+
+        public String getCountSqlWhere(String table, String idField, String whereClause)
+	{
+		return "select count(1) from " + table + 
+		  " where (" + idField + " =  ? )" + 
+		  ((whereClause != null ) ? " and ( " + whereClause + " )" : "" );
 	}
 }

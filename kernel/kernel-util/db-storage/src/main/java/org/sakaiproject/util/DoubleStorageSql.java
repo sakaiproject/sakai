@@ -22,6 +22,7 @@
 package org.sakaiproject.util;
 
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.javax.Order;
 
 /**
  * database methods.
@@ -42,7 +43,7 @@ public interface DoubleStorageSql
 
 	public String getRecordId(String recordId);
     
-    public String getCountSql(String table, String idField);
+	public String getCountSql(String table, String idField);
 
 	public String getSelect1Sql(String table, String idField);
 
@@ -60,7 +61,7 @@ public interface DoubleStorageSql
 
 	public String getSelectXml5Sql(String table, String idField, String orderField, boolean asc);
    
-	public String getSelectXml5filterSql(String table, String idField, String orderField, boolean asc, String filter);
+	public String getSelectXml5filterSql(String table, String idField, String orderString, String filter);
 
 	public String getSelectXml6Sql(String table, String idField1, String idField2, String id, String ref);
 
@@ -71,5 +72,11 @@ public interface DoubleStorageSql
 	public String addLimitToQuery(String inSql, int startRec, int endRec);
 
 	public String addTopToQuery(String inSql, int endRec);
+
+	public String getSearchWhereClause(String[] searchFields);
+
+        public String getOrderClause(Order [] orders,  String orderField, boolean asc);
+
+	public String getCountSqlWhere(String table, String idField, String whereClause);
         
 }

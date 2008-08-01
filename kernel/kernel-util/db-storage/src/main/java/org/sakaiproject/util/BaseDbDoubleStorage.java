@@ -48,6 +48,9 @@ import org.w3c.dom.Element;
 
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.javax.Restriction;
+import org.sakaiproject.javax.Order;
+import org.sakaiproject.javax.Search;
 import org.sakaiproject.javax.SearchFilter;
 
 /**
@@ -94,6 +97,11 @@ public class BaseDbDoubleStorage
 
 	/** The additional field names in the resource table that go between the two ids and the xml. */
 	protected String[] m_resourceTableOtherFields = null;
+
+	/** The string searchable field names in the resource table. This must be either null
+	  * (i.e. no fields) or this is assumed to be the only fields which participate in search.
+	  */
+	protected String[] m_resourceTableSearchFields = null;
 
 	/** The field name in the resource table for ordering. */
 	protected String m_resourceTableOrderField = null;
@@ -193,9 +201,12 @@ public class BaseDbDoubleStorage
 	 * @param sqlService
 	 *        The SqlService.
 	 */
-	public BaseDbDoubleStorage(String containerTableName, String containerTableIdField, String resourceTableName, String resourceTableIdField,
-			String resourceTableContainerIdField, String resourceTableOrderField, String resourceTableOwnerField, String resourceTableDraftField,
-			String resourceTablePubViewField, String[] resourceTableOtherFields, boolean locksInDb, String containerEntryName,
+	public BaseDbDoubleStorage(String containerTableName, String containerTableIdField, 
+			String resourceTableName, String resourceTableIdField,
+			String resourceTableContainerIdField, String resourceTableOrderField, 
+			String resourceTableOwnerField, String resourceTableDraftField,
+			String resourceTablePubViewField, String[] resourceTableOtherFields, String[] resourceTableSearchFields, 
+			boolean locksInDb, String containerEntryName,
 			String resourceEntryName, StorageUser user, SqlService sqlService)
 	{
 		m_containerTableName = containerTableName;
@@ -205,6 +216,37 @@ public class BaseDbDoubleStorage
 		m_resourceTableContainerIdField = resourceTableContainerIdField;
 		m_resourceTableOrderField = resourceTableOrderField;
 		m_resourceTableOtherFields = resourceTableOtherFields;
+		m_resourceTableSearchFields = resourceTableSearchFields;
+		m_locksAreInDb = locksInDb;
+		m_containerEntryTagName = containerEntryName;
+		m_resourceEntryTagName = resourceEntryName;
+		m_resourceTableOwnerField = resourceTableOwnerField;
+		m_resourceTableDraftField = resourceTableDraftField;
+		m_resourceTablePubViewField = resourceTablePubViewField;
+		m_user = user;
+		m_sql = sqlService;
+
+		setDoubleStorageSql(m_sql.getVendor());
+	}
+
+	/** Backwards compatibility constructor for using DbDouble without search fields */
+
+	public BaseDbDoubleStorage(String containerTableName, String containerTableIdField, 
+			String resourceTableName, String resourceTableIdField,
+			String resourceTableContainerIdField, String resourceTableOrderField, 
+			String resourceTableOwnerField, String resourceTableDraftField,
+			String resourceTablePubViewField, String[] resourceTableOtherFields, // String[] resourceTableSearchFields, 
+			boolean locksInDb, String containerEntryName,
+			String resourceEntryName, StorageUser user, SqlService sqlService)
+	{
+		m_containerTableName = containerTableName;
+		m_containerTableIdField = containerTableIdField;
+		m_resourceTableName = resourceTableName;
+		m_resourceTableIdField = resourceTableIdField;
+		m_resourceTableContainerIdField = resourceTableContainerIdField;
+		m_resourceTableOrderField = resourceTableOrderField;
+		m_resourceTableOtherFields = resourceTableOtherFields;
+		m_resourceTableSearchFields = null; // resourceTableSearchFields;
 		m_locksAreInDb = locksInDb;
 		m_containerEntryTagName = containerEntryName;
 		m_resourceEntryTagName = resourceEntryName;
@@ -771,7 +813,10 @@ public class BaseDbDoubleStorage
 	}
 
 	/**
-	 * Count all Resources
+	 * Count all Resources - This takes two approaches depending 
+	 * on whether this table has search fields.  If searchfields 
+	 * are available we can do a SELECT COUNT WHERE.  Otherwise
+         * we retrieve the records and run the filter on each record.
 	 * @param container
 	 *        The container for this resource.
 	 * @param filter
@@ -783,6 +828,38 @@ public class BaseDbDoubleStorage
 	{
 		if ( filter == null ) return getCount(container);
 
+		// System.out.println("getCount e="+container+" sf="+filter);
+
+		// If we have search fields - do a quick select count with a where clause
+		if  ( m_resourceTableSearchFields != null && filter instanceof SearchFilter ) 
+		{
+			int searchFieldCount = 0;
+			String searchString = ((SearchFilter) filter).getSearchString();
+			if ( searchString != null && searchString.length() > 0 )
+			{
+				String searchWhere = doubleStorageSql.getSearchWhereClause(m_resourceTableSearchFields);
+				if ( searchWhere != null && searchWhere.length() > 0 ) 
+				{
+					searchFieldCount = m_resourceTableSearchFields.length;
+					String sql = doubleStorageSql.getCountSqlWhere(m_resourceTableName, 
+						m_resourceTableContainerIdField, searchWhere);
+
+					Object[] fields = new Object[1+searchFieldCount];
+					fields[0] = container.getReference();
+					for ( int i=0; i < searchFieldCount; i++) fields[i+1] = "%" + searchString + "%";
+
+					List countList = m_sql.dbRead(sql, fields, null);
+		  
+					if ( countList.isEmpty() ) return 0;
+		
+					Object obj = countList.get(0);
+					String str = (String) obj;
+					return Integer.parseInt(str);
+				}
+			}
+		}
+
+		// No search fields - retrieve, filter and count
 		String sql = doubleStorageSql.getSelectXml5Sql(m_resourceTableName, m_resourceTableContainerIdField, null, false);
 		Object[] fields = new Object[1];
 		fields[0] = container.getReference();
@@ -832,6 +909,31 @@ public class BaseDbDoubleStorage
 	}
 	
 	/**
+	 * Deal with the fact that we can get a PagingPosition from a query filter
+	 * or directly as a parameter.  In time remove the option to use
+         * PagingPosition. 
+         */
+	// TODO: Remove all methods with PagingPostition and switch to Filter
+	private PagingPosition fixPagingPosition(Filter filter, PagingPosition pos)
+	{
+		if ( filter == null ) return pos;
+		if ( pos != null )
+		{
+			M_log.warn("The use of methods with PagingPosition should switch to using Search (SAK-13584) - Chuck");
+			return pos;
+		}
+		if ( filter instanceof Search )
+		{
+			Search q = (Search) filter;
+			if ( q.getLimit() > 0 && q.getLimit() >= q.getStart() ) 
+			{
+				return new PagingPosition((int) q.getStart(), (int) q.getLimit());
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Get all Resources.
 	 * 
 	 * @param container
@@ -849,24 +951,48 @@ public class BaseDbDoubleStorage
 	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager)
 	{
 		List all = new Vector();
+		pager = fixPagingPosition(softFilter, pager);
 		// System.out.println("getAllResources e="+container+" sf="+softFilter+" sqlf="+sqlFilter+" asc="+asc+" pag="+pager);
         
-		// read With or without a filter
-		String sql = doubleStorageSql.getSelectXml5Sql(m_resourceTableName, 
-				m_resourceTableContainerIdField, m_resourceTableOrderField, asc);
-		if ( sqlFilter != null ) 
+		// Get the orders and get the ORDER BY clause
+		Order[] orders = null;
+		if ( softFilter instanceof Search ) 
 		{
-			sql = doubleStorageSql.getSelectXml5filterSql(m_resourceTableName, 
-				m_resourceTableContainerIdField, m_resourceTableOrderField, asc, sqlFilter);
+			orders = ((Search) softFilter).getOrders();
 		}
-        
-		// If we are not doing a search and we have a record range
-		// see if we can use SQL to limit the range - if our database 
-		// does not support LIMIT (in one or another form), then lets
-		// at least try TOP to limit the overall number of records we
-		// display
+		String orderString = doubleStorageSql.getOrderClause(orders,  m_resourceTableOrderField, asc);
+
+		// Turn the search string into a WHERE clause if we can
+		int searchFieldCount = 0;
+		String searchString = null;
+		if  ( m_resourceTableSearchFields != null && softFilter instanceof SearchFilter ) 
+		{
+			searchString = ((SearchFilter) softFilter).getSearchString();
+			if ( searchString != null && searchString.length() > 0 )
+			{
+				String searchWhere = doubleStorageSql.getSearchWhereClause(m_resourceTableSearchFields);
+				if ( searchWhere != null && searchWhere.length() > 0 ) 
+				{
+					if (sqlFilter == null ) 
+					{
+						sqlFilter = searchWhere;
+					}
+					else
+					{
+						sqlFilter = sqlFilter + " and " + searchWhere ;
+					}
+					searchFieldCount = m_resourceTableSearchFields.length;
+				}
+			}
+		}
+
+		String sql = doubleStorageSql.getSelectXml5filterSql(m_resourceTableName, 
+				m_resourceTableContainerIdField, orderString, sqlFilter);
+	
+		// Add Paging to the Search if requested
+		// TODO: Someday make this think Filter and emulate PagingPosition
 		boolean pagedInSql = false;
-		if ( pager != null && softFilter == null)
+		if ( pager != null )
 		{
 			String limitedSql = doubleStorageSql.addLimitToQuery(sql, pager.getFirst()-1, pager.getLast()-1);
  
@@ -884,8 +1010,11 @@ public class BaseDbDoubleStorage
 			}
 		}
 
-		Object[] fields = new Object[1];
+		Object[] fields = new Object[1+searchFieldCount];
 		fields[0] = container.getReference();
+		for ( int i=0; i < searchFieldCount; i++) fields[i+1] = "%" + searchString + "%";
+
+		// System.out.println("getAllResources="+sql);
 
 		// If we are paged in SQL - then do not pass in the pager
 		all = m_sql.dbRead(sql, fields, new SearchFilterReader(container, softFilter,  pagedInSql ? null : pager, false));
@@ -1007,6 +1136,7 @@ public class BaseDbDoubleStorage
 		String statement = doubleStorageSql.getInsertSql3(m_resourceTableName, insertFields(m_containerTableIdField, m_resourceTableIdField,
 				m_resourceTableOtherFields, "XML"), valuesParams(m_resourceTableOtherFields));
 		Object[] flds = m_user.storageFields(entry);
+
 		if (flds == null) flds = new Object[0];
 		Object[] fields = new Object[flds.length + 3];
 		System.arraycopy(flds, 0, fields, 2, flds.length);
