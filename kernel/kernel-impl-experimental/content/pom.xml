@@ -7,7 +7,7 @@
     <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai Content Component</name>
+  <name>Sakai Experimental Content Projects</name>
   <groupId>org.sakaiproject.kernel.impl-experimental</groupId>
   <artifactId>content</artifactId>
   <packaging>pom</packaging>

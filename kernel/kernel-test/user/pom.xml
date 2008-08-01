@@ -27,8 +27,8 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-user-util</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

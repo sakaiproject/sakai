@@ -9,8 +9,8 @@
   </parent>
   <description>Kernel Direct Shared Deployer</description>
   <name>Kernel Direct Shared Deployer</name>
-  <groupId>org.sakaiproject.kernel.shared</groupId>
-  <artifactId>deploy</artifactId>
+  <groupId>org.sakaiproject.kernel.deploy</groupId>
+  <artifactId>shared</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>

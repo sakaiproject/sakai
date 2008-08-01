@@ -7,7 +7,7 @@
     <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai Component Manager</name>
+  <name>Sakai Kernel Private Package</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-private</artifactId>
   <organization>

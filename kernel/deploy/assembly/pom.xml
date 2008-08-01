@@ -49,8 +49,8 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util-log</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-common</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>

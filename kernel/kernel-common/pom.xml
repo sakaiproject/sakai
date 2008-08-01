@@ -7,29 +7,27 @@
     <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <description>Kernel Direct Common Deployer</description>
-  <name>Kernel Direct Common Deployer</name>
-  <groupId>org.sakaiproject.kernel.deploy</groupId>
-  <artifactId>common</artifactId>
+  <name>Kernel Common </name>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>sakai-kernel-common</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
   <properties>
     <deploy.target>common</deploy.target>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <scope>compile</scope>
-    </dependency>
+<!-- provision logging -->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
     </dependency>
   </dependencies>
 </project>

@@ -125,66 +125,68 @@
     </xsl:choose>
       
     
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-entity-util']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-entity-util</p:artifactId>
-      </p:dependency>
-    </xsl:if>
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-event-util']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-event-util</p:artifactId>
-      </p:dependency>
-    </xsl:if>
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-content-util']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-content-util</p:artifactId>
-      </p:dependency>
-    </xsl:if>
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-db-conversion']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-db-conversion</p:artifactId>
-      </p:dependency>
-    </xsl:if>
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-db-storage']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-db-storage</p:artifactId>
-      </p:dependency>
-    </xsl:if>
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-jcr-util']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-jcr-util</p:artifactId>
-      </p:dependency>
-    </xsl:if>
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-tool-util']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-tool-util</p:artifactId>
-      </p:dependency>
-    </xsl:if>
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-user-util']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-user-util</p:artifactId>
-      </p:dependency>
-    </xsl:if>
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-util-log']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-util-log</p:artifactId>
-      </p:dependency>
-    </xsl:if>
-    <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-util']" >
-      <p:dependency>
-        <p:groupId>org.sakaiproject.kernel.util</p:groupId>
-        <p:artifactId>sakai-util</p:artifactId>
-      </p:dependency>
-    </xsl:if>
+    <xsl:choose>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-entity-util']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-event-util']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-content-util']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-db-conversion']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-db-storage']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-jcr-util']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-tool-util']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-user-util']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-util-log']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-util']" >
+        <p:dependency>
+          <p:groupId>org.sakaiproject.kernel</p:groupId>
+          <p:artifactId>sakai-kernel-util</p:artifactId>
+        </p:dependency>
+      </xsl:if>
+    </xsl:choose>
       
     <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-component-integration-test']" >
       <p:dependency>

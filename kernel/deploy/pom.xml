@@ -7,7 +7,7 @@
     <version>1.0RC2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai User Project</name>
+  <name>Sakai Deployment Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>deploy</artifactId>
   <packaging>pom</packaging>
