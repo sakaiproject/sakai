@@ -62,8 +62,10 @@
     </dependency>
     <dependency>
       <groupId>cglib</groupId>
-      <artifactId>cglib-full</artifactId>
-      <version>2.0.2</version>
+      <artifactId>cglib-nodep</artifactId>
+      <version>2.1_3</version>
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>odmg</groupId>
