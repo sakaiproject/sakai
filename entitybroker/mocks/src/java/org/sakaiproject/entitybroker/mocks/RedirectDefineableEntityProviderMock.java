@@ -16,20 +16,19 @@ package org.sakaiproject.entitybroker.mocks;
 
 import java.util.Map;
 
-import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigurable;
-import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
+import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 
 
 /**
- * Stub class to make it possible to test the {@link URLConfigurable} capabilities, will perform like the
+ * Stub class to make it possible to test the {@link RedirectDefinable} capabilities, will perform like the
  * actual class so it can be reliably used for testing<br/> 
  * Will perform all {@link CRUDable} operations as well as allowing for internal data output processing<br/>
  * Returns {@link MyEntity} objects<br/>
@@ -38,22 +37,28 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class URLConfigurableEntityProviderMock extends RESTfulEntityProviderMock implements CoreEntityProvider, RESTful, 
-      URLConfigurable {
+public class RedirectDefineableEntityProviderMock extends RESTfulEntityProviderMock implements CoreEntityProvider, RESTful, 
+      RedirectDefinable {
 
-   public URLConfigurableEntityProviderMock(String prefix, String[] ids) {
+   public RedirectDefineableEntityProviderMock(String prefix, String[] ids) {
       super(prefix, ids);
    }
 
-   @EntityURLRedirect("/{prefix}/{id}/{thing}/go")
-   public String outsideRedirector(String incomingURL, Map<String, String> values) {
-      return "http://caret.cam.ac.uk/?prefix=" + values.get(EntityView.PREFIX) + "&thing=" + values.get("thing");
-   }
+   public String[] templates = new String[] {
+         "/{prefix}/site/{siteId}/user/{userId}", 
+         "/{prefix}?siteId={siteId}&userId={userId}",
+         "/{prefix}/{id}/{thing}/go", 
+         "other/stuff?prefix={prefix}&id={id}",
+         "/{prefix}/xml/{id}",
+         "/{prefix}/{id}.xml"
+   };
 
-   @EntityURLRedirect("/{prefix}/xml/{id}")
-   public String xmlRedirector(String incomingURL, Map<String, String> values) {
-      return values.get(EntityView.PREFIX) + 
-         EntityView.SEPARATOR + values.get(EntityView.ID) + EntityView.PERIOD + Formats.XML;
+   public TemplateMap[] defineURLMappings() {
+      return new TemplateMap[] {
+            new TemplateMap(templates[0], templates[1]),
+            new TemplateMap(templates[2], templates[3]),
+            new TemplateMap(templates[4], templates[5])
+      };
    }
 
    @EntityURLRedirect("/{prefix}/going/nowhere")

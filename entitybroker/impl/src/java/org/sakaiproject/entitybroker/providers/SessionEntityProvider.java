@@ -32,7 +32,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigDefinable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
@@ -49,7 +49,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class SessionEntityProvider implements CoreEntityProvider, CRUDable, CollectionResolvable, Inputable, Outputable, RequestAware, Describeable, 
-   URLConfigDefinable, ActionsExecutable, AutoRegisterEntityProvider {
+   RedirectDefinable, ActionsExecutable, AutoRegisterEntityProvider {
 
    public static String AUTH_USERNAME = "_username";
    public static String AUTH_PASSWORD = "_password";

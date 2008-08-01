@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityView.Method;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigurable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 
@@ -51,9 +51,9 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
  * 2) "" (empty string) to not redirect and return an empty success response <br/>
  * 3) null to not redirect and allow standard processing of the URL to continue <br/>
  * For failures: if there is a failure you should throw an IllegalStateException to indicate failure <br/>
- * This is the convention part of the {@link URLConfigurable} capability<br/>
+ * This is the convention part of the {@link Redirectable} capability<br/>
  *
- * @see URLConfigurable
+ * @see Redirectable
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */

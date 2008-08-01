@@ -27,12 +27,12 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * /gradebook/6758/item/Quiz1 to view a particular item in a gradebook by it's human readable name <br/>
  * /gradebook/item/6857657 to maybe just a view an item by its unique id. <br/>
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
- * The convention interface is at {@link URLConfigurable}, there is also a capability
- * for handling simple redirects at {@link URLConfigDefinable}
+ * The convention interface is at {@link Redirectable}, there is also a capability
+ * for handling simple redirects at {@link RedirectDefinable}
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public interface URLConfigControllable extends URLConfigurable {
+public interface RedirectControllable extends Redirectable {
 
    /**
     * Defines all the URL patterns that will be matched and passed through to

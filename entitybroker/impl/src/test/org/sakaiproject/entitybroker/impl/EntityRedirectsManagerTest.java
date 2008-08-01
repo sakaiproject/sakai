@@ -52,7 +52,7 @@ public class EntityRedirectsManagerTest extends TestCase {
    public void testCheckForTemplateMatch() {
       String targetURL = null;
 
-      // test URLConfigurable matching
+      // test Redirectable matching
       targetURL = entityRedirectsManager.checkForTemplateMatch(td.entityProviderU1, TestData.SPACEU1 + "/123/AZ/go");
       assertNotNull(targetURL);
       assertEquals("http://caret.cam.ac.uk/?prefix=" + TestData.PREFIXU1 + "&thing=AZ", targetURL);
@@ -68,7 +68,7 @@ public class EntityRedirectsManagerTest extends TestCase {
       targetURL = entityRedirectsManager.checkForTemplateMatch(td.entityProviderU1, TestData.SPACEU1 + "/keep/moving");
       assertNull(targetURL);
 
-      // test URLConfigDefinable matching
+      // test RedirectDefinable matching
       targetURL = entityRedirectsManager.checkForTemplateMatch(td.entityProviderU2, TestData.SPACEU2 + "/site/s1/user/aaronz/junk");
       assertNotNull(targetURL);
       assertEquals(TemplateParseUtil.DIRECT_PREFIX+TestData.SPACEU2 + "?siteId=s1&userId=aaronz", targetURL);
@@ -84,7 +84,7 @@ public class EntityRedirectsManagerTest extends TestCase {
       targetURL = entityRedirectsManager.checkForTemplateMatch(td.entityProviderU2, TestData.SPACEU2 + "/keep/moving");
       assertNull(targetURL);
 
-      // test URLConfigControllable matching
+      // test RedirectControllable matching
       targetURL = entityRedirectsManager.checkForTemplateMatch(td.entityProviderU3, TestData.SPACEU3 + "/site/s1/user/aaronz/junk");
       assertNotNull(targetURL);
       assertEquals(TemplateParseUtil.DIRECT_PREFIX+TestData.SPACEU3 + "/siteuser?site=s1&user=aaronz", targetURL);
@@ -128,7 +128,7 @@ public class EntityRedirectsManagerTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityRedirectsManager#validateDefineableTemplates(org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigDefinable)}.
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityRedirectsManager#validateDefineableTemplates(org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable)}.
     */
    public void testValidateDefineableTemplates() {
       URLRedirect[] redirects = EntityRedirectsManager.validateDefineableTemplates(td.entityProviderU2);
@@ -149,7 +149,7 @@ public class EntityRedirectsManagerTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityRedirectsManager#validateControllableTemplates(org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigControllable)}.
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityRedirectsManager#validateControllableTemplates(org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable)}.
     */
    public void testValidateControllableTemplates() {
       URLRedirect[] redirects = EntityRedirectsManager.validateControllableTemplates(td.entityProviderU3);

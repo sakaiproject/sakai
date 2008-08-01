@@ -21,8 +21,8 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParsea
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigControllable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigDefinable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
 import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsExecutionEntityProviderMock;
@@ -36,9 +36,9 @@ import org.sakaiproject.entitybroker.mocks.ReferenceParseableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.RequestStoreableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ResolvableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.TaggableEntityProviderMock;
-import org.sakaiproject.entitybroker.mocks.URLConfigControllableEntityProviderMock;
-import org.sakaiproject.entitybroker.mocks.URLConfigDefineableEntityProviderMock;
-import org.sakaiproject.entitybroker.mocks.URLConfigurableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.RedirectControllableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.RedirectDefineableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.RedirectableEntityProviderMock;
 
 /**
  * Contains test data for testing the entity broker
@@ -325,17 +325,17 @@ public class TestData {
     */
    public ActionsExecutionEntityProviderMock entityProviderA3 = new ActionsExecutionEntityProviderMock(PREFIXA3, IDSA3);
    /**
-    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link URLConfigurable}
+    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link Redirectable}
     */
-   public URLConfigurableEntityProviderMock entityProviderU1 = new URLConfigurableEntityProviderMock(PREFIXU1, IDSU1);
+   public RedirectableEntityProviderMock entityProviderU1 = new RedirectableEntityProviderMock(PREFIXU1, IDSU1);
    /**
-    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link URLConfigDefinable}
+    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link RedirectDefinable}
     */
-   public URLConfigDefineableEntityProviderMock entityProviderU2 = new URLConfigDefineableEntityProviderMock(PREFIXU2, IDSU2);
+   public RedirectDefineableEntityProviderMock entityProviderU2 = new RedirectDefineableEntityProviderMock(PREFIXU2, IDSU2);
    /**
-    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link URLConfigControllable}
+    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link RedirectControllable}
     */
-   public URLConfigControllableEntityProviderMock entityProviderU3 = new URLConfigControllableEntityProviderMock(PREFIXU3, IDSU3);
+   public RedirectControllableEntityProviderMock entityProviderU3 = new RedirectControllableEntityProviderMock(PREFIXU3, IDSU3);
 
    /**
     * Basic constructor initializes test data if needed

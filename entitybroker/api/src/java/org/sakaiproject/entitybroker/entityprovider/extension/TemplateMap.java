@@ -14,13 +14,13 @@
 
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigDefinable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 
 /**
  * An object to hold the incoming and outgoing templates in pairs,
- * used with {@link URLConfigDefinable}
+ * used with {@link RedirectDefinable}
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */

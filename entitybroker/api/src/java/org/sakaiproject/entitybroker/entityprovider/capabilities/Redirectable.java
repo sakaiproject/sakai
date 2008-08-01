@@ -31,7 +31,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirec
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public interface URLConfigurable extends EntityProvider {
+public interface Redirectable extends EntityProvider {
 
    // this space intentionally left blank
 

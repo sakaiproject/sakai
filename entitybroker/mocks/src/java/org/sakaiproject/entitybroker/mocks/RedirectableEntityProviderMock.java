@@ -23,13 +23,13 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigControllable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 
 
 /**
- * Stub class to make it possible to test the {@link URLConfigControllable} capabilities, will perform like the
+ * Stub class to make it possible to test the {@link Redirectable} capabilities, will perform like the
  * actual class so it can be reliably used for testing<br/> 
  * Will perform all {@link CRUDable} operations as well as allowing for internal data output processing<br/>
  * Returns {@link MyEntity} objects<br/>
@@ -38,36 +38,22 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class URLConfigControllableEntityProviderMock extends RESTfulEntityProviderMock implements CoreEntityProvider, RESTful, 
-      URLConfigControllable {
+public class RedirectableEntityProviderMock extends RESTfulEntityProviderMock implements CoreEntityProvider, RESTful, 
+      Redirectable {
 
-   public URLConfigControllableEntityProviderMock(String prefix, String[] ids) {
+   public RedirectableEntityProviderMock(String prefix, String[] ids) {
       super(prefix, ids);
    }
 
-   public String[] templates = new String[] {
-         "/{prefix}/site/{siteId}/user/{userId}", 
-         "/{prefix}/{id}/{thing}/go", 
-         "/{prefix}/xml/{id}" 
-   };
-   public String[] defineHandledTemplatePatterns() {
-      return templates;
+   @EntityURLRedirect("/{prefix}/{id}/{thing}/go")
+   public String outsideRedirector(String incomingURL, Map<String, String> values) {
+      return "http://caret.cam.ac.uk/?prefix=" + values.get(EntityView.PREFIX) + "&thing=" + values.get("thing");
    }
 
-   // TODO handle infinite redirects
-   public String handleRedirects(String matchedTemplate, String incomingURL,
-         String[] incomingSegments, Map<String, String> values) {
-      String redirectURL = null;
-      if (matchedTemplate.equals(templates[0])) {
-         redirectURL = values.get(EntityView.PREFIX) + EntityView.SEPARATOR 
-            + "siteuser?site=" + values.get("siteId") + "&user=" + values.get("userId");
-      } else if (matchedTemplate.equals(templates[1])) {
-         redirectURL = "http://caret.cam.ac.uk/?prefix=" + values.get(EntityView.PREFIX) + "&thing=" + values.get("thing");
-      } else if (matchedTemplate.equals(templates[2])) {
-         redirectURL = values.get(EntityView.PREFIX) + EntityView.SEPARATOR 
-            + values.get(EntityView.ID) + EntityView.PERIOD + Formats.XML;
-      }
-      return redirectURL;
+   @EntityURLRedirect("/{prefix}/xml/{id}")
+   public String xmlRedirector(String incomingURL, Map<String, String> values) {
+      return values.get(EntityView.PREFIX) + 
+         EntityView.SEPARATOR + values.get(EntityView.ID) + EntityView.PERIOD + Formats.XML;
    }
 
    @EntityURLRedirect("/{prefix}/going/nowhere")

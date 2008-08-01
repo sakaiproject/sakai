@@ -45,7 +45,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigurable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -208,7 +208,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                String prefix = view.getEntityReference().getPrefix();
 
                // check for redirect
-               URLConfigurable urlConfigurable = entityProviderManager.getProviderByPrefixAndCapability(prefix, URLConfigurable.class);
+               Redirectable urlConfigurable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Redirectable.class);
                if (urlConfigurable != null) {
                   String redirectURL = entityRedirectsManager.checkForTemplateMatch(urlConfigurable, path);
                   if (redirectURL != null) {

@@ -26,8 +26,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigControllable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigDefinable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
 import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
@@ -93,13 +93,13 @@ public class EntityRedirectsManager {
                }
                if (redirect.controllable) {
                   // call the executable
-                  if (URLConfigControllable.class.isAssignableFrom(entityProvider.getClass())) {
-                     targetURL = ((URLConfigControllable)entityProvider).handleRedirects(processedTemplate.template, 
+                  if (RedirectControllable.class.isAssignableFrom(entityProvider.getClass())) {
+                     targetURL = ((RedirectControllable)entityProvider).handleRedirects(processedTemplate.template, 
                            incomingURL, 
                            processedTemplate.variableNames.toArray(new String[processedTemplate.variableNames.size()]), 
                            segmentValues);
                   } else {
-                     throw new IllegalStateException("Invalid URL Redirect Object, marked as controllable when this entity broker does not have the capability: " + URLConfigControllable.class);
+                     throw new IllegalStateException("Invalid URL Redirect Object, marked as controllable when this entity broker does not have the capability: " + RedirectControllable.class);
                   }
                } else if (redirect.methodName != null) {
                   // call the redirect method
@@ -203,12 +203,12 @@ public class EntityRedirectsManager {
     * @param configDefinable the entity provider
     * @return the array of URL redirects
     */
-   public static URLRedirect[] validateDefineableTemplates(URLConfigDefinable configDefinable) {
+   public static URLRedirect[] validateDefineableTemplates(RedirectDefinable configDefinable) {
       List<URLRedirect> redirects = new ArrayList<URLRedirect>();
       TemplateMap[] urlMappings = configDefinable.defineURLMappings();
       if (urlMappings == null || urlMappings.length == 0) {
          // this is ok then, or is it?
-         log.warn("URLConfigDefinable: no templates defined for url redirect");
+         log.warn("RedirectDefinable: no templates defined for url redirect");
       } else {
          for (TemplateMap templateMap : urlMappings) {
             String incomingTemplate = templateMap.getIncomingTemplate();
@@ -238,11 +238,11 @@ public class EntityRedirectsManager {
     * @param configControllable the entity provider
     * @return the array of URL redirects
     */
-   public static URLRedirect[] validateControllableTemplates(URLConfigControllable configControllable) {
+   public static URLRedirect[] validateControllableTemplates(RedirectControllable configControllable) {
       List<URLRedirect> redirects = new ArrayList<URLRedirect>();
       String[] templates = configControllable.defineHandledTemplatePatterns();
       if (templates == null || templates.length == 0) {
-         throw new IllegalArgumentException("URLConfigControllable: invalid defineHandledTemplatePatterns: " +
+         throw new IllegalArgumentException("RedirectControllable: invalid defineHandledTemplatePatterns: " +
          		"this should return a non-empty array of templates or the capability should not be used");
       } else {
          for (String template : templates) {

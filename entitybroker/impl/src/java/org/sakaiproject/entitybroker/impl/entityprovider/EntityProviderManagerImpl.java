@@ -36,9 +36,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropert
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigControllable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigDefinable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigurable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
@@ -248,14 +248,14 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             ClassLoader cl = ((DescribePropertiesable)entityProvider).getResourceClassLoader();
             String baseName = ((DescribePropertiesable)entityProvider).getBaseName();
             entityProperties.loadProperties(prefix, baseName, cl);
-         } else if (superclazz.equals(URLConfigurable.class)) {
+         } else if (superclazz.equals(Redirectable.class)) {
             URLRedirect[] redirects = entityRedirectsManager.findURLRedirectMethods(entityProvider);
             entityRedirectsManager.addURLRedirects(prefix, redirects);
-         } else if (superclazz.equals(URLConfigDefinable.class)) {
-            URLRedirect[] redirects = EntityRedirectsManager.validateDefineableTemplates((URLConfigDefinable)entityProvider);
+         } else if (superclazz.equals(RedirectDefinable.class)) {
+            URLRedirect[] redirects = EntityRedirectsManager.validateDefineableTemplates((RedirectDefinable)entityProvider);
             entityRedirectsManager.addURLRedirects(prefix, redirects);
-         } else if (superclazz.equals(URLConfigControllable.class)) {
-            URLRedirect[] redirects = EntityRedirectsManager.validateControllableTemplates((URLConfigControllable)entityProvider);
+         } else if (superclazz.equals(RedirectControllable.class)) {
+            URLRedirect[] redirects = EntityRedirectsManager.validateControllableTemplates((RedirectControllable)entityProvider);
             entityRedirectsManager.addURLRedirects(prefix, redirects);
          }
       }
@@ -316,7 +316,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       } else if (Describeable.class.isAssignableFrom(capability)) {
          // clean up properties record
          entityProperties.unloadProperties(prefix);
-      } else if (URLConfigurable.class.isAssignableFrom(capability)) {
+      } else if (Redirectable.class.isAssignableFrom(capability)) {
          // clean up the redirect URLs record
          entityRedirectsManager.removeURLRedirects(prefix);
       }
