@@ -36,6 +36,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
+import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 
@@ -47,6 +48,8 @@ import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
  */
 public class EntityDescriptionManager {
 
+   private static final String FIELD_KEY_PREFIX = "field.";
+   private static final String REDIRECT_KEY_PREFIX = "redirect.";
    protected static String ACTION_KEY_PREFIX = "action.";
    protected static String DESCRIBE = EntityRequestHandler.DESCRIBE;
    protected static String SLASH_DESCRIBE = EntityRequestHandler.SLASH_DESCRIBE;
@@ -83,6 +86,12 @@ public class EntityDescriptionManager {
    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
       this.entityActionsManager = entityActionsManager;
    }
+
+   private EntityRedirectsManager entityRedirectsManager;
+   public void setEntityRedirectsManager(EntityRedirectsManager entityRedirectsManager) {
+      this.entityRedirectsManager = entityRedirectsManager;
+   }
+
 
    /**
     * Generate a description of all entities in the system,
@@ -244,16 +253,50 @@ public class EntityDescriptionManager {
             if (entity != null) {
                sb.append("      <entityClass>\n");
                sb.append("        <class>"+ entity.getClass().getName() +"</class>\n");
+               sb.append("        <fields>\n");
                Map<String, Class<?>> entityTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass());
                ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                Collections.sort(keys);
                for (String key : keys) {
                   Class<?> type = entityTypes.get(key);
-                  sb.append("        <"+ key +">"+ type.getName() +"</"+key+">\n");
+                  sb.append("          <field>\n");
+                  sb.append("            <name>"+ key +"</name>\n");
+                  sb.append("            <type>"+ type.getName() +"</type>\n");
+                  String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key);
+                  if (fieldDesc != null) {
+                     sb.append("            <description>"+ fieldDesc +"</description>\n");
+                  }
+                  sb.append("          </field>\n");
                }
+               sb.append("        </fields>\n");
                sb.append("      </entityClass>\n");
             }
+            // Redirects
+            List<URLRedirect> redirects = entityRedirectsManager.getURLRedirects(prefix);
+            if (! redirects.isEmpty()) {
+               sb.append("      <redirects>\n");
+               for (int i = 0; i < redirects.size(); i++) {
+                  URLRedirect redirect = redirects.get(i);
+                  sb.append("        <redirect>\n");
+                  sb.append("          <template>"+redirect.template+"</template>\n");
+                  if (redirect.outgoingTemplate != null) {
+                     sb.append("          <outgoingTemplate>"+redirect.outgoingTemplate+"</outgoingTemplate>\n");
+                  }
+                  if (redirect.methodName != null) {
+                     sb.append("          <methodName>"+redirect.methodName+"</methodName>\n");
+                  }
+                  String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template);
+                  if (redirectDesc != null) {
+                     sb.append("          <description>"+redirectDesc+"</description>\n");
+                  }
+                  sb.append("          <controllable>"+redirect.controllable+"</controllable>\n");
+                  sb.append("          <order>"+i+"</order>\n");
+                  sb.append("        </redirect>\n");
+               }
+               sb.append("      </redirects>\n");
+            }
          }
+         // now capabilities
          sb.append("      <capabilities>\n");
          for (Class<? extends EntityProvider> class1 : caps) {
             sb.append("        <capability>\n");
@@ -315,14 +358,14 @@ public class EntityDescriptionManager {
             List<CustomAction> customActions = entityActionsManager.getCustomActions(prefix);
             if (! customActions.isEmpty()) {
                sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.custom.actions", locale)+"</h4>\n");
-               sb.append("      <div style='padding-left:0.5em;'>\n");
+               sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
                for (CustomAction customAction : customActions) {
                   sb.append("        <div>\n");
                   sb.append("          <a style='font-weight:bold;' href='"+directUrl+makeActionURL(ev, customAction)+"'>"
                         +customAction.action+"</a> : " + "<span>"+makeCustomActionKeyMethodText(customAction)+"</span><br/>\n");
                   String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action);
                   if (actionDesc != null) {
-                     sb.append("          <div style='font-style:italics;font-size:0.9em;'>"+actionDesc+"</div>\n");
+                     sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+actionDesc+"</div>\n");
                   }
                   sb.append("        </div>\n");
                }
@@ -336,17 +379,48 @@ public class EntityDescriptionManager {
             Object entity = getSampleEntityObject(prefix);
             if (entity != null) {
                sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entity.getClass().getName() +"</h4>\n");
-               sb.append("        <ul>\n");
+               sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
                Map<String, Class<?>> entityTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass());
                ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                Collections.sort(keys);
-               for (String key : keys) {
+               for (int i = 0; i < keys.size(); i++) {
+                  String key = keys.get(i);
                   Class<?> type = entityTypes.get(key);
-                  sb.append("          <li>"+ key +" : "+ type.getName() +"</li>\n");                  
+                  sb.append("        <div>\n");
+                  sb.append("          <span>"+(i+1)+")</span> &nbsp; <span style='font-weight:bold;'>"+key
+                        +"</span> :: <span>"+type.getName()+"</span><br/>\n");
+                  String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key);
+                  if (fieldDesc != null) {
+                     sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+fieldDesc+"</div>\n");
+                  }
+                  sb.append("        </div>\n");
                }
-               sb.append("        </ul>\n");
+               sb.append("      </div>\n");
+            }
+            // Redirects
+            List<URLRedirect> redirects = entityRedirectsManager.getURLRedirects(prefix);
+            if (! redirects.isEmpty()) {
+               sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.url.redirects", locale)+"</h4>\n");
+               sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
+               for (int i = 0; i < redirects.size(); i++) {
+                  URLRedirect redirect = redirects.get(i);
+                  sb.append("        <div>\n");
+                  String target = redirect.outgoingTemplate;
+                  if (target == null) {
+                     target = "<i>" + entityProperties.getProperty(DESCRIBE, "describe.url.redirects.no.outgoing", locale) + "</i>";
+                  }
+                  sb.append("          <span>"+(i+1)+")</span> &nbsp; <span style='font-weight:bold;'>"+redirect.template
+                        +"</span> ==&gt; <span>"+target+"</span><br/>\n");
+                  String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template);
+                  if (redirectDesc != null) {
+                     sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+redirectDesc+"</div>\n");
+                  }
+                  sb.append("        </div>\n");
+               }
+               sb.append("      </div>\n");
             }
          }
+         // now capabilities
          sb.append("      <div style='font-size:1.1em; font-weight:bold; font-style:italic; padding-left:0.5em;'>"
                +entityProperties.getProperty(DESCRIBE, "describe.capabilities", locale)+": "+caps.size()+"</div>\n");
          sb.append("      <table width='95%' style='padding-left:1.5em;'>\n");

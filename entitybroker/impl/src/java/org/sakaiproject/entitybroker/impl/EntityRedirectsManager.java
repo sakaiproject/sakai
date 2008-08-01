@@ -84,7 +84,13 @@ public class EntityRedirectsManager {
                throw new IllegalStateException("Failed to find a matching redirect for the matched template ("+processedTemplate.template+") for the incoming URL ("+incomingURL+")");
             } else {
                Map<String, String> segmentValues = new HashMap<String, String>( processedTemplate.segmentValues );
+               // add in the prefix and the extension so they can be references as variables
                segmentValues.put(TemplateParseUtil.PREFIX, prefix);
+               if (processedTemplate.extension == null || "".equals(processedTemplate.extension)) {
+                  segmentValues.put(TemplateParseUtil.EXTENSION, "");
+               } else {
+                  segmentValues.put(TemplateParseUtil.EXTENSION, TemplateParseUtil.SEPARATOR + processedTemplate.extension);
+               }
                if (redirect.controllable) {
                   // call the executable
                   if (URLConfigControllable.class.isAssignableFrom(entityProvider.getClass())) {
@@ -211,6 +217,7 @@ public class EntityRedirectsManager {
             // make sure that we check the target vars match the template vars
             List<String> incomingVars = new ArrayList<String>( redirect.preProcessedTemplate.variableNames );
             incomingVars.add(TemplateParseUtil.PREFIX);
+            incomingVars.add(TemplateParseUtil.EXTENSION);
             List<String> outgoingVars = redirect.outgoingPreProcessedTemplate.variableNames;
             if (incomingVars.containsAll(outgoingVars)) {
                // all is ok

@@ -38,6 +38,7 @@ public class TemplateParseUtil {
 
    public static final String PREFIX = EntityView.PREFIX;
    public static final String ID = EntityView.ID;
+   public static final String EXTENSION = "extension";
    public static final String PREFIX_VARIABLE = "{"+PREFIX+"}";
    public static final String TEMPLATE_PREFIX = SEPARATOR + PREFIX_VARIABLE;
    public static final String DIRECT_PREFIX = SEPARATOR + "direct";

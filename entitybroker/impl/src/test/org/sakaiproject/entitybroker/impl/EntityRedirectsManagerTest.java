@@ -18,7 +18,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;

@@ -29,6 +29,7 @@ import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
@@ -159,6 +160,53 @@ public class EntityHandlerImplTest extends TestCase {
       } catch (EntityException e) {
          assertNotNull(e.getMessage());
          assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
+      }
+   }
+
+   public void testAccessEntitySpace() {
+      MockEBHttpServletRequest req = null;
+      MockHttpServletResponse res = null;
+
+      // test the REST and CRUD methods
+      // XML testing
+
+      // test get an entity space
+      req = new MockEBHttpServletRequest("GET", TestData.SPACE6 + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String html = res.getContentAsString();
+         assertNotNull(html);
+         assertTrue(html.length() > 20);
+         assertTrue(html.contains(TestData.PREFIX6));
+         assertTrue(html.contains(TestData.PREFIX6 + "-collection"));
+         assertTrue(html.contains(TestData.IDS6[0]));
+         assertTrue(html.contains(TestData.IDS6[1]));
+         assertTrue(html.contains(TestData.IDS6[2]));
+         assertTrue(html.contains(TestData.IDS6[3]));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      req = new MockEBHttpServletRequest("GET", TestData.SPACE6 + "." + Formats.JSON);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String html = res.getContentAsString();
+         assertNotNull(html);
+         assertTrue(html.length() > 20);
+         assertTrue(html.contains(TestData.PREFIX6));
+         assertTrue(html.contains(TestData.PREFIX6 + "-collection"));
+         assertTrue(html.contains(TestData.IDS6[0]));
+         assertTrue(html.contains(TestData.IDS6[1]));
+         assertTrue(html.contains(TestData.IDS6[2]));
+         assertTrue(html.contains(TestData.IDS6[3]));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
       }
    }
 
@@ -802,6 +850,66 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(e.getMessage());
       }
    }
+
+   public void testURLRedirects() {
+      MockEBHttpServletRequest req = null;
+      MockHttpServletResponse res = null;
+      String redirectURL = null;
+      String forwardURL = null;
+
+      // testing a few requests to make sure they work right
+      req = new MockEBHttpServletRequest("GET", TestData.SPACEU1 + "/123/AZ/go");
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      redirectURL = res.getRedirectedUrl();
+      forwardURL = res.getForwardedUrl();
+      assertNotNull(redirectURL);
+      assertNull(forwardURL);
+      assertEquals("http://caret.cam.ac.uk/?prefix=" + TestData.PREFIXU1 + "&thing=AZ", redirectURL);
+
+      req = new MockEBHttpServletRequest("GET", TestData.SPACEU1 + "/xml/123");
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      redirectURL = res.getRedirectedUrl();
+      forwardURL = res.getForwardedUrl();
+      assertNull(redirectURL);
+      assertNotNull(forwardURL);
+      assertEquals(TemplateParseUtil.DIRECT_PREFIX+TestData.SPACEU1+"/123.xml", forwardURL);
+
+      // test the special ones
+      req = new MockEBHttpServletRequest("GET", TestData.SPACEU1 + "/going/nowhere");
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      redirectURL = res.getRedirectedUrl();
+      forwardURL = res.getForwardedUrl();
+      assertNull(redirectURL);
+      assertNull(forwardURL);
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() == 0);
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      req = new MockEBHttpServletRequest("GET", TestData.SPACEU1 + "/keep/moving");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("should have died");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+      }
+
+   }
+
 
    /**
     * Convenience method for making byte content encoded into UTF-8

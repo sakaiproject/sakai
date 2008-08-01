@@ -25,8 +25,10 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.URLConfigDefinable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -38,7 +40,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Inputable, Outputable, RequestAware, Describeable, AutoRegisterEntityProvider {
+public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Inputable, Outputable, RequestAware, Describeable, 
+   URLConfigDefinable, AutoRegisterEntityProvider {
 
    public static String AUTH_USERNAME = "_username";
    public static String AUTH_PASSWORD = "_password";
@@ -61,6 +64,13 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Inpu
    public static String PREFIX = "session";
    public String getEntityPrefix() {
       return PREFIX;
+   }
+
+
+   public TemplateMap[] defineURLMappings() {
+      return new TemplateMap[] {
+            new TemplateMap("/{prefix}/{id}/norefresh", "/{prefix}/{id}{extension}?auto=true")
+      };
    }
 
    public boolean entityExists(String id) {

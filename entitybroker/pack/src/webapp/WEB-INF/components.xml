@@ -153,6 +153,8 @@
             ref="org.sakaiproject.entitybroker.impl.EntityBrokerManager" />
         <property name="entityActionsManager"
             ref="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
+        <property name="entityRedirectsManager"
+            ref="org.sakaiproject.entitybroker.impl.EntityRedirectsManager" />
         <property name="entityProperties"
             ref="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
         <property name="entityProviderManager"

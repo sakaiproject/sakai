@@ -96,6 +96,7 @@ public class ServiceTestManager {
       entityDescriptionManager.setEntityBrokerManager( entityBrokerManager );
       entityDescriptionManager.setEntityProperties( entityPropertiesService );
       entityDescriptionManager.setEntityActionsManager( entityActionsManager );
+      entityDescriptionManager.setEntityRedirectsManager(entityRedirectsManager);
 
       entityEncodingManager = new EntityEncodingManager();
       entityEncodingManager.setEntityProviderManager( entityProviderManager );
