@@ -197,6 +197,22 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       return providers;
    }
 
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getPrefixesByCapability(java.lang.Class)
+    */
+   public <T extends EntityProvider> List<String> getPrefixesByCapability(Class<T> capability) {
+      ArrayList<String> prefixes = new ArrayList<String>();
+      String capName = capability.getName();
+      for (Entry<String, EntityProvider> entry : prefixMap.entrySet()) {
+         String name = EntityProviderManagerImpl.getCapabilityName(entry.getKey());
+         if (capName.equals(name)) {
+            prefixes.add( EntityProviderManagerImpl.getPrefix(entry.getKey()) );
+         }
+      }
+      Collections.sort(prefixes);
+      return prefixes;
+   }
+
    /*
     * (non-Javadoc)
     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#registerEntityProvider(org.sakaiproject.entitybroker.entityprovider.EntityProvider)

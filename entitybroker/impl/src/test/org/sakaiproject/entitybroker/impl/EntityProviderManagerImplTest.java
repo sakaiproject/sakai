@@ -237,6 +237,34 @@ public class EntityProviderManagerImplTest extends TestCase {
       assertEquals(0, providers.size());
    }
 
+   public void testGetPrefixesByCapability() {
+      List<String> prefixes = null;
+
+      prefixes = entityProviderManager.getPrefixesByCapability(CRUDable.class);
+      assertNotNull(prefixes);
+      assertTrue(prefixes.size() >= 4);
+      assertTrue(prefixes.contains(TestData.PREFIX6));
+      assertTrue(prefixes.contains(TestData.PREFIX7));
+      assertTrue(prefixes.contains(TestData.PREFIX8));
+      assertFalse(prefixes.contains(TestData.PREFIX1));
+      assertFalse(prefixes.contains(TestData.PREFIX2));
+      assertFalse(prefixes.contains(TestData.PREFIX3));
+
+      prefixes = entityProviderManager.getPrefixesByCapability(ActionsExecutable.class);
+      assertNotNull(prefixes);
+      assertTrue(prefixes.size() >= 3);
+      assertTrue(prefixes.contains(TestData.PREFIXA1));
+      assertTrue(prefixes.contains(TestData.PREFIXA2));
+      assertTrue(prefixes.contains(TestData.PREFIXA3));
+      assertFalse(prefixes.contains(TestData.PREFIX1));
+      assertFalse(prefixes.contains(TestData.PREFIX2));
+      assertFalse(prefixes.contains(TestData.PREFIX3));
+
+      prefixes = entityProviderManager.getPrefixesByCapability(EntityViewUrlCustomizable.class);
+      assertNotNull(prefixes);
+      assertEquals(0, prefixes.size());
+   }
+
    /**
     * Test method for
     * {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#registerEntityProvider(org.sakaiproject.entitybroker.entityprovider.EntityProvider)}.

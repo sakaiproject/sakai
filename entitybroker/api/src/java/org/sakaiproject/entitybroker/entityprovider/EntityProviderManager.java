@@ -80,6 +80,9 @@ public interface EntityProviderManager {
    public <T extends EntityProvider> T getProviderByPrefixAndCapability(String prefix, Class<T> capability);
 
    /**
+    * Get all the entity providers which support a specific capability,
+    * this useful if you need to get the providers and call the capability methods on them directly
+    * 
     * @param <T> a class which extends {@link EntityProvider}
     * @param capability
     *           any entity provider capability class (these classes extend {@link EntityProvider} or
@@ -87,6 +90,17 @@ public interface EntityProviderManager {
     * @return the list of providers which implement the given capapbility, may be an empty list
     */
    public <T extends EntityProvider> List<T> getProvidersByCapability(Class<T> capability);
+
+   /**
+    * Gets the prefixes which support a specific capability
+    * 
+    * @param <T> a class which extends {@link EntityProvider}
+    * @param capability
+    *           any entity provider capability class (these classes extend {@link EntityProvider} or
+    *           {@link CoreEntityProvider} or another capability)
+    * @return the list of entity prefixes which support this capability, may be an empty list
+    */
+   public <T extends EntityProvider> List<String> getPrefixesByCapability(Class<T> capability);
 
    /**
     * Get all the capabilities for a given entity prefix,
