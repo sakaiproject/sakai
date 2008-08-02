@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
 /**
  * This simple defines the methods correctly which are shared between a set of interfaces, see
@@ -69,7 +70,8 @@ public interface PropertiesProvider {
    /**
     * Allows searching for entities by property values, at least one of the params (prefix, name,
     * searchValue) must be set in order to do a search, (searches which return all references to all
-    * entities with properties are not allowed) <br/> <b>WARNING:</b> this search is very fast but
+    * entities with properties are not allowed) <br/> 
+    * <b>WARNING:</b> this search is very fast but
     * will not actually limit by properties that should have been placed on the entity itself or
     * return the entity itself and is not a substitute for an API which allows searches of your
     * entities
@@ -87,7 +89,7 @@ public interface PropertiesProvider {
     *           if true then only match property values exactly, otherwise use a "like" search
     * @return a list of entity references for all entities matching the search
     */
-   public List<String> findEntityRefs(String[] prefixes, String[] name, String[] searchValue,
-         boolean exactMatch);
+   public List<String> findEntityRefs(String[] prefixes, String[] name, String[] searchValue, boolean exactMatch);
+   //public List<String> findEntityRefs(String[] prefixes, Search search);
 
 }

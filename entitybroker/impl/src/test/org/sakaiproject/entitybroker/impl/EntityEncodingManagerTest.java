@@ -65,7 +65,7 @@ public class EntityEncodingManagerTest extends TestCase {
       output = new ByteArrayOutputStream();
       view = entityBrokerManager.parseEntityURL(TestData.REF4 + "." + Formats.XML);
       assertNotNull(view);
-      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -75,7 +75,7 @@ public class EntityEncodingManagerTest extends TestCase {
 
       // test null view
       output = new ByteArrayOutputStream();
-      entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.REF4), Formats.XML, null, output, null);
+      entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.REF4), Formats.XML, null, output, null, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -88,7 +88,7 @@ public class EntityEncodingManagerTest extends TestCase {
       testEntities.add(TestData.entity4);
       testEntities.add(TestData.entity4_two);
       output = new ByteArrayOutputStream();
-      entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.PREFIX4, ""), Formats.XML, testEntities, output, null);
+      entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.PREFIX4, ""), Formats.XML, testEntities, output, null, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -102,7 +102,7 @@ public class EntityEncodingManagerTest extends TestCase {
       testEntities.clear();
       testEntities.add(TestData.entity4_3);
       output = new ByteArrayOutputStream();
-      entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.REF4_3), Formats.XML, testEntities, output, null);
+      entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.REF4_3), Formats.XML, testEntities, output, null, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -115,7 +115,7 @@ public class EntityEncodingManagerTest extends TestCase {
       output = new ByteArrayOutputStream();
       view = entityBrokerManager.parseEntityURL(TestData.REF4 + "." + Formats.JSON);
       assertNotNull(view);
-      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -127,7 +127,7 @@ public class EntityEncodingManagerTest extends TestCase {
       output = new ByteArrayOutputStream();
       view = entityBrokerManager.parseEntityURL(TestData.REF4 + "." + Formats.HTML);
       assertNotNull(view);
-      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -140,7 +140,7 @@ public class EntityEncodingManagerTest extends TestCase {
       view = entityBrokerManager.parseEntityURL(TestData.REF1 + "." + Formats.JSON);
       assertNotNull(view);
       try {
-         entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+         entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view, null);
          fail("Should have thrown exception");
       } catch (EntityException e) {
          assertNotNull(e.getMessage());
@@ -152,7 +152,7 @@ public class EntityEncodingManagerTest extends TestCase {
       view = entityBrokerManager.parseEntityURL(TestData.REF1); // blank
       assertNotNull(view);
       try {
-         entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+         entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view, null);
          fail("Should have thrown exception");
       } catch (EntityException e) {
          assertNotNull(e.getMessage());
@@ -164,7 +164,7 @@ public class EntityEncodingManagerTest extends TestCase {
       output = new ByteArrayOutputStream();
       view = entityBrokerManager.parseEntityURL(TestData.SPACE4 + "." + Formats.XML);
       assertNotNull(view);
-      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -178,7 +178,7 @@ public class EntityEncodingManagerTest extends TestCase {
       output = new ByteArrayOutputStream();
       view = entityBrokerManager.parseEntityURL(TestData.SPACE4 + "." + Formats.JSON);
       assertNotNull(view);
-      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -190,7 +190,7 @@ public class EntityEncodingManagerTest extends TestCase {
 
       // test for invalid refs
       try {
-         entityEncodingManager.internalOutputFormatter( new EntityReference("/fakey/fake"), null, null, output, null);
+         entityEncodingManager.internalOutputFormatter( new EntityReference("/fakey/fake"), null, null, output, null, null);
          fail("Should have thrown exception");
       } catch (EntityException e) {
          assertNotNull(e.getMessage());

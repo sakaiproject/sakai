@@ -195,10 +195,11 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * this is a list of entities
     * @param output the output stream to place the formatted data in,
     * should be UTF-8 encoded if there is char data
+    * @param params (optional) set of parameters which may be used to control this request, may be left null if not needed
     * @throws IllegalArgumentException if the entity does not support output formatting or any arguments are invalid
     * @throws EncodingException is there is failure encoding the output
     */
-   public void formatAndOutputEntity(String reference, String format, List<?> entities, OutputStream output);
+   public void formatAndOutputEntity(String reference, String format, List<?> entities, OutputStream output, Map<String, Object> params);
 
    /**
     * Translates the input data stream in the supplied format into an entity object for this reference
@@ -209,11 +210,12 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * of the input, (example: {@link #XML})
     * @param input a stream which contains the data to make up this entity,
     * you may assume this is UTF-8 encoded if you don't know anything else about it
+    * @param params (optional) set of parameters which may be used to control this request, may be left null if not needed
     * @return an entity object of the type used for the given reference
     * @throws IllegalArgumentException if the entity does not support input translation or any arguments are invalid
     * @throws EncodingException is there is failure encoding the input
     */
-   public Object translateInputToEntity(String reference, String format, InputStream input);
+   public Object translateInputToEntity(String reference, String format, InputStream input, Map<String, Object> params);
 
    /**
     * This will execute a custom action for an entity or space/collection of entities<br/>

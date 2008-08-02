@@ -14,6 +14,8 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
+import java.util.Map;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 
@@ -35,10 +37,11 @@ public interface Updateable extends Resolvable {
     * 
     * @param ref the parsed reference object which uniquely represents this entity
     * @param entity an entity object
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @throws IllegalArgumentException if the entity could not be updated because of missing or invalid data or could not find entity to update
     * @throws SecurityException if permissions prevented this entity from being updated
     * @throws IllegalStateException for all other failures
     */
-   public void updateEntity(EntityReference ref, Object entity);
+   public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params);
 
 }

@@ -15,6 +15,7 @@
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 
@@ -38,12 +39,15 @@ public interface Importable extends Exportable {
     *           should be associated with (e.g. a reference to a site object or user)
     * @param data
     *           a stream of data from the archiver/importer, this should match a previous export
-    *           stream exactly
+    *           stream exactly (or at least very closely in order for the importer to be able to understad it)
     * @param encodingKey
     *           a string representing the encoding used and possibly other info like a version, this
     *           should be the string sent with the export
-    * @return true if any data was imported, false if none was imported or an error occurred
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
+    * @return the array of all entity references which were created from the import OR empty if none created
+    * @throws IllegalArgumentException if any arguments are invalid or missing
+    * @throws IllegalStateException if a failure occurs with the import (message should be as descriptive as possible)
     */
-   public boolean importData(String reference, InputStream data, String encodingKey);
+   public String[] importData(String reference, InputStream data, String encodingKey, Map<String, Object> params);
 
 }

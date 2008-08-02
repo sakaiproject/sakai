@@ -15,8 +15,10 @@
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
 import java.io.OutputStream;
+import java.util.Map;
 
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
 /**
  * Indicates an entity provider has the capability of exporting entity data which is related to
@@ -30,17 +32,21 @@ public interface Exportable extends EntityProvider {
 
    /**
     * Request an export stream of data from an entity provider for all data related to a specific
-    * entity (this will probably not be an entity in this provider)
+    * entity (this will probably not be an entity in this provider), search, and params<br/>
+    * This is primarily to support the use case
     * 
     * @param reference
     *           a globally unique reference to an entity, this is the entity that the exported data
     *           should be associated with (e.g. a reference to a site object or user)
-    * @param data
-    *           a stream to put the export data into which will be saved by the archiver/exporter
-    * @return a string representing the encoding used and possibly other info like a version, this
+    * @param search (optional) a search which should be used to limit the data which is exported, may be null
+    * @param data a stream to put the export data into which will be saved by the archiver/exporter
+    * @param destructive if false then the data being exported is not changed, 
+    * if true then the data should be deleted or hidden (depending on the internal operation of the entity) 
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
+    * @return a string key representing the encoding used and possibly other info like a version, this
     *         allows the export to provide tips to the import when data is streamed back in, if
     *         there is no data to export then a null will be returned
     */
-   public String exportData(String reference, OutputStream data);
+   public String exportData(String reference, Search search, OutputStream data, boolean destructive, Map<String, Object> params);
 
 }

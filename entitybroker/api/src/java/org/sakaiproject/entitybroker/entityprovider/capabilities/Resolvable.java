@@ -32,7 +32,7 @@ public interface Resolvable extends EntityProvider {
     * also used to determine the class type of these entities by requesting
     * an entity without specifying an id (id = null)<br/> 
     * <b>WARNING:</b> this method should not return null, throw the
-    * appropriate exception if the entity object cannot be created
+    * appropriate exception if the entity data cannot be found
     * <b>Note:</b> The entity class type needs to be able to be resolved from the ClassLoader of the 
     * EntityBrokerManager (currently this means deployed into shared)<br/> 
     * <br/>The entity object does not have to be a model object itself and may simply

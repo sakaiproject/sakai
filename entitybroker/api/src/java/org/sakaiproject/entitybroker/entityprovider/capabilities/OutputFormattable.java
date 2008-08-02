@@ -16,6 +16,7 @@ package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -45,9 +46,10 @@ public interface OutputFormattable extends Outputable {
     * then the entity should be extracted from the list and encoded without the indication
     * that it is a collection, for all other cases the encoding should include an indication that
     * this is a list of entities
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @param output the output stream to place the formatted data in,
     * should be UTF-8 encoded if there is char data
     */
-   public void formatOutput(EntityReference ref, String format, List<?> entities, OutputStream output);
+   public void formatOutput(EntityReference ref, String format, List<?> entities, Map<String, Object> params, OutputStream output);
 
 }

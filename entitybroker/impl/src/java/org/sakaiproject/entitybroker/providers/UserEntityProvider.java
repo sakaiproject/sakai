@@ -17,6 +17,7 @@ package org.sakaiproject.entitybroker.providers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -73,7 +74,7 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, Describe
       return false;
    }
 
-   public String createEntity(EntityReference ref, Object entity) {
+   public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
       String userId = null;
       if (ref.getId() != null && ref.getId().length() > 0) {
          userId = ref.getId();
@@ -134,7 +135,7 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, Describe
       return new EntityUser();
    }
 
-   public void updateEntity(EntityReference ref, Object entity) {
+   public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
       String userId = ref.getId();
       if (userId == null || "".equals(userId)) {
          throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
@@ -185,7 +186,7 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, Describe
       }
    }
 
-   public void deleteEntity(EntityReference ref) {
+   public void deleteEntity(EntityReference ref, Map<String, Object> params) {
       String userId = ref.getId();
       if (userId == null || "".equals(userId)) {
          throw new IllegalArgumentException("Cannot delete, No userId in provided reference: " + ref);
@@ -235,7 +236,7 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, Describe
    }
 
    @SuppressWarnings("unchecked")
-   public List<?> getEntities(EntityReference ref, Search search) {
+   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
       Collection<User> users = new ArrayList<User>();
       if (developerHelperService.isEntityRequestInternal(ref.toString())) {
          // internal lookups are allowed to get everything

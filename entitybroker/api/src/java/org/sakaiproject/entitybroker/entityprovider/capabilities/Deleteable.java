@@ -14,6 +14,8 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
+import java.util.Map;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 
@@ -31,9 +33,10 @@ public interface Deleteable extends EntityProvider {
     * if the entity cannot be found then nothing happens
     * 
     * @param ref the parsed reference object which uniquely represents this entity
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @throws SecurityException if permissions prevented this entity from being created
     * @throws IllegalStateException for all other failures
     */
-   public void deleteEntity(EntityReference ref);
+   public void deleteEntity(EntityReference ref, Map<String, Object> params);
 
 }

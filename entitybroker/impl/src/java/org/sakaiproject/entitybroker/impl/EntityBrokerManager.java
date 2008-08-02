@@ -17,6 +17,7 @@ package org.sakaiproject.entitybroker.impl;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -244,13 +245,13 @@ public class EntityBrokerManager {
     * @return the list of entities if they can be retrieved or null these entities cannot be resolved
     */
    @SuppressWarnings("unchecked")
-   protected List<?> fetchEntityList(EntityReference ref, Search search) {
+   protected List<?> fetchEntityList(EntityReference ref, Search search, Map<String, Object> params) {
       List entities = null;
       if (ref.getId() == null) {
          // encoding a collection of entities
          EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), CollectionResolvable.class);
          if (provider != null) {
-            entities = new ArrayList( ((CollectionResolvable)provider).getEntities(ref, search) );
+            entities = new ArrayList( ((CollectionResolvable)provider).getEntities(ref, search, params) );
          }
       } else {
          // encoding a single entity

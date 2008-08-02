@@ -14,6 +14,8 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
+import java.util.Map;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 
@@ -32,12 +34,13 @@ public interface Createable extends EntityProvider {
     * 
     * @param ref the parsed reference object which uniquely represents this entity
     * @param entity an entity object
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @return the locally unique id of the new object
     * @throws IllegalArgumentException if the entity could not be created because of missing or invalid data
     * @throws SecurityException if permissions prevented this entity from being created
     * @throws IllegalStateException for all other failures
     */
-   public String createEntity(EntityReference ref, Object entity);
+   public String createEntity(EntityReference ref, Object entity, Map<String, Object> params);
 
    /**
     * Provides a sample entity object which can be populated with data and then passed to 

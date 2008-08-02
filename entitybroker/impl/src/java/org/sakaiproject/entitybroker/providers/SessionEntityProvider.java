@@ -16,6 +16,7 @@ package org.sakaiproject.entitybroker.providers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -106,7 +107,24 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
       return false;
    }
 
-   public String createEntity(EntityReference ref, Object entity) {
+   public Object getSampleEntity() {
+      return new EntitySession();
+   }
+
+   public Object getEntity(EntityReference ref) {
+      if (ref.getId() == null) {
+         return new EntitySession();
+      }
+      String sessionId = ref.getId();
+      Session s = sessionManager.getSession(sessionId);
+      if (s == null) {
+         throw new IllegalArgumentException("Cannot find session with id: " + sessionId);
+      }
+      EntitySession es = new EntitySession(s);
+      return es;
+   }
+
+   public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
       EntitySession es = (EntitySession) entity;
       String newSessionId = null;
       Session currentSession = null;
@@ -161,11 +179,8 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
       return newSessionId;
    }
 
-   public Object getSampleEntity() {
-      return new EntitySession();
-   }
 
-   public void updateEntity(EntityReference ref, Object entity) {
+   public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
       String sessionId = ref.getId();
       if (sessionId == null) {
          throw new IllegalArgumentException("Cannot update session, No sessionId in provided reference: " + ref);
@@ -179,39 +194,8 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
       s.setActive();
    }
 
-   public Object getEntity(EntityReference ref) {
-      if (ref.getId() == null) {
-         return new EntitySession();
-      }
-      String sessionId = ref.getId();
-      Session s = sessionManager.getSession(sessionId);
-      if (s == null) {
-         throw new IllegalArgumentException("Cannot find session with id: " + sessionId);
-      }
-      EntitySession es = new EntitySession(s);
-      return es;
-   }
 
-   public List<?> getEntities(EntityReference ref, Search search) {
-//      String userReference = developerHelperService.getCurrentUserReference();
-//      String userId = developerHelperService.getUserIdFromRef(userReference);
-//      if (developerHelperService.isUserAdmin(userReference)) {
-//         // get all current usage sessions
-//         List<UsageSession> usageSessions = usageSessionService.getOpenSessions();
-//         for (UsageSession usageSession : usageSessions) {
-//            usageSession.
-//         }
-//      }
-      // just get the current session for now
-      List<EntitySession> sessions = new ArrayList<EntitySession>();
-      Session s = sessionManager.getCurrentSession();
-      if (s != null) {
-         sessions.add( new EntitySession(s) );
-      }
-      return sessions;
-   }
-
-   public void deleteEntity(EntityReference ref) {
+   public void deleteEntity(EntityReference ref, Map<String, Object> params) {
       String sessionId = ref.getId();
       if (sessionId == null) {
          throw new IllegalArgumentException("Cannot update session, No sessionId in provided reference: " + ref);
@@ -223,6 +207,27 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
       checkSessionOwner(s);
       s.invalidate();
    }
+
+
+   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
+//    String userReference = developerHelperService.getCurrentUserReference();
+//    String userId = developerHelperService.getUserIdFromRef(userReference);
+//    if (developerHelperService.isUserAdmin(userReference)) {
+//       // get all current usage sessions
+//       List<UsageSession> usageSessions = usageSessionService.getOpenSessions();
+//       for (UsageSession usageSession : usageSessions) {
+//          usageSession.
+//       }
+//    }
+    // just get the current session for now
+    List<EntitySession> sessions = new ArrayList<EntitySession>();
+    Session s = sessionManager.getCurrentSession();
+    if (s != null) {
+       sessions.add( new EntitySession(s) );
+    }
+    return sessions;
+   }
+
 
    public String[] getHandledInputFormats() {
       return new String[] { Formats.HTML, Formats.XML, Formats.JSON };

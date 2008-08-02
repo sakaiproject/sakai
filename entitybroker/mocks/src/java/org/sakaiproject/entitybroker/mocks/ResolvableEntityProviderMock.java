@@ -6,6 +6,7 @@ package org.sakaiproject.entitybroker.mocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -53,10 +54,7 @@ public class ResolvableEntityProviderMock extends CoreEntityProviderMock impleme
       return new MyEntity(reference.getId(), "something");
    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable#getEntities(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search)
-    */
-   public List<?> getEntities(EntityReference reference, Search search) {
+   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
       List<MyEntity> entities = new ArrayList<MyEntity>();
       if (search.isEmpty()) {
          // return all

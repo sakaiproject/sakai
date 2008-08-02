@@ -97,7 +97,7 @@ public class EntityEncodingManager {
     * @throws IllegalArgumentException if the entity does not support output formatting or any arguments are invalid
     * @throws EncodingException is there is failure encoding the output
     */
-   public void formatAndOutputEntity(String reference, String format, List<?> entities, OutputStream output) {
+   public void formatAndOutputEntity(String reference, String format, List<?> entities, OutputStream output, Map<String, Object> params) {
       if (reference == null || format == null || output == null) {
          throw new IllegalArgumentException("reference, format, and output cannot be null");
       }
@@ -113,10 +113,10 @@ public class EntityEncodingManager {
             OutputFormattable formattable = entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
             if (formattable == null) {
                // handle internally or fail
-               internalOutputFormatter(ref, format, entities, output, null);
+               internalOutputFormatter(ref, format, entities, output, null, params);
             } else {
                // use provider's formatter
-               formattable.formatOutput(ref, format, entities, output);
+               formattable.formatOutput(ref, format, entities, params, output);
             }
          } else {
             throw new IllegalArgumentException("This entity ("+reference+") is not outputable in this format ("+format+")," +
@@ -140,7 +140,7 @@ public class EntityEncodingManager {
     * @throws IllegalArgumentException if the entity does not support input translation or any arguments are invalid
     * @throws EncodingException is there is failure encoding the input
     */
-   public Object translateInputToEntity(String reference, String format, InputStream input) {
+   public Object translateInputToEntity(String reference, String format, InputStream input, Map<String, Object> params) {
       if (reference == null || format == null || input == null) {
          throw new IllegalArgumentException("reference, format, and input cannot be null");
       }
@@ -160,7 +160,7 @@ public class EntityEncodingManager {
                entity = internalInputTranslator(ref, format, input, null);
             } else {
                // use provider's formatter
-               entity = translatable.translateFormattedData(ref, format, input);
+               entity = translatable.translateFormattedData(ref, format, input, params);
             }
          } else {
             throw new IllegalArgumentException("This entity ("+reference+") is not inputable in this format ("+format+")," +
@@ -266,7 +266,7 @@ public class EntityEncodingManager {
     * @param output the outputstream to place the encoded data into
     * @param view (optional) 
     */
-   public void internalOutputFormatter(EntityReference ref, String format, List<?> entities, OutputStream output, EntityView view) {
+   public void internalOutputFormatter(EntityReference ref, String format, List<?> entities, OutputStream output, EntityView view, Map<String, Object> params) {
       if (format == null) { format = Outputable.HTML; }
       if (view == null) {
          view = entityBrokerManager.makeEntityView(ref, null, null);
@@ -276,7 +276,7 @@ public class EntityEncodingManager {
 
       // get the entities if not supplied
       if (entities == null) {
-         entities = entityBrokerManager.fetchEntityList(ref, new Search());
+         entities = entityBrokerManager.fetchEntityList(ref, new Search(), params);
       }
       if (entities.isEmpty()) {
          // just log this for now

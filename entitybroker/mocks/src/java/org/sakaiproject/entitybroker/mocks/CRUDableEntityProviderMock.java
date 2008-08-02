@@ -63,7 +63,7 @@ public class CRUDableEntityProviderMock extends EntityProviderMock implements Co
       throw new IllegalArgumentException("Invalid id:" + reference.getId());
    }
 
-   public List<?> getEntities(EntityReference reference, Search search) {
+   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
       List<MyEntity> entities = new ArrayList<MyEntity>();
       if (search.isEmpty()) {
          // return all
@@ -85,10 +85,18 @@ public class CRUDableEntityProviderMock extends EntityProviderMock implements Co
    }
 
    /**
+    * Returns {@link MyEntity} objects with no id, default number to 10
+    * {@inheritDoc}
+    */
+   public Object getSampleEntity() {
+      return new MyEntity(null, 10);
+   }
+
+   /**
     * Expects {@link MyEntity} objects
     * {@inheritDoc}
     */
-   public String createEntity(EntityReference reference, Object entity) {
+   public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
       MyEntity me = (MyEntity) entity;
       if (me.getStuff() == null) {
          throw new IllegalArgumentException("stuff is not set, it is required");
@@ -107,23 +115,15 @@ public class CRUDableEntityProviderMock extends EntityProviderMock implements Co
    }
 
    /**
-    * Returns {@link MyEntity} objects with no id, default number to 10
-    * {@inheritDoc}
-    */
-   public Object getSampleEntity() {
-      return new MyEntity(null, 10);
-   }
-
-   /**
     * Expects {@link MyEntity} objects
     * {@inheritDoc}
     */
-   public void updateEntity(EntityReference reference, Object entity) {
+   public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
       MyEntity me = (MyEntity) entity;
       if (me.getStuff() == null) {
          throw new IllegalArgumentException("stuff is not set, it is required");
       }
-      MyEntity current = myEntities.get(reference.getId());
+      MyEntity current = myEntities.get(ref.getId());
       if (current == null) {
          throw new IllegalArgumentException("Invalid update, cannot find entity");
       }
@@ -133,9 +133,9 @@ public class CRUDableEntityProviderMock extends EntityProviderMock implements Co
       current.extra = me.extra;
    }
 
-   public void deleteEntity(EntityReference reference) {
-      if (myEntities.remove(reference.getId()) == null) {
-         throw new IllegalArgumentException("Invalid entity id, cannot find entity to remove: " + reference.toString());
+   public void deleteEntity(EntityReference ref, Map<String, Object> params) {
+      if (myEntities.remove(ref.getId()) == null) {
+         throw new IllegalArgumentException("Invalid entity id, cannot find entity to remove: " + ref);
       }
    }
 

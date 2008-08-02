@@ -15,6 +15,7 @@
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -42,8 +43,9 @@ public interface CollectionResolvable extends EntityProvider {
     * only the prefix will be used from this reference (since that identifies the space and collection)
     * @param search a search object which can define the order to return entities,
     * search filters, and total number of entities returned
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @return a list of entity objects of the type handled by this provider based on the search or empty if none found
     */
-   public List<?> getEntities(EntityReference ref, Search search);
+   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params);
 
 }

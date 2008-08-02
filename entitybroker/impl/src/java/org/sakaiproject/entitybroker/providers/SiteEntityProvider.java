@@ -16,6 +16,7 @@ package org.sakaiproject.entitybroker.providers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -72,7 +73,7 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, AutoRegi
       return false;
    }
    
-   public String createEntity(EntityReference ref, Object entity) {
+   public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
       String siteId = null;
       if (ref.getId() != null && ref.getId().length() > 0) {
          siteId = ref.getId();
@@ -153,7 +154,7 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, AutoRegi
       return new EntitySite();
    }
 
-   public void updateEntity(EntityReference ref, Object entity) {
+   public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
       String siteId = ref.getId();
       if (siteId == null) {
          throw new IllegalArgumentException("Cannot update, No siteId in provided reference: " + ref);
@@ -238,7 +239,7 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, AutoRegi
       return es;
    }
 
-   public void deleteEntity(EntityReference ref) {
+   public void deleteEntity(EntityReference ref, Map<String, Object> params) {
       String siteId = ref.getId();
       if (siteId == null || "".equals(siteId)) {
          throw new IllegalArgumentException("Cannot delete site, No siteId in provided reference: " + ref);
@@ -254,7 +255,7 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, AutoRegi
    }
 
    @SuppressWarnings("unchecked")
-   public List<?> getEntities(EntityReference ref, Search search) {
+   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
       String criteria = null;
       String selectType = "access";
       Restriction select = search.getRestrictionByProperty("select");

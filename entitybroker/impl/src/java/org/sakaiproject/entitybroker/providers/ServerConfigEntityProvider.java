@@ -101,7 +101,7 @@ public class ServerConfigEntityProvider implements CoreEntityProvider, Outputabl
       return esc;
    }
 
-   public List<?> getEntities(EntityReference ref, Search search) {
+   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
       List<EntityServerConfig> escs = new ArrayList<EntityServerConfig>();
       if (search != null 
             && ! search.isEmpty() 

@@ -228,12 +228,15 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       return entity;
    }
 
-   public void formatAndOutputEntity(String reference, String format, List<?> entities, OutputStream output) {
-      entityEncodingManager.formatAndOutputEntity(reference, format, entities, output);
+
+   public void formatAndOutputEntity(String reference, String format, List<?> entities,
+         OutputStream output, Map<String, Object> params) {
+      entityEncodingManager.formatAndOutputEntity(reference, format, entities, output, params);
    }
 
-   public Object translateInputToEntity(String reference, String format, InputStream input) {
-      Object entity = entityEncodingManager.translateInputToEntity(reference, format, input);
+   public Object translateInputToEntity(String reference, String format, InputStream input,
+         Map<String, Object> params) {
+      Object entity = entityEncodingManager.translateInputToEntity(reference, format, input, params);
       return entity;
    }
 

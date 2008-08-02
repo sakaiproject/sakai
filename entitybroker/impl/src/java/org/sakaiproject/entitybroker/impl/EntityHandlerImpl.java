@@ -361,7 +361,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                  } else {
                                     // get from a search
                                     Search search = RequestUtils.makeSearchFromRequest(req);
-                                    entities = entityBrokerManager.fetchEntityList(view.getEntityReference(), search);
+                                    entities = entityBrokerManager.fetchEntityList(view.getEntityReference(), search, null);
                                  }
                                  OutputStream outputStream = null;
                                  try {
@@ -373,10 +373,10 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                  OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
                                  if (formattable == null) {
                                     // handle internally or fail
-                                    entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view);
+                                    entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view, null);
                                  } else {
                                     // use provider's formatter
-                                    formattable.formatOutput(view.getEntityReference(), view.getExtension(), entities, outputStream);
+                                    formattable.formatOutput(view.getEntityReference(), view.getExtension(), entities, null, outputStream);
                                  }
                                  res.setStatus(HttpServletResponse.SC_OK);
                                  handled = true;
@@ -393,7 +393,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                               // delete request
                               Deleteable deleteable = (Deleteable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Deleteable.class);
                               if (deleteable != null) {
-                                 deleteable.deleteEntity(view.getEntityReference());
+                                 deleteable.deleteEntity(view.getEntityReference(), null);
                                  res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                                  handled = true;
                               }
@@ -419,7 +419,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                     } else {
                                        // use provider's translator
                                        entity = translatable.translateFormattedData(view.getEntityReference(), 
-                                             view.getExtension(), inputStream);
+                                             view.getExtension(), inputStream, null);
                                     }
    
                                     if (entity == null) {
@@ -427,12 +427,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                              view.toString(), HttpServletResponse.SC_BAD_REQUEST);
                                     } else {
                                        if (EntityView.VIEW_NEW.equals(view.getViewKey())) {
-                                          String createdId = inputable.createEntity(view.getEntityReference(), entity);
+                                          String createdId = inputable.createEntity(view.getEntityReference(), entity, null);
                                           view.setEntityReference( new EntityReference(prefix, createdId) ); // update the entity view
                                           res.setHeader(EntityRequestHandler.HEADER_ENTITY_ID, createdId);
                                           res.setStatus(HttpServletResponse.SC_CREATED);
                                        } else if (EntityView.VIEW_EDIT.equals(view.getViewKey())) {
-                                          inputable.updateEntity(view.getEntityReference(), entity);
+                                          inputable.updateEntity(view.getEntityReference(), entity, null);
                                           res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                                        } else {
                                           throw new EntityException("Unable to handle entity input ("+view.getEntityReference()+"), " +
@@ -539,7 +539,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             List<Object> entities = new ArrayList<Object>();
             entities.add(entity);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            entityEncodingManager.formatAndOutputEntity(reference, format, entities, output);
+            entityEncodingManager.formatAndOutputEntity(reference, format, entities, output, null);
             data = new ByteArrayInputStream(output.toByteArray());
          }
       }

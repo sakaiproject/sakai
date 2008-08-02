@@ -15,6 +15,7 @@
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -37,8 +38,9 @@ public interface InputTranslatable extends Inputable {
     * of the input, (example: {@link #XML})
     * @param input an stream which contains the data to make up this entity,
     * you may assume this is UTF-8 encoded if you don't know anything else about it
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @return an entity object of the type used for these entities
     */
-   public Object translateFormattedData(EntityReference ref, String format, InputStream input);
+   public Object translateFormattedData(EntityReference ref, String format, InputStream input, Map<String, Object> params);
 
 }

@@ -373,7 +373,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       // XML test valid resolveable entity
       reference = TestData.REF4;
       output = new ByteArrayOutputStream();
-      entityBroker.formatAndOutputEntity(reference, format, null, output);
+      entityBroker.formatAndOutputEntity(reference, format, null, output, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -387,7 +387,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       testEntities.add(TestData.entity4_two);
       reference = TestData.SPACE4;
       output = new ByteArrayOutputStream();
-      entityBroker.formatAndOutputEntity(reference, format, testEntities, output);
+      entityBroker.formatAndOutputEntity(reference, format, testEntities, output, null);
       fo = output.toString();
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
@@ -420,7 +420,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       String reference = TestData.SPACE6;
       String format = Formats.XML;
       input = new ByteArrayInputStream( makeUTF8Bytes("<"+TestData.PREFIX6+"><stuff>TEST</stuff><number>5</number></"+TestData.PREFIX6+">") );
-      me = (MyEntity) entityBroker.translateInputToEntity(reference, format, input);
+      me = (MyEntity) entityBroker.translateInputToEntity(reference, format, input, null);
       assertNotNull(me);
       assertNull(me.getId());
       assertEquals("TEST", me.getStuff());
@@ -429,7 +429,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       // test modifying an entity
       reference = TestData.REF6_2;
       input = new ByteArrayInputStream( makeUTF8Bytes("<"+TestData.PREFIX6+"><id>"+TestData.IDS6[1]+"</id><stuff>TEST-PUT</stuff><number>8</number></"+TestData.PREFIX6+">") );
-      me = (MyEntity) entityBroker.translateInputToEntity(reference, format, input);
+      me = (MyEntity) entityBroker.translateInputToEntity(reference, format, input, null);
       assertNotNull(me);
       assertNotNull(me.getId());
       assertEquals(TestData.IDS6[1], me.getId());
