@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.ProcessedTemplate;
@@ -43,7 +44,7 @@ public class EntityView {
    /**
     * Represents HTTP methods (GET, POST, etc.)
     */
-   public static enum Method { POST, GET, PUT, DELETE }
+   public static enum Method { POST, GET, PUT, DELETE, HEAD }
 
    /**
     * Defines the view for the "list" (index) or collection operation,
@@ -113,6 +114,31 @@ public class EntityView {
    public void setExtension(String extension) {
       this.extension = extension;
    }
+   /**
+    * @return the format (from {@link Formats}) that is being used for this view,
+    * will return {@link Formats#HTML} if none set
+    */
+   public String getFormat() {
+      String format = extension;
+      if (format == null) {
+         format = Formats.HTML;
+      }
+      return format;
+   }
+
+   private Method method = Method.GET;
+   /**
+    * @return the method (GET, POST, etc.) (from {@link Method}) being used for this view,
+    * defaults to GET if none was set explicitly
+    */
+   public String getMethod() {
+      return method.name();
+   }
+   public void setMethod(Method method) {
+      if (method != null) {
+         this.method = method;
+      }
+   }
 
    private String viewKey;
    /**
@@ -141,14 +167,20 @@ public class EntityView {
       if (ref == null) {
          throw new IllegalArgumentException("ref cannot be null");
       }
-      Map<String, String> segments = new HashMap<String, String>();
-      segments.put(PREFIX, ref.getPrefix());
-      String viewKey = VIEW_LIST;
-      if (ref.getId() != null) {
-         segments.put(ID, ref.getId());
-         viewKey = VIEW_SHOW;
+      if (this.pathSegments == null) {
+         this.pathSegments = new HashMap<String, String>();
       }
-      populateInternals(viewKey, segments, getExtension());
+      this.pathSegments.put(PREFIX, ref.getPrefix());
+      if (ref.getId() != null) {
+         this.pathSegments.put(ID, ref.getId());
+      }
+      if (this.viewKey == null) {
+         String viewKey = VIEW_LIST;
+         if (ref.getId() != null) {
+            viewKey = VIEW_SHOW;
+         }
+         setViewKey(viewKey);
+      }
       this.entityReference = ref;
       return this;
    }
@@ -227,11 +259,22 @@ public class EntityView {
     */
    public EntityView(EntityReference ref, String viewKey, String extension) {
       setEntityReference(ref);
+      this.pathSegments = new HashMap<String, String>();
+      this.pathSegments.put(PREFIX, ref.getPrefix());
       if (viewKey == null) {
          if (this.entityReference.getId() == null) {
             viewKey = VIEW_LIST;
          } else {
+            this.pathSegments.put(ID, ref.getId());
             viewKey = VIEW_SHOW;
+         }
+      } else {
+         if (VIEW_DELETE.equals(viewKey)) {
+            setMethod(Method.DELETE);
+         } else if (VIEW_EDIT.equals(viewKey)) {
+            setMethod(Method.PUT);
+         } else if (VIEW_NEW.equals(viewKey)) {
+            setMethod(Method.POST);
          }
       }
       setViewKey(viewKey);
@@ -242,7 +285,16 @@ public class EntityView {
     * Populates the internal values based on the view key, map of segments, and extension
     */
    protected void populateInternals(String viewKey, Map<String, String> segments, String extension) {
-      this.viewKey = viewKey;
+      setViewKey(viewKey);
+      if (VIEW_DELETE.equals(viewKey)) {
+         setMethod(Method.DELETE);
+      } else if (VIEW_EDIT.equals(viewKey)) {
+         setMethod(Method.PUT);
+      } else if (VIEW_NEW.equals(viewKey)) {
+         setMethod(Method.POST);
+      } else {
+         setMethod(Method.GET);
+      }
       this.extension = extension;
       this.pathSegments = new HashMap<String, String>();
       this.pathSegments.putAll(segments);
@@ -353,19 +405,8 @@ public class EntityView {
     */
    @Override
    public String toString() {
-      // correctly set the viewKey if none is set
-      if (this.viewKey == null) {
-         if (this.entityReference == null) {
-            throw new IllegalArgumentException("There is no entity reference information in this view, ref is null");
-         }
-         if (this.entityReference.getId() == null) {
-            this.viewKey = VIEW_LIST;
-         } else {
-            this.viewKey = VIEW_SHOW;
-         }
-      }
-      String ref = getEntityURL(this.viewKey, this.extension);
-      return ref;
+      String URL = getEntityURL(this.viewKey, this.extension);
+      return URL;
    }
 
    /**
@@ -387,10 +428,26 @@ public class EntityView {
     * @param extension an optional extension related to this view (e.g. xml), 
     * do not include the period, leave this null for no extension
     * @return the entityUrl which goes to this view
-    * @throws IllegalArgumentException if there is not enough information 
+    * @throws IllegalArgumentException if the viewKey is invalid OR there is not enough information 
     * in the path segments to generate the requested URL
     */
    public String getEntityURL(String viewKey, String extension) {
+      TemplateParseUtil.validateTemplateKey(viewKey);
+      // correctly set the viewKey if none is set
+      if (viewKey == null) {
+         if (entityReference == null || pathSegments == null || pathSegments.isEmpty()) {
+            throw new IllegalArgumentException("There is no entity reference information or path segments in this view to process into a URL");
+         }
+         if (entityReference.getId() == null || pathSegments.size() == 1) {
+            viewKey = VIEW_LIST;
+         } else {
+            viewKey = VIEW_SHOW;
+         }
+      } else {
+         if (entityReference.getId() == null || pathSegments.size() == 1) {
+            viewKey = VIEW_LIST;
+         }
+      }
       String template = getParseTemplate(viewKey);
       if (template == null) {
          throw new IllegalStateException("parseTemplates contains no template for key: " + viewKey);

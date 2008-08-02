@@ -98,13 +98,19 @@ public class RequestUtils {
       boolean output = false;
       String method = req.getMethod() == null ? EntityView.Method.GET.name() : req.getMethod().toUpperCase().trim();
       if (EntityView.Method.GET.name().equals(method)) {
+         view.setMethod(EntityView.Method.GET);
+         output = true;
+      } else if (EntityView.Method.HEAD.name().equals(method)) {
+         view.setMethod(EntityView.Method.HEAD);
          output = true;
       } else {
          // identify the action based on the method type or "_method" attribute
          if (EntityView.Method.DELETE.name().equals(method)) {
             view.setViewKey(EntityView.VIEW_DELETE);
+            view.setMethod(EntityView.Method.DELETE);
          } else if (EntityView.Method.PUT.name().equals(method)) {
             view.setViewKey(EntityView.VIEW_EDIT);
+            view.setMethod(EntityView.Method.PUT);
          } else if (EntityView.Method.POST.name().equals(method)) {
             String _method = req.getParameter(EntityRequestHandler.COMPENSATE_METHOD);
             if (_method == null) {
@@ -132,6 +138,7 @@ public class RequestUtils {
                         view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);                        
                }
             }
+            view.setMethod(EntityView.Method.POST);
          } else {
             throw new EntityException("Unable to handle request method, unknown method (only GET/POST/PUT/DELETE allowed): " + method, 
                   view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);

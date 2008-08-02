@@ -248,12 +248,7 @@ public class EntityViewTest extends TestCase {
       assertNotNull(ev);
       assertEquals(URL3, ev.getEntityURL(TemplateParseUtil.TEMPLATE_LIST, EXTENSION3));
       assertEquals("/" + PREFIX3, ev.getEntityURL(TemplateParseUtil.TEMPLATE_LIST, null));
-      try {
-         ev.getEntityURL(TemplateParseUtil.TEMPLATE_SHOW, null);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e);
-      }
+      assertEquals("/" + PREFIX3, ev.getEntityURL(TemplateParseUtil.TEMPLATE_SHOW, null));
       
       try {
          ev.getEntityURL("xxxxxxxxxxxxxxxxxx", null);

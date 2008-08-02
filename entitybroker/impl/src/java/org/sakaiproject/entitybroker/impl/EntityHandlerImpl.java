@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,9 @@ import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
@@ -63,6 +66,7 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
+import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundException;
 
 /**
  * Implementation of the handler for the EntityBroker system<br/>
@@ -73,6 +77,16 @@ import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
  */
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
+
+   private static final String HEADER_EXPIRES = "Expires";
+
+   private static final String HEADER_DATE = "Date";
+
+   private static final String HEADER_ETAG = "ETag";
+
+   private static final String HEADER_LAST_MODIFIED = "Last-Modified";
+
+   private static final String HEADER_CACHE_CONTROL = "Cache-Control";
 
    protected static final String DIRECT = "/direct";
 
@@ -163,6 +177,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             }
             RequestUtils.setResponseEncoding(format, res);
             String output = entityDescriptionManager.makeDescribeAll(format);
+            res.setContentLength(output.getBytes().length);
             try {
                res.getWriter().write(output);
             } catch (IOException e) {
@@ -196,6 +211,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   entityId = FAKE_ID;
                }
                String output = entityDescriptionManager.makeDescribeEntity(view.getEntityReference().getPrefix(), entityId, format);
+               res.setContentLength(output.getBytes().length);
                try {
                   res.getWriter().write(output);
                } catch (IOException e) {
@@ -251,7 +267,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                if (view.getExtension() == null) {
                   view.setExtension(Formats.HTML); // update the view
                }
-               req.setAttribute("extension", view.getExtension());
+               req.setAttribute("entity-format", view.getExtension());
 
                // store the current request and response
                ((RequestGetterImpl) requestGetter).setRequest(req);
@@ -277,6 +293,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
                   // identify the type of request (input or output) and the action (will be encoded in the viewKey)
                   boolean output = RequestUtils.isRequestOutput(req, view);
+                  setResponseHeaders(view, res, null);
 
                   //String method = req.getMethod() == null ? "GET" : req.getMethod().toUpperCase().trim();
                   // this fails because the original post gets lost therefore we are giving up on this for now
@@ -363,22 +380,35 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                     Search search = RequestUtils.makeSearchFromRequest(req);
                                     entities = entityBrokerManager.fetchEntityList(view.getEntityReference(), search, null);
                                  }
-                                 OutputStream outputStream = null;
-                                 try {
-                                    outputStream = res.getOutputStream();
-                                 } catch (IOException e) {
-                                    throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
+                                 // set the modifed header
+                                 Object entity = null;
+                                 if (entities.size() == 1) {
+                                    entity = entities.get(0);
                                  }
-   
-                                 OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
-                                 if (formattable == null) {
-                                    // handle internally or fail
-                                    entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view, null);
+                                 setLastModifiedHeaders(res, entity, System.currentTimeMillis());
+
+                                 if (EntityView.Method.HEAD.name().equals(view.getMethod())) {
+                                    // HEADER only
+                                    res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                                  } else {
-                                    // use provider's formatter
-                                    formattable.formatOutput(view.getEntityReference(), view.getExtension(), entities, null, outputStream);
+                                    // GET
+                                    OutputStream outputStream = null;
+                                    try {
+                                       outputStream = res.getOutputStream();
+                                    } catch (IOException e) {
+                                       throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
+                                    }
+
+                                    OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
+                                    if (formattable == null) {
+                                       // handle internally or fail
+                                       entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view, null);
+                                    } else {
+                                       // use provider's formatter
+                                       formattable.formatOutput(view.getEntityReference(), view.getExtension(), entities, null, outputStream);
+                                    }
+                                    res.setStatus(HttpServletResponse.SC_OK);
                                  }
-                                 res.setStatus(HttpServletResponse.SC_OK);
                                  handled = true;
                               } else {
                                  // will not handle this format type
@@ -615,6 +645,104 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          Thread.currentThread().setContextClassLoader(currentClassLoader);
       }
       // END classloader protection
+   }
+
+   /**
+    * Correctly sets up the basic headers for every response
+    * @param view
+    * @param res
+    * @param params
+    */
+   protected void setResponseHeaders(EntityView view, HttpServletResponse res, Map<String, Object> params) {
+      boolean noCache = false;
+      long currentTime = System.currentTimeMillis();
+      long lastModified = currentTime;
+      if (params != null) {
+         String key = "no-cache";
+         if (params.containsKey(key)) {
+            try {
+               noCache = ((Boolean) params.get(key)).booleanValue();
+            } catch (Exception e) {
+               // in case the value is not there or null
+               noCache = false;
+            }
+         }
+         key = "last-modified";
+         if (params.containsKey(key)) {
+            try {
+               lastModified = ((Long) params.get(key)).longValue();
+            } catch (Exception e) {
+               // nothing to do here but use the default time
+            }
+         }
+      }
+      setLastModifiedHeaders(res, null, lastModified);
+
+      // set the cache headers
+      if (noCache) {
+         res.addHeader(HEADER_CACHE_CONTROL, "must-revalidate");
+         res.addHeader(HEADER_CACHE_CONTROL, "private");
+         res.addHeader(HEADER_CACHE_CONTROL, "no-store");
+      } else {
+         // response.addHeader("Cache-Control", "must-revalidate");
+         res.addHeader(HEADER_CACHE_CONTROL, "public");
+      }
+      res.addHeader(HEADER_CACHE_CONTROL, "max-age=600");
+      res.addHeader(HEADER_CACHE_CONTROL, "s-maxage=600");
+      res.setDateHeader(HEADER_DATE, currentTime);
+      res.setDateHeader(HEADER_EXPIRES, currentTime + 600000);
+
+      // set the EB specific headers
+      String prefix = view.getEntityReference().getPrefix();
+      EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
+      res.setHeader("x-entity-prefix", prefix);
+      res.setHeader("x-entity-reference", view.getEntityReference().toString());
+      res.setHeader("x-entity-url", view.getEntityURL());
+      res.setHeader("x-entity-format", view.getExtension());
+
+      // set Sakai sdata compliant headers
+      res.setHeader("x-sdata-handler", provider == null ? EntityBroker.class.getName() : provider.getClass().getName());
+      res.setHeader("x-sdata-url", view.getOriginalEntityUrl());
+   }
+
+   /**
+    * @param res the response
+    * @param lastModifiedTime the time to use if none is found any other way
+    * @param entity (optional)
+    */
+   protected void setLastModifiedHeaders(HttpServletResponse res, Object entity, long lastModifiedTime) {
+      long lastModified = System.currentTimeMillis();
+      if (entity != null) {
+         // look for the annotation on the entity
+         try {
+            Object lm = entityBrokerManager.getReflectUtil().getFieldValue(entity, "lastModified", EntityLastModified.class);
+            if (lm != null) {
+               if (Date.class.isAssignableFrom(lm.getClass())) {
+                  lastModified = ((Date)lm).getTime();
+               } else if (Long.class.isAssignableFrom(lm.getClass())) {
+                  lastModified = ((Long)lm);
+               } else if (String.class.isAssignableFrom(lm.getClass())) {
+                  Long l;
+                  try {
+                     l = new Long((String)lm);
+                     lastModified = l.longValue();
+                  } catch (NumberFormatException e) {
+                     // nothing to do here
+                  }
+               } else {
+                  log.warn("Unknown type returned for " + EntityLastModified.class + " annotation: " + lm.getClass() + ", using the default value of current time");
+               }
+            }
+         } catch (FieldnameNotFoundException e1) {
+            // nothing to do here
+         }
+      } else {
+         lastModified = lastModifiedTime;
+      }
+      // ETag or Last-Modified
+      res.setDateHeader(HEADER_LAST_MODIFIED, lastModified);
+      String currentEtag = String.valueOf(lastModified);
+      res.setHeader(HEADER_ETAG, currentEtag);
    }
 
 }

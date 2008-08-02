@@ -51,7 +51,7 @@ public class HttpRESTUtils {
 
    public static final String CONTENT_TYPE_UTF8 = "text/xml; charset=UTF-8";
    public static final String ENCODING_UTF8 = "UTF-8";
-   public static enum Method {POST, GET, PUT, DELETE};
+   public static enum Method {POST, GET, PUT, DELETE, HEAD};
 
    /**
     * Fire off a request to a URL using the specified method,

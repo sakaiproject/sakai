@@ -230,9 +230,10 @@ public class DirectServlet extends HttpServlet {
     */
    protected void sendError(HttpServletResponse res, int code, String message) {
       try {
+         res.reset();
          res.sendError(code, message);
-      } catch (Throwable t) {
-         log.warn(t.getMessage(), t);
+      } catch (Exception e) {
+         log.warn("Error sending http servlet error code ("+code+") and message ("+message+"): " + e.getMessage(), e);
       }
    }
 
