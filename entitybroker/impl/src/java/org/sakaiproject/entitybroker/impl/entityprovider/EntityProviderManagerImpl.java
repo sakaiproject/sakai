@@ -16,11 +16,13 @@ package org.sakaiproject.entitybroker.impl.entityprovider;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -151,19 +153,13 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     */
    public List<Class<? extends EntityProvider>> getPrefixCapabilities(String prefix) {
       List<Class<? extends EntityProvider>> caps = new ArrayList<Class<? extends EntityProvider>>();
-      ArrayList<String> list = new ArrayList<String>( prefixMap.keySet() );
-      Collections.sort(list);
-      boolean found = false;
-      for (String bikey : list) {
-         String keyPrefix = getPrefix(bikey);
-         if (keyPrefix.equals(prefix)) {
-            found = true;
+      for (String bikey : prefixMap.keySet()) {
+         String curPrefix = EntityProviderManagerImpl.getPrefix(bikey);
+         if (curPrefix.equals(prefix)) {
             caps.add( getCapability(bikey) );
-         } else {
-            // don't keep going though the list if we already found the block of prefix matches
-            if (found) break;
          }
       }
+      Collections.sort(caps, new ClassComparator());
       return caps;
    }
 
@@ -182,6 +178,23 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
          m.get(prefix).add( getCapability(bikey) );
       }      
       return m;
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getProvidersByCapability(java.lang.Class)
+    */
+   @SuppressWarnings("unchecked")
+   public <T extends EntityProvider> List<T> getProvidersByCapability(Class<T> capability) {
+      ArrayList<T> providers = new ArrayList<T>();
+      String capName = capability.getName();
+      for (Entry<String, EntityProvider> entry : prefixMap.entrySet()) {
+         String name = EntityProviderManagerImpl.getCapabilityName(entry.getKey());
+         if (capName.equals(name)) {
+            providers.add((T)entry.getValue());
+         }
+      }
+      Collections.sort(providers, new EntityProviderComparator());
+      return providers;
    }
 
    /*
@@ -375,6 +388,12 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       return bikey.substring(0, slashpos);
    }
 
+   protected static String getCapabilityName(String bikey) {
+      int slashpos = bikey.indexOf('/');
+      String className = bikey.substring(slashpos + 1);
+      return className;
+   }
+
    @SuppressWarnings("unchecked")
    protected static Class<? extends EntityProvider> getCapability(String bikey) {
       int slashpos = bikey.indexOf('/');
@@ -407,6 +426,18 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
          }
       }
       return new ArrayList<Class<? extends EntityProvider>>(capabilities);
+   }
+
+   public class EntityProviderComparator implements Comparator<EntityProvider> {
+      public int compare(EntityProvider o1, EntityProvider o2) {
+         return o1.getEntityPrefix().compareTo(o2.getEntityPrefix());
+      }
+   }
+
+   public class ClassComparator implements Comparator<Class<?>> {
+      public int compare(Class<?> o1, Class<?> o2) {
+         return o1.getName().compareTo(o2.getName());
+      }
    }
 
 }

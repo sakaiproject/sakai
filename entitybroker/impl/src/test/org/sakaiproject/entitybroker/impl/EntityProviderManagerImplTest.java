@@ -22,7 +22,10 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
@@ -204,6 +207,34 @@ public class EntityProviderManagerImplTest extends TestCase {
       assertTrue(caps.contains(Taggable.class));
       assertTrue(caps.contains(TagSearchable.class));
       
+   }
+
+   public void testGetProvidersByCapability() {
+      List<? extends EntityProvider> providers = null;
+
+      providers = entityProviderManager.getProvidersByCapability(CRUDable.class);
+      assertNotNull(providers);
+      assertTrue(providers.size() >= 4);
+      assertTrue(providers.contains(td.entityProvider6));
+      assertTrue(providers.contains(td.entityProvider7));
+      assertTrue(providers.contains(td.entityProvider8));
+      assertFalse(providers.contains(td.entityProvider1));
+      assertFalse(providers.contains(td.entityProvider2));
+      assertFalse(providers.contains(td.entityProvider3));
+
+      providers = entityProviderManager.getProvidersByCapability(ActionsExecutable.class);
+      assertNotNull(providers);
+      assertTrue(providers.size() >= 3);
+      assertTrue(providers.contains(td.entityProviderA1));
+      assertTrue(providers.contains(td.entityProviderA2));
+      assertTrue(providers.contains(td.entityProviderA3));
+      assertFalse(providers.contains(td.entityProvider1));
+      assertFalse(providers.contains(td.entityProvider2));
+      assertFalse(providers.contains(td.entityProvider3));
+
+      providers = entityProviderManager.getProvidersByCapability(EntityViewUrlCustomizable.class);
+      assertNotNull(providers);
+      assertEquals(0, providers.size());
    }
 
    /**

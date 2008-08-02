@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
-import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
 /**
  * This simple defines the methods correctly which are shared between a set of interfaces, see

@@ -15,7 +15,6 @@
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
 import java.util.List;
-import java.util.Map;
 
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 
