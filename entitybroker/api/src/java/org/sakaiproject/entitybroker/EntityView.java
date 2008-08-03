@@ -40,6 +40,7 @@ public class EntityView {
 
    public static final String PREFIX = "prefix";
    public static final String ID = "id";
+   public static final String DIRECT_PREFIX = SEPARATOR + "direct";
 
    /**
     * Represents HTTP methods (GET, POST, etc.)
