@@ -33,6 +33,19 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 public interface CollectionResolvable extends EntityProvider, Resolvable {
 
    /**
+    * A search key which indicates the results should be limited by the unique reference for a user
+    */
+   public static final String SEARCH_USER_REFERENCE = "_userReference";
+   /**
+    * A search key which indicates the results should be limited by the unique reference for a location (site, group, etc.)
+    */
+   public static final String SEARCH_LOCATION_REFERENCE = "_locationReference";
+   /**
+    * A search key which indicates the results should be limited by a tag or an array of tags
+    */
+   public static final String SEARCH_TAGS = "_tags";
+
+   /**
     * Allows these entities to be fetched based on search parameters,
     * this should never return null and if there are no entities then the list should be empty<br/>
     * <b>Note:</b> The entity class types in the list need to be able to be 
@@ -43,7 +56,9 @@ public interface CollectionResolvable extends EntityProvider, Resolvable {
     * @param ref the parsed reference object which uniquely represents this entity,
     * only the prefix will be used from this reference (since that identifies the space and collection)
     * @param search a search object which can define the order to return entities,
-    * search filters, and total number of entities returned
+    * search filters, and total number of entities returned,<br/>
+    * NOTE: There are some predefined search keys which you may optionally support,
+    * provider are encourage to support the SEARCH_* search keys listed in this interface
     * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @return a list of entity objects of the type handled by this provider based on the search or empty if none found
     */

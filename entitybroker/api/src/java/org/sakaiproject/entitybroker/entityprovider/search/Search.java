@@ -3,11 +3,11 @@
  * $URL$
  * Searcher.java - entity-broker - Apr 8, 2008 11:50:18 AM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
- * Licensed under the Educational Community License version 1.0
+ * Copyright (c) 2008 Aaron Zeckoski
+ * Licensed under the Apache License, Version 2
  * 
- * A copy of the Educational Community License has been included in this 
- * distribution and is available at: http://www.opensource.org/licenses/ecl1.php
+ * A copy of the Apache License, Version 2 has been included in this 
+ * distribution and is available at: http://www.apache.org/licenses/LICENSE-2.0.txt
  *
  * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
  */
@@ -16,10 +16,31 @@ package org.sakaiproject.entitybroker.entityprovider.search;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * This is a simple class which allows the passing of a set of search parameters in a nice way
+ * This is a simple class which allows the passing of a set of search parameters in a nice way<br/>
+ * Example usage:<br/>
+ * <code>Search s1 = new Search("title", curTitle); // search where title equals value of curTitle</code><br/>
+ * <code>Search s2 = new Search("title", curTitle, Restriction.NOT_EQUALS); // search where title not equals value of curTitle</code><br/>
+ * <code>Search s2 = new Search(<br/>
+ *    new Restriction("title", curTitle),<br/> 
+ *    new Order("title")<br/>
+ * ); // search where title equals value of curTitle and order is by title ascending</code><br/>
+ * <br/>
+ * Most searches can be modeled this way fairly easily. There are many constructors to make
+ * it easy for a developer to write the search they want inside the search constructor.<br/>
+ * There are also some methods to allow easy construction of searches in multiple steps:
+ * {@link #addOrder(Order)} and {@link #addRestriction(Restriction)} allow restrictions and orders
+ * to be added after the search was constructed, they will correctly handle duplicate values as well.<br/>
+ * <br/>
+ * There is also an option to pass a search string as well which can contain
+ * formatted text to be interpreted by whatever is using the search object<br/>
+ * <br/>
+ * Finally, there are a few methods to make it easier to unpack and work with the search object:
+ * {@link #isEmpty()} and {@link #getRestrictionByProperty(String)} and {@link #getRestrictionsProperties()}
+ * make it easier to get the restriction information out of the search object
  * 
  * @author Aaron Zeckoski (aaronz@caret.cam.ac.uk)
  */
@@ -51,11 +72,14 @@ public class Search {
     * if true then all restrictions are run using AND, if false then all restrictions are run using OR
     */
    public boolean conjunction = true;
-   public void setConjunction(boolean conjunction) {
-      this.conjunction = conjunction;
-   }
+   /**
+    * if true then all restrictions are run using AND, if false then all restrictions are run using OR
+    */
    public boolean isConjunction() {
       return conjunction;
+   }
+   public void setConjunction(boolean conjunction) {
+      this.conjunction = conjunction;
    }
 
    /**
@@ -63,8 +87,15 @@ public class Search {
     * can add as many restrictions as you like and they will be applied in the array order
     */
    private Restriction[] restrictions = new Restriction[] {};
+   /**
+    * Restrictions define limitations on the results of a search, e.g. propertyA > 100 or property B = 'jump'<br/> You
+    * can add as many restrictions as you like and they will be applied in the array order
+    */
    public Restriction[] getRestrictions() {
       return restrictions;
+   }
+   public void setRestrictions(Restriction[] restrictions) {
+      this.restrictions = restrictions;
    }
 
    /**
@@ -72,8 +103,41 @@ public class Search {
     * be applied in the array order
     */
    private Order[] orders = new Order[] {};
+   /**
+    * Orders define the order of the returned results of a search, You can add as many orders as you like and they will
+    * be applied in the array order
+    */
    public Order[] getOrders() {
       return orders;
+   }
+   public void setOrders(Order[] orders) {
+      this.orders = orders;
+   }
+
+   /**
+    * Defines a search query string which will be interpreted into search params,
+    * If not null this indicates that this is a string based "search"<br/>
+    * The search string is just text - there is no required structure nor any modifiers. It is a freeform string.<br/>
+    * Effectively the semantics are that it can be implemented in a relational database using 
+    * like clauses for the relevant text fields - or perhaps just submitted to lucene and see which entities match.<br/>
+    * If this is being sent to lucene - things like order, and restrictions might actually be added to the 
+    * lucene query in addition to the simple search string.
+    */
+   private String queryString = null;
+   /**
+    * Defines a search query string which will be interpreted into search params,
+    * If not null this indicates that this is a string based "search"<br/>
+    * The search string is just text - there is no required structure nor any modifiers. It is a freeform string.<br/>
+    * Effectively the semantics are that it can be implemented in a relational database using 
+    * like clauses for the relevant text fields - or perhaps just submitted to lucene and see which entities match.<br/>
+    * If this is being sent to lucene - things like order, and restrictions might actually be added to the 
+    * lucene query in addition to the simple search string.
+    */
+   public String getQueryString() {
+      return queryString;
+   }
+   public void setQueryString(String queryString) {
+      this.queryString = queryString;
    }
 
 
@@ -87,12 +151,30 @@ public class Search {
    public Search() {}
 
    /**
+    * Copy constructor<br/>
+    * Use this create a duplicate of a search object
+    */
+   public Search(Search search) {
+      copy(search, this);
+   }
+
+   /**
+    * Do a search using a query string<br/>
+    * @param queryString a search query string,
+    * can be combined with other parts of the search object
+    * @see #queryString
+    */
+   public Search(String queryString) {
+      this.queryString = queryString;
+   }
+
+   /**
     * Do a simple search of a single property which must equal a single value
     * 
     * @param property
     *           the name of the field (property) in the persisted object
     * @param value
-    *           the value of the {@link #property} (can be an array of items)
+    *           the value of the property (can be an array of items)
     */
    public Search(String property, Object value) {
       restrictions = new Restriction[] { new Restriction(property, value) };
@@ -104,7 +186,7 @@ public class Search {
     * @param property
     *           the name of the field (property) in the persisted object
     * @param value
-    *           the value of the {@link #property} (can be an array of items)
+    *           the value of the property (can be an array of items)
     * @param comparison the comparison to make between the property and the value,
     * use the defined constants from {@link Restriction}: e.g. EQUALS, LIKE, etc...
     */
@@ -212,6 +294,8 @@ public class Search {
          restrictions[i] = new Restriction(properties[i], values[i], comparisons[i]);
       }
       this.orders = orders;
+      this.start = firstResult;
+      this.limit = maxResults;
    }
 
    /**
@@ -390,7 +474,7 @@ public class Search {
    }
 
    /**
-    * @param restriction add this order to the search filter,
+    * @param order add this order to the search filter,
     * will replace an existing order for a similar property
     */
    public void addOrder(Order order) {
@@ -449,7 +533,8 @@ public class Search {
    public boolean isEmpty() {
       boolean empty = false;
       if ((restrictions == null || restrictions.length == 0) 
-            && (orders == null || orders.length == 0) ) {
+            && (orders == null || orders.length == 0) 
+            && queryString == null) {
          empty = true;
       }
       return empty;
@@ -462,6 +547,7 @@ public class Search {
       restrictions = new Restriction[] {};
       orders = new Order[] {};
       conjunction = false;
+      queryString = null;
       start = 0;
       limit = 0;
    }
@@ -502,6 +588,85 @@ public class Search {
       System.arraycopy( array, 0, newArray, 0, array.length );
       newArray[newArray.length-1] = value;
       return newArray;
+   }
+
+   /**
+    * Utility method to convert an array to a string
+    * @param array any array
+    * @return a string version of the array
+    */
+   public static String arrayToString(Object[] array) {
+      StringBuilder result = new StringBuilder();
+      if (array != null && array.length > 0) {
+         for (int i = 0; i < array.length; i++) {
+            if (i > 0) {
+               result.append(",");
+            }
+            if (array[i] != null) {
+               result.append(array[i].toString());
+            }
+         }
+      }
+      return result.toString();
+   }
+
+   @Override
+   protected Object clone() throws CloneNotSupportedException {
+      return copy(this, null);
+   }
+
+   /**
+    * Make a copy of a search object
+    * @param original the search object to copy
+    * @param copy the search object make equivalent to the original,
+    * can be null to generate a new one
+    * @return the copy of the original
+    */
+   public static Search copy(Search original, Search copy) {
+      if (copy == null) {
+         copy = new Search();
+      }
+      copy.setStart(original.getStart());
+      copy.setLimit(original.getLimit());
+      copy.setConjunction(original.isConjunction());
+      copy.setQueryString(original.getQueryString());
+      // TODO probably need to copy the arrays here
+      copy.setRestrictions(original.getRestrictions());
+      copy.setOrders(original.getOrders());
+      return copy;
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (null == obj)
+         return false;
+      if (!(obj instanceof Search))
+         return false;
+      else {
+         Search castObj = (Search) obj;
+         boolean eq = this.start == castObj.start
+               && this.limit == castObj.limit
+               && this.conjunction == castObj.conjunction
+               && (this.queryString == null ? castObj.queryString == null : this.queryString.equals(castObj.queryString))
+               && Arrays.deepEquals(this.restrictions, castObj.restrictions)
+               && Arrays.deepEquals(this.orders, castObj.orders);
+         return eq;
+      }
+   }
+
+   @Override
+   public int hashCode() {
+      if (this.isEmpty())
+         return super.hashCode();
+      String hashStr = this.getClass().getName() + ":" + this.start + ":" + this.limit + ":" + this.conjunction + ":"
+         + this.queryString + ":" + arrayToString(restrictions) + ":" + arrayToString(orders);
+      return hashStr.hashCode();
+   }
+
+   @Override
+   public String toString() {
+      return "search::start:" + start + ",limit:" + limit + ",conj:" + conjunction + ",query:" + queryString 
+         + ",restricts:" + arrayToString(restrictions) + ",orders:" + arrayToString(orders);
    }
 
 }

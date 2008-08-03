@@ -31,6 +31,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResol
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
@@ -251,6 +252,17 @@ public class EntityBrokerManager {
          // encoding a collection of entities
          EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), CollectionResolvable.class);
          if (provider != null) {
+            // attempt to cleanup the search a little bit
+            if (search == null) {
+               search = new Search();
+            } else {
+               translateSearchReference(search, CollectionResolvable.SEARCH_USER_REFERENCE, 
+                     new String[] {"userId","userEid","user"}, "/user/");
+               translateSearchReference(search, CollectionResolvable.SEARCH_LOCATION_REFERENCE, 
+                     new String[] {"locationId","location","siteId", "site"}, "/site/");
+               translateSearchReference(search, CollectionResolvable.SEARCH_TAGS, 
+                     new String[] {"tag","tags"}, "");
+            }
             entities = new ArrayList( ((CollectionResolvable)provider).getEntities(ref, search, params) );
          }
       } else {
@@ -264,6 +276,46 @@ public class EntityBrokerManager {
          entities.add(entity);
       }
       return entities;
+   }
+
+   /**
+    * Adds in a search restriction based on existing restrictions,
+    * this is ideally setup to convert restrictions into one that the developers expect
+    */
+   private boolean translateSearchReference(Search search, String key, String[] keys, String valuePrefix) {
+      boolean added = false;
+      if (search.getRestrictionByProperty(key) == null) {
+         Object value = findSearchValue(search, keys);
+         if (value != null) {
+            if (valuePrefix != null) {
+               String sval = value.toString();
+               if (!sval.startsWith(valuePrefix)) {
+                  value = valuePrefix + sval;
+               }
+            }
+            search.addRestriction( new Restriction(CollectionResolvable.SEARCH_USER_REFERENCE, value) );
+         }
+      }
+      return added;
+   }
+
+   /**
+    * Finds if there are any search restrictions with the given properties, if so it returns the value,
+    * otherwise returns null
+    */
+   private Object findSearchValue(Search search, String[] keys) {
+      Object value = null;
+      for (int i = 0; i < keys.length; i++) {
+         String key = keys[i];
+         Restriction r = search.getRestrictionByProperty(key);
+         if (r != null) {
+            if (r.getValue() != null) {
+               value = r.getValue();
+               break;
+            }
+         }
+      }
+      return value;
    }
 
 }

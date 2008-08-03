@@ -1,141 +1,129 @@
 /**
  * $Id$
  * $URL$
- * Searcher.java - entity-broker - Apr 8, 2008 11:50:18 AM - azeckoski
+ * Restriction.java - genericdao - Aug 3, 2008 12:43:54 PM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
- * Licensed under the Educational Community License version 1.0
+ * Copyright (c) 2008 Aaron Zeckoski
+ * Licensed under the Apache License, Version 2.0
  * 
- * A copy of the Educational Community License has been included in this 
- * distribution and is available at: http://www.opensource.org/licenses/ecl1.php
+ * A copy of the Apache License has been included in this 
+ * distribution and is available at: http://www.apache.org/licenses/LICENSE-2.0.txt
  *
- * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
+ * Aaron Zeckoski (azeckoski @ gmail.com) (aaronz @ vt.edu) (aaron @ caret.cam.ac.uk)
  */
-
 package org.sakaiproject.entitybroker.entityprovider.search;
 
-import java.util.Collection;
-
 /**
- * Defines a restriction in a search, this is like saying:
- * where userId = '123'; OR where userId like '%aaronz%';
+ * A simple bean which defines a restriction in a search, this is like saying:
+ * where userId = '123'; OR where userId like '%aaronz%';<br/>
+ * Example usage:<br/>
+ * <code>Restriction rteq = new Restriction("title", curTitle); // restrict search to title equals value of curTitle</code><br/>
+ * <code>Restriction rtne = new Restriction("title", curTitle, Restriction.NOT_EQUALS); // restrict search to title not equals value of curTitle</code><br/>
  *
- * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
+ * @author Aaron Zeckoski (azeckoski@gmail.com)
  */
 public class Restriction {
 
-	public final static int EQUALS = 0;
-	public final static int GREATER = 1;
-	public final static int LESS = 2;
-	public final static int LIKE = 3;
-	public final static int NULL = 4;
-	public final static int NOT_NULL = 5;
-	public final static int NOT_EQUALS = 6;
-
-	/**
-	 * the name of the field (property) in the persisted object
-	 */
-	public String property;
-	/**
-	 * the value of the {@link #property} (can be an array of items)
-	 */
-	public Object value;
-	/**
-	 * the comparison to make between the property and the value,
-	 * use the defined constants: e.g. EQUALS, LIKE, etc...
-	 */
-	public int comparison = EQUALS;
-
-	/**
-	 * Simple restriction where the property must equal the value
-	 * @param property the name of the field (property) in the persisted object
-	 * @param value the value of the {@link #property} (can be an array of items or list)
-	 */
-	public Restriction(String property, Object value) {
-		this.property = property;
-		this.value = value;
-	}
-
-	/**
-	 * Restriction which defines the type of comparison to make between a property and value
-	 * @param property the name of the field (property) in the persisted object
-	 * @param value the value of the {@link #property} (can be an array of items or list)
-	 * @param comparison the comparison to make between the property and the value,
-	 * use the defined constants: e.g. EQUALS, LIKE, etc...
-	 */
-	public Restriction(String property, Object value, int comparison) {
-		this.property = property;
-		this.value = value;
-		this.comparison = comparison;
-	}
-
-	// HELPER methods
-
-	/**
-	 * @return the value if it is not an array or collection,
-	 * if it is then return the first object in the array or collection,
-	 * otherwise return null (including when value is null)
-	 */
-	@SuppressWarnings("unchecked")
-   public Object getSingleValue() {
-	   Object result = null;
-	   if (value != null) {
-   	   if (value.getClass().isArray()) {
-   	      if (((Object[])value).length > 0) {
-   	         result = ((Object[])value)[0];
-   	      }
-   	   } else if (value.getClass().isAssignableFrom(Collection.class)) {
-            if (! ((Collection)value).isEmpty()) {
-               result = ((Collection)value).iterator().next();
-            }
-   	   } else {
-   	      result = value;
-   	   }
-	   }
-	   return result;
-	}
+   public final static int EQUALS = 0;
+   public final static int GREATER = 1;
+   public final static int LESS = 2;
+   public final static int LIKE = 3;
+   public final static int NULL = 4;
+   public final static int NOT_NULL = 5;
+   public final static int NOT_EQUALS = 6;
 
    /**
-    * @return the value as an array if it is an array or a collection,
-    * if it is a single value then return null (also when value is null)
+    * the name of the field (property) in the search
     */
-   @SuppressWarnings("unchecked")
-   public Object[] getArrayValue() {
-      Object[] result = null;
-      if (value != null) {
-         if (value.getClass().isArray()) {
-            result = (Object[])value;
-         } else if (value.getClass().isAssignableFrom(Collection.class)) {
-            result = ((Collection)value).toArray();
-         }
-      }      
-      return result;
+   public String property;
+   /**
+    * the name of the field (property) in the search
+    */
+   public String getProperty() {
+      return property;
+   }
+   public void setProperty(String property) {
+      this.property = property;
    }
 
+   // TODO this should probably be a weak reference
+   /**
+    * the value of the {@link #property} (can be an array of items)
+    */
+   public Object value;
+   /**
+    * the value of the {@link #property} (can be an array of items)
+    */
+   public Object getValue() {
+      return value;
+   }
+   public void setValue(Object value) {
+      this.value = value;
+   }
+
+   /**
+    * the comparison to make between the property and the value,
+    * use the defined constants: e.g. EQUALS, LIKE, etc...
+    */
+   public int comparison = EQUALS;
+   /**
+    * the comparison to make between the property and the value,
+    * use the defined constants: e.g. EQUALS, LIKE, etc...
+    */
+   public int getComparison() {
+      return comparison;
+   }
+   public void setComparison(int comparison) {
+      this.comparison = comparison;
+   }
+
+   /**
+    * Simple restriction where the property must equal the value
+    * @param property the name of the field (property) in the persisted object
+    * @param value the value of the {@link #property} (can be an array of items)
+    */
+   public Restriction(String property, Object value) {
+      this.property = property;
+      this.value = value;
+   }
+
+   /**
+    * Restriction which defines the type of comparison to make between a property and value
+    * @param property the name of the field (property) in the persisted object
+    * @param value the value of the {@link #property} (can be an array of items)
+    * @param comparison the comparison to make between the property and the value,
+    * use the defined constants: e.g. EQUALS, LIKE, etc...
+    */
+   public Restriction(String property, Object value, int comparison) {
+      this.property = property;
+      this.value = value;
+      this.comparison = comparison;
+   }
 
    @Override
    public boolean equals(Object obj) {
-      if (null == obj) return false;
-      if (!(obj instanceof Restriction)) return false;
+      if (null == obj)
+         return false;
+      if (!(obj instanceof Restriction))
+         return false;
       else {
          Restriction castObj = (Restriction) obj;
-         if (null == this.property || null == castObj.property) return false;
-         else return (
-               this.property.equals(castObj.property)
-         );
+         boolean eq = (this.property == null ? castObj.property == null : this.property.equals(castObj.property))
+               && (this.value == null ? castObj.value == null : this.value.equals(castObj.value))
+               && this.comparison == castObj.comparison;
+         return eq;
       }
    }
 
    @Override
    public int hashCode() {
-      if (null == this.property) return super.hashCode();
-      String hashStr = this.getClass().getName() + ":" + this.property.hashCode();
+      String hashStr = this.getClass().getName() + ":" + this.property + ":" + this.comparison + ":" + this.value;
       return hashStr.hashCode();
    }
 
    @Override
    public String toString() {
-      return "property:" + this.property + ", value:" + this.value + ", comparison:" + this.comparison;
+      return "restriction::prop:" + property + ",value:" + value + ",comp:" + comparison;
    }
 
 }
