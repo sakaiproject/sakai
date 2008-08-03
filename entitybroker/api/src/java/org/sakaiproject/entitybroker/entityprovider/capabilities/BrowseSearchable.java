@@ -40,8 +40,8 @@ public interface BrowseSearchable extends Browseable {
    /**
     * @param search a search object which can define the order to return entities,
     * search filters, and total number of entities returned, may be empty but cannot be null
-    * @param userReference (optional) the unique entity reference for a user, 
-    * this may be null to indicate that items which are visible to all users should be shown
+    * @param userReference (optional) the unique entity reference for a user which is browsing the results, 
+    * this may be null to indicate that only items which are visible to all users should be shown
     * @param reference (optional) 
     *           a globally unique reference to an entity, this is the entity that the 
     *           returned browseable data must be associated with (e.g. limited by reference to a location or user entity), 
