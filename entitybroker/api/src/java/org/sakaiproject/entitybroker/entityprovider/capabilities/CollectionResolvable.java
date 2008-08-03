@@ -26,10 +26,11 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  * this will be invoked when an entity space is accessed (/prefix) rather than accessing an individual
  * entity (/prefix/id)<br/>
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
+ * This extends {@link Resolvable} and is part of {@link CRUDable}
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface CollectionResolvable extends EntityProvider {
+public interface CollectionResolvable extends EntityProvider, Resolvable {
 
    /**
     * Allows these entities to be fetched based on search parameters,
