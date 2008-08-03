@@ -15,6 +15,7 @@
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
 import java.lang.ref.WeakReference;
+import java.util.Comparator;
 import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityBroker;
@@ -215,6 +216,38 @@ public class EntitySearchResult {
       }
       this.URL = entityURL;
       setEntity(entity);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (null == obj)
+         return false;
+      if (!(obj instanceof EntitySearchResult))
+         return false;
+      else {
+         EntitySearchResult castObj = (EntitySearchResult) obj;
+         if (null == this.reference || null == castObj.reference)
+            return false;
+         else
+            return (this.reference.equals(castObj.reference));
+      }
+   }
+
+   @Override
+   public int hashCode() {
+      String hashStr = this.getClass().getName() + ":" + this.reference.hashCode();
+      return hashStr.hashCode();
+   }
+   
+   @Override
+   public String toString() {
+      return "searchResult: ref="+reference+":display="+displayTitle+":url="+URL+":entity="+(entity != null);
+   }
+
+   public class ESRComparator implements Comparator<EntitySearchResult> {
+      public int compare(EntitySearchResult o1, EntitySearchResult o2) {
+         return o1.reference.compareTo(o2.reference);
+      }
    }
 
 }
