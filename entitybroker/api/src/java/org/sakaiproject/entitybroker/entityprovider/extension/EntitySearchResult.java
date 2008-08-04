@@ -61,6 +61,19 @@ public class EntitySearchResult {
    }
 
    /**
+    * A string which is suitable for display and provides a short summary of the entity,
+    * typically 100 chars or less, this may the name or title of the data represented by an entity
+    */
+   private String displayTitle;
+   /**
+    * A string which is suitable for display and provides a short summary of the entity,
+    * typically 100 chars or less, this may the name or title of the data represented by an entity
+    */
+   public String getDisplayTitle() {
+      return displayTitle;
+   }
+
+   /**
     * (OPTIONAL - may be null)
     * The URL to the entity represented by this reference,
     * should be an absolute URL (server name optional),
@@ -68,26 +81,18 @@ public class EntitySearchResult {
     */
    private String URL;
    /**
+    * WARNING: for internal use only
+    * @param url the url to access this entity
+    */
+   public void setEnityURL(String url) {
+      URL = url;
+   }
+   /**
     * The URL to the entity represented by this reference,
     * should be an absolute URL (server name optional)
     */
    public String getEntityURL() {
       return URL;
-   }
-
-   /**
-    * (OPTIONAL - may be null)
-    * A string which is suitable for display and provides a short summary of the entity,
-    * typically 100 chars or less, this may the name or title of the data represented by an entity
-    */
-   private String displayTitle;
-   /**
-    * (OPTIONAL - may be null)
-    * A string which is suitable for display and provides a short summary of the entity,
-    * typically 100 chars or less, this may the name or title of the data represented by an entity
-    */
-   public String getDisplayTitle() {
-      return displayTitle;
    }
 
    /**
@@ -145,7 +150,9 @@ public class EntitySearchResult {
    }
 
    /**
-    * Absolute minimal constructor - should only be used when no other information is available
+    * Minimal constructor - used for most basic cases
+    * Use the setters to add in properties or the entity if desired
+    * 
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments (normally the id at least)
     * @param displayTitle a string which is suitable for display and provides a short summary of the entity,
@@ -170,33 +177,32 @@ public class EntitySearchResult {
     * consists of the entity prefix and optional segments (normally the id at least)
     * @param displayTitle a string which is suitable for display and provides a short summary of the entity,
     * typically 100 chars or less, this may the name or title of the data represented by an entity
-    * @param entityURL the URL to the current entity, typically generated using {@link EntityBroker#getEntityURL(String)}
+    * @param entity an entity object, see {@link Resolvable}
     */
-   public EntitySearchResult(String reference, String displayTitle, String entityURL) {
+   public EntitySearchResult(String reference, String displayTitle, Object entity) {
       this(reference, displayTitle);
-      if (entityURL != null) {
-         this.URL = entityURL;
-      }
+      setEntity(entity);
    }
 
    /**
     * Full constructor
-    * Use this if you want to return the entity itself along with the key meta data
-    * Use the setters to add in properties if desired
+    * Use this if you want to return the entity itself along with the key meta data and properties
     * 
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments (normally the id at least)
     * @param displayTitle a string which is suitable for display and provides a short summary of the entity,
     * typically 100 chars or less, this may the name or title of the data represented by an entity
-    * @param entityURL the URL to the current entity, typically generated using {@link EntityBroker#getEntityURL(String)}
     * @param entity an entity object, see {@link Resolvable}
+    * @param entityProperties a set of properties to return along with the entity information,
+    * this may be presented and used for filtering,
     */
-   public EntitySearchResult(String reference, String displayTitle, String entityURL, Object entity) {
-      this(reference, displayTitle, entityURL);
-      setEntity(entity);
+   public EntitySearchResult(String reference, String displayTitle, Object entity, Map<String, String> entityProperties) {
+      this(reference, displayTitle, entity);
+      setEntityProperties(entityProperties);
    }
 
    /**
+    * WARNING: Internal use only
     * Constructor for use internally, this will primarily be used by the internal system to construct the search
     * result from a fully qualified entity
     * @param ref an entity reference object
@@ -205,7 +211,7 @@ public class EntitySearchResult {
     * @param entityURL the URL to the current entity, typically generated using {@link EntityBroker#getEntityURL(String)}
     * @param entity an entity object, see {@link Resolvable}
     */
-   public EntitySearchResult(EntityReference ref, String displayTitle, String entityURL, Object entity) {
+   public EntitySearchResult(EntityReference ref, String displayTitle, String entityURL, Object entity, Map<String, String> entityProperties) {
       this.reference = ref.getReference();
       if (displayTitle == null) {
          displayTitle = "Entity:" + reference;
@@ -216,6 +222,7 @@ public class EntitySearchResult {
       }
       this.URL = entityURL;
       setEntity(entity);
+      setEntityProperties(entityProperties);
    }
 
    @Override
