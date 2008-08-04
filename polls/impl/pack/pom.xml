@@ -36,40 +36,11 @@ limitations under the License.
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-poll-logic-impl</artifactId>
-      <version>${sakai.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-poll-model-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-poll-hbm</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-mock</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-poll-dao-impl</artifactId>
       <version>${sakai.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-poll-model-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-poll-hbm</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-mock</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 </project>

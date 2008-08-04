@@ -41,7 +41,6 @@ limitations under the License.
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-poll-model-api</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
 <!-- sakai dependencies -->
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->

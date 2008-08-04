@@ -41,4 +41,39 @@ limitations under the License.
     <module>impl/pack</module>
     <module>tool</module>
   </modules>
+  
+  <dependencyManagement>
+  	<dependencies>
+  	    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-model-api</artifactId>
+      <version>SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-logic-api</artifactId>
+      <version>SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-hbm</artifactId>
+      <version>SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-dao-impl</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-logic-impl</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+  	</dependencies>
+  	
+  </dependencyManagement>
+  
 </project>

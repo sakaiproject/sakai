@@ -50,17 +50,14 @@ limitations under the License.
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-poll-model-api</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-poll-logic-api</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-poll-hbm</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
 <!-- Spring and Hibernate dependencies. -->
 <!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->
@@ -82,6 +79,7 @@ limitations under the License.
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.mock.artifactId}</artifactId>
       <version>${sakai.spring.mock.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
@@ -124,14 +122,6 @@ limitations under the License.
       <version>1.2_Java1.3</version>
       <scope>test</scope>
     </dependency>
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}-->
-<!--org.sakaiprojectsakai-site-api${sakai.version}-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
   </dependencies>
   <build>
     <resources>
