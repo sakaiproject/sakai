@@ -24,6 +24,10 @@
     <deploy.target/>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
 <!-- Sakai plugin -->
 <!-- MyFaces JSF dependencies -->
     <dependency>
@@ -41,11 +45,7 @@
       <artifactId>myfaces-impl</artifactId>
       <version>1.1.5</version>
     </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
-    </dependency>
+<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>

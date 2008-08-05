@@ -33,6 +33,10 @@
   <inceptionYear>2005</inceptionYear>
   <packaging>pom</packaging>
   <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
 <!-- Generic JSF Dependencies Below -->
     <dependency>
       <groupId>jsf</groupId>
@@ -54,11 +58,7 @@
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
     </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
-    </dependency>
+<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
