@@ -25,18 +25,18 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
     </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+    </dependency>
+<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
-    <dependency>
-      <groupId>${sakai.ehcache.groupId}</groupId>
-      <artifactId>${sakai.ehcache.artifactId}</artifactId>
-      <version>${sakai.ehcache.version}</version>
-    </dependency>
+<!--${sakai.ehcache.groupId}${sakai.ehcache.artifactId}${sakai.ehcache.version}-->
     <dependency>
       <groupId>OKI</groupId>
       <artifactId>OkiOSID</artifactId>
