@@ -3,7 +3,7 @@
  * $Id: AssessmentGradingSummaryData.java 15083 2006-09-20 20:03:55Z lydial@stanford.edu $
  ***********************************************************************************
  *
- * Copyright 2006 Sakai Foundation
+ * Copyright 2007 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. 
