@@ -33,6 +33,22 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
@@ -372,23 +388,13 @@
       <version>1.4</version>
 <!--properties:  war.bundle: standalone -->
     </dependency>
-    <dependency>
-      <groupId>${sakai.ehcache.groupId}</groupId>
-      <artifactId>${sakai.ehcache.artifactId}</artifactId>
-      <version>${sakai.ehcache.version}</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
+<!--${sakai.ehcache.groupId}${sakai.ehcache.artifactId}${sakai.ehcache.version}-->
     <dependency>
       <groupId>fop</groupId>
       <artifactId>fop</artifactId>
       <version>0.20.5</version>
     </dependency>
-    <dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
-      <version>${sakai.hibernate.version}</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
+<!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
@@ -460,11 +466,7 @@
       <artifactId>saxpath</artifactId>
       <version>1.0-FCS</version>
     </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
-    </dependency>
+<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
@@ -475,13 +477,7 @@
       <artifactId>axis-saaj</artifactId>
       <version>1.2-RC1</version>
     </dependency>
-    <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
-      <scope>provided</scope>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
+<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}provided-->
     <dependency>
       <groupId>struts</groupId>
       <artifactId>struts</artifactId>
