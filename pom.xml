@@ -18,8 +18,8 @@
   </issueManagement>
   <licenses>
     <license>
-      <name>Educational Community License, Version 1.0</name>
-      <url>http://www.opensource.org/licenses/ecl1.php</url>
+      <name>Educational Community License, Version 2.0</name>
+      <url>http://www.osedu.org/licenses/ECL-2.0</url>
       <distribution>svn</distribution>
     </license>
   </licenses>
