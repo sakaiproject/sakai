@@ -944,18 +944,16 @@ public class GradingService
   public float getAnswerScore(ItemGradingIfc data, HashMap publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
-    if (answer == null) {
+    if (answer == null || answer.getScore() == null) {
     	return (float) 0;
     }
     ItemDataIfc item = (ItemDataIfc) answer.getItem();
-    Long itemType2 = item.getTypeId();
-    if (answer == null || answer.getScore() == null)
-      return (float) 0;
+    Long itemType = item.getTypeId();
     if (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())
     {
     	// return (float) 0;
     	// Para que descuente (For discount)
-    	if ((TypeIfc.MULTIPLE_CHOICE).equals(itemType2)||(TypeIfc.TRUE_FALSE).equals(itemType2)){
+    	if ((TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)){
     		return (answer.getDiscount().floatValue() * ((float) -1));
     	}else{
     		return (float) 0;
