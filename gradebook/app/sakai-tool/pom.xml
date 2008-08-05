@@ -13,6 +13,22 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
@@ -136,11 +152,7 @@
 
 -->
 <!-- End database dependencies -->
-    <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
-    </dependency>
+<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->
     <dependency>
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.mock.artifactId}</artifactId>
@@ -158,16 +170,8 @@
       <artifactId>jta</artifactId>
       <version>h2.1.8</version>
     </dependency>
-    <dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
-      <version>${sakai.hibernate.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${sakai.ehcache.groupId}</groupId>
-      <artifactId>${sakai.ehcache.artifactId}</artifactId>
-      <version>${sakai.ehcache.version}</version>
-    </dependency>
+<!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
+<!--${sakai.ehcache.groupId}${sakai.ehcache.artifactId}${sakai.ehcache.version}-->
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
@@ -273,13 +277,7 @@
       <artifactId>standard</artifactId>
       <version>1.1.2</version>
     </dependency>
-    <dependency>
-<!--id: servletapi -->
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
-<!--properties:  war.bundle: false -->
-    </dependency>
+<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
