@@ -63,15 +63,14 @@ limitations under the License.
   </build>
   <dependencies>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
-      <type>jar</type>
-    </dependency>
+<!--javax.servletservlet-api${sakai.servletapi.version}jar-->
   </dependencies>
 </project>
