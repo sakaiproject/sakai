@@ -3,7 +3,7 @@
  * $URL$
  * TagSearchProvider.java - entity-broker - Apr 5, 2008 7:21:20 PM - azeckoski
  **************************************************************************
- * Copyright 2006 Sakai Foundation
+ * Copyright 2008 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. 

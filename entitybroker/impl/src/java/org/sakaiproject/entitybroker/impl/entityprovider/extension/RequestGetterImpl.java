@@ -3,7 +3,7 @@
  * $URL$
  * RequestGetterImpl.java - entity-broker - Apr 8, 2008 9:03:50 AM - azeckoski
  **************************************************************************
- * Copyright 2006 Sakai Foundation
+ * Copyright 2008 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. 

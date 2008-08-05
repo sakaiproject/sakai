@@ -3,7 +3,7 @@
  * $URL$
  * MapConverter.java - entity-broker - Apr 8, 2008 6:43:14 PM - azeckoski
  **************************************************************************
- * Copyright 2006 Sakai Foundation
+ * Copyright 2008 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. 

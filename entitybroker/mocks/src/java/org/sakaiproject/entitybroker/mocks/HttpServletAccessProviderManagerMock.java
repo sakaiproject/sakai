@@ -3,7 +3,7 @@
  * $URL$
  * HttpServletAccessProviderManagerMock.java - entity-broker - Apr 6, 2008 12:20:45 PM - azeckoski
  **************************************************************************
- * Copyright 2006 Sakai Foundation
+ * Copyright 2008 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. 
