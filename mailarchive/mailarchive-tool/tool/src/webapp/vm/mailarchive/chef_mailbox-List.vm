@@ -1,7 +1,9 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/email/chef_mailbox-List.vm,v 1.9 2005/06/06 18:47:18 ggolden.umich.edu Exp $ -->
+#if (${allow-search})
 <script type="text/javascript" language="JavaScript">
   focus_path = ["search"];
 </script>
+#end
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<form name="toolbar" action="#toolForm("$action")" method="post">
@@ -29,6 +31,7 @@
 				<p class="instruction"> $tlang.getString("lis.youarenot")</p>	
 			#end
 		</div>
+			#if (${allow-search})
 			<div class="searchNav"> 
 				<label for="search" class="skip">$tlang.getString('lis.search')</label>
 				<input size="15" value="$!search" name="search" id="search" type="text" class="searchField"  />
@@ -39,6 +42,7 @@
 				#end
 				<div id="submitnotifwrap" style="padding:6px 0;visibility:hidden"><span id="submitnotif">$tlang.getString("lis.searchnotif")</span></div>								
 			</div>
+			#end
 		</div>	
 	</form>	
 
@@ -130,12 +134,13 @@
 					</a>
 				</th>
 			</tr>
+			#set($msgPos=$topMsgPosInt)
 			#foreach ($item in $messages)
 				<tr>
 					<td headers="from">$validator.escapeHtml($item.Header.FromAddress)</td>
 					<td headers="subject">
 						<h4><a href="#" 
-						onclick="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)")';return false;" 
+						onclick="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)&amp;item_number=$msgPos")';return false;" 
 						title="$tlang.getString("lis.viewmessage") $validator.escapeHtml($item.Header.Subject)">
 							$validator.escapeHtml($item.Header.Subject)
 
@@ -159,6 +164,7 @@
 					</td>
 					<td headers="date">$item.Header.DateSent.toStringLocalFullZ()</td>
 				</tr>
+				#set($msgPos=$msgPos+1)
 			#end		
 		</table>
 	#else

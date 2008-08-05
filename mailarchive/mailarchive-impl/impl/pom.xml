@@ -41,6 +41,10 @@
       <artifactId>sakai-util</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-db-conversion</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-mailarchive-api</artifactId>
       <version>${sakai.version}</version>
