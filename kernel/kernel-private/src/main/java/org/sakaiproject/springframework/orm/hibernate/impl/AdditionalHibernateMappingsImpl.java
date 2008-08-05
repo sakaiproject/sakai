@@ -3,7 +3,7 @@
  * $Id: header.java 9220 2006-05-09 23:09:28Z ggolden@umich.edu $
  ***********************************************************************************
  *
- * Copyright 2006 Sakai Foundation
+ * Copyright 2005, 2006, 2007, 2008 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. 
