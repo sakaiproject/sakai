@@ -3,7 +3,7 @@
  * $Id: HtmlSortHeaderRenderer.java 4381 2007-03-21 11:25:54Z nuno@ufp.pt $
  ***********************************************************************************
  *
- * Copyright 2006 Sakai Foundation
+ * Copyright 2003, 2004, 2005, 2006, 2007 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. 
