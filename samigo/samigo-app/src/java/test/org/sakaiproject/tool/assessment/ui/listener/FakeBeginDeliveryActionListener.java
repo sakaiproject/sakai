@@ -44,8 +44,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Title: Samigo</p>
  * <p>Purpose:  this module fakes the link  of published assessment
  * <p>Description: Sakai Assessment Manager</p>
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
- * <p>Organization: Sakai Project</p>
  */
 
 public class FakeBeginDeliveryActionListener implements ActionListener
