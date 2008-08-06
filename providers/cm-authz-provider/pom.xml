@@ -5,7 +5,7 @@
     <artifactId>providers-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-coursemanagement-authz-provider-impl</name>
   <groupId>org.sakaiproject</groupId>
