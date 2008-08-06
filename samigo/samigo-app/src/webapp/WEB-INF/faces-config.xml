@@ -1,13 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
-
-<!--
-  Description: Faces Config for Samigo Assessment Tool
-  Copyright: Copyright (c) 2004
-  Organization: Sakai Project
-  Author: Ed Smiley
-  @version $Id: faces-config.xml,v 1.96 2005/06/13 17:08:31 daisyf.stanford.edu Exp $
--->
-
 <!DOCTYPE faces-config PUBLIC
   "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
   "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
