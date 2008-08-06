@@ -378,5 +378,16 @@ log.debug("agentfacade.getEid(agentS) agentString = " + agentString);
     return helper.isFileUploadAvailable();
   }
 
+  @Override
+  public boolean equals(Object obj) {
+	  if (obj instanceof AgentFacade) {
+		  if (((AgentFacade)obj).agentString.equals(this.agentString))
+			  return true;
+		  else
+			  return false;
+	  }
+
+	  return false;
+  }
 
 }

@@ -25,13 +25,16 @@ package org.sakaiproject.tool.assessment.services;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
@@ -67,7 +70,15 @@ public class QuestionPoolService
     return results;
   }
 
-
+  public QuestionPoolIteratorFacade getAllPoolsWithAccess(String agentId)
+  {
+	  QuestionPoolIteratorFacade results = null;
+	  results =
+		  (QuestionPoolIteratorFacade) PersistenceService.getInstance().
+		  getQuestionPoolFacadeQueries().getAllPoolsWithAccess(agentId);
+	  return results;
+  }
+  
   /**
    * Get basic info for pools(just id and  title)  for displaying in pulldown .
    */
@@ -521,5 +532,68 @@ public class QuestionPoolService
        e.printStackTrace();
      }
      return result.intValue();
+  }
+
+  /**
+   * Shared Pools with other user
+   */
+  public void addQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId) {
+	  try {
+		  PersistenceService.getInstance().
+		  getQuestionPoolFacadeQueries().addQuestionPoolAccess(user, questionPoolId, accessTypeId);
+	  } catch (Exception e) {
+		  log.error(e);
+	  }
+  }
+
+  public void removeQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId) {
+	  try {
+		  PersistenceService.getInstance().
+		  getQuestionPoolFacadeQueries().removeQuestionPoolAccess(user, questionPoolId, accessTypeId);
+	  } catch (Exception e) {
+		  log.error(e);
+	  }
+  }
+
+  public List<AgentFacade> getAgentsWithAccess(Long questionPoolId) {
+
+	  List<AgentFacade> agents = null;
+	  try {
+		  agents = PersistenceService.getInstance().
+		  getQuestionPoolFacadeQueries().getAgentsWithAccess(questionPoolId);
+	  } catch (Exception e) {
+		  log.error(e);
+	  }
+
+	  return agents;
+  }
+
+  public List<AgentFacade> getAgentsWithoutAccess(Long questionPoolId, String realmId) {
+
+	  List<AgentFacade> agents = new ArrayList<AgentFacade>();
+
+	  try {
+		  // Get agents with access
+		  List<AgentFacade> agentsWithAccess = getAgentsWithAccess(questionPoolId);
+
+		  List<String> azGroups = new ArrayList<String>();
+		  azGroups.add("/site/" + realmId);
+
+		  // Get all agents
+		  Set<String> users = AuthzGroupService.getUsersIsAllowed("assessment.questionpool.create", azGroups);
+
+		  // Create the AgentFacade
+		  for (String userId : users) {
+			  AgentFacade agent = new AgentFacade(userId);
+			  agents.add(agent);
+		  }
+
+		  agents.removeAll(agentsWithAccess);
+
+	  } catch (Exception e) {
+		  log.error(e);
+	  }
+
+	  return agents;
   }
 }

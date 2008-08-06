@@ -287,7 +287,7 @@ public class QuestionPoolBean implements Serializable
       //System.out.println("****** QPBean: build tree");
       tree=
         new QuestionPoolTreeImpl(
-          (QuestionPoolIteratorFacade) delegate.getAllPools(AgentFacade.getAgentString()));
+          (QuestionPoolIteratorFacade) delegate.getAllPoolsWithAccess(AgentFacade.getAgentString()));
     }
     catch(Exception e)
     {
@@ -2081,4 +2081,9 @@ String poolId = ContextUtil.lookupParam("qpid");
 			this.subQpDataModel = subQpDataModel;
 		}
 	}
+  	
+  	public String getAgentId()
+  	{
+  		return AgentFacade.getAgentString();
+  	}
 }

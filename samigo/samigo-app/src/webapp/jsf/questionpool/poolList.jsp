@@ -99,6 +99,8 @@
 <h:outputText rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" escape="false" value="</p>"/>
 </div>
 
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+
  <div class="tier2">
 <%@ include file="/jsf/questionpool/poolTreeTable.jsp" %>
 

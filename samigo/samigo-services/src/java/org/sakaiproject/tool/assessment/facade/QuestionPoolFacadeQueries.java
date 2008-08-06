@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.facade;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,36 +32,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Collections;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.tool.assessment.data.model.Tree;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
@@ -93,7 +88,7 @@ public class QuestionPoolFacadeQueries
   public List getAllPoolsByAgent(final String agentId) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("from QuestionPoolData a where a.ownerId= ? ");
+	    		Query q = session.createQuery("from QuestionPoolData a  where a.questionPoolId in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId= ?) ");
 	    		q.setString(0, agentId);
 	    		return q.list();
 	    	};
@@ -178,10 +173,38 @@ public class QuestionPoolFacadeQueries
     return new QuestionPoolIteratorFacade(qpList);
   }
 
+  public QuestionPoolIteratorFacade getAllPoolsWithAccess(String agentId) {
+	  ArrayList qpList = new ArrayList();
+	  List poolList = getAllPoolsByAgent(agentId); 
+
+	  try {
+		  Iterator j = poolList.iterator();
+		  while (j.hasNext()) {
+			  QuestionPoolData qpp = (QuestionPoolData) j.next();
+			  // I really wish we don't need to populate  the questionpool size & subpool size for JSF
+			  // watch this for performance. hope Hibernate is smart enough not to load the entire question
+			  // - daisy, 10/04/04
+
+			  // The comment below is to not recover all questions of items
+			  //populateQuestionPoolItemDatas(qpp);
+
+			  // I do this call, after it did in populateQuestionPoolItemData, to recover the number of subpools that will be show in the root of pools.
+			  qpp.setSubPoolSize(new Integer(getSubPoolSize(qpp.getQuestionPoolId())));
+
+			  qpList.add(getQuestionPool(qpp));
+		  }
+	  }
+	  catch (Exception e) {
+		  log.warn(e.getMessage());
+	  }
+	  return new QuestionPoolIteratorFacade(qpList);
+  }
+  
   public ArrayList getBasicInfoOfAllPools(final String agentId) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title)from QuestionPoolData a where a.ownerId= ? ");
+	    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title)from QuestionPoolData a where a.questionPoolId  " +
+	    		                              "in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId= ?)");
 	    		q.setString(0, agentId);
 	    		return q.list();
 	    	};
@@ -1325,4 +1348,37 @@ public class QuestionPoolFacadeQueries
 	  return count;
   }
 
+  /**
+   * Shared Pools with other user
+   */
+  public void addQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId) {
+	  QuestionPoolAccessData qpad = new QuestionPoolAccessData(questionPoolId, user, accessTypeId);
+
+	  getHibernateTemplate().saveOrUpdate(qpad);
+  }
+
+  public void removeQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId) {
+	  QuestionPoolAccessData qpad = new QuestionPoolAccessData(questionPoolId, user, accessTypeId);
+
+	  getHibernateTemplate().delete(qpad);
+  }
+
+  public List<AgentFacade> getAgentsWithAccess(final Long questionPoolId) {
+	  final HibernateCallback hcb = new HibernateCallback(){
+		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			  Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.questionPoolId= ?");
+			  q.setLong(0, questionPoolId.longValue());
+			  return q.list();
+		  };
+	  };
+	  List<QuestionPoolAccessData> qpaList = getHibernateTemplate().executeFind(hcb);
+
+	  List<AgentFacade> agents = new ArrayList();
+	  for (QuestionPoolAccessData pool : qpaList) {
+		  AgentFacade agent = new AgentFacade(pool.getAgentId());
+		  agents.add(agent);
+	  }
+
+	  return agents;
+  }
 }

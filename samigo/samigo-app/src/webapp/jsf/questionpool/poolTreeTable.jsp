@@ -88,6 +88,13 @@
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 
+<!-- Share Pool -->
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
+  <h:commandLink rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" id="sharelink" immediate="true" action="#{questionpoolshare.startSharePool}" >
+  <h:outputText value="#{questionPoolMessages.t_sharePool}" />
+  <f:param name="qpid" value="#{pool.questionPoolId}"/>           
+</h:commandLink>
+
 <%--
 <h:outputText value=" #{questionPoolMessages.separator} " />
 
@@ -223,7 +230,9 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
      <f:facet name="header">
        <h:outputText value="#{questionPoolMessages.remove_chbox}"/>
      </f:facet>
-<h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value ="#{questionpool.destPools}">
+
+<h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value ="#{questionpool.destPools}" rendered="#{pool.ownerId==questionpool.agentId}">
+
 	<f:selectItem itemValue="#{pool.questionPoolId}"  itemLabel=""/>
 </h:selectManyCheckbox>
     </h:column>

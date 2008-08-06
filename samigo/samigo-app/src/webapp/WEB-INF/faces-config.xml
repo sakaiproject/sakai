@@ -444,6 +444,12 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <description> Question Pool share backing bean.</description>
+    <managed-bean-name>questionpoolshare</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolShareBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <description>For questionpool: Question Pool Data backing bean.</description>
     <managed-bean-name>questionpooldata</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolData</managed-bean-class>
@@ -872,6 +878,10 @@
     <navigation-case>
       <from-outcome>removePool</from-outcome>
       <to-view-id>/jsf/questionpool/removePool.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>sharePool</from-outcome>
+      <to-view-id>/jsf/questionpool/sharePool.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>importPool</from-outcome>

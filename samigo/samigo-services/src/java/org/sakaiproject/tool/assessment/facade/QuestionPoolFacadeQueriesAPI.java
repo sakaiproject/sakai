@@ -62,6 +62,8 @@ public interface QuestionPoolFacadeQueriesAPI
    */
   public QuestionPoolIteratorFacade getAllPools(String agentId);
 
+  public QuestionPoolIteratorFacade getAllPoolsWithAccess(String agentId);
+  
   public ArrayList getBasicInfoOfAllPools(String agentId);
  
   public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId, String agentId);
@@ -210,5 +212,14 @@ public interface QuestionPoolFacadeQueriesAPI
   public ItemFacade copyItemFacade2(ItemDataIfc itemData);
 
   public Integer getCountItemFacades(Long questionPoolId);
+  
+  /**
+   * Shared Pools with other user
+   */
+  public void addQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId);
+  
+  public void removeQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId);
+  
+  public List<AgentFacade> getAgentsWithAccess(final Long questionPoolId);
 
 }
