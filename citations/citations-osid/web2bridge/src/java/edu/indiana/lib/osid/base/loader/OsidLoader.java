@@ -323,10 +323,6 @@ private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.u
      * </p>
      *
      * <p>
-     * <b>Copyright and license statement:</b>
-     * </p>
-     *
-     * <p>
      * Copyright &copy; 2003 Massachusetts Institute of     Technology &lt;or
      * copyright holder&gt;
      * </p>
