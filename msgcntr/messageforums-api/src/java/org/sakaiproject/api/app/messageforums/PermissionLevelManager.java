@@ -94,7 +94,13 @@ public interface PermissionLevelManager {
     public DBMembershipItem createDBMembershipItem(String name, String permissionLevelName, Integer type);
     public void saveDBMembershipItem(DBMembershipItem item);
     public void savePermissionLevel(PermissionLevel level);
+    
+    /**
+     * 
+     * @return a non-null list of the names for the non-custom permissions
+     */
     public  List getOrderedPermissionLevelNames(); 
+    
     public Boolean getCustomPermissionByName(String customPermissionName, PermissionLevel permissionLevel);
     public List getCustomPermissions();
   	public List getAllMembershipItemsForForumsForSite(final Long areaId);

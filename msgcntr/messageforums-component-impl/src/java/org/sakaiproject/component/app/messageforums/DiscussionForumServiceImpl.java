@@ -1024,6 +1024,11 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		Set membershipItemSet = new HashSet();
 		List allowedPermNames = getSiteRolesAndGroups(siteId);
 		List allowedPermLevels = permissionManager.getOrderedPermissionLevelNames();
+		
+		// add the custom level, as well
+		if (allowedPermLevels != null && !allowedPermLevels.contains(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)) {
+			allowedPermLevels.add(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM);
+		}
 
 		NodeList permissionsNodes = permissionsElement.getChildNodes();
 		for (int m=0; m < permissionsNodes.getLength(); m++)
