@@ -19,7 +19,7 @@ limitations under the License.
   <parent>
     <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>SNAPSHOT</version>
+    <version>2.6.0RC1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
@@ -46,30 +46,30 @@ limitations under the License.
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-model-api</artifactId>
-        <version>SNAPSHOT</version>
+        <version>2.6.0RC1-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-logic-api</artifactId>
-        <version>SNAPSHOT</version>
+        <version>2.6.0RC1-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-hbm</artifactId>
-        <version>SNAPSHOT</version>
+        <version>2.6.0RC1-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-dao-impl</artifactId>
-        <version>SNAPSHOT</version>
+        <version>2.6.0RC1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-logic-impl</artifactId>
-        <version>SNAPSHOT</version>
+        <version>2.6.0RC1-SNAPSHOT</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
