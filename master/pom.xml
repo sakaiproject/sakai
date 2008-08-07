@@ -5,7 +5,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Sakai Master</name>
-  <version>SNAPSHOT</version>
+  <version>2.6.0RC1-SNAPSHOT</version>
   <organization>
     <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>
@@ -63,7 +63,7 @@
     <url>https://source.sakaiproject.org/svn/master/trunk</url>
   </scm>
   <properties>
-    <sakai.version>SNAPSHOT</sakai.version>
+    <sakai.version>2.6.0RC1-SNAPSHOT</sakai.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring</sakai.spring.artifactId>
     <sakai.spring.version>2.0.6</sakai.spring.version>
@@ -231,9 +231,6 @@ This is not needed now that pluto have been released
         <artifactId>sakai-db-conversion</artifactId>
         <version>1.0RC2-SNAPSHOT</version>
       </dependency>
-
-
-
 <!-- provided by the JDK, here to ensure its not packaged in child poms 
      child poms may still override if necessary -->
       <dependency>
@@ -884,7 +881,6 @@ This is not needed now that pluto have been released
         <artifactId>geronimo-spec-jms</artifactId>
         <version>1.1-rc4</version>
       </dependency>
-
     </dependencies>
   </dependencyManagement>
 <!-- unit tests are a global dependency -->
@@ -985,16 +981,16 @@ This is not needed now that pluto have been released
           <javadocDir>apidocs</javadocDir>
         </configuration>
       </plugin>
-      <!-- taglib plugin used to generate taglib jars during release -->
-      	<plugin>
-			<groupId>net.sourceforge.maven-taglib</groupId>
-			<artifactId>maven-taglib-plugin</artifactId>
-			<configuration>
-				<goalPrefix>taglib</goalPrefix>
-				<taglib.src.dir>src</taglib.src.dir>
-				<!-- <taglib.src.dir>src/webapp/WEB-INF</taglib.src.dir> -->
-			</configuration>
-		</plugin>
+<!-- taglib plugin used to generate taglib jars during release -->
+      <plugin>
+        <groupId>net.sourceforge.maven-taglib</groupId>
+        <artifactId>maven-taglib-plugin</artifactId>
+        <configuration>
+          <goalPrefix>taglib</goalPrefix>
+          <taglib.src.dir>src</taglib.src.dir>
+<!-- <taglib.src.dir>src/webapp/WEB-INF</taglib.src.dir> -->
+        </configuration>
+      </plugin>
     </plugins>
   </reporting>
   <build>
