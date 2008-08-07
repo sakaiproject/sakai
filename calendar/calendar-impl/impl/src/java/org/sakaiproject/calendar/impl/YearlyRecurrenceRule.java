@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
 public class YearlyRecurrenceRule extends RecurrenceRuleBase
 {
 	/** The unique type / short frequency description. */
-	protected final static String FREQ = "year";
+	protected static final String FREQ = "year";
 
 	/**
 	 * Default constructor
@@ -109,7 +109,7 @@ public class YearlyRecurrenceRule extends RecurrenceRuleBase
 	 */
 	public String getFrequencyDescription()
 	{
-		return FREQ;
+		return rb.getString("set.years");
 	}
 
 }

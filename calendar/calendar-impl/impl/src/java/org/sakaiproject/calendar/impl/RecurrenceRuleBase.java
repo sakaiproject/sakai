@@ -40,6 +40,8 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import org.sakaiproject.util.ResourceLoader;
+
 /**
  * This is a common base for the daily, weekly, monthly, and yearly recurrence rules.
  */
@@ -55,6 +57,9 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 
 	/** No time ranges past this time are generated - if null, does not limit. */
 	private Time until = null;
+
+	/*For i18n of recurrence rule description*/
+	protected ResourceLoader rb = new ResourceLoader("calendar");
 
 	/**
 	* Construct.

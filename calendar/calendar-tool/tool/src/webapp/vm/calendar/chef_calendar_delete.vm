@@ -51,7 +51,7 @@
 			<th>$tlang.getString("gen.freq")</th> 
 			<td>
 				#if ($rule)
-					$tlang.getString("del.every") $rule.Interval $freq(s)
+					$tlang.getString("del.every") $rule.Interval $freq
 					#if (!($rule.Count == 0)) , $tlang.getString("del.number") $rule.Count $tlang.getString("del.times") <br/>#end
 					#if ($rule.Until) , $tlang.getString("del.endson") $rule.Until.breakdownLocal().Month/$rule.Until.breakdownLocal().Day/$rule.Until.breakdownLocal().year <br/>#end
 				#else

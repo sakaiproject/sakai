@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
 public class DailyRecurrenceRule extends RecurrenceRuleBase
 {
 	/** The unique type / short frequency description. */
-	protected final static String FREQ = "day";
+	protected static final String FREQ = "day";
 
 	/**
 	* Construct.
@@ -112,7 +112,7 @@ public class DailyRecurrenceRule extends RecurrenceRuleBase
 	 */
 	public String getFrequencyDescription()
 	{
-		return FREQ;
+		return rb.getString("set.days");
 	}
 
 }	// excludeInstances

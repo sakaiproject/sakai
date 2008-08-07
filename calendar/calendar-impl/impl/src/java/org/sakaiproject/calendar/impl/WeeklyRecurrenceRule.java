@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
 public class WeeklyRecurrenceRule extends RecurrenceRuleBase
 {
 	/** The unique type / short frequency description. */
-	protected final static String FREQ = "week";
+	protected static final String FREQ = "weeks";
 
 	/**
 	* Construct.
@@ -114,7 +114,7 @@ public class WeeklyRecurrenceRule extends RecurrenceRuleBase
 	 */
 	public String getFrequencyDescription()
 	{
-		return FREQ;
+		return rb.getString("set.weeks");
 	}
 
 }	// WeeklyRecurrenceRule
