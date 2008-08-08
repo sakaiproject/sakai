@@ -552,7 +552,7 @@ public class PostemTool {
 						for(int col=0; col < headingList.size(); col++) {
 							String heading = (String)headingList.get(col).toString().trim();	
 							// Make sure there are no blank headings
-							if(heading.equals("") || heading == null) {
+							if(heading == null || heading.equals("")) {
 								PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
 										"blank_headings", new Object[] {});
 								return "create_gradebook";
@@ -991,7 +991,7 @@ public class PostemTool {
 			row++;
 			String usr = (String) studentIter.next();
 			
-			if (usr.equals("") || usr == null) {
+			if (usr == null || usr.equals("")) {
 				usersAreValid = false;
 				blankRows.add(new Integer(row));
 			} else if(siteMembers == null || (siteMembers != null && !siteMembers.contains(getUserId(usr)))) {
