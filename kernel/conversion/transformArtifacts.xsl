@@ -126,66 +126,66 @@
       
     
     <xsl:choose>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-entity-util']" >
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-entity-util']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-event-util']" >
+      </xsl:when>
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-event-util']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-content-util']" >
+      </xsl:when>
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-content-util']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-db-conversion']" >
+      </xsl:when>
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-db-conversion']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-db-storage']" >
+      </xsl:when>
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-db-storage']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-jcr-util']" >
+      </xsl:when>
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-jcr-util']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-tool-util']" >
+      </xsl:when>
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-tool-util']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-user-util']" >
+      </xsl:when>
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-user-util']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-util-log']" >
+      </xsl:when>
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-util-log']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
-      <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-util']" >
+      </xsl:when>
+      <xsl:when test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-util']" >
         <p:dependency>
           <p:groupId>org.sakaiproject.kernel</p:groupId>
           <p:artifactId>sakai-kernel-util</p:artifactId>
         </p:dependency>
-      </xsl:if>
+      </xsl:when>
     </xsl:choose>
       
     <xsl:if test="p:dependency[p:groupId='org.sakaiproject' and p:artifactId='sakai-component-integration-test']" >
