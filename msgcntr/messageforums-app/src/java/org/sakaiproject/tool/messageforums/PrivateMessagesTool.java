@@ -1696,7 +1696,7 @@ private   int   getNum(char letter,   String   a)
    */ 
   public String processPvtMsgCompose() {
     setFromMainOrHp();
-    fromMain = (msgNavMode == "") || (msgNavMode == "privateMessages");
+    fromMain = ("".equals(msgNavMode)) || ("privateMessages".equals(msgNavMode));
     LOG.debug("processPvtMsgCompose()");
     return PVTMSG_COMPOSE;
   }

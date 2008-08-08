@@ -1414,7 +1414,7 @@ public class DiscussionForumTool
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_TOPIC);
     DiscussionTopic topic = null;
-    if(getExternalParameterByKey(TOPIC_ID) != "" && getExternalParameterByKey(TOPIC_ID) != null){
+    if(getExternalParameterByKey(TOPIC_ID) != null && !"".equals(getExternalParameterByKey(TOPIC_ID))){
 	    topic = (DiscussionTopic) forumManager
 	        .getTopicByIdWithAttachments(new Long(
 	            getExternalParameterByKey(TOPIC_ID)));
@@ -1767,12 +1767,12 @@ public class DiscussionForumTool
 	    threadAnchorMessageId = null;
 	    String threadId = getExternalParameterByKey(MESSAGE_ID);
 	    String topicId = getExternalParameterByKey(TOPIC_ID);
-	    if (threadId == "")
+	    if ("".equals(threadId))
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    if (topicId == "")
+	    if ("".equals(topicId))
 	    {
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();

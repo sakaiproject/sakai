@@ -1054,7 +1054,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       //   a non-instructor (! site.upd)
       //   instructor but not the author
       String sendToString = message.getRecipientsAsText();
-      if (sendToString.indexOf("(") > 0 && (! isInstructor() || !isEmailPermit()|| (message.getAuthor() != getAuthorString())) ) {
+      if (sendToString.indexOf("(") > 0 && (! isInstructor() || !isEmailPermit()|| (!message.getAuthor().equals(getAuthorString()))) ) {
     	  sendToString = sendToString.substring(0, sendToString.indexOf("("));
       }
       
