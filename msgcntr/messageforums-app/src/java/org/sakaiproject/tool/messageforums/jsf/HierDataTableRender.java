@@ -137,7 +137,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			while (columns.hasNext()) {
 				UIColumn column = (UIColumn) columns.next();
 				//write column for arrows... only if last column did not specify arrows
-				if(column.getId().endsWith("_msg_subject") && !oldColumn.getId().endsWith("_toggle") && !noArrows.equals("true")){
+				if(column.getId().endsWith("_msg_subject") && !oldColumn.getId().endsWith("_toggle") && !"true".equals(noArrows)){
 					writer.startElement("th", null);
 					writer.writeAttribute("scope", "col", null);
 					writer.endElement("th");
@@ -298,7 +298,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			// Render the beginning of this row
 			////writer.startElement("tr", data);
 			//////
-			if(dmb.getDepth() > 0 && !noArrows.equals("true"))
+			if(dmb.getDepth() > 0 && !"true".equals(noArrows))
 			{
 				//////writer.write("<div style=\"display:none\"  id=\"_id_" + new Integer(hideDivNo).toString() + "__hide_division_" + "\">");
 				writer.write("<tr style=\"display:none\" id=\"_id_" + new Integer(hideDivNo).toString() + "__hide_division_" + "\">");
@@ -333,7 +333,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 				
 				//check if we need the arraow column
 				// if this is the _msg_subject column, then quickly add an arrow column
-				if((column.getId().endsWith("_msg_subject") || column.getId().endsWith("_toggle")) && !toggleWritten && !noArrows.equals("true")){
+				if((column.getId().endsWith("_msg_subject") || column.getId().endsWith("_toggle")) && !toggleWritten && !"true".equals(noArrows)){
 					writer.startElement("td", null);
 					if (columnStyles > 0) {
 						writer.writeAttribute("class", columnClasses[columnStyle++],

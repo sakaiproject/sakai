@@ -78,7 +78,7 @@ public class PermissionBean {
   {
     if (selectedLevel != null)
     {      
-     if (!selectedLevel.equals("Custom"))
+     if (!"Custom".equals(selectedLevel))
      {
        PermissionLevel permLevel= permissionLevelManager.getPermissionLevelByName(selectedLevel);
        this.item.setPermissionLevel(permLevel);

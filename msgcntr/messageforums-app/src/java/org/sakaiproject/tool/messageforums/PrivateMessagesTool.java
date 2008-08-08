@@ -4034,11 +4034,11 @@ private   int   getNum(char letter,   String   a)
   }
       
   private String getPrivateMessageTypeFromContext(String navMode){    
-    if(navMode.equals("pvt_received"))
+    if(PVTMSG_MODE_RECEIVED.equals(navMode))
         return typeManager.getReceivedPrivateMessageType();
-   	else if(navMode.equals("pvt_sent"))
+   	else if(PVTMSG_MODE_SENT.equals(navMode))
         return typeManager.getSentPrivateMessageType();
-   	else if(navMode.equals("pvt_deleted"))
+   	else if(PVTMSG_MODE_DELETE.equals(navMode))
         return typeManager.getDeletedPrivateMessageType(); 
    	else if (PVTMSG_MODE_DRAFT.equalsIgnoreCase(navMode))
    		return typeManager.getDraftPrivateMessageType();

@@ -281,7 +281,7 @@ public class DiscussionTopicBean
   public String getParentForumId()
   {
     LOG.debug("getParentForumId()");
-    if (parentForumId.equals("")){
+    if ("".equals(parentForumId)){
     	parentForumId = topic.getBaseForum().getId().toString();
     }
     return parentForumId;
@@ -293,7 +293,7 @@ public class DiscussionTopicBean
   public String getMustRespondBeforeReading()
   {
     LOG.debug("getMustRespondBeforeReading()");
-    if (mustRespondBeforeReading.equals("")){
+    if ("".equals(mustRespondBeforeReading)){
 	    if (topic == null || topic.getMustRespondBeforeReading() == null
 	        || topic.getMustRespondBeforeReading().booleanValue() == false)
 	    {
@@ -332,7 +332,7 @@ public class DiscussionTopicBean
   public String getLocked()
   {
     LOG.debug("getLocked()");
-    if (locked.equals("")){
+    if ("".equals(locked)){
 	    if (topic == null || topic.getLocked() == null
 	        || topic.getLocked().booleanValue() == false)
 	    {
@@ -381,7 +381,7 @@ public class DiscussionTopicBean
   public String getModerated()
   {
     LOG.debug("getModerated()");
-    if (moderated.equals("")){
+    if ("".equals(moderated)){
 	    if (topic == null || topic.getModerated() == null
 	        || topic.getModerated().booleanValue() == false)
 	    {
