@@ -5,21 +5,25 @@
 package org.sakaiproject.entitybroker.mocks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
-import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.TagProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
 /**
  * Mock which emulates the taggable abilities, note that by default there are no tags on entities
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class TaggableEntityProviderMock extends EntityProviderMock implements Taggable, TagSearchable {
+public class TaggableEntityProviderMock extends EntityProviderMock implements Taggable, TagProvideable {
 
    public Map<String, Set<String>> entityTags = new HashMap<String, Set<String>>();
 
@@ -43,18 +47,38 @@ public class TaggableEntityProviderMock extends EntityProviderMock implements Ta
     */
    public TaggableEntityProviderMock(String prefix, String reference, String[] tags) {
       super(prefix);
-      setTags(reference, tags);
+      setTagsForEntity(reference, tags);
    }
 
-   public Set<String> getTags(String reference) {
-      Set<String> tags = entityTags.get(reference);
-      if (tags == null) {
-         return new HashSet<String>();
+   public void addTagsToEntity(String reference, String[] tags) {
+      if (entityTags.containsKey(reference)) {
+         for (String tag : tags) {
+            // just add it to the set
+            entityTags.get(reference).add(tag);
+         }
+      } else {
+         setTagsForEntity(reference, tags);
       }
-      return entityTags.get(reference);
    }
 
-   public void setTags(String reference, String[] tags) {
+   public List<String> getTagsForEntity(String reference) {
+      if (! entityTags.containsKey(reference)) {
+         return new ArrayList<String>();
+      }
+      ArrayList<String> tags = new ArrayList<String>( entityTags.get(reference) );
+      Collections.sort(tags);
+      return tags;
+   }
+
+   public void removeTagsFromEntity(String reference, String[] tags) {
+      if (entityTags.containsKey(reference)) {
+         for (String tag : tags) {
+            entityTags.get(reference).remove(tag);
+         }
+      }
+   }
+
+   public void setTagsForEntity(String reference, String[] tags) {
       if (tags.length == 0) {
          entityTags.remove(reference);
       } else {
@@ -66,17 +90,34 @@ public class TaggableEntityProviderMock extends EntityProviderMock implements Ta
       }
    }
 
-   public List<String> findEntityRefsByTags(String[] tags) {
+   public List<EntitySearchResult> findEntitesByTags(String[] tags, boolean matchAll, Search search) {
       Set<String> refs = new HashSet<String>();
-      for (String key : entityTags.keySet()) {
-         Set<String> s = entityTags.get(key);
+      if (matchAll) {
+         HashSet<String> allTags = new HashSet<String>();
          for (int i = 0; i < tags.length; i++) {
-            if (s.contains(tags[i])) {
-               refs.add(key);
+            allTags.add(tags[i]);
+         }
+         for (Entry<String, Set<String>> entry : entityTags.entrySet()) {
+            if (entry.getValue().containsAll(allTags)) {
+               refs.add(entry.getKey());
+            }
+         }
+      } else {
+         for (String key : entityTags.keySet()) {
+            Set<String> s = entityTags.get(key);
+            for (int i = 0; i < tags.length; i++) {
+               if (s.contains(tags[i])) {
+                  refs.add(key);
+               }
             }
          }
       }
-      return new ArrayList<String>(refs);
+      ArrayList<EntitySearchResult> results = new ArrayList<EntitySearchResult>();
+      for (String ref : refs) {
+         results.add( new EntitySearchResult(ref, null) );
+      }
+      Collections.sort(results, new EntitySearchResult.ESRReferenceComparator());
+      return results;
    }
 
 }

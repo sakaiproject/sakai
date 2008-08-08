@@ -15,16 +15,17 @@
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
 
 /**
  * Allows an entity to have tags associated with it which can be searched for or simply used as a
- * way to link to this entity <br/> This is one of the capability extensions for the
- * {@link EntityProvider} interface<br/>
+ * way to link to this entity <br/>
+ * This uses the internal tag storage mechanism or a central tag storage mechanism
+ * to store the tag applications<br/>
+ * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface Taggable extends EntityProvider, TagProvider {
+public interface Taggable extends EntityProvider {
 
    // this space left blank intentionally
 

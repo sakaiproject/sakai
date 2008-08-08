@@ -14,6 +14,7 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
@@ -46,8 +47,14 @@ public class ServiceTestManager {
    public EntityHandlerImpl entityRequestHandler;
    public HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
    public EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
+   public EntityMetaPropertiesService entityMetaPropertiesService;
+   public EntityTaggingService entityTaggingService;
 
    public ServiceTestManager(TestData td) {
+      this(td, null);
+   }
+
+   public ServiceTestManager(TestData td, EntityBrokerDao dao) {
       // initialize all the parts
       requestGetter = new RequestGetterImpl();
       entityPropertiesService = new EntityPropertiesService();
@@ -85,6 +92,7 @@ public class ServiceTestManager {
       entityProviderManager.registerEntityProvider(td.entityProviderU1);
       entityProviderManager.registerEntityProvider(td.entityProviderU2);
       entityProviderManager.registerEntityProvider(td.entityProviderU3);
+      entityProviderManager.registerEntityProvider(td.entityProviderTag);
       // add new providers here
 
       entityBrokerManager = new EntityBrokerManager();
@@ -113,6 +121,16 @@ public class ServiceTestManager {
       entityRequestHandler.setRequestStorage( requestStorage );
       entityRequestHandler.setEntityActionsManager(entityActionsManager);
       entityRequestHandler.setEntityRedirectsManager(entityRedirectsManager);
+
+      entityMetaPropertiesService = new EntityMetaPropertiesService();
+      entityMetaPropertiesService.setDao(dao);
+      entityMetaPropertiesService.setEntityBrokerManager(entityBrokerManager);
+      entityMetaPropertiesService.setEntityProviderManager(entityProviderManager);
+
+      entityTaggingService = new EntityTaggingService();
+      entityTaggingService.setDao(dao);
+      entityTaggingService.setEntityBrokerManager(entityBrokerManager);
+      entityTaggingService.setEntityProviderManager(entityProviderManager);
    }
 
 }

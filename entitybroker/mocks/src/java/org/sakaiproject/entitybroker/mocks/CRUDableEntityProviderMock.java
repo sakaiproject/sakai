@@ -63,7 +63,7 @@ public class CRUDableEntityProviderMock extends EntityProviderMock implements Co
       throw new IllegalArgumentException("Invalid id:" + reference.getId());
    }
 
-   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
+   public List<?> getEntities(EntityReference ref, Search search) {
       List<MyEntity> entities = new ArrayList<MyEntity>();
       if (search.isEmpty()) {
          // return all

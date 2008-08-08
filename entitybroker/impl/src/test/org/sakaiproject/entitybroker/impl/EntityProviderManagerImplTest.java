@@ -28,7 +28,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResol
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.TagProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
@@ -174,7 +174,7 @@ public class EntityProviderManagerImplTest extends TestCase {
       assertTrue(caps.contains(EntityProvider.class));
       assertTrue(caps.contains(CoreEntityProvider.class));
       assertTrue(caps.contains(Taggable.class));
-      assertTrue(caps.contains(TagSearchable.class));
+      assertTrue(caps.contains(TagProvideable.class));
 
       caps = entityProviderManager.getPrefixCapabilities(TestData.PREFIX4);
       assertNotNull(caps);
@@ -205,7 +205,7 @@ public class EntityProviderManagerImplTest extends TestCase {
       assertTrue(caps.contains(EntityProvider.class));
       assertTrue(caps.contains(CoreEntityProvider.class));
       assertTrue(caps.contains(Taggable.class));
-      assertTrue(caps.contains(TagSearchable.class));
+      assertTrue(caps.contains(TagProvideable.class));
       
    }
 

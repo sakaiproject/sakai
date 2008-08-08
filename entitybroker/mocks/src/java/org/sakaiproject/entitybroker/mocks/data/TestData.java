@@ -20,9 +20,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.TagProvideable;
 import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsExecutionEntityProviderMock;
@@ -35,6 +35,7 @@ import org.sakaiproject.entitybroker.mocks.RESTfulEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ReferenceParseableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.RequestStoreableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ResolvableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.TagEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.TaggableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.RedirectControllableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.RedirectDefineableEntityProviderMock;
@@ -235,6 +236,15 @@ public class TestData {
    public static String REFU3_2 = EntityReference.SEPARATOR + PREFIXU3
          + EntityReference.SEPARATOR + IDSU3[1];
 
+   public static String PREFIXT1 = "tagging";
+   public static String[] IDST1 = new String[] { "tag111", "tag222", "tag333" };
+   public static String REFT1 = EntityReference.SEPARATOR + PREFIXT1
+         + EntityReference.SEPARATOR + IDST1[0];
+   public static String REFT1_2 = EntityReference.SEPARATOR + PREFIXT1
+         + EntityReference.SEPARATOR + IDST1[1];
+   public static String REFT1_3 = EntityReference.SEPARATOR + PREFIXT1
+         + EntityReference.SEPARATOR + IDST1[2];
+
    public static String INVALID_REF = "invalid_reference-1";
    public static String INVALID_URL = "http://bkjskldsalkdsa/sdakljdskl/stuff";
 
@@ -270,10 +280,14 @@ public class TestData {
     */
    public CoreEntityProvider entityProvider1 = new CoreEntityProviderMock(PREFIX1, IDS1);
    /**
-    * Registered provider that implements {@link EntityProvider} and {@link Taggable} and {@link TagSearchable}, this
+    * Registered provider that implements {@link EntityProvider} and {@link Taggable} and {@link TagProvideable}, this
     * provider builds on {@link #entityProvider1}
     */
    public TaggableEntityProviderMock entityProvider1T = new TaggableEntityProviderMock(PREFIX1, REF1, someTags);
+   /**
+    * Registered provider that uses the built in tagging support
+    */
+   public TagEntityProviderMock entityProviderTag = new TagEntityProviderMock(PREFIXT1, IDST1);
    /**
     * Registered provider that only implements {@link EntityProvider}
     */

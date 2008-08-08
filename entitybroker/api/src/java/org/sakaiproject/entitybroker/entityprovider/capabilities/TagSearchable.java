@@ -21,9 +21,11 @@ import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchProvider;
 /**
  * Indicates an entity provider has the capability of allowing the entities associated with it to be searchable by tags
  * <br/> This is one of the capability extensions for the {@link EntityProvider} interface<br/>
+ * @deprecated no longer functional, use {@link TagProvideable}
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
+@SuppressWarnings("deprecation")
 public interface TagSearchable extends Taggable, TagSearchProvider {
 
    // this space intentionally blank

@@ -5,6 +5,7 @@
 package org.sakaiproject.entitybroker.impl.data;
 
 import org.sakaiproject.entitybroker.dao.EntityProperty;
+import org.sakaiproject.entitybroker.dao.EntityTagApplication;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.genericdao.api.GenericDao;
 
@@ -14,8 +15,6 @@ import org.sakaiproject.genericdao.api.GenericDao;
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
 public class TestDataPreload {
-
-   public TestData td = new TestData();
 
    public GenericDao dao;
 
@@ -35,6 +34,11 @@ public class TestDataPreload {
    public EntityProperty prop1C = new EntityProperty(TestData.REF5_2, TestData.PREFIX5,
          TestData.PROPERTY_NAME5C, TestData.PROPERTY_VALUE5C);
 
+   public EntityTagApplication tag1_aaronz = new EntityTagApplication(TestData.REFT1, TestData.PREFIXT1, "test");
+   public EntityTagApplication tag1_test = new EntityTagApplication(TestData.REFT1, TestData.PREFIXT1, "AZ");
+   public EntityTagApplication tag2_test = new EntityTagApplication(TestData.REFT1_2, TestData.PREFIXT1, "AZ");
+   // no tags on the third one
+
    public boolean preloaded = false;
 
    /**
@@ -46,6 +50,10 @@ public class TestDataPreload {
       dao.save(prop1);
       dao.save(prop1B);
       dao.save(prop1C);
+
+      dao.save(tag1_aaronz);
+      dao.save(tag1_test);
+      dao.save(tag2_test);
 
       preloaded = true;
    }

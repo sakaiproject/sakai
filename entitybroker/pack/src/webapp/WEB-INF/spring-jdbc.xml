@@ -26,20 +26,29 @@
                         </map>
                     </property>
                 </bean>
+                <bean class="org.sakaiproject.genericdao.springjdbc.SimpleDataMapper">
+                    <property name="persistentClassname"
+                        value="org.sakaiproject.entitybroker.dao.EntityTagApplication" />
+                    <property name="tableName" value="ENTITY_TAG_APPLICATIONS" />
+                    <property name="usePropertyNamesForColumns" value="true" />
+                    <property name="DBTypeToFile">
+                        <map>
+                            <entry key="HSQLDB" value="hsqldb/entityTagApplication.sql" />
+                            <entry key="MYSQL" value="mysql/entityTagApplication.sql" />
+                            <entry key="ORACLE" value="oracle/entityTagApplication.sql" />
+                            <entry key="DB2" value="db2/entityTagApplication.sql" />
+                        </map>
+                    </property>
+                </bean>
             </list>
         </property>
-    </bean>
-
-    <bean id="org.sakaiproject.entitybroker.DataSourceTransactionManager"
-        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="javax.sql.DataSource" />
     </bean>
 
     <!-- This wraps our DAO so that the transactions are managed -->
     <bean id="org.sakaiproject.entitybroker.dao.EntityBrokerDao"
         class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
         <property name="transactionManager"
-            ref="org.sakaiproject.entitybroker.DataSourceTransactionManager" />
+            ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
         <property name="target">
             <ref bean="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget" />
         </property>

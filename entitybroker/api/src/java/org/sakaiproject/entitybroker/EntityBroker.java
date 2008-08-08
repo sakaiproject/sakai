@@ -25,10 +25,12 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
-import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchProvider;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EncodingException;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 
 /**
@@ -38,7 +40,39 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
-public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearchProvider {
+@SuppressWarnings("deprecation")
+public interface EntityBroker extends PropertiesProvider, TagProvider {
+
+   /** 
+    * @deprecated use {@link TagProvider#getTagsForEntity(String)}
+    */
+   public Set<String> getTags(String reference);
+
+   /**
+    * @deprecated use {@link TagProvider#setTagsForEntity(String, String[])}
+    */
+   public void setTags(String reference, String[] tags);
+
+   /**
+    * Search for all entities which have the given tags,
+    * can limit the return using the search object<br/>
+    * 
+    * @param tags a set of tags associated with entities
+    * @param prefixes (optional) a set of unique entity prefixes, 
+    * limits the search to only include entities in these prefixes,
+    * if this is null then all entities and prefixes are searched<br/>
+    * NOTE: It is much more efficient to specify prefixes
+    * @param matchAll if true then all tags must exist on the entity for it to be matched,
+    * if false then the entity just has to have one or more of the given tags
+    * @param search (optional) a search object, used to order or limit the number of returned results,
+    * restrictions will be typically ignored
+    * @param params (optional) an optional set of params to pass along with this custom action request,
+    * typically used to provide information about the request, may be left null if not needed
+    * 
+    * @return a list of entity search results (contains the ref, url, displayname of the matching entities)
+    * @throws IllegalArgumentException if the tags set is empty or null
+    */
+   public List<EntitySearchResult> findEntitesByTags(String[] tags, String[] prefixes, boolean matchAll, Search search, Map<String, Object> params);
 
    /**
     * Check if an entity exists by the globally unique reference string, (the global reference
@@ -47,7 +81,7 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * <code>true</code> by default, in other words, this cannot determine if a legacy
     * entity exists, only a new entity
     * 
-    * @param reference a globally unique reference to an entity, 
+    * @param reference a globally unique reference to an entity (e.g. /myprefix/myid), 
     * consists of the entity prefix and optional segments (normally the id at least)
     * @return true if the entity exists, false otherwise
     */
@@ -117,7 +151,7 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
    public EntityView getEntityView(String reference, String viewKey, String extension);
 
    /**
-    * Fire an event to Sakai with the specified name, targetted at the supplied reference, which
+    * Fire an event to Sakai with the specified name, targeted at the supplied reference, which
     * should be a reference to an existing entity managed by this broker<br/>
     * <b>NOTE:</b> This will allow events to be fired for references without a broker or invalid references
     * 
@@ -169,7 +203,9 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
    /**
     * Fetches a concrete object representing this entity reference; either one from the
     * {@link Resolvable} capability if implemented by the responsible {@link EntityProvider}, or
-    * else from the underlying legacy Sakai entity system
+    * else from the underlying legacy Sakai entity system<br/>
+    * Note that this may be a {@link String} or {@link Map} and does not have to be a POJO,
+    * the type of object should be determined out of band
     * 
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments
@@ -195,7 +231,8 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * this is a list of entities
     * @param output the output stream to place the formatted data in,
     * should be UTF-8 encoded if there is char data
-    * @param params (optional) set of parameters which may be used to control this request, may be left null if not needed
+    * @param params (optional) an optional set of params to pass along with this custom action request,
+    * typically used to provide information about the request, may be left null if not needed
     * @throws IllegalArgumentException if the entity does not support output formatting or any arguments are invalid
     * @throws EncodingException is there is failure encoding the output
     */
@@ -224,8 +261,8 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * consists of the entity prefix and optional segments
     * @param action key which will be used to trigger the action (e.g. promote, double, photo),
     * can be triggered by a URL like so: /user/aaronz/promote
-    * @param requestValues (optional) this is an array which contains passed in action params,
-    * can be left blank if there are no custom params or this action
+    * @param params (optional) an optional set of params to pass along with this custom action request,
+    * typically used to provide information about the request, may be left null if not needed
     * @param outputStream an OutputStream to place binary or long text data into,
     * if this is used for binary data then the {@link ActionReturn} should be returned with the correct encoding information
     * and the output variable set to the OutputStream
@@ -234,6 +271,6 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * @throws IllegalArgumentException if there are required params that are missing or invalid
     * @throws IllegalStateException if the action cannot be performed for some reason
     */
-   ActionReturn executeCustomAction(String reference, String action, Map<String, Object> actionParams, OutputStream outputStream);
+   ActionReturn executeCustomAction(String reference, String action, Map<String, Object> params, OutputStream outputStream);
 
 }

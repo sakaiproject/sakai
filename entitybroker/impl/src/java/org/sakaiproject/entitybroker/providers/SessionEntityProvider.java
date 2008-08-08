@@ -209,7 +209,7 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
    }
 
 
-   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
+   public List<?> getEntities(EntityReference ref, Search search) {
 //    String userReference = developerHelperService.getCurrentUserReference();
 //    String userId = developerHelperService.getUserIdFromRef(userReference);
 //    if (developerHelperService.isUserAdmin(userReference)) {

@@ -16,6 +16,7 @@ package org.sakaiproject.entitybroker.impl;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,14 +28,17 @@ import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
+import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundException;
 
 
 /**
@@ -236,6 +240,54 @@ public class EntityBrokerManager {
       return entity;
    }
 
+   /**
+    * Add in the extra meta data (currently the URL) to all entity search results,
+    * handles it as efficiently as possible without remaking an entity view on every call
+    * 
+    * @param results a list of entity search results
+    */
+   public void populateSearchResults(List<EntitySearchResult> results) {
+      HashMap<String, EntityView> views = new HashMap<String, EntityView>();
+      for (EntitySearchResult result : results) {
+         // set URL
+         EntityReference ref = result.getEntityReference();
+         EntityView view = null;
+         if (views.containsKey(ref.getPrefix())) {
+            view = views.get(ref.getPrefix());
+         } else {
+            view = makeEntityView(ref, EntityView.VIEW_SHOW, null);
+            views.put(ref.getPrefix(), view);
+         }
+         view.setEntityReference(ref);
+         result.setEnityURL( view.getEntityURL() );
+         // attempt to set display title if not set
+         if (! result.isDisplayTitleSet()) {
+            boolean titleNotSet = true;
+            // check properties first
+            if (result.getEntityProperties() != null) {
+               String title = findMapStringValue(result.getEntityProperties(), new String[] {"displayTitle","title","displayName","name"});
+               if (title != null) {
+                  result.setDisplayTitle(title);
+                  titleNotSet = false;
+               }
+            }
+            // check the object itself next
+            if (titleNotSet && result.getEntity() != null) {
+               try {
+                  String title = getReflectUtil().getFieldValueAsString(result.getEntity(), "title", EntityTitle.class);
+                  if (title != null) {
+                     result.setDisplayTitle(title);
+                     titleNotSet = false;
+                  }
+               } catch (FieldnameNotFoundException e) {
+                  // could not find any fields with the title, nothing to do but continue
+               }
+            }
+         }
+         // done with this result
+      }
+   }
+
 
    /**
     * Get the list of entities based on a reference and supplied search,
@@ -263,7 +315,7 @@ public class EntityBrokerManager {
                translateSearchReference(search, CollectionResolvable.SEARCH_TAGS, 
                      new String[] {"tag","tags"}, "");
             }
-            entities = new ArrayList( ((CollectionResolvable)provider).getEntities(ref, search, params) );
+            entities = new ArrayList( ((CollectionResolvable)provider).getEntities(ref, search) );
          }
       } else {
          // encoding a single entity
@@ -314,6 +366,35 @@ public class EntityBrokerManager {
                break;
             }
          }
+      }
+      return value;
+   }
+
+   /**
+    * Finds a map value for a key (or set of keys) if it exists in the map and returns the string value of it
+    * @param map any map with strings as keys
+    * @param keys an array of keys to try to find in order
+    * @return the string value OR null if it could not be found for any of the given keys
+    */
+   public static String findMapStringValue(Map<String, ?> map, String[] keys) {
+      if (map == null || keys == null) {
+         return null;
+      }
+      String value = null;
+      try {
+         for (int i = 0; i < keys.length; i++) {
+            String key = keys[i];
+            if (map.containsKey(key)) {
+               Object oVal = map.get(key);
+               if (oVal != null) {
+                  value = oVal.toString();
+                  break;
+               }
+            }
+         }
+      } catch (RuntimeException e) {
+         // in case the given map is not actually of the right types at runtime
+         value = null;
       }
       return value;
    }

@@ -236,7 +236,7 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, Describe
    }
 
    @SuppressWarnings("unchecked")
-   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
+   public List<?> getEntities(EntityReference ref, Search search) {
       Collection<User> users = new ArrayList<User>();
       if (developerHelperService.isEntityRequestInternal(ref.toString())) {
          // internal lookups are allowed to get everything

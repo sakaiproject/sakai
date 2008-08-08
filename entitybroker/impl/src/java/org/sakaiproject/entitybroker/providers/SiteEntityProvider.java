@@ -255,7 +255,7 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, AutoRegi
    }
 
    @SuppressWarnings("unchecked")
-   public List<?> getEntities(EntityReference ref, Search search, Map<String, Object> params) {
+   public List<?> getEntities(EntityReference ref, Search search) {
       String criteria = null;
       String selectType = "access";
       Restriction select = search.getRestrictionByProperty("select");

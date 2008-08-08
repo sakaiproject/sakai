@@ -65,10 +65,16 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 public interface CoreEntityProvider extends EntityProvider {
 
    /**
-    * Check if a specific entity managed by this provider exists.
+    * Check if a specific entity managed by this provider exists.<br/>
+    * This is primarily used to validate references before making other calls or operating on them.<br/>
+    * <b>WARNING:</b> This will be called many times and AT LEAST right before calls are made to
+    * any methods or capabilities related to specific entities, please make sure this is
+    * very efficient. If you are concerned about efficiency, it is ok for this method to always
+    * return true but you will no longer be able to be sure that calls through to your capability
+    * implementations are always valid.
     * 
-    * @param id a locally unique id for an entity managed by this provider,
-    * this will be an empty string if this is an entity space (singleton entity) without an id available
+    * @param id a locally unique id for an entity managed by this provider<br/>
+    * <b>NOTE:</b> this will be an empty string if this is an entity space (singleton entity) without an id available
     * @return true if an entity with given local id exists, false otherwise
     */
    public boolean entityExists(String id);

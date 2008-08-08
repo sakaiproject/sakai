@@ -28,7 +28,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvide
 public interface PropertiesProvider {
 
    /**
-    * Retrieve a property value for a specific property name on a specific entity
+    * Retrieve a meta property value for a specific property name on a specific entity
     * 
     * @param reference
     *           a globally unique reference to an entity
@@ -39,7 +39,7 @@ public interface PropertiesProvider {
    public String getPropertyValue(String reference, String name);
 
    /**
-    * Retrieve all properties for this entity as a map of name->value
+    * Retrieve all meta properties for this entity as a map of name->value
     * 
     * @param reference
     *           a globally unique reference to an entity
@@ -48,7 +48,7 @@ public interface PropertiesProvider {
    public Map<String, String> getProperties(String reference);
 
    /**
-    * Set a property value on a specific entity, setting a value to null will remove the related
+    * Set a meta property value on a specific entity, setting a value to null will remove the related
     * value from persistence, passing the name and value as null will remove all the properties for
     * this entity from persistence <br/> <b>Note:</b> Do not use this as a substitute for storing
     * core meta data on your actual persistent entities, this is meant to provide for the case where
@@ -67,17 +67,17 @@ public interface PropertiesProvider {
    public void setPropertyValue(String reference, String name, String value);
 
    /**
-    * Allows searching for entities by property values, at least one of the params (prefix, name,
+    * Allows searching for entities by meta property values, at least one of the params (prefix, name,
     * searchValue) must be set in order to do a search, (searches which return all references to all
     * entities with properties are not allowed) <br/> 
     * <b>WARNING:</b> this search is very fast but
-    * will not actually limit by properties that should have been placed on the entity itself or
+    * will not actually limit by properties that are placed on the entity itself or
     * return the entity itself and is not a substitute for an API which allows searches of your
-    * entities
+    * entities (e.g List<YourEntity> getYourStuff(Search search); )
     * 
-    * @param prefix
-    *           limit the search to a specific entity prefix, this must be set and cannot be an
-    *           empty array
+    * @param prefixes
+    *           limit the search to a specific entity prefix or set of prefixes, 
+    *           this must be set and cannot be an empty array
     * @param name
     *           limit the property names to search for, can be null to return all names
     * @param searchValue
@@ -89,6 +89,5 @@ public interface PropertiesProvider {
     * @return a list of entity references for all entities matching the search
     */
    public List<String> findEntityRefs(String[] prefixes, String[] name, String[] searchValue, boolean exactMatch);
-   //public List<String> findEntityRefs(String[] prefixes, Search search);
 
 }

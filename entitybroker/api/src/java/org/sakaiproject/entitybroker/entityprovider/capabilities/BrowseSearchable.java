@@ -31,15 +31,16 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  * we will explicitly filter by users and/or locations and may not show all entities,
  * entities which do not implement this or {@link Browseable} will not appear in lists of entities which are being browsed<br/>
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
- * This extends {@link Browseable}
+ * This is the configuration interface for {@link Browseable} (the convention interface)
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public interface BrowseSearchable extends Browseable {
+public interface BrowseSearchable extends EntityProvider {
 
    /**
     * @param search a search object which can define the order to return entities,
-    * search filters, and total number of entities returned, may be empty but cannot be null
+    * search filters, and total number of entities returned, may be empty but will not be null,
+    * implementors are encouraged to support ordering and limiting of the number of returned results at least
     * @param userReference (optional) the unique entity reference for a user which is browsing the results, 
     * this may be null to indicate that only items which are visible to all users should be shown
     * @param reference (optional) 

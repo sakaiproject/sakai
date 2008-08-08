@@ -482,24 +482,36 @@ public class EntityView {
     * @return the value at the given path position OR null if there is nothing at that position
     */
    public String getPathSegment(int position) {
+      String segment = null;
+      String[] segments = getPathSegments();
+      if (segments.length > 0) {
+         if (position < segments.length) {
+            segment = segments[position];
+         }
+      }
+      return segment;
+   }
+
+   /**
+    * Get all the path segments for the encoded URL for this view<br/>
+    * Example: /user/aaronz/promote/stuff.xml <br/>
+    * segments = {"user","aaronz","promote","stuff"}
+    * @return an array of path segments
+    */
+   public String[] getPathSegments() {
       String url = getOriginalEntityUrl();
       if (url == null) {
          url = getEntityURL();
       }
-      String segment = null;
+      String[] segments = new String[0];
       if (url != null) {
          url = TemplateParseUtil.findExtension(url)[1];
-         String[] segments = url.split(SEPARATOR+"");
-         if (segments.length > 0) {
-            if ("".equals(segments[0])) {
-               position++;
-            }
-            if (position < segments.length) {
-               segment = segments[position];
-            }
+         if (url.charAt(0) == SEPARATOR) {
+            url = url.substring(1);
          }
+         segments = url.split(SEPARATOR+"");
       }
-      return segment;
+      return segments;
    }
 
    /**

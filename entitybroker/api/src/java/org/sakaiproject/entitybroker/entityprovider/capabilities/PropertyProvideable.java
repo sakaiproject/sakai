@@ -19,17 +19,21 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 
 /**
- * Allows entities handled by the entity provider which implements this interface to have properties
- * attached to them, properties can be accessed via the {@link EntityBroker}, properties will be
- * stored and retrieved via the methods which are implemented in this interface<br/> Allows the
- * entity provider to define and control the way properties are stored with its own entities<br/>
+ * Allows entities handled by the entity provider which implements this interface to have meta properties
+ * attached to them, these properties can be accessed via the {@link EntityBroker}, properties will be
+ * stored and retrieved via the methods which are implemented in this interface<br/> 
+ * For our usage, meta properties are extra or additional properties that are attached to an entity
+ * at runtime but are persisted so they can be retrieved later<br/>
+ * Allows the entity provider to define and control the way properties are stored on its own entities,
+ * if you would prefer to use the internal storage and only have lightweight property storage needs
+ * then use {@link Propertyable} instead<br/>
  * <b>NOTE:</b> the validity of references and parameters is checked in the broker before the call
- * goes to the provider <br/> This is one of the capability extensions for the
- * {@link EntityProvider} interface<br/>
+ * goes to the provider <br/> 
+ * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
-public interface PropertyProvideable extends EntityProvider, PropertiesProvider {
+public interface PropertyProvideable extends Propertyable, PropertiesProvider {
 
    // this space intentionally left blank
 

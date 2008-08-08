@@ -289,4 +289,24 @@ public class EntityViewTest extends TestCase {
       assertEquals(null, ev.getPathSegment(3) );
    }
 
+   public void testGetPathSegments() {
+      EntityView ev = null;
+      String[] segments = null;
+
+      ev = new EntityView(INPUT_URL1);
+      assertNotNull(ev);
+      segments = ev.getPathSegments();
+      assertNotNull(segments);
+      assertEquals(PREFIX1, segments[0]);
+      assertEquals(ID1, segments[1]);
+      
+      ev = new EntityView("/myprefix/myid/action.xml");
+      assertNotNull(ev);
+      segments = ev.getPathSegments();
+      assertNotNull(segments);
+      assertEquals("myprefix", segments[0] );
+      assertEquals("myid", segments[1] );
+      assertEquals("action", segments[2] );
+   }
+
 }

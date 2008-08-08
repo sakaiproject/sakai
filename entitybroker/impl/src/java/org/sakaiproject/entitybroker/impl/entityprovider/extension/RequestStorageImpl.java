@@ -127,6 +127,18 @@ public class RequestStorageImpl implements RequestStorage {
       }
    }
 
+   /**
+    * Place all these params into the request storage
+    * @param params map of string -> value
+    */
+   public void setRequestValues(Map<String, Object> params) {
+      if (params != null && params.size() > 0) {
+         for (Entry<String, Object> entry : params.entrySet()) {
+            setRequestValue(entry.getKey(), entry.getValue());
+         }
+      }
+   }
+
    protected Object getRequestValue(String key) {
       Object value = getInternalMap().get(key);
       if (value == null) {

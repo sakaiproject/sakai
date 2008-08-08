@@ -17,8 +17,6 @@ package org.sakaiproject.entitybroker.impl;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,39 +28,29 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
-import org.sakaiproject.entitybroker.dao.EntityProperty;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.genericdao.api.search.Restriction;
-import org.sakaiproject.genericdao.api.search.Search;
 
 /**
  * The default implementation of the EntityBroker interface
  * 
- * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
    private static Log log = LogFactory.getLog(EntityBrokerImpl.class);
-
-   private EntityBrokerDao dao;
-   public void setDao(EntityBrokerDao dao) {
-      this.dao = dao;
-   }
 
    private EntityActionsManager entityActionsManager;
    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
@@ -89,6 +77,17 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       this.entityBrokerManager = entityBrokerManager;
    }
 
+   private EntityMetaPropertiesService entityMetaPropertiesService;
+   public void setEntityMetaPropertiesService(
+         EntityMetaPropertiesService entityMetaPropertiesService) {
+      this.entityMetaPropertiesService = entityMetaPropertiesService;
+   }
+
+   private EntityTaggingService entityTaggingService;
+   public void setEntityTaggingService(EntityTaggingService entityTaggingService) {
+      this.entityTaggingService = entityTaggingService;
+   }
+
    private EntityHandlerImpl entityHandler;
    public void setEntityRequestHandler(EntityHandlerImpl entityHandler) {
       this.entityHandler = entityHandler;
@@ -98,10 +97,15 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    public void setEntityManager(EntityManager entityManager) {
       this.entityManager = entityManager;
    }
-
-   public void init() {
-      log.info("init");
+   
+   /**
+    * Must be the implementation
+    */
+   private RequestStorageImpl requestStorage;
+   public void setRequestStorage(RequestStorageImpl requestStorage) {
+      this.requestStorage = requestStorage;
    }
+
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#entityExists(java.lang.String)
@@ -231,17 +235,21 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
    public void formatAndOutputEntity(String reference, String format, List<?> entities,
          OutputStream output, Map<String, Object> params) {
+      requestStorage.setRequestValues(params);
       entityEncodingManager.formatAndOutputEntity(reference, format, entities, output, params);
+      requestStorage.reset();
    }
 
    public Object translateInputToEntity(String reference, String format, InputStream input,
          Map<String, Object> params) {
+      requestStorage.setRequestValues(params);
       Object entity = entityEncodingManager.translateInputToEntity(reference, format, input, params);
+      requestStorage.reset();
       return entity;
    }
 
    public ActionReturn executeCustomAction(String reference, String action,
-         Map<String, Object> actionParams, OutputStream outputStream) {
+         Map<String, Object> params, OutputStream outputStream) {
       EntityReference ref = entityBrokerManager.parseReference(reference);
       if (ref == null) {
          throw new IllegalArgumentException("Invalid entity reference, no provider found to handle this ref: " + reference);
@@ -250,283 +258,87 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       if (actionProvider == null) {
          throw new IllegalArgumentException("The provider for prefix ("+ref.getPrefix()+") cannot handle custom actions");
       }
-      ActionReturn ar = entityActionsManager.handleCustomActionExecution(actionProvider, ref, action, actionParams, outputStream);
+      requestStorage.setRequestValues(params);
+      ActionReturn ar = entityActionsManager.handleCustomActionExecution(actionProvider, ref, action, params, outputStream);
+      requestStorage.reset();
       return ar;
    }
 
 
    // PROPERTIES
 
-   /**
-    * Allows searching for entities by property values, at least one of the params (prefix, name,
-    * searchValue) must be set in order to do a search, (searches which return all references to all
-    * entities with properties are not allowed) <br/> <b>WARNING:</b> this search is very fast but
-    * will not actually limit by properties that should have been placed on the entity itself or
-    * return the entity itself and is not a substitute for an API which allows searches of your
-    * entities
-    * 
-    * @param prefix
-    *           limit the search to a specific entity prefix, this must be set and cannot be an
-    *           empty array
-    * @param name
-    *           limit the property names to search for, can be null to return all names
-    * @param searchValue
-    *           limit the search by property values can be null to return all values, must be the
-    *           same size as the name array if it is not null, (i.e. this cannot be set without
-    *           setting at least one name)
-    * @param exactMatch
-    *           if true then only match property values exactly, otherwise use a "like" search
-    * @return a list of entity references for all entities matching the search
-    */
    public List<String> findEntityRefs(String[] prefixes, String[] name, String[] searchValue,
          boolean exactMatch) {
-      // check for valid inputs
-      if (prefixes == null || prefixes.length == 0) {
-         throw new IllegalArgumentException(
-               "At least one prefix must be supplied to this search, prefixes cannot be null or empty");
-      }
-
-      List<String> results = new ArrayList<String>();
-
-      // first get the results from any entity providers which supply property searches
-      List<String> prefixList = new ArrayList<String>(Arrays.asList(prefixes));
-      for (int i = prefixList.size() - 1; i >= 0; i--) {
-         String prefix = (String) prefixList.get(i);
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, PropertyProvideable.class);
-         if (provider != null) {
-            results.addAll( ((PropertyProvideable) provider).findEntityRefs(new String[] { prefix },
-                  name, searchValue, exactMatch) );
-            prefixList.remove(i);
-         }
-      }
-
-      // now fetch any remaining items if prefixes remain
-      if (! prefixList.isEmpty()) {
-         for (int i = prefixList.size() - 1; i >= 0; i--) {
-            String prefix = (String) prefixList.get(i);
-            // check to see if any of the remaining prefixes use Propertyable, if they do not then remove them
-            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, Propertyable.class);
-            if (provider == null) {
-               prefixList.remove(i);
-            }
-         }
-
-         // now search the internal list of properties if any prefixes remain
-         if (! prefixList.isEmpty()) {
-            prefixes = prefixList.toArray(new String[prefixList.size()]);
-
-            List<String> props = new ArrayList<String>();
-            List<String> values = new ArrayList<String>();
-            List<Integer> comparisons = new ArrayList<Integer>();
-            List<String> relations = new ArrayList<String>();
-
-            for (int i = 0; i < prefixes.length; i++) {
-               props.add("entityPrefix");
-               values.add(prefixes[i]);
-               comparisons.add(Integer.valueOf(Restriction.EQUALS));
-               relations.add(i == 0 ? "and" : "or");
-            }
-
-            if (name != null && name.length > 0) {
-               for (int i = 0; i < name.length; i++) {
-                  props.add("propertyName");
-                  values.add(name[i]);
-                  comparisons.add(Integer.valueOf(Restriction.EQUALS));
-                  relations.add(i == 0 ? "and" : "or");
-               }
-            }
-
-            if (searchValue != null && searchValue.length > 0) {
-               if (name == null || name.length != searchValue.length) {
-                  throw new IllegalArgumentException(
-                        "name and searchValue arrays must be the same length if not null");
-               }
-               for (int i = 0; i < searchValue.length; i++) {
-                  props.add("propertyValue");
-                  values.add(searchValue[i]);
-                  comparisons.add(exactMatch ? Restriction.EQUALS : Restriction.LIKE);
-                  relations.add(i == 0 ? "and" : "or");
-               }
-            }
-
-            if (props.isEmpty()) {
-               throw new IllegalArgumentException(
-                     "At least one of prefix, name, or searchValue has to be a non-empty array");
-            }
-
-            List<String> refs = dao.getEntityRefsForSearch(props, values, comparisons, relations);
-            results.addAll(refs);
-         }
-      }
-      return results;
+      return entityMetaPropertiesService.findEntityRefs(prefixes, name, searchValue, exactMatch);
    }
 
    @SuppressWarnings("unchecked")
    public Map<String, String> getProperties(String reference) {
-      if (! entityExists(reference)) {
-         throw new IllegalArgumentException("Invalid reference (" + reference
-               + "), entity does not exist");
-      }
-
-      Map<String, String> m = new HashMap<String, String>();
-      EntityReference ref = entityBrokerManager.parseReference(reference);
-      if (ref != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), PropertyProvideable.class);
-         if (provider != null) {
-            m = ((PropertyProvideable) provider).getProperties(reference);
-         } else {
-            List<EntityProperty> properties = dao.findBySearch(EntityProperty.class,
-                  new Search( "entityRef", reference ) );
-            for (EntityProperty property : properties) {
-               m.put(property.getPropertyName(), property.getPropertyValue());
-            }
-         }
-      }
-      return m;
+      return entityMetaPropertiesService.getProperties(reference);
    }
 
    @SuppressWarnings("unchecked")
    public String getPropertyValue(String reference, String name) {
-      if (name == null || "".equals(name)) {
-         throw new IllegalArgumentException("Invalid name argument, name must not be null or empty");
-      }
-
-      if (! entityExists(reference)) {
-         throw new IllegalArgumentException("Invalid reference (" + reference
-               + "), entity does not exist");
-      }
-
-      String value = null;
-      EntityReference ref = entityBrokerManager.parseReference(reference);
-      if (ref != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), PropertyProvideable.class);
-         if (provider != null) {
-            value = ((PropertyProvideable) provider).getPropertyValue(reference, name);
-         } else {
-            List<EntityProperty> properties = dao.findBySearch(EntityProperty.class, 
-                  new Search( 
-                        new String[] { "entityRef", "propertyName" }, 
-                        new Object[] { reference, name } ) );
-            if (properties.size() == 1) {
-               value = properties.get(0).getPropertyValue();
-            }
-         }
-      }
-      return value;
+      return entityMetaPropertiesService.getPropertyValue(reference, name);
    }
 
    @SuppressWarnings("unchecked")
    public void setPropertyValue(String reference, String name, String value) {
-      if (name == null && value != null) {
-         throw new IllegalArgumentException(
-               "Invalid params, name cannot be null unless value is also null");
-      }
-
-      if (! entityExists(reference)) {
-         throw new IllegalArgumentException("Invalid reference (" + reference
-               + "), entity does not exist");
-      }
-
-      EntityReference ref = entityBrokerManager.parseReference(reference);
-      if (ref == null) {
-         throw new IllegalArgumentException("Invalid reference (" + reference
-               + "), entity type not handled");
-      } else {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), PropertyProvideable.class);
-         if (provider != null) {
-            ((PropertyProvideable) provider).setPropertyValue(reference, name, value);
-         } else {
-            if (value == null) {
-               // remove all properties from this entity if name also null, otherwise just remove this one
-               dao.deleteProperties(reference, name);
-            } else {
-               // add or update property
-               List<EntityProperty> properties = dao.findBySearch(EntityProperty.class,
-                     new Search(
-                           new String[] { "entityRef", "propertyName" }, 
-                           new Object[] { reference, name }) );
-               if (properties.isEmpty()) {
-                  dao.create(new EntityProperty(reference, ref.getPrefix(), name, value));
-               } else {
-                  EntityProperty property = properties.get(0);
-                  property.setPropertyValue(value);
-                  dao.save(property);
-               }
-            }
-         }
-      }
+      entityMetaPropertiesService.setPropertyValue(reference, name, value);
    }
 
    
    // TAGS
 
+
+   public List<EntitySearchResult> findEntitesByTags(String[] tags, String[] prefixes,
+         boolean matchAll, Search search, Map<String, Object> params) {
+      requestStorage.setRequestValues(params);
+      List<EntitySearchResult> results = entityTaggingService.findEntitesByTags(tags, prefixes, matchAll, search);
+      requestStorage.reset();
+      return results;
+   }
+
+   public List<String> getTagsForEntity(String reference) {
+      return entityTaggingService.getTagsForEntity(reference);
+   }
+
+   public void removeTagsFromEntity(String reference, String[] tags) {
+      entityTaggingService.removeTagsFromEntity(reference, tags);
+   }
+
+   public void addTagsToEntity(String reference, String[] tags) {
+      entityTaggingService.addTagsToEntity(reference, tags);
+   }
+
+   public void setTagsForEntity(String reference, String[] tags) {
+      entityTaggingService.setTagsForEntity(reference, tags);
+   }
+
+   /**
+    * @deprecated use {@link #getTagsForEntity(String)}
+    */
    public Set<String> getTags(String reference) {
-      if (! entityExists(reference)) {
-         throw new IllegalArgumentException("Invalid reference (" + reference
-               + "), entity does not exist");
-      }
-
-      Set<String> tags = new HashSet<String>();
-
-      EntityReference ref = entityBrokerManager.parseReference(reference);
-      if (ref != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Taggable.class);
-         if (provider != null) {
-            tags.addAll( ((Taggable) provider).getTags(reference) );
-         } else {
-            // put in call to central tag system here if desired
-   
-            throw new UnsupportedOperationException("Cannot get tags from this entity ("+reference+"), it has no support for tagging in its entity provider");
-         }
-      }
-      return tags;
+      return new HashSet<String>( entityTaggingService.getTagsForEntity(reference) );
    }
 
+   /**
+    * @deprecated use {@link #setTagsForEntity(String, String[])}
+    */
    public void setTags(String reference, String[] tags) {
-      if (tags == null) {
-         throw new IllegalArgumentException(
-               "Invalid params, tags cannot be null");
-      }
-
-      if (! entityExists(reference)) {
-         throw new IllegalArgumentException("Invalid reference (" + reference
-               + "), entity does not exist");
-      }
-
-      EntityReference ref = entityBrokerManager.parseReference(reference);
-      if (ref != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Taggable.class);
-         if (provider != null) {
-            ((Taggable) provider).setTags(reference, tags);
-         } else {
-            // put in call to central tag system here if desired
-   
-            throw new UnsupportedOperationException("Cannot set tags for this entity ("+reference+"), it has no support for tagging in its entity provider");
-         }
-      }
+      entityTaggingService.setTagsForEntity(reference, tags);
    }
 
+   /**
+    * @deprecated use {@link #findEntitesByTags(String[], String[], boolean, Search)}
+    */
    public List<String> findEntityRefsByTags(String[] tags) {
-      // check for valid inputs
-      if (tags == null || tags.length == 0) {
-         throw new IllegalArgumentException(
-               "At least one tag must be supplied to this search, tags cannot be null or empty");
+      ArrayList<String> refs = new ArrayList<String>();
+      List<EntitySearchResult> results = entityTaggingService.findEntitesByTags(tags, null, false, null);
+      for (EntitySearchResult entitySearchResult : results) {
+         refs.add( entitySearchResult.getReference() );
       }
-
-      Set<String> results = new HashSet<String>();
-
-      // get the results from any entity providers which supply tag search results
-      Set<String> prefixes = entityProviderManager.getRegisteredPrefixes();
-      for (String prefix : prefixes) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, TagSearchable.class);
-         if (provider != null) {
-            results.addAll( ((TagSearchable) provider).findEntityRefsByTags(tags) );
-         }
-      }
-
-      // fetch results from a central system instead here if desired
-
-      return new ArrayList<String>( results );
+      return refs;
    }
 
 }

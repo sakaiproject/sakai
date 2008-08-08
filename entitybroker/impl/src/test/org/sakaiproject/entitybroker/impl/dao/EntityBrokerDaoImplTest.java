@@ -148,4 +148,14 @@ public class EntityBrokerDaoImplTest extends AbstractTransactionalSpringContextT
       assertEquals(2, removed);
    }
 
+   public void testDeleteTags() {
+      // test we can remove a tag
+      int removed = dao.deleteTags(TestData.REFT1, new String[] {"test","AZ"});
+      assertEquals(2, removed);
+
+      // test we can remove all tags
+      removed = dao.deleteTags(TestData.REFT1_2, null);
+      assertEquals(1, removed);
+   }
+   
 }

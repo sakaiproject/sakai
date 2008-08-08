@@ -97,11 +97,10 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       eventTrackingServiceControl.replay();
 
       // setup fake internal services
-      ServiceTestManager tm = new ServiceTestManager(td);
+      ServiceTestManager tm = new ServiceTestManager(td, dao);
 
       // create and setup the object to be tested
       entityBroker = new EntityBrokerImpl();
-      entityBroker.setDao(dao);
       entityBroker.setEntityBrokerManager( tm.entityBrokerManager );
       entityBroker.setEntityEncodingManager( tm.entityEncodingManager );
       entityBroker.setEntityManager(entityManager);
@@ -109,9 +108,9 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       entityBroker.setEntityRequestHandler( tm.entityRequestHandler );
       entityBroker.setEventTrackingService(eventTrackingService);
       entityBroker.setEntityActionsManager( tm.entityActionsManager );
-
-      // run the init (just like what would normally happen)
-      entityBroker.init();
+      entityBroker.setEntityTaggingService( tm.entityTaggingService);
+      entityBroker.setEntityMetaPropertiesService( tm.entityMetaPropertiesService);
+      entityBroker.setRequestStorage( tm.requestStorage );
    }
 
    // run this before each test starts and as part of the transaction
@@ -733,6 +732,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#getTags(java.lang.String)}.
     */
+   @SuppressWarnings("deprecation")
    public void testGetTags() {
       Set<String> tags = null;
 
@@ -745,19 +745,12 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       tags = entityBroker.getTags(TestData.REF1_1);
       assertNotNull(tags);
       assertEquals(0, tags.size());
-
-      // check that we cannot get tags for those which do not support it
-      try {
-         tags = entityBroker.getTags(TestData.REF2);
-         fail("Should have thrown exception");
-      } catch (UnsupportedOperationException e) {
-         assertNotNull(e.getMessage());
-      }
    }
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#setTags(java.lang.String, java.util.Set)}.
     */
+   @SuppressWarnings("deprecation")
    public void testSetTags() {
       // test adding new tags
       entityBroker.setTags(TestData.REF1_1, new String[] {"test"});
@@ -766,19 +759,12 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       // test clearing tags
       entityBroker.setTags(TestData.REF1, new String[] {});
       assertEquals(0, entityBroker.getTags(TestData.REF1).size() );
-
-      // test cannot add tags to refs that do not support it
-      try {
-         entityBroker.setTags(TestData.REF2, new String[] {"test"});
-         fail("Should have thrown exception");
-      } catch (UnsupportedOperationException e) {
-         assertNotNull(e.getMessage());
-      }
    }
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#findEntityRefsByTags(java.lang.String[])}.
     */
+   @SuppressWarnings("deprecation")
    public void testFindEntityRefsByTags() {
       List<String> refs = null;
 
@@ -789,14 +775,15 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
 
       refs = entityBroker.findEntityRefsByTags( new String[] {"test"} );
       assertNotNull(refs);
-      assertEquals(1, refs.size());
-      assertEquals(TestData.REF1, refs.get(0));
+      assertEquals(2, refs.size());
+      assertEquals(TestData.REFT1, refs.get(0));
+      assertEquals(TestData.REF1, refs.get(1));
 
       entityBroker.setTags(TestData.REF1_1, new String[] {"test"});
 
       refs = entityBroker.findEntityRefsByTags( new String[] {"test"} );
       assertNotNull(refs);
-      assertEquals(2, refs.size());
+      assertEquals(3, refs.size());
    }
 
 }
