@@ -16,7 +16,6 @@ package org.sakaiproject.entitybroker.dao.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.dao.EntityProperty;
@@ -147,7 +146,7 @@ public class EntityBrokerDaoImpl extends JdbcGeneralGenericDao implements Entity
             StatementMapper.WHERE, sd.getAfterTableSQL());
       return getJdbcTemplate().update(sql, sd.getArgs());
    }
-
+/**
    public List<String> getEntityRefsForTags(Search search, boolean matchAll) {
       // FIXME - not working yet
       if (matchAll) {
@@ -165,5 +164,5 @@ public class EntityBrokerDaoImpl extends JdbcGeneralGenericDao implements Entity
       // TODO Auto-generated method stub
       return null;
    }
-
+**/
 }

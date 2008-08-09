@@ -378,7 +378,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                  } else {
                                     // get from a search
                                     Search search = RequestUtils.makeSearchFromRequest(req);
-                                    entities = entityBrokerManager.fetchEntityList(view.getEntityReference(), search, null);
+                                    entities = entityBrokerManager.getEntities(view.getEntityReference(), search);
                                  }
                                  // set the modifed header
                                  Object entity = null;

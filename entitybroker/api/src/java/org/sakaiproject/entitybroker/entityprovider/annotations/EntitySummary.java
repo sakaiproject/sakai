@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * EntityDescription.java - entity-broker - Apr 13, 2008 12:17:49 PM - azeckoski
+ * EntitySummary.java - entity-broker - Apr 13, 2008 12:17:49 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
  * Licensed under the Educational Community License version 1.0
@@ -20,10 +20,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a getter method or field as the description text for an entity,
+ * Marks a getter method or field as the summary or description text for an entity,
  * Example: the main text body for a blog entry or email, the instructions text for a test or survey
  * the convention is to run toString on the return from the 
- * "getDescription" method or the value in the "description" field<br/>
+ * "getSummary" method or the value in the "summary" field<br/>
  * <b>NOTE:</b> This annotation should only be used once in a class,
  * the getter method must take no arguments and return an object
  * 
@@ -31,4 +31,4 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})
-public @interface EntityDescription { }
+public @interface EntitySummary { }

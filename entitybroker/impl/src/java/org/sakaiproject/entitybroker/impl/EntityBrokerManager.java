@@ -225,22 +225,6 @@ public class EntityBrokerManager {
    }
 
    /**
-    * Get an entity object of some kind for this reference if it has an id,
-    * will simply return null if no id is available in this reference
-    * 
-    * @param reference a unique string representing an entity
-    * @return the entity object for this reference or null if none can be retrieved
-    */
-   public Object getEntityObject(EntityReference ref) {
-      Object entity = null;
-      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Resolvable.class);
-      if (provider != null) {
-         entity = ((Resolvable)provider).getEntity(ref);
-      }
-      return entity;
-   }
-
-   /**
     * Add in the extra meta data (currently the URL) to all entity search results,
     * handles it as efficiently as possible without remaking an entity view on every call
     * 
@@ -288,17 +272,38 @@ public class EntityBrokerManager {
       }
    }
 
+   /**
+    * Get an entity object of some kind for this reference if it has an id,
+    * will simply return null if no id is available in this reference
+    * 
+    * @param reference a unique string representing an entity
+    * @return the entity object for this reference or null if none can be retrieved
+    */
+   public Object getEntityObject(EntityReference ref) {
+      Object entity = null;
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Resolvable.class);
+      if (provider != null) {
+         entity = ((Resolvable)provider).getEntity(ref);
+      }
+      return entity;
+   }
 
    /**
     * Get the list of entities based on a reference and supplied search,
-    * passes through to the EP methods if available
+    * passes through to the EP methods if available,
+    * returns the list of entities in the form retrieved
     * 
-    * @param ref an entity reference
-    * @param search an optional search
-    * @return the list of entities if they can be retrieved or null these entities cannot be resolved
+    * @param ref the reference
+    * @param search a search (should not be null)
+    * @param actionReturn
+    * @return a list of entities OR empty list if none found for the given reference
     */
    @SuppressWarnings("unchecked")
-   protected List<?> fetchEntityList(EntityReference ref, Search search, Map<String, Object> params) {
+   public List<?> getEntities(EntityReference ref, Search search) {
+      if (ref == null) {
+         throw new IllegalArgumentException("No reference supplied for entity collection resolution, ref was null");
+      }
+      // get the entities to output
       List entities = null;
       if (ref.getId() == null) {
          // encoding a collection of entities
@@ -326,6 +331,10 @@ public class EntityBrokerManager {
          }
          entities = new ArrayList();
          entities.add(entity);
+      }
+      // make sure no null is returned
+      if (entities == null) {
+         entities = new ArrayList<String>();
       }
       return entities;
    }
@@ -369,6 +378,8 @@ public class EntityBrokerManager {
       }
       return value;
    }
+
+   // STATIC
 
    /**
     * Finds a map value for a key (or set of keys) if it exists in the map and returns the string value of it

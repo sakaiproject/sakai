@@ -17,7 +17,6 @@ package org.sakaiproject.entitybroker.dao;
 import java.util.List;
 
 import org.sakaiproject.genericdao.api.GeneralGenericDao;
-import org.sakaiproject.genericdao.api.search.Search;
 
 /**
  * Interface for internal proxy only
@@ -63,7 +62,7 @@ public interface EntityBrokerDao extends GeneralGenericDao {
     * @param matchAll if true then all tags must match, if false then any tag can match
     * @return the list of refs
     */
-   public List<String> getEntityRefsForTags(Search search, boolean matchAll);
+   //public List<String> getEntityRefsForTags(Search search, boolean matchAll);
 
    /**
     * Remove all given tags from an entity reference

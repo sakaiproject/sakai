@@ -276,7 +276,7 @@ public class EntityEncodingManager {
 
       // get the entities if not supplied
       if (entities == null) {
-         entities = entityBrokerManager.fetchEntityList(ref, new Search(), params);
+         entities = entityBrokerManager.getEntities(ref, new Search());
       }
       if (entities.isEmpty()) {
          // just log this for now
