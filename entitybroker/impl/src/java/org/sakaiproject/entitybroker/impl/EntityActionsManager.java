@@ -41,9 +41,11 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutionControllable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.impl.util.RequestUtils;
+import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 
@@ -205,10 +207,15 @@ public class EntityActionsManager {
          } else if (String.class.isAssignableFrom(resultClass)) {
             actionReturn = new ActionReturn((String) result);
          } else if (List.class.isAssignableFrom(resultClass)) {
-            actionReturn = new ActionReturn((List<?>) result, null);
+            // convert the list to a list of ED
+            List<EntityData> data = EntityDataUtils.convertToEntityData((List<?>) result, ref);
+            actionReturn = new ActionReturn(data, null);
+         } else if (EntityData.class.isAssignableFrom(resultClass)) {
+            actionReturn = new ActionReturn( (EntityData) result, null);
          } else {
-            // assume this is an entity object
-            actionReturn = new ActionReturn(result, null);
+            // assume this is an entity object (not ED)
+            EntityData ed = EntityDataUtils.makeEntityData(ref, result);
+            actionReturn = new ActionReturn( ed, null);
          }
       }
       return actionReturn;

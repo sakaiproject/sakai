@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
 
@@ -38,18 +38,23 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 public interface BrowseSearchable extends EntityProvider {
 
    /**
+    * Returns the list of entities which are being browsed based on the given parameters
+    * 
     * @param search a search object which can define the order to return entities,
     * search filters, and total number of entities returned, may be empty but will not be null,
     * implementors are encouraged to support ordering and limiting of the number of returned results at least
     * @param userReference (optional) the unique entity reference for a user which is browsing the results, 
     * this may be null to indicate that only items which are visible to all users should be shown
-    * @param reference (optional) 
+    * @param associatedReference (optional) 
     *           a globally unique reference to an entity, this is the entity that the 
-    *           returned browseable data must be associated with (e.g. limited by reference to a location or user entity), 
+    *           returned browseable data must be associated with (e.g. limited by reference to a location or associated entity), 
     *           this may be null to indicate there is no association limit
     * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @return a list of search result objects which contain the reference, URL, display title and optionally other entity data
+    * @throws SecurityException if the data cannot be accessed by the current user or is not publicly accessible
+    * @throws IllegalArgumentException if the reference is invalid or the search is invalid
+    * @throws IllegalStateException if any other error occurs
     */
-   public List<EntitySearchResult> browseEntities(Search search, String userReference, String reference, Map<String, Object> params);
+   public List<EntityData> browseEntities(Search search, String userReference, String associatedReference, Map<String, Object> params);
 
 }

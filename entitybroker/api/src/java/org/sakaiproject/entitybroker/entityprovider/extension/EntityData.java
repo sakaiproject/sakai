@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * EntitySearchResult.java - entity-broker - Aug 3, 2008 6:03:53 PM - azeckoski
+ * EntityData.java - entity-broker - Aug 3, 2008 6:03:53 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Aaron Zeckoski
  * Licensed under the Apache License, Version 2.0
@@ -14,11 +14,10 @@
 
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
-import java.lang.ref.WeakReference;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 
-import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
@@ -32,7 +31,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class EntitySearchResult {
+public class EntityData {
 
    /**
     * The entity reference -  a globally unique reference to an entity, 
@@ -100,7 +99,7 @@ public class EntitySearchResult {
     * WARNING: for internal use only
     * @param url the url to access this entity
     */
-   public void setEnityURL(String url) {
+   public void setEntityURL(String url) {
       URL = url;
    }
    /**
@@ -117,23 +116,26 @@ public class EntitySearchResult {
     * this may be presented and used for filtering,
     * this will be null or empty if it is not used
     */
-   private Map<String, String> entityProperties;
+   private Map<String, Object> entityProperties;
    /**
+    * (OPTIONAL - may be null)
     * A set of properties to return along with the entity information,
     * this may be presented and used for filtering,
     * should be null or empty if not used
     * @param entityProperties a map of property name => value
     */
-   public void setEntityProperties(Map<String, String> entityProperties) {
+   public void setEntityProperties(Map<String, Object> entityProperties) {
       this.entityProperties = entityProperties;
    }
    /**
-    * (OPTIONAL - may be null)
     * A set of properties to return along with the entity information,
     * this may be presented and used for filtering,
-    * this will be null or empty if it is not used
+    * this will be empty if it is not used
     */
-   public Map<String, String> getEntityProperties() {
+   public Map<String, Object> getEntityProperties() {
+      if (entityProperties == null) {
+         entityProperties = new HashMap<String, Object>(0);
+      }
       return entityProperties;
    }
 
@@ -143,13 +145,14 @@ public class EntitySearchResult {
     * this is included at the discretion of the entity provider author,
     * if this is null then the entity data is not available or would be prohibitively large (i.e. typically left out for efficiency)
     */
-   private WeakReference<Object> entity;
+   private transient Object entity;
    public void setEntity(Object entity) {
-      if (entity != null) {
-         this.entity = new WeakReference<Object>(entity);
-      } else {
-         this.entity = null;
-      }
+      this.entity = entity;
+//      if (entity != null) {
+//         this.entity = new WeakReference<Object>(entity);
+//      } else {
+//         this.entity = null;
+//      }
    }
    /**
     * (OPTIONAL - may be null)
@@ -158,11 +161,29 @@ public class EntitySearchResult {
     * if this is null then the entity data is not available or would be prohibitively large (i.e. typically left out for efficiency)
     */
    public Object getEntity() {
-      if (this.entity == null) {
-         return null;
-      } else {
-         return this.entity.get();
-      }
+      return this.entity;
+//      if (this.entity == null) {
+//         return null;
+//      } else {
+//         return this.entity.get();
+//      }
+   }
+
+   /**
+    * used to ensure that we do not accidently attempt to populate this twice
+    */
+   private transient boolean populated = false;
+   /**
+    * FOR INTERNAL USE ONLY - do not use
+    */
+   public void setPopulated(boolean populated) {
+      this.populated = populated;
+   }
+   /**
+    * @return true if this object was populated, false otherwise
+    */
+   public boolean isPopulated() {
+      return populated;
    }
 
    /**
@@ -170,15 +191,12 @@ public class EntitySearchResult {
     * Use the setters to add in properties or the entity if desired
     * 
     * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and optional segments (normally the id at least)
+    * consists of the entity prefix and id (e.g. /prefix/id)
     * @param displayTitle a string which is suitable for display and provides a short summary of the entity,
     * typically 100 chars or less, this may the name or title of the data represented by an entity
     */
-   public EntitySearchResult(String reference, String displayTitle) {
-      this.entityReference = new EntityReference(reference);
-      this.reference = reference;
-      this.displayTitle = displayTitle;
-      this.URL = EntityView.DIRECT_PREFIX + this.entityReference.getReference();
+   public EntityData(String reference, String displayTitle) {
+      this(reference, displayTitle, null, null);
    }
 
    /**
@@ -187,14 +205,13 @@ public class EntitySearchResult {
     * Use the setters to add in properties or the entity if desired
     * 
     * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and optional segments (normally the id at least)
+    * consists of the entity prefix and id (e.g. /prefix/id)
     * @param displayTitle a string which is suitable for display and provides a short summary of the entity,
     * typically 100 chars or less, this may the name or title of the data represented by an entity
     * @param entity an entity object, see {@link Resolvable}
     */
-   public EntitySearchResult(String reference, String displayTitle, Object entity) {
-      this(reference, displayTitle);
-      setEntity(entity);
+   public EntityData(String reference, String displayTitle, Object entity) {
+      this(reference, displayTitle, entity, null);
    }
 
    /**
@@ -202,38 +219,73 @@ public class EntitySearchResult {
     * Use this if you want to return the entity itself along with the key meta data and properties
     * 
     * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and optional segments (normally the id at least)
+    * consists of the entity prefix and id (e.g. /prefix/id)
     * @param displayTitle a string which is suitable for display and provides a short summary of the entity,
     * typically 100 chars or less, this may the name or title of the data represented by an entity
     * @param entity an entity object, see {@link Resolvable}
     * @param entityProperties a set of properties to return along with the entity information,
     * this may be presented and used for filtering,
     */
-   public EntitySearchResult(String reference, String displayTitle, Object entity, Map<String, String> entityProperties) {
-      this(reference, displayTitle, entity);
+   public EntityData(String reference, String displayTitle, Object entity, Map<String, Object> entityProperties) {
+      this.entityReference = new EntityReference(reference);
+      this.reference = this.entityReference.getReference();
+      this.displayTitle = displayTitle;
+      this.URL = EntityView.DIRECT_PREFIX + this.reference;
+      setEntity(entity);
       setEntityProperties(entityProperties);
    }
 
+   
    /**
-    * WARNING: Internal use only
-    * Constructor for use internally, this will primarily be used by the internal system to construct the search
-    * result from a fully qualified entity
-    * @param ref an entity reference object
+    * Minimal constructor - used for most basic cases
+    * Use the setters to add in properties or the entity if desired
+    * 
+    * @param ref an object which represents a globally unique reference to an entity, 
+    * consists of the entity prefix and id
     * @param displayTitle a string which is suitable for display and provides a short summary of the entity,
     * typically 100 chars or less, this may the name or title of the data represented by an entity
-    * @param entityURL the URL to the current entity, typically generated using {@link EntityBroker#getEntityURL(String)}
+    */
+   public EntityData(EntityReference ref, String displayTitle) {
+      this(ref, displayTitle, null, null);
+   }
+
+   /**
+    * Basic constructor
+    * Use this to construct a search result using the typical minimal amount of information,
+    * Use the setters to add in properties or the entity if desired
+    * 
+    * @param ref an object which represents a globally unique reference to an entity, 
+    * consists of the entity prefix and id
+    * @param displayTitle a string which is suitable for display and provides a short summary of the entity,
+    * typically 100 chars or less, this may the name or title of the data represented by an entity
     * @param entity an entity object, see {@link Resolvable}
     */
-   public EntitySearchResult(EntityReference ref, String displayTitle, String entityURL, Object entity, Map<String, String> entityProperties) {
-      this.reference = ref.getReference();
-      if (displayTitle == null) {
-         displayTitle = "Entity:" + reference;
+   public EntityData(EntityReference ref, String displayTitle, Object entity) {
+      this(ref, displayTitle, entity, null);
+   }
+
+   /**
+    * Full constructor
+    * Use this if you want to return the entity itself along with the key meta data and properties
+    * 
+    * @param ref an object which represents a globally unique reference to an entity, 
+    * consists of the entity prefix and id
+    * @param displayTitle a string which is suitable for display and provides a short summary of the entity,
+    * typically 100 chars or less, this may the name or title of the data represented by an entity
+    * @param entity an entity object, see {@link Resolvable}
+    * @param entityProperties a set of properties to return along with the entity information,
+    * this may be presented and used for filtering,
+    */
+   public EntityData(EntityReference ref, String displayTitle,
+         Object entity, Map<String, Object> entityProperties) {
+      if (ref == null || ref.isEmpty()) {
+         throw new IllegalArgumentException("reference object cannot be null and must have values set");
       }
+      this.entityReference = ref;
+      this.reference = this.entityReference.getReference();
       this.displayTitle = displayTitle;
-      if (entityURL == null) {
-         entityURL = EntityView.DIRECT_PREFIX + this.entityReference.getReference();
-      }
-      this.URL = entityURL;
+      this.URL = EntityView.DIRECT_PREFIX + this.reference;
+      this.displayTitle = displayTitle;
       setEntity(entity);
       setEntityProperties(entityProperties);
    }
@@ -242,10 +294,10 @@ public class EntitySearchResult {
    public boolean equals(Object obj) {
       if (null == obj)
          return false;
-      if (!(obj instanceof EntitySearchResult))
+      if (!(obj instanceof EntityData))
          return false;
       else {
-         EntitySearchResult castObj = (EntitySearchResult) obj;
+         EntityData castObj = (EntityData) obj;
          if (null == this.reference || null == castObj.reference)
             return false;
          else
@@ -261,11 +313,11 @@ public class EntitySearchResult {
    
    @Override
    public String toString() {
-      return "searchResult: ref="+reference+":display="+displayTitle+":url="+URL+":entity="+(entity != null);
+      return "ED: ref="+reference+":display="+displayTitle+":url="+URL+":props("+getEntityProperties().size()+"):entity="+entity;
    }
 
-   public static class ESRReferenceComparator implements Comparator<EntitySearchResult> {
-      public int compare(EntitySearchResult o1, EntitySearchResult o2) {
+   public static class ESRReferenceComparator implements Comparator<EntityData> {
+      public int compare(EntityData o1, EntityData o2) {
          return o1.reference.compareTo(o2.reference);
       }
    }

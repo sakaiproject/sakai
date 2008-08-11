@@ -51,6 +51,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestIntercep
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
@@ -60,6 +61,7 @@ import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetter
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
+import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
@@ -342,6 +344,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                            // there is entity data to return
                            output = true;
                            handled = false;
+                           // populate the entity data
+                           if (actionReturn.entitiesList != null) {
+                              entityBrokerManager.populateEntityData(actionReturn.entitiesList);
+                           } else if (actionReturn.entityData != null) {
+                              entityBrokerManager.populateEntityData( new EntityData[] {actionReturn.entityData} );
+                           }
                         }
                      }
                   }
@@ -365,23 +373,32 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                  RequestUtils.setResponseEncoding(format, res);
    
                                  // get the entities to output
-                                 List<?> entities = null;
+                                 List<EntityData> entities = null;
                                  if (customAction != null) {
                                     // get entities from a custom action
                                     entities = actionReturn.entitiesList;
                                     if (entities == null 
                                           && actionReturn.entityData != null) {
-                                       ArrayList<Object> eList = new ArrayList<Object>();
-                                       eList.add(actionReturn.entityData);
+                                       ArrayList<EntityData> eList = new ArrayList<EntityData>();
+                                       EntityData ed = actionReturn.entityData;
+                                       eList.add( ed );
                                        entities = eList;
+                                       // this was a single object return so it should be encoded as such, thus we will recode the correct reference into the view
+                                       // FIXME
+                                       EntityReference edRef = ed.getEntityReference();
+                                       if (edRef.getId() == null) {
+                                          edRef = new EntityReference(edRef.getPrefix(), customAction.action);
+                                       }
+                                       view.setEntityReference( edRef );
+                                       view.setViewKey(EntityView.VIEW_SHOW);
                                     }
                                  } else {
                                     // get from a search
                                     Search search = RequestUtils.makeSearchFromRequest(req);
-                                    entities = entityBrokerManager.getEntities(view.getEntityReference(), search);
+                                    entities = entityBrokerManager.getEntitiesData(view.getEntityReference(), search, null);
                                  }
                                  // set the modifed header
-                                 Object entity = null;
+                                 EntityData entity = null;
                                  if (entities.size() == 1) {
                                     entity = entities.get(0);
                                  }
@@ -566,10 +583,10 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                + "a non-null entity, you should leave the entity null when firing requests to this entity");
          } else {
             // handle outputing the entity data
-            List<Object> entities = new ArrayList<Object>();
-            entities.add(entity);
+            List<EntityData> entities = new ArrayList<EntityData>();
+            entities.add( EntityDataUtils.makeEntityData(ref, entity) );
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            entityEncodingManager.formatAndOutputEntity(reference, format, entities, output, null);
+            entityEncodingManager.formatAndOutputEntity(ref, format, entities, output, null);
             data = new ByteArrayInputStream(output.toByteArray());
          }
       }
@@ -708,33 +725,35 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    /**
     * @param res the response
     * @param lastModifiedTime the time to use if none is found any other way
-    * @param entity (optional)
+    * @param ed (optional) some entity data if available
     */
-   protected void setLastModifiedHeaders(HttpServletResponse res, Object entity, long lastModifiedTime) {
+   protected void setLastModifiedHeaders(HttpServletResponse res, EntityData ed, long lastModifiedTime) {
       long lastModified = System.currentTimeMillis();
-      if (entity != null) {
-         // look for the annotation on the entity
-         try {
-            Object lm = entityBrokerManager.getReflectUtil().getFieldValue(entity, "lastModified", EntityLastModified.class);
-            if (lm != null) {
-               if (Date.class.isAssignableFrom(lm.getClass())) {
-                  lastModified = ((Date)lm).getTime();
-               } else if (Long.class.isAssignableFrom(lm.getClass())) {
-                  lastModified = ((Long)lm);
-               } else if (String.class.isAssignableFrom(lm.getClass())) {
-                  Long l;
-                  try {
-                     l = new Long((String)lm);
+      if (ed != null) {
+         // try to get from props first
+         boolean found = false;
+         Object lm = ed.getEntityProperties().get("lastModified");
+         if (lm != null) {
+            Long l = makeLastModified(lm);
+            if (l != null) {
+               lastModified = l.longValue();
+               found = true;
+            }
+         }
+         if (!found) {
+            if (ed.getEntity() != null) {
+               // look for the annotation on the entity
+               try {
+                  lm = entityBrokerManager.getReflectUtil().getFieldValue(ed.getEntity(), "lastModified", EntityLastModified.class);
+                  Long l = makeLastModified(lm);
+                  if (l != null) {
                      lastModified = l.longValue();
-                  } catch (NumberFormatException e) {
-                     // nothing to do here
+                     found = true;
                   }
-               } else {
-                  log.warn("Unknown type returned for " + EntityLastModified.class + " annotation: " + lm.getClass() + ", using the default value of current time");
+               } catch (FieldnameNotFoundException e1) {
+                  // nothing to do here
                }
             }
-         } catch (FieldnameNotFoundException e1) {
-            // nothing to do here
          }
       } else {
          lastModified = lastModifiedTime;
@@ -743,6 +762,24 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       res.setDateHeader(HEADER_LAST_MODIFIED, lastModified);
       String currentEtag = String.valueOf(lastModified);
       res.setHeader(HEADER_ETAG, currentEtag);
+   }
+
+   private Long makeLastModified(Object lm) {
+      Long lastModified = null;
+      if (Date.class.isAssignableFrom(lm.getClass())) {
+         lastModified = ((Date)lm).getTime();
+      } else if (Long.class.isAssignableFrom(lm.getClass())) {
+         lastModified = ((Long)lm);
+      } else if (String.class.isAssignableFrom(lm.getClass())) {
+         try {
+            lastModified = new Long((String)lm);
+         } catch (NumberFormatException e) {
+            // nothing to do here
+         }
+      } else {
+         log.warn("Unknown type returned for 'lastModified' (not Date, Long, String): " + lm.getClass() + ", using the default value of current time instead");
+      }
+      return lastModified;
    }
 
 }

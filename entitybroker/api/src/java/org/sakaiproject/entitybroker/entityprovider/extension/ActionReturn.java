@@ -47,11 +47,11 @@ public class ActionReturn {
    /**
     * An entity object to return, leave as null if not used
     */
-   public Object entityData;
+   public EntityData entityData;
    /**
     * A List of entities to return, leave as null if not used
     */
-   public List<?> entitiesList;
+   public List<EntityData> entitiesList;
    /**
     * Indicates the format (from {@link Formats}) to return the entity data in if there is any,
     * if using an outputstream, use encoding and mimetype
@@ -102,20 +102,20 @@ public class ActionReturn {
 
    /**
     * Create a return that is appropriate for sending back an entity
-    * @param entityData an entity
+    * @param entityData an entity object ({@link EntityData} object)
     * @param format (optional) the format to return this data in (from {@link Formats}), e.g. Formats.XML
     */
-   public ActionReturn(Object entityData, String format) {
+   public ActionReturn(EntityData entityData, String format) {
       this.entityData = entityData;
       this.format = format;
    }
 
    /**
     * Create a return that is appropriate for sending back a list of entities
-    * @param entityData a List of entities (can be empty)
+    * @param entityData a List of entities ({@link EntityData}) (can be empty)
     * @param format (optional) the format to return this data in (from {@link Formats}), e.g. Formats.XML
     */
-   public ActionReturn(List<?> entitiesList, String format) {
+   public ActionReturn(List<EntityData> entitiesList, String format) {
       this.entitiesList = entitiesList;
       this.format = format;
    }

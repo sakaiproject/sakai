@@ -34,6 +34,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
  * which you want to be exposed as custom actions<br/>
  * By default the name of the method is used as the action key and this will work for read requests 
  * ({@link EntityView#VIEW_SHOW}), you can add in action and viewKey annotation params to change those settings<br/>
+ * You can describe this action using the key: <prefix>.action.<actionKey> = description<br/>
  * The methods annotated by this can have the following argument (parameter) types: <br/>
  * (type => data which will be given to the method) <br/>
  * {@link EntityView} : the current entity view for this request (contains extension, url, segments) <br/>

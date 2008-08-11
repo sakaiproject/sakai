@@ -24,10 +24,10 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
-import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 
 /**
@@ -84,9 +84,9 @@ public class EntityEncodingManagerTest extends TestCase {
       assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
       
       // test list of entities
-      ArrayList<MyEntity> testEntities = new ArrayList<MyEntity>();
-      testEntities.add(TestData.entity4);
-      testEntities.add(TestData.entity4_two);
+      ArrayList<EntityData> testEntities = new ArrayList<EntityData>();
+      testEntities.add( new EntityData(TestData.REF4, null, TestData.entity4) );
+      testEntities.add( new EntityData(TestData.REF4_two, null, TestData.entity4_two) );
       output = new ByteArrayOutputStream();
       entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.PREFIX4, ""), Formats.XML, testEntities, output, null, null);
       fo = output.toString();
@@ -100,7 +100,7 @@ public class EntityEncodingManagerTest extends TestCase {
 
       // test single entity
       testEntities.clear();
-      testEntities.add(TestData.entity4_3);
+      testEntities.add( new EntityData(TestData.REF4_3, null, TestData.entity4_3) );
       output = new ByteArrayOutputStream();
       entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.REF4_3), Formats.XML, testEntities, output, null, null);
       fo = output.toString();

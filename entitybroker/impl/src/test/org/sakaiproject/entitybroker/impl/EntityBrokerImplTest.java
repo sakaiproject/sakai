@@ -20,6 +20,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.impl.mocks.FakeEvent;
@@ -381,9 +382,9 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
       
       // test list of entities
-      ArrayList<MyEntity> testEntities = new ArrayList<MyEntity>();
-      testEntities.add(TestData.entity4);
-      testEntities.add(TestData.entity4_two);
+      ArrayList<EntityData> testEntities = new ArrayList<EntityData>();
+      testEntities.add( new EntityData(TestData.REF4, null, TestData.entity4) );
+      testEntities.add( new EntityData(TestData.REF4_two, null, TestData.entity4_two) );
       reference = TestData.SPACE4;
       output = new ByteArrayOutputStream();
       entityBroker.formatAndOutputEntity(reference, format, testEntities, output, null);
@@ -449,7 +450,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       //ActionReturn actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "double", null, null);
       assertNotNull(actionReturn);
       assertNotNull(actionReturn.entityData);
-      MyEntity doubleMe = (MyEntity) actionReturn.entityData;
+      MyEntity doubleMe = (MyEntity) actionReturn.entityData.getEntity();
       assertEquals(doubleMe.getNumber(), num * 2);
       assertEquals(me.getId(), doubleMe.getId());
 

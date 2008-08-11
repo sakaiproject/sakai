@@ -7,7 +7,7 @@ package org.sakaiproject.entitybroker.impl;
 import java.util.List;
 
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
@@ -131,7 +131,7 @@ public class EntityTaggingServiceTest extends AbstractTransactionalSpringContext
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#findEntityRefsByTags(java.lang.String[])}.
     */
    public void testFindEntityRefsByTags() {
-      List<EntitySearchResult> refs = null;
+      List<EntityData> refs = null;
 
       refs = taggingService.findEntitesByTags(new String[] {"aaronz"}, null, false, null);
       assertNotNull(refs);

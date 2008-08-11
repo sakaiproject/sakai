@@ -332,7 +332,10 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     *      java.lang.Class)
     */
    public void unregisterCapability(String prefix, Class<? extends EntityProvider> capability) {
-      if (capability == EntityProvider.class) {
+      if (prefix == null || capability == null) {
+         throw new IllegalArgumentException("prefix and capability cannot be null");
+      }
+      if (EntityProvider.class.equals(capability)) {
          throw new IllegalArgumentException(
                "Cannot separately unregister root EntityProvider capability - use unregisterEntityProviderByPrefix instead");
       }

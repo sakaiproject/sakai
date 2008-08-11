@@ -29,7 +29,7 @@ import org.sakaiproject.entitybroker.dao.EntityTagApplication;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.genericdao.api.search.Order;
@@ -61,7 +61,7 @@ public class EntityTaggingService implements TagProvider {
    }
 
 
-   public List<EntitySearchResult> findEntitesByTags(String[] tags, String[] prefixes,
+   public List<EntityData> findEntitesByTags(String[] tags, String[] prefixes,
          boolean matchAll, org.sakaiproject.entitybroker.entityprovider.search.Search search) {
       // FIXME the match all and handling of merging results from multiple providers is currently a mess -AZ
       // check for valid inputs
@@ -70,7 +70,7 @@ public class EntityTaggingService implements TagProvider {
                "At least one tag must be supplied to this search, tags cannot be null or empty");
       }
 
-      List<EntitySearchResult> results = new ArrayList<EntitySearchResult>();
+      List<EntityData> results = new ArrayList<EntityData>();
 
       // do a quick check first for efficiency, only search by prefix if there is a valid prefix to check
       boolean doSearch = true;
@@ -122,27 +122,26 @@ public class EntityTaggingService implements TagProvider {
             int allCount = tags.length;
             for (Entry<String, Integer> entry : matchMap.entrySet()) {
                if (entry.getValue() >= allCount) {
-                  results.add( new EntitySearchResult(entry.getKey(), null) );
+                  results.add( new EntityData(entry.getKey(), null) );
                }
             }
-            Collections.sort(results, new EntitySearchResult.ESRReferenceComparator());
+            Collections.sort(results, new EntityData.ESRReferenceComparator());
          } else {
             // filter the list down to the references first
-            HashMap<String, String> props = new HashMap<String, String>();
+            HashMap<String, String> refToTags = new HashMap<String, String>();
             for (EntityTagApplication tagApp : tagApps) {
-               if (props.containsKey(tagApp.getEntityRef())) {
-                  props.put(tagApp.getEntityRef(), props.get(tagApp.getEntityRef()) + EntityView.SEPARATOR + tagApp.getTag());
+               if (refToTags.containsKey(tagApp.getEntityRef())) {
+                  refToTags.put(tagApp.getEntityRef(), refToTags.get(tagApp.getEntityRef()) + EntityView.SEPARATOR + tagApp.getTag());
                } else {
-                  props.put(tagApp.getEntityRef(), tagApp.getTag());
+                  refToTags.put(tagApp.getEntityRef(), tagApp.getTag());
                   // note: no display available here
-                  results.add( new EntitySearchResult(tagApp.getEntityRef(), null) );
+                  results.add( new EntityData(tagApp.getEntityRef(), null) );
                }
             }
             // add in the tags property
-            for (EntitySearchResult esr : results) {
-               HashMap<String, String> eProps = new HashMap<String, String>();
-               eProps.put("tags", props.get(esr.getReference()));
-               esr.setEntityProperties(eProps);
+            for (EntityData ed : results) {
+               String reference = ed.getReference().toString();
+               ed.getEntityProperties().put("tags", refToTags.get(reference));
             }
          }
 
@@ -155,9 +154,9 @@ public class EntityTaggingService implements TagProvider {
                if (isUnderSearchLimit(results.size(), search)) {
                   if (validPrefixes.size() == 0 
                         || validPrefixes.contains(provider.getEntityPrefix())) {
-                     List<EntitySearchResult> pList = provider.findEntitesByTags(tags, matchAll, search);
+                     List<EntityData> pList = provider.findEntitesByTags(tags, matchAll, search);
                      if (pList != null) {
-                        for (EntitySearchResult esr : pList) {
+                        for (EntityData esr : pList) {
                            if (isUnderSearchLimit(results.size(), search)) {
                               results.add( esr );
                            } else {
@@ -172,7 +171,7 @@ public class EntityTaggingService implements TagProvider {
          }
 
          // populate the entity search results URLs (display names?)
-         entityBrokerManager.populateSearchResults(results);
+         entityBrokerManager.populateEntityData(results);
       }
       return results;
    }

@@ -25,6 +25,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 
@@ -51,7 +52,7 @@ public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implem
       MyEntity me = (MyEntity) getEntity(view.getEntityReference());
       MyEntity togo = me.copy();
       togo.setNumber( togo.getNumber() * 2 );
-      return new ActionReturn(togo, null);
+      return new ActionReturn(new EntityData(view.getEntityReference().toString(), togo.getStuff(), togo), null);
    }
 
    @EntityCustomAction(viewKey=EntityView.VIEW_NEW)

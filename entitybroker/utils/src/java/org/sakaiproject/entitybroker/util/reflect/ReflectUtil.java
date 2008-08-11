@@ -45,6 +45,8 @@ import org.apache.commons.beanutils.DynaProperty;
 import org.apache.commons.beanutils.MappedPropertyDescriptor;
 import org.apache.commons.beanutils.expression.Resolver;
 import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundException;
+import org.sakaiproject.entitybroker.util.refmap.ReferenceMap;
+import org.sakaiproject.entitybroker.util.refmap.ReferenceType;
 
 /**
  * Reflection utilities and utilities related to working with classes and their fields<br/>
@@ -68,6 +70,42 @@ public class ReflectUtil {
    private static final String PREFIX_IS = "is";
    private static final String PREFIX_GET = "get";
    private static final String PREFIX_SET = "set";
+
+   protected static Map<ClassLoader, ReflectUtil> utilByClassLoader = 
+      new ReferenceMap<ClassLoader, ReflectUtil>(ReferenceType.WEAK, ReferenceType.STRONG);
+   /**
+    * Get a singleton instance of the reflect utils to work with,
+    * will attach itself to the current context classloader and the reflection cache will be stored there
+    * @return a singleton instance of the reflection utils
+    */
+   public static ReflectUtil getInstance() {
+      ReflectUtil instance = null;
+      ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+      if (contextClassLoader != null) {
+         if (utilByClassLoader.containsKey(contextClassLoader)) {
+            instance = utilByClassLoader.get(contextClassLoader);
+         }
+      }
+      if (instance == null) {
+         instance = new ReflectUtil();
+         ReflectUtil.setInstance(instance);
+      }
+      return instance;
+   }
+   /**
+    * Set the singleton instance of the reflection utils,
+    * it will be associated with the current context classloader
+    * @param reflectUtil the instance to use as the singleton instance
+    */
+   public static void setInstance(ReflectUtil reflectUtil) {
+      if (reflectUtil == null) {
+         reflectUtil = new ReflectUtil();
+      }
+      ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+      if (contextClassLoader != null) {
+         utilByClassLoader.put(contextClassLoader, reflectUtil);
+      }
+   }
 
    protected Collection<Member> getMembers(Class<?> elementClass) {
       return getPropertyUtils().getMembers(elementClass);

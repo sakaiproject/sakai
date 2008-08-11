@@ -181,6 +181,12 @@ public class EntityView {
             viewKey = VIEW_SHOW;
          }
          setViewKey(viewKey);
+      } else {
+         // fix up the viewKey so that it makes sense
+         if (VIEW_SHOW.equals(this.viewKey)
+               && ref.getId() == null) {
+            this.viewKey = VIEW_LIST;
+         }
       }
       this.entityReference = ref;
       return this;

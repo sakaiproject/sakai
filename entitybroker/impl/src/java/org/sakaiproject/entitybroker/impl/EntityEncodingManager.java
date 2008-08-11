@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +30,11 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
-import org.sakaiproject.entitybroker.entityprovider.extension.BasicEntity;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EncodingException;
@@ -82,7 +80,7 @@ public class EntityEncodingManager {
     * Should take into account the reference when determining what the entities are
     * and how to encode them
     * 
-    * @param reference a globally unique reference to an entity, 
+    * @param ref a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments
     * @param format a string constant indicating the format (from {@link Formats}) 
     * for output, (example: {@link #XML})
@@ -97,13 +95,9 @@ public class EntityEncodingManager {
     * @throws IllegalArgumentException if the entity does not support output formatting or any arguments are invalid
     * @throws EncodingException is there is failure encoding the output
     */
-   public void formatAndOutputEntity(String reference, String format, List<?> entities, OutputStream output, Map<String, Object> params) {
-      if (reference == null || format == null || output == null) {
-         throw new IllegalArgumentException("reference, format, and output cannot be null");
-      }
-      EntityReference ref = entityBrokerManager.parseReference(reference);
-      if (ref == null) {
-         throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
+   public void formatAndOutputEntity(EntityReference ref, String format, List<EntityData> entities, OutputStream output, Map<String, Object> params) {
+      if (ref == null || format == null || output == null) {
+         throw new IllegalArgumentException("ref, format, and output cannot be null");
       }
       String prefix = ref.getPrefix();
       Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
@@ -119,18 +113,18 @@ public class EntityEncodingManager {
                formattable.formatOutput(ref, format, entities, params, output);
             }
          } else {
-            throw new IllegalArgumentException("This entity ("+reference+") is not outputable in this format ("+format+")," +
+            throw new IllegalArgumentException("This entity ("+ref+") is not outputable in this format ("+format+")," +
                   " only the following formats are supported: " + ReflectUtil.arrayToString(formats));
          }
       } else {
-         throw new IllegalArgumentException("This entity ("+reference+") is not outputable");
+         throw new IllegalArgumentException("This entity ("+ref+") is not outputable");
       }
    }
 
    /**
     * Translates the input data stream in the supplied format into an entity object for this reference
     * 
-    * @param reference a globally unique reference to an entity, 
+    * @param ref a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments
     * @param format a string constant indicating the format (from {@link Formats}) 
     * of the input, (example: {@link #XML})
@@ -140,13 +134,9 @@ public class EntityEncodingManager {
     * @throws IllegalArgumentException if the entity does not support input translation or any arguments are invalid
     * @throws EncodingException is there is failure encoding the input
     */
-   public Object translateInputToEntity(String reference, String format, InputStream input, Map<String, Object> params) {
-      if (reference == null || format == null || input == null) {
-         throw new IllegalArgumentException("reference, format, and input cannot be null");
-      }
-      EntityReference ref = entityBrokerManager.parseReference(reference);
-      if (ref == null) {
-         throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
+   public Object translateInputToEntity(EntityReference ref, String format, InputStream input, Map<String, Object> params) {
+      if (ref == null || format == null || input == null) {
+         throw new IllegalArgumentException("ref, format, and input cannot be null");
       }
       Object entity = null;
       String prefix = ref.getPrefix();
@@ -163,11 +153,11 @@ public class EntityEncodingManager {
                entity = translatable.translateFormattedData(ref, format, input, params);
             }
          } else {
-            throw new IllegalArgumentException("This entity ("+reference+") is not inputable in this format ("+format+")," +
+            throw new IllegalArgumentException("This entity ("+ref+") is not inputable in this format ("+format+")," +
                   " only the following formats are supported: " + ReflectUtil.arrayToString(formats));
          }
       } else {
-         throw new IllegalArgumentException("This entity ("+reference+") is not inputable");
+         throw new IllegalArgumentException("This entity ("+ref+") is not inputable");
       }
       return entity;
    }
@@ -266,7 +256,7 @@ public class EntityEncodingManager {
     * @param output the outputstream to place the encoded data into
     * @param view (optional) 
     */
-   public void internalOutputFormatter(EntityReference ref, String format, List<?> entities, OutputStream output, EntityView view, Map<String, Object> params) {
+   public void internalOutputFormatter(EntityReference ref, String format, List<EntityData> entities, OutputStream output, EntityView view, Map<String, Object> params) {
       if (format == null) { format = Outputable.HTML; }
       if (view == null) {
          view = entityBrokerManager.makeEntityView(ref, null, null);
@@ -276,7 +266,8 @@ public class EntityEncodingManager {
 
       // get the entities if not supplied
       if (entities == null) {
-         entities = entityBrokerManager.getEntities(ref, new Search());
+         // these will be EntityData
+         entities = entityBrokerManager.getEntitiesData(ref, new Search(), params);
       }
       if (entities.isEmpty()) {
          // just log this for now
@@ -291,8 +282,8 @@ public class EntityEncodingManager {
             || ref.getId() == null) {
          // encoding a collection of entities
          if (encoder != null) {
-            Class<?> entityClass = ReflectUtil.getClassFromCollection((Collection<?>)entities);
-            encoder.alias(ref.prefix, entityClass);
+            setEncoderDataAlias(ref.getPrefix(), entities, encoder);
+
             StringBuilder sb = new StringBuilder();
             // make header
             if (Formats.JSON.equals(format)) {
@@ -302,7 +293,7 @@ public class EntityEncodingManager {
             }
             // loop through and encode items
             int encodedEntities = 0;
-            for (Object entity : entities) {
+            for (EntityData entity : entities) {
                String encode = encodeEntity(ref, workingView, entity, encoder);
                if (encode.length() > 3) {
                   if (Formats.JSON.equals(format)) {
@@ -328,19 +319,20 @@ public class EntityEncodingManager {
             }
             encoded = sb.toString();
          } else {
-            // just dump the whole thing to a string
-            encoded = encodeEntity(ref, workingView, entities, null);
+            // just dump the whole thing to a string if there is no encoder
+            EntityData ed = new EntityData(ref, null, entities);
+            ed.setEntityURL( entityBrokerManager.makeFullURL(workingView.getEntityURL()) );
+            encoded = encodeEntity(ref, workingView, ed, null);
          }
       } else {
          // encoding a single entity
-         Object toEncode = entities.get(0);
+         EntityData toEncode = entities.get(0);
          if (toEncode == null) {
             throw new EncodingException("Failed to encode data for entity (" + ref 
-                  + "), entity object to encode could not be found", ref.toString());
+                  + "), entity object to encode could not be found (null object in list)", ref.toString());
          } else {
-            Class<?> encodeClass = toEncode.getClass();
             if (encoder != null) {
-               encoder.alias(ref.getPrefix(), encodeClass); // add alias for the current entity prefix
+               setEncoderDataAlias(ref.getPrefix(), entities, encoder);
             }
             try {
                encoded = encodeEntity(ref, workingView, toEncode, encoder);
@@ -357,6 +349,28 @@ public class EntityEncodingManager {
          throw new EncodingException("Failed to encode UTF-8: " + ref, ref.toString(), e);
       } catch (IOException e) {
          throw new EncodingException("Failed to encode into output stream: " + ref, ref.toString(), e);
+      }
+   }
+
+   /**
+    * Sets the encoded alias so that the data output is clear and easy to read by
+    * making the prefix the text used in the outside XML,
+    * this basically affects the way the encoded XML looks when it is dumped
+    * and is Xstream specific
+    */
+   private void setEncoderDataAlias(String prefix, List<EntityData> entities, EntityXStream encoder) {
+      Class<?> entityClass = null;
+      if (! entities.isEmpty()) {
+         EntityData ed = entities.get(0);
+         if (ed != null) {
+            Object obj = ed.getEntity();
+            entityClass = obj.getClass();
+         }
+      }
+      if (entityClass == null) {
+         encoder.alias("entity-data", EntityData.class);
+      } else {
+         encoder.alias(prefix, entityClass);
       }
    }
 
@@ -405,40 +419,36 @@ public class EntityEncodingManager {
     * @param ref the entity reference
     * @param workingView this is a working view which can be changed around as needed to generate URLs,
     * always go to the EntityReference for original data
-    * @param toEncode entity to encode
+    * @param toEncode entity data to encode
     * @param encoder enhanced xstream encoder or null if no encoder available
     * @return the encoded entity or "" if encoding fails
     */
-   public String encodeEntity(EntityReference ref, EntityView workingView, Object toEncode, EntityXStream encoder) {
+   public String encodeEntity(EntityReference ref, EntityView workingView, EntityData entityData, EntityXStream encoder) {
       String encoded = "";
+      if (entityData == null) {
+         throw new IllegalArgumentException("entity data to encode must not be null");
+      }
       if (encoder != null) {
-         // generate entity meta data
-         Class<?> entityClass = toEncode.getClass();
-         Map<String, Object> entityData = null;
-         if (! BasicEntity.class.equals(entityClass)) {
-            entityData = new HashMap<String, Object>();
-            entityData.put(EntityXStream.EXTRA_DATA_CLASS, entityClass);
-            String entityId = ref.getId();
-            if (entityId == null) {
-               // try to get it from the toEncode object
-               entityId = entityBrokerManager.getReflectUtil().getFieldValueAsString(toEncode, "id", EntityId.class);
-            }
-            if (entityId != null) {
-               entityData.put("ID", entityId);
-               workingView.setEntityReference( new EntityReference(ref.getPrefix(), entityId) );
-               String url = entityBrokerManager.makeFullURL( workingView.getEntityURL(EntityView.VIEW_SHOW, null) );
-               entityData.put("URL", url);
-            } else {
-               String url = entityBrokerManager.makeFullURL( workingView.getEntityURL(EntityView.VIEW_LIST, null) );
-               entityData.put("URL", url);               
-            }
+         // TODO encode the props from the entity data specially? (this may be the only data)
+         // encode the entity itself
+         Object toEncode = entityData.getEntity();
+         if (toEncode == null) {
+            // just use the entity data object
+            toEncode = entityData;
          }
-
+         // add in the extra props
+         Map<String, Object> entityProps = new HashMap<String, Object>();
+         Class<?> entityClass = toEncode.getClass();
+         entityProps.put(EntityXStream.EXTRA_DATA_CLASS, entityClass);
+         if (entityData.getEntityReference().getId() != null) {
+            entityProps.put("ID", entityData.getEntityReference().getId());
+         }
+         entityProps.put("URL", entityData.getEntityURL());
          // encode the object
-         encoded = encoder.toXML(toEncode, entityData);
+         encoded = encoder.toXML(toEncode, entityProps);
       } else {
          // just to string this and dump it out
-         encoded = "<b>" + ref.getPrefix() + "</b>: " + toEncode.toString();
+         encoded = "<b>" + ref.getPrefix() + "</b>: " + entityData;
       }
       return encoded;
    }

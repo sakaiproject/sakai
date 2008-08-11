@@ -25,7 +25,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * provide lists of entities for browsing, the implementor should be sure that ordering and limiting are supported
  * for the provided search object in their implementation of {@link CollectionResolvable#getEntities(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search)}<br/>
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
- * This extends {@link CollectionResolvable}
+ * This extends {@link CollectionResolvable}, use the {@link BrowseSearchable} interface if you require more control
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */

@@ -14,8 +14,11 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
+import java.util.Map;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 
 /**
  * Allows the entities handled by this provider to be accessed directly as objects,
@@ -36,12 +39,13 @@ public interface Resolvable extends EntityProvider {
     * <b>Note:</b> The entity class type needs to be able to be resolved from the ClassLoader of the 
     * EntityBrokerManager (currently this means deployed into shared)<br/> 
     * <br/>The entity object does not have to be a model object itself and may simply
-    * be something created (e.g. String, Map, etc.) to give to anyone calling this method.
+    * be something created ({@link Map}, {@link String}, {@link EntityData}, etc.) to give to anyone calling this method.
     * 
     * @param ref the parsed reference object which uniquely represents an entity OR
     * only a prefix (indicating you should return a default constructed object with no properties set)
-    * @return an entity object for the prefix and if in the ref OR 
-    * an empty entity object if only the prefix is supplied (do NOT return null)
+    * @return an entity object for the prefix and id in the provided ref OR 
+    * an empty entity object if only the prefix is supplied (should NOT return null),
+    * this return could be an {@link EntityData} object, {@link Map}, your own POJO, etc.
     * @throws IllegalArgumentException if the id is invalid for this type of entity,
     * <b>NOTE:</b> a null id means you should return a default constructed object)
     * @throws SecurityException if access to this entity is not allowed

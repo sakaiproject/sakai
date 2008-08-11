@@ -24,6 +24,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResol
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 
 
@@ -59,7 +60,7 @@ public class ActionsDefineableEntityProviderMock extends CRUDableEntityProviderM
       MyEntity me = (MyEntity) getEntity(view.getEntityReference());
       MyEntity togo = me.copy();
       togo.setNumber( togo.getNumber() * 2 );
-      return new ActionReturn(togo, null);
+      return new ActionReturn(new EntityData(view.getEntityReference().toString(), togo.getStuff(), togo), null);
    }
 
    public void xxxChange(EntityReference ref) {

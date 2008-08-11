@@ -14,8 +14,10 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,14 +31,16 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Browseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
-import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundException;
 
@@ -70,7 +74,8 @@ public class EntityBrokerManager {
       this.serverConfigurationService = serverConfigurationService;
    }
 
-   private ReflectUtil reflectUtil = new ReflectUtil();
+   // use a singleton instance attached to the classloader for everyone
+   private ReflectUtil reflectUtil = ReflectUtil.getInstance();
    public ReflectUtil getReflectUtil() {
       return reflectUtil;
    }
@@ -140,6 +145,9 @@ public class EntityBrokerManager {
     * Reduce code duplication and ensure custom templates are used
     */
    public EntityView makeEntityView(EntityReference ref, String viewKey, String extension) {
+      if (ref == null) {
+         throw new IllegalArgumentException("ref cannot be null");
+      }
       EntityView view = new EntityView();
       EntityViewUrlCustomizable custom = (EntityViewUrlCustomizable) entityProviderManager
             .getProviderByPrefixAndCapability(ref.getPrefix(), EntityViewUrlCustomizable.class);
@@ -225,81 +233,145 @@ public class EntityBrokerManager {
    }
 
    /**
-    * Add in the extra meta data (currently the URL) to all entity search results,
-    * handles it as efficiently as possible without remaking an entity view on every call
-    * 
-    * @param results a list of entity search results
-    */
-   public void populateSearchResults(List<EntitySearchResult> results) {
-      HashMap<String, EntityView> views = new HashMap<String, EntityView>();
-      for (EntitySearchResult result : results) {
-         // set URL
-         EntityReference ref = result.getEntityReference();
-         EntityView view = null;
-         if (views.containsKey(ref.getPrefix())) {
-            view = views.get(ref.getPrefix());
-         } else {
-            view = makeEntityView(ref, EntityView.VIEW_SHOW, null);
-            views.put(ref.getPrefix(), view);
-         }
-         view.setEntityReference(ref);
-         result.setEnityURL( view.getEntityURL() );
-         // attempt to set display title if not set
-         if (! result.isDisplayTitleSet()) {
-            boolean titleNotSet = true;
-            // check properties first
-            if (result.getEntityProperties() != null) {
-               String title = findMapStringValue(result.getEntityProperties(), new String[] {"displayTitle","title","displayName","name"});
-               if (title != null) {
-                  result.setDisplayTitle(title);
-                  titleNotSet = false;
-               }
-            }
-            // check the object itself next
-            if (titleNotSet && result.getEntity() != null) {
-               try {
-                  String title = getReflectUtil().getFieldValueAsString(result.getEntity(), "title", EntityTitle.class);
-                  if (title != null) {
-                     result.setDisplayTitle(title);
-                     titleNotSet = false;
-                  }
-               } catch (FieldnameNotFoundException e) {
-                  // could not find any fields with the title, nothing to do but continue
-               }
-            }
-         }
-         // done with this result
-      }
-   }
-
-   /**
     * Get an entity object of some kind for this reference if it has an id,
     * will simply return null if no id is available in this reference
     * 
-    * @param reference a unique string representing an entity
-    * @return the entity object for this reference or null if none can be retrieved
+    * @param ref an entity reference
+    * @return the entity object for this reference OR null if none can be retrieved
     */
-   public Object getEntityObject(EntityReference ref) {
-      Object entity = null;
-      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Resolvable.class);
-      if (provider != null) {
-         entity = ((Resolvable)provider).getEntity(ref);
+   public Object fetchEntity(EntityReference ref) {
+      if (ref == null) {
+         throw new IllegalArgumentException("ref cannot be null");
+      }
+      Object entity = fetchEntityObject(ref);
+      if (entity != null) {
+         entity = EntityDataUtils.convertToEntity(entity);
       }
       return entity;
    }
 
    /**
-    * Get the list of entities based on a reference and supplied search,
-    * passes through to the EP methods if available,
-    * returns the list of entities in the form retrieved
+    * Get the entity data for a reference if possible
+    * 
+    * @param ref an entity reference
+    * @return an {@link EntityData} object for this reference if one can be found OR null if not
+    */
+   public EntityData getEntityData(EntityReference ref) {
+      if (ref == null) {
+         throw new IllegalArgumentException("ref cannot be null");
+      }
+      EntityData ed = null;
+      Object obj = fetchEntityObject(ref);
+      if (obj != null) {
+         ed = EntityDataUtils.makeEntityData(ref, obj);
+         populateEntityData(new EntityData[] {ed} );
+      } else {
+         if (entityExists(ref)) {
+            String url = getEntityURL(ref.toString(), EntityView.VIEW_SHOW, null);
+            ed = new EntityData(ref, null);
+            ed.setEntityURL(url);
+         }
+      }
+      return ed;
+   }
+
+   /**
+    * Get the entity without a change (may be EntityData or just an object)
+    */
+   protected Object fetchEntityObject(EntityReference ref) {
+      Object entity = null;
+      Resolvable provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Resolvable.class);
+      if (provider != null) {
+         entity = provider.getEntity(ref);
+      }
+      return entity;
+   }
+
+   /**
+    * Get a list of entities from {@link CollectionResolvable} first if available or {@link BrowseSearchable} if not,
+    * returns the entities as actual entities (converts from {@link EntityData} if that was used),
+    * correctly handles references to single entities as well
     * 
     * @param ref the reference
     * @param search a search (should not be null)
-    * @param actionReturn
+    * @param params
+    * @return a list of entities OR empty list if none found for the given reference
+    */
+   public List<?> fetchEntities(EntityReference ref, Search search, Map<String, Object> params) {
+      List<?> entities = internalGetEntities(ref, search, params);
+      entities = EntityDataUtils.convertToEntities(entities);
+      return entities;
+   }
+
+   /**
+    * Get a list of entities from {@link CollectionResolvable} first if available or {@link BrowseSearchable} if not,
+    * returns the entities wrapped in {@link EntityData},
+    * correctly handles references to single entities as well
+    * 
+    * @param ref the reference
+    * @param search a search (should not be null)
+    * @param params
+    * @return a list of entities OR empty list if none found for the given reference
+    */
+   public List<EntityData> getEntitiesData(EntityReference ref, Search search, Map<String, Object> params) {
+      List<?> entities = internalGetEntities(ref, search, params);
+      List<EntityData> data = convertToEntityData(entities, ref);
+      return data;
+   }
+
+   /**
+    * Fetches the browseable entities
+    * @param prefix
+    * @param search
+    * @param userReference
+    * @param associatedReference
+    * @param params
+    * @return a list of entity data results to browse
+    */
+   public List<EntityData> browseEntities(String prefix, Search search,
+         String userReference, String associatedReference, Map<String, Object> params) {
+      if (prefix == null) {
+         throw new IllegalArgumentException("No prefix supplied for entity browsing resolution, prefix was null");
+      }
+      List<EntityData> results = null;
+      // check for browse searchable first
+      BrowseSearchable searchable = entityProviderManager.getProviderByPrefixAndCapability(prefix, BrowseSearchable.class);
+      if (searchable != null) {
+         search = EntityDataUtils.translateStandardSearch(search);
+         List<EntityData> l = searchable.browseEntities(search, userReference, associatedReference, params);
+         if (l != null) {
+            results = new ArrayList<EntityData>( l );
+         }
+         populateEntityData( l );
+      } else {
+         // get from the collection if available
+         Browseable provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, Browseable.class);
+         if (provider != null) {
+            search = EntityDataUtils.translateStandardSearch(search);
+            EntityReference ref = new EntityReference(prefix, "");
+            List<?> l = getEntitiesData(ref, search, params);
+            results = convertToEntityData(l, ref);
+         }
+      }
+      if (results == null) {
+         results = new ArrayList<EntityData>();
+      }
+      return results;
+   }
+   
+   /**
+    * INTERNAL usage:
+    * Get a list of entities from {@link CollectionResolvable} first if available or {@link BrowseSearchable} if not,
+    * returns the entities as whatever they were returned as, EntityData would need to be populated still,
+    * correctly handles references to single entities as well
+    * 
+    * @param ref the reference
+    * @param search a search (should not be null)
+    * @param params
     * @return a list of entities OR empty list if none found for the given reference
     */
    @SuppressWarnings("unchecked")
-   public List<?> getEntities(EntityReference ref, Search search) {
+   protected List<?> internalGetEntities(EntityReference ref, Search search, Map<String, Object> params) {
       if (ref == null) {
          throw new IllegalArgumentException("No reference supplied for entity collection resolution, ref was null");
       }
@@ -307,29 +379,31 @@ public class EntityBrokerManager {
       List entities = null;
       if (ref.getId() == null) {
          // encoding a collection of entities
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), CollectionResolvable.class);
+         CollectionResolvable provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), CollectionResolvable.class);
          if (provider != null) {
-            // attempt to cleanup the search a little bit
-            if (search == null) {
-               search = new Search();
-            } else {
-               translateSearchReference(search, CollectionResolvable.SEARCH_USER_REFERENCE, 
-                     new String[] {"userId","userEid","user"}, "/user/");
-               translateSearchReference(search, CollectionResolvable.SEARCH_LOCATION_REFERENCE, 
-                     new String[] {"locationId","location","siteId", "site"}, "/site/");
-               translateSearchReference(search, CollectionResolvable.SEARCH_TAGS, 
-                     new String[] {"tag","tags"}, "");
+            search = EntityDataUtils.translateStandardSearch(search);
+            List<?> l = provider.getEntities(ref, search);
+            if (l != null) {
+               entities = new ArrayList( l );
             }
-            entities = new ArrayList( ((CollectionResolvable)provider).getEntities(ref, search) );
+         } else {
+            BrowseSearchable searchable = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), BrowseSearchable.class);
+            if (searchable != null) {
+               search = EntityDataUtils.translateStandardSearch(search);
+               List<?> l = searchable.browseEntities(search, null, null, params);
+               if (l != null) {
+                  entities = new ArrayList( l );
+               }
+            }
          }
       } else {
          // encoding a single entity
-         Object entity = getEntityObject(ref);
+         Object entity = fetchEntityObject(ref);
          if (entity == null) {
             throw new EntityException("Failed to retrieve entity (" + ref + "), entity object could not be found",
                   ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED);
          }
-         entities = new ArrayList();
+         entities = new ArrayList(1);
          entities.add(entity);
       }
       // make sure no null is returned
@@ -340,74 +414,119 @@ public class EntityBrokerManager {
    }
 
    /**
-    * Adds in a search restriction based on existing restrictions,
-    * this is ideally setup to convert restrictions into one that the developers expect
+    * Convert a list of objects to entity data objects (also populates them),
+    * will preserve null (i.e. null in => null out)
     */
-   private boolean translateSearchReference(Search search, String key, String[] keys, String valuePrefix) {
-      boolean added = false;
-      if (search.getRestrictionByProperty(key) == null) {
-         Object value = findSearchValue(search, keys);
-         if (value != null) {
-            if (valuePrefix != null) {
-               String sval = value.toString();
-               if (!sval.startsWith(valuePrefix)) {
-                  value = valuePrefix + sval;
-               }
-            }
-            search.addRestriction( new Restriction(CollectionResolvable.SEARCH_USER_REFERENCE, value) );
-         }
-      }
-      return added;
+   public List<EntityData> convertToEntityData(List<?> entities, EntityReference ref) {
+      List<EntityData> l = EntityDataUtils.convertToEntityData(entities, ref);
+      populateEntityData(l);
+      return l;
    }
 
    /**
-    * Finds if there are any search restrictions with the given properties, if so it returns the value,
-    * otherwise returns null
+    * Convert a single object to an entity data object (also populates it),
+    * will preserve null (i.e. null in => null out)
     */
-   private Object findSearchValue(Search search, String[] keys) {
-      Object value = null;
-      for (int i = 0; i < keys.length; i++) {
-         String key = keys[i];
-         Restriction r = search.getRestrictionByProperty(key);
-         if (r != null) {
-            if (r.getValue() != null) {
-               value = r.getValue();
-               break;
-            }
-         }
+   public EntityData convertToEntityData(Object entity, EntityReference ref) {
+      EntityData ed = EntityDataUtils.convertToEntityData(entity, ref);
+      if (ed != null) {
+         populateEntityData( new EntityData[] {ed} );
       }
-      return value;
+      return ed;
    }
 
-   // STATIC
+   /**
+    * Add in the extra meta data (URL, title, etc.) to all entity data objects,
+    * handles it as efficiently as possible without remaking an entity view on every call
+    * 
+    * @param data a list of entity data
+    */
+   public void populateEntityData(List<EntityData> data) {
+      if (data != null && ! data.isEmpty()) {
+         populateEntityData(data.toArray(new EntityData[data.size()]));
+      }
+   }
 
    /**
-    * Finds a map value for a key (or set of keys) if it exists in the map and returns the string value of it
-    * @param map any map with strings as keys
-    * @param keys an array of keys to try to find in order
-    * @return the string value OR null if it could not be found for any of the given keys
+    * Add in the extra meta data (URL, title, etc.) to all entity data objects,
+    * handles it as efficiently as possible without remaking an entity view on every call
+    * 
+    * @param data a list of entity data
     */
-   public static String findMapStringValue(Map<String, ?> map, String[] keys) {
-      if (map == null || keys == null) {
-         return null;
+   public void populateEntityData(EntityData[] data) {
+      if (data == null) {
+         return;
       }
-      String value = null;
-      try {
-         for (int i = 0; i < keys.length; i++) {
-            String key = keys[i];
-            if (map.containsKey(key)) {
-               Object oVal = map.get(key);
-               if (oVal != null) {
-                  value = oVal.toString();
-                  break;
+      HashMap<String, EntityView> views = new HashMap<String, EntityView>();
+      for (EntityData entityData : data) {
+         if (entityData.isPopulated()) {
+            continue;
+         } else {
+            entityData.setPopulated(true);
+         }
+         // set URL
+         EntityReference ref = entityData.getEntityReference();
+         EntityView view = null;
+         if (views.containsKey(ref.getPrefix())) {
+            view = views.get(ref.getPrefix());
+         } else {
+            view = makeEntityView(ref, EntityView.VIEW_SHOW, null);
+            views.put(ref.getPrefix(), view);
+         }
+         view.setEntityReference(ref);
+         String partialURL = view.getEntityURL();
+         String fullURL = makeFullURL( partialURL );
+         entityData.setEntityURL( fullURL );
+         // check what we are dealing with
+         boolean isPOJO = false;
+         if (entityData.getEntity() != null) {
+            if (entityData.getEntity().getClass().isPrimitive()
+                  || entityData.getEntity().getClass().isArray()
+                  || Collection.class.isAssignableFrom(entityData.getEntity().getClass())
+                  || OutputStream.class.isAssignableFrom(entityData.getEntity().getClass())
+                  || Number.class.isAssignableFrom(entityData.getEntity().getClass())
+                  || String.class.isAssignableFrom(entityData.getEntity().getClass()) ) {
+               isPOJO = false;
+            } else {
+               isPOJO = true;
+            }
+         }
+         // get all properties out of this thing
+         if (isPOJO) {
+            if (Map.class.isAssignableFrom(entityData.getEntity().getClass())) {
+               // skip
+            } else {
+               Map<String, Object> values = getReflectUtil().getObjectValues(entityData.getEntity());
+               Map<String, Object> props = EntityDataUtils.extractMapProperties( values );
+               EntityDataUtils.putAllNewInMap(entityData.getEntityProperties(), props);
+            }
+         }
+         // attempt to set display title if not set
+         if (! entityData.isDisplayTitleSet()) {
+            boolean titleNotSet = true;
+            // check properties first
+            if (entityData.getEntityProperties() != null) {
+               String title = EntityDataUtils.findMapStringValue(entityData.getEntityProperties(), new String[] {"displayTitle","title","displayName","name"});
+               if (title != null) {
+                  entityData.setDisplayTitle(title);
+                  titleNotSet = false;
+               }
+            }
+            // check the object itself next
+            if (isPOJO && titleNotSet) {
+               try {
+                  String title = getReflectUtil().getFieldValueAsString(entityData.getEntity(), "title", EntityTitle.class);
+                  if (title != null) {
+                     entityData.setDisplayTitle(title);
+                     titleNotSet = false;
+                  }
+               } catch (FieldnameNotFoundException e) {
+                  // could not find any fields with the title, nothing to do but continue
                }
             }
          }
-      } catch (RuntimeException e) {
-         // in case the given map is not actually of the right types at runtime
-         value = null;
+         // done with this entity data
       }
-      return value;
    }
 
 }

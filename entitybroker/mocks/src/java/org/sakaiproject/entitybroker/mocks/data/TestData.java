@@ -10,6 +10,8 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsDefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutionControllable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Browseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
@@ -26,6 +28,8 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.TagProvideable;
 import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsExecutionEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.BrowsableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.BrowseSearchableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.CoreEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.DescribePropertiesableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.DescribeableEntityProviderMock;
@@ -245,6 +249,24 @@ public class TestData {
    public static String REFT1_3 = EntityReference.SEPARATOR + PREFIXT1
          + EntityReference.SEPARATOR + IDST1[2];
 
+   public static String PREFIXB1 = "browse1";
+   public static String[] IDSB1 = new String[] { "CCC1", "BBB2", "AAA3" };
+   public static String REFB1 = EntityReference.SEPARATOR + PREFIXB1
+         + EntityReference.SEPARATOR + IDSB1[0];
+   public static String REFB1_2 = EntityReference.SEPARATOR + PREFIXB1
+         + EntityReference.SEPARATOR + IDSB1[1];
+   public static String REFB1_3 = EntityReference.SEPARATOR + PREFIXB1
+         + EntityReference.SEPARATOR + IDSB1[2];
+
+   public static String PREFIXB2 = "browse-search";
+   public static String[] IDSB2 = new String[] { "sdf233", "234ess", "zzz" };
+   public static String REFB2 = EntityReference.SEPARATOR + PREFIXB2
+         + EntityReference.SEPARATOR + IDSB2[0];
+   public static String REFB2_2 = EntityReference.SEPARATOR + PREFIXB2
+         + EntityReference.SEPARATOR + IDSB2[1];
+   public static String REFB2_3 = EntityReference.SEPARATOR + PREFIXB2
+         + EntityReference.SEPARATOR + IDSB2[2];
+
    public static String INVALID_REF = "invalid_reference-1";
    public static String INVALID_URL = "http://bkjskldsalkdsa/sdakljdskl/stuff";
 
@@ -350,6 +372,14 @@ public class TestData {
     * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful} and {@link RedirectControllable}
     */
    public RedirectControllableEntityProviderMock entityProviderU3 = new RedirectControllableEntityProviderMock(PREFIXU3, IDSU3);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link Browseable}
+    */
+   public BrowsableEntityProviderMock entityProviderB1 = new BrowsableEntityProviderMock(PREFIXB1, IDSB1);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link BrowseSearchable}
+    */
+   public BrowseSearchableEntityProviderMock entityProviderB2 = new BrowseSearchableEntityProviderMock(PREFIXB2, IDSB2);
 
    /**
     * Basic constructor initializes test data if needed

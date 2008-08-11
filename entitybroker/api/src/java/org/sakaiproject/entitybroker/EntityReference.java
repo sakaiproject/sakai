@@ -77,6 +77,13 @@ public class EntityReference {
 
    // CONSTRUCTORS
 
+   private boolean empty = true;
+   /**
+    * @return true if this object contains no reference data, false if it contains a valid reference
+    */
+   public boolean isEmpty() {
+      return empty;
+   }
    public EntityReference() { }
 
    /**
@@ -93,6 +100,7 @@ public class EntityReference {
       this.originalReference = reference;
       this.prefix = findPrefix(reference);
       this.entityId = findId(reference);
+      empty = false;
    }
 
    /**
@@ -109,6 +117,7 @@ public class EntityReference {
       this.prefix = prefix;
       if ("".equals(id)) { id = null; }
       this.entityId = id;
+      empty = false;
    }
 
 

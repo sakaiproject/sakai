@@ -29,6 +29,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
  * This means that there are custom actions which can be invoked on entities or entity spaces,
  * custom actions can augment the current entity operation or they can completely
  * change the behavior and skip the current operation entirely<br/>
+ * You can describe the actions using the {@link Describeable} key: <prefix>.action.<actionKey> = description<br/>
  * You can create methods in your entity provider which either end with {@value #ACTION_METHOD_SUFFIX}
  * or use the {@link EntityCustomAction} suffix to define the custom actions<br/>
  * 

@@ -28,12 +28,10 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
@@ -223,27 +221,75 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
          }
       } else {
          // this is a registered prefix
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Resolvable.class);
-         if (provider != null) {
-            // no exists check here since we are trying to reduce extra load
-            entity = ((Resolvable) provider).getEntity(ref);
-         }
+         entity = entityBrokerManager.fetchEntity(ref);
       }
       return entity;
    }
 
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#getEntity(java.lang.String)
+    */
+   public EntityData getEntity(String reference) {
+      EntityReference ref = entityBrokerManager.parseReference(reference);
+      return entityBrokerManager.getEntityData(ref);
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#fetchEntities(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.util.Map)
+    */
+   public List<?> fetchEntities(String prefix, Search search, Map<String, Object> params) {
+      EntityReference ref = new EntityReference(prefix, "");
+      requestStorage.setRequestValues(params);
+      List<?> l = entityBrokerManager.fetchEntities(ref, search, params);
+      requestStorage.reset();
+      return l;
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#getEntities(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.util.Map)
+    */
+   public List<EntityData> getEntities(String prefix, Search search, Map<String, Object> params) {
+      EntityReference ref = new EntityReference(prefix, "");
+      requestStorage.setRequestValues(params);
+      List<EntityData> data = entityBrokerManager.getEntitiesData(ref, search, params);
+      requestStorage.reset();
+      return data;
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#browseEntities(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.lang.String, java.lang.String, java.util.Map)
+    */
+   public List<EntityData> browseEntities(String prefix, Search search,
+         String userReference, String associatedReference, Map<String, Object> params) {
+      requestStorage.setRequestValues(params);
+      List<EntityData> data = entityBrokerManager.browseEntities(prefix, search, userReference, associatedReference, params);
+      requestStorage.reset();
+      return data;
+   }
+
+
 
    public void formatAndOutputEntity(String reference, String format, List<?> entities,
          OutputStream output, Map<String, Object> params) {
+      EntityReference ref = entityBrokerManager.parseReference(reference);
+      if (ref == null) {
+         throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
+      }
       requestStorage.setRequestValues(params);
-      entityEncodingManager.formatAndOutputEntity(reference, format, entities, output, params);
+      // convert entities to entity data list
+      List<EntityData> data = entityBrokerManager.convertToEntityData(entities, ref);
+      entityEncodingManager.formatAndOutputEntity(ref, format, data, output, params);
       requestStorage.reset();
    }
 
    public Object translateInputToEntity(String reference, String format, InputStream input,
          Map<String, Object> params) {
+      EntityReference ref = entityBrokerManager.parseReference(reference);
+      if (ref == null) {
+         throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
+      }
       requestStorage.setRequestValues(params);
-      Object entity = entityEncodingManager.translateInputToEntity(reference, format, input, params);
+      Object entity = entityEncodingManager.translateInputToEntity(ref, format, input, params);
       requestStorage.reset();
       return entity;
    }
@@ -260,6 +306,14 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       }
       requestStorage.setRequestValues(params);
       ActionReturn ar = entityActionsManager.handleCustomActionExecution(actionProvider, ref, action, params, outputStream);
+      // populate the entity data
+      if (ar != null) {
+         if (ar.entitiesList != null) {
+            entityBrokerManager.populateEntityData(ar.entitiesList);
+         } else if (ar.entityData != null) {
+            entityBrokerManager.populateEntityData( new EntityData[] {ar.entityData} );
+         }
+      }
       requestStorage.reset();
       return ar;
    }
@@ -291,10 +345,10 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    // TAGS
 
 
-   public List<EntitySearchResult> findEntitesByTags(String[] tags, String[] prefixes,
+   public List<EntityData> findEntitesByTags(String[] tags, String[] prefixes,
          boolean matchAll, Search search, Map<String, Object> params) {
       requestStorage.setRequestValues(params);
-      List<EntitySearchResult> results = entityTaggingService.findEntitesByTags(tags, prefixes, matchAll, search);
+      List<EntityData> results = entityTaggingService.findEntitesByTags(tags, prefixes, matchAll, search);
       requestStorage.reset();
       return results;
    }
@@ -334,8 +388,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     */
    public List<String> findEntityRefsByTags(String[] tags) {
       ArrayList<String> refs = new ArrayList<String>();
-      List<EntitySearchResult> results = entityTaggingService.findEntitesByTags(tags, null, false, null);
-      for (EntitySearchResult entitySearchResult : results) {
+      List<EntityData> results = entityTaggingService.findEntitesByTags(tags, null, false, null);
+      for (EntityData entitySearchResult : results) {
          refs.add( entitySearchResult.getReference() );
       }
       return refs;

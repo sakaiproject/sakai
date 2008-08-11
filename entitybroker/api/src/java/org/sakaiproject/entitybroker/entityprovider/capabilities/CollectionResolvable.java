@@ -19,7 +19,7 @@ import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
 /**
@@ -27,7 +27,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  * this will be invoked when an entity space is accessed (/prefix) rather than accessing an individual
  * entity (/prefix/id)<br/>
  * The data is returned as a list of entity objects ({@link Object}, {@link Map}, whatever POJO, etc.)
- * OR as a list of {@link EntitySearchResult} objects (which can contain the entities or just information
+ * OR as a list of {@link EntityData} objects (which can contain the entities or just information
  * about them like properties, url, etc.
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
  * This extends {@link Resolvable} and is part of {@link CRUDable}
@@ -64,7 +64,7 @@ public interface CollectionResolvable extends EntityProvider, Resolvable {
     * NOTE: There are some predefined search keys which you may optionally support,
     * provider are encourage to support the SEARCH_* search keys listed in this interface
     * @return a list of entity objects (POJOs, {@link Map}, etc.) of the type handled by this provider
-    * OR a list of {@link EntitySearchResult} objects based on the search OR empty if none found,
+    * OR a list of {@link EntityData} objects based on the search OR empty if none found,
     * should not return null
     * @throws SecurityException if the data cannot be accessed by the current user or is not publicly accessible
     * @throws IllegalArgumentException if the reference is invalid or the search is invalid

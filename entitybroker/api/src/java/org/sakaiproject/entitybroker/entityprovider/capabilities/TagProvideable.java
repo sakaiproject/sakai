@@ -17,7 +17,7 @@ package org.sakaiproject.entitybroker.entityprovider.capabilities;
 import java.util.List;
 
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
@@ -48,6 +48,6 @@ public interface TagProvideable extends Taggable, TagProvider {
     * @return a list of entity search results (contains the ref, url, displayname of the matching entities)
     * @throws IllegalArgumentException if the tags set is empty or null
     */
-   public List<EntitySearchResult> findEntitesByTags(String[] tags, boolean matchAll, Search search);
+   public List<EntityData> findEntitesByTags(String[] tags, boolean matchAll, Search search);
 
 }

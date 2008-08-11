@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
 /**
@@ -90,7 +90,7 @@ public class TaggableEntityProviderMock extends EntityProviderMock implements Ta
       }
    }
 
-   public List<EntitySearchResult> findEntitesByTags(String[] tags, boolean matchAll, Search search) {
+   public List<EntityData> findEntitesByTags(String[] tags, boolean matchAll, Search search) {
       Set<String> refs = new HashSet<String>();
       if (matchAll) {
          HashSet<String> allTags = new HashSet<String>();
@@ -112,11 +112,11 @@ public class TaggableEntityProviderMock extends EntityProviderMock implements Ta
             }
          }
       }
-      ArrayList<EntitySearchResult> results = new ArrayList<EntitySearchResult>();
+      ArrayList<EntityData> results = new ArrayList<EntityData>();
       for (String ref : refs) {
-         results.add( new EntitySearchResult(ref, null) );
+         results.add( new EntityData(ref, null) );
       }
-      Collections.sort(results, new EntitySearchResult.ESRReferenceComparator());
+      Collections.sort(results, new EntityData.ESRReferenceComparator());
       return results;
    }
 

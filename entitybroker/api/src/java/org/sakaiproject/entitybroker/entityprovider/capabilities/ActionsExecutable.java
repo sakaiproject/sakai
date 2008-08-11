@@ -26,6 +26,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomActi
  * change the behavior and skip the current operation entirely<br/>
  * You can create methods in your entity provider which either end with {@value #ACTION_METHOD_SUFFIX}
  * or use the {@link EntityCustomAction} suffix to define the custom actions<br/>
+ * You can describe the actions using the {@link Describeable} key: <prefix>.action.<actionKey> = description<br/>
  * If you want more control then you can use {@link ActionsDefineable} and {@link ActionsExecutionControllable}<br/>
  * @see EntityCustomAction for more details about the custom action methods
  * 

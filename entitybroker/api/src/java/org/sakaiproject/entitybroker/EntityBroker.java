@@ -25,7 +25,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntitySearchResult;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
@@ -43,37 +43,6 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
 @SuppressWarnings("deprecation")
 public interface EntityBroker extends PropertiesProvider, TagProvider {
 
-   /** 
-    * @deprecated use {@link TagProvider#getTagsForEntity(String)}
-    */
-   public Set<String> getTags(String reference);
-
-   /**
-    * @deprecated use {@link TagProvider#setTagsForEntity(String, String[])}
-    */
-   public void setTags(String reference, String[] tags);
-
-   /**
-    * Search for all entities which have the given tags,
-    * can limit the return using the search object<br/>
-    * 
-    * @param tags a set of tags associated with entities
-    * @param prefixes (optional) a set of unique entity prefixes, 
-    * limits the search to only include entities in these prefixes,
-    * if this is null then all entities and prefixes are searched<br/>
-    * NOTE: It is much more efficient to specify prefixes
-    * @param matchAll if true then all tags must exist on the entity for it to be matched,
-    * if false then the entity just has to have one or more of the given tags
-    * @param search (optional) a search object, used to order or limit the number of returned results,
-    * restrictions will be typically ignored
-    * @param params (optional) an optional set of params to pass along with this custom action request,
-    * typically used to provide information about the request, may be left null if not needed
-    * 
-    * @return a list of entity search results (contains the ref, url, displayname of the matching entities)
-    * @throws IllegalArgumentException if the tags set is empty or null
-    */
-   public List<EntitySearchResult> findEntitesByTags(String[] tags, String[] prefixes, boolean matchAll, Search search, Map<String, Object> params);
-
    /**
     * Check if an entity exists by the globally unique reference string, (the global reference
     * string will consist of the entity prefix and any local ID). If no {@link EntityProvider} for
@@ -84,6 +53,7 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     * @param reference a globally unique reference to an entity (e.g. /myprefix/myid), 
     * consists of the entity prefix and optional segments (normally the id at least)
     * @return true if the entity exists, false otherwise
+    * @throws IllegalArgumentException if the reference is invalid
     */
    public boolean entityExists(String reference);
 
@@ -108,6 +78,7 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments
     * @return a full URL string (e.g. http://server/direct/prefix/id)
+    * @throws IllegalArgumentException if the reference or other inputs are invalid
     */
    public String getEntityURL(String reference);
 
@@ -128,6 +99,7 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     * can be null to use no extension,  default is assumed to be html if none is set
     * @return the full URL string to a specific entity or space,
     * (e.g. http://server/direct/prefix/id)
+    * @throws IllegalArgumentException if the reference or other inputs are invalid
     */
    public String getEntityURL(String reference, String viewKey, String extension);
 
@@ -197,6 +169,7 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     * @return an entity reference object which will contain the entity prefix and any optional
     *         segments, or <code>null</code> if the reference was not recognized as a valid entity
     *         handled by the broker (will be an {@link IdEntityReference} if there is an id set)
+    * @throws IllegalArgumentException if the reference is invalid and cannot be parsed
     */
    public EntityReference parseReference(String reference);
 
@@ -205,13 +178,96 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     * {@link Resolvable} capability if implemented by the responsible {@link EntityProvider}, or
     * else from the underlying legacy Sakai entity system<br/>
     * Note that this may be a {@link String} or {@link Map} and does not have to be a POJO,
-    * the type of object should be determined out of band
+    * the type of object should be determined out of band<br/>
+    * This will return null if the entity exists but is not {@link Resolvable} or available in the legacy entity system
     * 
     * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and optional segments
-    * @return an object which represents the entity or null if none can be found
+    * consists of the entity prefix and local id
+    * @return an object which represents the entity OR null if none can be found or this type does not support fetching
+    * @throws SecurityException if the entity cannot be accessed by the current user or is not publicly accessible
+    * @throws IllegalArgumentException if the reference is invalid
+    * @throws IllegalStateException if any other error occurs
     */
    public Object fetchEntity(String reference);
+
+   /**
+    * Allows these entities to be fetched based on search parameters,
+    * this should never return null and if there are no entities then the list should be empty<br/>
+    * <b>Note:</b> The entity class types in the list need to be able to be 
+    * resolved from the ClassLoader of the EntityBrokerManager (currently this means deployed into shared)<br/> 
+    * <br/>These do not have to be model objects and may simply
+    * be something created (e.g. String, Map, etc.) to give to anyone calling this method
+    * 
+    * @param prefix the string which represents a type of entity handled by an entity provider,
+    * if the prefix does not support fetching collections then no entities will be returned
+    * @param search a search object which can define the order to return entities,
+    * search filters, and total number of entities returned,<br/>
+    * NOTE: There are some predefined search keys which you may optionally use,
+    * provider are encourage to support the SEARCH_* search keys listed in this interface
+    * @return a list of entity objects (POJOs, {@link Map}, etc.) of the type handled by this provider
+    * OR empty if none found, will not return null
+    * @throws SecurityException if the data cannot be accessed by the current user or is not publicly accessible
+    * @throws IllegalArgumentException if the reference is invalid or the search is invalid
+    * @throws IllegalStateException if any other error occurs
+    */
+   public List<?> fetchEntities(String prefix, Search search, Map<String, Object> params);
+
+   /**
+    * Gets the data related to an entity as long as it exists,
+    * always includes at least the entity reference information and the URL,
+    * may also include a concrete entity object and entity properties
+    * 
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and local id
+    * @return an entity data object which contains data about the entity OR null if the entity does not exist
+    * @throws SecurityException if the entity cannot be accessed by the current user or is not publicly accessible
+    * @throws IllegalArgumentException if the reference is invalid
+    * @throws IllegalStateException if any other error occurs
+    */
+   public EntityData getEntity(String reference);
+
+   /**
+    * Gets entity data (and possibly entities) for a specific entity prefix,
+    * entity data contains the reference, URL, display title and optionally the concrete entity and properties<br/>
+    * If the entity type indicated by the prefix does not support collections then this will return an empty list
+    * 
+    * @param prefix the string which represents a type of entity handled by an entity provider,
+    * the entity prefix to search for the collection of entities in,
+    * if the prefix does not support browsing then no entities will be returned
+    * @param search a search object which can define the order to return entities,
+    * search filters, and total number of entities returned, may be left empty
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
+    * @return a list of entity data objects OR an empty list if none found
+    * @throws SecurityException if the data cannot be accessed by the current user or is not publicly accessible
+    * @throws IllegalArgumentException if the prefix is invalid or the search is invalid
+    * @throws IllegalStateException if any other error occurs
+    */
+   public List<EntityData> getEntities(String prefix, Search search, Map<String, Object> params);
+   
+   /**
+    * Returns the list of entity information (and possibly entities) for a user to view while browsing an
+    * entity space, this is specially designed to support browsing and picking entities,
+    * not all entities support browsing<br/>
+    * If the entity type indicated by the prefix does not support browsing then this will return an empty list
+    * 
+    * @param prefix the string which represents a type of entity handled by an entity provider,
+    * the entity prefix to search for browseable entities in,
+    * if the prefix does not support browsing then no entities will be returned
+    * @param search a search object which can define the order to return entities,
+    * search filters, and total number of entities returned, may be left empty
+    * @param userReference (optional) the unique entity reference for a user which is browsing the results, 
+    * this may be null to indicate that only items which are visible to all users should be shown
+    * @param associatedReference (optional) 
+    *           a globally unique reference to an entity, this is the entity that the 
+    *           returned browseable data must be associated with (e.g. limited by reference to a location or associated entity), 
+    *           this may be null to indicate there is no association limit
+    * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
+    * @return a list of entity data objects which contain the reference, URL, display title and optionally other entity data
+    * @throws SecurityException if the data cannot be accessed by the current user or is not publicly accessible
+    * @throws IllegalArgumentException if the prefix is invalid or the search is invalid
+    * @throws IllegalStateException if any other error occurs
+    */
+   public List<EntityData> browseEntities(String prefix, Search search, String userReference, String associatedReference, Map<String, Object> params);
 
    /**
     * Format and output an entity or collection included or referred to by this entity ref object
@@ -223,11 +279,11 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     * consists of the entity prefix and optional segments
     * @param format a string constant indicating the format (from {@link Formats}) 
     * for output, (example: {@link #XML})
-    * @param entities (optional) a list of entities to create formatted output for,
-    * if this is null then the entities should be retrieved based on the reference,
+    * @param entities (optional) a list of entities or {@link EntityData} objects to create formatted output for,
+    * if this is null then the entities will be retrieved based on the reference,
     * if this contains only a single item AND the ref refers to a single entity
-    * then the entity should be extracted from the list and encoded without the indication
-    * that it is a collection, for all other cases the encoding should include an indication that
+    * then the entity will be extracted from the list and encoded without the indication
+    * that it is a collection, for all other cases the encoding will include an indication that
     * this is a list of entities
     * @param output the output stream to place the formatted data in,
     * should be UTF-8 encoded if there is char data
@@ -256,6 +312,7 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
 
    /**
     * This will execute a custom action for an entity or space/collection of entities<br/>
+    * This is meant for specialized usage as custom actions are typically meant to be executed by REST calls only
     * 
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments
@@ -263,14 +320,45 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     * can be triggered by a URL like so: /user/aaronz/promote
     * @param params (optional) an optional set of params to pass along with this custom action request,
     * typically used to provide information about the request, may be left null if not needed
-    * @param outputStream an OutputStream to place binary or long text data into,
+    * @param outputStream (optional) an OutputStream to place binary or long text data into,
     * if this is used for binary data then the {@link ActionReturn} should be returned with the correct encoding information
-    * and the output variable set to the OutputStream
+    * and the output variable set to the OutputStream, may be left null if this custom action does not deal with binary streams
     * @return an {@link ActionReturn} which contains entity data or binary/string data OR null if there is no return for this action
     * @throws UnsupportedOperationException if there is no action with this key for this entity
     * @throws IllegalArgumentException if there are required params that are missing or invalid
     * @throws IllegalStateException if the action cannot be performed for some reason
     */
    ActionReturn executeCustomAction(String reference, String action, Map<String, Object> params, OutputStream outputStream);
+
+   /** 
+    * @deprecated use {@link TagProvider#getTagsForEntity(String)}
+    */
+   public Set<String> getTags(String reference);
+
+   /**
+    * @deprecated use {@link TagProvider#setTagsForEntity(String, String[])}
+    */
+   public void setTags(String reference, String[] tags);
+
+   /**
+    * Search for all entities which have the given tags,
+    * can limit the return using the search object<br/>
+    * 
+    * @param tags a set of tags associated with entities
+    * @param prefixes (optional) a set of unique entity prefixes, 
+    * limits the search to only include entities in these prefixes,
+    * if this is null then all entities and prefixes are searched<br/>
+    * NOTE: It is much more efficient to specify prefixes
+    * @param matchAll if true then all tags must exist on the entity for it to be matched,
+    * if false then the entity just has to have one or more of the given tags
+    * @param search (optional) a search object, used to order or limit the number of returned results,
+    * restrictions will be typically ignored
+    * @param params (optional) an optional set of params to pass along with this custom action request,
+    * typically used to provide information about the request, may be left null if not needed
+    * 
+    * @return a list of entity search results (contains the ref, url, displayname of the matching entities)
+    * @throws IllegalArgumentException if the tags set is empty or null
+    */
+   public List<EntityData> findEntitesByTags(String[] tags, String[] prefixes, boolean matchAll, Search search, Map<String, Object> params);
 
 }

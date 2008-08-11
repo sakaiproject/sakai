@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 
 /**
@@ -40,16 +41,16 @@ public interface OutputFormattable extends Outputable {
     * @param ref the parsed reference object which uniquely represents this entity
     * @param format a string constant indicating the extension format (from {@link Formats}) 
     * for output, (example: {@link #XML})
-    * @param entities (optional) a list of entities to create formatted output for,
+    * @param entities (optional) a list of entity data objects to create formatted output for,
     * if this is null then the entities should be retrieved based on the reference,
     * if this contains only a single item AND the ref refers to a single entity
-    * then the entity should be extracted from the list and encoded without the indication
+    * then the entity data object should be extracted from the list and encoded without the indication
     * that it is a collection, for all other cases the encoding should include an indication that
     * this is a list of entities
     * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @param output the output stream to place the formatted data in,
     * should be UTF-8 encoded if there is char data
     */
-   public void formatOutput(EntityReference ref, String format, List<?> entities, Map<String, Object> params, OutputStream output);
+   public void formatOutput(EntityReference ref, String format, List<EntityData> entities, Map<String, Object> params, OutputStream output);
 
 }

@@ -355,7 +355,7 @@ public class EntityProviderManagerImplTest extends TestCase {
       try {
          entityProviderManager.unregisterCapability(TestData.PREFIX3, null);
          fail("Should have thrown exception");
-      } catch (NullPointerException e) {
+      } catch (IllegalArgumentException e) {
          assertNotNull(e);
       }
    }

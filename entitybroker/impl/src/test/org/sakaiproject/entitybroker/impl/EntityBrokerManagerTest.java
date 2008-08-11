@@ -14,12 +14,19 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.util.HashMap;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
+import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 /**
  * Testing the central logic of the entity handler
@@ -40,9 +47,9 @@ public class EntityBrokerManagerTest extends TestCase {
       entityBrokerManager = new ServiceTestManager(td).entityBrokerManager;
    }
 
-
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#entityExists(java.lang.String)}.
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#entityExists(java.lang.String)}.
     */
    public void testEntityExists() {
       EntityReference ref = null;
@@ -72,7 +79,8 @@ public class EntityBrokerManagerTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#getEntityURL(java.lang.String)}.
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#getEntityURL(java.lang.String)}.
     */
    public void testGetEntityURL() {
       String url = null;
@@ -94,7 +102,8 @@ public class EntityBrokerManagerTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#parseReference(java.lang.String)}.
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#parseReference(java.lang.String)}.
     */
    public void testParseReference() {
       EntityReference er = null;
@@ -159,7 +168,6 @@ public class EntityBrokerManagerTest extends TestCase {
       }
    }
 
-
    @SuppressWarnings("unchecked")
    public void testGetEntityObject() {
       Object entity = null;
@@ -168,14 +176,14 @@ public class EntityBrokerManagerTest extends TestCase {
       // first for resolveable
       ref = entityBrokerManager.parseReference(TestData.REF4);
       assertNotNull(ref);
-      entity = entityBrokerManager.getEntityObject(ref);
+      entity = entityBrokerManager.fetchEntityObject(ref);
       assertNotNull(entity);
       assertEquals(MyEntity.class, entity.getClass());
       assertEquals(TestData.entity4, entity);
 
       ref = entityBrokerManager.parseReference(TestData.REF4_two);
       assertNotNull(ref);
-      entity = entityBrokerManager.getEntityObject(ref);
+      entity = entityBrokerManager.fetchEntityObject(ref);
       assertNotNull(entity);
       assertEquals(MyEntity.class, entity.getClass());
       assertEquals(TestData.entity4_two, entity);
@@ -183,8 +191,250 @@ public class EntityBrokerManagerTest extends TestCase {
       // now for non-resolveable
       ref = entityBrokerManager.parseReference(TestData.REF5);
       assertNotNull(ref);
-      entity = entityBrokerManager.getEntityObject(ref);
+      entity = entityBrokerManager.fetchEntityObject(ref);
       assertNull(entity);
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#getReflectUtil()}.
+    */
+   public void testGetReflectUtil() {
+      ReflectUtil ru = entityBrokerManager.getReflectUtil();
+      assertNotNull(ru);
+      ReflectUtil ru2 = null;
+      for (int i = 0; i < 1000; i++) {
+         ru2 = entityBrokerManager.getReflectUtil();
+      }
+      assertNotNull(ru2);
+      assertEquals(ru2, ru);
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#makeFullURL(java.lang.String)}.
+    */
+   public void testMakeFullURL() {
+      String full = entityBrokerManager.makeFullURL(TestData.REF1);
+      assertNotNull(full);
+      assertEquals("http://localhost:8001/portal/direct" + TestData.REF1, full);
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#makeEntityView(org.sakaiproject.entitybroker.EntityReference, java.lang.String, java.lang.String)}.
+    */
+   public void testMakeEntityView() {
+      EntityView ev = entityBrokerManager.makeEntityView(new EntityReference("azprefix", "azid"), EntityView.VIEW_SHOW, Formats.XML);
+      assertNotNull(ev);
+      assertEquals("azprefix", ev.getEntityReference().getPrefix());
+      assertEquals("azid", ev.getEntityReference().getId());
+      assertEquals(EntityView.VIEW_SHOW, ev.getViewKey());
+      assertEquals(Formats.XML, ev.getExtension());
+
+      ev = entityBrokerManager.makeEntityView(new EntityReference("azprefix", "azid"), null, null);
+      assertNotNull(ev);
+      assertEquals("azprefix", ev.getEntityReference().getPrefix());
+      assertEquals("azid", ev.getEntityReference().getId());
+      assertEquals(EntityView.VIEW_SHOW, ev.getViewKey());
+      assertEquals(null, ev.getExtension());
+
+      try {
+         ev = entityBrokerManager.makeEntityView(null, null, null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#fetchEntity(org.sakaiproject.entitybroker.EntityReference)}.
+    */
+   public void testFetchEntity() {
+      EntityReference ref = new EntityReference(TestData.REF4);
+      Object entity = entityBrokerManager.fetchEntity(ref);
+      assertNotNull(entity);
+      assertEquals(TestData.entity4, entity);
+
+      ref = new EntityReference(TestData.REF1);
+      entity = entityBrokerManager.fetchEntity(ref);
+      assertNull(entity);
+
+      try {
+         entity = entityBrokerManager.fetchEntity(null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#getEntityData(org.sakaiproject.entitybroker.EntityReference)}.
+    */
+   public void testGetEntityData() {
+      EntityReference ref = new EntityReference(TestData.REF4);
+      EntityData entity = entityBrokerManager.getEntityData(ref);
+      assertNotNull(entity);
+      assertEquals(TestData.REF4, entity.getReference());
+      assertEquals(TestData.entity4, entity.getEntity());
+      assertNotNull(entity.getDisplayTitle());
+      assertNotNull(entity.getEntityURL());
+
+      ref = new EntityReference(TestData.REF1);
+      entity = entityBrokerManager.getEntityData(ref);
+      assertNotNull(entity);
+      assertEquals(TestData.REF1, entity.getReference());
+      assertNull(entity.getEntity());
+      assertNotNull(entity.getDisplayTitle());
+      assertNotNull(entity.getEntityURL());
+
+      try {
+         entity = entityBrokerManager.getEntityData(null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#fetchEntities(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search, java.util.Map)}.
+    */
+   public void testFetchEntities() {
+      EntityReference ref = new EntityReference(TestData.SPACE4);
+      List<?> l = entityBrokerManager.fetchEntities(ref, null, null);
+      assertNotNull(l);
+      assertEquals(3, l.size());
+      assertEquals(MyEntity.class, l.get(0).getClass());
+
+      ref = new EntityReference(TestData.SPACE4);
+      l = entityBrokerManager.fetchEntities(ref, new Search(), new HashMap<String, Object>());
+      assertNotNull(l);
+      assertEquals(3, l.size());
+      assertEquals(MyEntity.class, l.get(0).getClass());
+      assertEquals(TestData.entity4, l.get(0));
+
+      ref = new EntityReference(TestData.REF4);
+      l = entityBrokerManager.fetchEntities(ref, null, null);
+      assertNotNull(l);
+      assertEquals(1, l.size());
+      assertEquals(MyEntity.class, l.get(0).getClass());
+      assertEquals(TestData.entity4, l.get(0));
+
+      ref = new EntityReference("/" + TestData.PREFIX1);
+      l = entityBrokerManager.fetchEntities(ref, null, null);
+      assertNotNull(l);
+      assertEquals(0, l.size());
+
+      try {
+         entityBrokerManager.fetchEntities(null, null, null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#getEntitiesData(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search, java.util.Map)}.
+    */
+   public void testGetEntitiesData() {
+      EntityReference ref = new EntityReference(TestData.SPACE4);
+      List<EntityData> data = entityBrokerManager.getEntitiesData(ref, new Search(), new HashMap<String, Object>());
+      assertNotNull(data);
+      assertEquals(3, data.size());
+      assertEquals(EntityData.class, data.get(0).getClass());
+      assertEquals(TestData.entity4, data.get(0).getEntity());
+
+      ref = new EntityReference(TestData.SPACE4);
+      data = entityBrokerManager.getEntitiesData(ref, null, null);
+      assertNotNull(data);
+      assertEquals(3, data.size());
+      assertEquals(EntityData.class, data.get(0).getClass());
+      assertEquals(TestData.entity4, data.get(0).getEntity());
+      
+      ref = new EntityReference("/" + TestData.PREFIX1);
+      data = entityBrokerManager.getEntitiesData(ref, null, null);
+      assertNotNull(data);
+      assertEquals(0, data.size());
+
+      try {
+         entityBrokerManager.getEntitiesData(null, null, null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#browseEntities(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.lang.String, java.lang.String, java.util.Map)}.
+    */
+   public void testBrowseEntities() {
+      List<EntityData> data = entityBrokerManager.browseEntities(TestData.PREFIX4, null, null, null, null);
+      assertNotNull(data);
+      assertEquals(0, data.size());
+
+      data = entityBrokerManager.browseEntities(TestData.PREFIXB1, null, null, null, null);
+      assertNotNull(data);
+      assertEquals(3, data.size());
+      assertEquals(EntityData.class, data.get(0).getClass());
+
+      data = entityBrokerManager.browseEntities(TestData.PREFIXB2, null, null, null, null);
+      assertNotNull(data);
+      assertEquals(3, data.size());
+      assertEquals(EntityData.class, data.get(0).getClass());
+
+      data = entityBrokerManager.browseEntities(TestData.PREFIXB2, null, "/user/aaronz", null, null);
+      assertNotNull(data);
+      assertEquals(1, data.size());
+      assertEquals(EntityData.class, data.get(0).getClass());
+
+      data = entityBrokerManager.browseEntities(TestData.PREFIXB2, null, "/user/aaronz", "/site/siteAZ", null);
+      assertNotNull(data);
+      assertEquals(2, data.size());
+      assertEquals(EntityData.class, data.get(0).getClass());
+
+      try {
+         data = entityBrokerManager.browseEntities(null, null, null, null, null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#convertToEntityData(java.util.List, org.sakaiproject.entitybroker.EntityReference)}.
+    */
+   public void testConvertToEntityDataListOfQEntityReference() {
+      // TODO fail("Not yet implemented");
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#convertToEntityData(java.lang.Object, org.sakaiproject.entitybroker.EntityReference)}.
+    */
+   public void testConvertToEntityDataObjectEntityReference() {
+   // TODO fail("Not yet implemented");
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#populateEntityData(java.util.List)}.
+    */
+   public void testPopulateEntityDataListOfEntityData() {
+   // TODO fail("Not yet implemented");
+   }
+
+   /**
+    * Test method for
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#populateEntityData(org.sakaiproject.entitybroker.entityprovider.extension.EntityData[])}.
+    */
+   public void testPopulateEntityDataEntityDataArray() {
+   // TODO fail("Not yet implemented");
    }
 
 }
