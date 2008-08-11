@@ -23,4 +23,30 @@
     <module>announcement-impl/pack</module>
     <module>announcement-tool/tool</module>
   </modules>
+<dependencyManagement>
+ <dependencies>
+     <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-velocity-tool</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-message-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-announcement-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-mergedlist-util</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+
+ </dependencies>
+</dependencyManagement>
+
 </project>
