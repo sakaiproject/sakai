@@ -23,8 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-assignment-impl</artifactId>
-      <version>${sakai.version}</version>
-      <exclusions>
+       <exclusions>
 <!-- the model is not part of the api, and so, although it is in shared
              we perform an exclusion here. If it is part of the API, then it MUST
              go into the dependencymanagement block of the master/pom.xml. Please
