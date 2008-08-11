@@ -30,4 +30,50 @@
     <module>import-parsers/common-cartridge</module>
     <module>import-parsers/sakai-archive</module>
   </modules>
+<dependencyManagement>
+ <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-archive-impl</artifactId>
+       <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-archive-impl2</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency> 
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-velocity-tool</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-import-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-import-content</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-common-cartridge</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-archive-import</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-import-announcement</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+
+ </dependencies>
+</dependencyManagement>
+
 </project>

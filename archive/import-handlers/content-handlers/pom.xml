@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->
@@ -58,12 +58,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-impl</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
   </dependencies>
   <build>

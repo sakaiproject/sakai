@@ -23,12 +23,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-impl</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-archive-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>jaxen</groupId>

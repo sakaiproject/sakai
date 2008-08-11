@@ -23,12 +23,10 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-archive-impl</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-archive-impl2</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
   </dependencies>
   <build>

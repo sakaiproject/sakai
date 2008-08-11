@@ -32,7 +32,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-archive-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->
@@ -49,12 +49,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- velocity and dependencies (logkit, oro, collections) -->
     <dependency>

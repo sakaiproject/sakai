@@ -48,13 +48,13 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-archive-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
   </dependencies>
   <build>
