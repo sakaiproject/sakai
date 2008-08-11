@@ -20,7 +20,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-access-impl</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
   </dependencies>
   <build>
