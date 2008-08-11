@@ -23,11 +23,14 @@ import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.coursemanagement.api.CourseOffering;
+import org.sakaiproject.coursemanagement.api.CourseSet;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.util.StringUtil;
 
 public class SiteParticipantHelper {
 	/** Our log (commons). */
@@ -123,7 +126,7 @@ public class SiteParticipantHelper {
 	 * @param providerCourseEid
 	 * @param memberships
 	 */
-	public static void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, String providerCourseEid, Set memberships, String sectionTitle) {
+	public static void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, Set memberships, String sectionTitle) {
 		if (memberships != null)
 		{
 			for (Iterator mIterator = memberships.iterator();mIterator.hasNext();)
@@ -141,10 +144,7 @@ public class SiteParticipantHelper {
 						if (participantsMap.containsKey(userId))
 						{
 							participant = (Participant) participantsMap.get(userId);
-							if (!participant.getSectionEidList().contains(sectionTitle)) {
-								participant.section = participant.section.concat(", <br />" + sectionTitle);
-							}
-						}
+							participant.addSectionEidToList(sectionTitle);						}
 						else
 						{
 							participant = new Participant();
@@ -238,8 +238,40 @@ public class SiteParticipantHelper {
 						SiteParticipantHelper.addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet, section.getTitle());
 						// add memberships
 						Set memberships = cms.getSectionMemberships(providerCourseEid);
-						SiteParticipantHelper.addParticipantsFromMemberships(participantsMap, realm, providerCourseEid, memberships, section.getTitle());
+						if (memberships != null && memberships.size() > 0)
+						{
+							SiteParticipantHelper.addParticipantsFromMemberships(participantsMap, realm, memberships, section.getTitle());
+						}
+						
+						// now look or the not-included member from CourseOffering object
+						CourseOffering co = cms.getCourseOffering(section.getCourseOfferingEid());
+						if (co != null)
+						{
+							
+							Set<Membership> coMemberships = cms.getCourseOfferingMemberships(section.getCourseOfferingEid());
+							if (coMemberships != null && coMemberships.size() > 0)
+							{
+								SiteParticipantHelper.addParticipantsFromMemberships(participantsMap, realm, coMemberships, co.getTitle());
+							}
+							
+							// now look or the not-included member from CourseSet object
+							Set<String> cSetEids = co.getCourseSetEids();
+							for(Iterator<String> cSetEidsIterator = cSetEids.iterator(); cSetEidsIterator.hasNext();)
+							{
+								String cSetEid = cSetEidsIterator.next();
+								CourseSet cSet = cms.getCourseSet(cSetEid);
+								if (cSet != null)
+								{
+									Set<Membership> cSetMemberships = cms.getCourseSetMemberships(cSetEid);
+									if (cSetMemberships != null && cSetMemberships.size() > 0)
+									{
+										SiteParticipantHelper.addParticipantsFromMemberships(participantsMap, realm, cSetMemberships, cSet.getTitle());
+									}
+								}
+							}
+						}
 					}
+					
 				}
 				catch (IdNotFoundException e)
 				{
