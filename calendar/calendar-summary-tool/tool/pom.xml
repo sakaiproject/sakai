@@ -45,17 +45,17 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-calendar-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-calendar-util</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-mergedlist-util</artifactId>
-      <version>${sakai.version}</version>
+      
       <exclusions>
         <exclusion>
           <groupId>org.sakaiproject</groupId>
@@ -70,12 +70,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
-      <version>${sakai.version}</version>
+      
       <exclusions>
         <exclusion>
           <groupId>jsf</groupId>
@@ -86,7 +86,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
-      <version>${sakai.version}</version>
+      
       <exclusions>
         <exclusion>
           <groupId>org.apache.myfaces.tomahawk</groupId>

@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-calendar-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-component${sakai.version}-->
 <!--org.sakaiprojectsakai-component${sakai.version}-->
@@ -68,7 +68,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-calendar-util</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
