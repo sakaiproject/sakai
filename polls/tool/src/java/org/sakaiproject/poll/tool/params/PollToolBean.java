@@ -252,10 +252,10 @@ public class PollToolBean {
 	}
 
 	public String proccessActionAddOption() {
-
+		
 		if ("cancel".equals(submissionStatus))
 			return "cancel";
-
+		
 		m_log.debug("adding option with text " + option.getOptionText());
 		if (option.getOptionText() == null || option.getOptionText().trim().length()==0) {
 			//errors.reject("vote_closed","vote closed");
@@ -288,13 +288,13 @@ public class PollToolBean {
 
 		//voteBean.poll = manager.getPollById(option.getPollId());
 
-
+		
 		if ("option".equals(submissionStatus))
 			return "option";
 		else 
 			return "Saved";
 
-
+		
 	}
 
 	public String proccessActionDeleteOption() {

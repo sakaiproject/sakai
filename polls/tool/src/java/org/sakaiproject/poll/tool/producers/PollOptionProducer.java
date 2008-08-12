@@ -221,12 +221,14 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 			OptionViewParameters optvp = (OptionViewParameters) result.resultingView;
 			m_log.debug("OptionViewParams: "  + optvp.id + " : " + optvp.pollId);
 			String retVal = (String) actionReturn;
+			m_log.debug("retval is " + retVal);
 			String viewId = AddPollProducer.VIEW_ID;
 			if (optvp.pollId != null) {
 				if (! "option".equals(retVal)) {
 					result.resultingView = new PollViewParameters(viewId, optvp.pollId);
 				} else {
-					result.resultingView = new OptionViewParameters(viewId, null, optvp.pollId);
+					m_log.debug("New option for poll: " + optvp.pollId);
+					result.resultingView = new OptionViewParameters(this.VIEW_ID, optvp.id , optvp.pollId);
 				}
 
 			} else {
