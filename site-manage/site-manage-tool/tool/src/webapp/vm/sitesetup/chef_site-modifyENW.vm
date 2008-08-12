@@ -66,13 +66,6 @@
 							#set($originToolId=$tId)
 						#end
 					#end
-					#if($originToolId)
-						#set($toolExist=false)
-						#foreach ($oldTool in $oldSelectedTools)
-							#if ($oldTool == "sakai.mailbox")
-								#set($toolExist=true)
-							#end
-						#end
 						#if(!$toolExist)
 							<input type="hidden" name="selectedTools" value="$toolId" />
 							#set($tool = $!toolManager.getTool($originToolId))
@@ -98,7 +91,6 @@
 					#end
 				#end
 			#end
-		#end
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continue" />
