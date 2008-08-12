@@ -161,6 +161,14 @@ public class TemplateParseUtilTest extends TestCase {
          assertNotNull(e.getMessage());
       }
 
+      template = "/apple/{prefix}";
+      try {
+         TemplateParseUtil.validateTemplate(template);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+
       template = "/{prefix} /{id} /";
       try {
          TemplateParseUtil.validateTemplate(template);
@@ -201,9 +209,104 @@ public class TemplateParseUtilTest extends TestCase {
          assertNotNull(e.getMessage());
       }
 
+      template = "/{prefix}/thing?auto=true";
+      try {
+         TemplateParseUtil.validateTemplate(template);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+
       template = "/{prefix}/{id}/?special=%";
       try {
          TemplateParseUtil.validateTemplate(template);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   public void testValidateOutgoingTemplate() {
+      String template = null;
+
+      // make sure all the default templates are valid
+      for (int i = 0; i < TemplateParseUtil.PARSE_TEMPLATE_KEYS.length; i++) {
+         // should simply not throw exception
+         template = TemplateParseUtil.getDefaultTemplate(TemplateParseUtil.PARSE_TEMPLATE_KEYS[i]);
+         TemplateParseUtil.validateOutgoingTemplate(template);
+      }
+
+      // now make sure a few seemingly valid ones are also valid
+      template = "/{prefix}/mystuff/other";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/other/{id}";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/other/{id}/morestuff";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/{thing}/{id}";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/thing={thing}/{id}";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/{thing}/{id}.xml";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/{id}/special=.-/:;_";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}stuff";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/thing?auto=true";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/thing?auto={something}";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/thing?auto={something}&manual={other}";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}/{id}/";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "{prefix}/{id}";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      template = "/{prefix}{id}";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
+      // now check ones that invalid
+      template = "";
+      try {
+         TemplateParseUtil.validateOutgoingTemplate(template);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+
+      template = "/{prefix} /{id} /";
+      try {
+         TemplateParseUtil.validateOutgoingTemplate(template);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+
+      template = "/{prefix}/{}/";
+      try {
+         TemplateParseUtil.validateOutgoingTemplate(template);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+
+      template = "/{prefix}/{id}/?special=%";
+      try {
+         TemplateParseUtil.validateOutgoingTemplate(template);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());

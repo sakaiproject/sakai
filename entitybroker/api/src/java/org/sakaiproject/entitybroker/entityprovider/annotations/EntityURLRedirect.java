@@ -31,8 +31,9 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
  * indicate that a failure has occurred<br/>
  * Define the URL pattern to match AFTER the /prefix using {name} to indicate variables <br/>
  * Example: /{thing}/site/{siteId} will match the following URL: <br/>
- * /myprefix/123/site/456, the variables will be {prefix => myprefix, thing => 123, siteId => 456},
- * prefix is automatically included as a variable <br/>
+ * /myprefix/123/site/456, the variables will be {prefix => myprefix, thing => 123, siteId => 456}<br/>
+ * NOTE: all incoming URL templates must start with "/{prefix}" ({@link TemplateParseUtil#TEMPLATE_PREFIX}) <br/>
+ * <br/>
  * NOTE: The method template patterns will be compared in the order they appear in your
  * source code so be careful that you do not have a really simple redirect pattern as the
  * first one as this can cause the other patterns to never be reached<br/>

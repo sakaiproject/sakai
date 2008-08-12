@@ -30,7 +30,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
-import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 
 /**
@@ -40,6 +39,8 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
  */
 public class RequestUtils {
 
+   private static final String DIVIDER = "||";
+   private static final String ENTITY_REDIRECT_CHECK = "_entityRedirectCheck";
    private static Log log = LogFactory.getLog(RequestUtils.class);
 
    /**
@@ -49,9 +50,9 @@ public class RequestUtils {
     * you should simply pass control back to the handler
     * @param redirectURL the URL to redirect to (relative or absolute)
     * @param forward if false, use redirect (this should be the default), 
-    * if true use forward, note that we can only forward relative requests
-    * so anything with a "http" will be switched to redirect automatically, 
-    * anything using the /direct servlet will be switched to using forward automatically
+    * if true use forward, note that we can only forward from your webapp back to your servlets and
+    * a check will be performed to see if this is the case, if it is not
+    * (anything with a "http", a non-matching prefix, and anything with a query string) will be switched to redirect automatically
     * @param req the current request
     * @param res the current response
     * @throws IllegalArgumentException is the params are invalid
@@ -63,12 +64,41 @@ public class RequestUtils {
       if (req == null || res == null) {
          throw new IllegalArgumentException("The request and response must be set and cannot be null");         
       }
-      if (redirectURL.startsWith("http:") || redirectURL.startsWith("https:")) {
+      if (redirectURL.startsWith("http:") || redirectURL.startsWith("https:") 
+            || RequestUtils.containsQueryString(redirectURL)) {
          forward = false;
-      } else if (redirectURL.startsWith(TemplateParseUtil.DIRECT_PREFIX)) {
-         forward = true;
+      } else {
+         // we allow forwarding ONLY if the current webapp path matches the redirect path
+         String webapp = req.getContextPath();
+         if (webapp != null && webapp.length() > 0) {
+            if (redirectURL.startsWith(webapp + "/")) {
+               redirectURL = redirectURL.substring(webapp.length());
+               forward = true;
+            } else if (redirectURL.length() > 1 
+                  && redirectURL.startsWith(webapp.substring(1) + "/")) {
+               redirectURL = redirectURL.substring(webapp.length() - 1);
+               forward = true;
+            } else {
+               forward = false;
+            }
+         }
       }
+
       if (forward) {
+         // check for infinite forwarding
+         String curRedirect = DIVIDER + redirectURL + DIVIDER;
+         if (req.getAttribute(ENTITY_REDIRECT_CHECK) != null) {
+            String redirectCheck = (String) req.getAttribute(ENTITY_REDIRECT_CHECK);
+            if (redirectCheck.contains(curRedirect)) {
+               throw new IllegalStateException("Infinite forwarding loop detected with attempted redirect to ("+redirectURL+"), path to failure: " 
+                     + redirectCheck.replace(DIVIDER+DIVIDER, " => ").replace(DIVIDER, "") + " => " + redirectURL);
+            }
+            redirectCheck += curRedirect;
+            req.setAttribute(ENTITY_REDIRECT_CHECK, redirectCheck);
+         } else {
+            req.setAttribute(ENTITY_REDIRECT_CHECK, curRedirect);
+         }
+
          RequestDispatcher rd = req.getRequestDispatcher(redirectURL);
          try {
             rd.forward(req, res);
@@ -84,6 +114,19 @@ public class RequestUtils {
             throw new RuntimeException("Failure with encoding while redirecting to '"+redirectURL+"': " + e.getMessage(), e);
          }
       }
+   }
+
+   /**
+    * Simple check to see if a URL appears to contain a query string,
+    * true if it does, false otherwise
+    */
+   private static boolean containsQueryString(String URL) {
+      int lastEquals = URL.lastIndexOf('=');
+      int qMark = URL.indexOf('?');
+      if (lastEquals > 0 && qMark > 0 && lastEquals > qMark) {
+         return true;
+      }
+      return false;
    }
 
    /**

@@ -51,10 +51,11 @@ public class EntityRedirectsManager {
     * Do a check to see if the current incoming URL is a match to any of the redirect templates for
     * the given entity provider
     * @param entityProvider an entity provider
+    * @param queryString the query string (e.g. auto=true) for the incoming URL
     * @param incomingUrl the incoming URL to try to match
-    * @return the URL to redirect to OR null if no matches were found
+    * @return the URL to redirect to (will start with /direct if it should be forwarded) OR null if no matches were found
     */
-   public String checkForTemplateMatch(EntityProvider entityProvider, String incomingURL) {
+   public String checkForTemplateMatch(EntityProvider entityProvider, String incomingURL, String queryString) {
       String prefix = entityProvider.getEntityPrefix();
       String targetURL = null;
       List<URLRedirect> redirects = getURLRedirects(prefix);
@@ -88,8 +89,17 @@ public class EntityRedirectsManager {
                segmentValues.put(TemplateParseUtil.PREFIX, prefix);
                if (processedTemplate.extension == null || "".equals(processedTemplate.extension)) {
                   segmentValues.put(TemplateParseUtil.EXTENSION, "");
+                  segmentValues.put(TemplateParseUtil.DOT_EXTENSION, "");
                } else {
-                  segmentValues.put(TemplateParseUtil.EXTENSION, TemplateParseUtil.SEPARATOR + processedTemplate.extension);
+                  segmentValues.put(TemplateParseUtil.EXTENSION, processedTemplate.extension);
+                  segmentValues.put(TemplateParseUtil.DOT_EXTENSION, TemplateParseUtil.PERIOD + processedTemplate.extension);
+               }
+               if (queryString != null && queryString.length() > 2) {
+                  segmentValues.put(TemplateParseUtil.QUERY_STRING, queryString);
+                  segmentValues.put(TemplateParseUtil.QUESTION_QUERY_STRING, '?' + queryString);
+               } else {
+                  segmentValues.put(TemplateParseUtil.QUERY_STRING, "");
+                  segmentValues.put(TemplateParseUtil.QUESTION_QUERY_STRING, "");
                }
                if (redirect.controllable) {
                   // call the executable
@@ -168,6 +178,7 @@ public class EntityRedirectsManager {
                || targetURL.startsWith("http:") || targetURL.startsWith("https:")) {
             // leave it as is
          } else {
+            // append the DIRECT stuff so we know to forward this
             targetURL = TemplateParseUtil.DIRECT_PREFIX + TemplateParseUtil.SEPARATOR + targetURL;
          }
       }
@@ -190,7 +201,13 @@ public class EntityRedirectsManager {
             if (null == template || "".equals(template)) {
                throw new IllegalArgumentException("there is no template set for the annotation: " + EntityURLRedirect.class);
             }
-            URLRedirect redirect = new URLRedirect(template, method.getName(), validateParamTypes(method.getParameterTypes()));
+            URLRedirect redirect = null;
+            try {
+               redirect = new URLRedirect(template, method.getName(), validateParamTypes(method.getParameterTypes()));
+            } catch (RuntimeException e) {
+               throw new IllegalArgumentException("Failed to validate redirect templates from methods for prefix ("
+                     +entityProvider.getEntityPrefix() + "): " + e.getMessage(), e);
+            }
             redirects.add(redirect);
          }
       }
@@ -213,11 +230,25 @@ public class EntityRedirectsManager {
          for (TemplateMap templateMap : urlMappings) {
             String incomingTemplate = templateMap.getIncomingTemplate();
             String outgoingTemplate = templateMap.getOutgoingTemplate();
-            URLRedirect redirect = new URLRedirect(incomingTemplate, outgoingTemplate);
+            URLRedirect redirect = null;
+            try {
+               redirect = new URLRedirect(incomingTemplate, outgoingTemplate);
+            } catch (RuntimeException e) {
+               throw new IllegalArgumentException("Failed to validate defined redirect templates for prefix ("
+                     +configDefinable.getEntityPrefix() + "): " + e.getMessage(), e);
+            }
+            if (incomingTemplate.equals(outgoingTemplate)) {
+               throw new IllegalArgumentException("Invalid outgoing redirect template ("
+                     +outgoingTemplate+") for entity prefix ("+configDefinable.getEntityPrefix()
+                     +"), template is identical to incoming template ("+incomingTemplate+") and would cause an infinite redirect");
+            }
             // make sure that we check the target vars match the template vars
             List<String> incomingVars = new ArrayList<String>( redirect.preProcessedTemplate.variableNames );
             incomingVars.add(TemplateParseUtil.PREFIX);
             incomingVars.add(TemplateParseUtil.EXTENSION);
+            incomingVars.add(TemplateParseUtil.DOT_EXTENSION);
+            incomingVars.add(TemplateParseUtil.QUERY_STRING);
+            incomingVars.add(TemplateParseUtil.QUESTION_QUERY_STRING);
             List<String> outgoingVars = redirect.outgoingPreProcessedTemplate.variableNames;
             if (incomingVars.containsAll(outgoingVars)) {
                // all is ok
@@ -246,7 +277,13 @@ public class EntityRedirectsManager {
          		"this should return a non-empty array of templates or the capability should not be used");
       } else {
          for (String template : templates) {
-            URLRedirect redirect = new URLRedirect(template);
+            URLRedirect redirect = null;
+            try {
+               redirect = new URLRedirect(template);
+            } catch (RuntimeException e) {
+               throw new IllegalArgumentException("Failed to validate redirect templates from handled template patterns for prefix ("
+                     +configControllable.getEntityPrefix() + "): " + e.getMessage(), e);
+            }
             redirects.add(redirect);
          }
       }

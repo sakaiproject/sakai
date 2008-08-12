@@ -70,7 +70,7 @@ public class URLRedirect {
    public URLRedirect(String template, String outgoingTemplate) {
       setTemplate(template);
       if (outgoingTemplate == null || "".equals(outgoingTemplate)) {
-         throw new IllegalArgumentException("outgoingTemplate must not be null or empty string");
+         throw new IllegalArgumentException("URLRedirect construction failed: outgoingTemplate must not be null or empty string");
       }
       this.outgoingPreProcessedTemplate = TemplateParseUtil.preprocessTemplate( 
             new TemplateParseUtil.Template(null, outgoingTemplate, false) );
@@ -80,10 +80,10 @@ public class URLRedirect {
    public URLRedirect(String template, String methodName, Class<?>[] methodArgTypes) {
       setTemplate(template);
       if (methodName == null || "".equals(methodName)) {
-         throw new IllegalArgumentException("methodName must not be null or empty string");
+         throw new IllegalArgumentException("URLRedirect construction failed: methodName must not be null or empty string");
       }
       if (methodArgTypes == null || "".equals(methodArgTypes)) {
-         throw new IllegalArgumentException("methodArgTypes must not be null or empty string");
+         throw new IllegalArgumentException("URLRedirect construction failed: methodArgTypes must not be null or empty string");
       }
       this.methodName = methodName;
       this.methodArgTypes = methodArgTypes;
@@ -94,7 +94,7 @@ public class URLRedirect {
     */
    public void setTemplate(String template) {
       if (template == null || "".equals(template)) {
-         throw new IllegalArgumentException("template must not be null or empty string");
+         throw new IllegalArgumentException("URLRedirect set template failed: template must not be null or empty string");
       }
       this.template = template;
       this.preProcessedTemplate = TemplateParseUtil.preprocessTemplate( 

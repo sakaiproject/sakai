@@ -95,7 +95,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    public void setEntityManager(EntityManager entityManager) {
       this.entityManager = entityManager;
    }
-   
+
    /**
     * Must be the implementation
     */
@@ -239,9 +239,13 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     */
    public List<?> fetchEntities(String prefix, Search search, Map<String, Object> params) {
       EntityReference ref = new EntityReference(prefix, "");
-      requestStorage.setRequestValues(params);
-      List<?> l = entityBrokerManager.fetchEntities(ref, search, params);
-      requestStorage.reset();
+      List<?> l = null;
+      try {
+         requestStorage.setRequestValues(params);
+         l = entityBrokerManager.fetchEntities(ref, search, params);
+      } finally {
+         requestStorage.reset();
+      }
       return l;
    }
 
@@ -250,9 +254,13 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     */
    public List<EntityData> getEntities(String prefix, Search search, Map<String, Object> params) {
       EntityReference ref = new EntityReference(prefix, "");
-      requestStorage.setRequestValues(params);
-      List<EntityData> data = entityBrokerManager.getEntitiesData(ref, search, params);
-      requestStorage.reset();
+      List<EntityData> data = null;
+      try {
+         requestStorage.setRequestValues(params);
+         data = entityBrokerManager.getEntitiesData(ref, search, params);
+      } finally {
+         requestStorage.reset();
+      }
       return data;
    }
 
@@ -261,9 +269,13 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     */
    public List<EntityData> browseEntities(String prefix, Search search,
          String userReference, String associatedReference, Map<String, Object> params) {
-      requestStorage.setRequestValues(params);
-      List<EntityData> data = entityBrokerManager.browseEntities(prefix, search, userReference, associatedReference, params);
-      requestStorage.reset();
+      List<EntityData> data = null;
+      try {
+         requestStorage.setRequestValues(params);
+         data = entityBrokerManager.browseEntities(prefix, search, userReference, associatedReference, params);
+      } finally {
+         requestStorage.reset();
+      }
       return data;
    }
 
@@ -275,11 +287,14 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       if (ref == null) {
          throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
       }
-      requestStorage.setRequestValues(params);
-      // convert entities to entity data list
-      List<EntityData> data = entityBrokerManager.convertToEntityData(entities, ref);
-      entityEncodingManager.formatAndOutputEntity(ref, format, data, output, params);
-      requestStorage.reset();
+      try {
+         requestStorage.setRequestValues(params);
+         // convert entities to entity data list
+         List<EntityData> data = entityBrokerManager.convertToEntityData(entities, ref);
+         entityEncodingManager.formatAndOutputEntity(ref, format, data, output, params);
+      } finally {
+         requestStorage.reset();
+      }
    }
 
    public Object translateInputToEntity(String reference, String format, InputStream input,
@@ -288,9 +303,13 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       if (ref == null) {
          throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
       }
-      requestStorage.setRequestValues(params);
-      Object entity = entityEncodingManager.translateInputToEntity(ref, format, input, params);
-      requestStorage.reset();
+      Object entity = null;
+      try {
+         requestStorage.setRequestValues(params);
+         entity = entityEncodingManager.translateInputToEntity(ref, format, input, params);
+      } finally {
+         requestStorage.reset();
+      }
       return entity;
    }
 
@@ -304,17 +323,21 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       if (actionProvider == null) {
          throw new IllegalArgumentException("The provider for prefix ("+ref.getPrefix()+") cannot handle custom actions");
       }
-      requestStorage.setRequestValues(params);
-      ActionReturn ar = entityActionsManager.handleCustomActionExecution(actionProvider, ref, action, params, outputStream);
-      // populate the entity data
-      if (ar != null) {
-         if (ar.entitiesList != null) {
-            entityBrokerManager.populateEntityData(ar.entitiesList);
-         } else if (ar.entityData != null) {
-            entityBrokerManager.populateEntityData( new EntityData[] {ar.entityData} );
+      ActionReturn ar = null;
+      try {
+         requestStorage.setRequestValues(params);
+         ar = entityActionsManager.handleCustomActionExecution(actionProvider, ref, action, params, outputStream);
+         // populate the entity data
+         if (ar != null) {
+            if (ar.entitiesList != null) {
+               entityBrokerManager.populateEntityData(ar.entitiesList);
+            } else if (ar.entityData != null) {
+               entityBrokerManager.populateEntityData( new EntityData[] {ar.entityData} );
+            }
          }
+      } finally {
+         requestStorage.reset();
       }
-      requestStorage.reset();
       return ar;
    }
 
@@ -341,7 +364,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       entityMetaPropertiesService.setPropertyValue(reference, name, value);
    }
 
-   
+
    // TAGS
 
 

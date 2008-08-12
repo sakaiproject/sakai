@@ -78,8 +78,15 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
 
 
    public TemplateMap[] defineURLMappings() {
+      // see javadoc for this method for notes on special mappings
       return new TemplateMap[] {
-            new TemplateMap("/{prefix}/{id}/norefresh", "/{prefix}/{id}{extension}?auto=true")
+            new TemplateMap("/{prefix}/{id}/norefresh", "/{prefix}/{id}{dot-extension}?auto=true"),
+            new TemplateMap("/{prefix}/current/norefresh", "/{prefix}/current{dot-extension}?auto=true"),
+            // below for testing only
+//            new TemplateMap("/{prefix}/xml/{id}", "/{prefix}/{id}.xml"),
+//            new TemplateMap("/{prefix}/test1", "/{prefix}/test2"),
+//            new TemplateMap("/{prefix}/test2", "/{prefix}/test3"),
+//            new TemplateMap("/{prefix}/test3", "/{prefix}/test1"),
       };
    }
 

@@ -37,6 +37,14 @@ public class EntityDescriptionManagerTest extends TestCase {
       entityDescriptionManager = new ServiceTestManager(td).entityDescriptionManager;
    }
 
+   public void testReplacePrefix() {
+      String outgoingTemplate = "/{prefix}/hello";
+      String prefix = "myprefix";
+      String result = entityDescriptionManager.replacePrefix(outgoingTemplate, prefix);
+      assertNotNull(result);
+      assertEquals("/myprefix/hello", result);
+   }
+
    public void testDescribeAll() {
 
       // test describe all entities

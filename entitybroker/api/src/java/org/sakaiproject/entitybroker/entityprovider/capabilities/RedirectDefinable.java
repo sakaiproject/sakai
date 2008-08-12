@@ -46,7 +46,13 @@ public interface RedirectDefinable extends Redirectable {
     * NOTE: all incoming URL templates must start with "/{prefix}" ({@link TemplateParseUtil#TEMPLATE_PREFIX}) <br/>
     * <b>outgoingURL</b> is the URL template pattern to fill with values from the incoming pattern,
     * this can start with anything, but will be processed as an external redirect if it starts with "http" or "/" 
-    * (unless it starts with "/{prefix}"), otherwise it will be processed as an internal forward
+    * (unless it starts with "/{prefix}"), otherwise it will be processed as an internal forward <br/>
+    * NOTE: the special variables which are available to all outgoing URLs from the system are:<br/>
+    * {prefix} = the entity prefix <br/>
+    * {extension} = the extension if one is available or '' if none <br/>
+    * {dot-extension} = the extension with a '.' prepended if one is set or '' if no extension <br/>
+    * {query-string} = the query string (e.g auto=true) or '' if none <br/>
+    * {question-query-string} = the query string with a '?' prepended (e.g ?auto=true) or '' if none <br/>
     * 
     * @return the array of template mappings (incomingURL pattern => outgoingURL pattern) 
     * OR null/empty if you have no simple mappings

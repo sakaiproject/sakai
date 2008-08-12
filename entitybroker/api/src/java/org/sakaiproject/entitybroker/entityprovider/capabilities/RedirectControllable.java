@@ -37,6 +37,8 @@ public interface RedirectControllable extends Redirectable {
    /**
     * Defines all the URL patterns that will be matched and passed through to
     * {@link #handleRedirects(String, String[], Map)}
+    * NOTE: /{prefix}/ must be included as the start of the template<br/>
+    * 
     * @return a list of all the handled URL patterns
     */
    public String[] defineHandledTemplatePatterns();

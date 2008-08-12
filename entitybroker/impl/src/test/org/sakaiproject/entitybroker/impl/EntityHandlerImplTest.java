@@ -878,7 +878,7 @@ public class EntityHandlerImplTest extends TestCase {
       forwardURL = res.getForwardedUrl();
       assertNull(redirectURL);
       assertNotNull(forwardURL);
-      assertEquals(TemplateParseUtil.DIRECT_PREFIX+TestData.SPACEU1+"/123.xml", forwardURL);
+      assertEquals(TemplateParseUtil.DIRECT_PREFIX + TestData.SPACEU1+"/123.xml", forwardURL);
 
       // test the special ones
       req = new MockEBHttpServletRequest("GET", TestData.SPACEU1 + "/going/nowhere");

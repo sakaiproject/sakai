@@ -36,12 +36,34 @@ public class TemplateParseUtil {
    public static final char PERIOD = EntityView.PERIOD;
    public static final String BRACES = "[\\{\\}]";
 
+   /**
+    * The entity prefix marker (Example value: "myprefix")
+    */
    public static final String PREFIX = EntityView.PREFIX;
+   /**
+    * The entity ID marker (Example value: "123")
+    */
    public static final String ID = EntityView.ID;
+   /**
+    * The entity extension (format) marker (Example value: "xml")
+    */
    public static final String EXTENSION = "extension";
+   /**
+    * The extension with a period in front marker (Example value: ".xml")
+    */
+   public static final String DOT_EXTENSION = "dot-extension";
+   /**
+    * The value in the query string (without a leading ?), '' if non available (Example value: "auto=true")
+    */
+   public static final String QUERY_STRING = "query-string";
+   /**
+    * The value in the query string (with a leading ?), '' if non available (Example value: "?auto=true")
+    */
+   public static final String QUESTION_QUERY_STRING = "question-query-string";
    public static final String PREFIX_VARIABLE = "{"+PREFIX+"}";
    public static final String TEMPLATE_PREFIX = SEPARATOR + PREFIX_VARIABLE;
    public static final String DIRECT_PREFIX = SEPARATOR + "direct";
+   public static final String DIRECT_PREFIX_SLASH = DIRECT_PREFIX + SEPARATOR;
 
    /**
     * Defines the parse template for the "list" operation,
@@ -95,11 +117,15 @@ public class TemplateParseUtil {
    /**
     * Defines the valid chars for a parser input (e.g. entity reference)
     */
-   public static String VALID_INPUT_CHARS = "[A-Za-z0-9\\\\(\\\\)\\.\\-_.=,:;!~"+SEPARATOR+"]";
+   public static String VALID_INPUT_CHARS = "[A-Za-z0-9\\\\(\\\\)\\.\\-_=,:;!~"+SEPARATOR+"]";
    /**
     * Defines the valid chars for a template
     */
-   public static String VALID_TEMPLATE_CHARS = "[A-Za-z0-9\\\\(\\\\)\\.\\-_.=,:;&!~"+SEPARATOR+"\\{\\}\\?]";
+   public static String VALID_TEMPLATE_CHARS = "[A-Za-z0-9\\\\(\\\\)\\.\\-_=,:;&!~"+SEPARATOR+"\\{\\}]";
+   /**
+    * Defines the valid template chars for an outgoing template (allows ?)
+    */
+   public static String VALID_TEMPLATE_CHARS_OUTGOING = "[A-Za-z0-9\\\\(\\\\)\\.\\-_=,:;&!~"+SEPARATOR+"\\{\\}\\?]";
 
    /**
     * Stores the preloaded default templates
@@ -167,22 +193,22 @@ public class TemplateParseUtil {
       if (template == null || "".equals(template)) {
          throw new IllegalArgumentException("Template cannot be null or empty string");
       } else if (template.charAt(0) != SEPARATOR) {
-         throw new IllegalArgumentException("Template must start with " + SEPARATOR);
+         throw new IllegalArgumentException("Template ("+template+") must start with " + SEPARATOR);
       } else if (template.charAt(template.length()-1) == SEPARATOR) {
-         throw new IllegalArgumentException("Template cannot end with " + SEPARATOR);
+         throw new IllegalArgumentException("Template ("+template+") cannot end with " + SEPARATOR);
       } else if (! template.startsWith(TEMPLATE_PREFIX)) {
-         throw new IllegalArgumentException("Template must start with: " + TEMPLATE_PREFIX 
+         throw new IllegalArgumentException("Template ("+template+") must start with: " + TEMPLATE_PREFIX 
                + " :: that is SEPARATOR + \"{\"+PREFIX+\"}\"");
       } else if (template.indexOf("}{") != -1) {
-         throw new IllegalArgumentException("Template replacement variables ({var}) " +
+         throw new IllegalArgumentException("Template ("+template+") replacement variables ({var}) " +
                "cannot be next to each other, " +
                "there must be something between each template variable");
       } else if (template.indexOf("{}") != -1) {
-         throw new IllegalArgumentException("Template replacement variables ({var}) " +
+         throw new IllegalArgumentException("Template ("+template+") replacement variables ({var}) " +
                "cannot be empty ({}), there must be a value between them");
       } else if (! template.matches(VALID_TEMPLATE_CHARS+"+")) {
          // take out {} and check if the template uses valid chars
-         throw new IllegalArgumentException("Template can only contain the following (not counting []): " + VALID_TEMPLATE_CHARS);
+         throw new IllegalArgumentException("Template ("+template+") can only contain the following (not counting []): " + VALID_TEMPLATE_CHARS);
       }
    }
 
@@ -198,11 +224,11 @@ public class TemplateParseUtil {
       if (template == null || "".equals(template)) {
          throw new IllegalArgumentException("Template cannot be null or empty string");
       } else if (template.indexOf("{}") != -1) {
-         throw new IllegalArgumentException("Template replacement variables ({var}) " +
+         throw new IllegalArgumentException("Template ("+template+") replacement variables ({var}) " +
                "cannot be empty ({}), there must be a value between them");
-      } else if (! template.matches(VALID_TEMPLATE_CHARS+"+")) {
+      } else if (! template.matches(VALID_TEMPLATE_CHARS_OUTGOING+"+")) {
          // take out {} and check if the template uses valid chars
-         throw new IllegalArgumentException("Template can only contain the following (not counting []): " + VALID_TEMPLATE_CHARS);
+         throw new IllegalArgumentException("Template ("+template+") can only contain the following (not counting []): " + VALID_TEMPLATE_CHARS_OUTGOING);
       }
       if (template.startsWith(PREFIX_VARIABLE)) {
          validTemplate = DIRECT_PREFIX + SEPARATOR + template;
@@ -371,7 +397,9 @@ public class TemplateParseUtil {
          String part = parts[j];
          if (j % 2 == 0) {
             // odd parts are textual breaks
-            regex.append(part);
+            // check for regex chars and escape them "[A-Za-z0-9\\\\(\\\\)\\.\\-_.=,:;&!~"+SEPARATOR+"\\{\\}\\?]"
+            regex.append(part.replace("?", "\\?").replace(".", "\\.").replace("*", "\\*").replace("+", "\\+")
+                  .replace("-", "\\-").replace("(", "\\\\(").replace(")", "\\\\)"));
          } else {
             // even parts are replacement vars
             vars.add(part);

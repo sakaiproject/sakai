@@ -37,6 +37,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 
@@ -405,12 +406,13 @@ public class EntityDescriptionManager {
                for (int i = 0; i < redirects.size(); i++) {
                   URLRedirect redirect = redirects.get(i);
                   sb.append("        <div>\n");
-                  String target = redirect.outgoingTemplate;
+                  String target = replacePrefix(redirect.outgoingTemplate, prefix);
                   if (target == null) {
                      target = "<i>" + entityProperties.getProperty(DESCRIBE, "describe.url.redirects.no.outgoing", locale) + "</i>";
                   }
-                  sb.append("          <span>"+(i+1)+")</span> &nbsp; <span style='font-weight:bold;'>"+redirect.template
-                        +"</span> ==&gt; <span>"+target+"</span><br/>\n");
+                  sb.append("          <span>"+(i+1)+")</span> &nbsp; "
+                        + makeRedirectLink(replacePrefix(redirect.template, prefix), directUrl)
+                        + " ==&gt; <span>"+target+"</span><br/>\n");
                   String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template);
                   if (redirectDesc != null) {
                      sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+redirectDesc+"</div>\n");
@@ -453,6 +455,31 @@ public class EntityDescriptionManager {
          sb.append("      </table>\n");
       }
       return sb.toString();
+   }
+
+   /**
+    * Replaces the {prefix} value in the template with the actual prefix,
+    * allows nulls to pass through
+    */
+   protected String replacePrefix(String outgoingTemplate, String prefix) {
+      if (outgoingTemplate != null) {
+         outgoingTemplate = outgoingTemplate.replace(TemplateParseUtil.PREFIX_VARIABLE, prefix);
+      }
+      return outgoingTemplate;
+   }
+
+   /**
+    * Turn a redirect template into html for a link if it has no variables in it,
+    * otherwise output the text of the template in a span with bold
+    */
+   protected String makeRedirectLink(String redirect, String prefixURL) {
+      String html = redirect;
+      if (redirect.indexOf("{") > 0 && redirect.indexOf("}") > 0) {
+         html = "<span style='font-weight:bold;'>"+redirect+"</span>";
+      } else {
+         html = "<a style='font-weight:bold;' href='"+prefixURL+redirect+"'>"+redirect+"</a>";
+      }
+      return html;
    }
 
    // DESCRIBE formatting utilities
