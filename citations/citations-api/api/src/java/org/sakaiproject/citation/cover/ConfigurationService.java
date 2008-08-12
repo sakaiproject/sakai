@@ -244,6 +244,19 @@ public class ConfigurationService
 	}
 
   /**
+   * Get the maximum number of databases we can search at one time
+   */
+  public static int getSiteConfigMaximumSearchableDBs()
+	{
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return org.sakaiproject.citation.api.ConfigurationService.SEARCHABLE_DATABASES;
+		}
+		return instance.getSiteConfigMaximumSearchableDBs();
+	}
+
+  /**
    * Enable/disable Google support
    */
   public static void setGoogleScholarEnabled(boolean state)

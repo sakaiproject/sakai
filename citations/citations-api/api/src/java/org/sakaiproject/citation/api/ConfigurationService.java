@@ -30,6 +30,14 @@ import org.sakaiproject.citation.util.api.OsidConfigurationException;
  */
 public interface ConfigurationService
 {
+  /** 
+   * Maximum number of databases to be searched at one time.  
+   *
+   * Eight is the value used in the original implementation - it's compatible 
+   * with both the Ex Libris Xserver and the Sirsi Web2 Bridge.
+   */
+  public static final int SEARCHABLE_DATABASES = 8;
+  
   /**
    * Fetch the appropriate XML configuration document for this user
    * @return Configuration XML (eg file:///tomcat-home/sakai/config.xml)
@@ -134,6 +142,11 @@ public interface ConfigurationService
    * @return the key text
    */
   public String getSiteConfigSakaiServerKey();
+
+  /**
+   * Get the maximum number of databases we can search at one time
+   */
+  public int getSiteConfigMaximumSearchableDBs();
 
   /**
    * Enable/disable Citations Helper by default

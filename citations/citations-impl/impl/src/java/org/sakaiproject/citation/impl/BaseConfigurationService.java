@@ -112,7 +112,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   // configuration XML file location
     protected String m_databaseXml;
     protected String m_siteConfigXml;
-
+  
     // metasearch engine parameters
     protected String m_metasearchUsername;
     protected String m_metasearchPassword;
@@ -385,6 +385,46 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   }
 
   /**
+   * Get the maximum number of databases we can search at one time
+   * @return The maximum value (defaults to <code>SEARCHABLE_DATABASES</code> 
+   *                            if no other value is specified)
+   */
+  public synchronized int getSiteConfigMaximumSearchableDBs()
+  {
+    String  configValue   = getConfigurationParameter("searchable-databases");
+    int     searchableDbs = SEARCHABLE_DATABASES;
+    /*
+     * Supply the default if no value was configured
+     */
+    if (configValue == null)
+    {
+      return searchableDbs;
+    }
+    /*
+     * Make sure we have a good value
+     */
+    try
+    {
+      searchableDbs = Integer.parseInt(configValue);
+      if (searchableDbs <= 0)
+      {
+        throw new NumberFormatException(configValue);
+      }                                              
+    }
+    catch (NumberFormatException exception)
+    {
+      m_log.debug("Maximum searchable database exception: " 
+              +   exception.toString());
+
+      searchableDbs = SEARCHABLE_DATABASES;
+    }
+    finally
+    {
+      return searchableDbs;
+    }
+  }
+
+  /**
    * Enable/disable Citations Helper by default
    * @param state true to set default 'On'
    */
@@ -634,6 +674,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
       saveParameter(document, parameterMap, "google-baseurl");
       saveParameter(document, parameterMap, "sakai-serverkey");
+
+      saveParameter(document, parameterMap, "searchable-databases");
 
       saveParameter(document, parameterMap, "config-id");               // obsolete?
       saveParameter(document, parameterMap, "database-xml");            // obsolete?

@@ -1642,8 +1642,12 @@ public class BaseSearchManager implements SearchManager, Observer
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.citation.api.SearchDatabaseHierarchy#getNumMaxSearchableDb()
 		 */
-		public int getNumMaxSearchableDb() {
-			return 8;  // TODO get this from XML
+		public int getNumMaxSearchableDb() 
+		{
+		  int number = m_configService.getSiteConfigMaximumSearchableDBs();
+		  
+		  m_log.debug("getNumMaxSearchableDb() returns " + number);
+			return number;
 		}
 
 		/* (non-Javadoc)
