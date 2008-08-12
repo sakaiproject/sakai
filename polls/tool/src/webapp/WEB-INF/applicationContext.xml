@@ -67,6 +67,24 @@
 		class="java.lang.String">
 		<constructor-arg value="/" />
 	</bean>
-	
+
+
+   <!-- added to propogate errors -->
+   <bean id="redirectOnLevel1Error" class="uk.org.ponder.springutil.BooleanFactory">
+       <property name="value" value="false" />
+   </bean>
+
+   <bean id="fatalErrorHandler"
+       class="uk.org.ponder.rsf.processor.support.DefaultFatalErrorHandler">
+       <property name="propagatedExceptions" value="java.lang.Throwable" />
+   </bean>
+
+   <bean parent="alterationWrapperParent">
+       <property name="value">
+           <bean parent="RSACBridgeProxy">
+               <property name="targetBeanName" value="allErrorsAllowable" />
+           </bean>
+       </property>
+   </bean>
 	
 </beans>
