@@ -51,7 +51,9 @@ public class PollUtils {
 		            }
 		         }
 		      }
-
+		      //remove the bad <br type="_moz" />
+		      cleanup = cleanup.replace("<br type=\"_moz\" />", "");
+		      
 		      return cleanup;
 		   }
 	   
