@@ -29,6 +29,7 @@ import org.springframework.validation.Validator;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
+import org.sakaiproject.poll.util.PollUtils;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.FormattedText;
 
@@ -88,17 +89,8 @@ public class OptionValidator implements Validator {
 		//if where here option is not null or empty but could be something like "&nbsp;&nbsp;"
 		String text = option.getOptionText();
 		
-		String check = "";
-		if (text.length() >3)
-			check = text.substring(3, text.length());
 
-		//if the only <p> tag is the one at the start we will trim off the start and end <p> tags
-		if (!org.sakaiproject.util.StringUtil.containsIgnoreCase(check, "<p>")) {
-			//this is a single para block
-			text = text.substring(3, text.length());
-			text = text.substring(0,text.length()- 4);
-		}
-		
+		text = PollUtils.cleanupHtmlPtags(text);
 		text = text.replace("&nbsp;", "");
 		text = StringEscapeUtils.unescapeHtml(text).trim();
 		if (text.trim().length()==0) {

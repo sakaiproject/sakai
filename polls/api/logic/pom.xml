@@ -42,6 +42,12 @@ limitations under the License.
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-poll-model-api</artifactId>
     </dependency>
+    <dependency>
+    	<groupId>commons-logging</groupId>
+    	<artifactId>commons-logging</artifactId>
+    	<version>1.1</version>
+    	<scope>provided</scope>
+    </dependency>
 <!-- sakai dependencies -->
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->

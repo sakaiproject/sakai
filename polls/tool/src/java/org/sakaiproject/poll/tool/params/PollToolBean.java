@@ -42,6 +42,7 @@ import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.tool.producers.AddPollProducer;
 import org.sakaiproject.poll.tool.producers.PollOptionProducer;
 import org.sakaiproject.poll.tool.producers.PollToolProducer;
+import org.sakaiproject.poll.util.PollUtils;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.util.FormattedText;
@@ -141,8 +142,8 @@ public class PollToolBean {
 			isNew = false;
 			//check for possible unchanged values
 			m_log.debug(" newPoll is " + poll.getText()+ " while poll text is " + poll.getText());
-
-
+			
+			
 			if (poll.getText().equals("") && poll.getText()!=null)
 				poll.setText(poll.getText());
 
@@ -165,7 +166,7 @@ public class PollToolBean {
 			throw new  IllegalArgumentException("min_greater_than_max");
 		}
 
-		if (poll.getText() == null || poll.getText().length() == 0 ) {
+		if (poll.getText().trim() == null || poll.getText().length() == 0 ) {
 			m_log.debug("Poll question is Empty!");
 			messages.addMessage(new TargettedMessage("error_no_text","no text"));
 			throw new  IllegalArgumentException("error_no_text");
@@ -173,7 +174,7 @@ public class PollToolBean {
 		}
 
 
-		poll.setDetails(FormattedText.processFormattedText(poll.getDetails(), new StringBuilder()));
+		poll.setDetails(PollUtils.cleanupHtmlPtags(FormattedText.processFormattedText(poll.getDetails(), new StringBuilder())));
 		m_log.debug("about to save poll " + poll);
 		manager.savePoll(poll);
 
@@ -265,22 +266,7 @@ public class PollToolBean {
 		option.setOptionText(FormattedText.processFormattedText(option.getOptionText(), sb, true, true));
 
 		String text = option.getOptionText();
-		/* this breaks the current FCK editor
-		String check = text.substring(3, text.length());
-		//if the only <p> tag is the one at the start we will trim off the start and end <p> tags
-		if (!org.sakaiproject.util.StringUtil.containsIgnoreCase(check, "<p>")) {
-			//this is a single para block
-			text = text.substring(3, text.length());
-			text = text.substring(0,text.length()- 4);
-		}
-
-		//are there trailing <p>&nbsp;</p>
-		String empty = "<p>&nbsp;</p>";
-		while (text.length() > empty.length() && text.substring(text.length() - empty.length()).trim().equals(empty)) {
-			m_log.debug("found the empty string: " + empty);
-			text = text.substring(0, text.length() - empty.length()).trim();
-		}
-	*/
+		text = PollUtils.cleanupHtmlPtags(text);
 
 		option.setOptionText(text);
 		manager.saveOption(option);
