@@ -36,12 +36,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-chat-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-chat-impl</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->
 <!--org.sakaiprojectsakai-alias-api${sakai.version}-->
@@ -50,19 +50,19 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-courier-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-presence-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-site-api${sakai.version}-->
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
@@ -71,28 +71,28 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-presence-util</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-courier-util</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-mergedlist-util</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>jsf</groupId>
@@ -118,18 +118,18 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- this will pull the correct dependency set for a Sun Widget Set -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>pom</type>
     </dependency>
 <!-- tomahawk tags are being used, so we have to pull them seperately -->

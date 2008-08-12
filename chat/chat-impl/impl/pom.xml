@@ -55,7 +55,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-chat-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->
 <!--org.sakaiprojectsakai-alias-api${sakai.version}-->
@@ -68,12 +68,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-site-api${sakai.version}-->
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
@@ -83,7 +83,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-impl</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-event-util${sakai.version}-->
 <!--org.sakaiprojectsakai-db-storage${sakai.version}-->
