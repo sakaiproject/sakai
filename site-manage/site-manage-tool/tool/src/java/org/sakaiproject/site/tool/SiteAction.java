@@ -5524,20 +5524,48 @@ public class SiteAction extends PagedResourceActionII {
 			Set categories = new HashSet();
 			categories.add((String) state.getAttribute(STATE_SITE_TYPE));
 			Set toolRegistrationList = ToolManager.findTools(categories, null);
-			String originToolId = null;
+			String rv = null;
 			if (toolRegistrationList != null)
 			{
-				for (Iterator i=toolRegistrationList.iterator(); originToolId == null && i.hasNext();)
+				for (Iterator i=toolRegistrationList.iterator(); rv == null && i.hasNext();)
 				{
 					Tool tool = (Tool) i.next();
-					if (toolId.indexOf(tool.getId()) != -1)
-					{
-						originToolId = tool.getId();
-					}
+					String tId = tool.getId();
+					rv = originalToolId(toolId, tId);
 				}
 			}
-			return originToolId;
+			return rv;
 		}
+	}
+
+
+
+	private String originalToolId(String toolId, String toolRegistrationId) {
+		String rv = null;
+		
+		if (toolId.indexOf(toolRegistrationId) != -1)
+		{
+			// the multiple tool id format is of TOOL_IDx, where x is an intger >= 1
+			if (toolId.endsWith(toolRegistrationId))
+			{
+				rv = toolRegistrationId;
+			} else
+			{
+				String suffix = toolId.substring(toolId.indexOf(toolRegistrationId) + toolRegistrationId.length());
+				try
+				{
+					Integer.parseInt(suffix);
+					rv = toolRegistrationId;
+				}
+				catch (Exception e)
+				{
+					// not the right tool id
+					M_log.debug(this + ".findOriginalToolId not matchign tool id = " + toolRegistrationId + " original tool id=" + toolId + e.getMessage(), e);
+				}
+			}
+			
+		}
+		return rv;
 	}
 
 	/**
@@ -9704,10 +9732,9 @@ public class SiteAction extends PagedResourceActionII {
 				String tool_id = ((Tool) i.next()).getId();
 				for (ListIterator j = toolIdList.listIterator(); j.hasNext();) {
 					String toolId = (String) j.next();
-					if (toolId.indexOf("assignment") != -1
-							&& toolId.equals(tool_id)
-							|| toolId.indexOf("assignment") == -1
-							&& toolId.indexOf(tool_id) != -1) {
+					String rToolId = originalToolId(toolId, tool_id);
+					if (rToolId != null)
+					{
 						rv.add(toolId);
 					}
 				}
