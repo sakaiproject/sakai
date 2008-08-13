@@ -43,8 +43,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.exception.EncodingException;
+import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
@@ -88,6 +89,7 @@ public class EntityEncodingManager {
     * into output according to the format string provided,
     * Should take into account the reference when determining what the entities are
     * and how to encode them
+    * (This is basically a copy of the code in EntityHandlerImpl with stuff removed)
     * 
     * @param ref a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments
@@ -99,39 +101,53 @@ public class EntityEncodingManager {
     * then the entity should be extracted from the list and encoded without the indication
     * that it is a collection, for all other cases the encoding should include an indication that
     * this is a list of entities
-    * @param output the output stream to place the formatted data in,
+    * @param outputStream the output stream to place the formatted data in,
     * should be UTF-8 encoded if there is char data
-    * @throws IllegalArgumentException if the entity does not support output formatting or any arguments are invalid
-    * @throws EncodingException is there is failure encoding the output
+    * @throws FormatUnsupportedException if you do not handle this format type (passes control to the internal handlers)
+    * @throws EntityEncodingException if you cannot encode the received data into an entity
+    * @throws IllegalArgumentException if any of the arguments are invalid
+    * @throws IllegalStateException for all other failures
     */
-   public void formatAndOutputEntity(EntityReference ref, String format, List<EntityData> entities, OutputStream output, Map<String, Object> params) {
-      if (ref == null || format == null || output == null) {
+   public void formatAndOutputEntity(EntityReference ref, String format, List<EntityData> entities, OutputStream outputStream, Map<String, Object> params) {
+      if (ref == null || format == null || outputStream == null) {
          throw new IllegalArgumentException("ref, format, and output cannot be null");
       }
       String prefix = ref.getPrefix();
-      Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+      Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
       if (outputable != null) {
-         String[] formats = outputable.getHandledOutputFormats();
-         if ( ReflectUtil.contains(formats, format) ) {
-            OutputFormattable formattable = entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
-            if (formattable == null) {
+         String[] outputFormats = outputable.getHandledOutputFormats();
+         if (outputFormats == null || ReflectUtil.contains(outputFormats, format) ) {
+            boolean handled = false;
+            /* try to use the provider formatter if one available,
+             * if it decided not to handle it or none is available then control passes to internal
+             */
+            try {
+               OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
+               if (formattable != null) {
+                  // use provider's formatter
+                  formattable.formatOutput(ref, format, entities, params, outputStream);
+                  handled = true;
+               }
+            } catch (FormatUnsupportedException e) {
+               // provider decided not to handle this format
+               handled = false;
+            }
+            if (!handled) {
                // handle internally or fail
-               internalOutputFormatter(ref, format, entities, output, null, params);
-            } else {
-               // use provider's formatter
-               formattable.formatOutput(ref, format, entities, params, output);
+               internalOutputFormatter(ref, format, entities, params, outputStream, null);
             }
          } else {
-            throw new IllegalArgumentException("This entity ("+ref+") is not outputable in this format ("+format+")," +
-                  " only the following formats are supported: " + ReflectUtil.arrayToString(formats));
+            // format type not handled
+            throw new FormatUnsupportedException("Outputable restriction for " 
+                  + prefix + " blocked handling this format ("+format+")",
+                  ref+"", format);
          }
-      } else {
-         throw new IllegalArgumentException("This entity ("+ref+") is not outputable");
       }
    }
 
    /**
     * Translates the input data stream in the supplied format into an entity object for this reference
+    * (This is basically a copy of the code in EntityHandlerImpl with stuff removed)
     * 
     * @param ref a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments
@@ -140,36 +156,57 @@ public class EntityEncodingManager {
     * @param input a stream which contains the data to make up this entity,
     * you may assume this is UTF-8 encoded if you don't know anything else about it
     * @return an entity object of the type used for the given reference
-    * @throws IllegalArgumentException if the entity does not support input translation or any arguments are invalid
-    * @throws EncodingException is there is failure encoding the input
+    * @throws FormatUnsupportedException if you do not handle this format type (passes control to the internal handlers)
+    * @throws EntityEncodingException if you cannot encode the received data into an entity
+    * @throws IllegalArgumentException if any of the arguments are invalid
+    * @throws IllegalStateException for all other failures
     */
-   public Object translateInputToEntity(EntityReference ref, String format, InputStream input, Map<String, Object> params) {
-      if (ref == null || format == null || input == null) {
-         throw new IllegalArgumentException("ref, format, and input cannot be null");
+   public Object translateInputToEntity(EntityReference ref, String format, InputStream inputStream, Map<String, Object> params) {
+      if (ref == null || format == null || inputStream == null) {
+         throw new IllegalArgumentException("ref, format, and inputStream cannot be null");
       }
       Object entity = null;
       String prefix = ref.getPrefix();
-      Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
+      Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
       if (inputable != null) {
-         String[] formats = inputable.getHandledInputFormats();
-         if ( ReflectUtil.contains(formats, format) ) {
-            InputTranslatable translatable = entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
-            if (translatable == null) {
-               // handle internally or fail
-               entity = internalInputTranslator(ref, format, input, null);
-            } else {
-               // use provider's formatter
-               entity = translatable.translateFormattedData(ref, format, input, params);
+         String[] inputFormats = inputable.getHandledInputFormats();
+         if (inputFormats == null || ReflectUtil.contains(inputFormats, format) ) {
+            boolean handled = false;
+            /* try to use the provider translator if one available,
+             * if it decided not to handle it or none is available then control passes to internal
+             */
+            try {
+               InputTranslatable translatable = (InputTranslatable) entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
+               if (translatable != null) {
+                  // use provider's translator
+                  entity = translatable.translateFormattedData(ref, format, inputStream, params);
+                  handled = true;
+               }
+            } catch (FormatUnsupportedException e) {
+               // provider decided not to handle this format
+               handled = false;
+            }
+            if (!handled) {
+               // use internal translators or fail
+               entity = internalInputTranslator(ref, format, inputStream, null);
+            }
+
+            if (entity == null) {
+               // FAILURE input could not be translated into an entity object
+               throw new EntityEncodingException("Unable to translate entity ("+ref+") with format ("
+                     +format+"), translated entity object was null", ref+"");
             }
          } else {
-            throw new IllegalArgumentException("This entity ("+ref+") is not inputable in this format ("+format+")," +
-                  " only the following formats are supported: " + ReflectUtil.arrayToString(formats));
+            // format type not handled
+            throw new FormatUnsupportedException("Inputable restriction for " 
+                  + prefix + " blocked handling this format ("+format+")",
+                  ref+"", format);
          }
-      } else {
-         throw new IllegalArgumentException("This entity ("+ref+") is not inputable");
       }
       return entity;
    }
+
+   // FUNCTIONAL CODE BELOW
 
    /**
     * Handled the internal encoding of data into an entity object
@@ -178,7 +215,10 @@ public class EntityEncodingManager {
     * @param format the format which the input is encoded in
     * @param input the data being input
     * @return the entity object based on the data
-    * @throws EntityException if there is a failure in translation
+    * @throws FormatUnsupportedException if you do not handle this format type (passes control to the internal handlers)
+    * @throws EntityEncodingException if you cannot encode the received data into an entity
+    * @throws IllegalArgumentException if any of the arguments are invalid
+    * @throws IllegalStateException for all other failures
     */
    @SuppressWarnings("unchecked")
    public Object internalInputTranslator(EntityReference ref, String format, InputStream input, HttpServletRequest req) {
@@ -234,7 +274,7 @@ public class EntityEncodingManager {
                      entity = encoder.fromXML(input, current);
                      // END run in classloader
                   } catch (RuntimeException e) {
-                     throw new EncodingException("Failure during internal input encoding of entity: " + ref, ref.toString(), e);
+                     throw new EntityEncodingException("Failure during internal input encoding of entity: " + ref, ref.toString(), e);
                   } finally {
                      encoder.setClassLoader(currentClassLoader);
                   }
@@ -264,9 +304,19 @@ public class EntityEncodingManager {
     * @param entities (optional) if this is null then the entities will be fetched
     * @param output the outputstream to place the encoded data into
     * @param view (optional) 
+    * @throws FormatUnsupportedException if you do not handle this format type (passes control to the internal handlers)
+    * @throws EntityEncodingException if you cannot encode the received data into an entity
+    * @throws IllegalArgumentException if any of the arguments are invalid
+    * @throws IllegalStateException for all other failures
     */
-   public void internalOutputFormatter(EntityReference ref, String format, List<EntityData> entities, OutputStream output, EntityView view, Map<String, Object> params) {
+   public void internalOutputFormatter(EntityReference ref, String format, List<EntityData> entities, Map<String, Object> params, OutputStream output, EntityView view) {
       if (format == null) { format = Outputable.HTML; }
+
+      // check the format to see if we can handle it
+      if (! ReflectUtil.contains(HANDLED_OUTPUT_FORMATS, format)) {
+         throw new FormatUnsupportedException("Internal output formatter cannot handle format ("+format+") for ref ("+ref+")", ref+"", format);
+      }
+
       if (view == null) {
          view = entityBrokerManager.makeEntityView(ref, null, null);
       }
@@ -337,7 +387,7 @@ public class EntityEncodingManager {
          // encoding a single entity
          EntityData toEncode = entities.get(0);
          if (toEncode == null) {
-            throw new EncodingException("Failed to encode data for entity (" + ref 
+            throw new EntityEncodingException("Failed to encode data for entity (" + ref 
                   + "), entity object to encode could not be found (null object in list)", ref.toString());
          } else {
             if (encoder != null) {
@@ -346,7 +396,7 @@ public class EntityEncodingManager {
             try {
                encoded = encodeEntity(ref, workingView, toEncode, encoder);
             } catch (RuntimeException e) {
-               throw new EncodingException("Failure during internal output encoding of entity: " + ref, ref.toString(), e);
+               throw new EntityEncodingException("Failure during internal output encoding of entity: " + ref, ref.toString(), e);
             }
          }
       }
@@ -355,9 +405,9 @@ public class EntityEncodingManager {
          byte[] b = encoded.getBytes(Formats.UTF_8);
          output.write(b);
       } catch (UnsupportedEncodingException e) {
-         throw new EncodingException("Failed to encode UTF-8: " + ref, ref.toString(), e);
+         throw new EntityEncodingException("Failed to encode UTF-8: " + ref, ref.toString(), e);
       } catch (IOException e) {
-         throw new EncodingException("Failed to encode into output stream: " + ref, ref.toString(), e);
+         throw new EntityEncodingException("Failed to encode into output stream: " + ref, ref.toString(), e);
       }
    }
 

@@ -157,9 +157,7 @@ public class EntityBrokerManager {
       EntityView view = new EntityView();
       EntityViewUrlCustomizable custom = (EntityViewUrlCustomizable) entityProviderManager
             .getProviderByPrefixAndCapability(ref.getPrefix(), EntityViewUrlCustomizable.class);
-      if (custom == null) {
-         view.setEntityReference(ref);
-      } else {
+      if (custom != null) {
          // use the custom parsing templates
          view.loadParseTemplates( custom.getParseTemplates() );
       }

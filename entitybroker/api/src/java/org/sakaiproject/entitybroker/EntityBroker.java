@@ -35,7 +35,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.exception.EncodingException;
+import org.sakaiproject.entitybroker.exception.EntityEncodingException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 
 /**
@@ -294,8 +295,10 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     * should be UTF-8 encoded if there is char data
     * @param params (optional) an optional set of params to pass along with this custom action request,
     * typically used to provide information about the request, may be left null if not needed
-    * @throws IllegalArgumentException if the entity does not support output formatting or any arguments are invalid
-    * @throws EncodingException is there is failure encoding the output
+    * @throws FormatUnsupportedException if entity cannot handle this format type
+    * @throws IllegalArgumentException if any of the arguments are invalid
+    * @throws EntityEncodingException is there is failure encoding the output
+    * @throws IllegalStateException for all other failures
     */
    public void formatAndOutputEntity(String reference, String format, List<?> entities, OutputStream output, Map<String, Object> params);
 
@@ -310,8 +313,10 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     * you may assume this is UTF-8 encoded if you don't know anything else about it
     * @param params (optional) set of parameters which may be used to control this request, may be left null if not needed
     * @return an entity object of the type used for the given reference
-    * @throws IllegalArgumentException if the entity does not support input translation or any arguments are invalid
-    * @throws EncodingException is there is failure encoding the input
+    * @throws FormatUnsupportedException if entity cannot handle this format type
+    * @throws IllegalArgumentException if any of the arguments are invalid
+    * @throws EntityEncodingException is there is failure translating the input
+    * @throws IllegalStateException for all other failures
     */
    public Object translateInputToEntity(String reference, String format, InputStream input, Map<String, Object> params);
 

@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
+import org.sakaiproject.entitybroker.mocks.data.TestData;
 
 
 /**
@@ -37,28 +38,24 @@ import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 @SuppressWarnings("deprecation")
 public class HttpServletAccessProviderManagerMock implements HttpServletAccessProviderManager {
 
-   public Set<String> invalidPrefixes = new HashSet<String>();
+   public Set<String> validPrefixes = new HashSet<String>();
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager#getProvider(java.lang.String)
-    */
-   public HttpServletAccessProvider getProvider(String prefix) {
-      if (invalidPrefixes.contains(prefix)) {         
-         return null;
-      }
-      return new HttpServletAccessProviderMock();
+   public HttpServletAccessProviderManagerMock() {
+      validPrefixes.add(TestData.PREFIX5);
+      validPrefixes.add(TestData.PREFIX7);
    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager#registerProvider(java.lang.String, org.sakaiproject.entitybroker.access.HttpServletAccessProvider)
-    */
+   public HttpServletAccessProvider getProvider(String prefix) {
+      if (validPrefixes.contains(prefix)) {         
+         return new HttpServletAccessProviderMock(prefix);
+      }
+      return null;
+   }
+
    public void registerProvider(String prefix, HttpServletAccessProvider provider) {
       // Okey dokey, do nothing
    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager#unregisterProvider(java.lang.String, org.sakaiproject.entitybroker.access.HttpServletAccessProvider)
-    */
    public void unregisterProvider(String prefix, HttpServletAccessProvider provider) {
       // Okey dokey, do nothing
    }

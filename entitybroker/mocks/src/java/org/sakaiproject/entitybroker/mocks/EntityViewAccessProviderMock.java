@@ -41,6 +41,11 @@ import org.springframework.mock.web.MockHttpServletResponse;
  */
 public class EntityViewAccessProviderMock implements EntityViewAccessProvider, AccessFormats {
 
+   private String prefix = null;
+   public EntityViewAccessProviderMock(String prefix) {
+      this.prefix = prefix;
+   }
+
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.access.EntityViewAccessProvider#handleAccess(org.sakaiproject.entitybroker.EntityView, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
     */
@@ -49,7 +54,7 @@ public class EntityViewAccessProviderMock implements EntityViewAccessProvider, A
       if (format.equals(Formats.HTML) || format.equals(Formats.RSS)) {
          // Okey dokey, do nothing but say all is well
          try {
-            res.getWriter().print("EntityViewAccessProviderMock");
+            res.getWriter().print(prefix + ": EntityViewAccessProviderMock");
          } catch (IOException e) {
             // nothing to do here
          }

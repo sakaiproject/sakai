@@ -27,6 +27,7 @@ import java.util.Map;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 
 /**
@@ -61,6 +62,7 @@ public interface OutputFormattable extends Outputable {
     * @param output the output stream to place the formatted data in,
     * should be UTF-8 encoded if there is char data
     * @throws FormatUnsupportedException if you do not handle this format type (passes control to the internal handlers)
+    * @throws EntityEncodingException if you cannot format the entity data for some reason
     * @throws IllegalArgumentException if any of the arguments are invalid
     * @throws IllegalStateException for all other failures
     */

@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * EncodingException.java - entity-broker - Apr 30, 2008 5:33:26 PM - azeckoski
+ * EntityEncodingException.java - entity-broker - Apr 30, 2008 5:33:26 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
  * Licensed under the Educational Community License version 1.0

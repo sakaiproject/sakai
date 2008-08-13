@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 
 /**
@@ -51,6 +52,7 @@ public interface InputTranslatable extends Inputable {
     * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @return an entity object of the type used for these entities
     * @throws FormatUnsupportedException if you do not handle this format type (passes control to the internal handlers)
+    * @throws EntityEncodingException if you cannot encode the received data into an entity
     * @throws IllegalArgumentException if any of the arguments are invalid
     * @throws IllegalStateException for all other failures
     */

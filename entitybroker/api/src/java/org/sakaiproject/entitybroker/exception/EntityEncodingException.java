@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * EncodingException.java - entity-broker - Apr 30, 2008 5:33:26 PM - azeckoski
+ * EntityEncodingException.java - entity-broker - Apr 30, 2008 5:33:26 PM - azeckoski
  **************************************************************************
  * Copyright 2008 Sakai Foundation
  *
@@ -22,20 +22,20 @@ package org.sakaiproject.entitybroker.exception;
 
 
 /**
- * Throw to indicate that there was a failure during encoding an entity or related data
+ * Throw to indicate that there was a failure during encoding/decoding an entity or related data
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class EncodingException extends RuntimeException {
+public class EntityEncodingException extends RuntimeException {
 
    String entityReference;
 
-   public EncodingException(String message, String entityReference) {
+   public EntityEncodingException(String message, String entityReference) {
       super(message);
       this.entityReference = entityReference;
    }
 
-   public EncodingException(String message, String entityReference, Throwable cause) {
+   public EntityEncodingException(String message, String entityReference, Throwable cause) {
       super(message, cause);
       this.entityReference = entityReference;
    }

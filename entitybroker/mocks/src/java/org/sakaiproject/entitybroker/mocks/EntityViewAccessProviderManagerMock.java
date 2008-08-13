@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
+import org.sakaiproject.entitybroker.mocks.data.TestData;
 
 
 /**
@@ -36,13 +37,18 @@ import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
  */
 public class EntityViewAccessProviderManagerMock implements EntityViewAccessProviderManager {
 
-   public Set<String> invalidPrefixes = new HashSet<String>();
+   public Set<String> validPrefixes = new HashSet<String>();
+
+   public EntityViewAccessProviderManagerMock() {
+      validPrefixes.add(TestData.PREFIX8);
+      validPrefixes.add(TestData.PREFIXA);
+   }
 
    public EntityViewAccessProvider getProvider(String prefix) {
-      if (invalidPrefixes.contains(prefix)) {         
-         return null;
+      if (validPrefixes.contains(prefix)) {         
+         return new EntityViewAccessProviderMock(prefix);
       }
-      return new EntityViewAccessProviderMock();
+      return null;
    }
 
    public void registerProvider(String prefix, EntityViewAccessProvider provider) {

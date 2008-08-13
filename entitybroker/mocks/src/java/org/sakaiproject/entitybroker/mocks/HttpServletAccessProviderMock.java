@@ -39,13 +39,18 @@ import org.springframework.mock.web.MockHttpServletResponse;
 @SuppressWarnings("deprecation")
 public class HttpServletAccessProviderMock implements HttpServletAccessProvider {
 
+   private String prefix = null;
+   public HttpServletAccessProviderMock(String prefix) {
+      this.prefix = prefix;
+   }
+
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.access.HttpServletAccessProvider#handleAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.entitybroker.EntityReference)
     */
    public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
       // Okey dokey, do nothing but say all is well
       try {
-         res.getWriter().print("HttpServletAccessProviderMock");
+         res.getWriter().print(prefix + ": HttpServletAccessProviderMock");
       } catch (IOException e) {
          // nothing to do here
       }

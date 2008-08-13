@@ -63,6 +63,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
@@ -437,7 +438,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                        }
                                        if (!handled) {
                                           // handle internally or fail
-                                          entityEncodingManager.internalOutputFormatter(view.getEntityReference(), format, entities, outputStream, view, null);
+                                          entityEncodingManager.internalOutputFormatter(view.getEntityReference(), format, entities, null, outputStream, view);
                                        }
                                        handled = true;
                                        res.setStatus(HttpServletResponse.SC_OK);
@@ -534,14 +535,19 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                         } catch (FormatUnsupportedException e) {
                            // this format could not be handled internally so we will pass it to the access provider, nothing else to do here
                            handled = false;
+                        } catch (EntityEncodingException e) {
+                           // translate EEE into EE - internal server error
+                           throw new EntityException("EntityEncodingException: Unable to handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
+                                 + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + "): " + e.getMessage(),
+                                 view.getEntityReference()+"", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);        
                         } catch (IllegalArgumentException e) {
                            // translate IAE into EE - bad request
-                           throw new EntityException("Internal Handler: IllegalArgumentException: Unable to handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
+                           throw new EntityException("IllegalArgumentException: Unable to handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
                                  + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + "): " + e.getMessage(),
                                  view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);        
                         } catch (IllegalStateException e) {
                            // translate ISE into EE - internal server error
-                           throw new EntityException("Internal Handler: IllegalStateException: Unable to handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
+                           throw new EntityException("IllegalStateException: Unable to handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
                                  + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + "): " + e.getMessage(),
                                  view.getEntityReference()+"", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         }
