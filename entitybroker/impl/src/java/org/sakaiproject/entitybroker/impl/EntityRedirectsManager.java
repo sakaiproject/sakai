@@ -90,6 +90,7 @@ public class EntityRedirectsManager {
                // TODO should this be a warning instead?
                throw new IllegalStateException("Failed to find a matching redirect for the matched template ("+processedTemplate.template+") for the incoming URL ("+incomingURL+")");
             } else {
+               // handle the redirect
                Map<String, String> segmentValues = new HashMap<String, String>( processedTemplate.segmentValues );
                // add in the prefix and the extension so they can be referenced as variables
                segmentValues.put(TemplateParseUtil.PREFIX, prefix);
