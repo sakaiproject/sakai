@@ -45,7 +45,7 @@
     			        <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
     		        </h:commandLink>
     		        <h:outputText value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msg}" rendered="#{topic.totalNoMessages < 2}" styleClass="textPanelFooter"/>
-	    		      <h:outputText value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs}" rendered="#{topic.totalNoMessages > 1}" styleClass="textPanelFooter"/>
+	    		      <h:outputText value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.pvt_lowercase_msgs}" rendered="#{topic.totalNoMessages > 1}" styleClass="textPanelFooter"/>
     		        <h:outputText value=" - #{topic.unreadNoMessages} #{msgs.pvt_unread}" rendered="#{topic.topic.title == 'pvt_received'}" styleClass="textPanelFooter"/>
     		        <h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
     	        </h:panelGroup>
