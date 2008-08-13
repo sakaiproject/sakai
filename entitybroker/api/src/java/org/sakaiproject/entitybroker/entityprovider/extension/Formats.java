@@ -85,4 +85,11 @@ public interface Formats {
     */
    public static final String UTF_8 = "UTF-8";
 
+   /**
+    * the array of all the known formats in this file
+    */
+   public static String[] ALL_KNOWN_FORMATS = new String[] {
+      HTML, XML, JSON, TXT, RSS, ATOM
+   };
+
 }

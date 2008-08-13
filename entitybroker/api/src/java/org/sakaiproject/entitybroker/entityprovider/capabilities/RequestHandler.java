@@ -27,8 +27,9 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * Indicates that this entity provider will handle its own entity view requests,
  * this would be very unusual but it allows the entity provider itself to redirect
  * requests to a tool and normally would be used if there is some special circumstance only<br/>
- * This will be called before any other request handling and before the access provider
+ * <b>WARNING:</b> This will be called before any other request handling and before the access provider
  * is called and will cause all other processing to be skipped (includes REST calls, custom actions, formatting, etc.)<br/>
+ * <br/>
  * <b>NOTE:</b> if you want to stop certain requests from coming through then
  * a better option is to use {@link RequestInterceptor} which is triggered
  * just before this would be called

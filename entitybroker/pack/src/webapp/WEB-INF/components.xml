@@ -164,6 +164,10 @@
             ref="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
         <property name="entityProviderManager"
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+        <property name="entityViewAccessProviderManager"
+            ref="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager" />
+        <property name="httpServletAccessProviderManager"
+            ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.impl.EntityEncodingManager"

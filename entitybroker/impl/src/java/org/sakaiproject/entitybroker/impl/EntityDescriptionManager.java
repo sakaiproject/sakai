@@ -29,6 +29,11 @@ import java.util.Map;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.access.AccessFormats;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
+import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
+import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
@@ -53,6 +58,7 @@ import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@SuppressWarnings("deprecation")
 public class EntityDescriptionManager {
 
    private static final String FIELD_KEY_PREFIX = "field.";
@@ -73,7 +79,18 @@ public class EntityDescriptionManager {
    "<body>\n";
    protected static final String XHTML_FOOTER = "\n</body>\n</html>\n";
 
-   
+   private EntityViewAccessProviderManager entityViewAccessProviderManager;
+   public void setEntityViewAccessProviderManager(
+         EntityViewAccessProviderManager entityViewAccessProviderManager) {
+      this.entityViewAccessProviderManager = entityViewAccessProviderManager;
+   }
+
+   private HttpServletAccessProviderManager httpServletAccessProviderManager;
+   public void setHttpServletAccessProviderManager(
+         HttpServletAccessProviderManager httpServletAccessProviderManager) {
+      this.httpServletAccessProviderManager = httpServletAccessProviderManager;
+   }
+
    private EntityProviderManager entityProviderManager;
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
       this.entityProviderManager = entityProviderManager;
@@ -242,19 +259,63 @@ public class EntityDescriptionManager {
                   sb.append("      </customActions>\n");               
                }
             }
+
+            // Data and request handling
             // Formats
             String[] outputFormats = getFormats(prefix, true);
             sb.append("      <outputFormats>\n");
-            for (int i = 0; i < outputFormats.length; i++) {
-               sb.append("        <format>"+outputFormats[i]+"</format>\n");               
+            if (outputFormats != null) {
+               if (outputFormats.length == 0) {
+                  sb.append("        <format>*</format>\n");
+               } else {
+                  for (int i = 0; i < outputFormats.length; i++) {
+                     sb.append("        <format>"+outputFormats[i]+"</format>\n");
+                  }
+               }
             }
-            sb.append("      </outputFormats>\n");
+            sb.append("       </outputFormats>\n");
+
             String[] inputFormats = getFormats(prefix, false);
             sb.append("      <inputFormats>\n");
-            for (int i = 0; i < inputFormats.length; i++) {
-               sb.append("        <format>"+inputFormats[i]+"</format>\n");               
+            if (outputFormats != null) {
+               if (outputFormats.length == 0) {
+                  sb.append("        <format>*</format>\n");
+               } else {
+                  for (int i = 0; i < inputFormats.length; i++) {
+                     sb.append("        <format>"+inputFormats[i]+"</format>\n");
+                  }
+               }
             }
-            sb.append("      </inputFormats>\n");
+            sb.append("       </inputFormats>\n");
+
+            EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
+            HttpServletAccessProvider hsap = httpServletAccessProviderManager.getProvider(prefix);
+            if (evap != null || hsap != null) {
+               sb.append("      <accessProvider>\n");
+               if (evap != null) {
+                  sb.append("        <type>" + EntityViewAccessProvider.class.getSimpleName() + "</type>\n");
+                  sb.append("        <implementor>" + evap.getClass().getName() + "</implementor>\n");
+                  if (AccessFormats.class.isAssignableFrom(evap.getClass())) {
+                     String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
+                     sb.append("        <accessFormats>\n");
+                     if (accessFormats != null) {
+                        if (accessFormats.length == 0) {
+                           sb.append("          <format>*</format>\n");
+                        } else {
+                           for (int i = 0; i < accessFormats.length; i++) {
+                              sb.append("          <format>"+accessFormats[i]+"</format>\n");
+                           }
+                        }
+                     }
+                     sb.append("        </accessFormats>\n");
+                  }
+               } else {
+                  sb.append("        <type>" + HttpServletAccessProvider.class.getSimpleName() + "</type>\n");
+                  sb.append("        <implementor>" + hsap.getClass().getName() + "</implementor>\n");
+               }
+               sb.append("      </accessProvider>\n");
+            }
+
             // Resolvable Entity Info
             Object entity = getSampleEntityObject(prefix);
             if (entity != null) {
@@ -331,12 +392,13 @@ public class EntityDescriptionManager {
          }
          if (extra) {
             sb.append("      <div style='font-style: italics; padding-left:1em;'>" +
-                  "RESTful URLs: <a href='http://microformats.org/wiki/rest/urls'>http://microformats.org/wiki/rest/urls</a></div>\n");
+            "RESTful URLs: <a href='http://microformats.org/wiki/rest/urls'>http://microformats.org/wiki/rest/urls</a></div>\n");
             String[] outputFormats = getFormats(prefix, true);
+
             // URLs
             EntityView ev = entityBrokerManager.makeEntityView(new EntityReference(prefix, id), null, null);
             String url = "";
-            sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.sample.urls", locale)
+            sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.sample.urls", locale)
                   +" (_id='"+id+"') ["
                   +entityProperties.getProperty(DESCRIBE, "describe.entity.may.be.invalid", locale)+"]:</h4>\n");
             sb.append("        <ul>\n");
@@ -361,10 +423,11 @@ public class EntityDescriptionManager {
                sb.append("          <li>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)+": <a href='"+ directUrl+url +"'>"+url+"<a/></li>\n");
             }
             sb.append("        </ul>\n");
+
             // Custom Actions
             List<CustomAction> customActions = entityActionsManager.getCustomActions(prefix);
             if (! customActions.isEmpty()) {
-               sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.custom.actions", locale)+"</h4>\n");
+               sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.custom.actions", locale)+"</h4>\n");
                sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
                for (CustomAction customAction : customActions) {
                   sb.append("        <div>\n");
@@ -378,14 +441,35 @@ public class EntityDescriptionManager {
                }
                sb.append("      </div>\n");
             }
-            // Formats
-            sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.output.formats", locale)+" : "+ makeFormatsString(outputFormats) +"</h4>\n");
+
+            // Data Handling
+            sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.data.handling", locale)+"</h4>\n");
+            sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
+            sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.formats.output", locale)+" : "
+                  + makeFormatsString(outputFormats, EntityEncodingManager.HANDLED_OUTPUT_FORMATS, locale) +"</div>\n");
             String[] inputFormats = getFormats(prefix, false);
-            sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.input.formats", locale)+" : "+ makeFormatsString(inputFormats) +"</h4>\n");
+            sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.formats.input", locale)+" : "
+                  + makeFormatsString(inputFormats, EntityEncodingManager.HANDLED_INPUT_FORMATS, locale) +"</div>\n");
+            EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
+            if (evap != null) {
+               sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.data.access.provider", locale)+" : "+ EntityViewAccessProvider.class.getSimpleName() +"</div>\n");
+               if (AccessFormats.class.isAssignableFrom(evap.getClass())) {
+                  String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
+                  sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.formats.access", locale)+" : "
+                        + makeFormatsString(accessFormats, null, locale) +"</div>\n");
+               }
+               sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.data.access.provider", locale)+" : "+ EntityViewAccessProvider.class.getSimpleName() +"</div>\n");
+            } else if (httpServletAccessProviderManager.getProvider(prefix) != null) {
+               sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.data.access.provider", locale)+" : "+ HttpServletAccessProvider.class.getSimpleName() +"</div>\n");
+            } else {
+               sb.append("        <div style='font-style:italic;padding-left:1em'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.data.access.provider.none", locale) +"</div>\n");
+            }
+            sb.append("      </div>\n");
+
             // Resolvable Entity Info
             Object entity = getSampleEntityObject(prefix);
             if (entity != null) {
-               sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entity.getClass().getName() +"</h4>\n");
+               sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entity.getClass().getName() +"</h4>\n");
                sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
                Map<String, Class<?>> entityTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass());
                ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
@@ -404,10 +488,11 @@ public class EntityDescriptionManager {
                }
                sb.append("      </div>\n");
             }
+
             // Redirects
             List<URLRedirect> redirects = entityRedirectsManager.getURLRedirects(prefix);
             if (! redirects.isEmpty()) {
-               sb.append("      <h4 style='padding-left:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.url.redirects", locale)+"</h4>\n");
+               sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.url.redirects", locale)+"</h4>\n");
                sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
                for (int i = 0; i < redirects.size(); i++) {
                   URLRedirect redirect = redirects.get(i);
@@ -428,7 +513,8 @@ public class EntityDescriptionManager {
                sb.append("      </div>\n");
             }
          }
-         // now capabilities
+
+         // Capabilities
          sb.append("      <div style='font-size:1.1em; font-weight:bold; font-style:italic; padding-left:0.5em;'>"
                +entityProperties.getProperty(DESCRIBE, "describe.capabilities", locale)+": "+caps.size()+"</div>\n");
          sb.append("      <table width='95%' style='padding-left:1.5em;'>\n");
@@ -512,8 +598,11 @@ public class EntityDescriptionManager {
       return togo;
    }
 
+   /**
+    * @return all the format extensions handled by this, null if none handled, empty if all
+    */
    protected String[] getFormats(String prefix, boolean output) {
-      String[] formats;
+      String[] formats = null;
       try {
          if (output) {
             formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats();
@@ -521,10 +610,26 @@ public class EntityDescriptionManager {
             formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats();
          }
       } catch (NullPointerException e) {
-         formats = new String[] {};
+         formats = null;
       }
-      if (formats == null) {
-         formats = new String[] {};
+      EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
+      if (evap != null) {
+         if (AccessFormats.class.isAssignableFrom(evap.getClass())) {
+            String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
+            if (accessFormats != null) {
+               if (accessFormats.length > 0) {
+                  if (formats == null) {
+                     formats = accessFormats;
+                  } else {
+                     for (int i = 0; i < accessFormats.length; i++) {
+                        if (! ReflectUtil.contains(formats, accessFormats[i])) {
+                           ReflectUtil.appendArray(formats, accessFormats[i]);
+                        }
+                     }
+                  }
+               }
+            }
+         }
       }
       return formats;
    }
@@ -539,16 +644,40 @@ public class EntityDescriptionManager {
       return sb.toString();
    }
 
-   protected String makeFormatsString(String[] formats) {
-      String s = ReflectUtil.arrayToString( formats );
-      if ("".equals(s)) {
-         s = "<i>NONE</i>";
+   protected String makeFormatsString(String[] formats, String[] extraFormats, Locale locale) {
+      String s = "";
+      if (formats == null) {
+         s = "<i>"+entityProperties.getProperty(DESCRIBE, "describe.entity.formats.none", locale)+"</i>";
+      } else if (formats.length == 0) {
+         // all
+         String all = "*";
+         if (extraFormats != null && extraFormats.length > 0) {
+            all = makeArrayIntoString(formats) + ",*";
+         }
+         s = "<i>" + entityProperties.getProperty(DESCRIBE, "describe.entity.formats.all", locale) + " (" + all + ")</i>";
+      } else {
+         s = makeArrayIntoString( formats );
       }
       return s;
    }
 
    protected String makeFormatUrlHtml(String url, String format) {
       return " (<a href='"+url+"."+format+"'>"+format+"</a>)";
+   }
+
+   protected String makeArrayIntoString(Object[] array) {
+      StringBuilder result = new StringBuilder();
+      if (array != null && array.length > 0) {
+         for (int i = 0; i < array.length; i++) {
+            if (i > 0) {
+               result.append(", ");
+            }
+            if (array[i] != null) {
+               result.append(array[i].toString());
+            }
+         }
+      }
+      return result.toString();
    }
 
    /**

@@ -27,12 +27,16 @@ import java.util.Map;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 
 /**
  * Allows this entity to define the output data format for a reference
  * or a list of entity objects depending on the format requested,
  * if you just want to use the internal methods to handle formatting the output
- * then simply use {@link Outputable}
+ * then simply use {@link Outputable}<br/>
+ * NOTE: throwing {@link FormatUnsupportedException} will pass control over to the internal
+ * handlers for formatting, if you want to stop the request for this format type entirely then
+ * throw an {@link IllegalStateException} and the processing will be halted
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
@@ -56,6 +60,9 @@ public interface OutputFormattable extends Outputable {
     * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
     * @param output the output stream to place the formatted data in,
     * should be UTF-8 encoded if there is char data
+    * @throws FormatUnsupportedException if you do not handle this format type (passes control to the internal handlers)
+    * @throws IllegalArgumentException if any of the arguments are invalid
+    * @throws IllegalStateException for all other failures
     */
    public void formatOutput(EntityReference ref, String format, List<EntityData> entities, Map<String, Object> params, OutputStream output);
 

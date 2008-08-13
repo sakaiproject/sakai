@@ -867,7 +867,7 @@ public class EntityHandlerImplTest extends TestCase {
       req = new MockEBHttpServletRequest("GET", TestData.SPACEU1 + "/123/AZ/go");
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
-      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertEquals(HttpServletResponse.SC_MOVED_TEMPORARILY, res.getStatus()); // redirect
       assertNotNull(res.getOutputStream());
       redirectURL = res.getRedirectedUrl();
       forwardURL = res.getForwardedUrl();
@@ -878,7 +878,7 @@ public class EntityHandlerImplTest extends TestCase {
       req = new MockEBHttpServletRequest("GET", TestData.SPACEU1 + "/xml/123");
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
-      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus()); // forward
       assertNotNull(res.getOutputStream());
       redirectURL = res.getRedirectedUrl();
       forwardURL = res.getForwardedUrl();
@@ -890,7 +890,7 @@ public class EntityHandlerImplTest extends TestCase {
       req = new MockEBHttpServletRequest("GET", TestData.SPACEU1 + "/going/nowhere");
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
-      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus()); // forward
       assertNotNull(res.getOutputStream());
       redirectURL = res.getRedirectedUrl();
       forwardURL = res.getForwardedUrl();

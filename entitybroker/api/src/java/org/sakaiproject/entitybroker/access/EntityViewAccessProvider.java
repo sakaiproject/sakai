@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 
 /**
  * Represents a bean which is capable of handling access for an {@link EntityView},
@@ -37,6 +38,8 @@ import org.sakaiproject.entitybroker.exception.EntityException;
  * If the implementation throws a {@link SecurityException} during the course of this method, the
  * access will be directed to a login page or authentication method before being redirected back to
  * the implementation method<br/>
+ * If you want to control the requests which make it through to this by format type you can
+ * optionally implement {@link AccessFormats}
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
@@ -49,12 +52,15 @@ public interface EntityViewAccessProvider {
     * and use the response to hold the output you generate<br/>
     * <br/>
     * <b>NOTE:</b> If you decide that you cannot handle this access request for any reason 
-    * you can either throw an {@link Exception} (or an {@link EntityException} if you want to specify why) 
-    * to kill the request entirely
+    * you can either throw an {@link EntityException} to specify why OR throw a general {@link Exception}, 
+    * both will kill the request entirely but the general exception will pass through the system
+    * while the {@link EntityException} will produce a handled result
     * 
     * @param view an entity view, should contain all the information related to the incoming entity URL
     * @param req the servlet request (available in case you need to get anything out of it)
     * @param res the servlet response, put the correct data response into the outputstream
+    * @throws FormatUnsupportedException if the format requested in the view is not supported
+    * @throws EntityException if there is a request processing/handling failure
     */
    public void handleAccess(EntityView view, HttpServletRequest req, HttpServletResponse res);
 

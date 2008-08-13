@@ -1163,7 +1163,7 @@ public class ReflectUtil {
     */
    public static <T> boolean contains(T[] array, T value) {
       boolean foundValue = false;
-      if (value != null) {
+      if (array != null && value != null) {
          for (int i = 0; i < array.length; i++) {
             if (value.equals(array[i])) {
                foundValue = true;
@@ -1172,6 +1172,22 @@ public class ReflectUtil {
          }
       }
       return foundValue;
+   }
+
+   /**
+    * Append an item to the end of an array and return the new array
+    * 
+    * @param array an array of items
+    * @param value the item to append to the end of the new array
+    * @return a new array with value in the last spot
+    */
+   @SuppressWarnings("unchecked")
+   public static <T> T[] appendArray(T[] array, T value) {
+      Class<?> type = array.getClass().getComponentType();
+      T[] newArray = (T[]) Array.newInstance(type, array.length + 1);
+      System.arraycopy( array, 0, newArray, 0, array.length );
+      newArray[newArray.length-1] = value;
+      return newArray;
    }
 
    /**

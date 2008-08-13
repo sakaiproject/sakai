@@ -113,6 +113,8 @@ public class ServiceTestManager {
       entityDescriptionManager.setEntityProperties( entityPropertiesService );
       entityDescriptionManager.setEntityActionsManager( entityActionsManager );
       entityDescriptionManager.setEntityRedirectsManager(entityRedirectsManager);
+      entityDescriptionManager.setEntityViewAccessProviderManager(entityViewAccessProviderManager);
+      entityDescriptionManager.setHttpServletAccessProviderManager(httpServletAccessProviderManager);
 
       entityEncodingManager = new EntityEncodingManager();
       entityEncodingManager.setEntityProviderManager( entityProviderManager );

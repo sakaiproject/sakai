@@ -443,7 +443,8 @@ public class EntityBrokerManager {
 
    /**
     * Add in the extra meta data (URL, title, etc.) to all entity data objects,
-    * handles it as efficiently as possible without remaking an entity view on every call
+    * handles it as efficiently as possible without remaking an entity view on every call,
+    * this is fail safe (i.e. it should throw no exceptions)
     * 
     * @param data a list of entity data
     */
@@ -455,7 +456,8 @@ public class EntityBrokerManager {
 
    /**
     * Add in the extra meta data (URL, title, etc.) to all entity data objects,
-    * handles it as efficiently as possible without remaking an entity view on every call
+    * handles it as efficiently as possible without remaking an entity view on every call,
+    * this is fail safe (i.e. it should throw no exceptions)
     * 
     * @param data a list of entity data
     */

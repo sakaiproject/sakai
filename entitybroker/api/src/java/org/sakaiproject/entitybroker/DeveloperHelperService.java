@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
@@ -71,7 +70,7 @@ public interface DeveloperHelperService {
     * can be null to determine the key automatically
     * @param extension the optional extension to add to the end 
     * which defines the expected data which is returned,
-    * use constants in {@link Outputable} (e.g. {@link Outputable#XML}),
+    * use constants in {@link Formats} (e.g. {@link Formats#XML}),
     * can be null to use no extension,  default is assumed to be html if none is set
     * @return the full URL string to a specific entity or space,
     * (e.g. http://server/direct/prefix/id)

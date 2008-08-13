@@ -114,6 +114,7 @@ public class RequestUtils {
             throw new RuntimeException("Failure with encoding while forwarding to '"+redirectURL+"': " + e.getMessage(), e);
          }
       } else {
+         res.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
          try {
             res.sendRedirect(redirectURL);
          } catch (IOException e) {

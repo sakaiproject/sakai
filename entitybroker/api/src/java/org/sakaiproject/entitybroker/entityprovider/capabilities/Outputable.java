@@ -42,11 +42,14 @@ public interface Outputable extends EntityProvider, Formats {
     * Defines the output format types (extensions) handled by this provider<br/>
     * <b>NOTE:</b> In the case of an entity view the extension 
     * which goes on the end of an entity URL (after a ".") indicates the return type<br/>
-    * <b>WARNING:</b> not including {@link #HTML} in the return will stop all redirects to the access providers
-    * and therefore will cause HTML requests for entities to go nowhere
+    * <b>WARNING:</b> This combines with the access interface when http requests are
+    * being processed, all requests will pass through to the {@link EntityViewAccessProvider}
+    * if they are not handled
     * 
-    * @return an array containing the extension formats (from {@link Formats}) handled,
-    * use the constants (example: {@link #HTML}) or feel free to make up your own if you like
+    * @return an array containing the extension formats (from {@link Formats}) handled <br/>
+    * OR empty array to indicate all are handled (note that the internal formatter will throw exceptions when it cannot handle a type) <br/>
+    * OR null to indicate none are handled (same as not implementing {@link AccessFormats}) <br/>
+    * NOTE: use the constants (example: {@link #HTML}) or feel free to make up your own if you like
     */
    public String[] getHandledOutputFormats();
 

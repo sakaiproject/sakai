@@ -39,6 +39,7 @@ import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.access.AccessFormats;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
@@ -63,6 +64,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.impl.util.RequestUtils;
@@ -96,7 +98,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
    private static final String HEADER_CACHE_CONTROL = "Cache-Control";
 
-   protected static final String DIRECT = "/direct";
+   protected static final String DIRECT = TemplateParseUtil.DIRECT_PREFIX;
 
    private static Log log = LogFactory.getLog(EntityHandlerImpl.class);
 
@@ -166,19 +168,22 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
       String handledReference = null;
 
-      // special handling for empty path
       if (path == null || "".equals(path) || "/".equals(path)) {
+         // SPECIAL handling for empty path
+         res.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
          try {
             res.sendRedirect( res.encodeRedirectURL(DIRECT + SLASH_DESCRIBE) );
          } catch (IOException e) {
-            // this is not going to ever happen
+            // should never happen
             throw new RuntimeException("Could not encode the redirect URL");
          }
+         // immediate exit from redirect
+         return "/";
       } else {
          // regular handling for direct URLs
          if ( (SLASH_DESCRIBE).equals(path) 
                || path.startsWith(SLASH_DESCRIBE + EntityReference.PERIOD)) {
-            // handling for the describe all URL
+            // SPECIAL handling for the describe all URL
             String format = TemplateParseUtil.findExtension(path)[2];
             if (format == null) {
                format = Formats.HTML;
@@ -189,26 +194,27 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             try {
                res.getWriter().write(output);
             } catch (IOException e) {
+               // should never happen
                throw new RuntimeException("Failed to put output into the response writer: " + e.getMessage(), e);
             }
             res.setStatus(HttpServletResponse.SC_OK);
             handledReference = EntityView.SEPARATOR+"";
          } else {
-
+            // STANDARD processing for the incoming view
             EntityView view;
             try {
                view = entityBrokerManager.parseEntityURL(path);
             } catch (IllegalArgumentException e) {
-               // indicates we could not parse the reference
+               // FAILURE indicates we could not parse the reference
                throw new EntityException("Could not parse entity path ("+path+"): " + e.getMessage(), path, HttpServletResponse.SC_BAD_REQUEST);
             }
 
             if (view == null) {
-               // no provider for this entity prefix
+               // FAILURE no provider for this entity prefix
                throw new EntityException( "Could not parse the incoming path ("+path+") and no entity provider could be found to handle the prefix", 
                      path, HttpServletResponse.SC_NOT_IMPLEMENTED );
             } else if ( DESCRIBE.equals(view.getEntityReference().getId()) ) {
-               // Special handling for entity describe URLs
+               // SPECIAL handling for entity describe URLs
                String format = TemplateParseUtil.findExtension(path)[2];
                if (format == null) {
                   format = Formats.HTML;
@@ -227,15 +233,18 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                }
                res.setStatus(HttpServletResponse.SC_OK);
                handledReference = view.getEntityReference().getSpaceReference() + SLASH_DESCRIBE;
+
             } else {
-               // reference successfully parsed
+               // STANDARD reference successfully parsed
                String prefix = view.getEntityReference().getPrefix();
 
                // check for redirect
                Redirectable urlConfigurable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Redirectable.class);
                if (urlConfigurable != null) {
+                  // SPECIAL check for redirect
                   String redirectURL = entityRedirectsManager.checkForTemplateMatch(urlConfigurable, path, req.getQueryString());
                   if (redirectURL != null) {
+                     // SPECIAL handling for redirect
                      if ("".equals(redirectURL)) {
                         // do nothing but return an empty response
                         res.setStatus(HttpServletResponse.SC_OK);
@@ -256,7 +265,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                if (customAction == null) {
                   // check to see if the entity exists
                   if (! entityBrokerManager.entityExists(view.getEntityReference()) ) {
-                     // invalid entity reference (entity does not exist)
+                     // FAILURE invalid entity reference (entity does not exist)
                      throw new EntityException( "Attempted to access an entity URL path (" + path + ") for an entity ("
                            + view.getEntityReference() + ") that does not exist", 
                            view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
@@ -269,14 +278,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      view.setEntityReference( new EntityReference(prefix, "") );
                   }
                }
-               res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
+               res.setStatus(HttpServletResponse.SC_OK); // default - other things can switch this later on
 
-               // check for extensions
-               if (view.getExtension() == null) {
-                  view.setExtension(Formats.HTML); // update the view
-               }
-               req.setAttribute("entity-format", view.getExtension());
+               // store format in attribute
+               req.setAttribute("entity-format", view.getFormat());
 
+               // STANDARD initial processing complete
                // wrap in try block so that request storage is always cleaned up
                try {
                   // store the current request and response
@@ -296,27 +303,21 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   // check for provider handling of this request
                   RequestHandler handler = (RequestHandler) entityProviderManager.getProviderByPrefixAndCapability(prefix, RequestHandler.class);
                   if (handler != null) {
-                     // provider is handling this request
+                     // SPECIAL provider is handling this request
                      handleClassLoaderAccess(handler, req, res, view);
                   } else {
-                     // handle the request internally if possible
+                     // STANDARD processing of the entity request internally start here
+                     // try to handle the request internally if possible
 
                      // identify the type of request (input or output) and the action (will be encoded in the viewKey)
                      boolean output = RequestUtils.isRequestOutput(req, view);
                      setResponseHeaders(view, res, null);
 
-                     //String method = req.getMethod() == null ? "GET" : req.getMethod().toUpperCase().trim();
-                     // this fails because the original post gets lost therefore we are giving up on this for now
-                     //                // check to see if the original method value was set
-                     //                if (req.getAttribute(ORIGINAL_METHOD) != null) {
-                     //                method = (String) req.getAttribute(ORIGINAL_METHOD);
-                     //                }
-
                      boolean handled = false;
                      // PROCESS CUSTOM ACTIONS
                      ActionReturn actionReturn = null;
                      if (customAction != null) {
-                        // handle the custom action
+                        // SPECIAL handle the custom action
                         ActionsExecutable actionProvider = entityProviderManager.getProviderByPrefixAndCapability(prefix, ActionsExecutable.class);
                         if (actionProvider == null) {
                            throw new EntityException( "The provider for prefix ("+prefix+") cannot handle custom actions", 
@@ -336,7 +337,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                  view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
                         } catch (UnsupportedOperationException e) {
                            throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Invalid action: " + e.getMessage(), 
-                                 view.getEntityReference()+"", HttpServletResponse.SC_NOT_IMPLEMENTED );
+                                 view.getEntityReference()+"", HttpServletResponse.SC_METHOD_NOT_ALLOWED );
                         }
                         if (actionReturn == null 
                               || actionReturn.output != null) {
@@ -365,18 +366,19 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      if (!handled) {
                         // INTERNAL PROCESSING OF REQUEST
                         try {
+                           String format = view.getFormat();
                            if (output) {
                               // output request
                               Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
                               if (outputable != null) {
-                                 String format = view.getExtension();
                                  if (customAction != null) {
                                     // override format from the custom action
                                     if (actionReturn.format != null) {
                                        format = actionReturn.format;
                                     }
                                  }
-                                 if ( ReflectUtil.contains(outputable.getHandledOutputFormats(), format) ) {
+                                 String[] outputFormats = outputable.getHandledOutputFormats();
+                                 if (outputFormats == null || ReflectUtil.contains(outputFormats, format) ) {
                                     // we are handling this type of format for this entity
                                     RequestUtils.setResponseEncoding(format, res);
 
@@ -404,12 +406,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                        Search search = RequestUtils.makeSearchFromRequest(req);
                                        entities = entityBrokerManager.getEntitiesData(view.getEntityReference(), search, null);
                                     }
-                                    // set the modifed header
-                                    EntityData entity = null;
-                                    if (entities.size() == 1) {
-                                       entity = entities.get(0);
-                                    }
-                                    setLastModifiedHeaders(res, entity, System.currentTimeMillis());
+                                    // set the modifed header (use the sole entity in the list if there is one only)
+                                    setLastModifiedHeaders(res, (entities != null && entities.size()==1 ? entities.get(0) : null), System.currentTimeMillis());
 
                                     if (EntityView.Method.HEAD.name().equals(view.getMethod())) {
                                        // HEADER only
@@ -423,22 +421,32 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                           throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
                                        }
 
-                                       OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
-                                       if (formattable == null) {
-                                          // handle internally or fail
-                                          entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view, null);
-                                       } else {
-                                          // use provider's formatter
-                                          formattable.formatOutput(view.getEntityReference(), view.getExtension(), entities, null, outputStream);
+                                       /* try to use the provider formatter if one available,
+                                        * if it decided not to handle it or none is available then control passes to internal
+                                        */
+                                       try {
+                                          OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
+                                          if (formattable != null) {
+                                             // use provider's formatter
+                                             formattable.formatOutput(view.getEntityReference(), format, entities, null, outputStream);
+                                             handled = true;
+                                          }
+                                       } catch (FormatUnsupportedException e) {
+                                          // provider decided not to handle this format
+                                          handled = false;
                                        }
+                                       if (!handled) {
+                                          // handle internally or fail
+                                          entityEncodingManager.internalOutputFormatter(view.getEntityReference(), format, entities, outputStream, view, null);
+                                       }
+                                       handled = true;
                                        res.setStatus(HttpServletResponse.SC_OK);
                                     }
-                                    handled = true;
                                  } else {
-                                    // will not handle this format type
-                                    throw new EntityException( "Will not handle output request for format  "+view.getExtension()+" for this path (" 
-                                          + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + ")", 
-                                          view.getEntityReference()+"", HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                                    // format type not handled
+                                    throw new FormatUnsupportedException("Outputable restriction for " 
+                                          + prefix + " blocked handling this format ("+format+")",
+                                          view.getEntityReference()+"", format);
                                  }
                               }
                            } else {
@@ -455,7 +463,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                  // save request
                                  Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
                                  if (inputable != null) {
-                                    if ( ReflectUtil.contains(inputable.getHandledInputFormats(), view.getExtension()) ) {
+                                    String[] inputFormats = inputable.getHandledInputFormats();
+                                    if (inputFormats == null || ReflectUtil.contains(inputFormats, format) ) {
                                        // we are handling this type of format for this entity
                                        Object entity = null;
                                        InputStream inputStream = null;
@@ -465,21 +474,35 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                           throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
                                        }
 
-                                       InputTranslatable translatable = (InputTranslatable) entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
-                                       if (translatable == null) {
+                                       /* try to use the provider translator if one available,
+                                        * if it decided not to handle it or none is available then control passes to internal
+                                        */
+                                       try {
+                                          InputTranslatable translatable = (InputTranslatable) entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
+                                          if (translatable != null) {
+                                             // use provider's translator
+                                             entity = translatable.translateFormattedData(view.getEntityReference(), 
+                                                   format, inputStream, null);
+                                             handled = true;
+                                          }
+                                       } catch (FormatUnsupportedException e) {
+                                          // provider decided not to handle this format
+                                          handled = false;
+                                       }
+                                       if (!handled) {
                                           // use internal translators or fail
                                           entity = entityEncodingManager.internalInputTranslator(view.getEntityReference(), 
-                                                view.getExtension(), inputStream, req);
-                                       } else {
-                                          // use provider's translator
-                                          entity = translatable.translateFormattedData(view.getEntityReference(), 
-                                                view.getExtension(), inputStream, null);
+                                                format, inputStream, req);
                                        }
 
                                        if (entity == null) {
-                                          throw new EntityException("Unable to save entity ("+view.getEntityReference()+"), entity object was null", 
+                                          // FAILURE input could not be translated into an entity object
+                                          handled = false;
+                                          throw new EntityException("Unable to save entity ("+view.getEntityReference()+") with format ("
+                                                +format+"), translated entity object was null", 
                                                 view.toString(), HttpServletResponse.SC_BAD_REQUEST);
                                        } else {
+                                          // setup all the headers for the response
                                           if (EntityView.VIEW_NEW.equals(view.getViewKey())) {
                                              String createdId = inputable.createEntity(view.getEntityReference(), entity, null);
                                              view.setEntityReference( new EntityReference(prefix, createdId) ); // update the entity view
@@ -489,6 +512,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                              inputable.updateEntity(view.getEntityReference(), entity, null);
                                              res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                                           } else {
+                                             // FAILURE not delete, edit, or new
                                              throw new EntityException("Unable to handle entity input ("+view.getEntityReference()+"), " +
                                                    "action was not understood: " + view.getViewKey(), 
                                                    view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);
@@ -499,30 +523,39 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                           handled = true;
                                        }
                                     } else {
-                                       // will not handle this format type
-                                       throw new EntityException( "Will not handle input request for format  "+view.getExtension()+" for this path (" 
-                                             + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
-                                             view.getEntityReference()+"", HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                                       // format type not handled
+                                       throw new FormatUnsupportedException("Inputable restriction for " 
+                                             + prefix + " blocked handling this format ("+format+")",
+                                             view.getEntityReference()+"", format);
                                     }
                                  }
                               }
                            }
+                        } catch (FormatUnsupportedException e) {
+                           // this format could not be handled internally so we will pass it to the access provider, nothing else to do here
+                           handled = false;
                         } catch (IllegalArgumentException e) {
                            // translate IAE into EE - bad request
-                           throw new EntityException("IllegalArgumentException: Unable to handle " + (output ? "output" : "input") + " request url ("
-                                 + view.getOriginalEntityUrl()+"), " + e.getMessage(),
+                           throw new EntityException("Internal Handler: IllegalArgumentException: Unable to handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
+                                 + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + "): " + e.getMessage(),
                                  view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);        
                         } catch (IllegalStateException e) {
                            // translate ISE into EE - internal server error
-                           throw new EntityException("IllegalStateException: Unable to handle " + (output ? "output" : "input") + " request url ("
-                                 + view.getOriginalEntityUrl()+"), " + e.getMessage(),
+                           throw new EntityException("Internal Handler: IllegalStateException: Unable to handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
+                                 + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + "): " + e.getMessage(),
                                  view.getEntityReference()+"", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         }
                      }
 
                      if (! handled) {
-                        // default handling, send to the access provider if there is one
-                        handleAccessProvider(view, req, res);
+                        // default handling, send to the access provider if there is one (if none this will throw EntityException)
+                        try {
+                           handleAccessProvider(view, req, res);
+                        } catch (FormatUnsupportedException e) {
+                           throw new EntityException( "AccessProvider: Format unsupported: Will not handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
+                                 + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + ")",
+                                 view.getEntityReference()+"", HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                        }
                      }
                   }
                   handledReference = view.getEntityReference().toString();
@@ -587,7 +620,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          }
          Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
          if (outputable == null) {
-            throw new IllegalArgumentException("This entity ("+ref+") is not Outputable so there is no reason to provide "
+            throw new IllegalArgumentException("This entity ("+ref+") is not AccessFormats so there is no reason to provide "
                   + "a non-null entity, you should leave the entity null when firing requests to this entity");
          } else {
             // handle outputing the entity data
@@ -643,6 +676,14 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             // classloader protection END
          }
       } else {
+         if (AccessFormats.class.isAssignableFrom(evAccessProvider.getClass())) {
+            String[] accessFormats = ((AccessFormats)evAccessProvider).getHandledAccessFormats();
+            if (accessFormats != null && ! ReflectUtil.contains(accessFormats, view.getFormat()) ) {
+               throw new FormatUnsupportedException("Access provider for " + view.getEntityReference().getPrefix() 
+                     + " will not handle this format ("+view.getFormat()+")",
+                     view.getEntityReference()+"", view.getFormat());
+            }
+         }
          handleClassLoaderAccess(evAccessProvider, req, res, view);
       }
    }
@@ -723,7 +764,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       res.setHeader("x-entity-prefix", prefix);
       res.setHeader("x-entity-reference", view.getEntityReference().toString());
       res.setHeader("x-entity-url", view.getEntityURL());
-      res.setHeader("x-entity-format", view.getExtension());
+      res.setHeader("x-entity-format", view.getFormat());
 
       // set Sakai sdata compliant headers
       res.setHeader("x-sdata-handler", provider == null ? EntityBroker.class.getName() : provider.getClass().getName());

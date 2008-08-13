@@ -54,7 +54,7 @@ import com.thoughtworks.xstream.io.xml.XppDomDriver;
 
 /**
  * This handles the internal encoding (translation and formatting) of entity data,
- * this can be used by various parts of the EB system.
+ * this can be used by various parts of the EB system <br/>
  * this is for internal use only currently but may be exposed later
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
@@ -65,6 +65,9 @@ public class EntityEncodingManager {
 
    private static final String ENTITY_PREFIX = "entityPrefix";
    private static final String COLLECTION = "-collection";
+   public static final String[] HANDLED_INPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
+   public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON };
+
 
    private EntityProviderManager entityProviderManager;
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {

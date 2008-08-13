@@ -25,6 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 
 /**
  * Represents a bean which is capable of handling direct HTTP access for an entity.
@@ -50,6 +52,8 @@ public interface HttpServletAccessProvider {
     * @param ref an entity reference
     * @param req the servlet request (available in case you need to get anything out of it)
     * @param res the servlet response, put the correct data response into the outputstream
+    * @throws FormatUnsupportedException if the format requested in the view is not supported
+    * @throws EntityException if there is a request processing/handling failure
     * @deprecated Use {@link EntityViewAccessProvider} instead
     */
    public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref);
