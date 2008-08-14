@@ -18,7 +18,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-impl</artifactId>
-      <version>${sakai.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.sakaiproject</groupId>
