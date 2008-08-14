@@ -27,11 +27,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.tool.api.ContextSession;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * This models a Sakai Session and hopefully provides all the information one might need about a session,
@@ -100,6 +99,7 @@ public class EntitySession implements Session {
       // TODO figure out attributes security
    }
 
+   @EntityId
    public String getId() {
       return id;
    }
@@ -116,6 +116,7 @@ public class EntitySession implements Session {
       this.creationTime = creationTime;
    }
 
+   @EntityLastModified
    public long getLastAccessedTime() {
       return lastAccessedTime;
    }
@@ -180,21 +181,21 @@ public class EntitySession implements Session {
       if (session != null) {
          return session.getAttributeNames();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public ContextSession getContextSession(String arg0) {
       if (session != null) {
          return session.getContextSession(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public ToolSession getToolSession(String arg0) {
       if (session != null) {
          return session.getToolSession(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public void invalidate() {

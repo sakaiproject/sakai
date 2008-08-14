@@ -34,7 +34,11 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntitySummary;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -43,9 +47,6 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 
 /**
  * This is needed to allow RESTful access to the site data
@@ -75,11 +76,14 @@ public class EntitySite implements Site {
    private String type;
    private String providerGroupId;
    private boolean customPageOrdered;
+   private String owner;
+   private long lastModified;
 
    public Map<String, String> props;
+
    public Map<String, String> getProps() {
       if (props == null) {
-         props = new HashMap<String,String>();
+         props = new HashMap<String, String>();
       }
       return props;
    }
@@ -104,7 +108,8 @@ public class EntitySite implements Site {
 
    private transient Site site;
 
-   public EntitySite() {}
+   public EntitySite() {
+   }
 
    public EntitySite(String title, String shortDescription, String description, String iconUrl,
          String iconFullUrl, String infoUrl, String infoUrlFull, boolean joinable,
@@ -126,6 +131,7 @@ public class EntitySite implements Site {
       this.type = type;
       this.providerGroupId = providerGroupId;
       this.customPageOrdered = customPageOrdered;
+      this.lastModified = System.currentTimeMillis();
    }
 
    @SuppressWarnings("unchecked")
@@ -145,6 +151,8 @@ public class EntitySite implements Site {
       this.customPageOrdered = site.isCustomPageOrdered();
       this.maintainRole = site.getMaintainRole();
       this.providerGroupId = site.getProviderGroupId();
+      this.owner = site.getCreatedBy() == null ? null : "/user/" + site.getCreatedBy().getId();
+      this.lastModified = site.getModifiedTime() == null ? System.currentTimeMillis() : site.getModifiedTime().getTime();
       // properties
       ResourceProperties rp = site.getProperties();
       for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
@@ -154,6 +162,38 @@ public class EntitySite implements Site {
       }
    }
 
+
+   @EntityId
+   public String getId() {
+      return id;
+   }
+
+   public void setId(String id) {
+      this.id = id;
+   }
+
+   @EntityOwner
+   public String getOwner() {
+      return owner;
+   }
+   
+   public void setOwner(String owner) {
+      throw new UnsupportedOperationException("Cannot set the owner manually (yet)");
+   }
+
+   @EntityLastModified
+   public long getLastModified() {
+      if (site != null) {
+         this.lastModified = site.getModifiedTime() == null ? lastModified : site.getModifiedTime().getTime();
+      }
+      return lastModified;
+   }
+   
+   public void setLastModified(long lastModified) {
+      throw new UnsupportedOperationException("Cannot set the last modified time manually");
+   }
+   
+   @EntityTitle
    public String getTitle() {
       return title;
    }
@@ -170,6 +210,7 @@ public class EntitySite implements Site {
       this.shortDescription = shortDescription;
    }
 
+   @EntitySummary
    public String getDescription() {
       return description;
    }
@@ -256,56 +297,36 @@ public class EntitySite implements Site {
       this.iconFullUrl = iconFullUrl;
    }
 
-   
    public String getMaintainRole() {
       return maintainRole;
    }
 
-   
    public void setMaintainRole(String maintainRole) {
       this.maintainRole = maintainRole;
    }
 
-   
    public String getProviderGroupId() {
       return providerGroupId;
    }
 
-   
    public void setProviderGroupId(String providerGroupId) {
       this.providerGroupId = providerGroupId;
    }
 
-   
    public boolean isCustomPageOrdered() {
       return customPageOrdered;
    }
 
-   
    public void setCustomPageOrdered(boolean customPageOrdered) {
       this.customPageOrdered = customPageOrdered;
    }
-
-   
-   public String getId() {
-      return id;
-   }
-
-   
-   public void setId(String id) {
-      this.id = id;
-   }
-
-   
    public boolean isPubView() {
       return pubView;
    }
 
-   
    public void setPubView(boolean pubView) {
       this.pubView = pubView;
    }
-
 
    // Site operations
 
@@ -313,189 +334,189 @@ public class EntitySite implements Site {
       if (site != null) {
          return site.addGroup();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public SitePage addPage() {
       if (site != null) {
          return site.addPage();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public User getCreatedBy() {
       if (site != null) {
          return site.getCreatedBy();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Time getCreatedTime() {
       if (site != null) {
          return site.getCreatedTime();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Group getGroup(String arg0) {
       if (site != null) {
          return site.getGroup(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Collection getGroups() {
       if (site != null) {
          return site.getGroups();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Collection getGroupsWithMember(String arg0) {
       if (site != null) {
          return site.getGroupsWithMember(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Collection getGroupsWithMemberHasRole(String arg0, String arg1) {
       if (site != null) {
          return site.getGroupsWithMemberHasRole(arg0, arg1);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public String getIconUrlFull() {
       if (site != null) {
          return site.getIconUrlFull();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public User getModifiedBy() {
       if (site != null) {
          return site.getModifiedBy();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Time getModifiedTime() {
       if (site != null) {
          return site.getModifiedTime();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public List getOrderedPages() {
       if (site != null) {
          return site.getOrderedPages();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public SitePage getPage(String arg0) {
       if (site != null) {
          return site.getPage(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public List getPages() {
       if (site != null) {
          return site.getPages();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public ToolConfiguration getTool(String arg0) {
       if (site != null) {
          return site.getTool(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public ToolConfiguration getToolForCommonId(String arg0) {
       if (site != null) {
          return site.getToolForCommonId(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Collection getTools(String[] arg0) {
       if (site != null) {
          return site.getTools(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Collection getTools(String arg0) {
       if (site != null) {
          return site.getTools(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public boolean hasGroups() {
       if (site != null) {
          return site.hasGroups();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public boolean isType(Object arg0) {
       if (site != null) {
          return site.isType(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public void loadAll() {
       if (site != null) {
          site.loadAll();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public void regenerateIds() {
       if (site != null) {
          site.regenerateIds();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public void removeGroup(Group arg0) {
       if (site != null) {
          site.removeGroup(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public void removePage(SitePage arg0) {
       if (site != null) {
          site.removePage(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public ResourcePropertiesEdit getPropertiesEdit() {
       if (site != null) {
          return site.getPropertiesEdit();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public boolean isActiveEdit() {
       if (site != null) {
          return site.isActiveEdit();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public ResourceProperties getProperties() {
       if (site != null) {
          return site.getProperties();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public String getReference() {
@@ -510,95 +531,119 @@ public class EntitySite implements Site {
       if (site != null) {
          return site.getUrl();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public String getUrl(String arg0) {
       if (site != null) {
          return site.getUrl(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Element toXml(Document arg0, Stack arg1) {
       if (site != null) {
          return site.toXml(arg0, arg1);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public int compareTo(Object o) {
       if (site != null) {
          return site.compareTo(o);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public void addMember(String arg0, String arg1, boolean arg2, boolean arg3) {
       if (site != null) {
-         addMember(arg0, arg1, arg2, arg3);
+         site.addMember(arg0, arg1, arg2, arg3);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Role addRole(String arg0) throws RoleAlreadyDefinedException {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.addRole(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Role addRole(String arg0, Role arg1) throws RoleAlreadyDefinedException {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.addRole(arg0, arg1);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Member getMember(String arg0) {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.getMember(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Set getMembers() {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.getMembers();
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Role getRole(String arg0) {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.getRole(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Set getRoles() {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.getRoles();
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Set getRolesIsAllowed(String arg0) {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.getRolesIsAllowed(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Role getUserRole(String arg0) {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.getUserRole(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Set getUsers() {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.getUsers();
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Set getUsersHasRole(String arg0) {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.getUsersHasRole(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public Set getUsersIsAllowed(String arg0) {
-      // TODO Auto-generated method stub
-      return null;
+      if (site != null) {
+         return site.getUsersIsAllowed(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public boolean hasRole(String arg0, String arg1) {
-      // TODO Auto-generated method stub
-      return false;
+      if (site != null) {
+         return site.hasRole(arg0, arg1);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public boolean isAllowed(String arg0, String arg1) {
@@ -616,28 +661,38 @@ public class EntitySite implements Site {
    }
 
    public boolean keepIntersection(AuthzGroup arg0) {
-      // TODO Auto-generated method stub
-      return false;
+      if (site != null) {
+         return site.keepIntersection(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public void removeMember(String arg0) {
-      // TODO Auto-generated method stub
-      
+      if (site != null) {
+         site.removeMember(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public void removeMembers() {
-      // TODO Auto-generated method stub
-      
+      if (site != null) {
+         site.removeMembers();
+      }
+      throw new UnsupportedOperationException();
    }
 
    public void removeRole(String arg0) {
-      // TODO Auto-generated method stub
-      
+      if (site != null) {
+         site.removeRole(arg0);
+      }
+      throw new UnsupportedOperationException();
    }
 
    public void removeRoles() {
-      // TODO Auto-generated method stub
-      
+      if (site != null) {
+         site.removeRoles();
+      }
+      throw new UnsupportedOperationException();
    }
 
 }

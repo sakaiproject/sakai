@@ -27,12 +27,13 @@ import java.util.Stack;
 
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
@@ -55,6 +56,8 @@ public class EntityUser implements User {
    private String lastName;
    private String displayName;
    private String type;
+   private String owner;
+   private long lastModified;
    public Map<String, String> props;
 
    private transient User user;
@@ -74,7 +77,8 @@ public class EntityUser implements User {
       this.firstName = user.getFirstName();
       this.lastName = user.getLastName();
       this.displayName = user.getDisplayName();
-      this.type = user.getType();
+      this.owner = user.getCreatedBy() == null ? null : "/user/" + user.getCreatedBy().getId();
+      this.lastModified = user.getModifiedTime() == null ? System.currentTimeMillis() : user.getModifiedTime().getTime();
       ResourceProperties rp = user.getProperties();
       for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
          String name = iterator.next();
@@ -108,6 +112,17 @@ public class EntityUser implements User {
       return props.get(key);
    }
 
+   @EntityOwner
+   public String getOwner() {
+      return owner;
+   }
+
+   @EntityLastModified
+   public long getLastModified() {
+      return lastModified;
+   }
+
+   @EntityId
    public String getId() {
       return id;
    }
@@ -148,6 +163,7 @@ public class EntityUser implements User {
       this.lastName = lastName;
    }
 
+   @EntityTitle
    public String getDisplayName() {
       return displayName;
    }
@@ -197,35 +213,35 @@ public class EntityUser implements User {
       if (user != null) {
          return user.getCreatedBy();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Time getCreatedTime() {
       if (user != null) {
          return user.getCreatedTime();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public String getDisplayId() {
       if (user != null) {
          return user.getDisplayId();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public User getModifiedBy() {
       if (user != null) {
          return user.getModifiedBy();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public Time getModifiedTime() {
       if (user != null) {
          return user.getModifiedTime();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public String getSortName() {
@@ -239,7 +255,7 @@ public class EntityUser implements User {
       if (user != null) {
          return user.getProperties();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public String getReference() {
@@ -254,14 +270,14 @@ public class EntityUser implements User {
       if (user != null) {
          return user.getUrl();
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    public String getUrl(String arg0) {
       if (user != null) {
          return user.getUrl(arg0);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    @SuppressWarnings("unchecked")
@@ -269,7 +285,7 @@ public class EntityUser implements User {
       if (user != null) {
          return user.toXml(arg0, arg1);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 
    @SuppressWarnings("unchecked")
@@ -277,6 +293,6 @@ public class EntityUser implements User {
       if (user != null) {
          return user.compareTo(o);
       }
-      throw new NotImplementedException();
+      throw new UnsupportedOperationException();
    }
 }

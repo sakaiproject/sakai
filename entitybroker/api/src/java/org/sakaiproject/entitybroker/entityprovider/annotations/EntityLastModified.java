@@ -27,8 +27,10 @@ import java.lang.annotation.Target;
 import java.util.Date;
 
 /**
- * Marks a getter method or field as the last madified time code (unix time code) for an entity,
+ * Marks a getter method or field as the last modified time code (unix time code) for an entity,
  * this can be a {@link Date}, {@link Long}, long, or {@link String} (will attempt to convert this to a long)<br/>
+ * the convention is to try to convert the return from the 
+ * "getLastModified" method or the value in the "lastModified" field<br/>
  * <b>NOTE:</b> This annotation should only be used once in a class,
  * the getter method must take no arguments and return an object
  * 

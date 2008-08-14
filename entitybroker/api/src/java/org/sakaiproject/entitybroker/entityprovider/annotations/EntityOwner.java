@@ -26,7 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a getter method or field as the user id of the creator/owner of an entity,
+ * Marks a getter method or field as the user ref of the creator/owner of an entity,
  * the convention is to run toString on the return from the 
  * "getOwner" method or the value in the "owner" field<br/>
  * <b>NOTE:</b> This annotation should only be used once in a class,

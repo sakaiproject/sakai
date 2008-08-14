@@ -27,6 +27,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
+ * Makes it easier to write {@link EntityProvider}s in webapps <br/>
  * A class to extend that gets rid of some of the redundant code that has
  * to be written over and over, causes this provider to be registered when it
  * is created and unregistered when it is destroyed, also includes the
