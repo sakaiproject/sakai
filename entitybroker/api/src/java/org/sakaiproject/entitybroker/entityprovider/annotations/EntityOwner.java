@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * EntityCreatedBy.java - entity-broker - Apr 13, 2008 12:17:49 PM - azeckoski
+ * EntityOwner.java - entity-broker - Apr 13, 2008 12:17:49 PM - azeckoski
  **************************************************************************
  * Copyright 2008 Sakai Foundation
  *
@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 /**
  * Marks a getter method or field as the user id of the creator/owner of an entity,
  * the convention is to run toString on the return from the 
- * "getCreatedBy" method or the value in the "createdBy" field<br/>
+ * "getOwner" method or the value in the "owner" field<br/>
  * <b>NOTE:</b> This annotation should only be used once in a class,
  * the getter method must take no arguments and return an object
  * 
@@ -36,4 +36,4 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})
-public @interface EntityCreatedBy { }
+public @interface EntityOwner { }
