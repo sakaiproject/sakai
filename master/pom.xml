@@ -722,7 +722,7 @@ This is not needed now that pluto have been released
       <dependency>
       	<groupId>org.sakaiproject.entitybroker</groupId>
       	<artifactId>entitybroker-api</artifactId>
-      	<version>1.3.3</version>
+      	<version>1.3.4-SNAPSHOT</version>
       	<scope>provided</scope>
       </dependency>
       <dependency>
