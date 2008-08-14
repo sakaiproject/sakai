@@ -43,6 +43,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.site.api.SiteService;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -138,10 +139,29 @@ DefaultView,NavigationCaseReporter {
 		this.voteBean = vb;
 	}
 
+	private TargettedMessageList tml;
+	public void setTargettedMessageList(TargettedMessageList tml) {
+		this.tml = tml;
+	}
+
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker checker) {
 
-
+		
+		  //process any messages
+		if (tml.size() > 0) {
+		    	for (int i = 0; i < tml.size(); i ++ ) {
+		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
+		    		if (tml.messageAt(i).args != null ) {	    		
+		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode(),(String[])tml.messageAt(i).args[0]);
+		    		} else {
+		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode());
+		    		}
+		    		
+		    	}
+			}
+		
+		
 		voteBean.setPoll(null);
 		voteBean.voteCollection = null;
 

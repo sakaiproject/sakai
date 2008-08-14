@@ -4,15 +4,16 @@
 <beans>
 
 
-   <!-- rich text evolver bean def -->
-   <bean id="richTextEvolver" parent="sakaiFCKTextEvolver" />
+	<!-- rich text evolver bean def -->
+	<bean id="richTextEvolver" parent="sakaiFCKTextEvolver" />
 
-  <!-- error prograting bean -->
-   <bean id="allErrorsAllowable" class="org.sakaiproject.poll.tool.beans.ErrorHandler">
-       <property name="errorStateManager" ref="errorStateManager" />
-   </bean>
-   
-   <bean id="pollToolBean"
+	<!-- error prograting bean -->
+	<bean id="allErrorsAllowable"
+		class="org.sakaiproject.poll.tool.beans.ErrorHandler">
+		<property name="errorStateManager" ref="errorStateManager" />
+	</bean>
+
+	<bean id="pollToolBean"
 		class="org.sakaiproject.poll.tool.params.PollToolBean">
 		<property name="pollListManager"
 			ref="org.sakaiproject.tool.poll.api.PollListManager" />
@@ -66,7 +67,10 @@
 		<property name="voteBean" ref="voteBean" />
 		<property name="siteService"
 			ref="org.sakaiproject.site.api.SiteService" />
-			<property name="timeService"  ref="org.sakaiproject.time.api.TimeService"/>
+		<property name="timeService"
+			ref="org.sakaiproject.time.api.TimeService" />
+		<property name="targettedMessageList"
+			ref="targettedMessageList" />
 	</bean>
 
 	<bean id="permissionAction"
@@ -116,7 +120,7 @@
 		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
-		<property name="pollBeanLocator" ref="pollBeanLocator"/>
+		<property name="pollBeanLocator" ref="pollBeanLocator" />
 	</bean>
 
 
@@ -163,7 +167,7 @@
 		</property>
 	</bean>
 
-<!-- pollBean Locator -->
+	<!-- pollBean Locator -->
 	<bean id="pollBeanLocator"
 		class="org.sakaiproject.poll.tool.locators.PollBeanLocator">
 		<property name="pollListManager"
