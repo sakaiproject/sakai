@@ -101,7 +101,7 @@ public class Digester implements ContentHandler
 		if (stack.peek() != null)
 		{
 			String s = new String(arg0, arg1, arg2);
-			buffer.append(s.trim()).append(" ");
+			buffer.append(s.trim());
 		}
 
 	}
