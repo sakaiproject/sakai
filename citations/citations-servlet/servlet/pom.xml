@@ -44,12 +44,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-impl</artifactId>
-      <version>${sakai.version}</version>
+      
       <exclusions>
         <exclusion>
           <groupId>org.sakaiproject</groupId>
@@ -82,7 +82,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->
 <!--org.sakaiprojectsakai-user-util${sakai.version}-->

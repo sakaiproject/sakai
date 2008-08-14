@@ -40,12 +40,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-impl</artifactId>
-      <version>${sakai.version}</version>
+      
       <exclusions>
         <exclusion>
           <groupId>org.sakaiproject</groupId>
@@ -56,7 +56,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-util</artifactId>
-      <version>${sakai.version}</version>
+      
       <exclusions>
         <exclusion>
           <groupId>zing</groupId>
@@ -80,12 +80,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
-      <version>${sakai.version}</version>
+      
 <!--properties:  war.bundle: true -->
     </dependency>
     <dependency>

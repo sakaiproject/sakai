@@ -27,4 +27,35 @@
     <module>citations-impl/pack</module>
     <module>citations-shared-deploy</module>
   </modules>
+<dependencyManagement>
+ <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-web2bridge</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-xserver</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-util</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-velocity-tool</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+     </dependency>
+ </dependencies>
+</dependencyManagement>
+
+
 </project>

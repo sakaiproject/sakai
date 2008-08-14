@@ -20,7 +20,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>zing</groupId>

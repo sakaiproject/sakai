@@ -47,22 +47,18 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-web2bridge</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-xserver</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-util</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>OKI</groupId>
