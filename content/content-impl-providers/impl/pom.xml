@@ -37,14 +37,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-coursemanagement-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+     </dependency>
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-scheduler-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->

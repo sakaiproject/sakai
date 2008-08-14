@@ -21,7 +21,6 @@
       <id>framework</id>
       <modules>
         <module>content-help</module>
-        <module>content-tool</module>
         <module>content-tool/tool</module>
         <module>content-impl/pack</module>
       </modules>
@@ -33,7 +32,6 @@
         <module>content-impl-jcr/impl</module>
         <module>content-jcr-migration-api</module>
         <module>content-jcr-migration-impl</module>
-        <module>content-tool</module>
         <module>content-tool/tool</module>
         <module>content-impl-jcr/pack</module>
         <module>contentmultiplex-impl/impl</module>
@@ -49,7 +47,6 @@
         <module>content-impl-jcr/pack</module>
         <module>content-impl-providers/impl</module>
         <module>content-impl-providers/pack</module>
-        <module>content-tool</module>
         <module>content-tool/tool</module>
         <module>contentmultiplex-impl/impl</module>
       </modules>
@@ -63,9 +60,23 @@
         <module>content-help</module>
         <module>content-impl-providers/impl</module>
         <module>content-impl-providers/pack</module>
-        <module>content-tool</module>
         <module>content-tool/tool</module>
       </modules>
     </profile>
   </profiles>
+<dependencyManagement>
+ <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-content-providers-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-velocity-tool</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+ </dependencies>
+</dependencyManagement>
+
 </project>
