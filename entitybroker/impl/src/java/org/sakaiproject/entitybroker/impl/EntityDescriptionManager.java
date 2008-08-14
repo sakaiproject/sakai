@@ -130,7 +130,7 @@ public class EntityDescriptionManager {
       String output = "";
       if (Formats.XML.equals(format)) {
          // XML available in case someone wants to parse this in javascript or whatever
-         StringBuilder sb = new StringBuilder();
+         StringBuilder sb = new StringBuilder(200);
          sb.append(XML_HEADER);
          sb.append("<describe>\n");
          sb.append("  <describeURL>" + describeURL + "</describeURL>\n");
@@ -147,7 +147,7 @@ public class EntityDescriptionManager {
       } else {
          // just do HTML if not one of the handled ones
          Locale locale = entityProperties.getLocale();
-         StringBuilder sb = new StringBuilder();
+         StringBuilder sb = new StringBuilder(300);
          sb.append(XML_HEADER);
          sb.append(XHTML_HEADER);
          sb.append("<h1><a href='"+ describeURL +"'>Describe all</a> registered entities"
@@ -181,7 +181,7 @@ public class EntityDescriptionManager {
       if (entityProviderManager.getProviderByPrefix(prefix) == null) {
          throw new IllegalArgumentException("Invalid prefix ("+prefix+"), entity with that prefix does not exist");
       }
-      StringBuilder sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder(250);
       if (Formats.XML.equals(format)) {
          sb.append(XML_HEADER);
          describeEntity(sb, prefix, id, format, true, null);

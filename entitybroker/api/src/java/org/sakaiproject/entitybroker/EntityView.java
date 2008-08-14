@@ -418,8 +418,7 @@ public class EntityView {
     */
    @Override
    public String toString() {
-      String URL = getEntityURL(this.viewKey, this.extension);
-      return URL;
+      return getEntityURL();
    }
 
    /**
@@ -430,7 +429,8 @@ public class EntityView {
     * @throws IllegalArgumentException if there is not enough information to generate a URL
     */
    public String getEntityURL() {
-      return this.toString();
+      String URL = getEntityURL(this.viewKey, this.extension);
+      return URL;
    }
 
    /**
@@ -457,8 +457,13 @@ public class EntityView {
             viewKey = VIEW_SHOW;
          }
       } else {
-         if (entityReference.getId() == null || pathSegments.size() == 1) {
-            viewKey = VIEW_LIST;
+         if (VIEW_NEW.equals(viewKey) || VIEW_LIST.equals(viewKey)) {
+            // stay as is
+         } else {
+            // check if it should reset to list only
+            if (entityReference.getId() == null || pathSegments.size() == 1) {
+               viewKey = VIEW_LIST;
+            }
          }
       }
       String template = getParseTemplate(viewKey);

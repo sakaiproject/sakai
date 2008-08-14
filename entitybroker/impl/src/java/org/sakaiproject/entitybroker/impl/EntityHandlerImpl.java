@@ -364,90 +364,100 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                         }
                      }
 
+                     boolean formatInvalidFailure = false;
                      if (!handled) {
                         // INTERNAL PROCESSING OF REQUEST
                         try {
                            String format = view.getFormat();
                            if (output) {
                               // output request
-                              Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
-                              if (outputable != null) {
-                                 if (customAction != null) {
-                                    // override format from the custom action
-                                    if (actionReturn.format != null) {
-                                       format = actionReturn.format;
-                                    }
-                                 }
-                                 String[] outputFormats = outputable.getHandledOutputFormats();
-                                 if (outputFormats == null || ReflectUtil.contains(outputFormats, format) ) {
-                                    // we are handling this type of format for this entity
-                                    RequestUtils.setResponseEncoding(format, res);
-
-                                    // get the entities to output
-                                    List<EntityData> entities = null;
+                              String viewKey = view.getViewKey();
+                              if (EntityView.VIEW_NEW.equals(viewKey)
+                                    || EntityView.VIEW_EDIT.equals(viewKey) 
+                                    || EntityView.VIEW_DELETE.equals(viewKey) ) {
+                                 // request for the create/edit/delete entity forms
+                                 // TODO possibly generate new/edit/delete forms internally?
+                                 handled = false;
+                              } else {
+                                 Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+                                 if (outputable != null) {
                                     if (customAction != null) {
-                                       // get entities from a custom action
-                                       entities = actionReturn.entitiesList;
-                                       if (entities == null 
-                                             && actionReturn.entityData != null) {
-                                          ArrayList<EntityData> eList = new ArrayList<EntityData>();
-                                          EntityData ed = actionReturn.entityData;
-                                          eList.add( ed );
-                                          entities = eList;
-                                          // this was a single object return so it should be encoded as such, thus we will recode the correct reference into the view
-                                          EntityReference edRef = ed.getEntityReference();
-                                          if (edRef.getId() == null) {
-                                             edRef = new EntityReference(edRef.getPrefix(), customAction.action);
+                                       // override format from the custom action
+                                       if (actionReturn.format != null) {
+                                          format = actionReturn.format;
+                                       }
+                                    }
+                                    String[] outputFormats = outputable.getHandledOutputFormats();
+                                    if (outputFormats == null || ReflectUtil.contains(outputFormats, format) ) {
+                                       // we are handling this type of format for this entity
+                                       RequestUtils.setResponseEncoding(format, res);
+   
+                                       // get the entities to output
+                                       List<EntityData> entities = null;
+                                       if (customAction != null) {
+                                          // get entities from a custom action
+                                          entities = actionReturn.entitiesList;
+                                          if (entities == null 
+                                                && actionReturn.entityData != null) {
+                                             ArrayList<EntityData> eList = new ArrayList<EntityData>();
+                                             EntityData ed = actionReturn.entityData;
+                                             eList.add( ed );
+                                             entities = eList;
+                                             // this was a single object return so it should be encoded as such, thus we will recode the correct reference into the view
+                                             EntityReference edRef = ed.getEntityReference();
+                                             if (edRef.getId() == null) {
+                                                edRef = new EntityReference(edRef.getPrefix(), customAction.action);
+                                             }
+                                             view.setEntityReference( edRef );
+                                             view.setViewKey(EntityView.VIEW_SHOW);
                                           }
-                                          view.setEntityReference( edRef );
-                                          view.setViewKey(EntityView.VIEW_SHOW);
+                                       } else {
+                                          // get from a search
+                                          Search search = RequestUtils.makeSearchFromRequest(req);
+                                          entities = entityBrokerManager.getEntitiesData(view.getEntityReference(), search, null);
+                                       }
+                                       // set the modifed header (use the sole entity in the list if there is one only)
+                                       setLastModifiedHeaders(res, (entities != null && entities.size()==1 ? entities.get(0) : null), System.currentTimeMillis());
+   
+                                       if (EntityView.Method.HEAD.name().equals(view.getMethod())) {
+                                          // HEADER only
+                                          res.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                                       } else {
+                                          // GET
+                                          OutputStream outputStream = null;
+                                          try {
+                                             outputStream = res.getOutputStream();
+                                          } catch (IOException e) {
+                                             throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
+                                          }
+   
+                                          /* try to use the provider formatter if one available,
+                                           * if it decided not to handle it or none is available then control passes to internal
+                                           */
+                                          try {
+                                             OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
+                                             if (formattable != null) {
+                                                // use provider's formatter
+                                                formattable.formatOutput(view.getEntityReference(), format, entities, null, outputStream);
+                                                handled = true;
+                                             }
+                                          } catch (FormatUnsupportedException e) {
+                                             // provider decided not to handle this format
+                                             handled = false;
+                                          }
+                                          if (!handled) {
+                                             // handle internally or fail
+                                             entityEncodingManager.internalOutputFormatter(view.getEntityReference(), format, entities, null, outputStream, view);
+                                          }
+                                          handled = true;
+                                          res.setStatus(HttpServletResponse.SC_OK);
                                        }
                                     } else {
-                                       // get from a search
-                                       Search search = RequestUtils.makeSearchFromRequest(req);
-                                       entities = entityBrokerManager.getEntitiesData(view.getEntityReference(), search, null);
+                                       // format type not handled
+                                       throw new FormatUnsupportedException("Outputable restriction for " 
+                                             + prefix + " blocked handling this format ("+format+")",
+                                             view.getEntityReference()+"", format);
                                     }
-                                    // set the modifed header (use the sole entity in the list if there is one only)
-                                    setLastModifiedHeaders(res, (entities != null && entities.size()==1 ? entities.get(0) : null), System.currentTimeMillis());
-
-                                    if (EntityView.Method.HEAD.name().equals(view.getMethod())) {
-                                       // HEADER only
-                                       res.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                                    } else {
-                                       // GET
-                                       OutputStream outputStream = null;
-                                       try {
-                                          outputStream = res.getOutputStream();
-                                       } catch (IOException e) {
-                                          throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
-                                       }
-
-                                       /* try to use the provider formatter if one available,
-                                        * if it decided not to handle it or none is available then control passes to internal
-                                        */
-                                       try {
-                                          OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
-                                          if (formattable != null) {
-                                             // use provider's formatter
-                                             formattable.formatOutput(view.getEntityReference(), format, entities, null, outputStream);
-                                             handled = true;
-                                          }
-                                       } catch (FormatUnsupportedException e) {
-                                          // provider decided not to handle this format
-                                          handled = false;
-                                       }
-                                       if (!handled) {
-                                          // handle internally or fail
-                                          entityEncodingManager.internalOutputFormatter(view.getEntityReference(), format, entities, null, outputStream, view);
-                                       }
-                                       handled = true;
-                                       res.setStatus(HttpServletResponse.SC_OK);
-                                    }
-                                 } else {
-                                    // format type not handled
-                                    throw new FormatUnsupportedException("Outputable restriction for " 
-                                          + prefix + " blocked handling this format ("+format+")",
-                                          view.getEntityReference()+"", format);
                                  }
                               }
                            } else {
@@ -534,6 +544,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                            }
                         } catch (FormatUnsupportedException e) {
                            // this format could not be handled internally so we will pass it to the access provider, nothing else to do here
+                           formatInvalidFailure = true;
                            handled = false;
                         } catch (EntityEncodingException e) {
                            // translate EEE into EE - internal server error
@@ -556,7 +567,17 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      if (! handled) {
                         // default handling, send to the access provider if there is one (if none this will throw EntityException)
                         try {
-                           handleAccessProvider(view, req, res);
+                           boolean accessProviderExists = handleAccessProvider(view, req, res);
+                           if (!accessProviderExists) {
+                              if (formatInvalidFailure) {
+                                 // trigger the format 
+                                 throw new FormatUnsupportedException("Nothing (AP and internal) available to handle the requested format", view.getEntityReference()+"", view.getFormat());
+                              }
+                              String message = "Access Provider: Attempted to access an entity URL path ("
+                                 + view + ") for an entity (" + view.getEntityReference() + ") and view ("+view.getViewKey()+") when there is no " 
+                                 + "access provider to handle the request for prefix (" + view.getEntityReference().getPrefix() + ")";
+                              throw new EntityException( message, view.toString(), HttpServletResponse.SC_NOT_FOUND );
+                           }
                         } catch (FormatUnsupportedException e) {
                            throw new EntityException( "AccessProvider: Format unsupported: Will not handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
                                  + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + ")",
@@ -649,20 +670,17 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
    /**
     * Will choose whichever access provider is currently available to handle the request
-    * @throws EntityException if there is none
+    * @return true if there is an access provider, false otherwise
     */
    @SuppressWarnings("deprecation")
-   private void handleAccessProvider(EntityView view, HttpServletRequest req, HttpServletResponse res) {
+   private boolean handleAccessProvider(EntityView view, HttpServletRequest req, HttpServletResponse res) {
       // no special handling so send on to the standard access provider if one can be found
       EntityViewAccessProvider evAccessProvider = entityViewAccessProviderManager.getProvider(view.getEntityReference().getPrefix());
       if (evAccessProvider == null) {
          // try the old type access provider then
          HttpServletAccessProvider httpAccessProvider = accessProviderManager.getProvider(view.getEntityReference().getPrefix());
          if (httpAccessProvider == null) {
-            String message = "Attempted to access an entity URL path ("
-               + view.toString() + ") for an entity (" + view.toString() + ") when there is no " 
-               + "access provider to handle the request for prefix (" + view.getEntityReference().getPrefix() + ")";
-            throw new EntityException( message, view.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+            return false;
          } else {
             // classloader protection START
             ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
@@ -692,6 +710,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          }
          handleClassLoaderAccess(evAccessProvider, req, res, view);
       }
+      return true;
    }
 
    /**

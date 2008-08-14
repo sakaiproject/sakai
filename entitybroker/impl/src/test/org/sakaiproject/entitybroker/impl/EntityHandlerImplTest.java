@@ -143,7 +143,6 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // HTML test valid resolveable entity
-/** TODO Need internal HTML first
       req = new MockEBHttpServletRequest("GET", TestData.REF4 + "." + Formats.HTML);
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
@@ -154,10 +153,10 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(html);
          assertTrue(html.length() > 20);
          assertTrue(html.contains(TestData.PREFIX4));
+         assertTrue(html.contains(TestData.REF4));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
-**/
 
       // types that cannot handle the return requested
       req = new MockEBHttpServletRequest("GET", TestData.REF4 + ".xxxx");

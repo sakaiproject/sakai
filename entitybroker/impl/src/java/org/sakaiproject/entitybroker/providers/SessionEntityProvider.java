@@ -55,8 +55,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class SessionEntityProvider implements CoreEntityProvider, CRUDable, CollectionResolvable, Inputable, Outputable, RequestAware, Describeable, 
-   RedirectDefinable, ActionsExecutable, AutoRegisterEntityProvider {
+public class SessionEntityProvider implements CoreEntityProvider, CRUDable, CollectionResolvable, 
+      Inputable, Outputable, RequestAware, Describeable, 
+      RedirectDefinable, ActionsExecutable, AutoRegisterEntityProvider {
 
    public static String AUTH_USERNAME = "_username";
    public static String AUTH_PASSWORD = "_password";
@@ -76,7 +77,7 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
       this.userDirectoryService = userDirectoryService;
    }
 
-   
+
    public static String PREFIX = "session";
    public String getEntityPrefix() {
       return PREFIX;
@@ -89,10 +90,10 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
             new TemplateMap("/{prefix}/{id}/norefresh", "/{prefix}/{id}{dot-extension}?auto=true"),
             new TemplateMap("/{prefix}/current/norefresh", "/{prefix}/current{dot-extension}?auto=true"),
             // below for testing only
-//            new TemplateMap("/{prefix}/xml/{id}", "/{prefix}/{id}.xml"),
-//            new TemplateMap("/{prefix}/test1", "/{prefix}/test2"),
-//            new TemplateMap("/{prefix}/test2", "/{prefix}/test3"),
-//            new TemplateMap("/{prefix}/test3", "/{prefix}/test1"),
+//          new TemplateMap("/{prefix}/xml/{id}", "/{prefix}/{id}.xml"),
+//          new TemplateMap("/{prefix}/test1", "/{prefix}/test2"),
+//          new TemplateMap("/{prefix}/test2", "/{prefix}/test3"),
+//          new TemplateMap("/{prefix}/test3", "/{prefix}/test1"),
       };
    }
 
@@ -226,19 +227,19 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
 //    String userReference = developerHelperService.getCurrentUserReference();
 //    String userId = developerHelperService.getUserIdFromRef(userReference);
 //    if (developerHelperService.isUserAdmin(userReference)) {
-//       // get all current usage sessions
-//       List<UsageSession> usageSessions = usageSessionService.getOpenSessions();
-//       for (UsageSession usageSession : usageSessions) {
-//          usageSession.
-//       }
+//    // get all current usage sessions
+//    List<UsageSession> usageSessions = usageSessionService.getOpenSessions();
+//    for (UsageSession usageSession : usageSessions) {
+//    usageSession.
 //    }
-    // just get the current session for now
-    List<EntitySession> sessions = new ArrayList<EntitySession>();
-    Session s = sessionManager.getCurrentSession();
-    if (s != null) {
-       sessions.add( new EntitySession(s) );
-    }
-    return sessions;
+//    }
+      // just get the current session for now
+      List<EntitySession> sessions = new ArrayList<EntitySession>();
+      Session s = sessionManager.getCurrentSession();
+      if (s != null) {
+         sessions.add( new EntitySession(s) );
+      }
+      return sessions;
    }
 
 
@@ -247,7 +248,7 @@ public class SessionEntityProvider implements CoreEntityProvider, CRUDable, Coll
    }
 
    public String[] getHandledOutputFormats() {
-      return new String[] { Formats.XML, Formats.JSON };
+      return new String[] { Formats.HTML, Formats.XML, Formats.JSON };
    }
 
 

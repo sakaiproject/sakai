@@ -255,7 +255,20 @@ public class EntityViewTest extends TestCase {
       assertEquals(URL3, ev.getEntityURL(TemplateParseUtil.TEMPLATE_LIST, EXTENSION3));
       assertEquals("/" + PREFIX3, ev.getEntityURL(TemplateParseUtil.TEMPLATE_LIST, null));
       assertEquals("/" + PREFIX3, ev.getEntityURL(TemplateParseUtil.TEMPLATE_SHOW, null));
-      
+
+      ev = new EntityView(INPUT_URL1);
+      assertNotNull(ev);
+      ev.setViewKey(EntityView.VIEW_DELETE);
+      assertEquals(URL1 + "/delete", ev.getEntityURL());
+      ev.setViewKey(EntityView.VIEW_EDIT);
+      assertEquals(URL1 + "/edit", ev.getEntityURL());
+      ev.setViewKey(EntityView.VIEW_LIST);
+      assertEquals("/" + PREFIX1, ev.getEntityURL());
+      ev.setViewKey(EntityView.VIEW_NEW);
+      assertEquals("/" + PREFIX1 + "/new", ev.getEntityURL());
+      ev.setViewKey(EntityView.VIEW_SHOW);
+      assertEquals(URL1, ev.getEntityURL());
+
       try {
          ev.getEntityURL("xxxxxxxxxxxxxxxxxx", null);
          fail("Should have thrown exception");

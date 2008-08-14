@@ -405,7 +405,7 @@ public class EntityBrokerManager {
          Object entity = fetchEntityObject(ref);
          if (entity == null) {
             throw new EntityException("Failed to retrieve entity (" + ref + "), entity object could not be found",
-                  ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                  ref.toString(), HttpServletResponse.SC_NOT_FOUND);
          }
          entities = new ArrayList(1);
          entities.add(entity);

@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,7 +68,7 @@ public class EntityEncodingManager {
    private static final String ENTITY_PREFIX = "entityPrefix";
    private static final String COLLECTION = "-collection";
    public static final String[] HANDLED_INPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
-   public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON };
+   public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
 
 
    private EntityProviderManager entityProviderManager;
@@ -320,8 +321,6 @@ public class EntityEncodingManager {
       if (view == null) {
          view = entityBrokerManager.makeEntityView(ref, null, null);
       }
-      // create a scrap view from the current view, this should be more efficient
-      EntityView workingView = view.copy();
 
       // get the entities if not supplied
       if (entities == null) {
@@ -342,47 +341,60 @@ public class EntityEncodingManager {
          // encoding a collection of entities
          if (encoder != null) {
             setEncoderDataAlias(ref.getPrefix(), entities, encoder);
-
-            StringBuilder sb = new StringBuilder();
-            // make header
-            if (Formats.JSON.equals(format)) {
-               sb.append("{\""+ENTITY_PREFIX+"\": \""+ref.getPrefix() + "\", \"" + ref.getPrefix() + COLLECTION + "\": [\n");
-            } else { // assume XML
-               sb.append("<" + ref.getPrefix() + COLLECTION + " " + ENTITY_PREFIX + "=\"" + ref.getPrefix() + "\">\n");
-            }
-            // loop through and encode items
-            int encodedEntities = 0;
-            for (EntityData entity : entities) {
-               String encode = encodeEntity(ref, workingView, entity, encoder);
-               if (encode.length() > 3) {
-                  if (Formats.JSON.equals(format)) {
-                     if (encodedEntities > 0) {
-                        sb.append(",\n");
-                     }
-                     // special JSON cleanup (strips off the {"stuff": ... })
-                     encode = encode.substring(encode.indexOf(':')+1, encode.length()-1);
-                  } else {
-                     if (encodedEntities > 0) {
-                        sb.append("\n");
-                     }
-                  }
-                  sb.append(encode);                     
-                  encodedEntities++;
-               }
-            }
-            // make footer
-            if (Formats.JSON.equals(format)) {
-               sb.append("\n]}");
-            } else { // assume XML
-               sb.append("\n</" + ref.getPrefix() + COLLECTION + ">");
-            }
-            encoded = sb.toString();
-         } else {
-            // just dump the whole thing to a string if there is no encoder
-            EntityData ed = new EntityData(ref, null, entities);
-            ed.setEntityURL( entityBrokerManager.makeFullURL(workingView.getEntityURL()) );
-            encoded = encodeEntity(ref, workingView, ed, null);
          }
+
+         StringBuilder sb = new StringBuilder(40);
+
+         // make header
+         if (Formats.HTML.equals(format)) {
+            sb.append("<h1>"+ref.getPrefix() + COLLECTION + "</h1>\n");
+         } else if (Formats.JSON.equals(format)) {
+            sb.append("{\""+ENTITY_PREFIX+"\": \""+ref.getPrefix() + "\", \"" + ref.getPrefix() + COLLECTION + "\": [\n");
+         } else if (Formats.XML.equals(format)) {
+            sb.append("<" + ref.getPrefix() + COLLECTION + " " + ENTITY_PREFIX + "=\"" + ref.getPrefix() + "\">\n");
+         } else { // general case
+            sb.append(ref.getPrefix() + COLLECTION + "\n");
+         }
+
+         // loop through and encode items
+         int encodedEntities = 0;
+         for (EntityData entity : entities) {
+            String encode = encodeEntity(ref, format, entity, encoder);
+            if (encode.length() > 3) {
+               if (Formats.JSON.equals(format)) {
+                  if (encodedEntities > 0) {
+                     sb.append(",\n");
+                  }
+                  // special JSON cleanup (strips off the {"stuff": ... })
+                  encode = encode.substring(encode.indexOf(':')+1, encode.length()-1);
+               } else {
+                  // HTML and XML
+                  if (encodedEntities > 0) {
+                     sb.append("\n");
+                  }
+               }
+               sb.append(encode);                     
+               encodedEntities++;
+            }
+         }
+
+         // make footer
+         if (Formats.HTML.equals(format)) {
+            sb.append("\n<b>Collection size:</b> "+encodedEntities+"\n");
+         } else if (Formats.JSON.equals(format)) {
+            sb.append("\n]}");
+         } else if (Formats.XML.equals(format)) {
+            sb.append("\n</" + ref.getPrefix() + COLLECTION + ">");
+         } else { // general case
+            sb.append("\nSize: " + encodedEntities + "\n");
+         }
+         encoded = sb.toString();
+//         } else {
+//            // just dump the whole thing to a string if there is no encoder
+//            EntityData ed = new EntityData(ref, null, entities);
+//            ed.setEntityURL( entityBrokerManager.makeFullURL(workingView.getEntityURL()) );
+//            encoded = encodeEntity(ref, workingView, ed, null);
+//         }
       } else {
          // encoding a single entity
          EntityData toEncode = entities.get(0);
@@ -394,7 +406,7 @@ public class EntityEncodingManager {
                setEncoderDataAlias(ref.getPrefix(), entities, encoder);
             }
             try {
-               encoded = encodeEntity(ref, workingView, toEncode, encoder);
+               encoded = encodeEntity(ref, format, toEncode, encoder);
             } catch (RuntimeException e) {
                throw new EntityEncodingException("Failure during internal output encoding of entity: " + ref, ref.toString(), e);
             }
@@ -466,8 +478,6 @@ public class EntityEncodingManager {
             xstreams.put( format, new EntityXStream(new XppDomDriver()) );
          }
          encoder = xstreams.get(format);
-      } else if (Formats.TXT.equals(format)) {
-         // TODO Add in plaintext encoder/decoder
       } else {
          encoder = null; // do a toString dump
       }
@@ -476,18 +486,17 @@ public class EntityEncodingManager {
 
    /**
     * @param ref the entity reference
-    * @param workingView this is a working view which can be changed around as needed to generate URLs,
-    * always go to the EntityReference for original data
-    * @param toEncode entity data to encode
-    * @param encoder enhanced xstream encoder or null if no encoder available
+    * @param format 
+    * @param entityData entity data to encode
+    * @param encoder (optional) enhanced xstream encoder or null if no encoder available
     * @return the encoded entity or "" if encoding fails
     */
-   public String encodeEntity(EntityReference ref, EntityView workingView, EntityData entityData, EntityXStream encoder) {
+   public String encodeEntity(EntityReference ref, String format, EntityData entityData, EntityXStream encoder) {
       String encoded = "";
       if (entityData == null) {
          throw new IllegalArgumentException("entity data to encode must not be null");
       }
-      if (encoder != null) {
+      if (encoder != null) { // XML and JSON
          // TODO encode the props from the entity data specially? (this may be the only data)
          // encode the entity itself
          Object toEncode = entityData.getEntity();
@@ -506,8 +515,48 @@ public class EntityEncodingManager {
          // encode the object
          encoded = encoder.toXML(toEncode, entityProps);
       } else {
-         // just to string this and dump it out
-         encoded = "<b>" + ref.getPrefix() + "</b>: " + entityData;
+         // handle formats without an encoder (basically everything which is not XML and JSON)
+         if (Formats.HTML.equals(format)) {
+            StringBuilder sb = new StringBuilder(200);
+            sb.append("  <div style='padding-left:1em;'>\n");
+            sb.append("    <div style='font-weight:bold;'>"+entityData.getDisplayTitle()+"</div>\n");
+            sb.append("    <table border='1'>\n");
+            sb.append("      <caption style='font-weight:bold;'>Entity Data</caption>\n");
+            sb.append("      <tr><td>entity-reference</td><td>"+entityData.getReference()+"</td></tr>\n");
+            sb.append("      <tr><td>entity-URL</td><td>"+entityData.getEntityURL()+"</td></tr>\n");
+            if (entityData.getEntityReference() != null) {
+               sb.append("      <tr><td>entity-prefix</td><td>"+entityData.getEntityReference().getPrefix()+"</td></tr>\n");
+               if (entityData.getEntityReference().getId() != null) {
+                  sb.append("      <tr><td>entity-ID</td><td>"+entityData.getEntityReference().getId()+"</td></tr>\n");
+               }
+            }
+            if (entityData.getEntity() != null) {
+               sb.append("      <tr><td>entity-object</td><td>"+entityData.getEntity()+"</td></tr>\n");
+               sb.append("      <tr><td>entity-type</td><td>"+entityData.getEntity().getClass().getName()+"</td></tr>\n");
+               // dump entity data
+               Map<String, Object> values = entityBrokerManager.getReflectUtil().getObjectValues(entityData.getEntity());
+               for (Entry<String, Object> entry : values.entrySet()) {
+                  sb.append("      <tr><td>"+entry.getKey()+"</td><td>"+entry.getValue()+"</td></tr>\n");
+               }
+            } else {
+               sb.append("      <tr><td>entity-object</td><td><i>null</i></td></tr>\n");
+            }
+            sb.append("    </table>\n");
+            Map<String, Object> props = entityData.getEntityProperties();
+            if (!props.isEmpty()) {
+               sb.append("    <table border='1'>\n");
+               sb.append("      <caption style='font-weight:bold;'>Properties</caption>\n");
+               for (Entry<String, Object> entry : props.entrySet()) {
+                  sb.append("      <tr><td>"+entry.getKey()+"</td><td>"+entry.getValue()+"</td></tr>\n");
+               }
+               sb.append("    </table>\n");
+            }
+            sb.append("  </div>\n");
+            encoded = sb.toString();
+         } else {
+            // just toString this and dump it out
+            encoded = ref.getPrefix() + " : " + entityData;
+         }
       }
       return encoded;
    }

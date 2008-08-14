@@ -131,7 +131,6 @@ public class EntityEncodingManagerTest extends TestCase {
       assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
 
       // HTML test valid resolveable entity
-/** TODO need HTML handling first
       output = new ByteArrayOutputStream();
       view = entityBrokerManager.parseEntityURL(TestData.REF4 + "." + Formats.HTML);
       assertNotNull(view);
@@ -140,7 +139,7 @@ public class EntityEncodingManagerTest extends TestCase {
       assertNotNull(fo);
       assertTrue(fo.length() > 20);
       assertTrue(fo.contains(TestData.PREFIX4));
-**/
+      assertTrue(fo.contains(TestData.REF4));
 
       // test invalid format request
       output = new ByteArrayOutputStream();
@@ -155,7 +154,7 @@ public class EntityEncodingManagerTest extends TestCase {
 
       // test for unresolvable entities
 
-      // JSON test valid unresolvable entity
+      // JSON test unresolvable entity
       output = new ByteArrayOutputStream();
       view = entityBrokerManager.parseEntityURL(TestData.REF1 + "." + Formats.JSON);
       assertNotNull(view);
@@ -164,18 +163,19 @@ public class EntityEncodingManagerTest extends TestCase {
          fail("Should have thrown exception");
       } catch (EntityException e) {
          assertNotNull(e.getMessage());
-         assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
+         assertEquals(HttpServletResponse.SC_NOT_FOUND, e.responseCode);
       }
 
-      // HTML test valid unresolvable entity
+      // HTML test unresolvable entity
       output = new ByteArrayOutputStream();
       view = entityBrokerManager.parseEntityURL(TestData.REF1); // blank
       assertNotNull(view);
       try {
          entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
          fail("Should have thrown exception");
-      } catch (FormatUnsupportedException e) {
+      } catch (EntityException e) {
          assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_NOT_FOUND, e.responseCode);
       }
 
       // test resolveable collections
@@ -213,7 +213,7 @@ public class EntityEncodingManagerTest extends TestCase {
          fail("Should have thrown exception");
       } catch (EntityException e) {
          assertNotNull(e.getMessage());
-         assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
+         assertEquals(HttpServletResponse.SC_NOT_FOUND, e.responseCode);
       }
 
    }
