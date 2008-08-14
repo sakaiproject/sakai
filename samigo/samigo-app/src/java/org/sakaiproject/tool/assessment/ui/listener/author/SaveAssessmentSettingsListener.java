@@ -68,7 +68,7 @@ public class SaveAssessmentSettingsListener
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId()); 
     AssessmentService assessmentService = new AssessmentService();
     SaveAssessmentSettings s= new SaveAssessmentSettings();
-    String assessmentName=assessmentSettings.getTitle();
+    String assessmentName=ContextUtil.processFormattedText(log, assessmentSettings.getTitle());
  
     // check if name is empty
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){

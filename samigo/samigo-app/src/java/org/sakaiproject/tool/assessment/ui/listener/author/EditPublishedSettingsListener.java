@@ -34,6 +34,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -42,6 +43,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>
@@ -85,6 +87,16 @@ public class EditPublishedSettingsListener
     author.setOutcome("editPublishedAssessmentSettings");
     author.setIsEditPendingAssessmentFlow(false);
     assessmentSettings.setAssessment(assessment);
+    // To unEscapeHtml for the fields that have been through ContextUtil.processFormattedText
+    assessmentSettings.setTitle(FormattedText.unEscapeHtml(assessment.getTitle()));
+    assessmentSettings.setAuthors(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.AUTHORS)));
+    assessmentSettings.setFinalPageUrl(FormattedText.unEscapeHtml(assessment.getAssessmentAccessControl().getFinalPageUrl()));
+    assessmentSettings.setBgColor(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGCOLOR)));
+    assessmentSettings.setBgImage(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGIMAGE)));
+    assessmentSettings.setKeywords(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.KEYWORDS)));
+    assessmentSettings.setObjectives(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.OBJECTIVES)));
+    assessmentSettings.setRubrics(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.RUBRICS)));
+        
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     assessmentBean.setAssessmentId(assessmentId);
     

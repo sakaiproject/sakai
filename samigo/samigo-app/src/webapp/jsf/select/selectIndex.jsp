@@ -101,7 +101,7 @@ sorting actions for table:
         <f:param name="actionString" value="takeAssessment"/>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
-        <h:outputText value="#{takeable.assessmentTitle}"/>
+        <h:outputText value="#{takeable.assessmentTitle}" escape="false"/>
       </h:commandLink>
     </h:column>
     <h:column>
@@ -205,7 +205,7 @@ sorting actions for table:
       </h:panelGroup>
       </f:facet>
 
-    <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback != 'true'}"/>
+    <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback != 'true'}" escape="false"/>
 
 	<h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="takeAssessment" rendered="#{reviewable.feedback == 'true'}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
@@ -216,7 +216,7 @@ sorting actions for table:
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
 
-        <h:outputText value="#{reviewable.assessmentTitle}"/> 
+        <h:outputText value="#{reviewable.assessmentTitle}" escape="false"/> 
 
 
 

@@ -55,7 +55,7 @@ function getSelectedType(qtiUrl, cpUrl){
 <!-- content... -->
  <h:form id="exportAssessmentForm">          
     <h:inputHidden id="assessmentBaseId" value="#{assessmentBean.assessmentId}" />
-   <h3><h:outputText  value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" /></h3>
+   <h3><h:outputText  value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" escape="false"/></h3>
     <div class="tier1">
      <div class="form_label">
       <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>

@@ -117,7 +117,7 @@ function showHideReleaseGroups(){
 </p>
 
     <h3>
-     <h:outputText id="x1" value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{publishedSettings.title}" />
+     <h:outputText id="x1" value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{publishedSettings.title}"/>
     </h3>
 
 <div class="tier1">

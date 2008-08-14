@@ -32,6 +32,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
@@ -54,8 +56,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class AuthorAssessmentListener
     implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(AuthorAssessmentListener.class);
-  //private static ContextUtil cu;
+  private static Log log = LogFactory.getLog(AuthorAssessmentListener.class);
 
   public AuthorAssessmentListener()
   {
@@ -88,7 +89,7 @@ AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - read from form authorIndex.jsp
-    String assessmentTitle = author.getAssessTitle();
+    String assessmentTitle = ContextUtil.processFormattedText(log, author.getAssessTitle());
 
     //HUONG's EDIT
     //check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error

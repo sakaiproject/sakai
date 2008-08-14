@@ -60,7 +60,7 @@
 
 
 <h:commandLink title="#{questionPoolMessages.t_editPool}" id="editlink" immediate="true" action="#{questionpool.editPool}">
-  <h:outputText id="poolnametext" value="#{pool.displayName}"/>
+  <h:outputText id="poolnametext" value="#{pool.displayName}" escape="false"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 

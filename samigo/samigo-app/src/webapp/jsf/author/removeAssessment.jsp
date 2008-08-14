@@ -41,7 +41,7 @@
    <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
    <h3><h:outputText  value="#{authorMessages.remove_assessment_co}" /></h3>
    <div class="validation tier1">
-          <h:outputText value="#{authorMessages.cert_rem_assmt} \"#{assessmentBean.title}\" ?" />
+          <h:outputText value="#{authorMessages.cert_rem_assmt} \"#{assessmentBean.title}\" ?" escape="false"/>
   </div>
 <p class="act">
        <h:commandButton accesskey="#{authorMessages.a_remove}" value="#{authorMessages.button_remove}" type="submit"

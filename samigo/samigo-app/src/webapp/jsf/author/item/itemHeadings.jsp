@@ -78,7 +78,7 @@ document.links[newindex].onclick();
     </h:commandLink>
     <h:outputText rendered="#{itemauthor.target == 'assessment'}" value=" #{authorMessages.greater} " />
     <h:commandLink title="#{authorMessages.t_question}" action="editAssessment" immediate="true" rendered="#{itemauthor.target == 'assessment'}">
-      <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" />
+      <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" escape="false"/>
     </h:commandLink>
     <h:outputText value=" #{authorMessages.greater} " rendered="#{itemauthor.target == 'assessment'}" />
     <h:outputText value="#{authorMessages.q} #{itemauthor.itemNo}" rendered="#{itemauthor.target == 'assessment'}"/>
@@ -105,7 +105,7 @@ document.links[newindex].onclick();
 
 <h3>
    <h:outputText value="#{authorMessages.modify_q}#{authorMessages.column} "/>
-   <h:outputText value="#{assessmentBean.title}" rendered="#{itemauthor.target == 'assessment'}"/>
+   <h:outputText value="#{assessmentBean.title}" rendered="#{itemauthor.target == 'assessment'}" escape="false"/>
 </h3>
 <!-- CHANGE TYPE -->
 <div class="tier1">

@@ -400,9 +400,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 				Long oldAnswerId = oldItem.getPublishedAnswerId();
 				Long newAnswerId = newItem.getPublishedAnswerId();
 				String oldRationale = oldItem.getRationale();
-				String newRationale = newItem.getRationale();
+				String newRationale = ContextUtil.processFormattedText(log, newItem.getRationale());
 				String oldAnswerText = oldItem.getAnswerText();
-				String newAnswerText = newItem.getAnswerText();
+				String newAnswerText = ContextUtil.processFormattedText(log, newItem.getAnswerText());
 				if ((oldReview != null && !oldReview.equals(newReview))
 				    || (newReview!=null && !newReview.equals(oldReview))
 						|| (oldAnswerId != null && !oldAnswerId
@@ -422,9 +422,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 						|| mcmrMap.get(oldItem.getPublishedItemId()) != null) {
 					oldItem.setReview(newItem.getReview());
 					oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
-					oldItem.setRationale(newItem.getRationale());
+					oldItem.setRationale(newRationale);
 							
-					oldItem.setAnswerText(newItem.getAnswerText());
+					oldItem.setAnswerText(newAnswerText);
 					oldItem.setSubmittedDate(new Date());
 					oldItem.setAutoScore(newItem.getAutoScore());
 					oldItem.setOverrideScore(newItem.getOverrideScore());
@@ -521,6 +521,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 							// null=> skipping this question
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
+							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
+								itemgrading.setRationale(ContextUtil.processFormattedText(log, itemgrading.getRationale()));
+							}
 							// the rest of the info is collected by
 							// ItemContentsBean via JSF form
 							adds.add(itemgrading);
@@ -533,7 +536,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 			}
 			break;
 		case 4: // T/F
-		case 5: // SAQ
 		case 9: // Matching
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
@@ -548,11 +550,33 @@ public class SubmitToGradingActionListener implements ActionListener {
 					break;
 				} else if (itemgrading.getPublishedAnswerId() != null
 						|| itemgrading.getAnswerText() != null ) {
+					if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
+						itemgrading.setRationale(ContextUtil.processFormattedText(log, itemgrading.getRationale()));
+					}
 					adds.addAll(grading);
 					break;
 				}
 			}
 			break;
+		case 5: // SAQ
+			for (int m = 0; m < grading.size(); m++) {
+				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				itemgrading.setAgentId(AgentFacade.getAgentString());
+				itemgrading.setSubmittedDate(new Date());
+			}
+			for (int m = 0; m < grading.size(); m++) {
+				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				if (itemgrading.getItemGradingId() != null
+						&& itemgrading.getItemGradingId().intValue() > 0) {
+					adds.addAll(grading);
+					break;
+				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
+					itemgrading.setAnswerText(ContextUtil.processFormattedText(log, itemgrading.getAnswerText()));
+					adds.addAll(grading);
+					break;
+				}
+			}
+			break;			
 		case 8: // FIB
 		case 11: // FIN
 			for (int m = 0; m < grading.size(); m++) {
@@ -569,6 +593,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
 					String s = itemgrading.getAnswerText();
 					log.debug("s = " + s);
+					itemgrading.setAnswerText(ContextUtil.processFormattedText(log, s));
 					adds.addAll(grading);
 					break;
 				}

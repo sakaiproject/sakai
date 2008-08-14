@@ -69,7 +69,7 @@ should be included in file importing DeliveryMessages
                  && delivery.actionString!='gradeAssessment'}" />
     <h:outputText id="rationale2" value="#{question.rationale}" 
         rendered="#{delivery.actionString=='reviewAssessment'
-                 || delivery.actionString=='gradeAssessment'}" />
+                 || delivery.actionString=='gradeAssessment'}" escape="false"/>
   </h:panelGroup>
 
 <f:verbatim><br /></f:verbatim>
@@ -101,7 +101,7 @@ should be included in file importing DeliveryMessages
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
+  <h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />

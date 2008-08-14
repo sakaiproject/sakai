@@ -62,6 +62,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 // end testing
@@ -671,7 +672,7 @@ public class QuestionScoreListener implements ActionListener,
 						} else {
 							results.setTotalAutoScore(Float.toString(0));
 						}
-						results.setComments(gdata.getComments());
+						results.setComments(FormattedText.unEscapeHtml(gdata.getComments()));
 						results.setAnswer(answerText);
 						results.setFullAnswer(fullAnswerText);
 						results.setRationale(rationale);

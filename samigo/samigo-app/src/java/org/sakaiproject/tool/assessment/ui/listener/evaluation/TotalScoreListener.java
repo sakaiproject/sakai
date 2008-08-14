@@ -70,6 +70,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>
@@ -580,7 +581,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       else
         results.setFinalScore("0.0");
       
-      results.setComments(gdata.getComments());
+      results.setComments(FormattedText.unEscapeHtml(gdata.getComments()));
 
       Iterator i3 = gdata.getItemGradingSet().iterator();
       Long typeId = new Long(-1);

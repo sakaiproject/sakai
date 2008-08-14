@@ -26,7 +26,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <%-- TITLE --%>
 <p>
 <h3 style="insColor insBak">
-   <h:outputText value="#{delivery.assessmentTitle}" />
+   <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
 </h3>
 </p>
 <%-- NAV BAR --%>

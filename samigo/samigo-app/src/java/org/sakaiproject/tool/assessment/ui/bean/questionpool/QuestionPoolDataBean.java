@@ -35,6 +35,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * This holds question pool information.
@@ -122,7 +123,7 @@ public class QuestionPoolDataBean
    */
   public String getDisplayName()
   {
-    return displayName;
+    return FormattedText.unEscapeHtml(displayName);
   }
 
   /**
@@ -166,7 +167,7 @@ public class QuestionPoolDataBean
    */
   public String getDescription()
   {
-    return description;
+    return FormattedText.unEscapeHtml(description);
   }
 
   /**
@@ -185,7 +186,7 @@ public class QuestionPoolDataBean
    */
   public String getOrganizationName()
   {
-    return organizationName ;
+    return FormattedText.unEscapeHtml(organizationName);
   }
 
   /**
@@ -205,7 +206,7 @@ public class QuestionPoolDataBean
    */
   public String getKeywords()
   {
-    return keywords;
+    return FormattedText.unEscapeHtml(keywords);
   }
 
   /**
@@ -225,7 +226,7 @@ public class QuestionPoolDataBean
    */
   public String getObjectives()
   {
-    return objectives ;
+    return FormattedText.unEscapeHtml(objectives);
   }
 
   /**

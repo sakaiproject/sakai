@@ -487,8 +487,8 @@ public class AuthoringHelper
       ItemService itemService = new ItemService();
       Assessment assessmentXml = new Assessment(document);
       Map assessmentMap = exHelper.mapAssessment(assessmentXml);
-      String description = (String) assessmentMap.get("description");
-      String title = (String) assessmentMap.get("title");
+      String description = XmlUtil.processFormattedText(log, (String) assessmentMap.get("description"));
+      String title = XmlUtil.processFormattedText(log, (String) assessmentMap.get("title"));
       assessment = assessmentService.createAssessmentWithoutDefaultSection(
         title, exHelper.makeFCKAttachment(description), null, templateId);
 
@@ -526,6 +526,10 @@ public class AuthoringHelper
       assessment.setLastModifiedDate(assessment.getCreatedDate());
       assessment.setTypeId(TypeIfc.QUIZ);
       assessment.setStatus(new Integer(1));
+      // set comments
+      String comments = (String) assessmentMap.get("comments");
+      assessment.setComments(comments);
+
 
       // process each section and each item within each section
       List sectionList = exHelper.getSectionXmlList(assessmentXml);

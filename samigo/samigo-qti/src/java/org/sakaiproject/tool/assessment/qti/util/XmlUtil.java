@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import javax.servlet.ServletContext;
+
+import org.sakaiproject.util.FormattedText;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -580,5 +582,18 @@ public final class XmlUtil
     }
 
     return domString;
+  }
+  
+  public static String processFormattedText(Log log, String value) {
+	  if (value == null || value.length() == 0){
+		  return value;
+	  }
+	  StringBuilder alertMsg = new StringBuilder();
+	  String finalValue = FormattedText.processFormattedText(value, alertMsg);
+	  if (alertMsg.length() > 0)
+	  {
+		  log.debug(alertMsg.toString());
+	  }
+	  return finalValue;
   }
 }

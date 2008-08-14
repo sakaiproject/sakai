@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
@@ -12,9 +14,11 @@ import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.w3c.dom.Document;
 
 public class SamLiteBean implements Serializable {
+	private static Log log = LogFactory.getLog(SamLiteBean.class);
 	private static final long serialVersionUID = -3122436861866172596L;
 	public static final String DEFAULT_CHARSET = "ascii-us";
 
@@ -45,7 +49,9 @@ public class SamLiteBean implements Serializable {
 	}
 	
 	public void parse() {
-		questionGroup = samLiteService.parse(name, description, data);
+		questionGroup = samLiteService.parse(ContextUtil.processFormattedText(log, name), 
+				ContextUtil.processFormattedText(log, description), 
+				ContextUtil.processFormattedText(log, data));
 	}
 	
 	public Document createDocument() {

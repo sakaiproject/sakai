@@ -185,7 +185,8 @@ public class TotalScoreUpdateListener
 
   private boolean needUpdate(AgentResults agentResults, HashMap map){
     boolean update = true;
-    String newComments = agentResults.getComments();
+    String newComments = ContextUtil.processFormattedText(log, agentResults.getComments());
+    agentResults.setComments(newComments);
     log.debug("newComments = " + newComments);
 
     float totalAutoScore = 0; 

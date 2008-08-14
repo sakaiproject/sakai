@@ -44,7 +44,7 @@
 <h3><h:outputText value="#{deliveryMessages.submission}" /></h3>
 <div class="tier1">
 <h4>
-  <h:outputText value="#{delivery.assessmentTitle} " />
+  <h:outputText value="#{delivery.assessmentTitle} " escape="false"/>
   <h:outputText value="#{deliveryMessages.submission_info}" />
 </h4>
 
@@ -63,8 +63,8 @@
     <h:outputLabel  value="#{deliveryMessages.creator}" />
     <h:outputText value="#{delivery.creatorName}"/>
 
-    <h:outputLabel value="#{deliveryMessages.assessment_title}" />
-    <h:outputText value="#{delivery.assessmentTitle}" />
+    <h:outputLabel value="#{deliveryMessages.assessment_title}"/>
+    <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
 
     <h:outputLabel value="#{deliveryMessages.number_of_sub_remain}" />
     <h:panelGroup>
@@ -85,7 +85,7 @@
     <h:outputLabel value="#{deliveryMessages.final_page}" rendered="#{delivery.url!=null && delivery.url!=''}"/>
     <h:outputLink title="#{deliveryMessages.t_url}" value="#" rendered="#{delivery.url!=null && delivery.url!=''}"
        onclick="window.open('#{delivery.url}','new_window');" onkeypress="window.open('#{delivery.url}','new_window');">
-        <h:outputText value="#{delivery.url}" />
+        <h:outputText value="#{delivery.url}" escape="false"/>
     </h:outputLink>
 
   </h:panelGrid>

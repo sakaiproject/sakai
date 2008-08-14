@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Description: Action Listener for template updates</p>
@@ -184,10 +185,10 @@ public class TemplateUpdateListener
           (delegate.getAssessmentTemplate(templateIdString)).getData();
       }
 
-      template.setTitle(templateBean.getTemplateName());
+      template.setTitle(ContextUtil.processFormattedText(log, templateBean.getTemplateName()));
       if (templateBean.getTemplateAuthor() != null)
         templateBean.getValueMap().put
-          ("author", templateBean.getTemplateAuthor());
+          ("author", ContextUtil.processFormattedText(log, templateBean.getTemplateAuthor()));
       template.setDescription(templateBean.getTemplateDescription());
 
       // Assessment Access Control

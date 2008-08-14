@@ -25,6 +25,8 @@ package org.sakaiproject.tool.assessment.ui.listener.util;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import java.util.Locale;
 
@@ -393,5 +395,16 @@ public static ArrayList paramArrayValueLike(String paramPart)
     return newString;
   }
 
-
+  public static String processFormattedText(Log log, String value) {
+	  if (value == null || value.length() == 0){
+		  return value;
+	  }
+	  StringBuilder alertMsg = new StringBuilder();
+	  String finalValue = FormattedText.processFormattedText(value, alertMsg);
+	  if (alertMsg.length() > 0)
+	  {
+		  log.debug(alertMsg.toString());
+	  }
+	  return finalValue;
+  }
 }

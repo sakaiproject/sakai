@@ -89,7 +89,7 @@ public class SavePartListener
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - read from form editpart.jsp
-    String title = (sectionBean.getSectionTitle()).trim();
+    String title = ContextUtil.processFormattedText(log, (sectionBean.getSectionTitle()).trim());
     if(title == null || title.equals("")){
     	String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "empty_part_title_error");
     	context.addMessage(null, new FacesMessage(err));

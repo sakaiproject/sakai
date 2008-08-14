@@ -114,7 +114,7 @@
 
       <h:panelGroup rendered="#{person.isAdmin || (authorization.editOwnTemplate && templateListItem.idString!='1')}">
         <h:commandLink title="#{templateMessages.t_editTemplate}" id="editlink" action="editTemplate" immediate="true">
-          <h:outputText value="#{templateListItem.templateName}" />
+          <h:outputText value="#{templateListItem.templateName}" escape="false"/>
 
           <f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateLoadListener" />

@@ -56,8 +56,8 @@
 
 <h:panelGrid columns="2" rowClasses="shorttext" rendered="#{author.isEditPendingAssessmentFlow}">
 
-     <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}" rendered="#{assessmentSettings.title ne null}" />
-     <h:outputText value="#{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}" />
+     <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}" rendered="#{assessmentSettings.title ne null}"/>
+     <h:outputText value="#{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}" escape="false" />
 
      <h:outputLabel value="#{assessmentSettingsMessages.assessment_available_date}" />
      <h:panelGroup>
@@ -126,7 +126,7 @@
 <h:panelGrid columns="2" rowClasses="shorttext" rendered="#{!author.isEditPendingAssessmentFlow}" border="0">
 
      <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}" rendered="#{publishedSettings.title ne null}" />
-     <h:outputText value="#{publishedSettings.title}" rendered="#{publishedSettings.title ne null}" />
+     <h:outputText value="#{publishedSettings.title}" rendered="#{publishedSettings.title ne null}"  escape="false"/>
 
      <h:outputLabel value="#{assessmentSettingsMessages.assessment_available_date}" />
      <h:panelGroup>

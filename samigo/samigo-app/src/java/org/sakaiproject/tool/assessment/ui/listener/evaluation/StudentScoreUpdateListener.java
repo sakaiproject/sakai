@@ -149,7 +149,7 @@ public class StudentScoreUpdateListener
             if (data.getAutoScore() !=null) {
               oldAutoScore=data.getAutoScore().floatValue();
             }
-            String newComments = question.getGradingComment();
+            String newComments = ContextUtil.processFormattedText(log, question.getGradingComment());
             if (newComments != null) {
       		  newComments = newComments.trim();
             }
@@ -179,7 +179,7 @@ public class StudentScoreUpdateListener
               logString.append(oldAutoScore);
             }
             if (updateComments) {
-              data.setComments(question.getGradingComment());
+              data.setComments(newComments);
               logString.append(", newComments=");
               logString.append(newComments);
               logString.append(", oldComments=");
@@ -208,7 +208,7 @@ public class StudentScoreUpdateListener
       if (adata == null)
         return true; // Nothing to save.
 
-      String newComments = bean.getComments();
+      String newComments = ContextUtil.processFormattedText(log, bean.getComments());
       if (newComments != null) {
     	  newComments = newComments.trim();
       }
@@ -225,7 +225,7 @@ public class StudentScoreUpdateListener
 
       if (!newComments.equals(oldComments)) {
     	  updateFlag = true;
-    	  adata.setComments(bean.getComments());
+    	  adata.setComments(newComments);
     	  adata.setGradedBy(AgentFacade.getAgentString());
     	  adata.setGradedDate(new Date());
     	  StringBuffer logString = new StringBuffer();

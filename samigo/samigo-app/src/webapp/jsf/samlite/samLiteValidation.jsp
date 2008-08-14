@@ -71,7 +71,7 @@
 		 			<f:facet name="header">
 		          		<h:outputText value="#{msg.samlite_question}" />
 		        	</f:facet>
-		        	<h:outputText value="#{question.question}"/>
+		        	<h:outputText value="#{question.question}" escape="false"/>
 		 		</h:column>
 		 		<h:column>
 		 			<f:facet name="header">
@@ -100,7 +100,7 @@
 						          	<h:graphicImage id="image2" rendered="#{!answer.correct}"
 						             alt="#{msg.not_correct}" url="/images/unchecked.gif" >
 						          	</h:graphicImage>						   
-						          	<h:outputText value="#{answer.id}. #{answer.text}"/>
+						          	<h:outputText value="#{answer.id}. #{answer.text}" escape="false"/>
 						        </h:column>
 						    </h:dataTable>
           				</h:panelGroup>

@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>
@@ -78,7 +79,7 @@ public class EditPartListener
     SectionFacade section = assessmentService.getSection(sectionId);
     section.setAssessment(assessmentBean.getAssessment());
     sectionBean.setSection(section);
-    sectionBean.setSectionTitle(section.getTitle());
+    sectionBean.setSectionTitle(FormattedText.unEscapeHtml(section.getTitle()));
     sectionBean.setSectionDescription(section.getDescription());
 
     sectionBean.setNoOfItems(String.valueOf(section.getItemSet().size()));
@@ -116,6 +117,10 @@ public class EditPartListener
   private void populateMetaData(SectionFacade section, SectionBean bean)  {
     Set metaDataSet= section.getSectionMetaDataSet();
     Iterator iter = metaDataSet.iterator();
+    // reset to null
+    bean.setKeyword(null);
+    bean.setObjective(null);
+    bean.setRubric(null);
     boolean isRandomizationTypeSet = false;
     boolean isPointValueHasOverrided = false;
     boolean isDiscountValueHasOverrided = false;

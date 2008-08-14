@@ -48,6 +48,7 @@ import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBea
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataModel;
 //import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 //import org.sakaiproject.tool.assessment.data.model.Tree;
 //import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 /**
@@ -72,7 +73,7 @@ public class PoolSaveListener implements ActionListener
   {
     //log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
-    String currentName= qpoolbean.getCurrentPool().getDisplayName();
+    String currentName= ContextUtil.processFormattedText(log, qpoolbean.getCurrentPool().getDisplayName());
    
     boolean isUnique=true;
     QuestionPoolService service = new QuestionPoolService();
@@ -154,11 +155,11 @@ public class PoolSaveListener implements ActionListener
 
       QuestionPoolFacade questionpool =
         new QuestionPoolFacade (beanid, parentid);
-      questionpool.updateDisplayName(bean.getDisplayName());
-      questionpool.updateDescription(bean.getDescription());
-      questionpool.setOrganizationName(bean.getOrganizationName());
-      questionpool.setObjectives(bean.getObjectives());
-      questionpool.setKeywords(bean.getKeywords());
+      questionpool.updateDisplayName(ContextUtil.processFormattedText(log, bean.getDisplayName()));
+      questionpool.updateDescription(ContextUtil.processFormattedText(log, bean.getDescription()));
+      questionpool.setOrganizationName(ContextUtil.processFormattedText(log, bean.getOrganizationName()));
+      questionpool.setObjectives(ContextUtil.processFormattedText(log, bean.getObjectives()));
+      questionpool.setKeywords(ContextUtil.processFormattedText(log, bean.getKeywords()));
 // need to set owner and accesstype
 //owner is hardcoded for now
       questionpool.setOwnerId(AgentFacade.getAgentString());
@@ -189,11 +190,11 @@ public class PoolSaveListener implements ActionListener
       
       // Reset the properties for current pool to reflect the early changes (before click on "Add") in edit pool
       QuestionPoolDataBean currentPool = qpbean.getCurrentPool();
-      currentPool.setDisplayName(qpbean.getParentPool().getDisplayName());
-      currentPool.setOrganizationName(qpbean.getParentPool().getOrganizationName());
-      currentPool.setDescription(qpbean.getParentPool().getDescription());
-      currentPool.setObjectives(qpbean.getParentPool().getObjectives());
-      currentPool.setKeywords(qpbean.getParentPool().getKeywords());
+      currentPool.setDisplayName(ContextUtil.processFormattedText(log, qpbean.getParentPool().getDisplayName()));
+      currentPool.setOrganizationName(ContextUtil.processFormattedText(log, qpbean.getParentPool().getOrganizationName()));
+      currentPool.setDescription(ContextUtil.processFormattedText(log, qpbean.getParentPool().getDescription()));
+      currentPool.setObjectives(ContextUtil.processFormattedText(log, qpbean.getParentPool().getObjectives()));
+      currentPool.setKeywords(ContextUtil.processFormattedText(log, qpbean.getParentPool().getKeywords()));
       ArrayList addedPools = qpbean.getAddedPools();
       if (addedPools == null) {
     	  addedPools = new ArrayList();
@@ -252,5 +253,4 @@ public class PoolSaveListener implements ActionListener
     }
     return true;
   }
-
 }

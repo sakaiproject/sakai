@@ -79,6 +79,9 @@ public class AuthorPartListener implements ActionListener
     sectionBean.setResourceHash(null);
     sectionBean.setAttachmentList(null);
     sectionBean.setHasAttachment(false);
+    sectionBean.setKeyword(null);
+    sectionBean.setObjective(null);
+    sectionBean.setRubric(null);
     // set default
     sectionBean.setType(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
     sectionBean.setQuestionOrdering(SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());

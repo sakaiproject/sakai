@@ -23,6 +23,9 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -30,6 +33,8 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -38,6 +43,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationLi
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>
@@ -110,18 +116,34 @@ public class StudentScoreListener
       String email = cu.lookupParam("email");
       bean.setEmail(email);
       
-      DeliveryBean dbean = (DeliveryBean) cu.lookupBean("delivery");
+	      DeliveryBean dbean = (DeliveryBean) cu.lookupBean("delivery");
       dbean.setActionString("gradeAssessment");
-      //dbean.setForGrading(true);
-
+      
       GradingService service = new GradingService();
       AssessmentGradingData adata= (AssessmentGradingData) service.load(bean.getAssessmentGradingId());
 
       DeliveryActionListener listener = new DeliveryActionListener();
       listener.processAction(null);
+      
+      // Added for SAK-13930
+      DeliveryBean updatedDeliveryBean = (DeliveryBean) cu.lookupBean("delivery");
+      ArrayList parts = updatedDeliveryBean.getPageContents().getPartsContents();
+      Iterator iter = parts.iterator();
+      while (iter.hasNext())
+      {
+          ArrayList items = ((SectionContentsBean) iter.next()).getItemContents();
+          Iterator iter2 = items.iterator();
+          while (iter2.hasNext())
+          {
+        	  ItemContentsBean question = (ItemContentsBean) iter2.next();
+        	  if (question.getGradingComment() != null && !question.getGradingComment().equals("")) {
+        		  question.setGradingComment(FormattedText.unEscapeHtml(question.getGradingComment()));
+        	  }
+          }
+      } // End of SAK-13930
 
       //if (adata.getComments() != null)
-          bean.setComments(adata.getComments());
+          bean.setComments(FormattedText.unEscapeHtml(adata.getComments()));
 
       //dbean.setForGrading(false);
       return true;

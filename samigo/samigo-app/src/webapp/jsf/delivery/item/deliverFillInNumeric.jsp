@@ -36,11 +36,15 @@ should be included in file importing DeliveryMessages
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}" url="/images/checkmark.gif">
       </h:graphicImage>
-      <h:inputText size="10" rendered="#{answer.hasInput}"
-         disabled="#{delivery.actionString=='previewAssessment' 
-                  || delivery.actionString=='reviewAssessment'
-                  || delivery.actionString=='gradeAssessment'}"
-         value="#{answer.response}" onkeypress="return noenter()"/>
+	  <h:inputText size="10" rendered="#{answer.hasInput 
+		&& delivery.actionString !='gradeAssessment' 
+		&& delivery.actionString !='reviewAssessment'}"
+        disabled="#{delivery.actionString=='previewAssessment'}" value="#{answer.response}" onkeypress="return noenter()"/>
+      <h:outputText style="text-decoration: underline" 
+		rendered="#{delivery.actionString=='gradeAssessment' 
+			|| delivery.actionString=='reviewAssessment'}"
+             value="#{answer.response}"/>
+
   </h:column>
 </samigo:dataLine>
 
@@ -73,7 +77,7 @@ should be included in file importing DeliveryMessages
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
+  <h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />

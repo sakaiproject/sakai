@@ -61,7 +61,7 @@
 
 <h3><h:outputText value="#{deliveryMessages.begin_assessment_}" /></h3>
 <div class="tier1">
- <h4> <h:outputText value="#{delivery.assessmentTitle} #{deliveryMessages.info} " /></h4>
+ <h4> <h:outputText value="#{delivery.assessmentTitle} #{deliveryMessages.info} " escape="false"/></h4>
 <div class="tier2">
 <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <h:outputText value="#{delivery.instructorMessage}" escape="false"/>
@@ -78,8 +78,8 @@
     <h:outputText value="#{delivery.creatorName}" />
 
 
-    <h:outputLabel value="#{deliveryMessages.assessment_title}" rendered="#{delivery.assessmentTitle ne ''}" />
-    <h:outputText value="#{delivery.assessmentTitle}" />
+    <h:outputLabel value="#{deliveryMessages.assessment_title}" rendered="#{delivery.assessmentTitle ne ''}"/>
+    <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
 
     <h:outputLabel value="#{deliveryMessages.time_limit}"/>
     <h:panelGroup rendered="#{delivery.hasTimeLimit}">

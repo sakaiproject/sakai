@@ -1402,15 +1402,15 @@ public class ItemAddListener
 		HashSet set = new HashSet();
 		if (bean.getKeyword() != null) {
 			set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.KEYWORD, bean.getKeyword()));
+					ItemMetaDataIfc.KEYWORD, ContextUtil.processFormattedText(log, bean.getKeyword())));
 		}
 		if (bean.getRubric() != null) {
 			set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.RUBRIC, bean.getRubric()));
+					ItemMetaDataIfc.RUBRIC, ContextUtil.processFormattedText(log, bean.getRubric())));
 		}
 		if (bean.getObjective() != null) {
 			set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.OBJECTIVE, bean.getObjective()));
+					ItemMetaDataIfc.OBJECTIVE, ContextUtil.processFormattedText(log, bean.getObjective())));
 		}
 		// Randomize property got left out, added in metadata
 		if (bean.getRandomized() != null) {
@@ -1485,13 +1485,13 @@ public class ItemAddListener
 	  while (iter.hasNext()) {
 		  ItemMetaDataIfc itemMetaData = (ItemMetaDataIfc) iter.next();
 		  if (itemMetaData.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
-			  itemMetaData.setEntry(bean.getKeyword());
+			  itemMetaData.setEntry(ContextUtil.processFormattedText(log, bean.getKeyword()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.RUBRIC)){
-			  itemMetaData.setEntry(bean.getKeyword());
+			  itemMetaData.setEntry(ContextUtil.processFormattedText(log, bean.getKeyword()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.OBJECTIVE)){
-			  itemMetaData.setEntry(bean.getObjective());
+			  itemMetaData.setEntry(ContextUtil.processFormattedText(log, bean.getObjective()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.RANDOMIZE)){
 			  itemMetaData.setEntry(bean.getRandomized());
@@ -1543,7 +1543,7 @@ public class ItemAddListener
         if (afteropen.length>1) {
 // must have text in between {}
           String[] lastpart = afteropen[1].split("\\}");
-          String answer = FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("<.*?>", ""));
+          String answer = FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
           list.add(answer);
         }
     }
@@ -1552,17 +1552,17 @@ public class ItemAddListener
       if (i == 0) {
         String[] firstpart = tokens[i].split("\\{");
 	  if (firstpart.length>1) {
-		String answer = FormattedText.convertFormattedTextToPlaintext(firstpart[1].replaceAll("<.*?>", ""));
+		String answer = FormattedText.convertFormattedTextToPlaintext(firstpart[1].replaceAll("&lt;.*?&gt;", ""));
           list.add(answer);
         }
       }
       else if (i == (tokens.length - 1)) {
         String[] lastpart = tokens[i].split("\\}");
-        String answer = FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("<.*?>", ""));
+        String answer = FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
         list.add(answer);
       }
       else {
-    	String answer = FormattedText.convertFormattedTextToPlaintext(tokens[i].replaceAll("<.*?>", ""));
+    	String answer = FormattedText.convertFormattedTextToPlaintext(tokens[i].replaceAll("&lt;.*?&gt;", ""));
         list.add(answer);
       }
       }
@@ -1857,5 +1857,4 @@ Object[] fibanswers = getFIBanswers(entiretext).toArray();
 	  }
 	  return choices;
   }
-
 }

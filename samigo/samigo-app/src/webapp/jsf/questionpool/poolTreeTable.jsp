@@ -57,7 +57,7 @@
 
 <h:commandLink title="#{questionPoolMessages.t_editPool}" id="editlink" immediate="true" action="#{questionpool.editPool}"
    rendered="#{authorization.editOwnQuestionPool}">
-  <h:outputText id="poolnametext" value="#{pool.displayName}"/>
+  <h:outputText id="poolnametext" value="#{pool.displayName}" escape="false"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="orderBy" value="text"/>
   <f:param name="ascending" value="true"/>
@@ -65,7 +65,7 @@
 </h:commandLink>
 
 <h:panelGroup rendered="#{!authorization.editOwnQuestionPool}">
-  <h:outputText id="poolnametext2" value="#{pool.displayName}"/>
+  <h:outputText id="poolnametext2" value="#{pool.displayName}" escape="false"/>
 </h:panelGroup>
 
 

@@ -72,6 +72,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -219,7 +220,7 @@ public class DeliveryActionListener
               // If this is a linear access and user clicks on Show Feedback, we do not
               // get data from db. Use delivery bean instead
               if (delivery.getNavigation().equals("1") && ae != null && "showFeedback".equals(ae.getComponent().getId())) {
-            	  log.debug("Do notget data from db if it is linear access and the action is show feedback");
+            	  log.debug("Do not get data from db if it is linear access and the action is show feedback");
             	  ag = delivery.getAssessmentGrading();
             	  Iterator iter = ag.getItemGradingSet().iterator();
             	  while (iter.hasNext())
@@ -1344,22 +1345,18 @@ public class DeliveryActionListener
       populateMatching(item, itemBean, publishedAnswerHash);
 
     }
-    if (item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)) // fill in the blank
+    else if (item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)) // fill in the blank
     {
       populateFib(item, itemBean);
-
-      // round the points to the nearest tenth
-
     }
-    
-    if (item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) //numeric response
+    else if (item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) //numeric response
     {
       populateFin(item, itemBean);
-
-      // round the points to the nearest tenth
-
-}
-
+    }
+    else if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) //numeric response
+    {
+      itemBean.setResponseText(FormattedText.unEscapeHtml(itemBean.getResponseText()));
+    }
 
     return itemBean;
   }
@@ -1487,7 +1484,7 @@ public class DeliveryActionListener
           if ((data.getPublishedAnswerId()!=null) && data.getPublishedAnswerId().equals(answer.getId()))
           {
             fbean.setItemGradingData(data);
-            fbean.setResponse(data.getAnswerText());
+            fbean.setResponse(FormattedText.unEscapeHtml(data.getAnswerText()));
             fbean.setIsCorrect(false);
             if (answer.getText() == null)
             {
@@ -1646,7 +1643,7 @@ public class DeliveryActionListener
           {
         	  
             fbean.setItemGradingData(data);
-            fbean.setResponse(data.getAnswerText());
+            fbean.setResponse(FormattedText.unEscapeHtml(data.getAnswerText()));
             fbean.setIsCorrect(false);
             if (answer.getText() == null)
             {

@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -51,7 +53,9 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -62,7 +66,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 
 public class SaveAssessmentSettings
 {
-  //private static Log log = LogFactory.getLog(SaveAssessmentSettings.class);
+  private static Log log = LogFactory.getLog(SaveAssessmentSettings.class);
 
   public AssessmentFacade save(AssessmentSettingsBean assessmentSettings)
   {
@@ -79,9 +83,9 @@ public class SaveAssessmentSettings
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());
     //log.info("** assessment = "+assessment);
-    assessment.setTitle(assessmentSettings.getTitle());
-    assessment.setDescription(assessmentSettings.getDescription());
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, assessmentSettings.getAuthors());
+    assessment.setTitle(ContextUtil.processFormattedText(log, assessmentSettings.getTitle()));
+    assessment.setDescription(assessmentSettings.getDescription()); // No need to call processFormattedText() because this is done in RichTextEditArea.java
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, ContextUtil.processFormattedText(log, assessmentSettings.getAuthors()));
 
     // #2 - set AssessmentAccessControl
     AssessmentAccessControl control = (AssessmentAccessControl)assessment.getAssessmentAccessControl();
@@ -162,7 +166,7 @@ public class SaveAssessmentSettings
     // h. set finalPageUrl
     String finalPageUrl = assessmentSettings.getFinalPageUrl();
     if (finalPageUrl != null) {
-    	finalPageUrl = finalPageUrl.trim();
+    	finalPageUrl = ContextUtil.processFormattedText(log, finalPageUrl.trim());
     	if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
     		finalPageUrl = "http://" + finalPageUrl;
     	}
@@ -221,13 +225,13 @@ public class SaveAssessmentSettings
     updateMetaWithValueMap(assessment, h);
 
     // i. set Graphics
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, assessmentSettings.getBgColor());
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, assessmentSettings.getBgImage());
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, ContextUtil.processFormattedText(log, assessmentSettings.getBgColor()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, ContextUtil.processFormattedText(log, assessmentSettings.getBgImage()));
 
     // j. set objectives,rubrics,keywords
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, assessmentSettings.getKeywords());
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES,assessmentSettings.getObjectives());
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, assessmentSettings.getRubrics());
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, ContextUtil.processFormattedText(log, assessmentSettings.getKeywords()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, ContextUtil.processFormattedText(log, assessmentSettings.getObjectives()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, ContextUtil.processFormattedText(log, assessmentSettings.getRubrics()));
 
     // jj. save assessment first, then deal with ip
     assessmentService.saveAssessment(assessment);
@@ -391,5 +395,4 @@ public class SaveAssessmentSettings
     }
     return map;
   }
-
 }
