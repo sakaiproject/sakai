@@ -48,7 +48,7 @@
   <h3>
     <h:outputText value="#{evaluationMessages.export}"/>
     <h:outputText value="#{evaluationMessages.column} "/>
-    <h:outputText value="#{exportResponses.assessmentName} "/> 
+    <h:outputText value="#{exportResponses.assessmentName} " escape="false"/> 
   </h3>
 
   <p class="navViewAction">

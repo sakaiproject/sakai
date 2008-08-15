@@ -48,7 +48,7 @@ $Id$
   <h3>
     <h:outputText value="#{evaluationMessages.stat_view}"/>
     <h:outputText value="#{evaluationMessages.column} "/>
-    <h:outputText value="#{histogramScores.assessmentName} "/>
+    <h:outputText value="#{histogramScores.assessmentName} " escape="false"/>
   </h3>
   
      <h:outputText value=" <p class=\"navViewAction\">" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>

@@ -696,7 +696,7 @@ public class ItemAuthorBean
           selection.setLabel(rb.getString("p")+" "+ i );
         }
         else {
-          selection.setLabel(rb.getString("p")+" " + i + " - " + part.getTitle());
+          selection.setLabel(rb.getString("p")+" " + i + " - " + FormattedText.unEscapeHtml(part.getTitle()));
         }
         selection.setValue(part.getSectionId());
         list.add(selection);

@@ -101,7 +101,7 @@ function escapeApostrophe(name) {
   <h3>
     <h:outputText value="#{evaluationMessages.sub_status}"/>
     <h:outputText value="#{evaluationMessages.column} "/>
-    <h:outputText value="#{totalScores.assessmentName} "/>
+    <h:outputText value="#{totalScores.assessmentName} " escape="false"/>
   </h3>
   
   <p class="navViewAction">
