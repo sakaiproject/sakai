@@ -1672,8 +1672,13 @@ public class MessageForumSynopticBean {
 		if (receivedFolderUuidByContextId == null) {
 			List tempSiteList = new ArrayList();
 			tempSiteList.addAll(filterOutExcludedSites(getSiteList()));
-			List receivedUuidsForAllSites = forumsManager.
+			List receivedUuidsForAllSites = new ArrayList();
+			
+			if (tempSiteList.size() > 0) {
+				receivedUuidsForAllSites = forumsManager.
 												getReceivedUuidByContextId(tempSiteList);
+			}
+			
 			constructReceivedUuidMap(receivedUuidsForAllSites);
 		}
 	
