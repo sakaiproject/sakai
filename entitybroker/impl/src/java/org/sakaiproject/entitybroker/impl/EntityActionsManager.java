@@ -52,6 +52,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
+import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 
@@ -95,12 +96,7 @@ public class EntityActionsManager {
       // get the action params out of the request first
       Map<String, Object> actionParams = RequestStorageImpl.getRequestValues(request);
       EntityReference ref = entityView.getEntityReference();
-      OutputStream outputStream = null;
-      try {
-         outputStream = response.getOutputStream();
-      } catch (IOException e1) {
-         throw new RuntimeException("Failed getting response output stream");
-      }
+      OutputStream outputStream = new LazyResponseOutputStream(response);
       ActionReturn actionReturn = handleCustomActionExecution(actionProvider, ref, action, actionParams, outputStream);
       // now process the return into the request or response as needed
       if (actionReturn != null) {
@@ -198,6 +194,8 @@ public class EntityActionsManager {
                   throw new IllegalArgumentException(e.getCause().getMessage() + " (rethrown)", e.getCause());
                } else if (e.getCause().getClass().isAssignableFrom(IllegalStateException.class)) {
                   throw new IllegalStateException(e.getCause().getMessage() + " (rethrown)", e.getCause());
+               } else if (e.getCause().getClass().isAssignableFrom(SecurityException.class)) {
+                   throw new SecurityException(e.getCause().getMessage() + " (rethrown)", e.getCause());
                }
             }
             throw new RuntimeException("Fatal error trying to execute custom action method: " + customAction, e);

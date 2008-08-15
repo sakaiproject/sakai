@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/3.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/3.0.0 http://maven.apache.org/maven-v3_0_0.xsd">
-	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
-	<name>sakai-entitybroker-utils</name>
-	<groupId>sakaiproject</groupId>
-	<id>sakai-entitybroker-utils</id>
-	<currentVersion>${sakai.version}</currentVersion>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://www.sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2006</inceptionYear>
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/3.0.0 http://maven.apache.org/maven-v3_0_0.xsd">
+    <pomVersion>3</pomVersion>
+    <extend>../../master/project.xml</extend>
+    <name>sakai-entitybroker-utils</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-entitybroker-utils</id>
+    <currentVersion>${sakai.version}</currentVersion>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://www.sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2006</inceptionYear>
 
-	<properties>
-		<deploy.type>jar</deploy.type>
-	</properties>
+    <properties>
+        <deploy.type>jar</deploy.type>
+    </properties>
 
-	<dependencies>
+    <dependencies>
 
-		<!-- Sakai plugin so we can run maven builds from this directory -->
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai</artifactId>
-			<version>${sakai.plugin.version}</version>
-			<type>plugin</type>
-		</dependency>
+        <!-- Sakai plugin so we can run maven builds from this directory -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai</artifactId>
+            <version>${sakai.plugin.version}</version>
+            <type>plugin</type>
+        </dependency>
 
         <!-- internal dependencies -->
         <dependency>
@@ -67,19 +67,32 @@
             <version>3.1</version>
         </dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
 
-	<build>
-		<sourceDirectory>src/java</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>src/java</directory>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-			</resource>
-		</resources>
-	</build>
+        <dependency>
+            <groupId>servletapi</groupId>
+            <artifactId>servletapi</artifactId>
+            <version>2.4</version>
+            <type>jar</type>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
 </project>
 

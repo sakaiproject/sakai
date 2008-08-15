@@ -212,13 +212,15 @@ public class DirectServlet extends HttpServlet {
       // set the return path for after login if needed
       // (Note: in session, not tool session, special for Login helper)
       if (path != null) {
-         // defines where to go after login succeeds
-         session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req, path));
+          // defines where to go after login succeeds
+          String returnURL = Web.returnUrl(req, path);
+          session.setAttribute(Tool.HELPER_DONE_URL, returnURL);
       }
 
       // check that we have a return path set; might have been done earlier
       if (session.getAttribute(Tool.HELPER_DONE_URL) == null) {
-         log.warn("doLogin - proceeding with null HELPER_DONE_URL");
+          session.setAttribute(Tool.HELPER_DONE_URL, "/direct/describe");
+          log.warn("doLogin - no HELPER_DONE_URL found, proceeding with default HELPER_DONE_URL: " + "/direct/describe");
       }
 
       // map the request to the helper, leaving the path after ".../options" for the helper

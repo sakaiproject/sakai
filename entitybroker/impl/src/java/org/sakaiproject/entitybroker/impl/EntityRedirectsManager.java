@@ -155,6 +155,8 @@ public class EntityRedirectsManager {
                            throw new IllegalArgumentException(e.getCause().getMessage() + " (rethrown)", e.getCause());
                         } else if (e.getCause().getClass().isAssignableFrom(IllegalStateException.class)) {
                            throw new IllegalStateException(e.getCause().getMessage() + " (rethrown)", e.getCause());
+                        } else if (e.getCause().getClass().isAssignableFrom(SecurityException.class)) {
+                            throw new SecurityException(e.getCause().getMessage() + " (rethrown)", e.getCause());
                         }
                      }
                      throw new RuntimeException("Fatal error trying to execute URL redirect method: " + redirect, e);
