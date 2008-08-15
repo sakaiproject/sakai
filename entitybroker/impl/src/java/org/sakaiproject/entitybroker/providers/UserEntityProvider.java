@@ -97,7 +97,7 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, Describe
                   user.getEmail(), "", user.getType(), user.getProperties());
             userId = newUser.getId();
          } catch (UserIdInvalidException e) {
-            throw new IllegalArgumentException("User ID is invalid: " + user.getId(), e);
+            throw new IllegalArgumentException("User ID is invalid, id=" + user.getId() + ", eid="+user.getEid(), e);
          } catch (UserAlreadyDefinedException e) {
             throw new IllegalArgumentException("Cannot create user, user already exists: " + ref, e);
          } catch (UserPermissionException e) {
