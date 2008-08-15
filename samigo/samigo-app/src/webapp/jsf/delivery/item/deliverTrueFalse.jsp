@@ -62,7 +62,7 @@ should be included in file importing DeliveryMessages
                  && delivery.actionString!='gradeAssessment'}" />
     <h:outputText id="rationale2" value="#{question.rationale}" 
         rendered="#{delivery.actionString=='reviewAssessment'
-                 || delivery.actionString=='gradeAssessment'}" escape="false"/>
+                 || delivery.actionString=='gradeAssessment'}"/>
   </h:panelGroup>
 
 <h:panelGroup>

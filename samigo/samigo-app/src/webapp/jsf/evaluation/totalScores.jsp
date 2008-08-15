@@ -78,7 +78,7 @@ document.location='../evaluation/totalScores';
   <h3>
     <h:outputText value="#{evaluationMessages.title_total}"/>
     <h:outputText value="#{evaluationMessages.column} "/>
-    <h:outputText value="#{totalScores.assessmentName} "/> 
+    <h:outputText value="#{totalScores.assessmentName} " escape="fasel"/> 
   </h3>
 
   <p class="navViewAction">
