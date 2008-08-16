@@ -29,4 +29,11 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
 
+    <bean id="org.sakaiproject.entitybroker.providers.MembershipEntityProvider" 
+            class="org.sakaiproject.entitybroker.providers.MembershipEntityProvider">
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider" />
+    </bean>
+
 </beans>

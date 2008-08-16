@@ -232,6 +232,9 @@
         class="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
 
     <bean id="org.sakaiproject.entitybroker.impl.EntityRedirectsManager"
-        class="org.sakaiproject.entitybroker.impl.EntityRedirectsManager" />
+        class="org.sakaiproject.entitybroker.impl.EntityRedirectsManager">
+        <property name="requestStorage"
+            ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage" />
+    </bean>
 
 </beans>

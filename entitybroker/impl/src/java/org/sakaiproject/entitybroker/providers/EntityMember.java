@@ -16,6 +16,7 @@ package org.sakaiproject.entitybroker.providers;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
 
@@ -32,8 +33,8 @@ public class EntityMember implements Member {
     private String locationReference;
     private String memberRole;
     private String userEid;
-    private boolean active;
-    private boolean provided;
+    private boolean active = true;
+    private boolean provided = false;
 
     private transient Member member;
 
@@ -75,9 +76,12 @@ public class EntityMember implements Member {
      * @param locationReference the reference to the thing this is a membership in, site or group (e.g. '/site/mysite', '/site/mysite/group/mygroup')
      * @return a membership id which is unique
      */
-    public String makeId(String userId, String locationReference) {
-        if (userId == null || locationReference == null) {
+    public static String makeId(String userId, String locationReference) {
+        if (userId == null || locationReference == null || "".equals(locationReference)) {
             throw new IllegalArgumentException("userId ("+userId+") and locationReference ("+locationReference+") cannot be null when creating an id for a membership");
+        }
+        if (locationReference.charAt(0) != '/') {
+            throw new IllegalArgumentException("locationReference ("+locationReference+") must be a reference like '/site/siteId'");
         }
         if (userId.charAt(0) == '/') {
             userId = userId.substring(1);
@@ -95,6 +99,37 @@ public class EntityMember implements Member {
         return id;
     }
 
+    /**
+     * Tries to parse a membershipId into three parts:
+     * 1) the userId
+     * 2) the location reference
+     * 3) the location entity prefix
+     * @param membershipId an id structured like 'userId::site:siteId'
+     * @return an array with the 3 parts in order
+     */
+    public static String[] parseId(String membershipId) {
+        if (membershipId == null || "".equals(membershipId)) {
+            throw new IllegalArgumentException("membershipId cannot be null");
+        }
+        int splitter = membershipId.indexOf("::");
+        if (splitter == -1 
+                || membershipId.length() < splitter + 3) {
+            return null; // invalid
+        }
+        String userId = membershipId.substring(0, splitter);
+        if (userId.startsWith("user:")) {
+            userId = userId.substring(5);
+        }
+        String locationRef = '/' + membershipId.substring(splitter+2).replace(':', '/');
+        EntityReference ref = new EntityReference(locationRef);
+        if (ref.getId() == null) {
+            return null; // invalid
+        }
+        String locType = ref.getPrefix();
+        String[] togo = new String[] {userId, locationRef, locType};
+        return togo;
+    }
+
     @EntityId
     public String getId() {
         return id;
@@ -109,11 +144,11 @@ public class EntityMember implements Member {
         this.userId = userId;
     }
 
-    public String getMemberInRef() {
+    public String getLocationReference() {
         return locationReference;
     }
 
-    public void setMemberInRef(String locationReference) {
+    public void setLocationReference(String locationReference) {
         this.locationReference = locationReference;
     }
 

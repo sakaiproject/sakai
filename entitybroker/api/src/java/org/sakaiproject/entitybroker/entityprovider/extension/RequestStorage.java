@@ -43,7 +43,7 @@ import java.util.Map;
 public interface RequestStorage {
 
    /**
-    * Indicates the origina of the current request
+    * Indicates the origin of the current request
     */
    public static enum RequestOrigin { REST, EXTERNAL, INTERNAL };
 

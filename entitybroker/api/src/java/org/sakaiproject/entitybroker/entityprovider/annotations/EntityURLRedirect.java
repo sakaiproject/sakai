@@ -49,8 +49,11 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
  * {@link String} : incoming URL <br/>
  * {@link Method} : the submission method (GET,POST,etc) <br/>
  * String[] : incoming URL segments, Example: /myprefix/123/apple => {'prefix','123','apple'}  <br/>
- * {@link Map} ({@link String} => {@link String}) : a map of the values in the {}, 
+ * {@link Map} ({@link String} => {@link String}) : a map of the variable values in the {}, 
  * Example: pattern: /{prefix}/{thing}/apple, url: /myprefix/123/apple, would yield: {'thing' => '123','prefix' => 'mypreifx'} <br/>
+ * Don't forget to handle the extensions as they will not automatically pass through,
+ * use the {@link TemplateParseUtil#DOT_EXTENSION} and {@link TemplateParseUtil#EXTENSION} values from the variable map
+ * which will contain the extension that was passed in <br/>
  * <br/>
  * Return should be one of the following: <br/>
  * 1) the URL to redirect to, will be processed as an external redirect if it starts with "http" or "/" 

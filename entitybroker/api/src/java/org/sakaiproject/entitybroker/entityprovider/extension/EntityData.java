@@ -322,7 +322,7 @@ public class EntityData {
       return "ED: ref="+reference+":display="+displayTitle+":url="+URL+":props("+getEntityProperties().size()+"):entity="+entity;
    }
 
-   public static class ESRReferenceComparator implements Comparator<EntityData> {
+   public static class ReferenceComparator implements Comparator<EntityData> {
       public int compare(EntityData o1, EntityData o2) {
          return o1.reference.compareTo(o2.reference);
       }

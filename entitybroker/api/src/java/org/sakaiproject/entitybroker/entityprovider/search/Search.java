@@ -532,6 +532,50 @@ public class Search {
    }
 
    /**
+    * Finds if there are any search restrictions with one of the given properties, 
+    * if so it returns the first of the found restriction,
+    * otherwise returns null
+    * 
+    * @param properties an array of the properties (e.g. 'name','age') to find a value for
+    * @return the value OR null if none found
+    */
+   public Restriction getRestrictionByProperties(String[] properties) {
+       Restriction togo = null;
+       for (int i = 0; i < properties.length; i++) {
+           String property = properties[i];
+           Restriction r = this.getRestrictionByProperty(property);
+           if (r != null) {
+               togo = r;
+               break;
+           }
+       }
+       return togo;
+   }
+
+   /**
+    * Finds if there are any search restrictions with one of the given properties, 
+    * if so it returns the first non-null value in the found restrictions,
+    * otherwise returns null
+    *
+    * @param properties an array of the properties (e.g. 'name','age') to find a value for
+    * @return the value OR null if none found
+    */
+   public Object getRestrictionValueByProperties(String[] properties) {
+       Object value = null;
+       for (int i = 0; i < properties.length; i++) {
+           String property = properties[i];
+           Restriction r = this.getRestrictionByProperty(property);
+           if (r != null) {
+               if (r.getValue() != null) {
+                   value = r.getValue();
+                   break;
+               }
+           }
+       }
+       return value;
+   }
+
+   /**
     * @return true if this search has no defined restrictions and no orders
     * (i.e. this is a default search so return everything in default order),
     * false if there are any defined restrictions or orders

@@ -128,7 +128,7 @@ public class EntityActionsManagerTest extends TestCase {
       // double
       MyEntity me = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
       int num = me.getNumber();
-      ActionReturn actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "double", null, null);
+      ActionReturn actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "double", null, null, null);
       assertNotNull(actionReturn);
       assertNotNull(actionReturn.entityData);
       MyEntity doubleMe = (MyEntity) actionReturn.entityData.getEntity();
@@ -139,7 +139,7 @@ public class EntityActionsManagerTest extends TestCase {
       MyEntity me1 = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
       assertFalse("xxx".equals(me1.extra));
       assertFalse("xxx".equals(me1.getStuff()));
-      actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "xxx", null, null);
+      actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "xxx", null, null, null);
       assertNull(actionReturn);
       MyEntity xxxMe = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
       assertEquals(me1.getId(), xxxMe.getId());
@@ -148,33 +148,33 @@ public class EntityActionsManagerTest extends TestCase {
 
       // clear
       assertEquals(2, actionProvider.myEntities.size());
-      actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, new EntityReference(TestData.PREFIXA1, ""), "clear", null, null);
+      actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, new EntityReference(TestData.PREFIXA1, ""), "clear", null, null, null);
       assertEquals(0, actionProvider.myEntities.size());
 
       // check exception when try to execute invalid action
       try {
-         entityActionsManager.handleCustomActionExecution(actionProvider, ref, "NOT_VALID_ACTION", null, null);
+         entityActionsManager.handleCustomActionExecution(actionProvider, ref, "NOT_VALID_ACTION", null, null, null);
          fail("should have thrown exeception");
       } catch (UnsupportedOperationException e) {
          assertNotNull(e.getMessage());
       }
 
       try {
-         entityActionsManager.handleCustomActionExecution(null, ref, "xxx", null, null);
+         entityActionsManager.handleCustomActionExecution(null, ref, "xxx", null, null, null);
          fail("should have thrown exeception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());
       }
 
       try {
-         entityActionsManager.handleCustomActionExecution(actionProvider, null, "xxx", null, null);
+         entityActionsManager.handleCustomActionExecution(actionProvider, null, "xxx", null, null, null);
          fail("should have thrown exeception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());
       }
 
       try {
-         entityActionsManager.handleCustomActionExecution(actionProvider, ref, "", null, null);
+         entityActionsManager.handleCustomActionExecution(actionProvider, ref, "", null, null, null);
          fail("should have thrown exeception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());

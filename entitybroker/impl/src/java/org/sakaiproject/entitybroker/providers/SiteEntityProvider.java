@@ -23,22 +23,20 @@ package org.sakaiproject.entitybroker.providers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -54,7 +52,7 @@ import org.sakaiproject.site.api.SiteService.SortType;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class SiteEntityProvider implements CoreEntityProvider, RESTful, ActionsExecutable, AutoRegisterEntityProvider {
+public class SiteEntityProvider implements CoreEntityProvider, RESTful, ActionsExecutable, Redirectable, AutoRegisterEntityProvider {
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {
@@ -71,20 +69,9 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, ActionsE
         return PREFIX;
     }
 
-    @EntityCustomAction(action="memberships",viewKey=EntityView.VIEW_SHOW)
-    @SuppressWarnings("unchecked")
-    public List<EntityData> getSiteMemberships(EntityView view, Map<String, Object> params) {
-        String siteId = view.getEntityReference().getId();
-        ArrayList<EntityData> l = new ArrayList<EntityData>();
-        Site site = getSiteById(siteId);
-        isAllowedAccessMembers(site);
-        Set<Member> members = site.getMembers();
-        for (Member member : members) {
-            EntityMember em = new EntityMember(member, site.getReference());
-            EntityData ed = new EntityData(new EntityReference("membership",em.getId()), null, em);
-            l.add(ed);
-        }
-        return l;
+    @EntityURLRedirect("/{prefix}/{id}/memberships")
+    public String redirectMemberships(Map<String,String> vars) {
+        return MembershipEntityProvider.PREFIX + "/site/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
     }
 
     /**
@@ -112,11 +99,8 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, ActionsE
         if ("".equals(id)) {
             return true;
         }
-        Site s = getSiteById(id);
-        if (s != null) {
-            return true;
-        }
-        return false;
+        boolean exists = siteService.siteExists(id);
+        return exists;
     }
 
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
@@ -191,7 +175,7 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, ActionsE
                 throw new IllegalArgumentException("Cannot save new site with given id: " + siteId + ":" + e.getMessage(), e);
             }
         } else {
-            throw new IllegalArgumentException("Invalid entity for creation, must be User or EntityUser object");
+            throw new IllegalArgumentException("Invalid entity for creation, must be Site or EntitySite object");
         }
         return siteId;
     }

@@ -116,7 +116,7 @@ public class TaggableEntityProviderMock extends EntityProviderMock implements Ta
       for (String ref : refs) {
          results.add( new EntityData(ref, null) );
       }
-      Collections.sort(results, new EntityData.ESRReferenceComparator());
+      Collections.sort(results, new EntityData.ReferenceComparator());
       return results;
    }
 

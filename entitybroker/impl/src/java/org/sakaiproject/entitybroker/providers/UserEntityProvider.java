@@ -51,282 +51,325 @@ import org.sakaiproject.user.api.UserPermissionException;
  */
 public class UserEntityProvider implements CoreEntityProvider, RESTful, Describeable, AutoRegisterEntityProvider {
 
-   private UserDirectoryService userDirectoryService;
-   public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-      this.userDirectoryService = userDirectoryService;
-   }
+    private UserDirectoryService userDirectoryService;
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
+    }
 
-   private DeveloperHelperService developerHelperService;
-   public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-      this.developerHelperService = developerHelperService;
-   }
+    private DeveloperHelperService developerHelperService;
+    public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
+        this.developerHelperService = developerHelperService;
+    }
 
-   public static String PREFIX = "user";
-   public String getEntityPrefix() {
-      return PREFIX;
-   }
+    public static String PREFIX = "user";
+    public String getEntityPrefix() {
+        return PREFIX;
+    }
 
-   public boolean entityExists(String id) {
-      if (id == null) {
-         return false;
-      }
-      if ("".equals(id)) {
-         return true;
-      }
-      User u = getUserByIdEid(id);
-      if (u != null) {
-         return true;
-      }
-      return false;
-   }
+    public boolean entityExists(String id) {
+        if (id == null) {
+            return false;
+        }
+        if ("".equals(id)) {
+            return true;
+        }
+        User u = getUserByIdEid(id);
+        if (u != null) {
+            return true;
+        }
+        return false;
+    }
 
-   public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-      String userId = null;
-      if (ref.getId() != null && ref.getId().length() > 0) {
-         userId = ref.getId();
-      }
-      if (entity.getClass().isAssignableFrom(User.class)) {
-         // if someone passes in a user or useredit
-         User user = (User) entity;
-         if (userId == null && user.getId() != null) {
-            userId = user.getId();
-         }
-         // NOTE: must assign empty password if user is created this way.... it sucks -AZ
-         try {
-            User newUser = userDirectoryService.addUser(userId, user.getEid(), user.getFirstName(), user.getLastName(), 
-                  user.getEmail(), "", user.getType(), user.getProperties());
-            userId = newUser.getId();
-         } catch (UserIdInvalidException e) {
-            throw new IllegalArgumentException("User ID is invalid, id=" + user.getId() + ", eid="+user.getEid(), e);
-         } catch (UserAlreadyDefinedException e) {
-            throw new IllegalArgumentException("Cannot create user, user already exists: " + ref, e);
-         } catch (UserPermissionException e) {
-            throw new SecurityException("Could not create user, permission denied: " + ref, e);
-         }
-      } else if (entity.getClass().isAssignableFrom(EntityUser.class)) {
-         // if they instead pass in the EntityUser object
-         EntityUser user = (EntityUser) entity;
-         if (userId == null && user.getId() != null) {
-            userId = user.getId();
-         }
-         try {
-            UserEdit edit = userDirectoryService.addUser(userId, user.getEid());
-            edit.setEmail(user.getEmail());
-            edit.setFirstName(user.getFirstName());
-            edit.setLastName(user.getLastName());
-            edit.setPassword(user.getPassword());
-            edit.setType(user.getType());
-            // put in properties
-            ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
-            for (String key : user.getProps().keySet()) {
-               String value = user.getProps().get(key);
-               rpe.addProperty(key, value);
+    public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
+        String userId = null;
+        if (ref.getId() != null && ref.getId().length() > 0) {
+            userId = ref.getId();
+        }
+        if (entity.getClass().isAssignableFrom(User.class)) {
+            // if someone passes in a user or useredit
+            User user = (User) entity;
+            if (userId == null && user.getId() != null) {
+                userId = user.getId();
             }
-            userDirectoryService.commitEdit(edit);
-            userId = edit.getId();
-         } catch (UserIdInvalidException e) {
-            throw new IllegalArgumentException("User ID is invalid: " + user.getId(), e);
-         } catch (UserAlreadyDefinedException e) {
-            throw new IllegalArgumentException("Cannot create user, user already exists: " + ref, e);
-         } catch (UserPermissionException e) {
-            throw new SecurityException("Could not create user, permission denied: " + ref, e);
-         }         
-      } else {
-         throw new IllegalArgumentException("Invalid entity for creation, must be User or EntityUser object");
-      }
-      return userId;
-   }
-
-   public Object getSampleEntity() {
-      return new EntityUser();
-   }
-
-   public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-      String userId = ref.getId();
-      if (userId == null || "".equals(userId)) {
-         throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
-      }
-      User user = getUserByIdEid(userId);
-      UserEdit edit = null;
-      try {
-         edit = userDirectoryService.editUser(user.getId());
-      } catch (UserNotDefinedException e) {
-         throw new IllegalArgumentException("Invalid user: " + ref + ":" + e.getMessage());
-      } catch (UserPermissionException e) {
-         throw new SecurityException("Permission denied: User cannot be updated: " + ref);
-      } catch (UserLockedException e) {
-         throw new RuntimeException("Something strange has failed with Sakai: " + e.getMessage());
-      }
-      
-      if (entity.getClass().isAssignableFrom(User.class)) {
-         // if someone passes in a user or useredit
-         User u = (User) entity;
-         edit.setEmail(u.getEmail());
-         edit.setFirstName(u.getFirstName());
-         edit.setLastName(u.getLastName());
-         edit.setType(u.getType());
-         // put in properties
-         ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
-         rpe.set(u.getProperties());
-      } else if (entity.getClass().isAssignableFrom(EntityUser.class)) {
-         // if they instead pass in the myuser object
-         EntityUser u = (EntityUser) entity;
-         edit.setEmail(u.getEmail());
-         edit.setFirstName(u.getFirstName());
-         edit.setLastName(u.getLastName());
-         edit.setPassword(u.getPassword());
-         edit.setType(u.getType());
-         // put in properties
-         ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
-         for (String key : u.getProps().keySet()) {
-            String value = u.getProps().get(key);
-            rpe.addProperty(key, value);
-         }
-      } else {
-         throw new IllegalArgumentException("Invalid entity for update, must be User or EntityUser object");
-      }
-      try {
-         userDirectoryService.commitEdit(edit);
-      } catch (UserAlreadyDefinedException e) {
-         throw new RuntimeException(ref + ": This exception should not be possible: " + e.getMessage(), e);
-      }
-   }
-
-   public void deleteEntity(EntityReference ref, Map<String, Object> params) {
-      String userId = ref.getId();
-      if (userId == null || "".equals(userId)) {
-         throw new IllegalArgumentException("Cannot delete, No userId in provided reference: " + ref);
-      }
-      User user = getUserByIdEid(userId);
-      if (user != null) {
-         try {
-            UserEdit edit = userDirectoryService.editUser(user.getId());
-            userDirectoryService.removeUser(edit);
-         } catch (UserNotDefinedException e) {
-            throw new IllegalArgumentException("Invalid user: " + ref + ":" + e.getMessage());
-         } catch (UserPermissionException e) {
-            throw new SecurityException("Permission denied: User cannot be removed: " + ref);
-         } catch (UserLockedException e) {
-            throw new RuntimeException("Something strange has failed with Sakai: " + e.getMessage());
-         }
-      }
-   }
-
-   public Object getEntity(EntityReference ref) {
-      if (ref.getId() == null) {
-         return new EntityUser();
-      }
-      String userId = ref.getId();
-      User user = getUserByIdEid(userId);
-      if (developerHelperService.isEntityRequestInternal(ref.toString())) {
-         // internal lookups are allowed to get everything
-      } else {
-         // external lookups require auth
-         boolean allowed = false;
-         String currentUserRef = developerHelperService.getCurrentUserReference();
-         if (currentUserRef != null) {
-            String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
-            if (developerHelperService.isUserAdmin(currentUserId) 
-                  || currentUserId.equals(user.getId())) {
-               // allowed to access the user data
-               allowed = true;
+            // NOTE: must assign empty password if user is created this way.... it sucks -AZ
+            try {
+                User newUser = userDirectoryService.addUser(userId, user.getEid(), user.getFirstName(), user.getLastName(), 
+                        user.getEmail(), "", user.getType(), user.getProperties());
+                userId = newUser.getId();
+            } catch (UserIdInvalidException e) {
+                throw new IllegalArgumentException("User ID is invalid, id=" + user.getId() + ", eid="+user.getEid(), e);
+            } catch (UserAlreadyDefinedException e) {
+                throw new IllegalArgumentException("Cannot create user, user already exists: " + ref, e);
+            } catch (UserPermissionException e) {
+                throw new SecurityException("Could not create user, permission denied: " + ref, e);
             }
-         }
-         if (! allowed) {
-            throw new SecurityException("Current user ("+currentUserRef+") cannot access information about user: " + ref);
-         }
-      }
-      // convert
-      EntityUser eu = convertUser(user);
-      return eu;         
-   }
-
-   @SuppressWarnings("unchecked")
-   public List<?> getEntities(EntityReference ref, Search search) {
-      Collection<User> users = new ArrayList<User>();
-      if (developerHelperService.isEntityRequestInternal(ref.toString())) {
-         // internal lookups are allowed to get everything
-      } else {
-         // external lookups require auth
-         boolean allowed = false;
-         String currentUserRef = developerHelperService.getCurrentUserReference();
-         if (currentUserRef != null) {
-            String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
-            if ( developerHelperService.isUserAdmin(currentUserId) ) {
-               // allowed to access the user data
-               allowed = true;
-            }
-         }
-         if (! allowed) {
-            throw new SecurityException("Only admin can access multiple users, current user ("+currentUserRef+") cannot access ref: " + ref);
-         }
-      }
-
-      Restriction restrict = search.getRestrictionByProperty("email");
-      if (restrict != null) {
-         // search users by email
-         users = userDirectoryService.findUsersByEmail(restrict.value.toString());
-      }
-      if (restrict == null) {
-         restrict = search.getRestrictionByProperty("eid");
-         if (restrict == null) {
-            restrict = search.getRestrictionByProperty("search");
-         }
-         if (restrict == null) {
-            restrict = search.getRestrictionByProperty("criteria");
-         }
-         if (restrict != null) {
-            // search users but match
-            users = userDirectoryService.searchUsers(restrict.value + "", 1, 50);
-         }
-      }
-      if (restrict == null) {
-         // just get all users but limit to 50
-         users = userDirectoryService.getUsers(1, 50);
-      }
-      // convert these into EntityUser objects
-      List<EntityUser> entityUsers = new ArrayList<EntityUser>();
-      for (User user : users) {
-         entityUsers.add( convertUser(user) );
-      }
-      return entityUsers;
-   }
-
-   public String[] getHandledInputFormats() {
-      return new String[] { Formats.HTML, Formats.XML, Formats.JSON };
-   }
-
-   public String[] getHandledOutputFormats() {
-      return new String[] { Formats.XML, Formats.JSON };
-   }
-
-
-   @SuppressWarnings("unchecked")
-   public EntityUser convertUser(User user) {
-      EntityUser eu = new EntityUser(user);
-      return eu;
-   }
-
-   private User getUserByIdEid(String userEid) {
-      User user = null;
-      if (userEid != null) {
-         try {
-            user = userDirectoryService.getUserByEid(userEid);
-         } catch (UserNotDefinedException e) {
-            String userId = userEid;
-            if (userId.length() > 3 
-                  && userId.startsWith("id=") ) {
-               userId = userEid.substring(3);
+        } else if (entity.getClass().isAssignableFrom(EntityUser.class)) {
+            // if they instead pass in the EntityUser object
+            EntityUser user = (EntityUser) entity;
+            if (userId == null && user.getId() != null) {
+                userId = user.getId();
             }
             try {
-               user = userDirectoryService.getUser(userId);
-            } catch (UserNotDefinedException e1) {
-               throw new IllegalArgumentException("Could not find user with eid="+userEid+" or id="+userId+" :: "
-                     + e1.getMessage(), e);
+                UserEdit edit = userDirectoryService.addUser(userId, user.getEid());
+                edit.setEmail(user.getEmail());
+                edit.setFirstName(user.getFirstName());
+                edit.setLastName(user.getLastName());
+                edit.setPassword(user.getPassword());
+                edit.setType(user.getType());
+                // put in properties
+                ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
+                for (String key : user.getProps().keySet()) {
+                    String value = user.getProps().get(key);
+                    rpe.addProperty(key, value);
+                }
+                userDirectoryService.commitEdit(edit);
+                userId = edit.getId();
+            } catch (UserIdInvalidException e) {
+                throw new IllegalArgumentException("User ID is invalid: " + user.getId(), e);
+            } catch (UserAlreadyDefinedException e) {
+                throw new IllegalArgumentException("Cannot create user, user already exists: " + ref, e);
+            } catch (UserPermissionException e) {
+                throw new SecurityException("Could not create user, permission denied: " + ref, e);
+            }         
+        } else {
+            throw new IllegalArgumentException("Invalid entity for creation, must be User or EntityUser object");
+        }
+        return userId;
+    }
+
+    public Object getSampleEntity() {
+        return new EntityUser();
+    }
+
+    public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
+        String userId = ref.getId();
+        if (userId == null || "".equals(userId)) {
+            throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
+        }
+        User user = getUserByIdEid(userId);
+        UserEdit edit = null;
+        try {
+            edit = userDirectoryService.editUser(user.getId());
+        } catch (UserNotDefinedException e) {
+            throw new IllegalArgumentException("Invalid user: " + ref + ":" + e.getMessage());
+        } catch (UserPermissionException e) {
+            throw new SecurityException("Permission denied: User cannot be updated: " + ref);
+        } catch (UserLockedException e) {
+            throw new RuntimeException("Something strange has failed with Sakai: " + e.getMessage());
+        }
+
+        if (entity.getClass().isAssignableFrom(User.class)) {
+            // if someone passes in a user or useredit
+            User u = (User) entity;
+            edit.setEmail(u.getEmail());
+            edit.setFirstName(u.getFirstName());
+            edit.setLastName(u.getLastName());
+            edit.setType(u.getType());
+            // put in properties
+            ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
+            rpe.set(u.getProperties());
+        } else if (entity.getClass().isAssignableFrom(EntityUser.class)) {
+            // if they instead pass in the myuser object
+            EntityUser u = (EntityUser) entity;
+            edit.setEmail(u.getEmail());
+            edit.setFirstName(u.getFirstName());
+            edit.setLastName(u.getLastName());
+            edit.setPassword(u.getPassword());
+            edit.setType(u.getType());
+            // put in properties
+            ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
+            for (String key : u.getProps().keySet()) {
+                String value = u.getProps().get(key);
+                rpe.addProperty(key, value);
             }
-         }
-      }
-      return user;
-   }
+        } else {
+            throw new IllegalArgumentException("Invalid entity for update, must be User or EntityUser object");
+        }
+        try {
+            userDirectoryService.commitEdit(edit);
+        } catch (UserAlreadyDefinedException e) {
+            throw new RuntimeException(ref + ": This exception should not be possible: " + e.getMessage(), e);
+        }
+    }
+
+    public void deleteEntity(EntityReference ref, Map<String, Object> params) {
+        String userId = ref.getId();
+        if (userId == null || "".equals(userId)) {
+            throw new IllegalArgumentException("Cannot delete, No userId in provided reference: " + ref);
+        }
+        User user = getUserByIdEid(userId);
+        if (user != null) {
+            try {
+                UserEdit edit = userDirectoryService.editUser(user.getId());
+                userDirectoryService.removeUser(edit);
+            } catch (UserNotDefinedException e) {
+                throw new IllegalArgumentException("Invalid user: " + ref + ":" + e.getMessage());
+            } catch (UserPermissionException e) {
+                throw new SecurityException("Permission denied: User cannot be removed: " + ref);
+            } catch (UserLockedException e) {
+                throw new RuntimeException("Something strange has failed with Sakai: " + e.getMessage());
+            }
+        }
+    }
+
+    public Object getEntity(EntityReference ref) {
+        if (ref.getId() == null) {
+            return new EntityUser();
+        }
+        String userId = ref.getId();
+        User user = getUserByIdEid(userId);
+        if (developerHelperService.isEntityRequestInternal(ref.toString())) {
+            // internal lookups are allowed to get everything
+        } else {
+            // external lookups require auth
+            boolean allowed = false;
+            String currentUserRef = developerHelperService.getCurrentUserReference();
+            if (currentUserRef != null) {
+                String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
+                if (developerHelperService.isUserAdmin(currentUserId) 
+                        || currentUserId.equals(user.getId())) {
+                    // allowed to access the user data
+                    allowed = true;
+                }
+            }
+            if (! allowed) {
+                throw new SecurityException("Current user ("+currentUserRef+") cannot access information about user: " + ref);
+            }
+        }
+        // convert
+        EntityUser eu = convertUser(user);
+        return eu;         
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<?> getEntities(EntityReference ref, Search search) {
+        Collection<User> users = new ArrayList<User>();
+        if (developerHelperService.isEntityRequestInternal(ref.toString())) {
+            // internal lookups are allowed to get everything
+        } else {
+            // external lookups require auth
+            boolean allowed = false;
+            String currentUserRef = developerHelperService.getCurrentUserReference();
+            if (currentUserRef != null) {
+                String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
+                if ( developerHelperService.isUserAdmin(currentUserId) ) {
+                    // allowed to access the user data
+                    allowed = true;
+                }
+            }
+            if (! allowed) {
+                throw new SecurityException("Only admin can access multiple users, current user ("+currentUserRef+") cannot access ref: " + ref);
+            }
+        }
+
+        Restriction restrict = search.getRestrictionByProperty("email");
+        if (restrict != null) {
+            // search users by email
+            users = userDirectoryService.findUsersByEmail(restrict.value.toString());
+        }
+        if (restrict == null) {
+            restrict = search.getRestrictionByProperty("eid");
+            if (restrict == null) {
+                restrict = search.getRestrictionByProperty("search");
+            }
+            if (restrict == null) {
+                restrict = search.getRestrictionByProperty("criteria");
+            }
+            if (restrict != null) {
+                // search users but match
+                users = userDirectoryService.searchUsers(restrict.value + "", 1, 50);
+            }
+        }
+        if (restrict == null) {
+            // just get all users but limit to 50
+            users = userDirectoryService.getUsers(1, 50);
+        }
+        // convert these into EntityUser objects
+        List<EntityUser> entityUsers = new ArrayList<EntityUser>();
+        for (User user : users) {
+            entityUsers.add( convertUser(user) );
+        }
+        return entityUsers;
+    }
+
+    public String[] getHandledInputFormats() {
+        return new String[] { Formats.HTML, Formats.XML, Formats.JSON };
+    }
+
+    public String[] getHandledOutputFormats() {
+        return new String[] { Formats.XML, Formats.JSON };
+    }
+
+    /**
+     * Will check that a userId/eid is valid and will produce a valid userId from the check
+     * @param currentUserId user id (can be eid)
+     * @param currentUserEid user eid (can be id)
+     * @return a valid user id OR null if not valid
+     */
+    public String findAndCheckUserId(String currentUserId, String currentUserEid) {
+        if (currentUserId == null && currentUserEid == null) {
+            throw new IllegalArgumentException("Cannot get user from a null userId and eid, ensure at least userId or userEid are set");
+        }
+        String userId = null;
+        if (currentUserId == null) {
+            // try to get userId from eid
+            try {
+                userId = userDirectoryService.getUserId(currentUserEid);
+            } catch (UserNotDefinedException e) {
+                try {
+                    userDirectoryService.getUserEid(currentUserEid);
+                    userId = currentUserEid;
+                } catch (UserNotDefinedException e2) {
+                    userId = null;
+                }
+            }
+        } else {
+            // get the id out of a ref
+            if (currentUserId.startsWith("/user/")) {
+                // assume the form of "/user/userId" (the UDS method is protected)
+                currentUserId = new EntityReference(currentUserId).getId();
+            }
+            // verify the userId is valid
+            try {
+                userDirectoryService.getUserEid(currentUserId);
+                userId = currentUserId;
+            } catch (UserNotDefinedException e) {
+                try {
+                    userId = userDirectoryService.getUserId(currentUserId);
+                } catch (UserNotDefinedException e2) {
+                    userId = null;
+                }
+            }
+        }
+        return userId;
+    }
+
+    @SuppressWarnings("unchecked")
+    public EntityUser convertUser(User user) {
+        EntityUser eu = new EntityUser(user);
+        return eu;
+    }
+
+    private User getUserByIdEid(String userEid) {
+        User user = null;
+        if (userEid != null) {
+            try {
+                user = userDirectoryService.getUserByEid(userEid);
+            } catch (UserNotDefinedException e) {
+                String userId = userEid;
+                if (userId.length() > 3 
+                        && userId.startsWith("id=") ) {
+                    userId = userEid.substring(3);
+                }
+                try {
+                    user = userDirectoryService.getUser(userId);
+                } catch (UserNotDefinedException e1) {
+                    throw new IllegalArgumentException("Could not find user with eid="+userEid+" or id="+userId+" :: "
+                            + e1.getMessage(), e);
+                }
+            }
+        }
+        return user;
+    }
 
 }

@@ -328,4 +328,12 @@ public class EntityViewTest extends TestCase {
       assertEquals("action", segments[2] );
    }
 
+   public void testNPEwhenGetSegments() {
+       EntityView view = new EntityView(new EntityReference("test", ""), EntityView.VIEW_LIST, null);
+       String[] segments = view.getPathSegments();
+       assertNotNull(segments);
+       assertEquals("test", view.getPathSegment(0));
+       assertEquals(null, view.getPathSegment(1));
+   }
+
 }

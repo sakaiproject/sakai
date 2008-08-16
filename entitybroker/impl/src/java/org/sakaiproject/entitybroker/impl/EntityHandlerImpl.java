@@ -429,7 +429,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                     } else {
                                                         // get from a search
                                                         Search search = RequestUtils.makeSearchFromRequest(req);
-                                                        entities = entityBrokerManager.getEntitiesData(ref, search, null);
+                                                        entities = entityBrokerManager.getEntitiesData(ref, search, requestStorage.getStorageMapCopy());
                                                     }
                                                     // set the modifed header (use the sole entity in the list if there is one only)
                                                     setLastModifiedHeaders(res, (entities != null && entities.size()==1 ? entities.get(0) : null), System.currentTimeMillis());
@@ -448,7 +448,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                             OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
                                                             if (formattable != null) {
                                                                 // use provider's formatter
-                                                                formattable.formatOutput(ref, format, entities, null, outputStream);
+                                                                formattable.formatOutput(ref, format, entities, requestStorage.getStorageMapCopy(), outputStream);
                                                                 handled = true;
                                                             }
                                                         } catch (FormatUnsupportedException e) {
@@ -457,7 +457,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                         }
                                                         if (!handled) {
                                                             // handle internally or fail
-                                                            entityEncodingManager.internalOutputFormatter(ref, format, entities, null, outputStream, view);
+                                                            entityEncodingManager.internalOutputFormatter(ref, format, entities, requestStorage.getStorageMapCopy(), outputStream, view);
                                                         }
                                                         handled = true;
                                                         res.setStatus(HttpServletResponse.SC_OK);
@@ -476,7 +476,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                             // delete request
                                             Deleteable deleteable = (Deleteable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Deleteable.class);
                                             if (deleteable != null) {
-                                                deleteable.deleteEntity(view.getEntityReference(), null);
+                                                deleteable.deleteEntity(view.getEntityReference(), requestStorage.getStorageMapCopy());
                                                 res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                                                 handled = true;
                                             }
@@ -503,7 +503,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                         if (translatable != null) {
                                                             // use provider's translator
                                                             entity = translatable.translateFormattedData(view.getEntityReference(), 
-                                                                    format, inputStream, null);
+                                                                    format, inputStream, requestStorage.getStorageMapCopy());
                                                             handled = true;
                                                         }
                                                     } catch (FormatUnsupportedException e) {
@@ -525,12 +525,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                     } else {
                                                         // setup all the headers for the response
                                                         if (EntityView.VIEW_NEW.equals(view.getViewKey())) {
-                                                            String createdId = inputable.createEntity(view.getEntityReference(), entity, null);
+                                                            String createdId = inputable.createEntity(view.getEntityReference(), entity, requestStorage.getStorageMapCopy());
                                                             view.setEntityReference( new EntityReference(prefix, createdId) ); // update the entity view
                                                             res.setHeader(EntityRequestHandler.HEADER_ENTITY_ID, createdId);
                                                             res.setStatus(HttpServletResponse.SC_CREATED);
                                                         } else if (EntityView.VIEW_EDIT.equals(view.getViewKey())) {
-                                                            inputable.updateEntity(view.getEntityReference(), entity, null);
+                                                            inputable.updateEntity(view.getEntityReference(), entity, requestStorage.getStorageMapCopy());
                                                             res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                                                         } else {
                                                             // FAILURE not delete, edit, or new

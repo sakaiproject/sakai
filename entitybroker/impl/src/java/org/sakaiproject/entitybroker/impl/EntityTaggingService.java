@@ -131,7 +131,7 @@ public class EntityTaggingService implements TagProvider {
                   results.add( new EntityData(entry.getKey(), null) );
                }
             }
-            Collections.sort(results, new EntityData.ESRReferenceComparator());
+            Collections.sort(results, new EntityData.ReferenceComparator());
          } else {
             // filter the list down to the references first
             HashMap<String, String> refToTags = new HashMap<String, String>();

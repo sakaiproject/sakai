@@ -211,6 +211,9 @@ public class EntityView {
     */
    private List<Template> parseTemplates;
    public List<Template> getParseTemplates() {
+      if (parseTemplates == null) {
+          parseTemplates = new ArrayList<Template>( TemplateParseUtil.defaultTemplates );
+      }
       return parseTemplates;
    }
    /**
@@ -539,7 +542,7 @@ public class EntityView {
    public String getParseTemplate(String templateKey) {
       TemplateParseUtil.validateTemplateKey(templateKey);
       String template = null;
-      for (Template t : parseTemplates) {
+      for (Template t : getParseTemplates()) {
          if (templateKey.equals(t.templateKey)) {
             template = t.template;
          }

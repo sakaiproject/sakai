@@ -65,13 +65,15 @@ public class ServiceTestManager {
       requestGetter = new RequestGetterImpl();
       entityPropertiesService = new EntityPropertiesService();
       entityActionsManager = new EntityActionsManager();
-      entityRedirectsManager = new EntityRedirectsManager();
       serverConfigurationService = new FakeServerConfigurationService();
       httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();
       entityViewAccessProviderManager = new EntityViewAccessProviderManagerMock();
 
       requestStorage = new RequestStorageImpl();
       requestStorage.setRequestGetter(requestGetter);
+
+      entityRedirectsManager = new EntityRedirectsManager();
+      entityRedirectsManager.setRequestStorage(requestStorage);
 
       entityProviderManager = new EntityProviderManagerImpl();
       entityProviderManager.setRequestGetter( requestGetter );

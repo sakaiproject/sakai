@@ -23,6 +23,7 @@ package org.sakaiproject.entitybroker.impl;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -248,6 +249,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       List<?> l = null;
       try {
          requestStorage.setRequestValues(params);
+         if (params == null) { params = new HashMap<String, Object>(); }
          l = entityBrokerManager.fetchEntities(ref, search, params);
       } finally {
          requestStorage.reset();
@@ -263,6 +265,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       List<EntityData> data = null;
       try {
          requestStorage.setRequestValues(params);
+         if (params == null) { params = new HashMap<String, Object>(); }
          data = entityBrokerManager.getEntitiesData(ref, search, params);
       } finally {
          requestStorage.reset();
@@ -278,6 +281,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       List<EntityData> data = null;
       try {
          requestStorage.setRequestValues(params);
+         if (params == null) { params = new HashMap<String, Object>(); }
          data = entityBrokerManager.browseEntities(prefix, search, userReference, associatedReference, params);
       } finally {
          requestStorage.reset();
@@ -297,6 +301,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
          requestStorage.setRequestValues(params);
          // convert entities to entity data list
          List<EntityData> data = entityBrokerManager.convertToEntityData(entities, ref);
+         if (params == null) { params = new HashMap<String, Object>(); }
          entityEncodingManager.formatAndOutputEntity(ref, format, data, output, params);
       } finally {
          requestStorage.reset();
@@ -312,6 +317,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       Object entity = null;
       try {
          requestStorage.setRequestValues(params);
+         if (params == null) { params = new HashMap<String, Object>(); }
          entity = entityEncodingManager.translateInputToEntity(ref, format, input, params);
       } finally {
          requestStorage.reset();
@@ -332,7 +338,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       ActionReturn ar = null;
       try {
          requestStorage.setRequestValues(params);
-         ar = entityActionsManager.handleCustomActionExecution(actionProvider, ref, action, params, outputStream);
+         if (params == null) { params = new HashMap<String, Object>(); }
+         ar = entityActionsManager.handleCustomActionExecution(actionProvider, ref, action, params, outputStream, null);
          // populate the entity data
          if (ar != null) {
             if (ar.entitiesList != null) {

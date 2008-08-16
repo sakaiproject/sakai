@@ -221,11 +221,51 @@ public class EntityReference {
     * use {@link EntityReference#EntityReference(String)} and
     * the methods in {@link EntityBroker} to parse references
     * 
-    * @param reference an entity reference or entity url
+    * @param reference an entity reference or entity URL
     * @return the entity prefix
     */
    public static String getPrefix(String reference) {
       return findPrefix(reference);
+   }
+
+   /**
+    * Will convert a reference into an id (even if it is not a reference)
+    * @param reference an entity reference (e.g. /user/aaronz)
+    * @return the id from the reference (e.g. aaronz), preserves null
+    */
+   public static String getIdFromRef(String reference) {
+       String id = null;
+       if (reference != null) {
+           if (reference.startsWith("/")) {
+               // assume the form of "/user/userId"
+               id = new EntityReference(reference).getId();
+           } else {
+               // otherwise assume this is the id
+               id = reference;
+           }
+       }
+       return id;
+   }
+
+   /**
+    * Get the id value out of a reference by the key that preceeds it
+    * @param reference an entity reference (e.g. /site/siteId/group/groupId)
+    * @param key the key to get the id from (e.g. 'group' yields groupId)
+    * @return the id value OR null if no key is found or no id is available
+    */
+   public static String getIdFromRefByKey(String reference, String key) {
+       String id = null;
+       if (reference != null) {
+           String[] parts = reference.split("/");
+           for (int i = 0; i < parts.length; i++) {
+               if (key.equals(parts[i])) {
+                   if (parts.length > i+1) {
+                       id = parts[i+1];
+                   }
+               }
+           }
+       }
+       return id;
    }
 
    /**

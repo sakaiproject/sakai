@@ -362,4 +362,41 @@ public class EntityReferenceTest extends TestCase {
       }
    }
 
+   public void testGetIdFromRef() {
+       String id = EntityReference.getIdFromRef("/prefix/1234");
+       assertNotNull(id);
+       assertEquals("1234", id);
+
+       id = EntityReference.getIdFromRef("/prefix/1234/asdf");
+       assertNotNull(id);
+       assertEquals("1234", id);
+
+       id = EntityReference.getIdFromRef("/prefix");
+       assertNull(id);
+   }
+
+   public void testGetIdFromRefByKey() {
+       String id = EntityReference.getIdFromRefByKey("/prefix/1234", "AAA");
+       assertNull(id);
+
+       id = EntityReference.getIdFromRefByKey("/prefix/1234", "prefix");
+       assertNotNull(id);
+       assertEquals("1234", id);
+
+       id = EntityReference.getIdFromRefByKey("/prefix/1234/site/mysite/group/mygroup", "prefix");
+       assertNotNull(id);
+       assertEquals("1234", id);
+
+       id = EntityReference.getIdFromRefByKey("/prefix/1234/site/mysite/group/mygroup", "site");
+       assertNotNull(id);
+       assertEquals("mysite", id);
+
+       id = EntityReference.getIdFromRefByKey("/prefix/1234/site/mysite/group/mygroup", "group");
+       assertNotNull(id);
+       assertEquals("mygroup", id);
+
+       id = EntityReference.getIdFromRefByKey("/prefix/1234/site/mysite/group/mygroup", "mygroup");
+       assertNull(id);
+   }
+
 }

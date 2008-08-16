@@ -97,7 +97,7 @@ public class EntityActionsManager {
       Map<String, Object> actionParams = RequestStorageImpl.getRequestValues(request);
       EntityReference ref = entityView.getEntityReference();
       OutputStream outputStream = new LazyResponseOutputStream(response);
-      ActionReturn actionReturn = handleCustomActionExecution(actionProvider, ref, action, actionParams, outputStream);
+      ActionReturn actionReturn = handleCustomActionExecution(actionProvider, ref, action, actionParams, outputStream, entityView);
       // now process the return into the request or response as needed
       if (actionReturn != null) {
          if (actionReturn.output != null || actionReturn.outputString != null) {
@@ -134,7 +134,7 @@ public class EntityActionsManager {
     * @throws UnsupportedOperationException if the action is not valid for this prefix
     */
    public ActionReturn handleCustomActionExecution(ActionsExecutable actionProvider, EntityReference ref, String action, 
-         Map<String, Object> actionParams, OutputStream outputStream) {
+         Map<String, Object> actionParams, OutputStream outputStream, EntityView view) {
       if (actionProvider == null || ref == null || action == null || "".equals(action)) {
          throw new IllegalArgumentException("actionProvider and ref and action must not be null");
       }
@@ -170,7 +170,10 @@ public class EntityActionsManager {
             if (EntityReference.class.equals(argType)) {
                args[i] = ref;
             } else if (EntityView.class.equals(argType)) {
-               args[i] = new EntityView(ref, customAction.viewKey, null);
+               if (view == null) {
+                   view = new EntityView(ref, customAction.viewKey, null);
+               }
+               args[i] = view;
             } else if (String.class.equals(argType)) {
                args[i] = actionProvider.getEntityPrefix();
             } else if (OutputStream.class.equals(argType)) {
