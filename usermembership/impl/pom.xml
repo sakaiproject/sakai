@@ -45,7 +45,7 @@ limitations under the License.
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-usermembership-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- Sakai Project dependencies (general) -->
 <!--org.sakaiprojectsakai-component${sakai.version}-->
@@ -61,8 +61,7 @@ limitations under the License.
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
-    </dependency>
+      </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>

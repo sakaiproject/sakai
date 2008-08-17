@@ -43,7 +43,6 @@ limitations under the License.
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
     </dependency>
   </dependencies>
 </project>
