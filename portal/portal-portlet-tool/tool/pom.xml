@@ -39,13 +39,13 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-portal-util</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-portal-render-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->
@@ -54,7 +54,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-portal-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>velocity</groupId>

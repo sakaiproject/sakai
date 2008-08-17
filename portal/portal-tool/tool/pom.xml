@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-portal-util</artifactId>
-      <version>${sakai.version}</version>
+
     </dependency>
 <!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>

@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-portal-render-engine-impl</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>httpunit</groupId>

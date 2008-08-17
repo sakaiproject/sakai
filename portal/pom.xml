@@ -33,4 +33,33 @@
     <module>portal-shared-deploy</module>
 <!-- <module>portal-portlet-tool/tool</module> -->
   </modules>
+<dependencyManagement>
+ <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-portal-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-portal-util</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-portal-render-engine-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+       <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-portal-render-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-portal-service-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
 </project>

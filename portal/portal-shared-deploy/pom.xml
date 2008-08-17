@@ -18,7 +18,6 @@
     <dependency>
       <groupId>org.apache.pluto</groupId>
       <artifactId>pluto-container</artifactId>
-      <version>${sakai.pluto.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -30,19 +29,16 @@
     <dependency>
       <groupId>org.apache.pluto</groupId>
       <artifactId>pluto-descriptor-api</artifactId>
-      <version>${sakai.pluto.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.pluto</groupId>
       <artifactId>pluto-descriptor-impl</artifactId>
-      <version>${sakai.pluto.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.pluto</groupId>
       <artifactId>pluto-taglib</artifactId>
-      <version>${sakai.pluto.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
