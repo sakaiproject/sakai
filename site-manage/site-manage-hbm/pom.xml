@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-manage-api</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
   </dependencies>
   <build>

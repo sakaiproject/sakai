@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-manage-util</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->
     <dependency>
@@ -56,7 +56,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--org.sakaiprojectsakai-util${sakai.version}-->
