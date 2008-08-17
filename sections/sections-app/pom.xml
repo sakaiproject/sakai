@@ -44,33 +44,33 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>provided</scope>
 <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-model</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>provided</scope>
 <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>provided</scope>
 <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>provided</scope>
 <!-- FIXME: is this required here ? -->
 <!--properties:	war.bundle: false -->
@@ -78,7 +78,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-app-util</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->
@@ -87,17 +87,17 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-spreadsheet</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
-      <version>${sakai.version}</version>
+      
       <exclusions>
         <exclusion>
 <!-- we are pulling the myfaces version of this api -->
@@ -253,7 +253,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>pom</type>
     </dependency>
     <dependency>

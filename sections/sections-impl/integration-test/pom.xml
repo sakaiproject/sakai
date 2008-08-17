@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-test-harness</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -42,12 +42,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
 <!--org.sakaiprojectsakai-site-api${sakai.version}-->
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->

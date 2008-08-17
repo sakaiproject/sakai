@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-model</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
 <!-- Sakai Dependencies -->
 <!--org.sakaiprojectsakai-component${sakai.version}-->
@@ -62,13 +62,13 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-coursemanagement-api</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
 <!-- 3rd Party Dependencies -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!-- Uuid generator -->

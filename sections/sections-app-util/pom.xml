@@ -27,18 +27,18 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-model</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
 <!-- Sakai plugin -->
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -63,7 +63,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
-      <version>${sakai.version}</version>
+     
       <type>pom</type>
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}-->

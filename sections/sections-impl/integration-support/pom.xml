@@ -39,12 +39,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--

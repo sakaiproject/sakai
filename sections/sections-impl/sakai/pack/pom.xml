@@ -25,7 +25,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl</artifactId>
-      <version>${sakai.version}</version>
+     
       <exclusions>
 <!-- most of these exclusions are an indication that the structure of the 
              dependency and the scoping of its dependencies is wrong -->
