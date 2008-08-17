@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-messageforums-component-impl</artifactId>
-      <version>${sakai.version}</version>
+     
       <exclusions>
         <exclusion>
           <groupId>org.sakaiproject</groupId>

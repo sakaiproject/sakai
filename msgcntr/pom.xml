@@ -24,4 +24,25 @@
     <module>messageforums-hbm</module>
     <module>messageforums-help</module>
   </modules>
+ <dependencyManagement>
+   <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-messageforums-component-impl</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-messageforums-hbm</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>     
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+      <version>2.6.0RC1-SNAPSHOT</version>     
+      <type>pom</type>
+    </dependency>
+   </dependencies>
+ </dependencyManagement> 
 </project>
