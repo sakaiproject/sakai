@@ -34,6 +34,7 @@
             <scope>test</scope>
             <!-- for 2.0.6 compatibility, http://jira.codehaus.org/browse/MNG-2919 -->
         </dependency>
+
         <!-- external dependencies -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -43,30 +44,27 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
         </dependency>
+        <!-- generic DAO -->
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>generic-dao</artifactId>
+        </dependency>
         <!-- Data processing -->
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>${xstream.version}</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>xpp3</groupId>
             <artifactId>xpp3</artifactId>
-            <version>${xpp3.version}</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
-            <version>${stax-api.version}</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
-            <version>${jettison.version}</version>
-            <type>jar</type>
         </dependency>
         <!-- for managing classloaders and reflection -->
         <!--
@@ -78,12 +76,6 @@
             <scope>runtime</scope>
             </dependency>
         -->
-        <!-- generic DAO -->
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>generic-dao</artifactId>
-            <version>${sakai.generic-dao.version}</version>
-        </dependency>
         <!-- Sakai dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
@@ -102,6 +94,7 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
+
         <!-- testing dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
