@@ -10,7 +10,7 @@
   <groupId>org.sakaiproject</groupId>
   <name>Sakai Taggable API</name>
   <artifactId>sakai-taggable-api</artifactId>
-  <version>${sakai.version}</version>
+ 
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

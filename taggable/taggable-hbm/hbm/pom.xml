@@ -10,7 +10,7 @@
   <groupId>org.sakaiproject</groupId>
   <name>Sakai Taggable Hibernate Artifacts</name>
   <artifactId>sakai-taggable-hbm</artifactId>
-  <version>${sakai.version}</version>
+ 
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-taggable-api</artifactId>
-      <version>${sakai.version}</version>
+     
       <scope>provided</scope>
     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
@@ -80,7 +80,7 @@
           <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-util-id-hbm</artifactId>
-            <version>${sakai.version}</version>
+            <version>2.6.0RC1-SNAPSHOT</version>
             <scope>test</scope>
           </dependency>
         </dependencies>

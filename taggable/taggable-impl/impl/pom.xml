@@ -10,7 +10,7 @@
   <groupId>org.sakaiproject</groupId>
   <name>Sakai Taggable API Implementation</name>
   <artifactId>sakai-taggable-impl</artifactId>
-  <version>${sakai.version}</version>
+  
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
@@ -41,13 +41,13 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-taggable-api</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-taggable-hbm</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>provided</scope>
     </dependency>
 <!--org.sakaiprojectsakai-component${sakai.version}-->
