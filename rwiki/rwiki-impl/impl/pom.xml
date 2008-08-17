@@ -101,25 +101,25 @@ limitations under the License.
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-radeox</artifactId>
-      <version>${sakai.version}</version>
+     
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-api</artifactId>
-      <version>${sakai.version}</version>
+     
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-model</artifactId>
-      <version>${sakai.version}</version>
+     
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-util</artifactId>
-      <version>${sakai.version}</version>
+     
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}jar-->
@@ -138,13 +138,13 @@ limitations under the License.
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-      <version>${sakai.version}</version>
+     
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-util</artifactId>
-      <version>${sakai.version}</version>
+     
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}jar-->
@@ -152,7 +152,7 @@ limitations under the License.
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      <version>${sakai.version}</version>
+     
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-entity-util${sakai.version}jar-->

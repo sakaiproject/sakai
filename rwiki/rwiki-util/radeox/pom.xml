@@ -73,18 +73,11 @@ limitations under the License.
       <version>3.8.1</version>
       <scope>compile</scope>
     </dependency>
-<!--    
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
--->
+
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-api</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}jar-->
