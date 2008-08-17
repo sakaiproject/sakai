@@ -40,20 +40,20 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>pom</type>
     </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- these (jsf-app and util-web, util-text) are options to get full Sakai integration -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- Sun JSF RI jars (jsf-impl, jsf-api) and dependencies
 			(commons-digester, commons-collections, commons-digester, commons-beanutils, taglibs/standard, jstl) -->
