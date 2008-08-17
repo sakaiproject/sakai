@@ -25,14 +25,13 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sample-provider</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
 <!-- -->
 <!-- Needed for the JLDAP Provider
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-jldap-provider</artifactId>
-			<version>${sakai.version}</version>
+			
 		</dependency>
 
 		<dependency>
@@ -45,14 +44,14 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-kerberos-provider</artifactId>
-			<version>${sakai.version}</version>
+			
 		</dependency>
 	 	-->
 <!-- Needed for the IMS Enterprise Provider
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-imsent-provider</artifactId>
-			<version>${sakai.version}</version>
+			
 		</dependency>
 	 	-->
 <!--
@@ -62,20 +61,19 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-coursemanagement-authz-provider-impl</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
 <!-- Needed for the Federated provider
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-federating-provider</artifactId>
-			<version>${sakai.version}</version>
+			
 		</dependency>
 		-->
 <!-- Needed for the All Hands Provider
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-allhands-provider</artifactId>
-			<version>${sakai.version}</version>
+			
 		</dependency>
 	 	-->
   </dependencies>
