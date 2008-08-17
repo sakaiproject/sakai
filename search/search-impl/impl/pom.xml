@@ -92,19 +92,19 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-model</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-util</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>jar</type>
     </dependency>
 <!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}jar-->
@@ -143,7 +143,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>jar</type>
     </dependency>
 -->

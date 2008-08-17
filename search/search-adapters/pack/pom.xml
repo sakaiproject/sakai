@@ -48,7 +48,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-adapters-impl</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
   </dependencies>

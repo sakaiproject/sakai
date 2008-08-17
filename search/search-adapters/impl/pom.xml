@@ -84,13 +84,13 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-util</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
@@ -99,7 +99,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}jar-->

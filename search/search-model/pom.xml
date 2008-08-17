@@ -52,7 +52,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}jar-->
   </dependencies>

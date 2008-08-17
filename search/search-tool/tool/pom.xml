@@ -68,7 +68,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}jar-->
