@@ -31,7 +31,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rights-api</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
 <!--org.sakaiprojectsakai-component${sakai.version}-->
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
