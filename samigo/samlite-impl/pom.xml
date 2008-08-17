@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- Samigo Lite -->
     <dependency>

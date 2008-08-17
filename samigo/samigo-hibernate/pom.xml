@@ -51,7 +51,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
@@ -79,21 +79,21 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!-- these (jsf-app and util-web) are options to get full Sakai JSF integration -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}-->
 <!-- For integration with the gradebook -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
-      <version>${sakai.version}</version>
+      
 <!--properties:  deploy.target: shared -->
     </dependency>
 <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
@@ -104,20 +104,20 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
 <!-- Standalone component -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- Sakai-embedded version -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--**********************************************************-->
     <dependency>

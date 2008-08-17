@@ -94,35 +94,35 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- Samigo IMPL -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-hibernate</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-services</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-qti</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-cp</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- Samigo AUDIO applet jar -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-audio</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>provided</scope>
 <!--properties:  war.target.path: applets -->
     </dependency>
@@ -130,7 +130,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      <version>${sakai.version}</version>
+      
 <!--properties:  deploy.target: shared -->
     </dependency>
 <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
@@ -138,7 +138,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
-      <version>${sakai.version}</version>
+      
       <scope>provided</scope>
 <!--properties:  war.bundle: standalone -->
     </dependency>
@@ -146,7 +146,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl</artifactId>
-      <version>${sakai.version}</version>
+      
       <exclusions>
         <exclusion>
           <groupId>org.sakaiproject</groupId>
@@ -164,7 +164,7 @@
 	<dependency>
 	  <groupId>org.sakaiproject</groupId>
 		<artifactId>sakai-common-uuid-component</artifactId>
-		<version>${sakai.version}</version>
+		
             <properties>
                 <war.bundle>standalone</war.bundle>
             </properties>
@@ -172,7 +172,7 @@
 	<dependency>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>sakai-common-uuid-api</artifactId>
-		<version>${sakai.version}</version>
+		
             <properties>
                 <war.bundle>standalone</war.bundle>
             </properties>
@@ -201,35 +201,33 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-impl</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 -->
 <!-- need to use ToolManager, ToolSession, Placement -->
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
       <artifactId>entitybroker-api</artifactId>
-      <version>1.2.0</version>
-      <scope>provided</scope>
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
-      <version>${sakai.version}</version>
+      
 <!--properties:  war.bundle: integrated -->
     </dependency>
 <!-- these (jsf-app and util-web) are options to get full Sakai JSF integration -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
-      <version>${sakai.version}</version>
+      
 <!--properties:  war.bundle: integrated -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>pom</type>
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}-->
@@ -237,7 +235,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
-      <version>${sakai.version}</version>
+      
 <!--properties:  war.bundle: false -->
     </dependency>
 <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
@@ -251,7 +249,7 @@
     <dependency>
        <groupId>org.sakaiproject</groupId>
        <artifactId>sakai-function</artifactId>
-       <version>${sakai.version}</version>
+       
     </dependency>
 -->
 <!-- Uuid generator -->
@@ -528,7 +526,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-spreadsheet</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!-- for spreadsheet support -->
     <dependency>

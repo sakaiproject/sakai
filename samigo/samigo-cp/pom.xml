@@ -39,22 +39,22 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-services</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-hibernate</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-qti</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
