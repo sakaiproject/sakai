@@ -31,12 +31,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-courier-api</artifactId>
-      <version>${sakai.version}</version>
+
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-presence-api</artifactId>
-      <version>${sakai.version}</version>
+
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
@@ -44,7 +44,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-courier-util</artifactId>
-      <version>${sakai.version}</version>
+
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
