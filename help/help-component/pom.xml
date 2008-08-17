@@ -47,12 +47,10 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-help-api</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-comp-shared-help</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
 <!-- New depencies for help improvement (Vanille) -->
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
