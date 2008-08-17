@@ -10,6 +10,16 @@
   <name>Sakai Test Harness</name>
   <groupId>org.sakaiproject.kernel.test</groupId>
   <artifactId>sakai-test-harness</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/test-harness
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/test-harness
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/test-harness</url>
+  </scm>
+
   <packaging>jar</packaging>
   <properties>
     <deploy.target/>

@@ -15,5 +15,15 @@
     <url>http://www.sakaiproject.org/</url>
   </organization>
   <inceptionYear>2008</inceptionYear>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-site
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-site
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-site</url>
+  </scm>
+
   <packaging>jar</packaging>
 </project>

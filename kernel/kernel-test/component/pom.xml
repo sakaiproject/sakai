@@ -10,6 +10,16 @@
   <name>sakai-component-integration-test</name>
   <groupId>org.sakaiproject.kernel.test</groupId>
   <artifactId>sakai-component-integration-test</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/component
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/component
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/component</url>
+  </scm>
+
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components-ignore</deploy.target>

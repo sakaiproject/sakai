@@ -15,9 +15,9 @@
     The Sakai kernel database. 
   </description>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/viewvc/kernel/trunk</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/model</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/model</developerConnection>
+    <url>https://source.sakaiproject.org/viewvc/kernel/trunk/model</url>
   </scm>
   <build>
     <plugins>

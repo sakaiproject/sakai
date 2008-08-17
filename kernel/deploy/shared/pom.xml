@@ -16,6 +16,16 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</url>
+  </scm>
+
   <packaging>pom</packaging>
   <properties>
     <deploy.target>shared</deploy.target>

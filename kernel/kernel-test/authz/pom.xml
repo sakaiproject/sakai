@@ -11,6 +11,16 @@
   <name>Sakai AuthZ Component Integration Tests</name>
   <groupId>org.sakaiproject.kernel.test</groupId>
   <artifactId>authz</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test-authz
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test-authz
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-test-authz</url>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel.test</groupId>

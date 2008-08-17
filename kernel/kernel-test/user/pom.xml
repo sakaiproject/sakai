@@ -10,6 +10,16 @@
   <name>Sakai User Integration Test</name>
   <groupId>org.sakaiproject.kernel.user.component</groupId>
   <artifactId>sakai-user-integration-test</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/user
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/user
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/user</url>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel.test</groupId>

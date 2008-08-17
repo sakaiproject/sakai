@@ -10,6 +10,16 @@
   <name>Kernel Testing Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>test</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-test</url>
+  </scm>
+
   <packaging>pom</packaging>
   <modules>
     <module>authz</module>

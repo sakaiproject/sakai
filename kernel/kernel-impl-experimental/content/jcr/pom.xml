@@ -10,6 +10,16 @@
   <name>Sakai Content JCR Component</name>
   <groupId>org.sakaiproject.kernel.impl.content</groupId>
   <artifactId>jcr</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental/content/jcr
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental/content/jcr
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental/content/jcr</url>
+  </scm>
+
   <packaging>pom</packaging>
   <modules>
     <module>sakai-content-jcr-impl</module>

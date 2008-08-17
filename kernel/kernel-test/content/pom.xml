@@ -11,6 +11,16 @@
   <name>Sakai Content Integration Test</name>
   <groupId>org.sakaiproject.kernel.test</groupId>
   <artifactId>content</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/content
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/content
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-test/content</url>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel.test</groupId>

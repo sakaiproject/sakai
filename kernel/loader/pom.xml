@@ -10,6 +10,16 @@
   <name>Sakai Loader Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>loader</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/loader</url>
+  </scm>
+
   <packaging>war</packaging>
   <dependencies>
     <dependency>
