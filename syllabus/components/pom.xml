@@ -35,7 +35,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-syllabus-impl</artifactId>
-      <version>${sakai.version}</version>
+     
       <exclusions>
         <exclusion>
           <groupId>org.sakaiproject</groupId>

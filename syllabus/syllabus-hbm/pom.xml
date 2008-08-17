@@ -23,7 +23,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-syllabus-api</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
   </dependencies>
   <build>

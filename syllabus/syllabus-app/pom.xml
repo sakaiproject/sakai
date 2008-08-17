@@ -36,7 +36,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-sun-ri-tool</artifactId>
-      <version>${sakai.version}</version>
+     
       <type>pom</type>
     </dependency>
 <!--javax.servletservlet-api${sakai.servletapi.version}-->
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-syllabus-api</artifactId>
-      <version>${sakai.version}</version>
+     
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
