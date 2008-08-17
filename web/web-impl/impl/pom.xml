@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-web-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!--org.sakaiprojectsakai-entity-util${sakai.version}-->
@@ -61,7 +61,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-archive-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->
