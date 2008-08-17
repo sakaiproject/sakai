@@ -44,7 +44,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-sun-ri-tool</artifactId>
-      <version>${sakai.version}</version>
+      
       <type>pom</type>
     </dependency>
     <dependency>
@@ -62,7 +62,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-podcasts-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-site-api${sakai.version}-->
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->
@@ -76,14 +76,14 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}jar-->
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-dav-common</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
 <!--org.sakaiprojectsakai-user-util${sakai.version}-->
 <!-- Overrides to prevent inclusion as transitive deps, in shared -->
