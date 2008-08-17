@@ -37,8 +37,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-scheduler-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+     </dependency>
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
 <!--org.sakaiprojectsakai-db-api${sakai.version}-->
 <!--org.sakaiprojectsakai-component${sakai.version}-->
