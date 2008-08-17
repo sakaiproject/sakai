@@ -24,7 +24,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets</artifactId>
-      <version>${sakai.version}</version>
+      
     </dependency>
   </dependencies>
 </project>
