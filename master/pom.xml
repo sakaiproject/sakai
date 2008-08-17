@@ -647,6 +647,12 @@ This is not needed now that pluto have been released
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-taggable-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-calendar-api</artifactId>
