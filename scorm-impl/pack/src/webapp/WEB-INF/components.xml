@@ -104,9 +104,4 @@
 		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />		
 	</bean>	
 	
-	<bean id="org.sakaiproject.scorm.service.api.ScormEntityProvider"
-		class="org.sakaiproject.scorm.service.impl.ScormEntityProviderImpl">
-		
-	</bean>
-	
 </beans>
