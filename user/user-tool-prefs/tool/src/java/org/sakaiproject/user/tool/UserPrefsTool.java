@@ -72,10 +72,10 @@ public class UserPrefsTool
 
 	/** The string to get whether privacy status should be visible */
 	private static final String ENABLE_PRIVACY_STATUS = "enable.privacy.status";
-   
-   /** Should research/collab specific preferences (no syllabus) be displayed */
+
+	/** Should research/collab specific preferences (no syllabus) be displayed */
 	private static final String PREFS_RESEARCH = "prefs.research.collab";
-	
+
 	/**
 	 * Represents a name value pair in a keyed preferences set.
 	 */
@@ -214,13 +214,24 @@ public class UserPrefsTool
 	private List prefTimeZones = new ArrayList();
 
 	private List prefLocales = new ArrayList();
-	
+
 	private String DEFAULT_TAB_COUNT = "4";
 	private String prefTabCount = null;
 
 	private String[] selectedExcludeItems;
 
 	private String[] selectedOrderItems;
+
+	private String[] tablist;
+
+	private int noti_selection, tab_selection, timezone_selection, language_selection,j;
+
+	//The preference list names
+	private String Notification="prefs_noti_title";
+	private String CustomTab="prefs_tab_title";
+	private String Timezone="prefs_timezone_title";
+	private String Language="prefs_lang_title";
+
 
 	protected final static String EXCLUDE_SITE_LISTS = "exclude";
 
@@ -251,7 +262,7 @@ public class UserPrefsTool
 	 * the pre-DTHML page.
 	 */
 	private String m_TabOutcome = "tab";
-	
+
 	// //////////////////////////////// PROPERTY GETTER AND SETTER ////////////////////////////////////////////
 	/**
 	 * @return Returns the ResourceLoader value. Note: workaround for <f:selectItem> element, which doesn't like using the <f:loadBundle> map variable
@@ -359,7 +370,7 @@ public class UserPrefsTool
 
 		this.prefOrderItems = prefOrderItems;
 	}
-	
+
 	/**
 	 ** @return number of worksite tabs to display in standard site navigation bar
 	 **/
@@ -367,17 +378,17 @@ public class UserPrefsTool
 	{
 		if ( prefTabCount != null )
 			return prefTabCount;
-		
+
 		Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
 		ResourceProperties props = prefs.getProperties(CHARON_PREFS);
 		prefTabCount = props.getProperty("tabs");
-		
+
 		if ( prefTabCount == null )
 			prefTabCount = DEFAULT_TAB_COUNT; 
-			
+
 		return prefTabCount;
 	}
-	
+
 	/**
 	 ** @param count 
 	 **			number of worksite tabs to display in standard site navigation bar
@@ -388,11 +399,11 @@ public class UserPrefsTool
 			prefTabCount = DEFAULT_TAB_COUNT; 
 		else
 			prefTabCount = count.trim();
-			
+
 		if ( Integer.parseInt(prefTabCount) < Integer.parseInt(DEFAULT_TAB_COUNT) )
 			prefTabCount = count;
 	}
-	
+
 	/**
 	 * @return Returns the prefTimeZones.
 	 */
@@ -459,7 +470,7 @@ public class UserPrefsTool
 				localeArray[localeArray.length - 1] = Locale.getDefault();
 			}
 			else
-			// if no locales specified, get default list
+				// if no locales specified, get default list
 			{
 				localeArray = new Locale[] { Locale.getDefault() };
 			}
@@ -506,7 +517,7 @@ public class UserPrefsTool
 	{
 		if (LOG.isDebugEnabled())
 		{
-			LOG.debug("setSelectedExcludeItems(String[] " + Arrays.toString(selectedExcludeItems) + ")");
+			LOG.debug("setSelectedExcludeItems(String[] " + selectedExcludeItems + ")");
 		}
 
 		this.selectedExcludeItems = selectedExcludeItems;
@@ -686,11 +697,66 @@ public class UserPrefsTool
 			m_TabOutcome = "tabDHTMLMoreSites";
 		else
 			m_TabOutcome = "tab";
-	
+
+		//Tab order configuration
+		String defaultPreference="prefs_tab_title, prefs_noti_title, prefs_timezone_title, prefs_lang_title";
+
+		if (ServerConfigurationService.getString("preference.pages")==null)
+		{
+			LOG.warn("The preference.pages is not specified in sakai.properties, hence the default option of 'prefs_tab_title, prefs_noti_title, prefs_timezone_title, prefs_lang_title' is considered");
+		}
+		else
+		{
+			LOG.info("Setting preference.pages as "+ ServerConfigurationService.getString("preference.pages"));
+		}
+
+		String tabOrder=ServerConfigurationService.getString("preference.pages",defaultPreference);
+
+		tablist=tabOrder.split(",");
+
+		for(int i=0; i<tablist.length; i++)
+		{
+			tablist[i]=tablist[i].trim();			
+			if(tablist[i].equals(Notification)) noti_selection=i+1;
+			else if(tablist[i].equals(CustomTab)) tab_selection=i+1;
+			else if(tablist[i].equals(Timezone)) timezone_selection=i+1;
+			else if (tablist[i].equals(Language)) language_selection=i+1;
+			else LOG.warn(tablist[i] + " is not valid!!! Re-configure preference.pages at sakai.properties");
+		}
+
+		//defaultPage=tablist[0];
+
 		// Set the default tab count to the system property, initially.
 		DEFAULT_TAB_COUNT = ServerConfigurationService.getString ("portal.default.tabs", DEFAULT_TAB_COUNT);
-		
+
 		LOG.debug("new UserPrefsTool()");
+	}
+
+	public int getNoti_selection()
+	{
+		return noti_selection;
+	}
+
+	public int getTab_selection()
+	{
+		return tab_selection;
+	}
+
+	public int getTimezone_selection()
+	{
+		return timezone_selection;
+	}
+
+	public int getLanguage_selection()
+	{
+		return language_selection;
+	}
+
+
+
+	public String getTabTitle()
+	{
+		return "tabtitle";
 	}
 
 	// Naming in faces-config.xml Refresh jsp- "refresh" , Notification jsp- "noti" , tab cutomization jsp- "tab"
@@ -785,7 +851,7 @@ public class UserPrefsTool
 		LOG.debug("processActionMoveUp()");
 		return doSiteMove(true, false); //moveUp = true, absolute = false
 	}
-	
+
 	/**
 	 * Move down the selected item in Ordered List
 	 * 
@@ -802,18 +868,18 @@ public class UserPrefsTool
 		LOG.debug("processActionMoveTop()");
 		return doSiteMove(true, true); //moveUp = true, absolute = true
 	}
-	
+
 	public String processActionMoveBottom()
 	{
 		LOG.debug("processActionMoveBottom()");
 		return doSiteMove(false, true); //moveUp = false, absolute = true
 	}
-	
+
 	private String doSiteMove(boolean moveUp, boolean absolute) {
 		tabUpdated = false;
 		Set<String> selected   = new HashSet(Arrays.asList(getSelectedOrderItems()));
 		List<SelectItem> toMove = new ArrayList<SelectItem>();
-		
+
 		//Prune bad selections and split lists if moving absolutely
 		for (Iterator i = prefOrderItems.iterator(); i.hasNext(); ) {
 			SelectItem item = (SelectItem) i.next();
@@ -841,13 +907,13 @@ public class UserPrefsTool
 				int start = 0;
 				int interval = 1;
 				int end = prefOrderItems.size() - 1;
-				
+
 				if (!moveUp) {
 					start = prefOrderItems.size() - 1;
 					interval = -1;
 					end = 0;
 				}
-				
+
 				for (int i = start; i != end; i += interval) {
 					SelectItem cur  = (SelectItem) prefOrderItems.get(i);
 					SelectItem next = (SelectItem) prefOrderItems.get(i + interval);
@@ -860,7 +926,7 @@ public class UserPrefsTool
 			}
 		}
 		return m_TabOutcome;
-		
+
 	}
 
 	/**
@@ -1012,7 +1078,7 @@ public class UserPrefsTool
 		LOG.debug("processActionCancel()");
 
 		prefTabCount = null; // reset to retrieve original prefs
-		
+
 		// remove session variables
 		cancelEdit();
 		// To stay on the same page - load the page data
@@ -1520,7 +1586,7 @@ public class UserPrefsTool
 		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(TimeService.APPLICATION_ID);
 		props.addProperty(TimeService.TIMEZONE_KEY, m_timeZone.getID());
 		m_preferencesService.commit(m_edit);
-      
+
 		TimeService.clearLocalTimeZone(getUserId()); // clear user's cached timezone
 
 		tzUpdated = true; // set for display of text massage
@@ -1556,11 +1622,11 @@ public class UserPrefsTool
 		m_preferencesService.commit(m_edit);
 
 		TimeService.clearLocalTimeZone(getUserId()); // clear user's cached timezone
-	    
+
 		//Save the preference in the session also      
 		ResourceLoader rl = new ResourceLoader();
 		Locale loc = rl.setContextLocale(null);		
-		
+
 		locUpdated = true; // set for display of text massage
 		return "locale";
 	}
@@ -1643,7 +1709,7 @@ public class UserPrefsTool
 		}
 		else
 		{
-			selectedSyllItem = "2"; // default setting
+			selectedSyllItem = "3"; // default setting
 		}
 	}
 
@@ -1773,6 +1839,7 @@ public class UserPrefsTool
 
 		loadNotiData();
 		return "noti";
+		//return "tab";
 	}
 
 	// ///////////////////////////////////// HELPER METHODS FOR REFRESH /////////////////////////
@@ -1871,7 +1938,7 @@ public class UserPrefsTool
 	{
 		m_refreshElement = element;
 	}
-	
+
 	/**
 	 * Pull whether privacy status should be enabled from sakai.properties
 	 * 
@@ -1880,7 +1947,7 @@ public class UserPrefsTool
 	{
 		return ServerConfigurationService.getBoolean(ENABLE_PRIVACY_STATUS, false);
 	}
-   
+
 	/**
 	 * Should research/collab specific preferences (no syllabus) be displayed?
 	 * 

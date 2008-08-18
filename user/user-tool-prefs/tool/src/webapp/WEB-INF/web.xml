@@ -52,11 +52,11 @@
 	<!-- Sakai JSF Tool Servlet, for the options helper tool -->
     <servlet>
         <servlet-name>sakai.preferences</servlet-name>
-        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
-        <init-param>
+        <servlet-class>org.sakaiproject.user.tool.PreferenceServlet</servlet-class>
+        <!-- <init-param>
             <param-name>default</param-name>
             <param-value>noti</param-value>
-        </init-param>
+        </init-param>-->
         <init-param>
             <param-name>path</param-name>
             <param-value>/prefs</param-value>

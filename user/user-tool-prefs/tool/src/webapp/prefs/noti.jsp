@@ -15,10 +15,26 @@
 				<%--h:outputText value="User ID: "/><h:inputText value="#{AdminPrefsTool.userId}" /--%>	
 				<sakai:tool_bar>
 			  <%--sakai:tool_bar_item action="#{UserPrefsTool.processActionRefreshFrmNoti}" value="Refresh" /--%>
- 		    <sakai:tool_bar_item value="#{msgs.prefs_noti_title}" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionEdit}" value="#{msgs.prefs_tab_title}" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" />
+ 		    <sakai:tool_bar_item value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 1}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionEdit}" value="#{msgs.prefs_tab_title}" rendered="#{UserPrefsTool.tab_selection == 1}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 1}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}"rendered="#{UserPrefsTool.language_selection == 1}"/>
+ 		    
+ 		    <sakai:tool_bar_item value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 2}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionEdit}" value="#{msgs.prefs_tab_title}" rendered="#{UserPrefsTool.tab_selection == 2}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 2}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}"rendered="#{UserPrefsTool.language_selection == 2}"/>
+ 		    
+ 		    <sakai:tool_bar_item value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 3}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionEdit}" value="#{msgs.prefs_tab_title}" rendered="#{UserPrefsTool.tab_selection == 3}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 3}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}"rendered="#{UserPrefsTool.language_selection == 3}"/>
+ 		    
+ 		    <sakai:tool_bar_item value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 4}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionEdit}" value="#{msgs.prefs_tab_title}" rendered="#{UserPrefsTool.tab_selection == 4}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 4}"/>
+ 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}"rendered="#{UserPrefsTool.language_selection == 4}"/>
+ 		    
 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}" rendered="#{UserPrefsTool.privacyEnabled}" />
  			</sakai:tool_bar>
 				
@@ -39,12 +55,7 @@
     			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiAnn2}"/>
     			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiAnn1}"/>
   			</h:selectOneRadio>
-  			<h4><h:outputText value="#{msgs.noti_mail}"/></h4>
-				<h:selectOneRadio value="#{UserPrefsTool.selectedMailItem}" layout="pageDirection" styleClass="indnt2">
-    			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiMail3}"/>
-    			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiMail2}"/>
-    			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiMail1}"/>
-  			</h:selectOneRadio>
+  			
   			<h4><h:outputText value="#{msgs.noti_rsrc}"/></h4>
 				<h:selectOneRadio value="#{UserPrefsTool.selectedRsrcItem}" layout="pageDirection" styleClass="indnt2">
     			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiRsrc3}"/>
@@ -58,6 +69,13 @@
     			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiSyll3}"/>
     			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiSyll2}"/>
     			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiSyll1}"/>
+  			</h:selectOneRadio>
+  			
+  			<h4><h:outputText value="#{msgs.noti_mail}"/></h4>
+				<h:selectOneRadio value="#{UserPrefsTool.selectedMailItem}" layout="pageDirection" styleClass="indnt2">
+    			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiMail3}"/>
+    			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiMail2}"/>
+    			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiMail1}"/>
   			</h:selectOneRadio>
 			</f:subview>
   				

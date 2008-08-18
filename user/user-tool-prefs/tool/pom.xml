@@ -17,7 +17,13 @@
   <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
-    <dependency>
+   <!-- pull throught the JSF tool dependencies -->
+   <dependency>
+   	<groupId>javax.servlet</groupId>
+   	<artifactId>servlet-api</artifactId>
+   	<version>${sakai.servletapi.version}</version>
+   </dependency>
+   <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
@@ -132,6 +138,12 @@
 <!-- end Sun RI dependencies -->
   </dependencies>
   <build>
+    
+    
+    
+    
+    
+    
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>
@@ -140,5 +152,6 @@
         </includes>
       </resource>
     </resources>
+    
   </build>
 </project>
