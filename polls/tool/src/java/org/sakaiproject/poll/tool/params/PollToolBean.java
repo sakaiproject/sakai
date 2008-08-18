@@ -233,7 +233,8 @@ public class PollToolBean {
 			m_log.warn("this is a spoiled vote");
 			options.add("0");
 		}
-
+		
+		List<Vote> votesToSave = new ArrayList<Vote>();
 		for (int i = 0; i < options.size(); i++){
 			//create a new vote
 			m_log.debug("this vote is for option " + options.get(i));
@@ -242,12 +243,13 @@ public class PollToolBean {
 			if (vote.getIp() == null) {
 				m_log.warn("IP is null");
 				vote.setIp("Nothing");
-			}
-
-			pollVoteManager.saveVote(vote);
-			voteBean.voteCollection = votes;
-
 		}
+			votesToSave.add(vote);
+		}
+		
+		pollVoteManager.saveVoteList(votesToSave);
+
+		voteBean.voteCollection = votes;
 		m_log.debug("Votes saved about to return");
 		return "Success";
 	}

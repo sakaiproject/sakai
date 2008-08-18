@@ -36,8 +36,10 @@ import org.hibernate.criterion.Distinct;
 import org.hibernate.Session;
 
 import org.sakaiproject.poll.logic.PollVoteManager;
+import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -66,6 +68,21 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
 		toolManager = tm;
 	}
 
+
+	public void saveVoteList(List votes) {
+
+		Long pollId = null;
+		for (int i =0; i < votes.size(); i ++) {
+			Vote vote = (Vote)votes.get(i);
+			pollId = vote.getPollId();
+			saveVote(vote);
+		}
+
+
+		eventTrackingService.post(eventTrackingService.newEvent("poll.vote", "poll/site/" + toolManager.getCurrentPlacement().getContext() +"/poll/" +  pollId, true));
+
+	}
+
 	public boolean saveVote(Vote vote)  {
 		try {
 			getHibernateTemplate().save(vote);
@@ -75,11 +92,8 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
 			e.printStackTrace();
 			return false;
 		}
-		//Session sess = ;
-		//we need the siteID
 
 		log.debug(" Vote  " + vote.getId() + " successfuly saved");
-		eventTrackingService.post(eventTrackingService.newEvent("poll.vote", "poll/site/" + toolManager.getCurrentPlacement().getContext() +"/poll/" +  vote.getPollId(), true));
 		return true;
 	}
 
@@ -130,6 +144,8 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
 
 		return userHasVoted(pollId, UserDirectoryService.getCurrentUser().getId());
 	}
+
+
 
 
 

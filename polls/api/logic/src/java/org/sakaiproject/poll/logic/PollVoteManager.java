@@ -26,11 +26,18 @@ import java.util.List;
 
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.model.VoteCollection;
 
 public interface PollVoteManager {
 
 	
 	public boolean saveVote(Vote vote);
+	
+	/**
+	 * Save a vote collection - a users collection of votes for a specific poll
+	 * @param voteCollection
+	 */
+	public void saveVoteList(List<Vote> voteCollection);
 	
 	public void deleteVote(Vote Vote);
 	
