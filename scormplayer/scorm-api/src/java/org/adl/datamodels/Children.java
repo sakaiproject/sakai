@@ -150,7 +150,7 @@ public class Children extends DMElement
                   located = false;
                   for ( int i = 0; i < mChildrenList.size(); i++ )
                   {
-                     String child = (String)((Vector)mChildrenList).elementAt(i);
+                	 String child = (String)((List)mChildrenList).get(i);
 
                      if ( (tok.trim()).equals(child.trim()) )
                      {
@@ -279,12 +279,12 @@ public class Children extends DMElement
 
                   if ( oInfo.mValue.equals("") )
                   {
-                     oInfo.mValue += (String)((Vector)mChildrenList).elementAt(num);
+                	  oInfo.mValue += (String)((List)mChildrenList).get(num);
                   }
                   else
                   {
                      oInfo.mValue += ",";
-                     oInfo.mValue += (String)((Vector)mChildrenList).elementAt(num);
+                     oInfo.mValue += (String)((List)mChildrenList).get(num);
                   }
 
                   // Continue ordering childern
@@ -299,12 +299,12 @@ public class Children extends DMElement
          {
             if ( oInfo.mValue.equals("") )
             {
-               oInfo.mValue += (String)((Vector)mChildrenList).elementAt(i);
+            	oInfo.mValue += (String)((List)mChildrenList).get(i);
             }
             else
             {
                oInfo.mValue += ",";
-               oInfo.mValue += (String)((Vector)mChildrenList).elementAt(i);
+               oInfo.mValue += (String)((List)mChildrenList).get(i);
             }
          }
       }
