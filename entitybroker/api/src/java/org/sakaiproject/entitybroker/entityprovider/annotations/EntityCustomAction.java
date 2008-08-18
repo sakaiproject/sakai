@@ -63,7 +63,7 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
  * {@link EntityNotFoundException} to indicate the entity request could not find the data that was requested <br/>
  * {@link IllegalArgumentException} to indicate that the incoming params or the request was invalid <br/>
  * {@link FormatUnsupportedException} to indicate that the requested format is not supported for this entity request <br/>
- * {@link EntityException} to indicate a specific entity failure occured <br/>
+ * {@link EntityException} to indicate a specific entity failure occurred <br/>
  * {@link IllegalStateException} to indicate a general failure has occurred <br/>
  * <br/>
  * @see CustomAction
