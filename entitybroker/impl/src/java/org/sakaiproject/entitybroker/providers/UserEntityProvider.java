@@ -28,7 +28,9 @@ import java.util.Map;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
@@ -64,6 +66,17 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, Describe
     public static String PREFIX = "user";
     public String getEntityPrefix() {
         return PREFIX;
+    }
+
+    @EntityCustomAction(action="current",viewKey=EntityView.VIEW_LIST)
+    public EntityUser getCurrentUser(EntityView view) {
+        String currentUserId = developerHelperService.getCurrentUserId();
+        if (currentUserId == null) {
+            throw new IllegalArgumentException("There is no current user to get user info about");
+        }
+        User user = getUserByIdEid(currentUserId);
+        EntityUser eu = new EntityUser(user);
+        return eu;
     }
 
     public boolean entityExists(String id) {
@@ -313,6 +326,10 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, Describe
         String userId = null;
         if (currentUserId == null) {
             // try to get userId from eid
+            if (currentUserEid.startsWith("/user/")) {
+                // assume the form of "/user/userId" (the UDS method is protected)
+                currentUserEid = new EntityReference(currentUserEid).getId();
+            }
             try {
                 userId = userDirectoryService.getUserId(currentUserEid);
             } catch (UserNotDefinedException e) {

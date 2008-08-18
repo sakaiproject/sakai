@@ -51,7 +51,7 @@ public interface Formats {
     * OUTPUT: JSON text <br/>
     */
    public static String JSON = "json";
-   public static String JSON_MIME_TYPE = "application/json";
+   public static String JSON_MIME_TYPE = "text/plain"; //"application/json"; // switched to plain so it easier to work with
    /**
     * Plain text (text/plain) <br/>
     * http://en.wikipedia.org/wiki/Plain_text <br/>

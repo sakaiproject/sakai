@@ -22,26 +22,20 @@ package org.sakaiproject.entitybroker.exception;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class FormatUnsupportedException extends RuntimeException {
+public class FormatUnsupportedException extends EntityBrokerException {
 
-   /**
-    * The entity reference (may be /prefix or /prefix/id) which caused this failure
-    */
-   public String entityReference;
    /**
     * The format which could not be handled
     */
    public String format;
    
    public FormatUnsupportedException(String message, String entityReference, String format) {
-      super(message);
-      this.entityReference = entityReference;
+      super(message, entityReference);
       this.format = format;
    }
 
    public FormatUnsupportedException(String message, Throwable cause, String entityReference, String format) {
-      super(message, cause);
-      this.entityReference = entityReference;
+      super(message, entityReference, cause);
       this.format = format;
    }
 

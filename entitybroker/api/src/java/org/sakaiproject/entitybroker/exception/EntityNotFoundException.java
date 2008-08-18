@@ -22,17 +22,17 @@ package org.sakaiproject.entitybroker.exception;
 
 
 /**
- * Throw to indicate that there was a failure during encoding/decoding an entity or related data
+ * Throw to indicate that there was a failure finding an entity or collection of entities
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class EntityEncodingException extends EntityBrokerException {
+public class EntityNotFoundException extends EntityBrokerException {
 
-   public EntityEncodingException(String message, String entityReference) {
+   public EntityNotFoundException(String message, String entityReference) {
       super(message, entityReference);
    }
 
-   public EntityEncodingException(String message, String entityReference, Throwable cause) {
+   public EntityNotFoundException(String message, String entityReference, Throwable cause) {
        super(message, entityReference, cause);
    }
 

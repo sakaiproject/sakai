@@ -60,12 +60,8 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class EntityException extends RuntimeException {
+public class EntityException extends EntityBrokerException {
 
-   /**
-    * The unique reference for the entity or entity space related to this failure
-    */
-   public String entityReference;
    /**
     * This is the response code related to the failure that occurred,
     * should match with constants in {@link HttpServletResponse}
@@ -81,8 +77,7 @@ public class EntityException extends RuntimeException {
     * @param entityReference the unique reference to an entity
     */
    public EntityException(String message, String entityReference) {
-      super(message);
-      this.entityReference = entityReference;
+      super(message, entityReference);
    }
 
    /**
@@ -95,8 +90,7 @@ public class EntityException extends RuntimeException {
     * should match with the SC constants in {@link HttpServletResponse}
     */
    public EntityException(String message, String entityReference, int responseCode) {
-      super(message);
-      this.entityReference = entityReference;
+      super(message, entityReference);
       this.responseCode = responseCode;
    }
 

@@ -32,6 +32,9 @@ import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
+import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 
 
 /**
@@ -55,7 +58,14 @@ import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
  * 3) a UTF-8 encoded OutputStream or String <br/>
  * 4) a List of entity objects <br/>
  * 5) an entity object <br/>
- *
+ * <br/>
+ * Can throw the following exceptions and have them handled:<br/>
+ * {@link EntityNotFoundException} to indicate the entity request could not find the data that was requested <br/>
+ * {@link IllegalArgumentException} to indicate that the incoming params or the request was invalid <br/>
+ * {@link FormatUnsupportedException} to indicate that the requested format is not supported for this entity request <br/>
+ * {@link EntityException} to indicate a specific entity failure occured <br/>
+ * {@link IllegalStateException} to indicate a general failure has occurred <br/>
+ * <br/>
  * @see CustomAction
  * @see ActionsExecutable
  * 

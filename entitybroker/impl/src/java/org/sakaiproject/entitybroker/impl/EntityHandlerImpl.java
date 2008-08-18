@@ -65,6 +65,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
@@ -334,6 +335,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                 }
                                 try {
                                     actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, view, customAction.action, req, res);
+                                } catch (EntityNotFoundException e) {
+                                    throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Could not find entity ("+e.entityReference+"): " + e.getMessage(), 
+                                            view.getEntityReference()+"", HttpServletResponse.SC_FORBIDDEN );
+                                } catch (FormatUnsupportedException e) {
+                                    throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Format not supported ("+e.format+"): " + e.getMessage(), 
+                                            view.getEntityReference()+"", HttpServletResponse.SC_NOT_ACCEPTABLE );
                                 } catch (IllegalArgumentException e) {
                                     throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Illegal arguments: " + e.getMessage(), 
                                             view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
