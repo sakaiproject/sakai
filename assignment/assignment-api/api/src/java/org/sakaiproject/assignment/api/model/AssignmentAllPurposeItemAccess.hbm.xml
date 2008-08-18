@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	
+<hibernate-mapping default-lazy="false">
+	<class name="org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess" table="ASSIGN_ALL_PURPOSE_ITEM_ACCESS_T">
+       
+       <id name="id" column="ID" type="long">
+					<generator class="native">
+						<param name="sequence">ASSIGN_AP_ACCESS_S</param>
+					</generator>
+		</id>
+       <property name="access" type="java.lang.String" not-null="true" unique-key="uniqueAccessItem">
+            <column name="access" />
+        </property>
+        
+         <!--  This maps to the ASSIGNMENT_MODEL_ANSWER_ITEM_T table -->
+        <many-to-one name="assignmentAllPurposeItem" column="ASN_ALL_PURPOSE_ITEM_ID" unique-key="uniqueAccessItem"
+        	class="org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem"
+        	not-null="true" index="ASSIGN_ALL_PURPOSE_ITEM_ACCESS_I" />
+    </class>
+    
+    <query name = "findAccessByAllPurposeItem">
+			<![CDATA[
+			select access
+			from AssignmentAllPurposeItemAccess a
+			where a.assignmentAllPurposeItem = :item
+		]]>
+	</query>
+    
+</hibernate-mapping>

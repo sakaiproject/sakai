@@ -57,5 +57,54 @@
 			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />
 		</property>
 	</bean>
+	
+	<!--  Hibernate persistence -->
+
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.assignmentSupplementItem"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/assignment/api/model/AssignmentSupplementItemAttachment.hbm.xml</value>
+				<value>org/sakaiproject/assignment/api/model/AssignmentSupplementItem.hbm.xml</value>
+				<value>org/sakaiproject/assignment/api/model/AssignmentAllPurposeItemAccess.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+        </property>
+        <property name="target">
+            <ref bean="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl" />
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
+    	class="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
+    	singleton="true" init-method="init" destroy-method="destroy">
+    	<property name="sessionFactory">
+    		<ref
+    			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    	</property>
+    	<property name="userDirectoryService">
+			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />
+		</property>
+		<property name="assignmentService">
+			<ref bean="org.sakaiproject.assignment.api.AssignmentService" />
+		</property>
+		<property name="authzGroupService">
+			<ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+		</property>
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService"/>
+		</property>
+    </bean>
   
 </beans>

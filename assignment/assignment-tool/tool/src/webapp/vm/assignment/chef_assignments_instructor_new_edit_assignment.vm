@@ -1,6 +1,191 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - Instructor new Assignment view
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/form.js"></script>
+<script language="JavaScript" type="text/JavaScript">
+$(document).ready(function(){
+				## show the previously opened field
+    $('.extraNode').hide();
+    showNode = $('#attachments_for').val();
+    $('#' + showNode + '-node').fadeIn('slow');
+	   $('.validationError').hide();
+	   
+	   if ($('#value_allPurpose').val() == 'true')
+	   {
+	   	$('#noAllPurpose').hide('');
+     $('#hasAllPurpose').show('');
+	   }
+    resizeFrame('grow');
+    
+    $(".toggleRoleLink").click(function(){
+    	var actionType;
+    	var roleType;
+    	actionType = this.id.substring(0, this.id.indexOf('_'));
+     roleType = this.id.substring(this.id.indexOf('_') + 1);
+     if (actionType == "expand")
+     {
+     	$('#' + roleType + "Div").show('');
+     	$('#collapse_' + roleType).show('');
+     	$('#expand_' + roleType).hide('');
+     }
+     else
+     {
+     	$('#' + roleType + "Div").hide('');
+     	$('#expand_' + roleType).show('');
+     	$('#collapse_' + roleType).hide('');
+     }
+    });
+    
+    $(".extraNodeLink").click(function(){
+	    $('.validationError').hide();			
+        nodeType = this.id.substring(0, this.id.indexOf('_'));
+        linkType = this.id.substring((this.id.indexOf('_') + 1));
+        if (linkType == "delete") {
+            if (nodeType == "allPurpose") {
+                $('#' + nodeType + '_title').val('');
+                $('#' + nodeType + '_title_holder').val('');
+            }
+            $('#' + nodeType + '_to_delete').val('true');
+            $('#' + nodeType + '_text').val('');
+            $('#' + nodeType + '_text_holder').val('');
+            $('#' + nodeType + '_to').val('0');
+            $('#' + nodeType + '_to_holder').val('0');
+            $('#' + 'no' + nodeType).show('');
+            $('#' + 'has' + nodeType).hide('');
+            $('.extraNode').hide();
+            resizeFrame('grow');
+        }
+        if (linkType == "add" || linkType == "edit") {
+            $('.extraNode').hide();
+            $('#' + this.id.substring(0, this.id.indexOf('_')) + '-node').fadeIn('slow');
+            resizeFrame('grow');
+        }
+						location.href='#extraNodesTop'        
+    });
+    $(".extraNodeInput").click(function(){
+		    $('.validationError').hide();
+        nodeType = this.id.substring(0, this.id.indexOf('_'));
+        inputType = this.id.substring((this.id.indexOf('_') + 1));
+        Text = $('#' + nodeType + '_text').val();
+        Title = $('#' + nodeType + '_title').val();
+        To = $('#' + nodeType + '_to').val();
+        defText = $('#' + nodeType + '_text_holder').val();
+        defTitle = $('#' + nodeType + '_title_holder').val();
+        defTo = $('#' + nodeType + '_to_holder').val();
+        
+        if (inputType == "cancel") {
+            if (nodeType == "allPurpose") {
+                $('#' + nodeType + '_title').val(defTitle);
+            }
+            $('#' + nodeType + '_text').val(defText);
+            $('#' + nodeType + '_to').val(defTo);
+            $('.extraNode').hide();
+						location.href='#extraNodesTop'    						
+        }
+        if (inputType == "save") {
+            validation = 'ok';
+						var titleOK
+						var textOK
+						var toOK
+						var message='';
+            if (nodeType == "allPurpose") {
+                if ($('#' + nodeType + '_title').val() == '') {
+									$('#' + nodeType + '_title_message').show();
+									validation='failed';
+                }
+                else {
+										titleOK=true;
+                }
+            }
+            if ($('#' + nodeType + '_text').val() == '') {
+									$('#' + nodeType + '_text_message').show();
+									validation='failed';
+            }
+            else {
+								textOK=true;
+            }
+            if (To == 0) {
+									$('#' + nodeType + '_to_message').show();
+									validation='failed';
+            }
+            else {
+								toOK=true;
+            }
+            
+            if (validation == 'ok') {
+							if (titleOK)
+							{
+								$('#' + nodeType + '_title_holder').val(Title);
+							}
+							if (textOK){
+                $('#' + nodeType + '_text_holder').val(Text);
+							}
+							if (toOK){
+								$('#' + nodeType + '_to_holder').val(To);
+							}
+                $('#' + 'no' + nodeType).hide('');
+                $('#' + 'has' + nodeType).show('');
+                $('#value_' + nodeType).val('true');
+                $('.extraNode').hide();
+						    $('.validationError').hide();								
+								location.href='#extraNodesTop'    					
+            }
+						else{
+		            resizeFrame('grow');
+								location.href='#extraNodesBoxTop'    													
+						}
+        }
+    });
+    
+});
+
+</script>	
+<style type="text/css">
+	.extraNode {
+		border:1px solid #69d;
+		padding: 0  1.5em 1em 1.5em;
+		width:50%;
+	}
+	.extraNodeLink{
+		cursor:pointer;
+	}
+	.extraNode legend{
+		padding:0 .5em;
+		color:#555
+	}
+	.roleList {
+
+	}
+	fieldset .alertMessageInline,fieldset .alertMessage {
+		border:none
+	}
+
+</style>
 <script type="text/javascript">
+//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
+	function resizeFrame(updown) 
+	{
+		if (top.location != self.location) 	 {
+			var frame = parent.document.getElementById(window.name);
+		}	
+			if( frame ) 
+		{
+			if(updown=='shrink')
+			{
+				var clientH = document.body.clientHeight;
+			}
+			else
+			{
+				var clientH = document.body.clientHeight + 30;
+			}
+			$( frame ).height( clientH );
+		} 
+		else 
+		{
+			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+		}
+	}
+
 <!--
     function SetMaxPoint(obj_option, obj_textfield)
     {
@@ -346,7 +531,7 @@
 				</label>
 				<table border="0" style="margin:0"><tr><td>
 					<textarea name="$name_Description" id="$name_Description" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($value_Description)</textarea>
-					#chef_setupformattedtextarea($name_Description)
+##						#chef_setupformattedtextarea($name_Description)
 					</td></tr></table>
 			</div>
 		#if ($!name_CheckAddDueDate)
@@ -604,6 +789,510 @@
 					<input type="button" name="attach" value="$tlang.getString('gen.adddroatt2')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;" />
 				</div>
 			#end	
+	<a name="extraNodesTop"></a>
+		<h3 style="margin-bottom:0">Additional information</h3>
+	<table class="listHier lines nolines" style="width:auto;" >
+		<caption style="border-bottom:1px solid #ccc;text-align:left; margin-top:1em;padding-bottom:.3em">$tlang.getString("supplement")</caption>
+		<tr>
+			<td style="padding-right:5em">
+				$tlang.getString("modelAnswer")
+			</td>
+			<td class="itemAction" style="white-space:nowrap">
+				<div id="nomodelanswer"  #if(!$!modelanswer) style="display:block"#else style="display:none" #end>
+					<a id="modelanswer_add" class="extraNodeLink">$tlang.getString("new")</a>
+				</div>
+				<div id="hasmodelanswer"  #if($!modelanswer) style="display:block"#else style="display:none" #end>
+					<a id="modelanswer_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="modelanswer_delete" class="extraNodeLink">$tlang.getString("delet")</a>
+					<input id = "modelanswer_to_delete" name = "modelanswer_to_delete" type= "hidden" value = "false" />
+				</div>
+			</td>
+		</tr>
+		## show the private note section if only the user can view or edit the item
+		#if ($!allowEditAssignmentNoteItem || $!allowReadAssignmentNoteItem)
+		<tr>
+			<td style="padding-right:5em">
+				$tlang.getString("note")
+			</td>
+			<td class="itemAction" style="white-space:nowrap">
+				<div id="nonote"  #if(!$!note) style="display:block"#else style="display:none" #end> 
+					<a id="note_add" class="extraNodeLink">$tlang.getString("new")</a>
+				</div>
+				<div id="hasnote"  #if($!note) style="display:block"#else style="display:none" #end>
+					#if ($!allowEditAssignmentNoteItem)
+						<a id="note_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="note_delete" class="extraNodeLink">$tlang.getString("delet")</a>
+					#else
+						#if ($!allowReadAssignmentNoteItem)
+							<a id="note_edit" class="extraNodeLink">$tlang.getString("gen.view2")</a>
+						#end
+					#end
+				</div>
+				<input id = "note_to_delete" name = "note_to_delete" type= "hidden" value = "false" />
+			</td>
+		</tr>
+	 #end
+		<tr>
+			<td style="padding-right:5em">
+				$tlang.getString("allPurpose")
+			</td>
+			<td class="itemAction" style="white-space:nowrap">
+				<div id="noallPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
+					<a id="allPurpose_add" class="extraNodeLink">$tlang.getString("new")</a>
+				</div>
+				<div id="hasallPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
+					<a id="allPurpose_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="allPurpose_delete" class="extraNodeLink">$tlang.getString("delet")</a>
+				</div>
+				<input type="hidden" name="value_allPurpose" #if($!allPurpose) value="true" #else value="false" #end />
+				<input id = "allPurpose_to_delete" name = "allPurpose_to_delete" type= "hidden" value = "false" />
+#*
+				<div id="noAllPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
+					<a id="allPurpose_add" class="extraNodeLink">$tlang.getString("new")</a>
+				</div>
+				<div id="hasAllPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
+					<a id="allPurpose_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="allPurpose_delete" class="extraNodeLink">$tlang.getString("delet")</a>
+				</div>
+*#
+
+
+
+			</td>
+		</tr>
+	</table>
+</div>		
+		
+	#*	<p class="shorttext">
+			<label for="selectExtra">
+				Add item
+			</label>
+			<select id="selectExtra">
+					<option value="1default"> --select one-- </option>
+					<option value="modelanswer">Model Answer</option>
+					<option value="gradingguidelines">Grading guidelines</option>
+					<option value="assignotes">Private notes</option>
+					<option value="otherextranodes">All purpose item</option>
+			</select>
+		</p>*#
+		<a name="extraNodesBoxTop"></a>		
+		<input type="hidden" name = "attachments_for" id="attachments_for" value="$!attachments_for" />
+		<fieldset class="extraNode" id="modelanswer-node" >
+				<legend>$tlang.getString("modelAnswer")</legend>
+				<div class="longtext" style="margin:.2em">
+					<label for="modelanswer_text" class="block">
+						<span class="reqStar">*</span>$tlang.getString("modelAnswer.instruction")
+					</label>
+					<div class="validationError alertMessage" id="modelanswer_text_message">
+						$tlang.getString("extraNodesRequired")
+					</div>	
+
+					<textarea name="modelanswer_text" id="modelanswer_text" cols="60" rows="10" wrap="virtual">$!modelanswer_text</textarea>
+					<textarea name="modelanswer_text_holder" id="modelanswer_text_holder" style="display:none" cols="60" rows="2" wrap="virtual">$!modelanswer_text</textarea>
+					###chef_setupformattedtextareaparams("modeltext" "200" "365" "small") 
+				</div>
+			## attachments
+			<label for="modelAnswerAttach" class="block">
+					$tlang.getString("gen.addres")
+			</label>
+			#set ($size = 0)
+			#set ($props = false)
+			#foreach ($attachment in $modelanswer_attachments) 
+				#set ($props = $attachment.Properties) 
+				#if ($!props)
+					#set ($size = $size + 1)
+				#end
+			#end
+			#if ($size == 0)
+				<p class="instruction">$tlang.getString("gen.noatt")</p>
+			#else
+				<ul class="attachList indnt1">
+					#foreach ($attachment in $modelanswer_attachments) 
+						#set ($props = false)
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+								#end
+								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+									($props.getPropertyFormatted($props.NamePropContentLength))
+								#end
+							</li>
+						#end
+					#end
+				</ul>
+			#end
+				<div class="act">
+					<input type="button" name="modelAnswerAttach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='modelAnswerAttach';document.newAssignmentForm.submit();return false;"/>
+				</div>
+
+			<p class="longtext"  style="margin:.2em">
+			<span class="reqStar">*</span>
+				<label for="modelanswer_to" class="block">
+					$tlang.getString("modelAnswer.show_to_student.prompt")
+				</label>
+				## show to student time option
+				<select id="modelanswer_to" name="modelanswer_showto">
+					#foreach ($k in ["0", "1", "2", "3", "4"])
+						#set($string = "modelAnswer.show_to_student.")
+						#set($string = $string.concat($k))
+						<option value="$k" #if($k.equals($!modelanswer_showto))selected="selected" #set( $modelanswer_to_val = $k) #end> $tlang.getString($string) </option>
+					#end
+				</select>
+				<span class="validationError alertMessageInline" id="modelanswer_to_message">
+					$tlang.getString("extraNodesRequired")
+				</span>	
+
+				<input type="text" id="modelanswer_to_holder"  style="display:none"  value="$modelanswer_to_val" />
+			</p>
+			<p class="act">
+				<input class="extraNodeInput" type="button" id="modelanswer_save" value="$tlang.getString('gen.sav')" class="active" />
+				<input class="extraNodeInput" type="button" id="modelanswer_cancel" value="$tlang.getString('gen.can')" />
+			</p>
+		</fieldset>
+		## the panel for grading guideline				
+		#*<fieldset class="extraNode" id="gradingguidelines-node">
+			<legend>Grading guidelines</legend>
+				<div class="validationError alertMessage" id="gradingguidelines-message">
+				</div>
+			<div class="longtext" style="margin:.2em">
+				<span class="reqStar">*</span>
+				<label for="ggtext" class="block">
+					Provide grading rationale. You can choose to whom and when this will display.
+				</label>
+					<textarea name="ggtext" id="ggtext" cols="60" rows="10" wrap="virtual"></textarea>
+					###chef_setupformattedtextareaparams("ggtext" "200" "365" "small")					
+			</div>
+			<div class="act">
+					<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>
+				</div>
+			<p class="longtext"  style="margin:.2em">
+				<span class="reqStar">*</span>
+				<label for="ggwho" class="block">
+					Show
+				</label>
+				<select id="ggwho">
+					<option value="ggwhodefault"> --select one-- </option>
+					<option value="ggwho1">Only to instructors</option>
+					<option value="ggwho2">also to students (after grading)</option>
+					<option value="ggwho3">also to students (after accept until date)</option>
+				</select>
+			</p>
+			<p class="act">
+				<input class="extraNodeInput"  type="button" value="Save" class="active"/><input class="extraNodeInput"  type="button" value="Cancel" />
+			</p>
+		</fieldset>	
+		*#
+		## the panel for private note			
+		<fieldset class="extraNode" id="note-node">
+			<legend>$tlang.getString("note")</legend>
+				<div class="validationError alertMessage" id="note_text_message">
+					$tlang.getString("extraNodesRequired")
+				</div>	
+			<div class="longtext" style="margin:.2em">
+				<span class="reqStar">*</span>				
+				<label for="note_text" class="block">
+					$tlang.getString("note.instruction") 
+				</label>
+				#if ($!note && $!allowEditAssignmentNoteItem || !$!note)
+					<textarea name="note_text" id="note_text" cols="60" rows="10" wrap="virtual">$!note_text</textarea>
+					<textarea name="note_text_holder" id="note_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$!note_text</textarea>
+				#else
+					#if ($!allowReadAssignmentNoteItem)
+					 <div class="notes">$!note_text</div>
+				 #end
+				#end
+					###chef_setupformattedtextareaparams("assigntext" "200" "365" "small")
+			</div>
+			<p class="longtext"  style="margin:.2em">
+				<span class="reqStar">*</span>				
+				<label for="note_to" class="block">
+					Share
+				</label>
+				#if ($!note && $!allowEditAssignmentNoteItem || !$!note)
+				<select id="note_to" name="note_to">
+					#foreach ($k in ["0", "1", "2", "3"])
+						#set($string = "note.to.")
+						#set($string = $string.concat($k))
+						<option value="$k" #if($k.equals($!note_to)) selected="selected" #set ($note_to_val=$k) #end> $tlang.getString($string) </option>
+					#end
+				</select>
+				#else
+					#if ($!allowReadAssignmentNoteItem)
+						#foreach ($k in ["0", "1", "2", "3"])
+							#set($string = "note.to.")
+							#set($string = $string.concat($k))
+							#if($k.equals($!note_to))
+								$tlang.getString($string)
+							#end
+						#end
+					#end
+				#end
+				<span class="validationError alertMessageInline" id="note_to_message">
+					$tlang.getString("extraNodesRequired")
+				</span>	
+				<input type="text" id="note_to_holder"  style="display:none"  value="$note_to_val" />
+			</p>
+			#if ($!note && $!allowEditAssignmentNoteItem || !$!note)
+				<p class="act">
+				## can only edit if there is no note item, or if there is a note item and the current user can edit it.
+					<input class="extraNodeInput" type="button" id="note_save" value="$tlang.getString('gen.sav')" class="active" />
+					<input class="extraNodeInput" type="button" id="note_cancel" value="$tlang.getString('gen.can')" />
+				</p>
+			#end
+		</fieldset>			
+		## the panel for allPurpose type of object			
+		<fieldset class="extraNode" id="allPurpose-node" >
+			<legend>$tlang.getString('allPurpose')</legend>
+			<div class="shorttext" style="margin:.2em">
+				<span class="reqStar">*</span>				
+				<label  for="allPurpose_title">$tlang.getString("allPurpose.title")</label>
+				<input id="allPurpose_title" name="allPurposeTitle" type="text" size="20" maxlength="30" value="$!value_allPurposeTitle" />
+				<input id="allPurpose_title_holder"  style="display:none"  name="allPurposeTitle" type="text" size="2" maxlength="30" value="$!value_allPurposeTitle" />
+				<span class="validationError alertMessageInline" id="allPurpose_title_message">
+					$tlang.getString("extraNodesRequired")
+				</span>	
+			</div>	
+
+			<div class="longtext" style="margin:.2em">
+				<span class="reqStar">*</span>
+				<label for="allPurpose_text" class="block">
+					$tlang.getString("allPurpose.instruction")
+				</label>
+					<textarea name="allPurposeText" id="allPurpose_text" cols="60" rows="10" wrap="virtual">$!value_allPurposeText</textarea>
+					<textarea name="allPurposeTextHolder"  id="allPurpose_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$!value_allPurposeText</textarea>
+					<div class="validationError alertMessage" id="allPurpose_text_message">
+						$tlang.getString("extraNodesRequired")
+					</div>	
+			## attachments for allpurpose item
+			<label for="allPurposeAttach" class="block">
+					$tlang.getString("gen.addres")
+			</label>
+			#set ($size = 0)
+			#set ($props = false)
+			#foreach ($attachment in $allPurpose_attachments) 
+				#set ($props = $attachment.Properties) 
+				#if ($!props)
+					#set ($size = $size + 1)
+				#end
+			#end
+			#if ($size == 0)
+				<p class="instruction">$tlang.getString("gen.noatt")</p>
+			#else
+				<ul class="attachList indnt1">
+					#foreach ($attachment in $allPurpose_attachments) 
+						#set ($props = false)
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+								#end
+								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+									($props.getPropertyFormatted($props.NamePropContentLength))
+								#end
+							</li>
+						#end
+					#end
+				</ul>
+			#end
+				<div class="act">
+					<input type="button" name="allPurposeAttach" id="allPurposeAttach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='allPurposeAttach';document.newAssignmentForm.submit();return false;"/>
+				</div>
+			</div>
+       <table>
+            <tr>
+                <td>
+                   <input name="allPurposeHide" id="allPurposeHide" value="false" #if(!$!value_allPurposeHide)checked="checked"#end type="radio" />
+                </td>
+                <td colspan="4">
+                    <label for="hidden_false_0">
+                        $tlang.getString("allPurpose.show")
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                   <input name="allPurposeShowFrom" id="allPurposeShowFrom" value="true" type="checkbox" #if ($value_allPurposeShowFrom) checked="checked" #end />
+                </td>
+                <td colspan="3">
+                    <label for="allPurposeShowFrom">
+                        $tlang.getString("allPurpose.show.from")
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                    <label for="allPurposeReleaseYear">
+                        $tlang.getString("allPurpose.show.date")
+                    </label>
+                </td>
+                <td>
+                    <label for="allPurposeReleaseHour">
+                        $tlang.getString("allPurpose.show.time")
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                	#chef_dateselectionwidget("allPurposeReleaseYear" "allPurposeReleaseMonth" "allPurposeReleaseDay" $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay)
+                </td>
+                <td>
+                    <select name="allPurposeReleaseHour" id="allPurposeReleaseHour">
+                    	#foreach ($i in [1..12])
+																						<option value="$i" #if ($value_allPurposeReleaseHour==$i)selected="selected"#end>$i</option>
+																					#end
+                    </select>
+                    <select name="allPurposeReleaseMin" id="allPurposeReleaseMin">
+                    			#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+																								<option value="$i" #if($i == $value_allPurposeReleaseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+																							#end
+                    </select>
+                    <select name="allPurposeReleaseAMPM" id="allPurposeReleaseHourAMPM">
+                    	#foreach ($i in [0, 1])
+																						<option value="$i" #if($i == $value_allPurposeReleaseAMPM)selected="selected"#end>#if($i==0) AM #else PM #end</option>
+																					#end
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                    <input name="allPurposeShowTo" id="allPurposeShowTo" value="true" type="checkbox" #if ($!value_allPurposeShowTo) checked="checked" #end />
+                </td>
+                <td colspan="4">
+                    <label for="allPurposeShowTo">
+                        $tlang.getString("allPurpose.show.util")
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                    <label for="allPurposeRetractYear">
+                        $tlang.getString("allPurpose.show.date")
+                    </label>
+                </td>
+                <td>
+                    <label for="allPurposeRetractHour">
+                        $tlang.getString("allPurpose.show.time")
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                	#chef_dateselectionwidget("allPurposeRetractYear" "allPurposeRetractMonth" "allPurposeRetractDay" $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay)    
+                </td>
+                <td>
+                    <select name="allPurposeRetractHour" id="allPurposeRetractHour">
+                     #foreach ($i in [1..12])
+																						<option value="$i" #if ($value_allPurposeRetractHour==$i)selected="selected"#end>$i</option>
+																					#end
+                    </select>
+                    <select name="allPurposeRetractMin" id="allPurposeRetractMin">
+                    			#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+																								<option value="$i" #if($i == $value_allPurposeRetractMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+																							#end
+                    </select>
+                    <select name="allPurposeRetractAMPM" id="allPurposeRetractHourAMPM">
+                    	#foreach ($i in [0, 1])
+																						<option value="$i" #if($i == $value_allPurposeRetractAMPM)selected="selected"#end>#if($i==0) AM #else PM #end </option>
+																					#end
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input name="allPurposeHide" id="allPurposeHide" value="true" #if($!value_allPurposeHide)checked="checked"#end type="radio" />
+                </td>
+                <td colspan="4">
+                    <label for="hidden_true_0">
+                        $tlang.getString("allPurpose.show.hide")
+                    </label>
+                </td>
+            </tr>
+        </table>
+			</p>
+			<h4>$tlang.getString("allPurpose.show.to")</h4>
+			<table border="0" cellpadding="0" cellspacing="0" style="margin:1em 0;width:100%">
+			  <tbody>
+			   #foreach ($role in $!roleUsers.keys())
+			    				#set($allString=$tlang.getString("allPurpose.show.all").concat(" ").concat($role))
+			    				#set($expandString=$tlang.getString("allPurpose.show.expand").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
+			    				#set($collapseString=$tlang.getString("allPurpose.show.collapse").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
+			        #set($expandId = "expand_")
+			        #set($expandId = $expandId.concat($role))
+			        #set($collapseId="collapse_")
+			        #set($collapseId=$collapseId.concat($role))
+			       	#set($roleDivString = $role.concat("Div"))
+			        <tr>
+			            <td>
+			            			#set($showInputString = "allPurpose_")
+			            			#set($showInputString = $showInputString.concat($role))
+			              	<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role"/>
+			                <label for="$allString">
+			                    $allString
+			                </label>
+			                <br/>&nbsp;&nbsp;<a href="#" id="$collapseId" class="toggleRoleLink" style="display:none" >$collapseString</a><a href="#" id="$expandId" class="toggleRoleLink" style="display:block" >$expandString</a>
+																			<div id="$roleDivString" style="display:none">
+																					<table class="listHier lines nolines" cellpadding="0" cellspacing="0" style="margin-left:2em;width:auto;font-weight:normal">
+			                    <tbody>
+			                        #foreach($user in $!roleUsers.get($role))
+			                      		 #set($showInputString = "allPurpose_")
+			            													#set($showInputString = $showInputString.concat($user.getId()))
+			                        <tr>
+			                            <td class="attach">
+			                                <input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($user.getId())) checked="checked" #end type="checkbox" value="$user.Id"/>
+			                            </td>
+			                            <td class="">
+			                                <label for="$showInputString" style="white-space:nowrap">
+			                                   $user.getDisplayName()
+			                                </label>
+			                            </td>
+			                        </tr>
+			                        #end
+			                    </tbody>
+			                		</table>
+			                </div>		
+			            </td>
+			        </tr>
+			        #end
+			    </tbody>
+			</table>
+			<p class="act">
+				<input class="extraNodeInput" type="button" id="allPurpose_save" value="Save" class="active"/>
+				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="Cancel" />
+			</p>
+		</fieldset>
 			<div class="act">
 				<input accesskey ="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" 
 						onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','post','newAssignmentForm');document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
