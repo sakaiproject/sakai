@@ -49,6 +49,9 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
@@ -195,6 +198,16 @@ public class EntityActionsManager {
             if (e.getCause() != null) {
                if (e.getCause().getClass().isAssignableFrom(IllegalArgumentException.class)) {
                   throw new IllegalArgumentException(e.getCause().getMessage() + " (rethrown)", e.getCause());
+               } else if (e.getCause().getClass().isAssignableFrom(EntityNotFoundException.class)) {
+                   throw new EntityNotFoundException(e.getCause().getMessage() + " (rethrown)", ref+"", e.getCause());
+               } else if (e.getCause().getClass().isAssignableFrom(FormatUnsupportedException.class)) {
+                   String format = ((FormatUnsupportedException)e.getCause()).format;
+                   throw new FormatUnsupportedException(e.getCause().getMessage() + " (rethrown)", e.getCause(), ref+"", format);
+               } else if (e.getCause().getClass().isAssignableFrom(UnsupportedOperationException.class)) {
+                   throw new UnsupportedOperationException(e.getCause().getMessage() + " (rethrown)", e.getCause());
+               } else if (e.getCause().getClass().isAssignableFrom(EntityException.class)) {
+                   int code = ((EntityException)e.getCause()).responseCode;
+                   throw new EntityException(e.getCause().getMessage() + " (rethrown)", ref+"", code);
                } else if (e.getCause().getClass().isAssignableFrom(IllegalStateException.class)) {
                   throw new IllegalStateException(e.getCause().getMessage() + " (rethrown)", e.getCause());
                } else if (e.getCause().getClass().isAssignableFrom(SecurityException.class)) {

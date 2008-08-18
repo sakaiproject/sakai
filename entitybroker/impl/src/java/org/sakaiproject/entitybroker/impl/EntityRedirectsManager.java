@@ -37,6 +37,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControl
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
+import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
@@ -166,9 +169,20 @@ public class EntityRedirectsManager {
                         } catch (IllegalAccessException e) {
                             throw new RuntimeException("Fatal error trying to execute URL redirect method: " + redirect, e);
                         } catch (InvocationTargetException e) {
+                            String reference = incomingURL;
                             if (e.getCause() != null) {
                                 if (e.getCause().getClass().isAssignableFrom(IllegalArgumentException.class)) {
                                     throw new IllegalArgumentException(e.getCause().getMessage() + " (rethrown)", e.getCause());
+                                } else if (e.getCause().getClass().isAssignableFrom(EntityNotFoundException.class)) {
+                                    throw new EntityNotFoundException(e.getCause().getMessage() + " (rethrown)", reference, e.getCause());
+                                } else if (e.getCause().getClass().isAssignableFrom(FormatUnsupportedException.class)) {
+                                    String format = ((FormatUnsupportedException)e.getCause()).format;
+                                    throw new FormatUnsupportedException(e.getCause().getMessage() + " (rethrown)", e.getCause(), reference, format);
+                                } else if (e.getCause().getClass().isAssignableFrom(UnsupportedOperationException.class)) {
+                                    throw new UnsupportedOperationException(e.getCause().getMessage() + " (rethrown)", e.getCause());
+                                } else if (e.getCause().getClass().isAssignableFrom(EntityException.class)) {
+                                    int code = ((EntityException)e.getCause()).responseCode;
+                                    throw new EntityException(e.getCause().getMessage() + " (rethrown)", reference, code);
                                 } else if (e.getCause().getClass().isAssignableFrom(IllegalStateException.class)) {
                                     throw new IllegalStateException(e.getCause().getMessage() + " (rethrown)", e.getCause());
                                 } else if (e.getCause().getClass().isAssignableFrom(SecurityException.class)) {
