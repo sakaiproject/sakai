@@ -120,7 +120,7 @@ public class RequestStorageImpl implements RequestStorage {
    }
 
    /**
-    * Allows use to set the value of a key directly, including reserved keys
+    * Allows user to set the value of a key directly, including reserved keys
     * @param key
     * @param value
     */

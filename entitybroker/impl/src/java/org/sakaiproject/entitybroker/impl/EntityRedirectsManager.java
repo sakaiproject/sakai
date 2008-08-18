@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
@@ -101,19 +102,28 @@ public class EntityRedirectsManager {
                     // add in the prefix and the extension so they can be referenced as variables
                     segmentValues.put(TemplateParseUtil.PREFIX, prefix);
                     if (processedTemplate.extension == null || "".equals(processedTemplate.extension)) {
-                        stashValues(TemplateParseUtil.EXTENSION, "", segmentValues);
-                        stashValues(TemplateParseUtil.DOT_EXTENSION, "", segmentValues);
+                        segmentValues.put(TemplateParseUtil.EXTENSION, "");
+                        segmentValues.put(TemplateParseUtil.DOT_EXTENSION, "");
                     } else {
-                        stashValues(TemplateParseUtil.EXTENSION, processedTemplate.extension, segmentValues);
-                        stashValues(TemplateParseUtil.DOT_EXTENSION, TemplateParseUtil.PERIOD + processedTemplate.extension, segmentValues);
+                        segmentValues.put(TemplateParseUtil.EXTENSION, processedTemplate.extension);
+                        segmentValues.put(TemplateParseUtil.DOT_EXTENSION, TemplateParseUtil.PERIOD + processedTemplate.extension);
                     }
                     if (queryString != null && queryString.length() > 2) {
-                        stashValues(TemplateParseUtil.QUERY_STRING, queryString, segmentValues);
-                        stashValues(TemplateParseUtil.QUESTION_QUERY_STRING, '?' + queryString, segmentValues);
+                        segmentValues.put(TemplateParseUtil.QUERY_STRING, queryString);
+                        segmentValues.put(TemplateParseUtil.QUESTION_QUERY_STRING, '?' + queryString);
                     } else {
-                        stashValues(TemplateParseUtil.QUERY_STRING, "", segmentValues);
-                        stashValues(TemplateParseUtil.QUESTION_QUERY_STRING, "", segmentValues);
+                        segmentValues.put(TemplateParseUtil.QUERY_STRING, "");
+                        segmentValues.put(TemplateParseUtil.QUESTION_QUERY_STRING, "");
                     }
+                    // add these to the request vars
+                    for (Entry<String, String> entry : segmentValues.entrySet()) {
+                        try {
+                            requestStorage.setStoredValue(entry.getKey(), entry.getValue());
+                        } catch (IllegalArgumentException e) {
+                            log.warn("Had to skip key (" + entry.getKey() + ") while adding keys to request storage: " + e.getMessage());
+                        }
+                    }
+                    // do the redirect
                     if (redirect.controllable) {
                         // call the executable
                         if (RedirectControllable.class.isAssignableFrom(entityProvider.getClass())) {
@@ -198,21 +208,6 @@ public class EntityRedirectsManager {
             }
         }
         return targetURL;
-    }
-
-    /**
-     * Stash the key and value in the request ans also in the map
-     * @param key
-     * @param value
-     * @param segmentValues
-     */
-    protected void stashValues(String key, String value, Map<String, String> map) {
-        if (key == null || value == null) {
-            // do nothing
-        } else {
-            map.put(key, value);
-            requestStorage.setStoredValue(key, value);
-        }
     }
 
     /**
