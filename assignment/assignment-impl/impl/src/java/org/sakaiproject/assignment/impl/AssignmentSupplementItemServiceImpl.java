@@ -482,6 +482,14 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					}	
 				}
 			}
+			else
+			{
+				return true;
+			}
+		}
+		else
+		{
+			return true;
 		}
 		
 		return false;
@@ -518,6 +526,10 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			{
 				return true;
 			}
+		}
+		else
+		{
+			return true;
 		}
 		
 		return false;

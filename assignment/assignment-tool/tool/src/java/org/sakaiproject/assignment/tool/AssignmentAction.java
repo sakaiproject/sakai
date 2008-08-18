@@ -5129,7 +5129,6 @@ public class AssignmentAction extends PagedResourceActionII
 					m_assignmentSupplementItemService.saveModelAnswer(mAnswer);
 				}
 				// note
-				String tt = params.getString("note_to_delete");
 				if (params.getString("note_to_delete").equals("true"))
 				{
 					// to remove note item
