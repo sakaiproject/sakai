@@ -2,6 +2,7 @@ package org.sakaiproject.scorm.service.sakai.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -368,12 +369,20 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			
 			outStream.close();
 			
-			resource.setContent(outStream.toByteArray());
+			//convert resource content to UTF-8 charset
+			String resourceContent = new String(outStream.toByteArray());
+			ByteArrayOutputStream encodedStream = new ByteArrayOutputStream();
+			OutputStreamWriter ow = new OutputStreamWriter(encodedStream, "UTF-8");
+			ow.write(resourceContent);
+			ow.close();
+			
+			resource.setContent(encodedStream.toByteArray());
 			resource.setContentType(getMimeType(entry.getName()));
 			resource.setHidden();
 						
 			ResourcePropertiesEdit props = resource.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, getDisplayName(entry.getName()));
+			props.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, "UTF-8");
 			
 			contentService().commitResource(resource);
 			

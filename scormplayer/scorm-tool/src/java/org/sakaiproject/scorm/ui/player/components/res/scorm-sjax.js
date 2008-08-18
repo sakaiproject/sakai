@@ -183,7 +183,7 @@ ScormSjax.sjaxCall = function sjaxCall(prefix, arg1, arg2, successHandler, failu
 		}  
 	}
 	
-	transport.abort;
+	transport.abort();
 		
 	return resultValue;
 };
