@@ -231,6 +231,8 @@ public class UserPrefsTool
 	private String CustomTab="prefs_tab_title";
 	private String Timezone="prefs_timezone_title";
 	private String Language="prefs_lang_title";
+	
+	private boolean refreshMode=false;
 
 
 	protected final static String EXCLUDE_SITE_LISTS = "exclude";
@@ -331,7 +333,7 @@ public class UserPrefsTool
 	 * @return Returns the prefExcludeItems.
 	 */
 	public List getPrefExcludeItems()
-	{
+	{	
 		return prefExcludeItems;
 	}
 
@@ -517,7 +519,7 @@ public class UserPrefsTool
 	{
 		if (LOG.isDebugEnabled())
 		{
-			LOG.debug("setSelectedExcludeItems(String[] " + selectedExcludeItems + ")");
+			LOG.debug("setSelectedExcludeItems(String[] " + Arrays.toString(selectedExcludeItems) + ")");
 		}
 
 		this.selectedExcludeItems = selectedExcludeItems;
@@ -709,7 +711,9 @@ public class UserPrefsTool
 		{
 			LOG.info("Setting preference.pages as "+ ServerConfigurationService.getString("preference.pages"));
 		}
-
+		
+		//To indicate that it is in the refresh mode
+		refreshMode=true;
 		String tabOrder=ServerConfigurationService.getString("preference.pages",defaultPreference);
 
 		tablist=tabOrder.split(",");
@@ -734,21 +738,42 @@ public class UserPrefsTool
 
 	public int getNoti_selection()
 	{
+		//Loading the data for notification in the refresh mode
+		if (noti_selection==1 && refreshMode==true)
+		{
+			processActionNotiFrmEdit();
+		}
 		return noti_selection;
 	}
 
 	public int getTab_selection()
 	{
+		//Loading the data for customize tab in the refresh mode
+		if (tab_selection==1 && refreshMode==true)
+		{
+			processActionEdit();
+		}
 		return tab_selection;
 	}
 
 	public int getTimezone_selection()
 	{
+		//Loading the data for timezone in the refresh mode
+		if (timezone_selection==1 && refreshMode==true)
+		{
+			processActionTZFrmEdit();
+		}
+		
 		return timezone_selection;
 	}
 
 	public int getLanguage_selection()
 	{
+		//Loading the data for language in the refresh mode
+		if (language_selection==1 && refreshMode==true)
+		{
+			processActionLocFrmEdit();
+		}
 		return language_selection;
 	}
 
@@ -944,6 +969,7 @@ public class UserPrefsTool
 			return null;
 		}
 		tabUpdated = false; // Reset display of text message on JSP
+		refreshMode=false;
 		prefExcludeItems = new ArrayList();
 		prefOrderItems = new ArrayList();
 		setUserEditingOn();
@@ -1094,7 +1120,7 @@ public class UserPrefsTool
 	public String processActionNotiFrmEdit()
 	{
 		LOG.debug("processActionNotiFrmEdit()");
-
+		refreshMode=false;
 		cancelEdit();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "noti";
@@ -1109,6 +1135,7 @@ public class UserPrefsTool
 	{
 		LOG.debug("processActionTZFrmEdit()");
 
+		refreshMode=false;
 		cancelEdit();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "timezone";
@@ -1123,6 +1150,7 @@ public class UserPrefsTool
 	{
 		LOG.debug("processActionLocFrmEdit()");
 
+		refreshMode=false;
 		cancelEdit();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "locale";
@@ -1681,7 +1709,7 @@ public class UserPrefsTool
 		}
 		else
 		{
-			selectedAnnItem = "3"; // default setting
+			selectedAnnItem = "2"; // default setting
 		}
 		String m = buildTypePrefsContext(MailArchiveService.APPLICATION_ID, "mail", selectedMailItem, prefs);
 		if (hasValue(m))
