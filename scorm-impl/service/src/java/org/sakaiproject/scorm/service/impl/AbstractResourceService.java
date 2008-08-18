@@ -37,10 +37,12 @@ public abstract class AbstractResourceService implements ScormResourceService {
 	protected String getMimeType(String name) {
 		String mimeType = new MimetypesFileTypeMap().getContentType(name);
 		
-		if (name.endsWith(".css"))
+		if (name.endsWith(".css;charset=UTF-8"))
 			mimeType = "text/css";
 		else if (name.endsWith(".swf"))
 			mimeType = "application/x-Shockwave-Flash";
+		else if (name.endsWith(".js"))
+			mimeType = "text/javascript;charset=UTF-8";
 		
 		return mimeType;
 	}
