@@ -179,9 +179,12 @@ public class PollToolBean {
 		manager.savePoll(poll);
 
 		m_log.info("Poll saved with id of " + poll.getPollId());
-
+		//if this is not a new poll populate the options list
+		if (!isNew)
+			poll.setOptions(manager.getOptionsForPoll(poll));
+		
 		voteBean.poll = poll;
-
+		
 		return poll;
 	}
 

@@ -361,6 +361,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  Poll poll = (Poll) actionReturn;
 		  m_log.debug("Action result got poll: " + poll.getPollId());
 		  m_log.debug("resulting view is: " + result.resultingView);
+		  
 		  if (poll.getPollOptions() == null || poll.getPollOptions().size() == 0) {
 			result.resultingView = new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString());
 		  } else {
