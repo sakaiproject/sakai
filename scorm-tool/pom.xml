@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-wicket</artifactId>
-      <version>${sakai.version}</version>
+      <version>1.0</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
