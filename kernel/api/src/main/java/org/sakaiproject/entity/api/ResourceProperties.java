@@ -104,6 +104,9 @@ public interface ResourceProperties extends Serializable
 
 	/** Property for a message channel indicating if the channel is 'enabled' (user settable) [Boolean] */
 	static final String PROP_MAIL_CHANNEL_OPEN = "CHEF:mail-channel-open";
+	
+	/** Property for a mail channel indicating if the channel has replys going back to the list (user settable) [Boolean] */
+	static final String PROP_MAIL_CHANNEL_REPLY_LIST = "CHEF:mail-channel-reply-list";
 
 	/** Property for a site storing the email notification id associated with the site's mailbox (user settable) [String] */
 	static final String PROP_SITE_EMAIL_NOTIFICATION_ID = "CHEF:site-email-notification-id";
