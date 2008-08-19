@@ -2185,7 +2185,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 	
 	protected String plainTextContent(AssignmentSubmission s) {
-		return htmlContent(s);
+		return FormattedText.convertFormattedTextToPlaintext(htmlContent(s));
 	}
 	
 	protected String htmlHeaders() {
