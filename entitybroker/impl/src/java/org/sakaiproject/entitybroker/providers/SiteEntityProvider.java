@@ -27,7 +27,9 @@ import java.util.Map;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -36,6 +38,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -72,6 +75,16 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, ActionsE
     @EntityURLRedirect("/{prefix}/{id}/memberships")
     public String redirectMemberships(Map<String,String> vars) {
         return MembershipEntityProvider.PREFIX + "/site/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
+    }
+
+    @EntityCustomAction(action="exists", viewKey=EntityView.VIEW_SHOW)
+    public String checkSiteExists(EntityView view) {
+        String siteId = view.getEntityReference().getId();
+        boolean exists = entityExists(siteId);
+        if (!exists) {
+            throw new EntityNotFoundException("Could not find a site with the id=" + siteId, view.getEntityReference()+"");
+        }
+        return null; // empty 200
     }
 
     /**

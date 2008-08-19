@@ -489,8 +489,19 @@ public class EntityDescriptionManager {
                     sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
                     for (CustomAction customAction : customActions) {
                         sb.append("        <div>\n");
-                        sb.append("          <a style='font-weight:bold;' href='"+directUrl+makeActionURL(ev, customAction)+"'>"
-                                +customAction.action+"</a> : " + "<span>"+makeCustomActionKeyMethodText(customAction)+"</span><br/>\n");
+                        String actionURL = makeActionURL(ev, customAction);
+                        String formatsHtml = "";
+                        if (customAction.viewKey == null 
+                                || EntityView.VIEW_LIST.equals(customAction.viewKey)
+                                || EntityView.VIEW_SHOW.equals(customAction.viewKey)) {
+                            formatsHtml = makeFormatsUrlHtml(directUrl+actionURL, outputFormats);
+                        }
+                        sb.append("          <a style='font-weight:bold;' href='"+directUrl+actionURL+"'>"
+                                + customAction.action+"</a> : " 
+                                + "<span>"+makeCustomActionKeyMethodText(customAction)+"</span> : "
+                                + "<span>["+actionURL+"]</span> "
+                                + formatsHtml
+                                + "<br/>\n");
                         String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action);
                         if (actionDesc != null) {
                             sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+actionDesc+"</div>\n");
