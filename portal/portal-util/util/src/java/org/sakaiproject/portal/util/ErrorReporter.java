@@ -74,6 +74,7 @@ public class ErrorReporter
 		censoredParameters.put("pw", "pw");
 		censoredParameters.put("eid", "eid");
 		censoredHeaders.put("cookie","cookie");
+		censoredHeaders.put("authorization","authorization");
 	}
 
 	/** Following two methods borrowed from RWikiObjectImpl.java * */
