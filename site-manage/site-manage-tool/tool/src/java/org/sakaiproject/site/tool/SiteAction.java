@@ -6216,9 +6216,11 @@ public class SiteAction extends PagedResourceActionII {
 							.getString("sitegen.siteinfolist.nomaintainuser")
 							+ maintainRoleString + ".");
 				} else {
+					
+					AuthzGroupService.save(realmEdit);
+					
 					// post event about the participant update
 					EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
-					AuthzGroupService.save(realmEdit);
 					
 					// then update all related group realms for the role
 					doUpdate_related_group_participants(s, realmId);
@@ -9257,6 +9259,8 @@ public class SiteAction extends PagedResourceActionII {
 
 					try {
 						AuthzGroupService.save(realmEdit);
+						// post event about adding participant
+						EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
 					} catch (GroupNotDefinedException ee) {
 						message.append(rb.getString("java.realm") + realmId);
 						M_log.warn(this + ".addUsersRealm: " + rb.getString("java.realm") + realmId, ee);
