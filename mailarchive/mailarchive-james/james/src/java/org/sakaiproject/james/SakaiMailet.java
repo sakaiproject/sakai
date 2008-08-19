@@ -168,7 +168,6 @@ public class SakaiMailet extends GenericMailet
 			{
 				from = mail.getSender().toString();
 				fromAddr = mail.getSender().toInternetAddress().getAddress();
-				// mail.getSender().getUser() + "@" + mail.getSender().getHost();
 			}
 
 			Collection to = mail.getRecipients();
@@ -204,9 +203,6 @@ public class SakaiMailet extends GenericMailet
 				{
 					MailAddress recipient = (MailAddress) it.next();
 					M_log.debug(id + " : checking to: " + recipient);
-
-					// is the host ok? %%%
-					// String host = recipient.getHost();
 
 					// the recipient's mail id
 					mailId = recipient.getUser();
@@ -336,8 +332,31 @@ public class SakaiMailet extends GenericMailet
 					body[0] = bodyBuf[0].toString(); // plain/text
 					body[1] = bodyBuf[1].toString(); // html/text
 					
-					channel.addMailArchiveMessage(subject, from.toString(), TimeService.newTime(sent.getTime()), 
-															mailHeaders, attachments, body);
+					if (channel.getReplyToList())
+					{
+						List modifiedHeaders = new Vector();
+						for (String header: (List<String>)mailHeaders) 
+						{
+							if (header != null && !header.startsWith("Reply-To:"))
+							{
+								modifiedHeaders.add(header);
+							}
+						}
+						// Note: can't use recipient, since it's host may be configured as mailId@myhost.james
+						MailAddress replyTo = new MailAddress( mailId, mail.getRemoteHost() );
+						M_log.debug("Set Reply-To address to "+ replyTo.toString());
+						modifiedHeaders.add("Reply-To: "+ replyTo.toString());
+  
+						// post the message to the group's channel
+						channel.addMailArchiveMessage(subject, from.toString(), TimeService.newTime(sent.getTime()), modifiedHeaders,
+								attachments, body);
+					}
+					else
+					{
+						// post the message to the group's channel
+						channel.addMailArchiveMessage(subject, from.toString(), TimeService.newTime(sent.getTime()), mailHeaders,
+								attachments, body);
+					}
 															
 					M_log.debug(id + " : delivered to:" + mailId);
 

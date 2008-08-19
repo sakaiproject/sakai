@@ -45,4 +45,12 @@ public interface MailArchiveChannelEdit extends MailArchiveChannel, MessageChann
 	 *        The new setting.
 	 */
 	public void setOpen(boolean setting);
+	
+	/**
+	 * Set the reply status of the channel. Reply to list channels will have the replys go back to the list. 
+	 * 
+	 * @param setting
+	 *        The new setting.
+	 */
+	public void setReplyToList(boolean replyToList);
 }

@@ -98,7 +98,10 @@ public interface MailArchiveChannel extends MessageChannel
 
 	/** @return true if the channel is open to messages from outside the membership, false if not. */
 	public boolean getOpen();
-
+	
+	/** @return <code>true</code> if the channel sets the reply to address back to the channel */
+	public boolean getReplyToList();
+	
 	/**
 	 * check permissions for addMessage() for the given user.
 	 * 

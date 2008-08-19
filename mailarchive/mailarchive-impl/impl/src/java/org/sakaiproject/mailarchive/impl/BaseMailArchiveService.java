@@ -828,14 +828,14 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 				List attachments, String[] body) throws PermissionException
 		{
 			MailArchiveMessageEdit edit = (MailArchiveMessageEdit) addMessage();
-			MailArchiveMessageHeaderEdit header = edit.getMailArchiveHeaderEdit();
+			MailArchiveMessageHeaderEdit archiveHeaders = edit.getMailArchiveHeaderEdit();
 			edit.setBody(body[0]); 
 			edit.setHtmlBody(body[1]);
-			header.replaceAttachments(attachments);
-			header.setSubject(subject);
-			header.setFromAddress(fromAddress);
-			header.setDateSent(dateSent);
-			header.setMailHeaders(mailHeaders);
+			archiveHeaders.replaceAttachments(attachments);
+			archiveHeaders.setSubject(subject);
+			archiveHeaders.setFromAddress(fromAddress);
+			archiveHeaders.setDateSent(dateSent);
+			archiveHeaders.setMailHeaders(mailHeaders);
 
 			// lets make sure that folks who have signed up for email get it
 			commitMessage(edit, NotificationService.NOTI_OPTIONAL);
@@ -929,6 +929,40 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 
 			return true;
 
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.sakaiproject.mailarchive.api.MailArchiveChannelEdit#setReplyToList(boolean)
+		 */
+		public void setReplyToList(boolean replyToList)
+		{
+			if (replyToList)
+			{
+				getPropertiesEdit().addProperty(ResourceProperties.PROP_MAIL_CHANNEL_REPLY_LIST, "true");
+			}
+			else
+			{
+				getPropertiesEdit().removeProperty(ResourceProperties.PROP_MAIL_CHANNEL_REPLY_LIST);
+			}			
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.sakaiproject.mailarchive.api.MailArchiveChannel#getReplyToList()
+		 */
+		public boolean getReplyToList()
+		{
+			boolean open = false;
+			try
+			{
+				open = getProperties().getBooleanProperty(ResourceProperties.PROP_MAIL_CHANNEL_REPLY_LIST);
+			}
+			catch (Exception ignore)
+			{
+			}
+
+			return open;
 		}
 
 	} // class BaseMailArchiveChannelEdit

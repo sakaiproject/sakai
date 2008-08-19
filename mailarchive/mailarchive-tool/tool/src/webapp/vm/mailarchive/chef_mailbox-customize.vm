@@ -6,6 +6,7 @@
 
 #if($optSize) #set($sizeValue=$optSize) #else #set($sizeValue=$pagesize) #end
 #if($optOpen) #set($openValue=$optOpen) #else #set($openValue=$channel.Open) #end
+#if($optReply) #set($replyValue=$optReply) #else #set($replyValue=$channel.ReplyToList) #end
 #if($optAlias)
 	#set($aliasValue=$optAlias)
 #else
@@ -50,6 +51,33 @@
 			<label for="${form-open}-false">
 				$tlang.getString("cus.onluse2")
 			</label>
+		</p>
+		<p class="instruction indnt2">
+			$tlang.getString("cus.replyto")
+		</p>
+				<p class="checkbox indnt2">	
+			<input 
+				type="radio" #if ($replyValue) checked="checked" #end
+				name="${form-reply}" 
+				id="${form-reply}-true" 
+				value="true"
+			/> 
+			<label for="${form-reply}-true">
+				$tlang.getString("cus.replylist")
+			</label>
+		</p>
+		<p class="checkbox indnt2">
+			<input 
+				type="radio" #if (!$replyValue) checked="checked" #end
+				name="${form-reply}" 
+				id="${form-reply}-false" 
+				value="false"
+			/> 
+			<label for="${form-open}-false">
+				$tlang.getString("cus.replysend")
+			</label>
+		</p>
+		<p class="checkbox indnt2">
 		</p>
 		<h4 class="indnt1">
 			$tlang.getString("gen.maiali2")
