@@ -74,6 +74,7 @@ public class CustomAction {
     * this must match one of the VIEW constants from {@link EntityView},
     * null indicates that this action can be run on entities and collections
     * using any http method (POST, GET)
+    * @see EntityCustomAction for details about what the method should return, what arguments are allowed, and what exceptions mean
     */
    public CustomAction(String action, String viewKey) {
       if (action == null || "".equals(action)) {
@@ -94,7 +95,8 @@ public class CustomAction {
     * @param viewKey the view key OR null
     * @param methodName the name of the method in your entity provider to 
     * execute when the custom action is requested
-    * @see CustomAction#CustomAction(String, String)
+    * @see EntityCustomAction for details about what the method should return, what arguments are allowed, and what exceptions mean
+    * @see CustomAction#CustomAction(String, String) for more details
     */
    public CustomAction(String action, String viewKey, String methodName) {
       this(action, viewKey);

@@ -43,6 +43,7 @@ public interface DescribePropertiesable extends Describeable {
     * Examples:<br/>
     * <code>myentity</code> - would match: myentity.properties, myentity_en.properties, myentity_en_GB.properties, etc.<br/>
     * <code>mydir/myloc/mything</code> - would match: mydir/myloc/mything.properties, etc.<br/>
+    * @see Describeable for details about the keys to place in the properties file
     * @return the baseName of the properties file/classes in the {@link #getResourceClassLoader()}
     */
    public String getBaseName();

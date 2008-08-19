@@ -218,9 +218,17 @@ public class EntityActionsManager {
          }
       }
       if (result != null) {
-         // package up the result in the ActionResult
          Class<?> resultClass = result.getClass();
-         if (ActionReturn.class.isAssignableFrom(resultClass)) {
+         // package up the result in the ActionResult
+         if (Boolean.class.isAssignableFrom(resultClass)) {
+             // handle booleans specially
+             boolean bool = ((Boolean) result).booleanValue();
+             if (bool) {
+                 result = null;
+             } else {
+                 throw new EntityNotFoundException("Could not find data for ref ("+ref+") from custom action ("+action+"), (returned boolean false)", ref+"");
+             }
+         } else if (ActionReturn.class.isAssignableFrom(resultClass)) {
             actionReturn = (ActionReturn) result;
          } else if (OutputStream.class.isAssignableFrom(resultClass)) {
             actionReturn = new ActionReturn(outputStream);

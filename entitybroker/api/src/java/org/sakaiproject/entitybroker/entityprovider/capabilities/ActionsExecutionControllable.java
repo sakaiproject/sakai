@@ -26,6 +26,9 @@ import java.util.Map;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 
 /**
  * This entity supports custom actions (as defined by RoR and REST microformat:
@@ -38,36 +41,44 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
  * You can describe the actions using the {@link Describeable} key: <prefix>.action.<actionKey> = description<br/>
  * You can create methods in your entity provider which either end with {@value #ACTION_METHOD_SUFFIX}
  * or use the {@link EntityCustomAction} suffix to define the custom actions<br/>
+ * @see EntityCustomAction for more details
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public interface ActionsExecutionControllable extends ActionsDefineable {
 
-   /**
-    * This allows the developer to define how to execute custom actions on entities,
-    * this method will be called every time a custom action execution is requested,
-    * the incoming data provides the context for the action to be executed<br/>
-    * NOTE: The return data can be complex so please read carefully,
-    * entity data is returned as the default for the request if no format is specified
-    * @param entityView an entity view, should contain all the information related to the incoming entity request or URL,
-    * includes the entity reference and the requested format information
-    * @param action key which will be used to trigger the action (e.g. promote),
-    * will be triggered by a URL like so: /user/aaronz/promote
-    * @param requestValues this is an array which contains passed in action params,
-    * if this is running as a result of an http request this will include all the request variables,
-    * otherwise this will just return any custom values needed to execute this action
-    * @param outputStream an OutputStream to place binary or long text data into,
-    * if this is used for binary data then the {@link ActionReturn} should be returned with the correct encoding information
-    * and the output variable set to the OutputStream
-    * @return this should return one of the following: <br/>
-    * 1) null (this is ok in most circumstances to indicate the method is done, use an exception to indicate failure) <br/>
-    * 2) an {@link ActionReturn} (this is a special object used to indicate return states and handle binary data) <br/>
-    * 3) a UTF-8 encoded OutputStream or String <br/>
-    * 4) a List of entity objects <br/>
-    * 5) an entity object <br/>
-    * @throws IllegalArgumentException if there are required params that are missing or invalid
-    * @throws IllegalStateException if the action cannot be performed for some reason
-    */
-   Object executeActions(EntityView entityView, String action, Map<String, Object> actionParams, OutputStream outputStream);
+    /**
+     * This allows the developer to define how to execute custom actions on entities,
+     * this method will be called every time a custom action execution is requested,
+     * the incoming data provides the context for the action to be executed<br/>
+     * NOTE: The return data can be complex so please read carefully,
+     * entity data is returned as the default for the request if no format is specified
+     * @param entityView an entity view, should contain all the information related to the incoming entity request or URL,
+     * includes the entity reference and the requested format information
+     * @param action key which will be used to trigger the action (e.g. promote),
+     * will be triggered by a URL like so: /user/aaronz/promote
+     * @param requestValues this is an array which contains passed in action params,
+     * if this is running as a result of an http request this will include all the request variables,
+     * otherwise this will just return any custom values needed to execute this action
+     * @param outputStream an OutputStream to place binary or long text data into,
+     * if this is used for binary data then the {@link ActionReturn} should be returned with the correct encoding information
+     * and the output variable set to the OutputStream
+     * @return this should return one of the following: <br/>
+     * 1) null (this is ok in most circumstances to indicate the method is done, use an exception to indicate failure) <br/>
+     * 2) an {@link ActionReturn} (this is a special object used to indicate return states and handle binary data) <br/>
+     * 3) a UTF-8 encoded OutputStream or String <br/>
+     * 4) a List of entity objects <br/>
+     * 5) an entity object <br/>
+     * 6) a boolean value (true indicates success and is the same as returning null, false indicates failure and causes an {@link EntityNotFoundException} <br/>
+     * <br/>
+     * Note: Can throw the indicated exceptions and have them translated and handled, all others will pass through
+     * 
+     * @throws EntityNotFoundException to indicate the entity request could not find the data that was requested 
+     * @throws IllegalArgumentException to indicate that the incoming params or the request was invalid 
+     * @throws FormatUnsupportedException to indicate that the requested format is not supported for this entity request 
+     * @throws EntityException to indicate a specific entity failure occurred 
+     * @throws IllegalStateException to indicate a general failure has occurred 
+     */
+    Object executeActions(EntityView entityView, String action, Map<String, Object> actionParams, OutputStream outputStream);
 
 }

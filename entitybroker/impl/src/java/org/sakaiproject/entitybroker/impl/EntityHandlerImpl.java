@@ -337,7 +337,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                     actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, view, customAction.action, req, res);
                                 } catch (EntityNotFoundException e) {
                                     throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Could not find entity ("+e.entityReference+"): " + e.getMessage(), 
-                                            view.getEntityReference()+"", HttpServletResponse.SC_FORBIDDEN );
+                                            view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
                                 } catch (FormatUnsupportedException e) {
                                     throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Format not supported ("+e.format+"): " + e.getMessage(), 
                                             view.getEntityReference()+"", HttpServletResponse.SC_NOT_ACCEPTABLE );

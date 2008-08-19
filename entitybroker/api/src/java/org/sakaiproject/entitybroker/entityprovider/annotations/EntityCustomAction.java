@@ -58,8 +58,9 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
  * 3) a UTF-8 encoded OutputStream or String <br/>
  * 4) a List of entity objects <br/>
  * 5) an entity object <br/>
+ * 6) a boolean value (true indicates success and is the same as returning null, false indicates failure and causes an {@link EntityNotFoundException} <br/>
  * <br/>
- * Can throw the following exceptions and have them handled:<br/>
+ * Can throw the following exceptions and have them translated and handled, all others will pass through:<br/>
  * {@link EntityNotFoundException} to indicate the entity request could not find the data that was requested <br/>
  * {@link IllegalArgumentException} to indicate that the incoming params or the request was invalid <br/>
  * {@link FormatUnsupportedException} to indicate that the requested format is not supported for this entity request <br/>

@@ -20,7 +20,10 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 
 
 /**
@@ -32,10 +35,18 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * in the classloader which your {@link EntityProvider} is located in,
  * the file must be named <b>&lt;entity-prefix&gt;.properties</b> (e.g. myentity.properties)<br/>
  * The keys inside the file must be as follows:<br/>
- * &lt;entity-prefix&gt; = This is the main description of the entity, appears at the top<br/>
- * &lt;entity-prefix&gt;.&lt;capability&gt; = This is a description about a particular capability for this entity<br/>
+ * &lt;entity-prefix&gt; = This is the main description of the entity, appears at the top <br/>
+ * &lt;entity-prefix&gt;.view.&lt;viewKey&gt; = This is a description about a particular view for an entity (viewKey from entity view constants {@link EntityView#VIEW_LIST}) <br/>
+ * &lt;entity-prefix&gt;.action.&lt;actionKey&gt; = This is a description of a custom action for this entity (see {@link ActionsExecutable} or {@link EntityCustomAction}) <br/>
+ * &lt;entity-prefix&gt;.field.&lt;fieldName&gt; = This is a description about a particular entity field for this entity object (see {@link Resolvable} or {@link CollectionResolvable}) <br/>
+ * &lt;entity-prefix&gt;.redirect.&lt;redirectTemplate&gt; = This is a description about a particular redirect rule for this entity URL space (see {@link Redirectable} or {@link EntityURLRedirect}) <br/>
+ * &lt;entity-prefix&gt;.&lt;capability&gt; = This is a description about a particular capability for this entity <br/>
  * <b>Example:</b><xmp>
       myentity = This is my entity, it is used for <b>examples</b> only
+      myentity.view.show = this shows a single instance of my entity
+      myentity.action.copy = this makes a copy of an instance of a myentity
+      myentity.field.name = this is the name of the entity, it is a user displayable name
+      myentity.redirect./{prefix}/xml/{id} = redirects to an xml view of a myentity
       myentity.Inputable = <i>extra</i> notes about the Inputable implementation for myentity
  * </xmp>
  * <br/>

@@ -38,7 +38,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -78,13 +77,10 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, ActionsE
     }
 
     @EntityCustomAction(action="exists", viewKey=EntityView.VIEW_SHOW)
-    public String checkSiteExists(EntityView view) {
+    public boolean checkSiteExists(EntityView view) {
         String siteId = view.getEntityReference().getId();
         boolean exists = entityExists(siteId);
-        if (!exists) {
-            throw new EntityNotFoundException("Could not find a site with the id=" + siteId, view.getEntityReference()+"");
-        }
-        return null; // empty 200
+        return exists;
     }
 
     /**
