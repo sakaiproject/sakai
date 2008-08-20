@@ -48,6 +48,18 @@
 	</tool>
 
 
+	<!-- blogwow! -->
+        <tool
+                toolId="sakai.blogwow"
+                selected="true">
+                <event eventId="blog.blog.created" selected="true"/>
+                <event eventId="blog.entry.saved" selected="true"/>
+		<event eventId="blog.entry.removed" selected="true"/>
+                <event eventId="blog.comment.added" selected="true"/>
+		<event eventId="blog.comment.removed" selected="true"/>
+        </tool>
+
+
 	<!-- chat -->
 	<tool 
 		toolId="sakai.chat"
