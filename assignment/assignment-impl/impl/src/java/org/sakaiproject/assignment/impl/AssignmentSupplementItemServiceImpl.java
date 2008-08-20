@@ -459,7 +459,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean canReadNoteItem(Assignment a)
+	public boolean canReadNoteItem(Assignment a, String context)
 	{
 		if (a != null)
 		{
@@ -484,12 +484,18 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			}
 			else
 			{
-				return true;
+				if (m_assignmentService.allowGradeSubmission(a.getReference()))
+				{
+					return true;
+				}
 			}
 		}
 		else
 		{
-			return true;
+			if (m_assignmentService.allowAddAssignment(context))
+			{
+				return true;
+			}
 		}
 		
 		return false;

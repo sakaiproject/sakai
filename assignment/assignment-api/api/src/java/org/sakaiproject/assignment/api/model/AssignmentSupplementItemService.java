@@ -178,9 +178,10 @@ public interface AssignmentSupplementItemService {
 	/**
 	 * Can current user read the AssignmentNoteItem?
 	 * @param a
+	 * @param context
 	 * @return
 	 */
-	public boolean canReadNoteItem(Assignment a);
+	public boolean canReadNoteItem(Assignment a, String context);
 	
 	/**
 	 * Can the current user modify the AssignmentNoteItem?

@@ -1008,7 +1008,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("allowSubmit", new Boolean(allowSubmit));
 		
 		// put supplement item into context
-		supplementItemIntoContext(context, assignment, s);
+		supplementItemIntoContext(state, context, assignment, s);
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_SUBMISSION;
@@ -1132,7 +1132,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("userDirectoryService", UserDirectoryService.getInstance());
 
 		// put supplement item into context
-		supplementItemIntoContext(context, assignment, submission);
+		supplementItemIntoContext(state, context, assignment, submission);
 		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_ASSIGNMENT;
@@ -1253,7 +1253,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		// put supplement item into context
-		supplementItemIntoContext(context, assignment, submission);
+		supplementItemIntoContext(state, context, assignment, submission);
 		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_GRADE;
@@ -1721,7 +1721,7 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute(NOTE_SHAREWITH, String.valueOf(mNote.getShareWith()));
 			}
 		}
-		context.put("allowReadAssignmentNoteItem", m_assignmentSupplementItemService.canReadNoteItem(a));
+		context.put("allowReadAssignmentNoteItem", m_assignmentSupplementItemService.canReadNoteItem(a, contextString));
 		context.put("allowEditAssignmentNoteItem", m_assignmentSupplementItemService.canEditNoteItem(a));
 		context.put("note", state.getAttribute(NOTE) != null?Boolean.TRUE:Boolean.FALSE);
 		context.put("note_text", state.getAttribute(NOTE_TEXT));
@@ -2231,7 +2231,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		// put supplement item into context
-		supplementItemIntoContext(context, a, null);
+		supplementItemIntoContext(state, context, a, null);
 		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
@@ -2544,7 +2544,7 @@ public class AssignmentAction extends PagedResourceActionII
 		pagingInfoToContext(state, context);
 		
 		// put supplement item into context
-		supplementItemIntoContext(context, assignment, null);
+		supplementItemIntoContext(state, context, assignment, null);
 		
 		
 		String template = (String) getContext(data).get("template");
@@ -2555,10 +2555,15 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/**
 	 * put the supplement item information into context
+	 * @param state
 	 * @param context
 	 * @param assignment
+	 * @param s
 	 */
-	private void supplementItemIntoContext(Context context, Assignment assignment, AssignmentSubmission s) {
+	private void supplementItemIntoContext(SessionState state, Context context, Assignment assignment, AssignmentSubmission s) {
+
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		
 		// for model answer
 		boolean allowViewModelAnswer = m_assignmentSupplementItemService.canViewModelAnswer(assignment, s);
 		context.put("allowViewModelAnswer", allowViewModelAnswer);
@@ -2568,7 +2573,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	
 		// for note item
-		boolean allowReadAssignmentNoteItem = m_assignmentSupplementItemService.canReadNoteItem(assignment);
+		boolean allowReadAssignmentNoteItem = m_assignmentSupplementItemService.canReadNoteItem(assignment, contextString);
 		context.put("allowReadAssignmentNoteItem", allowReadAssignmentNoteItem);
 		if (allowReadAssignmentNoteItem)
 		{
