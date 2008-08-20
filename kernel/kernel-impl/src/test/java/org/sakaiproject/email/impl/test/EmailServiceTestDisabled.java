@@ -25,9 +25,9 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
-public class EmailServiceTest extends SakaiKernelTestBase
+public class EmailServiceTestDisabled extends SakaiKernelTestBase
 {
-	private static Log log = LogFactory.getLog(EmailServiceTest.class);
+	private static Log log = LogFactory.getLog(EmailServiceTestDisabled.class);
 
 	private static final boolean USE_INT_MAIL_SERVER = true;
 	private static final boolean LOG_SENT_EMAIL = true;
@@ -48,7 +48,7 @@ public class EmailServiceTest extends SakaiKernelTestBase
 
 	public static Test suite()
 	{
-		TestSetup setup = new TestSetup(new TestSuite(EmailServiceTest.class))
+		TestSetup setup = new TestSetup(new TestSuite(EmailServiceTestDisabled.class))
 		{
 			protected void setUp() throws Exception
 			{
