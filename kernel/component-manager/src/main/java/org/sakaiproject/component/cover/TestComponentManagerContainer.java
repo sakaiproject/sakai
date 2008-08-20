@@ -1,3 +1,24 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008 Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.component.cover;
 
 import java.io.File;
@@ -16,11 +37,27 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
+/**
+ * A container for a Test Component Manager that can be configured with one of more components.
+ *
+ */
 public class TestComponentManagerContainer {
-	
+
+	/**
+	 * The logger
+	 */
 	private static final Log log = LogFactory.getLog(TestComponentManagerContainer.class);
+	
+	/**
+	 * The current component manager
+	 */
 	private SpringCompMgr componentManager;
 
+	/**
+	 * create a component manager based on a list of component.xml
+	 * @param configPaths a ';' seperated list of xml bean config files
+	 * @throws IOException
+	 */
 	public TestComponentManagerContainer(String configPaths)  throws IOException {
 		// we assume that all the jars are in the same classloader, so this will
 		// not check for
@@ -71,7 +108,13 @@ public class TestComponentManagerContainer {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void loadComponent(ConfigurableApplicationContext ac,
+	/**
+	 * Load the application context using a single classloader
+	 * @param ac The spring application context
+	 * @param config a list of configurations represented as List of resources
+	 * @param loader the classloader to use
+	 */
+	public void loadComponent(ConfigurableApplicationContext ac,
 			List<Resource> config, ClassLoader loader) {
 		ClassLoader current = Thread.currentThread().getContextClassLoader();
 
@@ -99,6 +142,10 @@ public class TestComponentManagerContainer {
 
 	}
 
+	/**
+	 * get the current component manager
+	 * @return
+	 */
 	public org.sakaiproject.component.api.ComponentManager getComponentManager() {
 		return componentManager;
 	}
@@ -144,11 +191,6 @@ public class TestComponentManagerContainer {
 			log.error(e);
 			return null;
 		}
-	}
-
-	public static void addComponent(String config) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
