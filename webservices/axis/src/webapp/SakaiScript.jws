@@ -835,7 +835,8 @@ public String getSitesUserCanAccess(String sessionid)
 			  (allSites.size() == 0 && moreSites.size() == 0) )
 			return "<list/>";
 
-		// combine two lists
+		// Remove duplicates and combine two lists
+		allSites.removeAll( moreSites );
 		allSites.addAll( moreSites );
 		
 		Document dom = Xml.createDocument();
