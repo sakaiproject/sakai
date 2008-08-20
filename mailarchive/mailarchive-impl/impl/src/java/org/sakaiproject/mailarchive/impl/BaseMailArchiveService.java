@@ -79,10 +79,6 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseMailArchiveService.class);
 
-	/** Property for a mail channel indicating if the channel has replys going back to the list (user settable) [Boo
-lean] */
-	static final String PROP_MAIL_CHANNEL_REPLY_LIST = "CHEF:mail-channel-reply-list";
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -870,7 +866,7 @@ lean] */
 			boolean open = false;
 			try
 			{
-				open = getProperties().getBooleanProperty(ResourceProperties.PROP_MAIL_CHANNEL_OPEN);
+				open = getProperties().getBooleanProperty(PROP_MAIL_CHANNEL_OPEN);
 			}
 			catch (Exception ignore)
 			{
@@ -909,11 +905,11 @@ lean] */
 		{
 			if (setting)
 			{
-				getPropertiesEdit().addProperty(ResourceProperties.PROP_MAIL_CHANNEL_OPEN, "true");
+				getPropertiesEdit().addProperty(PROP_MAIL_CHANNEL_OPEN, "true");
 			}
 			else
 			{
-				getPropertiesEdit().removeProperty(ResourceProperties.PROP_MAIL_CHANNEL_OPEN);
+				getPropertiesEdit().removeProperty(PROP_MAIL_CHANNEL_OPEN);
 			}
 		}
 

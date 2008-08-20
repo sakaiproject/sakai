@@ -59,6 +59,12 @@ public interface MailArchiveService extends MessageService
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = "/mailarchive";
 
+	/** Property for a mail channel indicating if the channel has replys going back to the list (user settable) [Boolean] */
+	static final String PROP_MAIL_CHANNEL_REPLY_LIST = "CHEF:mail-channel-reply-list";
+
+	/** Property for a message channel indicating if the channel is 'enabled' (user settable) [Boolean] */
+	static final String PROP_MAIL_CHANNEL_OPEN = "CHEF:mail-channel-open";
+	
 	/** Security lock / event root for generic message events to make it a mail event. */
 	public static final String SECURE_MAIL_ROOT = "mail.";
 
