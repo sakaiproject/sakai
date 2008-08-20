@@ -85,7 +85,7 @@
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</p>	
 			<p class="shorttext" style="float:left">
-				<label for="file">or a $tlang.getString("addi.url")</label>
+				<label for="file">$tlang.getString("addi.or.url")</label>
 				<input type="text" size="40" name="url" id="url" onkeypress="javascript:document.getElementById('add_url').disabled=false;" onchange="javascript:document.getElementById('add_url').disabled=true;document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');"#if($disable_attach_links) disabled="disabled"#end />
 			</p>
 			<span class="act"><input type="button" style="float:left;clear:right;margin-top:.35em;margin-left:-.75em" class="button" name="add_url" id="add_url" value="$tlang.getString("gen.add")" onclick="javascript:document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');" disabled="disabled" /></span>
