@@ -32,46 +32,54 @@ import org.sakaiproject.entitybroker.exception.EntityException;
  */
 public interface EntityRequestHandler {
 
-   /**
-    * The reserved word used to trigger entity descriptions
-    */
-   public static String DESCRIBE = "describe";
-   public static final String SLASH_DESCRIBE = EntityReference.SEPARATOR + DESCRIBE;
-   /**
-    * This is the name of the header which will contain the id of newly created entities
-    */
-   public static String HEADER_ENTITY_ID = "EntityId";
-   /**
-    * This is the name of the header which will contain the reference of created/updated entities
-    */
-   public static String HEADER_ENTITY_REFERENCE = "EntityReference";
-   /**
-    * This is the name of the header that will contain created/updated entities SHOW URL
-    */
-   public static String HEADER_ENTITY_URL = "Location";
-   /**
-    * The id used in generated URLs
-    */
-   public static String FAKE_ID = ":ID:";
-   /**
-    * This is the special indicator used to denote that POST should be translated to a PUT or DELETE
-    * in order to compensate for browser limitations,
-    * Example: /people/1?_method=PUT
-    */
-   public static String COMPENSATE_METHOD = "_method";
+    /**
+     * The reserved word used to trigger entity descriptions
+     */
+    public static String DESCRIBE = "describe";
+    public static final String SLASH_DESCRIBE = EntityReference.SEPARATOR + DESCRIBE;
+    /**
+     * This is the name of the header which will contain the id of newly created entities
+     */
+    public static String HEADER_ENTITY_ID = "EntityId";
+    /**
+     * This is the name of the header which will contain the reference of created/updated entities
+     */
+    public static String HEADER_ENTITY_REFERENCE = "EntityReference";
+    /**
+     * This is the name of the header that will contain created/updated entities SHOW URL
+     */
+    public static String HEADER_ENTITY_URL = "Location";
+    /**
+     * The id used in generated URLs
+     */
+    public static String FAKE_ID = ":ID:";
+    /**
+     * This is the special indicator used to denote that POST should be translated to a PUT or DELETE
+     * in order to compensate for browser limitations,
+     * Example: /people/1?_method=PUT
+     */
+    public static String COMPENSATE_METHOD = "_method";
 
-   /**
-    * Handles the servlet request response cycle for all direct servlet accesses,
-    * logically, we only want to let this request continue on if the entity exists AND
-    * there is an http access provider to handle it AND the user can access it
-    * (there is some auth completed already or no auth is required)
-    * 
-    * @param req the servlet request
-    * @param res the servlet response
-    * @param path the path from the request (if null it will be generated from the req)
-    * @return the entity reference that was handled as part of this request
-    * @throws EntityException if entity could not be found or failure parsing
-    */
-   public String handleEntityAccess(HttpServletRequest req, HttpServletResponse res, String path);
+    /**
+     * Handles the servlet request response cycle for all direct servlet accesses,
+     * logically, we only want to let this request continue on if the entity exists AND
+     * there is an http access provider to handle it AND the user can access it
+     * (there is some auth completed already or no auth is required)
+     * 
+     * @param req the servlet request
+     * @param res the servlet response
+     * @param path the path from the request (if null it will be generated from the req)
+     * @return the entity reference that was handled as part of this request
+     * @throws EntityException if entity could not be found or failure parsing
+     */
+    public String handleEntityAccess(HttpServletRequest req, HttpServletResponse res, String path);
+
+    /**
+     * Handles an error which occurs by sending an email and logging extra info about the failure
+     * @param req the current request
+     * @param error the current error that occurred
+     * @return the comprehensive error message
+     */
+    public String handleEntityError(HttpServletRequest req, Throwable error);
 
 }

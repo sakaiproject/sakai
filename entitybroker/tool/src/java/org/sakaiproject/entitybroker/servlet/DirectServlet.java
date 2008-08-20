@@ -174,8 +174,7 @@ public class DirectServlet extends HttpServlet {
          sendError(res, HttpServletResponse.SC_FORBIDDEN, msg);
       } catch (Exception e) {
          // all other cases
-         String msg = "Unknown exception with direct entity URL: dispatch(): " + e.getClass().getSimpleName() 
-               + ": " + e.getMessage() + ": caused by: " + e.getCause() + ": (see server logs for more details)";
+         String msg = entityRequestHandler.handleEntityError(req, e);
          log.warn(msg, e);
          sendError(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg);
       }

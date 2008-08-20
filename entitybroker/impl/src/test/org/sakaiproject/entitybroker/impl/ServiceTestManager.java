@@ -133,6 +133,7 @@ public class ServiceTestManager {
       entityRequestHandler.setRequestStorage( requestStorage );
       entityRequestHandler.setEntityActionsManager(entityActionsManager);
       entityRequestHandler.setEntityRedirectsManager(entityRedirectsManager);
+      entityRequestHandler.setServerConfigurationService(serverConfigurationService);
 
       entityMetaPropertiesService = new EntityMetaPropertiesService();
       entityMetaPropertiesService.setDao(dao);

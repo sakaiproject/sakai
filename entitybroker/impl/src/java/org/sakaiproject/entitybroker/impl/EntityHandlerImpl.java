@@ -25,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
@@ -80,6 +84,8 @@ import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundException;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.api.UsageSessionService;
 
 /**
  * Implementation of the handler for the EntityBroker system<br/>
@@ -159,7 +165,21 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.requestStorage = requestStorage;
     }
 
+    ServerConfigurationService serverConfigurationService;
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
 
+    EmailService emailService;
+    public void setEmailService(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
+    UsageSessionService usageSessionService;
+    public void setUsageSessionService(UsageSessionService usageSessionService) {
+        this.usageSessionService = usageSessionService;
+    }
+    
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
@@ -683,6 +703,67 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     }
 
 
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityError(javax.servlet.http.HttpServletRequest, java.lang.Throwable)
+     */
+    public String handleEntityError(HttpServletRequest req, Throwable error) {
+        String subject = "Direct request failure: " + error.getClass().getSimpleName() + ":" + error.getMessage();
+
+        String sakaiVersion = "Sakai version: " + serverConfigurationService.getString("version.sakai") 
+                + "("+serverConfigurationService.getString("version.service")+")\n ";
+
+        String serverInfo = "Server: " + serverConfigurationService.getServerName() 
+                + "("+serverConfigurationService.getServerId()+") ["+serverConfigurationService.getServerIdInstance()+"]\n ";
+
+        String usageSessionInfo = "";
+        if (usageSessionService != null) {
+            UsageSession usageSession = usageSessionService.getSession();
+            if (usageSession != null) {
+                usageSessionInfo = "Server: " + usageSession.getServer() + "\n "
+                        + "Hostname: " + usageSession.getHostName() + "\n "
+                        + "User agent: " + usageSession.getUserAgent() + "\n "
+                        + "Browser ID: " + usageSession.getBrowserId() + "\n "
+                        + "IP address: " + usageSession.getIpAddress() + "\n "
+                        + "User ID: " + usageSession.getUserId() + "\n "
+                        + "User EID: " + usageSession.getUserEid() + "\n "
+                        + "User Display ID: " + usageSession.getUserDisplayId() + "\n ";
+            }
+        }
+
+        String requestInfo = "";
+        if (req != null) {
+            requestInfo = "Request URI: "+req.getRequestURI()+"\n "
+                    + "Path Info: "+req.getPathInfo()+"\n "
+                    + "Context path: "+req.getContextPath()+"\n "
+                    + "Method: "+req.getMethod()+"\n ";
+        }
+
+        // get the stacktrace out
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        error.printStackTrace(pw);
+        String stacktrace = "Full stacktrace:\n" + error.getClass().getSimpleName() + ":" 
+                + error.getMessage() + ":\n" + sw.toString();
+
+        String body = subject + ":\n " + sakaiVersion + "\n" + serverInfo + "\n" 
+                + requestInfo + "\n" + usageSessionInfo;
+
+        // attempt to get the email address, if it is not there then we will not send an email
+        String emailAddr = serverConfigurationService.getString("direct.error.email");
+        if (emailAddr == null) {
+            emailAddr = serverConfigurationService.getString("portal.error.email");
+        }
+        if (emailAddr != null) {
+            String from = "\"<no-reply@" + serverConfigurationService.getServerName() + ">";
+            if (emailService != null) {
+                emailService.send(from, emailAddr, subject, body + "\n" + stacktrace, emailAddr, null, null);
+            } else {
+                log.error("Could not send email, no emailService");
+            }
+        }
+        String errorMessage = subject + ":" + body;
+        return errorMessage;
+    }
 
 
     /**

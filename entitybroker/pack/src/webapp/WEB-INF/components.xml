@@ -142,6 +142,12 @@
             ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
         <property name="requestStorage"
             ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage" />
+        <property name="serverConfigurationService"
+            ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="emailService"
+            ref="org.sakaiproject.email.api.EmailService" />
+        <property name="usageSessionService"
+            ref="org.sakaiproject.event.api.UsageSessionService" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.impl.EntityBrokerManager"
