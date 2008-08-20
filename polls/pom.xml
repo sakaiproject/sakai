@@ -31,7 +31,7 @@ limitations under the License.
   <groupId>org.sakaiproject</groupId>
   <artifactId>polls-base</artifactId>
   <name>Sakai Polls Project</name>
-  <version>2.6.0-SNAPSHOT</version><!-- polls.version -->
+  <version>2.6.0RC1-SNAPSHOT</version><!-- polls.version -->
 
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</connection>
@@ -54,30 +54,30 @@ limitations under the License.
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-model-api</artifactId>
-        <version>2.6.0-SNAPSHOT</version><!-- polls.version -->
+        <version>2.6.0RC1-SNAPSHOT</version><!-- polls.version -->
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-logic-api</artifactId>
-        <version>2.6.0-SNAPSHOT</version><!-- polls.version -->
+        <version>2.6.0RC1-SNAPSHOT</version><!-- polls.version -->
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-hbm</artifactId>
-        <version>2.6.0-SNAPSHOT</version><!-- polls.version -->
+        <version>2.6.0RC1-SNAPSHOT</version><!-- polls.version -->
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-dao-impl</artifactId>
-        <version>2.6.0-SNAPSHOT</version><!-- polls.version -->
+        <version>2.6.0RC1-SNAPSHOT</version><!-- polls.version -->
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-logic-impl</artifactId>
-        <version>2.6.0-SNAPSHOT</version><!-- polls.version -->
+        <version>2.6.0RC1-SNAPSHOT</version><!-- polls.version -->
       </dependency>
       <!-- needed until EB is in the Sakai master dependency management -->
 <!-- 
