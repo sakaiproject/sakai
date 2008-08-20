@@ -24,14 +24,15 @@ limitations under the License.
       </license>
   </licenses>
   <parent>
-    <artifactId>base</artifactId>
+    <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>2.6.0RC1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>polls-base</artifactId>
   <name>Sakai Polls Project</name>
+  <version>2.7.0-SNAPSHOT</version><!-- polls.version -->
+
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</developerConnection>
@@ -53,31 +54,40 @@ limitations under the License.
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-model-api</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version><!-- polls.version -->
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-logic-api</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version><!-- polls.version -->
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-hbm</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version><!-- polls.version -->
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-dao-impl</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version><!-- polls.version -->
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-poll-logic-impl</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version><!-- polls.version -->
       </dependency>
+      <!-- needed until EB is in the Sakai master dependency management -->
+<!-- 
+      <dependency>
+          <groupId>org.sakaiproject.entitybroker</groupId>
+          <artifactId>entitybroker-api</artifactId>
+          <version>1.3.4</version>
+          <scope>provided</scope>
+      </dependency>
+ -->
     </dependencies>
   </dependencyManagement>
 </project>
