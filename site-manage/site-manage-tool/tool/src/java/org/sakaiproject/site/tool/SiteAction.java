@@ -1237,6 +1237,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("siteTypes", state.getAttribute(STATE_SITE_TYPES));
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			context.put("type", siteType);
+			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, siteType)));
 
 			if (siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);

@@ -146,7 +146,7 @@
 		</p>
 	 #end
 		<p class="shorttext required">
-			#if (!$!isCourseSite)
+			#if ($!siteTitleEditable)
 			<span class="reqStar">*</span>
 			<label for="title">
 				$tlang.getString("sinfo.stitle")
