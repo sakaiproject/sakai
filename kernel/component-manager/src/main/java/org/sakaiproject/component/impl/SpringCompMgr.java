@@ -39,28 +39,34 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * <p>
- * SpringCompMgr manages API implementation components using the Springframework ApplicationContext.
+ * SpringCompMgr manages API implementation components using the Springframework
+ * ApplicationContext.
  * </p>
  * <p>
- * See the {@link org.sakaiproject.api.kernel.component.ComponentManager}interface for details.
+ * See the {@link org.sakaiproject.api.kernel.component.ComponentManager}interface
+ * for details.
  * </p>
  */
-public class SpringCompMgr implements ComponentManager
-{
+public class SpringCompMgr implements ComponentManager {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SpringCompMgr.class);
 
-	/** System property to control if we close on jvm shutdown (if set) or on the loss of our last child (if not set). */
+	/**
+	 * System property to control if we close on jvm shutdown (if set) or on the
+	 * loss of our last child (if not set).
+	 */
 	protected final static String CLOSE_ON_SHUTDOWN = "sakai.component.closeonshutdown";
 
-	/** The Sakai configuration component package, which must be the last defined. */
+	/**
+	 * The Sakai configuration component package, which must be the last
+	 * defined.
+	 */
 	protected final static String CONFIGURATION_COMPONENT_PACKAGE = "sakai-component-pack";
 
 	/** The Sakai configuration components, which must be the first loaded. */
 	protected final static String[] CONFIGURATION_COMPONENTS = {
-		"org.sakaiproject.component.SakaiPropertyPromoter",
-		"org.sakaiproject.log.api.LogConfigurationManager"
-	};
+			"org.sakaiproject.component.SakaiPropertyPromoter",
+			"org.sakaiproject.log.api.LogConfigurationManager" };
 
 	protected final static String DEFAULT_CONFIGURATION_FILE = "classpath:/org/sakaiproject/config/sakai-configuration.xml";
 	protected final static String CONFIGURATION_FILE_NAME = "sakai-configuration.xml";
@@ -79,24 +85,28 @@ public class SpringCompMgr implements ComponentManager
 
 	/**
 	 * Initialize.
-	 *
+	 * 
 	 * @param parent
-	 *        A ComponentManager in which this one gets nested, or NULL if this is this top one.
+	 *            A ComponentManager in which this one gets nested, or NULL if
+	 *            this is this top one.
 	 */
-	public SpringCompMgr(ComponentManager parent)
-	{
+	public SpringCompMgr(ComponentManager parent) {
 		// Note: don't init here, init after it's fully constructed
-		// (and if it's being constructed by the cover, after the cover has set it's instance variable).
-		// othewise when singletons are instantiated, if they call a Cover or Discovery in the init(),
+		// (and if it's being constructed by the cover, after the cover has set
+		// it's instance variable).
+		// othewise when singletons are instantiated, if they call a Cover or
+		// Discovery in the init(),
 		// the component manager cover will not yet have this object! -ggolden
 	}
 
 	/**
 	 * Initialize the component manager.
+	 * 
+	 * @param lateRefresh
 	 */
-	public void init()
-	{
-		if (m_ac != null) return;
+	public void init(boolean lateRefresh) {
+		if (m_ac != null)
+			return;
 
 		// Make sure a "sakai.home" system property is set.
 		ensureSakaiHome();
@@ -107,7 +117,8 @@ public class SpringCompMgr implements ComponentManager
 
 		List<String> configLocationList = new ArrayList<String>();
 		configLocationList.add(DEFAULT_CONFIGURATION_FILE);
-		String localConfigLocation = System.getProperty("sakai.home") + CONFIGURATION_FILE_NAME;
+		String localConfigLocation = System.getProperty("sakai.home")
+				+ CONFIGURATION_FILE_NAME;
 		File configFile = new File(localConfigLocation);
 		if (configFile.exists()) {
 			configLocationList.add("file:" + localConfigLocation);
@@ -117,57 +128,50 @@ public class SpringCompMgr implements ComponentManager
 		// load component packages
 		loadComponents();
 
-		// if configured (with the system property CLOSE_ON_SHUTDOWN set), create a shutdown task to close when the JVM closes
-		// (otherwise we will close in removeChildAc() when the last child is gone)
-		if (System.getProperty(CLOSE_ON_SHUTDOWN) != null)
-		{
-			Runtime.getRuntime().addShutdownHook(new Thread()
-			{
-				public void run()
-				{
+		// if configured (with the system property CLOSE_ON_SHUTDOWN set),
+		// create a shutdown task to close when the JVM closes
+		// (otherwise we will close in removeChildAc() when the last child is
+		// gone)
+		if (System.getProperty(CLOSE_ON_SHUTDOWN) != null) {
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run() {
 					close();
 				}
 			});
 		}
 
-		try
-		{
-			// get the singletons loaded
-			m_ac.refresh();
-		}
-		catch (Throwable t)
-		{
-			M_log.warn(t.getMessage(), t);
+		if (!lateRefresh) {
+			try {
+				// get the singletons loaded
+				m_ac.refresh();
+			} catch (Throwable t) {
+				M_log.warn(t.getMessage(), t);
+			}
 		}
 	}
+
 	/**
 	 * Access the ApplicationContext
-	 *
+	 * 
 	 * @return the ApplicationContext
 	 */
-	public ConfigurableApplicationContext getApplicationContext()
-	{
+	public ConfigurableApplicationContext getApplicationContext() {
 		return m_ac;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object get(Class iface)
-	{
+	public Object get(Class iface) {
 		Object component = null;
 
-		try
-		{
+		try {
 			component = m_ac.getBean(iface.getName(), iface);
-		}
-		catch (NoSuchBeanDefinitionException e)
-		{
+		} catch (NoSuchBeanDefinitionException e) {
 			// This is an expected outcome, we don't usually want logs
-			if (M_log.isDebugEnabled()) M_log.debug("get(" + iface.getName() + "): " + e, e);
-		}
-		catch (Throwable t)
-		{
+			if (M_log.isDebugEnabled())
+				M_log.debug("get(" + iface.getName() + "): " + e, e);
+		} catch (Throwable t) {
 			M_log.warn("get(" + iface.getName() + "): ", t);
 		}
 
@@ -177,21 +181,16 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object get(String ifaceName)
-	{
+	public Object get(String ifaceName) {
 		Object component = null;
 
-		try
-		{
+		try {
 			component = m_ac.getBean(ifaceName);
-		}
-		catch (NoSuchBeanDefinitionException e)
-		{
+		} catch (NoSuchBeanDefinitionException e) {
 			// This is an expected outcome, we don't usually want logs
-			if (M_log.isDebugEnabled()) M_log.debug("get(" + ifaceName + "): " + e, e);
-		}
-		catch (Throwable t)
-		{
+			if (M_log.isDebugEnabled())
+				M_log.debug("get(" + ifaceName + "): " + e, e);
+		} catch (Throwable t) {
 			M_log.warn("get(" + ifaceName + "): ", t);
 		}
 
@@ -201,8 +200,7 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean contains(Class iface)
-	{
+	public boolean contains(Class iface) {
 		boolean found = m_ac.containsBeanDefinition(iface.getName());
 
 		return found;
@@ -211,8 +209,7 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean contains(String ifaceName)
-	{
+	public boolean contains(String ifaceName) {
 		boolean found = m_ac.containsBeanDefinition(ifaceName);
 
 		return found;
@@ -221,20 +218,18 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public Set getRegisteredInterfaces()
-	{
+	public Set getRegisteredInterfaces() {
 		Set rv = new HashSet();
 
 		// get the registered ones
 		String[] names = m_ac.getBeanDefinitionNames();
-		for (int i = 0; i < names.length; i++)
-		{
+		for (int i = 0; i < names.length; i++) {
 			rv.add(names[i]);
 		}
 
 		// add the loaded ones
-		for (Iterator iLoaded = m_loadedComponents.iterator(); iLoaded.hasNext();)
-		{
+		for (Iterator iLoaded = m_loadedComponents.iterator(); iLoaded
+				.hasNext();) {
 			String loaded = (String) iLoaded.next();
 			rv.add(loaded);
 		}
@@ -245,8 +240,7 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public void close()
-	{
+	public void close() {
 		m_hasBeenClosed = true;
 		m_ac.close();
 	}
@@ -254,8 +248,7 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public void loadComponent(Class iface, Object component)
-	{
+	public void loadComponent(Class iface, Object component) {
 		// Spring doesn't list these in getBeanDefinitionNames, so we keep track
 		m_loadedComponents.add(iface.getName());
 
@@ -265,8 +258,7 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public void loadComponent(String ifaceName, Object component)
-	{
+	public void loadComponent(String ifaceName, Object component) {
 		// Spring doesn't list these in getBeanDefinitionNames, so we keep track
 		m_loadedComponents.add(ifaceName);
 
@@ -276,26 +268,25 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * Locate the component loader, and load any available components.
 	 */
-	protected void loadComponents()
-	{
+	protected void loadComponents() {
 		ComponentsLoader loader = new ComponentsLoader();
 
 		// locate the components root
 		// if we have our system property set, use it
-		String componentsRoot = System.getProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP);
-		if (componentsRoot == null)
-		{
+		String componentsRoot = System
+				.getProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP);
+		if (componentsRoot == null) {
 			// if we are in Catalina, place it at ${catalina.home}/components/
 			String catalina = getCatalina();
-			if (catalina != null)
-			{
-				componentsRoot = catalina + File.separatorChar + "components" + File.separatorChar;
+			if (catalina != null) {
+				componentsRoot = catalina + File.separatorChar + "components"
+						+ File.separatorChar;
 			}
 		}
 
-		if (componentsRoot == null)
-		{
-			M_log.warn("loadComponents: cannot estabish a root directory for the components packages");
+		if (componentsRoot == null) {
+			M_log
+					.warn("loadComponents: cannot estabish a root directory for the components packages");
 			return;
 		}
 
@@ -309,35 +300,32 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * Increment the count of ACs that call this one parent.
 	 */
-	public synchronized void addChildAc()
-	{
+	public synchronized void addChildAc() {
 		m_childCount++;
 	}
 
 	/**
 	 * Decrement the count of ACs that call this one parent.
 	 */
-	public synchronized void removeChildAc()
-	{
+	public synchronized void removeChildAc() {
 		m_childCount--;
 
-		// if we are not using the shutdown hook, close() when the m_childCount == 0
-		if ((m_childCount == 0) && (System.getProperty(CLOSE_ON_SHUTDOWN) == null))
-		{
+		// if we are not using the shutdown hook, close() when the m_childCount
+		// == 0
+		if ((m_childCount == 0)
+				&& (System.getProperty(CLOSE_ON_SHUTDOWN) == null)) {
 			close();
 		}
 	}
 
 	/**
 	 * Check the environment for catalina's base or home directory.
-	 *
+	 * 
 	 * @return Catalina's base or home directory.
 	 */
-	protected String getCatalina()
-	{
+	protected String getCatalina() {
 		String catalina = System.getProperty("catalina.base");
-		if (catalina == null)
-		{
+		if (catalina == null) {
 			catalina = System.getProperty("catalina.home");
 		}
 
@@ -347,59 +335,58 @@ public class SpringCompMgr implements ComponentManager
 	/**
 	 * @inheritDoc
 	 */
-	public Properties getConfig()
-	{
-		if (M_log.isErrorEnabled()) M_log.error("getConfig called; ServerConfigurationService should be used instead", new Exception());
+	public Properties getConfig() {
+		if (M_log.isErrorEnabled())
+			M_log
+					.error(
+							"getConfig called; ServerConfigurationService should be used instead",
+							new Exception());
 		return null;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public void waitTillConfigured()
-	{
+	public void waitTillConfigured() {
 		// Nothing really to do - the cover takes care of this -ggolden
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public boolean hasBeenClosed()
-	{
+	public boolean hasBeenClosed() {
 		return m_hasBeenClosed;
 	}
 
-	private void ensureSakaiHome()
-	{
+	private void ensureSakaiHome() {
 		// find a path to sakai files on the app server - if not set, set it
 		String sakaiHomePath = System.getProperty("sakai.home");
-		if (sakaiHomePath == null)
-		{
+		if (sakaiHomePath == null) {
 			String catalina = getCatalina();
-			if (catalina != null)
-			{
-				sakaiHomePath = catalina + File.separatorChar + "sakai" + File.separatorChar;
+			if (catalina != null) {
+				sakaiHomePath = catalina + File.separatorChar + "sakai"
+						+ File.separatorChar;
 			}
 		}
 
 		// strange case...
-		if (sakaiHomePath == null)
-		{
-			sakaiHomePath = File.separatorChar + "usr" + File.separatorChar + "local" + File.separatorChar + "sakai"
+		if (sakaiHomePath == null) {
+			sakaiHomePath = File.separatorChar + "usr" + File.separatorChar
+					+ "local" + File.separatorChar + "sakai"
 					+ File.separatorChar;
 		}
-		if (!sakaiHomePath.endsWith(File.separator)) sakaiHomePath = sakaiHomePath + File.separatorChar;
+		if (!sakaiHomePath.endsWith(File.separator))
+			sakaiHomePath = sakaiHomePath + File.separatorChar;
 
 		final File sakaiHomeDirectory = new File(sakaiHomePath);
-		if(!sakaiHomeDirectory.exists()) // no sakai.home directory exists, try to create one
+		if (!sakaiHomeDirectory.exists()) // no sakai.home directory exists,
+											// try to create one
 		{
-			if(sakaiHomeDirectory.mkdir())
-			{
-				M_log.debug("Created sakai.home directory at: "
-						+ sakaiHomePath);
-			}
-			else
-			{
+			if (sakaiHomeDirectory.mkdir()) {
+				M_log
+						.debug("Created sakai.home directory at: "
+								+ sakaiHomePath);
+			} else {
 				M_log.warn("Could not create sakai.home directory at: "
 						+ sakaiHomePath);
 			}
@@ -409,14 +396,13 @@ public class SpringCompMgr implements ComponentManager
 		System.setProperty("sakai.home", sakaiHomePath);
 	}
 
-	private void checkSecurityPath()
-	{
+	private void checkSecurityPath() {
 		// check for the security home
 		String securityPath = System.getProperty("sakai.security");
-		if (securityPath != null)
-		{
+		if (securityPath != null) {
 			// make sure it's properly slashed
-			if (!securityPath.endsWith(File.separator)) securityPath = securityPath + File.separatorChar;
+			if (!securityPath.endsWith(File.separator))
+				securityPath = securityPath + File.separatorChar;
 			System.setProperty("sakai.security", securityPath);
 		}
 	}

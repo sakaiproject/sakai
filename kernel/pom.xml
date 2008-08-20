@@ -417,6 +417,11 @@
         <artifactId>geronimo-spec-jms</artifactId>
         <version>1.1-rc4</version>
       </dependency>
+      <dependency>
+        <groupId>dumbster</groupId>
+        <artifactId>dumbster</artifactId>
+        <version>1.6</version>
+      </dependency>
 <!-- kernel apis -->
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
@@ -679,7 +684,6 @@
     <module>kernel-common</module>
     <module>kernel-impl</module>
 <!-- <module>kernel-impl-experimental</module> -->
-<!-- <module>kernel-test</module> -->
     <module>kernel-util</module>
     <module>loader</module>
     <module>deploy</module>

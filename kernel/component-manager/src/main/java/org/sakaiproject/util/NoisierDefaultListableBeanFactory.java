@@ -40,6 +40,8 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 public class NoisierDefaultListableBeanFactory extends
 		DefaultListableBeanFactory {
 
+	public static boolean noisyClose = true;
+
 	public void preInstantiateSingletons() throws BeansException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Pre-instantiating singletons in factory [" + this
@@ -91,8 +93,10 @@ public class NoisierDefaultListableBeanFactory extends
 
 	@Override
 	public void destroySingletons() {
-		Exception e = new Exception("traceback");
-		e.printStackTrace();
+		if ( noisyClose  ) {
+		  Exception e = new Exception("traceback");
+		  e.printStackTrace();
+		}
 		super.destroySingletons();
 	}
 
