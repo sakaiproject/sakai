@@ -33,10 +33,10 @@ import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.cover.AuthenticationManager;
+import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 
-import sun.misc.BASE64Decoder;
 
 /**
  * This is implemented in a filter, since most httpclients (ie non browser
@@ -214,8 +214,7 @@ public class BasicAuth {
 					auth = auth.trim();
 					if (auth.startsWith("Basic ")) {
 						auth = auth.substring(6).trim();
-						BASE64Decoder denc = new BASE64Decoder();
-						auth = new String(denc.decodeBuffer(auth));
+						auth = new String(CommonsCodecBase64.decodeBase64(auth.getBytes("UTF-8")));
 						int colon = auth.indexOf(":");
 						if (colon != -1) {
 							String eid = auth.substring(0, colon);
