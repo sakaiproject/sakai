@@ -554,6 +554,10 @@
       <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>confirmsubmit</from-outcome>
+      <to-view-id>/jsf/delivery/confirmSubmit.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>assessmentHasBeenSubmitted</from-outcome>
       <to-view-id>/jsf/delivery/assessmentHasBeenSubmitted.jsp</to-view-id>
     </navigation-case>

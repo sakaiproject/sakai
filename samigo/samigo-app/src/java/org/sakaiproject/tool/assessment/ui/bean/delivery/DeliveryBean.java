@@ -1317,6 +1317,31 @@ public class DeliveryBean
     return returnValue;
   }
 
+  public String confirmSubmit()
+  {
+	  String nextAction = checkBeforeProceed();
+	  log.debug("***** next Action="+nextAction);
+	  if (!("safeToProceed").equals(nextAction)){
+		  return nextAction;
+	  }
+
+	  setForGrade(false);
+	  syncTimeElapsedWithServer();
+
+	  String returnValue="confirmsubmit";
+	  if (this.actionMode == TAKE_ASSESSMENT
+			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
+	  {
+		  SubmitToGradingActionListener listener =
+			  new SubmitToGradingActionListener();
+		  listener.processAction(null);
+	  }
+
+	  DeliveryActionListener l2 = new DeliveryActionListener();
+	  l2.processAction(null);
+	  return "confirmsubmit";
+  }
+
   public String saveAndExit()
   {
     String nextAction = checkBeforeProceed();
@@ -1419,6 +1444,24 @@ public class DeliveryBean
     l2.processAction(null);
 
     reload = false;
+    return "takeAssessment";
+  }
+
+  public String confirmSubmitPrevious()
+  {
+    String nextAction = checkBeforeProceed();
+    log.debug("***** next Action="+nextAction);
+    if (!("safeToProceed").equals(nextAction)){
+      return nextAction;
+    }
+
+    forGrade = false;
+
+    syncTimeElapsedWithServer();
+
+    DeliveryActionListener l2 = new DeliveryActionListener();
+    l2.processAction(null);
+
     return "takeAssessment";
   }
 
