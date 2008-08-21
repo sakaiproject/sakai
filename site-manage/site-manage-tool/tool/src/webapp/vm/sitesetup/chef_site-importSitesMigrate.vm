@@ -26,19 +26,13 @@
 				#end
 			</tr>
 			#set ($toolCount=0)
-			#foreach($toolId in $selectedTools)
+			#foreach($toolId in $!selectedTools.keys())
 			#set($selectedSites = $!importSitesTools.get($toolId))
 			#set ($toolCount=$toolCount + 1)
 				#if ($importSupportedTools.contains($toolId))
 					<tr>
 						<td>
-							#set($toolTitle = "")
-							#foreach($t in $toolRegistrationList)
-								#if ($t.getId() == $toolId)
-									#set($toolTitle = $t.getTitle())
-								#end
-							#end
-							<h4>$toolTitle</h4>
+							<h4>$!selectedTools.get($toolId)</h4>
 						</td>
 						#set ($siteCount=0)
 						#foreach($site in $importSites.keys())

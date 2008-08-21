@@ -2327,10 +2327,49 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("continue", "18");
 				}
 			}
-			context.put(STATE_TOOL_REGISTRATION_LIST, state
-					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
-			context.put("selectedTools", orderToolIds(state, site_type,
-					getToolsAvailableForImport(state))); // String toolId's
+
+			// get the tool id list
+			List<String> toolIdList = new Vector<String>();
+			if (existingSite)
+			{
+				// list all site tools which are displayed on its own page
+				List<SitePage> sitePages = site.getPages();
+				if (sitePages != null)
+				{
+					for (SitePage page: sitePages)
+					{
+						List<ToolConfiguration> pageToolsList = page.getTools(0);
+						// we only handle one tool per page case
+						if ( page.getLayout() == SitePage.LAYOUT_SINGLE_COL && pageToolsList.size() == 1)
+						{
+							toolIdList.add(pageToolsList.get(0).getToolId());
+						}
+					}
+				}
+			}
+			else
+			{
+				// during site creation
+				toolIdList = (List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+			}
+			state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, toolIdList);
+			// order it
+			SortedIterator iToolIdList = new SortedIterator(getToolsAvailableForImport(state, toolIdList).iterator(),new ToolComparator());
+			Hashtable<String, String> toolTitleTable = new Hashtable<String, String>();
+			for(;iToolIdList.hasNext();)
+			{
+				String toolId = (String) iToolIdList.next();
+				try
+				{
+					String toolTitle = ToolManager.getTool(toolId).getTitle();
+					toolTitleTable.put(toolId, toolTitle);
+				}
+				catch (Exception e)
+				{
+					Log.info("chef", this + " buildContexForTemplate case 60: cannot get tool title for " + toolId + e.getMessage()); 
+				}
+			}
+			context.put("selectedTools", toolTitleTable); // String toolId's
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			context.put("importSitesTools", state
 					.getAttribute(STATE_IMPORT_SITE_TOOL));
@@ -10539,7 +10578,7 @@ public class SiteAction extends PagedResourceActionII {
 	 * @return Get a list of all tools that should be included as options for
 	 *         import
 	 */
-	protected List getToolsAvailableForImport(SessionState state) {
+	protected List getToolsAvailableForImport(SessionState state, List<String> toolIdList) {
 		// The Web Content and News tools do not follow the standard rules for
 		// import
 		// Even if the current site does not contain the tool, News and WC will
@@ -10558,15 +10597,13 @@ public class SiteAction extends PagedResourceActionII {
 			if (site.getToolForCommonId("sakai.news") != null)
 				displayNews = true;
 		}
+		
+		if (displayWebContent && !toolIdList.contains("sakai.iframe"))
+			toolIdList.add("sakai.iframe");
+		if (displayNews && !toolIdList.contains("sakai.news"))
+			toolIdList.add("sakai.news");
 
-		List toolsOnImportList = (List) state
-				.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-		if (displayWebContent && !toolsOnImportList.contains("sakai.iframe"))
-			toolsOnImportList.add("sakai.iframe");
-		if (displayNews && !toolsOnImportList.contains("sakai.news"))
-			toolsOnImportList.add("sakai.news");
-
-		return toolsOnImportList;
+		return toolIdList;
 	} // getToolsAvailableForImport
 
 	private void setTermListForContext(Context context, SessionState state,
