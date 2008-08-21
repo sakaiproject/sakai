@@ -59,7 +59,7 @@ import org.sakaiproject.email.api.EmailAddress;
 import org.sakaiproject.email.api.EmailHeaders;
 import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.email.api.EmailAddress.RecipientType;
+import org.sakaiproject.email.api.RecipientType;
 import org.sakaiproject.user.api.User;
 
 /**

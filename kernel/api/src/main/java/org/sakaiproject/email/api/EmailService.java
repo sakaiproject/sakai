@@ -27,7 +27,6 @@ import java.util.Map;
 
 import javax.mail.internet.InternetAddress;
 
-import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.user.api.User;
 
 /**

@@ -22,7 +22,10 @@ import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.EmailAddress;
 import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.email.api.EmailAddress.RecipientType;
+import org.sakaiproject.email.api.RecipientType;
+import org.sakaiproject.email.impl.BaseAttachment;
+import org.sakaiproject.email.impl.BaseEmailAddress;
+import org.sakaiproject.email.impl.BaseEmailMessage;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
 public class EmailServiceTestDisabled extends SakaiKernelTestBase
@@ -53,7 +56,7 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 			protected void setUp() throws Exception
 			{
 				if (log.isDebugEnabled())
-					log.debug("starting setup");
+					log.info("starting setup");
 				try
 				{
 					oneTimeSetup(null);
@@ -69,7 +72,7 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 			protected void tearDown() throws Exception
 			{
 				if (log.isDebugEnabled())
-					log.debug("tearing down");
+					log.info("tearing down");
 				oneTimeTearDown();
 			}
 		};
@@ -117,8 +120,8 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 		fw2.write("this,is,some,comma,delimited\ntext,in,a,message,body");
 		fw2.flush();
 		fw2.close();
-		attachments.add(new Attachment(f1));
-		attachments.add(new Attachment(f2));
+		attachments.add(new BaseAttachment(f1));
+		attachments.add(new BaseAttachment(f2));
 
 		emailService = (EmailService) getService(EmailService.class.getName());
 
@@ -151,7 +154,7 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 	public void testSendMessageWithoutAttachments() throws Exception
 	{
 		// create message with from, subject, content
-		EmailMessage msg = new EmailMessage(from.getAddress(), subject, content);
+		EmailMessage msg = new BaseEmailMessage(from.getAddress(), subject, content);
 		// add message recipients that appear in the header
 		HashMap<RecipientType, List<EmailAddress>> tos = new HashMap<RecipientType, List<EmailAddress>>();
 		for (RecipientType type : headerToMap.keySet())
@@ -159,12 +162,12 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 			ArrayList<EmailAddress> addrs = new ArrayList<EmailAddress>();
 			for (InternetAddress iaddr : headerToMap.get(type))
 			{
-				addrs.add(new EmailAddress(iaddr.getAddress(), iaddr.getPersonal()));
+				addrs.add(new BaseEmailAddress(iaddr.getAddress(), iaddr.getPersonal()));
 			}
 			tos.put(type, addrs);
 		}
 		// add the actual recipients
-		tos.put(RecipientType.ACTUAL, EmailAddress.toEmailAddress(to));
+		tos.put(RecipientType.ACTUAL, BaseEmailAddress.toEmailAddress(to));
 		msg.setRecipients(tos);
 		// add additional headers
 		msg.setHeaders(additionalHeaders);
@@ -175,7 +178,7 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 	public void testSendEmailMessage() throws Exception
 	{
 		// create message with from, subject, content
-		EmailMessage msg = new EmailMessage(from.getAddress(), subject + " with attachments",
+		EmailMessage msg = new BaseEmailMessage(from.getAddress(), subject + " with attachments",
 				content);
 		// add message recipients that appear in the header
 		HashMap<RecipientType, List<EmailAddress>> tos = new HashMap<RecipientType, List<EmailAddress>>();
@@ -184,12 +187,12 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 			ArrayList<EmailAddress> addrs = new ArrayList<EmailAddress>();
 			for (InternetAddress iaddr : headerToMap.get(type))
 			{
-				addrs.add(new EmailAddress(iaddr.getAddress(), iaddr.getPersonal()));
+				addrs.add(new BaseEmailAddress(iaddr.getAddress(), iaddr.getPersonal()));
 			}
 			tos.put(type, addrs);
 		}
 		// add the actual recipients
-		tos.put(RecipientType.ACTUAL, EmailAddress.toEmailAddress(to));
+		tos.put(RecipientType.ACTUAL, BaseEmailAddress.toEmailAddress(to));
 		msg.setRecipients(tos);
 		// add additional headers
 		msg.setHeaders(additionalHeaders);

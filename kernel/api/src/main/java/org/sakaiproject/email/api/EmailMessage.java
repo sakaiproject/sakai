@@ -1,12 +1,9 @@
 package org.sakaiproject.email.api;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.email.api.EmailAddress.RecipientType;
 
 /**
  * Value object for sending emails. Mimics javax.mail.internet.MimeMessage without having a
@@ -33,87 +30,14 @@ import org.sakaiproject.email.api.EmailAddress.RecipientType;
  * @see javax.mail.Transport#send(MimeMessage, Address[])
  * @see javax.mail.internet.InternetAddress
  */
-public class EmailMessage
+public interface EmailMessage
 {
-	/**
-	 * Who this message is from
-	 */
-	private EmailAddress from;
-
-	/**
-	 * Addressee(s) for replies
-	 */
-	private List<EmailAddress> replyTo;
-
-	/**
-	 * Recipients of message
-	 */
-	private Map<RecipientType, List<EmailAddress>> recipients;
-
-	/**
-	 * Subject of message
-	 */
-	private String subject;
-
-	/**
-	 * Body content of message
-	 */
-	private String body;
-
-	/**
-	 * Attachments to consider for message
-	 */
-	private List<Attachment> attachments;
-
-	/**
-	 * Arbitrary headers for message
-	 */
-	private Map<String, String> headers;
-
-	/**
-	 * Mime type of message. Defaults to text/plain.
-	 * 
-	 * @see org.sakaiproject.email.api.ContentType
-	 */
-	private String contentType = ContentType.TEXT_PLAIN;
-
-	/**
-	 * Character set of text in message
-	 * 
-	 * @see org.sakaiproject.email.api.CharacterSet
-	 */
-	private String characterSet = CharacterSet.UTF_8;
-
-	/**
-	 * Format of this message if in plain text.
-	 * 
-	 * @see org.sakaiproject.email.api.PlainTextFormat
-	 */
-	private String format;
-
-	/**
-	 * Default constructor.
-	 */
-	public EmailMessage()
-	{
-	}
-
-	public EmailMessage(String from, String subject, String body)
-	{
-		setFrom(from);
-		setSubject(subject);
-		setBody(body);
-	}
-
 	/**
 	 * Get the sender of this message.
 	 * 
 	 * @return The sender of this message.
 	 */
-	public EmailAddress getFrom()
-	{
-		return from;
-	}
+	public EmailAddress getFrom();
 
 	/**
 	 * Set the sender of this message.
@@ -121,10 +45,7 @@ public class EmailMessage
 	 * @param email
 	 *            Email address of sender.
 	 */
-	public void setFrom(String email)
-	{
-		this.from = new EmailAddress(email);
-	}
+	public void setFrom(String email);
 
 	/**
 	 * Set the sender of this message.
@@ -132,20 +53,14 @@ public class EmailMessage
 	 * @param emailAddress
 	 *            {@link EmailAddress} of message sender.
 	 */
-	public void setFrom(EmailAddress emailAddress)
-	{
-		this.from = emailAddress;
-	}
+	public void setFrom(EmailAddress emailAddress);
 
 	/**
 	 * Get recipient for replies.
 	 * 
 	 * @return {@link EmailAddress} of reply to recipient.
 	 */
-	public List<EmailAddress> getReplyTo()
-	{
-		return replyTo;
-	}
+	public List<EmailAddress> getReplyTo();
 
 	/**
 	 * Set recipient for replies.
@@ -153,12 +68,7 @@ public class EmailMessage
 	 * @param email
 	 *            Email string of reply to recipient.
 	 */
-	public void addReplyTo(EmailAddress emailAddress)
-	{
-		if (replyTo == null)
-			replyTo = new ArrayList<EmailAddress>();
-		replyTo.add(emailAddress);
-	}
+	public void addReplyTo(EmailAddress emailAddress);
 
 	/**
 	 * Set recipient for replies.
@@ -166,20 +76,14 @@ public class EmailMessage
 	 * @param email
 	 *            {@link EmailAddress} of reply to recipient.
 	 */
-	public void setReplyTo(List<EmailAddress> replyTo)
-	{
-		this.replyTo = replyTo;
-	}
+	public void setReplyTo(List<EmailAddress> replyTo);
 
 	/**
 	 * Get intended recipients of this message.
 	 * 
 	 * @return List of {@link EmailAddress} that will receive this messagel
 	 */
-	public Map<RecipientType, List<EmailAddress>> getRecipients()
-	{
-		return recipients;
-	}
+	public Map<RecipientType, List<EmailAddress>> getRecipients();
 
 	/**
 	 * Get recipients of this message that are associated to a certain type
@@ -188,13 +92,7 @@ public class EmailMessage
 	 * @return
 	 * @see RecipientType
 	 */
-	public List<EmailAddress> getRecipients(RecipientType type)
-	{
-		List<EmailAddress> retval = null;
-		if (recipients != null)
-			retval = recipients.get(type);
-		return retval;
-	}
+	public List<EmailAddress> getRecipients(RecipientType type);
 
 	/**
 	 * Add a recipient to this message.
@@ -204,14 +102,7 @@ public class EmailMessage
 	 * @param email
 	 *            Email to send to.
 	 */
-	public void addRecipient(RecipientType type, String email)
-	{
-		List<EmailAddress> addresses = recipients.get(type);
-		if (addresses == null)
-			addresses = new ArrayList<EmailAddress>();
-		addresses.add(new EmailAddress(email));
-		recipients.put(type, addresses);
-	}
+	public void addRecipient(RecipientType type, String email);
 
 	/**
 	 * Add a recipient to this message.
@@ -223,14 +114,7 @@ public class EmailMessage
 	 * @param email
 	 *            Email to send to.
 	 */
-	public void addRecipient(RecipientType type, String name, String email)
-	{
-		List<EmailAddress> addresses = recipients.get(type);
-		if (addresses == null)
-			addresses = new ArrayList<EmailAddress>();
-		addresses.add(new EmailAddress(email, name));
-		recipients.put(type, addresses);
-	}
+	public void addRecipient(RecipientType type, String name, String email);
 
 	/**
 	 * Add multiple recipients to this message.
@@ -240,14 +124,7 @@ public class EmailMessage
 	 * @param addresses
 	 *            List of {@link EmailAddress} to add to this message.
 	 */
-	public void addRecipients(RecipientType type, List<EmailAddress> addresses)
-	{
-		List<EmailAddress> currentAddresses = recipients.get(type);
-		if (currentAddresses == null)
-			recipients.put(type, addresses);
-		else
-			currentAddresses.addAll(addresses);
-	}
+	public void addRecipients(RecipientType type, List<EmailAddress> addresses);
 
 	/**
 	 * Set the recipients of this message. This will replace any existing recipients of the same
@@ -258,23 +135,14 @@ public class EmailMessage
 	 * @param addresses
 	 *            List of {@link EmailAddress} to add to this message.
 	 */
-	public void setRecipients(RecipientType type, List<EmailAddress> addresses)
-	{
-		if (addresses != null)
-			recipients.put(type, addresses);
-		else
-			recipients.remove(type);
-	}
+	public void setRecipients(RecipientType type, List<EmailAddress> addresses);
 
 	/**
 	 * Set the recipients of this messsage. This will replace any existing recipients
 	 * 
 	 * @param recipients
 	 */
-	public void setRecipients(Map<RecipientType, List<EmailAddress>> recipients)
-	{
-		this.recipients = recipients;
-	}
+	public void setRecipients(Map<RecipientType, List<EmailAddress>> recipients);
 
 	/**
 	 * Get all recipients as a flattened list. This is intended to be used for determining the
@@ -282,34 +150,14 @@ public class EmailMessage
 	 * 
 	 * @return list of recipient addresses associated to this message
 	 */
-	public List<EmailAddress> getAllRecipients()
-	{
-		List<EmailAddress> rcpts = new ArrayList<EmailAddress>();
-
-		if (recipients.containsKey(RecipientType.TO))
-			rcpts.addAll(recipients.get(RecipientType.TO));
-
-		if (recipients.containsKey(RecipientType.CC))
-			rcpts.addAll(recipients.get(RecipientType.CC));
-
-		if (recipients.containsKey(RecipientType.BCC))
-			rcpts.addAll(recipients.get(RecipientType.BCC));
-
-		if (recipients.containsKey(RecipientType.ACTUAL))
-			rcpts.addAll(recipients.get(RecipientType.ACTUAL));
-
-		return rcpts;
-	}
+	public List<EmailAddress> getAllRecipients();
 
 	/**
 	 * Get the subject of this message.
 	 * 
 	 * @return The subject of this message. May be empty or null value.
 	 */
-	public String getSubject()
-	{
-		return subject;
-	}
+	public String getSubject();
 
 	/**
 	 * Set the subject of this message.
@@ -317,20 +165,14 @@ public class EmailMessage
 	 * @param subject
 	 *            Subject for this message. Empty and null values allowed.
 	 */
-	public void setSubject(String subject)
-	{
-		this.subject = subject;
-	}
+	public void setSubject(String subject);
 
 	/**
 	 * Get the body content of this message.
 	 * 
 	 * @return The body content of this message.
 	 */
-	public String getBody()
-	{
-		return body;
-	}
+	public String getBody();
 
 	/**
 	 * Set the body content of this message.
@@ -338,20 +180,14 @@ public class EmailMessage
 	 * @param body
 	 *            The content of this message.
 	 */
-	public void setBody(String body)
-	{
-		this.body = body;
-	}
+	public void setBody(String body);
 
 	/**
 	 * Get the attachments on this message
 	 * 
 	 * @return List of {@link Attachment} attached to this message.
 	 */
-	public List<Attachment> getAttachments()
-	{
-		return attachments;
-	}
+	public List<Attachment> getAttachments();
 
 	/**
 	 * Add an attachment to this message.
@@ -359,25 +195,14 @@ public class EmailMessage
 	 * @param attachment
 	 *            File to attach to this message.
 	 */
-	public void addAttachment(Attachment attachment)
-	{
-		if (attachment != null)
-		{
-			if (attachments == null)
-				attachments = new ArrayList<Attachment>();
-			attachments.add(attachment);
-		}
-	}
+	public void addAttachment(Attachment attachment);
 
 	/**
 	 * Add an attachment to this message. Same as addAttachment(new Attachment(file)).
 	 * 
 	 * @param file
 	 */
-	public void addAttachment(File file)
-	{
-		addAttachment(new Attachment(file));
-	}
+	public void addAttachment(File file);
 
 	/**
 	 * Set the attachments of this message. Will replace any existing attachments.
@@ -385,20 +210,14 @@ public class EmailMessage
 	 * @param attachments
 	 *            The attachments to set on this message.
 	 */
-	public void setAttachments(List<Attachment> attachments)
-	{
-		this.attachments = attachments;
-	}
+	public void setAttachments(List<Attachment> attachments);
 
 	/**
 	 * Get the headers of this message.
 	 * 
 	 * @return {@link java.util.Map} of headers set on this message.
 	 */
-	public Map<String, String> getHeaders()
-	{
-		return headers;
-	}
+	public Map<String, String> getHeaders();
 
 	/**
 	 * Flattens the headers down to "key: value" strings.
@@ -406,34 +225,14 @@ public class EmailMessage
 	 * @return List of properly formatted headers. List will be 0 length if no headers found. Does
 	 *         not return null
 	 */
-	public List<String> extractHeaders()
-	{
-		List<String> retval = new ArrayList<String>();
-
-		if (headers != null)
-		{
-			for (String key : headers.keySet())
-			{
-				String value = headers.get(key);
-				if (key != null && value != null)
-				{
-					retval.add(key + ": " + value);
-				}
-			}
-		}
-		return retval;
-	}
+	public List<String> extractHeaders();
 
 	/**
 	 * Remove a header from this message. Does nothing if header is not found.
 	 * 
 	 * @param key
 	 */
-	public void removeHeader(String key)
-	{
-		if (headers != null && !headers.isEmpty() && headers.containsKey(key))
-			headers.remove(key);
-	}
+	public void removeHeader(String key);
 
 	/**
 	 * Add a header to this message. If the key is found in the headers of this message, the value
@@ -445,23 +244,7 @@ public class EmailMessage
 	 * @param value
 	 *            The value of the header.
 	 */
-	public void addHeader(String key, String value)
-	{
-		if (headers == null || headers.get(key) == null)
-		{
-			setHeader(key, value);
-		}
-		else if (key != null && value != null)
-		{
-			String prevVal = headers.get(key);
-			prevVal += " " + value;
-			headers.put(key, prevVal);
-		}
-		else if (value == null)
-		{
-			removeHeader(key);
-		}
-	}
+	public void addHeader(String key, String value);
 
 	/**
 	 * Sets a header to this message. Any previous value for this key will be replaced. If value is
@@ -472,16 +255,7 @@ public class EmailMessage
 	 * @param value
 	 *            The value of the header.
 	 */
-	public void setHeader(String key, String value)
-	{
-		if (key != null && value != null)
-		{
-			if (headers == null)
-				headers = new HashMap<String, String>();
-
-			headers.put(key, value);
-		}
-	}
+	public void setHeader(String key, String value);
 
 	/**
 	 * Set the headers of this message. Will replace any existing headers.
@@ -489,41 +263,21 @@ public class EmailMessage
 	 * @param headers
 	 *            The headers to use on this message.
 	 */
-	public void setHeaders(Map<String, String> headers)
-	{
-		this.headers = headers;
-	}
+	public void setHeaders(Map<String, String> headers);
 
 	/**
 	 * Sets headers on this message. The expected format of each header is key: value.
 	 * 
 	 * @param headers
 	 */
-	public void setHeaders(List<String> headers)
-	{
-		if (headers != null)
-		{
-			for (String header : headers)
-			{
-				int splitPoint = header.indexOf(":");
-				String key = header.substring(0, splitPoint);
-				String value = null;
-				if (splitPoint != header.length() - 1)
-					value = header.substring(splitPoint + 1).trim();
-				setHeader(key, value);
-			}
-		}
-	}
+	public void setHeaders(List<String> headers);
 
 	/**
 	 * Get the mime type of this message.
 	 * 
 	 * @return {@link org.sakaiproject.email.api.ContentType} of this message.
 	 */
-	public String getContentType()
-	{
-		return contentType;
-	}
+	public String getContentType();
 
 	/**
 	 * Set the mime type of this message.
@@ -532,20 +286,14 @@ public class EmailMessage
 	 *            The mime type to use for this message.
 	 * @see org.sakaiproject.email.api.ContentType
 	 */
-	public void setContentType(String mimeType)
-	{
-		this.contentType = mimeType;
-	}
+	public void setContentType(String mimeType);
 
 	/**
 	 * Get the character set for text in this message. Used for the subject and body.
 	 * 
 	 * @return The character set used for this message.
 	 */
-	public String getCharacterSet()
-	{
-		return characterSet;
-	}
+	public String getCharacterSet();
 
 	/**
 	 * Set the character set for text in this message.
@@ -554,20 +302,13 @@ public class EmailMessage
 	 *            The character set used to render text in this message.
 	 * @see org.sakaproject.email.api.CharacterSet
 	 */
-	public void setCharacterSet(String characterSet)
-	{
-		this.characterSet = characterSet;
-	}
 
 	/**
 	 * Gets the format of this message.
 	 * 
 	 * @return
 	 */
-	public String getFormat()
-	{
-		return format;
-	}
+	public String getFormat();
 
 	/**
 	 * Set the format of this message if content type is text/plain
@@ -576,8 +317,5 @@ public class EmailMessage
 	 * @see org.sakaiproject.email.api.PlainTextFormat
 	 * @see org.sakaiproject.email.api.ContentType
 	 */
-	public void setFormat(String format)
-	{
-		this.format = format;
-	}
+	public void setFormat(String format);
 }
