@@ -23,119 +23,100 @@ package org.sakaiproject.poll.model;
 
 import java.util.Date;
 
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.tool.cover.SessionManager;
 
 public class Vote {
 
-	private Long id;
-	private String userId;
-	private String ip;
-	private Long pollId;
-	private Date voteDate;
-	private Long optionid;
-	private String submissionId;	
-	
-	public Vote(){
-		//needed by hibernate
-	}
-	public Vote(Poll poll, Option option, String subId) {
-		
-		this.pollId = poll.getPollId();
-		this.optionid = option.getOptionId();
-		this.submissionId = subId;
-		
-		// the date can default to now
-		voteDate = new Date();
-		//user is current user
-	    User currentuser = UserDirectoryService.getCurrentUser();
-	    userId = currentuser.getId();
-	    //set the Ip to the current sessions IP
-	    UsageSession usageSession = UsageSessionService.getSession();
-	    if (usageSession != null)
-	    	ip = usageSession.getIpAddress();
-	}
-	
-	public void setId(Long value) {
-		id =value;
-		
+    private Long id;
+    private String userId;
+    private String ip;
+    private Long pollId;
+    private Date voteDate;
+    private Long optionid;
+    private String submissionId;
 
-	}
+    public Vote() {
+        // needed by hibernate
+    }
 
-	public Long getId() {
+    public Vote(Poll poll, Option option, String subId) {
+        this.pollId = poll.getPollId();
+        this.optionid = option.getOptionId();
+        this.submissionId = subId;
 
-		return id;
-	}
+        // the date can default to now
+        voteDate = new Date();
 
-	public void setUserId(String uid) {
-		userId = uid;
+        // TODO move this stuff to the service
+        // user is current user
+        userId = SessionManager.getCurrentSessionUserId();
+        // set the Ip to the current sessions IP
+        UsageSession usageSession = UsageSessionService.getSession();
+        if (usageSession != null) {
+            ip = usageSession.getIpAddress();
+        }
+    }
 
-	}
+    public void setId(Long value) {
+        id = value;
+    }
 
-	public String getUserId() {
+    public Long getId() {
+        return id;
+    }
 
-		return userId;
-	}
+    public void setUserId(String uid) {
+        userId = uid;
+    }
 
-	public void setIp(String value) {
-		ip = value;
+    public String getUserId() {
+        return userId;
+    }
 
-	}
+    public void setIp(String value) {
+        ip = value;
+    }
 
-	public String getIp() {
-		
-		return ip;
-	}
+    public String getIp() {
+        return ip;
+    }
 
-	public void setVoteDate(Date date) {
-		this.voteDate = date;
+    public void setVoteDate(Date date) {
+        this.voteDate = date;
+    }
 
-	}
+    public Date getVoteDate() {
+        return this.voteDate;
+    }
 
-	public Date getVoteDate() {
-		
-		return this.voteDate;
-	}
+    public void setPollOption(Long voption) {
+        optionid = voption;
+    }
 
-	public void setPollOption(Long voption) {
-		
-		optionid = voption;
-	}
+    public Long getPollOption() {
+        return optionid;
+    }
 
-	public Long getPollOption() {
-		
-		return optionid;
-	}
+    public void setPollId(Long value) {
+        this.pollId = value;
+    }
 
-	public void setPollId(Long value) {
-		this.pollId = value;
+    public Long getPollId() {
+        return pollId;
+    }
 
-	}
+    public void setSubmissionId(String sid) {
+        this.submissionId = sid;
+    }
 
-	public Long getPollId() {
-		
-		return pollId;
-	}
+    public String getSubmissionId() {
+        return this.submissionId;
+    }
 
-
-	public void setSubmissionId(String sid) {
-		this.submissionId = sid;
-
-	}
-
-	public String getSubmissionId() {
-		
-		return this.submissionId;
-	}
-	
-	public String toString() {
-		
-		return this.pollId + ":" + this.userId + ":" + this.ip + ":" + this.optionid;
-		
-	}
+    public String toString() {
+        return this.pollId + ":" + this.userId + ":" + this.ip + ":" + this.optionid;
+    }
 
 }

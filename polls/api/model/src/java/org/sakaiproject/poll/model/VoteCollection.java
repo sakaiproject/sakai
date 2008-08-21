@@ -22,72 +22,65 @@
 package org.sakaiproject.poll.model;
 
 import java.util.List;
-
-
-
-import org.sakaiproject.id.cover.IdManager;
+import java.util.UUID;
 
 public class VoteCollection {
 
-	private String id;
-	private List votes;
-	private Long pollId;
-	public String[] optionsSelected;
-	public String option;
-	private String submittionStatus;
-	
-	public VoteCollection(){
-		//need a new id here
-		String tid = IdManager.createUuid();
-		id = tid;
-	}
-	
-	public void setId(String value) {
-		id = value;
+    private String id;
+    private List<Vote> votes;
+    private Long pollId;
+    public String[] optionsSelected;
+    public String option;
+    private String submittionStatus;
 
-	}
+    public VoteCollection(){
+        //need a new id here
+        id = UUID.randomUUID().toString();
+    }
 
-	public String getId() {
-				return id;
-	}
+    public void setId(String value) {
+        id = value;
+    }
 
-	public void setVotes(List rvotes) {
-		votes = rvotes;
+    public String getId() {
+        return id;
+    }
 
-	}
+    public void setVotes(List<Vote> rvotes) {
+        votes = rvotes;
+    }
 
-	public List getVotes() {
-		
-		return votes;
-	}
+    public List<Vote> getVotes() {
+        return votes;
+    }
 
-	public void setPollId (Long pid) {
-		this.pollId=pid;
-	}
-	public Long getPollId(){
-		return this.pollId;
-	}
-	
-	public void setOption(String s){
-		this.option = s;
-	}
-	public String getOption(){
-		return option;
-	}
-	
-	public void setOptionsSelected(String[] s) {
-		this.optionsSelected = s;
-	}
-	public String[] getOptionsSelected(){
-		return this.optionsSelected;
-	}
-	
-	public void setSubmissionStatus(String s){
-		this.submittionStatus=s;
-	}
-	
-	public String getSubmissionStatus(){
-		return this.submittionStatus;
-	}
+    public void setPollId (Long pid) {
+        this.pollId=pid;
+    }
+    public Long getPollId(){
+        return this.pollId;
+    }
+
+    public void setOption(String s){
+        this.option = s;
+    }
+    public String getOption(){
+        return option;
+    }
+
+    public void setOptionsSelected(String[] s) {
+        this.optionsSelected = s;
+    }
+    public String[] getOptionsSelected(){
+        return this.optionsSelected;
+    }
+
+    public void setSubmissionStatus(String s){
+        this.submittionStatus=s;
+    }
+
+    public String getSubmissionStatus(){
+        return this.submittionStatus;
+    }
 }
 

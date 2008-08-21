@@ -50,8 +50,8 @@ public class Poll implements Entity  {
 	private Date voteOpen;
 	private Date voteClose;
 	
-	private List options;
-	private List votes;
+	private List<Option> options;
+	private List<Vote> votes;
 	
 	private String displayResult = "open";
 	private boolean limitVoting = true;
@@ -180,11 +180,11 @@ public class Poll implements Entity  {
 	 * Set the votes list for this poll
 	 * @param votes
 	 */
-	public void setVotes(List value) {
+	public void setVotes(List<Vote> value) {
 		this.votes = value;
 	}
 	
-	public List getVotes() {
+	public List<Vote> getVotes() {
 		return this.votes;
 	}
 	
@@ -197,11 +197,11 @@ public class Poll implements Entity  {
 		
 	}
 	
-	public void setOptions(List value) {
+	public void setOptions(List<Option> value) {
 		this.options = value;
 	}
 	
-	public List getPollOptions(){
+	public List<Option> getPollOptions(){
 		return this.options;
 	}
 	
