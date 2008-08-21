@@ -49,6 +49,7 @@ public class TestAll extends TestCase
 		suite.addTest(org.apache.jackrabbit.test.api.lock.TestAll.suite());
 		suite.addTest(org.apache.jackrabbit.test.api.version.TestAll.suite());
 		suite.addTest(org.apache.jackrabbit.test.api.observation.TestAll.suite());
+		
 		// $JUnit-END$
 		return suite;
 	}

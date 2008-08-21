@@ -186,6 +186,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected long m_siteQuota = 0;
 
+	private boolean m_useSmartSort = true;
+	
 	static
 	{
 		ROOT_COLLECTIONS.add(COLLECTION_SITE);
@@ -743,6 +745,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			this.getResourceTypeRegistry().register(new UrlResourceType());
 		}
 		
+		this.m_useSmartSort = m_serverConfigurationService.getBoolean("content.smartSort", true);
+
 	} // init
 
 	/**
@@ -5987,7 +5991,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public Comparator newContentHostingComparator(String property, boolean ascending)
 	{
-		return new ContentHostingComparator(property, ascending);
+		return new ContentHostingComparator(property, ascending, m_useSmartSort);
 	}
 
 	/**

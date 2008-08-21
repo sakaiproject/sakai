@@ -21,7 +21,10 @@
 
 package org.sakaiproject.content.impl;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
@@ -45,6 +48,16 @@ public class ContentHostingComparator implements Comparator
 	boolean m_ascending = true;
 
 	/**
+	 * true if we're using a sort which accounts for "mixed mode" names, like
+	 * 'slide1', 'slide2, ..., 'slide10', 'slide11', which would not sort as
+	 * expected under a strict lexicographical sort.
+	 */
+	boolean m_smart_sort = true;
+	
+	public ContentHostingComparator(String property, boolean  ascending) {
+		this(property, ascending, true);
+	}
+	/**
 	 * Construct.
 	 * 
 	 * @param property
@@ -52,10 +65,10 @@ public class ContentHostingComparator implements Comparator
 	 * @param asc
 	 *        true if the sort is to be ascending (false for descending).
 	 */
-	public ContentHostingComparator(String property, boolean ascending)
-	{
+	public ContentHostingComparator(String property, boolean ascending, boolean is_smart) {
 		m_property = property;
 		m_ascending = ascending;
+		m_smart_sort = is_smart;
 
 	} // ContentHostingComparator
 
@@ -152,13 +165,103 @@ public class ContentHostingComparator implements Comparator
 		// do a formatted interpretation - case insensitive
 		if (o1 == null) return -1;
 		if (o2 == null) return +1;
-		String s1 = ((Entity) o1).getProperties().getPropertyFormatted(property);
-		String s2 = ((Entity) o2).getProperties().getPropertyFormatted(property);
-		int rv = s1.compareToIgnoreCase(s2);
-		if (!m_ascending) rv = -rv;
-		return rv;
-
+		
+		int rv = 0;
+		if (m_smart_sort) {
+			rv = compareLikeMacFinder( 
+					((Entity) o1).getProperties().getPropertyFormatted(property),
+					((Entity) o2).getProperties().getPropertyFormatted(property));
+		}
+		else {
+			rv = ((Entity) o1).getProperties().getPropertyFormatted(property).compareTo
+				(((Entity) o2).getProperties().getPropertyFormatted(property));
+		}
+		return m_ascending ? rv : -rv;
 	} // compare
+	
+	public int compareLikeMacFinder(String s1, String s2) {
+		if (! (containsDigits(s1) || containsDigits(s2))) {
+			return s1.compareTo(s2);
+		}
+		
+		/*
+		 * the strategy here is simple, but certainly not the fastest approach.  Each string is
+		 * split into a number of components, each component being either a String or a
+		 * BigInteger.  Then we iterate over the components.  As we do this, we must be careful
+		 * to call compareTo only on "compatible" types, which here is defined in the simplest
+		 * way: identity.  If the types aren't compatible, we toString() the components and
+		 * compare as Strings.
+		 * 
+		 */
+		Comparable[] c1 = makeGroups(s1);
+		Comparable[] c2 = makeGroups(s2);
+	
+		int i = 0;
+		while (i < c1.length) {
+			if (i >= c2.length) {
+				return 1;
+			}
+			int v = 0;
+			if (c1[i].getClass().equals(c2[i].getClass())) {
+				v = c1[i].compareTo(c2[i]);
+			}
+			else {
+				v = c1[i].toString().compareTo(c2[i].toString());
+			}
+			if (v != 0) {
+				return v;
+			}
+			i++;
+		}
+		// here, c2 must be at least as long as c1
+		return (c2.length > c1.length) ? -1 : 0;
+	}
+	
+	private boolean containsDigits(String s) {
+		for (int i = 0; i < s.length(); i++) {
+			if (Character.isDigit(s.charAt(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private Comparable[] makeGroups(String s) {
+		List<Comparable> l = new ArrayList<Comparable>();
+		boolean isNumber = false;
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (sb.length() > 0) {
+				char last = sb.charAt(sb.length()-1);
+				if ((Character.isDigit(c) && Character.isDigit(last)) ||
+						(!Character.isDigit(c) && !Character.isDigit(last))) {
+				}
+				else {
+					if (isNumber) {
+						l.add(new BigInteger(sb.toString()));
+					}
+					else {
+						l.add(sb.toString());
+					}
+					sb.setLength(0);
+				}
+			}
+			sb.append(c);
+			isNumber = Character.isDigit(c);
+		}
+		if (sb.length() > 0) {
+			if (isNumber) {
+				l.add(new BigInteger(sb.toString()));
+			}
+			else {
+				l.add(sb.toString());
+			}
+		}
+		Comparable[] cs = new Comparable[l.size()];
+		return l.toArray(cs);
+	}
 	
 	public String toString()
 	{
