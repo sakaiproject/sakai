@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
+import java.util.IllegalFormatConversionException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -42,40 +43,50 @@ import java.util.Map;
  */
 public interface RequestStorage {
 
-   /**
-    * Indicates the origin of the current request
-    */
-   public static enum RequestOrigin { REST, EXTERNAL, INTERNAL };
+    /**
+     * Indicates the origin of the current request
+     */
+    public static enum RequestOrigin { REST, EXTERNAL, INTERNAL };
 
-   /**
-    * Reserved keys with special data in them,
-    * see {@link RequestStorage}
-    */
-   public static enum ReservedKeys { _locale, _requestEntityReference, _requestActive, _requestOrigin };
+    /**
+     * Reserved keys with special data in them,
+     * see {@link RequestStorage}
+     */
+    public static enum ReservedKeys { _locale, _requestEntityReference, _requestActive, _requestOrigin };
 
-   /**
-    * Get the data as a map for easy access to the full set of keys/values, 
-    * this is a copy and changing it has no effect on the data in the request
-    * @return a copy of the internal storage of request keys and values as a map, 
-    * may be empty but will not be null
-    */
-   public Map<String, Object> getStorageMapCopy();
+    /**
+     * Get the data as a map for easy access to the full set of keys/values, 
+     * this is a copy and changing it has no effect on the data in the request
+     * @return a copy of the internal storage of request keys and values as a map, 
+     * may be empty but will not be null
+     */
+    public Map<String, Object> getStorageMapCopy();
 
-   /**
-    * Get a value that is stored in the request for a specific key
-    * @param key a key for a stored value
-    * @return the stored value if found OR null if not found
-    * @throws IllegalArgumentException if the key is null
-    */
-   public Object getStoredValue(String key);
+    /**
+     * Get a value that is stored in the request for a specific key
+     * @param key a key for a stored value
+     * @return the stored value if found OR null if not found
+     * @throws IllegalArgumentException if the key is null
+     */
+    public Object getStoredValue(String key);
 
-   /**
-    * Store a value in the request storage with an associated key
-    * @param key a key for a stored value
-    * @param value an object to store
-    * @throws IllegalArgumentException if the key OR value are null, 
-    * also if an attempt is made to change a reserved value (see {@link RequestStorage})
-    */
-   public void setStoredValue(String key, Object value);
+    /**
+     * @param <T>
+     * @param type an object type to attempt to convert the object to
+     * @param key a key for the stored value
+     * @return the stored value converted to the requested type OR null if none found
+     * @throws IllegalArgumentException if the type or key is null
+     * @throws IllegalFormatConversionException if the conversion cannot be completed
+     */
+    public <T> T getStoredValueAsType(Class<?> type, String key);
+
+    /**
+     * Store a value in the request storage with an associated key
+     * @param key a key for a stored value
+     * @param value an object to store
+     * @throws IllegalArgumentException if the key OR value are null, 
+     * also if an attempt is made to change a reserved value (see {@link RequestStorage})
+     */
+    public void setStoredValue(String key, Object value);
 
 }
