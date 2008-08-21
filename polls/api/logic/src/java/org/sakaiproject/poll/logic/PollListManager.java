@@ -37,67 +37,78 @@ import org.sakaiproject.poll.model.Poll;
  */
 public interface PollListManager extends EntityProducer {
 
-//	the permissions
-	  
-	  public static final String PERMISSION_VOTE = "poll.vote";
-	  public static final String PERMISSION_ADD = "poll.add";
-	  public static final String PERMISSION_DELETE_OWN = "poll.deleteOwn";
-	  public static final String PERMISSION_DELETE_ANY = "poll.deleteAny";
-	  public static final String PERMISSION_EDIT_ANY = "poll.editAny";
-	  public static final String PERMISSION_EDIT_OWN = "poll.editOwn";
-	
-	  public static final String REF_POLL_TYPE ="poll";
-	/**
-	 *  Save a poll
-	 * @param t - the poll object to save
-	 * @return - true for success, false if failure
-	 */
-	public boolean savePoll(Poll t);
+//  the permissions
 
-	/**
-	 * Delete a poll
-	 * @param t - the poll object to remove
-	 * @return - true for success, false if failure
-	 */
-	public boolean deletePoll(Poll t) throws PermissionException;
+    public static final String PERMISSION_VOTE = "poll.vote";
+    public static final String PERMISSION_ADD = "poll.add";
+    public static final String PERMISSION_DELETE_OWN = "poll.deleteOwn";
+    public static final String PERMISSION_DELETE_ANY = "poll.deleteAny";
+    public static final String PERMISSION_EDIT_ANY = "poll.editAny";
+    public static final String PERMISSION_EDIT_OWN = "poll.editOwn";
 
-	public boolean saveOption(Option t);
+    public static final String REF_POLL_TYPE ="poll";
+    /**
+     *  Save a poll
+     * @param t - the poll object to save
+     * @return - true for success, false if failure
+     */
+    public boolean savePoll(Poll t);
 
-	/**
-	 * Gets all the task objects for the site
-	 * @param siteId - the siteId of the site
-	 * @return - a collection of task objects (empty collection if none found)
-	 */
-	@SuppressWarnings("unchecked")
-    public List findAllPolls(String siteId);
-	
-	/**
-	 * Retrieve a specific poll
-	 * @param pollId
-	 * @return a single poll object
-	 */
-	public Poll getPollById(Long pollId);
-	
-	/**
-	 * Get a specific poll with all its votes
-	 * @param pollId
-	 * @return a poll object
-	 */
-	
-	/**
-	 *  get a poll by its Entity  Reference  
-	 */
-	public Poll getPoll(String ref);
-	
-	public Poll getPollWithVotes(Long pollId);
+    /**
+     * Delete a poll
+     * @param t - the poll object to remove
+     * @return - true for success, false if failure
+     */
+    public boolean deletePoll(Poll t) throws PermissionException;
 
-	/**
-	 *  Get a specific option by its id
-	 */
-	public Option getOptionById(Long optionId);
-	
-	public void deleteOption(Option option);
-	
+    public boolean saveOption(Option t);
+
+    /**
+     * Gets all the task objects for the site
+     * @param siteId - the siteId of the site
+     * @return - a collection of task objects (empty collection if none found)
+     */
     @SuppressWarnings("unchecked")
-	public List getOptionsForPoll(Poll poll);
+    public List findAllPolls(String siteId);
+
+    /**
+     * Get all the polls for a user in a set of sites (can be one) given the permission,
+     * will return only polls that can be voted on if the permission is {@link #PERMISSION_VOTE}
+     * 
+     * @param userId a sakai internal user id (not eid)
+     * @param siteIds an array of site ids (can be null or empty to get the polls for all without security check)
+     * @param permissionConstant either the {@link #PERMISSION_VOTE} (for all polls a user can vote on) or 
+     * {@link #PERMISSION_ADD} for all the polls the user can control
+     * @return the list of all polls this user can access
+     */
+    public List<Poll> findAllPollsForUserAndSitesAndPermission(String userId, String[] siteIds, String permissionConstant);
+
+    /**
+     * Retrieve a specific poll
+     * @param pollId
+     * @return a single poll object
+     */
+    public Poll getPollById(Long pollId);
+
+    /**
+     * Get a specific poll with all its votes
+     * @param pollId
+     * @return a poll object
+     */
+    public Poll getPollWithVotes(Long pollId);
+
+    /**
+     *  get a poll by its Entity  Reference  
+     */
+    public Poll getPoll(String ref);
+
+    /**
+     *  Get a specific option by its id
+     */
+    public Option getOptionById(Long optionId);
+
+    public void deleteOption(Option option);
+
+    @SuppressWarnings("unchecked")
+    public List getOptionsForPoll(Poll poll);
 }

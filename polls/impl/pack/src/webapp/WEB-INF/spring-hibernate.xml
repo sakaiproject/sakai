@@ -23,6 +23,8 @@
 			ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="functionManager"
 			ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="authzGroupService"
+            ref="org.sakaiproject.authz.api.AuthzGroupService" />
 	</bean>
 
 	<bean id="org.sakaiproject.tool.poll.api.PollVoteManagerDaoTarget"
