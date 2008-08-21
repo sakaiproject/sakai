@@ -22,9 +22,9 @@
 package org.sakaiproject.poll.logic;
 
 import java.util.List;
-import org.sakaiproject.exception.PermissionException;
+
 import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 
@@ -68,7 +68,8 @@ public interface PollListManager extends EntityProducer {
 	 * @param siteId - the siteId of the site
 	 * @return - a collection of task objects (empty collection if none found)
 	 */
-	public List findAllPolls(String siteId);
+	@SuppressWarnings("unchecked")
+    public List findAllPolls(String siteId);
 	
 	/**
 	 * Retrieve a specific poll
@@ -97,5 +98,6 @@ public interface PollListManager extends EntityProducer {
 	
 	public void deleteOption(Option option);
 	
+    @SuppressWarnings("unchecked")
 	public List getOptionsForPoll(Poll poll);
 }

@@ -325,12 +325,12 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 				// archive this assignment
 				Element el = poll.toXml(doc, stack);
 
-				//get theoptions
+				//get the options
 				List options = getOptionsForPoll(poll);
 
 				for (int q = 0 ; options.size()>q;q++) {
 					Option opt = (Option)options.get(q);
-					Element el2 = opt.toXml(doc, stack);
+					Element el2 = PollUtil.optionToXml(opt, doc, stack);
 					el.appendChild(el2);
 				}
 

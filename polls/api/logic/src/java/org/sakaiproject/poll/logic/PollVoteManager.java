@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
-import org.sakaiproject.poll.model.VoteCollection;
 
 public interface PollVoteManager {
 
@@ -41,7 +40,8 @@ public interface PollVoteManager {
 	
 	public void deleteVote(Vote Vote);
 	
-	public List getAllVotesForPoll(Poll poll);
+	@SuppressWarnings("unchecked")
+    public List getAllVotesForPoll(Poll poll);
 	
 	
 	public boolean userHasVoted(Long pollid, String userID);
