@@ -21,9 +21,11 @@
 
 package org.sakaiproject.mailarchive.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
+import javax.mail.internet.MimeUtility;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1268,7 +1270,19 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 		 */
 		public String getFromAddress()
 		{
-			return ((m_fromAddress == null) ? "" : m_fromAddress);
+			String fromAddress = ((m_fromAddress == null) ? "" : m_fromAddress);
+			
+			try
+			{
+				fromAddress = MimeUtility.decodeText(fromAddress);
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				// if unable to decode RFC address, just return address as is
+				M_log.debug(this+".getFromAddress "+e.toString());
+			}
+			
+			return fromAddress;
 
 		} // getFromAddress
 
