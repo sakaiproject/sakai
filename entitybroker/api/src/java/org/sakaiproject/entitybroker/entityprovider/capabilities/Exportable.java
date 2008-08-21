@@ -38,8 +38,9 @@ public interface Exportable extends EntityProvider {
 
    /**
     * Request an export stream of data from an entity provider for all data related to a specific
-    * entity (this will probably not be an entity in this provider), search, and params<br/>
-    * This is primarily to support the use case
+    * entity (this will probably not be an entity in this provider), search, and parameters<br/>
+    * This is primarily to support the use case archiving and exporting data from a system which related
+    * to a user or a site/group<br/>
     * 
     * @param reference
     *           a globally unique reference to an entity, this is the entity that the exported data

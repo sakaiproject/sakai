@@ -45,7 +45,7 @@ public interface Importable extends Exportable {
     *           should be associated with (e.g. a reference to a site object or user)
     * @param data
     *           a stream of data from the archiver/importer, this should match a previous export
-    *           stream exactly (or at least very closely in order for the importer to be able to understad it)
+    *           stream exactly (or at least very closely in order for the importer to be able to understand it)
     * @param encodingKey
     *           a string representing the encoding used and possibly other info like a version, this
     *           should be the string sent with the export
