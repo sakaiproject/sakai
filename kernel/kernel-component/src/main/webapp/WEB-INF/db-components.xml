@@ -256,8 +256,8 @@
 		<property name="sessionFactory">
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
+        <property name="dataSource" ref="javax.sql.DataSource" />
 	</bean>
-	
 	
 	<bean id="org.sakaiproject.springframework.orm.hibernate.L2Cache" 
   			class="org.springframework.cache.ehcache.EhCacheFactoryBean">
