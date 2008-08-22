@@ -189,6 +189,13 @@
     <bean id="javax.sql.DataSource" parent="javax.sql.BaseDataSource">
     </bean>
 
+    <!-- Proxy which will keep only get the connection if one is actually needed,
+       this is especially helpful when using hibernate or wrapping transactions around requests
+       because it keeps the connection from being opened and held if it is not needed -->
+    <bean id="javax.sql.LazyDataSource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+       <property name="targetDataSource"><ref local="javax.sql.DataSource" /></property>
+    </bean>
+
     <!-- The "slow" connection pool for streaming downloads from db -->
     <bean id="javax.sql.LongDataSource"
             parent="javax.sql.BaseDataSource">
@@ -201,7 +208,7 @@
 			class="org.sakaiproject.springframework.orm.hibernate.impl.ClassicLocalSessionFactoryBeanHibernate31">
 
 		<property name="dataSource">
-			<ref local="javax.sql.DataSource" />
+			<ref local="javax.sql.LazyDataSource" />
 		</property>
 
 		<property name="hibernateProperties">
@@ -256,7 +263,7 @@
 		<property name="sessionFactory">
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
-        <property name="dataSource" ref="javax.sql.DataSource" />
+          <property name="dataSource" ref="javax.sql.LazyDataSource" />
 	</bean>
 	
 	<bean id="org.sakaiproject.springframework.orm.hibernate.L2Cache" 
