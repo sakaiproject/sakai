@@ -2,14 +2,14 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-
+	<!-- TODO - do we need this? - this doesn't seem to be used and causes problems after rsf upgrade to 0.7.3
    <bean id="messageRenderer" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.GradebookMessageRenderer">
       <property name="messageLocator">
          <ref bean="messageLocator" />
       </property>
       <property name="infoStyleClass" value="success" />
       <property name="errorStyleClass" value="alertMessageInline" />
-   </bean>
+   </bean> -->
    
    <bean id="LocalPermissionLogic" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.locallogic.LocalPermissionLogic">
 	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />

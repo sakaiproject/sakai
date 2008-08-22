@@ -14,7 +14,7 @@
   <properties>
     <deploy.target/>
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-    <rsfutil.version>0.7.2</rsfutil.version>
+    <rsfutil.version>0.7.3</rsfutil.version>
   </properties>
   <repositories>
     <repository>

@@ -2,7 +2,7 @@ package org.sakaiproject.tool.gradebook.ui.helpers.beans;
 
 import java.lang.String;
 
-import uk.org.ponder.rsf.renderer.MessageRenderer;
+
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -11,6 +11,7 @@ import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
+import uk.org.ponder.rsf.renderer.message.MessageRenderer;
 
 public class GradebookMessageRenderer extends MessageRenderer{
 	private String infoStyleClass;
