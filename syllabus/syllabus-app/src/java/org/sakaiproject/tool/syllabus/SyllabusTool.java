@@ -418,7 +418,7 @@ public class SyllabusTool
       {
         if (!this.checkAccess())
         {
-          throw new PermissionException("syllabus_access_athz", "", currentUserId);
+        	throw new PermissionException(currentUserId, SiteService.SECURE_UPDATE_SITE, currentSiteId); 
         }
         else
         {
