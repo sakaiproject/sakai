@@ -197,7 +197,7 @@
 						#else
 						<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
 						#end
-
+						<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
 						<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
 						#if ($!nextAct)
 						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
