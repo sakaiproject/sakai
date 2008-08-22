@@ -615,7 +615,69 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 				setCurrentTool(tool);
 			}
 
-			public String getPathInfo()
+	      private String requestURI;
+	      /**
+	       * Allows us to set the request URI to the correct value if desired
+	       * @param requestURI this should be the complete URL for this request (not counting the get params, everything after the ?)
+	       */
+	      public void setRequestURI(String requestURI) {
+	         this.requestURI = requestURI;
+	      }
+
+	      @Override
+	      public StringBuffer getRequestURL() {
+	         StringBuffer sb = null;
+	         if (requestURI == null) {
+	            sb = super.getRequestURL();
+	         } else {
+	            sb = new StringBuffer(requestURI);
+	         }
+	         // now attempt to autofix the URL
+	         sb.append( getURLSuffix(sb.toString()) );
+	         return sb;
+	      };
+
+	      @Override
+	      public String getRequestURI() {
+	         String uri = null;
+	         if (requestURI == null) {
+	            uri = super.getRequestURI();
+	         } else {
+	            uri = requestURI;
+	         }
+            // now attempt to autofix the URL
+            uri += getURLSuffix(uri);
+	         return uri;
+	      }
+
+	      /**
+	       * This is here to fix up the directtool stuff,
+	       * http://jira.sakaiproject.org/jira/browse/SAK-8946,
+	       * it is mostly here to make the requestURL and pathinfo conform to the servlet spec<br/>
+	       * Used like so:<br/>
+          *  uri += getURLSuffix(uri);
+	       * 
+	       * @param requestURL the current requestURL (probably invalid)
+	       * @return the suffix to append to the existing requestURL
+	       */
+	      private String getURLSuffix(String requestURL) {
+	         // now attempt to autofix the URL
+	         StringBuilder sb = new StringBuilder();
+	         if (requestURL != null) {
+               String path = getPathInfo();
+               if (path != null) {
+                  if (! requestURL.contains(path)) {
+                     if (! path.startsWith("/")) {
+                        sb.append("/");
+                     }
+                     sb.append(path);
+                  }
+               }
+	         }
+            return sb.toString();
+	      }
+
+	      public String getPathInfo()
 			{
 				if (getAttribute(NATIVE_URL) != null) return super.getPathInfo();
 
