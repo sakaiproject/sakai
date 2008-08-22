@@ -150,6 +150,11 @@ languages, as follows:
 				  Billy Pham (bpham@huric.org)
     Local ID: vi_VN
                 
+24) Khmer 
+    Status: inquiry on 8/12/2008 (target release 3.0)
+    Translated by: n/a
+    Contact: Ratana Lim (ratana@ic.ucsb.edu) 
+    Local ID:km_KH 
 
 The default language locale must be defined at boot time (though this 
 can be over-ridden by user preferences), by setting the tomcat 
