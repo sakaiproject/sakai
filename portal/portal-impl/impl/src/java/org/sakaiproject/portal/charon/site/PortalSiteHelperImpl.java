@@ -39,6 +39,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.cover.PreferencesService;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
@@ -230,6 +233,23 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		List<Map> l = new ArrayList<Map>();
 		Map<String, Integer> depthChart = new HashMap<String, Integer>();
 		boolean motdDone = false;
+
+		// We only compute the depths if there is no user chosen order
+		boolean computeDepth = true;
+		Session session = SessionManager.getCurrentSession();
+		if ( session != null )
+                { 
+                        Preferences prefs = PreferencesService.getPreferences(session.getUserId());
+                        ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+
+                        List propList = props.getPropertyList("order");
+                        if (propList != null)
+                        {
+                                computeDepth = false; 
+                        }
+                }
+
+		// Determine the depths of the child sites if needed
 		for (Iterator i = mySites.iterator(); i.hasNext();)
 		{
 			Site s = (Site) i.next();
@@ -237,21 +257,24 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			// The first site is the current site
 			if (currentSiteId == null) currentSiteId = s.getId();
 
-			ResourceProperties rp = s.getProperties();
-			String ourParent = rp.getProperty(PROP_PARENT_ID);
-			// System.out.println("Depth Site:"+s.getTitle()+"
-			// parent="+ourParent);
 			Integer cDepth = new Integer(0);
-			if (ourParent != null)
+			if ( computeDepth )
 			{
-				Integer pDepth = depthChart.get(ourParent);
-				if (pDepth != null)
+				ResourceProperties rp = s.getProperties();
+				String ourParent = rp.getProperty(PROP_PARENT_ID);
+				// System.out.println("Depth Site:"+s.getTitle()+
+				// "parent="+ourParent);
+				if (ourParent != null)
 				{
-					cDepth = pDepth + 1;
+					Integer pDepth = depthChart.get(ourParent);
+					if (pDepth != null)
+					{
+						cDepth = pDepth + 1;
+					}
 				}
+				depthChart.put(s.getId(), cDepth);
+				// System.out.println("Depth = "+cDepth);
 			}
-			// System.out.println("Depth = "+cDepth);
-			depthChart.put(s.getId(), cDepth);
 
 			Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId,
 					includeSummary, expandSite, resetTools, doPages, toolContextPath,

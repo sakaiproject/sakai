@@ -217,9 +217,11 @@ ${responseBody}
 					## then you can do interesting things with the markup (nested lists, for exmaple) as well as with
 					## behaviours (toggle hierarchies for a tree navigation, for example).
 		      #if ( $site.isChild ) 
-						#foreach ($i in [0..$site.depth] )
+		            #if ( $site.depth > 0 ) 
+						#foreach ($i in [1..$site.depth] )
 				        	 &nbsp;
 						#end
+		            #end
 		      #end
 	        <span> 
 		        <a href="${site.siteUrl}" title="${site.siteTitle}">

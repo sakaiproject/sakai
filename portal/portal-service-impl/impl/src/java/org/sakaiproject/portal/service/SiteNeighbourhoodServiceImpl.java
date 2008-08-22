@@ -180,13 +180,8 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 			int pos = listIndexOf(id, mySites);
 			if (pos != -1)
 			{
-				// move it from mySites to order, ignoring child sites
 				Site s = mySites.get(pos);
-				ResourceProperties rp = s.getProperties();
-				String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
-				// System.out.println("Pref Site:"+s.getTitle()+"
-				// parent="+ourParent);
-				if (ourParent == null && !added.contains(s.getId()))
+				if (!added.contains(s.getId()))
 				{
 					ordered.add(s);
 					added.add(s.getId());
@@ -203,8 +198,15 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		{
 			Site s = mySites.get(i);
 			if (added.contains(s.getId())) continue;
-			ResourceProperties rp = s.getProperties();
-			String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
+			// Once the user takes over the order, 
+			// ignore parent/child sorting put all the sites
+			// at the top
+			String ourParent = null;
+			if ( prefOrder.size() == 0 ) 
+			{
+				ResourceProperties rp = s.getProperties();
+				ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
+			}
 			// System.out.println("Top Site:"+s.getTitle()+"
 			// parent="+ourParent);
 			if (siteCount > 200 || ourParent == null)
@@ -239,8 +241,8 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 				String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
 				if (ourParent == null) continue;
 				haveChildren = true;
-				// System.out.println("Child Site:"+s.getTitle()+"
-				// parent="+ourParent);
+				// System.out.println("Child Site:"+s.getTitle()+
+				// "parent="+ourParent);
 				// Search the already added pages for a parent
 				// or sibling node
 				boolean found = false;
