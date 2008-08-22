@@ -1497,7 +1497,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			String usersStr = "";
 			String iDateStr = "";
 			String fDateStr = "";
-			if(userIds != null)
+			if(userIds != null && !userIds.isEmpty())
 				usersStr = "and s.userId in (:users) ";
 			if(iDate != null)
 				iDateStr = "and s.date >= :idate ";
@@ -1517,7 +1517,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					Query q = session.createQuery(hql);
 					q.setString("siteid", siteId);
 					q.setParameterList("events", events);
-					if(userIds != null)
+					if(userIds != null && !userIds.isEmpty())
 						q.setParameterList("users", userIds);
 					if(iDate != null)
 						q.setDate("idate", iDate);
@@ -1764,11 +1764,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			String resourcesStr = "";
 			String iDateStr = "";
 			String fDateStr = "";
-			if(userIds != null)
+			if(userIds != null && !userIds.isEmpty())
 				usersStr = "and s.userId in (:users) ";
 			if(resourceAction != null)
 				resourcesActionStr = "and s.resourceAction = :action ";
-			if(resourceIds != null)
+			if(resourceIds != null && !resourceIds.isEmpty())
 				resourcesStr = "and s.resourceRef in (:resources) ";
 			if(iDate != null)
 				iDateStr = "and s.date >= :idate ";
@@ -1786,11 +1786,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.createQuery(hql);
 					q.setString("siteid", siteId);
-					if(userIds != null)
+					if(userIds != null && !userIds.isEmpty())
 						q.setParameterList("users", userIds);
 					if(resourceAction != null)
 						q.setString("action", resourceAction);
-					if(resourceIds != null)
+					if(resourceIds != null && !resourceIds.isEmpty())
 						q.setParameterList("resources", resourceIds);
 					if(iDate != null)
 						q.setDate("idate", iDate);
