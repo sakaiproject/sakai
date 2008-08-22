@@ -1129,11 +1129,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		Date currentDate = new Date();
 		String orderBy = getOrderBy(sortString);
 		
-		// modified by gopalrc to take account of group release
-		// realised that this is not necessary for site agents
-		//final ArrayList groupIds = getSiteGroupIds(siteAgentId);
-		
-
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) "
 				+ " from PublishedAssessmentData p, PublishedAccessControl c, AuthorizationData z  "
@@ -1208,10 +1203,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	 */
 	public ArrayList getBasicInfoOfAllInActivePublishedAssessments(
 			String sortString, final String siteAgentId, boolean ascending) {
-		
-		// modified by gopalrc to take account of group release
-		// realised that this is not necessary for site agents
-		//final ArrayList groupIds = getSiteGroupIds(siteAgentId);
 		
 		String orderBy = getOrderBy(sortString);
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"
@@ -2544,29 +2535,34 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	 * @return
 	 */
 	private ArrayList getSiteGroupIdsForSubmittingAgent(String agentId, String siteId) {
-		//String functionName="assessment.takeAssessment";
-		Collection siteGroups = null;
-		try {
-			siteGroups = siteService.getSite(siteId).getGroupsWithMember(agentId);
-		}
-		catch (IdUnusedException ex) {
-			// no site found
-		}
-		final ArrayList groupIds = new ArrayList();
-		if (siteGroups == null) {
-			return groupIds;
-		}
-		Iterator groupsIter = siteGroups.iterator();
+
+		final ArrayList<String> groupIds = new ArrayList<String>();
 		// To accomodate the problem with Hibernate and empty array parameters 
 		// TODO: this should probably be handled in a more efficient way
 		groupIds.add("none");  
-		while (groupsIter.hasNext()) {
-			Group group = (Group) groupsIter.next(); 
-			// TODO: Does this conditional check need to be done,
-			// or is it sufficient thet the individual is in the group
-			//if (securityService.unlock(functionName, group.getReference())) {
+		
+		if (siteId == null)
+			return groupIds;
+		
+		Collection siteGroups = null;
+		
+		try {
+			Site s = siteService.getSite(siteId);
+			if (s != null)
+				siteGroups = s.getGroupsWithMember(agentId);
+		}
+		catch (IdUnusedException ex) {
+			// no site found
+			log.debug("No site found for siteid: " + siteId + "agentid: " + agentId);
+		}
+
+		if (siteGroups != null) {
+			Iterator groupsIter = siteGroups.iterator();
+			
+			while (groupsIter.hasNext()) {
+				Group group = (Group) groupsIter.next(); 
 				groupIds.add(group.getId());
-			//}
+			}
 		}
 		return groupIds;
 	}
@@ -2581,36 +2577,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String currentUserId = UserDirectoryService.getCurrentUser().getId();
 		return getSiteGroupIdsForSubmittingAgent(currentUserId, siteId);
 	}
-	
-	
-	/**
-	 * added by gopalrc - Nov 2007
-`	 * TODO: should perhaps be moved to SiteService
-	 * @param siteId
-	 * @return
-	 */
-/*	
-	private ArrayList getSiteGroupIds(final String siteId) {
-		Collection siteGroups = null;
-		try {
-			siteGroups = siteService.getSite(siteId).getGroups();
-		}
-		catch (IdUnusedException ex) {
-			// no site found
-		}
-		Iterator groupsIter = siteGroups.iterator();
-		final ArrayList groupIds = new ArrayList();
-		// To accomodate the problem with Hibernate and empty array parameters 
-		// TODO: this should probably be handled in a more efficient way
-		groupIds.add("none");  
-		while (groupsIter.hasNext()) {
-			Group group = (Group) groupsIter.next(); 
-			groupIds.add(group.getId());
-		}
-		return groupIds;
-	}
-*/
-	
+		
 	/**
 	 * added by gopalrc November 2007
 	 * 
