@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -102,7 +103,7 @@ public class ReportsBean {
 	private String							siteGroupsForSite		= "";
 	private boolean							usersLoaded				= false;
 	private String							usersLoadedForSite		= "";
-	private List<SelectItem>				siteUsers;
+	private List<SelectItem>				siteUsers				= new ArrayList<SelectItem>();
 
 	/** Report related */
 	private Report							report					= null;
@@ -134,7 +135,8 @@ public class ReportsBean {
 	private long							prefsLastModified		= 0;
 	private boolean							showFatalMessage		= false;
 	private String							message					= null;
-	private Collator						collator				= Collator.getInstance();	
+	private Collator						collator				= Collator.getInstance();
+	private final 							ReentrantLock lock 		= new ReentrantLock();	
 	
 	
 	// ######################################################################################
@@ -348,8 +350,7 @@ public class ReportsBean {
 	}
 	
 	public List<SelectItem> getUsers() {
-		String siteId = serviceBean.getSiteId();
-		if(!usersLoaded || !usersLoadedForSite.equals(siteId))
+		if(!(usersLoaded && usersLoadedForSite.equals(serviceBean.getSiteId())))
 			if(reportParams.getWho().equals(StatsManager.WHO_CUSTOM))
 				processLoadUsers(null);
 			else
@@ -358,22 +359,26 @@ public class ReportsBean {
 	}
 	
 	public boolean isUsersLoaded() {
-		return usersLoaded && usersLoadedForSite.equals(serviceBean.getSite().getId());
+		return usersLoaded && usersLoadedForSite.equals(serviceBean.getSiteId());
 	}
 	
 	public void processLoadUsers(ActionEvent e) {
-		String siteId = serviceBean.getSiteId();
-		if(!usersLoaded || !usersLoadedForSite.equals(siteId)){
-			siteUsers = new ArrayList<SelectItem>();
-			List<User> aUsers = serviceBean.getSiteUsers();
-			Iterator<User> iU = aUsers.iterator();
-			while(iU.hasNext()){
-				User u = iU.next();
-				siteUsers.add(new SelectItem(u.getId(), u.getDisplayName() + " (" + u.getDisplayId() + ")"));
+		if(!(usersLoaded && usersLoadedForSite.equals(serviceBean.getSiteId()))){
+			lock.lock();
+			try{
+				siteUsers.clear();
+				List<User> aUsers = serviceBean.getSiteUsers();
+				Iterator<User> iU = aUsers.iterator();
+				while(iU.hasNext()){
+					User u = iU.next();
+					siteUsers.add(new SelectItem(u.getId(), u.getDisplayName() + " (" + u.getDisplayId() + ")"));
+				}
+				Collections.sort(siteUsers, getSelectItemComparator(collator));
+				usersLoaded = true;
+				usersLoadedForSite = serviceBean.getSiteId();
+			}finally{
+				lock.unlock();
 			}
-			Collections.sort(siteUsers, getSelectItemComparator(collator));
-			usersLoaded = true;
-			usersLoadedForSite = siteId;
 		}
 	}
 	
