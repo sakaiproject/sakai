@@ -188,14 +188,14 @@ function clickSubmitForGrade(){
                              && authorization.takeAssessment 
                              && authorization.submitAssessmentForGrade)}">
     <h:commandButton accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit_grading}"
-      action="#{delivery.submitForGrade}" styleClass="active"  
+      action="#{delivery.confirmSubmitTOC}" styleClass="active"  
       onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
 
 <!-- SUBMIT BUTTON FOR TAKE ASSESSMENT VIA URL ONLY -->
   <h:commandButton accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit}"
-    action="#{delivery.submitForGrade}" styleClass="active"   
+    action="#{delivery.confirmSubmitTOC}" styleClass="active"   
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
 
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->

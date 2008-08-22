@@ -143,8 +143,15 @@ public class DeliveryActionListener
     	  }
       }
       else {
-    	  // If comes from TOC, set the indexes from request parameters
-    	  goToRightQuestionFromTOC(delivery);
+    	  // If from table of contents page, there is no parameters like partnumber or questionnumber
+    	  if (!delivery.getFromTableOfContents()) {
+    		  // If comes from TOC, set the indexes from request parameters
+        	  goToRightQuestionFromTOC(delivery);
+        	  
+          }
+          else {
+        	  delivery.setFromTableOfContents(false);
+          }
       }
       
       // 4. this purpose of this listener is to integrated itemGradingData and 
