@@ -395,4 +395,11 @@ public interface Portal
 	 * @return
 	 */
 	SiteNeighbourhoodService getSiteNeighbourhoodService();
+
+	/**
+         * Indicate if a placement is a JSR-168 placement
+	 * @return
+	 */
+        public boolean isPortletPlacement(Placement placement);
+
 }

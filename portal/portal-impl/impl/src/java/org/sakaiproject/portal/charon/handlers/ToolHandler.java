@@ -23,6 +23,8 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,6 +32,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -40,7 +43,9 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.Web;
+
 
 /**
  * 
@@ -135,9 +140,9 @@ public class ToolHandler extends BasePortalHandler
 
 		// permission check - visit the site (unless the tool is configured to
 		// bypass)
+		Site site = null;
 		if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
 		{
-			Site site = null;
 			try
 			{
 				site = SiteService.getSiteVisit(siteTool.getSiteId());
@@ -162,8 +167,27 @@ public class ToolHandler extends BasePortalHandler
 			}
 		}
 
-		portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
+		if ( portal.isPortletPlacement(siteTool) ) 
+		{
+	
+	                String siteType = portal.calcSiteType(siteTool.getSiteId());
+
+       			// form a context sensitive title
+	                String title = ServerConfigurationService.getString("ui.service") + " : "
+                                + site.getTitle() + " : " + siteTool.getTitle();
+
+                	PortalRenderContext rcontext = portal.startPageContext(siteType, title, 
+				siteTool.getSkin(), req);
+
+			Map m = portal.includeTool(res, req, siteTool);
+			rcontext.put("tool", m);
+
+                	portal.sendResponse(rcontext, res, "tool", null);
+
+		} else {
+			portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
 				toolPathInfo);
+		}
 	}
 
 }
