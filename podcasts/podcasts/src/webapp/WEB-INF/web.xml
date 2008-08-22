@@ -32,11 +32,11 @@
     </servlet-mapping>
      
   <servlet>
+    <description>This generates the actual Poddcast feed</description>
+    <display-name>RSSPodfeedServlet</display-name>
     <servlet-name>podcasts</servlet-name>
     <servlet-class>org.sakaiproject.tool.podcasts.RSSPodfeedServlet</servlet-class>
-    <display-name>RSSPodfeedServlet</display-name>
-    <description>This generates the actual Poddcast feed</description>
-    <load-on-startup>2</load-on-startup>
+     <load-on-startup>2</load-on-startup>
   </servlet>
  
    <servlet-mapping>
@@ -91,8 +91,8 @@
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
      </filter>
-  <filter-mapping>
 
+  <filter-mapping>
     <filter-name>sakai.request</filter-name>
         <servlet-name>podcasts</servlet-name>
         <dispatcher>REQUEST</dispatcher>
@@ -100,11 +100,6 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
  
-    <!-- same with the Faces servlet -->
-    <filter>
-        <filter-name>sakai.request</filter-name>
-        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
-    </filter>
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>Faces Servlet</servlet-name>

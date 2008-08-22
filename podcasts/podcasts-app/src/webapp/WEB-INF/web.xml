@@ -49,7 +49,6 @@
             <param-name>path</param-name>
             <param-value>/podcasts</param-value>
         </init-param>
-      <load-on-startup>2</load-on-startup>
         <init-param>
             <param-name>default</param-name>
             <param-value>podMain</param-value>
@@ -58,6 +57,7 @@
             <param-name>default.last.view</param-name>
             <param-value>true</param-value>
         </init-param>
+      <load-on-startup>2</load-on-startup>
    </servlet>
  
 	<!-- the RequestFilter works with JsfTool to intercept requests -->
@@ -102,15 +102,6 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
  
-    <!-- same with the Faces servlet -->
-    <filter>
-        <filter-name>sakai.request</filter-name>
-        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
-		<init-param>
-			<param-name>upload.max</param-name>
-			<param-value>500</param-value>
-		</init-param>
-    </filter>
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>Faces Servlet</servlet-name>
