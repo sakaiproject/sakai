@@ -20,7 +20,7 @@
 
 	<!-- This wraps our DAO so that the transactions are managed -->
 	<bean id="org.sakaiproject.signup.dao.SignupMeetingDao"
-			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+			class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
 		<property name="transactionManager" 
 			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		<property name="target" 

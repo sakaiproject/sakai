@@ -37,8 +37,7 @@
 		<dependency>
          <groupId>org.sakaiproject</groupId>
          <artifactId>generic-dao</artifactId>
-         <version>${sakai.generic-dao.version}</version>
-         <scope>provided</scope>
+         <version>0.9.8</version>
       </dependency>
 	</dependencies>
 	<build>

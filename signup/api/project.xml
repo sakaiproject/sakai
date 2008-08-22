@@ -32,14 +32,6 @@
          <version>${sakai.plugin.version}</version>
          <type>plugin</type>
       </dependency>
-
-      <!-- generic DAO -->
-      <dependency>
-         <groupId>generic-dao</groupId>
-         <artifactId>generic-dao</artifactId>
-         <version>0.9.1</version>
-         <url>http://source.sakaiproject.org/maven/generic-dao/</url>
-      </dependency>
       
       <dependency>
 			<groupId>sakaiproject</groupId>

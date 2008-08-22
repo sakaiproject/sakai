@@ -55,7 +55,7 @@
       <dependency>
          <groupId>generic-dao</groupId>
          <artifactId>generic-dao</artifactId>
-         <version>0.9.1</version>
+         <version>0.9.8</version>
          <url>http://source.sakaiproject.org/maven/generic-dao/</url>
          <properties>
             <deploy.target>shared</deploy.target>

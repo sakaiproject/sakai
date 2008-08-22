@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>generic-dao</artifactId>
-			<version>${sakai.generic-dao.version}</version>
+			<version>0.9.8</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -138,6 +138,7 @@
 			<groupId>easymock</groupId>
 			<artifactId>easymock</artifactId>
 			<version>1.2_Java1.3</version>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- testing dependencies -->
@@ -145,6 +146,7 @@
 			<groupId>${sakai.spring.groupId}</groupId>
 			<artifactId>${sakai.spring.mock.artifactId}</artifactId>
 			<version>${sakai.spring.mock.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>

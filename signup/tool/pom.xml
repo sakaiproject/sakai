@@ -68,12 +68,6 @@
 			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>generic-dao</artifactId>
-			<version>${sakai.generic-dao.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
 			<version>${sakai.spring.version}</version>
