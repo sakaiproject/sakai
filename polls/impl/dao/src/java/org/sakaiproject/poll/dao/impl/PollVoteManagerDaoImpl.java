@@ -21,132 +21,171 @@
 
 package org.sakaiproject.poll.dao.impl;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.Query;
-import org.hibernate.criterion.Distinct;
 import org.hibernate.Session;
-
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
-import org.sakaiproject.poll.model.VoteCollection;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.tool.api.ToolManager;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 
 public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollVoteManager {
 
-//	use commons logger
-	private static Log log = LogFactory.getLog(PollListManagerDaoImpl.class);
+//  use commons logger
+    private static Log log = LogFactory.getLog(PollListManagerDaoImpl.class);
 
-	private EventTrackingService eventTrackingService;
-	public void setEventTrackingService(EventTrackingService ets) {
-		eventTrackingService = ets;
-	}
+    private EventTrackingService eventTrackingService;
+    public void setEventTrackingService(EventTrackingService ets) {
+        eventTrackingService = ets;
+    }
 
-	private ToolManager toolManager;
-	public void setToolManager(ToolManager tm) {
-		toolManager = tm;
-	}
+    private SecurityService securityService;
+    public void setSecurityService(SecurityService ss) {
+        securityService = ss;
+    }
 
-
-	public void saveVoteList(List votes) {
-
-		Long pollId = null;
-		for (int i =0; i < votes.size(); i ++) {
-			Vote vote = (Vote)votes.get(i);
-			pollId = vote.getPollId();
-			saveVote(vote);
-		}
+    private ToolManager toolManager;
+    public void setToolManager(ToolManager tm) {
+        toolManager = tm;
+    }
 
 
-		eventTrackingService.post(eventTrackingService.newEvent("poll.vote", "poll/site/" + toolManager.getCurrentPlacement().getContext() +"/poll/" +  pollId, true));
+    public void saveVoteList(List<Vote> votes) {
+        Long pollId = null;
+        for (int i =0; i < votes.size(); i ++) {
+            Vote vote = (Vote)votes.get(i);
+            pollId = vote.getPollId();
+            saveVote(vote);
+        }
+        eventTrackingService.post(eventTrackingService.newEvent("poll.vote", "poll/site/" + toolManager.getCurrentPlacement().getContext() +"/poll/" +  pollId, true));
+    }
 
-	}
+    public boolean saveVote(Vote vote)  {
+        try {
+            getHibernateTemplate().save(vote);
 
-	public boolean saveVote(Vote vote)  {
-		try {
-			getHibernateTemplate().save(vote);
+        } catch (DataAccessException e) {
+            log.error("Hibernate could not save: " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
 
-		} catch (DataAccessException e) {
-			log.error("Hibernate could not save: " + e.toString());
-			e.printStackTrace();
-			return false;
-		}
+        log.debug(" Vote  " + vote.getId() + " successfuly saved");
+        return true;
+    }
 
-		log.debug(" Vote  " + vote.getId() + " successfuly saved");
-		return true;
-	}
+    public List<Vote> getAllVotesForPoll(Poll poll) {
+        DetachedCriteria d = DetachedCriteria.forClass(Vote.class)
+        .add( Restrictions.eq("pollId",poll.getPollId()) );
+        List<Vote> votes = getHibernateTemplate().findByCriteria(d);
+        return votes;
+    }
 
-	public void deleteVote(Vote Vote) {
-		// TODO Auto-generated method stub
+    public Map<Long, List<Vote>> getVotesForUser(String userId, Long[] pollIds) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId cannot be null");
+        }
+        DetachedCriteria d = DetachedCriteria.forClass(Vote.class);
+        d.add( Restrictions.eq("userId",userId) );
+        if (pollIds != null) {
+            if (pollIds.length > 0) {
+                d.add( Restrictions.in("pollId",pollIds) );
+            } else {
+                // no polls to search so EXIT here
+                return new HashMap<Long, List<Vote>>();
+            }
+        }
+        Map<Long, List<Vote>> map = new HashMap<Long, List<Vote>>();
+        if (pollIds.length > 0) {
+            List<Vote> votes = getHibernateTemplate().findByCriteria(d);
+            // put the list of votes into a map
+            for (Vote vote : votes) {
+                Long pollId = vote.getPollId();
+                if (! map.containsKey(pollId)) {
+                    map.put(pollId, new ArrayList<Vote>() );
+                }
+                map.get(pollId).add(vote);
+            }
+        }
+        return map;
+    }
 
-	}
+    public int getDisctinctVotersForPoll(Poll poll) {
 
-	public List getAllVotesForPoll(Poll poll) {
-		DetachedCriteria d = DetachedCriteria.forClass(Vote.class)
-		.add( Restrictions.eq("pollId",poll.getPollId()) );
-		Collection pollCollection = getHibernateTemplate().findByCriteria(d);
-		List votes = new ArrayList();
-		for (Iterator tit = pollCollection.iterator(); tit.hasNext();) {
-			Vote vote = (Vote) tit.next();
-			votes.add(vote);
-		}
-		return votes;
-	}
+        Query q = null;
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        String statement = "SELECT DISTINCT VOTE_SUBMISSION_ID from POLL_VOTE where VOTE_POLL_ID = " + poll.getPollId().toString();
+        q = session.createSQLQuery(statement);
+        List results = q.list();
+        if (results.size() > 0)
+            return results.size();
 
-	public int getDisctinctVotersForPoll(Poll poll) {
+        return 0; 
+    }
 
-		Query q = null;
-		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-		String statement = "SELECT DISTINCT VOTE_SUBMISSION_ID from POLL_VOTE where VOTE_POLL_ID = " + poll.getPollId().toString();
-		q = session.createSQLQuery(statement);
-		List results = q.list();
-		if (results.size()>0)
-			return results.size();
+    public boolean userHasVoted(Long pollid, String userID) {
+        DetachedCriteria d = DetachedCriteria.forClass(Vote.class)
+        .add( Restrictions.eq("userId",userID) )
+        .add( Restrictions.eq("pollId",pollid) );
 
-		return 0; 
-	}
+        List<Vote> votes = getHibernateTemplate().findByCriteria(d);		
+        //System.out.println("got " + pollCollection.size() + "votes for this poll");
+        if (votes.size() > 0)
+            return true;
+        else
+            return false;
+    }
 
-	public boolean userHasVoted(Long pollid, String userID) {
-		DetachedCriteria d = DetachedCriteria.forClass(Vote.class)
-		.add( Restrictions.eq("userId",userID) )
-		.add( Restrictions.eq("pollId",pollid) );
+    public boolean userHasVoted(Long pollId) {
 
-		Collection pollCollection = getHibernateTemplate().findByCriteria(d);		
-		//System.out.println("got " + pollCollection.size() + "votes for this poll");
-		if (pollCollection.size()>0)
-			return true;
-		else
-			return false;
-	}
+        return userHasVoted(pollId, UserDirectoryService.getCurrentUser().getId());
+    }
 
-	public boolean userHasVoted(Long pollId) {
+    public Vote getVoteById(Long voteId) {
+        if (voteId == null) {
+            throw new IllegalArgumentException("voteId cannot be null when getting vote");
+        }
+        Vote vote = (Vote) getHibernateTemplate().get(Vote.class, voteId);
+        return vote;
+    }
 
-		return userHasVoted(pollId, UserDirectoryService.getCurrentUser().getId());
-	}
-
-
-
-
+    public boolean isUserAllowedVote(String userId, Long pollId, boolean ignoreVoted) {
+        boolean allowed = false;
+        Poll poll = (Poll) getHibernateTemplate().get(Poll.class, pollId);
+        if (poll == null) {
+            throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
+        }
+        if (securityService.isSuperUser(userId)) {
+            allowed = true;
+        } else {
+            String siteRef = "/site/" + poll.getSiteId();
+            if (securityService.unlock(userId, PollListManager.PERMISSION_VOTE, siteRef)) {
+                if (ignoreVoted) {
+                    allowed = true;
+                } else {
+                    Map<Long, List<Vote>> m = getVotesForUser(userId, new Long[] {pollId});
+                    if (m.isEmpty()) {
+                        allowed = true;
+                    }
+                }
+            }
+        }
+        return allowed;
+    }
 
 }

@@ -36,7 +36,6 @@ public class Option {
     }
 
     public void setOptionId(Long value) {
-        // TODO Auto-generated method stub
         id = value;
     }
 
@@ -49,7 +48,6 @@ public class Option {
     }
 
     public String getOptionText() {
-
         return text;
     }
 
@@ -70,11 +68,26 @@ public class Option {
     }
 
     public String getId() {
-        // TODO Auto-generated method stub
-        return UUId;
+        return id+"";
     }
 
-    public void setId(String id) {
+    public String getText() {
+        return text;
+    }
+    
+    public void setText(String text) {
+        this.text = text;
+    }
+    
+    public String getUUId() {
+        return UUId;
+    }
+    
+    public void setUUId(String id) {
         UUId = id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
     }
 }

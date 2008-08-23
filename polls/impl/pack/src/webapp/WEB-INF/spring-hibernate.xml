@@ -36,6 +36,8 @@
 			ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="eventTrackingService"
 			ref="org.sakaiproject.event.api.EventTrackingService" />
+        <property name="securityService"
+            ref="org.sakaiproject.authz.api.SecurityService" />
 	</bean>
 
 

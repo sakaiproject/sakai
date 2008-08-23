@@ -77,7 +77,7 @@ public class PollUtil {
 
         stack.push(element);
 
-        element.setAttribute("id", option.getId());
+        element.setAttribute("id", option.getUUId());
         element.setAttribute("optionid", option.getOptionId().toString());
         element.setAttribute("title", option.getOptionText());
         stack.pop();

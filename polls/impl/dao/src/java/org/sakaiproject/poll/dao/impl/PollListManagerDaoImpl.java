@@ -23,11 +23,13 @@ package org.sakaiproject.poll.dao.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -130,25 +132,38 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
         // get all allowed sites for this user
         List<String> allowedSites = getSitesForUser(userId, permissionConstant);
         if (! allowedSites.isEmpty()) {
-            if (siteIds != null && siteIds.length > 0) {
-                // filter down to just the requested ones
-                for (int j = 0; j < allowedSites.size(); j++) {
-                    String siteId = allowedSites.get(j);
-                    boolean found = false;
-                    for (int i = 0; i < siteIds.length; i++) {
-                        if (siteId.equals(siteIds[i])) {
-                            found = true;
+            if (siteIds != null) {
+                if (siteIds.length > 0) {
+                    // filter down to just the requested ones
+                    for (int j = 0; j < allowedSites.size(); j++) {
+                        String siteId = allowedSites.get(j);
+                        boolean found = false;
+                        for (int i = 0; i < siteIds.length; i++) {
+                            if (siteId.equals(siteIds[i])) {
+                                found = true;
+                            }
+                        }
+                        if (!found) {
+                            allowedSites.remove(j);
                         }
                     }
-                    if (!found) {
-                        allowedSites.remove(j);
-                    }
+                } else {
+                    // no sites to search so EXIT here
+                    return new ArrayList<Poll>();
                 }
             }
             String[] siteIdsToSearch = allowedSites.toArray(new String[allowedSites.size()]);
             DetachedCriteria d = DetachedCriteria.forClass(Poll.class);
             if (siteIdsToSearch.length > 0) {
-                d.add( Restrictions.in("siteId", siteIds) );
+                d.add( Restrictions.in("siteId", siteIdsToSearch) );
+            }
+            if (PollListManager.PERMISSION_VOTE.equals(permissionConstant)) {
+                // limit to polls which are open
+                Date now = new Date();
+                d.add( Restrictions.lt("voteOpen", now));
+                d.add( Restrictions.gt("voteClose", now));
+            } else {
+                // show all polls
             }
             d.addOrder( Order.desc("creationDate") );
             polls = getHibernateTemplate().findByCriteria(d);
@@ -221,26 +236,6 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
         return true;
     }
 
-    public boolean saveOption(Option t) {
-
-        boolean newOption = false;
-        if (t.getId() == null || t.getId().trim().length() == 0) {
-            newOption = true;
-            t.setId(idManager.createUuid());
-        }
-
-        try {
-            getHibernateTemplate().saveOrUpdate(t);
-
-        } catch (DataAccessException e) {
-            log.error("Hibernate could not save: " + e.toString());
-            e.printStackTrace();
-            return false;
-        }
-        log.info("Option  " + t.toString() + "successfuly saved");
-        return true;
-    }
-
     public boolean deletePoll(Poll t) throws PermissionException {
         if (!pollCanDelete(t))
             throw new PermissionException(UserDirectoryService.getCurrentUser().getId(),
@@ -259,13 +254,11 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
         return true;
     }
 
-    public List findAllPolls(String siteId) {
+    public List<Poll> findAllPolls(String siteId) {
         DetachedCriteria d = DetachedCriteria.forClass(Poll.class).add(
                 Restrictions.eq("siteId", siteId)).addOrder(Order.desc("creationDate"));
-        Collection pollCollection = getHibernateTemplate().findByCriteria(d);
-        List pollList = PollUtil.pollCollectionToList(pollCollection);
-
-        return pollList;
+        List<Poll> polls = getHibernateTemplate().findByCriteria(d);
+        return polls;
     }
 
     public Poll getPollById(Long pollId) {
@@ -282,16 +275,36 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
         return poll;
     }
 
-    public List getOptionsForPoll(Poll poll) {
+    public Poll getPollById(Long pollId, boolean includeOptions) {
+        Poll poll = (Poll) getHibernateTemplate().get(Poll.class, pollId);
+        if (poll != null) {
+            if (includeOptions) {
+                List<Option> optionList = getOptionsForPoll(poll);
+                poll.setOptions(optionList);
+            }
+        }
+        return poll;
+    }
 
+
+    // OPTIONS
+
+    public List<Option> getOptionsForPoll(Poll poll) {
+        return getOptionsForPoll(poll.getPollId());
+    }
+
+    public List<Option> getOptionsForPoll(Long pollId) {
+        Poll poll = getPollById(pollId, false);
+        if (poll == null) {
+            throw new IllegalArgumentException("Cannot get options for a poll ("+pollId+") that does not exist");
+        }
         // we need to get the options here
-        DetachedCriteria d = DetachedCriteria.forClass(Option.class).add(
-                Restrictions.eq("pollId", poll.getPollId()))
+        DetachedCriteria d = DetachedCriteria.forClass(Option.class);
+        d.add( Restrictions.eq("pollId", pollId));
         // add an explicit order - needed by Oracle
-                .addOrder(Order.asc("optionId"));
-        List optionList = PollUtil.optionCollectionToList(getHibernateTemplate().findByCriteria(d));
+        d.addOrder(Order.asc("optionId"));
+        List<Option> optionList = getHibernateTemplate().findByCriteria(d);
         return optionList;
-
     }
 
     public Poll getPollWithVotes(Long pollId) {
@@ -303,19 +316,16 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
     }
 
     public Option getOptionById(Long optionId) {
-        DetachedCriteria d = DetachedCriteria.forClass(Option.class).add(
-                Restrictions.eq("optionId", optionId));
-        Option option = (Option) getHibernateTemplate().findByCriteria(d).get(0);
+        Option option = (Option) getHibernateTemplate().get(Option.class, optionId);
         // if the id is null set it
-        if (option.getId() == null) {
-            option.setId(idManager.createUuid());
+        if (option.getUUId() == null) {
+            option.setUUId( UUID.randomUUID().toString() );
             saveOption(option);
         }
         return option;
     }
 
     public void deleteOption(Option option) {
-
         try {
             getHibernateTemplate().delete(option);
         } catch (DataAccessException e) {
@@ -324,8 +334,27 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
             return;
         }
         log.info("Option id " + option.getId() + " deleted");
-
     }
+
+    public boolean saveOption(Option t) {
+        if (t.getUUId() == null 
+                || t.getUUId().trim().length() == 0) {
+            t.setUUId( UUID.randomUUID().toString() );
+        }
+
+        try {
+            getHibernateTemplate().saveOrUpdate(t);
+        } catch (DataAccessException e) {
+            log.error("Hibernate could not save: " + e.toString());
+            e.printStackTrace();
+            return false;
+        }
+        log.info("Option  " + t.toString() + "successfuly saved");
+        return true;
+    }
+
+    
+    // INTERNAL
 
     private boolean pollCanDelete(Poll poll) {
         if (securityService.isSuperUser() || this.isSiteOwner())

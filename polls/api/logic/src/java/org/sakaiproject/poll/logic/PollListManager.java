@@ -91,6 +91,14 @@ public interface PollListManager extends EntityProducer {
     public Poll getPollById(Long pollId);
 
     /**
+     * Retrieve a specific poll
+     * @param pollId
+     * @param includeOptions if true then options included, else no options (poll only)
+     * @return a single poll object
+     */
+    public Poll getPollById(Long pollId, boolean includeOptions);
+
+    /**
      * Get a specific poll with all its votes
      * @param pollId
      * @return a poll object
@@ -109,6 +117,14 @@ public interface PollListManager extends EntityProducer {
 
     public void deleteOption(Option option);
 
-    @SuppressWarnings("unchecked")
-    public List getOptionsForPoll(Poll poll);
+    public List<Option> getOptionsForPoll(Poll poll);
+
+    /**
+     * Get all options for a specific poll
+     * @param pollId the id for a poll
+     * @return all options OR empty if there are no options for this poll
+     * @throws IllegalArgumentException if the pollId is invalid
+     */
+    public List<Option> getOptionsForPoll(Long pollId);
+
 }

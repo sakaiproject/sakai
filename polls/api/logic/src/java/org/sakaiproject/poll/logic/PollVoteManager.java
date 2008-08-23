@@ -23,36 +23,59 @@
 package org.sakaiproject.poll.logic;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 
 public interface PollVoteManager {
 
-	
-	public boolean saveVote(Vote vote);
-	
-	/**
-	 * Save a vote collection - a users collection of votes for a specific poll
-	 * @param voteCollection
-	 */
-	public void saveVoteList(List<Vote> voteCollection);
-	
-	public void deleteVote(Vote Vote);
-	
-	@SuppressWarnings("unchecked")
-    public List getAllVotesForPoll(Poll poll);
-	
-	
-	public boolean userHasVoted(Long pollid, String userID);
-	
-	/**
-	 * Assumes current user
-	 * @param pollid
-	 * @return
-	 */
-	public boolean userHasVoted(Long pollid);
-	
-	public int getDisctinctVotersForPoll(Poll poll);
-	
+    /**
+     * Get a vote by id
+     * @param voteId
+     * @return the vote OR null if not found
+     */
+    public Vote getVoteById(Long voteId);
+
+    public boolean saveVote(Vote vote);
+
+    /**
+     * Save a vote collection - a users collection of votes for a specific poll
+     * @param voteCollection
+     */
+    public void saveVoteList(List<Vote> voteCollection);
+
+    public List<Vote> getAllVotesForPoll(Poll poll);
+
+    /**
+     * Check if the given user can vote in the supplied poll,
+     * also checks if the user has already voted, if so this will return false
+     * 
+     * @param userId an internal user id
+     * @param pollId the id of a poll
+     * @param ignoreVoted if true then ignores the user's vote when checking,
+     * else will only return true if the user is allowed AND has not already voted
+     * @return true if user can vote OR false if not
+     */
+    public boolean isUserAllowedVote(String userId, Long pollId, boolean ignoreVoted);
+
+    public boolean userHasVoted(Long pollid, String userID);
+
+    /**
+     * Assumes current user
+     * @param pollid
+     * @return
+     */
+    public boolean userHasVoted(Long pollid);
+
+    public int getDisctinctVotersForPoll(Poll poll);
+
+    /**
+     * Get all the votes for a specific user in a poll or polls (or all polls)
+     * @param userId an internal user id (not username)
+     * @param pollIds an array of all polls to get the votes for (null to get all)
+     * @return the map of poll ID => list of votes for that poll for this user
+     */
+    public Map<Long, List<Vote>> getVotesForUser(String userId, Long[] pollIds);
+
 }

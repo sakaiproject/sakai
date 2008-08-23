@@ -29,7 +29,7 @@
 		<property name="optionText" type="text" length="255" not-null="true">
             <column name="OPTION_TEXT"/>
         </property>
-        <property name="id" type="string" length="255" not-null="true">
+        <property name="UUId" type="string" length="255" not-null="true">
         	<column name="OPTION_UUID" />
         </property>
      </class>
