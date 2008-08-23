@@ -455,7 +455,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                         }
                                                     } else {
                                                         // get from a search
-                                                        Search search = RequestUtils.makeSearchFromRequest(req);
+                                                        Search search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
                                                         entities = entityBrokerManager.getEntitiesData(ref, search, requestStorage.getStorageMapCopy());
                                                     }
                                                     // set the modifed header (use the sole entity in the list if there is one only)

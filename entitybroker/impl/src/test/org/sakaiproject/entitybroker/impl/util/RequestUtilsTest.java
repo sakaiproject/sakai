@@ -20,13 +20,14 @@
 
 package org.sakaiproject.entitybroker.impl.util;
 
+import junit.framework.TestCase;
+
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Order;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
+import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
+import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -36,22 +37,22 @@ import junit.framework.TestCase;
  */
 public class RequestUtilsTest extends TestCase {
 
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.util.RequestUtils#makeSearchFromRequest(javax.servlet.http.HttpServletRequest)}.
-    */
-   public void testMakeSearchFromRequest() {
+   public void testMakeSearchFromRequestStorage() {
       Search search = null;
-      MockEBHttpServletRequest req = null;
+      RequestStorageImpl requestStorage = new RequestStorageImpl();
+      requestStorage.setRequestGetter(new RequestGetterImpl());
 
-      req = new MockEBHttpServletRequest("GET", new String[] {});
-      search = RequestUtils.makeSearchFromRequest(req);
+      requestStorage.reset();
+      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
       assertNotNull(search);
       assertTrue( search.isEmpty() );
       assertEquals(0, search.getRestrictions().length);
       search.addOrder( new Order("test") );
 
-      req = new MockEBHttpServletRequest("GET", "test", "stuff");
-      search = RequestUtils.makeSearchFromRequest(req);
+      requestStorage.reset();
+      requestStorage.setRequestValue("test", "stuff");
+
+      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
       assertEquals(1, search.getRestrictions().length);
@@ -59,23 +60,58 @@ public class RequestUtilsTest extends TestCase {
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
 
       // make sure _method is ignored
-      req = new MockEBHttpServletRequest("GET", "test", "stuff", "_method", "PUT");
-      search = RequestUtils.makeSearchFromRequest(req);
+      requestStorage.reset();
+      requestStorage.setRequestValue("test", "stuff");
+      requestStorage.setRequestValue("_method", "PUT");
+
+      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
       assertEquals(1, search.getRestrictions().length);
       assertNotNull( search.getRestrictionByProperty("test") );
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
 
-      req = new MockEBHttpServletRequest("GET", "test", "stuff", "other", "more");
-      search = RequestUtils.makeSearchFromRequest(req);
+      requestStorage.reset();
+      requestStorage.setRequestValue("test", "stuff");
+      requestStorage.setRequestValue("other", 1000);
+
+      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
       assertEquals(2, search.getRestrictions().length);
       assertNotNull( search.getRestrictionByProperty("test") );
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
       assertNotNull( search.getRestrictionByProperty("other") );
-      assertEquals("more", search.getRestrictionByProperty("other").value);
+      assertEquals(1000, search.getRestrictionByProperty("other").value);
+
+      // test paging params
+      requestStorage.reset();
+      requestStorage.setRequestValue("test", "stuff");
+      requestStorage.setRequestValue("_limit", "10");
+      requestStorage.setRequestValue("_start", "5");
+
+      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
+      assertNotNull(search);
+      assertFalse( search.isEmpty() );
+      assertEquals(1, search.getRestrictions().length);
+      assertNotNull( search.getRestrictionByProperty("test") );
+      assertEquals("stuff", search.getRestrictionByProperty("test").value);
+      assertEquals(10, search.getLimit());
+      assertEquals(5, search.getStart());
+
+      requestStorage.reset();
+      requestStorage.setRequestValue("test", "stuff");
+      requestStorage.setRequestValue("_page", "3");
+      requestStorage.setRequestValue("_perpage", "5");
+
+      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
+      assertNotNull(search);
+      assertFalse( search.isEmpty() );
+      assertEquals(1, search.getRestrictions().length);
+      assertNotNull( search.getRestrictionByProperty("test") );
+      assertEquals("stuff", search.getRestrictionByProperty("test").value);
+      assertEquals(5, search.getLimit());
+      assertEquals(10, search.getStart());
    }
 
    /**
