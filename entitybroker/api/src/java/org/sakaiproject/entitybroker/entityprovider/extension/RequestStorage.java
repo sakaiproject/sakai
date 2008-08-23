@@ -78,7 +78,7 @@ public interface RequestStorage {
      * @throws IllegalArgumentException if the type or key is null
      * @throws IllegalFormatConversionException if the conversion cannot be completed
      */
-    public <T> T getStoredValueAsType(Class<?> type, String key);
+    public <T> T getStoredValueAsType(Class<T> type, String key);
 
     /**
      * Store a value in the request storage with an associated key

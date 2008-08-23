@@ -88,7 +88,7 @@ public class RequestStorageImpl implements RequestStorage {
     }
 
 
-    public <T> T getStoredValueAsType(Class<?> type, String key) {
+    public <T> T getStoredValueAsType(Class<T> type, String key) {
         if (type == null) {
             throw new IllegalArgumentException("type must be non-null");
         }

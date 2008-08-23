@@ -20,6 +20,10 @@
 
 package org.sakaiproject.entitybroker.providers;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -176,6 +180,15 @@ public class ServerConfigEntityProvider implements CoreEntityProvider, Outputabl
       m.put("serverUrl", serverConfigurationService.getServerUrl());
       m.put("toolUrl", serverConfigurationService.getToolUrl());
       m.put("userHomeUrl", serverConfigurationService.getUserHomeUrl());
+      // added in server IP address and hostname
+      try {
+          InetAddress i4 = Inet4Address.getLocalHost();
+          m.put("serverHostName", i4.getHostName());
+          m.put("serverHostAddress", i4.getHostAddress()); // IP address
+      } catch (UnknownHostException e) {
+          // could not get address, do nothing?
+      }
+
       // special handling for DB properties
       Object o = getConfigValue("vendor@org.sakaiproject.db.api.SqlService");
       if (o != null) m.put("database.vendor", o);

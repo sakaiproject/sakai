@@ -77,11 +77,11 @@ public class RequestStorageImplTest extends TestCase {
      * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl#getStoredValueAsType(java.lang.Class, java.lang.String)}.
      */
     public void testGetStoredValueAsType() {
-        assertEquals(135, requestStorage.getStoredValueAsType(Integer.class, "attribNum"));
+        assertEquals((Integer) 135, requestStorage.getStoredValueAsType(Integer.class, "attribNum"));
         assertEquals("135", requestStorage.getStoredValueAsType(String.class, "attribNum"));
-        assertEquals(true, requestStorage.getStoredValueAsType(Boolean.class, "attribBool"));
-        assertEquals(135, requestStorage.getStoredValueAsType(Integer.class, "attribStrNum"));
-        assertEquals(true, requestStorage.getStoredValueAsType(Boolean.class, "attribStrBool"));
+        assertEquals((Boolean) true, requestStorage.getStoredValueAsType(Boolean.class, "attribBool"));
+        assertEquals((Integer) 135, requestStorage.getStoredValueAsType(Integer.class, "attribStrNum"));
+        assertEquals((Boolean) true, requestStorage.getStoredValueAsType(Boolean.class, "attribStrBool"));
     }
 
     /**
