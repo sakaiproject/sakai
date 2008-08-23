@@ -9460,30 +9460,35 @@ public class SiteAction extends PagedResourceActionII {
 		Hashtable<String, List<Site>> templateList = new Hashtable<String, List<Site>>();
 		
 		// find all template sites.
-		List templateSites = SiteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.ANY, 
-				null, null, null,
-				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null); 
+		String[] siteTemplates = null;
+		if (ServerConfigurationService.getString("site.templates") != null) {
+			siteTemplates = StringUtil.split(ServerConfigurationService.getString("site.templates"), ",");
+		}
 		
-		for (Iterator itr = templateSites.iterator(); itr.hasNext(); ) {
-			Site site = (Site) itr.next();
-			// convention: template site should use site id "!template*"
-			// so, only administrator can create a site with a custom site id
-			if (site.getId().startsWith(SITE_TEMPLATE_PREFIX)) 
+		for (String siteTemplateId:siteTemplates) {
+			try
 			{
-				// get the type of template
-				String type = site.getType();
-				if (type != null)
+				Site siteTemplate = SiteService.getSite(siteTemplateId);
+				if (siteTemplate != null)
 				{
-					// populate the list according to template site type
-					List<Site> subTemplateList = new Vector<Site>();
-					if (templateList.containsKey(type))
+					// get the type of template
+					String type = siteTemplate.getType();
+					if (type != null)
 					{
-						subTemplateList = templateList.get(type);
+						// populate the list according to template site type
+						List<Site> subTemplateList = new Vector<Site>();
+						if (templateList.containsKey(type))
+						{
+							subTemplateList = templateList.get(type);
+						}
+						subTemplateList.add(siteTemplate);
+						templateList.put(type, subTemplateList);
 					}
-					subTemplateList.add(site);
-					templateList.put(type, subTemplateList);
 				}
+			}
+			catch (IdUnusedException e)
+			{
+				M_log.warn(this + ".setTemplateListForContext: cannot find site with id " + siteTemplateId, e);
 			}
 		}
 		
