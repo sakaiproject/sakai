@@ -39,6 +39,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 
 
 /**
@@ -211,8 +212,14 @@ public class RequestUtils {
     // put the keys which should be ignored in this array which will be placed in a set and ignored
     public static String[] ignoreForSearch = new String[] {
         EntityRequestHandler.COMPENSATE_METHOD,
-        "queryString", "pathInfo", "method", 
-        "_requestOrigin", "_requestEntityReference", "_requestActive", "entity-format", "_locale"
+        "queryString", 
+        "pathInfo", 
+        "method", 
+        RequestStorage.ReservedKeys._locale.name(),
+        RequestStorage.ReservedKeys._requestActive.name(),
+        RequestStorage.ReservedKeys._requestEntityReference.name(),
+        RequestStorage.ReservedKeys._requestOrigin.name(),
+        "entity-format"
     };
     private static HashSet<String> ignoreSet = null;
     private static HashSet<String> getIgnoreSet() {
@@ -234,13 +241,13 @@ public class RequestUtils {
      * @return a search filter object
      */
     @SuppressWarnings("unchecked")
-    public static Search makeSearchFromRequestStorage(RequestStorage requestStorage) {
+    public static Search makeSearchFromRequestStorage(RequestStorageImpl requestStorage) {
         Search search = new Search();
         int page = -1;
         int limit = -1;
         try {
             if (requestStorage != null) {
-                Map<String, Object> params = requestStorage.getStorageMapCopy();
+                Map<String, Object> params = requestStorage.getStorageMapCopy(true, false, true, true); // leave out headers
                 if (params != null) {
                     for (Entry<String, Object> entry : params.entrySet()) {
                         String key = entry.getKey();

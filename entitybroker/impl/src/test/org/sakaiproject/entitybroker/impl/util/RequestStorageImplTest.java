@@ -12,7 +12,7 @@
  * Aaron Zeckoski (azeckoski @ gmail.com) (aaronz @ vt.edu) (aaron @ caret.cam.ac.uk)
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.impl.util;
 
 import java.util.Map;
 
@@ -61,6 +61,24 @@ public class RequestStorageImplTest extends TestCase {
         assertEquals(135, m.get("attribNum"));
         assertEquals(true, m.get("attribBool"));
         assertEquals("stuff", m.get("attribStr"));
+    }
+
+    public void testGetStorageMapCopyParams() {
+        Map<String, Object> m = requestStorage.getStorageMapCopy(true, false, false, false);
+        assertNotNull(m);
+        assertEquals(4, m.size()); // 8 + the 4 standard ones
+
+        m = requestStorage.getStorageMapCopy(true, true, false, false);
+        assertNotNull(m);
+        assertEquals(5, m.size()); // 8 + the 4 standard ones
+
+        m = requestStorage.getStorageMapCopy(true, true, true, false);
+        assertNotNull(m);
+        assertEquals(7, m.size()); // 8 + the 4 standard ones
+
+        m = requestStorage.getStorageMapCopy(true, true, true, true);
+        assertNotNull(m);
+        assertEquals(12, m.size()); // 8 + the 4 standard ones
     }
 
     /**

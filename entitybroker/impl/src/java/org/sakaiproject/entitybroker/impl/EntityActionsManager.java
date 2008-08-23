@@ -97,7 +97,7 @@ public class EntityActionsManager {
          throw new IllegalArgumentException("actionProvider and view and action and request and response must not be null");
       }
       // get the action params out of the request first
-      Map<String, Object> actionParams = RequestStorageImpl.getRequestValues(request);
+      Map<String, Object> actionParams = RequestStorageImpl.getRequestValues(request, true, true, true);
       EntityReference ref = entityView.getEntityReference();
       OutputStream outputStream = new LazyResponseOutputStream(response);
       ActionReturn actionReturn = handleCustomActionExecution(actionProvider, ref, action, actionParams, outputStream, entityView);

@@ -71,10 +71,7 @@ public class RequestStorageImpl implements RequestStorage {
      * @see org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage#getStorageMapCopy()
      */
     public Map<String, Object> getStorageMapCopy() {
-        HashMap<String, Object> m = new HashMap<String, Object>();
-        m.putAll( getRequestValues() ); // put in the request ones first
-        m.putAll( getInternalMap() );
-        return m;
+        return getStorageMapCopy(true, true, true, true);
     }
 
     /* (non-Javadoc)
@@ -87,7 +84,26 @@ public class RequestStorageImpl implements RequestStorage {
         return getRequestValue(key);
     }
 
+    /**
+     * Special version which allows getting only the parts that are desired
+     * @param includeInternal include the internal request values
+     * @param includeHeaders include the request headers
+     * @param includeParams include the request parameters
+     * @param includeAttributes include the request attributes
+     * @return the map with the requested values
+     */
+    public Map<String, Object> getStorageMapCopy(boolean includeInternal, boolean includeHeaders, boolean includeParams, boolean includeAttributes) {
+        HashMap<String, Object> m = new HashMap<String, Object>();
+        m.putAll( getRequestValues(includeHeaders, includeParams, includeAttributes) ); // put in the request ones first
+        if (includeInternal) {
+            m.putAll( getInternalMap() );
+        }
+        return m;
+    }
 
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage#getStoredValueAsType(java.lang.Class, java.lang.String)
+     */
     public <T> T getStoredValueAsType(Class<T> type, String key) {
         if (type == null) {
             throw new IllegalArgumentException("type must be non-null");
@@ -99,11 +115,7 @@ public class RequestStorageImpl implements RequestStorage {
                 // type matches the requested one
                 togo = (T) value;
             } else {
-                try {
-                    togo = (T) ReflectUtil.getInstance().getConvertUtils().convert(value, type);
-                } catch (RuntimeException e) {
-                    throw new UnsupportedOperationException("Could not handle a conversion to type (" + type + ") because of: " + e.getMessage(), e);
-                }
+                togo = (T) ReflectUtil.getInstance().convert(value, type);
             }
         }
         return togo;
@@ -171,7 +183,7 @@ public class RequestStorageImpl implements RequestStorage {
     protected Object getRequestValue(String key) {
         Object value = getInternalMap().get(key);
         if (value == null) {
-            value = getRequestValues().get(key);
+            value = getAllRequestValues().get(key);
         }
         if (value == null) {
             // perhaps get one of the reserved values
@@ -196,9 +208,14 @@ public class RequestStorageImpl implements RequestStorage {
         return value;
     }
 
-    protected Map<String, Object> getRequestValues() {
+    protected Map<String, Object> getAllRequestValues() {
         HttpServletRequest request = requestGetter.getRequest();
-        return getRequestValues(request);
+        return getRequestValues(request, true, true, true);
+    }
+
+    protected Map<String, Object> getRequestValues(boolean includeHeaders, boolean includeParams, boolean includeAttributes) {
+        HttpServletRequest request = requestGetter.getRequest();
+        return getRequestValues(request, includeHeaders, includeParams, includeAttributes);
     }
 
     public class EntryComparator implements Comparator<Entry<String, Object>> {
@@ -209,41 +226,48 @@ public class RequestStorageImpl implements RequestStorage {
 
     // STATIC
 
-    public static Map<String, Object> getRequestValues(HttpServletRequest request) {
+    public static Map<String, Object> getRequestValues(HttpServletRequest request, 
+            boolean includeHeaders, boolean includeParams, boolean includeAttributes) {
         HashMap<String, Object> m = new HashMap<String, Object>();
         if (request != null) {
-            Enumeration<String> headerEnum = request.getHeaderNames();
-            if (headerEnum != null) {
-                for (Enumeration<String> e = headerEnum ; e.hasMoreElements() ;) {
-                    String key = e.nextElement();
-                    Object value = request.getHeader(key);
-                    m.put(key, value);
-                }
-            }
-            Map<String, String[]> pMap = request.getParameterMap();
-            if (pMap != null) {
-                for (Entry<String, String[]> param : pMap.entrySet()) {
-                    if (param.getValue().length > 1) {
-                        m.put(param.getKey(), param.getValue());
-                    } else {
-                        String value = "";
-                        if (param.getValue().length == 1) {
-                            value = param.getValue()[0];
-                        }
-                        m.put(param.getKey(), value);
+            if (includeHeaders) {
+                Enumeration<String> headerEnum = request.getHeaderNames();
+                if (headerEnum != null) {
+                    for (Enumeration<String> e = headerEnum ; e.hasMoreElements() ;) {
+                        String key = e.nextElement();
+                        Object value = request.getHeader(key);
+                        m.put(key, value);
                     }
                 }
             }
-            Enumeration<String> aEnum = request.getAttributeNames();
-            if (aEnum != null) {
-                for (Enumeration<String> e = aEnum ; e.hasMoreElements() ;) {
-                    String key = e.nextElement();
-                    Object value = request.getAttribute(key);
-                    m.put(key, value);
+            if (includeParams) {
+                Map<String, String[]> pMap = request.getParameterMap();
+                if (pMap != null) {
+                    for (Entry<String, String[]> param : pMap.entrySet()) {
+                        if (param.getValue().length > 1) {
+                            m.put(param.getKey(), param.getValue());
+                        } else {
+                            String value = "";
+                            if (param.getValue().length == 1) {
+                                value = param.getValue()[0];
+                            }
+                            m.put(param.getKey(), value);
+                        }
+                    }
+                }
+            }
+            if (includeAttributes) {
+                Enumeration<String> aEnum = request.getAttributeNames();
+                if (aEnum != null) {
+                    for (Enumeration<String> e = aEnum ; e.hasMoreElements() ;) {
+                        String key = e.nextElement();
+                        Object value = request.getAttribute(key);
+                        m.put(key, value);
+                    }
                 }
             }
             // encode a select set of values from the request
-            m.put("_locale", request.getLocale());
+            m.put(ReservedKeys._locale.name(), request.getLocale());
             m.put("method", request.getMethod().toUpperCase());
             m.put("queryString", request.getQueryString() == null ? "" : request.getQueryString());
             m.put("pathInfo", request.getPathInfo() == null ? "" : request.getPathInfo());
