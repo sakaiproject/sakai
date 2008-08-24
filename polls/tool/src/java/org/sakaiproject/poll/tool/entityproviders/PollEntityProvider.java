@@ -231,12 +231,20 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     public List<?> getEntities(EntityReference ref, Search search) {
+        // get the setting which indicates if we are getting polls we can admin or polls we can take
+        boolean adminControl = false;
+        Restriction adminRes = search.getRestrictionByProperty("admin");
+        if (adminRes != null) {
+            adminControl = developerHelperService.convert(adminRes.getSingleValue(), boolean.class);
+        }
+        // get the location (if set)
         Restriction locRes = search.getRestrictionByProperty(CollectionResolvable.SEARCH_LOCATION_REFERENCE); //requestStorage.getStoredValueAsType(String.class, "siteId");
         String[] siteIds = null;
         if (locRes != null) {
             String siteId = developerHelperService.getLocationIdFromRef(locRes.getStringValue());
             siteIds = new String[] {siteId};
         }
+        // get the user (if set)
         Restriction userRes = search.getRestrictionByProperty(CollectionResolvable.SEARCH_USER_REFERENCE);
         String userId = null;
         if (userRes != null) {
@@ -256,21 +264,33 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
                 throw new SecurityException("No user is currently logged in so no polls data can be retrieved");
             }
         }
-        List<Poll> polls = pollListManager.findAllPollsForUserAndSitesAndPermission(userId, siteIds, PollListManager.PERMISSION_VOTE);
-        // add in the indicators that this user has replied
-        Long[] pollIds = new Long[polls.size()];
-        for (int i = 0; i < polls.size(); i++) {
-            pollIds[i] = polls.get(i).getPollId();
+        String perm = PollListManager.PERMISSION_VOTE;
+        if (adminControl) {
+            perm = PollListManager.PERMISSION_ADD;
         }
-        Map<Long, List<Vote>> voteMap = pollVoteManager.getVotesForUser(userId, pollIds);
-        for (Poll poll : polls) {
-            Long pollId = poll.getPollId();
-            List<Vote> l = voteMap.get(pollId);
-            if (l != null) {
-                poll.setCurrentUserVoted(true);
-                poll.setCurrentUserVotes(l);
-            } else {
-                poll.setCurrentUserVoted(false);
+        List<Poll> polls = pollListManager.findAllPollsForUserAndSitesAndPermission(userId, siteIds, perm);
+        if (adminControl) {
+            // add in options
+            for (Poll p : polls) {
+                List<Option> options = pollListManager.getOptionsForPoll(p.getPollId());
+                p.setOptions(options);
+            }
+        } else {
+            // add in the indicators that this user has replied
+            Long[] pollIds = new Long[polls.size()];
+            for (int i = 0; i < polls.size(); i++) {
+                pollIds[i] = polls.get(i).getPollId();
+            }
+            Map<Long, List<Vote>> voteMap = pollVoteManager.getVotesForUser(userId, pollIds);
+            for (Poll poll : polls) {
+                Long pollId = poll.getPollId();
+                List<Vote> l = voteMap.get(pollId);
+                if (l != null) {
+                    poll.setCurrentUserVoted(true);
+                    poll.setCurrentUserVotes(l);
+                } else {
+                    poll.setCurrentUserVoted(false);
+                }
             }
         }
         return polls;
