@@ -42,7 +42,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribeDefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -338,7 +337,7 @@ public class EntityDescriptionManager {
                 }
 
                 // Resolvable Entity Info
-                Object entity = getSampleEntityObject(prefix);
+                Object entity = entityBrokerManager.getSampleEntityObject(prefix);
                 if (entity != null) {
                     sb.append("      <entityClass>\n");
                     sb.append("        <class>"+ entity.getClass().getName() +"</class>\n");
@@ -536,7 +535,7 @@ public class EntityDescriptionManager {
                 sb.append("      </div>\n");
 
                 // Resolvable Entity Info
-                Object entity = getSampleEntityObject(prefix);
+                Object entity = entityBrokerManager.getSampleEntityObject(prefix);
                 if (entity != null) {
                     sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entity.getClass().getName() +"</h4>\n");
                     sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
@@ -776,32 +775,6 @@ public class EntityDescriptionManager {
             value = null;
         }
         return value;
-    }
-
-    /**
-     * Safely get the sample entity object for descriptions
-     */
-    protected Object getSampleEntityObject(String prefix) {
-        Object entity = null;
-        try {
-            Resolvable resolvable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Resolvable.class);
-            if (resolvable != null) {
-                entity = resolvable.getEntity(new EntityReference(prefix, ""));
-            }
-        } catch (RuntimeException e) {
-            entity = null;
-        }
-        if (entity == null) {
-            try {
-                Createable createable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Createable.class);
-                if (createable != null) {
-                    entity = createable.getSampleEntity();
-                }
-            } catch (RuntimeException e) {
-                entity = null;
-            }
-        }
-        return entity;
     }
 
 }

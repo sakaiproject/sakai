@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
+import org.sakaiproject.entitybroker.util.map.OrderedMap;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
@@ -434,14 +436,18 @@ public class EntityEncodingManager {
         if (! entities.isEmpty()) {
             EntityData ed = entities.get(0);
             if (ed != null) {
-                Object obj = ed.getEntity();
+                Object obj = ed.getData();
                 entityClass = obj.getClass();
             }
         }
-        if (entityClass == null) {
-            encoder.alias("entity-data", EntityData.class);
-        } else {
-            encoder.alias(prefix, entityClass);
+        if (entityClass != null) {
+            if ( Collection.class.isAssignableFrom(entityClass)
+                    && Map.class.isAssignableFrom(entityClass)
+                    && String.class.equals(entityClass) ) {
+                // do not alias these
+            } else {
+                encoder.alias(prefix, entityClass);
+            }
         }
     }
 
@@ -501,19 +507,28 @@ public class EntityEncodingManager {
         if (encoder != null) { // XML and JSON
             // TODO encode the props from the entity data specially? (this may be the only data)
             // encode the entity itself
-            Object toEncode = entityData.getEntity();
-            if (toEncode == null) {
-                // just use the entity data object
-                toEncode = entityData;
+            Object toEncode = entityData;
+            Map<String, Object> entityProps = new OrderedMap<String, Object>();
+            if (entityData.getData() != null) {
+                Class<?> type = entityData.getData().getClass();
+                if (Collection.class.isAssignableFrom(type) 
+                        || Map.class.isAssignableFrom(type)
+                        || String.class.isAssignableFrom(type)) {
+                    // special handling for maps and lists and strings
+                    toEncode = entityData;
+                } else {
+                    // if it is a POJO then use it
+                    toEncode = entityData.getData();
+                    // add in the extra props
+                    Class<?> entityClass = toEncode.getClass();
+                    entityProps.put(EntityXStream.EXTRA_DATA_CLASS, entityClass);
+                    entityProps.put(EntityXStream.ENTITY_REF, entityData.getEntityReference());
+                    entityProps.put("entityURL", entityData.getEntityURL());
+                    if (entityData.getEntityRef().getId() != null) {
+                        entityProps.put("entityId", entityData.getEntityRef().getId());
+                    }
+                }
             }
-            // add in the extra props
-            Map<String, Object> entityProps = new HashMap<String, Object>();
-            Class<?> entityClass = toEncode.getClass();
-            entityProps.put(EntityXStream.EXTRA_DATA_CLASS, entityClass);
-            if (entityData.getEntityReference().getId() != null) {
-                entityProps.put("ID", entityData.getEntityReference().getId());
-            }
-            entityProps.put("URL", entityData.getEntityURL());
             // encode the object
             encoded = encoder.toXML(toEncode, entityProps);
         } else {
@@ -524,19 +539,19 @@ public class EntityEncodingManager {
                 sb.append("    <div style='font-weight:bold;'>"+entityData.getDisplayTitle()+"</div>\n");
                 sb.append("    <table border='1'>\n");
                 sb.append("      <caption style='font-weight:bold;'>Entity Data</caption>\n");
-                sb.append("      <tr><td>entity-reference</td><td>"+entityData.getReference()+"</td></tr>\n");
-                sb.append("      <tr><td>entity-URL</td><td>"+entityData.getEntityURL()+"</td></tr>\n");
-                if (entityData.getEntityReference() != null) {
-                    sb.append("      <tr><td>entity-prefix</td><td>"+entityData.getEntityReference().getPrefix()+"</td></tr>\n");
-                    if (entityData.getEntityReference().getId() != null) {
-                        sb.append("      <tr><td>entity-ID</td><td>"+entityData.getEntityReference().getId()+"</td></tr>\n");
+                sb.append("      <tr><td>entityReference</td><td>"+entityData.getEntityReference()+"</td></tr>\n");
+                sb.append("      <tr><td>entityURL</td><td>"+entityData.getEntityURL()+"</td></tr>\n");
+                if (entityData.getEntityRef() != null) {
+                    sb.append("      <tr><td>entityPrefix</td><td>"+entityData.getEntityRef().getPrefix()+"</td></tr>\n");
+                    if (entityData.getEntityRef().getId() != null) {
+                        sb.append("      <tr><td>entityID</td><td>"+entityData.getEntityRef().getId()+"</td></tr>\n");
                     }
                 }
-                if (entityData.getEntity() != null) {
-                    sb.append("      <tr><td>entity-object</td><td>"+entityData.getEntity()+"</td></tr>\n");
-                    sb.append("      <tr><td>entity-type</td><td>"+entityData.getEntity().getClass().getName()+"</td></tr>\n");
+                if (entityData.getData() != null) {
+                    sb.append("      <tr><td>entity-object</td><td>"+entityData.getData()+"</td></tr>\n");
+                    sb.append("      <tr><td>entity-type</td><td>"+entityData.getData().getClass().getName()+"</td></tr>\n");
                     // dump entity data
-                    Map<String, Object> values = entityBrokerManager.getReflectUtil().getObjectValues(entityData.getEntity());
+                    Map<String, Object> values = entityBrokerManager.getReflectUtil().getObjectValues(entityData.getData());
                     for (Entry<String, Object> entry : values.entrySet()) {
                         sb.append("      <tr><td>"+entry.getKey()+"</td><td>"+entry.getValue()+"</td></tr>\n");
                     }

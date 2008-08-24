@@ -136,52 +136,52 @@ public class EntityTaggingServiceTest extends AbstractTransactionalSpringContext
       refs = taggingService.findEntitesByTags(new String[] {"aaronz"}, null, false, null);
       assertNotNull(refs);
       assertEquals(1, refs.size());
-      assertEquals(TestData.REF1, refs.get(0).getReference());
+      assertEquals(TestData.REF1, refs.get(0).getEntityReference());
 
       refs = taggingService.findEntitesByTags( new String[] {"AZ"}, null, false, null);
       assertNotNull(refs);
       assertEquals(2, refs.size());
-      assertEquals(TestData.REFT1, refs.get(0).getReference());
-      assertEquals(TestData.REFT1_2, refs.get(1).getReference());
+      assertEquals(TestData.REFT1, refs.get(0).getEntityReference());
+      assertEquals(TestData.REFT1_2, refs.get(1).getEntityReference());
 
       refs = taggingService.findEntitesByTags( new String[] {"test"}, null, false, null);
       assertNotNull(refs);
       assertEquals(2, refs.size());
-      assertEquals(TestData.REFT1, refs.get(0).getReference());
-      assertEquals(TestData.REF1, refs.get(1).getReference());
+      assertEquals(TestData.REFT1, refs.get(0).getEntityReference());
+      assertEquals(TestData.REF1, refs.get(1).getEntityReference());
 
       taggingService.setTagsForEntity(TestData.REF1_1, new String[] {"test"});
 
       refs = taggingService.findEntitesByTags( new String[] {"test"}, null, false, null);
       assertNotNull(refs);
       assertEquals(3, refs.size());
-      assertEquals(TestData.REFT1, refs.get(0).getReference());
-      assertEquals(TestData.REF1, refs.get(1).getReference());
-      assertEquals(TestData.REF1_1, refs.get(2).getReference());
+      assertEquals(TestData.REFT1, refs.get(0).getEntityReference());
+      assertEquals(TestData.REF1, refs.get(1).getEntityReference());
+      assertEquals(TestData.REF1_1, refs.get(2).getEntityReference());
 
       refs = taggingService.findEntitesByTags( new String[] {"test"}, new String[] {TestData.PREFIX1}, false, null);
       assertNotNull(refs);
       assertEquals(2, refs.size());
-      assertEquals(TestData.REF1, refs.get(0).getReference());
-      assertEquals(TestData.REF1_1, refs.get(1).getReference());
+      assertEquals(TestData.REF1, refs.get(0).getEntityReference());
+      assertEquals(TestData.REF1_1, refs.get(1).getEntityReference());
 
       refs = taggingService.findEntitesByTags( new String[] {"test"}, new String[] {TestData.PREFIXT1}, false, null);
       assertNotNull(refs);
       assertEquals(1, refs.size());
-      assertEquals(TestData.REFT1, refs.get(0).getReference());
+      assertEquals(TestData.REFT1, refs.get(0).getEntityReference());
 
       refs = taggingService.findEntitesByTags( new String[] {"test", "AZ"}, null, false, null);
       assertNotNull(refs);
       assertEquals(4, refs.size());
-      assertEquals(TestData.REFT1, refs.get(0).getReference());
-      assertEquals(TestData.REFT1_2, refs.get(1).getReference());
-      assertEquals(TestData.REF1, refs.get(2).getReference());
-      assertEquals(TestData.REF1_1, refs.get(3).getReference());
+      assertEquals(TestData.REFT1, refs.get(0).getEntityReference());
+      assertEquals(TestData.REFT1_2, refs.get(1).getEntityReference());
+      assertEquals(TestData.REF1, refs.get(2).getEntityReference());
+      assertEquals(TestData.REF1_1, refs.get(3).getEntityReference());
 
       refs = taggingService.findEntitesByTags( new String[] {"test", "AZ"}, null, true, null);
       assertNotNull(refs);
       assertEquals(1, refs.size());
-      assertEquals(TestData.REFT1, refs.get(0).getReference());
+      assertEquals(TestData.REFT1, refs.get(0).getEntityReference());
 
       refs = taggingService.findEntitesByTags( new String[] {"ZZZZZZZZZ"}, null, false, null);
       assertNotNull(refs);

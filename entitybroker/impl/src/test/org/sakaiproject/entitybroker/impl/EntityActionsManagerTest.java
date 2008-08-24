@@ -82,7 +82,7 @@ public class EntityActionsManagerTest extends TestCase {
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());
       assertNotNull(actionReturn);
       assertNotNull(actionReturn.entityData);
-      MyEntity doubleMe = (MyEntity) actionReturn.entityData.getEntity();
+      MyEntity doubleMe = (MyEntity) actionReturn.entityData.getData();
       assertEquals(doubleMe.getNumber(), num * 2);
       assertEquals(me.getId(), doubleMe.getId());
 
@@ -131,7 +131,7 @@ public class EntityActionsManagerTest extends TestCase {
       ActionReturn actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "double", null, null, null);
       assertNotNull(actionReturn);
       assertNotNull(actionReturn.entityData);
-      MyEntity doubleMe = (MyEntity) actionReturn.entityData.getEntity();
+      MyEntity doubleMe = (MyEntity) actionReturn.entityData.getData();
       assertEquals(doubleMe.getNumber(), num * 2);
       assertEquals(me.getId(), doubleMe.getId());
 
@@ -191,13 +191,13 @@ public class EntityActionsManagerTest extends TestCase {
       MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
       int num = me.getNumber();
       ActionReturn ar = (ActionReturn) aep.doubleCustomAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
-      MyEntity doubleMe = (MyEntity) ar.entityData.getEntity();
+      MyEntity doubleMe = (MyEntity) ar.entityData.getData();
       assertEquals(doubleMe.getNumber(), num * 2);
       assertEquals(me.getId(), doubleMe.getId());
 
       // make sure it works twice
       ar = (ActionReturn) aep.doubleCustomAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
-      doubleMe = (MyEntity) ar.entityData.getEntity();
+      doubleMe = (MyEntity) ar.entityData.getData();
       assertEquals(doubleMe.getNumber(), num * 2);
 
       // test xxx operation
@@ -283,13 +283,13 @@ public class EntityActionsManagerTest extends TestCase {
       MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
       int num = me.getNumber();
       ActionReturn ar = (ActionReturn) aep.doubleUp(new EntityView(new EntityReference(TestData.REFA2), null, null));
-      MyEntity doubleMe = (MyEntity) ar.entityData.getEntity();
+      MyEntity doubleMe = (MyEntity) ar.entityData.getData();
       assertEquals(doubleMe.getNumber(), num * 2);
       assertEquals(me.getId(), doubleMe.getId());
 
       // make sure it works twice
       ar = (ActionReturn) aep.doubleUp(new EntityView(new EntityReference(TestData.REFA2), null, null));
-      doubleMe = (MyEntity) ar.entityData.getEntity();
+      doubleMe = (MyEntity) ar.entityData.getData();
       assertEquals(doubleMe.getNumber(), num * 2);
 
       // test xxx operation

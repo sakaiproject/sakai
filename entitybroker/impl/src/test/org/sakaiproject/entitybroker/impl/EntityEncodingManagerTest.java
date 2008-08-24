@@ -78,7 +78,7 @@ public class EntityEncodingManagerTest extends TestCase {
       assertTrue(fo.length() > 20);
       assertTrue(fo.contains(TestData.PREFIX4));
       assertTrue(fo.contains("<id>4-one</id>"));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+      assertTrue(fo.contains(EntityXStream.ENTITY_REF));
 
       // test null view
       output = new ByteArrayOutputStream();
@@ -88,7 +88,7 @@ public class EntityEncodingManagerTest extends TestCase {
       assertTrue(fo.length() > 20);
       assertTrue(fo.contains(TestData.PREFIX4));
       assertTrue(fo.contains("<id>4-one</id>"));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+      assertTrue(fo.contains(EntityXStream.ENTITY_REF));
       
       // test list of entities
       ArrayList<EntityData> testEntities = new ArrayList<EntityData>();
@@ -103,7 +103,7 @@ public class EntityEncodingManagerTest extends TestCase {
       assertTrue(fo.contains("<id>4-one</id>"));
       assertTrue(fo.contains("<id>4-two</id>"));
       assertFalse(fo.contains("<id>4-three</id>"));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+      assertTrue(fo.contains(EntityXStream.ENTITY_REF));
 
       // test single entity
       testEntities.clear();
@@ -115,7 +115,7 @@ public class EntityEncodingManagerTest extends TestCase {
       assertTrue(fo.length() > 20);
       assertTrue(fo.contains(TestData.PREFIX4));
       assertTrue(fo.contains("<id>4-three</id>"));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+      assertTrue(fo.contains(EntityXStream.ENTITY_REF));
 
 
       // JSON test valid resolveable entity
@@ -128,7 +128,7 @@ public class EntityEncodingManagerTest extends TestCase {
       assertTrue(fo.length() > 20);
       assertTrue(fo.contains(TestData.PREFIX4));
       assertTrue(fo.contains("\"id\":\"4-one\","));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+      assertTrue(fo.contains(EntityXStream.ENTITY_REF));
 
       // HTML test valid resolveable entity
       output = new ByteArrayOutputStream();
@@ -191,7 +191,7 @@ public class EntityEncodingManagerTest extends TestCase {
       assertTrue(fo.contains(TestData.IDS4[0]));
       assertTrue(fo.contains(TestData.IDS4[1]));
       assertTrue(fo.contains(TestData.IDS4[2]));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+      assertTrue(fo.contains(EntityXStream.ENTITY_REF));
 
       // JSON
       output = new ByteArrayOutputStream();
@@ -205,7 +205,7 @@ public class EntityEncodingManagerTest extends TestCase {
       assertTrue(fo.contains(TestData.IDS4[0]));
       assertTrue(fo.contains(TestData.IDS4[1]));
       assertTrue(fo.contains(TestData.IDS4[2]));
-      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+      assertTrue(fo.contains(EntityXStream.ENTITY_REF));
 
       // test for invalid refs
       try {

@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.sakaiproject.cluster.api.ClusterService;
@@ -44,9 +45,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResol
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.util.map.OrderedMap;
 
 
 /**
@@ -97,14 +98,27 @@ public class ServerConfigEntityProvider implements CoreEntityProvider, Outputabl
 
     @EntityCustomAction(action="servers",viewKey=EntityView.VIEW_LIST)
     @SuppressWarnings("unchecked")
-    public Object getClusterServers() {
-        List<String> l = clusterService.getServers();
-        OrderedMap<String, String> m = new OrderedMap<String, String>();
-        for (int i = 0; i < l.size(); i++) {
-            m.put("server" + i, l.get(i));
-        }
-        return m;
+    public Object getClusterServers(EntityReference ref) {
+        List<String> servers = clusterService.getServers();
+        EntityData ed = new EntityData(ref+"/servers", "servers", servers);
+        return ed;
     }
+
+    @EntityCustomAction(action="values",viewKey=EntityView.VIEW_LIST)
+    public Map<String, Object> getAllValues() {
+        TreeMap<String, Object> tm = new TreeMap<String, Object>( getKnownSettings() );
+        return tm;
+    }
+
+    @EntityCustomAction(action="names",viewKey=EntityView.VIEW_LIST)
+    public Object getAllNames(EntityReference ref) {
+        Map<String, Object> tm = getKnownSettings();
+        ArrayList<String> names = new ArrayList<String>( tm.keySet() );
+        Collections.sort(names);
+        EntityData ed = new EntityData(ref+"/names", "names", names);
+        return ed;
+    }
+
 
     public boolean entityExists(String id) {
         if (id == null) {

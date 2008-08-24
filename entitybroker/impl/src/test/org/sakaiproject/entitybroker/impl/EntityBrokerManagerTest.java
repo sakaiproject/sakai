@@ -283,16 +283,16 @@ public class EntityBrokerManagerTest extends TestCase {
       EntityReference ref = new EntityReference(TestData.REF4);
       EntityData entity = entityBrokerManager.getEntityData(ref);
       assertNotNull(entity);
-      assertEquals(TestData.REF4, entity.getReference());
-      assertEquals(TestData.entity4, entity.getEntity());
+      assertEquals(TestData.REF4, entity.getEntityReference());
+      assertEquals(TestData.entity4, entity.getData());
       assertNotNull(entity.getDisplayTitle());
       assertNotNull(entity.getEntityURL());
 
       ref = new EntityReference(TestData.REF1);
       entity = entityBrokerManager.getEntityData(ref);
       assertNotNull(entity);
-      assertEquals(TestData.REF1, entity.getReference());
-      assertNull(entity.getEntity());
+      assertEquals(TestData.REF1, entity.getEntityReference());
+      assertNull(entity.getData());
       assertNotNull(entity.getDisplayTitle());
       assertNotNull(entity.getEntityURL());
 
@@ -352,14 +352,14 @@ public class EntityBrokerManagerTest extends TestCase {
       assertNotNull(data);
       assertEquals(3, data.size());
       assertEquals(EntityData.class, data.get(0).getClass());
-      assertEquals(TestData.entity4, data.get(0).getEntity());
+      assertEquals(TestData.entity4, data.get(0).getData());
 
       ref = new EntityReference(TestData.SPACE4);
       data = entityBrokerManager.getEntitiesData(ref, null, null);
       assertNotNull(data);
       assertEquals(3, data.size());
       assertEquals(EntityData.class, data.get(0).getClass());
-      assertEquals(TestData.entity4, data.get(0).getEntity());
+      assertEquals(TestData.entity4, data.get(0).getData());
       
       ref = new EntityReference("/" + TestData.PREFIX1);
       data = entityBrokerManager.getEntitiesData(ref, null, null);

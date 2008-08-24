@@ -69,14 +69,10 @@ public class EntityMarshaller extends AbstractReferenceMarshaller implements Mar
    public void convert(Object item, Converter converter) {
       super.convert(item, converter);
 
-      // add in the sakai entity values if they can be found and are not null
+      // add in the entity values if they can be found and are not null
       Class<?> entityClass = (Class<?>) super.get(EntityXStream.EXTRA_DATA_CLASS);
       if (entityClass != null) {
          if (item.getClass().isAssignableFrom(entityClass)) {
-            // this is a sakai entity so add the attributes
-            super.writer.startNode(EntityXStream.SAKAI_ENTITY);
-            super.writer.setValue("true");
-            super.writer.endNode();
             for (Iterator<String> iterator = super.keys(); iterator.hasNext();) {
                String key = iterator.next();
                if (! EntityXStream.EXTRA_DATA_CLASS.equals(key)) {
@@ -84,7 +80,7 @@ public class EntityMarshaller extends AbstractReferenceMarshaller implements Mar
                   if (o != null) {
                      String value = o.toString();
                      if (! "".equals(value)) {
-                        super.writer.startNode(EntityXStream.SAKAI_ENTITY_DASH + key);
+                        super.writer.startNode(key);
                         super.writer.setValue(value);
                         super.writer.endNode();
                      }

@@ -146,7 +146,7 @@ public class EntityTaggingService implements TagProvider {
             }
             // add in the tags property
             for (EntityData ed : results) {
-               String reference = ed.getReference().toString();
+               String reference = ed.getEntityReference().toString();
                ed.getEntityProperties().put("tags", refToTags.get(reference));
             }
          }

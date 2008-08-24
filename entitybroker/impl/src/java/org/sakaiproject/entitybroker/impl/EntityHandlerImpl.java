@@ -436,7 +436,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                             // recode the collection
                                                             if (entities.size() > 0) {
                                                                 EntityData ed = entities.get(0);
-                                                                ref = new EntityReference(ed.getEntityReference().getPrefix(), "");
+                                                                ref = new EntityReference(ed.getEntityRef().getPrefix(), "");
                                                                 view.setEntityReference( ref );
                                                                 view.setViewKey(EntityView.VIEW_LIST);
                                                             }
@@ -446,7 +446,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                             EntityData ed = actionReturn.entityData;
                                                             eList.add( ed );
                                                             entities = eList;
-                                                            ref = ed.getEntityReference();
+                                                            ref = ed.getEntityRef();
                                                             if (ref.getId() == null) {
                                                                 ref = new EntityReference(ref.getPrefix(), customAction.action);
                                                             }
@@ -913,10 +913,10 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                 }
             }
             if (!found) {
-                if (ed.getEntity() != null) {
+                if (ed.getData() != null) {
                     // look for the annotation on the entity
                     try {
-                        lm = entityBrokerManager.getReflectUtil().getFieldValue(ed.getEntity(), "lastModified", EntityLastModified.class);
+                        lm = entityBrokerManager.getReflectUtil().getFieldValue(ed.getData(), "lastModified", EntityLastModified.class);
                         Long l = makeLastModified(lm);
                         if (l != null) {
                             lastModified = l.longValue();

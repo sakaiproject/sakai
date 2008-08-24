@@ -120,7 +120,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertTrue(xml.length() > 20);
          assertTrue(xml.contains(TestData.PREFIX4));
          assertTrue(xml.contains("<id>4-one</id>"));
-         assertTrue(xml.contains(EntityXStream.SAKAI_ENTITY));
+         assertTrue(xml.contains(EntityXStream.ENTITY_REF));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
@@ -137,7 +137,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertTrue(json.length() > 20);
          assertTrue(json.contains(TestData.PREFIX4));
          assertTrue(json.contains("\"id\":\"4-one\","));
-         assertTrue(json.contains(EntityXStream.SAKAI_ENTITY));
+         assertTrue(json.contains(EntityXStream.ENTITY_REF));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }

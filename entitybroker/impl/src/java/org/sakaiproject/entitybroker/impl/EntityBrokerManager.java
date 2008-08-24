@@ -40,6 +40,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Browseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
@@ -471,7 +472,7 @@ public class EntityBrokerManager {
             entityData.setPopulated(true);
          }
          // set URL
-         EntityReference ref = entityData.getEntityReference();
+         EntityReference ref = entityData.getEntityRef();
          EntityView view = null;
          if (views.containsKey(ref.getPrefix())) {
             view = views.get(ref.getPrefix());
@@ -485,13 +486,13 @@ public class EntityBrokerManager {
          entityData.setEntityURL( fullURL );
          // check what we are dealing with
          boolean isPOJO = false;
-         if (entityData.getEntity() != null) {
-            if (entityData.getEntity().getClass().isPrimitive()
-                  || entityData.getEntity().getClass().isArray()
-                  || Collection.class.isAssignableFrom(entityData.getEntity().getClass())
-                  || OutputStream.class.isAssignableFrom(entityData.getEntity().getClass())
-                  || Number.class.isAssignableFrom(entityData.getEntity().getClass())
-                  || String.class.isAssignableFrom(entityData.getEntity().getClass()) ) {
+         if (entityData.getData() != null) {
+            if (entityData.getData().getClass().isPrimitive()
+                  || entityData.getData().getClass().isArray()
+                  || Collection.class.isAssignableFrom(entityData.getData().getClass())
+                  || OutputStream.class.isAssignableFrom(entityData.getData().getClass())
+                  || Number.class.isAssignableFrom(entityData.getData().getClass())
+                  || String.class.isAssignableFrom(entityData.getData().getClass()) ) {
                isPOJO = false;
             } else {
                isPOJO = true;
@@ -499,10 +500,10 @@ public class EntityBrokerManager {
          }
          // get all properties out of this thing
          if (isPOJO) {
-            if (Map.class.isAssignableFrom(entityData.getEntity().getClass())) {
+            if (Map.class.isAssignableFrom(entityData.getData().getClass())) {
                // skip
             } else {
-               Map<String, Object> values = getReflectUtil().getObjectValues(entityData.getEntity());
+               Map<String, Object> values = getReflectUtil().getObjectValues(entityData.getData());
                Map<String, Object> props = EntityDataUtils.extractMapProperties( values );
                EntityDataUtils.putAllNewInMap(entityData.getEntityProperties(), props);
             }
@@ -521,7 +522,7 @@ public class EntityBrokerManager {
             // check the object itself next
             if (isPOJO && titleNotSet) {
                try {
-                  String title = getReflectUtil().getFieldValueAsString(entityData.getEntity(), "title", EntityTitle.class);
+                  String title = getReflectUtil().getFieldValueAsString(entityData.getData(), "title", EntityTitle.class);
                   if (title != null) {
                      entityData.setDisplayTitle(title);
                      titleNotSet = false;
@@ -533,6 +534,34 @@ public class EntityBrokerManager {
          }
          // done with this entity data
       }
+   }
+
+
+   /**
+    * Safely get the sample entity object which is defined for a prefix,
+    * if there is not one then return null
+    */
+   public Object getSampleEntityObject(String prefix) {
+       Object entity = null;
+       try {
+           Createable createable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Createable.class);
+           if (createable != null) {
+               entity = createable.getSampleEntity();
+           }
+       } catch (RuntimeException e) {
+           entity = null;
+       }
+       if (entity == null) {
+           try {
+               Resolvable resolvable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Resolvable.class);
+               if (resolvable != null) {
+                   entity = resolvable.getEntity(new EntityReference(prefix, ""));
+               }
+           } catch (RuntimeException e) {
+               entity = null;
+           }
+       }
+       return entity;
    }
 
 }

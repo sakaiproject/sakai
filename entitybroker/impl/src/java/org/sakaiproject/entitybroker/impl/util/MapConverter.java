@@ -20,15 +20,12 @@
 
 package org.sakaiproject.entitybroker.impl.util;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.sakaiproject.entitybroker.util.map.ConcurrentOrderedMap;
 import org.sakaiproject.entitybroker.util.map.OrderedMap;
 
-import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -43,36 +40,47 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 @SuppressWarnings("unchecked")
 public class MapConverter implements Converter {
 
-   public boolean canConvert(Class clazz) {
-      boolean can = false;
-      if (clazz.equals(HashMap.class)
-            || clazz.equals(Hashtable.class)
-            || clazz.equals(OrderedMap.class)
-            || clazz.equals(ConcurrentOrderedMap.class)) {
-         can = true;
-      }
-      return can;
-   }
+    public boolean canConvert(Class clazz) {
+        boolean can = false;
+        if (Map.class.isAssignableFrom(clazz) ) { // all maps
+//          || clazz.equals(HashMap.class)
+//          || clazz.equals(Hashtable.class)
+//          || clazz.equals(TreeMap.class)
+//          || clazz.equals(OrderedMap.class)
+//          || clazz.equals(ConcurrentOrderedMap.class)) {
+            can = true;
+        }
+        return can;
+    }
 
-   public void marshal(Object value, HierarchicalStreamWriter writer,
-         MarshallingContext context) {
-      Map m = (Map) value;
-      for (Entry es : (Set<Entry>) m.entrySet()) {
-         writer.startNode(es.getKey().toString());
-         context.convertAnother(es.getValue());
-         writer.endNode();         
-      }
-   }
+    public void marshal(Object value, HierarchicalStreamWriter writer,
+            MarshallingContext context) {
+        Map m = (Map) value;
+        Class<?> type = value.getClass();
+        writer.addAttribute("type", type.getName());
+        for (Entry es : (Set<Entry>) m.entrySet()) {
+            writer.startNode(es.getKey().toString());
+            context.convertAnother(es.getValue());
+            writer.endNode();         
+        }
+    }
 
-   public Object unmarshal(HierarchicalStreamReader reader,
-         UnmarshallingContext context) {
-      Map m = new OrderedMap<String, Object>();
-      while (reader.hasMoreChildren()) {
-         reader.moveDown();
-         m.put(reader.getNodeName(), reader.getValue());
-         reader.moveUp();
-      }
-      return m;
-   }
+    public Object unmarshal(HierarchicalStreamReader reader,
+            UnmarshallingContext context) {
+        String type = reader.getAttribute("type");
+        Map m = null;
+        if (type == null) {
+            m = new OrderedMap<String, Object>();
+        } else {
+            // TODO try to remake the map as the type indicated
+            m = new OrderedMap<String, Object>();
+        }
+        while (reader.hasMoreChildren()) {
+            reader.moveDown();
+            m.put(reader.getNodeName(), reader.getValue());
+            reader.moveUp();
+        }
+        return m;
+    }
 
 }

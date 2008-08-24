@@ -380,7 +380,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
         assertTrue(fo.length() > 20);
         assertTrue(fo.contains(TestData.PREFIX4));
         assertTrue(fo.contains("<id>4-one</id>"));
-        assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+        assertTrue(fo.contains(EntityXStream.ENTITY_REF));
 
         // test list of entities
         ArrayList<EntityData> testEntities = new ArrayList<EntityData>();
@@ -396,7 +396,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
         assertTrue(fo.contains("<id>4-one</id>"));
         assertTrue(fo.contains("<id>4-two</id>"));
         assertFalse(fo.contains("<id>4-three</id>"));
-        assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+        assertTrue(fo.contains(EntityXStream.ENTITY_REF));
 
     }
 
@@ -451,7 +451,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
         //ActionReturn actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "double", null, null);
         assertNotNull(actionReturn);
         assertNotNull(actionReturn.entityData);
-        MyEntity doubleMe = (MyEntity) actionReturn.entityData.getEntity();
+        MyEntity doubleMe = (MyEntity) actionReturn.entityData.getData();
         assertEquals(doubleMe.getNumber(), num * 2);
         assertEquals(me.getId(), doubleMe.getId());
 

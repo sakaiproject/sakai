@@ -99,8 +99,8 @@ public class EntityDataUtils {
         if (object != null) {
             if (EntityData.class.isAssignableFrom(object.getClass())) {
                 EntityData ed = (EntityData)object;
-                if (ed.getEntity() != null) {
-                    togo = ed.getEntity();
+                if (ed.getData() != null) {
+                    togo = ed.getData();
                 } else {
                     togo = ed;
                 }

@@ -426,7 +426,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       ArrayList<String> refs = new ArrayList<String>();
       List<EntityData> results = entityTaggingService.findEntitesByTags(tags, null, false, null);
       for (EntityData entitySearchResult : results) {
-         refs.add( entitySearchResult.getReference() );
+         refs.add( entitySearchResult.getEntityReference() );
       }
       return refs;
    }

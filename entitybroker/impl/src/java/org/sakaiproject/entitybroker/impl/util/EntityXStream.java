@@ -24,6 +24,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
 
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.core.MapBackedDataHolder;
@@ -39,8 +41,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 public class EntityXStream extends XStream {
 
    public static String EXTRA_DATA_CLASS = "extra.data.class";
-   public static String SAKAI_ENTITY = "sakaiEntity";
-   public static String SAKAI_ENTITY_DASH = SAKAI_ENTITY + "-";
+   public static String ENTITY_REF = "entityReference";
 
    protected HierarchicalStreamDriver visibleHSD;
 
@@ -51,8 +52,9 @@ public class EntityXStream extends XStream {
       super(hierarchicalStreamDriver);
       super.setMarshallingStrategy( new ReferenceEntityMarshaller(ReferenceEntityMarshaller.RELATIVE) );
       visibleHSD = hierarchicalStreamDriver;
-      // register custom converters
+      // register custom converters and aliases
       super.registerConverter(new MapConverter());
+      super.alias("entity-data", EntityData.class);
    }
 
    /**
