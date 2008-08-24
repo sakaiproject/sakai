@@ -51,6 +51,8 @@ public class EntityXStream extends XStream {
       super(hierarchicalStreamDriver);
       super.setMarshallingStrategy( new ReferenceEntityMarshaller(ReferenceEntityMarshaller.RELATIVE) );
       visibleHSD = hierarchicalStreamDriver;
+      // register custom converters
+      super.registerConverter(new MapConverter());
    }
 
    /**

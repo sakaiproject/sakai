@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.sakaiproject.entitybroker.util.map.ConcurrentOrderedMap;
+import org.sakaiproject.entitybroker.util.map.OrderedMap;
+
 import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -43,7 +46,9 @@ public class MapConverter implements Converter {
    public boolean canConvert(Class clazz) {
       boolean can = false;
       if (clazz.equals(HashMap.class)
-            || clazz.equals(Hashtable.class)) {
+            || clazz.equals(Hashtable.class)
+            || clazz.equals(OrderedMap.class)
+            || clazz.equals(ConcurrentOrderedMap.class)) {
          can = true;
       }
       return can;
@@ -61,7 +66,7 @@ public class MapConverter implements Converter {
 
    public Object unmarshal(HierarchicalStreamReader reader,
          UnmarshallingContext context) {
-      Map m = new HashMap<String, Object>();
+      Map m = new OrderedMap<String, Object>();
       while (reader.hasMoreChildren()) {
          reader.moveDown();
          m.put(reader.getNodeName(), reader.getValue());

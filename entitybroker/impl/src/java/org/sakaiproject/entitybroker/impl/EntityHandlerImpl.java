@@ -938,18 +938,21 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
     private Long makeLastModified(Object lm) {
         Long lastModified = null;
-        if (Date.class.isAssignableFrom(lm.getClass())) {
-            lastModified = ((Date)lm).getTime();
-        } else if (Long.class.isAssignableFrom(lm.getClass())) {
-            lastModified = ((Long)lm);
-        } else if (String.class.isAssignableFrom(lm.getClass())) {
-            try {
-                lastModified = new Long((String)lm);
-            } catch (NumberFormatException e) {
-                // nothing to do here
+        if (lm != null) {
+            Class<?> c = lm.getClass();
+            if (Date.class.isAssignableFrom(c)) {
+                lastModified = ((Date)lm).getTime();
+            } else if (Long.class.isAssignableFrom(c)) {
+                lastModified = ((Long)lm);
+            } else if (String.class.isAssignableFrom(c)) {
+                try {
+                    lastModified = new Long((String)lm);
+                } catch (NumberFormatException e) {
+                    // nothing to do here
+                }
+            } else {
+                log.warn("Unknown type returned for 'lastModified' (not Date, Long, String): " + lm.getClass() + ", using the default value of current time instead");
             }
-        } else {
-            log.warn("Unknown type returned for 'lastModified' (not Date, Long, String): " + lm.getClass() + ", using the default value of current time instead");
         }
         return lastModified;
     }

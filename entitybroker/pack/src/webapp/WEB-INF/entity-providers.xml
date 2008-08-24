@@ -27,6 +27,7 @@
     <bean id="org.sakaiproject.entitybroker.providers.ServerConfigEntityProvider" 
             class="org.sakaiproject.entitybroker.providers.ServerConfigEntityProvider">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="clusterService" ref="org.sakaiproject.cluster.api.ClusterService" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.providers.MembershipEntityProvider" 
