@@ -52,6 +52,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
@@ -60,6 +61,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
@@ -552,12 +554,24 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                     } else {
                                                         // setup all the headers for the response
                                                         if (EntityView.VIEW_NEW.equals(view.getViewKey())) {
-                                                            String createdId = inputable.createEntity(view.getEntityReference(), entity, requestStorage.getStorageMapCopy());
+                                                            Createable createable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Createable.class);
+                                                            if (createable == null) {
+                                                                throw new EntityException("Unable to create new entity ("+view+"), "
+                                                                        +Createable.class.getName()+" is not implemented for this entity type ("+prefix+")", 
+                                                                        view+"", HttpServletResponse.SC_NOT_IMPLEMENTED);
+                                                            }
+                                                            String createdId = createable.createEntity(view.getEntityReference(), entity, requestStorage.getStorageMapCopy());
                                                             view.setEntityReference( new EntityReference(prefix, createdId) ); // update the entity view
                                                             res.setHeader(EntityRequestHandler.HEADER_ENTITY_ID, createdId);
                                                             res.setStatus(HttpServletResponse.SC_CREATED);
                                                         } else if (EntityView.VIEW_EDIT.equals(view.getViewKey())) {
-                                                            inputable.updateEntity(view.getEntityReference(), entity, requestStorage.getStorageMapCopy());
+                                                            Updateable updateable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Updateable.class);
+                                                            if (updateable == null) {
+                                                                throw new EntityException("Unable to create new entity ("+view+"), "
+                                                                        +Updateable.class.getName()+" is not implemented for this entity type ("+prefix+")", 
+                                                                        view+"", HttpServletResponse.SC_NOT_IMPLEMENTED);
+                                                            }
+                                                            updateable.updateEntity(view.getEntityReference(), entity, requestStorage.getStorageMapCopy());
                                                             res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                                                         } else {
                                                             // FAILURE not delete, edit, or new

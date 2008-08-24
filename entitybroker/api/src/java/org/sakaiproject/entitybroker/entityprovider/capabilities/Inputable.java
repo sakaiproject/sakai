@@ -26,7 +26,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 
 /**
  * These entities can be entered as certain input formats which are handled automatically
- * and translated into entity objects<br/>
+ * and translated into entity objects (of the type defined by {@link Sampleable})<br/>
  * If you want to define the way the input is translated instead of using the internal methods 
  * then use {@link InputTranslatable}<br/>
  * <br/>
@@ -35,7 +35,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface Inputable extends EntityProvider, Formats, Saveable {
+public interface Inputable extends EntityProvider, Formats, Sampleable {
 
    /**
     * Defines the input format types (extensions) handled by this provider<br/>

@@ -230,18 +230,10 @@ public class EntityEncodingManager {
         // get the encoder to use
         EntityXStream encoder = getEncoderForFormat(format, false);
 
-        Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Inputable.class);
+        Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Inputable.class);
         if (inputable != null) {
             // get a the current entity object or a sample
-            Object current = null;
-            if (ref.getId() == null) {
-                // get a sample
-                current = inputable.getSampleEntity();
-            } else {
-                // get the current entity
-                current = inputable.getEntity(ref);
-            }
-
+            Object current = entityBrokerManager.getSampleEntityObject(ref.getPrefix(), ref.getId());
             if (current != null) {
                 if (Formats.HTML.equals(format) || format == null || "".equals(format)) {
                     // html req handled specially

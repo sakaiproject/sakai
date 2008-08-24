@@ -337,7 +337,7 @@ public class EntityDescriptionManager {
                 }
 
                 // Resolvable Entity Info
-                Object entity = entityBrokerManager.getSampleEntityObject(prefix);
+                Object entity = entityBrokerManager.getSampleEntityObject(prefix, null);
                 if (entity != null) {
                     sb.append("      <entityClass>\n");
                     sb.append("        <class>"+ entity.getClass().getName() +"</class>\n");
@@ -535,7 +535,7 @@ public class EntityDescriptionManager {
                 sb.append("      </div>\n");
 
                 // Resolvable Entity Info
-                Object entity = entityBrokerManager.getSampleEntityObject(prefix);
+                Object entity = entityBrokerManager.getSampleEntityObject(prefix, null);
                 if (entity != null) {
                     sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entity.getClass().getName() +"</h4>\n");
                     sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");

@@ -32,7 +32,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface Createable extends EntityProvider {
+public interface Createable extends EntityProvider, Sampleable {
 
    /**
     * Create a new entity and return the unique local id of the entity,
@@ -47,18 +47,5 @@ public interface Createable extends EntityProvider {
     * @throws IllegalStateException for all other failures
     */
    public String createEntity(EntityReference ref, Object entity, Map<String, Object> params);
-
-   /**
-    * Provides a sample entity object which can be populated with data and then passed to 
-    * the {@link #createEntity(EntityReference, Object)} method,
-    * this is necessary so that the type of the entity object is known and the right fields can
-    * be filled, it also allows us to support the case of different read and write objects
-    * <b>Note:</b> The entity class type needs to be able to be resolved from the ClassLoader of the 
-    * EntityBrokerManager (currently this means deployed into shared) <br/> 
-    * 
-    * @return a sample entity object for entities of the type represented by this provider
-    * @throws IllegalStateException if the sample object cannot be obtained for some reason
-    */
-   public Object getSampleEntity();
 
 }
