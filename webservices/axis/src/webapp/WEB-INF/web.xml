@@ -50,7 +50,17 @@
         <filter-name>sakai.request</filter-name>
         <servlet-name>
         	AxisServlet
-		</servlet-name>
+	</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>RemoteHostFilter</filter-name>
+        <servlet-name>
+        	AxisServlet
+	</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
@@ -73,11 +83,6 @@
         org.apache.axis.transport.http.AxisServlet
     </servlet-class>
   </servlet>
-
-  <filter-mapping>
-    <filter-name>RemoteHostFilter</filter-name>
-    <servlet-name>wsrp4j</servlet-name>
-  </filter-mapping>
 
 <!-- Changed ordering - PAFH 8/24/2006 -->
 <!--
