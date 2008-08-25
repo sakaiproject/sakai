@@ -338,4 +338,10 @@ public class EntityData {
         }
     }
 
+    public static class TitleComparator implements Comparator<EntityData> {
+        public int compare(EntityData o1, EntityData o2) {
+            return o1.getDisplayTitle().compareTo(o2.getDisplayTitle());
+        }
+    }
+
 }
