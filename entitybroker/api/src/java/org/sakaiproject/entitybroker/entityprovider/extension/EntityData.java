@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * EntityData.java - data-broker - Aug 3, 2008 6:03:53 PM - azeckoski
+ * EntityData.java - entity-broker - Aug 3, 2008 6:03:53 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation
  *
@@ -30,9 +30,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 
 
 /**
- * This is an object to hold data from a search which would normally return data references,
+ * This is an object to hold entity data (e.g. from a search which would normally return entity references),
  * This is basically a POJO which allows us to return a few results instead of only the reference,
- * it helps us get the data back more efficiently and makes it easier on developers who
+ * it helps us get the entity data back more efficiently and makes it easier on developers who
  * need to search for entities
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
@@ -41,9 +41,9 @@ public class EntityData {
 
     /**
      * (OPTIONAL - may be null)
-     * This is the data object itself (if there is one),
-     * this is included at the discretion of the data provider author,
-     * if this is null then the data data is not available or would be prohibitively large (i.e. typically left out for efficiency)
+     * This is the entity data object itself (if there is one),
+     * this is included at the discretion of the entity provider author,
+     * if this is null then the entity data is not available or would be prohibitively large (i.e. typically left out for efficiency)
      */
     private Object data;
     public void setData(Object entity) {
@@ -56,9 +56,9 @@ public class EntityData {
     }
     /**
      * (OPTIONAL - may be null)
-     * This is the data object itself (if there is one),
-     * this is included at the discretion of the data provider author,
-     * if this is null then the data data is not available or would be prohibitively large (i.e. typically left out for efficiency)
+     * This is the entity data object itself (if there is one),
+     * this is included at the discretion of the entity provider author,
+     * if this is null then the entity data is not available or would be prohibitively large (i.e. typically left out for efficiency)
      */
     public Object getData() {
         return this.data;
@@ -70,51 +70,54 @@ public class EntityData {
     }
 
     private String entityId = null;
+    /**
+     * @return the unique local id of the entity (null if there is none)
+     */
     public String getEntityId() {
         return entityId;
     }
 
     /**
-     * The data reference -  a globally unique reference to an data, 
-     * consists of the data prefix and optional segments (normally the id at least),
+     * The entity reference -  a globally unique reference to an entity, 
+     * consists of the entity prefix and optional segments (normally the id at least),
      * this should be set by the constructor only
      */
     private String entityReference;
     /**
-     * The data reference -  a globally unique reference to an data, 
-     * consists of the data prefix and optional segments (normally the id at least)
+     * The entity reference -  a globally unique reference to an entity, 
+     * consists of the entity prefix and optional segments (normally the id at least)
      */
     public String getEntityReference() {
         return entityReference;
     }
 
     /**
-     * The data reference object which makes it easy to get to the prefix or id of this data,
+     * The entity reference object which makes it easy to get to the prefix or id of this entity,
      * this should be set by the constructor only
      */
     private transient EntityReference entityRef;
     /**
-     * The data reference object which makes it easy to get to the prefix or id of this data is needed
+     * The entity reference object which makes it easy to get to the prefix or id of this entity if needed
      */
     public EntityReference getEntityRef() {
         return entityRef;
     }
 
     /**
-     * A string which is suitable for display and provides a short summary of the data,
-     * typically 100 chars or less, this may the name or title of the data represented by an data
+     * A string which is suitable for display and provides a short summary of the entity,
+     * typically 100 chars or less, this may be the name or title of the data represented by an entity
      */
     private String entityDisplayTitle;
     /**
-     * A string which is suitable for display and provides a short summary of the data,
-     * typically 100 chars or less, this may the name or title of the data represented by an data
+     * A string which is suitable for display and provides a short summary of the entity,
+     * typically 100 chars or less, this may be the name or title of the data represented by an entity
      */
     public void setDisplayTitle(String displayTitle) {
         this.entityDisplayTitle = displayTitle;
     }
     /**
-     * A string which is suitable for display and provides a short summary of the data,
-     * typically 100 chars or less, this may the name or title of the data represented by an data
+     * A string which is suitable for display and provides a short summary of the entity,
+     * typically 100 chars or less, this may be the name or title of the data represented by an entity
      */
     public String getDisplayTitle() {
         if (this.entityDisplayTitle == null) {
@@ -123,7 +126,7 @@ public class EntityData {
         return entityDisplayTitle;
     }
     /**
-     * @return true if the display title is actually set, false if it is null and will return an autogenerated value
+     * @return true if the display title is actually set, false if it is null and will return an auto-generated value
      */
     public boolean isDisplayTitleSet() {
         return entityDisplayTitle != null;
@@ -131,20 +134,20 @@ public class EntityData {
 
     /**
      * (OPTIONAL - may be null)
-     * The entityURL to the data represented by this reference,
+     * The entityURL to the entity represented by this reference,
      * should be an absolute entityURL (server name optional),
      * if this is null then the entityURL is formed from the reference
      */
     private String entityURL;
     /**
      * WARNING: for internal use only
-     * @param url the url to access this data
+     * @param url the url to access this entity
      */
     public void setEntityURL(String url) {
         entityURL = url;
     }
     /**
-     * The entityURL to the data represented by this reference,
+     * The entityURL to the entity represented by this reference,
      * should be an absolute entityURL (server name optional)
      */
     public String getEntityURL() {
@@ -153,14 +156,14 @@ public class EntityData {
 
     /**
      * (OPTIONAL - may be null)
-     * A set of properties to return along with the data information,
+     * A set of properties to return along with the entity information,
      * this may be presented and used for filtering,
      * this will be null or empty if it is not used
      */
     private Map<String, Object> entityProperties;
     /**
      * (OPTIONAL - may be null)
-     * A set of properties to return along with the data information,
+     * A set of properties to return along with the entity information,
      * this may be presented and used for filtering,
      * should be null or empty if not used
      * @param entityProperties a map of property name => value
@@ -169,7 +172,7 @@ public class EntityData {
         this.entityProperties = entityProperties;
     }
     /**
-     * A set of properties to return along with the data information,
+     * A set of properties to return along with the entity information,
      * this may be presented and used for filtering,
      * this will be empty if it is not used
      */
@@ -198,43 +201,43 @@ public class EntityData {
     }
 
     /**
-     * Minimal constructor - used for most basic cases
-     * Use the setters to add in properties or the data if desired
+     * Minimal constructor - used for most basic cases<br/>
+     * Use the setters to add in properties or the entity if desired
      * 
-     * @param reference a globally unique reference to an data, 
-     * consists of the data prefix and id (e.g. /prefix/id)
-     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the data,
-     * typically 100 chars or less, this may the name or title of the data represented by an data
+     * @param reference a globally unique reference to an entity, 
+     * consists of the entity prefix and id (e.g. /prefix/id)
+     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the entity,
+     * typically 100 chars or less, this may be the name or title of the entity represented by an entity
      */
     public EntityData(String reference, String displayTitle) {
         this(reference, displayTitle, null, null);
     }
 
     /**
-     * Basic constructor
+     * Basic constructor<br/>
      * Use this to construct a search result using the typical minimal amount of information,
-     * Use the setters to add in properties or the data if desired
+     * Use the setters to add in properties or the entity if desired
      * 
-     * @param reference a globally unique reference to an data, 
-     * consists of the data prefix and id (e.g. /prefix/id)
-     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the data,
-     * typically 100 chars or less, this may the name or title of the data represented by an data
-     * @param data an data object, see {@link Resolvable}
+     * @param reference a globally unique reference to an entity, 
+     * consists of the entity prefix and id (e.g. /prefix/id)
+     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the entity,
+     * typically 100 chars or less, this may be the name or title of the entity represented by an entity
+     * @param data an entity data object, see {@link Resolvable}
      */
     public EntityData(String reference, String displayTitle, Object entity) {
         this(reference, displayTitle, entity, null);
     }
 
     /**
-     * Full constructor
-     * Use this if you want to return the data itself along with the key meta data and properties
+     * Full constructor<br/>
+     * Use this if you want to return the entity itself along with the key meta data and properties
      * 
-     * @param reference a globally unique reference to an data, 
-     * consists of the data prefix and id (e.g. /prefix/id)
-     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the data,
-     * typically 100 chars or less, this may the name or title of the data represented by an data
-     * @param data an data object, see {@link Resolvable}
-     * @param entityProperties a set of properties to return along with the data information,
+     * @param reference a globally unique reference to an entity, 
+     * consists of the entity prefix and id (e.g. /prefix/id)
+     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the entity,
+     * typically 100 chars or less, this may be the name or title of the entity represented by an entity
+     * @param data an entity data object, see {@link Resolvable}
+     * @param entityProperties a set of properties to return along with the entity information,
      * this may be presented and used for filtering,
      */
     public EntityData(String reference, String displayTitle, Object entity, Map<String, Object> entityProperties) {
@@ -249,43 +252,43 @@ public class EntityData {
 
 
     /**
-     * Minimal constructor - used for most basic cases
-     * Use the setters to add in properties or the data if desired
+     * Minimal constructor - used for most basic cases<br/>
+     * Use the setters to add in properties or the entity data if desired
      * 
-     * @param ref an object which represents a globally unique reference to an data, 
-     * consists of the data prefix and id
-     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the data,
-     * typically 100 chars or less, this may the name or title of the data represented by an data
+     * @param ref an object which represents a globally unique reference to an entity, 
+     * consists of the entity prefix and id
+     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the entity,
+     * typically 100 chars or less, this may be the name or title of the entity represented by an entity
      */
     public EntityData(EntityReference ref, String displayTitle) {
         this(ref, displayTitle, null, null);
     }
 
     /**
-     * Basic constructor
+     * Basic constructor<br/>
      * Use this to construct a search result using the typical minimal amount of information,
-     * Use the setters to add in properties or the data if desired
+     * Use the setters to add in properties or the entity data if desired
      * 
-     * @param ref an object which represents a globally unique reference to an data, 
-     * consists of the data prefix and id
-     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the data,
-     * typically 100 chars or less, this may the name or title of the data represented by an data
-     * @param data an data object, see {@link Resolvable}
+     * @param ref an object which represents a globally unique reference to an entity, 
+     * consists of the entity prefix and id
+     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the entity,
+     * typically 100 chars or less, this may be the name or title of the entity represented by an entity
+     * @param data an entity data object, see {@link Resolvable}
      */
     public EntityData(EntityReference ref, String displayTitle, Object entity) {
         this(ref, displayTitle, entity, null);
     }
 
     /**
-     * Full constructor
-     * Use this if you want to return the data itself along with the key meta data and properties
+     * Full constructor<br/>
+     * Use this if you want to return the entity itself along with the key meta data and properties
      * 
-     * @param ref an object which represents a globally unique reference to an data, 
-     * consists of the data prefix and id
-     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the data,
-     * typically 100 chars or less, this may the name or title of the data represented by an data
-     * @param data an data object, see {@link Resolvable}
-     * @param entityProperties a set of properties to return along with the data information,
+     * @param ref an object which represents a globally unique reference to an entity, 
+     * consists of the entity prefix and id
+     * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the entity,
+     * typically 100 chars or less, this may be the name or title of the entity represented by an entity
+     * @param data an entity data object, see {@link Resolvable}
+     * @param entityProperties a set of properties to return along with the entity information,
      * this may be presented and used for filtering,
      */
     public EntityData(EntityReference ref, String displayTitle,
