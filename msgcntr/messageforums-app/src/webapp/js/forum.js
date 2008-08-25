@@ -232,6 +232,18 @@ function doAjax(messageId, topicId, self){
 	return false;
 }
 
+// This will display/hide extended description for an element
+// Need to be fancy due to a bug (SAK-11933) where copy/pasting
+// content causes addition tags with class 'toggle' to be in
+// markup, causing errors on display.
+// Found multiple versions of this fix, so centralizing it here
+function toggleExtendedDescription(hideShowEl, parent, element) {
+    resize();
+    hideShowEl.toggle();
+    parent.slideToggle(resize);
+    element.toggle();
+}
+
 //fix for double click stack traces in IE - SAK-10625
 //add Jquery if necessary
 /*if(typeof($) == "undefined"){

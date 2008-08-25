@@ -42,12 +42,12 @@
 				<%--gsilver: would be good if the returned url from this would include a named internal anchor as the target so that the expando/collapso would go to the top of the viewport and avoid having to scroll and find --%>
 			  <h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
 			  		rendered="#{forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null}"
-			  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle:first', $(this).parents('div:first')).slideToggle(resize);$(this).toggle();">
+			  		onclick="toggleExtendedDescription($(this).next('.hide'), $('div.toggle:first', $(this).parents('div:first')), $(this));">  
 			  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
 			  </h:outputLink>
-			  
+
 			  <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
-			  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle:first', $(this).parents('div:first')).slideToggle(resize);$(this).toggle();">
+			  		onclick="toggleExtendedDescription($(this).prev('.show'), $('div.toggle:first', $(this).parents('div:first')), $(this));">
 			  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
 			  </h:outputLink>
 
@@ -128,13 +128,13 @@
 			    <h:panelGroup styleClass="textPanelFooter specialLink">
 			    	<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
 			    		rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null}"
-				  		onclick="resize();$(this).next('.hide').toggle(); $('td div.toggle', $(this).parents('tr:first').next('tr')).slideToggle(resize);$(this).toggle();">
+				  		onclick="toggleExtendedDescription($(this).next('.hide'), $('td div.toggle:first', $(this).parents('tr:first').next('tr')), $(this));">
 				  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
 				    </h:outputLink>  
 				  
 				    <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
 				    	rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null}"
-				  		onclick="resize();$(this).prev('.show').toggle(); $('td div.toggle', $(this).parents('tr:first').next('tr')).slideToggle(resize);$(this).toggle();">
+				  		onclick="toggleExtendedDescription($(this).prev('.show'), $('td div.toggle:first', $(this).parents('tr:first').next('tr')), $(this));">
 				  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
 				    </h:outputLink>
 

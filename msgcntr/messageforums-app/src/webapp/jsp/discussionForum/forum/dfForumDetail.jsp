@@ -51,13 +51,13 @@
 
 			  <h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
 			  		rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null}"
-			  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents('div.hierItemBlock')).slideToggle(resize);$(this).toggle();">
+			  		onclick="toggleExtendedDescription($(this).next('.hide'), $('div.toggle:first', $(this).parents('div.hierItemBlock')), $(this));">
 			  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
 			  </h:outputLink>
 			  
 			  <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
 			  		rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null}"
-			  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div.hierItemBlock')).slideToggle(resize);$(this).toggle();">
+			  		onclick="toggleExtendedDescription($(this).prev('.show'), $('div.toggle:first', $(this).parents('div.hierItemBlock')), $(this));">
 			  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
 			  </h:outputLink>
 
@@ -105,13 +105,13 @@
 			<h:panelGroup styleClass="textPanelFooter specialLink">
 			    	<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
 			    		rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null}"
-				  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents('div.textPanel')).slideToggle(resize);$(this).toggle();">
+				  		onclick="toggleExtendedDescription($(this).next('.hide'), $('div.toggle:first', $(this).parents('div.textPanel')), $(this));">
 				  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
 				    </h:outputLink>  
 				  
 				    <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
 				    	rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null}"
-				  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div.textPanel')).slideToggle(resize);$(this).toggle();">
+				  		onclick="toggleExtendedDescription($(this).prev('.show'), $('div.toggle:first', $(this).parents('div.textPanel')), $(this));">
 				  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
 				    </h:outputLink>
 
