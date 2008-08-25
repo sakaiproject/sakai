@@ -33,6 +33,23 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{deliveryMessages.submission}" /></title>
       </head>
+
+<script language="javascript" style="text/JavaScript">
+function reviewAssessment(field){
+var insertlinkid= field.id.replace("reviewAssessment", "hiddenlink");
+var newindex = 0;
+for (i=0; i<document.links.length; i++) {
+  if(document.links[i].id == insertlinkid)
+  {
+    newindex = i;
+    break;
+  }
+}
+
+document.links[newindex].onclick();
+}
+</script>
+
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
  <!--h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" /-->
@@ -51,7 +68,8 @@
 <h:form id="submittedForm">
 <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
-    <h:outputText value="#{deliveryMessages.submission_confirmation_message_1}" /> 
+	<h:outputText value="#{deliveryMessages.submission_confirmation_message_1}" rendered="#{!delivery.actionString=='takeAssessmentViaUrl' || !delivery.anonymousLogin}"/>
+    <h:outputText value="#{deliveryMessages.submission_confirmation_message_4}" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}"/>
     <h:outputText escape="false" value="<br /> #{delivery.submissionMessage}" />
 
   <f:verbatim><p/></f:verbatim>
@@ -101,10 +119,17 @@
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
        style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
 
-	<h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="button" 
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}"
-       style="act" onclick="javascript:window.open('#{delivery.portal}','_top')" onkeypress="javascript:window.open('#{delivery.portal}','_top')" />
+    <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}" 
+       style="act" onclick="reviewAssessment(this);" onkeypress="reviewAssessment(this);" />
 
+    <h:commandLink id="hiddenlink" action="takeAssessment" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}">
+      <f:param name="publishedId" value="#{delivery.assessmentId}" />
+      <f:param name="nofeedback" value="false"/>
+      <f:param name="actionString" value="reviewAssessment"/>
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener"/>
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener"/>
+    </h:commandLink>
   </h:panelGrid>
 </div>
 
