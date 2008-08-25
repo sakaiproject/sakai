@@ -5,7 +5,6 @@
 	</configExtensions>
 	<configs>
 		<config>sitestats-pack/src/webapp/WEB-INF/components.xml</config>
-		<config>sitestats-pack/src/webapp/WEB-INF/hibernate-hbms.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

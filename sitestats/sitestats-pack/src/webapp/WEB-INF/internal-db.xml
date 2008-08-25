@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>	
+
+
+	<!-- Transaction Manager: alias -->
+	<alias alias="internalSitestatsTransactionManager" name="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+			
+			
+	<!-- Session Factory -->
+	<bean id="internalSitestatsSessionFactory"
+		parent="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
+		lazy-init="true">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
+			</list>
+		</property>		
+	</bean>
+			
+	<!-- Hibernate Mappings (.hbm) ____________________________________________________________________________ -->
+	<!-- <bean id="sitestats-additional-mappings" 
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
+			</list>
+		</property>
+	</bean> -->
+
+</beans>

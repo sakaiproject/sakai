@@ -13,10 +13,11 @@
 	 -->
 		
 	
-	<!-- Load HBM related beans -->
-	<import resource="hibernate-hbms.xml" />
+	<!-- Database:  load specific session factory and transaction manager defenitions
+					for internal (Sakai) and external DB. -->
+	<import resource="db-related.xml" />
 	
-
+	
 	
 	<!-- StatsManager ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.StatsManager"
@@ -77,12 +78,12 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 		<!-- Hibernate related -->
-		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		
+		<property name="sessionFactory" ref="${sitestats.db}SitestatsSessionFactory" />
 	</bean>
+	<!-- Transaction proxy: StatsManager -->
 	<bean id="org.sakaiproject.sitestats.api.StatsManagerTransactionProxyFactoryBean"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
-		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionManager" ref="${sitestats.db}SitestatsTransactionManager" />
 		<property name="target" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="transactionAttributes">
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
@@ -113,20 +114,22 @@
 		<!-- /OPTIONS -->
 			
 		<!-- Sakai services -->
-		<property name="sessionFactory" ref ="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="sessionFactory" ref ="${sitestats.db}SitestatsSessionFactory" />
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
 	</bean>
+	<!-- Transaction proxy: StatsUpdateManager -->
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManagerTransactionProxyFactoryBean"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
-		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionManager" ref="${sitestats.db}SitestatsTransactionManager" />
 		<property name="target" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
 		<property name="transactionAttributes">
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
 		</property>
 	</bean>
+	
 
 	<!-- ServerWideReportManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.ServerWideReportManager"
@@ -199,5 +202,25 @@
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
 
+
+	<!-- Hibernate objects api-impl mapping _________________________________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.CommonStatGrpByDate"
+		class="org.sakaiproject.sitestats.impl.CommonStatGrpByDateImpl">
+	</bean>	
+	<bean id="org.sakaiproject.sitestats.api.Prefs"
+		class="org.sakaiproject.sitestats.impl.PrefsImpl">
+	</bean>	
+	<bean id="org.sakaiproject.sitestats.api.ResourceStat"
+		class="org.sakaiproject.sitestats.impl.ResourceStatImpl">
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.EventStat"
+		class="org.sakaiproject.sitestats.impl.EventStatImpl">
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.SiteVisits"
+		class="org.sakaiproject.sitestats.impl.SiteVisitsImpl">
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.SiteActivity"
+		class="org.sakaiproject.sitestats.impl.SiteActivityImpl">
+	</bean>
 
 </beans>

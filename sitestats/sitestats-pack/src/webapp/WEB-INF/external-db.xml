@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>	
+
+
+	<!-- Session Factory -->
+	<bean id="externalSitestatsSessionFactory"
+		class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean"
+		lazy-init="true">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${sitestats.externalDb.hibernate.dialect}</prop>
+				<prop key="hibernate.query.factory_class">org.hibernate.hql.ast.ASTQueryTranslatorFactory</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.query.substitutions">
+					true 1, false 0, yes 'Y', no 'N'
+				</prop>
+				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.provider_class">
+				     org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider
+				</prop>			
+			</props>
+		</property>	
+		<property name="dataSource" ref="org.sakaiproject.sitestats.externalDbDataSource"/>
+		<property name="schemaUpdate" value="${auto.ddl}"/>		
+	</bean>
+	
+	
+	<!-- Data Source -->
+	<bean id="org.sakaiproject.sitestats.externalDbDataSource" 
+		class="org.apache.commons.dbcp.BasicDataSource"
+		lazy-init="true">
+		<property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+		<property name="url" value="jdbc:hsqldb:mem:sitestats_db"/>
+		<property name="username" value="sa"/>
+		<property name="password" value=""/>
+		
+		<property name="initialSize" value="3"/>
+		<property name="maxActive" value="5"/>
+		<property name="maxIdle" value="3"/>
+		<property name="minIdle" value="3"/>
+		<property name="timeBetweenEvictionRunsMillis" value="-1"/>
+	</bean>
+	
+	
+	<!-- Transaction Manager -->
+	<bean id="externalSitestatsTransactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager"
+		lazy-init="true">
+		<property name="sessionFactory">
+			<ref bean="externalSitestatsSessionFactory" />
+		</property>
+	</bean>
+			
+</beans>

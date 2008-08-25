@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>	
+
+
+	<!-- Database:  load specific session factory and transaction manager defenitions
+					for internal (Sakai) and external DB. -->
+	<import resource="internal-db.xml" />
+	<import resource="external-db.xml" />
+	
+	
+	<!-- Default values:  overridable in sakai.properties -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="-10"/>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+		<property name="properties">
+			<props>
+				<!-- Use internal DB by default. -->
+				<prop key="sitestats.db">internal</prop>
+				
+				<!-- Use HsqlDB as default for external DB -->
+				<prop key="sitestats.externalDb.hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+			</props>
+		</property>
+	</bean>
+
+	
+	<!-- Session Factory: alias -->
+	<alias alias="sstSessionFactory" name="${sitestats.db}SitestatsSessionFactory"/>
+	
+	
+	<!-- Transaction Manager: alias -->
+	<alias alias="sstTransactionManager" name="${sitestats.db}SitestatsTransactionManager"/>
+	
+	
+</beans>
