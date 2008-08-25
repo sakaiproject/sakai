@@ -611,8 +611,8 @@ public class SiteAction extends PagedResourceActionII {
 	private String STATE_GROUP_HELPER_ID = "state_group_helper_id";
 
 	// used in the configuration file to specify which tool attributes are configurable through WSetup tool, and what are the default value for them.
-	private String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute.";
-	private String CONFIG_TOOL_ATTRIBUTE_DEFAULT = "wsetup.config.tool.attribute.default";
+	private String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute_";
+	private String CONFIG_TOOL_ATTRIBUTE_DEFAULT = "wsetup.config.tool.attribute.default_";
 	/**
 	 * Populate the state object, if needed.
 	 */
