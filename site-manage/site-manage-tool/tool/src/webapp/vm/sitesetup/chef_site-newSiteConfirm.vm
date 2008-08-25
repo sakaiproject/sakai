@@ -89,6 +89,12 @@
 											$tool.Title: $emailId@$serverName <br />
 										#elseif ($!multipleToolIdTitleMap.containsKey($toolId))
 											$validator.escapeHtml($!multipleToolIdTitleMap.get($toolId))
+											## get tool configuration
+											#set($attributeHashtable=false)
+											#set($attributeHashtable=$!multipleToolConfiguration.get($toolId))
+											(#foreach ($attribute in $!attributeHashtable.keys())
+												$attribute = $!attributeHashtable.get($attribute) 
+											#end)
 										#else
 											$tool.Title
 											#foreach ($tId in $!importSiteTools.keys())

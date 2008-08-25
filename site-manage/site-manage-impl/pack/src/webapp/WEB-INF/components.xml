@@ -3,7 +3,7 @@
 
 <beans>
 
-	<bean id="org.sakaiproject.sitemanage.api.SectionFieldProvider"
+	<!--<bean id="org.sakaiproject.sitemanage.api.SectionFieldProvider"
 			class="org.sakaiproject.sitemanage.impl.SectionFieldProviderImpl"
 			init-method="init"
 			destroy-method="destroy"
@@ -15,7 +15,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-	</bean>
+	</bean>-->
 	         
 	<bean id="org.sakaiproject.sitemanage.api.UserNotificationProvider" 
 		class="org.sakaiproject.sitemanage.impl.UserNotificationProviderImpl"

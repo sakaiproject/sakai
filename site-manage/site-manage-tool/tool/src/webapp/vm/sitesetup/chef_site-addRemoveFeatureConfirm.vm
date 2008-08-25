@@ -80,6 +80,14 @@
 				$!newToolTitle: $!emailId@$serverName
 			#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
 				$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
+				#if (!$found)
+					## get tool configuration
+					#set($attributeHashtable=false)
+					#set($attributeHashtable=$!multipleToolConfiguration.get($newTool))
+					(#foreach ($attribute in $!attributeHashtable.keys())
+						$attribute = $!attributeHashtable.get($attribute) 
+					#end)
+				#end
 			#else
 				$!newToolTitle
 			#end

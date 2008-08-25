@@ -256,16 +256,19 @@ public class SiteParticipantHelper {
 							
 							// now look or the not-included member from CourseSet object
 							Set<String> cSetEids = co.getCourseSetEids();
-							for(Iterator<String> cSetEidsIterator = cSetEids.iterator(); cSetEidsIterator.hasNext();)
+							if (cSetEids != null)
 							{
-								String cSetEid = cSetEidsIterator.next();
-								CourseSet cSet = cms.getCourseSet(cSetEid);
-								if (cSet != null)
+								for(Iterator<String> cSetEidsIterator = cSetEids.iterator(); cSetEidsIterator.hasNext();)
 								{
-									Set<Membership> cSetMemberships = cms.getCourseSetMemberships(cSetEid);
-									if (cSetMemberships != null && cSetMemberships.size() > 0)
+									String cSetEid = cSetEidsIterator.next();
+									CourseSet cSet = cms.getCourseSet(cSetEid);
+									if (cSet != null)
 									{
-										SiteParticipantHelper.addParticipantsFromMemberships(participantsMap, realm, cSetMemberships, cSet.getTitle());
+										Set<Membership> cSetMemberships = cms.getCourseSetMemberships(cSetEid);
+										if (cSetMemberships != null && cSetMemberships.size() > 0)
+										{
+											SiteParticipantHelper.addParticipantsFromMemberships(participantsMap, realm, cSetMemberships, cSet.getTitle());
+										}
 									}
 								}
 							}
