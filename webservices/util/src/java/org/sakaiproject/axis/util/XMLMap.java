@@ -468,7 +468,7 @@ public class XMLMap {
 				sret.put(newKey,value);
                         	// System.out.println(newKey+" = " + value);
 			} else { 
-				Object value = sm.get(key);
+				Object value = om.get(key);
 				if ( value == null ) continue;
 				oret.put(newKey,value);
                         	// System.out.println(newKey+" = " + value);
