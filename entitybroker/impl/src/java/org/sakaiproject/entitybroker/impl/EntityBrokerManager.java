@@ -498,16 +498,17 @@ public class EntityBrokerManager {
                     isPOJO = true;
                 }
             }
-            // get all properties out of this thing
-            if (isPOJO) {
-                if (Map.class.isAssignableFrom(entityData.getData().getClass())) {
-                    // skip
-                } else {
-                    Map<String, Object> values = getReflectUtil().getObjectValues(entityData.getData());
-                    Map<String, Object> props = EntityDataUtils.extractMapProperties( values );
-                    EntityDataUtils.putAllNewInMap(entityData.getEntityProperties(), props);
-                }
-            }
+            // get all properties out of this thing (this gets the values out of the object and puts them in the properties map)
+            // commented out since I think this is not desireable any more
+//            if (isPOJO) {
+//                if (Map.class.isAssignableFrom(entityData.getData().getClass())) {
+//                    // skip
+//                } else {
+//                    Map<String, Object> values = getReflectUtil().getObjectValues(entityData.getData());
+//                    Map<String, Object> props = EntityDataUtils.extractMapProperties( values );
+//                    EntityDataUtils.putAllNewInMap(entityData.getEntityProperties(), props);
+//                }
+//            }
             // attempt to set display title if not set
             if (! entityData.isDisplayTitleSet()) {
                 boolean titleNotSet = true;
