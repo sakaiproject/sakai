@@ -39,6 +39,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+// Add the ability to look in sakai.properties for properties
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * This Servlet Filter allows/denies requests based on comparing the remote
@@ -124,15 +126,24 @@ public class RemoteHostFilter implements Filter {
      * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
      */
     public void init(FilterConfig config) throws ServletException {
-        allowList = config.getInitParameter("allow");
+        allowList = getParameter(config,"allow");
+        if ( ":empty:".equals(allowList) ) allowList = null;
         allow = getRegExPatterns(allowList);
-        logAllowed = Boolean.valueOf(config.getInitParameter("log-allowed"))
+        logAllowed = Boolean.valueOf(getParameter(config,"log-allowed"))
                 .booleanValue();
 
-        denyList = config.getInitParameter("deny");
+        denyList = getParameter(config,"deny");
+        if ( ":empty:".equals(denyList) ) denyList = null;
         deny = getRegExPatterns(denyList);
-        logDenied = Boolean.valueOf(config.getInitParameter("log-denied"))
+        logDenied = Boolean.valueOf(getParameter(config,"log-denied"))
                 .booleanValue();
+    }
+
+    private String getParameter(FilterConfig config, String parmName)
+    {
+	String retval = ServerConfigurationService.getString("webservices."+parmName, null);
+	if ( retval != null ) return retval;
+        return config.getInitParameter(parmName);
     }
 
     /*
