@@ -1,92 +1,13 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
-<style type="text/css">
-	.toggleAnchor{
-		border:1px solid #cef;
-		background:#cef url(/library/image/sakai/expand.gif) 5px no-repeat !important;
-		padding:5px 5px 5px 25px !important;
-		cursor:pointer
-	}
-	.toggleAnchor:hover,	.toggleAnchorOpen:hover{
-		border:1px solid #9cf;
-	}
-
-	.toggleAnchorOpen{
-		border:1px solid #cef;
-		background:#cef url(/library/image/sakai/collapse.gif) 5px no-repeat !important;
-		padding:5px 5px 5px 25px !important;
-		cursor:pointer
-	}
-	.toggledContent{
-		margin:0;
-		border:2px solid #cef;
-		border-top:none;
-		padding: 1em
-	}
-	.toggledContent h4{
-		color:#000 !important;
-		width:40em;
-		margin:.5em 0 !important;
-		padding:.3em 0;
-		border-bottom:2px solid #ccc
-	}
-
-</style>
-
+<link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
 <script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
 <script type="text/javascript">
- $(document).ready(function(){
- 	// toggle a fade
- 	jQuery.fn.fadeToggle = function(speed, easing, callback) {
-   return this.animate({opacity: 'toggle'}, speed, easing, callback);
-}; 
-$('.model').hide();
-$('.notes').hide();
-$('.allPurpose').hide();
-$('#toggleModel').click(function(){
-	$('.model').fadeToggle();
-	if ($('#toggleModel').is('.toggleAnchor')){
-		$('#toggleModel').removeClass('toggleAnchor')
-		$('#toggleModel').addClass('toggleAnchorOpen')
-		}
-	else {
-		$('#toggleModel').removeClass('toggleAnchorOpen')
-			$('#toggleModel').addClass('toggleAnchor')
-	}	
-
-  resizeFrame('grow');
-	return false;
-});
-
-$('#toggleNotes').click(function(){
-	$('.notes').fadeToggle();
-	if ($('#toggleNotes').is('.toggleAnchor')){
-		$('#toggleNotes').removeClass('toggleAnchor')
-		$('#toggleNotes').addClass('toggleAnchorOpen')
-		}
-	else {
-		$('#toggleNotes').removeClass('toggleAnchorOpen')
-			$('#toggleNotes').addClass('toggleAnchor')
-	}	
-
-  resizeFrame('grow');
-	return false;
-});
-
-$('#toggleAllPurpose').click(function(){
-	$('.allPurpose').fadeToggle();
-	if ($('#toggleAllPurpose').is('.toggleAnchor')){
-		$('#toggleAllPurpose').removeClass('toggleAnchor')
-		$('#toggleAllPurpose').addClass('toggleAnchorOpen')
-		}
-	else {
-		$('#toggleAllPurpose').removeClass('toggleAnchorOpen')
-			$('#toggleAllPurpose').addClass('toggleAnchor')
-	}	
-
-  resizeFrame('grow');
-	return false;
-});
+    $(document).ready(function(){
+        setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+    });
 </script>
+
 <div class="portletBody">
 		<h3>
 		$tlang.getString("viewassig.viewass1") 	
@@ -184,7 +105,7 @@ $('#toggleAllPurpose').click(function(){
 			#end
 			## model answer
 			#if($allowViewModelAnswer)
-			<h4  id="toggleModel" class="toggleAnchor specialLink">$tlang.getString('modelAnswer')</h4>
+			<h4  id="toggleModel" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('modelAnswer')</h4>
 			<div class="model toggledContent">
 					<p>$!assignmentModelAnswerItem.getText()</p>
 					#set ($mAttachments = $!assignmentModelAnswerItem.getAttachmentObjectSet())
@@ -222,14 +143,14 @@ $('#toggleAllPurpose').click(function(){
 				</div>
 			#end
 			#if ($!allowReadAssignmentNoteItem)
-				<h4  id="toggleNotes" class="toggleAnchor specialLink">$tlang.getString('note.label')</h4>
+				<h4  id="toggleNotes" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('note.label')</h4>
 				<div class="notes toggledContent">
 					$!assignmentNoteItem.getNote()
 				</div>
 			#end
 			##all purpose
 			#if ($!allowViewAllPurposeItem)
-			<h4  id="toggleAllPurpose" class="toggleAnchor specialLink">$tlang.getString('allPurpose')</h4>
+			<h4  id="toggleAllPurpose" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('allPurpose')</h4>
 			<div class="allPurpose toggledContent">
 					<p>$!assignmentAllPurposeItem.getTitle()</p>
 					<p>$!assignmentAllPurposeItem.getText()</p>

@@ -1,39 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_grading_submission.vm,v 1.10 2005/06/03 15:32:15 zqian.umich.edu Exp $ -->
-<style type="text/css">
-	.toggleAnchor{
-		border:1px solid #cef;
-		background:#cef url(/library/image/sakai/expand.gif) 5px no-repeat !important;
-		padding:5px 5px 5px 25px !important;
-		cursor:pointer;
-		margin:.5em 0 0 0;
-	}
-	.toggleAnchor:hover,	.toggleAnchorOpen:hover{
-		border:1px solid #9cf;
-	}
-
-	.toggleAnchorOpen{
-		border:1px solid #cef;
-		background:#cef url(/library/image/sakai/collapse.gif) 5px no-repeat !important;
-		padding:5px 5px 5px 25px !important;
-		cursor:pointer;
-		margin:.5em 0 0 0;
-	}
-	.toggledContent{
-		margin:0 0 .5em 0;
-		border:2px solid #cef;
-		border-top:1px solid #cef;
-		padding: 1em
-	}
-	.toggledContent h4{
-		color:#000 !important;
-		width:40em;
-		margin:. 0 0  5em 0 !important;
-		padding:.3em 0;
-		border-bottom:2px solid #ccc
-	}
-</style>
-
-
+<link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
 <script type="text/javascript">
 focus_path = [ '$fField' ];
 function handleEnterKeyPress(ev)
@@ -46,143 +12,12 @@ function handleEnterKeyPress(ev)
 		 }
 </script>
 <script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
 <script type="text/javascript">
- $(document).ready(function(){
- 	// toggle a fade
- 	jQuery.fn.fadeToggle = function(speed, easing, callback) {
-   return this.animate({opacity: 'toggle'}, speed, easing, callback);
-}; 
-$('.inlinecoms').hide();
-$('.gencoms').hide();
-$('.attachcoms').hide();
-$('.gradecoms').hide();
-$('.model').hide();
-$('.notes').hide();
-$('.allPurpose').hide();
-
-$('#toggleInline').click(function(){
-	$('.inlinecoms').fadeToggle();
-	if ($('#toggleInline').is('.toggleAnchor')){
-		$('#toggleInline').removeClass('toggleAnchor')
-		$('#toggleInline').addClass('toggleAnchorOpen')
-		}
-	else {
-		$('#toggleInline').removeClass('toggleAnchorOpen')
-			$('#toggleInline').addClass('toggleAnchor')
-	}	
-
-  resizeFrame('grow');
-	return false;
-});
-// toggle the previous feedback text
-$('#toggleGen').click(function(){
-$('.gencoms').fadeToggle();
-if ($('#toggleGen').is('.toggleAnchor')){
-	$('#toggleGen').removeClass('toggleAnchor')
-	$('#toggleGen').addClass('toggleAnchorOpen')
-	}
-else {
-	$('#toggleGen').removeClass('toggleAnchorOpen')
-		$('#toggleGen').addClass('toggleAnchor')
-	}	
- resizeFrame('grow');
- 	return false;
-});
-// toggle the previous attachment list
-$('#toggleAttach').click(function(){
-	$('.attachcoms').fadeToggle();
-	if ($('#toggleAttach').is('.toggleAnchor')){
-		$('#toggleAttach').removeClass('toggleAnchor')
-		$('#toggleAttach').addClass('toggleAnchorOpen')
-		}
-	else {
-		$('#toggleAttach').removeClass('toggleAnchorOpen')
-			$('#toggleAttach').addClass('toggleAnchor')
-	}	
-  resizeFrame('grow');
-	return false;
-});
-// toggle the previous grade
-$('#toggleGrade').click(function(){
-	$('.gradecoms').fadeToggle();
-	if ($('#toggleGrade').is('.toggleAnchor')){
-		$('#toggleGrade').removeClass('toggleAnchor')
-		$('#toggleGrade').addClass('toggleAnchorOpen')
-		}
-	else {
-		$('#toggleGrade').removeClass('toggleAnchorOpen')
-			$('#toggleGrade').addClass('toggleAnchor')
-	}	
-  resizeFrame('grow');
-	return false;
-});
-$('#toggleModel').click(function(){
-	$('.model').fadeToggle();
-	if ($('#toggleModel').is('.toggleAnchor')){
-		$('#toggleModel').removeClass('toggleAnchor')
-		$('#toggleModel').addClass('toggleAnchorOpen')
-		}
-	else {
-		$('#toggleModel').removeClass('toggleAnchorOpen')
-			$('#toggleModel').addClass('toggleAnchor')
-	}	
-
-  resizeFrame('grow');
-	return false;
-});
-$('#toggleNotes').click(function(){
-	$('.notes').fadeToggle();
-	if ($('#toggleNotes').is('.toggleAnchor')){
-		$('#toggleNotes').removeClass('toggleAnchor')
-		$('#toggleNotes').addClass('toggleAnchorOpen')
-		}
-	else {
-		$('#toggleNotes').removeClass('toggleAnchorOpen')
-			$('#toggleNotes').addClass('toggleAnchor')
-	}	
-  resizeFrame('grow');
-	return false;
-});
-$('#toggleAllPurpose').click(function(){
-	$('.allPurpose').fadeToggle();
-	if ($('#toggleAllPurpose').is('.toggleAnchor')){
-		$('#toggleAllPurpose').removeClass('toggleAnchor')
-		$('#toggleAllPurpose').addClass('toggleAnchorOpen')
-		}
-	else {
-		$('#toggleAllPurpose').removeClass('toggleAnchorOpen')
-			$('#toggleAllPurpose').addClass('toggleAnchor')
-	}	
-  resizeFrame('grow');
-	return false;
-});
-});
-//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
-	function resizeFrame(updown) 
-	{
-		if (top.location != self.location) 	 {
-			var frame = parent.document.getElementById(window.name);
-		}	
-			if( frame ) 
-		{
-			if(updown=='shrink')
-			{
-				var clientH = document.body.clientHeight - 30;
-			}
-			else
-			{
-				var clientH = document.body.clientHeight + 30;
-			}
-			$( frame ).height( clientH );
-		} 
-		else 
-		{
-			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
-		}
-	}
-
+    $(document).ready(function(){
+        setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+    });
 </script>
-
 
 <div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 <ul class="navIntraTool actionToolBar" role="menu">
@@ -384,7 +219,7 @@ $('#toggleAllPurpose').click(function(){
 			#end
 			## model answer
 			#if($allowViewModelAnswer)
-			<h4  id="toggleModel" class="toggleAnchor specialLink">$tlang.getString('modelAnswer')</h4>
+			<h4  id="toggleModel" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('modelAnswer')</h4>
 			<div class="model toggledContent">
 					<p>$!assignmentModelAnswerItem.getText()</p>
 					#set ($mAttachments = $!assignmentModelAnswerItem.getAttachmentObjectSet())
@@ -422,14 +257,14 @@ $('#toggleAllPurpose').click(function(){
 				</div>
 			#end
 			#if ($!allowReadAssignmentNoteItem)
-				<h4  id="toggleNotes" class="toggleAnchor specialLink">$tlang.getString('note.label')</h4>
+				<h4  id="toggleNotes" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('note.label')</h4>
 				<div class="notes toggledContent">
 					$!assignmentNoteItem.getNote()
 				</div>
 			#end
 			##all purpose
 			#if ($!allowViewAllPurposeItem)
-			<h4  id="toggleAllPurpose" class="toggleAnchor specialLink">$tlang.getString('allPurpose')</h4>
+			<h4  id="toggleAllPurpose" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('allPurpose')</h4>
 			<div class="allPurpose toggledContent">
 					<p>$!assignmentAllPurposeItem.getTitle()</p>
 					<p>$!assignmentAllPurposeItem.getText()</p>
@@ -530,7 +365,7 @@ $('#toggleAllPurpose').click(function(){
 					#end
 					## for returned submission, show the instructor comment as well
 					#if ($!prevFeedbackText)
-						<h4  id="toggleInline" class="toggleAnchor specialLink">$tlang.getString("gradingsub.prefeetex3")</h4>
+						<h4  id="toggleInline" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString("gradingsub.prefeetex3")</h4>
 						<div class="inlinecoms toggledContent">
 							$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
 						</div>
@@ -590,7 +425,7 @@ $('#toggleAllPurpose').click(function(){
 						</td></tr></table>
 						## for returned (not resubmitted ) submission, show the instructor feedback
 						#if ($!prevFeedbackComment)
-							<h4 id="toggleGen" class="toggleAnchor">
+							<h4 id="toggleGen" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 								$tlang.getString("gradingsub.prefee2")</h4>
 							<div class="gencoms  toggledContent">
 								$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
@@ -642,7 +477,7 @@ $('#toggleAllPurpose').click(function(){
 						</p>
 						#if ($!prevFeedbackAttachments)
 						## show previous grading/feedback attachments if any
-						<h4 id="toggleAttach" class="toggleAnchor">
+						<h4 id="toggleAttach" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 							$tlang.getString("gradingsub.prefeedbackAttachments")
 						</h4>
 						<div class="attachcoms  toggledContent">

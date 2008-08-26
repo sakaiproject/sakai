@@ -1,0 +1,29 @@
+	.toggleAnchor{
+		border:1px solid #cef;
+		background:#cef  !important;
+		padding:5px!important;
+		cursor:pointer
+	}
+	.toggleAnchor:hover,	.toggleAnchorOpen:hover{
+		border:1px solid #9cf;
+	}
+
+	.toggleAnchorOpen{
+		border:1px solid #cef;
+		background:#cef !important;
+		padding:5px!important;
+		cursor:pointer
+	}
+	.toggledContent{
+		margin:0;
+		border:2px solid #cef;
+		border-top:none;
+		padding: 1em
+	}
+	.toggledContent h4{
+		color:#000 !important;
+		width:40em;
+		margin:.5em 0 !important;
+		padding:.3em 0;
+		border-bottom:2px solid #ccc
+	}

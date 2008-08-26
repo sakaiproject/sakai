@@ -1,145 +1,14 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - Instructor new Assignment view
 <script type="text/javascript" src="/library/js/jquery.js"></script>
-<script type="text/javascript" src="/library/js/form.js"></script>
-<script language="JavaScript" type="text/JavaScript">
-$(document).ready(function(){
-				## show the previously opened field
-    $('.extraNode').hide();
-    showNode = $('#attachments_for').val();
-    $('#' + showNode + '-node').fadeIn('slow');
-	   $('.validationError').hide();
-	   
-	   if ($('#value_allPurpose').val() == 'true')
-	   {
-	   	$('#noAllPurpose').hide('');
-     $('#hasAllPurpose').show('');
-	   }
-    resizeFrame('grow');
-    
-    $(".toggleRoleLink").click(function(){
-    	var actionType;
-    	var roleType;
-    	actionType = this.id.substring(0, this.id.indexOf('_'));
-     roleType = this.id.substring(this.id.indexOf('_') + 1);
-     if (actionType == "expand")
-     {
-     	$('#' + roleType + "Div").show('');
-     	$('#collapse_' + roleType).show('');
-     	$('#expand_' + roleType).hide('');
-     }
-     else
-     {
-     	$('#' + roleType + "Div").hide('');
-     	$('#expand_' + roleType).show('');
-     	$('#collapse_' + roleType).hide('');
-     }
-    });
-    
-    $(".extraNodeLink").click(function(){
-	    $('.validationError').hide();			
-        nodeType = this.id.substring(0, this.id.indexOf('_'));
-        linkType = this.id.substring((this.id.indexOf('_') + 1));
-        if (linkType == "delete") {
-            if (nodeType == "allPurpose") {
-                $('#' + nodeType + '_title').val('');
-                $('#' + nodeType + '_title_holder').val('');
-            }
-            $('#' + nodeType + '_to_delete').val('true');
-            $('#' + nodeType + '_text').val('');
-            $('#' + nodeType + '_text_holder').val('');
-            $('#' + nodeType + '_to').val('0');
-            $('#' + nodeType + '_to_holder').val('0');
-            $('#' + 'no' + nodeType).show('');
-            $('#' + 'has' + nodeType).hide('');
-            $('.extraNode').hide();
-            resizeFrame('grow');
-        }
-        if (linkType == "add" || linkType == "edit") {
-            $('.extraNode').hide();
-            $('#' + this.id.substring(0, this.id.indexOf('_')) + '-node').fadeIn('slow');
-            resizeFrame('grow');
-        }
-						location.href='#extraNodesTop'        
-    });
-    $(".extraNodeInput").click(function(){
-		    $('.validationError').hide();
-        nodeType = this.id.substring(0, this.id.indexOf('_'));
-        inputType = this.id.substring((this.id.indexOf('_') + 1));
-        Text = $('#' + nodeType + '_text').val();
-        Title = $('#' + nodeType + '_title').val();
-        To = $('#' + nodeType + '_to').val();
-        defText = $('#' + nodeType + '_text_holder').val();
-        defTitle = $('#' + nodeType + '_title_holder').val();
-        defTo = $('#' + nodeType + '_to_holder').val();
-        
-        if (inputType == "cancel") {
-            if (nodeType == "allPurpose") {
-                $('#' + nodeType + '_title').val(defTitle);
-            }
-            $('#' + nodeType + '_text').val(defText);
-            $('#' + nodeType + '_to').val(defTo);
-            $('.extraNode').hide();
-						location.href='#extraNodesTop'    						
-        }
-        if (inputType == "save") {
-            validation = 'ok';
-						var titleOK
-						var textOK
-						var toOK
-						var message='';
-            if (nodeType == "allPurpose") {
-                if ($('#' + nodeType + '_title').val() == '') {
-									$('#' + nodeType + '_title_message').show();
-									validation='failed';
-                }
-                else {
-										titleOK=true;
-                }
-            }
-            if ($('#' + nodeType + '_text').val() == '') {
-									$('#' + nodeType + '_text_message').show();
-									validation='failed';
-            }
-            else {
-								textOK=true;
-            }
-            if (To == 0) {
-									$('#' + nodeType + '_to_message').show();
-									validation='failed';
-            }
-            else {
-								toOK=true;
-            }
-            
-            if (validation == 'ok') {
-							if (titleOK)
-							{
-								$('#' + nodeType + '_title_holder').val(Title);
-							}
-							if (textOK){
-                $('#' + nodeType + '_text_holder').val(Text);
-							}
-							if (toOK){
-								$('#' + nodeType + '_to_holder').val(To);
-							}
-                $('#' + 'no' + nodeType).hide('');
-                $('#' + 'has' + nodeType).show('');
-                $('#value_' + nodeType).val('true');
-                $('.extraNode').hide();
-						    $('.validationError').hide();								
-								location.href='#extraNodesTop'    					
-            }
-						else{
-		            resizeFrame('grow');
-								location.href='#extraNodesBoxTop'    													
-						}
-        }
-    });
-    
+##<script type="text/javascript" src="/library/js/form.js"></script>
+<script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	 setupAssignNew();
 });
+</script>
 
-</script>	
 <style type="text/css">
 	.extraNode {
 		border:1px solid #69d;
@@ -153,40 +22,26 @@ $(document).ready(function(){
 		padding:0 .5em;
 		color:#555
 	}
-	.roleList {
-
+	.userList {
+		margin-left:36px !important
 	}
+	.userList .selectedItem{
+		background:#def;
+		color:#000;
+		font-weight:bold
+	}
+	.userList li label:hover{
+		cursor:pointer;
+		background:#ffe
+	}		
+
 	fieldset .alertMessageInline,fieldset .alertMessage {
 		border:none
 	}
 
 </style>
 <script type="text/javascript">
-//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
-	function resizeFrame(updown) 
-	{
-		if (top.location != self.location) 	 {
-			var frame = parent.document.getElementById(window.name);
-		}	
-			if( frame ) 
-		{
-			if(updown=='shrink')
-			{
-				var clientH = document.body.clientHeight;
-			}
-			else
-			{
-				var clientH = document.body.clientHeight + 30;
-			}
-			$( frame ).height( clientH );
-		} 
-		else 
-		{
-			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
-		}
-	}
-
-<!--
+	<!--
     function SetMaxPoint(obj_option, obj_textfield)
     {
 		if(obj_option.value==3)
@@ -205,36 +60,36 @@ $(document).ready(function(){
 		}
 	}
 
-#*
-## This function is deprecated
-	function SetCloseDate(obj_checkbox, obj_1, obj_2, obj_3, obj_4, obj_5, obj_6)
-	{
-		if (obj_checkbox.checked)
+	#*
+	## This function is deprecated
+		function SetCloseDate(obj_checkbox, obj_1, obj_2, obj_3, obj_4, obj_5, obj_6)
 		{
-			obj_1.disabled = false;
-			obj_2.disabled = false;
-			obj_3.disabled = false;
-			obj_4.disabled = false;
-			obj_5.disabled = false;
-			obj_6.disabled = false;
+			if (obj_checkbox.checked)
+			{
+				obj_1.disabled = false;
+				obj_2.disabled = false;
+				obj_3.disabled = false;
+				obj_4.disabled = false;
+				obj_5.disabled = false;
+				obj_6.disabled = false;
+			}
+			else
+			{
+				obj_1.disabled = true;
+				obj_2.disabled = true;
+				obj_3.disabled = true;
+				obj_4.disabled = true;
+				obj_5.disabled = true;
+				obj_6.disabled = true;
+			}
 		}
-		else
-		{
-			obj_1.disabled = true;
-			obj_2.disabled = true;
-			obj_3.disabled = true;
-			obj_4.disabled = true;
-			obj_5.disabled = true;
-			obj_6.disabled = true;
-		}
-	}
-*#
--->
+	*#
+	-->
 </script>
 <script type="text/javascript">
 	focus_path = [ '$fField' ];
 </script>
-<div class="portletBody"  xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#" xmlns:aaa="http://www.w3.org/2005/07/aaa">
+<div class="portletBody"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 	<ul class="navIntraTool actionToolBar" role="menu">
 		#if ($allowAddAssignment)
 			<li class="firstToolBarItem" role="menuitem" aria-disabled="true">
@@ -248,9 +103,9 @@ $(document).ready(function(){
 					<span><a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.grarep")</a></span>
 				</li>
 			#end
-			<li  role="menuitem">
-				<span><a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a></span>
-			</li>				
+				<li  role="menuitem">
+					<span><a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a></span>
+				</li>				
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
 			<li  role="menuitem">		
@@ -264,18 +119,23 @@ $(document).ready(function(){
 		#end
 	</ul>
 	<h3>
-		
-	#if($validator.escapeHtml($!value_title) && $validator.escapeHtml($!value_title) !='')
-			$validator.escapeHtml($!value_title) <span class="highlight">	$tlang.getString("edit")
-	#else
-		$tlang.getString("new.title")
-	#end
+		#if($validator.escapeHtml($!value_title) && $validator.escapeHtml($!value_title) !='')
+			$validator.escapeHtml($!value_title) <span class="highlight">	$tlang.getString("edit")</span>
+		#else
+			$tlang.getString("new.title")
+		#end
 	</h3>
 
-<p class="instruction">
-	$tlang.getString("newassig.comfor")			
-</p>
-	#if ($alertMessage)<div class="alertMessage" style="width:80%  !important">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+	<p class="instruction">
+		$tlang.getString("newassig.comfor")			
+	</p>
+	#if ($alertMessage)
+		<div class="alertMessage" style="width:80%  !important">
+			$tlang.getString("gen.alert") 		$validator.escapeHtml($alertMessage)
+		</div>
+		<div style="display:block;clear:both">
+		</div>
+	#end
 
 	<form name = "newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input type="hidden" name="assignmentId" value="$!assignment.Reference" />
@@ -479,24 +339,24 @@ $(document).ready(function(){
 				#end
 			</select>
 		</p>
-#* comment out this option for 2.4 - will default to "0"
-		<p class="shorttext">
-			<label for="allowResubmitNumber">
-				$tlang.getString("allow.resubmit.number")
-			</label>
-			<select name="$name_allowResubmitNumber" id="allowResubmitNumber">
-				#foreach ($i in [-1..10])
-					<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
-						#if($i==-1)
-							$tlang.getString("allow.resubmit.number.unlimited")
-						#else
-							$i
-						#end
-					</option>
-				#end
-			</select>
-		</p>
-*#
+		#* comment out this option for 2.4 - will default to "0"
+			<p class="shorttext">
+				<label for="allowResubmitNumber">
+					$tlang.getString("allow.resubmit.number")
+				</label>
+				<select name="$name_allowResubmitNumber" id="allowResubmitNumber">
+					#foreach ($i in [-1..10])
+						<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
+							#if($i==-1)
+								$tlang.getString("allow.resubmit.number.unlimited")
+							#else
+								$i
+							#end
+						</option>
+					#end
+				</select>
+			</p>
+		*#
 		#if ($withGrade)
 			<p class="shorttext">
 				<span class="reqStar">*</span>
@@ -531,22 +391,22 @@ $(document).ready(function(){
 				</label>
 				<table border="0" style="margin:0"><tr><td>
 					<textarea name="$name_Description" id="$name_Description" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($value_Description)</textarea>
-##						#chef_setupformattedtextarea($name_Description)
+					##	#chef_setupformattedtextarea($name_Description)
 					</td></tr></table>
 			</div>
 		#if ($!name_CheckAddDueDate)
-				<p class="checkbox indnt2">
-					#if ($value_CheckAddDueDate.equals("true"))
-						<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" checked="checked" />
-					#else
-						<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" />
-					#end
-					<label for="$name_CheckAddDueDate">
-						$tlang.getString("gen.addduedat")
-					</label>
-				</p>
-			#end
-			#if ($!name_CheckAutoAnnounce)
+			<p class="checkbox indnt2">
+				#if ($value_CheckAddDueDate.equals("true"))
+					<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" checked="checked" />
+				#else
+					<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" />
+				#end
+				<label for="$name_CheckAddDueDate">
+					$tlang.getString("gen.addduedat")
+				</label>
+			</p>
+		#end
+		#if ($!name_CheckAutoAnnounce)
 			<p class="checkbox  indnt2">
 				#if ($value_CheckAutoAnnounce.equals("true"))
 					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" />
@@ -557,336 +417,333 @@ $(document).ready(function(){
 					$tlang.getString("gen.anntheope") 
 				</label>
 			</p>
+		#end
+		<p class="checkbox  indnt2">
+			#if (!$!value_CheckAddHonorPledge.equals("1"))
+				<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" checked="checked" />
+			#else
+				<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" />
 			#end
-			<p class="checkbox  indnt2">
-				#if (!$!value_CheckAddHonorPledge.equals("1"))
-					<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" checked="checked" />
-				#else
-					<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" />
-				#end
-				<label for="$name_CheckAddHonorPledge">
-					$tlang.getString("gen.addhonple")
-				</label>
-			</p>
-			#if ($allowReviewService)
-				<p style="display:block">
+			<label for="$name_CheckAddHonorPledge">
+				$tlang.getString("gen.addhonple")
+			</label>
+		</p>
+		#if ($allowReviewService)
+			<div style="display:block">
 				<h4>
 				$!tlang.getString('review.title')
 				</h4>
-					<div class="checkbox  indnt2">
-						#if ($!value_UseReviewService.equals("true"))
-							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" checked="checked" />
-						#else
-							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" />
+				<div class="checkbox  indnt2">
+					#if ($!value_UseReviewService.equals("true"))
+						<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" checked="checked" />
+					#else
+						<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" />
+					#end
+					<label for="$name_UseReviewService">
+						$tlang.getString("review.use") 
+					</label>
+				</div>
+				<div class="checkbox  indnt2">
+					#if ($!value_AllowStudentView.equals("true"))
+						<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" checked="checked" />
+					#else
+						<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" />
+					#end
+					<label for="$name_AllowStudentView">
+						$tlang.getString("review.allow") 
+					</label>
+				</div>
+			</div>
+		#end
+		#if ($!withGrade && $!withGradebook)
+			## show the "Add to Gradebook" choices or not
+			#if(!$!allowGroupAssignmentsInGradebook)
+				#set ($addToGBDisplay="none")
+			#else
+				#set ($addToGBDisplay="block")
+			#end
+				<h4>
+					$!tlang.getString('grading')
+				</h4>
+				<p style="display:$!addToGBDisplay">
+				<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
+					## hide the assignment list from Gradebook when clicked
+					<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
+					<label for="$!gradebookChoice_no">#if(!$!noAddToGradebookChoice)$tlang.getString("grading.no")#else$tlang.getString("grading.no2")#end</label>
+					<br/>
+					#if (!$!noAddToGradebookChoice)
+						## hide the assignment list from Gradebook when clicked
+						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
+						<label for="$!gradebookChoice_add">$tlang.getString("grading.add")</label>
+						<br/>
+					#end
+					## if there exists properiate assignment entries in Gradebook
+					#if ($!gradebookAssignments.size() > 0) 
+						## show the assignment list from Gradebook when clicked
+						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_associate" value="$!gradebookChoice_associate" #if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'block';" >
+						<label for="$!gradebookChoice_associate">$tlang.getString("grading.associate")</label>
+					#end
+				</div>
+			</p>	
+			## if there exists properiate assignment entries in Gradebook
+			#if ($!gradebookAssignments.size() > 0) 
+				## show the "Gradebook Assignment list" choices or not
+				#if($!allowGroupAssignmentsInGradebook && $!gradebookChoice.equals("$!gradebookChoice_associate"))
+					#set ($gbListDisplay="block")
+				#else
+					#set ($gbListDisplay="none")
+				#end
+				<p id="gradebookList" class="checkbox  indnt2" style="display:$gbListDisplay">
+					<select name="$!name_AssociateGradebookAssignment" >
+						<option  value="">$tlang.getString("grading.select")</option>
+						#foreach ($aAssignment in $!gradebookAssignments)
+							#if ($aAssignment.isExternallyMaintained())
+								## for external assignment
+								<option  value="$aAssignment.getExternalId()" #if($!associateGradebookAssignment.equals($aAssignment.getExternalId()))selected="selected"#end)>$aAssignment.Name</option>
+							#else
+								## for internal assignment
+								<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
+							#end
 						#end
-						<label for="$name_UseReviewService">
-							$tlang.getString("review.use") 
-						</label>
-					</div>
-					<div class="checkbox  indnt2">
-						#if ($!value_AllowStudentView.equals("true"))
-							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" checked="checked" />
-						#else
-							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" />
-						#end
-						<label for="$name_AllowStudentView">
-							$tlang.getString("review.allow") 
-						</label>
-					</div>
+					</select>
 				</p>
 			#end
-			#if ($!withGrade && $!withGradebook)
-				## show the "Add to Gradebook" choices or not
-				#if(!$!allowGroupAssignmentsInGradebook)
-					#set ($addToGBDisplay="none")
-				#else
-					#set ($addToGBDisplay="block")
-				#end
-					<h4>
-						$!tlang.getString('grading')
-					</h4>
-					<p style="display:$!addToGBDisplay">
-					<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
-						## hide the assignment list from Gradebook when clicked
-						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
-						<label for="$!gradebookChoice_no">#if(!$!noAddToGradebookChoice)$tlang.getString("grading.no")#else$tlang.getString("grading.no2")#end</label>
-						<br/>
-						#if (!$!noAddToGradebookChoice)
-							## hide the assignment list from Gradebook when clicked
-							<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
-							<label for="$!gradebookChoice_add">$tlang.getString("grading.add")</label>
-							<br/>
-						#end
-						## if there exists properiate assignment entries in Gradebook
-						#if ($!gradebookAssignments.size() > 0) 
-							## show the assignment list from Gradebook when clicked
-							<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_associate" value="$!gradebookChoice_associate" #if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'block';" >
-							<label for="$!gradebookChoice_associate">$tlang.getString("grading.associate")</label>
-						#end
-					</div>
-				</p>	
-				## if there exists properiate assignment entries in Gradebook
-				#if ($!gradebookAssignments.size() > 0) 
-					## show the "Gradebook Assignment list" choices or not
-					#if($!allowGroupAssignmentsInGradebook && $!gradebookChoice.equals("$!gradebookChoice_associate"))
-						#set ($gbListDisplay="block")
-					#else
-						#set ($gbListDisplay="none")
-					#end
-					<p id="gradebookList" class="checkbox  indnt2" style="display:$gbListDisplay">
-						<select name="$!name_AssociateGradebookAssignment" >
-							<option  value="">$tlang.getString("grading.select")</option>
-							#foreach ($aAssignment in $!gradebookAssignments)
-								#if ($aAssignment.isExternallyMaintained())
-									## for external assignment
-									<option  value="$aAssignment.getExternalId()" #if($!associateGradebookAssignment.equals($aAssignment.getExternalId()))selected="selected"#end)>$aAssignment.Name</option>
-								#else
-									## for internal assignment
-									<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
-								#end
-							#end
-						</select>
-					</p>
-				#end
-			#end
-			## group/section support
-			#if ($allowAddSiteAssignment)
-				#if ($!groups)
-					<h4>
-						$!tlang.getString('access')
-					</h4>
-					<p class="checkbox  indnt2">
-						#if (!$!allowGroupAssignmentsInGradebook)
-							<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="if (document.getElementById('addToGradebook') !=null){document.getElementById('addToGradebook').style.display = 'block'};document.getElementById('groupTable').style.display = 'none';" />
-						#else
-							<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" />
-						#end
-						<label for="site">$tlang.getString("displayto.site")</label>
-					</p>	
-				#else
-					##if there is no group for the site, assignment is defaulted to site-range, and no need to surface the choice in UI
-					<input type="hidden" name="range" id="site" value="site" />
-				#end
-			#elseif ($allowAddAssignment)
+		#end
+		## group/section support
+		#if ($allowAddSiteAssignment)
+			#if ($!groups)
 				<h4>
 					$!tlang.getString('access')
 				</h4>
-				#if ($!groups.size() >1)
-					<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
-				#else
-					<label for="$tlang.getString('group')">$tlang.getString("group")</label>
-				#end
-			#end
-			#if ($!groups)
-				## added group awareness
-				<p class="checkbox indnt2">
-					#if (!$!allowGroupAssignmentsInGradebook)
-						<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
-					#else
-						<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
-					#end
-					
-					<label for="groups">$tlang.getString("displayto.selected")</label>
-				</p>	
-				#if($!range == "groups" || $!assignment.Access == $groupAccess)
-					#set ($listDisplay="block")
-				#else
-					#set ($listDisplay="none")
-				#end
-				<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
-						<tr>
-							<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
-								<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
-							</th>
-					 		<th id ="groupname">
-									$tlang.getString('group.list.title')
-							</th>
-							<th id ="groupdescription">
-								$tlang.getString('group.list.descr')
-							</th>
-						</tr>
-						#foreach ($group in $!groups)
-							<tr>
-								<td headers="selected" style="width:2em">
-									#set($selected=false)
-									#foreach($aGroupRef in $assignmentGroups)
-										#set($aGroup = $!site.getGroup($!aGroupRef))
-										#if ($!group.Id == $!aGroup.Id)
-											#set($selected = true)
-										#end
-									#end
-									<input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
-								</td>
-								<td headers="name" class="checkbox" style="white-space:nowrap">
-									<label for="id-$group.Id">
-										$validator.escapeHtml($group.Title)
-									</label>	
-								</td>
-								<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
-									#set($description = "")
-									#set($description = $group.Description)
-									$!description
-								</td>
-							</tr>
-						#end
-					</table>
-			#end
-			## whether to show the instructor notification choices
-			#if ($!name_assignment_instructor_notifications)
-				<h4>
-					$tlang.getString("receive.confirm.submission.email.options")
-				</h4>
 				<p class="checkbox  indnt2">
-					<input type="radio" name="$!name_assignment_instructor_notifications" id="notsendnotif" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end />
-					<label for="notsendnotif">$tlang.getString('receive.confirm.submission.email.none')</label>
-					<br/>
-					<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotif" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end />
-					<label for="sendnotif">$tlang.getString('receive.confirm.submission.email.each')</label>
-					<br/>
-					<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotifsummary" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end />
-					<label for="sendnotifsummary">$tlang.getString('receive.confirm.submission.email.digest')</label>
-				</p>
-			#end
-			## attachments
-			<h4>
-				$tlang.getString("gen.addres")
-			</h4>
-			#set ($size = 0)
-			#set ($props = false)
-			#foreach ($attachment in $attachments) 
-				#set ($props = $attachment.Properties) 
-				#if ($!props)
-					#set ($size = $size + 1)
-				#end
-			#end
-			#if ($size == 0)
-				<p class="instruction">$tlang.getString("gen.noatt")</p>
-
-				<div class="act">
-					<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>
-				</div>
-			#else
-				<ul class="attachList indnt1">
-					#foreach ($attachment in $attachments) 
-						#set ($props = false)
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							<li>
-								#if ($props.getBooleanProperty($props.NamePropIsCollection))
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-								#else
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-								#end
-								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-									($props.getPropertyFormatted($props.NamePropContentLength))
-								#end
-							</li>
-						#end
-					#end
-				</ul>
-				<div class="act">
-					<input type="button" name="attach" value="$tlang.getString('gen.adddroatt2')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;" />
-				</div>
-			#end	
-	<a name="extraNodesTop"></a>
-		<h3 style="margin-bottom:0">Additional information</h3>
-	<table class="listHier lines nolines" style="width:auto;" >
-		<caption style="border-bottom:1px solid #ccc;text-align:left; margin-top:1em;padding-bottom:.3em">$tlang.getString("supplement")</caption>
-		<tr>
-			<td style="padding-right:5em">
-				$tlang.getString("modelAnswer")
-			</td>
-			<td class="itemAction" style="white-space:nowrap">
-				<div id="nomodelanswer"  #if(!$!modelanswer) style="display:block"#else style="display:none" #end>
-					<a id="modelanswer_add" class="extraNodeLink">$tlang.getString("new")</a>
-				</div>
-				<div id="hasmodelanswer"  #if($!modelanswer) style="display:block"#else style="display:none" #end>
-					<a id="modelanswer_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="modelanswer_delete" class="extraNodeLink">$tlang.getString("delet")</a>
-					<input id = "modelanswer_to_delete" name = "modelanswer_to_delete" type= "hidden" value = "false" />
-				</div>
-			</td>
-		</tr>
-		## show the private note section if only the user can view or edit the item
-		#if ($!allowEditAssignmentNoteItem || $!allowReadAssignmentNoteItem)
-		<tr>
-			<td style="padding-right:5em">
-				$tlang.getString("note")
-			</td>
-			<td class="itemAction" style="white-space:nowrap">
-				<div id="nonote"  #if(!$!note) style="display:block"#else style="display:none" #end> 
-					<a id="note_add" class="extraNodeLink">$tlang.getString("new")</a>
-				</div>
-				<div id="hasnote"  #if($!note) style="display:block"#else style="display:none" #end>
-					#if ($!allowEditAssignmentNoteItem)
-						<a id="note_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="note_delete" class="extraNodeLink">$tlang.getString("delet")</a>
+					#if (!$!allowGroupAssignmentsInGradebook)
+						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="if (document.getElementById('addToGradebook') !=null){document.getElementById('addToGradebook').style.display = 'block'};document.getElementById('groupTable').style.display = 'none';" />
 					#else
-						#if ($!allowReadAssignmentNoteItem)
-							<a id="note_edit" class="extraNodeLink">$tlang.getString("gen.view2")</a>
-						#end
+						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" />
 					#end
-				</div>
-				<input id = "note_to_delete" name = "note_to_delete" type= "hidden" value = "false" />
-			</td>
-		</tr>
-	 #end
-		<tr>
-			<td style="padding-right:5em">
-				$tlang.getString("allPurpose")
-			</td>
-			<td class="itemAction" style="white-space:nowrap">
-				<div id="noallPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
-					<a id="allPurpose_add" class="extraNodeLink">$tlang.getString("new")</a>
-				</div>
-				<div id="hasallPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
-					<a id="allPurpose_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="allPurpose_delete" class="extraNodeLink">$tlang.getString("delet")</a>
-				</div>
-				<input type="hidden" name="value_allPurpose" #if($!allPurpose) value="true" #else value="false" #end />
-				<input id = "allPurpose_to_delete" name = "allPurpose_to_delete" type= "hidden" value = "false" />
-#*
-				<div id="noAllPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
-					<a id="allPurpose_add" class="extraNodeLink">$tlang.getString("new")</a>
-				</div>
-				<div id="hasAllPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
-					<a id="allPurpose_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="allPurpose_delete" class="extraNodeLink">$tlang.getString("delet")</a>
-				</div>
-*#
+					<label for="site">$tlang.getString("displayto.site")</label>
+				</p>	
+			#else
+				##if there is no group for the site, assignment is defaulted to site-range, and no need to surface the choice in UI
+				<input type="hidden" name="range" id="site" value="site" />
+			#end
+		#elseif ($allowAddAssignment)
+			<h4>
+				$!tlang.getString('access')
+			</h4>
+			#if ($!groups.size() >1)
+				<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
+			#else
+				<label for="$tlang.getString('group')">$tlang.getString("group")</label>
+			#end
+		#end
+		#if ($!groups)
+			## added group awareness
+			<p class="checkbox indnt2">
+				#if (!$!allowGroupAssignmentsInGradebook)
+					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+				#else
+					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+				#end
+				
+				<label for="groups">$tlang.getString("displayto.selected")</label>
+			</p>	
+			#if($!range == "groups" || $!assignment.Access == $groupAccess)
+				#set ($listDisplay="block")
+			#else
+				#set ($listDisplay="none")
+			#end
+			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
+					<tr>
+						<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
+							<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
+						</th>
+						<th id ="groupname">
+								$tlang.getString('group.list.title')
+						</th>
+						<th id ="groupdescription">
+							$tlang.getString('group.list.descr')
+						</th>
+					</tr>
+					#foreach ($group in $!groups)
+						<tr>
+							<td headers="selected" style="width:2em">
+								#set($selected=false)
+								#foreach($aGroupRef in $assignmentGroups)
+									#set($aGroup = $!site.getGroup($!aGroupRef))
+									#if ($!group.Id == $!aGroup.Id)
+										#set($selected = true)
+									#end
+								#end
+								<input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+							</td>
+							<td headers="name" class="checkbox" style="white-space:nowrap">
+								<label for="id-$group.Id">
+									$validator.escapeHtml($group.Title)
+								</label>	
+							</td>
+							<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+								#set($description = "")
+								#set($description = $group.Description)
+								$!description
+							</td>
+						</tr>
+					#end
+				</table>
+		#end
+		## whether to show the instructor notification choices
+		#if ($!name_assignment_instructor_notifications)
+			<h4>
+				$tlang.getString("receive.confirm.submission.email.options")
+			</h4>
+			<p class="checkbox  indnt2">
+				<input type="radio" name="$!name_assignment_instructor_notifications" id="notsendnotif" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end />
+				<label for="notsendnotif">$tlang.getString('receive.confirm.submission.email.none')</label>
+				<br/>
+				<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotif" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end />
+				<label for="sendnotif">$tlang.getString('receive.confirm.submission.email.each')</label>
+				<br/>
+				<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotifsummary" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end />
+				<label for="sendnotifsummary">$tlang.getString('receive.confirm.submission.email.digest')</label>
+			</p>
+		#end
+		## attachments
+		<h4>
+			$tlang.getString("gen.addres")
+		</h4>
+		#set ($size = 0)
+		#set ($props = false)
+		#foreach ($attachment in $attachments) 
+			#set ($props = $attachment.Properties) 
+			#if ($!props)
+				#set ($size = $size + 1)
+			#end
+		#end
+		#if ($size == 0)
+			<p class="instruction">$tlang.getString("gen.noatt")</p>
 
-
-
-			</td>
-		</tr>
-	</table>
-</div>		
+			<div class="act">
+				<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>
+			</div>
+		#else
+			<ul class="attachList indnt1">
+				#foreach ($attachment in $attachments) 
+					#set ($props = false)
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						<li>
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+							#else
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+							#end
+							<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+								($props.getPropertyFormatted($props.NamePropContentLength))
+							#end
+						</li>
+					#end
+				#end
+			</ul>
+			<div class="act">
+				<input type="button" name="attach" value="$tlang.getString('gen.adddroatt2')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;" />
+			</div>
+		#end	
+		<a name="extraNodesTop"></a>
+		<h3 style="margin-bottom:0">Additional information</h3>
+		<table class="listHier lines nolines" style="width:auto;" id="extraNodeLinkList">
+			<caption style="border-bottom:1px solid #ccc;text-align:left; margin-top:1em;padding-bottom:.3em">$tlang.getString("supplement")</caption>
+			<tr>
+				<td style="padding-right:5em">
+					$tlang.getString("modelAnswer")
+				</td>
+				<td class="itemAction" style="white-space:nowrap">
+					<div id="nomodelanswer"  #if(!$!modelanswer) style="display:block"#else style="display:none" #end>
+						<a id="modelanswer_add" class="extraNodeLink">$tlang.getString("new")</a>
+					</div>
+					<div id="hasmodelanswer"  #if($!modelanswer) style="display:block"#else style="display:none" #end>
+						<a id="modelanswer_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="modelanswer_delete" class="extraNodeLink">$tlang.getString("delet")</a>
+						<input id = "modelanswer_to_delete" name = "modelanswer_to_delete" type= "hidden" value = "false" />
+					</div>
+				</td>
+			</tr>
+			## show the private note section if only the user can view or edit the item
+			#if ($!allowEditAssignmentNoteItem || $!allowReadAssignmentNoteItem)
+				<tr>
+					<td style="padding-right:5em">
+						$tlang.getString("note")
+					</td>
+					<td class="itemAction" style="white-space:nowrap">
+						<div id="nonote"  #if(!$!note) style="display:block"#else style="display:none" #end> 
+							<a id="note_add" class="extraNodeLink">$tlang.getString("new")</a>
+						</div>
+						<div id="hasnote"  #if($!note) style="display:block"#else style="display:none" #end>
+							#if ($!allowEditAssignmentNoteItem)
+								<a id="note_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="note_delete" class="extraNodeLink">$tlang.getString("delet")</a>
+							#else
+								#if ($!allowReadAssignmentNoteItem)
+									<a id="note_edit" class="extraNodeLink">$tlang.getString("gen.view2")</a>
+								#end
+							#end
+						</div>
+						<input id = "note_to_delete" name = "note_to_delete" type= "hidden" value = "false" />
+					</td>
+				</tr>
+			#end
+			<tr>
+				<td style="padding-right:5em">
+					$tlang.getString("allPurpose")
+				</td>
+				<td class="itemAction" style="white-space:nowrap">
+					<div id="noallPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
+						<a id="allPurpose_add" class="extraNodeLink">$tlang.getString("new")</a>
+					</div>
+					<div id="hasallPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
+						<a id="allPurpose_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="allPurpose_delete" class="extraNodeLink">$tlang.getString("delet")</a>
+					</div>
+					<input type="hidden" name="value_allPurpose" #if($!allPurpose) value="true" #else value="false" #end />
+					<input id = "allPurpose_to_delete" name = "allPurpose_to_delete" type= "hidden" value = "false" />
+					#*
+						<div id="noAllPurpose" #if(!$!allPurpose) style="display:block"#else style="display:none" #end>
+							<a id="allPurpose_add" class="extraNodeLink">$tlang.getString("new")</a>
+						</div>
+						<div id="hasAllPurpose" #if($!allPurpose) style="display:block"#else style="display:none" #end>
+							<a id="allPurpose_edit" class="extraNodeLink">$tlang.getString("gen.revi")</a> | <a id="allPurpose_delete" class="extraNodeLink">$tlang.getString("delet")</a>
+						</div>
+					*#
+				</td>
+			</tr>
+		</table>
+		##</div>		
 		
-	#*	<p class="shorttext">
-			<label for="selectExtra">
-				Add item
-			</label>
-			<select id="selectExtra">
-					<option value="1default"> --select one-- </option>
-					<option value="modelanswer">Model Answer</option>
-					<option value="gradingguidelines">Grading guidelines</option>
-					<option value="assignotes">Private notes</option>
-					<option value="otherextranodes">All purpose item</option>
-			</select>
-		</p>*#
+		#*<p class="shorttext">
+				<label for="selectExtra">
+					Add item
+				</label>
+				<select id="selectExtra">
+						<option value="1default"> --select one-- </option>
+						<option value="modelanswer">Model Answer</option>
+						<option value="gradingguidelines">Grading guidelines</option>
+						<option value="assignotes">Private notes</option>
+						<option value="otherextranodes">All purpose item</option>
+				</select>
+			</p>
+		*#
 		<a name="extraNodesBoxTop"></a>		
 		<input type="hidden" name = "attachments_for" id="attachments_for" value="$!attachments_for" />
-		<fieldset class="extraNode" id="modelanswer-node" >
-				<legend>$tlang.getString("modelAnswer")</legend>
-				<div class="longtext" style="margin:.2em">
-					<label for="modelanswer_text" class="block">
-						<span class="reqStar">*</span>$tlang.getString("modelAnswer.instruction")
-					</label>
-					<div class="validationError alertMessage" id="modelanswer_text_message">
-						$tlang.getString("extraNodesRequired")
-					</div>	
-
-					<textarea name="modelanswer_text" id="modelanswer_text" cols="60" rows="10" wrap="virtual">$!modelanswer_text</textarea>
-					<textarea name="modelanswer_text_holder" id="modelanswer_text_holder" style="display:none" cols="60" rows="2" wrap="virtual">$!modelanswer_text</textarea>
-					###chef_setupformattedtextareaparams("modeltext" "200" "365" "small") 
-				</div>
+		<fieldset class="extraNode" id="modelanswer-node" >## the panel for model answer
+			<legend>$tlang.getString("modelAnswer")</legend>
+			<div class="longtext" style="margin:.2em">
+				<label for="modelanswer_text" class="block">
+					<span class="reqStar">*</span>$tlang.getString("modelAnswer.instruction")
+				</label>
+				<div class="validationError alertMessage" id="modelanswer_text_message">
+					$tlang.getString("extraNodesRequired")
+				</div>	
+				<textarea name="modelanswer_text" id="modelanswer_text" cols="60" rows="10" wrap="virtual">$!modelanswer_text</textarea>
+				<textarea name="modelanswer_text_holder" id="modelanswer_text_holder" style="display:none" cols="60" rows="2" wrap="virtual">$!modelanswer_text</textarea>
+				###chef_setupformattedtextareaparams("modeltext" "200" "365" "small") 
+			</div>
 			## attachments
 			<label for="modelAnswerAttach" class="block">
 					$tlang.getString("gen.addres")
@@ -922,12 +779,12 @@ $(document).ready(function(){
 					#end
 				</ul>
 			#end
-				<div class="act">
-					<input type="button" name="modelAnswerAttach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='modelAnswerAttach';document.newAssignmentForm.submit();return false;"/>
-				</div>
+			<div class="act">
+				<input type="button" name="modelAnswerAttach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='modelAnswerAttach';document.newAssignmentForm.submit();return false;"/>
+			</div>
 
 			<p class="longtext"  style="margin:.2em">
-			<span class="reqStar">*</span>
+				<span class="reqStar">*</span>
 				<label for="modelanswer_to" class="block">
 					$tlang.getString("modelAnswer.show_to_student.prompt")
 				</label>
@@ -950,50 +807,49 @@ $(document).ready(function(){
 				<input class="extraNodeInput" type="button" id="modelanswer_cancel" value="$tlang.getString('gen.can')" />
 			</p>
 		</fieldset>
-		## the panel for grading guideline				
-		#*<fieldset class="extraNode" id="gradingguidelines-node">
-			<legend>Grading guidelines</legend>
-				<div class="validationError alertMessage" id="gradingguidelines-message">
+		#*the panel for grading guideline
+			<fieldset class="extraNode" id="gradingguidelines-node">
+				<legend>Grading guidelines</legend>
+					<div class="validationError alertMessage" id="gradingguidelines-message">
+					</div>
+				<div class="longtext" style="margin:.2em">
+					<span class="reqStar">*</span>
+					<label for="ggtext" class="block">
+						Provide grading rationale. You can choose to whom and when this will display.
+					</label>
+						<textarea name="ggtext" id="ggtext" cols="60" rows="10" wrap="virtual"></textarea>
+						###chef_setupformattedtextareaparams("ggtext" "200" "365" "small")					
 				</div>
-			<div class="longtext" style="margin:.2em">
-				<span class="reqStar">*</span>
-				<label for="ggtext" class="block">
-					Provide grading rationale. You can choose to whom and when this will display.
-				</label>
-					<textarea name="ggtext" id="ggtext" cols="60" rows="10" wrap="virtual"></textarea>
-					###chef_setupformattedtextareaparams("ggtext" "200" "365" "small")					
-			</div>
-			<div class="act">
-					<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>
-				</div>
-			<p class="longtext"  style="margin:.2em">
-				<span class="reqStar">*</span>
-				<label for="ggwho" class="block">
-					Show
-				</label>
-				<select id="ggwho">
-					<option value="ggwhodefault"> --select one-- </option>
-					<option value="ggwho1">Only to instructors</option>
-					<option value="ggwho2">also to students (after grading)</option>
-					<option value="ggwho3">also to students (after accept until date)</option>
-				</select>
-			</p>
-			<p class="act">
-				<input class="extraNodeInput"  type="button" value="Save" class="active"/><input class="extraNodeInput"  type="button" value="Cancel" />
-			</p>
-		</fieldset>	
+				<div class="act">
+						<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>
+					</div>
+				<p class="longtext"  style="margin:.2em">
+					<span class="reqStar">*</span>
+					<label for="ggwho" class="block">
+						Show
+					</label>
+					<select id="ggwho">
+						<option value="ggwhodefault"> --select one-- </option>
+						<option value="ggwho1">Only to instructors</option>
+						<option value="ggwho2">also to students (after grading)</option>
+						<option value="ggwho3">also to students (after accept until date)</option>
+					</select>
+				</p>
+				<p class="act">
+					<input class="extraNodeInput"  type="button" value="Save" class="active"/><input class="extraNodeInput"  type="button" value="Cancel" />
+				</p>
+			</fieldset>	
 		*#
-		## the panel for private note			
-		<fieldset class="extraNode" id="note-node">
+		<fieldset class="extraNode" id="note-node">## the panel for private note
 			<legend>$tlang.getString("note")</legend>
-				<div class="validationError alertMessage" id="note_text_message">
-					$tlang.getString("extraNodesRequired")
-				</div>	
 			<div class="longtext" style="margin:.2em">
 				<span class="reqStar">*</span>				
 				<label for="note_text" class="block">
 					$tlang.getString("note.instruction") 
 				</label>
+				<div class="validationError alertMessage" id="note_text_message">
+					$tlang.getString("extraNodesRequired")
+				</div>	
 				#if ($!note && $!allowEditAssignmentNoteItem || !$!note)
 					<textarea name="note_text" id="note_text" cols="60" rows="10" wrap="virtual">$!note_text</textarea>
 					<textarea name="note_text_holder" id="note_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$!note_text</textarea>
@@ -1002,7 +858,7 @@ $(document).ready(function(){
 					 <div class="notes">$!note_text</div>
 				 #end
 				#end
-					###chef_setupformattedtextareaparams("assigntext" "200" "365" "small")
+				###chef_setupformattedtextareaparams("assigntext" "200" "365" "small")
 			</div>
 			<p class="longtext"  style="margin:.2em">
 				<span class="reqStar">*</span>				
@@ -1010,13 +866,13 @@ $(document).ready(function(){
 					Share
 				</label>
 				#if ($!note && $!allowEditAssignmentNoteItem || !$!note)
-				<select id="note_to" name="note_to">
-					#foreach ($k in ["0", "1", "2", "3"])
-						#set($string = "note.to.")
-						#set($string = $string.concat($k))
-						<option value="$k" #if($k.equals($!note_to)) selected="selected" #set ($note_to_val=$k) #end> $tlang.getString($string) </option>
-					#end
-				</select>
+					<select id="note_to" name="note_to">
+						#foreach ($k in ["0", "1", "2", "3"])
+							#set($string = "note.to.")
+							#set($string = $string.concat($k))
+							<option value="$k" #if($k.equals($!note_to)) selected="selected" #set ($note_to_val=$k) #end> $tlang.getString($string) </option>
+						#end
+					</select>
 				#else
 					#if ($!allowReadAssignmentNoteItem)
 						#foreach ($k in ["0", "1", "2", "3"])
@@ -1035,14 +891,13 @@ $(document).ready(function(){
 			</p>
 			#if ($!note && $!allowEditAssignmentNoteItem || !$!note)
 				<p class="act">
-				## can only edit if there is no note item, or if there is a note item and the current user can edit it.
+					## can only edit if there is no note item, or if there is a note item and the current user can edit it.
 					<input class="extraNodeInput" type="button" id="note_save" value="$tlang.getString('gen.sav')" class="active" />
 					<input class="extraNodeInput" type="button" id="note_cancel" value="$tlang.getString('gen.can')" />
 				</p>
 			#end
 		</fieldset>			
-		## the panel for allPurpose type of object			
-		<fieldset class="extraNode" id="allPurpose-node" >
+		<fieldset class="extraNode" id="allPurpose-node" >## the panel for allPurpose type of object
 			<legend>$tlang.getString('allPurpose')</legend>
 			<div class="shorttext" style="margin:.2em">
 				<span class="reqStar">*</span>				
@@ -1059,11 +914,12 @@ $(document).ready(function(){
 				<label for="allPurpose_text" class="block">
 					$tlang.getString("allPurpose.instruction")
 				</label>
-					<textarea name="allPurposeText" id="allPurpose_text" cols="60" rows="10" wrap="virtual">$!value_allPurposeText</textarea>
-					<textarea name="allPurposeTextHolder"  id="allPurpose_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$!value_allPurposeText</textarea>
-					<div class="validationError alertMessage" id="allPurpose_text_message">
-						$tlang.getString("extraNodesRequired")
-					</div>	
+				<div class="validationError alertMessage" id="allPurpose_text_message">
+					$tlang.getString("extraNodesRequired")
+				</div>	
+				<textarea name="allPurposeText" id="allPurpose_text" cols="60" rows="10" wrap="virtual">$!value_allPurposeText</textarea>
+				<textarea name="allPurposeTextHolder"  id="allPurpose_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$!value_allPurposeText</textarea>
+			</div>	
 			## attachments for allpurpose item
 			<label for="allPurposeAttach" class="block">
 					$tlang.getString("gen.addres")
@@ -1099,196 +955,197 @@ $(document).ready(function(){
 					#end
 				</ul>
 			#end
-				<div class="act">
-					<input type="button" name="allPurposeAttach" id="allPurposeAttach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='allPurposeAttach';document.newAssignmentForm.submit();return false;"/>
-				</div>
+			<div class="act">
+				<input type="button" name="allPurposeAttach" id="allPurposeAttach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='allPurposeAttach';document.newAssignmentForm.submit();return false;"/>
 			</div>
-       <table>
-            <tr>
-                <td>
-                   <input name="allPurposeHide" id="allPurposeHide" value="false" #if(!$!value_allPurposeHide)checked="checked"#end type="radio" />
-                </td>
-                <td colspan="4">
-                    <label for="hidden_false_0">
-                        $tlang.getString("allPurpose.show")
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td>
-                   <input name="allPurposeShowFrom" id="allPurposeShowFrom" value="true" type="checkbox" #if ($value_allPurposeShowFrom) checked="checked" #end />
-                </td>
-                <td colspan="3">
-                    <label for="allPurposeShowFrom">
-                        $tlang.getString("allPurpose.show.from")
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                    <label for="allPurposeReleaseYear">
-                        $tlang.getString("allPurpose.show.date")
-                    </label>
-                </td>
-                <td>
-                    <label for="allPurposeReleaseHour">
-                        $tlang.getString("allPurpose.show.time")
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                	#chef_dateselectionwidget("allPurposeReleaseYear" "allPurposeReleaseMonth" "allPurposeReleaseDay" $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay)
-                </td>
-                <td>
-                    <select name="allPurposeReleaseHour" id="allPurposeReleaseHour">
-                    	#foreach ($i in [1..12])
-																						<option value="$i" #if ($value_allPurposeReleaseHour==$i)selected="selected"#end>$i</option>
-																					#end
-                    </select>
-                    <select name="allPurposeReleaseMin" id="allPurposeReleaseMin">
-                    			#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-																								<option value="$i" #if($i == $value_allPurposeReleaseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-																							#end
-                    </select>
-                    <select name="allPurposeReleaseAMPM" id="allPurposeReleaseHourAMPM">
-                    	#foreach ($i in [0, 1])
-																						<option value="$i" #if($i == $value_allPurposeReleaseAMPM)selected="selected"#end>#if($i==0) AM #else PM #end</option>
-																					#end
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td>
-                    <input name="allPurposeShowTo" id="allPurposeShowTo" value="true" type="checkbox" #if ($!value_allPurposeShowTo) checked="checked" #end />
-                </td>
-                <td colspan="4">
-                    <label for="allPurposeShowTo">
-                        $tlang.getString("allPurpose.show.util")
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                    <label for="allPurposeRetractYear">
-                        $tlang.getString("allPurpose.show.date")
-                    </label>
-                </td>
-                <td>
-                    <label for="allPurposeRetractHour">
-                        $tlang.getString("allPurpose.show.time")
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                	#chef_dateselectionwidget("allPurposeRetractYear" "allPurposeRetractMonth" "allPurposeRetractDay" $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay)    
-                </td>
-                <td>
-                    <select name="allPurposeRetractHour" id="allPurposeRetractHour">
-                     #foreach ($i in [1..12])
-																						<option value="$i" #if ($value_allPurposeRetractHour==$i)selected="selected"#end>$i</option>
-																					#end
-                    </select>
-                    <select name="allPurposeRetractMin" id="allPurposeRetractMin">
-                    			#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-																								<option value="$i" #if($i == $value_allPurposeRetractMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-																							#end
-                    </select>
-                    <select name="allPurposeRetractAMPM" id="allPurposeRetractHourAMPM">
-                    	#foreach ($i in [0, 1])
-																						<option value="$i" #if($i == $value_allPurposeRetractAMPM)selected="selected"#end>#if($i==0) AM #else PM #end </option>
-																					#end
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <input name="allPurposeHide" id="allPurposeHide" value="true" #if($!value_allPurposeHide)checked="checked"#end type="radio" />
-                </td>
-                <td colspan="4">
-                    <label for="hidden_true_0">
-                        $tlang.getString("allPurpose.show.hide")
-                    </label>
-                </td>
-            </tr>
-        </table>
-			</p>
-			<h4>$tlang.getString("allPurpose.show.to")</h4>
-			<table border="0" cellpadding="0" cellspacing="0" style="margin:1em 0;width:100%">
-			  <tbody>
-			   #foreach ($role in $!roleUsers.keys())
-			    				#set($allString=$tlang.getString("allPurpose.show.all").concat(" ").concat($role))
-			    				#set($expandString=$tlang.getString("allPurpose.show.expand").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
-			    				#set($collapseString=$tlang.getString("allPurpose.show.collapse").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
-			        #set($expandId = "expand_")
-			        #set($expandId = $expandId.concat($role))
-			        #set($collapseId="collapse_")
-			        #set($collapseId=$collapseId.concat($role))
-			       	#set($roleDivString = $role.concat("Div"))
-			        <tr>
-			            <td>
-			            			#set($showInputString = "allPurpose_")
-			            			#set($showInputString = $showInputString.concat($role))
-			              	<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role"/>
-			                <label for="$allString">
-			                    $allString
-			                </label>
-			                <br/>&nbsp;&nbsp;<a href="#" id="$collapseId" class="toggleRoleLink" style="display:none" >$collapseString</a><a href="#" id="$expandId" class="toggleRoleLink" style="display:block" >$expandString</a>
-																			<div id="$roleDivString" style="display:none">
-																					<table class="listHier lines nolines" cellpadding="0" cellspacing="0" style="margin-left:2em;width:auto;font-weight:normal">
-			                    <tbody>
-			                        #foreach($user in $!roleUsers.get($role))
-			                      		 #set($showInputString = "allPurpose_")
-			            													#set($showInputString = $showInputString.concat($user.getId()))
-			                        <tr>
-			                            <td class="attach">
-			                                <input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($user.getId())) checked="checked" #end type="checkbox" value="$user.Id"/>
-			                            </td>
-			                            <td class="">
-			                                <label for="$showInputString" style="white-space:nowrap">
-			                                   $user.getDisplayName()
-			                                </label>
-			                            </td>
-			                        </tr>
-			                        #end
-			                    </tbody>
-			                		</table>
-			                </div>		
-			            </td>
-			        </tr>
-			        #end
-			    </tbody>
+			<table id="allPurposeAttachShowWhen">
+				<tr>
+					<td>
+						<input name="allPurposeHide" id="allPurposeHide1" value="false" #if(!$!value_allPurposeHide)checked="checked"#end type="radio" />
+					</td>
+					<td colspan="4">
+						<label for="allPurposeHide1">
+							$tlang.getString("allPurpose.show")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+						<input name="allPurposeShowFrom" id="allPurposeShowFrom" value="true" type="checkbox" #if ($value_allPurposeShowFrom) checked="checked" #end />
+					</td>
+					<td colspan="3">
+						<label for="allPurposeShowFrom">
+							$tlang.getString("allPurpose.show.from")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+						<label for="allPurposeReleaseYear">
+							$tlang.getString("allPurpose.show.date")
+						</label>
+					</td>
+					<td>
+						<label for="allPurposeReleaseHour">
+							$tlang.getString("allPurpose.show.time")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+						#chef_dateselectionwidget("allPurposeReleaseYear" "allPurposeReleaseMonth" "allPurposeReleaseDay" $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay)
+					</td>
+					<td>
+						<select name="allPurposeReleaseHour" id="allPurposeReleaseHour">
+							#foreach ($i in [1..12])
+								<option value="$i" #if ($value_allPurposeReleaseHour==$i)selected="selected"#end>$i</option>
+							#end
+						</select>
+						<select name="allPurposeReleaseMin" id="allPurposeReleaseMin">
+							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+								<option value="$i" #if($i == $value_allPurposeReleaseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+							#end
+						</select>
+						<select name="allPurposeReleaseAMPM" id="allPurposeReleaseHourAMPM">
+							#foreach ($i in [0, 1])
+								<option value="$i" #if($i == $value_allPurposeReleaseAMPM)selected="selected"#end>#if($i==0) AM #else PM #end</option>
+							#end
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+						<input name="allPurposeShowTo" id="allPurposeShowTo" value="true" type="checkbox" #if ($!value_allPurposeShowTo) checked="checked" #end />
+					</td>
+					<td colspan="4">
+						<label for="allPurposeShowTo">
+							$tlang.getString("allPurpose.show.util")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+						<label for="allPurposeRetractYear">
+							$tlang.getString("allPurpose.show.date")
+						</label>
+					</td>
+					<td>
+						<label for="allPurposeRetractHour">
+							$tlang.getString("allPurpose.show.time")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+						#chef_dateselectionwidget("allPurposeRetractYear" "allPurposeRetractMonth" "allPurposeRetractDay" $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay)    
+					</td>
+					<td>
+						<select name="allPurposeRetractHour" id="allPurposeRetractHour">
+							#foreach ($i in [1..12])
+								<option value="$i" #if ($value_allPurposeRetractHour==$i)selected="selected"#end>$i</option>
+							#end
+						</select>
+						<select name="allPurposeRetractMin" id="allPurposeRetractMin">
+							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+								<option value="$i" #if($i == $value_allPurposeRetractMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+							#end
+						</select>
+						<select name="allPurposeRetractAMPM" id="allPurposeRetractHourAMPM">
+							#foreach ($i in [0, 1])
+								<option value="$i" #if($i == $value_allPurposeRetractAMPM)selected="selected"#end>#if($i==0) AM #else PM #end </option>
+							#end
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input name="allPurposeHide" id="allPurposeHide2" value="true" #if($!value_allPurposeHide)checked="checked"#end type="radio" />
+					</td>
+					<td colspan="4">
+						<label for="allPurposeHide2">
+							$tlang.getString("allPurpose.show.hide")
+						</label>
+					</td>
+				</tr>
 			</table>
-			<p class="act">
+			<h4>$tlang.getString("allPurpose.show.to")</h4>
+			<div class="validationError alertMessage" id="allPurpose_userselect">
+				$tlang.getString("extraNodesRequired")
+			</div>	
+			<table border="0" cellpadding="0" cellspacing="0" class="listHier" style="margin:1em 0;width:100%"  id="allPurposeGroupLists">
+				<tbody>
+					#foreach ($role in $!roleUsers.keys())
+						#set($allString=$tlang.getString("allPurpose.show.all").concat(" ").concat($role))
+						#set($expandString=$tlang.getString("allPurpose.show.expand").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
+						#set($collapseString=$tlang.getString("allPurpose.show.collapse").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
+						#set($expandId = "expand_")
+						#set($expandId = $expandId.concat($role))
+						#set($collapseId="collapse_")
+						#set($collapseId=$collapseId.concat($role))
+						#set($roleDivString = $role.concat("Div"))
+						<tr>
+							<td class="groupCell"> 
+								#set($showInputString = "allPurpose_")
+			            		#set($showInputString = $showInputString.concat($role))
+								<a href="#" id="$collapseId" class="toggleRoleLink" style="display:none;" title="$collapseString">
+									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><img src="/library/image/silk/group.png"/>
+								</a>
+								<a href="#" id="$expandId" class="toggleRoleLink" style="display:inline" title="$expandString">
+									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><img src="/library/image/silk/group.png"/>
+								</a>
+								<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role" class="selectAllMembers"/>
+								<label for="$showInputString">
+									$allString
+								</label>
+								(<span class="highlight countDisplay"></span> <span class="highlight">$tlang.getString("allPurpose.user.selection.count")</span>)
+								<ul id="$roleDivString" style="display:none;" class="attachList userList">
+									#set($userCount=0)
+									#foreach($user in $!roleUsers.get($role))
+										#set($showInputString = "allPurpose_")
+										#set($showInputString = $showInputString.concat($user.getId()))
+										<li>
+											<label for="$showInputString" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #end>
+												<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" checked="checked" #set($userCount=$userCount + 1) #end type="checkbox" value="$user.Id"/>
+												$user.getDisplayName()
+											</label>
+										</li>
+									#end
+									<li class="countHolder" class="skip" style="display:none">$userCount</li>
+								</ul>
+							</td>
+						</tr>	
+					#end
+				</tbody>
+			</table>	
+			<p class="act" style="margin:0;padding:0">
 				<input class="extraNodeInput" type="button" id="allPurpose_save" value="Save" class="active"/>
 				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="Cancel" />
 			</p>
@@ -1307,21 +1164,21 @@ $(document).ready(function(){
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>
 	</form>
-</div>
-<script language="JavaScript" type="text/JavaScript">
-	<!--
-		function toggleSelectAll(caller, elementName)
-		{
-			var newValue = caller.checked;
-			var elements = document.getElementsByName(elementName);
-			
-			if(elements)
+	<script language="JavaScript" type="text/JavaScript">
+		<!--
+			function toggleSelectAll(caller, elementName)
 			{
-				for(var i = 0; i < elements.length; i++)
+				var newValue = caller.checked;
+				var elements = document.getElementsByName(elementName);
+				
+				if(elements)
 				{
-					elements[i].checked = newValue;
+					for(var i = 0; i < elements.length; i++)
+					{
+						elements[i].checked = newValue;
+					}
 				}
 			}
-		}
-	-->
-</script>
+		-->
+	</script>
+</div>	
