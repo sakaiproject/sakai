@@ -60,31 +60,22 @@ $(document).ready(function() {
 			}}
 	});
 	});
-
-
-
-//$(document).ready(function() {
-//	jQuery('.menuOpen').click(function() {
-//		$('.makeMenuChild').hide();
-//		$('#menu-' +$(this).attr('id')).show()                                                          
-//	});
-//});
 </script>
 #**#
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
 	#if ($atHome && $atHome == $TRUE)
-			<div class="navIntraTool">
-				<span>$tlang.getString("list.site")&nbsp;</span>
-				<span class="separator">|</span><a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav").trim()</a> 
+			<ul class="navIntraTool actionToolBar">
+				<li class="firstToolBarItem"><span class="current">$tlang.getString("list.site")</span></li>
+				<li><span><a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav").trim()</a></span></li>
 				#if($showPermissions)
-				<span class="separator">|</span> <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.sPerm')">$clang.getString("list.sPerm").trim()</a>
+				<li><span><a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.sPerm')">$clang.getString("list.sPerm").trim()</a></span></li>
 				#end
 				#if($showOptions)
-				<span class="separator">|</span> <a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options").trim()</a>
+				<li><span><a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options").trim()</a></span></li>
 				#end
-			</div>
+			</ul>
 	#end 
 	#if ($alertMessage)
 		<br /><div class="alertMessage">$clang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
