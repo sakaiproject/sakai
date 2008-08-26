@@ -206,10 +206,14 @@ public class EventSummary implements Serializable {
 		Iterator it = attachments.iterator();
 		while(it.hasNext()){
 			Reference ref = (Reference) it.next();
-			AttachmentWrapper aw = new AttachmentWrapper();
-			aw.setUrl(ref.getUrl());
-			aw.setDisplayName(ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			attachmentsWrp.add(aw);
+			try{
+				AttachmentWrapper aw = new AttachmentWrapper();
+				aw.setUrl(ref.getUrl());
+				aw.setDisplayName(ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+				attachmentsWrp.add(aw);
+			}catch(Exception e) {
+				// Ignore malformed/forbidden/invalid attachment
+			}
 		}
 	}
 
