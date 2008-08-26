@@ -7,19 +7,30 @@
 	<bean id="externalSitestatsSessionFactory"
 		class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean"
 		lazy-init="true">
-		<property name="mappingResources">
-			<list>
-				<value>org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
-			</list>
+		<property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings"/>
+		<property name="hibernateProperties" ref="org.sakaiproject.sitestats.externalDbHibernateProperties"/>
+		<property name="dataSource" ref="org.sakaiproject.sitestats.externalDbDataSource"/>
+		<property name="schemaUpdate" value="#{sitestats.externalDb.auto.ddl}"/>		
+	</bean>
+	
+	
+	<!-- Transaction Manager -->
+	<bean id="externalSitestatsTransactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager"
+		lazy-init="true">
+		<property name="sessionFactory">
+			<ref bean="externalSitestatsSessionFactory" />
 		</property>
-		<property name="hibernateProperties">
+	</bean>
+	
+	
+	<!-- Hibernate Properties -->
+	<bean id="org.sakaiproject.sitestats.externalDbHibernateProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+		lazy-init="true" depends-on="sitestatsDbPropertyConfigurer">
+		<property name="properties">
 			<props>
-				<prop key="hibernate.dialect">${sitestats.externalDb.hibernate.dialect}</prop>
+				<prop key="hibernate.dialect">#{sitestats.externalDb.hibernate.dialect}</prop>
 				<prop key="hibernate.query.factory_class">org.hibernate.hql.ast.ASTQueryTranslatorFactory</prop>
 				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
 				<prop key="hibernate.query.substitutions">
@@ -31,9 +42,7 @@
 				     org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider
 				</prop>			
 			</props>
-		</property>	
-		<property name="dataSource" ref="org.sakaiproject.sitestats.externalDbDataSource"/>
-		<property name="schemaUpdate" value="${auto.ddl}"/>		
+		</property>
 	</bean>
 	
 	
@@ -51,16 +60,6 @@
 		<property name="maxIdle" value="3"/>
 		<property name="minIdle" value="3"/>
 		<property name="timeBetweenEvictionRunsMillis" value="-1"/>
-	</bean>
-	
-	
-	<!-- Transaction Manager -->
-	<bean id="externalSitestatsTransactionManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager"
-		lazy-init="true">
-		<property name="sessionFactory">
-			<ref bean="externalSitestatsSessionFactory" />
-		</property>
 	</bean>
 			
 </beans>

@@ -1,36 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>	
+<beans>
+	
+	
+	<!-- Default values:  overridable in sakai.properties -->
+	<bean id="sitestatsDbPropertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="-10"/>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+		<property name="placeholderPrefix" value="#{"/>
+		<property name="placeholderSuffix" value="}"/>
+		<property name="locations">
+			<list>
+				<value>file:${sakai.home}/sakai.properties</value>
+			</list>
+		</property>
+		<property name="properties">
+			<props>
+				<!-- Use internal DB by default. -->
+				<prop key="sitestats.db">internal</prop>
+				
+				<!-- Use HsqlDB as default for external DB. -->
+				<prop key="sitestats.externalDb.hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+				
+				<!-- Set auto.ddl for external DB. -->
+				<prop key="sitestats.externalDb.auto.ddl">true</prop>
+			</props>
+		</property>
+	</bean>
+	
+	
+	<!-- Hibernate Mappings (.hbm.xml) -->
+	<bean id="org.sakaiproject.sitestats.HibernateMappings"
+		class="org.springframework.beans.factory.config.ListFactoryBean">
+		<property name="sourceList">
+			<list>
+				<value>org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
 
 
 	<!-- Database:  load specific session factory and transaction manager defenitions
 					for internal (Sakai) and external DB. -->
 	<import resource="internal-db.xml" />
 	<import resource="external-db.xml" />
-	
-	
-	<!-- Default values:  overridable in sakai.properties -->
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="order" value="-10"/>
-		<property name="ignoreUnresolvablePlaceholders" value="true"/>
-		<property name="properties">
-			<props>
-				<!-- Use internal DB by default. -->
-				<prop key="sitestats.db">internal</prop>
-				
-				<!-- Use HsqlDB as default for external DB -->
-				<prop key="sitestats.externalDb.hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
-			</props>
-		</property>
-	</bean>
-
-	
-	<!-- Session Factory: alias -->
-	<alias alias="sstSessionFactory" name="${sitestats.db}SitestatsSessionFactory"/>
-	
-	
-	<!-- Transaction Manager: alias -->
-	<alias alias="sstTransactionManager" name="${sitestats.db}SitestatsTransactionManager"/>
 	
 	
 </beans>
