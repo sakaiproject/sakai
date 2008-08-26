@@ -170,3 +170,7 @@ where TITLE in (
 	'Rascunho' /* pt_BR */, 'Rascunho' /* pt_PT */,
 	'Utkast' /* sv */) and
     TYPE_UUID = (select uuid from CMN_TYPE_T where KEYWORD = 'privateForums');
+
+-- SAK-14291
+create index SYLLABUS_ATTACH_ID_I on SAKAI_SYLLABUS_ATTACH (syllabusId);
+create index SYLLABUS_DATA_SURRO_I on SAKAI_SYLLABUS_DATA (surrogateKey);
