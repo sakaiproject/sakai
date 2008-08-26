@@ -605,4 +605,10 @@ public class PublishedAssessmentService extends AssessmentService{
 	   return PersistenceService.getInstance().
 	     getPublishedAssessmentFacadeQueries().getPublishedAssessmentStatus(publishedAssessmentId);
    }
+   
+
+   public Integer getPublishedAssessmentStatus(Long publishedAssessmentId) {
+	   return PersistenceService.getInstance().
+	     getPublishedAssessmentFacadeQueries().getPublishedAssessmentStatus(publishedAssessmentId);
+   }
 }

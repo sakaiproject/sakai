@@ -37,9 +37,11 @@ public class RepublishAssessmentListener implements ActionListener {
 		String publishedAssessmentId = assessmentBean.getAssessmentId();
 		log.debug("publishedAssessmentId = " + publishedAssessmentId);
 		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
 		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
 		EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.republish", "publishedAssessmentId=" + publishedAssessmentId, true));
+
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
 

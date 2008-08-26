@@ -348,4 +348,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public Integer getPublishedAssessmentStatus(Long publishedAssessmentId);
   
+  
+  public Integer getPublishedAssessmentStatus(Long publishedAssessmentId);
+  
 }

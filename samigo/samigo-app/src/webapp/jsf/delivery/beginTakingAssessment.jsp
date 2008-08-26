@@ -139,20 +139,18 @@
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
 			 && delivery.navigation != 1}">
-<%--    <f:param name="beginAssessment" value="true"/> --%>
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
- <h:commandButton accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" 
+ <h:commandButton id="beginAssessment2" accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" 
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
 			 && delivery.navigation == 1}">
-<%--    <f:param name="beginAssessment" value="true"/> --%>
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
 
- <h:commandButton id="beginAssessment2" accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
+ <h:commandButton id="beginAssessment3" accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 

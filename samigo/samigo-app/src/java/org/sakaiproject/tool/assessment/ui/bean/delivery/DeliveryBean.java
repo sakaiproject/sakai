@@ -61,6 +61,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -2642,6 +2643,12 @@ public class DeliveryBean
      return "isRetracted";
     }
 
+    log.debug("check 6.1");
+    // check 6: is it still available?
+    if (isRetractedForEdit()){
+        return "isRetractedForEdit";
+    }
+    
     log.debug("check 7");
     // check 7: is timed assessment? and time has expired?
     if (isTimeRunning() && timeExpired()){ 
@@ -2708,6 +2715,14 @@ public class DeliveryBean
     return isRetracted;
   }
 
+  private boolean isRetractedForEdit(){
+	  Integer status = publishedAssessment.getStatus();
+	  if (status.equals(AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS)) {
+		  return true;
+	  }
+	  return false;
+  }
+  
   private boolean checkDataIntegrity(AssessmentGradingData assessmentGrading){
     // get assessmentGrading from DB, this is to avoid same assessment being
     // opened in the differnt browser

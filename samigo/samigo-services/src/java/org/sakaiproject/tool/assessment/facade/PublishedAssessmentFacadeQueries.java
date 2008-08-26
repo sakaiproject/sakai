@@ -2674,4 +2674,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			return Integer.valueOf(2);
 		}
 	}
+	
+	public Integer getPublishedAssessmentStatus(Long publishedAssessmentId) {
+		String query = "select p.status from PublishedAssessmentData p where p.publishedAssessmentId = ?";
+		List l = getHibernateTemplate().find(query, publishedAssessmentId);
+		if (l.size() > 0) {
+			Integer status = (Integer) l.get(0);
+			return status;
+		} else {
+			// just set to AssessmentBaseIfc.DEAD_STATUS
+			return Integer.valueOf(2);
+		}
+	}
 }
