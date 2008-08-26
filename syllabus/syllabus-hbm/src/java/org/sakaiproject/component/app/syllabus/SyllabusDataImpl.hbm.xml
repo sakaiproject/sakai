@@ -51,7 +51,8 @@
         
         <many-to-one name="syllabusItem"        
                      column="surrogateKey"                     
-                     class="org.sakaiproject.component.app.syllabus.SyllabusItemImpl"/>
+                     class="org.sakaiproject.component.app.syllabus.SyllabusItemImpl"
+                     index="SYLLABUS_DATA_SURRO_I"/>
                             
 
     </class>

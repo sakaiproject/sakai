@@ -48,7 +48,8 @@
         
         <many-to-one name="syllabusData"
                      column="syllabusId"                     
-                     class="org.sakaiproject.component.app.syllabus.SyllabusDataImpl"/>
+                     class="org.sakaiproject.component.app.syllabus.SyllabusDataImpl"
+                     index="SYLLABUS_ATTACH_ID_I"/>
                             
 
     </class>
