@@ -357,6 +357,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                 }
                                 try {
                                     actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, view, customAction.action, req, res);
+                                } catch (SecurityException se) {
+                                    // AJAX/WS type security exceptions are handled specially, no redirect
+                                    throw new EntityException("Security exception handling request for view ("+view+"), "
+                                            + "this is typically caused by the current user not having access to the "
+                                            + "data requested or the user not being logged in at all :: message=" + se.getMessage(),
+                                            view.getEntityReference()+"", HttpServletResponse.SC_FORBIDDEN);
                                 } catch (EntityNotFoundException e) {
                                     throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Could not find entity ("+e.entityReference+"): " + e.getMessage(), 
                                             view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
@@ -367,8 +373,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                     throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Illegal arguments: " + e.getMessage(), 
                                             view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
                                 } catch (UnsupportedOperationException e) {
-                                    throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Invalid action: " + e.getMessage(), 
-                                            view.getEntityReference()+"", HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                                    throw new EntityException( "Cannot execute custom action ("+customAction.action+"): Could not execute action: " + e.getMessage(), 
+                                            view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
                                 }
                                 if (actionReturn == null 
                                         || actionReturn.output != null) {
@@ -597,6 +603,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                     // this format could not be handled internally so we will pass it to the access provider, nothing else to do here
                                     formatInvalidFailure = true;
                                     handled = false;
+                                } catch (SecurityException se) {
+                                    // AJAX/WS type security exceptions are handled specially, no redirect
+                                    throw new EntityException("Security exception handling request for view ("+view+"), "
+                                            + "this is typically caused by the current user not having access to the "
+                                            + "data requested or the user not being logged in at all :: message=" + se.getMessage(),
+                                            view.getEntityReference()+"", HttpServletResponse.SC_FORBIDDEN);
                                 } catch (EntityEncodingException e) {
                                     // translate EEE into EE - internal server error
                                     throw new EntityException("EntityEncodingException: Unable to handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
@@ -625,14 +637,16 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                             throw new FormatUnsupportedException("Nothing (AP and internal) available to handle the requested format", view.getEntityReference()+"", view.getFormat());
                                         }
                                         String message = "Access Provider: Attempted to access an entity URL path ("
-                                            + view + ") for an entity (" + view.getEntityReference() + ") and view ("+view.getViewKey()+") when there is no " 
+                                            + view + ") using method ("+view.getMethod()+") for an entity (" + view.getEntityReference() 
+                                            + ") and view ("+view.getViewKey()+") when there is no " 
                                             + "access provider to handle the request for prefix (" + view.getEntityReference().getPrefix() + ")";
-                                        throw new EntityException( message, view.toString(), HttpServletResponse.SC_NOT_FOUND );
+                                        throw new EntityException( message, view.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
                                     }
                                 } catch (FormatUnsupportedException e) {
-                                    throw new EntityException( "AccessProvider: Format unsupported: Will not handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
+                                    // TODO add in the methods "allowed" header?
+                                    throw new EntityException( "AccessProvider: Method/Format unsupported: Will not handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
                                             + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + ")",
-                                            view.getEntityReference()+"", HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                                            view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
                                 }
                             }
                         }

@@ -47,6 +47,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
+import org.sakaiproject.entitybroker.impl.util.VersionConstants;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
@@ -77,7 +78,11 @@ public class EntityDescriptionManager {
     "  <title>Describe Entities</title>\n" +
     "</head>\n" +
     "<body>\n";
-    protected static final String XHTML_FOOTER = "\n</body>\n</html>\n";
+    // include versions info in the footer now
+    protected static final String XHTML_FOOTER = "<br/>\n<div style='width:100%;text-align:center;font-style:italic;font-size:0.9em;'>"
+    		+ "<b>" + VersionConstants.APP_VERSION + "</b> :: SVN: " + VersionConstants.SVN_REVISION 
+    		+ " : " + VersionConstants.SVN_LAST_UPDATE + "</div>"
+    		+ "\n</body>\n</html>\n";
 
     private EntityViewAccessProviderManager entityViewAccessProviderManager;
     public void setEntityViewAccessProviderManager(
@@ -134,6 +139,7 @@ public class EntityDescriptionManager {
             sb.append(XML_HEADER);
             sb.append("<describe>\n");
             sb.append("  <describeURL>" + describeURL + "</describeURL>\n");
+            sb.append( makeXMLVersion() );
             sb.append("  <prefixes>\n");
             ArrayList<String> prefixes = new ArrayList<String>(map.keySet());
             Collections.sort(prefixes);
@@ -167,6 +173,20 @@ public class EntityDescriptionManager {
         }
         return output;
     }
+
+    /**
+     * @return the XML tags string that contains the XML version info
+     */
+    private String makeXMLVersion() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("  <version>" + VersionConstants.APP_VERSION + "</version>\n");
+        sb.append("  <svn>\n");
+        sb.append("    <revision>"+VersionConstants.SVN_REVISION+"</revision>\n");
+        sb.append("    <last-update>"+VersionConstants.SVN_LAST_UPDATE+"</last-update>\n");
+        sb.append("  </svn>\n");
+        return sb.toString();
+    }
+
 
     /**
      * Generate a description of an entity type
