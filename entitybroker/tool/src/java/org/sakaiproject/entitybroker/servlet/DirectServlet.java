@@ -150,10 +150,11 @@ public class DirectServlet extends HttpServlet {
             entityRequestHandler.handleEntityAccess(req, res, path);
          } catch (EntityException e) {
             log.warn("Could not process entity: " + e.entityReference);
-            // no longer catching FORBIDDEN here
-            if (e.responseCode == HttpServletResponse.SC_UNAUTHORIZED) {
-               throw new SecurityException(e.getMessage(), e);
-            }
+            // no longer catching FORBIDDEN or UNAUTHORIZED here
+//            if (e.responseCode == HttpServletResponse.SC_UNAUTHORIZED ||
+//                  e.responseCode == HttpServletResponse.SC_FORBIDDEN) {
+//               throw new SecurityException(e.getMessage(), e);
+//            }
             sendError(res, e.responseCode, e.getMessage());
          }
       } catch (SecurityException e) {
