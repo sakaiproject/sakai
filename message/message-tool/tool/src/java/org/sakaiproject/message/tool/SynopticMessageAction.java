@@ -21,8 +21,10 @@
 
 package org.sakaiproject.message.tool;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.sakaiproject.cheftool.Context;
@@ -35,9 +37,14 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageService;
+import org.sakaiproject.message.tool.CollectionUtils.Filter;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -118,6 +125,14 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 	private static final String STATE_SHOW_NEWLINES = "show-newlines";
 
 	private static final String STATE_SUBJECT_OPTION = "allow-option-of-showing-subject";
+
+	private static final String SERVICENAME_ANNOUNCEMENT = "org.sakaiproject.announcement.api.AnnouncementService";
+
+	private static final String SERVICENAME_DISCUSSION = "org.sakaiproject.discussion.api.DiscussionService";
+
+	private static final String MESSAGEPROP_TIME_RELEASEDATE = "releaseDate";
+
+	private static final String MESSAGEPROP_TIME_EXPIREDATE = "retractDate";
 
 	/**
 	 * Populate the state object, if needed - override to do something!
@@ -275,7 +290,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
-		
+
 		// if the synoptic options have just been imported, we need to update
 		// the state
 		if (state.getAttribute(STATE_UPDATE) != null)
@@ -331,17 +346,9 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			Time afterDate = (Time) state.getAttribute(STATE_AFTER_DATE);
 			int items = ((Integer) state.getAttribute(STATE_ITEMS)).intValue();
 
-			List messages = new Vector();
 			String serviceName = (String) state.getAttribute(STATE_SERVICE_NAME);
-			if (serviceName != null && serviceName.equals("org.sakaiproject.discussion.api.DiscussionService"))
-			{
-				// showing the draft messages of discussion
-				messages = service.getMessages(channelRef, afterDate, items, false, true, false);
-			}
-			else
-			{
-				messages = service.getMessages(channelRef, afterDate, items, false, false, false);
-			}
+
+			List messages = retrieveMessages(service, serviceName, channelRef,afterDate, items);
 			context.put("messages", messages);
 		}
 		catch (PermissionException e)
@@ -372,6 +379,97 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 	} // buildMainPanelContext
 
+	private List retrieveMessages(final MessageService messageService,
+			final String serviceName, final String channelRef,
+			final Time afterDate, final int numberOfMessages)
+			throws PermissionException {
+		List result;
+		if (numberOfMessages <= 0 || serviceName == null) {
+			result = new Vector();
+		} else if (SERVICENAME_DISCUSSION.equals(serviceName)) {
+			// showing the draft messages of discussion
+			result = messageService.getMessages(channelRef, afterDate,
+					numberOfMessages, false, true, false);
+		} else if (SERVICENAME_ANNOUNCEMENT.equals(serviceName)) {
+			result = messageService.getMessages(channelRef, null, 0, false,
+					false, false);
+			filterAnnouncementMessages(result, afterDate);
+			CollectionUtils.removeTail(result, numberOfMessages);
+		} else { // old default, left for compatibility (but are there any
+			// other services??)
+			result = messageService.getMessages(channelRef, afterDate,
+					numberOfMessages, false, false, false);
+		}
+		return result;
+	}
+
+	private void filterAnnouncementMessages(final List<Message> messages,
+			final Time afterDate) {
+		final Time currentTime = TimeService.newTime();
+		final Set<Filter<Message>> filters = new HashSet<Filter<Message>>(3);
+		// before release-date filter
+		filters.add(new Filter<Message>() {
+			public boolean accept(Message message) {
+				Time releaseDate;
+				try {
+					releaseDate = message.getProperties().getTimeProperty(
+							MESSAGEPROP_TIME_RELEASEDATE);
+				} catch (EntityPropertyNotDefinedException e) {
+					releaseDate = null;
+				} catch (EntityPropertyTypeException e) {
+					Log.error("chef", e.getMessage(), e);
+					releaseDate = null;
+				}
+				return releaseDate == null ? true : releaseDate
+						.before(currentTime);
+
+			}
+		});
+		// before afterDate (user-option) filter
+		filters.add(new Filter<Message>() {
+			public boolean accept(Message message) {
+				Time releaseDate;
+				try {
+					releaseDate = message.getProperties().getTimeProperty(
+							MESSAGEPROP_TIME_RELEASEDATE);
+				} catch (EntityPropertyNotDefinedException e) {
+					releaseDate = null;
+				} catch (EntityPropertyTypeException e) {
+					Log.error("chef", e.getMessage(), e);
+					releaseDate = null;
+				}
+				// if no release-date is set, use the header-date as
+				// release-date instead
+				if (releaseDate == null) {
+					releaseDate = message.getHeader().getDate();
+				}
+				return releaseDate == null ? true : releaseDate
+						.after(afterDate);
+
+			}
+		});
+		// after expire-date filter
+		filters.add(new Filter<Message>() {
+			public boolean accept(Message message) {
+				Time expireDate;
+				try {
+					expireDate = message.getProperties().getTimeProperty(
+							MESSAGEPROP_TIME_EXPIREDATE);
+				} catch (EntityPropertyNotDefinedException e) {
+					expireDate = null;
+				} catch (EntityPropertyTypeException e) {
+					Log.error("chef", e.getMessage(), e);
+					expireDate = null;
+				}
+				return expireDate == null ? true : expireDate
+						.after(currentTime);
+
+			}
+
+		});
+		CollectionUtils.filter(messages, filters);
+	}
+
 	/**
 	 * Setup for the options panel.
 	 */
@@ -387,14 +485,14 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		Boolean allow_show_subject = new Boolean(true);
 		Boolean allow_channel_choice = new Boolean(false);
 
-		if (serviceName.equals("org.sakaiproject.discussion.api.DiscussionService"))
+		if (serviceName.equals(SERVICENAME_DISCUSSION))
 		{
 			tool_title = rb.getString("dtool_title");
 			tool_name = rb.getString("dtool_name");
 			one_item = rb.getString("done_item");
 			all_items = rb.getString("dall_items");
 		}
-		else if (serviceName.equals("org.sakaiproject.announcement.api.AnnouncementService"))
+		else if (serviceName.equals(SERVICENAME_ANNOUNCEMENT))
 		{
 			tool_title = rb.getString("atool_title");
 			tool_name = rb.getString("atool_name");
@@ -523,7 +621,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		// showSubject
 		if (allow_show_subject)
 		{
-			if (serviceName.equals("org.sakaiproject.discussion.api.DiscussionService"))
+			if (serviceName.equals(SERVICENAME_DISCUSSION))
 			{
 				// always show subject for Recent Discussion
 				String showBody = data.getParameters().getString(FORM_SHOW_BODY);
@@ -540,7 +638,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 				{
 				}
 			}
-			else if (serviceName.equals("org.sakaiproject.announcement.api.AnnouncementService"))
+			else if (serviceName.equals(SERVICENAME_ANNOUNCEMENT))
 			{
 				String showSubject = data.getParameters().getString(FORM_SHOW_SUBJECT);
 				try
@@ -570,7 +668,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 				String channel_ref = ((MessageService) state.getAttribute(STATE_SERVICE)).channelReference(placementContext,
 						newChannel);
 				state.setAttribute(STATE_CHANNEL_REF, channel_ref);
-				if (Log.getLogger("chef").isDebugEnabled()) Log.debug("chef", this + ".doUpdate(): newChannel: " + channel_ref);
+				if (Log.getLogger("chef").isDebugEnabled())	Log.debug("chef", this + ".doUpdate(): newChannel: " + channel_ref);
 				// updateObservationOfChannel(state, peid);
 
 				// update the tool config
@@ -672,14 +770,14 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		enableObservers(state);
 
 	} // doCancel
-	
+
 	/**
 	 * update state (synoptic tool options)
 	 */
 	private void updateState(SessionState state, VelocityPortlet portlet)
 	{
 		PortletConfig config = portlet.getPortletConfig();
-		
+
 		try
 		{
 			int days = Integer.parseInt(config.getInitParameter(PARAM_DAYS));
@@ -687,7 +785,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 			long startTime = System.currentTimeMillis() - ((long) days * 24l * 60l * 60l * 1000l);
 			state.setAttribute(STATE_AFTER_DATE, TimeService.newTime(startTime));
-			
+
 			state.setAttribute(STATE_ITEMS, new Integer(config.getInitParameter(PARAM_ITEMS)));
 			state.setAttribute(STATE_LENGTH, new Integer(config.getInitParameter(PARAM_LENGTH)));
 			state.setAttribute(STATE_SHOW_SUBJECT, new Boolean(config.getInitParameter(PARAM_SHOW_SUBJECT)));

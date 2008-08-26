@@ -17,8 +17,13 @@
 				<li>
 					#set($counter = $counter + 1)
 					#if ($showSubject)
+					#if (!$props.isEmpty() && $props.getProperty("releaseDate"))
+						#set($releasedate = $props.getTimeProperty("releaseDate"))
+					#else
+						#set($releasedate= $item.Header.Date)
+					#end
 						<h3 class="textPanelHeader">$validator.escapeHtml($item.Header.Subject)</h3>
-						<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{item.Header.Date.toStringLocalFull()})</p>
+					<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
 					#else
 						#set ($text=$item.Body)
 						<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limitFormattedText($text,$length))}</div>
