@@ -22,8 +22,12 @@
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
@@ -35,6 +39,7 @@ public class PublishedAttachmentData
 	 * 
 	 */
 	private static final long serialVersionUID = -7673339618446778553L;
+	private static Log log = LogFactory.getLog(PublishedAttachmentData.class);
 private Long attachmentId;
   private ItemDataIfc item;
   private String resourceId;
@@ -263,5 +268,14 @@ private Long attachmentId;
   
   public boolean getIsMedia() {
 	  return (getIsInlineVideo() || getIsInlineMP3() || getIsInlineImage() || getIsInlineFlash());
+  }
+  
+  public String getEncodedResourceId() {
+	try {
+		return URLEncoder.encode(resourceId, "UTF-8");
+	} catch (UnsupportedEncodingException e) {
+		log.error("UnsupportedEncodingException: " + e.getMessage());
+	}
+	return "";
   }
 }
