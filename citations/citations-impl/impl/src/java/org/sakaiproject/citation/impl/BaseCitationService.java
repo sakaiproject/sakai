@@ -1634,6 +1634,7 @@ public abstract class BaseCitationService implements CitationService
 			Iterator iter = null; // The iterator used to boogie through the Schema Fields
 			boolean status = true; // Used to maintain/exit the tag lookup while loop
 			String[] RIScodes = null; // This holds the RISCodes valid for a given schema
+			String urlId = null; // Used to set the preferred URL
 
 			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
 
@@ -1815,9 +1816,18 @@ public abstract class BaseCitationService implements CitationService
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
 								     " => " + RISvalue);
 
-						// We found the mapping in the previous while loop. Set the citation property
-						setCitationProperty(tempField.getIdentifier(), RISvalue);
-					} // end we found the mapping
+						if (RIScode.equalsIgnoreCase("UR"))
+						{
+							urlId = addCustomUrl("", RISvalue);
+							setPreferredUrl(urlId);
+							logger.debug("importFromRisList: set preferred url to " + urlId + " which is " + RISvalue);
+						}
+						else
+						{
+							// We found the mapping in the previous while loop. Set the citation property
+							setCitationProperty(tempField.getIdentifier(), RISvalue);
+						}
+					} // end else which means we found the mapping
 
 				} // end else of i == 0
 			} // end for i
@@ -4701,6 +4711,7 @@ public abstract class BaseCitationService implements CitationService
 	    article.addField("doi", Schema.NUMBER, true, false, 0, 1);
 
 	    article.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+	    
 
 	    /*
 	     * BOOK
@@ -4820,6 +4831,7 @@ public abstract class BaseCitationService implements CitationService
 	    chapter.addField("doi", Schema.NUMBER, true, false, 0, 1);
 
 	    chapter.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+	    
 
 	    /*
 	     * REPORT
@@ -4877,6 +4889,7 @@ public abstract class BaseCitationService implements CitationService
 	    report.addField("doi", Schema.NUMBER, true, false, 0, 1);
 
 	    report.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+	    
 
 	    /* IGNORING 'Citation' field for now...
 	    unknown.addField("inlineCitation", Schema.SHORTTEXT, false, false, 0, Schema.UNLIMITED);
