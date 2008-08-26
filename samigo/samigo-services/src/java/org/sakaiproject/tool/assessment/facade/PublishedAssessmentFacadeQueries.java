@@ -2615,8 +2615,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		 }
 		 return releaseToGroupsAsString;
 	}
-<<<<<<< .working
-	
 
 	  /**
 	   * added by gopalrc Nov 2007
