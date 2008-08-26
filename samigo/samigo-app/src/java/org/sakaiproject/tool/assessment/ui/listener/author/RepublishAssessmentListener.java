@@ -53,6 +53,7 @@ public class RepublishAssessmentListener implements ActionListener {
 		GradingService gradingService = new GradingService();
 		HashMap map = gradingService
 				.getSubmissionSizeOfAllPublishedAssessments();
+		HashMap agMap = gradingService.getAGDataSizeOfAllPublishedAssessments();
 
 		// 1. need to update active published list in author bean
 		ArrayList activePublishedList = publishedAssessmentService
@@ -61,7 +62,8 @@ public class RepublishAssessmentListener implements ActionListener {
 						.isPublishedAscending());
 		author.setPublishedAssessments(activePublishedList);
 		setSubmissionSize(activePublishedList, map);
-
+		setHasAssessmentGradingData(activePublishedList, agMap);
+		
 		// 2. need to update inactive published list in author bean
 		ArrayList inactivePublishedList = publishedAssessmentService
 				.getBasicInfoOfAllInActivePublishedAssessments(author
@@ -69,7 +71,8 @@ public class RepublishAssessmentListener implements ActionListener {
 						.isInactivePublishedAscending());
 		author.setInactivePublishedAssessments(inactivePublishedList);
 		setSubmissionSize(inactivePublishedList, map);
-
+		setHasAssessmentGradingData(inactivePublishedList, agMap);
+		
 		// 3. reset the core listing
 		// 'cos user may change core assessment title and publish - sigh
 		AssessmentService assessmentService = new AssessmentService();
@@ -93,6 +96,20 @@ public class RepublishAssessmentListener implements ActionListener {
 		}
 	}
 	
+	  private void setHasAssessmentGradingData(ArrayList list, HashMap agMap) {
+			boolean hasAssessmentGradingData = true;
+			for (int i = 0; i < list.size(); i++) {
+				PublishedAssessmentFacade p = (PublishedAssessmentFacade) list
+						.get(i);
+				if (agMap.get(p.getPublishedAssessmentId()) != null) {
+					hasAssessmentGradingData = true;
+				} else {
+					hasAssessmentGradingData = false;
+				}
+				p.setHasAssessmentGradingData(hasAssessmentGradingData);
+			}
+		}
+
 	private void regradeRepublishedAssessment (PublishedAssessmentService pubService, PublishedAssessmentIfc publishedAssessment) {
 		HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
 		HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);

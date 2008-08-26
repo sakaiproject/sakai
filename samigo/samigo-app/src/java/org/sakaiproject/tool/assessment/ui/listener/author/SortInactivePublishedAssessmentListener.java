@@ -63,6 +63,7 @@ public class SortInactivePublishedAssessmentListener
    
    GradingService gradingService = new GradingService();
    HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
+   HashMap agMap = gradingService.getAGDataSizeOfAllPublishedAssessments();
 	
     ArrayList inactivePublishedList = publishedAssessmentService.
           getBasicInfoOfAllInActivePublishedAssessments(this.getInactivePublishedOrderBy(author),author.isInactivePublishedAscending());
@@ -70,6 +71,7 @@ public class SortInactivePublishedAssessmentListener
    // get the managed bean, author and set the list
    author.setInactivePublishedAssessments(inactivePublishedList);
    setSubmissionSize(inactivePublishedList, map);
+   setHasAssessmentGradingData(inactivePublishedList, agMap);
   }
 
 /**
@@ -137,4 +139,18 @@ public class SortInactivePublishedAssessmentListener
 	      }
 	  }
   }
+  
+  private void setHasAssessmentGradingData(ArrayList list, HashMap agMap) {
+		boolean hasAssessmentGradingData = true;
+		for (int i = 0; i < list.size(); i++) {
+			PublishedAssessmentFacade p = (PublishedAssessmentFacade) list
+					.get(i);
+			if (agMap.get(p.getPublishedAssessmentId()) != null) {
+				hasAssessmentGradingData = true;
+			} else {
+				hasAssessmentGradingData = false;
+			}
+			p.setHasAssessmentGradingData(hasAssessmentGradingData);
+		}
+	}
 }

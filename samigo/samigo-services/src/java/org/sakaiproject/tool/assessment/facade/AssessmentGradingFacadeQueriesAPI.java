@@ -97,6 +97,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public int getSubmissionSizeOfPublishedAssessment(Long publishedAssessmentId);
 
   public HashMap getSubmissionSizeOfAllPublishedAssessments();
+  
+  public HashMap getAGDataSizeOfAllPublishedAssessments();
 
   public Long saveMedia(byte[] media, String mimeType);
 

@@ -361,6 +361,11 @@ public class GradingService
     return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
         getSubmissionSizeOfAllPublishedAssessments();
   }
+  
+  public HashMap getAGDataSizeOfAllPublishedAssessments()  {
+	return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+	    getAGDataSizeOfAllPublishedAssessments();
+  }
 
   public Long saveMedia(byte[] media, String mimeType){
     return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().

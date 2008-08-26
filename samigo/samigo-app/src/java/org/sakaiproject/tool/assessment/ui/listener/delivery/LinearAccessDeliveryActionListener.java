@@ -79,6 +79,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       // (String "sequence"+itemId, Integer sequence) and
       // (String "items", Long itemscount)
       GradingService service = new GradingService();
+      PublishedAssessmentService pubService = new PublishedAssessmentService();
       AssessmentGradingData ag = null;
       
       // this returns a HashMap with (publishedItemId, itemGrading)
@@ -105,6 +106,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       setFeedbackMode(delivery);
       if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
     	  setTimer(delivery, publishedAssessment, true);
+    	  setStatus(delivery, pubService, Long.valueOf(id));
       }
       else {
     	  setTimer(delivery, publishedAssessment, false);
@@ -125,7 +127,6 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       log.debug("after partIndex = " + delivery.getPartIndex());
       log.debug("after questionIndex = " + delivery.getQuestionIndex());
 
-      PublishedAssessmentService pubService = new PublishedAssessmentService();
       HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
 
       // get current page contents

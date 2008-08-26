@@ -92,9 +92,9 @@ public class PublishedAssessmentFacade
   private Date feedbackDate;
   private String ownerSiteName;
   private Set publishedAssessmentAttachmentSet;
-  
   // added by gopalrc Nov 2007
   private String releaseToGroups;
+  private boolean hasAssessmentGradingData;
 
   public PublishedAssessmentFacade() {
   }
@@ -670,6 +670,7 @@ public class PublishedAssessmentFacade
   public String getHasMetaDataForQuestions() {
 	    return (String)this.publishedMetaDataMap.get(HASMETADATAFORQUESTIONS);
   }
+
   /**
    * added by gopalrc - Nov 2007
    * @return
@@ -678,5 +679,12 @@ public class PublishedAssessmentFacade
 	    return this.releaseToGroups;
   }
 
-  
+  public boolean getHasAssessmentGradingData() {
+    return hasAssessmentGradingData;
+  }
+
+  public void setHasAssessmentGradingData(boolean hasAssessmentGradingData) {
+    this.hasAssessmentGradingData = hasAssessmentGradingData;
+  }
+
 }

@@ -306,6 +306,7 @@ public class SavePublishedSettingsListener
 		GradingService gradingService = new GradingService();
 		HashMap map = gradingService
 				.getSubmissionSizeOfAllPublishedAssessments();
+		HashMap agMap = gradingService.getAGDataSizeOfAllPublishedAssessments();
 		ArrayList publishedList = assessmentService
 				.getBasicInfoOfAllActivePublishedAssessments(author
 						.getPublishedAssessmentOrderBy(), author
@@ -313,7 +314,8 @@ public class SavePublishedSettingsListener
 		// get the managed bean, author and set the list
 		author.setPublishedAssessments(publishedList);
 		setSubmissionSize(publishedList, map);
-
+		setHasAssessmentGradingData(publishedList, agMap);
+		
 		ArrayList inactivePublishedList = assessmentService
 				.getBasicInfoOfAllInActivePublishedAssessments(author
 						.getInactivePublishedAssessmentOrderBy(), author
@@ -321,6 +323,7 @@ public class SavePublishedSettingsListener
 		// get the managed bean, author and set the list
 		author.setInactivePublishedAssessments(inactivePublishedList);
 		setSubmissionSize(inactivePublishedList, map);
+		setHasAssessmentGradingData(inactivePublishedList, agMap);
 	}
   
   private void setSubmissionSize(ArrayList list, HashMap map){
@@ -333,8 +336,20 @@ public class SavePublishedSettingsListener
       }
     }
   }
-
-
+  
+  private void setHasAssessmentGradingData(ArrayList list, HashMap agMap) {
+		boolean hasAssessmentGradingData = true;
+		for (int i = 0; i < list.size(); i++) {
+			PublishedAssessmentFacade p = (PublishedAssessmentFacade) list
+					.get(i);
+			if (agMap.get(p.getPublishedAssessmentId()) != null) {
+				hasAssessmentGradingData = true;
+			} else {
+				hasAssessmentGradingData = false;
+			}
+			p.setHasAssessmentGradingData(hasAssessmentGradingData);
+		}
+	}
 }
 
 

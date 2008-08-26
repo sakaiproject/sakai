@@ -167,6 +167,7 @@ public class DeliveryActionListener
       // (String "items", Long itemscount)
       HashMap itemGradingHash = new HashMap();
       GradingService service = new GradingService();
+      PublishedAssessmentService pubService = new PublishedAssessmentService();
       AssessmentGradingData ag = null;
 
       switch (action){
@@ -270,6 +271,7 @@ public class DeliveryActionListener
               
               if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
             	  setTimer(delivery, publishedAssessment, true);
+            	  setStatus(delivery, pubService, Long.valueOf(id));
               }
               else {
             	  setTimer(delivery, publishedAssessment, false);
@@ -300,7 +302,6 @@ public class DeliveryActionListener
       overloadItemData(delivery, itemGradingHash, publishedAssessment);
 
       // get table of contents
-      PublishedAssessmentService pubService = new PublishedAssessmentService();
       HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
       delivery.setTableOfContents(getContents(publishedAssessment, itemGradingHash,
                                               delivery, publishedAnswerHash));
@@ -2149,4 +2150,8 @@ public class DeliveryActionListener
 	  return seed;
   }
 
+  protected void setStatus(DeliveryBean delivery, PublishedAssessmentService pubService, Long publishedAssessmentId) {
+	Integer status = pubService.getPublishedAssessmentStatus(publishedAssessmentId);
+	delivery.getPublishedAssessment().setStatus(status);
+  }
 }

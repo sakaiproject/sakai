@@ -345,4 +345,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
    */
   public List getReleaseToGroupIdsForPublishedAssessment(final String publishedAssessmentId);
 
+  
+  public Integer getPublishedAssessmentStatus(Long publishedAssessmentId);
+  
 }
