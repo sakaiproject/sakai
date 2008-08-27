@@ -70,12 +70,7 @@ document.links[newindex].onclick();
 <!-- content... -->
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
-<<<<<<< .working
 <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
-<h:outputText styleClass="validation" value="#{authorMessages.edit_published_assessment_warn_1}" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"/>
-<h:outputText styleClass="validation" value="#{authorMessages.edit_published_assessment_warn_2}" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}"/>
-=======
-<h:messages styleClass="validation"/>
 
   <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
     <h:panelGrid  columns="1">
@@ -85,7 +80,6 @@ document.links[newindex].onclick();
     </h:panelGrid>
   </h:panelGroup>
 
->>>>>>> .merge-right.r4141
   <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
   <h:inputHidden id="showCompleteAssessment" value="#{author.showCompleteAssessment}"/>
   <h:inputHidden id="title" value="#{assessmentBean.title}" />
