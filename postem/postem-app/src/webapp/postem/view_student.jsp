@@ -14,7 +14,7 @@
 		  	<sakai:panel_edit>
 		  		<h:outputLabel styleClass="shorttext" for="participant"><h:outputText value="#{msgs.choose_username}"/></h:outputLabel>
 		  		<h:selectOneMenu value="#{PostemTool.selectedStudent}" id="participant" onchange="submit()">
-		  			<f:selectItems value="#{PostemTool.currentGradebook.studentMap}"/>
+		  			<f:selectItems value="#{PostemTool.studentMap}"/>
 		  		</h:selectOneMenu>
 		  	</sakai:panel_edit>
 		  	

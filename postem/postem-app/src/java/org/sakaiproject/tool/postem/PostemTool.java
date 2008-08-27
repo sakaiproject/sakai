@@ -69,6 +69,8 @@ public class PostemTool {
 
 	protected Gradebook currentGradebook;
 
+	protected TreeMap studentMap;
+
 	protected Gradebook oldGradebook;
 
 	protected String userId;
@@ -254,6 +256,10 @@ public class PostemTool {
 			return true;   // there is at least one message to display
 		}
 		return false;
+	}
+	
+	public TreeMap getStudentMap() {
+		return studentMap;
 	}
 	
 	public void setDisplayErrors(boolean displayErrors) {
@@ -732,8 +738,8 @@ public class PostemTool {
 		if (isEditable()) {
 			currentGradebook = gradebookManager.getGradebookByIdWithHeadings(currentGbId);
 			currentGradebook.setUsernames(gradebookManager.getUsernamesInGradebook(currentGradebook));
-			TreeMap ss = currentGradebook.getStudentMap();
-			setSelectedStudent((String) ss.firstKey());
+			studentMap = currentGradebook.getStudentMap();
+			setSelectedStudent((String) studentMap.firstKey());
 			return "view_student";
 		}
 		
