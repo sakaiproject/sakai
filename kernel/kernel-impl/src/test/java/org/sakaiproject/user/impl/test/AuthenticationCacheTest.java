@@ -30,6 +30,7 @@ import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.TestComponentManagerContainer;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
@@ -46,10 +47,7 @@ public class AuthenticationCacheTest extends SakaiKernelTestBase {
 	private static Log log = LogFactory.getLog(AuthenticationCacheTest.class);
 	private static String[] USER_DATA_1 = {"localonly1user", null, "First", "Last1", "local1@edu", "local1password"};
 	private static String[] USER_DATA_2 = {"localonly2user", null, "First", "Last2", "local2@edu", "local2password"};
-	private static int TIMEOUT_MS = 5000;	// 5 second timeout
-	private static int FAILURE_THROTTLE_TIMEOUT_MS = 8000;	// 8 second timeout
 	private static IdPwEvidence USER_EVIDENCE_1 = new IdPwEvidence(USER_DATA_1[0], USER_DATA_1[5]);
-	private static IdPwEvidence USER_EVIDENCE_2 = new IdPwEvidence(USER_DATA_2[0], USER_DATA_2[5]);
 
 	private AuthenticationManager authenticationManager;
 	private AuthenticationCache authenticationCache;
@@ -61,6 +59,7 @@ public class AuthenticationCacheTest extends SakaiKernelTestBase {
 			protected void setUp() throws Exception {
 				if (log.isDebugEnabled()) log.debug("starting setup");
 				try {
+					TestComponentManagerContainer.setSakaiHome("src/test/resources/AuthenticationCacheTest");
 					oneTimeSetup(null);
 				} catch (Exception e) {
 					log.warn(e);
@@ -74,33 +73,23 @@ public class AuthenticationCacheTest extends SakaiKernelTestBase {
 		return setup;
 	}
 
-
-
-
 	public void setUp() throws Exception {
 		if (log.isDebugEnabled()) log.debug("Setting up AuthenticationCacheTest");
 		authenticationCache = (AuthenticationCache)getService(AuthenticationCache.class.getName());
-		
-		// Now for the tricky part.... This is just a workaround until we can make it
-		// easier to load sakai.properties for specific integration tests.
-		authenticationCache.setMaximumSize(1);
-		authenticationCache.setTimeoutMs(TIMEOUT_MS);
-// TODO: check that this has been removed		authenticationCache.init();
-		
 		userDirectoryService = (UserDirectoryService)getService(UserDirectoryService.class.getName());
 		authenticationManager = (AuthenticationManager)getService(AuthenticationManager.class.getName());
 
-		User localUser = userDirectoryService.addUser(USER_DATA_1[1], USER_DATA_1[0], 
+		User localUser = userDirectoryService.addUser(USER_DATA_1[1], USER_DATA_1[0],
 				USER_DATA_1[2], USER_DATA_1[3], USER_DATA_1[4], USER_DATA_1[5], null, null);
 		if (log.isDebugEnabled()) log.debug("Created local user eid=" + localUser.getEid() + ", id=" + localUser.getId());
 		USER_DATA_1[1] = localUser.getId();
-		
-		localUser = userDirectoryService.addUser(USER_DATA_2[1], USER_DATA_2[0], 
+
+		localUser = userDirectoryService.addUser(USER_DATA_2[1], USER_DATA_2[0],
 				USER_DATA_2[2], USER_DATA_2[3], USER_DATA_2[4], USER_DATA_2[5], null, null);
 		if (log.isDebugEnabled()) log.debug("Created local user eid=" + localUser.getEid() + ", id=" + localUser.getId());
 		USER_DATA_2[1] = localUser.getId();
 	}
-	
+
 	/**
 	 * Because a lot of what we have to test in the legacy user provider service involves
 	 * irreversible side-effects (such as use of in-memory cache), we can't put much
@@ -109,17 +98,17 @@ public class AuthenticationCacheTest extends SakaiKernelTestBase {
 	 */
 	public void tearDown() throws Exception {
 	}
-	
+
 	public void testAuthenticationCache() throws Exception {
 		Assert.assertTrue(authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), USER_EVIDENCE_1.getPassword()) == null);
 		Authentication authentication = authenticationManager.authenticate(USER_EVIDENCE_1);
 		if (log.isDebugEnabled()) log.debug("Initial authentication eid=" + authentication.getEid());
 		Assert.assertTrue(authentication.getEid().equals(USER_DATA_1[0]));
-		
+
 		// Is the authentication in the cache now?
 		authentication = authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), USER_EVIDENCE_1.getPassword());
 		Assert.assertTrue(authentication.getEid().equals(USER_DATA_1[0]));
-		
+
 		// Make sure it gets bumped from the cache when the password is
 		// wrong.
 		authentication = authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), "WrongPassword");
@@ -129,27 +118,8 @@ public class AuthenticationCacheTest extends SakaiKernelTestBase {
 		authenticationManager.authenticate(USER_EVIDENCE_1);
 		authentication = authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), USER_EVIDENCE_1.getPassword());
 		Assert.assertTrue(authentication.getEid().equals(USER_DATA_1[0]));
-		
-		// Make sure the cache is limited in size.
-		authenticationManager.authenticate(USER_EVIDENCE_2);
-		authentication = authenticationCache.getAuthentication(USER_EVIDENCE_2.getIdentifier(), USER_EVIDENCE_2.getPassword());
-		Assert.assertTrue(authentication.getEid().equals(USER_DATA_2[0]));
-		authentication = authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), USER_EVIDENCE_1.getPassword());
-		Assert.assertTrue(authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), USER_EVIDENCE_1.getPassword()) == null);
-		authenticationManager.authenticate(USER_EVIDENCE_1);
-		authentication = authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), USER_EVIDENCE_1.getPassword());
-		Assert.assertTrue(authentication.getEid().equals(USER_DATA_1[0]));
-		
-		// Make sure the authentication times out.
-		try {
-			Thread.sleep(TIMEOUT_MS + 500);
-		} catch (InterruptedException e) {
-		}
-		authentication = authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), USER_EVIDENCE_1.getPassword());
-		Assert.assertTrue(authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), USER_EVIDENCE_1.getPassword()) == null);
-		
+
 		// Test authentication failure throttle.
-		authenticationCache.setFailureThrottleTimeoutMs(FAILURE_THROTTLE_TIMEOUT_MS);
 		IdPwEvidence badEvidence = new IdPwEvidence(USER_DATA_1[0], "Not the password");
 		try {
 			authenticationManager.authenticate(badEvidence);
@@ -161,11 +131,26 @@ public class AuthenticationCacheTest extends SakaiKernelTestBase {
 			Assert.fail();
 		} catch (AuthenticationException e) {
 		}
-		try {
-			Thread.sleep(FAILURE_THROTTLE_TIMEOUT_MS + 500);
-		} catch (InterruptedException e) {
+
+		// Test timeout after 5 seconds.
+		int nbrReads = 0;
+		long startTime = System.currentTimeMillis();
+		authentication = authenticationManager.authenticate(USER_EVIDENCE_1);
+		while (nbrReads < 50) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+			// See if the record is still in the cache, tickling the idle timeout
+			// (if any).
+			if (authenticationCache.getAuthentication(USER_EVIDENCE_1.getIdentifier(), USER_EVIDENCE_1.getPassword()) == null) {
+				if (log.isDebugEnabled()) log.debug("cache timed out at " + (System.currentTimeMillis()- startTime) + " ms");
+				break;
+			}
+			nbrReads++;
 		}
-		Assert.assertTrue(authenticationCache.getAuthentication(badEvidence.getIdentifier(), badEvidence.getPassword()) == null);		
+		if (log.isDebugEnabled()) log.debug("Checked cache successfully " + nbrReads + " times before timing out or giving up");
+		Assert.assertTrue(nbrReads < 10);
 	}
 
 }
