@@ -188,9 +188,6 @@ public class SiteCacheImpl implements DerivedCache
 		{
 			Site site = (Site) payload;
 
-			// get the pages and tools, groups and propeties all loaded efficiently
-			site.loadAll();
-
 			// add the pages and tools to the cache
 			for (Iterator pages = site.getPages().iterator(); pages.hasNext();)
 			{
