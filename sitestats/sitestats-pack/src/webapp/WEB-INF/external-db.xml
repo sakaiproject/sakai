@@ -5,7 +5,7 @@
 
 	<!-- Session Factory -->
 	<bean id="externalSitestatsSessionFactory"
-		class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.ClassicLocalSessionFactoryBeanHibernate31"
 		lazy-init="true">
 		<property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings"/>
 		<property name="hibernateProperties" ref="org.sakaiproject.sitestats.externalDbHibernateProperties"/>
