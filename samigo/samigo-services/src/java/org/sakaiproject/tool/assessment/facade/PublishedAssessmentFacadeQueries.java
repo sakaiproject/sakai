@@ -1974,8 +1974,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
 				+ " and a.forGrade=:forGrade and a.agentId=:agentId"
 				+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
-				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
-				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
+				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId";
 
 			final HibernateCallback hcb_last = new HibernateCallback() {
 				public Object doInHibernate(Session session)
