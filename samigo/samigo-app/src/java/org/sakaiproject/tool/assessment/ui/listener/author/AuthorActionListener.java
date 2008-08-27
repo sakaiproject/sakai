@@ -99,14 +99,12 @@ public class AuthorActionListener
 
     //#3 This map contains (Long, Integer)=(publishedAssessmentId, submissionSize)
     HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
-    HashMap agMap = gradingService.getAGDataSizeOfAllPublishedAssessments();
 
     //#4 - prepare published assessment list
     author.setPublishedAssessmentOrderBy(PublishedAssessmentFacadeQueries.TITLE);
     ArrayList publishedList = publishedAssessmentService.getBasicInfoOfAllActivePublishedAssessments(
         PublishedAssessmentFacadeQueries.TITLE,true);
     setSubmissionSize(publishedList, map);
-    setHasAssessmentGradingData(publishedList, agMap);
     // get the managed bean, author and set the list
     author.setPublishedAssessments(publishedList);
     log.debug("**** published list size ="+publishedList.size());
@@ -116,7 +114,6 @@ public class AuthorActionListener
     ArrayList inactivePublishedList = publishedAssessmentService.getBasicInfoOfAllInActivePublishedAssessments(
        PublishedAssessmentFacadeQueries.TITLE,true);
     setSubmissionSize(inactivePublishedList, map);
-    setHasAssessmentGradingData(inactivePublishedList, agMap);
     // get the managed bean, author and set the list
     author.setInactivePublishedAssessments(inactivePublishedList);
 
@@ -131,20 +128,6 @@ public class AuthorActionListener
       }
     }
   }
-  
-  private void setHasAssessmentGradingData(ArrayList list, HashMap agMap) {
-		boolean hasAssessmentGradingData = true;
-		for (int i = 0; i < list.size(); i++) {
-			PublishedAssessmentFacade p = (PublishedAssessmentFacade) list
-					.get(i);
-			if (agMap.get(p.getPublishedAssessmentId()) != null) {
-				hasAssessmentGradingData = true;
-			} else {
-				hasAssessmentGradingData = false;
-			}
-			p.setHasAssessmentGradingData(hasAssessmentGradingData);
-		}
-	}
 
   private void removeDefaultTemplate(ArrayList templateList){
     for (int i=0; i<templateList.size();i++){

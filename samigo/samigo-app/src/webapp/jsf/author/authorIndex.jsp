@@ -258,14 +258,14 @@
 	  
 	  <!-- action=editAssessment if pass authz -->
       <h:commandLink title="#{authorFrontDoorMessages.t_editPublishedAssessment}" id="editPublishedAssessment" immediate="true" action="confirmEditPublishedAssessment"
-        rendered="#{(authorization.editAnyAssessment or authorization.editOwnAssessment) and !publishedAssessment.hasAssessmentGradingData}" >
+        rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" >
         <h:outputText id="publishedAssessmentTitle" value="#{publishedAssessment.title}" styleClass="currentSort" escape="false"/>
         <f:param name="publishedAssessmentId" value="#{publishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmEditPublishedAssessmentListener" />
       </h:commandLink>
 
       <h:outputText id="publishedAssessmentTitle2" value="#{publishedAssessment.title}" escape="false"
-        rendered="#{(!authorization.editAnyAssessment and !authorization.editOwnAssessment) or publishedAssessment.hasAssessmentGradingData}" />
+        rendered="#{!authorization.editAnyAssessment and !authorization.editOwnAssessment}" />
       <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<br />"/>
 
  <span class="itemAction">
@@ -444,13 +444,13 @@
       </f:facet>
   	  <!-- action=editAssessment if pass authz -->
       <h:commandLink title="#{authorFrontDoorMessages.t_editInactivePublishedAssessment}" id="editInactivePublishedAssessment" immediate="true" action="confirmEditPublishedAssessment"
-        rendered="#{(authorization.editAnyAssessment or authorization.editOwnAssessment) and !inactivePublishedAssessment.hasAssessmentGradingData}" >
+        rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" >
         <h:outputText id="inactivePublishedAssessmentTitle" value="#{inactivePublishedAssessment.title}" styleClass="currentSort" escape="false" />
         <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmEditPublishedAssessmentListener" />
       </h:commandLink>
       <h:outputText id="inactivePublishedAssessmentTitle2" value="#{inactivePublishedAssessment.title}" escape="false"
-        rendered="#{(!authorization.editAnyAssessment and !authorization.editOwnAssessment) or inactivePublishedAssessment.hasAssessmentGradingData}" />
+        rendered="#{!authorization.editAnyAssessment and !authorization.editOwnAssessment}" />
       <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<br />"/>
 
         <span class="itemAction"> 

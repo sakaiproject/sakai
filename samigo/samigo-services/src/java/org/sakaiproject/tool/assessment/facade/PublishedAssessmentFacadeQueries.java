@@ -2662,7 +2662,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			};
 			return getHibernateTemplate().executeFind(hcb);
 	}
-	
+
 	public Integer getPublishedAssessmentStatus(Long publishedAssessmentId) {
 		String query = "select p.status from PublishedAssessmentData p where p.publishedAssessmentId = ?";
 		List l = getHibernateTemplate().find(query, publishedAssessmentId);

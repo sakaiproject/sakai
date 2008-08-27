@@ -39,15 +39,26 @@
   <h3><h:outputText value="#{authorMessages.edit_published_assessment_heading_conf}"/></h3>
  <h:form id="editPublishedAssessmentForm">
      <div class="validation tier1">
-       <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info}" />
+       <h:outputText value="#{authorMessages.warning}" />
+   	   <br/>
+       <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_1}" />
+	   <br/>
+       <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_2}" />
+	   <br/>
+	   <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_3}" />
+	   <br/>
+	   <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_4}" />
      </div>
        <p class="act">
        <h:commandButton id="edit" accesskey="#{assessmentSettingsMessages.a_edit}" value="#{authorMessages.button_edit}" type="submit"
-         styleClass="active" action="editAssessment" >
+         styleClass="active" action="#{author.getOutcome}" >
          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
        </h:commandButton>
 
-       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" style="act" action="author" />
+       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" style="act" action="author" >
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+       </h:commandButton>
+
        </p>
  </h:form>
   <!-- end content -->

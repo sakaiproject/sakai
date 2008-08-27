@@ -94,7 +94,6 @@ public class PublishedAssessmentFacade
   private Set publishedAssessmentAttachmentSet;
   // added by gopalrc Nov 2007
   private String releaseToGroups;
-  private boolean hasAssessmentGradingData;
 
   public PublishedAssessmentFacade() {
   }
@@ -678,13 +677,4 @@ public class PublishedAssessmentFacade
   public String getReleaseToGroups() {
 	    return this.releaseToGroups;
   }
-
-  public boolean getHasAssessmentGradingData() {
-    return hasAssessmentGradingData;
-  }
-
-  public void setHasAssessmentGradingData(boolean hasAssessmentGradingData) {
-    this.hasAssessmentGradingData = hasAssessmentGradingData;
-  }
-
 }

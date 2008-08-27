@@ -498,18 +498,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
     return h;
   }
-  
-  public HashMap getAGDataSizeOfAllPublishedAssessments(){
-		HashMap agDataSizeMap = new HashMap();
-	    List list = getHibernateTemplate().find(
-	        "select a.publishedAssessmentId, count(a) from AssessmentGradingData a group by a.publishedAssessmentId");
-	    Iterator iter = list.iterator();
-		while (iter.hasNext()) {
-			Object o[] = (Object[]) iter.next(); 
-			agDataSizeMap.put(o[0], o[1]);
-		}
-	    return agDataSizeMap;
-  }
 
   public Long saveMedia(byte[] media, String mimeType){
     log.debug("****"+AgentFacade.getAgentString()+"saving media...size="+media.length+" "+(new Date()));
