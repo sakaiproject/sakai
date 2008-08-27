@@ -56,6 +56,15 @@ public class SakaiKernelTestBase extends TestCase {
 	}
 
 	/**
+	 * Get a service bean from the component manager by its unique interface.
+	 * @param service interface
+	 * @return service or null if not found
+	 */
+	protected static <T> T getService(Class<T> clazz) {
+		return (T)testComponentManagerContainer.getService(clazz.getName());
+	}
+
+	/**
 	 * Perform a one time setup on the Compionent manager, with possible additional components.
 	 * @param additional if not null the string is appended to the sandard set of component description
 	 * @throws IOException
