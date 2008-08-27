@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -45,6 +46,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Placement;
@@ -826,7 +828,55 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 
 			public void sendRedirect(String url) throws IOException
 			{
+				// SAK-13408 - Relative redirections are based on the request URI. This fix addresses the problem 
+				// of Websphere having a different request URI than Tomcat. Instead, the relative URL will be
+				// converted to an absolute URL.
+				if ("websphere".equals(ServerConfigurationService.getString("servlet.container")))
+				{
+			    	url = createAbsoluteURL(url);
+				}
 				super.sendRedirect(rewriteURL(url));
+			}
+
+			/**
+			 * This method takes the given relative Sakai URL and uses the
+			 * context path and path info to create the corresponding 
+			 * absolute URL.
+			 * 
+			 * @param relativeUrl the relative URL to convert to an absolute URL
+			 * @return the absolute URL
+			 */
+			protected String createAbsoluteURL(String relativeUrl) {
+				// ensure this is a relative URL
+				if (!(relativeUrl.toLowerCase().startsWith("http")) && !(relativeUrl.startsWith("/"))) 
+				{
+					ActiveToolComponent.MyActiveTool.WrappedRequest wr = (WrappedRequest) this.m_req;
+					
+					// need to obtain any extra path info from the path
+					StringBuilder pathBuilder = new StringBuilder("");
+					if (wr.m_path != null)
+					{
+						StringTokenizer pathTokenizer = new StringTokenizer(wr.m_path, "/");
+						// if the path has more than one segment (eg. "/name1/name2")
+						int numberOfPathElements = pathTokenizer.countTokens();
+						if (numberOfPathElements > 1)
+						{
+							// copy over everything but the last segment
+							for (int i = 0; i < numberOfPathElements - 1; i++)
+							{
+								pathBuilder.append("/");
+								pathBuilder.append(pathTokenizer.nextToken());
+							}
+						}
+					}
+					if (!pathBuilder.toString().endsWith("/"))
+					{
+						pathBuilder.append("/");
+					}
+
+					relativeUrl = wr.m_context + pathBuilder.toString() + relativeUrl;
+				}
+				return relativeUrl;
 			}
 
 			/**
