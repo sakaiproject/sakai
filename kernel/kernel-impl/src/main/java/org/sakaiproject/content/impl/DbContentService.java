@@ -2685,7 +2685,7 @@ public class DbContentService extends BaseContentService
 						
 						// update the record
 						sql = contentServiceSql.getUpdateContentResource3Sql();
-						fields = new Object[5];
+						fields = new Object[6];
 						fields[0] = edit.m_filePath;
 						fields[1] = xml;
 						fields[2] = context;
