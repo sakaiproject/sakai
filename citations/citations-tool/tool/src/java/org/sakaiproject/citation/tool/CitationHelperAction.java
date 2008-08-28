@@ -614,13 +614,17 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put( "collectionId", collectionId );
 
 		CitationCollection collection = getCitationCollection(state, false);
+		int collectionSize = 0;
 		if(collection == null)
 		{
 			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
 		}
-
-		// get the size of the list
-		context.put( "collectionSize", new Integer( collection.size() ) );
+		else
+		{
+			// get the size of the list
+			collectionSize = collection.size();
+		}
+		context.put( "collectionSize", new Integer( collectionSize ) );
     }
 
 	public String buildImportCitationsPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
@@ -676,13 +680,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put( "collectionId", collectionId );
 
 		CitationCollection collection = getCitationCollection(state, false);
+		int collectionSize = 0;
 		if(collection == null)
 		{
 			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
 		}
+		else
+		{
+			// get the size of the list
+			collectionSize = collection.size();
+		}
 
-		// get the size of the list
-		context.put( "collectionSize", new Integer( collection.size() ) );
+		context.put( "collectionSize", new Integer( collectionSize ) );
 
 		// determine which features to display
 		if( ConfigurationService.isGoogleScholarEnabled() )
@@ -2517,15 +2526,19 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// get databases selected
 		String[] databaseIds = params.getStrings( "databasesSelected" );
-		logger.debug( "Databases selected:" );
-		for( String databaseId : databaseIds )
-		{
-			logger.debug( "  " + databaseId );
-		}
 
 		// check the databases to make sure they are indeed searchable by this user
 		if( databaseIds != null )
 		{
+			if(logger.isDebugEnabled())
+			{
+				logger.debug( "Databases selected:" );
+				for( String databaseId : databaseIds )
+				{
+					logger.debug( "  " + databaseId );
+				}
+			}
+			
 			SearchDatabaseHierarchy hierarchy =
 				(SearchDatabaseHierarchy)state.getAttribute(STATE_SEARCH_HIERARCHY);
 			for( int i = 0; i < databaseIds.length; i++ )
