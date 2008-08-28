@@ -23,24 +23,24 @@
     <module>scheduler-tool</module>
     <module>scheduler-shared-deploy</module>
   </modules>
- <dependencyManagement>
-   <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-tool</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-app</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>      
-      <type>pom</type>
-    </dependency>
-   </dependencies>
- </dependencyManagement> 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-jsf-tool</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-jsf-app</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
