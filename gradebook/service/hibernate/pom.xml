@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
-     </dependency>
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>

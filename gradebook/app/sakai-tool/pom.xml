@@ -13,6 +13,10 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
@@ -36,19 +40,16 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-app-ui</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-app-business</artifactId>
-      
     </dependency>
 <!--
 			The Gradebook application doesn't call the GradebookService,
@@ -57,56 +58,47 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-impl</artifactId>
-      
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-hibernate</artifactId>
-      
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-impl</artifactId>
-      
     </dependency>
 <!-- Section Awareness -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      
     </dependency>
 <!-- Standalone component -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
-      
       <scope>provided</scope>
     </dependency>
 <!-- Used only for test data. -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
-      
       <scope>test</scope>
     </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
-      
     </dependency>
 <!-- these are to get full Sakai integration -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
-      
       <exclusions>
         <exclusion>
           <groupId>jsf</groupId>
@@ -288,13 +280,11 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
-      
       <type>pom</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-spreadsheet</artifactId>
-      
     </dependency>
   </dependencies>
   <build>

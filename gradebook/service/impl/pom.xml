@@ -16,6 +16,10 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
@@ -35,10 +39,9 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -52,25 +55,21 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-hibernate</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
-  
     </dependency>
 <!-- Section Awareness -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      
     </dependency>
 <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
 <!-- Needed for standalone user directory -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
-      
     </dependency>
 <!-- JSF needed for standalone authn -->
     <dependency>
@@ -155,7 +154,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-api</artifactId>
-      
     </dependency>
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
   </dependencies>

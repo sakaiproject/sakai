@@ -38,47 +38,39 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-hibernate</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-impl</artifactId>
-      
     </dependency>
 <!-- Section Awareness -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      
     </dependency>
 <!-- Standalone component -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
-      
     </dependency>
 <!-- Used only for test data. -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
-      
     </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
-      
     </dependency>
 <!-- these are to get full Sakai integration -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
-      
     </dependency>
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
 <!-- sakai2 plugin -->
@@ -250,7 +242,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
-      
       <type>pom</type>
     </dependency>
   </dependencies>

@@ -71,13 +71,11 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
-      
     </dependency>
 <!-- Used only for test data. -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
-      
     </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
@@ -269,13 +267,11 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
-      
       <type>pom</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-spreadsheet</artifactId>
-      
     </dependency>
   </dependencies>
   <build>
