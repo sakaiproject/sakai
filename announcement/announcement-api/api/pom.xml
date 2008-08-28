@@ -33,7 +33,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
-     </dependency>
+    </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
   </dependencies>
   <build>

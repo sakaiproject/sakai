@@ -23,7 +23,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-announcement-impl</artifactId>
-     
     </dependency>
     <dependency>
       <groupId>xerces</groupId>
