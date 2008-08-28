@@ -1683,6 +1683,8 @@ public class BaseSearchManager implements SearchManager, Observer
 		 */
 		public Repository getRepository()
 		{
+			Repository repository = null;
+			
 			// get a RepositoryManager
 			RepositoryManager repositoryManager = null;
 			try
@@ -1693,56 +1695,56 @@ public class BaseSearchManager implements SearchManager, Observer
 						repositoryPkgName,
 						new OsidContext(), null );
 
+				RepositoryIterator rit = null;
 				if( repositoryManager == null )
 				{
-					m_log.warn( "getRepository() failed getting " +
-							"RepositoryManager from SakaiOsidLoader" );
+					m_log.warn( "getRepository() failed getting RepositoryManager from SakaiOsidLoader" );
+				}
+				else
+				{
+					rit = repositoryManager.getRepositoriesByType( repositoryType );
 				}
 
 				// get repositories of type sakaibrary/repository/metasearch
-				RepositoryIterator rit = repositoryManager.getRepositoriesByType( repositoryType );
 				if( rit == null )
 				{
-					m_log.warn( "getRepository() failed getting " +
-							"RepositoryIterator of type sakaibrary/repository/" +
-							"metasearch from RepositoryManager" );
+					m_log.warn( "getRepository() failed getting RepositoryIterator of type sakaibrary/repository/metasearch from RepositoryManager" );
 				}
+				else
+				{
+					// only one repository should be in the iterator
+					repository = rit.nextRepository();
+					String extendedId = m_configService.getSiteConfigExtendedRepositoryId();
 
-				// only one repository should be in the iterator
-				Repository repository = rit.nextRepository();
-        String extendedId = m_configService.getSiteConfigExtendedRepositoryId();
+					if ((extendedId != null) && (extendedId.length() > 0))
+					{
+						while (repository != null)
+						{
+							m_log.debug("Matching Repositories? "
+									+ repository.getId().getIdString()
+									+ " VS "
+									+ extendedId);
 
-        if ((extendedId != null) && (extendedId.length() > 0))
-        {
-          while (repository != null)
-          {
-            m_log.debug("Matching Repositories? "
-                      + repository.getId().getIdString()
-                      + " VS "
-                      + extendedId);
-
-            if (repository.getId().getIdString().equals(extendedId))
-            {
-              break;
-            }
-            repository = rit.nextRepository();
-          }
-        }
+							if (repository.getId().getIdString().equals(extendedId))
+							{
+								break;
+							}
+							repository = rit.nextRepository();
+						}
+					}
+				}
 
 				if( repository == null )
 				{
-					m_log.warn( "getRepository() failed getting repository " +
-							"from RepositoryIterator" );
+					m_log.warn( "getRepository() failed getting repository from RepositoryIterator" );
 				}
-
-				return repository;
 			}
 			catch( OsidException oe )
 			{
 				m_log.warn( "getRepository threw OsidException: ", oe );
 			}
 
-			return null;
+			return repository;
 		}
 
 		/* (non-Javadoc)
