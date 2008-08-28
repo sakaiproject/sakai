@@ -2928,6 +2928,7 @@ public class DeliveryBean
 			  }
 		  }
 
+		  syncTimeElapsedWithServer();
 		  return "takeAssessment";
 	  }
 
