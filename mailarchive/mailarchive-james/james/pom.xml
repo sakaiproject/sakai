@@ -18,6 +18,10 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
@@ -29,10 +33,9 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>james-phoenix</groupId>
       <artifactId>james</artifactId>
@@ -63,7 +66,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
-     </dependency>
+    </dependency>
 <!--org.sakaiprojectsakai-site-api${sakai.version}-->
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->

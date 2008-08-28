@@ -18,6 +18,10 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
@@ -29,14 +33,12 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-mailarchive-api</artifactId>
-     
     </dependency>
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->
 <!--org.sakaiprojectsakai-alias-api${sakai.version}-->
@@ -45,14 +47,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-courier-api</artifactId>
-     
     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
-     
     </dependency>
 <!--org.sakaiprojectsakai-site-api${sakai.version}-->
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
@@ -61,18 +61,15 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-mergedlist-util</artifactId>
-     
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
-     
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
-     
     </dependency>
 <!-- velocity and dependencies (logkit, oro, collections) -->
     <dependency>
