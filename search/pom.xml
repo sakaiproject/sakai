@@ -49,37 +49,37 @@
       </modules>
     </profile>
   </profiles>
-<dependencyManagement>
- <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-model</artifactId>
-       <version>2.6.0RC1-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-impl</artifactId>
-       <version>2.6.0RC1-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-util</artifactId>
-       <version>2.6.0RC1-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-adapters-impl</artifactId>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-search-model</artifactId>
         <version>2.6.0RC1-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-test-harness</artifactId>
-       <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
-</dependencies>
-</dependencyManagement>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-search-impl</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-search-util</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-search-adapters-impl</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-test-harness</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
