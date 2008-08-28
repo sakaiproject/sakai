@@ -1311,17 +1311,20 @@ public class DbCitationService extends BaseCitationService
         public Object readSqlResultRecord(ResultSet result)
         {
         	Triple triple = null;
+        	String citationId = null;
+        	String name = null;
+        	String value = null;
 	        try
             {
-	            String citationId = result.getString(1);
-	            String name = result.getString(2);
-	            String value = result.getString(3);
+	        	citationId = result.getString(1);
+	            name = result.getString(2);
+	            value = result.getString(3);
 
 	            triple = new Triple(citationId, name, value);
             }
             catch (SQLException e)
             {
-	            M_log.debug("TripleReader: problem reading triple: " + triple.toString());
+	            M_log.debug("TripleReader: problem reading triple from result: citationId(" + citationId + ") name(" + name + ") value(" + value + ")");
             }
 	        return triple;
         }
