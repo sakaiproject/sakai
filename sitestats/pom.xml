@@ -1,23 +1,45 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-	 
+  <name>Sakai SiteStats</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sitestats-base</artifactId>
+  <version>1.2-SNAPSHOT</version><!-- sitestats.version --> 
+  
+  <description>SiteStats is a tool for Sakai for showing site usage statistics.</description>
+  <url>http://bugs.sakaiproject.org/confluence/display/STAT</url>
+  <inceptionYear>2006</inceptionYear>
+  <organization>
+    <name>Universidade Fernando Pessoa</name>
+    <url>http://www.ufp.pt</url>
+  </organization>
+  <packaging>pom</packaging>  
+  
+  
+  <!-- Parent: Sakai master pom -->
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>2.5.0</version>
+    <!-- EDIT ME: Sakai Version -->
+    <!--<version>2.5.2</version>--> <!-- For Official Releases -->    
+    <version>M2</version> <!-- For 2.5.x --> 
+    <!--<version>2.6.0RC1-SNAPSHOT</version>--> <!-- For TRUNK -->   
   </parent>
+  
 
+  <!-- Project versions -->
   <properties>
-    <sitestats.version>M2</sitestats.version>
+    <commons-digester.version>1.6</commons-digester.version>
+    <fop.version>0.93</fop.version>
+    <poi.version>2.0-final-20040126</poi.version>
+    <myfaces.version>1.1.5</myfaces.version>
+    <tomahawk.version>1.1.6</tomahawk.version>
+    <ajax4jsf.version>1.1.1</ajax4jsf.version>
+    <jfreechart.version>1.0.5</jfreechart.version>
   </properties>
   
-  <name>Sakai SiteStats Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sitestats-base</artifactId>
-  <version>${sitestats.version}</version>
-
-  <packaging>pom</packaging>
+  
+  <!-- Project modules -->
   <modules>
     <module>sitestats-api</module>
     <module>sitestats-impl</module>
@@ -25,4 +47,198 @@
     <module>sitestats-pack</module>
     <module>sitestats-tool</module>
   </modules>
+  
+  
+  <!-- Project developers -->
+  <developers>
+    <developer>
+      <id>nuno</id>
+      <name>Nuno Fernandes</name>
+      <email>nuno@ufp.edu.pt</email>
+      <url>http://confluence.sakaiproject.org/confluence/display/~nfernandes</url>
+      <organization>Universidade Fernando Pessoa</organization>
+      <organizationUrl>http://www.ufp.pt/</organizationUrl>
+      <roles>
+        <role>Project Manager</role>
+        <role>Architect</role>
+        <role>Developer</role>
+      </roles>
+      <timezone>0</timezone>
+    </developer>
+  </developers>
+  
+  
+  <!-- Project repositories -->
+  <repositories>
+    <repository>
+      <id>sakai-maven</id>
+      <name>Sakai Maven Repo</name>
+      <layout>default</layout>
+      <url>http://source.sakaiproject.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      </repository>
+    <repository>
+      <id>default</id>
+      <name>Maven Repository Switchboard</name>
+      <layout>default</layout>
+      <url>http://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>jboss</id>
+      <name>Jboss Repository for Maven</name>
+      <layout>default</layout>
+      <url>http://repository.jboss.com/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  
+  <!-- JIRA -->
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.sakaiproject.org/jira/browse/STAT</url>
+  </issueManagement>
+
+
+  <!-- License -->
+  <licenses>
+    <license>
+      <name>Educational Community License, Version 2.0</name>
+      <url>http://www.osedu.org/licenses/ECL-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  
+  <!-- Source code repository location -->
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</developerConnection>
+    <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/?root=contrib</url>
+  </scm>
+
+  
+  <!-- Project related dependencies -->
+  <dependencyManagement>
+    <dependencies>
+    <!-- SiteStats -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sitestats-api</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sitestats-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sitestats-impl-hib</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  
+    <!-- Sakai -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    
+    <!-- Apache Commons -->
+    <dependency>
+      <groupId>commons-digester</groupId>
+      <artifactId>commons-digester</artifactId>
+      <version>${commons-digester.version}</version>
+    </dependency>
+    
+    <!-- Apache others -->
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>fop</artifactId>
+      <version>${fop.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    
+    <!-- JSF -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
+      <version>${sakai.version}</version>
+      <type>pom</type>
+    </dependency>    
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-tool</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-app</artifactId>
+      <version>${sakai.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>jsf</groupId>
+          <artifactId>jsf-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-api</artifactId>
+      <version>${myfaces.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-impl</artifactId>
+      <version>${myfaces.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.tomahawk</groupId>
+      <artifactId>tomahawk</artifactId>
+      <version>${tomahawk.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>antlr</groupId>
+          <artifactId>antlr</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.ajax4jsf</groupId>
+      <artifactId>ajax4jsf</artifactId>
+      <version>${ajax4jsf.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.faces</groupId>
+          <artifactId>jsf-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.faces</groupId>
+          <artifactId>jsf-impl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>jfree</groupId>
+      <artifactId>jfreechart</artifactId>
+      <version>${jfreechart.version}</version>
+    </dependency>
+    
+    </dependencies>
+  </dependencyManagement>
+
 </project>

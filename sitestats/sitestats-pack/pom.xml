@@ -1,76 +1,68 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>sitestats-base</artifactId>
-		<groupId>org.sakaiproject</groupId>
-		<version>${sitestats.version}</version>
-	</parent>
-	<name>Sakai SiteStats Components</name>
-	<groupId>org.sakaiproject</groupId>
-	<artifactId>sakai-sitestats-components</artifactId>
-	<organization>
-		<name>Universidade Fernando Pessoa</name>
-		<url>http://www.ufp.pt</url>
-	</organization>
-	<inceptionYear>2006</inceptionYear>
-	<packaging>sakai-component</packaging>
-	<properties>
-		<deploy.target>components</deploy.target>
-	</properties>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>Sakai SiteStats Components</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-sitestats-components</artifactId>
+  <organization>
+    <name>Universidade Fernando Pessoa</name>
+    <url>http://www.ufp.pt</url>
+  </organization>
+  <inceptionYear>2006</inceptionYear>
 
-	<dependencies>
-		<!-- SiteStats -->
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-sitestats-api</artifactId>
-			<version>${sitestats.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-sitestats-impl</artifactId>
-			<version>${sitestats.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-sitestats-impl-hib</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-sitestats-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-scheduler-api</artifactId>
-                        <version>${sakai.version}</version>
-                </dependency>
-                <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-comp-shared-scheduler</artifactId>
-                        <version>${sakai.version}</version>
-                </dependency>
-	</dependencies>
+  <!-- Parent: Sakai SiteStats base -->
+  <parent>
+    <artifactId>sitestats-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>1.2-SNAPSHOT</version><!-- sitestats.version --> 
+  </parent>
+  
+  <!-- Packaging -->
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
+  
+  <!-- Dependencies -->
+  <dependencies>
+    <!-- SiteStats -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sitestats-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sitestats-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-scheduler-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-comp-shared-scheduler</artifactId>
+    </dependency>
+  </dependencies>
 
-	<build>
-		<resources>
-			<resource>
-				<directory>${basedir}/src/bundle</directory>
-				<includes>
-					<include>**/*.properties</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/java</directory>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-				<excludes>
-					<exclude>**/web.xml</exclude>
-				</excludes>
-			</resource>
-		</resources>
-	</build>
+  <!-- Build -->
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+        <excludes>
+          <exclude>**/web.xml</exclude>
+        </excludes>
+      </resource>
+    </resources>
+  </build>
+  
 </project>
