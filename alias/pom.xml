@@ -19,14 +19,13 @@
   <modules>
     <module>alias-tool/tool</module>
   </modules>
-<dependencyManagement>
- <dependencies>
-     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-velocity-tool</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
- </dependencies>
-</dependencyManagement>
-
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-velocity-tool</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
