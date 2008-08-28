@@ -29,15 +29,9 @@
 -->
   <f:view>
   
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.SamLite"
-     var="msg"/> 
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/> 
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      	<title><h:outputText value="#{msg.import_a}" /></title>
+      	<title><h:outputText value="#{samLiteMessages.import_a}" /></title>
       	<script type="text/javascript">
       	function toggleLayer(layerId)
         {
@@ -74,31 +68,31 @@
 		 <!-- HEADINGS -->
   		 <%@ include file="/jsf/author/allHeadings.jsp" %>
   		 <h3>
-   	 		<h:outputText value="#{msg.samlite_title}"/>
+   	 		<h:outputText value="#{samLiteMessages.samlite_title}"/>
   	     </h3>
 	     <p/>
-	     <h4><h:outputText value="#{msg.samlite_step_1_of_2}"/></h4>
+	     <h4><h:outputText value="#{samLiteMessages.samlite_step_1_of_2}"/></h4>
 	     <p/>
-	     <div class="instructions"><h:outputText value="#{msg.samlite_instructions}"/></div>
+	     <div class="instructions"><h:outputText value="#{samLiteMessages.samlite_instructions}"/></div>
   		 <p/>
-		 <div class="navIntraTool"><strong><h:outputText value="#{msg.samlite_infogroup}"/></strong></div>	
+		 <div class="navIntraTool"><strong><h:outputText value="#{samLiteMessages.samlite_infogroup}"/></strong></div>	
 		 <br/>
 		 <table border="0" cellpadding="0" cellspacing="0">
 		 <tr>
-		 	<td valign="top"><strong><h:outputLabel for="name" value="#{msg.samlite_name}"/></strong></td>
+		 	<td valign="top"><strong><h:outputLabel for="name" value="#{samLiteMessages.samlite_name}"/></strong></td>
 			<td>&nbsp;&nbsp;&nbsp;</td>
 			<td valign="top"><h:inputText id="name" value="#{samLiteBean.name}" size="50"/></td>
 		 </tr>
 		 <tr>
-			<td valign="top"><strong><h:outputLabel for="description" value="#{msg.samlite_description}"/></strong></td>
+			<td valign="top"><strong><h:outputLabel for="description" value="#{samLiteMessages.samlite_description}"/></strong></td>
 			<td>&nbsp;&nbsp;&nbsp;</td>
 			<td valign="top"><h:inputTextarea id="description" value="#{samLiteBean.description}" rows="2" cols="40"/></td>
 		 </tr>
 		 </table>
 		 <p/>
-		 <div class="navIntraTool"><strong><h:outputText value="#{msg.samlite_textgroup}"/></strong></div>
+		 <div class="navIntraTool"><strong><h:outputText value="#{samLiteMessages.samlite_textgroup}"/></strong></div>
 		 <br/>
-		 <div class="instructions"><h:outputText value="#{msg.samlite_textgroup_instructions}"/></div>
+		 <div class="instructions"><h:outputText value="#{samLiteMessages.samlite_textgroup_instructions}"/></div>
 		 <p/>
 		 <table border="0" cellpadding="0" cellspacing="0">
 		 <tr>
@@ -107,95 +101,95 @@
 			    <br/>
 				<div class="act">
 				   	<%-- immediate=true bypasses the valueChangeListener --%>
-				   	<h:commandButton value="#{msg.samlite_cancel}" type="submit" action="author" immediate="true"/>
+				   	<h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
 					     	
 				   	<%-- activates the valueChangeListener --%>
-				   	<h:commandButton value="#{msg.samlite_validate}" type="submit" styleClass="active" action="samLiteValidation">
+				   	<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="samLiteValidation">
 				   		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.ParserListener" />
 					</h:commandButton>	     
 				</div>
 			</td>
 	    	<td valign="top" align="left">
-			   	<h4><h:outputText value="#{msg.samlite_formatgroup}"/></h4>
+			   	<h4><h:outputText value="#{samLiteMessages.samlite_formatgroup}"/></h4>
 			  	<table border="0" width="100%">
 			    <tr>
 				 	<td align="left" valign="top">
-					    <a href="javascript:toggleLayer('general_instructions');"><h:outputText value="#{msg.general_instructions_label}"/></a>
+					    <a href="javascript:toggleLayer('general_instructions');"><h:outputText value="#{samLiteMessages.general_instructions_label}"/></a>
 					    <div id="general_instructions" class="inopPanel" style="display:none">
-					   		<h:outputText value="#{msg.general_instructions_prelude}"/><p/>
+					   		<h:outputText value="#{samLiteMessages.general_instructions_prelude}"/><p/>
 					   		<ul>
-					   			<li><h:outputText value="#{msg.general_instructions_format1}"/></li>
-					   			<li><h:outputText value="#{msg.general_instructions_format2}"/></li>
-					   			<li><h:outputText value="#{msg.general_instructions_format3}"/></li>
-					   			<li><h:outputText value="#{msg.general_instructions_format4}"/></li>
-					   			<li><h:outputText value="#{msg.general_instructions_format5}"/></li>
+					   			<li><h:outputText value="#{samLiteMessages.general_instructions_format1}"/></li>
+					   			<li><h:outputText value="#{samLiteMessages.general_instructions_format2}"/></li>
+					   			<li><h:outputText value="#{samLiteMessages.general_instructions_format3}"/></li>
+					   			<li><h:outputText value="#{samLiteMessages.general_instructions_format4}"/></li>
+					   			<li><h:outputText value="#{samLiteMessages.general_instructions_format5}"/></li>
 					   		</ul>
-					   		<h:outputText value="#{msg.general_instructions_conclude}"/>
+					   		<h:outputText value="#{samLiteMessages.general_instructions_conclude}"/>
 				    	</div>
 					</td>
 				</tr>
 				<tr>
 				  	<td align="left" valign="top">
-					    <a href="javascript:toggleLayer('example_mc_question');"><h:outputText value="#{msg.example_mc_label}"/></a>
+					    <a href="javascript:toggleLayer('example_mc_question');"><h:outputText value="#{samLiteMessages.example_mc_label}"/></a>
 					    <div id="example_mc_question" class="inopPanel" style="display:none">
-					    	<strong><h:outputText value="#{msg.example_instruction_label}"/></strong><h:outputText value="#{msg.example_mc_instructions}"/><p/>
-				   			<strong><h:outputText value="#{msg.example_example_label}"/></strong><br/>
-				   			<h:outputText value="#{msg.example_mc_question_format4}"/><br/>
-				   			<h:outputText value="#{msg.example_mc_question_text}"/><p/>
-				   			<h:outputText value="#{msg.example_mc_answer_a}"/><br/>
-				   			<h:outputText value="#{msg.example_mc_answer_b}"/><br/>
-				   			<h:outputText value="#{msg.example_mc_answer_c}"/><br/>
-				   			<h:outputText value="#{msg.example_mc_answer_d}"/>
+					    	<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong><h:outputText value="#{samLiteMessages.example_mc_instructions}"/><p/>
+				   			<strong><h:outputText value="#{samLiteMessages.example_example_label}"/></strong><br/>
+				   			<h:outputText value="#{samLiteMessages.example_mc_question_format4}"/><br/>
+				   			<h:outputText value="#{samLiteMessages.example_mc_question_text}"/><p/>
+				   			<h:outputText value="#{samLiteMessages.example_mc_answer_a}"/><br/>
+				   			<h:outputText value="#{samLiteMessages.example_mc_answer_b}"/><br/>
+				   			<h:outputText value="#{samLiteMessages.example_mc_answer_c}"/><br/>
+				   			<h:outputText value="#{samLiteMessages.example_mc_answer_d}"/>
 				   		</div>
 				    </td>
 				</tr>
 				<tr>
 					  	<td align="left" valign="top">
-						    <a href="javascript:toggleLayer('example_mcmc_question');"><h:outputText value="#{msg.example_mcmc_label}"/></a>
+						    <a href="javascript:toggleLayer('example_mcmc_question');"><h:outputText value="#{samLiteMessages.example_mcmc_label}"/></a>
 						    <div id="example_mcmc_question" class="inopPanel" style="display:none">
-				    			<strong><h:outputText value="#{msg.example_instruction_label}"/></strong><h:outputText value="#{msg.example_mcmc_instructions}"/><p/>
-				    			<strong><h:outputText value="#{msg.example_example_label}"/></strong><br/>
-				    			<h:outputText value="#{msg.example_mcmc_question_format4}"/><br/>
-				    			<h:outputText value="#{msg.example_mcmc_question_text}"/><p/>
-				    			<h:outputText value="#{msg.example_mcmc_answer_a}"/><br/>
-				    			<h:outputText value="#{msg.example_mcmc_answer_b}"/><br/>
-				    			<h:outputText value="#{msg.example_mcmc_answer_c}"/><br/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong><h:outputText value="#{samLiteMessages.example_mcmc_instructions}"/><p/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_example_label}"/></strong><br/>
+				    			<h:outputText value="#{samLiteMessages.example_mcmc_question_format4}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_mcmc_question_text}"/><p/>
+				    			<h:outputText value="#{samLiteMessages.example_mcmc_answer_a}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_mcmc_answer_b}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_mcmc_answer_c}"/><br/>
 				    		</div>
 					    </td>
 					  </tr>
 					  <tr>
 					  	<td align="left" valign="top">
-						    <a href="javascript:toggleLayer('example_fib_question');"><h:outputText value="#{msg.example_fib_label}"/></a>
+						    <a href="javascript:toggleLayer('example_fib_question');"><h:outputText value="#{samLiteMessages.example_fib_label}"/></a>
 						    <div id="example_fib_question" class="inopPanel" style="display:none">
-				    			<strong><h:outputText value="#{msg.example_instruction_label}"/></strong><h:outputText value="#{msg.example_fib_instructions}"/><p/>
-				    			<strong><h:outputText value="#{msg.example_example_label}"/></strong><br/>
-				    			<h:outputText value="#{msg.example_fib_question_format4}"/><br/>
-				    			<h:outputText value="#{msg.example_fib_question_text}"/><p/>
-				    			<h:outputText value="#{msg.example_fib_answer}"/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong><h:outputText value="#{samLiteMessages.example_fib_instructions}"/><p/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_example_label}"/></strong><br/>
+				    			<h:outputText value="#{samLiteMessages.example_fib_question_format4}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_fib_question_text}"/><p/>
+				    			<h:outputText value="#{samLiteMessages.example_fib_answer}"/>
 				    		</div>
 					    </td>
 					  </tr>
 					  <tr>
 					  	<td align="left" valign="top">
-						    <a href="javascript:toggleLayer('example_se_question');"><h:outputText value="#{msg.example_se_label}"/></a>
+						    <a href="javascript:toggleLayer('example_se_question');"><h:outputText value="#{samLiteMessages.example_se_label}"/></a>
 						    <div id="example_se_question" class="inopPanel" style="display:none">
-				    			<strong><h:outputText value="#{msg.example_instruction_label}"/></strong><h:outputText value="#{msg.example_se_instructions}"/><p/>
-				    			<strong><h:outputText value="#{msg.example_example_label}"/></strong><br/>
-				    			<h:outputText value="#{msg.example_se_question_format4}"/><br/>
-				    			<h:outputText value="#{msg.example_se_question_text}"/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong><h:outputText value="#{samLiteMessages.example_se_instructions}"/><p/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_example_label}"/></strong><br/>
+				    			<h:outputText value="#{samLiteMessages.example_se_question_format4}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_se_question_text}"/>
 				    		</div>
 					    </td>
 					  </tr>
 					  <tr>
 					  	<td align="left" valign="top">
-						    <a href="javascript:toggleLayer('example_tf_question');"><h:outputText value="#{msg.example_tf_label}"/></a>
+						    <a href="javascript:toggleLayer('example_tf_question');"><h:outputText value="#{samLiteMessages.example_tf_label}"/></a>
 						    <div id="example_tf_question" class="inopPanel" style="display:none">
-				    			<strong><h:outputText value="#{msg.example_instruction_label}"/></strong><h:outputText value="#{msg.example_tf_instructions}"/><p/>
-				    			<strong><h:outputText value="#{msg.example_example_label}"/></strong><br/>
-				    			<h:outputText value="#{msg.example_tf_question_format4}"/><br/>
-				    			<h:outputText value="#{msg.example_tf_question_text}"/><p/>
-				    			<h:outputText value="#{msg.example_tf_answer_a}"/><br/>
-				    			<h:outputText value="#{msg.example_tf_answer_b}"/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong><h:outputText value="#{samLiteMessages.example_tf_instructions}"/><p/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_example_label}"/></strong><br/>
+				    			<h:outputText value="#{samLiteMessages.example_tf_question_format4}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_tf_question_text}"/><p/>
+				    			<h:outputText value="#{samLiteMessages.example_tf_answer_a}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_tf_answer_b}"/>
 				    		</div>
 					    </td>
 					  </tr>

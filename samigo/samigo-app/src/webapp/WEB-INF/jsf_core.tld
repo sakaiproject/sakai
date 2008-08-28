@@ -392,40 +392,6 @@
 
   <tag>
 
-    <name>loadBundle</name>
-    <tag-class>com.sun.faces.taglib.jsf_core.LoadBundleTag</tag-class>
-    <tei-class>com.sun.faces.taglib.FacesTagExtraInfo</tei-class>
-    <body-content>empty</body-content>
-    <description>
-      Load a resource bundle localized for the Locale
-      of the current view, and expose it (as a Map) in
-      the request attributes of the current request.
-    </description>
-
-    <attribute>
-      <name>basename</name>
-      <required>true</required>
-      <rtexprvalue>false</rtexprvalue>
-      <description>
-        Base name of the resource bundle
-        to be loaded.
-      </description>
-    </attribute>
-
-    <attribute>
-      <name>var</name>
-      <required>true</required>
-      <rtexprvalue>false</rtexprvalue>
-      <description>
-        Name of a request scope attribute under which
-        the resource bundle will be exposed as a Map.
-      </description>
-    </attribute>
-  </tag>
-
-
-  <tag>
-
     <name>param</name>
     <tag-class>com.sun.faces.taglib.jsf_core.ParameterTag</tag-class>
     <tei-class>com.sun.faces.taglib.FacesTagExtraInfo</tei-class>

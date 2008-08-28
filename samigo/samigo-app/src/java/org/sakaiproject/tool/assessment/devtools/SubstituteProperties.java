@@ -137,16 +137,4 @@ public class SubstituteProperties
 
   }	
   */
-  
-  /**
-   * assumes that your resource file has a loadBundle with a var="msg"
-   * @param s String
-   * @return String
-   */
-  /*
-  private static String makeTag(String s)
-  {
-    return "#{msg." + s + "}";
-  }
-  */
 }
