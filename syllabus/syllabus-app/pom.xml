@@ -18,6 +18,10 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
@@ -29,14 +33,12 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-sun-ri-tool</artifactId>
-     
       <type>pom</type>
     </dependency>
 <!--javax.servletservlet-api${sakai.servletapi.version}-->
@@ -53,7 +55,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-syllabus-api</artifactId>
-     
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>

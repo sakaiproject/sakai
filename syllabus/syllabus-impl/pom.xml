@@ -21,6 +21,10 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate</artifactId>
     </dependency>
@@ -36,27 +40,22 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-entity-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-event-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-entity-util-->
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-event-util-->
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-syllabus-api</artifactId>
-     
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-syllabus-hbm</artifactId>
-     
     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!--org.sakaiprojectsakai-entity-util${sakai.version}-->
@@ -70,7 +69,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-archive-api</artifactId>
-     
     </dependency>
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->
