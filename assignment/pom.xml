@@ -23,30 +23,28 @@
     <module>assignment-impl/pack</module>
     <module>assignment-tool/tool</module>
   </modules>
-<dependencyManagement>
- <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-taggable-api</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-contentreview-model-api</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-assignment-impl</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-     </dependency>
-     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-velocity-tool</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
- </dependencies>
-</dependencyManagement>
-
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-taggable-api</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-contentreview-model-api</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-assignment-impl</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-velocity-tool</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
-
