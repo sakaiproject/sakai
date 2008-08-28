@@ -255,7 +255,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
       if (M_log.isDebugEnabled()) M_log.debug("checking for sending digests");
 
       // compute the current period
-		String curPeriod = computeRange(timeService().newTime()).toString();
+		String curPeriod = computeRange(timeService.newTime()).toString();
 
 		// if we are in a new period, start sending again
 		if (!curPeriod.equals(m_lastSendPeriod))
@@ -316,7 +316,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 					// process if it's not the current period
 					if (!curPeriod.equals(period))
 					{
-						TimeRange periodRange = timeService().newTimeRange(period);
+						TimeRange periodRange = timeService.newTimeRange(period);
 						Time timeInPeriod = periodRange.firstTime();
 
 						// any messages?
@@ -393,13 +393,13 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 
 		try
 		{
-			String to = userDirectoryService().getUser(id).getEmail();
+			String to = userDirectoryService.getUser(id).getEmail();
 
 			// if use has no email address we can't send it
 			if ((to == null) || (to.length() == 0)) return;
 
-			String from = "postmaster@" + serverConfigurationService().getServerName();
-			String subject = serverConfigurationService().getString("ui.service", "Sakai") + " " + rb.getString("notif") + " "
+			String from = "postmaster@" + serverConfigurationService.getServerName();
+			String subject = serverConfigurationService.getString("ui.service", "Sakai") + " " + rb.getString("notif") + " "
 					+ period.firstTime().toStringLocalDate();
 
 			StringBuilder body = new StringBuilder();
@@ -440,12 +440,12 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 			}
 
 			// tag
-			body.append(rb.getString("thiaut") + " " + serverConfigurationService().getString("ui.service", "Sakai") + " " + "("
-					+ serverConfigurationService().getServerUrl() + ")" + "\n" + rb.getString("youcan") + "\n");
+			body.append(rb.getString("thiaut") + " " + serverConfigurationService.getString("ui.service", "Sakai") + " " + "("
+					+ serverConfigurationService.getServerUrl() + ")" + "\n" + rb.getString("youcan") + "\n");
 
 			if (M_log.isDebugEnabled()) M_log.debug(this + " sending digest email to: " + to);
 
-			emailService().send(from, to, subject, body.toString(), to, null, null);
+			emailService.send(from, to, subject, body.toString(), to, null, null);
 		}
 		catch (Throwable any)
 		{
@@ -471,7 +471,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
 	}
 
 	/**
@@ -513,7 +513,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!securityService().unlock(lock, resource))
+		if (!securityService.unlock(lock, resource))
 		{
 			return false;
 		}
@@ -535,7 +535,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new PermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), lock, resource);
 		}
 	}
 
@@ -543,40 +543,69 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
+	protected TimeService timeService;
+	protected ServerConfigurationService serverConfigurationService;
+	protected EmailService emailService;
+	protected EventTrackingService eventTrackingService;
+	protected SecurityService securityService;
+	protected UserDirectoryService userDirectoryService;
+	protected SessionManager sessionManager;
+
 	/**
 	 * @return the TimeService collaborator.
 	 */
-	protected abstract TimeService timeService();
+	public void setTimeService(TimeService timeService)
+	{
+		this.timeService = timeService;
+	}
 
 	/**
 	 * @return the ServerConfigurationService collaborator.
 	 */
-	protected abstract ServerConfigurationService serverConfigurationService();
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
+	}
 
 	/**
 	 * @return the EmailService collaborator.
 	 */
-	protected abstract EmailService emailService();
+	public void setEmailService(EmailService emailService)
+	{
+		this.emailService = emailService;
+	}
 
 	/**
 	 * @return the EventTrackingService collaborator.
 	 */
-	protected abstract EventTrackingService eventTrackingService();
+	public void setEventTrackingService(EventTrackingService eventTrackingService)
+	{
+		this.eventTrackingService = eventTrackingService;
+	}
 
 	/**
 	 * @return the MemoryServiSecurityServicece collaborator.
 	 */
-	protected abstract SecurityService securityService();
+	public void setSecurityService(SecurityService securityService)
+	{
+		this.securityService = securityService;
+	}
 
 	/**
 	 * @return the UserDirectoryService collaborator.
 	 */
-	protected abstract UserDirectoryService userDirectoryService();
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
+	{
+		this.userDirectoryService = userDirectoryService;
+	}
 
 	/**
 	 * @return the SessionManager collaborator.
 	 */
-	protected abstract SessionManager sessionManager();
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -598,8 +627,8 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 
 	   // USE A TIMER INSTEAD OF CREATING A NEW THREAD -AZ
 //		start();
-		int digestPeriod = serverConfigurationService().getInt(EMAIL_DIGEST_CHECK_PERIOD_PROPERTY, DIGEST_PERIOD);
-		int digestDelay = serverConfigurationService().getInt(EMAIL_DIGEST_START_DELAY_PROPERTY, DIGEST_DELAY);
+		int digestPeriod = serverConfigurationService.getInt(EMAIL_DIGEST_CHECK_PERIOD_PROPERTY, DIGEST_PERIOD);
+		int digestDelay = serverConfigurationService.getInt(EMAIL_DIGEST_START_DELAY_PROPERTY, DIGEST_DELAY);
 		digestDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
 		digestTimer.schedule(new DigestTimerTask(), (digestDelay * 1000), (digestPeriod * 1000) );
 
@@ -747,7 +776,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 		m_storage.commit(edit);
 
 		// track it
-		eventTrackingService().post(eventTrackingService().newEvent(((BaseDigest) edit).getEvent(), edit.getReference(), true));
+		eventTrackingService.post(eventTrackingService.newEvent(((BaseDigest) edit).getEvent(), edit.getReference(), true));
 
 		// close the edit object
 		((BaseDigest) edit).closeEdit();
@@ -802,7 +831,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 		m_storage.remove(edit);
 
 		// track it
-		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_DIGEST, edit.getReference(), true));
+		eventTrackingService.post(eventTrackingService.newEvent(SECURE_REMOVE_DIGEST, edit.getReference(), true));
 
 		// close the edit object
 		((BaseDigest) edit).closeEdit();
@@ -1183,7 +1212,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 			synchronized (m_ranges)
 			{
 				// find the current range
-				String range = computeRange(timeService().newTime()).toString();
+				String range = computeRange(timeService.newTime()).toString();
 				List msgs = (List) m_ranges.get(range);
 				if (msgs == null)
 				{
@@ -1204,7 +1233,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 			synchronized (m_ranges)
 			{
 				// find the current range
-				String range = computeRange(timeService().newTime()).toString();
+				String range = computeRange(timeService.newTime()).toString();
 				List msgs = (List) m_ranges.get(range);
 				if (msgs == null)
 				{
@@ -1569,9 +1598,9 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 		brk.setSec(0);
 		brk.setMin(0);
 		brk.setHour(0);
-		Time start = timeService().newTimeLocal(brk);
-		Time end = timeService().newTime(start.getTime() + 24 * 60 * 60 * 1000);
-		return timeService().newTimeRange(start, end, true, false);
+		Time start = timeService.newTimeLocal(brk);
+		Time end = timeService.newTime(start.getTime() + 24 * 60 * 60 * 1000);
+		return timeService.newTimeRange(start, end, true, false);
 	}
 
 }

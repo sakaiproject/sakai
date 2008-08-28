@@ -56,7 +56,6 @@ public class DynamicConfigurationTest extends SakaiKernelTestBase {
 			}
 			protected void tearDown() throws Exception {
 				oneTimeTearDown();
-				TestComponentManagerContainer.setSakaiHome(null);
 			}
 		};
 		return setup;

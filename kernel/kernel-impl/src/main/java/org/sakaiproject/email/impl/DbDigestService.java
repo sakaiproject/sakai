@@ -36,7 +36,7 @@ import org.sakaiproject.util.StorageUser;
  * DbDigestService is an extension of the BaseDigestService with database storage.
  * </p>
  */
-public abstract class DbDigestService extends BaseDigestService
+public class DbDigestService extends BaseDigestService
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(DbDigestService.class);
@@ -47,6 +47,8 @@ public abstract class DbDigestService extends BaseDigestService
 	/** If true, we do our locks in the remote database, otherwise we do them here. */
 	protected boolean m_locksInDb = true;
 
+	protected SqlService sqlService;
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -54,7 +56,10 @@ public abstract class DbDigestService extends BaseDigestService
 	/**
 	 * @return the MemoryService collaborator.
 	 */
-	protected abstract SqlService sqlService();
+	public void setSqlService(SqlService sqlService)
+	{
+		this.sqlService = sqlService;
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
@@ -110,7 +115,7 @@ public abstract class DbDigestService extends BaseDigestService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_digest");
+				sqlService.ddl(this.getClass().getClassLoader(), "sakai_digest");
 			}
 
 			super.init();
@@ -154,7 +159,7 @@ public abstract class DbDigestService extends BaseDigestService
 		 */
 		public DbStorage(StorageUser user)
 		{
-			super(m_tableName, "DIGEST_ID", null, m_locksInDb, "digest", user, sqlService());
+			super(m_tableName, "DIGEST_ID", null, m_locksInDb, "digest", user, sqlService);
 		}
 
 		public boolean check(String id)

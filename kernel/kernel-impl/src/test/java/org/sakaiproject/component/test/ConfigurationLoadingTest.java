@@ -25,7 +25,6 @@ package org.sakaiproject.component.test;
 import junit.extensions.TestSetup;
 import junit.framework.Assert;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
@@ -56,7 +55,6 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 			}
 			protected void tearDown() throws Exception {
 				oneTimeTearDown();
-				TestComponentManagerContainer.setSakaiHome(null);
 			}
 		};
 		return setup;

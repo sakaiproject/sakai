@@ -1,3 +1,24 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright 2003, 2004, 2005, 2006, 2008 Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.email.impl.test;
 
 import com.dumbster.smtp.SimpleSmtpServer;
@@ -14,6 +35,7 @@ import javax.mail.internet.InternetAddress;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
@@ -21,23 +43,21 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.EmailAddress;
 import org.sakaiproject.email.api.EmailMessage;
-import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.email.api.RecipientType;
 import org.sakaiproject.email.impl.BaseAttachment;
 import org.sakaiproject.email.impl.BaseEmailAddress;
 import org.sakaiproject.email.impl.BaseEmailMessage;
-import org.sakaiproject.test.SakaiKernelTestBase;
+import org.sakaiproject.email.impl.BasicEmailService;
 
-public class EmailServiceTestDisabled extends SakaiKernelTestBase
+public class EmailServiceTest extends TestCase
 {
-	private static Log log = LogFactory.getLog(EmailServiceTestDisabled.class);
+	static Log log = LogFactory.getLog(EmailServiceTest.class);
 
-	private static final boolean USE_INT_MAIL_SERVER = true;
-	private static final boolean LOG_SENT_EMAIL = true;
+	static final boolean USE_INT_MAIL_SERVER = false;
+	static final boolean LOG_SENT_EMAIL = false;
 
 	static SimpleSmtpServer server;
-	
-	EmailService emailService;
+	static BasicEmailService emailService;
 
 	InternetAddress from;
 	InternetAddress[] to;
@@ -51,29 +71,47 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 
 	public static Test suite()
 	{
-		TestSetup setup = new TestSetup(new TestSuite(EmailServiceTestDisabled.class))
+		TestSetup setup = new TestSetup(new TestSuite(EmailServiceTest.class))
 		{
 			protected void setUp() throws Exception
 			{
-				if (log.isDebugEnabled())
-					log.info("starting setup");
 				try
 				{
-					oneTimeSetup(null);
+					emailService = new BasicEmailService();
+
+					if (USE_INT_MAIL_SERVER)
+					{
+						emailService.setSmtp("localhost");
+						emailService.setSmtpPort("8025");
+						emailService.init();
+						server = SimpleSmtpServer.start(8025);
+					}
+					else
+					{
+						emailService.setTestMode(true);
+					}
 				}
 				catch (Exception e)
 				{
 					log.warn(e);
 				}
-				if (log.isDebugEnabled())
-					log.debug("finished setup");
 			}
 
 			protected void tearDown() throws Exception
 			{
-				if (log.isDebugEnabled())
-					log.info("tearing down");
-				oneTimeTearDown();
+				emailService.destroy();
+				if (server != null && !server.isStopped())
+				{
+					if (LOG_SENT_EMAIL)
+					{
+						for (Iterator<SmtpMessage> emails = server.getReceivedEmail(); emails.hasNext(); )
+						{
+							SmtpMessage email = emails.next();
+							log.info(email);
+						}
+					}
+					server.stop();
+				}
 			}
 		};
 		return setup;
@@ -81,7 +119,6 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 
 	public void setUp() throws Exception
 	{
-		log.info("Setting up test case...");
 		from = new InternetAddress("from@example.com");
 
 		to = new InternetAddress[2];
@@ -122,27 +159,10 @@ public class EmailServiceTestDisabled extends SakaiKernelTestBase
 		fw2.close();
 		attachments.add(new BaseAttachment(f1));
 		attachments.add(new BaseAttachment(f2));
-
-		emailService = (EmailService) getService(EmailService.class.getName());
-
-		if (USE_INT_MAIL_SERVER)
-			server = SimpleSmtpServer.start(8025);
 	}
 
 	public void tearDown() throws Exception
 	{
-		if (server != null && !server.isStopped())
-		{
-			if (LOG_SENT_EMAIL)
-			{
-				for (Iterator<SmtpMessage> emails = server.getReceivedEmail(); emails.hasNext(); )
-				{
-					SmtpMessage email = emails.next();
-					log.info(email);
-				}
-			}
-			server.stop();
-		}
 	}
 
 	public void testSend() throws Exception
