@@ -10,7 +10,6 @@
   <groupId>org.sakaiproject</groupId>
   <name>Sakai Taggable API</name>
   <artifactId>sakai-taggable-api</artifactId>
- 
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

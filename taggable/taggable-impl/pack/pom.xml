@@ -10,7 +10,6 @@
   <groupId>org.sakaiproject</groupId>
   <name>Sakai Taggable Component</name>
   <artifactId>sakai-taggable-pack</artifactId>
-  
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
@@ -24,12 +23,10 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-taggable-impl</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-taggable-hbm</artifactId>
-      
       <scope>provided</scope>
     </dependency>
   </dependencies>
