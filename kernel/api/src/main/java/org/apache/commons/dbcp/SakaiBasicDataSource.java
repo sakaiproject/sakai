@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -252,4 +253,39 @@ public class SakaiBasicDataSource extends BasicDataSource
 
 		return dataSource;
 	}
+
+
+   /**
+      * Sets the connection properties passed to driver.connect(...).
+      *
+      * Format of the string must be [propertyName=property;]*
+      *
+      * NOTE - The "user" and "password" properties will be added
+      * explicitly, so they do not need to be included here.
+      *
+      * @param connectionProperties the connection properties used to
+      * create new connections
+      */
+     public void setConnectionProperties(String connectionProperties) {
+         if (connectionProperties == null) throw new NullPointerException("connectionProperties is null");
+
+         String[] entries = connectionProperties.split(";");
+         Properties properties = new Properties();
+         for (int i = 0; i < entries.length; i++) {
+             String entry = entries[i];
+             if (entry.length() > 0) {
+                 int index = entry.indexOf('=');
+                 if (index > 0) {
+                     String name = entry.substring(0, index);
+                     String value = entry.substring(index + 1);
+                     properties.setProperty(name, value);
+                 } else {
+                    // no value is empty string which is how
+                     properties.setProperty(entry, "");
+                 }
+             }
+         }
+         this.connectionProperties = properties;
+     }
+
 }
