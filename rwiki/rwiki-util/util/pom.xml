@@ -62,16 +62,19 @@ limitations under the License.
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
 <!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
 <!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
 <!--org.sakaiprojectsakai-alias-api${sakai.version}jar-->

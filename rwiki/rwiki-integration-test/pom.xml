@@ -32,12 +32,10 @@ limitations under the License.
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-test-harness</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-impl</artifactId>
-      
       <type>jar</type>
     </dependency>
     <dependency>
