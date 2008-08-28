@@ -23,9 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-presence-impl</artifactId>
-
     </dependency>
-
   </dependencies>
   <build>
     <resources/>

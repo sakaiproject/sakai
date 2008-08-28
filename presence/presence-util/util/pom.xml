@@ -22,21 +22,22 @@
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
+      <artifactId>sakai-kernel-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
     </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-courier-api</artifactId>
-
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-presence-api</artifactId>
-
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
@@ -44,7 +45,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-courier-util</artifactId>
-
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
