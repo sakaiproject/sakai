@@ -27,7 +27,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-postem-api</artifactId>
-
     </dependency>
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->
     <dependency>

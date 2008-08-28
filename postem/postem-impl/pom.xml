@@ -31,12 +31,10 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-postem-api</artifactId>
-
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-postem-hbm</artifactId>
-
     </dependency>
 <!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
 <!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->

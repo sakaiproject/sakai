@@ -25,23 +25,23 @@
     <module>postem-help</module>
     <module>postem-shared-deploy</module>
   </modules>
-<dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-postem-impl</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-   </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-myfaces-tool</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-   </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-postem-hbm</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
-</dependencyManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-postem-impl</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-jsf-myfaces-tool</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-postem-hbm</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
