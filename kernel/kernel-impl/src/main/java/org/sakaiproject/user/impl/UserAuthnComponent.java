@@ -93,7 +93,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			if ((evidence.getPassword() == null) || (evidence.getPassword().trim().length() == 0)
 					|| (evidence.getIdentifier() == null) || (evidence.getIdentifier().trim().length() == 0))
 			{
-				throw new AuthenticationException("invalid login");
+				throw new AuthenticationException("Invalid Login: Either identifier or password empty.");
 			}
 			
 			// Check the cache. If repeat authentication failures are being throttled,
@@ -108,7 +108,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			if (user == null)
 			{
 				authenticationCache().putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
-				throw new AuthenticationException("invalid login");
+				throw new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
 			}
 
 			rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
@@ -126,7 +126,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			// reject null or blank
 			if ((evidence.getIdentifier() == null) || (evidence.getIdentifier().trim().length() == 0))
 			{
-				throw new AuthenticationException("invalid login");
+				throw new AuthenticationException("Invalid Login: Identifier empty.");
 			}
 
 			// accept, so now lookup the user in our database.
@@ -141,7 +141,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			{
 				// reject if the user is not defined
 				// TODO: create the user record here?
-				throw new AuthenticationException("invalid login");
+				throw new AuthenticationException("Invalid Login: User not found in directory.");
 			}
 		}
 
