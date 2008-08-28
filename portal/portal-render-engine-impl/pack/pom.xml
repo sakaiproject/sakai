@@ -20,7 +20,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-portal-render-engine-impl</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>httpunit</groupId>
