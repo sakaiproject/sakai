@@ -24,12 +24,12 @@
     <module>courier-util/util</module>
   </modules>
   <dependencyManagement>
-   <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-courier-impl</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-   </dependencies>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-courier-impl</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+    </dependencies>
   </dependencyManagement>
 </project>
