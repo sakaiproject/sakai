@@ -22,28 +22,28 @@
     <module>rights-impl/pack</module>
     <module>rights-tool/tool</module>
   </modules>
-<dependencyManagement>
- <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-velocity-tool</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-mergedlist-util</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-presence-util</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-courier-util</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-    </dependency>
- </dependencies>
-</dependencyManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-velocity-tool</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-mergedlist-util</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-presence-util</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-courier-util</artifactId>
+        <version>2.6.0RC1-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
