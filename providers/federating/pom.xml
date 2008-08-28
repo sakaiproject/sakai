@@ -17,12 +17,15 @@
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
+      <artifactId>sakai-kernel-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
     </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
