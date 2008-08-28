@@ -457,17 +457,25 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			catch ( Exception ex ) 
 			{
 			}
+
+			int notiPriority = NotificationService.PREF_IMMEDIATE;
+        	if (RWikiObjectService.SMALL_CHANGE_IN_THREAD.equals(threadLocalManager
+					.get(RWikiObjectService.SMALL_CHANGE_IN_THREAD)))
+        	{
+        		notiPriority = NotificationService.PREF_NONE;
+        	}
+
 			if ( revision == 1 ) 
 			{
 				eventTrackingService.post(eventTrackingService.newEvent(
 					EVENT_RESOURCE_ADD, e.getReference(), true,
-					NotificationService.PREF_IMMEDIATE));
+					notiPriority));
 			}
 			else 
 			{
 				eventTrackingService.post(eventTrackingService.newEvent(
 					EVENT_RESOURCE_WRITE, e.getReference(), true,
-					NotificationService.PREF_IMMEDIATE));
+					notiPriority));
 			}
 		}
 		catch (HibernateOptimisticLockingFailureException e)
@@ -507,27 +515,33 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				cdao.update(rwo, rwho);
 				// track it
 				Entity e = getEntity(rwo);
-                        	int revision = 1;
-                        	try
-                        	{
-                               	 	revision = rwo.getRevision().intValue();
-                        	}
-                        	catch ( Exception ex )
-                        	{
-                        	}
-                        	if ( revision == 1 )
-                        	{
-                               		 eventTrackingService.post(eventTrackingService.newEvent(
-                                       		 EVENT_RESOURCE_ADD, e.getReference(), true,
-                                       		 NotificationService.PREF_IMMEDIATE));
-                        	}
-                        	else
-                        	{
-                               		 eventTrackingService.post(eventTrackingService.newEvent(
-                                       		 EVENT_RESOURCE_WRITE, e.getReference(), true,
-                                       		 NotificationService.PREF_IMMEDIATE));
-                        	}
+            	int revision = 1;
+            	try
+            	{
+               	 	revision = rwo.getRevision().intValue();
+            	}
+            	catch ( Exception ex )
+            	{
+            	}
 
+            	int notiPriority = NotificationService.PREF_IMMEDIATE;
+            	if (threadLocalManager.get(RWikiObjectService.SMALL_CHANGE_IN_THREAD) != null)
+            	{
+            		notiPriority = NotificationService.PREF_NONE;
+            	}
+
+            	if ( revision == 1 )
+            	{
+               		 eventTrackingService.post(eventTrackingService.newEvent(
+                       		 EVENT_RESOURCE_ADD, e.getReference(), true,
+                       		 notiPriority));
+            	}
+            	else
+            	{
+               		 eventTrackingService.post(eventTrackingService.newEvent(
+                       		 EVENT_RESOURCE_WRITE, e.getReference(), true,
+                       		notiPriority));
+            	}
 			}
 			catch (HibernateOptimisticLockingFailureException e)
 			{
