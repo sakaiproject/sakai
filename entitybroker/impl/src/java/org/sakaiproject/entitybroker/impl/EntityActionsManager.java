@@ -159,13 +159,17 @@ public class EntityActionsManager {
          if (customAction.methodName == null) {
             throw new IllegalStateException("The custom action must have the method name set, null is not allowed: " + customAction);
          }
-         Method method = null;
-         try {
-            method = actionProvider.getClass().getMethod(customAction.methodName, customAction.methodArgTypes);
-         } catch (SecurityException e1) {
-            throw new RuntimeException("Fatal error trying to get custom action method: " + customAction, e1);
-         } catch (NoSuchMethodException e1) {
-            throw new RuntimeException("Fatal error trying to get custom action method: " + customAction, e1);
+         Method method = customAction.getMethod();
+         if (method == null) {
+             try {
+                // Note: this is really expensive, need to cache the Method lookup
+                method = actionProvider.getClass().getMethod(customAction.methodName, customAction.methodArgTypes);
+             } catch (SecurityException e1) {
+                throw new RuntimeException("Fatal error trying to get custom action method: " + customAction, e1);
+             } catch (NoSuchMethodException e1) {
+                throw new RuntimeException("Fatal error trying to get custom action method: " + customAction, e1);
+             }
+             customAction.setMethod(method); // cache the method
          }
          Object[] args = new Object[customAction.methodArgTypes.length];
          for (int i = 0; i < customAction.methodArgTypes.length; i++) {
@@ -284,6 +288,7 @@ public class EntityActionsManager {
                   throw new IllegalArgumentException(e);
                }
             }
+            ca.setMethod(method); // store the method in the ca
             actions.add(ca);
          } else if (method.getName().endsWith(ActionsExecutable.ACTION_METHOD_SUFFIX)) {
             String action = method.getName().substring(0, method.getName().length() - ActionsExecutable.ACTION_METHOD_SUFFIX.length());
@@ -296,6 +301,7 @@ public class EntityActionsManager {
                      + "does not have a valid set of parameter types, this may be ok but should be checked on: " + e.getMessage());
                continue;
             }
+            ca.setMethod(method); // store the method in the ca
             actions.add(ca);
          }
       }
@@ -324,6 +330,7 @@ public class EntityActionsManager {
             String name = method.getName();
             if (name.equals(ca.methodName)) {
                ca.methodArgTypes = validateParamTypes(method.getParameterTypes());
+               ca.setMethod(method); // store the method in the ca
                found = true;
                break;
             }
@@ -389,9 +396,6 @@ public class EntityActionsManager {
             sb.append(", ");
          }
          sb.append(ca.getValue().toString());
-         if (action.viewKey == null || "".equals(action.viewKey)) {
-            action.viewKey = EntityView.VIEW_SHOW;
-         }
          cas.put(ca.getKey(), action.copy()); // make a copy to avoid holding objects from another ClassLoader
       }
       entityActions.put(prefix, actions);

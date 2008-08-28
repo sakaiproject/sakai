@@ -20,6 +20,9 @@
 
 package org.sakaiproject.entitybroker.impl.util;
 
+import java.lang.ref.SoftReference;
+import java.lang.reflect.Method;
+
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
@@ -63,6 +66,29 @@ public class URLRedirect {
     * then all the other fields will be ignored and the redirects will be sent to the execute method
     */
    public boolean controllable = false;
+
+   // NOTE: we are holding onto the method here so the reflection is less costly
+   private SoftReference<Method> method;
+   /**
+    * INTERNAL USE ONLY
+    */
+   public Method getMethod() {
+       Method m = null;
+       if (method != null) {
+           m = method.get(); 
+       }
+       return m;
+   }
+   /**
+    * INTERNAL USE ONLY
+    */
+   public void setMethod(Method m) {
+       if (m != null) {
+           method = new SoftReference<Method>(m);
+       } else {
+           method = null;
+       }
+   }
 
    /**
     * Use this for controllable template matches only

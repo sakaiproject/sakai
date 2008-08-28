@@ -140,13 +140,17 @@ public class EntityRedirectsManager {
                     } else if (redirect.methodName != null) {
                         // call the redirect method
                         Object result = null;
-                        Method method = null;
-                        try {
-                            method = entityProvider.getClass().getMethod(redirect.methodName, redirect.methodArgTypes);
-                        } catch (SecurityException e1) {
-                            throw new RuntimeException("Fatal error trying to get URL redirect method: " + redirect, e1);
-                        } catch (NoSuchMethodException e1) {
-                            throw new RuntimeException("Fatal error trying to get URL redirect method: " + redirect, e1);
+                        Method method = redirect.getMethod();
+                        if (method == null) {
+                            try {
+                                // Note: this is really expensive, need to cache the Method lookup
+                                method = entityProvider.getClass().getMethod(redirect.methodName, redirect.methodArgTypes);
+                            } catch (SecurityException e1) {
+                                throw new RuntimeException("Fatal error trying to get URL redirect method: " + redirect, e1);
+                            } catch (NoSuchMethodException e1) {
+                                throw new RuntimeException("Fatal error trying to get URL redirect method: " + redirect, e1);
+                            }
+                            redirect.setMethod(method); // cache this method lookup
                         }
                         Object[] args = new Object[redirect.methodArgTypes.length];
                         for (int i = 0; i < redirect.methodArgTypes.length; i++) {
@@ -247,6 +251,7 @@ public class EntityRedirectsManager {
                     throw new IllegalArgumentException("Failed to validate redirect templates from methods for prefix ("
                             +entityProvider.getEntityPrefix() + "): " + e.getMessage(), e);
                 }
+                redirect.setMethod(method); // cache to reduce lookup cost
                 redirects.add(redirect);
             }
         }
