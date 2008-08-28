@@ -33,6 +33,10 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
@@ -56,10 +60,9 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>SakaiRSFComponents-templates</artifactId>
@@ -94,35 +97,29 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-api</artifactId>
-      
     </dependency>
 <!-- Samigo IMPL -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-hibernate</artifactId>
-      
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-services</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-qti</artifactId>
-      
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-cp</artifactId>
-      
     </dependency>
 <!-- Samigo AUDIO applet jar -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-audio</artifactId>
-      
       <scope>provided</scope>
 <!--properties:  war.target.path: applets -->
     </dependency>
@@ -130,7 +127,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      
 <!--properties:  deploy.target: shared -->
     </dependency>
 <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
@@ -138,7 +134,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
-      
       <scope>provided</scope>
 <!--properties:  war.bundle: standalone -->
     </dependency>
@@ -146,7 +141,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl</artifactId>
-      
       <exclusions>
         <exclusion>
           <groupId>org.sakaiproject</groupId>
@@ -214,20 +208,17 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
-      
 <!--properties:  war.bundle: integrated -->
     </dependency>
 <!-- these (jsf-app and util-web) are options to get full Sakai JSF integration -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
-      
 <!--properties:  war.bundle: integrated -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
-      
       <type>pom</type>
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}-->
@@ -235,7 +226,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
-      
 <!--properties:  war.bundle: false -->
     </dependency>
 <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
@@ -526,7 +516,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-spreadsheet</artifactId>
-      
     </dependency>
 <!-- for spreadsheet support -->
     <dependency>
