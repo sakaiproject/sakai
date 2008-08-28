@@ -61,7 +61,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-     
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!-- Uuid generator -->

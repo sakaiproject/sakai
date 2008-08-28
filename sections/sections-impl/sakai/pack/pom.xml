@@ -25,7 +25,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl</artifactId>
-   </dependency>
+    </dependency>
   </dependencies>
   <build>
     <resources/>
