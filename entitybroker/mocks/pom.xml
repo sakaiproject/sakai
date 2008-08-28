@@ -1,57 +1,60 @@
+<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <name>Sakai Entity Broker Mock Objects</name>
-    <groupId>org.sakaiproject.entitybroker</groupId>
-    <artifactId>entitybroker-mocks</artifactId>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2007</inceptionYear>
-    <packaging>jar</packaging>
-    <!-- the base is parent -->
-    <parent>
-        <artifactId>entitybroker</artifactId>
-        <groupId>org.sakaiproject</groupId>
-        <version>1.3.5-SNAPSHOT</version><!--entitybroker.version-->
-    </parent>
-    <!-- needed until maven 2.0.7 upgrade - http://jira.codehaus.org/browse/MNG-2919 -->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-mocks</artifactId>
-                <version>1.3.5-SNAPSHOT</version><!--entitybroker.version-->
-                <scope>compile</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Sakai Entity Broker Mock Objects</name>
+  <groupId>org.sakaiproject.entitybroker</groupId>
+  <artifactId>entitybroker-mocks</artifactId>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2007</inceptionYear>
+  <packaging>jar</packaging>
+<!-- the base is parent -->
+  <parent>
+    <artifactId>entitybroker</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>1.3.5-SNAPSHOT</version>
+<!--entitybroker.version-->
+  </parent>
+<!-- needed until maven 2.0.7 upgrade - http://jira.codehaus.org/browse/MNG-2919 -->
+  <dependencyManagement>
     <dependencies>
-        <!-- internal dependencies -->
-        <dependency>
-            <groupId>org.sakaiproject.entitybroker</groupId>
-            <artifactId>entitybroker-api</artifactId>
-        </dependency>
-        <!-- external dependencies -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-mock</artifactId>
-            <version>${spring.mock.version}</version>
-        </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-mocks</artifactId>
+        <version>1.3.5-SNAPSHOT</version>
+<!--entitybroker.version-->
+        <scope>compile</scope>
+      </dependency>
     </dependencies>
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
-    </build>
+  </dependencyManagement>
+  <dependencies>
+<!-- internal dependencies -->
+    <dependency>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-api</artifactId>
+    </dependency>
+<!-- external dependencies -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-mock</artifactId>
+      <version>${spring.mock.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+  </build>
 </project>
