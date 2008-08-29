@@ -22,13 +22,11 @@
 
 package org.sakaiproject.user.impl.test;
 
-import java.net.URL;
 import java.util.Collection;
 
 import junit.extensions.TestSetup;
 import junit.framework.Assert;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
@@ -73,9 +71,9 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(AuthenticatedUserProviderTest.class)) {
 			protected void setUp() throws Exception {
-				initializeSakaiHome();
 				if (log.isDebugEnabled()) log.debug("starting setup");
 				try {
+					TestComponentManagerContainer.setSakaiHome("src/test/resources/disable_user_cache");
 					oneTimeSetup(null);
 					oneTimeSetupAfter();
 				} catch (Exception e) {
@@ -171,16 +169,6 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 		String ref = "/user/" + userId;
 		threadLocalManager.set(ref, null);
 	}
-
-	public static void initializeSakaiHome() {
-		URL propertiesUrl = AuthenticatedUserProvider.class.getClassLoader().getResource("nocache/sakai.properties");
-		if (log.isDebugEnabled()) log.debug("propertiesUrl=" + propertiesUrl);
-		if (propertiesUrl != null) {
-			String propertiesFileName = propertiesUrl.getFile();
-			String sakaiHomeDir = propertiesFileName.substring(0, propertiesFileName.lastIndexOf("sakai.properties") - 1);
-			System.setProperty("test.sakai.home", sakaiHomeDir);
-		}		
-	}
 	
 	public static class TestProvider implements UserDirectoryProvider, AuthenticatedUserProvider {
 		private UserFactory userFactory;
@@ -219,6 +207,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		public void getUsers(Collection users) {
 		}
 

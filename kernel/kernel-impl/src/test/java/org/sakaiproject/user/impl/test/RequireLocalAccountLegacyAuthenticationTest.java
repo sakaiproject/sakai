@@ -22,7 +22,6 @@
 
 package org.sakaiproject.user.impl.test;
 
-import java.net.URL;
 import java.util.Collection;
 
 import junit.extensions.TestSetup;
@@ -32,9 +31,9 @@ import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.TestComponentManagerContainer;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.user.api.AuthenticatedUserProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -79,9 +78,9 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(RequireLocalAccountLegacyAuthenticationTest.class)) {
 			protected void setUp() throws Exception {
-				initializeSakaiHome();
 				if (log.isDebugEnabled()) log.debug("starting setup");
 				try {
+					TestComponentManagerContainer.setSakaiHome("src/test/resources/disable_user_cache");
 					oneTimeSetup(null);
 					oneTimeSetupAfter();
 				} catch (Exception e) {
@@ -135,16 +134,6 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 		Assert.assertTrue(user.getEmail().equals(PROVIDED_EMAIL));
 		clearUserFromServiceCaches(user.getId());
 	}
-	
-	public static void initializeSakaiHome() {
-		URL propertiesUrl = AuthenticatedUserProvider.class.getClassLoader().getResource("nocache/sakai.properties");
-		if (log.isDebugEnabled()) log.debug("propertiesUrl=" + propertiesUrl);
-		if (propertiesUrl != null) {
-			String propertiesFileName = propertiesUrl.getFile();
-			String sakaiHomeDir = propertiesFileName.substring(0, propertiesFileName.lastIndexOf("sakai.properties") - 1);
-			System.setProperty("test.sakai.home", sakaiHomeDir);
-		}		
-	}
 
 	/**
 	 * WARNING: There seems to be NO easy way to reset the UserDirectoryService MemoryService-managed
@@ -186,6 +175,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		public void getUsers(Collection users) {
 		}
 
