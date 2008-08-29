@@ -166,8 +166,8 @@
 
 
 	<!-- Authz _________________________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.Authz"
-		class="org.sakaiproject.sitestats.impl.AuthzImpl"
+	<bean id="org.sakaiproject.sitestats.api.StatsAuthz"
+		class="org.sakaiproject.sitestats.impl.StatsAuthzImpl"
 		singleton="true"
 		init-method="init">
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>

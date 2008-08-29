@@ -43,7 +43,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.Authz;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
@@ -79,7 +79,7 @@ public class ServiceBean {
 	private transient UserDirectoryService	M_uds				= null;
 	private transient ContentHostingService	M_chs				= null;
 	private transient TimeService			M_time				= null;
-	private transient Authz					SST_authz			= null;
+	private transient StatsAuthz			SST_authz			= null;
 	private transient StatsManager			SST_sm				= null;
 	private transient ReportManager			SST_rm				= null;
 	private transient StatsUpdateManager	SST_sum				= null;
@@ -113,10 +113,10 @@ public class ServiceBean {
 		return SST_sum;
 	}
 	
-	public void setSstAuthz(Authz sstAuthz) {
+	public void setSstAuthz(StatsAuthz sstAuthz) {
 		this.SST_authz = sstAuthz;
 	}
-	public Authz getSstAuthz() {
+	public StatsAuthz getSstAuthz() {
 		return SST_authz;
 	}
 	

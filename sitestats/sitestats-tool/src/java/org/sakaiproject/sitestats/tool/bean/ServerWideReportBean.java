@@ -58,7 +58,7 @@ import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.SortOrder;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.Authz;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ServerWideReportManager;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -80,7 +80,7 @@ public class ServerWideReportBean
 	private transient ServiceBean serviceBean = null;
 	private transient StatsManager SST_sm = null;
 	private SiteService M_ss = null;
-	private Authz SST_authz = null;
+	private StatsAuthz SST_authz = null;
 	private ServerWideReportManager serverWideReportManager = null;
 
 	/** Other */

@@ -1,9 +1,10 @@
-package org.sakaiproject.sitestats.impl;
+package org.sakaiproject.sitestats.impl.event.parser;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.ObjectCreationFactory;
-import org.sakaiproject.sitestats.api.EventFactory;
-import org.sakaiproject.sitestats.api.EventInfo;
+import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.parser.EventFactory;
+import org.sakaiproject.sitestats.impl.event.EventInfoImpl;
 import org.xml.sax.Attributes;
 
 

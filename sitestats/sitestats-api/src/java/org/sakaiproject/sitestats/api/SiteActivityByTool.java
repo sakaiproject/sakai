@@ -18,6 +18,8 @@
  **********************************************************************************/
 package org.sakaiproject.sitestats.api;
 
+import org.sakaiproject.sitestats.api.event.ToolInfo;
+
 
 public interface SiteActivityByTool {	
 	public String getSiteId();

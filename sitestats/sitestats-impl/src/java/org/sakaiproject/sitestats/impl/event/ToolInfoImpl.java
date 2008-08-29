@@ -1,4 +1,4 @@
-package org.sakaiproject.sitestats.impl;
+package org.sakaiproject.sitestats.impl.event;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -7,9 +7,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.sitestats.api.EventInfo;
-import org.sakaiproject.sitestats.api.EventParserTip;
-import org.sakaiproject.sitestats.api.ToolInfo;
+import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.ToolInfo;
+import org.sakaiproject.sitestats.api.event.parser.EventParserTip;
+import org.sakaiproject.sitestats.impl.event.parser.ToolFactoryImpl;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -21,8 +22,7 @@ public class ToolInfoImpl implements ToolInfo {
 	private List<EventInfo>	eventInfos;
 	private boolean			selected;
 	private EventParserTip	eventParserTip;
-	private String			bundleName	= "org.sakaiproject.sitestats.impl.bundle.Messages";
-	private ResourceLoader	msgs		= new ResourceLoader(bundleName);
+	private ResourceLoader	msgs		= new ResourceLoader("Events");
 	private Log				LOG			= LogFactory.getLog(ToolFactoryImpl.class);
 	private ToolManager		M_tm		= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	

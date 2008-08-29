@@ -1,15 +1,13 @@
-package org.sakaiproject.sitestats.impl;
+package org.sakaiproject.sitestats.impl.event;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.sitestats.api.EventInfo;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.util.ResourceLoader;
 
 
 public class EventInfoImpl implements EventInfo {
-	private String			bundleName	= "org.sakaiproject.sitestats.impl.bundle.Messages";
-	private ResourceLoader	msgs		= new ResourceLoader(bundleName);
+	private ResourceLoader	msgs		= new ResourceLoader("Events");
 	private Log				LOG			= LogFactory.getLog(EventInfoImpl.class);
 	private String			eventId;
 	private String			eventName;

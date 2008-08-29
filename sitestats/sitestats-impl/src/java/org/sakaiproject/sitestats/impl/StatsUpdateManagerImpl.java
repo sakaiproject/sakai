@@ -47,7 +47,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.EventParserTip;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -55,7 +54,8 @@ import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
-import org.sakaiproject.sitestats.api.ToolInfo;
+import org.sakaiproject.sitestats.api.event.ToolInfo;
+import org.sakaiproject.sitestats.api.event.parser.EventParserTip;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 

@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.sitestats.api.event.ToolInfo;
+import org.sakaiproject.sitestats.api.event.parser.EventFactory;
+import org.sakaiproject.sitestats.api.event.parser.ToolFactory;
 
 
 public interface StatsManager {

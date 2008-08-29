@@ -1,9 +1,9 @@
-package org.sakaiproject.sitestats.impl;
+package org.sakaiproject.sitestats.impl.event.parser;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.ObjectCreationFactory;
-import org.sakaiproject.sitestats.api.EventParserTip;
-import org.sakaiproject.sitestats.api.EventParserTipFactory;
+import org.sakaiproject.sitestats.api.event.parser.EventParserTip;
+import org.sakaiproject.sitestats.api.event.parser.EventParserTipFactory;
 import org.xml.sax.Attributes;
 
 public class EventParserTipFactoryImpl implements EventParserTipFactory, ObjectCreationFactory {

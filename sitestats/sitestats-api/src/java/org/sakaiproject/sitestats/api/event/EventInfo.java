@@ -1,4 +1,4 @@
-package org.sakaiproject.sitestats.api;
+package org.sakaiproject.sitestats.api.event;
 
 public interface EventInfo {
 

@@ -1,6 +1,6 @@
 package org.sakaiproject.sitestats.api;
 
-public interface Authz {
+public interface StatsAuthz {
 
 	/** Permissions */
 	public static final String	PERMISSION_SITESTATS_VIEW		= "sitestats.view";

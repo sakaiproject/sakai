@@ -36,7 +36,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.sitestats.api.Authz;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -83,7 +83,7 @@ public class SiteListBean implements Serializable {
 	/** Manager APIs */
 	private ServiceBean				serviceBean			= null;
 	private SiteService				M_ss				= null;
-	private Authz					SST_authz			= null;
+	private StatsAuthz					SST_authz			= null;
 	
 	
 	// ######################################################################################

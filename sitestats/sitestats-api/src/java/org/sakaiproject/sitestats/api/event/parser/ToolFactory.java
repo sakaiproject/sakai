@@ -1,6 +1,8 @@
-package org.sakaiproject.sitestats.api;
+package org.sakaiproject.sitestats.api.event.parser;
 
 import java.util.List;
+
+import org.sakaiproject.sitestats.api.event.ToolInfo;
 
 
 

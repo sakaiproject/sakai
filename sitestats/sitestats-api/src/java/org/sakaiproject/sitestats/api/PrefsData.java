@@ -2,6 +2,8 @@ package org.sakaiproject.sitestats.api;
 
 import java.util.List;
 
+import org.sakaiproject.sitestats.api.event.ToolInfo;
+
 public interface PrefsData {
 	
 	public List<ToolInfo> getToolEventsDef();	

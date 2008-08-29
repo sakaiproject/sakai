@@ -1,7 +1,7 @@
 package org.sakaiproject.sitestats.impl;
 
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
-import org.sakaiproject.sitestats.api.ToolInfo;
+import org.sakaiproject.sitestats.api.event.ToolInfo;
 
 public class SiteActivityByToolImpl implements SiteActivityByTool {
 	private String siteId	= null;

@@ -148,7 +148,7 @@
 		</managed-property>
 		<managed-property>
 			<property-name>sstAuthz</property-name>
-			<value>#{org_sakaiproject_sitestats_api_Authz}</value>
+			<value>#{org_sakaiproject_sitestats_api_StatsAuthz}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>toolManager</property-name>

@@ -5,13 +5,13 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.sitestats.api.Authz;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 
-public class AuthzImpl implements Authz {
-	private static Log				LOG								= LogFactory.getLog(AuthzImpl.class);
+public class StatsAuthzImpl implements StatsAuthz {
+	private static Log				LOG								= LogFactory.getLog(StatsAuthzImpl.class);
 
 	/** Sakai services */
 	private UserDirectoryService	M_uds;

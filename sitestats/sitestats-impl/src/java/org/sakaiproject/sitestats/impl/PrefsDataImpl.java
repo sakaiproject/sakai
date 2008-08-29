@@ -5,10 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.sitestats.api.EventInfo;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.ToolInfo;
+import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.ToolInfo;
 
 public class PrefsDataImpl implements PrefsData {
 	/** Stats Manager object */
