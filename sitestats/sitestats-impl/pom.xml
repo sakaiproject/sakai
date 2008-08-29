@@ -118,6 +118,16 @@
       <artifactId>commons-digester</artifactId>
     </dependency>
     
+    <!-- Apache others -->
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>fop</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>poi</groupId>
+      <artifactId>poi</artifactId>
+    </dependency>
+    
     <!-- Quartz -->
     <dependency>
       <groupId>quartz</groupId>
@@ -130,7 +140,7 @@
   <build>
     <resources>
       <resource>
-        <directory>${basedir}/src/bundle</directory>
+        <directory>${basedir}/../sitestats-bundles</directory>
         <includes>
           <include>**/*.properties</include>
         </includes>

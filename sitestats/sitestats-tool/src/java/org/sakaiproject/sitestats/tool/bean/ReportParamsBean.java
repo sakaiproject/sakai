@@ -5,20 +5,20 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.sitestats.api.ReportParams;
-import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.report.ReportParams;
 
 public class ReportParamsBean implements ReportParams {
-	private String			what				= StatsManager.WHAT_VISITS;
-	private String			whatEventSelType	= StatsManager.WHAT_EVENTS_BYTOOL;
+	private String			what				= ReportManager.WHAT_VISITS;
+	private String			whatEventSelType	= ReportManager.WHAT_EVENTS_BYTOOL;
 	private List<String> 	whatToolIds			= new ArrayList<String>();
 	private List<String>	whatEventIds		= new ArrayList<String>();
 	private List<String> 	whatResourceIds		= new ArrayList<String>();
-	private String 			whatResourceAction	= StatsManager.WHAT_RESOURCES_ACTION_NEW;
-	private String 			when				= StatsManager.WHEN_LAST7DAYS;
+	private String 			whatResourceAction	= ReportManager.WHAT_RESOURCES_ACTION_NEW;
+	private String 			when				= ReportManager.WHEN_LAST7DAYS;
 	private Date 			whenFrom;
 	private Date 			whenTo;
-	private String 			who					= StatsManager.WHO_ALL;
+	private String 			who					= ReportManager.WHO_ALL;
 	private String 			whoRoleId;
 	private String 			whoGroupId;
 	private List<String> 	whoUserIds			= new ArrayList<String>();

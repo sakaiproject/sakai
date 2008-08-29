@@ -1,4 +1,4 @@
-package org.sakaiproject.sitestats.api;
+package org.sakaiproject.sitestats.api.report;
 
 import java.util.Date;
 import java.util.List;

@@ -17,7 +17,7 @@
 
 /* $Id$ */
  
-package org.sakaiproject.sitestats.tool.util;
+package org.sakaiproject.sitestats.impl.report.fop;
 
 //Java
 import java.io.IOException;

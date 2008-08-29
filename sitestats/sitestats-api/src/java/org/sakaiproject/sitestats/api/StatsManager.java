@@ -48,25 +48,6 @@ public interface StatsManager {
     public static final String TOOL_REPORT = "toolReport";
 	public static final String	CHATTYPE_BAR				= "bar";
 	public static final String	CHATTYPE_PIE				= "pie";
-	public static final String	WHO_CUSTOM					= "who-custom";
-	public static final String	WHO_ROLE					= "who-role";
-	public static final String	WHO_GROUPS					= "who-groups";
-	public static final String	WHO_ALL						= "who-all";
-	public static final String	WHO_NONE					= "who-none";
-	public static final String	WHEN_CUSTOM					= "when-custom";
-	public static final String	WHEN_LAST30DAYS				= "when-last30days";
-	public static final String	WHEN_LAST7DAYS				= "when-last7days";
-	public static final String	WHEN_ALL					= "when-all";
-	public static final String	WHAT_RESOURCES				= "what-resources";
-	public static final String	WHAT_RESOURCES_ACTION_NEW	= "new";
-	public static final String	WHAT_RESOURCES_ACTION_READ	= "read";
-	public static final String	WHAT_RESOURCES_ACTION_REVS	= "revise";
-	public static final String	WHAT_RESOURCES_ACTION_DEL	= "delete";
-	public static final String	WHAT_EVENTS_BYEVENTS		= "what-events-byevent";
-	public static final String	WHAT_EVENTS_BYTOOL			= "what-events-bytool";
-	public static final String	WHAT_EVENTS					= "what-events";
-	public static final String	WHAT_VISITS					= "what-visits";
-
 	
 	// ################################################################
 	// Spring bean methods
@@ -145,6 +126,9 @@ public interface StatsManager {
 	/** Get the resource image from a reference */
 	public String getResourceImage(String ref);
 	
+	/** Get the resource image relative path (to /library) from a reference */
+	public String getResourceImageLibraryRelativePath(String ref);
+	
 	/** Get the resource url from a reference. Returns null if resource no longer exist. */
 	public String getResourceURL(String ref);
 	
@@ -163,9 +147,6 @@ public interface StatsManager {
 	public SummaryVisitsChartData getSummaryVisitsChartData(String siteId, String viewType);
 	/** Get summary information for chart draw about site activity. */
 	public SummaryActivityChartData getSummaryActivityChartData(String siteId, String viewType, String chartType);
-	
-	/** Produce a report based on the parameters passed. */
-	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params);
 	
 	
 	// ################################################################

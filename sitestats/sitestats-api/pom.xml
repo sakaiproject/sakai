@@ -50,6 +50,7 @@
         <directory>${basedir}/src/config</directory>
         <includes>
           <include>**/*.xml</include>
+          <include>**/*.xsl</include>
         </includes>
       </resource>
     </resources>

@@ -9,7 +9,7 @@
 <faces-config>
     
   <application>
-    <message-bundle>org.sakaiproject.sitestats.tool.bundle.Messages</message-bundle>
+    <message-bundle>Messages</message-bundle>
     <locale-config>
       <default-locale>en</default-locale>
     </locale-config>
@@ -137,6 +137,10 @@
 		<managed-property>
 			<property-name>sstStatsManager</property-name>
 			<value>#{org_sakaiproject_sitestats_api_StatsManager}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>sstReportManager</property-name>
+			<value>#{org_sakaiproject_sitestats_api_report_ReportManager}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sstStatsUpdateManager</property-name>

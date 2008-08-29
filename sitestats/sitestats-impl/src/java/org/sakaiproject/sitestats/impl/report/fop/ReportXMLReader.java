@@ -1,20 +1,16 @@
-package org.sakaiproject.sitestats.tool.util;
+package org.sakaiproject.sitestats.impl.report.fop;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.context.FacesContext;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
-import org.sakaiproject.sitestats.api.Report;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.tool.bean.ReportsBean;
+import org.sakaiproject.sitestats.api.report.Report;
+import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -24,22 +20,17 @@ import org.sakaiproject.util.ResourceLoader;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class ReportXMLReader extends AbstractObjectReader {
-
-	/** Our log (commons). */
-	private static Log				LOG					= LogFactory.getLog(ReportXMLReader.class);
-	
+public class ReportXMLReader extends AbstractObjectReader {	
 	/** Resource bundle */
-	private String					bundleName	= FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-	private ResourceLoader			msgs		= new ResourceLoader(bundleName);
+	private ResourceLoader			msgs		= new ResourceLoader("Messages");
 	
-	private ReportsBean				reportsBean	= null;
-	
-	private TimeService				ts			= (TimeService) ComponentManager.get(TimeService.class.getName());
+	/** Sakai services */
+	private TimeService				M_ts		= (TimeService) ComponentManager.get(TimeService.class.getName());
 	private SiteService				M_ss		= (SiteService) ComponentManager.get(SiteService.class.getName());
 	private ToolManager				M_tm		= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private UserDirectoryService	M_uds		= (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
-	private StatsManager			sm			= (StatsManager) ComponentManager.get(StatsManager.class.getName());
+	private StatsManager			M_sm		= (StatsManager) ComponentManager.get(StatsManager.class.getName());
+	private ReportManager			M_rm		= (ReportManager) ComponentManager.get(ReportManager.class.getName());
 
 
 	@Override
@@ -58,10 +49,6 @@ public class ReportXMLReader extends AbstractObjectReader {
         if (handler == null) {
             throw new IllegalStateException("ContentHandler not set");
         }
-        
-        // get ReportsBean
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		reportsBean = (ReportsBean) facesContext.getApplication().createValueBinding("#{ReportsBean}").getValue(facesContext);
         
         //Start the document
         handler.startDocument();
@@ -94,25 +81,25 @@ public class ReportXMLReader extends AbstractObjectReader {
         handler.element("title", reportTitle);
         
         // activity based on
-		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_act_basedon") ,reportsBean.getReportActivityBasedOn(report));
-		String reportResourceAction = reportsBean.getReportResourceAction(report);
+		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_act_basedon") ,M_rm.getReportFormattedParams().getReportActivityBasedOn(report));
+		String reportResourceAction = M_rm.getReportFormattedParams().getReportResourceAction(report);
 		// resources action
 		if(reportResourceAction != null && reportResourceAction != null)
-			generateReportSummaryHeaderRow(reportsBean.getReportResourceActionTitle(report) ,reportResourceAction);
+			generateReportSummaryHeaderRow(M_rm.getReportFormattedParams().getReportResourceActionTitle(report) ,reportResourceAction);
 		// activity selection
-		String reportActivitySelection = reportsBean.getReportActivitySelection(report);
+		String reportActivitySelection = M_rm.getReportFormattedParams().getReportActivitySelection(report);
 		if(reportActivitySelection != null)
-			generateReportSummaryHeaderRow(reportsBean.getReportActivitySelectionTitle(report) ,reportActivitySelection);
+			generateReportSummaryHeaderRow(M_rm.getReportFormattedParams().getReportActivitySelectionTitle(report) ,reportActivitySelection);
 		// time period
-		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_timeperiod") ,reportsBean.getReportTimePeriod(report));
+		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_timeperiod") ,M_rm.getReportFormattedParams().getReportTimePeriod(report));
 		// user selection type
-		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_usr_selectiontype") ,reportsBean.getReportUserSelectionType(report));
+		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_usr_selectiontype") ,M_rm.getReportFormattedParams().getReportUserSelectionType(report));
 		// user selection
-		String reportUserSelection = reportsBean.getReportUserSelection();
+		String reportUserSelection = M_rm.getReportFormattedParams().getReportUserSelection(report);
 		if(reportUserSelection != null)
-			generateReportSummaryHeaderRow(reportsBean.getReportUserSelectionTitle(report) ,reportUserSelection);
+			generateReportSummaryHeaderRow(M_rm.getReportFormattedParams().getReportUserSelectionTitle(report) ,reportUserSelection);
 		// report timestamp
-        generateReportSummaryHeaderRow(msgs.getString("reportres_summ_generatedon") ,reportsBean.getReportGenerationDate(report));
+        generateReportSummaryHeaderRow(msgs.getString("reportres_summ_generatedon") ,M_rm.getReportFormattedParams().getReportGenerationDate(report));
         
         String what = report.getReportParams().getWhat();
         handler.element("what", what);
@@ -155,7 +142,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         handler.element("who", who);
         handler.element("th_id", msgs.getString("th_id"));
         handler.element("th_user", msgs.getString("th_user"));
-        if(what.equals(StatsManager.WHAT_RESOURCES)){
+        if(what.equals(ReportManager.WHAT_RESOURCES)){
             handler.element("th_resource", msgs.getString("th_resource"));
             handler.element("th_action", msgs.getString("th_action"));
         }else{
@@ -195,23 +182,22 @@ public class ReportXMLReader extends AbstractObjectReader {
             handler.element("userid", userId);
             handler.element("username", userName);
             
-            if(!who.equals(StatsManager.WHO_NONE)) {
+            if(!who.equals(ReportManager.WHO_NONE)) {
 	            // event or (resource and action)
-	            if(what.equals(StatsManager.WHAT_RESOURCES)){
-		            //handler.element("resourceimg", sm.getResourceImage(cs.getRefImg()));
-	            	//handler.element("resourceimg", "image/sakai/generic.gif");
-	            	String resName = sm.getResourceName(cs.getRef());
+	            if(what.equals(ReportManager.WHAT_RESOURCES)){
+		            String resName = M_sm.getResourceName(cs.getRef());
 	            	String resAction = cs.getRefAction();
 	            	handler.element("resource", resName == null? "" : resName);
 		            handler.element("action", resAction == null? "" : msgs.getString("action_"+resAction) );
+		            handler.element("resourceimg", "library://" + M_sm.getResourceImageLibraryRelativePath(cs.getRef()));	            	
 	            }else{
 	            	String eventRef = cs.getRef();
-	            	handler.element("event", sm.getEventName(eventRef == null? "" : eventRef));
+	            	handler.element("event", M_sm.getEventName(eventRef == null? "" : eventRef));
 	            }
 	            
 	            // last date
 	            java.util.Date date = cs.getDate();
-	            handler.element("lastdate", date == null? "" :ts.newTime(date.getTime()).toStringLocalDate());
+	            handler.element("lastdate", date == null? "" :M_ts.newTime(date.getTime()).toStringLocalDate());
 	            
 	            // count
 	            handler.element("count", String.valueOf(cs.getCount()));

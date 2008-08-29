@@ -91,6 +91,21 @@
 	</bean>
 	
 	
+	<!-- ReportManager ______________________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.report.ReportManager"
+		class="org.sakaiproject.sitestats.impl.report.ReportManagerImpl"
+		singleton="true">
+		
+		<!-- Sakai services -->
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+	</bean>
+	
+	
 	<!-- StatsUpdateManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
 		class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"

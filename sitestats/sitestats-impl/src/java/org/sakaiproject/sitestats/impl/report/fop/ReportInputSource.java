@@ -1,6 +1,6 @@
-package org.sakaiproject.sitestats.tool.util;
+package org.sakaiproject.sitestats.impl.report.fop;
 
-import org.sakaiproject.sitestats.api.Report;
+import org.sakaiproject.sitestats.api.report.Report;
 import org.xml.sax.InputSource;
 
 public class ReportInputSource extends InputSource {

@@ -1,7 +1,8 @@
-package org.sakaiproject.sitestats.api;
+package org.sakaiproject.sitestats.api.report;
 
 import java.util.List;
 
+import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.time.api.Time;
 
 

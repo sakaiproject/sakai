@@ -67,8 +67,6 @@ import org.sakaiproject.sitestats.api.EventInfo;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.Prefs;
 import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.Report;
-import org.sakaiproject.sitestats.api.ReportParams;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
@@ -80,6 +78,10 @@ import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
 import org.sakaiproject.sitestats.api.ToolFactory;
 import org.sakaiproject.sitestats.api.ToolInfo;
+import org.sakaiproject.sitestats.api.report.Report;
+import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.impl.report.ReportImpl;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -98,8 +100,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class StatsManagerImpl extends HibernateDaoSupport implements StatsManager {
 	private Log							LOG										= LogFactory.getLog(StatsManagerImpl.class);
-	private static String				bundleName								= "org.sakaiproject.sitestats.impl.bundle.Messages";
-	private static ResourceLoader		msgs									= new ResourceLoader(bundleName);
+	private static ResourceLoader		msgs									= new ResourceLoader("Events");
 
 	/** Spring bean members */
 	private boolean						enableSiteVisits						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("display.users.present", false)
@@ -942,10 +943,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceImage(java.lang.String)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceImageLibraryRelativePath(java.lang.String)
 	 */
-	public String getResourceImage(String ref){
-		String href = M_scs.getServerUrl() + "/library/image/";
+	public String getResourceImageLibraryRelativePath(String ref){
 		Reference r = EntityManager.newReference(ref);
 		ResourceProperties rp = r.getProperties();
 		
@@ -964,20 +964,29 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		String imgLink = "";
 		try{
 			if(isCollection)
-				imgLink = href + ContentTypeImageService.getContentTypeImage("folder");			
+				imgLink = ContentTypeImageService.getContentTypeImage("folder");			
 			else if(rp != null){
 				String contentTypePropName = rp.getNamePropContentType();
 				String contentType = rp.getProperty(contentTypePropName);
 				if(contentType != null)
-					imgLink = href + ContentTypeImageService.getContentTypeImage(contentType);
-				else
-					imgLink = href + "sakai/generic.gif";
-			}else
-				imgLink = href + "sakai/generic.gif";
+					imgLink = ContentTypeImageService.getContentTypeImage(contentType);
+				else{
+					imgLink = "sakai/generic.gif";
+				}
+			}else{;
+				imgLink = "sakai/generic.gif";
+			}
 		}catch(Exception e){
-			imgLink = href + "sakai/generic.gif";
+			imgLink = "sakai/generic.gif";
 		}
-		return imgLink;
+		return "image/" + imgLink;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceImage(java.lang.String)
+	 */
+	public String getResourceImage(String ref){
+		return M_scs.getServerUrl() + "/library/" + getResourceImageLibraryRelativePath(ref);
 	}	
 	
 	
@@ -1197,169 +1206,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			sac.setSiteActivityByTool(siteActivityByTool);
 			return siteActivityByTool.size() > 0? sac : null;
 		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getReport(java.lang.String, org.sakaiproject.sitestats.api.PrefsData, org.sakaiproject.sitestats.api.ReportParams)
-	 */
-	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params) {
-		// what (visits, events, resources)
-		List<String> eventIds = new ArrayList<String>();
-		if(params.getWhat().equals(WHAT_VISITS)){
-			eventIds.add(SITEVISIT_EVENTID);
-			
-		}else if(params.getWhat().equals(WHAT_EVENTS)){
-			if(params.getWhatEventSelType().equals(WHAT_EVENTS_BYTOOL)){
-				Iterator<ToolInfo> iT = getSiteToolEventsDefinition(siteId, prefsdata.isListToolEventsOnlyAvailableInSite()).iterator();
-				while(iT.hasNext()){
-					ToolInfo t = iT.next();
-					if(params.getWhatToolIds().contains(t.getToolId())){
-						Iterator<EventInfo> iE = t.getEvents().iterator();
-						while(iE.hasNext())
-							eventIds.add(iE.next().getEventId());
-					}
-				}
-			}else
-				eventIds.addAll(params.getWhatEventIds());
-			
-		}
-		
-		// when (dates)
-		Date from = null;
-		Date to = null;
-		if (params.getWhen().equals(WHEN_CUSTOM)){
-			from = params.getWhenFrom();
-			to = params.getWhenTo();
-		}else
-			to = new Date();
-		if (params.getWhen().equals(WHEN_ALL)) {
-			from =getInitialActivityDate(siteId);
-		} else if (params.getWhen().equals(WHEN_LAST7DAYS)) {
-			Calendar c = Calendar.getInstance();
-			c.set(Calendar.HOUR_OF_DAY, 00);
-			c.set(Calendar.MINUTE, 00);
-			c.set(Calendar.SECOND, 00);
-			c.add(Calendar.DATE, -6);
-			from = c.getTime();
-//			Date now = new Date();
-//			long int7Days = 604800000l; // 1000ms * 60s * 60m * 24h * 7d
-//			from = new Date(now.getTime() - int7Days);
-		} else if (params.getWhen().equals(WHEN_LAST30DAYS)) {
-			Calendar c = Calendar.getInstance();
-			c.set(Calendar.HOUR_OF_DAY, 00);
-			c.set(Calendar.MINUTE, 00);
-			c.set(Calendar.SECOND, 00);
-			c.add(Calendar.DATE, -29);
-			from = c.getTime();
-//			Date now = new Date();
-//			long int30Days = 2592000000l; // 1000ms * 60s * 60m * 24h * 30d
-//			from = new Date(now.getTime() - int30Days);
-		}
-		params.setWhenFrom(from);
-		params.setWhenTo(to);
-		
-		// who (users, groups, roles)
-		List<String> userIds = null;
-		boolean inverseWhoSelection = false;
-		if(params.getWho().equals(WHO_ALL)){
-			;
-		}else if(params.getWho().equals(WHO_ROLE)){
-			userIds = new ArrayList<String>();
-			try {
-				Site site = M_ss.getSite(siteId);
-				userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
-			} catch (IdUnusedException e) {
-				LOG.error("No site with specified siteId.");
-			}
-			
-		}else if(params.getWho().equals(WHO_GROUPS)){
-			userIds = new ArrayList<String>();
-			try {
-				Site site = M_ss.getSite(siteId);
-				userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
-			} catch (IdUnusedException e) {
-				LOG.error("No site with specified siteId.");
-			}
-			
-		}else if(params.getWho().equals(WHO_CUSTOM)){
-			userIds = params.getWhoUserIds();
-		}else{
-			// inverse
-			inverseWhoSelection = true;
-		}
-		params.setWhoUserIds(userIds);
-		
-		
-		// generate report
-		Report report = new ReportImpl();
-		report.setReportParams(params);
-		List<CommonStatGrpByDate> data = null;
-		if(params.getWhat().equals(WHAT_RESOURCES)){
-			List<String> resourceIds = null;
-			if(params.getWhatResourceIds() != null){
-				resourceIds = new ArrayList<String>();
-				Iterator<String> iR = params.getWhatResourceIds().iterator();
-				while(iR.hasNext())
-					resourceIds.add("/content"+iR.next());				
-			}
-			String resourceAction = params.getWhatResourceAction();
-			data = getResourceStatsGrpByDateAndAction(siteId, resourceAction, resourceIds, from, to, userIds, inverseWhoSelection, null);
-		}else{
-			data = getEventStatsGrpByDate(siteId, eventIds, from, to, userIds, inverseWhoSelection, null);
-		}
-		report.setReportData(data);
-		
-		// consolidate anonymous events
-		report = consolidateAnonymousEvents(report);
-		
-		// add report generation date
-		if(report != null)
-			report.setReportGenerationDate(M_ts.newTime());
-		return report;
-	}
-	
-	
-	private Report consolidateAnonymousEvents(Report report) {
-		List<CommonStatGrpByDate> consolidated = new ArrayList<CommonStatGrpByDate>();
-		List<CommonStatGrpByDate> list = report.getReportData();
-
-		Map<String,CommonStatGrpByDate> anonMap = new HashMap<String, CommonStatGrpByDate>();
-
-		for(CommonStatGrpByDate s : list) {
-			String eventId = s.getRef();
-			if(!isAnonymousEvent(eventId)) {
-				consolidated.add(s);
-			} else {
-				CommonStatGrpByDate sMapped = anonMap.get(eventId);
-				if(sMapped != null) {
-					sMapped.setCount(sMapped.getCount() + s.getCount());
-					if(s.getDate().after(sMapped.getDate()))
-						sMapped.setDate(s.getDate());
-					anonMap.put(eventId, sMapped);
-				}else{
-					s.setUserId(null);
-					anonMap.put(eventId, s);
-				}
-			}
-		}
-		
-		for(CommonStatGrpByDate s : anonMap.values()) {
-			consolidated.add(s);
-		}
-		
-		report.setReportData(consolidated);
-		return report;
-	}
-	
-	private boolean isAnonymousEvent(String eventId) {
-		for(ToolInfo ti : toolEventsDefinition) {
-			for(EventInfo ei : ti.getEvents()) {
-				if(ei.getEventId().equals(eventId)) {
-					return ei.isAnonymous();
-				}
-			}
-		}
-		return false;
 	}
 
 	// ################################################################

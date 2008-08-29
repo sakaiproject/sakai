@@ -1,9 +1,6 @@
 package org.sakaiproject.sitestats.tool.bean;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.Collator;
 import java.text.DateFormat;
@@ -23,56 +20,28 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.MimeConstants;
-import org.apache.fop.servlet.ServletContextURIResolver;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventInfo;
 import org.sakaiproject.sitestats.api.EventParserTip;
 import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.Report;
-import org.sakaiproject.sitestats.api.ReportParams;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.ToolInfo;
-import org.sakaiproject.sitestats.tool.util.ReportInputSource;
-import org.sakaiproject.sitestats.tool.util.ReportXMLReader;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.sitestats.api.report.Report;
+import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
 public class ReportsBean {
-	private static final String				XML_FO_XSL_FILE			= "xmlReportToFo.xsl";
 	private static final String				SORT_ID					= "id";
 	private static final String				SORT_USER				= "user";
 	private static final String				SORT_EVENT				= "event";
@@ -120,14 +89,6 @@ public class ReportsBean {
 
 	/** Statistics Manager object */
 	private transient ServiceBean			serviceBean				= null;
-	private transient StatsManager			SST_sm					= null;
-	private transient UserDirectoryService	M_uds					= null;
-	private transient ContentHostingService	M_chs					= null;
-	private transient TimeService			M_ts					= null;
-
-	/** FOP */
-	private FopFactory						fopFactory				= FopFactory.newInstance();
-	private Templates						cachedXmlFoXSLT			= null;
 
 	/** Other */
 	private String							previousSiteId			= "";
@@ -144,16 +105,12 @@ public class ReportsBean {
 	// ######################################################################################	
 	public void setServiceBean(ServiceBean serviceBean){
 		this.serviceBean = serviceBean;
-		this.SST_sm = serviceBean.getSstStatsManager();
-		this.M_uds = serviceBean.getUserDirectoryService();
-		this.M_chs = serviceBean.getContentHostingService();
-		this.M_ts = serviceBean.getTimeService();
 	}	
 	
 	public void setReportParams(ReportParams reportParams) {
 		this.reportParams = reportParams;
 		if(!serviceBean.getSiteVisitsEnabled())
-			this.reportParams.setWhat(StatsManager.WHAT_EVENTS_BYTOOL);
+			this.reportParams.setWhat(ReportManager.WHAT_EVENTS_BYTOOL);
 	}
 
 	// ################################################################
@@ -166,7 +123,7 @@ public class ReportsBean {
 		String siteId = serviceBean.getSiteId();
 		if(prefsdata == null || prefsLastModified < serviceBean.getPreferencesLastModified() || !previousSiteId.equals(siteId)){
 			previousSiteId = siteId;
-			prefsdata = SST_sm.getPreferences(siteId, false);
+			prefsdata = serviceBean.getSstStatsManager().getPreferences(siteId, false);
 			prefsLastModified = serviceBean.getPreferencesLastModified();
 		}
 		return prefsdata;
@@ -192,7 +149,7 @@ public class ReportsBean {
 	public List<SelectItem> getTools() {
 		List<SelectItem> tools = new ArrayList<SelectItem>();
 		
-		List<ToolInfo> siteTools = SST_sm.getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
+		List<ToolInfo> siteTools = serviceBean.getSstStatsManager().getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
 		Iterator<ToolInfo> i = siteTools.iterator();
 		while(i.hasNext()){
 			ToolInfo toolInfo = i.next();
@@ -206,7 +163,7 @@ public class ReportsBean {
 	public List<SelectItemGroup> getEvents() {
 		List<SelectItemGroup> tools = new ArrayList<SelectItemGroup>();
 		
-		List<ToolInfo> siteTools = SST_sm.getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
+		List<ToolInfo> siteTools = serviceBean.getSstStatsManager().getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
 		Iterator<ToolInfo> i = siteTools.iterator();
 		while(i.hasNext()){
 			ToolInfo toolInfo = i.next();
@@ -239,10 +196,10 @@ public class ReportsBean {
 	
 	public List<SelectItem> getResourceActions() {
 		List<SelectItem> actions = new ArrayList<SelectItem>();
-		actions.add(new SelectItem(StatsManager.WHAT_RESOURCES_ACTION_NEW, msgs.getString("action_new")));
-		actions.add(new SelectItem(StatsManager.WHAT_RESOURCES_ACTION_READ, msgs.getString("action_read")));
-		actions.add(new SelectItem(StatsManager.WHAT_RESOURCES_ACTION_REVS, msgs.getString("action_revise")));
-		actions.add(new SelectItem(StatsManager.WHAT_RESOURCES_ACTION_DEL, msgs.getString("action_delete")));
+		actions.add(new SelectItem(ReportManager.WHAT_RESOURCES_ACTION_NEW, msgs.getString("action_new")));
+		actions.add(new SelectItem(ReportManager.WHAT_RESOURCES_ACTION_READ, msgs.getString("action_read")));
+		actions.add(new SelectItem(ReportManager.WHAT_RESOURCES_ACTION_REVS, msgs.getString("action_revise")));
+		actions.add(new SelectItem(ReportManager.WHAT_RESOURCES_ACTION_DEL, msgs.getString("action_delete")));
 		return actions;
 	}
 	
@@ -275,14 +232,14 @@ public class ReportsBean {
 		if(!resourcesLoaded || !resourcesLoadedForSite.equals(siteId)){
 			resourcesList = new ArrayList<SelectItem>();
 			String siteTitle = serviceBean.getSite().getTitle();
-			String siteCollectionId = M_chs.getSiteCollection(siteId);
-			List<ContentResource> rsrcs =  M_chs.getAllResources(siteCollectionId);
+			String siteCollectionId = serviceBean.getContentHostingService().getSiteCollection(siteId);
+			List<ContentResource> rsrcs = serviceBean.getContentHostingService().getAllResources(siteCollectionId);
 			Iterator<ContentResource> iR = rsrcs.iterator();
 			while(iR.hasNext()){
 				ContentResource cr = iR.next();
 				String path = StatsManager.SEPARATOR;
 				ContentCollection cc = cr.getContainingCollection();
-				while(cc != null && !cc.getId().equals(siteCollectionId) && !M_chs.isRootCollection(cc.getId())){
+				while(cc != null && !cc.getId().equals(siteCollectionId) && !serviceBean.getContentHostingService().isRootCollection(cc.getId())){
 					path = StatsManager.SEPARATOR + cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + path;
 					cc = cc.getContainingCollection();
 				}
@@ -293,7 +250,7 @@ public class ReportsBean {
 				path = path.replaceFirst(StatsManager.SEPARATOR + "user","[workspace]");
 				path = path.replaceFirst(StatsManager.SEPARATOR + siteTitle,"");
 				
-				String crName = path + SST_sm.getResourceName("/content"+cr.getId());			
+				String crName = path + serviceBean.getSstStatsManager().getResourceName("/content"+cr.getId());			
 				resourcesList.add(new SelectItem(cr.getId(), crName));
 			}
 			Collections.sort(resourcesList, getSelectItemComparator(collator));
@@ -351,7 +308,7 @@ public class ReportsBean {
 	
 	public List<SelectItem> getUsers() {
 		if(!(usersLoaded && usersLoadedForSite.equals(serviceBean.getSiteId())))
-			if(reportParams.getWho().equals(StatsManager.WHO_CUSTOM))
+			if(reportParams.getWho().equals(ReportManager.WHO_CUSTOM))
 				processLoadUsers(null);
 			else
 				return new ArrayList<SelectItem>();
@@ -386,213 +343,43 @@ public class ReportsBean {
 	// Report results: SUMMARY 
 	// ######################################################################################	
 	public String getReportGenerationDate() {
-		return getReportGenerationDate(report);
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportGenerationDate(report);
 	}
-	public String getReportGenerationDate(Report report) {
-		if(report.getReportGenerationDate() == null)
-			report.setReportGenerationDate(M_ts.newTime());
-		return report.getReportGenerationDate().toStringLocalFull();
-	}
-
 	
 	public String getReportActivityBasedOn() {
-		return getReportActivityBasedOn(report);
-	}
-	public String getReportActivityBasedOn(Report report) {
-		if(report.getReportParams().getWhat().equals(StatsManager.WHAT_VISITS))
-			return msgs.getString("report_what_visits");
-		else if(report.getReportParams().getWhat().equals(StatsManager.WHAT_EVENTS)){
-			StringBuffer buff = new StringBuffer();
-			buff.append(msgs.getString("report_what_events"));
-			if(report.getReportParams().getWhatEventSelType().equals(StatsManager.WHAT_EVENTS_BYTOOL)){
-				buff.append(" (");
-				buff.append(msgs.getString("report_what_events_bytool"));
-				buff.append(")");
-			}else{
-				buff.append(" (");
-				buff.append(msgs.getString("report_what_events_byevent"));
-				buff.append(")");
-			}
-			return buff.toString();
-		}else 
-			return msgs.getString("report_what_resources");
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportActivityBasedOn(report);
 	}
 	
 	public String getReportActivitySelectionTitle() {
-		return getReportActivitySelectionTitle(report);
-	}
-	public String getReportActivitySelectionTitle(Report report) {
-		if(report.getReportParams().getWhat().equals(StatsManager.WHAT_VISITS))
-			return msgs.getString("report_what_visits");
-		else if(report.getReportParams().getWhat().equals(StatsManager.WHAT_EVENTS)){
-			if(report.getReportParams().getWhatEventSelType().equals(StatsManager.WHAT_EVENTS_BYTOOL))
-				return msgs.getString("reportres_summ_act_tools_selected");
-			else 
-				return msgs.getString("reportres_summ_act_events_selected");
-		}else
-			return msgs.getString("reportres_summ_act_rsrc_selected");
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportActivitySelectionTitle(report);
 	}
 	
 	public String getReportActivitySelection() {
-		return getReportActivitySelection(report);
-	}
-	public String getReportActivitySelection(Report report) {
-		if(report.getReportParams().getWhat().equals(StatsManager.WHAT_VISITS)){
-			// visits
-			return null;
-		}else if(report.getReportParams().getWhat().equals(StatsManager.WHAT_EVENTS)){
-			if(report.getReportParams().getWhatEventSelType().equals(StatsManager.WHAT_EVENTS_BYTOOL)){
-				// tools
-				List<String> list = report.getReportParams().getWhatToolIds();
-				StringBuffer buff = new StringBuffer();
-				for(int i=0; i<list.size() - 1; i++){
-					String toolId = list.get(i);
-					buff.append(SST_sm.getToolName(toolId));
-					buff.append(", ");
-				}
-				String toolId = list.get(list.size() - 1);
-				buff.append(SST_sm.getToolName(toolId));
-				return buff.toString();
-			}else{
-				// events
-				List<String> list = report.getReportParams().getWhatEventIds();
-				StringBuffer buff = new StringBuffer();
-				for(int i=0; i<list.size() - 1; i++){
-					String eventId = list.get(i);
-					buff.append(SST_sm.getEventName(eventId));
-					buff.append(", ");
-				}
-				String eventId = list.get(list.size() - 1);
-				buff.append(SST_sm.getEventName(eventId));
-				return buff.toString();
-			}
-		}else{
-			if(!selectedLimitedActivity)
-				return null;
-			// resources
-			List<String> list = report.getReportParams().getWhatResourceIds();
-			if(list.contains("all"))
-				return msgs.getString("report_what_all");
-			StringBuffer buff = new StringBuffer();
-			for(int i=0; i<list.size() - 1; i++){
-				String resourceId = list.get(i);
-				try{
-					ContentResource cr = M_chs.getResource(resourceId);
-					String crName = cr.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
-					buff.append(crName);
-					buff.append(", ");
-				}catch(PermissionException e){
-					e.printStackTrace();
-				}catch(IdUnusedException e){
-					e.printStackTrace();
-				}catch(TypeException e){
-					e.printStackTrace();
-				}
-			}
-			String resourceId = list.get(list.size() - 1);
-			try{
-				ContentResource cr = M_chs.getResource(resourceId);
-				String crName = cr.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
-				buff.append(crName);
-			}catch(PermissionException e){
-				e.printStackTrace();
-			}catch(IdUnusedException e){
-				e.printStackTrace();
-			}catch(TypeException e){
-				e.printStackTrace();
-			}
-			return buff.toString();
-		}
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportActivitySelection(report);
 	}
 	
 	public String getReportResourceActionTitle() {
-		return getReportResourceActionTitle(report);
-	}
-	public String getReportResourceActionTitle(Report report) {
-		if(report.getReportParams().getWhat().equals(StatsManager.WHAT_RESOURCES)
-				&& report.getReportParams().getWhatResourceAction() != null)
-				return msgs.getString("reportres_summ_act_rsrc_action");
-		return null;
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportResourceActionTitle(report);
 	}
 	
 	public String getReportResourceAction() {
-		return getReportResourceAction(report);
-	}
-	public String getReportResourceAction(Report report) {
-		if(report.getReportParams().getWhat().equals(StatsManager.WHAT_RESOURCES)
-				&& report.getReportParams().getWhatResourceAction() != null){
-			return msgs.getString("action_" + report.getReportParams().getWhatResourceAction());
-		}else
-			return null;
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportResourceAction(report);
 	}
 	
 	public String getReportTimePeriod() {
-		return getReportTimePeriod(report);
-	}
-	public String getReportTimePeriod(Report report) {
-		if(report.getReportParams().getWhen().equals(StatsManager.WHEN_ALL)){
-			return msgs.getString("report_when_all");
-		}else{
-			Time from = M_ts.newTime(report.getReportParams().getWhenFrom().getTime());
-			Time to = M_ts.newTime(report.getReportParams().getWhenTo().getTime());
-			return from.toStringLocalFull() + " - " + to.toStringLocalFull();
-		}
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportTimePeriod(report);
 	}
 	
 	public String getReportUserSelectionType() {
-		return getReportUserSelectionType(report);
-	}
-	public String getReportUserSelectionType(Report report) {
-		if(report.getReportParams().getWho().equals(StatsManager.WHO_ALL))
-			return msgs.getString("report_who_all");
-		else if(report.getReportParams().getWho().equals(StatsManager.WHO_GROUPS))
-			return msgs.getString("report_who_group");
-		else if(report.getReportParams().getWho().equals(StatsManager.WHO_ROLE))
-			return msgs.getString("report_who_role");
-		else if(report.getReportParams().getWho().equals(StatsManager.WHO_CUSTOM))
-			return msgs.getString("report_who_custom");
-		else 
-			return msgs.getString("report_who_not_match");
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportUserSelectionType(report);
 	}
 	
 	public String getReportUserSelectionTitle() {
-		return getReportUserSelectionTitle(report);
-	}
-	public String getReportUserSelectionTitle(Report report) {
-		if(report.getReportParams().getWho().equals(StatsManager.WHO_ALL))
-			return null;
-		else if(report.getReportParams().getWho().equals(StatsManager.WHO_GROUPS))
-			return msgs.getString("reportres_summ_usr_group_selected");
-		else if(report.getReportParams().getWho().equals(StatsManager.WHO_ROLE))
-			return msgs.getString("reportres_summ_usr_role_selected");
-		else if(report.getReportParams().getWho().equals(StatsManager.WHO_CUSTOM))
-			return msgs.getString("reportres_summ_usr_users_selected");
-		else 
-			return null;		
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportUserSelectionTitle(report);
 	}
 	
 	public String getReportUserSelection() {
-		return getReportUserSelection(report);
-	}
-	public String getReportUserSelection(Report report) {
-		if(report.getReportParams().getWho().equals(StatsManager.WHO_GROUPS)){
-			return serviceBean.getSiteGroupTitle(report.getReportParams().getWhoGroupId());
-		}else if(report.getReportParams().getWho().equals(StatsManager.WHO_ROLE)){
-			return report.getReportParams().getWhoRoleId();
-		}else if(report.getReportParams().getWho().equals(StatsManager.WHO_CUSTOM)){
-			// users
-			List<String> list = report.getReportParams().getWhoUserIds();
-			StringBuffer buff = new StringBuffer();
-			for(int i=0; i<list.size() - 1; i++){
-				String userId = list.get(i);
-				buff.append(serviceBean.getUserDisplayId(userId));
-				buff.append(", ");
-			}
-			String userId = list.get(list.size() - 1);
-			buff.append(serviceBean.getUserDisplayId(userId));
-			return buff.toString();
-		}else
-			return null;
+		return serviceBean.getSstReportManager().getReportFormattedParams().getReportUserSelection(report);
 	}
 	
 	// ######################################################################################
@@ -650,7 +437,7 @@ public class ReportsBean {
 
 	public void setSortAscending(boolean sortAscending) {
 		this.sortAscending = sortAscending;
-		Collections.sort(report.getReportData(), getReportDataComparator(getSortColumn(), sortAscending, collator, SST_sm, M_uds));
+		Collections.sort(report.getReportData(), getReportDataComparator(getSortColumn(), sortAscending, collator, serviceBean.getSstStatsManager(), serviceBean.getUserDirectoryService()));
 	}
 
 	public String getSortColumn() {
@@ -659,7 +446,7 @@ public class ReportsBean {
 
 	public void setSortColumn(String sortColumn) {
 		this.sortColumn = sortColumn;
-		Collections.sort(report.getReportData(), getReportDataComparator(sortColumn, isSortAscending(), collator, SST_sm, M_uds));
+		Collections.sort(report.getReportData(), getReportDataComparator(sortColumn, isSortAscending(), collator, serviceBean.getSstStatsManager(), serviceBean.getUserDirectoryService()));
 	}
 
 	// ######################################################################################
@@ -668,34 +455,34 @@ public class ReportsBean {
 	public String processGenerateReport(){
 		String msg = null;	
 		// check WHAT
-		if(reportParams.getWhat().equals(StatsManager.WHAT_EVENTS)
-				&& reportParams.getWhatEventSelType().equals(StatsManager.WHAT_EVENTS_BYTOOL) 
+		if(reportParams.getWhat().equals(ReportManager.WHAT_EVENTS)
+				&& reportParams.getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL) 
 				&& (reportParams.getWhatToolIds() == null || reportParams.getWhatToolIds().size() == 0)){
 			msg = msgs.getString("report_err_notools");
-		}else if(reportParams.getWhat().equals(StatsManager.WHAT_EVENTS) 
-				&& reportParams.getWhatEventSelType().equals(StatsManager.WHAT_EVENTS_BYEVENTS) 
+		}else if(reportParams.getWhat().equals(ReportManager.WHAT_EVENTS) 
+				&& reportParams.getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYEVENTS) 
 				&& (reportParams.getWhatEventIds() == null || reportParams.getWhatEventIds().size() == 0)) {
 			msg = msgs.getString("report_err_noevents");
-		}else if(reportParams.getWhat().equals(StatsManager.WHAT_RESOURCES) 
+		}else if(reportParams.getWhat().equals(ReportManager.WHAT_RESOURCES) 
 				&& selectedLimitedActivity 
 				&& (reportParams.getWhatResourceIds() == null || reportParams.getWhatResourceIds().size() == 0)){
 			msg = msgs.getString("report_err_noresources");
 			
 		// check WHEN
-		}else if(reportParams.getWhen().equals(StatsManager.WHEN_CUSTOM)
+		}else if(reportParams.getWhen().equals(ReportManager.WHEN_CUSTOM)
 				&& (reportParams.getWhenFrom() == null || reportParams.getWhenTo() == null)) {
 			msg = msgs.getString("report_err_nocustomdates");
 			
 		// check WHO
-		}else if(reportParams.getWho().equals(StatsManager.WHO_ROLE)){
+		}else if(reportParams.getWho().equals(ReportManager.WHO_ROLE)){
 			if(serviceBean.isRoleEmpty(reportParams.getWhoRoleId()))
 				msg = msgs.getString("report_err_emptyrole");	
-		}else if(reportParams.getWho().equals(StatsManager.WHO_GROUPS)){
+		}else if(reportParams.getWho().equals(ReportManager.WHO_GROUPS)){
 			if(reportParams.getWhoGroupId() == null || reportParams.getWhoGroupId().equals(""))
 				msg = msgs.getString("report_err_nogroup");
 			else if(serviceBean.isSiteGroupEmpty(reportParams.getWhoGroupId()))
 				msg = msgs.getString("report_err_emptygroup");	
-		}else if(reportParams.getWho().equals(StatsManager.WHO_CUSTOM) 
+		}else if(reportParams.getWho().equals(ReportManager.WHO_CUSTOM) 
 				&& (reportParams.getWhoUserIds() == null || reportParams.getWhoUserIds().size() == 0)){
 			msg = msgs.getString("report_err_nousers");
 		}
@@ -705,10 +492,10 @@ public class ReportsBean {
 			showFatalMessage = true;
 			return "reports";
 		}else{		
-			report = SST_sm.getReport(serviceBean.getSiteId(), prefsdata, reportParams);
+			report = serviceBean.getSstReportManager().getReport(serviceBean.getSiteId(), prefsdata, reportParams);
 			setPagerFirstItem(0);
 			setPagerTotalItems(report.getReportData().size());
-			Collections.sort(report.getReportData(), getReportDataComparator(getSortColumn(), isSortAscending(), collator, SST_sm, M_uds));
+			Collections.sort(report.getReportData(), getReportDataComparator(getSortColumn(), isSortAscending(), collator, serviceBean.getSstStatsManager(), serviceBean.getUserDirectoryService()));
 			return "report-results";
 		}
 	}
@@ -722,272 +509,25 @@ public class ReportsBean {
 	// Printing; Excel, CSV, PDF Export
 	// ######################################################################################
 	public void processExportExcel(ActionEvent event) {
-		String name = null;
-		if(report.getReportParams().getWhat().equals(StatsManager.WHAT_VISITS))
-			name = msgs.getString("report_what_visits");
-		else if(report.getReportParams().getWhat().equals(StatsManager.WHAT_EVENTS))
-			name = msgs.getString("report_what_events");
+		String sheetName = null;
+		if(report.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
+			sheetName = msgs.getString("report_what_visits");
+		else if(report.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS))
+			sheetName = msgs.getString("report_what_events");
 		else 
-			name = msgs.getString("report_what_resources");
-		writeAsExcel(getAsExcel(report.getReportData(), name), getFileName(name));
-	}
-
-	public void processExportCSV(ActionEvent event) {
-		String name = null;
-		if(report.getReportParams().getWhat().equals(StatsManager.WHAT_VISITS))
-			name = msgs.getString("report_what_visits");
-		else if(report.getReportParams().getWhat().equals(StatsManager.WHAT_EVENTS))
-			name = msgs.getString("report_what_events");
-		else 
-			name = msgs.getString("report_what_resources");
-		writeAsCsv(getAsCsv(report.getReportData(), name), getFileName(name));
-	}
-	
-	public void processExportPDF(ActionEvent event) {
-		// PDF filename
-		String fileName = null;
-		if(report.getReportParams().getWhat().equals(StatsManager.WHAT_VISITS))
-			fileName = getFileName(msgs.getString("report_what_visits"));
-		else if(report.getReportParams().getWhat().equals(StatsManager.WHAT_EVENTS))
-			fileName = getFileName(msgs.getString("report_what_events"));
-		else 
-			fileName = getFileName(msgs.getString("report_what_resources"));
-
-		FacesContext faces = FacesContext.getCurrentInstance();
-		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
-		ByteArrayOutputStream out = null;
-		OutputStream responseOut = null;
-		try{
-			// Setup a buffer to obtain the content length
-		    out = new ByteArrayOutputStream();
-		    
-		    ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();		    		    
-		    fopFactory.setURIResolver(new ServletContextURIResolver(servletContext));
-			
-			FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-	        // configure foUserAgent as desired
-			File burl = new File(servletContext.getRealPath("/"));
-			foUserAgent.setBaseURL("file://"+ burl.getParent()+"/library/");
-			
-			
-            // Construct fop with desired output format
-            Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);
-
-            // Setup XSLT
-            if(cachedXmlFoXSLT == null) {
-            	InputStream xslt = this.getClass().getResourceAsStream("/org/sakaiproject/sitestats/tool/util/"+XML_FO_XSL_FILE);
-            	TransformerFactory factory = TransformerFactory.newInstance();
-	            cachedXmlFoXSLT = factory.newTemplates(new StreamSource(xslt));
-            }
-            Transformer transformer = cachedXmlFoXSLT.newTransformer();
-        
-            // Setup input for XSLT transformation
-            Source src = new SAXSource(new ReportXMLReader(), new ReportInputSource(getReport()));
-        
-            // Resulting SAX events (the generated FO) must be piped through to FOP
-            Result res = new SAXResult(fop.getDefaultHandler());
-
-            // Start XSLT transformation and FOP processing
-            transformer.transform(src, res);
-    		
-    		// setup response
-    		protectAgainstInstantDeletion(response);
-    		response.setContentType(MimeConstants.MIME_PDF);
-    		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".pdf");
-    		response.setContentLength(out.size());
-    		
-    		// Send content to Browser
-    		responseOut = response.getOutputStream();
-    		responseOut.write(out.toByteArray());
-    		responseOut.flush();
-    	    
-		}catch(IOException e){
-			LOG.error("IOException while writing SiteStats PDF report", e);
-		}catch(TransformerConfigurationException e){
-			LOG.error("TransformerConfigurationException while writing SiteStats PDF report", e);
-		}catch(FOPException e){
-			LOG.error("FOPException while writing SiteStats PDF report", e);
-		}catch(TransformerException e){
-			LOG.error("TransformerException while writing SiteStats PDF report", e);
-		}finally{
-			try{
-				if(out != null) out.close();
-				if(responseOut != null) responseOut.close();
-			}catch(IOException e){
-				LOG.error("IOException while writing SiteStats PDF report", e);
-			}
-		}
-		faces.responseComplete();
-	}
-
-	/**
-	 * Constructs an excel workbook document representing the table
-	 * @param statsObjects The list of StatsEntry objects to include in the
-	 *            spreadsheet
-	 * @return The excel workbook
-	 */
-	private HSSFWorkbook getAsExcel(List statsObjects, String sheetName) {
-		HSSFWorkbook wb = new HSSFWorkbook();
-		HSSFSheet sheet = wb.createSheet(sheetName);
-		HSSFRow headerRow = sheet.createRow((short) 0);
-
-		// Add the column headers
-		headerRow.createCell((short) (0)).setCellValue(msgs.getString("th_id"));
-		headerRow.createCell((short) (1)).setCellValue(msgs.getString("th_user"));
-		if(!report.getReportParams().getWho().equals(StatsManager.WHO_NONE)) {
-			if(report.getReportParams().getWhat().equals(StatsManager.WHAT_RESOURCES)){
-				headerRow.createCell((short) (2)).setCellValue(msgs.getString("th_resource"));
-				headerRow.createCell((short) (3)).setCellValue(msgs.getString("th_action"));
-				headerRow.createCell((short) (4)).setCellValue(msgs.getString("th_date"));
-				headerRow.createCell((short) (5)).setCellValue(msgs.getString("th_total"));
-			}else{
-				headerRow.createCell((short) (2)).setCellValue(msgs.getString("th_event"));
-				headerRow.createCell((short) (3)).setCellValue(msgs.getString("th_date"));
-				headerRow.createCell((short) (4)).setCellValue(msgs.getString("th_total"));
-			}
-		}
-
-		// Fill the spreadsheet cells
-		Iterator i = statsObjects.iterator();
-		while (i.hasNext()){
-			HSSFRow row = sheet.createRow(sheet.getLastRowNum() + 1);
-			CommonStatGrpByDate se = (CommonStatGrpByDate) i.next();
-			// user name
-			String userId = se.getUserId();
-			String userEid = serviceBean.getUserDisplayId(userId);
-			row.createCell((short) 0).setCellValue(userEid);
-			String name = serviceBean.getUserDisplayName(userId);
-			row.createCell((short) 1).setCellValue(name);
-			if(!report.getReportParams().getWho().equals(StatsManager.WHO_NONE)) {
-				if(report.getReportParams().getWhat().equals(StatsManager.WHAT_RESOURCES)){
-					// resource name
-					row.createCell((short) 2).setCellValue(se.getRef());
-					// resource action
-					row.createCell((short) 3).setCellValue(se.getRefAction());
-					// most recent lastDate
-					row.createCell((short) 4).setCellValue(se.getDate().toString());
-					// total
-					row.createCell((short) 5).setCellValue(se.getCount());
-				}else{
-					// event name
-					row.createCell((short) 2).setCellValue(SST_sm.getEventName(se.getRef()));
-					// most recent lastDate
-					row.createCell((short) 3).setCellValue(se.getDate().toString());
-					// total
-					row.createCell((short) 4).setCellValue(se.getCount());
-				}
-			}
-		}
-
-		return wb;
-	}
-
-	/**
-	 * Constructs a string representing the table.
-	 * @param statsObjects The list of StatsEntry objects to include in the
-	 *            spreadsheet
-	 * @param sheetName The sheet name
-	 * @return The csv document
-	 */
-	private String getAsCsv(List statsObjects, String sheetName) {
-		StringBuffer sb = new StringBuffer();
-
-		// Add the headers
-		appendQuoted(sb, msgs.getString("th_id"));
-		sb.append(",");
-		appendQuoted(sb, msgs.getString("th_user"));
-		if(!report.getReportParams().getWho().equals(StatsManager.WHO_NONE)) {
-			sb.append(",");
-			if(report.getReportParams().getWhat().equals(StatsManager.WHAT_RESOURCES)){
-				appendQuoted(sb, msgs.getString("th_resource"));
-				sb.append(",");
-				appendQuoted(sb, msgs.getString("th_action"));
-			}else{
-				appendQuoted(sb, msgs.getString("th_event"));
-			}
-			sb.append(",");
-			appendQuoted(sb, msgs.getString("th_date"));
-			sb.append(",");
-			appendQuoted(sb, msgs.getString("th_total"));
-		}
-		sb.append("\n");
-
-		// Add the data
-		Iterator i = statsObjects.iterator();
-		while (i.hasNext()){
-			CommonStatGrpByDate se = (CommonStatGrpByDate) i.next();
-			// user id
-			String userId = se.getUserId();
-			String userEid = serviceBean.getUserDisplayId(userId);
-			appendQuoted(sb, userEid);
-			sb.append(",");
-			// user name
-			String name = serviceBean.getUserDisplayName(userId);
-			appendQuoted(sb, name);
-			if(!report.getReportParams().getWho().equals(StatsManager.WHO_NONE)) {
-				sb.append(",");
-				if(report.getReportParams().getWhat().equals(StatsManager.WHAT_RESOURCES)){
-					// resource name
-					appendQuoted(sb, se.getRef());
-					sb.append(",");
-					// resource action
-					appendQuoted(sb, se.getRefAction());
-					sb.append(",");
-				}else{
-					// event name
-					appendQuoted(sb, SST_sm.getEventName(se.getRef()));
-					sb.append(",");
-				}
-				// most recent lastDate
-				appendQuoted(sb, se.getDate().toString());
-				sb.append(",");
-				// total
-				appendQuoted(sb, Long.toString(se.getCount()));
-			}
-			sb.append("\n");
-		}
-		return sb.toString();
-	}
-
-	private StringBuffer appendQuoted(StringBuffer sb, String toQuote) {
-		if((toQuote.indexOf(',') >= 0) || (toQuote.indexOf('"') >= 0)){
-			String out = toQuote.replaceAll("\"", "\"\"");
-			if(LOG.isDebugEnabled()) LOG.debug("Turning '" + toQuote + "' to '" + out + "'");
-			sb.append("\"").append(out).append("\"");
-		}else{
-			sb.append(toQuote);
-		}
-		return sb;
-	}
-
-	/**
-	 * Gets the filename for the export
-	 * @param prefix Filenameprefix
-	 * @return The appropriate filename for the export
-	 */
-	private String getFileName(String prefix) {
-		Date now = new Date();
-		DateFormat df = new SimpleDateFormat(msgs.getString("export_filename_date_format"));
-		StringBuffer fileName = new StringBuffer(prefix);
-		fileName.append("-");
-		fileName.append(df.format(now));
-		return fileName.toString();
-	}
-
-	private void writeAsExcel(HSSFWorkbook wb, String fileName) {
+			sheetName = msgs.getString("report_what_resources");
+		
+		byte[] hssfWorkbookBytes = serviceBean.getSstReportManager().getReportAsExcel(report, sheetName);
 		FacesContext faces = FacesContext.getCurrentInstance();
 		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
 		protectAgainstInstantDeletion(response);
 		response.setContentType("application/vnd.ms-excel ");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xls");
+		response.setHeader("Content-disposition", "attachment; filename=" + sheetName + ".xls");
 
 		OutputStream out = null;
 		try{
 			out = response.getOutputStream();
-			// For some reason, you can't write the byte[] as in the csv export.
-			// You need to write directly to the output stream from the
-			// workbook.
-			wb.write(out);
+			out.write(hssfWorkbookBytes);
 			out.flush();
 		}catch(IOException e){
 			LOG.error(e);
@@ -1003,12 +543,21 @@ public class ReportsBean {
 		faces.responseComplete();
 	}
 
-	private void writeAsCsv(String csvString, String fileName) {
+	public void processExportCSV(ActionEvent event) {
+		String name = null;
+		if(report.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
+			name = msgs.getString("report_what_visits");
+		else if(report.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS))
+			name = msgs.getString("report_what_events");
+		else 
+			name = msgs.getString("report_what_resources");
+		
+		String csvString = serviceBean.getSstReportManager().getReportAsCsv(report); 
 		FacesContext faces = FacesContext.getCurrentInstance();
 		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
 		protectAgainstInstantDeletion(response);
 		response.setContentType("text/comma-separated-values");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".csv");
+		response.setHeader("Content-disposition", "attachment; filename=" + name + ".csv");
 		response.setContentLength(csvString.length());
 		OutputStream out = null;
 		try{
@@ -1027,6 +576,55 @@ public class ReportsBean {
 			}
 		}
 		faces.responseComplete();
+	}
+	
+	public void processExportPDF(ActionEvent event) {
+		String fileName = null;
+		if(report.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
+			fileName = getFileName(msgs.getString("report_what_visits"));
+		else if(report.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS))
+			fileName = getFileName(msgs.getString("report_what_events"));
+		else 
+			fileName = getFileName(msgs.getString("report_what_resources"));
+
+		byte[] pdf = serviceBean.getSstReportManager().getReportAsPDF(report);
+		FacesContext faces = FacesContext.getCurrentInstance();
+		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
+		protectAgainstInstantDeletion(response);
+		response.setContentType("application/pdf");
+		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".pdf");
+		response.setContentLength(pdf.length);		
+		OutputStream out = null;
+		try{
+			out = response.getOutputStream();
+			out.write(pdf);
+			out.flush();
+		}catch(IOException e){
+			LOG.error(e);
+			e.printStackTrace();
+		}finally{
+			try{
+				if(out != null) out.close();
+			}catch(IOException e){
+				LOG.error(e);
+				e.printStackTrace();
+			}
+		}
+		faces.responseComplete();
+	}
+
+	/**
+	 * Gets the filename for the export
+	 * @param prefix Filenameprefix
+	 * @return The appropriate filename for the export
+	 */
+	private String getFileName(String prefix) {
+		Date now = new Date();
+		DateFormat df = new SimpleDateFormat(msgs.getString("export_filename_date_format"));
+		StringBuffer fileName = new StringBuffer(prefix);
+		fileName.append("-");
+		fileName.append(df.format(now));
+		return fileName.toString();
 	}
 
 	/**
@@ -1055,7 +653,7 @@ public class ReportsBean {
 	}
 		
 	private boolean isToolSupported(ToolInfo toolInfo) {
-		if(SST_sm.isEventContextSupported()) {
+		if(serviceBean.getSstStatsManager().isEventContextSupported()) {
 			return true;
 		} else {
 			EventParserTip parserTip = toolInfo.getEventParserTip();

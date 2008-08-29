@@ -47,6 +47,7 @@ import org.sakaiproject.sitestats.api.Authz;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
+import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
@@ -80,6 +81,7 @@ public class ServiceBean {
 	private transient TimeService			M_time				= null;
 	private transient Authz					SST_authz			= null;
 	private transient StatsManager			SST_sm				= null;
+	private transient ReportManager			SST_rm				= null;
 	private transient StatsUpdateManager	SST_sum				= null;
 
 	private Site							site				= null;
@@ -95,6 +97,13 @@ public class ServiceBean {
 	}
 	public StatsManager getSstStatsManager() {
 		return SST_sm;
+	}
+	
+	public void setSstReportManager(ReportManager sstReportManager) {
+		this.SST_rm = sstReportManager;
+	}
+	public ReportManager getSstReportManager() {
+		return SST_rm;
 	}
 	
 	public void setSstStatsUpdateManager(StatsUpdateManager sstStatsUpdateManager) {

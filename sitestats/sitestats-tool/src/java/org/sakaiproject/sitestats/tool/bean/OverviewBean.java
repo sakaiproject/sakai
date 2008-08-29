@@ -92,12 +92,11 @@ public class OverviewBean {
 	private SummaryActivityTotals				summaryActivityTotals	= null;
 
 	/** Utility */
-	private final Map<Integer, String>	weekDaysMap				= new HashMap<Integer, String>();
-	private final Map<Integer, String>	monthNamesMap			= new HashMap<Integer, String>();
+	private final Map<Integer, String>			weekDaysMap				= new HashMap<Integer, String>();
+	private final Map<Integer, String>			monthNamesMap			= new HashMap<Integer, String>();
 
 	/** Benas, Services */
 	private transient ServiceBean				serviceBean				= null;
-	private transient StatsManager				SST_sm					= null;
 
 	/** Other */
 	private String								previousSiteId			= "";
@@ -110,7 +109,6 @@ public class OverviewBean {
 	// ######################################################################################	
 	public void setServiceBean(ServiceBean serviceBean){
 		this.serviceBean = serviceBean;
-		this.SST_sm = serviceBean.getSstStatsManager();
 	}	
 	
 	// ######################################################################################
@@ -124,7 +122,7 @@ public class OverviewBean {
 			siteId = serviceBean.getSiteId();
 		if(prefsdata == null || prefsLastModified < serviceBean.getPreferencesLastModified() || !previousSiteId.equals(siteId)){
 			previousSiteId = siteId;
-			prefsdata = SST_sm.getPreferences(siteId, false);
+			prefsdata = serviceBean.getSstStatsManager().getPreferences(siteId, false);
 			prefsLastModified = serviceBean.getPreferencesLastModified();
 		}
 		return prefsdata;
@@ -208,7 +206,7 @@ public class OverviewBean {
 		plot.setForegroundAlpha(getPrefsdata(params.getSiteId()).getChartTransparency());
 		
 		// set background
-		chart.setBackgroundPaint(parseColor(SST_sm.getChartBackgroundColor()));
+		chart.setBackgroundPaint(parseColor(serviceBean.getSstStatsManager().getChartBackgroundColor()));
 		
 		// set chart border
 		chart.setPadding(new RectangleInsets(10,5,5,5));
@@ -276,8 +274,8 @@ public class OverviewBean {
 		plot.setForegroundAlpha(getPrefsdata(params.getSiteId()).getChartTransparency());
 		
 		// set background
-		chart.setBackgroundPaint(parseColor(SST_sm.getChartBackgroundColor()));
-		plot.setBackgroundPaint(parseColor(SST_sm.getChartBackgroundColor()));
+		chart.setBackgroundPaint(parseColor(serviceBean.getSstStatsManager().getChartBackgroundColor()));
+		plot.setBackgroundPaint(parseColor(serviceBean.getSstStatsManager().getChartBackgroundColor()));
 		
 		// fix border offset		
 		chart.setPadding(new RectangleInsets(5,5,5,5));
@@ -305,7 +303,7 @@ public class OverviewBean {
 		BufferedImage img = imgR.createImage(params.getChartWidth(), params.getChartHeight());
 		Graphics2D g2d = img.createGraphics();
 		
-		g2d.setBackground(parseColor(SST_sm.getChartBackgroundColor()));
+		g2d.setBackground(parseColor(serviceBean.getSstStatsManager().getChartBackgroundColor()));
 		g2d.clearRect(0, 0, params.getChartWidth()-1, params.getChartHeight()-1);
 		g2d.setColor(parseColor("#cccccc"));
 		g2d.drawRect(0, 0, params.getChartWidth()-1, params.getChartHeight()-1);
@@ -334,7 +332,7 @@ public class OverviewBean {
 	
 	private DefaultCategoryDataset getVisitsWeekDataSet(ChartParamsBean params) {
 //		LOG.info("Generating visitsWeekDataSet");
-		SummaryVisitsChartData svc = SST_sm.getSummaryVisitsChartData(params.getSiteId(), StatsManager.VIEW_WEEK);
+		SummaryVisitsChartData svc = serviceBean.getSstStatsManager().getSummaryVisitsChartData(params.getSiteId(), StatsManager.VIEW_WEEK);
 		if(svc == null) return null;
 		visitsWeekDataSet = new DefaultCategoryDataset();
 		String visits = msgs.getString("legend_visits");
@@ -356,7 +354,7 @@ public class OverviewBean {
 	
 	private DefaultCategoryDataset getVisitsMonthDataSet(ChartParamsBean params) {
 //		LOG.info("Generating visitsMonthDataSet");
-		SummaryVisitsChartData svc = SST_sm.getSummaryVisitsChartData(params.getSiteId(), StatsManager.VIEW_MONTH);
+		SummaryVisitsChartData svc = serviceBean.getSstStatsManager().getSummaryVisitsChartData(params.getSiteId(), StatsManager.VIEW_MONTH);
 		if(svc == null) return null;
 		visitsMonthDataSet = new DefaultCategoryDataset();
 		String visits = msgs.getString("legend_visits");
@@ -385,7 +383,7 @@ public class OverviewBean {
 	
 	private DefaultCategoryDataset getVisitsYearDataSet(ChartParamsBean params) {
 //		LOG.info("Generating visitsYearDataSet");
-		SummaryVisitsChartData svc = SST_sm.getSummaryVisitsChartData(params.getSiteId(), StatsManager.VIEW_YEAR);
+		SummaryVisitsChartData svc = serviceBean.getSstStatsManager().getSummaryVisitsChartData(params.getSiteId(), StatsManager.VIEW_YEAR);
 		if(svc == null) return null;
 		visitsYearDataSet = new DefaultCategoryDataset();
 		String visits = msgs.getString("legend_visits");
@@ -407,7 +405,7 @@ public class OverviewBean {
 	
 	private DefaultPieDataset getActivityWeekPieDataSet(ChartParamsBean params) {
 //		LOG.info("Generating activityWeekPieDataSet");
-		SummaryActivityChartData sac = SST_sm.getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_WEEK, StatsManager.CHATTYPE_PIE);
+		SummaryActivityChartData sac = serviceBean.getSstStatsManager().getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_WEEK, StatsManager.CHATTYPE_PIE);
 		if(sac == null) return null;
 		activityWeekPieDataSet = fillActivityPieDataSet(sac);
 		return activityWeekPieDataSet;
@@ -415,7 +413,7 @@ public class OverviewBean {
 	
 	private DefaultPieDataset getActivityMonthPieDataSet(ChartParamsBean params) {
 //		LOG.info("Generating activityMonthPieDataSet");
-		SummaryActivityChartData sac = SST_sm.getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_MONTH, StatsManager.CHATTYPE_PIE);
+		SummaryActivityChartData sac = serviceBean.getSstStatsManager().getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_MONTH, StatsManager.CHATTYPE_PIE);
 		if(sac == null) return null;
 		activityMonthPieDataSet = fillActivityPieDataSet(sac);
 		return activityMonthPieDataSet;
@@ -423,7 +421,7 @@ public class OverviewBean {
 	
 	private DefaultPieDataset getActivityYearPieDataSet(ChartParamsBean params) {
 //		LOG.info("Generating activityYearPieDataSet");
-		SummaryActivityChartData sac = SST_sm.getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_YEAR, StatsManager.CHATTYPE_PIE);
+		SummaryActivityChartData sac = serviceBean.getSstStatsManager().getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_YEAR, StatsManager.CHATTYPE_PIE);
 		if(sac == null) return null;
 		activityYearPieDataSet = fillActivityPieDataSet(sac);
 		return activityYearPieDataSet;
@@ -464,7 +462,7 @@ public class OverviewBean {
 	
 	private DefaultCategoryDataset getActivityWeekBarDataSet(ChartParamsBean params) {
 //		LOG.info("Generating activityWeekBarDataSet");
-		SummaryActivityChartData sac = SST_sm.getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_WEEK, StatsManager.CHATTYPE_BAR);
+		SummaryActivityChartData sac = serviceBean.getSstStatsManager().getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_WEEK, StatsManager.CHATTYPE_BAR);
 		if(sac == null) return null;
 		activityWeekBarDataSet = new DefaultCategoryDataset();
 		String activity = msgs.getString("legend_activity");
@@ -483,7 +481,7 @@ public class OverviewBean {
 	
 	private DefaultCategoryDataset getActivityMonthBarDataSet(ChartParamsBean params) {
 //		LOG.info("Generating activityMonthBarDataSet");
-		SummaryActivityChartData sac = SST_sm.getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_MONTH, StatsManager.CHATTYPE_BAR);
+		SummaryActivityChartData sac = serviceBean.getSstStatsManager().getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_MONTH, StatsManager.CHATTYPE_BAR);
 		if(sac == null) return null;
 		activityMonthBarDataSet = new DefaultCategoryDataset();
 		String activity = msgs.getString("legend_activity");
@@ -509,7 +507,7 @@ public class OverviewBean {
 	
 	private DefaultCategoryDataset getActivityYearBarDataSet(ChartParamsBean params) {
 //		LOG.info("Generating activityYearBarDataSet");
-		SummaryActivityChartData sac = SST_sm.getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_YEAR, StatsManager.CHATTYPE_BAR);
+		SummaryActivityChartData sac = serviceBean.getSstStatsManager().getSummaryActivityChartData(params.getSiteId(), StatsManager.VIEW_YEAR, StatsManager.CHATTYPE_BAR);
 		if(sac == null) return null;
 		activityYearBarDataSet = new DefaultCategoryDataset();
 		String activity = msgs.getString("legend_activity");
@@ -532,12 +530,12 @@ public class OverviewBean {
 	// Summary tables methods
 	// ######################################################################################
 	public SummaryVisitsTotals getSummaryVisitsTotals(){
-		summaryVisitsTotals = SST_sm.getSummaryVisitsTotals(serviceBean.getSiteId());
+		summaryVisitsTotals = serviceBean.getSstStatsManager().getSummaryVisitsTotals(serviceBean.getSiteId());
 		return summaryVisitsTotals;
 	}
 	
 	public SummaryActivityTotals getSummaryActivityTotals(){
-		summaryActivityTotals = SST_sm.getSummaryActivityTotals(serviceBean.getSiteId());//, getPrefsdata());
+		summaryActivityTotals = serviceBean.getSstStatsManager().getSummaryActivityTotals(serviceBean.getSiteId());//, getPrefsdata());
 		return summaryActivityTotals;
 	}
 	

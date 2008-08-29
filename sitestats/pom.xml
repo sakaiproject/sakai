@@ -30,7 +30,7 @@
   <!-- Project versions -->
   <properties>
     <commons-digester.version>1.6</commons-digester.version>
-    <fop.version>0.93</fop.version>
+    <fop.version>0.94</fop.version>
     <poi.version>2.0-final-20040126</poi.version>
     <myfaces.version>1.1.5</myfaces.version>
     <tomahawk.version>1.1.6</tomahawk.version>

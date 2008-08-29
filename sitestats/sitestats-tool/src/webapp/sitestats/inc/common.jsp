@@ -18,5 +18,5 @@
 
 <%/* #####  BUNDLE  ##### */%>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.sitestats.tool.bundle.Messages"/>
+   <jsp:setProperty name="msgs" property="baseName" value="Messages"/>
 </jsp:useBean>

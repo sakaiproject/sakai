@@ -29,7 +29,6 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.tree2.TreeNode;
-import org.apache.myfaces.custom.tree2.TreeNodeBase;
 import org.sakaiproject.sitestats.api.EventInfo;
 import org.sakaiproject.sitestats.api.EventParserTip;
 import org.sakaiproject.sitestats.api.PrefsData;
@@ -68,7 +67,6 @@ public class PrefsBean extends InitializableBean {
 
 	/** Statistics Manager object */
 	private transient ServiceBean		serviceBean					= null;
-	private transient StatsManager		SST_sm						= null;
 	private transient MessageHandler	messageHandler				= null;
 	
 	
@@ -77,7 +75,6 @@ public class PrefsBean extends InitializableBean {
 	// ######################################################################################	
 	public void setServiceBean(ServiceBean serviceBean){
 		this.serviceBean = serviceBean;
-		this.SST_sm = serviceBean.getSstStatsManager();
 	}
 	
 	public void setMessageHandler(MessageHandler messageHandler) {
@@ -88,7 +85,7 @@ public class PrefsBean extends InitializableBean {
 		String siteId = serviceBean.getSiteId();
 		if(prefsdata == null || !previousSiteId.equals(siteId)){
 			previousSiteId = siteId;
-			prefsdata = SST_sm.getPreferences(siteId, true);
+			prefsdata = serviceBean.getSstStatsManager().getPreferences(siteId, true);
 		}
 		return prefsdata;
 	}
@@ -125,10 +122,10 @@ public class PrefsBean extends InitializableBean {
 	}
 		
 	private boolean isToolSupported(ToolInfo toolInfo) {
-		if(SST_sm.isEventContextSupported()) {
+		if(serviceBean.getSstStatsManager().isEventContextSupported()) {
 			return true;
 		} else {
-			List<ToolInfo> siteTools = SST_sm.getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
+			List<ToolInfo> siteTools = serviceBean.getSstStatsManager().getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
 			Iterator<ToolInfo> i = siteTools.iterator();
 			while(i.hasNext()) {
 				ToolInfo t = i.next();
@@ -179,13 +176,13 @@ public class PrefsBean extends InitializableBean {
 			while(iToolNodes.hasNext()){
 				ToolNodeBase toolNB = iToolNodes.next();
 				if(toolNB.isSelected()){
-					ToolInfo toolInfo = SST_sm.getToolFactory().createTool(toolNB.getIdentifier());
+					ToolInfo toolInfo = serviceBean.getSstStatsManager().getToolFactory().createTool(toolNB.getIdentifier());
 					toolInfo.setSelected(true);
 					Iterator<ToolNodeBase> iEventNodes = toolNB.getChildren().iterator();
 					while(iEventNodes.hasNext()){
 						ToolNodeBase eventNB = iEventNodes.next();
 						if(eventNB.isSelected()){
-							EventInfo eventInfo = SST_sm.getEventFactory().createEvent(eventNB.getIdentifier());
+							EventInfo eventInfo = serviceBean.getSstStatsManager().getEventFactory().createEvent(eventNB.getIdentifier());
 							eventInfo.setSelected(true);
 							toolInfo.addEvent(eventInfo);
 						}
@@ -195,7 +192,7 @@ public class PrefsBean extends InitializableBean {
 			}		
 			getPrefsdata().setToolEventsDef(newToolEventPrefs);
 		}
-		boolean opOk = SST_sm.setPreferences(serviceBean.getSiteId(), prefsdata);		
+		boolean opOk = serviceBean.getSstStatsManager().setPreferences(serviceBean.getSiteId(), prefsdata);		
 		if(opOk){
 			serviceBean.setPreferencesModified();
 			messageHandler.addInfoMessage(CLIENT_ID, msgs.getString("prefs_updated"));			
