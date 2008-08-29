@@ -218,11 +218,6 @@
       <version>1.2</version>
     </dependency>
     <dependency>
-      <groupId>commons-resources</groupId>
-      <artifactId>commons-resources</artifactId>
-      <version>0.1-dev</version>
-    </dependency>
-    <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
       <version>1.0.2</version>

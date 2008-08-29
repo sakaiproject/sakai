@@ -283,14 +283,6 @@
 			</properties>
 		</dependency>
 		<dependency>
-			<groupId>commons-resources</groupId>
-			<artifactId>commons-resources</artifactId>
-			<version>0.1-dev</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
 			<version>1.0.2</version>
