@@ -4,7 +4,7 @@
   <name>Sakai SiteStats</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sitestats-base</artifactId>
-  <version>1.2-SNAPSHOT</version><!-- sitestats.version --> 
+  <version>1.2</version><!-- sitestats.version --> 
   
   <description>SiteStats is a tool for Sakai for showing site usage statistics.</description>
   <url>http://bugs.sakaiproject.org/confluence/display/STAT</url>
@@ -119,9 +119,9 @@
   
   <!-- Source code repository location -->
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</developerConnection>
-    <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/?root=contrib</url>
+    <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/tags/sitestats_1-2</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/tags/sitestats_1-2</developerConnection>
+    <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/?root=contrib/tags/sitestats_1-2?root=contrib</url>
   </scm>
 
   
