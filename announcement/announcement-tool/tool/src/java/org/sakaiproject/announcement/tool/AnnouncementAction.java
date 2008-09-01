@@ -92,8 +92,6 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.ContextualUserDisplayService;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.MergedList;
@@ -219,7 +217,7 @@ public class AnnouncementAction extends PagedResourceActionII
    private ContentHostingService contentHostingService = null;
    
    private AssignmentService assignmentService = null;
-
+   
 	/**
 	 * Used by callback to convert channel references to channels.
 	 */
@@ -365,8 +363,6 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		private String range;
 		
-		private String authorDisplayName;
-		
 		public AnnouncementMessage getMessage()
 		{
 			return this.announcementMesssage;
@@ -412,18 +408,6 @@ public class AnnouncementAction extends PagedResourceActionII
 			else
 			{
 				this.channelDisplayName = "";
-			}
-
-			// TODO Let's not retrieve the service for each and every message....
-			ContextualUserDisplayService contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
-			User author = message.getAnnouncementHeader().getFrom();
-			if ((site != null) && (!this.editable) && (contextualUserDisplayService != null))
-			{
-				this.authorDisplayName = contextualUserDisplayService.getUserDisplayName(author, site.getReference());
-			}
-			if (this.authorDisplayName == null)
-			{
-				this.authorDisplayName = author.getDisplayName();
 			}
 
 			if (range != null)
@@ -632,11 +616,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		public AnnouncementMessageHeader getAnnouncementHeader()
 		{
 			return announcementMesssage.getAnnouncementHeader();
-		}
-		
-		public String getAuthorDisplayName()
-		{
-			return authorDisplayName;
 		}
 
 		/**

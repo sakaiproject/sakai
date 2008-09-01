@@ -259,8 +259,7 @@
 								</h4>	
 							</td>
 							<td headers="author">
-##								$validator.escapeHtml($ann_item.Header.From.DisplayName)
-								$validator.escapeHtml($ann_item.AuthorDisplayName)
+								$validator.escapeHtml($ann_item.Header.From.DisplayName)
 							</td>
 							#if ($SiteColumnFlag > 0)
 								<td headers="channel">
