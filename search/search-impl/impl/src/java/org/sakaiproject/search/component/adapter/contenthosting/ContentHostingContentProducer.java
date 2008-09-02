@@ -581,11 +581,17 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			if ( ref.length() > "/content".length() && contentHostingService.isInDropbox(ref.substring("/content".length())) ) {
 					return false;
 			}
+			// filter out assignemt attachements
+			String[] parts = ref.split("/");
+			if ( parts.length > 4 && ContentHostingService.ATTACHMENTS_COLLECTION.equals("/"+parts[2]+"/") && "Assignments".equals(parts[4]) ) {
+				return false;
+			}
 			
 			Reference reference = entityManager.newReference(ref);
 			
+			String r = reference.getId();
 
-			contentResource = contentHostingService.getResource(reference.getId());
+			contentResource = contentHostingService.getResource(r);
 			if (contentResource == null || contentResource.isCollection() )
 			{
 				return false;
