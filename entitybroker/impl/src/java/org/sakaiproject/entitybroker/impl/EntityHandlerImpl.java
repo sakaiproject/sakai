@@ -798,7 +798,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
      * Will choose whichever access provider is currently available to handle the request
      * @return true if there is an access provider, false otherwise
      */
-    @SuppressWarnings("deprecation")
     private boolean handleAccessProvider(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         // no special handling so send on to the standard access provider if one can be found
         EntityViewAccessProvider evAccessProvider = entityViewAccessProviderManager.getProvider(view.getEntityReference().getPrefix());

@@ -188,7 +188,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(html);
          assertTrue(html.length() > 20);
          assertTrue(html.contains(TestData.PREFIX6));
-         assertTrue(html.contains(TestData.PREFIX6 + "-collection"));
+         assertTrue(html.contains(TestData.PREFIX6 + "_collection"));
          assertTrue(html.contains(TestData.IDS6[0]));
          assertTrue(html.contains(TestData.IDS6[1]));
          assertTrue(html.contains(TestData.IDS6[2]));
@@ -207,7 +207,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(html);
          assertTrue(html.length() > 20);
          assertTrue(html.contains(TestData.PREFIX6));
-         assertTrue(html.contains(TestData.PREFIX6 + "-collection"));
+         assertTrue(html.contains(TestData.PREFIX6 + "_collection"));
          assertTrue(html.contains(TestData.IDS6[0]));
          assertTrue(html.contains(TestData.IDS6[1]));
          assertTrue(html.contains(TestData.IDS6[2]));

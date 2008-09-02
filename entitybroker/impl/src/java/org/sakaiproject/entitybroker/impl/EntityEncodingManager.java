@@ -68,7 +68,7 @@ public class EntityEncodingManager {
     private static Log log = LogFactory.getLog(EntityEncodingManager.class);
 
     private static final String ENTITY_PREFIX = "entityPrefix";
-    private static final String COLLECTION = "-collection";
+    private static final String COLLECTION = "_collection";
     public static final String[] HANDLED_INPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
     public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
 
