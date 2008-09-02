@@ -11,7 +11,7 @@
 					</generator>
 		</id>
        <property name="access" type="java.lang.String" not-null="true" unique-key="uniqueAccessItem">
-            <column name="access" />
+            <column name="ITEM_ACCESS" />
         </property>
         
          <!--  This maps to the ASSIGNMENT_MODEL_ANSWER_ITEM_T table -->
