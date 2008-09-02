@@ -1,4 +1,4 @@
-package org.sakaiproject.sitestats.api.event.parser;
+package org.sakaiproject.sitestats.api.parser;
 
 public interface EventParserTip {
 

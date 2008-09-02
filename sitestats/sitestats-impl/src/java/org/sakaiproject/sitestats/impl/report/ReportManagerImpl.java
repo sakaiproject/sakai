@@ -44,6 +44,7 @@ import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportFormattedParams;
@@ -77,6 +78,7 @@ public class ReportManagerImpl implements ReportManager {
 
 	/** Sakai services */
 	private StatsManager			M_sm;
+	private EventRegistryService	M_ers;
 	private SiteService				M_ss;
 	private UserDirectoryService	M_uds;
 	private ContentHostingService	M_chs;
@@ -89,6 +91,10 @@ public class ReportManagerImpl implements ReportManager {
 	// ################################################################
 	public void setStatsManager(StatsManager statsManager) {
 		this.M_sm = statsManager;
+	}
+
+	public void setEventRegistryService(EventRegistryService eventRegistryService) {
+		this.M_ers = eventRegistryService;
 	}
 	
 	public void setSiteService(SiteService siteService) {
@@ -129,7 +135,7 @@ public class ReportManagerImpl implements ReportManager {
 
 		}else if(params.getWhat().equals(ReportManager.WHAT_EVENTS)){
 			if(params.getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
-				Iterator<ToolInfo> iT = M_sm.getSiteToolEventsDefinition(siteId, prefsdata.isListToolEventsOnlyAvailableInSite()).iterator();
+				Iterator<ToolInfo> iT = M_ers.getEventRegistry(siteId, prefsdata.isListToolEventsOnlyAvailableInSite()).iterator();
 				while (iT.hasNext()){
 					ToolInfo t = iT.next();
 					if(params.getWhatToolIds().contains(t.getToolId())){
@@ -293,7 +299,7 @@ public class ReportManagerImpl implements ReportManager {
 					row.createCell((short) 5).setCellValue(se.getCount());
 				}else{
 					// event name
-					row.createCell((short) 2).setCellValue(M_sm.getEventName(se.getRef()));
+					row.createCell((short) 2).setCellValue(M_ers.getEventName(se.getRef()));
 					// most recent lastDate
 					row.createCell((short) 3).setCellValue(se.getDate().toString());
 					// total
@@ -362,7 +368,7 @@ public class ReportManagerImpl implements ReportManager {
 					sb.append(",");
 				}else{
 					// event name
-					appendQuoted(sb, M_sm.getEventName(se.getRef()));
+					appendQuoted(sb, M_ers.getEventName(se.getRef()));
 					sb.append(",");
 				}
 				// most recent lastDate
@@ -471,7 +477,7 @@ public class ReportManagerImpl implements ReportManager {
 	}
 
 	private boolean isAnonymousEvent(String eventId) {
-		for(ToolInfo ti : M_sm.getAllToolEventsDefinition()){
+		for(ToolInfo ti : M_ers.getEventRegistry()){
 			for(EventInfo ei : ti.getEvents()){
 				if(ei.getEventId().equals(eventId)){
 					return ei.isAnonymous();
@@ -587,11 +593,11 @@ public class ReportManagerImpl implements ReportManager {
 					StringBuffer buff = new StringBuffer();
 					for(int i=0; i<list.size() - 1; i++){
 						String toolId = list.get(i);
-						buff.append(M_sm.getToolName(toolId));
+						buff.append(M_ers.getToolName(toolId));
 						buff.append(", ");
 					}
 					String toolId = list.get(list.size() - 1);
-					buff.append(M_sm.getToolName(toolId));
+					buff.append(M_ers.getToolName(toolId));
 					return buff.toString();
 				}else{
 					// events
@@ -599,11 +605,11 @@ public class ReportManagerImpl implements ReportManager {
 					StringBuffer buff = new StringBuffer();
 					for(int i=0; i<list.size() - 1; i++){
 						String eventId = list.get(i);
-						buff.append(M_sm.getEventName(eventId));
+						buff.append(M_ers.getEventName(eventId));
 						buff.append(", ");
 					}
 					String eventId = list.get(list.size() - 1);
-					buff.append(M_sm.getEventName(eventId));
+					buff.append(M_ers.getEventName(eventId));
 					return buff.toString();
 				}
 			}else{

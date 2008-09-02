@@ -33,7 +33,7 @@ import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.event.parser.EventParserTip;
+import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.tool.jsf.InitializableBean;
 import org.sakaiproject.sitestats.tool.util.ToolNodeBase;
 import org.sakaiproject.util.ResourceLoader;
@@ -125,7 +125,7 @@ public class PrefsBean extends InitializableBean {
 		if(serviceBean.getSstStatsManager().isEventContextSupported()) {
 			return true;
 		} else {
-			List<ToolInfo> siteTools = serviceBean.getSstStatsManager().getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
+			List<ToolInfo> siteTools = serviceBean.getSstEventRegistryService().getEventRegistry(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
 			Iterator<ToolInfo> i = siteTools.iterator();
 			while(i.hasNext()) {
 				ToolInfo t = i.next();
@@ -176,13 +176,13 @@ public class PrefsBean extends InitializableBean {
 			while(iToolNodes.hasNext()){
 				ToolNodeBase toolNB = iToolNodes.next();
 				if(toolNB.isSelected()){
-					ToolInfo toolInfo = serviceBean.getSstStatsManager().getToolFactory().createTool(toolNB.getIdentifier());
+					ToolInfo toolInfo = serviceBean.getSstEventRegistryService().getToolFactory().createTool(toolNB.getIdentifier());
 					toolInfo.setSelected(true);
 					Iterator<ToolNodeBase> iEventNodes = toolNB.getChildren().iterator();
 					while(iEventNodes.hasNext()){
 						ToolNodeBase eventNB = iEventNodes.next();
 						if(eventNB.isSelected()){
-							EventInfo eventInfo = serviceBean.getSstStatsManager().getEventFactory().createEvent(eventNB.getIdentifier());
+							EventInfo eventInfo = serviceBean.getSstEventRegistryService().getEventFactory().createEvent(eventNB.getIdentifier());
 							eventInfo.setSelected(true);
 							toolInfo.addEvent(eventInfo);
 						}

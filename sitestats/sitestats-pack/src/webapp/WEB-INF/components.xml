@@ -72,6 +72,7 @@
 		<!-- Sakai services -->
 		<property name="autoDdl" value="${auto.ddl}"/>
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -91,6 +92,28 @@
 	</bean>
 	
 	
+	<!-- EventRegistryService ______________________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.event.EventRegistryService"
+		class="org.sakaiproject.sitestats.impl.event.EventRegistryServiceImpl"
+		lazy-init="true"
+		init-method="init"
+		singleton="true">
+		
+		<!-- Event Registries -->
+		<property name="fileEventRegistry">
+			<bean class="org.sakaiproject.sitestats.impl.event.FileEventRegistry"/>
+		</property>
+		<property name="entityBrokerEventRegistry">
+			<bean class="org.sakaiproject.sitestats.impl.event.EntityBrokerEventRegistry"/>
+		</property>
+		
+		<!-- Sakai services -->
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+	</bean>	
+	
+	
 	<!-- ReportManager ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.report.ReportManager"
 		class="org.sakaiproject.sitestats.impl.report.ReportManagerImpl"
@@ -98,6 +121,7 @@
 		
 		<!-- Sakai services -->
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/>
@@ -131,6 +155,7 @@
 		<!-- Sakai services -->
 		<property name="sessionFactory" ref ="#{sitestats.db}SitestatsSessionFactory" />
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />

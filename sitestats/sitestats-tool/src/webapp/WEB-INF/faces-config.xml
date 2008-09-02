@@ -139,6 +139,10 @@
 			<value>#{org_sakaiproject_sitestats_api_StatsManager}</value>
 		</managed-property>
 		<managed-property>
+			<property-name>sstEventRegistryService</property-name>
+			<value>#{org_sakaiproject_sitestats_api_event_EventRegistryService}</value>
+		</managed-property>
+		<managed-property>
 			<property-name>sstReportManager</property-name>
 			<value>#{org_sakaiproject_sitestats_api_report_ReportManager}</value>
 		</managed-property>

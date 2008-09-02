@@ -2,7 +2,7 @@ package org.sakaiproject.sitestats.api.event;
 
 import java.util.List;
 
-import org.sakaiproject.sitestats.api.event.parser.EventParserTip;
+import org.sakaiproject.sitestats.api.parser.EventParserTip;
 
 
 public interface ToolInfo {

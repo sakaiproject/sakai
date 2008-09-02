@@ -9,6 +9,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.time.api.TimeService;
@@ -30,6 +31,7 @@ public class ReportXMLReader extends AbstractObjectReader {
 	private ToolManager				M_tm		= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private UserDirectoryService	M_uds		= (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
 	private StatsManager			M_sm		= (StatsManager) ComponentManager.get(StatsManager.class.getName());
+	private EventRegistryService	M_ers		= (EventRegistryService) ComponentManager.get(EventRegistryService.class.getName());
 	private ReportManager			M_rm		= (ReportManager) ComponentManager.get(ReportManager.class.getName());
 
 
@@ -192,7 +194,7 @@ public class ReportXMLReader extends AbstractObjectReader {
 		            handler.element("resourceimg", "library://" + M_sm.getResourceImageLibraryRelativePath(cs.getRef()));	            	
 	            }else{
 	            	String eventRef = cs.getRef();
-	            	handler.element("event", M_sm.getEventName(eventRef == null? "" : eventRef));
+	            	handler.element("event", M_ers.getEventName(eventRef == null? "" : eventRef));
 	            }
 	            
 	            // last date

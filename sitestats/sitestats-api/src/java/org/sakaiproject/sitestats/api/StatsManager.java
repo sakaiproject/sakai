@@ -24,43 +24,36 @@ import java.util.Map;
 
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.event.parser.EventFactory;
-import org.sakaiproject.sitestats.api.event.parser.ToolFactory;
+import org.sakaiproject.sitestats.api.parser.EventFactory;
+import org.sakaiproject.sitestats.api.parser.ToolFactory;
 
 
 public interface StatsManager {
-	public final static String	TOOL_EVENTS_DEF_FILE		= "toolEventsDef.xml";
-	public final static int		PREFS_OVERVIEW_PAGE			= 0;
-	public final static int		PREFS_EVENTS_PAGE			= 1;
-	public final static int		PREFS_RESOURCES_PAGE		= 2;
-	public final static String	SEPARATOR					= "/";
-	public final static String	SITEVISIT_EVENTID			= "pres.begin";
-	public final static String	RESOURCE_EVENTID_PREFIX		= "content.";
-	public final static String	SITESTATS_TOOLID			= "sakai.sitestats";
-	public final static String	RESOURCES_TOOLID			= "sakai.resources";
-	public final static String	PARSERTIP_FOR_CONTEXTID		= "contextId";
-	public static final String	VIEW_WEEK					= "week";
-	public static final String	VIEW_MONTH					= "month";
-	public static final String	VIEW_YEAR					= "year";
-	public static final String MONTHLY_LOGIN_REPORT = "monthlyLogin";
-	public static final String WEEKLY_LOGIN_REPORT = "weeklyLogin";
-    public static final String DAILY_LOGIN_REPORT = "dailyLogin";
-    public static final String REGULAR_USERS_REPORT = "regularUsers";
-    public static final String HOURLY_USAGE_REPORT = "hourlyUsage";
-    public static final String TOP_ACTIVITIES_REPORT = "topActivities";
-    public static final String TOOL_REPORT = "toolReport";
-	public static final String	CHATTYPE_BAR				= "bar";
-	public static final String	CHATTYPE_PIE				= "pie";
+	public final static int		PREFS_OVERVIEW_PAGE		= 0;
+	public final static int		PREFS_EVENTS_PAGE		= 1;
+	public final static int		PREFS_RESOURCES_PAGE	= 2;
+	public final static String	SEPARATOR				= "/";
+	public final static String	SITEVISIT_EVENTID		= "pres.begin";
+	public final static String	RESOURCE_EVENTID_PREFIX	= "content.";
+	public final static String	SITESTATS_TOOLID		= "sakai.sitestats";
+	public final static String	RESOURCES_TOOLID		= "sakai.resources";
+	public final static String	PARSERTIP_FOR_CONTEXTID	= "contextId";
+	public static final String	VIEW_WEEK				= "week";
+	public static final String	VIEW_MONTH				= "month";
+	public static final String	VIEW_YEAR				= "year";
+	public static final String	MONTHLY_LOGIN_REPORT	= "monthlyLogin";
+	public static final String	WEEKLY_LOGIN_REPORT		= "weeklyLogin";
+	public static final String	DAILY_LOGIN_REPORT		= "dailyLogin";
+	public static final String	REGULAR_USERS_REPORT	= "regularUsers";
+	public static final String	HOURLY_USAGE_REPORT		= "hourlyUsage";
+	public static final String	TOP_ACTIVITIES_REPORT	= "topActivities";
+	public static final String	TOOL_REPORT				= "toolReport";
+	public static final String	CHATTYPE_BAR			= "bar";
+	public static final String	CHATTYPE_PIE			= "pie";
 	
 	// ################################################################
 	// Spring bean methods
-	// ################################################################
-	public String getToolEventsDefinitionFile();
-	
-	public String getToolEventsAddDefinitionFile();
-	
-	public String getToolEventsRemoveDefinitionFile();
-		
+	// ################################################################		
 	public boolean isEnableSiteVisits();
 	
 	public boolean isEnableSiteActivity();
@@ -80,49 +73,19 @@ public interface StatsManager {
 	public boolean isServerWideStatsEnabled();
 	
 	// ################################################################
-	// Registered/configured events 
+	// Preferences
 	// ################################################################
-	/** Get a list of all tool events definition (org.sakaiproject.sitestats.api.ToolInfo objects)
-	 *  configured for this Sakai installation. */
-	public List<ToolInfo> getAllToolEventsDefinition();
-	
-	/** Get a list of all event ids. */
-	public List<String> getAllToolEventIds();
-	
-	/** Get a list of all tool events definition (org.sakaiproject.sitestats.api.ToolInfo objects)
-	 *  configured for this Sakai installation. This list is intersected with tools available
-	 *  on this Sakai installation and, optionally (if set by parameter), also intersected with the available
-	 *  tools in site. */
-	public List<ToolInfo> getSiteToolEventsDefinition(String siteId, boolean onlyAvailableInSite);
-	
-	/** Get the event id for the site visit event. */ 
-	public String getSiteVisitEventId();
-	
 	/** Gets SiteStats preferences for a specific site. This list is intersected with tools available
 	 *  on this Sakai installation and, optionally (if set by site), also intersected with the available
 	 *  tools in site. */
 	public PrefsData getPreferences(String siteId, boolean includeUnselected);
 	/** Sets SiteStats preferences for a specific site. */
-	public boolean setPreferences(String siteId, PrefsData prefsdata);	
-	
-	/** Helper method for parsing tool event definition xml */
-	public ToolFactory getToolFactory();	
-	/** Helper method for parsing tool event definition xml */
-	public EventFactory getEventFactory();
+	public boolean setPreferences(String siteId, PrefsData prefsdata);
 	
 	
 	// ################################################################
 	// Maps
 	// ################################################################
-	/** Get the tool name for a given tool id. */
-	public String getToolName(String toolId);
-	
-	/** Get the event name for a given event id. */
-	public String getEventName(String eventId);
-	
-	/** Get the event tool mapping (event id <-> tool mapping). */
-	public Map<String, ToolInfo> getEventIdToolMap();
-	
 	/** Get the resource name from a reference */
 	public String getResourceName(String ref);
 	

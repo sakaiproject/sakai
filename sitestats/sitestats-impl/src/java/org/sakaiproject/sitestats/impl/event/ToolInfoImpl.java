@@ -9,8 +9,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.event.parser.EventParserTip;
-import org.sakaiproject.sitestats.impl.event.parser.ToolFactoryImpl;
+import org.sakaiproject.sitestats.api.parser.EventParserTip;
+import org.sakaiproject.sitestats.impl.parser.ToolFactoryImpl;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 

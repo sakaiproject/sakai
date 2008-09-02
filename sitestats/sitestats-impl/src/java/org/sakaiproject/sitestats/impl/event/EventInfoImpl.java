@@ -2,7 +2,9 @@ package org.sakaiproject.sitestats.impl.event;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -37,7 +39,9 @@ public class EventInfoImpl implements EventInfo {
 	 */
 	public String getEventName() {
 		try{
-			eventName = msgs.getString(getEventId(), getEventId());
+			EventRegistryService M_ers = (EventRegistryService) ComponentManager.get(EventRegistryService.class);
+			//eventName = msgs.getString(getEventId(), getEventId());
+			eventName = M_ers.getEventName(getEventId());
 		}catch(RuntimeException e){
 			eventName = getEventId().trim();
 			LOG.info("No translation found for eventId: " + eventId.trim() + ". Please specify it in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/");

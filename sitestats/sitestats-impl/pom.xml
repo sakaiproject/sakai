@@ -75,6 +75,10 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-memory-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-content-api</artifactId>
     </dependency>
     <dependency>

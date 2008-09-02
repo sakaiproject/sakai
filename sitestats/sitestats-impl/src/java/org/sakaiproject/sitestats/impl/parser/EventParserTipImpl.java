@@ -1,6 +1,6 @@
-package org.sakaiproject.sitestats.impl.event.parser;
+package org.sakaiproject.sitestats.impl.parser;
 
-import org.sakaiproject.sitestats.api.event.parser.EventParserTip;
+import org.sakaiproject.sitestats.api.parser.EventParserTip;
 
 public class EventParserTipImpl implements EventParserTip {
 	private String forWhat;

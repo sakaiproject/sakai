@@ -18,24 +18,18 @@
  **********************************************************************************/
 package org.sakaiproject.sitestats.impl;
 
-import java.beans.PropertyDescriptor;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.MissingResourceException;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,10 +51,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.Prefs;
@@ -74,26 +65,17 @@ import org.sakaiproject.sitestats.api.SummaryActivityChartData;
 import org.sakaiproject.sitestats.api.SummaryActivityTotals;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
-import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.event.parser.EventFactory;
-import org.sakaiproject.sitestats.api.event.parser.ToolFactory;
-import org.sakaiproject.sitestats.api.report.Report;
-import org.sakaiproject.sitestats.api.report.ReportManager;
-import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.impl.event.EventUtil;
 import org.sakaiproject.sitestats.impl.event.ToolInfoImpl;
-import org.sakaiproject.sitestats.impl.event.parser.EventFactoryImpl;
-import org.sakaiproject.sitestats.impl.event.parser.EventParserTipFactoryImpl;
-import org.sakaiproject.sitestats.impl.event.parser.ToolFactoryImpl;
-import org.sakaiproject.sitestats.impl.report.ReportImpl;
+import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -104,17 +86,13 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class StatsManagerImpl extends HibernateDaoSupport implements StatsManager {
 	private Log							LOG										= LogFactory.getLog(StatsManagerImpl.class);
-	private static ResourceLoader		msgs									= new ResourceLoader("Events");
-
+	
 	/** Spring bean members */
 	private boolean						enableSiteVisits						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("display.users.present", false)
 																					|| org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("presence.events.log", false);
 	private boolean                     enableSiteActivity						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("enableSiteActivity@org.sakaiproject.sitestats.api.StatsManager", true);
 	private boolean 				    visitsInfoAvailable						= enableSiteVisits; //org.sakaiproject.component.cover.ServerConfigurationService.getBoolean( "display.users.present", true);
 	private boolean						enableServerWideStats				= false;
-	private String						customToolEventsDefinitionFile			= null;
-	private String						customToolEventsAddDefinitionFile		= null;
-	private String						customToolEventsRemoveDefinitionFile	= null;
 	private String						chartBackgroundColor					= "white";
 	private boolean						chartIn3D								= true;
 	private float						chartTransparency						= 0.80f;
@@ -123,12 +101,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private boolean						isEventContextSupported					= false;
 
 	/** Controller fields */
-	private List<ToolInfo>				toolEventsDefinition					= null;
-	private List<String>				toolEventIds							= null;
-	private Map<String,ToolInfo>		eventIdToolMap;
 	private boolean						showAnonymousEvents						= false;
 
 	/** Sakai services */
+	private EventRegistryService		M_ers;
 	private SqlService					M_sql;
 	private boolean						autoDdl;
 	private UserDirectoryService		M_uds;
@@ -141,30 +117,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	// ################################################################
 	// Spring bean methods
 	// ################################################################
-	public void setToolEventsDefinitionFile(String file) {
-		customToolEventsDefinitionFile = file;
-	}
-	
-	public String getToolEventsDefinitionFile() {
-		return customToolEventsDefinitionFile;
-	}
-	
-	public void setToolEventsAddDefinitionFile(String file) {
-		customToolEventsAddDefinitionFile = file;
-	}
-	
-	public String getToolEventsAddDefinitionFile() {
-		return customToolEventsAddDefinitionFile;
-	}
-	
-	public void setToolEventsRemoveDefinitionFile(String file) {
-		customToolEventsRemoveDefinitionFile = file;
-	}
-	
-	public String getToolEventsRemoveDefinitionFile() {
-		return customToolEventsRemoveDefinitionFile;
-	}
-	
 	public void setEnableSiteVisits(boolean enableSiteVisits) {
 		this.enableSiteVisits = enableSiteVisits;
 	}
@@ -195,8 +147,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public boolean isVisitsInfoAvailable(){
 		return this.visitsInfoAvailable;
 	}
-	
-	
 	
 	public void setChartBackgroundColor(String color) {
 		this.chartBackgroundColor = color;
@@ -242,6 +192,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return lastJobRunDateVisible;
 	}
 
+	public void setEventRegistryService(EventRegistryService eventRegistryService) {
+		this.M_ers = eventRegistryService;
+	}
+
 	public void setAutoDdl(boolean autoDdl) {
 		this.autoDdl = autoDdl;
 	}
@@ -284,203 +238,18 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		// Checks whether Event.getContext is implemented in Event (from Event API)
 		checkForEventContextSupport();
 		
-		// Load events definition file
-		loadToolEventsDefinitionFile();
-		
 		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
 							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);		
-	}
-	
-
-	// ################################################################
-	// Registered/configured events
-	// ################################################################
-	private void loadToolEventsDefinitionFile() {
-		boolean loadedCustomDefFile = false;
-		
-		// user-specified tool events definition
-		if(customToolEventsDefinitionFile != null) {
-			File customDefs = new File(customToolEventsDefinitionFile);
-			if(customDefs.exists()){
-				try{
-					logger.info("init(): - loading custom tool events definitions from: " + customDefs.getAbsolutePath());
-					toolEventsDefinition = parseToolEventsDefinition(new FileInputStream(customDefs));
-					loadedCustomDefFile = true;
-				}catch(Throwable t){
-					logger.warn("init(): - trouble loading tool events definitions from : " + customDefs.getAbsolutePath(), t);
-				}
-			}else {
-				logger.warn("init(): - custom tool events definitions file not found: "+customDefs.getAbsolutePath());
-			}
-		}
-		
-		// default tool events definition
-		if(!loadedCustomDefFile){
-			ClassPathResource defaultDefs = new ClassPathResource("org/sakaiproject/sitestats/config/"+TOOL_EVENTS_DEF_FILE);
-			try{
-				logger.info("init(): - loading default tool events definitions from: " + defaultDefs.getPath()+". A custom one for adding/removing events can be specified in sakai.properties with the property: toolEventsDefinitionFile@org.sakaiproject.sitestats.api.StatsManager=${sakai.home}/toolEventsdef.xml.");
-				toolEventsDefinition = parseToolEventsDefinition(defaultDefs.getInputStream());
-				loadedCustomDefFile = true;
-			}catch(Throwable t){
-				logger.error("init(): - trouble loading default tool events definitions from : " + defaultDefs.getPath(), t);
-			}
-		}
-		
-		// add user-specified tool
-		List<ToolInfo> additions = null;
-		if(customToolEventsAddDefinitionFile != null) {
-			File customDefs = new File(customToolEventsAddDefinitionFile);
-			if(customDefs.exists()){
-				try{
-					logger.info("init(): - loading custom tool additions from: " + customDefs.getAbsolutePath());
-					additions = parseToolEventsDefinition(new FileInputStream(customDefs));
-					loadedCustomDefFile = true;
-				}catch(Throwable t){
-					logger.warn("init(): - trouble loading custom tool additions from : " + customDefs.getAbsolutePath(), t);
-				}
-			}else {
-				logger.warn("init(): - custom tool additions file not found: "+customDefs.getAbsolutePath());
-			}
-		}
-		if(additions != null)
-			addToToolEventsDefinition(additions);
-
-		// remove user-specified tool and/or events
-		List<ToolInfo> removals = null;
-		if(customToolEventsRemoveDefinitionFile != null) {
-			File customDefs = new File(customToolEventsRemoveDefinitionFile);
-			if(customDefs.exists()){
-				try{
-					logger.info("init(): - loading custom tool removals from: " + customDefs.getAbsolutePath());
-					removals = parseToolEventsDefinition(new FileInputStream(customDefs));
-					loadedCustomDefFile = true;
-				}catch(Throwable t){
-					logger.warn("init(): - trouble loading custom tool removals from : " + customDefs.getAbsolutePath(), t);
-				}
-			}else {
-				logger.warn("init(): - custom tool removals file not found: "+customDefs.getAbsolutePath());
-			}
-		}
-		if(removals != null)
-			removeFromToolEventsDefinition(removals);
-		
-		
-		// debug: print resulting list
-//		LOG.info("-------- Printing resulting toolEventsDefinition list:");
-//		Iterator<ToolInfo> iT = toolEventsDefinition.iterator();
-//		while(iT.hasNext()) LOG.info(iT.next().toString());
-//		LOG.info("------------------------------------------------------");
-	}
-	
-	private List<ToolInfo> parseToolEventsDefinition(InputStream input) throws Exception{
-		Digester digester = new Digester();
-        digester.setValidating(false);
-        
-        digester = configureToolEventsDefDigester("", digester);
-
-        // eventParserTip tag
-        EventParserTipFactoryImpl eventParserTipFactoryImpl = new EventParserTipFactoryImpl();
-        digester.addFactoryCreate("toolEventsDef/tool/eventParserTip", eventParserTipFactoryImpl);
-        digester.addSetNestedProperties("toolEventsDef/tool/eventParserTip");
-        digester.addSetNext("toolEventsDef/tool/eventParserTip", "setEventParserTip" );
-        
-        return (List<ToolInfo>)digester.parse( input );
-	}
-	
-	private Digester configureToolEventsDefDigester(String prefix, Digester digester) {        
-        // root
-        digester.addObjectCreate(prefix + "toolEventsDef", ArrayList.class );
-
-        // tool tag
-        ToolFactoryImpl toolFactory = new ToolFactoryImpl();
-        digester.addFactoryCreate(prefix + "toolEventsDef/tool", toolFactory);
-        //digester.addSetProperties(prefix + "toolEventsDef/tool" );
-        digester.addBeanPropertySetter(prefix + "toolEventsDef/tool/toolId", "toolId" );
-        digester.addBeanPropertySetter(prefix + "toolEventsDef/tool/additionalToolIds", "additionalToolIdsStr" );
-        digester.addBeanPropertySetter(prefix + "toolEventsDef/tool/selected", "selected" );
-        digester.addSetNext(prefix + "toolEventsDef/tool", "add" );
-
-        // event tag
-        EventFactoryImpl eventFactoryImpl = new EventFactoryImpl();
-        digester.addFactoryCreate(prefix + "toolEventsDef/tool/event", eventFactoryImpl);
-//        digester.addSetProperties(prefix + "toolEventsDef/tool/event" );
-        digester.addBeanPropertySetter(prefix + "toolEventsDef/tool/event/eventId", "eventId" );
-        digester.addBeanPropertySetter(prefix + "toolEventsDef/tool/event/selected", "selected" );
-        digester.addBeanPropertySetter(prefix + "toolEventsDef/tool/event/anonymous", "anonymous" );
-        digester.addSetNext(prefix + "toolEventsDef/tool/event", "addEvent" );
-        
-        return digester;
-	}
-	
-	private Digester configurePrefsDigester(Digester digester) {        
-        // prefs root
-        digester.addObjectCreate("prefs", PrefsDataImpl.class );
-        digester.addSetProperties("prefs" );
-        digester.addBeanPropertySetter("prefs/listToolEventsOnlyAvailableInSite", "setListToolEventsOnlyAvailableInSite" );
-        digester.addBeanPropertySetter("prefs/chartIn3D", "setChartIn3D" );
-        digester.addBeanPropertySetter("prefs/chartTransparency", "setChartTransparency" );
-        digester.addBeanPropertySetter("prefs/itemLabelsVisible", "setItemLabelsVisible" );
-        
-        // prefs tag
-//        RoleFactory roleFactory = new RoleFactory();
-//        digester.addObjectCreate("prefs/rolesForActivity", ArrayList.class );
-//        digester.addFactoryCreate("prefs/rolesForActivity/role", roleFactory );
-//        digester.addSetNext("prefs/rolesForActivity/role", "add" );
-//        digester.addSetNext("prefs/rolesForActivity", "setRolesForActivity" );
-
-        // toolEventsDef
-        digester = configureToolEventsDefDigester("prefs/", digester);
-        digester.addSetNext("prefs/toolEventsDef", "setToolEventsDef" );
-        
-        
-        return digester;
 	}
 	
 	private PrefsData parseSitePrefs(InputStream input) throws Exception{
 		Digester digester = new Digester();
         digester.setValidating(false);
         
-        digester = configurePrefsDigester(digester);
+        digester = DigesterUtil.configurePrefsDigester(digester);
         
         return (PrefsData) digester.parse( input );
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getAllToolEventsDefinition()
-	 */
-	public List<ToolInfo> getAllToolEventsDefinition() {
-		return toolEventsDefinition;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getSiteToolEventsDefinition(java.lang.String, boolean)
-	 */
-	public List<ToolInfo> getSiteToolEventsDefinition(String siteId, boolean onlyAvailableInSite) {
-		if(onlyAvailableInSite)
-			return getIntersectionWithAvailableToolsInSite(getAllToolEventsDefinition(), siteId);
-		else
-			return getIntersectionWithAvailableToolsInSakaiInstallation(getAllToolEventsDefinition());
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getSiteVisitEventId()
-	 */
-	public String getSiteVisitEventId() {
-		return SITEVISIT_EVENTID;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getAllToolEventIds()
-	 */
-	public List<String> getAllToolEventIds(){
-		if(toolEventIds == null){
-			toolEventIds = new ArrayList<String>();
-			Iterator<String> i = getEventIdToolMap().keySet().iterator();
-			while(i.hasNext())
-				toolEventIds.add(i.next());
-		}
-		return toolEventIds;
-	}	
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getPreferences(java.lang.String, boolean)
@@ -507,7 +276,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(prefs == null){
 				// get default list
 				prefsdata = new PrefsDataImpl();
-				prefsdata.setToolEventsDef(toolEventsDefinition);
+				prefsdata.setToolEventsDef(M_ers.getEventRegistry());
 			}else{
 				try{
 					// parse from stored preferences
@@ -516,23 +285,23 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					// something failed, use default
 					LOG.warn("Exception in parseSitePrefs() ",e);
 					prefsdata = new PrefsDataImpl();
-					prefsdata.setToolEventsDef(toolEventsDefinition);
+					prefsdata.setToolEventsDef(M_ers.getEventRegistry());
 				}
 			}
 			
 			if(includeUnselected){
 				// include unselected tools/events (for Preferences listing)
-				prefsdata.setToolEventsDef(getUnionWithAllDefaultToolEvents(prefsdata.getToolEventsDef()));
+				prefsdata.setToolEventsDef(EventUtil.getUnionWithAllDefaultToolEvents(prefsdata.getToolEventsDef(), M_ers.getEventRegistry()));
 			}
 			if(prefsdata.isListToolEventsOnlyAvailableInSite()){
 				// intersect with tools available in site
-				prefsdata.setToolEventsDef(getIntersectionWithAvailableToolsInSite(prefsdata.getToolEventsDef(), siteId));
+				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSite(prefsdata.getToolEventsDef(), siteId));
 			}else{
 				// intersect with tools available in sakai installation
-				prefsdata.setToolEventsDef(getIntersectionWithAvailableToolsInSakaiInstallation(prefsdata.getToolEventsDef()));
+				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(prefsdata.getToolEventsDef()));
 			}
 
-			prefsdata.setToolEventsDef(addMissingAdditionalToolIds(prefsdata.getToolEventsDef()));
+			prefsdata.setToolEventsDef(EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), M_ers.getEventRegistry()));
 
 			return prefsdata;
 		}		
@@ -573,209 +342,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 	}
 	
-	private List<ToolInfo> addMissingAdditionalToolIds(List<ToolInfo> list) {
-		List<ToolInfo> fullList = getAllToolEventsDefinition();				
-		Iterator<ToolInfo> i = list.iterator();
-		while(i.hasNext()) {
-			ToolInfo t = i.next();
-			int ix = fullList.indexOf(new ToolInfoImpl(t.getToolId()));
-			t.setAdditionalToolIds(fullList.get(ix).getAdditionalToolIds());
-		}
-		return list;
-	}
-	
-	private List<ToolInfo> getIntersectionWithAvailableToolsInSite(List<ToolInfo> toolEventsDefinition, String siteId){
-		List<ToolInfo> intersected = new ArrayList<ToolInfo>();
-		Site site = null;
-		try{
-			site = M_ss.getSite(siteId);
-		}catch(IdUnusedException e){
-			LOG.warn("Inexistent site for site id: "+siteId, e);
-			return toolEventsDefinition;
-		}
-
-		// search the pages
-		List<ToolConfiguration> siteTools = new ArrayList<ToolConfiguration>();
-		for (Iterator iPages = site.getPages().iterator(); iPages.hasNext();) {
-			SitePage page = (SitePage) iPages.next();
-			siteTools.addAll(page.getTools());
-		}
-		
-		// add only tools in both lists
-		Iterator<ToolInfo> iTED = toolEventsDefinition.iterator();
-		while(iTED.hasNext()){
-			ToolInfo t = iTED.next();
-			Iterator<ToolConfiguration> iST = siteTools.iterator();
-			while(iST.hasNext()){
-				ToolConfiguration tc = iST.next(); 
-				if(tc.getToolId().equals(t.getToolId())){
-					intersected.add(t);
-					break;
-				}
-			}
-		}
-		
-		return intersected;
-	}
-	
-	private List<ToolInfo> getIntersectionWithAvailableToolsInSakaiInstallation(List<ToolInfo> toolEventsDefinition){
-		List<ToolInfo> intersected = new ArrayList<ToolInfo>();
-
-		// search the pages
-		List<org.sakaiproject.tool.api.Tool> sakaiTools = new ArrayList<org.sakaiproject.tool.api.Tool>();
-		sakaiTools.addAll(M_tm.findTools(null, null));
-		
-		// add only tools in both lists
-		Iterator<ToolInfo> iTED = toolEventsDefinition.iterator();
-		while(iTED.hasNext()){
-			ToolInfo t = iTED.next();
-			Iterator<org.sakaiproject.tool.api.Tool> iST = sakaiTools.iterator();
-			while(iST.hasNext()){
-				org.sakaiproject.tool.api.Tool tc = iST.next(); 
-				if(tc.getId().equals(t.getToolId())){
-					intersected.add(t);
-					break;
-				}
-			}
-		}
-		
-		return intersected;
-	}
-	
-	private List<ToolInfo> getUnionWithAllDefaultToolEvents(List<ToolInfo> toolEventsDefinition) {
-		List<ToolInfo> union = new ArrayList<ToolInfo>();
-
-		// add only tools in default list, as unselected
-		Iterator<ToolInfo> iAll = getAllToolEventsDefinition().iterator();
-		while(iAll.hasNext()){
-			ToolInfo t1 = iAll.next();
-			Iterator<ToolInfo> iPREFS = toolEventsDefinition.iterator();
-			boolean foundTool = false;
-			ToolInfo t2 = null;
-			while(iPREFS.hasNext()){
-				t2 = iPREFS.next(); 
-				if(t2.getToolId().equals(t1.getToolId())){
-					foundTool = true;
-					break;
-				}
-			}
-			if(!foundTool){
-				// tool not found, add as unselected
-				ToolInfo toAdd = t1;
-				toAdd.setSelected(false);
-				for(int i=0; i<toAdd.getEvents().size(); i++)
-					toAdd.getEvents().get(i).setSelected(false);
-				union.add(toAdd);
-			}else{
-				// tool found, add missing events as unselected
-				Iterator<EventInfo> aPREFS = t1.getEvents().iterator();
-				while(aPREFS.hasNext()){
-					EventInfo e1 = aPREFS.next();
-					boolean foundEvent = false;
-					for(int i=0; i<t2.getEvents().size(); i++){
-						EventInfo e2 = t2.getEvents().get(i);
-						if(e2.getEventId().equals(e1.getEventId())){
-							foundEvent = true;
-							break;
-						}
-					}
-					if(!foundEvent){
-						EventInfo toAdd = e1;
-						e1.setSelected(false);
-						t2.addEvent(toAdd);
-					}
-				}
-				union.add(t2);
-			}
-		}
-		return union;
-	}
-	
-	private void addToToolEventsDefinition(List<ToolInfo> additions) {
-		List<ToolInfo> toBeAdded = new ArrayList<ToolInfo>();
-		
-		// iterate ADD list, add tool if not found in DEFAULT list
-		Iterator<ToolInfo> iADDS = additions.iterator();
-		while(iADDS.hasNext()){
-			ToolInfo newTool = iADDS.next();
-			Iterator<ToolInfo> iAll = toolEventsDefinition.iterator();
-			boolean foundTool = false;
-			ToolInfo existingTool = null;
-			while(iAll.hasNext()){
-				existingTool = iAll.next(); 
-				if(existingTool.equals(newTool)){
-					foundTool = true;
-					break;
-				}
-			}
-			if(!foundTool){
-				// tool not found, add tool and its events
-				toBeAdded.add(newTool);
-			}else{
-				// tool found, add missing events
-				Iterator<EventInfo> newToolEvents = newTool.getEvents().iterator();
-				while(newToolEvents.hasNext()){
-					EventInfo newEvent = newToolEvents.next();
-					boolean foundEvent = false;
-					for(int i=0; i<existingTool.getEvents().size(); i++){
-						EventInfo existingEvent = existingTool.getEvents().get(i);
-						if(existingEvent.equals(newEvent)){
-							foundEvent = true;
-							break;
-						}
-					}
-					if(!foundEvent){
-						existingTool.addEvent(newEvent);
-					}
-				}
-			}
-		}
-		
-		toolEventsDefinition.addAll(toBeAdded);
-	}
-	
-	private void removeFromToolEventsDefinition(List<ToolInfo> removals) {
-		// iterate REMOVES list, remove tool if found in DEFAULT list
-		Iterator<ToolInfo> iREMOVES = removals.iterator();
-		while(iREMOVES.hasNext()){
-			ToolInfo delTool = iREMOVES.next();
-			Iterator<ToolInfo> iAll = toolEventsDefinition.iterator();
-			boolean foundTool = false;
-			ToolInfo existingTool = null;
-			while(iAll.hasNext()){
-				existingTool = iAll.next(); 
-				if(existingTool.getToolId().equals(delTool.getToolId())){
-					foundTool = true;
-					break;
-				}
-			}
-			if(foundTool){
-				// tool found
-				if(delTool.getEvents().size() == 0) {
-					// tool selected for removal, remove tool and its events
-					toolEventsDefinition.remove(existingTool);
-				} else {
-					// events selected for removal, remove events
-					Iterator<EventInfo> delToolEvents = delTool.getEvents().iterator();
-					while(delToolEvents.hasNext()){
-						EventInfo delEvent = delToolEvents.next();
-						boolean foundEvent = false;
-						for(int i=0; i<existingTool.getEvents().size(); i++){
-							EventInfo existingEvent = existingTool.getEvents().get(i);
-							if(existingEvent.getEventId().equals(delEvent.getEventId())){
-								foundEvent = true;
-								break;
-							}
-						}
-						if(foundEvent){
-							existingTool.removeEvent(delEvent);
-						}
-					}
-				}
-			}
-		}
-	}
-	
 	private List<String> getSiteUsers(String siteId) {
 		List<String> siteUserIds = new ArrayList<String>();
 		try{
@@ -786,72 +352,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return siteUserIds;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getToolFactory()
-	 */
-	public ToolFactory getToolFactory(){
-		return new ToolFactoryImpl();
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventFactory()
-	 */
-	public EventFactory getEventFactory(){
-		return new EventFactoryImpl();
-	}
-	
 	
 	
 	// ################################################################
 	// Maps
 	// ################################################################		
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventName(java.lang.String)
-	 */
-	public String getEventName(String eventId) {
-		if(eventId == null || eventId.trim().equals(""))
-			return "";
-		String eventName = null;
-		try{
-			eventName = msgs.getString(eventId, eventId);
-		}catch(MissingResourceException e){
-			LOG.warn("Missing resource bundle for event id: "+eventId, e);
-			eventName = eventId;
-		}		
-		return eventName;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getToolName(java.lang.String)
-	 */
-	public String getToolName(String toolId){
-		try{
-			return M_tm.getTool(toolId).getTitle();
-		}catch(Exception e){
-			return toolId;
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventToolMap()
-	 */
-	public Map<String, ToolInfo> getEventIdToolMap(){
-		if(eventIdToolMap == null){
-			eventIdToolMap = new HashMap<String, ToolInfo>();
-			Iterator<ToolInfo> i = getAllToolEventsDefinition().iterator();
-			while (i.hasNext()){
-				ToolInfo t = i.next();
-				Iterator<EventInfo> iE = t.getEvents().iterator();
-				while(iE.hasNext()){
-					EventInfo e = iE.next();
-					eventIdToolMap.put(e.getEventId(), t);
-				}
-			}
-		}
-		return eventIdToolMap;
-	}
-		
-	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceName(java.lang.String)
 	 */
@@ -2108,7 +1613,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					if(events != null && events.size() > 0)
 						q.setParameterList("eventlist", events);
 					else
-						q.setParameterList("eventlist", getAllToolEventIds());
+						q.setParameterList("eventlist", M_ers.getEventIds());
 					if(iDate != null)
 						q.setDate("idate", iDate);
 					if(fDate != null){
@@ -2203,7 +1708,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					if(events != null && events.size() > 0)
 						q.setParameterList("eventlist", events);
 					else
-						q.setParameterList("eventlist", getAllToolEventIds());
+						q.setParameterList("eventlist", M_ers.getEventIds());
 					if(iDate != null)
 						q.setDate("idate", iDate);
 					if(fDate != null){
@@ -2296,7 +1801,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					if(events != null && events.size() > 0)
 						q.setParameterList("eventlist", events);
 					else
-						q.setParameterList("eventlist", getAllToolEventIds());
+						q.setParameterList("eventlist", M_ers.getEventIds());
 					if(iDate != null)
 						q.setDate("idate", iDate);
 					if(fDate != null){
@@ -2310,9 +1815,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					List<Object[]> records = q.list();
 					List<SiteActivityByTool> results = new ArrayList<SiteActivityByTool>();
 					if(records.size() > 0){
-						Map<String,ToolInfo> eventIdToolMap = getEventIdToolMap();
+						Map<String,ToolInfo> eventIdToolMap = M_ers.getEventIdToolMap();
 						Map<String,SiteActivityByTool> toolidSABT = new HashMap<String, SiteActivityByTool>();
-						List<ToolInfo> allTools = getAllToolEventsDefinition();
+						List<ToolInfo> allTools = M_ers.getEventRegistry();
 						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
 							Object[] s = iter.next();
 							SiteActivityByTool c = new SiteActivityByToolImpl();
@@ -2378,7 +1883,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					if(events != null && events.size() > 0)
 						q.setParameterList("eventlist", events);
 					else
-						q.setParameterList("eventlist", getAllToolEventIds());
+						q.setParameterList("eventlist", M_ers.getEventIds());
 					if(iDate != null)
 						q.setDate("idate", iDate);
 					if(fDate != null){
@@ -2446,7 +1951,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					if(events != null && events.size() > 0)
 						q.setParameterList("eventlist", events);
 					else
-						q.setParameterList("eventlist", getAllToolEventIds());
+						q.setParameterList("eventlist", M_ers.getEventIds());
 					if(iDate != null)
 						q.setDate("idate", iDate);
 					if(fDate != null){

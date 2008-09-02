@@ -44,9 +44,9 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsAuthz;
-import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -81,6 +81,7 @@ public class ServiceBean {
 	private transient TimeService			M_time				= null;
 	private transient StatsAuthz			SST_authz			= null;
 	private transient StatsManager			SST_sm				= null;
+	private transient EventRegistryService	SST_ers				= null;
 	private transient ReportManager			SST_rm				= null;
 	private transient StatsUpdateManager	SST_sum				= null;
 
@@ -97,6 +98,13 @@ public class ServiceBean {
 	}
 	public StatsManager getSstStatsManager() {
 		return SST_sm;
+	}
+	
+	public void setSstEventRegistryService(EventRegistryService sstEventRegistryService) {
+		this.SST_ers = sstEventRegistryService;
+	}
+	public EventRegistryService getSstEventRegistryService() {
+		return SST_ers;
 	}
 	
 	public void setSstReportManager(ReportManager sstReportManager) {

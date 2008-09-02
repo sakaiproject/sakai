@@ -32,8 +32,9 @@ import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.event.parser.EventParserTip;
+import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
@@ -149,7 +150,7 @@ public class ReportsBean {
 	public List<SelectItem> getTools() {
 		List<SelectItem> tools = new ArrayList<SelectItem>();
 		
-		List<ToolInfo> siteTools = serviceBean.getSstStatsManager().getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
+		List<ToolInfo> siteTools = serviceBean.getSstEventRegistryService().getEventRegistry(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
 		Iterator<ToolInfo> i = siteTools.iterator();
 		while(i.hasNext()){
 			ToolInfo toolInfo = i.next();
@@ -163,7 +164,7 @@ public class ReportsBean {
 	public List<SelectItemGroup> getEvents() {
 		List<SelectItemGroup> tools = new ArrayList<SelectItemGroup>();
 		
-		List<ToolInfo> siteTools = serviceBean.getSstStatsManager().getSiteToolEventsDefinition(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
+		List<ToolInfo> siteTools = serviceBean.getSstEventRegistryService().getEventRegistry(serviceBean.getSiteId(), getPrefsdata().isListToolEventsOnlyAvailableInSite());
 		Iterator<ToolInfo> i = siteTools.iterator();
 		while(i.hasNext()){
 			ToolInfo toolInfo = i.next();
@@ -437,7 +438,7 @@ public class ReportsBean {
 
 	public void setSortAscending(boolean sortAscending) {
 		this.sortAscending = sortAscending;
-		Collections.sort(report.getReportData(), getReportDataComparator(getSortColumn(), sortAscending, collator, serviceBean.getSstStatsManager(), serviceBean.getUserDirectoryService()));
+		Collections.sort(report.getReportData(), getReportDataComparator(getSortColumn(), sortAscending, collator, serviceBean.getSstStatsManager(), serviceBean.getSstEventRegistryService(), serviceBean.getUserDirectoryService()));
 	}
 
 	public String getSortColumn() {
@@ -446,7 +447,7 @@ public class ReportsBean {
 
 	public void setSortColumn(String sortColumn) {
 		this.sortColumn = sortColumn;
-		Collections.sort(report.getReportData(), getReportDataComparator(sortColumn, isSortAscending(), collator, serviceBean.getSstStatsManager(), serviceBean.getUserDirectoryService()));
+		Collections.sort(report.getReportData(), getReportDataComparator(sortColumn, isSortAscending(), collator, serviceBean.getSstStatsManager(), serviceBean.getSstEventRegistryService(), serviceBean.getUserDirectoryService()));
 	}
 
 	// ######################################################################################
@@ -495,7 +496,7 @@ public class ReportsBean {
 			report = serviceBean.getSstReportManager().getReport(serviceBean.getSiteId(), prefsdata, reportParams);
 			setPagerFirstItem(0);
 			setPagerTotalItems(report.getReportData().size());
-			Collections.sort(report.getReportData(), getReportDataComparator(getSortColumn(), isSortAscending(), collator, serviceBean.getSstStatsManager(), serviceBean.getUserDirectoryService()));
+			Collections.sort(report.getReportData(), getReportDataComparator(getSortColumn(), isSortAscending(), collator, serviceBean.getSstStatsManager(), serviceBean.getSstEventRegistryService(), serviceBean.getUserDirectoryService()));
 			return "report-results";
 		}
 	}
@@ -673,7 +674,7 @@ public class ReportsBean {
 	}
 	
 	public static final Comparator<CommonStatGrpByDate> getReportDataComparator(final String fieldName, final boolean sortAscending, final Collator collator,
-			final StatsManager SST_sm, final UserDirectoryService M_uds) {
+			final StatsManager SST_sm, final EventRegistryService SST_ers, final UserDirectoryService M_uds) {
 		return new Comparator<CommonStatGrpByDate>() {
 
 			public int compare(CommonStatGrpByDate r1, CommonStatGrpByDate r2) {
@@ -691,8 +692,8 @@ public class ReportsBean {
 						if(sortAscending) return res;
 						else return -res;
 					}else if(fieldName.equals(SORT_EVENT)){
-						String s1 = SST_sm.getEventName(r1.getRef()).toLowerCase();
-						String s2 = SST_sm.getEventName(r2.getRef()).toLowerCase();
+						String s1 = SST_ers.getEventName(r1.getRef()).toLowerCase();
+						String s2 = SST_ers.getEventName(r2.getRef()).toLowerCase();
 						int res = collator.compare(s1, s2);
 						if(sortAscending) return res;
 						else return -res;
