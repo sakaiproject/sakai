@@ -564,7 +564,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		long totalSiteUniqueVisits = getTotalSiteUniqueVisits(siteId);
 		long totalSiteVisits = getTotalSiteVisits(siteId);
 		int totalSiteUsers = getTotalSiteUsers(siteId);
-		double percentageOfUsersThatVisitedSite = totalSiteUsers==0 ? 0 : (100 * totalSiteUniqueVisits) / totalSiteUsers;
+		double percentageOfUsersThatVisitedSite = totalSiteUsers==0 ? 0 : (100 * totalSiteUniqueVisits) / (double) totalSiteUsers;
 		svt.setTotalUniqueVisits(totalSiteUniqueVisits);
 		svt.setTotalVisits(totalSiteVisits);
 		svt.setTotalUsers(totalSiteUsers);
@@ -653,7 +653,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 		//LOG.info("siteVisits of [siteId:"+siteId+"] from ["+initialDate.toGMTString()+"] to ["+finalDate.toGMTString()+"]: "+siteVisits.toString());
 		svc.setSiteVisits(siteVisits);
-		return siteVisits.size() > 0? svc : null;
+		return (siteVisits != null && siteVisits.size() > 0)? svc : null;
 	}
 	
 	/* (non-Javadoc)
@@ -697,7 +697,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 			//LOG.info("siteActivity of [siteId:"+siteId+"] from ["+initialDate.toGMTString()+"] to ["+finalDate.toGMTString()+"]: "+siteActivity.toString());
 			sac.setSiteActivity(siteActivity);
-			return siteActivity.size() > 0? sac : null;
+			return (siteActivity != null && siteActivity.size() > 0)? sac : null;
 		}else{
 			List<SiteActivityByTool> siteActivityByTool = null;
 			if(VIEW_WEEK.equals(viewType)){
@@ -1429,7 +1429,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}
 					List<Object[]> res = q.list();
 					if(res.size() > 0) return res.get(0);
-					else return new Long(0);	
+					else return Long.valueOf(0);	
 				}
 			};
 			return ((Long) getHibernateTemplate().execute(hcb)).longValue();
@@ -1455,7 +1455,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					q.setString("siteid", siteId);
 					List<Object[]> res = q.list();
 					if(res.size() > 0) return res.get(0);
-					else return new Long(0);	
+					else return Long.valueOf(0);	
 				}
 			};
 			return ((Integer) getHibernateTemplate().execute(hcb)).longValue();
@@ -1499,7 +1499,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}
 					List<Object[]> res = q.list();
 					if(res.size() > 0) return res.get(0);
-					else return new Long(0);	
+					else return Long.valueOf(0);	
 				}
 			};
 			return ((Integer) getHibernateTemplate().execute(hcb)).longValue();
@@ -1964,7 +1964,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}
 					List<Object[]> res = q.list();
 					if(res.size() > 0) return res.get(0);
-					else return new Long(0);	
+					else return Long.valueOf(0);	
 				}
 			};
 			return ((Long) getHibernateTemplate().execute(hcb)).longValue();

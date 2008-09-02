@@ -294,10 +294,10 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			return "Unable to retrieve events due to: " + e.getMessage(); 
 		}
 		
-		if(firstEventIdProcessed == -1){
+		if(firstEventIdProcessed == -1 && jobRun != null){
 			LOG.warn("No events were returned - nothing to do.");
 			// no data was processed
-			long eventId = jobRun != null? jobRun.getEndEventId(): 0;
+			long eventId = jobRun.getEndEventId();
 			firstEventIdProcessed = eventId;
 			lastProcessedEventIdWithSuccess = eventId;
 			jobRun.setStartEventId(eventId);

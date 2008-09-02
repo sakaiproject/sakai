@@ -618,7 +618,7 @@ public class OverviewBean {
 		return Color.white;
 	}
 	
-	class Day implements Comparable<Object> {
+	static class Day implements Comparable<Object> {
 		private String dayLabel;
 		private int day;
 		public Day(int day, String dayLabel) {
@@ -640,7 +640,13 @@ public class OverviewBean {
 			else if(day > otherDay)
 				return 1;
 			else return 0;
-		}		
+		}
+		public boolean equals(Object obj) {
+			return compareTo(obj) == 0;
+		}	
+		public int hashCode() {
+			return getDay();
+		}
 	}
 	
 	private Map<Integer, String> getWeekDaysMap(){

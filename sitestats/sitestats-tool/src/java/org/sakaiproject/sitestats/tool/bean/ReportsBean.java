@@ -714,7 +714,7 @@ public class ReportsBean {
 						if(sortAscending) return res;
 						else return -res;
 					}else if(fieldName.equals(SORT_TOTAL)){
-						int res = new Long(r1.getCount()).compareTo(new Long(r2.getCount()));
+						int res = Long.valueOf(r1.getCount()).compareTo(Long.valueOf(r2.getCount()));
 						if(sortAscending) return res;
 						else return -res;
 					}

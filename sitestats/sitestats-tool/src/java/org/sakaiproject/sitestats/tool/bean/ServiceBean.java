@@ -301,7 +301,7 @@ public class ServiceBean {
 	
 	public boolean isAdminView(){
 		return M_tm.getCurrentTool().getId().equals("sakai.sitestats.admin")
-			&& (SecurityService.isSuperUser() || new Boolean(SST_authz.isUserAbleToViewSiteStats(M_tm.getCurrentPlacement().getContext())));
+			&& (SecurityService.isSuperUser() || SST_authz.isUserAbleToViewSiteStats(M_tm.getCurrentPlacement().getContext()));
 	}
 
 	public boolean isServerWideStatsEnabled() {

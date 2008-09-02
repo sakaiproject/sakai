@@ -433,11 +433,12 @@ public class ReportManagerImpl implements ReportManager {
 		}finally{
 			try{
 				if(out != null) out.close();
+				return out.toByteArray();
 			}catch(IOException e){
 				LOG.error("IOException while writing SiteStats PDF report", e);
 			}
 		}
-		return out.toByteArray();
+		return null;
 	}
 	
 

@@ -56,10 +56,6 @@ public class PrefsBean extends InitializableBean {
 	/** Activity events: UI behavior vars */
 	private TreeNode					treeData;
 
-	/** Faces message */
-	private boolean						showSuccessMessage			= false;
-	private boolean						showFatalMessage			= false;
-
 	/** Control vars */
 	private String						previousSiteId				= "";
 	private PrefsData					prefsdata					= null;
@@ -197,7 +193,6 @@ public class PrefsBean extends InitializableBean {
 			serviceBean.setPreferencesModified();
 			messageHandler.addInfoMessage(CLIENT_ID, msgs.getString("prefs_updated"));			
 		}else{
-			showFatalMessage = true;
 			messageHandler.addFatalMessage(CLIENT_ID, msgs.getString("prefs_not_updated"));
 		}
 		prefsdata = null;

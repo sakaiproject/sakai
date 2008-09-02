@@ -12,7 +12,6 @@ import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 public class SummaryVisitsChartDataImpl implements SummaryVisitsChartData {
 	private String				viewType		= null;
 	private Date				firstDay		= null;
-	private long				lastDayInMs		= new Date().getTime();
 	private long[]				visits			= null;
 	private long[]				uniqueVisits	= null;
 	private List<SiteVisits>	siteVisits		= null;

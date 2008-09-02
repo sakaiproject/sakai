@@ -66,11 +66,9 @@ public class SiteListBean implements Serializable {
 	private List					siteRows;
 	private String					siteId				= null;
 	private Site					site				= null;
-	private String					userId				= SessionManager.getCurrentSessionUserId();
-	private Tool					tool				= ToolManager.getCurrentTool();
-
+	
 	/** UI related */
-	private List<SelectItem>					siteTypes;
+	private List<SelectItem>		siteTypes;
 	private String					searchKeyword;
 	private String					selectedSiteType;
 	private int						totalItems			= 0;
@@ -81,9 +79,9 @@ public class SiteListBean implements Serializable {
 	private String					sortColumn			= COL_TITLE;
 
 	/** Manager APIs */
-	private ServiceBean				serviceBean			= null;
-	private SiteService				M_ss				= null;
-	private StatsAuthz					SST_authz			= null;
+	private transient ServiceBean	serviceBean			= null;
+	private transient SiteService	M_ss				= null;
+	private transient StatsAuthz	SST_authz			= null;
 	
 	
 	// ######################################################################################

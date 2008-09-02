@@ -98,7 +98,7 @@ public class EntityBrokerEventRegistry implements EventRegistry {
 	// ################################################################
 	// Utility Classes
 	// ################################################################
-	class EventLocaleKey {
+	static class EventLocaleKey {
 		String	eventId;
 		String	locale;
 
@@ -106,6 +106,22 @@ public class EntityBrokerEventRegistry implements EventRegistry {
 			this.eventId = eventId;
 			this.locale = locale;
 		}
+
+		public String getEventId() {
+			return eventId;
+		}
+
+		public void setEventId(String eventId) {
+			this.eventId = eventId;
+		}
+
+		public String getLocale() {
+			return locale;
+		}
+
+		public void setLocale(String locale) {
+			this.locale = locale;
+		}		
 	}
 
 }

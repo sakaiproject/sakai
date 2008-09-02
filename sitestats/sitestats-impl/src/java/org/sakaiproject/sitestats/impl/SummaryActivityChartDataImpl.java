@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.impl;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,7 +16,6 @@ public class SummaryActivityChartDataImpl implements SummaryActivityChartData {
 	private String						viewType			= null;
 	private String						chartType			= null;
 	private Date						firstDay			= null;
-	private long						lastDayInMs			= new Date().getTime();
 	private long[]						activity			= null;
 	private int							activityByToolTotal	= 0;
 	private List<SiteActivity>			siteActivity		= null;
@@ -163,7 +163,9 @@ public class SummaryActivityChartDataImpl implements SummaryActivityChartData {
 		return null;
 	}
 	
-	class SiteActivityByToolComparator implements Comparator<SiteActivityByTool> {
+	static class SiteActivityByToolComparator implements Comparator<SiteActivityByTool>, Serializable {
+		private static final long	serialVersionUID	= 1L;
+
 		public int compare(SiteActivityByTool o1, SiteActivityByTool o2) {
 			if(o1.getCount() < o2.getCount())
 				return +1;

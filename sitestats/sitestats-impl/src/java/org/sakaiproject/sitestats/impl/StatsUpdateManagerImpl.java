@@ -838,7 +838,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		return c.getTime();
 	}
 	
-	private class UniqueVisitsKey {
+	private static class UniqueVisitsKey {
 		public String siteId;
 		public Date date;
 		

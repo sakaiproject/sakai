@@ -461,7 +461,7 @@ public class ServerWideReportBean
 		for (int ii = 0; ii < 24; ii++) {
 			// add zero counts, when no data for the day
 			for (int jj = hourList[ii].size (); jj < totalDays; jj++) {
-				hourList[ii].add (new Long (0));
+				hourList[ii].add (Long.valueOf(0));
 			}
 
 			dataset.add (hourList[ii], "Last 30 days", "" + ii);

@@ -82,7 +82,7 @@ public class DBHelper {
 	private List<String> listIndexes(Connection c, String table) {
 		List<String> indexes = new ArrayList<String>();
 		String sql = null;
-		int pos = 0;
+		int pos = 1;
 		if(M_sql.getVendor().equals("mysql")){
 			sql = "show indexes from " + table;
 			pos = 3;
