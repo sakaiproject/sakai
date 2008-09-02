@@ -9,7 +9,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.event.EventInfo;
@@ -196,7 +198,6 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	/** Get the merged Event Registry. */
 	private List<ToolInfo> getMergedEventRegistry() {
 		if(eventRegistryCache.containsKey(CACHENAME_EVENTREGISTRY)) {
-			LOG.debug("Returning eventRegistry from cache.");
 			return (List<ToolInfo>) eventRegistryCache.get(CACHENAME_EVENTREGISTRY);
 		}else{
 			// First:  use file Event Registry
@@ -206,7 +207,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			//         replacing events for tools found on this Registry
 			//         (but keeping the anonymous flag for events in both Registries)
 			eventRegistry = EventUtil.addToEventRegistry(entityBrokerEventRegistry.getEventRegistry(), true, eventRegistry);
-
+			
 			// Cache Event Registry
 			eventRegistryCache.put(CACHENAME_EVENTREGISTRY, eventRegistry);
 			LOG.debug("EventRegistry cached.");

@@ -5,11 +5,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
-import org.sakaiproject.util.ResourceLoader;
 
 
 public class EventInfoImpl implements EventInfo {
-	private ResourceLoader	msgs		= new ResourceLoader("Events");
 	private Log				LOG			= LogFactory.getLog(EventInfoImpl.class);
 	private String			eventId;
 	private String			eventName;
@@ -40,7 +38,6 @@ public class EventInfoImpl implements EventInfo {
 	public String getEventName() {
 		try{
 			EventRegistryService M_ers = (EventRegistryService) ComponentManager.get(EventRegistryService.class);
-			//eventName = msgs.getString(getEventId(), getEventId());
 			eventName = M_ers.getEventName(getEventId());
 		}catch(RuntimeException e){
 			eventName = getEventId().trim();
