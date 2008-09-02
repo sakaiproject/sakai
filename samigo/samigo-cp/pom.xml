@@ -84,7 +84,7 @@
     <dependency>
       <groupId>jsf</groupId>
       <artifactId>jsf-api</artifactId>
-      <version>1.1.02</version>
+      <version>1.1.01</version>
     </dependency>
   </dependencies>
   <build>
