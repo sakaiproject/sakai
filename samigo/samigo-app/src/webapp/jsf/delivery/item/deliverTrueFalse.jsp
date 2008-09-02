@@ -67,11 +67,10 @@ should be included in file importing DeliveryMessages
 
 <h:panelGroup>
 	<f:verbatim><br /></f:verbatim>
-	<h:commandLink id="cmdclean" value="#{deliveryMessages.cleanRadioButton}" action="#{delivery.cleanRadioButton}" 
+	<h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanRadioButton}" 
 		rendered="#{(delivery.actionString=='previewAssessment' || delivery.actionString=='previewAssessmentPublished'
                 || delivery.actionString=='takeAssessment' 
-                || delivery.actionString=='takeAssessmentViaUrl')
-             && delivery.navigation ne '1'}">
+                || delivery.actionString=='takeAssessmentViaUrl')}">
 		<f:param name="radioId" value="#{question.itemData.itemId}" />
 	</h:commandLink> 
 </h:panelGroup>

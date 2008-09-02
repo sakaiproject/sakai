@@ -136,11 +136,11 @@
     <h:outputText value="#{authorMessages.note_point_value_for_question}" rendered="#{!sectionBean.pointValueHasOverrided}"/>
   </h:panelGrid>
    
-  <h:outputText value="#{authorMessages.discount_value_of_questons}"  />
+  <h:outputText value="#{authorMessages.negative_point_value}"  />
   
   <h:panelGrid>
     <h:inputText id="numDiscountRandom" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.randomPartDiscount}" />
-    <h:outputText value="#{authorMessages.note_discount_value_for_question}" rendered="#{!sectionBean.discountValueHasOverrided}"/>
+    <h:outputText value="#{authorMessages.note_negative_point_value_part}" rendered="#{!sectionBean.discountValueHasOverrided}"/>
   </h:panelGrid>
 
   <h:outputText value="#{authorMessages.type_of_randomization}" />

@@ -342,37 +342,35 @@ public class SavePartListener
      }
      
      String randomScore = sectionBean.getRandomPartScore();
-     if (randomScore == null || randomScore.equals("")) {
-    	 return true;
-     }
-     try{
-    	 float randomScoreFloat = Float.parseFloat(randomScore);
-    	 if(randomScoreFloat < 0.0){
-    		 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_pt_error");
-    	     context.addMessage(null,new FacesMessage(err ));
-    	     return false;
-    	 }
-     } catch(NumberFormatException e){
-    	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_pt_error");
-    	context.addMessage(null,new FacesMessage(err ));
-    	return false;
-     }
-     
-     String randomDiscount = sectionBean.getRandomPartDiscount();
-     if (randomDiscount == null || randomDiscount.equals("")) {
-    	 return true;
-     }
-     try{
-    	 float randomDiscountFloat = Float.parseFloat(randomDiscount);
-    	 if(randomDiscountFloat < 0.0){
+     if (randomScore != null && !randomScore.equals("")) {    	 
+    	 try{
+    		 float randomScoreFloat = Float.parseFloat(randomScore);
+    		 if(randomScoreFloat < 0.0){
+    			 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_pt_error");
+    			 context.addMessage(null,new FacesMessage(err ));
+    			 return false;
+    		 }
+    	 } catch(NumberFormatException e){
     		 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_pt_error");
     		 context.addMessage(null,new FacesMessage(err ));
     		 return false;
     	 }
-     } catch(NumberFormatException e){
-    	 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_pt_error");
-    	 context.addMessage(null,new FacesMessage(err ));
-    	 return false;
+     }
+
+     String randomDiscount = sectionBean.getRandomPartDiscount();
+     if (randomDiscount != null && !randomDiscount.equals("")) {
+    	 try{
+    		 float randomDiscountFloat = Float.parseFloat(randomDiscount);
+    		 if(randomDiscountFloat < 0.0){
+    			 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_pt_error");
+    			 context.addMessage(null,new FacesMessage(err ));
+    			 return false;
+    		 }
+    	 } catch(NumberFormatException e){
+    		 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_pt_error");
+    		 context.addMessage(null,new FacesMessage(err ));
+    		 return false;
+    	 }
      }
      return true;
   }

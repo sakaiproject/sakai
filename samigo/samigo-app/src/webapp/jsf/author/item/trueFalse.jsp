@@ -61,11 +61,21 @@
 
 <!-- DISCOUNT -->
 <div class="longtext">
-  <h:outputLabel value="#{authorMessages.answer_discount_value}"/>
-  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true"  size="6">
-<f:validateDoubleRange />
-</h:inputText>
-<h:message for="answerdsc" styleClass="validate"/>
+<h:panelGrid columns="2" border="0">
+  <h:panelGrid border="0">
+    <h:outputLabel value="#{authorMessages.negative_point_value}"/>
+    <h:outputText value="&nbsp;" escape="false"/>
+  </h:panelGrid>
+  <h:panelGrid border="0">
+    <h:panelGroup>
+    <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" >
+  	  <f:validateDoubleRange />
+    </h:inputText>
+    <h:message for="answerdsc" styleClass="validate"/>
+    </h:panelGroup>
+    <h:outputText value="#{authorMessages.note_negative_point_value_question}" />
+  </h:panelGrid>
+</h:panelGrid>
 </div><br/>
 
   <!-- 2 TEXT -->
