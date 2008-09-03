@@ -112,10 +112,10 @@ document.links[newindex].onclick();
 <br /><br />
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-    <h:commandButton accesskey="#{deliveryMessages.a_return}" type="submit" value="#{deliveryMessages.button_return}" action="select"
+    <h:commandButton type="submit" value="#{deliveryMessages.button_continue}" action="select"
        rendered="#{delivery.actionString=='takeAssessment'}" />
 
-    <h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="button" 
+    <h:commandButton value="#{deliveryMessages.button_continue}" type="button" 
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
        style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
 
