@@ -112,6 +112,17 @@
 	</tool>
 
 
+	<!-- markup -->
+	<tool 
+		toolId="sakai.markup"
+		selected="true">
+		<event eventId="markup.create" selected="true"/>
+		<event eventId="markup.edit" selected="true"/>
+		<event eventId="markup.read" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="4"/>
+	</tool>
+
+
 	<!-- news -->
 	<tool 
 		toolId="sakai.news"
