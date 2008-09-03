@@ -153,7 +153,6 @@ public class EntityMetaPropertiesService implements PropertiesProvider {
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider#getProperties(java.lang.String)
     */
-   @SuppressWarnings("unchecked")
    public Map<String, String> getProperties(String reference) {
       Map<String, String> m = new HashMap<String, String>();
       EntityReference ref = entityBrokerManager.parseReference(reference);
@@ -183,7 +182,6 @@ public class EntityMetaPropertiesService implements PropertiesProvider {
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider#getPropertyValue(java.lang.String, java.lang.String)
     */
-   @SuppressWarnings("unchecked")
    public String getPropertyValue(String reference, String name) {
       if (name == null || "".equals(name)) {
          throw new IllegalArgumentException("Invalid name argument, name must not be null or empty");
@@ -216,7 +214,6 @@ public class EntityMetaPropertiesService implements PropertiesProvider {
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider#setPropertyValue(java.lang.String, java.lang.String, java.lang.String)
     */
-   @SuppressWarnings("unchecked")
    public void setPropertyValue(String reference, String name, String value) {
       if (name == null && value != null) {
          throw new IllegalArgumentException(

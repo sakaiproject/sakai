@@ -240,7 +240,6 @@ public class RequestUtils {
      * @param req a servlet request
      * @return a search filter object
      */
-    @SuppressWarnings("unchecked")
     public static Search makeSearchFromRequestStorage(RequestStorageImpl requestStorage) {
         Search search = new Search();
         int page = -1;

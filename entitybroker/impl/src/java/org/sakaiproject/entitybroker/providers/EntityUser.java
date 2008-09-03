@@ -68,7 +68,6 @@ public class EntityUser implements User {
     * Construct an EntityUser from a legacy user object
     * @param user a legacy user or user edit
     */
-   @SuppressWarnings("unchecked")
    public EntityUser(User user) {
       this.user = user;
       this.id = user.getId();
@@ -280,7 +279,6 @@ public class EntityUser implements User {
       throw new UnsupportedOperationException();
    }
 
-   @SuppressWarnings("unchecked")
    public Element toXml(Document arg0, Stack arg1) {
       if (user != null) {
          return user.toXml(arg0, arg1);
@@ -288,7 +286,6 @@ public class EntityUser implements User {
       throw new UnsupportedOperationException();
    }
 
-   @SuppressWarnings("unchecked")
    public int compareTo(Object o) {
       if (user != null) {
          return user.compareTo(o);

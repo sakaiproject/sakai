@@ -36,7 +36,7 @@ import com.thoughtworks.xstream.mapper.Mapper;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-@SuppressWarnings({"deprecation","unchecked"})
+@SuppressWarnings({"deprecation"})
 public class ReferenceEntityMarshaller implements MarshallingStrategy {
 
    // COPIED FROM ReferenceByXPathMarshallingStrategy

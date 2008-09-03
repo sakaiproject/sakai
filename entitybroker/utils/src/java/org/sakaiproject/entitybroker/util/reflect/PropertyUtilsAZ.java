@@ -134,7 +134,6 @@ public class PropertyUtilsAZ extends PropertyUtilsBean {
       return members;
    }
 
-   @SuppressWarnings({ "deprecation", "unchecked" })
    @Override
    public PropertyDescriptor getPropertyDescriptor(Object bean, String name)
    throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {

@@ -174,7 +174,6 @@ public class EntityBrokerManagerTest extends TestCase {
       }
    }
 
-   @SuppressWarnings("unchecked")
    public void testGetEntityObject() {
       Object entity = null;
       EntityReference ref = null;

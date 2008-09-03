@@ -300,9 +300,10 @@ public class EntityDataUtils {
     }
 
     /**
-     * Get the values from a map and convert them to strings
+     * Get the values from a map and convert them to strings,
+     * nulls pass through
      * @param m
-     * @return
+     * @return the keys of any map as strings and the values as they were
      */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> extractMapProperties(Map m) {

@@ -31,7 +31,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchProvider;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-@SuppressWarnings("deprecation")
 public interface TagSearchable extends Taggable, TagSearchProvider {
 
    // this space intentionally blank

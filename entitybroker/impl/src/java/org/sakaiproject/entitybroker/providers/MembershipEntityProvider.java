@@ -83,7 +83,6 @@ public class MembershipEntityProvider implements CoreEntityProvider, RESTful, Ac
     }
 
     @EntityCustomAction(action="site",viewKey=EntityView.VIEW_LIST)
-    @SuppressWarnings("unchecked")
     public List<?> getSiteMemberships(EntityView view, Map<String, Object> params) {
         String siteId = view.getPathSegment(2);
         if (siteId == null) {
@@ -98,7 +97,6 @@ public class MembershipEntityProvider implements CoreEntityProvider, RESTful, Ac
     }
 
     @EntityCustomAction(action="group",viewKey=EntityView.VIEW_LIST)
-    @SuppressWarnings("unchecked")
     public List<?> getGroupMemberships(EntityView view, Map<String, Object> params) {
         String groupId = view.getPathSegment(2);
         if (groupId == null) {

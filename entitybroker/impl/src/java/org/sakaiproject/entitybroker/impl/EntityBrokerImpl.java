@@ -362,17 +362,14 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       return entityMetaPropertiesService.findEntityRefs(prefixes, name, searchValue, exactMatch);
    }
 
-   @SuppressWarnings("unchecked")
    public Map<String, String> getProperties(String reference) {
       return entityMetaPropertiesService.getProperties(reference);
    }
 
-   @SuppressWarnings("unchecked")
    public String getPropertyValue(String reference, String name) {
       return entityMetaPropertiesService.getPropertyValue(reference, name);
    }
 
-   @SuppressWarnings("unchecked")
    public void setPropertyValue(String reference, String name, String value) {
       entityMetaPropertiesService.setPropertyValue(reference, name, value);
    }

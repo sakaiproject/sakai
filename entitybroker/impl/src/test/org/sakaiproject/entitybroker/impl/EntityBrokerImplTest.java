@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.easymock.MockControl;
+import static org.easymock.EasyMock.*;
+
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -28,6 +29,7 @@ import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
@@ -46,9 +48,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
     private TestDataPreload tdp;
 
     private EntityManager entityManager;
-    private MockControl entityManagerControl;
     private EventTrackingService eventTrackingService;
-    private MockControl eventTrackingServiceControl;
 
     protected String[] getConfigLocations() {
         // point to the needed spring config files, must be on the classpath
@@ -80,23 +80,19 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
         td = new TestData();
 
         // setup the mock objects if needed
-        entityManagerControl = MockControl.createControl(EntityManager.class);
-        entityManager = (EntityManager) entityManagerControl.getMock();
-
-        eventTrackingServiceControl = MockControl.createControl(EventTrackingService.class);
-        eventTrackingService = (EventTrackingService) eventTrackingServiceControl.getMock();
+        entityManager = createNiceMock(EntityManager.class);
+        replay(entityManager);
+        eventTrackingService = createMock(EventTrackingService.class);
 
         // setup the defaults for the mock objects (if there are any)
         // sessionManager.getCurrentSessionUserId(); // expect this to be called
         // sessionManagerControl.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
         // sessionManagerControl.setReturnValue(TestDataPreload.USER_ID, MockControl.ZERO_OR_MORE);
         // sessionManagerControl.replay();
-        eventTrackingService.newEvent(null, null, false, 0); // expect this to be called
-        eventTrackingServiceControl.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
-        eventTrackingServiceControl.setReturnValue(new FakeEvent(), MockControl.ZERO_OR_MORE);
-        eventTrackingService.post(null); // expect this to be called
-        eventTrackingServiceControl.setVoidCallable(MockControl.ZERO_OR_MORE);
-        eventTrackingServiceControl.replay();
+        expect(eventTrackingService.newEvent(isA(String.class), isA(String.class), anyBoolean(), anyInt())).andReturn(new FakeEvent()).anyTimes(); // expect this to be called
+        eventTrackingService.post(isA(Event.class));
+        expectLastCall().anyTimes();
+        replay(eventTrackingService);
 
         // setup fake internal services
         ServiceTestManager tm = new ServiceTestManager(td, dao);
@@ -734,7 +730,6 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
     /**
      * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#getTags(java.lang.String)}.
      */
-    @SuppressWarnings("deprecation")
     public void testGetTags() {
         Set<String> tags = null;
 
@@ -752,7 +747,6 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
     /**
      * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#setTags(java.lang.String, java.util.Set)}.
      */
-    @SuppressWarnings("deprecation")
     public void testSetTags() {
         // test adding new tags
         entityBroker.setTags(TestData.REF1_1, new String[] {"test"});
@@ -766,7 +760,6 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
     /**
      * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#findEntityRefsByTags(java.lang.String[])}.
      */
-    @SuppressWarnings("deprecation")
     public void testFindEntityRefsByTags() {
         List<String> refs = null;
 

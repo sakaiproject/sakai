@@ -361,7 +361,6 @@ public class UserEntityProvider implements CoreEntityProvider, RESTful, Describe
         return userId;
     }
 
-    @SuppressWarnings("unchecked")
     public EntityUser convertUser(User user) {
         EntityUser eu = new EntityUser(user);
         return eu;

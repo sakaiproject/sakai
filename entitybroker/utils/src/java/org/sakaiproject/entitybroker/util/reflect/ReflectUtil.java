@@ -1080,7 +1080,7 @@ public class ReflectUtil {
     @SuppressWarnings("unchecked")
     public <T> T convert(Object object, Class<T> type) {
         T convert = null;
-        if (type != null) {
+        if (object != null) {
             try {
                 convert = (T) getConvertUtils().convert(object, type);
             } catch (RuntimeException e) {

@@ -46,7 +46,6 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
-@SuppressWarnings("deprecation")
 public interface EntityBroker extends PropertiesProvider, TagProvider {
 
    /**
