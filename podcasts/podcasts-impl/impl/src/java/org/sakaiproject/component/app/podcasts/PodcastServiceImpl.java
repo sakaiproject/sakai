@@ -411,6 +411,50 @@ public class PodcastServiceImpl implements PodcastService {
 	}
 
 	/**
+	 * Returns TRUE if the possible id is the correct one. If they
+	 * cannot access an Exception will be thrown.
+	 * Created for SAK-13740
+	 * @param podcastCollection
+	 * @param siteId
+	 * @param isStudent
+	 * @return
+	 */
+	private boolean isPodcastsFolderId(String podcastsCollection, String siteId, boolean isStudent) 
+						throws TypeException, IdUnusedException, PermissionException {
+		// SAK-13740: need to access folder to determine if folder is hidden BUT if user is student
+		// and the folder is hidden, PermissionException thrown so SecurityAdvisor enabled. 
+		// Need to determine so a WARNing can be logged and not a PermissionException.
+		if (isStudent) {
+			enablePodcastSecurityAdvisor();
+		}
+		
+		ContentCollection podcastFolder = contentHostingService.getCollection(podcastsCollection);
+		
+		if (isStudent) {
+			Date tempDate = null;
+			if (podcastFolder.getRetractDate() != null) {
+				tempDate = new Date(podcastFolder.getRetractDate().getTime());
+			}
+
+			boolean result = podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
+			SecurityService.clearAdvisors();
+		
+			if (result) {
+			// a student/access user is attempting to access and the folder is 'hidden' so just log the
+			// situation and return the String - what should happen sp don't print out stack trace
+			LOG.warn("Podcasts folder " + podcastsCollection + " is HIDDEN, before RELEASE DATE, or " +
+							"after RETRACT DATE so cannot access.");
+			}
+			else {
+				// not hidden so check without SecurityAdvisor to see if we can access
+				podcastFolder = contentHostingService.getCollection(podcastsCollection);				
+			}
+		}
+			
+		return true;
+	}
+
+	/**
 	 * Returns podcast folder id using either 'podcasts' or 'Podcasts'. If it
 	 * does not exist in either form, will create it.
 	 * 
@@ -433,171 +477,40 @@ public class PodcastServiceImpl implements PodcastService {
 		final String siteCollection = contentHostingService.getSiteCollection(siteId);
 		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 
-		// If hidden and non instructor attempts to access, fails on a 
-		// true permissions check, so need to test if that's the case.
-		// need to code it directly here to avoid infinite loop -
-		// this calls isPodcastFolderHidden which calls getContentCollection
-		// which calls this method and around we go
-		if (! podcastPermissionsService.canUpdateSite(siteId)) {
-			try {
-				enablePodcastSecurityAdvisor();
-				ContentCollection podcastFolder = contentHostingService.getCollection(podcastsCollection);
-				
-				Date tempDate = null;
-				if (podcastFolder.getRetractDate() != null) {
-					tempDate = new Date(podcastFolder.getRetractDate().getTime());
-				}
-
-				boolean result = podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
-				SecurityService.clearAdvisors();
-				
-				if (result) {
-					// a student/access user is attempting to access and the folder is 'hidden' so just log the
-					// situation and return the String - what should happen sp don't print out stack trace
-					LOG.warn("Podcasts folder " + podcastsCollection + " is HIDDEN or its before its RELEASE DATE or " +
-									"after its RETRACT DATE so cannot access.");
-					return podcastsCollection;
-				}
-			}
-			catch (TypeException e1) {
-				LOG.error("TypeException while trying to determine correct podcast folder Id String "
-								+ " for site: " + siteId + ". " + e1.getMessage(), e1);
-				throw new Error(e1);
-			} 
-			catch (IdUnusedException e2) {
-				// Podcasts is truly not the name of the folder, so drop through and try another
-				podcastsCollection = siteCollection + COLLECTION_PODCASTS_ALT + Entity.SEPARATOR;
-
-				// once again, since we are dealing with a student/access user, if folder is 'hidden'
-				// this user can't access, so enable an advisor to determine if it truly does exist
-				enablePodcastSecurityAdvisor();
-				ContentCollection podcastFolder;
-				try {
-					podcastFolder = contentHostingService.getCollection(podcastsCollection);
-					Date tempDate = null;
-					if (podcastFolder.getRetractDate() != null) {
-						tempDate = new Date(podcastFolder.getRetractDate().getTime());
-					}
-
-					boolean result = podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
-					SecurityService.clearAdvisors();
-				
-					if (result) {
-						// a student/access user is attempting to access and the folder is 'hidden' so just log the
-						// situation and throw the exception - actually not an error condition
-						LOG.warn("Podcasts folder " + podcastsCollection + " is HIDDEN or its before its RELEASE DATE or " +
-									"after its RETRACT DATE so cannot access.");
-						return podcastsCollection;
-					}
-				} 
-				catch (IdUnusedException e) {
-					LOG.warn("IdUnusedException while trying to determine correct podcast folder id "
-							+ " for site: " + siteId + ". " + e.getMessage(), e);
-				} 
-				catch (TypeException e) {
-					LOG.error("TypeException while trying to determine correct podcast folder Id String "
-							+ " for site: " + siteId + ". " + e.getMessage(), e);
-					throw new Error(e);
-				}
-				
-				try {
-					contentHostingService.checkCollection(podcastsCollection);
-
-					return podcastsCollection;
-
-				} 
-				catch (TypeException e1) {
-					LOG.error("TypeException while trying to determine correct podcast folder Id String "
-									+ " for site: " + siteId + ". " + e1.getMessage(), e1);
-					throw new Error(e1);
-				} 
-				catch (IdUnusedException e1) {
-					LOG.warn("IdUnusedException while trying to determine correct podcast folder id "
-									+ " for site: " + siteId + ". " + e1.getMessage(), e1);
-
-				} 
-				catch (PermissionException e1) {
-					// If thrown here, it truly is a PermissionException, so log and rethrow
-					LOG.warn("PermissionException while trying to determine correct podcast folder Id String "
-									+ " for site: " + siteId + ".", e1);
-					throw e1; 
-				}
+		// Also refactored to streamline code.
+		try {
+			if (isPodcastsFolderId(podcastsCollection, siteId, ! podcastPermissionsService.canUpdateSite(siteId))) {
+				return podcastsCollection;
 			}
 		}
-		else {
+		catch (TypeException e1) {
+			LOG.error("TypeException while trying to determine correct podcast folder Id String "
+							+ " for site: " + siteId + ". " + e1.getMessage(), e1);
+			throw new Error(e1);
+		} 
+		catch (IdUnusedException e2) {
+			// Podcasts is truly not the name of the folder, so drop through and try another
+			podcastsCollection = siteCollection + COLLECTION_PODCASTS_ALT + Entity.SEPARATOR;
+
+			// once again, since we are dealing with a student/access user, if folder is 'hidden'
+			// this user can't access, so enable an advisor to determine if it truly does exist
 			try {
-				contentHostingService.checkCollection(podcastsCollection);
-				return podcastsCollection;
-			} 
-			catch (PermissionException e) {
-				// Sometimes it converts an IdUnusedException into a permission
-				// exception so try this. Have tried 'Podcasts', now try 'podcasts'
-				// If PermissionException thrown again, pass it along
-				podcastsCollection = siteCollection + COLLECTION_PODCASTS_ALT + Entity.SEPARATOR;
-
-				try {
-					contentHostingService.checkCollection(podcastsCollection);
-
+				if (isPodcastsFolderId(podcastsCollection, siteId, ! podcastPermissionsService.canUpdateSite(siteId))) {
 					return podcastsCollection;
-				} 
-				catch (TypeException e1) {
-					LOG.error("TypeException while trying to determine correct podcast folder Id String "
-									+ " for site: " + siteId + ". " + e1.getMessage(), e1);
-					throw new Error(e);
-				} 
-				catch (IdUnusedException e1) {
-					LOG.warn("IdUnusedException while trying to determine correct podcast folder id "
-								+ " for site: " + siteId + ". " + e1.getMessage(), e1);
-				} 
-				catch (PermissionException e1) {
-					// If thrown here, it truly is a PermissionException, so log and rethrow
-					LOG.warn("PermissionException while trying to determine correct podcast folder Id String "
-								+ " for site: " + siteId + ". NOTE: folder may be HIDDEN may cause this.", e1);
-					throw e1; 
 				}
 			} 
 			catch (IdUnusedException e) {
-				// 'Podcasts' - no luck, try 'podcasts'
-				podcastsCollection = siteCollection + COLLECTION_PODCASTS_ALT + Entity.SEPARATOR;
-
-				try {
-					contentHostingService.checkCollection(podcastsCollection);
-
-					return podcastsCollection;
-				}
-				catch (IdUnusedException e1) {
-					// Does not exist, so try to create it
-					podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
-				
-					if (podcastPermissionsService.canUpdateSite()) {
-						createPodcastsFolder(podcastsCollection, siteId);
-						return podcastsCollection;
-					}
-					else {
-						return null;
-					}
-				}
-				catch (PermissionException e1) {
-					// Now they truly cannot access, so log and rethrow
-					LOG.warn("PermissionException thrown on second attempt at retrieving podcasts folder. "
-									+ " for site: " + siteId + ".", e1);
-					throw e1;
-				} 
-				catch (TypeException e1) {
-					LOG.error("TypeException while getting podcasts folder using 'podcasts' string: "
-									+ e1.getMessage(), e1);
-					throw new Error(e);
-				}
+				LOG.warn("IdUnusedException while trying to determine correct podcast folder id "
+						+ " for site: " + siteId + ". " + e.getMessage(), e);
 			} 
 			catch (TypeException e) {
-				LOG.error("TypeException while getting podcasts folder using 'Podcasts' string: "
-								+ e.getMessage(), e);
+				LOG.error("TypeException while trying to determine correct podcast folder Id String "
+						+ " for site: " + siteId + ". " + e.getMessage(), e);
 				throw new Error(e);
 			}
 		}
 		
 		return null;
-
 	}
 
 	/**
