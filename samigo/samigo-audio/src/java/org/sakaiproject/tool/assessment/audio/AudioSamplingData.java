@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.audio;
 
+import java.awt.geom.Line2D;
 import java.io.Serializable;
 import java.util.Vector;
 import javax.sound.sampled.AudioInputStream;
@@ -28,15 +29,17 @@ import javax.sound.sampled.AudioInputStream;
 public class AudioSamplingData
   implements Serializable
 {
-  private String errStr;
-  private String fileName;
-  private double seconds;
-  private double duration;
-  private Runnable capture;
-  private Thread captureThread;
-  private java.util.Vector line;
-  private javax.sound.sampled.AudioInputStream audioInputStream;
-  private double maxSeconds;
+
+	private static final long serialVersionUID = 0L;
+	private String errStr;
+	private String fileName;
+	private double seconds;
+	private double duration;
+	private Runnable capture;
+	private Thread captureThread;
+	private Vector<Line2D> line;
+	private javax.sound.sampled.AudioInputStream audioInputStream;
+	private double maxSeconds;
 
   public String getErrStr()
   {
@@ -97,11 +100,11 @@ public class AudioSamplingData
   {
     this.captureThread = captureThread;
   }
-  public Vector getLine()
+  public Vector<Line2D> getLine()
   {
     return line;
   }
-  public void setLine(java.util.Vector line)
+  public void setLine(Vector<Line2D> line)
   {
     this.line = line;
   }

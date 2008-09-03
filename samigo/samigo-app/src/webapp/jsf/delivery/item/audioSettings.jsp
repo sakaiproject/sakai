@@ -33,8 +33,8 @@
      value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}" /><f:verbatim>">
   <PARAM NAME = "imageUrl" VALUE="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/images/" /><f:verbatim>">
   <PARAM NAME = "compression" VALUE="linear">
-  <PARAM NAME = "frequency" VALUE="44100">
-  <PARAM NAME = "bits" VALUE="16">
+  <PARAM NAME = "frequency" VALUE="8000">
+  <PARAM NAME = "bits" VALUE="8">
   <PARAM NAME = "signed" VALUE="true">
   <PARAM NAME = "bigendian" VALUE="true">
   <PARAM NAME = "stereo" VALUE="false">

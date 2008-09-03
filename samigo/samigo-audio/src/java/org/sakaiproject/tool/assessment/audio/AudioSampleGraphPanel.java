@@ -54,13 +54,11 @@ package org.sakaiproject.tool.assessment.audio;
 
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -72,7 +70,6 @@ import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.Line2D;
 import javax.swing.JPanel;
-import java.awt.LayoutManager;
 
 /**
  * Render a WaveForm.
@@ -80,9 +77,12 @@ import java.awt.LayoutManager;
 public class AudioSampleGraphPanel
   extends JPanel
 {
-  static ResourceBundle res = AudioUtil.getInstance().getResourceBundle();
 
-  static ColorModel colorModel= new ColorModel();
+	private static final long serialVersionUID = 0L;
+
+	static ResourceBundle res = AudioUtil.getInstance().getResourceBundle();
+
+	static ColorModel colorModel= new ColorModel();
 
   private static final Font font10 = new Font("serif", Font.PLAIN, 10);
   private static final Font font12 = new Font("serif", Font.PLAIN, 12);
@@ -103,7 +103,7 @@ public class AudioSampleGraphPanel
   }
 
   public void createWaveForm(
-    byte[] audioBytes, Vector lines, AudioInputStream audioInputStream)
+    byte[] audioBytes, Vector<Line2D> lines, AudioInputStream audioInputStream)
   {
 
     lines.removeAllElements(); // clear the old vector
@@ -201,7 +201,7 @@ public class AudioSampleGraphPanel
 
   public void paintData(Graphics g, AudioSamplingData data)
   {
-    Vector lines;
+    Vector<Line2D> lines;
     AudioInputStream audioInputStream = data.getAudioInputStream();
     String errStr;
     Runnable capture;
@@ -288,7 +288,7 @@ public class AudioSampleGraphPanel
     g2.draw(new Line2D.Double(loc, 0, loc, h - INFOPAD - 2));
   }
 
-  private void drawSamplingGraph(Vector lines, Graphics2D g2)
+  private void drawSamplingGraph(Vector<Line2D> lines, Graphics2D g2)
   {
     g2.setColor(graphColor);
     for (int i = 1; i < lines.size(); i++)

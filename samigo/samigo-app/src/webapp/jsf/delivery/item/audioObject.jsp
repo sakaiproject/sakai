@@ -54,8 +54,8 @@
      value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}" /><f:verbatim>" \
       imageUrl ="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/images/" /><f:verbatim>" \
       compression ="linear" \
-      frequency ="44100" \
-      bits ="16" \
+      frequency ="8000" \
+      bits ="8" \
       signed ="true" \
       bigendian ="true6" \
       stereo ="false" \

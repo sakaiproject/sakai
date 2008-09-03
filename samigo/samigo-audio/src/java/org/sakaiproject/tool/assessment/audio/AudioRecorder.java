@@ -52,18 +52,16 @@
 
 package org.sakaiproject.tool.assessment.audio;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.sound.sampled.AudioFileFormat;
@@ -86,12 +84,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Line2D;
+
 import javax.swing.Action;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -102,7 +101,6 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
-import javax.swing.filechooser.FileFilter;
 import java.io.InputStream;
 
 /**
@@ -117,6 +115,9 @@ import java.io.InputStream;
  */
 public class AudioRecorder extends JPanel implements ActionListener,
 		AudioControlContext {
+
+	private static final long serialVersionUID = 0L;
+
 
 	static ResourceBundle res;
 
@@ -155,7 +156,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
 	File file;
 
-	Vector lines = new Vector();
+	Vector<Line2D> lines = new Vector<Line2D>();
 
 	AudioRecorderParams params;
 
@@ -428,9 +429,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			int attemptsLeft, final boolean post) {
 		Thread saveAndPostThread = new Thread() {
 			public void run() {
-				if (audioInputStream == null) {
-					reportStatus(res.getString("No_loaded_audio_to"));
-					return;
+			    while (audioInputStream == null) {
+			    	try {
+			    		// politely waiting for capture Thread to finish with audioInputStream.
+			    		Thread.sleep(1000);
+			    	} catch (InterruptedException e) {
+			    		// TODO Auto-generated catch block
+			    		e.printStackTrace();
+			    	}
 				}
 				// reset to the beginnning of the captured data
 				try {
@@ -494,8 +500,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				// Get response data.
 				String reportStr = res.getString("contentlenw") + ": " + c
 						+ " " + res.getString("bytes") + ".\n  ";
-				DataInputStream input = new DataInputStream(urlConn
-						.getInputStream());
+				BufferedReader input = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 
 				// need to check that acknowlegement from server matches or
 				// display
@@ -774,6 +779,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	 */
 	class FormatControls extends AudioFormatPanel implements
 			AudioControlContext {
+
+		private static final long serialVersionUID = 0L;
+
 		FormatControls(AudioRecorderParams params) {
 			super(params);
 		}
@@ -797,6 +805,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	 */
 	class SamplingGraph extends AudioSampleGraphPanel implements Runnable {
 
+
+		private static final long serialVersionUID = 0L;
+		
 		private Thread thread;
 
 		public void reportGraphStatus(String message) {
@@ -821,7 +832,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
 		public void start() {
 			thread = new Thread(this);
-			thread.setName(this.res.getString("thread_Name2"));
+			thread.setName(AudioSampleGraphPanel.res.getString("thread_Name2"));
 			thread.start();
 			seconds = 0;
 		}
@@ -849,7 +860,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				}
 
 				try {
-					thread.sleep(100);
+					Thread.sleep(100);
 				} catch (Exception e) {
 					break;
 				}
@@ -859,7 +870,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				while ((capture.line != null && !capture.line.isActive())
 						|| (playback.line != null && !playback.line.isOpen())) {
 					try {
-						thread.sleep(10);
+						Thread.sleep(10);
 					} catch (Exception e) {
 						break;
 					}
@@ -888,7 +899,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		f.setLocation(screenSize.width / 2 - w / 2, screenSize.height / 2 - h
 				/ 2);
 		f.setSize(w, h);
-		f.show();
+		f.setVisible(true);
 	}
 
 	private JPanel makeAttemptsAllowedLabel() {
@@ -1007,6 +1018,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
 	private void startTimer() {
 		Action stopRecordingAction = new AbstractAction() {
+			private static final long serialVersionUID = 0L;
+
 			public void actionPerformed(ActionEvent e) {
 				// reportStatus(res.getString("time_passed")+"\n" );
 				statusLabel.setText(res.getString("time_expired"));
