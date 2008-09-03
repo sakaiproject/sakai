@@ -46,6 +46,7 @@ import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UICommand;
@@ -174,13 +175,15 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		}
 
-		UIOutput.make(tofill,"answers-title",messageLocator.getMessage("results_answers_title"));
+		UILink.make(tofill,"answers-title",messageLocator.getMessage("results_answers_title"), "#");
+		UILink.make(tofill,"answers-count",messageLocator.getMessage("results_answers_numbering"), "#");
 
-
+		//output the votes
 		for (int i=0; i <collation.size(); i++ ) {
 			CollatedVote cv = (CollatedVote)collation.get(i);
 			UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
 			UIVerbatim.make(resultRow,"answer-option",cv.getOptionText());
+			UIOutput.make(resultRow,"answer-count",new Integer(i+1).toString());
 			UIOutput.make(resultRow,"answer-numVotes",Long.valueOf(cv.getVotes()).toString());
 			m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
 			double percent = (double)0;
@@ -209,6 +212,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 	}
 
 	public List reportNavigationCases() {
+		
 		List togo = new ArrayList(); // Always navigate back to this view.
 		togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));

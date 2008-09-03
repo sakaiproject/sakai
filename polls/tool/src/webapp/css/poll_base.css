@@ -1,3 +1,17 @@
 .pollEditorSmall{
 	width:50em
 }
+
+/*skinned sortable header - sort icons*/
+thead tr .headerSortUp a {
+	background-image: url(../images/sortdescending.gif);
+	background-repeat: no-repeat;
+	background-position: 90% center;
+	padding-right: 25px;
+}
+thead tr .headerSortDown a {
+	background-image: url(../images/sortascending.gif);
+	background-repeat: no-repeat;
+	background-position: 90% center;
+	padding-right: 25px;
+}
