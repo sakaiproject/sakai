@@ -999,10 +999,16 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			
 		}
-
+		
+		//Check for MOTD, if yes then is not ok to show permissions button
+		if(placement.getTitle().equals("MOTD") && placement.getId().contains("admin")){
+			buildMenu(portlet, context, rundata, state, menu_new, menu_delete, menu_revise, this.isOkToShowMergeButton(statusName),
+					false, this.isOkToShowOptionsButton(statusName), displayOptions);
+		}
+		else{
 		buildMenu(portlet, context, rundata, state, menu_new, menu_delete, menu_revise, this.isOkToShowMergeButton(statusName),
 				this.isOkToShowPermissionsButton(statusName), this.isOkToShowOptionsButton(statusName), displayOptions);
-
+		}
 			
 		// added by zqian for toolbar
 		context.put("allow_new", Boolean.valueOf(menu_new));
