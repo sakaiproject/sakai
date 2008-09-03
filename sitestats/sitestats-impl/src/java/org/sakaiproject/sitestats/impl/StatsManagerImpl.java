@@ -547,13 +547,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		c.add(Calendar.MONTH, -11);
 		Date lastYear = cl.getTime();
 		
-//		long weekDiff = 604800000l;
-//		long monthDiff = 2592000000l;
-//		long yearDiff = 31536000000l;
-//		Date lastWeek = new Date(now.getTime() - weekDiff);
-//		Date lastMonth = new Date(now.getTime() - monthDiff);
-//		Date lastYear = new Date(now.getTime() - yearDiff);
-		
 		double last7DaysVisitsAverage = round(getTotalSiteVisits(siteId, lastWeek, now) / 7.0, 1);
 		double last30DaysVisitsAverage = round(getTotalSiteVisits(siteId, lastMonth, now) / 30.0, 1);
 		double last365DaysVisitsAverage = round(getTotalSiteVisits(siteId, lastYear, now) / 365.0, 1);
@@ -568,7 +561,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		svt.setTotalUniqueVisits(totalSiteUniqueVisits);
 		svt.setTotalVisits(totalSiteVisits);
 		svt.setTotalUsers(totalSiteUsers);
-		svt.setPercentageOfUsersThatVisitedSite(percentageOfUsersThatVisitedSite);
+		svt.setPercentageOfUsersThatVisitedSite(round(percentageOfUsersThatVisitedSite, 1));
 		
 		return svt;
 	}
@@ -604,13 +597,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		cl = (Calendar) c.clone();		
 		c.add(Calendar.MONTH, -11);
 		Date lastYear = cl.getTime();
-		
-//		long weekDiff = 604800000l;
-//		long monthDiff = 2592000000l;
-//		long yearDiff = 31536000000l;
-//		Date lastWeek = new Date(now.getTime() - weekDiff);
-//		Date lastMonth = new Date(now.getTime() - monthDiff);
-//		Date lastYear = new Date(now.getTime() - yearDiff);
 		
 		double last7DaysActivityAverage = round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastWeek, now) / 7.0, 1);
 		double last30DaysActivityAverage = round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastMonth, now) / 30.0, 1);
@@ -680,7 +666,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		Date finalDate = c.getTime();
 		Date initialDate = null;
 		
-		if(CHATTYPE_BAR.equals(chartType)){
+		if(CHARTTYPE_BAR.equals(chartType)){
 			List<SiteActivity> siteActivity = null;
 			if(VIEW_WEEK.equals(viewType)){
 				c.add(Calendar.DATE, -6);

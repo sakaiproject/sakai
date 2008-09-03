@@ -38,8 +38,6 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 

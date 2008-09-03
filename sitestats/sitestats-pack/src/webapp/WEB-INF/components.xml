@@ -130,6 +130,16 @@
 	</bean>
 	
 	
+	<!-- ChartService ______________________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.chart.ChartService"
+		class="org.sakaiproject.sitestats.impl.chart.ChartServiceImpl"
+		singleton="true">
+		
+		<!-- Sakai services -->
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+	</bean>
+	
+	
 	<!-- StatsUpdateManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
 		class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"

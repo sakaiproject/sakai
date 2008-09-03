@@ -137,6 +137,12 @@
       <groupId>quartz</groupId>
       <artifactId>quartz</artifactId>
     </dependency>
+    
+    <!--  JFreeChart -->
+    <dependency>
+      <groupId>jfree</groupId>
+      <artifactId>jfreechart</artifactId>
+    </dependency>
 
   </dependencies>
 

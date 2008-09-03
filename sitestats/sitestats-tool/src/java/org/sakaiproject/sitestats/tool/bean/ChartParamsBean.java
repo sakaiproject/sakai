@@ -20,8 +20,8 @@ public class ChartParamsBean implements Serializable {
 	public static final String	VIEW_WEEK							= StatsManager.VIEW_WEEK;
 	public static final String	VIEW_MONTH							= StatsManager.VIEW_MONTH;
 	public static final String	VIEW_YEAR							= StatsManager.VIEW_YEAR;
-	public static final String	CHATTYPE_BAR						= StatsManager.CHATTYPE_BAR;
-	public static final String	CHATTYPE_PIE						= StatsManager.CHATTYPE_PIE;
+	public static final String	CHATTYPE_BAR						= StatsManager.CHARTTYPE_BAR;
+	public static final String	CHATTYPE_PIE						= StatsManager.CHARTTYPE_PIE;
 
 	// server wide stats
 	public static final String MONTHLY_LOGIN_REPORT = StatsManager.MONTHLY_LOGIN_REPORT;

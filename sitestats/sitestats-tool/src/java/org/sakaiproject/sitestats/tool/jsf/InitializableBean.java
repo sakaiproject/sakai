@@ -18,8 +18,6 @@
  **********************************************************************************/
 package org.sakaiproject.sitestats.tool.jsf;
 
-import javax.faces.context.FacesContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.jsf.model.PhaseAware;

@@ -607,13 +607,13 @@ public class ServerWideReportBean
         chart.addSubtitle(legend);		
 		
 		// set background
-		chart.setBackgroundPaint (OverviewBean.parseColor (SST_sm
+		chart.setBackgroundPaint (parseColor (SST_sm
 				.getChartBackgroundColor ()));
 
 		// set chart border
 		chart.setPadding (new RectangleInsets (10, 5, 5, 5));
 		chart.setBorderVisible (true);
-		chart.setBorderPaint (OverviewBean.parseColor ("#cccccc"));
+		chart.setBorderPaint (parseColor ("#cccccc"));
 
 		// set anti alias
 		chart.setAntiAlias (true);
@@ -709,13 +709,13 @@ public class ServerWideReportBean
         chart.addSubtitle(legend);		
 		
 		// set background
-		chart.setBackgroundPaint (OverviewBean.parseColor (SST_sm
+		chart.setBackgroundPaint (parseColor (SST_sm
 				.getChartBackgroundColor ()));
 
 		// set chart border
 		chart.setPadding (new RectangleInsets (10, 5, 5, 5));
 		chart.setBorderVisible (true);
-		chart.setBorderPaint (OverviewBean.parseColor ("#cccccc"));
+		chart.setBorderPaint (parseColor ("#cccccc"));
 
 		// set anti alias
 		chart.setAntiAlias (true);
@@ -817,13 +817,13 @@ public class ServerWideReportBean
         chart.addSubtitle(legend);		
 		
 		// set background
-		chart.setBackgroundPaint (OverviewBean.parseColor (SST_sm
+		chart.setBackgroundPaint (parseColor (SST_sm
 				.getChartBackgroundColor ()));
 
 		// set chart border
 		chart.setPadding (new RectangleInsets (10, 5, 5, 5));
 		chart.setBorderVisible (true);
-		chart.setBorderPaint (OverviewBean.parseColor ("#cccccc"));
+		chart.setBorderPaint (parseColor ("#cccccc"));
 
 		// set anti alias
 		chart.setAntiAlias (true);
@@ -855,13 +855,13 @@ public class ServerWideReportBean
 				);
 
 		// set background
-		chart.setBackgroundPaint (OverviewBean.parseColor (SST_sm
+		chart.setBackgroundPaint (parseColor (SST_sm
 				.getChartBackgroundColor ()));
 
 		// set chart border
 		chart.setPadding (new RectangleInsets (10, 5, 5, 5));
 		chart.setBorderVisible (true);
-		chart.setBorderPaint (OverviewBean.parseColor ("#cccccc"));
+		chart.setBorderPaint (parseColor ("#cccccc"));
 
 		// set anti alias
 		chart.setAntiAlias (true);
@@ -921,13 +921,13 @@ public class ServerWideReportBean
 				null, dataset, false);
 
 		// set background
-		chart.setBackgroundPaint (OverviewBean.parseColor (SST_sm
+		chart.setBackgroundPaint (parseColor (SST_sm
 				.getChartBackgroundColor ()));
 
 		// set chart border
 		chart.setPadding (new RectangleInsets (10, 5, 5, 5));
 		chart.setBorderVisible (true);
-		chart.setBorderPaint (OverviewBean.parseColor ("#cccccc"));
+		chart.setBorderPaint (parseColor ("#cccccc"));
 
 		// set anti alias
 		chart.setAntiAlias (true);
@@ -980,13 +980,13 @@ public class ServerWideReportBean
 		// plot.setForegroundAlpha(getPrefsdata(params.getSiteId()).getChartTransparency());
 
 		// set background
-		chart.setBackgroundPaint (OverviewBean.parseColor (SST_sm
+		chart.setBackgroundPaint (parseColor (SST_sm
 				.getChartBackgroundColor ()));
 
 		// set chart border
 		chart.setPadding (new RectangleInsets (10, 5, 5, 5));
 		chart.setBorderVisible (true);
-		chart.setBorderPaint (OverviewBean.parseColor ("#cccccc"));
+		chart.setBorderPaint (parseColor ("#cccccc"));
 
 		// set anti alias
 		chart.setAntiAlias (true);
@@ -1060,13 +1060,13 @@ public class ServerWideReportBean
 		);
 		
 		// set background
-		chart.setBackgroundPaint (OverviewBean.parseColor (SST_sm
+		chart.setBackgroundPaint (parseColor (SST_sm
 				.getChartBackgroundColor ()));
 
 		// set chart border
 		chart.setPadding (new RectangleInsets (10, 5, 5, 5));
 		chart.setBorderVisible (true);
-		chart.setBorderPaint (OverviewBean.parseColor ("#cccccc"));
+		chart.setBorderPaint (parseColor ("#cccccc"));
 
 		// set anti alias
 		chart.setAntiAlias (true);
@@ -1121,11 +1121,11 @@ public class ServerWideReportBean
 				.getChartHeight ());
 		Graphics2D g2d = img.createGraphics ();
 
-		g2d.setBackground (OverviewBean.parseColor (SST_sm
+		g2d.setBackground (parseColor (SST_sm
 				.getChartBackgroundColor ()));
 		g2d.clearRect (0, 0, params.getChartWidth () - 1, params
 				.getChartHeight () - 1);
-		g2d.setColor (OverviewBean.parseColor ("#cccccc"));
+		g2d.setColor (parseColor ("#cccccc"));
 		g2d.drawRect (0, 0, params.getChartWidth () - 1, params
 				.getChartHeight () - 1);
 		Font f = new Font ("SansSerif", Font.PLAIN, 12);
@@ -1134,7 +1134,7 @@ public class ServerWideReportBean
 		String noData = msgs.getString ("no_data");
 		int noDataWidth = fm.stringWidth (noData);
 		int noDataHeight = fm.getHeight ();
-		g2d.setColor (OverviewBean.parseColor ("#555555"));
+		g2d.setColor (parseColor ("#555555"));
 		g2d.drawString (noData, params.getChartWidth () / 2 - noDataWidth / 2,
 				params.getChartHeight () / 2 - noDataHeight / 2 + 2);
 
@@ -1146,5 +1146,38 @@ public class ServerWideReportBean
 			// Do nothing.
 			LOG.warn ("Data transfer aborted by client.");
 		}
+	}
+	
+
+	
+	public static Color parseColor(String color) {
+		if(color != null) {
+			if(color.trim().startsWith("#")){
+				// HTML colors (#FFFFFF format)
+				return new Color(Integer.parseInt(color.substring(1), 16));
+			}else if(color.trim().startsWith("rgb")){
+				// HTML colors (rgb(255, 255, 255) format)
+				String values = color.substring(color.indexOf("(") + 1, color.indexOf(")"));
+				String rgb[] = values.split(",");
+				return new Color(Integer.parseInt(rgb[0].trim()), Integer.parseInt(rgb[1].trim()), Integer.parseInt(rgb[2].trim()));
+			}else{
+				// Colors by name
+				if(color.equalsIgnoreCase("black")) return Color.black;
+				if(color.equalsIgnoreCase("grey")) return Color.gray;
+				if(color.equalsIgnoreCase("yellow")) return Color.yellow;
+				if(color.equalsIgnoreCase("green")) return Color.green;
+				if(color.equalsIgnoreCase("blue")) return Color.blue;
+				if(color.equalsIgnoreCase("red")) return Color.red;
+				if(color.equalsIgnoreCase("orange")) return Color.orange;
+				if(color.equalsIgnoreCase("cyan")) return Color.cyan;
+				if(color.equalsIgnoreCase("magenta")) return Color.magenta;
+				if(color.equalsIgnoreCase("darkgray")) return Color.darkGray;
+				if(color.equalsIgnoreCase("lightgray")) return Color.lightGray;
+				if(color.equalsIgnoreCase("pink")) return Color.pink;
+				if(color.equalsIgnoreCase("white")) return Color.white;
+			}
+		}
+		LOG.info("Unable to parse body background-color (color:" + color+"). Assuming white.");
+		return Color.white;
 	}
 }

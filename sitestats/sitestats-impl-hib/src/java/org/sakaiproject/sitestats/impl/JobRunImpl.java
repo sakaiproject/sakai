@@ -19,7 +19,6 @@
 package org.sakaiproject.sitestats.impl;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Date;
 
 import org.sakaiproject.sitestats.api.JobRun;

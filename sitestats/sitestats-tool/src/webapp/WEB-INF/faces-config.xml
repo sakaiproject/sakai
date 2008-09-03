@@ -147,6 +147,10 @@
 			<value>#{org_sakaiproject_sitestats_api_report_ReportManager}</value>
 		</managed-property>
 		<managed-property>
+			<property-name>sstChartService</property-name>
+			<value>#{org_sakaiproject_sitestats_api_chart_ChartService}</value>
+		</managed-property>
+		<managed-property>
 			<property-name>sstStatsUpdateManager</property-name>
 			<value>#{org_sakaiproject_sitestats_api_StatsUpdateManager}</value>
 		</managed-property>

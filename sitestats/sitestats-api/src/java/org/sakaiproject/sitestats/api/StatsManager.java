@@ -20,12 +20,8 @@ package org.sakaiproject.sitestats.api;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.parser.EventFactory;
-import org.sakaiproject.sitestats.api.parser.ToolFactory;
 
 
 public interface StatsManager {
@@ -48,8 +44,9 @@ public interface StatsManager {
 	public static final String	HOURLY_USAGE_REPORT		= "hourlyUsage";
 	public static final String	TOP_ACTIVITIES_REPORT	= "topActivities";
 	public static final String	TOOL_REPORT				= "toolReport";
-	public static final String	CHATTYPE_BAR			= "bar";
-	public static final String	CHATTYPE_PIE			= "pie";
+	public static final String	CHARTTYPE_LINE			= "line";
+	public static final String	CHARTTYPE_BAR			= "bar";
+	public static final String	CHARTTYPE_PIE			= "pie";
 	
 	// ################################################################
 	// Spring bean methods
