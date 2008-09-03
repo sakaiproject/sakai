@@ -23,6 +23,7 @@ package org.sakaiproject.entitybroker.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import junit.framework.TestCase;
 
@@ -33,9 +34,11 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityProviderListener;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 
@@ -286,7 +289,7 @@ public class EntityProviderManagerImplTest extends TestCase {
       try {
          entityProviderManager.registerEntityProvider(null);
          fail("Should have thrown exception");
-      } catch (NullPointerException e) {
+      } catch (IllegalArgumentException e) {
          assertNotNull(e);
       }
    }
@@ -364,6 +367,177 @@ public class EntityProviderManagerImplTest extends TestCase {
       } catch (IllegalArgumentException e) {
          assertNotNull(e);
       }
+   }
+
+   public void testRegisterListener() {
+       final Map<String, EntityProvider> providers = new ConcurrentHashMap<String, EntityProvider>();
+       // test basic fetch
+       class Listener1 implements EntityProviderListener<EntityProvider> {
+           public Class<EntityProvider> getCapabilityFilter() {
+               return null;
+           }
+           public String getPrefixFilter() {
+               return null;
+           }
+           public void run(EntityProvider provider) {
+               String prefix = provider.getEntityPrefix();
+               providers.put(prefix, provider);
+           }
+       }
+
+       entityProviderManager.registerListener(new Listener1(), true);
+       assertNotNull(providers);
+       assertTrue(providers.size() > 15);
+
+       // test not getting existing ones
+       providers.clear();
+       entityProviderManager.registerListener(new Listener1(), false);
+       assertNotNull(providers);
+       assertEquals(0, providers.size());
+
+       // test filter by prefix
+       class Listener2 implements EntityProviderListener<EntityProvider> {
+           public Class<EntityProvider> getCapabilityFilter() {
+               return null;
+           }
+           public String getPrefixFilter() {
+               return TestData.PREFIX4;
+           }
+           public void run(EntityProvider provider) {
+               String prefix = provider.getEntityPrefix();
+               providers.put(prefix, provider);
+           }
+       }
+
+       providers.clear();
+       entityProviderManager.registerListener(new Listener2(), true);
+       assertNotNull(providers);
+       assertEquals(1, providers.size());
+       assertEquals(td.entityProvider4, providers.get(TestData.PREFIX4));
+
+       // test hit when new registration happens
+       providers.clear();
+       entityProviderManager.unregisterEntityProviderByPrefix(TestData.PREFIX4);
+       assertNotNull(providers);
+       assertEquals(0, providers.size());
+       entityProviderManager.registerEntityProvider(td.entityProvider4);
+       assertNotNull(providers);
+       assertEquals(1, providers.size());
+       assertEquals(td.entityProvider4, providers.get(TestData.PREFIX4));
+
+       // test filter by capability
+       class Listener3 implements EntityProviderListener<RedirectDefinable> {
+           public Class<RedirectDefinable> getCapabilityFilter() {
+               return RedirectDefinable.class;
+           }
+           public String getPrefixFilter() {
+               return null;
+           }
+           public void run(RedirectDefinable provider) {
+               String prefix = provider.getEntityPrefix();
+               providers.put(prefix, provider);
+           }
+       }
+
+       providers.clear();
+       entityProviderManager.registerListener(new Listener3(), true);
+       assertNotNull(providers);
+       assertEquals(1, providers.size());
+       assertEquals(td.entityProviderU2, providers.get(TestData.PREFIXU2));
+       assertTrue(RedirectDefinable.class.isAssignableFrom(providers.get(TestData.PREFIXU2).getClass()));
+
+       // test filter by both
+       class Listener4 implements EntityProviderListener<RedirectDefinable> {
+           public Class<RedirectDefinable> getCapabilityFilter() {
+               return RedirectDefinable.class;
+           }
+           public String getPrefixFilter() {
+               return TestData.PREFIXU2;
+           }
+           public void run(RedirectDefinable provider) {
+               String prefix = provider.getEntityPrefix();
+               providers.put(prefix, provider);
+           }
+       }
+
+       providers.clear();
+       entityProviderManager.registerListener(new Listener4(), true);
+       assertNotNull(providers);
+       assertEquals(1, providers.size());
+       assertEquals(td.entityProviderU2, providers.get(TestData.PREFIXU2));
+       assertTrue(RedirectDefinable.class.isAssignableFrom(providers.get(TestData.PREFIXU2).getClass()));
+
+       // test filter by invalid stuff (should get nothing)
+       class Listener5 implements EntityProviderListener<EntityProvider> {
+           public Class<EntityProvider> getCapabilityFilter() {
+               return null;
+           }
+           public String getPrefixFilter() {
+               return "XXXXXXXXXXXXXX";
+           }
+           public void run(EntityProvider provider) {
+               String prefix = provider.getEntityPrefix();
+               providers.put(prefix, provider);
+           }
+       }
+
+       providers.clear();
+       entityProviderManager.registerListener(new Listener5(), true);
+       assertNotNull(providers);
+       assertEquals(0, providers.size());
+
+       // make sure null dies
+       try {
+           entityProviderManager.registerListener(null, true);
+           fail("Should have thrown exception");
+        } catch (IllegalArgumentException e) {
+           assertNotNull(e);
+        }
+   }
+
+   public void testUnregisterListeners() {
+       final Map<String, EntityProvider> providers = new ConcurrentHashMap<String, EntityProvider>();
+       class Listener2 implements EntityProviderListener<EntityProvider> {
+           public Class<EntityProvider> getCapabilityFilter() {
+               return null;
+           }
+           public String getPrefixFilter() {
+               return TestData.PREFIX4;
+           }
+           public void run(EntityProvider provider) {
+               String prefix = provider.getEntityPrefix();
+               providers.put(prefix, provider);
+           }
+       }
+
+       providers.clear();
+       EntityProviderListener<EntityProvider> listener = new Listener2();
+
+       entityProviderManager.unregisterListener(listener); // nothing happens
+       assertNotNull(providers);
+       assertEquals(0, providers.size());
+
+       entityProviderManager.registerListener(listener, true);
+       assertNotNull(providers);
+       assertEquals(1, providers.size());
+
+       providers.clear();
+       entityProviderManager.unregisterListener(listener);
+       assertNotNull(providers);
+       assertEquals(0, providers.size());
+
+       entityProviderManager.unregisterEntityProviderByPrefix(TestData.PREFIX4);
+       entityProviderManager.registerEntityProvider(td.entityProvider4);
+       assertNotNull(providers);
+       assertEquals(0, providers.size());
+
+       // make sure null dies
+       try {
+           entityProviderManager.unregisterListener(null);
+           fail("Should have thrown exception");
+        } catch (IllegalArgumentException e) {
+           assertNotNull(e);
+        }
    }
 
 }

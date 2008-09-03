@@ -21,13 +21,16 @@
 package org.sakaiproject.entitybroker.impl.entityprovider;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
@@ -42,12 +45,13 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutionControllable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityProviderListener;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.impl.EntityActionsManager;
@@ -92,7 +96,10 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       this.entityRedirectsManager = entityRedirectsManager;
    }
 
-   protected Map<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.WEAK);
+   protected ReferenceMap<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.SOFT);
+
+   @SuppressWarnings("unchecked")
+   protected ReferenceMap<String, EntityProviderListener> listenerMap = new ReferenceMap<String, EntityProviderListener>(ReferenceType.STRONG, ReferenceType.SOFT);
 
    // old CHMs were switched to RMs to avoid holding strong references and allowing clean classloader unloads
 // protected ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
@@ -223,8 +230,12 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     * (non-Javadoc)
     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#registerEntityProvider(org.sakaiproject.entitybroker.entityprovider.EntityProvider)
     */
-   public void registerEntityProvider(EntityProvider entityProvider) {
-      String prefix = new String( entityProvider.getEntityPrefix() ); // copy to make sure this string is in the EB classloader
+   @SuppressWarnings("unchecked")
+public void registerEntityProvider(EntityProvider entityProvider) {
+      if (entityProvider == null) {
+          throw new IllegalArgumentException("entityProvider cannot be null");
+      }
+      String prefix = new String( entityProvider.getEntityPrefix() ); // copy to make sure this string is in the EB ClassLoader
       new EntityReference(prefix, ""); // this checks the prefix is valid
       // we are now registering describe ourselves
 //      if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
@@ -296,6 +307,12 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       }
       log.info("EntityBroker: Registered entity provider ("+entityProvider.getClass().getName()
             +") prefix ("+prefix+") with "+count+" capabilities");
+
+      // call the registered listeners
+      for (Iterator<EntityProviderListener> iterator = listenerMap.values().iterator(); iterator.hasNext();) {
+          EntityProviderListener<? extends EntityProvider> providerListener = iterator.next();
+          callListener(providerListener, entityProvider);
+      }
    }
 
    /*
@@ -398,6 +415,104 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    public EntityProvider getProviderByReference(String reference) {
       EntityReference ref = new EntityReference(reference);
       return getProviderByPrefix(ref.prefix);
+   }
+
+   
+   // LISTENERS
+
+   @SuppressWarnings("unchecked")
+   public <T extends EntityProvider> void registerListener(EntityProviderListener<T> listener, boolean includeExisting) {
+       if (listener == null) {
+           throw new IllegalArgumentException("listener cannot be null");
+       }
+       // unregister first
+       unregisterListener(listener);
+       // get the filter values
+       String prefix = listener.getPrefixFilter();
+       Class<T> capability = listener.getCapabilityFilter();
+       // make the key ensuring it is unique
+       String key = prefix + ":" + capability + ":" + UUID.randomUUID();
+       // store the listener
+       listenerMap.put(key, listener);
+       // do the immediate calls if requested
+       if (includeExisting) {
+           if (capability == null && prefix == null) {
+               // all
+               Collection<T> providers = (Collection<T>) prefixMap.values();
+               for (T provider : providers) {
+                   listener.run(provider);
+               }
+           } else if (capability == null) {
+               // get by prefix
+               T provider = (T) getProviderByPrefix(prefix);
+               if (provider != null) {
+                   listener.run(provider);
+               }
+           } else if (prefix == null) {
+               // get by capability
+               List<T> l = getProvidersByCapability(capability);
+               for (T provider : l) {
+                   listener.run(provider);
+               }
+           } else {
+               // get by prefix and capability
+               T provider = getProviderByPrefixAndCapability(prefix, capability);
+               if (provider != null) {
+                   listener.run(provider);
+               }
+           }
+       }
+   }
+
+   /**
+    * Called from {@link #registerEntityProvider(EntityProvider)} when registering a provider
+    */
+   @SuppressWarnings("unchecked")
+   private void callListener(EntityProviderListener providerListener, EntityProvider entityProvider) {
+       // get the filter values
+       String prefix = providerListener.getPrefixFilter();
+       Class<? extends EntityProvider> capability = providerListener.getCapabilityFilter();
+       // call the listener and give it the provider
+       if (capability == null && prefix == null) {
+           // any
+           providerListener.run(entityProvider);
+       } else if (capability == null) {
+           // by prefix only
+           if (prefix.equals(entityProvider.getEntityPrefix())) {
+               providerListener.run(entityProvider);
+           }
+       } else if (prefix == null) {
+           // by capability only
+           if (capability.isAssignableFrom(entityProvider.getClass())) {
+               providerListener.run(entityProvider);
+           }
+       } else {
+           // by prefix and capability only
+           if (prefix.equals(entityProvider.getEntityPrefix()) 
+                   && capability.isAssignableFrom(entityProvider.getClass())) {
+               providerListener.run(entityProvider);
+           }
+       }
+   }
+
+   @SuppressWarnings("unchecked")
+   public <T extends EntityProvider> void unregisterListener(EntityProviderListener<T> listener) {
+       if (listener == null) {
+           throw new IllegalArgumentException("listener cannot be null");
+       }
+       if (! listenerMap.isEmpty()) {
+           // try to find by the object equality and then remove
+           String key = null;
+           for (Entry<String, EntityProviderListener> entry : listenerMap.entrySet()) {
+               if (listener.equals(entry.getValue())) {
+                   key = entry.getKey();
+                   break;
+               }
+           }
+           if (key != null) {
+               listenerMap.remove(key);
+           }
+       }
    }
 
 
