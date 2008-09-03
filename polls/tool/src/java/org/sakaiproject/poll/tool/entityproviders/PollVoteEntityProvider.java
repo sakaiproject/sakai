@@ -23,6 +23,7 @@ package org.sakaiproject.poll.tool.entityproviders;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -55,16 +56,16 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
     Createable, CollectionResolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable {
 
     private PollListManager pollListManager;
-    public void setPollListManager(PollListManager pollListManager) {
+    public void setPollListManager(final PollListManager pollListManager) {
         this.pollListManager = pollListManager;
     }
 
     private PollVoteManager pollVoteManager;
-    public void setPollVoteManager(PollVoteManager pollVoteManager) {
+    public void setPollVoteManager(final PollVoteManager pollVoteManager) {
         this.pollVoteManager = pollVoteManager;
     }
 
-    public static String PREFIX = "poll-vote";
+    public static final String PREFIX = "poll-vote";
     public String getEntityPrefix() {
         return PREFIX;
     }
@@ -94,9 +95,6 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         if (vote.getPollOption() == null) {
             throw new IllegalArgumentException("Poll Option must be set to create a vote");
         }
-        if (vote.getSubmissionId() == null) {
-            throw new IllegalArgumentException("Submission Id must be set to create a vote");
-        }
         if (! pollVoteManager.isUserAllowedVote(userId, pollId, false)) {
             throw new SecurityException("User ("+userId+") is not allowed to vote in this poll ("+pollId+")");
         }
@@ -112,6 +110,10 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         // set default vote values
         vote.setVoteDate( new Date() );
         vote.setUserId(userId);
+        if (vote.getSubmissionId() == null) {
+            String sid = userId + ":" + UUID.randomUUID();
+            vote.setSubmissionId(sid);
+        }
         // set the IP address
         UsageSession usageSession = UsageSessionService.getSession();
         if (usageSession != null) {
