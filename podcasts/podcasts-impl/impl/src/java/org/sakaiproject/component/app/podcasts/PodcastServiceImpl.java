@@ -477,9 +477,10 @@ public class PodcastServiceImpl implements PodcastService {
 		final String siteCollection = contentHostingService.getSiteCollection(siteId);
 		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 
+		boolean isStudent = ! podcastPermissionsService.canUpdateSite(siteId);
 		// Also refactored to streamline code.
 		try {
-			if (isPodcastsFolderId(podcastsCollection, siteId, ! podcastPermissionsService.canUpdateSite(siteId))) {
+			if (isPodcastsFolderId(podcastsCollection, siteId, isStudent)) {
 				return podcastsCollection;
 			}
 		}
@@ -495,19 +496,28 @@ public class PodcastServiceImpl implements PodcastService {
 			// once again, since we are dealing with a student/access user, if folder is 'hidden'
 			// this user can't access, so enable an advisor to determine if it truly does exist
 			try {
-				if (isPodcastsFolderId(podcastsCollection, siteId, ! podcastPermissionsService.canUpdateSite(siteId))) {
+				if (isPodcastsFolderId(podcastsCollection, siteId, isStudent)) {
 					return podcastsCollection;
 				}
 			} 
 			catch (IdUnusedException e) {
 				LOG.warn("IdUnusedException while trying to determine correct podcast folder id "
-						+ " for site: " + siteId + ". " + e.getMessage(), e);
+						+ " for site: " + siteId + ". " + e.getMessage());
+				
+				// if we get here it does not exist so create
+				if (isStudent) {
+					enablePodcastSecurityAdvisor();
+				}
+				createPodcastsFolder(siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR, siteId);
 			} 
 			catch (TypeException e) {
 				LOG.error("TypeException while trying to determine correct podcast folder Id String "
 						+ " for site: " + siteId + ". " + e.getMessage(), e);
 				throw new Error(e);
 			}
+		}
+		finally {
+			SecurityService.clearAdvisors();
 		}
 		
 		return null;
