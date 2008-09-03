@@ -93,7 +93,7 @@ public interface EntityProviderManager {
     * @param capability
     *           any entity provider capability class (these classes extend {@link EntityProvider} or
     *           {@link CoreEntityProvider} or another capability)
-    * @return the list of providers which implement the given capapbility, may be an empty list
+    * @return the list of providers which implement the given capability, may be an empty list
     */
    public <T extends EntityProvider> List<T> getProvidersByCapability(Class<T> capability);
 
