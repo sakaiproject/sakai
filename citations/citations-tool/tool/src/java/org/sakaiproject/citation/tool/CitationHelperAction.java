@@ -1880,7 +1880,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 */
 
 	      // below is needed if UTF-8 above is commented out
-    	  isr = new InputStreamReader(risImportStream);
+    	  InputStreamReader isr = new InputStreamReader(risImportStream);
+	      bread = new java.io.BufferedReader(isr);
+		} // end set the read of the import from the uploaded file.
 
 		// The below code is a major work in progress.
 		// This code is for demonstration purposes only. No gambling or production use!
