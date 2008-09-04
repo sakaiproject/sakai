@@ -43,6 +43,10 @@ public class Web
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(Web.class);
 
+	// used to remove javascript from html
+	private static final String START_JAVASCRIPT = "<script";
+	private static final String END_JAVASCRIPT = "</script>";
+	
 	protected static void displayStringChars(PrintWriter out, String str)
 	{
 		if (str == null)
@@ -694,4 +698,32 @@ public class Web
 		}
 	}
 
+	/**
+	 ** Make sure any HTML is 'clean' (no javascript, invalid image tags)
+	 **/
+	public static String cleanHtml( String htmlStr )
+	{
+		// handle embedded images			
+		htmlStr = htmlStr.replaceAll("<img ", "<img alt='' ");
+			
+		// remove all javascript (risk of exploit)
+		// note that String.replaceAll() does not reliably handle line terminators, 
+		// so javascript is removed string by string
+		while ( htmlStr.indexOf(START_JAVASCRIPT) != -1 )
+		{
+			int badStart = htmlStr.indexOf(START_JAVASCRIPT);
+			int badEnd = htmlStr.indexOf(END_JAVASCRIPT);
+			String badHtml;
+		
+			if ( badStart > -1 && badEnd == -1)
+				badHtml = htmlStr.substring( badStart );
+			else
+				badHtml = htmlStr.substring( badStart, badEnd+END_JAVASCRIPT.length() );
+				
+			// use replace( CharSequence, CharSequence) -- no regexp
+			htmlStr = htmlStr.replace( new StringBuilder(badHtml), new StringBuilder() );
+		}
+
+		return htmlStr;
+	}
 }
