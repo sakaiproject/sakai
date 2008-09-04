@@ -22,6 +22,7 @@
 package org.sakaiproject.citation.tool;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.io.InputStream;
@@ -1850,8 +1851,31 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 
 	      InputStream risImportStream = risImport.getInputStream();
-		  InputStreamReader isr = new InputStreamReader(risImportStream);
-		  bread = new java.io.BufferedReader(isr);
+	      
+	      
+	      // Let's try to use UTF-8 encoding 
+	      
+	      InputStreamReader isr = null;
+	      
+	      try
+	      {
+		    isr = new InputStreamReader(risImportStream, "UTF-8");
+	      }
+	      catch(UnsupportedEncodingException e)
+	      {
+	    	  logger.warn("doImport() - could not set codeset to UTF-8");
+	    	  
+	      }
+	      
+	      // For some reason we couldn't create a UTF-8 enabled InputStreamReader. Fall back
+	      // to just a default InputStreamReader
+	      
+	      if (isr == null)
+	      {
+	    	  isr = new InputStreamReader(risImportStream);
+	      }
+	    	  		  
+	      bread = new java.io.BufferedReader(isr);
 		} // end set the read of the import from the uploaded file.
 
 
