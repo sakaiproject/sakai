@@ -1852,7 +1852,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	      InputStream risImportStream = risImport.getInputStream();
 	      
-	      
+/*	      
 	      // Let's try to use UTF-8 encoding 
 	      
 	      InputStreamReader isr = null;
@@ -1877,7 +1877,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    	  		  
 	      bread = new java.io.BufferedReader(isr);
 		} // end set the read of the import from the uploaded file.
+*/
 
+	      // below is needed if UTF-8 above is commented out
+    	  isr = new InputStreamReader(risImportStream);
 
 		// The below code is a major work in progress.
 		// This code is for demonstration purposes only. No gambling or production use!
