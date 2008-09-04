@@ -92,7 +92,7 @@
 						// was called by this wait page (and not from iframe)
 						location.href = url + "?time=1";
 					}
-				}, 150);
+				}, 300);
 			}
 		}
 	}
