@@ -91,7 +91,7 @@
 					</tr>	
 				#end
 			</table>
-		#if ($sites.size() > 0)	
+		#if (!$existSite && $sites.size() > 0)	
 			<h4>
 				$tlang.getString("feat.reuse")
 			</h4>
@@ -130,10 +130,12 @@
 					accesskey="s"
 					class="active"
 					onclick="document.featuresForm.option.value='continue';javascript:document.featuresForm.submit();" />
+			#if (!$!existSite)
 			<input type="button" value="$tlang.getString('gen.back')" 
 					name="Back" 
 					accesskey="b"
 					onclick="document.featuresForm.option.value='back';javascript:document.featuresForm.submit();" />
+			#end
 			<input type="button" value="$tlang.getString('gen.cancel')" 
 					name="Cancel"
 					accesskey="x"
