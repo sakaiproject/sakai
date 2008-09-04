@@ -8277,52 +8277,56 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		} // for
 
-		// the steps for moving page within the list
-		int moves = 0;
-		if (hasHome) {
-			SitePage homePage = null;
-			// Order tools - move Home to the top - first find it
-			pageList = site.getPages();
-			if (pageList != null && pageList.size() != 0) {
-				for (ListIterator i = pageList.listIterator(); i.hasNext();) {
-					SitePage page = (SitePage) i.next();
-					if (rb.getString("java.home").equals(page.getTitle()))
-					{
-						homePage = page;
-						break;
+		// reorder Home and Site Info only if the site has not been customized order before
+		if (!site.isCustomPageOrdered())
+		{
+			// the steps for moving page within the list
+			int moves = 0;
+			if (hasHome) {
+				SitePage homePage = null;
+				// Order tools - move Home to the top - first find it
+				pageList = site.getPages();
+				if (pageList != null && pageList.size() != 0) {
+					for (ListIterator i = pageList.listIterator(); i.hasNext();) {
+						SitePage page = (SitePage) i.next();
+						if (rb.getString("java.home").equals(page.getTitle()))
+						{
+							homePage = page;
+							break;
+						}
 					}
 				}
-			}
-			if (homePage != null)
-			{
-				moves = pageList.indexOf(homePage);
-				for (int n = 0; n < moves; n++) {
-					homePage.moveUp();
-				}
-			}
-		}
-
-		// if Site Info is newly added, more it to the last
-		if (hasSiteInfo) {
-			SitePage siteInfoPage = null;
-			pageList = site.getPages();
-			String[] toolIds = { "sakai.siteinfo" };
-			if (pageList != null && pageList.size() != 0) {
-				for (ListIterator i = pageList.listIterator(); siteInfoPage == null
-						&& i.hasNext();) {
-					SitePage page = (SitePage) i.next();
-					int s = page.getTools(toolIds).size();
-					if (s > 0) {
-						siteInfoPage = page;
-						break;
-					}
-				}
-				if (siteInfoPage != null)
+				if (homePage != null)
 				{
-					// move home from it's index to the first position
-					moves = pageList.indexOf(siteInfoPage);
-					for (int n = moves; n < pageList.size(); n++) {
-						siteInfoPage.moveDown();
+					moves = pageList.indexOf(homePage);
+					for (int n = 0; n < moves; n++) {
+						homePage.moveUp();
+					}
+				}
+			}
+	
+			// if Site Info is newly added, more it to the last
+			if (hasSiteInfo) {
+				SitePage siteInfoPage = null;
+				pageList = site.getPages();
+				String[] toolIds = { "sakai.siteinfo" };
+				if (pageList != null && pageList.size() != 0) {
+					for (ListIterator i = pageList.listIterator(); siteInfoPage == null
+							&& i.hasNext();) {
+						SitePage page = (SitePage) i.next();
+						int s = page.getTools(toolIds).size();
+						if (s > 0) {
+							siteInfoPage = page;
+							break;
+						}
+					}
+					if (siteInfoPage != null)
+					{
+						// move home from it's index to the first position
+						moves = pageList.indexOf(siteInfoPage);
+						for (int n = moves; n < pageList.size(); n++) {
+							siteInfoPage.moveDown();
+						}
 					}
 				}
 			}
