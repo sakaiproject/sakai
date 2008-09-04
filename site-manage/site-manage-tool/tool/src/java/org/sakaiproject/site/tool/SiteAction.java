@@ -4035,10 +4035,13 @@ public class SiteAction extends PagedResourceActionII {
 				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			}
 			
-			// default site information. copied from the template site
+			// copy information from template site
 			siteInfo.description = templateSite.getDescription();
 			siteInfo.short_description = templateSite.getShortDescription();
-			//siteInfo.iconUrl = templateSite.getIconUrl();
+			siteInfo.iconUrl = templateSite.getIconUrl();
+			siteInfo.infoUrl = templateSite.getInfoUrl();
+			siteInfo.joinable = templateSite.isJoinable();
+			siteInfo.joinerRole = templateSite.getJoinerRole();
 			//siteInfo.include = false;
 			
 			List<String> toolIdsSelected = new Vector<String>();
