@@ -1641,9 +1641,8 @@ public abstract class BaseCitationService implements CitationService
 			// process loop that iterates list size many times
 			for(int i=0; i< risImportList.size(); i++)
 			{
-				// get current RIS line and trim off the spaces
+				// get current RIS line
 				currentLine = (String) risImportList.get(i);
-				currentLine = currentLine.trim();
 				logger.debug("importFromRisList: currentLine = " + currentLine);
 
 				// If the RIS line is less than 4, it isn't really a valid line. Set some default values
@@ -1656,6 +1655,43 @@ public abstract class BaseCitationService implements CitationService
 				else
 				{
 					// get the RIS code
+					
+					// New parsing code based on first delimiter not index in String
+
+					int delimiterIndex  = currentLine.indexOf('-');
+
+					// if we found a hyphen
+					if (delimiterIndex != -1)
+					{
+						RIScode = currentLine.substring(0, delimiterIndex).trim();
+
+						// get substring starting with hyphen. This guarantees that we at least have a 
+						// string of length 1 for processing
+						
+						RISvalue = currentLine.substring(delimiterIndex).trim();
+						
+						// if RISvalue's length is greater than 1 that means we have more than the hyphen for the
+						// string.  We then discard the hyphen (1st character)
+						
+						if (RISvalue.length() > 1)
+						{
+							RISvalue = RISvalue.substring(1);
+						}
+						else
+						{
+							RISvalue = "";
+						}
+					
+					}	
+					else
+					{
+						RIScode = "";
+						RISvalue = "";
+					}
+					
+//					below is the old parsing code
+
+/*						
 					RIScode = currentLine.substring(0, 2);
 					logger.debug("importFromRisList: substr code = " + RIScode);
 
@@ -1664,7 +1700,7 @@ public abstract class BaseCitationService implements CitationService
 						RISvalue = currentLine.substring(6);
 					else // Just set the value to some default value
 						RISvalue = "";
-
+*/
 					logger.debug("importFromRisList: substr value = " + RISvalue);
 				}
 
