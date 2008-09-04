@@ -21,7 +21,6 @@
 package org.sakaiproject.entitybroker.impl.entityprovider;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -438,7 +437,7 @@ public void registerEntityProvider(EntityProvider entityProvider) {
        if (includeExisting) {
            if (capability == null && prefix == null) {
                // all
-               Collection<T> providers = (Collection<T>) prefixMap.values();
+               List<T> providers = (List<T>) getProvidersByCapability(EntityProvider.class);
                for (T provider : providers) {
                    listener.run(provider);
                }

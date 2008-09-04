@@ -370,6 +370,7 @@ public class EntityProviderManagerImplTest extends TestCase {
    }
 
    public void testRegisterListener() {
+       final int[] calls = new int[1];
        final Map<String, EntityProvider> providers = new ConcurrentHashMap<String, EntityProvider>();
        // test basic fetch
        class Listener1 implements EntityProviderListener<EntityProvider> {
@@ -380,6 +381,7 @@ public class EntityProviderManagerImplTest extends TestCase {
                return null;
            }
            public void run(EntityProvider provider) {
+               calls[0]++;
                String prefix = provider.getEntityPrefix();
                providers.put(prefix, provider);
            }
@@ -387,7 +389,9 @@ public class EntityProviderManagerImplTest extends TestCase {
 
        entityProviderManager.registerListener(new Listener1(), true);
        assertNotNull(providers);
-       assertTrue(providers.size() > 15);
+       int psize = providers.size();
+       assertTrue(psize > 15);
+       assertEquals(psize, calls[0]); // assure we are not calling things too often
 
        // test not getting existing ones
        providers.clear();
