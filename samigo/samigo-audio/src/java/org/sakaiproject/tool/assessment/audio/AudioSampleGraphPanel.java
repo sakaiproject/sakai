@@ -125,7 +125,7 @@ public class AudioSampleGraphPanel
       }
     }
 
-    Dimension d = getSize();
+    Dimension d = getParent().getSize();
     int w = d.width;
     int h = d.height - 15;
     int[] audioData = null;

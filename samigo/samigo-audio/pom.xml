@@ -19,6 +19,15 @@
   <properties>
     <deploy.target/>
   </properties>
+
+  <dependencies>
+	  <dependency>
+		  <groupId>liveconnect</groupId>
+		  <artifactId>plugin</artifactId>
+      <version>1.5</version>
+	  </dependency>
+  </dependencies>
+
   <build>
 <!--
     <plugins>

@@ -58,6 +58,7 @@ public class AudioRecorderParams implements Serializable
   private int attemptsAllowed = 5;
   private String imageUrl="";
   private String agentId="";
+  private String questionId="";
   private String localeLanguage="";
   private String localeCountry="";
 
@@ -362,6 +363,12 @@ public class AudioRecorderParams implements Serializable
       agentId = s;
     }
     
+    s = applet.getParameter("questionId");
+    if (s != null)
+    {
+      questionId = s;
+    }
+    
     s = applet.getParameter("localeLanguage");
 
     if (s != null)
@@ -629,5 +636,13 @@ public class AudioRecorderParams implements Serializable
   {
     this.localeCountry = localeCountry;
   }
+
+public String getQuestionId() {
+	return questionId;
+}
+
+public void setQuestionId(String questionId) {
+	this.questionId = questionId;
+}
 
 }

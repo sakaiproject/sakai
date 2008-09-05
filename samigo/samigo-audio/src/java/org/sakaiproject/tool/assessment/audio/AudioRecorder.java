@@ -60,8 +60,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.sound.sampled.AudioFileFormat;
@@ -73,9 +75,12 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
+import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -95,6 +100,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.Border;
@@ -102,6 +108,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 import java.io.InputStream;
+import netscape.javascript.*;
 
 /**
  * Record audio in different formats and then playback the recorded audio. The
@@ -133,14 +140,20 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	AudioInputStream audioInputStream;
 
 	SamplingGraph samplingGraph;
+	
+	AudioMeter audioMeter;
 
 	Timer timer;
 
 	JButton playB, captB;
 
 	JTextField textField;
+	
+	DecimalFormat NoDecimalPlaces = new DecimalFormat("#0");
 
 	JTextField rtextField;
+	
+	JPanel samplingPanelContainer;
 
 	JLabel statusLabel = new JLabel("", SwingConstants.LEFT);
 
@@ -149,6 +162,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	String agentId;
 
 	String errStr;
+	
+	String mediaId;
 
 	double duration, seconds;
 
@@ -167,6 +182,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	ImageIcon playIcon = null;
 
 	ImageIcon stopIcon = null;
+	
+	Applet containingApplet = null;
 
 	public AudioRecorder(AudioRecorderParams params) {
 		res = AudioUtil.getInstance().getResourceBundle();
@@ -206,9 +223,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		p2.setLayout(new BoxLayout(p2, BoxLayout.Y_AXIS));
 		p2.add(BorderLayout.WEST, makeAttemptsAllowedLabel());
 		p2.add(makeAudioButtonsPanel());
+		
+		samplingGraph = new SamplingGraph();
+		audioMeter = new AudioMeter(params.getImageUrl());
+		
+		samplingPanelContainer = makeAudioSamplingPanelContainer(b);
+		samplingPanelContainer.add(audioMeter);
 
-		JPanel samplingPanel = makeAudioSamplingPanel(b);
-		p2.add(samplingPanel);
+		p2.add(samplingPanelContainer);
 
 		JPanel savePanel = new JPanel();
 		savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
@@ -223,7 +245,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
 	private JPanel makeSaveTFPanel() {
 		GridLayout grid = new GridLayout(2, 2);
-		JPanel saveTFpanel = new JPanel(grid);
+		FlowLayout flow = new FlowLayout();
+		SpringLayout spring = new SpringLayout();
+		JPanel saveTFpanel = new JPanel(spring);
 		JLabel flabel = new JLabel(res.getString("current_recordig_length"),
 				SwingConstants.LEFT);
 		JLabel rlabel = new JLabel(res.getString("attempts_remaining"),
@@ -244,11 +268,12 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
 		textField.setEditable(false);
 		rtextField.setEditable(false);
-		Font font = new Font("Ariel", Font.PLAIN, 11);
+		Font font = new Font("Ariel", Font.PLAIN, 14);
 		flabel.setFont(font);
 		rlabel.setFont(font);
 		textField.setFont(font);
 		rtextField.setFont(font);
+		SpringUtilities.makeCompactGrid(saveTFpanel, 2, 2, 5, 5, 5, 5);
 		return saveTFpanel;
 	}
 
@@ -273,11 +298,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		return buttonsPanel;
 	}
 
-	private JPanel makeAudioSamplingPanel(Border b) {
+	private JPanel makeAudioSamplingPanelContainer(Border b) {
 		JPanel samplingPanel = new JPanel(new BorderLayout());
 		samplingPanel.setBorder(b);
-		samplingPanel.setPreferredSize(new Dimension(450, 150));
-		samplingPanel.add(samplingGraph = new SamplingGraph());
+		samplingPanel.setPreferredSize(new Dimension(225, 150));
 		return samplingPanel;
 	}
 
@@ -355,11 +379,21 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			}
 		} else if (obj.equals(captB)) {
 			if (captB.getText().startsWith(res.getString("Record"))) {
+				if (containingApplet != null) {
+					JSObject openingWindow = (JSObject)((JSObject)JSObject.getWindow(containingApplet).getMember("opener"));
+					openingWindow.call("disableSubmitForGrade", null);
+					openingWindow.call("disableSave", null);
+					openingWindow.call("hide", new Object[]{"question" + params.getQuestionId()});
+				}
 				file = null;
 				capture.start();
 				fileName = res.getString("default_file_name");
 				samplingGraph.start();
+				audioMeter.start();
+				
 				playB.setEnabled(false);
+				samplingPanelContainer.remove(samplingGraph);
+				samplingPanelContainer.add(audioMeter);
 				if (playIcon != null)
 					playB.setIcon(playIcon);
 				captB.setText(" " + res.getString("playB_Text"));
@@ -371,6 +405,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				statusLabel.setVisible(true);
 				playB.setEnabled(false);
 				captB.setEnabled(false);
+				audioMeter.stop();
+				samplingPanelContainer.remove(audioMeter);
+				samplingPanelContainer.add(samplingGraph);
 				captureAudio();
 				if (recordIcon != null)
 					captB.setIcon(recordIcon);
@@ -457,6 +494,16 @@ public class AudioRecorder extends JPanel implements ActionListener,
 					captB.setEnabled(false);
 				else
 					captB.setEnabled(true);
+				
+				if (containingApplet != null) {
+					JSObject opener = (JSObject)JSObject.getWindow(containingApplet).getMember("opener");
+					opener.call("enableSubmitForGrade", null);
+					opener.call("updateValue", new Object[]{"mediaSrc" + params.getQuestionId(),"/samigo/servlet/ShowMedia?mediaId=" + mediaId});
+					opener.call("updateData", new Object[]{"object" + params.getQuestionId(),"/samigo/servlet/ShowMedia?mediaId=" + mediaId});
+					opener.call("updateHref", new Object[]{"link" + params.getQuestionId(),"/samigo/servlet/ShowMedia?mediaId=" + mediaId + "&setMimeType=false"});
+					opener.call("show", new Object[]{"question" + params.getQuestionId()});
+					
+				}
 
 				samplingGraph.repaint();
 			} // end of run
@@ -501,14 +548,17 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				String reportStr = res.getString("contentlenw") + ": " + c
 						+ " " + res.getString("bytes") + ".\n  ";
 				BufferedReader input = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+				String response = "";
 
 				// need to check that acknowlegement from server matches or
 				// display
 				String str;
 				while (null != ((str = input.readLine()))) {
 					reportStr += str;
+					response += str;
 				}
 				input.close();
+				mediaId = response;
 				// mock up doesn't require report, let's comment it out
 				// reportStatus(reportStr + "\n");
 			} catch (Exception ex) {
@@ -731,12 +781,21 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			int numBytesRead;
 
 			line.start();
+			audioMeter.start();
 
 			while (thread != null) {
 				if ((numBytesRead = line.read(data, 0, bufferLengthInBytes)) == -1) {
 					break;
 				}
+				// we want this to sample in a separate thread, methinks
+			    for (int i=0; i < data.length; i++) {
+			    	if (Math.abs(data[i]) > 0) {
+			    		audioMeter.setLevel(Math.abs(data[i]));
+			    		audioMeter.setSeconds(seconds);
+			    	}
+			    }
 				out.write(data, 0, numBytesRead);
+				
 			}
 
 			// we reached the end of the stream. stop and close the line.
@@ -880,6 +939,47 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			repaint();
 		}
 	} // End class SamplingGraph
+	
+	class AudioMeter extends AudioMeterPanel implements Runnable {
+
+		private static final long serialVersionUID = 0L;
+		
+		public AudioMeter(String imageUrl) {
+			super(imageUrl);
+		}
+		
+		public void start() {
+			animator = new Thread(this);
+			animator.start();
+		}
+
+		public void stop() {
+			animator = null;
+			offImage = null;
+			offGraphics = null;
+		    }
+
+		/**
+	     * This method is called by the thread that was created in
+	     * the start method. It does the main animation.
+	     */
+	    public void run() {
+			// Remember the starting time
+			long tm = System.currentTimeMillis();
+			while (Thread.currentThread() == animator) {
+			    // Display the next frame of animation.
+			    repaint();
+	
+			    // Delay depending on how far we are behind.
+			    try {
+				tm += delay;
+				Thread.sleep(Math.max(0, tm - System.currentTimeMillis()));
+			    } catch (InterruptedException e) {
+				break;
+			    }
+			}
+	    }
+	}
 
 	public static void main(String s[]) {
 		AudioRecorderParams params = new AudioRecorderParams();
@@ -913,7 +1013,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		}
 		JLabel label2 = new JLabel(res.getString("time_limit") + " "
 				+ params.getMaxSeconds() + " sec", SwingConstants.LEFT);
-		Font font = new Font("Ariel", Font.PLAIN, 11);
+		Font font = new Font("Ariel", Font.PLAIN, 14);
 		label1.setFont(font);
 		label2.setFont(font);
 
@@ -973,9 +1073,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			// allowed.
 			// However, for record keeping, the actual duration is saved.
 			if (duration > params.getMaxSeconds())
-				textField.setText("" + params.getMaxSeconds());
+				textField.setText(NoDecimalPlaces.format(params.getMaxSeconds()));
 			else
-				textField.setText("" + duration);
+				textField.setText(NoDecimalPlaces.format(duration));
 			if (attempts == 0)
 				captB.setEnabled(false);
 			;
@@ -1026,6 +1126,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				statusLabel.setVisible(true);
 				playB.setEnabled(false);
 				captB.setEnabled(false);
+				audioMeter.stop();
+				samplingPanelContainer.remove(audioMeter);
+				samplingPanelContainer.add(samplingGraph);
 				captureAudio();
 			}
 		};
@@ -1056,6 +1159,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			// doesn't matter; treat it as no input stream
 			System.out.println(ex.getMessage());
 		}
+	}
+
+	public Applet getContainingApplet() {
+		return containingApplet;
+	}
+
+	public void setContainingApplet(Applet containingApplet) {
+		this.containingApplet = containingApplet;
 	}
 
 }

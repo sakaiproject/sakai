@@ -348,6 +348,30 @@ function disableSubmitForGrade(){
   }
 }
 
+function enableSubmitForGrade(){
+  if (submitForGradeDisabled == 'true'){
+    submitForGradeDisabled = 'false'
+    if (document.forms[0].elements['takeAssessmentForm:next'])
+      document.forms[0].elements['takeAssessmentForm:next'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:previous'])
+      document.forms[0].elements['takeAssessmentForm:previous'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
+      document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
+      document.forms[0].elements['takeAssessmentForm:saveAndExit2'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:submitForm'])
+      document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
+      document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
+      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:quit'])
+      document.forms[0].elements['takeAssessmentForm:quit'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
+      document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=false;
+  }
+}
+
 
 //  show Processing for file upload questions 
 //  taking out of deliveryAssessment.jsp, so authoring can use it too.   
@@ -442,6 +466,26 @@ function submitOnEnter(event, defaultButtonId) {
 	} else {
 		return true;
 	}
+}
+
+function show(obj) {
+		document.getElementById(obj).style.display = '';
+}
+
+function hide(obj) {
+		document.getElementById(obj).style.display = 'none';
+}
+
+function updateValue(obj, value) {
+		document.getElementById(obj).value = value;
+}
+
+function updateData(obj, data) {
+	    document.getElementById(obj).data = data;
+}
+
+function updateHref(obj, href) {
+	    document.getElementById(obj).href = href;
 }
 
 

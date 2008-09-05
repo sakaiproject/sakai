@@ -25,7 +25,7 @@
 <object
   classid = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
   codebase = "http://java.sun.com/update/1.5.0/jinstall-1_5-windows-i586.cab#Version=1,5,0,0"
-  WIDTH = "500" HEIGHT = "350" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
+  WIDTH = "438" HEIGHT = "400" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
   <PARAM NAME = CODE VALUE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" >
   <PARAM NAME = ARCHIVE VALUE = "sakai-samigo-audio-dev.jar" >
   <PARAM NAME = CODEBASE VALUE = "/samigo/applets/" >
@@ -40,8 +40,8 @@
       JAVA_CODEBASE = "/samigo/applets/" \
       ARCHIVE = "sakai-samigo-audio-dev.jar"
       NAME = "Record Audio" \
-      WIDTH = "500" \
-      HEIGHT = "350" \
+      WIDTH = "438" \
+      HEIGHT = "400" \
       ALIGN = "middle" \
       VSPACE = "2" \
       HSPACE = "2" \
@@ -51,10 +51,10 @@
       saveToUrl ="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>" \
       fileName ="audio_#{delivery.assessmentGrading.assessmentGradingId}" \
       url ="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}" /><f:verbatim>" \
+     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{param.questionId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}" /><f:verbatim>" \
       imageUrl ="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/images/" /><f:verbatim>" \
       compression ="linear" \
-      frequency ="8000" \
+      frequency ="16000" \
       bits ="8" \
       signed ="true" \
       bigendian ="true6" \
@@ -66,15 +66,17 @@
       agentId ="</f:verbatim><h:outputText
          value="#{person.id}" escape="false"/><f:verbatim>" \
       maxSeconds ="</f:verbatim><h:outputText
-         value="#{question.duration}" escape="false"/><f:verbatim>" \
+         value="#{param.duration}" escape="false"/><f:verbatim>" \
       attemptsAllowed ="</f:verbatim><h:outputText
-         value="#{question.triesAllowed}" escape="false"/><f:verbatim>" \
+         value="#{param.triesAllowed}" escape="false"/><f:verbatim>" \
       attemptsRemaining ="</f:verbatim><h:outputText
-         value="#{question.attemptsRemaining}" escape="false"/><f:verbatim>" \
+         value="#{param.attemptsRemaining}" escape="false"/><f:verbatim>" \
+      questionId ="</f:verbatim><h:outputText
+	     value="#{param.questionId}" escape="false"/><f:verbatim>" \
       aassessmentGrading ="</f:verbatim><h:outputText
          value="#{delivery.assessmentGrading.assessmentGradingId}" escape="false"/><f:verbatim>" \
-      scriptable = false
-      pluginspage = "http://java.sun.com/products/plugin/index.html#download">
+      scriptable=true 
+      pluginspage = "http://java.sun.com/products/plugin/index.html#download" MAYSCRIPT=true>
       <noembed>
 
       </noembed>

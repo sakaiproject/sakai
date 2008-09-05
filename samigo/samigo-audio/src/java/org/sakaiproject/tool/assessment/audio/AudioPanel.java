@@ -54,6 +54,7 @@ package org.sakaiproject.tool.assessment.audio;
 import java.io.File;
 import java.util.Vector;
 
+import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -235,6 +236,7 @@ public class AudioPanel
     //p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
     p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 0, 0)));
     AudioRecorder recorder = new AudioRecorder(params);
+    recorder.setContainingApplet((Applet)this.getParent().getParent().getParent().getParent());
     tabPanels.add(recorder);
     p.add(recorder);
     tabPane.addTab(res.getString("Audio_Recorder"), p);

@@ -39,13 +39,27 @@ should be included in file importing DeliveryMessages
 
 <f:verbatim><br /></f:verbatim>
 <f:verbatim><br /></f:verbatim>
-
-<h:panelGroup rendered="#{question!=null and question.mediaArray!=null}">
+<f:verbatim><div id="</f:verbatim><h:outputText value="question#{question.itemData.itemId}" /><f:verbatim>" style="</f:verbatim><h:outputText value="display:none;" rendered="#{question==null or question.mediaArray==null}" /><f:verbatim>" ></f:verbatim>
+<h:panelGroup>
   <h:dataTable value="#{question.mediaArray}" var="media" cellpadding="10">
     <h:column>
       <h:outputText escape="false" value="
-         <embed src=\"#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\"
-                volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
+	    <object classid=\"clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B\"  codebase=\"http://www.apple.com/qtactivex/qtplugin.cab\" width=\"300\" height=\"25\">
+		    <param id=\"mediaSrc#{question.itemData.itemId}\" name=\"src\" value=\"#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\" /> 
+		    <param name=\"controller\" value=\"true\" /> 
+		    <param name=\"autoplay\" value=\"false\" />
+
+		<!--[if !IE]>-->
+
+		<object type=\"audio/basic\"
+			    id=\"object#{question.itemData.itemId}\" 
+		        data=\"#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\" 
+		        width=\"300\" height=\"25\">
+		        <param name=\"autoplay\" value=\"false\" />
+		        <param name=\"controller\" value=\"true\" />
+		        </object>
+		<!--<![endif]-->
+		    </object>
          " />
 
       <f:verbatim><br /></f:verbatim>
@@ -60,9 +74,7 @@ should be included in file importing DeliveryMessages
  
       <div>
       <h:outputText value="#{deliveryMessages.can_you_hear_1}"  escape="false"/>
-      <h:outputLink value="#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
-        <h:outputText value=" #{deliveryMessages.can_you_hear_2} " escape="false" />
-      </h:outputLink>
+      <f:verbatim><a id="</f:verbatim><h:outputText value="link#{question.itemData.itemId}" /><f:verbatim>" href="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false" /><f:verbatim>" ></f:verbatim><h:outputText value=" #{deliveryMessages.can_you_hear_2} " escape="false" /><f:verbatim></a></f:verbatim>
       <h:outputText value="#{deliveryMessages.can_you_hear_3}"  escape="false"/>
       </div>
     </h:column>
@@ -79,9 +91,13 @@ should be included in file importing DeliveryMessages
     </h:column>
   </h:dataTable>
 </h:panelGroup>
+<f:verbatim></div></f:verbatim>
 
-<%@ include file="/jsf/delivery/item/audioObject.jsp" %>
-<%@ include file="/jsf/delivery/item/audioApplet.jsp" %>
+<%-- <%@ include file="/jsf/delivery/item/audioObject.jsp" %> --%>
+<%-- <%@ include file="/jsf/delivery/item/audioApplet.jsp" %> --%>
+<h:outputLink title="#{assessmentSettingsMessages.record_your_answer}" value="#" onclick="javascript:window.open('../author/audioRecordingPopup.faces?questionId=#{question.itemData.itemId}&duration=#{question.duration}&triesAllowed=#{question.triesAllowed}&attemptsRemaining=#{question.attemptsRemaining}','AudioRecordingApplet','width=448,height=400,scrollbars=no, resizable=no');" >
+	<h:outputText  value=" #{assessmentSettingsMessages.record_your_answer}"/>
+</h:outputLink>
 
 <f:verbatim><br /></f:verbatim>
 

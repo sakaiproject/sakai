@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
@@ -96,6 +97,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     String mediaLocation = req.getParameter("media")+"."+suffix;
     log.debug("****media location="+mediaLocation);
     String zip_mediaLocation=null;
+    String response = "empty";
 
     // test for nonemptiness first
     if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
@@ -112,23 +114,27 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
       //zip_mediaLocation = createZipFile(mediaDir.getPath(), mediaLocation);
     }
 
-    res.flushBuffer();
-
     //#2 - record media as question submission
     if (mediaIsValid){
       // note that this delivery bean is empty. this is not the same one created for the
       // user during take assessment.
       try{
         if (zip_mediaLocation != null)
-          submitMediaAsAnswer(req, zip_mediaLocation, saveToDb);
+        response = submitMediaAsAnswer(req, zip_mediaLocation, saveToDb);
         else
-          submitMediaAsAnswer(req, mediaLocation, saveToDb);
+        response = submitMediaAsAnswer(req, mediaLocation, saveToDb);
         log.info("Audio has been saved and submitted as answer to the question. Any old recordings have been removed from the system.");
       }
       catch (Exception ex){
         log.info(ex.getMessage());
       }
     }
+  	res.setContentType("text/plain");
+	res.setContentLength(response.length());
+	PrintWriter out = res.getWriter();
+	out.println(response);
+	out.close();
+	out.flush();
   }
 
   private boolean writeToFile(HttpServletRequest req, String mediaLocation){
@@ -289,7 +295,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     return outputStream;
   }
 
-  private void submitMediaAsAnswer(HttpServletRequest req,
+  private String submitMediaAsAnswer(HttpServletRequest req,
                                    String mediaLocation, String saveToDb)
     throws Exception{
     // read parameters passed in
@@ -380,10 +386,10 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     log.debug("****2. attemptsRemaining="+attemptsRemaining);
     log.debug("****3. itemGradingDataId="+itemGrading.getItemGradingId());
     // 3. save Media and fix up itemGrading
-    saveMedia(attemptsRemaining, mimeType, agentId, mediaLocation, itemGrading, saveToDb, duration);
+    return saveMedia(attemptsRemaining, mimeType, agentId, mediaLocation, itemGrading, saveToDb, duration);
   }
 
-  private void saveMedia(int attemptsRemaining, String mimeType, String agent,
+  private String saveMedia(int attemptsRemaining, String mimeType, String agent,
                          String mediaLocation, ItemGradingData itemGrading,
                         String saveToDb, String duration){
     boolean SAVETODB = false;
@@ -435,6 +441,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     catch(Exception e){
       log.warn(e.getMessage());
     }
+    return mediaId.toString();
   }
 
   private byte[] getMediaStream(String mediaLocation)
