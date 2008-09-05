@@ -372,6 +372,33 @@ function enableSubmitForGrade(){
   }
 }
 
+function enableSave(){
+  if (saveDisabled == 'true'){
+    saveDisabled = 'false'
+    disableTOCFeedback();
+    if (document.forms[0].elements['takeAssessmentForm:next'])
+      document.forms[0].elements['takeAssessmentForm:next'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:previous'])
+      document.forms[0].elements['takeAssessmentForm:previous'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:quit'])
+      document.forms[0].elements['takeAssessmentForm:quit'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
+      document.forms[0].elements['takeAssessmentForm:saveAndExit2'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:submitForm'])
+      document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
+      document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
+      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=false;
+    if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
+      document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=false;
+  }
+  else{ // any subsequent click disable button & action
+    if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
+      document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=false;
+  }
+}
+
 
 //  show Processing for file upload questions 
 //  taking out of deliveryAssessment.jsp, so authoring can use it too.   
@@ -476,16 +503,21 @@ function hide(obj) {
 		document.getElementById(obj).style.display = 'none';
 }
 
-function updateValue(obj, value) {
-		document.getElementById(obj).value = value;
+function clickReloadLink(windowToGetFocus){
+	
+
+var newindex = 0;
+for (i=0; i<document.links.length; i++) {
+  if ( document.links[i].id.indexOf("hiddenReloadLink") >=0){
+    newindex = i;
+    break;
+  }
 }
 
-function updateData(obj, data) {
-	    document.getElementById(obj).data = data;
-}
+document.links[newindex].onclick();
+windowToGetFocus.focus();
 
-function updateHref(obj, href) {
-	    document.getElementById(obj).href = href;
+return false;
 }
 
 

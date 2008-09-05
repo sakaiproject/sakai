@@ -1090,4 +1090,8 @@ public class ItemContentsBean implements Serializable {
 	  }
   }
 
+  public boolean getHasNoMedia() {
+	return getMediaArray().size() < 1;
+}
+
 }

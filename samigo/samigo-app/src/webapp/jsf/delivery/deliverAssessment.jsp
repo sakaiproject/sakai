@@ -245,6 +245,9 @@ function saveTime()
               && delivery.continue}"
     onclick="disableNext()" onkeypress="" />
 
+	<h:commandLink id="hiddenReloadLink" action="#{delivery.same_page}" value="">
+	</h:commandLink>
+
   <%-- SUBMIT FOR GRADE --%>
   <h:commandButton id="submitForGrade" type="submit" value="#{deliveryMessages.button_submit_grading}"
     action="#{delivery.confirmSubmit}" styleClass="active" 

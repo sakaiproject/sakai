@@ -40,6 +40,7 @@ public class AudioRecorderParams implements Serializable
   private boolean enablePlay = true;
   private boolean enableRecord = true;
   private boolean enablePause = true;
+  private boolean enableSave = true;
   private boolean enableLoad = false;
   private boolean saveAu = true;
   private boolean saveWave = true;
@@ -421,6 +422,11 @@ public class AudioRecorderParams implements Serializable
   {
     return enableRecord;
   }
+  
+  public boolean isEnableSave() 
+  {
+	  return enableSave;
+  }
 
   public String getFileName()
   {
@@ -571,6 +577,11 @@ public class AudioRecorderParams implements Serializable
   {
     this.enablePlay = enablePlay;
   }
+  
+  public void setEnableSave(boolean enableSave)
+  {
+	  this.enableSave = enableSave;
+  }
 
   public void setEnablePause(boolean enablePause)
   {
@@ -644,5 +655,7 @@ public String getQuestionId() {
 public void setQuestionId(String questionId) {
 	this.questionId = questionId;
 }
+
+
 
 }

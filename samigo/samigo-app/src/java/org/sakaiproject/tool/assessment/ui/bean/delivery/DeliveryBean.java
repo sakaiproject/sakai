@@ -1440,6 +1440,32 @@ public class DeliveryBean
     return "takeAssessment";
   }
 
+  public String same_page()
+  {
+    String nextAction = checkBeforeProceed();
+    log.debug("***** next Action="+nextAction);
+    if (!("safeToProceed").equals(nextAction)){
+      return nextAction;
+    }
+
+    forGrade = false;
+
+    if (this.actionMode == TAKE_ASSESSMENT
+        || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
+    {
+      SubmitToGradingActionListener listener =
+        new SubmitToGradingActionListener();
+      listener.processAction(null);
+    }
+    syncTimeElapsedWithServer();
+
+    DeliveryActionListener l2 = new DeliveryActionListener();
+    l2.processAction(null);
+
+    reload = false;
+    return "takeAssessment";
+  }
+
   public String previous()
   {
     String nextAction = checkBeforeProceed();

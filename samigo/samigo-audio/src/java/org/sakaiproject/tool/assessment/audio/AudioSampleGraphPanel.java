@@ -180,6 +180,9 @@ public class AudioSampleGraphPanel
     byte my_byte = 0;
     double y_last = 0;
     int numChannels = format.getChannels();
+    // we can normalize the waveform in the display by finding the signal peak
+    // and then we calculate a scale factor to use when drawing
+    int signalPeak = 0;
     for (double x = 0; x < w && audioData != null; x++)
     {
       int idx = (int) (frames_per_pixel * numChannels * x);
@@ -191,7 +194,24 @@ public class AudioSampleGraphPanel
       {
         my_byte = (byte) (128 * audioData[idx] / 32768);
       }
-      double y_new = (double) (h * (128 - my_byte) / 256);
+      if (Math.abs(my_byte) > signalPeak) {
+    	  signalPeak = Math.abs(my_byte);
+      }
+    }
+    double scaleFactor = 128 / (double)signalPeak;
+    
+    for (double x = 0; x < w && audioData != null; x++)
+    {
+      int idx = (int) (frames_per_pixel * numChannels * x);
+      if (format.getSampleSizeInBits() == 8)
+      {
+        my_byte = (byte) audioData[idx];
+      }
+      else
+      {
+        my_byte = (byte) (128 * audioData[idx] / 32768);
+      }
+      double y_new = (double) (h * (128 - (my_byte * scaleFactor)) / 256);
       lines.add(new Line2D.Double(x, y_last, x, y_new));
       y_last = y_new;
     }

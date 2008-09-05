@@ -303,7 +303,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     String duration  = req.getParameter("lastDuration");
     String agentId  = req.getParameter("agent");
     
-    int attemptsRemaining =0;
+    int attemptsRemaining = Integer.parseInt(req.getParameter("attempts"));
     GradingService gradingService = new GradingService();
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     int assessmentIndex = mediaLocation.indexOf("assessment");
@@ -353,14 +353,13 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
         // attempt set correctly
         if ((item.getTriesAllowed()).intValue() >= 9999)
           attemptsRemaining = 9999;  
-        else
-          attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
       }
       else{
         if ((item.getTriesAllowed()).intValue() >= 9999 )
           attemptsRemaining = 9999;
-        else if (itemGrading.getAttemptsRemaining().intValue() > 0)
-          attemptsRemaining = itemGrading.getAttemptsRemaining().intValue() - 1;
+        else if (itemGrading.getAttemptsRemaining().intValue() > 0);
+        // We're now getting the applet to tell us how many attempts remain
+//          attemptsRemaining = itemGrading.getAttemptsRemaining().intValue() - 1;
         else
           throw new Exception("This page must have been reached by mistake. Our record shows that no more attempt for this question is allowed.");
       }
@@ -369,8 +368,8 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
       // create an itemGrading
       if ((item.getTriesAllowed()).intValue() >= 9999 )
         attemptsRemaining = 9999;
-      else 
-        attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
+      else; 
+//        attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
       itemGrading = new ItemGradingData();
       itemGrading.setAssessmentGradingId(adata.getAssessmentGradingId());
       itemGrading.setPublishedItemId(item.getItemId());
