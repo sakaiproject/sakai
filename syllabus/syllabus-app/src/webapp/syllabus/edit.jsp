@@ -65,12 +65,8 @@
 								<h:outputText value="#{msgs.attachmentTitle}"/>
 							</f:facet>
 							<f:verbatim><h4></f:verbatim>
-							<h:graphicImage url="/syllabus/excel.gif" rendered="#{eachAttach.type == 'application/vnd.ms-excel'}"/>
-							<h:graphicImage url="/syllabus/html.gif" rendered="#{eachAttach.type == 'text/html'}"/>
-							<h:graphicImage url="/syllabus/pdf.gif" rendered="#{eachAttach.type == 'application/pdf'}"/>
-							<h:graphicImage url="/syllabus/ppt.gif" rendered="#{eachAttach.type == 'application/vnd.ms-powerpoint'}"/>
-							<h:graphicImage url="/syllabus/text.gif" rendered="#{eachAttach.type == 'text/plain'}"/>
-							<h:graphicImage url="/syllabus/word.gif" rendered="#{eachAttach.type == 'application/msword'}"/>
+							<sakai:contentTypeMap fileType="#{eachAttach.type}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
+							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />	
 							<h:outputText value="#{eachAttach.name}"/>
 							<f:verbatim></h4></f:verbatim>
 							<f:verbatim><div class="itemAction"></f:verbatim>
