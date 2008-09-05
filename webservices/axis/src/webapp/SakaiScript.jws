@@ -1039,4 +1039,34 @@ public String changeSiteIconUrl(String sessionid, String siteid, String iconurl)
 	return "success";
 }
 
+
+/**
+ * Change the description of a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid	   		the id of the site you want to change the title of
+ * @param	description	    the new description
+ * @return		       		success or string containing error
+ * @throws	AxisFault	
+ *
+ */
+public String changeSiteDescription( String sessionid, String siteid, String description) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = SiteService.getSite(siteid);
+		siteEdit.setDescription(description);
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.warn("WS changeSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
 }
