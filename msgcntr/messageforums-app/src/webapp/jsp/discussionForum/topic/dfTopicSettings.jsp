@@ -45,12 +45,8 @@
 				
 				<h:dataTable value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" styleClass="listHier" columnClasses="attach,bogus">
 				  <h:column>
-					<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-					<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
-					<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
-					<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-					<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
-					<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
+					<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
+					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />					
 					</h:column>
 					  <h:column>
 <%--					<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
@@ -67,12 +63,8 @@
 				<%--<h:panelGroup>
 					 <h:dataTable id="topic_attachments"  value="#{ForumTool.selectedTopic.topic.attachments}" var="attachment" >
 					  		<h:column rendered="#{!empty ForumTool.selectedTopic.topic.attachments}">
-								<h:graphicImage url="/images/excel.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-excel'}"/>
-								<h:graphicImage url="/images/html.gif" rendered="#{attachment.attachmentType == 'text/html'}"/>
-								<h:graphicImage url="/images/pdf.gif" rendered="#{attachment.attachmentType == 'application/pdf'}"/>
-								<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{attachment.attachmentType == 'application/vnd.ms-powerpoint'}"/>
-								<h:graphicImage url="/images/text.gif" rendered="#{attachment.attachmentType == 'text/plain'}"/>
-								<h:graphicImage url="/images/word.gif" rendered="#{attachment.attachmentType == 'application/msword'}"/>
+								<sakai:contentTypeMap fileType="#{attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
+								<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />								
 								<h:outputText value="#{attachment.attachmentName}"/>
 						</h:column>
 					</h:dataTable> 			 
