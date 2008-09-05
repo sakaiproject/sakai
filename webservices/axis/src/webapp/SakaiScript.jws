@@ -875,6 +875,7 @@ public String getSitesUserCanAccess(String sessionid)
 Ê* 
 Ê*/ 
 public String getSiteTitle(String sessionid, String siteid) throws AxisFault { 
+	
 	Session s = establishSession(sessionid); 
 
 	String siteTitle = ""; 
@@ -890,5 +891,33 @@ public String getSiteTitle(String sessionid, String siteid) throws AxisFault {
 	
 	return siteTitle; 
 }
+
+/** 
+Ê* Get a site's description 
+Ê* 
+Ê* @param sessionid - the id of a valid session
+Ê* @param siteid - the id of the site you want the description of 
+Ê* @return description of the site or string containing error 
+Ê* @throws AxisFault 
+Ê* 
+Ê*/ 
+public String getSiteDescription(String sessionid, String siteid) throws AxisFault { 
+
+	Session s = establishSession(sessionid); 
+
+	String siteDescription = ""; 
+	
+	try { 
+		Site site = SiteService.getSite(siteid); 
+		siteDescription = site.getDescription(); 
+	} 
+	catch (Exception e) { 
+		LOG.error("WS getSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage(); 
+	} 
+	
+	return siteDescription; 
+}
+
 
 }
