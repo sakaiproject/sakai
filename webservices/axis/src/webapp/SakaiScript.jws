@@ -976,5 +976,38 @@ public String changeSiteSkin(String sessionid, String siteid, String skin) throw
 	return "success";
 }
 
+/**
+ * Make a site joinable or not, depending on the params sent
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site you want to change the status of
+ * @param	joinable		boolean if its joinable or not
+ * @param	joinerrole		the role that users who join the site will be given
+ * @param	publicview		boolean if the site is to be public or not. if its joinable it should probably be public so people can find it, but if its public it doesnt necessarily need to be joinable.
+ * @return		        	success or string containing error
+ * @throws	AxisFault	
+ *
+ */
+public String changeSiteJoinable(String sessionid, String siteid, boolean joinable, String joinerrole, boolean publicview) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = SiteService.getSite(siteid);
+		siteEdit.setJoinable(joinable);
+		siteEdit.setJoinerRole(joinerrole);
+		siteEdit.setPubView(publicview);
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS changeSiteJoinable(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
 
 }
