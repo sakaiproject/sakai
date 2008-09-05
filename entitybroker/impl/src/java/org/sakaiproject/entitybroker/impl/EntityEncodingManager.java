@@ -570,4 +570,44 @@ public class EntityEncodingManager {
         return encoded;
     }
 
+    public String encodeData(Map<String, Object> data, String format) {
+        if (format == null) {
+            format = Formats.XML;
+        }
+        String encoded = "";
+        if (data != null) {
+            if (Formats.JSON.equals(format)) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("{");
+                int i = 0;
+                for (Entry<String, Object> entry : data.entrySet()) {
+                    sb.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\" ");
+                    
+                    i++;
+                }
+                sb.append("}");
+                encoded = sb.toString();
+            } else if (Formats.XML.equals(format)) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("<data>\n");
+                for (Entry<String, Object> entry : data.entrySet()) {
+                    sb.append("    <"+entry.getKey()+">"+entry.getValue()+"</"+entry.getKey()+">\n");
+                }
+                sb.append("</data>\n");
+                encoded = sb.toString();
+            } else if (Formats.HTML.equals(format)) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("<table border='1'>\n");
+                for (Entry<String, Object> entry : data.entrySet()) {
+                    sb.append("    <tr><td>"+entry.getKey()+"</td><td>"+entry.getValue()+"</td></tr>\n");
+                }
+                sb.append("</table>\n");
+                encoded = sb.toString();
+            } else {
+                encoded = data.toString();
+            }
+        }
+        return encoded;
+    }
+
 }

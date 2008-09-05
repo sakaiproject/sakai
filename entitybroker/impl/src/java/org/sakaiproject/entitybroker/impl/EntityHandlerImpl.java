@@ -570,6 +570,15 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                             view.setEntityReference( new EntityReference(prefix, createdId) ); // update the entity view
                                                             res.setHeader(EntityRequestHandler.HEADER_ENTITY_ID, createdId);
                                                             res.setStatus(HttpServletResponse.SC_CREATED);
+                                                            // added the id to the response to make it easier on Nico
+                                                            try {
+                                                                OutputStream outputStream = res.getOutputStream();
+                                                                outputStream.write( createdId.getBytes() );
+                                                            } catch (IOException e) {
+                                                                // oh well, no id in the output
+                                                            } catch (RuntimeException e) {
+                                                                // oh well, no id in the output
+                                                            }
                                                         } else if (EntityView.VIEW_EDIT.equals(view.getViewKey())) {
                                                             Updateable updateable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Updateable.class);
                                                             if (updateable == null) {

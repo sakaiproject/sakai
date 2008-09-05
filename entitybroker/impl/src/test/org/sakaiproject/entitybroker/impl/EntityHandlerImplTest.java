@@ -262,6 +262,15 @@ public class EntityHandlerImplTest extends TestCase {
       assertNotNull(me);
       assertEquals("TEST", me.getStuff());
       assertEquals(5, me.getNumber());
+      // test that the entityId is being returned in the response as requested by Nico
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.contains(entityId));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
 
       // make sure the .html works
       req = new MockEBHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.HTML);
