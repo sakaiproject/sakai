@@ -34,7 +34,9 @@ import edu.indiana.lib.osid.base.repository.http.InLineCitationPartStructure;
 import edu.indiana.lib.osid.base.repository.http.IsnIdentifierPartStructure;
 import edu.indiana.lib.osid.base.repository.http.IssuePartStructure;
 import edu.indiana.lib.osid.base.repository.http.LanguagePartStructure;
+import edu.indiana.lib.osid.base.repository.http.OpenUrlPartStructure;
 import edu.indiana.lib.osid.base.repository.http.PagesPartStructure;
+import edu.indiana.lib.osid.base.repository.http.PreferredUrlPartStructure;
 import edu.indiana.lib.osid.base.repository.http.PublisherPartStructure;
 import edu.indiana.lib.osid.base.repository.http.SourceTitlePartStructure;
 import edu.indiana.lib.osid.base.repository.http.StartPagePartStructure;
@@ -289,6 +291,43 @@ public class Response extends SearchResultBase implements Constants
 			 * Author (add each in turn)
 			 */
 			addAuthorList(citationElement, item);
+			/*
+			 * Find the preferred and Open URLs
+			 */
+			NodeList urlList = DomUtils.getElementListNS(NS_CS, citationElement, "url");
+
+			if (urlList.getLength() == 0) _log.warn("*** No URL element!");
+
+			for (int urlIndex = 0; urlIndex < urlList.getLength(); urlIndex++)
+			{
+			  String type, url;
+			  
+  			element = (Element) urlList.item(urlIndex);
+  			type    = element.getAttribute("type");
+ 			  url     = DomUtils.getText(element);
+  			
+  			_log.debug("link resolver" + " VS " + type);
+  			
+  			if (!StringUtils.isNull(url))
+  			{
+    			if ("link resolver".equals(type))
+    			{
+    			  int index = url.indexOf("?");
+    			  
+    			  if (index == -1) index = 0;
+    			  
+      			addPartStructure(item,
+              	             OpenUrlPartStructure.getPartStructureId(),
+    	                       url.substring(index));
+    			}
+    			else
+    			{
+      			addPartStructure(item,
+              	             PreferredUrlPartStructure.getPartStructureId(),
+    	                       url);
+      	  }
+    	  }
+      }			 
 			/*
 			 * Save the asset component we just created
 			 */
