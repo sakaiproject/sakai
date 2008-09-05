@@ -865,4 +865,30 @@ public String getSitesUserCanAccess(String sessionid)
 	}
 }
 
+/** 
+Ê* Get a site's title 
+Ê* 
+Ê* @param sessionid - the id of a valid session
+Ê* @param siteid - the id of the site you want the title of 
+Ê* @return title of the site or string containing error 
+Ê* @throws AxisFault 
+Ê* 
+Ê*/ 
+public String getSiteTitle(String sessionid, String siteid) throws AxisFault { 
+	Session s = establishSession(sessionid); 
+
+	String siteTitle = ""; 
+
+	try { 
+		Site site = SiteService.getSite(siteid); 
+		siteTitle = site.getTitle(); 
+	} 
+	catch (Exception e) { 
+		LOG.error("WS getSiteTitle(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage(); 
+	} 
+	
+	return siteTitle; 
+}
+
 }
