@@ -866,14 +866,14 @@ public String getSitesUserCanAccess(String sessionid)
 }
 
 /** 
-Ê* Get a site's title 
-Ê* 
-Ê* @param sessionid - the id of a valid session
-Ê* @param siteid - the id of the site you want the title of 
-Ê* @return title of the site or string containing error 
-Ê* @throws AxisFault 
-Ê* 
-Ê*/ 
+* Get a site's title 
+* 
+* @param sessionid - the id of a valid session
+* @param siteid - the id of the site you want the title of 
+* @return title of the site or string containing error 
+* @throws AxisFault 
+* 
+*/ 
 public String getSiteTitle(String sessionid, String siteid) throws AxisFault { 
 	
 	Session s = establishSession(sessionid); 
@@ -893,14 +893,14 @@ public String getSiteTitle(String sessionid, String siteid) throws AxisFault {
 }
 
 /** 
-Ê* Get a site's description 
-Ê* 
-Ê* @param sessionid - the id of a valid session
-Ê* @param siteid - the id of the site you want the description of 
-Ê* @return description of the site or string containing error 
-Ê* @throws AxisFault 
-Ê* 
-Ê*/ 
+* Get a site's description 
+* 
+* @param sessionid - the id of a valid session
+* @param siteid - the id of the site you want the description of 
+* @return description of the site or string containing error 
+* @throws AxisFault 
+* 
+*/ 
 public String getSiteDescription(String sessionid, String siteid) throws AxisFault { 
 
 	Session s = establishSession(sessionid); 
