@@ -157,41 +157,40 @@ public abstract class ItemHelperBase
    */
   private String getTemplateFromScale(String scalename)
   {
-    AuthoringXml ax = getAuthoringXml();
-    String template = ax.SURVEY_10; //default
+    String template = AuthoringXml.SURVEY_10; //default
 
     // 2/19/2006: for backward compatibility,need to keep YESNO, SCALEFIVE, and SCALETEN
     if ((ItemMetaDataIfc.SURVEY_YES.equals(scalename)) || (ItemMetaDataIfc.SURVEY_YESNO.equals(scalename)) ) 
     {
-      template = ax.SURVEY_YES;
+      template = AuthoringXml.SURVEY_YES;
     }
     else if (ItemMetaDataIfc.SURVEY_AGREE.equals(scalename)) 
     {
-      template = ax.SURVEY_AGREE;
+      template = AuthoringXml.SURVEY_AGREE;
     }
     else if (ItemMetaDataIfc.SURVEY_UNDECIDED.equals(scalename)) 
     {
-      template = ax.SURVEY_UNDECIDED;
+      template = AuthoringXml.SURVEY_UNDECIDED;
     }
     else if (ItemMetaDataIfc.SURVEY_AVERAGE.equals(scalename)) 
     {
-      template = ax.SURVEY_AVERAGE;
+      template = AuthoringXml.SURVEY_AVERAGE;
     }
     else if (ItemMetaDataIfc.SURVEY_STRONGLY_AGREE.equals(scalename)) 
     {
-      template = ax.SURVEY_STRONGLY;
+      template = AuthoringXml.SURVEY_STRONGLY;
     }
     else if (ItemMetaDataIfc.SURVEY_EXCELLENT.equals(scalename)) 
     {
-      template = ax.SURVEY_EXCELLENT;
+      template = AuthoringXml.SURVEY_EXCELLENT;
     }
     else if ((ItemMetaDataIfc.SURVEY_5.equals(scalename)) || (ItemMetaDataIfc.SURVEY_SCALEFIVE.equals(scalename)) ) 
     {
-      template = ax.SURVEY_5;
+      template = AuthoringXml.SURVEY_5;
     }
     else if ((ItemMetaDataIfc.SURVEY_10.equals(scalename)) || (ItemMetaDataIfc.SURVEY_SCALETEN.equals(scalename)) ) 
     {
-      template = ax.SURVEY_10;
+      template = AuthoringXml.SURVEY_10;
     }
 
     log.debug("scale: " + scalename);
@@ -208,7 +207,6 @@ public abstract class ItemHelperBase
   private String getTemplateFromType(Long type)
   {
     String template = "";
-    AuthoringXml ax = getAuthoringXml();
     long typeId = ITEM_TF;
 
     if (type != null)
@@ -218,43 +216,43 @@ public abstract class ItemHelperBase
 
     if (ITEM_AUDIO == typeId)
     {
-      template = ax.ITEM_AUDIO;
+      template = AuthoringXml.ITEM_AUDIO;
     }
     else if (ITEM_ESSAY == typeId)
     {
-      template = ax.ITEM_ESSAY;
+      template = AuthoringXml.ITEM_ESSAY;
     }
     else if (ITEM_FILE == typeId)
     {
-      template = ax.ITEM_FILE;
+      template = AuthoringXml.ITEM_FILE;
     }
     else if (ITEM_FIB == typeId)
     {
-      template = ax.ITEM_FIB;
+      template = AuthoringXml.ITEM_FIB;
     }
     else if (ITEM_FIN == typeId)
     {
-      template = ax.ITEM_FIN;
+      template = AuthoringXml.ITEM_FIN;
     }
     else if (ITEM_MCSC == typeId)
     {
-      template = ax.ITEM_MCSC;
+      template = AuthoringXml.ITEM_MCSC;
     }
     else if (ITEM_SURVEY == typeId)
     {
-      template = ax.ITEM_SURVEY;
+      template = AuthoringXml.ITEM_SURVEY;
     }
     else if (ITEM_MCMC == typeId)
     {
-      template = ax.ITEM_MCMC;
+      template = AuthoringXml.ITEM_MCMC;
     }
     else if (ITEM_TF == typeId)
     {
-      template = ax.ITEM_TF;
+      template = AuthoringXml.ITEM_TF;
     }
     else if (ITEM_MATCHING == typeId)
     {
-      template = ax.ITEM_MATCHING;
+      template = AuthoringXml.ITEM_MATCHING;
     }
 
     log.debug("typeId: " + typeId);

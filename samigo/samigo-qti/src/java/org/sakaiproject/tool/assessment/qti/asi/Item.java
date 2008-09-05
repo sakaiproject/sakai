@@ -214,9 +214,7 @@ public class Item extends ASIBaseClass
         isTrue = Boolean.FALSE;
       setAnswerTrueFalse(isTrue.booleanValue());
     }
-    else
-    if (!this.isSurvey()) //answers for surveys are a stereotyped scale
-    {
+    else {
       setAnswers(itemTexts);
     }
     setFeedback(itemTexts);

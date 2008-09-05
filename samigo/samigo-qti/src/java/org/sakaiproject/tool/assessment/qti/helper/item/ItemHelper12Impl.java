@@ -1445,7 +1445,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     // other types either have no answer or include them in their template, or,
     // in matching, generate all in setItemTextMatching()
     if (!itemXml.isFIB() && !itemXml.isMCSC() && !itemXml.isFIN()
-        && !itemXml.isMCMC() && !itemXml.isEssay())
+        && !itemXml.isMCMC() && !itemXml.isEssay() && !itemXml.isSurvey())
     {
       return;
     }

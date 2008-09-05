@@ -89,6 +89,7 @@ public class AuthoringXml
   public static final String ITEM_SURVEY = "mcSurveyTemplate.xml";
   public static final String ITEM_TF = "trueFalseTemplate.xml";
   public static final String ITEM_MATCHING = "matchTemplate.xml";
+  
   public static final String SURVEY_10 = SURVEY_PATH + "10.xml";
   public static final String SURVEY_5 = SURVEY_PATH + "5.xml";
   public static final String SURVEY_AGREE = SURVEY_PATH + "AGREE.xml";
@@ -100,18 +101,13 @@ public class AuthoringXml
   public static final String SURVEY_UNDECIDED = SURVEY_PATH +
     "UNDECIDED.xml";
   public static final String SURVEY_YES = SURVEY_PATH + "YES.xml";
-
+  
   private static final String QTI_12_PATH = "v1p2";
   private static final String QTI_20_PATH = "v2p0";
 
   public Map validTemplates = null;
   private int qtiVersion;
   private String qtiPath;
-
-  private AuthoringXml()
-  {
-    initTemplates();
-  }
 
   public AuthoringXml(int qtiVersion)
   {
@@ -128,33 +124,6 @@ public class AuthoringXml
     {
       throw new IllegalArgumentException("Unsupported qti version");
     }
-
-    initTemplates();
-  }
-
-  private void initTemplates()
-  {
-    validTemplates = new HashMap();
-    validTemplates.put(ASSESSMENT, "assessmentTemplate.xml");
-    validTemplates.put(SECTION, "assessmentTemplate.xml");
-    validTemplates.put(ITEM_AUDIO, "audioRecordingTemplate.xml");
-    validTemplates.put(ITEM_ESSAY, "essayTemplate.xml");
-    validTemplates.put(ITEM_FIB, "fibTemplate.xml");
-    validTemplates.put(ITEM_FIN, "finTemplate.xml");
-    validTemplates.put(ITEM_FILE, "fileUploadTemplate.xml");
-    validTemplates.put(ITEM_MATCH, "matchTemplate.xml");
-    validTemplates.put(ITEM_MCMC, "mcMCTemplate.xml");
-    validTemplates.put(ITEM_MCSC, "mcSCTemplate.xml");
-    validTemplates.put(ITEM_SURVEY, "mcSurveyTemplate.xml");
-    validTemplates.put(ITEM_TF, "trueFalseTemplate.xml");
-    validTemplates.put(SURVEY_10, SURVEY_PATH + "10.xml");
-    validTemplates.put(SURVEY_5, SURVEY_PATH + "5.xml");
-    validTemplates.put(SURVEY_AGREE, SURVEY_PATH + "AGREE.xml");
-    validTemplates.put(SURVEY_AVERAGE, SURVEY_PATH + "AVERAGE.xml");
-    validTemplates.put(SURVEY_EXCELLENT, SURVEY_PATH + "EXCELLENT.xml");
-    validTemplates.put(SURVEY_STRONGLY, SURVEY_PATH + "STRONGLY_AGREE.xml");
-    validTemplates.put(SURVEY_UNDECIDED, SURVEY_PATH + "UNDECIDED.xml");
-    validTemplates.put(SURVEY_YES, SURVEY_PATH + "YES.xml");
   }
 
   /**
@@ -179,11 +148,6 @@ public class AuthoringXml
 
     try
     {
-      if (!this.valid(templateName))
-      {
-        throw new IllegalArgumentException("not a valid template: " +
-          templateName);
-      }
       ClassPathResource resource = 
         new ClassPathResource(TEMPLATE_PATH + qtiPath + "/" + templateName);
       is = resource.getInputStream(); 
@@ -295,7 +259,7 @@ public class AuthoringXml
 
   public boolean isItem(String documentType)
   {
-    if (valid(documentType) && documentType.startsWith("ITEM_"))
+    if (documentType.startsWith("ITEM_"))
     {
       return true;
     }
@@ -304,7 +268,7 @@ public class AuthoringXml
 
   public boolean isSurveyFragment(String documentType)
   {
-    if (valid(documentType) && documentType.startsWith("SURVEY_"))
+    if (documentType.startsWith("SURVEY_"))
     {
       return true;
     }
