@@ -748,7 +748,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             UsageSession usageSession = usageSessionService.getSession();
             if (usageSession != null) {
                 usageSessionInfo = "Server: " + usageSession.getServer() + "\n "
-                        + "Hostname: " + usageSession.getHostName() + "\n "
+                        //+ "Hostname: " + usageSession.getHostName() + "\n " // removed since this is incompatible with older sakai
                         + "User agent: " + usageSession.getUserAgent() + "\n "
                         + "Browser ID: " + usageSession.getBrowserId() + "\n "
                         + "IP address: " + usageSession.getIpAddress() + "\n "
