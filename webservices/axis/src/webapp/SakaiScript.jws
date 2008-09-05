@@ -868,9 +868,9 @@ public String getSitesUserCanAccess(String sessionid)
 /** 
 * Get a site's title 
 * 
-* @param sessionid - the id of a valid session
-* @param siteid - the id of the site you want the title of 
-* @return title of the site or string containing error 
+* @param	sessionid	the id of a valid session
+* @param	siteid		the id of the site you want the title of 
+* @return				title of the site or string containing error 
 * @throws AxisFault 
 * 
 */ 
@@ -895,10 +895,10 @@ public String getSiteTitle(String sessionid, String siteid) throws AxisFault {
 /** 
 * Get a site's description 
 * 
-* @param sessionid - the id of a valid session
-* @param siteid - the id of the site you want the description of 
-* @return description of the site or string containing error 
-* @throws AxisFault 
+* @param	sessionid	the id of a valid session
+* @param	siteid		the id of the site you want the description of 
+* @return				description of the site or string containing error 
+* @throws	AxisFault 
 * 
 */ 
 public String getSiteDescription(String sessionid, String siteid) throws AxisFault { 
@@ -917,6 +917,34 @@ public String getSiteDescription(String sessionid, String siteid) throws AxisFau
 	} 
 	
 	return siteDescription; 
+}
+
+/**
+ * Change the title of a site
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid		the id of the site you want to change the title of
+ * @param	title		the new title
+ * @return		        success or string containing error
+ * @throws	AxisFault	
+ *
+ */
+public String changeSiteTitle(String sessionid, String siteid, String title) throws AxisFault {
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = SiteService.getSite(siteid);
+		siteEdit.setTitle(title);
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS changeSiteTitle(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
 }
 
 
