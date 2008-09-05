@@ -50,6 +50,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 
 	// name of ResourceBundle
 	protected String baseName = null;
+	
+	// Optional ClassLoader for ResourceBundle
+	protected ClassLoader classLoader = null;
 
 	// cached set of ResourceBundle objects
 	protected Hashtable bundles = new Hashtable();
@@ -82,6 +85,18 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	public ResourceLoader(String name)
 	{
 		this.baseName = name;
+	}
+
+	/**
+	 * Constructor: set baseName
+	 * 
+	 * @param name default ResourceBundle base filename
+	 * @param classLoader ClassLoader for ResourceBundle 
+	 */
+	public ResourceLoader(String name, ClassLoader classLoader)
+	{
+		this.baseName = name;
+		this.classLoader = classLoader;
 	}
 
 	/**
@@ -482,7 +497,10 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		ResourceBundle newBundle = null;
 		try
 		{
-			newBundle = ResourceBundle.getBundle(this.baseName, loc);
+			if ( this.classLoader == null )
+				newBundle = ResourceBundle.getBundle(this.baseName, loc);
+			else
+				newBundle = ResourceBundle.getBundle(this.baseName, loc, this.classLoader);
 		}
 		catch (NullPointerException e)
 		{

@@ -57,6 +57,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -72,7 +73,8 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(ActiveToolComponent.class);
 
-	ResourceLoader toolProps = new ResourceLoader("tools");
+	/** localized tool properties **/
+	private ResourceLoader toolProps = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
@@ -162,10 +164,32 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			}
 		}
 	}
-
+	
+	/**
+	 ** Get optional Localized Tool Properties (i.e. tool title, description)
+	 **/
+	private ResourceLoader getToolProps()
+	{
+		try
+		{
+			if ( toolProps == null )
+				toolProps = new ResourceLoader("tools",
+									   ComponentManager.get("localizedToolPropertiesBean").getClass().getClassLoader());
+		}
+		catch (Exception e)
+		{
+			M_log.warn("Missing optional localizedToolPropertiesBean: " + e.toString() );
+		}
+		
+		return toolProps;
+	}
+	
 	public String getLocalizedToolProperty(String toolId, String key)
 	{
-		final String toolProp = toolProps.getString(toolId + "." + key, "");
+		if ( getToolProps() == null )
+			return null;
+			
+		final String toolProp = getToolProps().getString(toolId + "." + key, "");
 		
 		if( toolProp.length() < 1 || toolProp.equals(""))
 		{
@@ -258,11 +282,11 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		final String toolId = rootElement.getAttribute("id").trim();
 		tool.setId(toolId);
 		
-		final String toolTitle = toolProps.getString(toolId + ".title","");
-		final String toolDescription =  toolProps.getString(toolId + ".description","");
+		final String toolTitle = getLocalizedToolProperty(toolId, "title");
+		final String toolDescription =  getLocalizedToolProperty(toolId, "description");
 			
 		// if the key is empty or absent, the length is 0. if so, use the string from the XML file
-		if(toolTitle.length()>0)
+		if(toolTitle != null && toolTitle.length()>0)
 		{
 			tool.setTitle(toolTitle);
 		}
@@ -272,7 +296,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		}
 		
 		// if the key is empty or absent, the length is 0. if so, use the string from the XML file
-		if(toolDescription.length()>0)
+		if(toolDescription != null && toolDescription.length()>0)
 		{
 			tool.setDescription(toolDescription);
 		}
