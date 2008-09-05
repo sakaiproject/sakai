@@ -1010,4 +1010,33 @@ public String changeSiteJoinable(String sessionid, String siteid, boolean joinab
 }
 
 
+/**
+ * Change the icon of a site (top left hand corner of site)
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid	    the id of the site you want to change the icon of
+ * @param	title	    the new icon value (publically accessible url - suggest its located in Resources for the site or another public location)
+ * @return		        success or string containing error
+ * @throws	AxisFault	
+ *
+ */
+public String changeSiteIconUrl(String sessionid, String siteid, String iconurl) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = SiteService.getSite(siteid);
+		siteEdit.setIconUrl(iconurl);
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) { 
+		LOG.error("WS changeSiteIconUrl(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
 }
