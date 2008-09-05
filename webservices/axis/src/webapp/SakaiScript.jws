@@ -947,5 +947,34 @@ public String changeSiteTitle(String sessionid, String siteid, String title) thr
 	return "success";
 }
 
+/**
+ * Change the skin of a site
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid		the id of the site you want to change the skin of
+ * @param	title		the new skin value (make sure its in /library/skin/<yourskin>)
+ * @return		        success or string containing error
+ * @throws	AxisFault	
+ *
+ */
+public String changeSiteSkin(String sessionid, String siteid, String skin) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = SiteService.getSite(siteid);
+		siteEdit.setSkin(skin);
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS changeSiteSkin(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
 
 }
