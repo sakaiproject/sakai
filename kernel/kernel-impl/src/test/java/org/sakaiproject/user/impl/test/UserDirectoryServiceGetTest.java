@@ -305,6 +305,13 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 		}
 	}
 	
+	public void testDefaultDisplayIdAndName() throws Exception {
+		String eid = "localuser";
+		User user = userDirectoryService.getUserByEid(eid);
+		Assert.assertEquals(user.getFirstName() + " " + user.getLastName(), user.getDisplayName());
+		Assert.assertEquals(eid, user.getDisplayId());
+	}
+	
 	public static class TestProvider implements UserDirectoryProvider {
 		public boolean authenticateUser(String eid, UserEdit userEdit, String password) {
 			if (eid.equals("providedfromauthn")) {

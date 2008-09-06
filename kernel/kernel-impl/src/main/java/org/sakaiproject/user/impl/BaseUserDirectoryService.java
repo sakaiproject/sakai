@@ -59,6 +59,7 @@ import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.AuthenticatedUserProvider;
 import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
@@ -117,6 +118,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/** A cache of calls to the service and the results. */
 	protected Cache m_callCache = null;
+	
+	/** Optional service to provide site-specific aliases for a user's display ID and display name. */
+	protected ContextualUserDisplayService m_contextualUserDisplayService = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -363,6 +367,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_providerName = StringUtil.trimToNull(userDirectoryProviderName);
 	}
 
+	public void setContextualUserDisplayService(ContextualUserDisplayService contextualUserDisplayService) {
+		m_contextualUserDisplayService = contextualUserDisplayService;
+	}
+
 	/** The # seconds to cache gets. 0 disables the cache. */
 	protected int m_cacheSeconds = 0;
 
@@ -525,6 +533,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if ((m_provider == null) && (m_providerName != null))
 			{
 				m_provider = (UserDirectoryProvider) ComponentManager.get(m_providerName);
+			}
+			
+			// Check for optional contextual user display service.
+			if (m_contextualUserDisplayService == null)
+			{
+				m_contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get(ContextualUserDisplayService.class);
 			}
 
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())
@@ -2118,6 +2132,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			String rv = null;
 
+			// If a contextual aliasing service exists, let it have the first try.
+			if (m_contextualUserDisplayService != null) {
+				rv = m_contextualUserDisplayService.getUserDisplayName(this);
+				if (rv != null) {
+					return rv;
+				}
+			}
+
 			// let the provider handle it, if we have that sort of provider, and it wants to handle this
 			if ((m_provider != null) && (m_provider instanceof DisplayAdvisorUDP))
 			{
@@ -2155,6 +2177,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public String getDisplayId()
 		{
 			String rv = null;
+			
+			// If a contextual aliasing service exists, let it have the first try.
+			if (m_contextualUserDisplayService != null) {
+				rv = m_contextualUserDisplayService.getUserDisplayId(this);
+				if (rv != null) {
+					return rv;
+				}
+			}
 
 			// let the provider handle it, if we have that sort of provider, and it wants to handle this
 			if ((m_provider != null) && (m_provider instanceof DisplayAdvisorUDP))
