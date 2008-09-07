@@ -919,6 +919,35 @@ public String getSiteDescription(String sessionid, String siteid) throws AxisFau
 	return siteDescription; 
 }
 
+
+/**
+ * Get a site's joinable status
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid		the id of the site you want the joinable status of
+ * @return		        true if joinable, false if not or error (and logs any errors)
+ * @throws	AxisFault	
+ *
+ */
+public boolean isSiteJoinable(String sessionid, String siteid) throws AxisFault {
+	Session s = establishSession(sessionid);
+	
+	try {
+		Site site = SiteService.getSite(siteid);
+		if(site.isJoinable()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	catch (Exception e) {
+		LOG.error("WS isSiteJoinable(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+
+
 /**
  * Change the title of a site
  *
