@@ -34,6 +34,8 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 
+import org.sakaiproject.entity.api.ResourceProperties;
+
 import java.util.Properties;
 import org.apache.axis.AxisFault;
 
@@ -1123,6 +1125,40 @@ public String changeSiteDescription( String sessionid, String siteid, String des
 	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
+}
+
+
+/**
+ * Get a custom property of a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site you want to get the property from
+ * @param	propname		the name of the property you want
+ * @return		        	the property or blank if not found/property is blank
+ * @throws	AxisFault	
+ * 
+ */
+public String getSiteProperty(String sessionid, String siteid, String propname) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		//get site handle
+		Site site = SiteService.getSite(siteid);
+		
+		//get list of properties for this site
+		ResourceProperties props = site.getProperties();
+		
+		//get the property that we wanted, as a string. this wont return multi valued ones
+		//would need to use getPropertyList() for that, but then need to return XML since its a list.
+		String propvalue = props.getProperty(propname);
+		return propvalue;	
+		
+	}
+	catch (Exception e) {
+		LOG.warn("WS getSiteProperty(): error " + e.getClass().getName() + " : " + e.getMessage());
+		return "";
+	}
 }
 
 
