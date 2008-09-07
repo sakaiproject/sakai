@@ -65,19 +65,45 @@ public class SakaiKernelTestBase extends TestCase {
 	}
 
 	/**
-	 * Perform a one time setup on the Compionent manager, with possible additional components.
-	 * @param additional if not null the string is appended to the sandard set of component description
+	 * Perform a one time setup on the Component Manager, with possible additional components.
+	 * @param sakaiHomeResources if not null, a subdirectory of test resources which
+	 *   contains test-specific component configuration files such as "sakai.properties"
+	 * @param additional if not null, the string is appended to the standard set of 
+	 *   component descriptions. The string should point to a list of "components.xml"
+	 *   file paths separated by semicolons.
 	 * @throws IOException
 	 */
-	protected static void oneTimeSetup(String additional) throws IOException {
+	protected static void oneTimeSetup(String sakaiHomeResources, String additional) throws IOException {
+		if (sakaiHomeResources != null) {
+			// TODO Better to store existing sakai.home setting for restoration in the tear down? 
+			TestComponentManagerContainer.setSakaiHome("src/test/resources/" + sakaiHomeResources);
+		}
+		
 		if (additional != null) {
 			testComponentManagerContainer = new TestComponentManagerContainer(
 					CONFIG + ";" + additional);
 		} else {
 			testComponentManagerContainer = new TestComponentManagerContainer(
 					CONFIG);
-
 		}
+	}
+	
+	/**
+	 * Perform any needed one time setup before starting the Component Manager.
+	 */
+	protected static void oneTimeSetup() throws IOException {
+		oneTimeSetup(null, null);
+	}
+	
+	/**
+	 * Perform a one time setup on the Component Manager, with test-specific system
+	 * configuration.
+	 * @param sakaiHomeResources if not null, a subdirectory of test resources which
+	 *   contains test-specific component configuration files such as "sakai.properties"
+	 * @throws IOException
+	 */
+	protected static void oneTimeSetup(String sakaiHomeResources) throws IOException {
+		oneTimeSetup(sakaiHomeResources, null);
 	}
 
 	/**
@@ -87,6 +113,9 @@ public class SakaiKernelTestBase extends TestCase {
 		NoisierDefaultListableBeanFactory.noisyClose = false;
 		testComponentManagerContainer.getComponentManager().close();
 		NoisierDefaultListableBeanFactory.noisyClose = true;
+		
+		// TODO Is the next line needed?
+		// TestComponentManagerContainer.setSakaiHome(null);
 	}
 
 }

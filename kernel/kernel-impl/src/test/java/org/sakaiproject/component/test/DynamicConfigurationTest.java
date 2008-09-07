@@ -25,13 +25,11 @@ package org.sakaiproject.component.test;
 import junit.extensions.TestSetup;
 import junit.framework.Assert;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.TestComponentManagerContainer;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
 /**
@@ -48,8 +46,7 @@ public class DynamicConfigurationTest extends SakaiKernelTestBase {
 		TestSetup setup = new TestSetup(new TestSuite(DynamicConfigurationTest.class)) {
 			protected void setUp() throws Exception {
 				try {
-					TestComponentManagerContainer.setSakaiHome("src/test/resources/dynamic");
-					oneTimeSetup(CONFIG);
+					oneTimeSetup("dynamic", CONFIG);
 				} catch (Exception e) {
 					log.warn(e);
 				}

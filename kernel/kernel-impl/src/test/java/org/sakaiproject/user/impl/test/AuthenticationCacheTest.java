@@ -30,7 +30,6 @@ import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.TestComponentManagerContainer;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
@@ -59,8 +58,7 @@ public class AuthenticationCacheTest extends SakaiKernelTestBase {
 			protected void setUp() throws Exception {
 				if (log.isDebugEnabled()) log.debug("starting setup");
 				try {
-					TestComponentManagerContainer.setSakaiHome("src/test/resources/AuthenticationCacheTest");
-					oneTimeSetup(null);
+					oneTimeSetup("AuthenticationCacheTest");
 				} catch (Exception e) {
 					log.warn(e);
 				}

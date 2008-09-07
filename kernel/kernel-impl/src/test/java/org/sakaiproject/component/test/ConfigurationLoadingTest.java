@@ -30,7 +30,6 @@ import junit.framework.TestSuite;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.TestComponentManagerContainer;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
 /**
@@ -47,8 +46,7 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 		TestSetup setup = new TestSetup(new TestSuite(ConfigurationLoadingTest.class)) {
 			protected void setUp() throws Exception {
 				try {
-					TestComponentManagerContainer.setSakaiHome("src/test/resources/filesystem");
-					oneTimeSetup(CONFIG);
+					oneTimeSetup("filesystem", CONFIG);
 				} catch (Exception e) {
 					log.warn(e);
 				}

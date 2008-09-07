@@ -74,7 +74,7 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 			protected void setUp() throws Exception {
 				if (log.isDebugEnabled()) log.debug("starting setup");
 				try {
-					oneTimeSetup(null);
+					oneTimeSetup();
 					oneTimeSetupAfter();
 				} catch (Exception e) {
 					log.warn(e);
