@@ -1425,7 +1425,7 @@ public String removeMemberFromSite(String sessionid, String siteid, String eid) 
  * Check if a user is in a particular authzgroup
  *
  * @param	sessionid		the id of a valid session, generally the admin user
- * @param	authzgroupid	the id of the authzgroup you want to check, for sites it's (/site/SITEID)
+ * @param	authzgroupid	the id of the authzgroup or site you want to check (if site: /site/SITEID)
  * @param	eid	        	the userid of the person you want to check
  * @return		        	true if in site, false if not or error. 
  * @throws	AxisFault	
@@ -1449,6 +1449,79 @@ public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, S
 		return false;
 	}
 }
+
+
+/** 
+ * Get list of users in an authzgroup with the given role(s)
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup or site you want to get the users in (if site: /site/SITEID)
+ * @param	authzgrouproles	the roles that you want to filter on (string with spaces as delimiters)
+ * @return		        	xml doc of the list of users, display name and roleid
+ * @throws	AxisFault		returns <exception /> string if exception encountered and logs it	
+ *
+ */
+
+public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid, String authzgrouproles) throws AxisFault {
+	
+	Session s = establishSession(sessionid);
+		
+	try {
+		
+		AuthzGroup azg = AuthzGroupService.getAuthzGroup(authzgroupid);
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+
+		//split the authzgroup roles into a string[] then add into arraylist. 
+		//Done this way so we dont need any extra imports (ie using List<String> authzgrouprolesList = Arrays.asList(authzgrouprolesArr));
+		String[] authzgrouprolesArr = authzgrouproles.split(" ");
+		ArrayList<String> authzgrouprolesList = new ArrayList<String>();
+		for(int i=0; i< authzgrouprolesArr.length; i++) {
+			authzgrouprolesList.add(authzgrouprolesArr[i]);
+		}
+
+		//iterate over each role in the list...
+		for (Iterator j = authzgrouprolesList.iterator(); j.hasNext(); ) {
+			String role = (String) j.next();
+		
+			//now get all the users in the authzgroup with this role and add to xml doc
+			for (Iterator k = azg.getUsersHasRole(role).iterator(); k.hasNext(); ) {
+				String id = (String) k.next();
+	
+				try {
+					User user = UserDirectoryService.getUser(id);				
+					Node userNode = dom.createElement("user");
+					Node userId = dom.createElement("id");
+					userId.appendChild(dom.createTextNode(user.getEid()));
+					Node userName = dom.createElement("name");
+					userName.appendChild(dom.createTextNode(user.getDisplayName()));
+					Node userRole = dom.createElement("role");
+					userRole.appendChild(dom.createTextNode(role));
+					
+					userNode.appendChild(userId);
+					userNode.appendChild(userName);
+					userNode.appendChild(userRole);
+					list.appendChild(userNode);
+					
+				} catch (Exception e) {
+					//Exception with this user, log the error, skip this user and continue to the next
+					LOG.warn("WS getUsersInAuthzGroupWithRole(): error processing user " + id + " : " + e.getClass().getName() + " : " + e.getMessage());
+				}
+			}
+		}
+		return Xml.writeDocumentToString(dom);
+	}
+	catch (Exception e) {
+        LOG.warn("WS getUsersInAuthzGroupWithRoles(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+
+	}
+		
+}
+
+
 
 
 
