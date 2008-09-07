@@ -244,6 +244,33 @@ public String getUserDisplayName( String sessionid ) throws AxisFault
 }
 
 /**
+ * Gets the display name for a given user. 
+ *
+ * Differs from original above as that one uses the session to get the displayname, this uses a userid
+ * 
+ * @param	sessionid	the sessionid of a valid session for the admin user
+ * @param	userid		the eid of the user you want the name of
+ * @return				the display name for the user
+ * @throws	AxisFault	
+ *
+ */
+public String getUserDisplayName( String sessionid, String userid ) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	try {
+		User user = UserDirectoryService.getUserByEid(userid);
+		return user.getDisplayName();
+	} catch (Exception e) {  
+	 	LOG.warn("WS getUserDisplayName() failed for user: " + userid);
+		return "";
+	}
+	
+}
+
+
+
+
+/**
  ** Create user-group to specified worksite (as if it had been added in Worksite Setup)
  **
  ** @param sessionId valid sessionId
@@ -1097,5 +1124,7 @@ public String changeSiteDescription( String sessionid, String siteid, String des
 	}
 	return "success";
 }
+
+
 
 }
