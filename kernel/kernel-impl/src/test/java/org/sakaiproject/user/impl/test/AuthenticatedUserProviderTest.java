@@ -72,8 +72,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 			protected void setUp() throws Exception {
 				if (log.isDebugEnabled()) log.debug("starting setup");
 				try {
-					TestComponentManagerContainer.setSakaiHome("src/test/resources/disable_user_cache");
-					oneTimeSetup(null);
+					oneTimeSetup("disable_user_cache");
 					oneTimeSetupAfter();
 				} catch (Exception e) {
 					log.warn(e);

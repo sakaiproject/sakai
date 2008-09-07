@@ -77,7 +77,7 @@ public class ContextualDisplayServiceTest extends SakaiKernelTestBase {
 		TestSetup setup = new TestSetup(new TestSuite(ContextualDisplayServiceTest.class)) {
 			protected void setUp() throws Exception {
 				try {
-					oneTimeSetup(null);
+					oneTimeSetup();
 					oneTimeSetupAfter();
 				} catch (Exception e) {
 					log.warn(e);
