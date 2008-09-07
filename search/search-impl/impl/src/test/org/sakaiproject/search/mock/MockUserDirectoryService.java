@@ -289,6 +289,15 @@ public class MockUserDirectoryService implements UserDirectoryService
 	}
 
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.user.api.UserDirectoryService#getUsersByEids(java.util.Collection<java.lang.String>)
+	 */
+	public List<User> getUsersByEids(Collection<String> eids)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.user.api.UserDirectoryService#mergeUser(org.w3c.dom.Element)
 	 */
 	public UserEdit mergeUser(Element el) throws UserIdInvalidException,
