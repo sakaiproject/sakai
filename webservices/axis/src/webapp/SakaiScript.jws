@@ -1359,7 +1359,38 @@ public String searchForUsers(String sessionid, String criteria, int first, int l
 		return "<exception/>";
 
 	}
+}
 
+
+/**
+ * Check if an authzgroup exists, similar to checkForSite, but does authzgroup instead
+ * (e.g. might be used to check if !site.template exists which checkForSite() cannot do.)
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup you want to check
+ * @return		        	true/false
+ * @throws	AxisFault	
+ *
+ */
+public boolean checkForAuthzGroup(String sessionid, String authzgroupid) throws AxisFault
+{
+	Session s = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = null;
+		authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		if (authzgroup != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	catch (Exception e)
+	{
+		LOG.warn("WS checkForAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
 }
 
 
