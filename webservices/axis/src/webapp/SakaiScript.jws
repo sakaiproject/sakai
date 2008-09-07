@@ -1237,5 +1237,38 @@ public String removeSiteProperty( String sessionid, String siteid, String propna
 }
 
 
+/**
+ * Check if a role exists in a given authzgroup
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup you want to check
+ * @param	roleid			the id of the role you want to check for
+ * @return		        	true/false
+ * @throws	AxisFault	
+ *
+ */
+public boolean checkForRoleInAuthzGroup(String sessionid, String authzgroupid, String roleid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		//open authzgroup
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		
+		//see if we can get the role in this authzgroup. will either return the Role, or null
+		Role role = authzgroup.getRole(roleid);
+		if(role != null) {
+			return true;
+		}
+		return false;
+	
+	}
+	catch (Exception e) {
+		LOG.warn("WS checkForRoleInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+
 
 }
