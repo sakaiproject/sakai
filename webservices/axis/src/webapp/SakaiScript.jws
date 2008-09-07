@@ -1157,7 +1157,7 @@ public String getSiteProperty(String sessionid, String siteid, String propname) 
 		
 	}
 	catch (Exception e) {
-		LOG.warn("WS getSiteProperty(): error " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.warn("WS getSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
 		return "";
 	}
 }
@@ -1193,7 +1193,44 @@ public String setSiteProperty(String sessionid, String siteid, String propname, 
 	
 	}
 	catch (Exception e) {
-		LOG.warn("WS setSiteProperty(): error " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.warn("WS setSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+/**
+ * Remove a custom property for a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site you want to remove the property from
+ * @param	propname		the name of the property you want to remove
+ * @return		        	success if true or exception
+ * @throws	AxisFault	
+ *
+ */
+public String removeSiteProperty( String sessionid, String siteid, String propname) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		//get site handle
+		Site site = SiteService.getSite(siteid);
+		
+		//get properties in edit mode
+		ResourcePropertiesEdit props = site.getPropertiesEdit();
+		
+		//remove property
+		//if the property doesn't exist it will still return success. this is fine.
+		props.removeProperty(propname);
+		
+		//save site
+		SiteService.save(site);
+	
+	}
+	catch (Exception e) {
+		LOG.warn("WS removeSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
 		return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
