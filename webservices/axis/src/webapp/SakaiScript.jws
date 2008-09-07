@@ -35,6 +35,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 
 import java.util.Properties;
 import org.apache.axis.AxisFault;
@@ -1159,6 +1160,43 @@ public String getSiteProperty(String sessionid, String siteid, String propname) 
 		LOG.warn("WS getSiteProperty(): error " + e.getClass().getName() + " : " + e.getMessage());
 		return "";
 	}
+}
+
+
+/**
+ * Set a custom property for a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site you want to set the property for
+ * @param	propname		the name of the property you want to set
+ * @param	propvalue		the name of the property you want to set
+ * @return		        	success if true or exception
+ * @throws	AxisFault	
+ *
+ */
+public String setSiteProperty(String sessionid, String siteid, String propname, String propvalue) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		//get site handle
+		Site site = SiteService.getSite(siteid);
+		
+		//get properties in edit mode
+		ResourcePropertiesEdit props = site.getPropertiesEdit();
+		
+		//add property
+		props.addProperty(propname, propvalue);
+		
+		//save site
+		SiteService.save(site);
+	
+	}
+	catch (Exception e) {
+		LOG.warn("WS setSiteProperty(): error " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
 }
 
 
