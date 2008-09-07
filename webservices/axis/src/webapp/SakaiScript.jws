@@ -1270,5 +1270,98 @@ public boolean checkForRoleInAuthzGroup(String sessionid, String authzgroupid, S
 }
 
 
+/**
+ * Search all the users that match this criteria in id or email, first or last name, returning
+ * a subset of records within the record range given (sorted by sort name).
+ * As of September 2008, the Sakai API that does the searching is not searching provided users
+ * nor limiting the returned results (ie first and last are ignored)
+ *
+ * This web service is returning everything it receives correctly though, so when
+ * UserDirectoryService.searchUsers() is amended, this will be even more complete.
+ *
+ * See: SAK-6792 and SAK-14268 for the releavnt Jira's tickets.
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	criteria		the search criteria.
+ * @param	first			the first record position to return.
+ * @param	last			the last record position to return.
+ * @return		        	xml doc of list of records
+ * @throws	AxisFault	
+ *
+ */
+public String searchForUsers(String sessionid, String criteria, int first, int last) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+
+	try {
+	
+		//validate input
+		if(("").equals(criteria)) {
+			LOG.warn("WS searchForUsers(): no search criteria");
+			return "<exception/>";
+		}
+		
+		if(first == 0 || last == 0) {
+			LOG.warn("WS searchForUsers(): invalid ranges");
+			return "<exception/>";
+		}
+	
+		List users = UserDirectoryService.searchUsers(criteria, first, last);
+				
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		
+		
+		for (Iterator i = users.iterator(); i.hasNext();) {
+			User user = (User) i.next();
+			
+			try {
+									
+				Node userNode = dom.createElement("user");
+				
+				Node userId = dom.createElement("id");
+				userId.appendChild(dom.createTextNode(user.getId()));
+				
+				Node userEid = dom.createElement("eid");
+				userEid.appendChild(dom.createTextNode(user.getEid()));
+					
+				Node userName = dom.createElement("name");
+				userName.appendChild(dom.createTextNode(user.getDisplayName()));
+				
+				Node userEmail = dom.createElement("email");
+				userEmail.appendChild(dom.createTextNode(user.getEmail()));
+					
+				userNode.appendChild(userId);
+				userNode.appendChild(userEid);
+				userNode.appendChild(userName);
+				userNode.appendChild(userEmail);
+				list.appendChild(userNode);
+					
+			} catch (Exception e) {
+				//log this error and continue otherwise we get nothing
+				LOG.warn("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+			}
+			
+		}
+		
+		//add total size node (nice attribute to save the end user doing an XSLT count every time)
+		Node total = dom.createElement("total");
+		total.appendChild(dom.createTextNode(Integer.toString(users.size())));
+		list.appendChild(total);
+				
+		return Xml.writeDocumentToString(dom);
+	
+	}
+	catch (Exception e) {
+		LOG.warn("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+
+	}
+
+}
+
+
 
 }
