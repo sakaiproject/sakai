@@ -1394,5 +1394,30 @@ public boolean checkForAuthzGroup(String sessionid, String authzgroupid) throws 
 }
 
 
+/**
+ * Removes a member from a given site, similar to removeMembeForAuthzGroup but acts on Site directly
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid		the id of the site you want to remove the user from
+ * @return				success or string containing error 
+ * @throws	AxisFault	
+ *
+ */
+public String removeMemberFromSite(String sessionid, String siteid, String eid) throws AxisFault {
+
+    Session session = establishSession(sessionid);
+
+    try {
+        Site site = SiteService.getSite(siteid);
+        String userid = UserDirectoryService.getUserByEid(eid).getId();
+        site.removeMember(userid);
+        SiteService.save(site);
+    } catch (Exception e) {
+        return e.getClass().getName() + " : " + e.getMessage();
+    }
+    return "success";
+}
+
+
 
 }
