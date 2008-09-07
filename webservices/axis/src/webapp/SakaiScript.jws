@@ -1368,7 +1368,7 @@ public String searchForUsers(String sessionid, String criteria, int first, int l
  *
  * @param	sessionid		the id of a valid session
  * @param	authzgroupid	the id of the authzgroup you want to check
- * @return		        	true/false
+ * @return		        	true if exists, false if not or error. 
  * @throws	AxisFault	
  *
  */
@@ -1413,9 +1413,41 @@ public String removeMemberFromSite(String sessionid, String siteid, String eid) 
         site.removeMember(userid);
         SiteService.save(site);
     } catch (Exception e) {
+    	LOG.warn("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
         return e.getClass().getName() + " : " + e.getMessage();
     }
     return "success";
+}
+
+
+
+/**
+ * Check if a user is in a particular authzgroup
+ *
+ * @param	sessionid		the id of a valid session, generally the admin user
+ * @param	authzgroupid	the id of the authzgroup you want to check, for sites it's (/site/SITEID)
+ * @param	eid	        	the userid of the person you want to check
+ * @return		        	true if in site, false if not or error. 
+ * @throws	AxisFault	
+ *
+ */
+public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, String eid) throws AxisFault {
+	Session s = establishSession(sessionid);
+	
+	try {		
+		AuthzGroup azg = AuthzGroupService.getAuthzGroup(authzgroupid);
+		for (Iterator i = azg.getUsers().iterator(); i.hasNext(); ) {
+			String id = (String) i.next();
+			User user = UserDirectoryService.getUser(id);
+			if(user.getEid().equals(eid)) {
+				return true;
+			}
+		}
+		return false;		
+	}
+	catch (Exception e) {
+		return false;
+	}
 }
 
 
