@@ -1638,7 +1638,7 @@ public abstract class BaseCitationService implements CitationService
 			String[] RIScodes = null; // This holds the RISCodes valid for a given schema
 			String urlId = null; // Used to set the preferred URL
 			
-			String KWTag = false; // used to track EndNote continuation lines. 
+			boolean KWTag = false; // used to track EndNote continuation lines. 
 
 			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
 
