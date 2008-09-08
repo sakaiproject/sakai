@@ -1637,12 +1637,14 @@ public abstract class BaseCitationService implements CitationService
 			boolean status = true; // Used to maintain/exit the tag lookup while loop
 			String[] RIScodes = null; // This holds the RISCodes valid for a given schema
 			String urlId = null; // Used to set the preferred URL
+			
+			String KWTag = false; // used to track EndNote continuation lines. 
 
 			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
 
 			// process loop that iterates list size many times
 			for(int i=0; i< risImportList.size(); i++)
-			{
+			{				
 				// get current RIS line
 				currentLine = (String) risImportList.get(i);
 				logger.debug("importFromRisList: currentLine = " + currentLine);
@@ -1848,11 +1850,26 @@ public abstract class BaseCitationService implements CitationService
 						else
 */						  logger.debug("importFromRisList: Cannot find field mapping for RIScode " +
 		                               RIScode + " for Schema = " + schema);
+
+						  if (KWTag)
+						  {
+							  logger.debug("importFromRisList: continuation of KW found (EndNote oddity). Hacking KW tag and resending line through the import system");
+							  currentLine = "KW - " + currentLine;
+							  i = i-1;
+						  }
+
 					} // end if status (field not found)
+					
+					
 					else // ! status. We found a field in the Schema
 					{
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
 								     " => " + RISvalue);
+						
+						if (RIScode.equalsIgnoreCase("KW"))
+							KWTag = true;
+						else
+							KWTag = false;
 
 						if (RIScode.equalsIgnoreCase("UR"))
 						{
