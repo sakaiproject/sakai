@@ -191,9 +191,14 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		else 
 		{
 			FileInputStream source = new FileInputStream(f[0]);
-			FileUtils.unpack(source, ws);
-
-			source.close();
+	 		try 
+ 			{
+				FileUtils.unpack(source, ws);
+	 		} 
+ 			finally 
+ 			{
+ 				source.close();
+ 			}
 		}
 
 	}
