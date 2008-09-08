@@ -425,6 +425,29 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   }
 
   /**
+   * For the title link:  Should we use URLs marked as "preferred" by 
+   *                      the OSID implementation?
+   *
+   * @return true or false, as specified in the configuration 
+   *         file (false if nothing specified)
+   */
+  public synchronized boolean getSiteConfigUsePreferredUrls()
+  {
+    String value = getConfigurationParameter("provide-preferred-url");
+
+    if (value != null)
+    {
+      if (!isBoolean(value))
+      {
+        m_log.debug("Found \"" 
+                    + value 
+                    + "\" for provide-preferred-url, expected true or false"); 
+      }
+    }
+    return "true".equalsIgnoreCase(value);
+  }
+
+  /**
    * Enable/disable Citations Helper by default
    * @param state true to set default 'On'
    */
@@ -671,7 +694,9 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
       saveParameter(document, parameterMap, "openurl-label");
       saveParameter(document, parameterMap, "openurl-resolveraddress");
-
+      
+      saveParameter(document, parameterMap, "provide-preferred-url");
+      
       saveParameter(document, parameterMap, "google-baseurl");
       saveParameter(document, parameterMap, "sakai-serverkey");
 
@@ -699,6 +724,16 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     {
       parameterMap.put(name, value);
     }
+  }
+
+  /**
+   * Is the specified value "boolean"
+   * @param value Text to validate
+   * @return true if <code>value</code> is a variant of true/false
+   */
+  private boolean isBoolean(String value)
+  {
+    return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
   }
 
   /*

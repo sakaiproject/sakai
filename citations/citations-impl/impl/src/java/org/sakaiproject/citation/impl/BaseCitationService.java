@@ -206,8 +206,10 @@ public abstract class BaseCitationService implements CitationService
 			m_citationProperties = new Hashtable();
 			m_urls = new Hashtable();
 
-			boolean unknownSchema = true;
 			String preferredUrl = null;
+			boolean usePreferredUrls = m_configService.getSiteConfigUsePreferredUrls();
+
+			boolean unknownSchema = true;
 			String title = null;
 
 			Set validProperties = getValidPropertyNames();
@@ -383,9 +385,9 @@ public abstract class BaseCitationService implements CitationService
 
 			setDefaults();
       /*
-       * Did we find a preferred URL?
+       * Did we find a preferred URL?  If so, should we use it?
        */
-			if (preferredUrl != null)
+			if (usePreferredUrls && (preferredUrl != null))
 			{
 			  String id;
         /*

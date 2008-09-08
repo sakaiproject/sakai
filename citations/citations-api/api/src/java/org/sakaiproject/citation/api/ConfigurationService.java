@@ -144,6 +144,12 @@ public interface ConfigurationService
   public String getSiteConfigSakaiServerKey();
 
   /**
+   * Should we use "preferred" URLs found by Library Search as the title link?
+   * @return true if so
+   */
+  public boolean getSiteConfigUsePreferredUrls();
+
+  /**
    * Get the maximum number of databases we can search at one time
    */
   public int getSiteConfigMaximumSearchableDBs();

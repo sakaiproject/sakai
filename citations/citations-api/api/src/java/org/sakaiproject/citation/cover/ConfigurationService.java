@@ -244,6 +244,20 @@ public class ConfigurationService
 	}
 
   /**
+   * Should we use "preferred" URLs found by Library Search as the title link?
+   * @return true if so
+   */
+	public static boolean getSiteConfigUsePreferredUrls()
+	{
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return false;
+		}
+		return instance.getSiteConfigUsePreferredUrls();
+	}
+
+  /**
    * Get the maximum number of databases we can search at one time
    */
   public static int getSiteConfigMaximumSearchableDBs()
