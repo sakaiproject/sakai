@@ -2116,20 +2116,24 @@ public class SiteAction extends PagedResourceActionII {
 					// site cannot be set as joinable
 					context.put("disableJoinable", Boolean.TRUE);
 				}
+				
+				// the template site, if using one
+				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);			
 
 				// use the type's template, if defined
 				String realmTemplate = "!site.template";
-				if (siteInfo.site_type != null) {
+				// if create based on template, use the roles from the template
+				if (templateSite != null) {
+					realmTemplate = SiteService.siteReference(templateSite.getId());
+				} else if (siteInfo.site_type != null) {
 					realmTemplate = realmTemplate + "." + siteInfo.site_type;
 				}
 				try {
-					AuthzGroup r = AuthzGroupService
-							.getAuthzGroup(realmTemplate);
+					AuthzGroup r = AuthzGroupService.getAuthzGroup(realmTemplate);
 					context.put("roles", r.getRoles());
 				} catch (GroupNotDefinedException e) {
 					try {
-						AuthzGroup rr = AuthzGroupService
-								.getAuthzGroup("!site.template");
+						AuthzGroup rr = AuthzGroupService.getAuthzGroup("!site.template");
 						context.put("roles", rr.getRoles());
 					} catch (GroupNotDefinedException ee) {
 					}
@@ -2137,8 +2141,6 @@ public class SiteAction extends PagedResourceActionII {
 
 				// new site, go to confirmation page
 				context.put("continue", "10");
-				
-				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 
 				siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 				if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
