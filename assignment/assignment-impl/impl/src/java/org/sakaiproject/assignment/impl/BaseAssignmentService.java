@@ -3239,36 +3239,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 	
 	/**
-	 * Get the list of Users who can do certain function for this assignment
-	 * @inheritDoc
-	 */
-	public List allowAssignmentFunctionUsers(String assignmentReference, String function)
-	{
-		List rv = new Vector();
-		
-		rv = SecurityService.unlockUsers(function, assignmentReference);
-		
-		// get the list of users who have SECURE_ALL_GROUPS
-		List allGroupUsers = new Vector();
-		try
-		{
-			String contextRef = SiteService.siteReference(getAssignment(assignmentReference).getContext());
-			allGroupUsers = SecurityService.unlockUsers(SECURE_ALL_GROUPS, contextRef);
-			// remove duplicates
-			allGroupUsers.removeAll(rv);
-		}
-		catch (Exception e)
-		{
-			M_log.warn(this + "allowAssignmentFunctionUsers " + e.getMessage() + " assignmentReference=" + assignmentReference + " function=" + function);
-		}
-		
-		// combine two lists together
-		rv.addAll(allGroupUsers);
-		
-		return rv;
-	}
-	
-	/**
 	 * Get the List of Users who can addSubmission() for this assignment.
 	 * 
 	 * @param assignmentReference -
@@ -3277,7 +3247,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowAddSubmissionUsers(String assignmentReference)
 	{
-		return allowAssignmentFunctionUsers(assignmentReference, SECURE_ADD_ASSIGNMENT_SUBMISSION);
+		return SecurityService.unlockUsers(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
 
 	} // allowAddSubmissionUsers
 	
@@ -3290,7 +3260,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowGradeAssignmentUsers(String assignmentReference)
 	{
-		return allowAssignmentFunctionUsers(assignmentReference, SECURE_GRADE_ASSIGNMENT_SUBMISSION);
+		return SecurityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
 
 	} // allowGradeAssignmentUsers
 	
