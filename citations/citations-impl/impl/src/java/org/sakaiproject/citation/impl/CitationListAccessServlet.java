@@ -321,11 +321,15 @@ public class CitationListAccessServlet implements HttpAccess
     				List<String> customUrlIds = citation.getCustomUrlIds();
     				for( String urlId : customUrlIds )
     				{
-    					String urlLabel = ( citation.getCustomUrlLabel( urlId ) == null ||
-    							citation.getCustomUrlLabel( urlId ).trim().equals("") ) ? rb.getString( "nullUrlLabel.view" ) : Validator.escapeHtml( citation.getCustomUrlLabel( urlId ) );
-
-    					out.println("\t\t\t\t<a href=\"" + citation.getCustomUrl( urlId ).toString() + "\" target=\"_blank\">" + urlLabel + "</a>");
+        			if (!citation.hasPreferredUrl() || 
+        			    (citation.hasPreferredUrl() && (!citation.getPreferredUrlId().equals(urlId))))
+        			{
+      					String urlLabel = ( citation.getCustomUrlLabel( urlId ) == null ||
+      							citation.getCustomUrlLabel( urlId ).trim().equals("") ) ? rb.getString( "nullUrlLabel.view" ) : Validator.escapeHtml( citation.getCustomUrlLabel( urlId ) );
+              
+    					  out.println("\t\t\t\t<a href=\"" + citation.getCustomUrl( urlId ).toString() + "\" target=\"_blank\">" + urlLabel + "</a>");
     	    			out.println("\t\t\t\t |");
+    	    		}
     				}
     			}
     			out.println("\t\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + ConfigurationService.getSiteConfigOpenUrlLabel() + "</a>");
