@@ -482,13 +482,6 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					}	
 				}
 			}
-			else
-			{
-				if (m_assignmentService.allowGradeSubmission(a.getReference()))
-				{
-					return true;
-				}
-			}
 		}
 		else
 		{
