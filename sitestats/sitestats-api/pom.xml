@@ -25,6 +25,17 @@
 
   <!-- Dependencies -->
   <dependencies>
+   <!-- K1 Sakai deps -->
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <!-- Pre K1 Sakai deps -->
+    <!--
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
@@ -41,6 +52,7 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
     </dependency>
+    -->
   </dependencies>
   
   <!-- Build -->
