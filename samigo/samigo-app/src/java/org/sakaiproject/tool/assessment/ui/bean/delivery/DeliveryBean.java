@@ -1389,7 +1389,7 @@ public class DeliveryBean
     listener.processAction(null);
     syncTimeElapsedWithServer();
 
-    String returnValue = "select";
+    String returnValue = "saveForLaterWarning";
     if (this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     { // if this is access via url, display quit message
       log.debug("**anonymous login, go to quit");

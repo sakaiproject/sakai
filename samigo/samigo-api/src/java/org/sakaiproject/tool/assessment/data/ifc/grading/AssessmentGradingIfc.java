@@ -28,6 +28,10 @@ import java.util.Set;
 public interface AssessmentGradingIfc
     extends java.io.Serializable{
 
+	// status = 0: begin a new assessment
+	// status = 1: submit but not grade yet
+	// status = 2: grader has went to total score page and graded + AUTO_GRADED
+	// status = 3: grader has went to total score page and graded + at least one question NEED_HUMAN_ATTENTION
 	public static final Integer AUTO_GRADED = new Integer(2);
 
 	public static final Integer NEED_HUMAN_ATTENTION = new Integer(3);
