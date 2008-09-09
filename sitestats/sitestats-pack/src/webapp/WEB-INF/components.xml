@@ -104,13 +104,18 @@
 			<bean class="org.sakaiproject.sitestats.impl.event.FileEventRegistry"/>
 		</property>
 		<property name="entityBrokerEventRegistry">
-			<bean class="org.sakaiproject.sitestats.impl.event.EntityBrokerEventRegistry"/>
+		  <bean class="org.sakaiproject.sitestats.impl.event.EntityBrokerEventRegistry" init-method="init">
+		      <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		      <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+		      <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"/>
+              <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+		  </bean>
 		</property>
 		
 		<!-- Sakai services -->
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />                
 	</bean>	
 	
 	

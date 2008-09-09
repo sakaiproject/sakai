@@ -24,14 +24,14 @@ import org.sakaiproject.tool.api.ToolManager;
 
 public class EventRegistryServiceImpl implements EventRegistry, EventRegistryService {
 	/** Static fields */
-	private Log							LOG							= LogFactory.getLog(EventRegistryServiceImpl.class);
-	private String						CACHENAME					= "org.sakaiproject.sitestats.api.event.EventRegistryService";
-	private String						CACHENAME_EVENTREGISTRY		= "eventRegistry";
+	private static Log					LOG							= LogFactory.getLog(EventRegistryServiceImpl.class);
+	private static final String			CACHENAME					= "org.sakaiproject.sitestats.api.event.EventRegistryService";
+	private static final String			CACHENAME_EVENTREGISTRY		= "eventRegistry";
 
 	/** Event Registry members */
 	private List<String>				toolEventIds				= null;
 	private Map<String, ToolInfo>		eventIdToolMap				= null;
-	private boolean						checkLocalBundlesFirst		= true;
+	private boolean						checkLocalEventNamesFirst	= false;
 
 	/** Event Registries */
 	private FileEventRegistry			fileEventRegistry			= null;
@@ -68,15 +68,16 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		this.entityBrokerEventRegistry = ebEventRegistry;
 	}
 	
-	public void setCheckLocalBundlesFirst(boolean checkLocalBundlesFirst) {
-		this.checkLocalBundlesFirst = checkLocalBundlesFirst;
+	public void setCheckLocalEventNamesFirst(boolean checkLocalEventNamesFirst) {
+		this.checkLocalEventNamesFirst = checkLocalEventNamesFirst;
 	}
 
-	public void init() {		
-		// configure cache
-		eventRegistryCache = M_ms.newCache(CACHENAME);
+	public void init() {
+		String willCheckLocalEventNamesFirst = checkLocalEventNamesFirst ? "Local event names in sitestats-bundles will be checked first" : "Tool specified event names (Statisticable interface) will be checked first";
+		LOG.info("init(): " + willCheckLocalEventNamesFirst);
 		
-		LOG.info("init()");
+		// configure cache
+		eventRegistryCache = M_ms.newCache(CACHENAME);		
 	}
 
 	// ################################################################
@@ -117,6 +118,14 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			return EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(getMergedEventRegistry());
 		}
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.event.EventRegistry#isEventRegistryExpired()
+	 */
+	public boolean isEventRegistryExpired() {
+		// In this specific class, this has no effect
+		return true;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.event.EventRegistryService#getEventName(java.lang.String)
@@ -127,7 +136,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		String eventName = null;
 		EventRegistry firstEr = null;
 		EventRegistry secondEr = null;
-		if(checkLocalBundlesFirst) {
+		if(checkLocalEventNamesFirst) {
 			firstEr = fileEventRegistry;
 			secondEr = entityBrokerEventRegistry;
 		}else{
@@ -194,7 +203,8 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	// ################################################################
 	/** Get the merged Event Registry. */
 	private List<ToolInfo> getMergedEventRegistry() {
-		if(eventRegistryCache.containsKey(CACHENAME_EVENTREGISTRY)) {
+		if(eventRegistryCache.containsKey(CACHENAME_EVENTREGISTRY)
+				&& !areEventRegistriesExpired()) {
 			return (List<ToolInfo>) eventRegistryCache.get(CACHENAME_EVENTREGISTRY);
 		}else{
 			// First:  use file Event Registry
@@ -207,9 +217,15 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			
 			// Cache Event Registry
 			eventRegistryCache.put(CACHENAME_EVENTREGISTRY, eventRegistry);
-			LOG.debug("EventRegistry cached.");
+			LOG.debug("Cached EventRegistry.");
 			return eventRegistry;
 		}
+	}
+	
+	/** Check if any of the entity registries has expired. */
+	private boolean areEventRegistriesExpired() {
+		return fileEventRegistry.isEventRegistryExpired()
+			|| entityBrokerEventRegistry.isEventRegistryExpired();
 	}
 
 }

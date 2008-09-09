@@ -48,7 +48,9 @@ public class FileEventRegistry implements EventRegistry {
 	// ################################################################
 	// Event Registry methods
 	// ################################################################
-	// was getAllToolEventsDefinition()
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.event.EventRegistry#getEventRegistry()
+	 */
 	public List<ToolInfo> getEventRegistry() {
 		if(eventRegistry == null){
 			// Load event registry file
@@ -57,10 +59,22 @@ public class FileEventRegistry implements EventRegistry {
 		return eventRegistry;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.event.EventRegistry#isEventRegistryExpired()
+	 */
+	public boolean isEventRegistryExpired() {
+		// We won't modify EventRegistry once computed so,
+		// there's no need to expire it.
+		return false;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.event.EventRegistry#getEventName(java.lang.String)
+	 */
 	public String getEventName(String eventId) {
 		String eventName = null;
 		try{
-			eventName = msgs.getString(eventId);//, eventId);
+			eventName = msgs.getString(eventId, null);//, eventId);
 		}catch(MissingResourceException e){
 			eventName = null;
 		}		
