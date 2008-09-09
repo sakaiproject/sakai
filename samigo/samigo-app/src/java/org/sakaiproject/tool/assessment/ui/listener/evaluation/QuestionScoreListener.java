@@ -288,6 +288,7 @@ public class QuestionScoreListener implements ActionListener,
 			// now we need filter by sections selected
 			ArrayList scores = new ArrayList(); // filtered list
 			Map useridMap = totalBean.getUserIdMap(TotalScoresBean.CALLED_FROM_QUESTION_SCORE_LISTENER);
+			bean.setUserIdMap(useridMap);
 			log.debug("questionScores(): useridMap.size = " + useridMap.size());
 
 			/*

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.faces.event.ActionEvent;
 
@@ -109,6 +110,8 @@ public class QuestionScoresBean
   //Searching
   private String searchString;
   private String defaultSearchString;
+  
+  private Map userIdMap;
 
   private Boolean releasedToGroups = null; // added by gopalrc - Jan 2008
 
@@ -945,5 +948,13 @@ public void clear(ActionEvent event) {
 		return this.getPublishedAssessment().getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
 	}
 	
-	
+	public Map getUserIdMap()
+	{
+		return userIdMap;
+	}
+
+	public void setUserIdMap(Map userIdMap)
+	{
+		this.userIdMap = userIdMap;
+	}	
 }

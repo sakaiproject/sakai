@@ -32,6 +32,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -41,6 +42,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -188,6 +190,10 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  mediaList = gradingService.getMediaArray(publishedId, publishedItemId, scoringType);
 	  log.debug("mediaList.size() = " + mediaList.size());
 		  
+	  QuestionScoresBean questionScoresBean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet(
+			   "questionScores", req, res);
+	  Map userIdMap = questionScoresBean.getUserIdMap();
+	  
 	  String agentId;
 	  Long assessmentGradingId;
 	  for (int i = 0; i < mediaList.size(); i++) {
@@ -197,8 +203,12 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 		  assessmentGradingId = itemGradingData.getAssessmentGradingId();
 		  log.debug("agentId = " + agentId);
 		  log.debug("assessmentGradingId = " + assessmentGradingId);
+		  if (!userIdMap.containsKey(agentId)) {
+			  log.debug("Do not download files from this user - agentId = " + agentId);
+			  continue;
+		  }
 		  if (hashByAgentId.containsKey(agentId)) {
-			  log.error("same agentId");
+			  log.debug("same agentId");
 			  subHashByAssessmentGradingId = (HashMap) hashByAgentId.get(agentId);
 			  if (subHashByAssessmentGradingId.containsKey(assessmentGradingId)) {
 				  log.debug("same assessmentGradingId");
