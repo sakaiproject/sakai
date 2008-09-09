@@ -1536,15 +1536,19 @@ public abstract class BaseCitationService implements CitationService
 			return source;
 		}
 
-		public String getAbstract() {
-			if ( m_citationProperties != null && m_citationProperties.get( "abstract" ) != null )
+		public String getAbstract() 
+		{
+			if ((m_citationProperties != null) && 
+			    (m_citationProperties.get( "abstract" ) != null))
 			{
-				return m_citationProperties.get("abstract").toString().trim();
+				String abstractText = m_citationProperties.get("abstract").toString().trim();
+				
+				if (abstractText.length() > 0)
+				{
+				  return abstractText;
+				}
 			}
-			else
-			{
-				return null;
-			}
+			return null;
 		}
 
 		public String getSubjectString() {
