@@ -108,11 +108,17 @@ function saveTime()
         <h:outputText value=" <b>#{deliveryMessages.button_submit_grading}</b> "  escape="false"/>
 	    <h:outputText value="#{deliveryMessages.submit_warning_3}" />
 	  </h:panelGroup>
-	  <h:panelGroup>
+	  <h:panelGroup rendered="#{delivery.navigation ne '1'}">
 	    <h:outputText value="#{deliveryMessages.submit_warning_4}" />
 	    <h:outputText value=" <b>#{deliveryMessages.previous}</b> " escape="false"/>
 	    <h:outputText value="#{deliveryMessages.submit_warning_5}" />
 	  </h:panelGroup>
+
+         <h:panelGroup rendered="#{delivery.navigation eq '1'}">
+            <h:outputText value="#{deliveryMessages.submit_warning_4}" />
+            <h:outputText value=" <b>#{deliveryMessages.button_cancel}</b> " escape="false"/>
+            <h:outputText value="#{deliveryMessages.submit_warning_6}" />
+          </h:panelGroup>
 	</h:panelGrid>
   </h:panelGroup>
 
@@ -172,7 +178,7 @@ function saveTime()
 
   <!-- Previous button for linear assessments -->
   <h:commandButton type="submit" value="#{deliveryMessages.button_cancel}"
-    action="#{delivery.saveAndExit}" id="cancel"
+    action="select" id="cancel"
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment'
 				 || delivery.actionString=='takeAssessmentViaUrl')
