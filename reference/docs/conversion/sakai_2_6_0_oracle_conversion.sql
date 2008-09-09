@@ -174,3 +174,7 @@ where TITLE in (
 -- SAK-14291
 create index SYLLABUS_ATTACH_ID_I on SAKAI_SYLLABUS_ATTACH (syllabusId);
 create index SYLLABUS_DATA_SURRO_I on SAKAI_SYLLABUS_DATA (surrogateKey);
+
+-- Samigo
+-- SAK-8432
+create index SAM_AG_AGENTID_I on SAM_ASSESSMENTGRADING_T (AGENTID);
