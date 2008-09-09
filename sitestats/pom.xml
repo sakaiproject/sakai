@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <name>Sakai SiteStats</name>
@@ -21,13 +22,14 @@
     <groupId>org.sakaiproject</groupId>
     <!-- EDIT ME: Sakai Version -->
     <!--<version>2.5.2</version>--> <!-- For Official Releases -->    
-    <version>M2</version> <!-- For 2.5.x --> 
-    <!--<version>2.6.0RC1-SNAPSHOT</version>--> <!-- For TRUNK -->   
+    <!--<version>M2</version>--> <!-- For 2.5.x --> 
+    <version>2.6.0RC1-SNAPSHOT</version> <!-- For TRUNK -->   
   </parent>
   
 
   <!-- Project versions -->
   <properties>
+    <entitybroker.version>[1.3.5-SNAPSHOT,1.4.0]</entitybroker.version>
     <commons-digester.version>1.6</commons-digester.version>
     <fop.version>0.94</fop.version>
     <poi.version>2.0-final-20040126</poi.version>
@@ -147,11 +149,20 @@
     </dependency>
   
     <!-- Sakai -->
+    <!-- Pre K1 Sakai deps -->
+    <!--    
+    <dependency>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-api</artifactId>
+      <version>${entitybroker.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+    -->
     
     <!-- Apache Commons -->
     <dependency>
