@@ -33,7 +33,7 @@
             <h:outputText value="#{msgs.tab_inst_2_alt}"/>
         </div>
     </div>              
-            
+
     <table cellspacing="0" cellpadding="5%" class="sidebyside" summary="layout">
         <tr>
             <td id="sites-active-button" class='buttoncell'>
@@ -48,6 +48,8 @@
                         <f:param value="#{UserPrefsTool.tabCount - 1 }"/>
                     </h:outputFormat> 
                 </div>
+								<b><h:outputText value="#{msgs.tab_count}"/></b>
+								<h:inputText size="2" value="#{UserPrefsTool.tabCount}" />
                 <br />
                 <h:selectManyListbox value="#{UserPrefsTool.selectedOrderItems}" size="10">
                     <f:selectItems value="#{UserPrefsTool.prefOrderItems}" />
