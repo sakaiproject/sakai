@@ -870,7 +870,8 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		// keep it
 		MessageChannelEdit channel = m_storage.putChannel(ref);
 
-		((BaseMessageChannelEdit) channel).setEvent(SECURE_ADD);
+		// let's not tract this event, since it is not possible to differenciate between channel actions vs message actions
+		//((BaseMessageChannelEdit) channel).setEvent(SECURE_ADD);
 
 		return channel;
 
@@ -950,11 +951,9 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 		m_storage.commitChannel(edit);
 
-		// track event (no notification)
-		Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageChannelEdit) edit).getEvent()), edit.getReference(), true,
-				NotificationService.NOTI_NONE);
-
-		m_eventTrackingService.post(event);
+		// don't log any event for channel editing for now, since the event is shared btw channel and message
+		//Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageChannelEdit) edit).getEvent()), edit.getReference(), true,	NotificationService.NOTI_NONE);
+		//m_eventTrackingService.post(event);
 
 		// close the edit object
 		((BaseMessageChannelEdit) edit).closeEdit();
