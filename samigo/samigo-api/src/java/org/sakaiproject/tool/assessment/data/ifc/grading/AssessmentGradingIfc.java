@@ -28,11 +28,17 @@ import java.util.Set;
 public interface AssessmentGradingIfc
     extends java.io.Serializable{
 
+	// status = 0: begin a new assessment
+	// status = 1: submit but not grade yet
+	// status = 2: grader has went to total score page and graded + AUTO_GRADED
+	// status = 3: grader has went to total score page and graded + at least one question NEED_HUMAN_ATTENTION
+	// status = 4: the assessment has be republished. this assessmengGradingData needs to be resubmit
+	// status = 5: there is no submission but grader updat something in the score page
 	public static final Integer AUTO_GRADED = new Integer(2);
 
 	public static final Integer NEED_HUMAN_ATTENTION = new Integer(3);
 
-	public static final Integer LATE_SUBMISSION = new Integer(4);
+	public static final Integer NEED_RESUBMIT = new Integer(4);
 
 	public static final Integer NO_SUBMISSION = new Integer(5);
 

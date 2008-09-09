@@ -62,6 +62,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -1389,7 +1390,7 @@ public class DeliveryBean
     listener.processAction(null);
     syncTimeElapsedWithServer();
 
-    String returnValue = "select";
+    String returnValue = "saveForLaterWarning";
     if (this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     { // if this is access via url, display quit message
       log.debug("**anonymous login, go to quit");
@@ -2602,35 +2603,51 @@ public class DeliveryBean
     }
     
     log.debug("check 1");
-    // check 1: check for multiple window & browser trick 
+    // check 2: is it still available?
+    if (isRetracted(isSubmitForGrade)){
+     return "isRetracted";
+    }
+    
+    log.debug("check 2");
+    // check 2: is it still available?
+    if (isRetractedForEdit()){
+        return "isRetractedForEdit";
+    }
+    
+    log.debug("check 3");
+    // check 3: check for multiple window & browser trick 
     if (assessmentGrading!=null && !checkDataIntegrity(assessmentGrading)){
       return ("discrepancyInData");
     }
 
-    log.debug("check 2");
-    // check 2: if workingassessment has been submiited?
+    log.debug("check 4");
+    // check 4: if workingassessment has been submiited?
     // this is to prevent student submit assessment and use a 2nd window to 
     // continue working on the submitted work.
     if (assessmentGrading!=null && getAssessmentHasBeenSubmitted(assessmentGrading)){
       return "assessmentHasBeenSubmitted";
     }
 
-    //GradingService gradingService = new GradingService();
-    //int numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
-    log.debug("take from bean numberRetake = " + numberRetake);
-    log.debug("check 3");
-    // check 3: any submission attempt left?
+    log.debug("check 5");
+    // check 5: is it need to resubmit? If yes, we don't check on submission number, dates, or time.
+    if (isNeedResubmit()){
+        return "safeToProceed";
+    }
+    
+    GradingService gradingService = new GradingService();
+    int numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+    log.debug("check 6");
+    // check 6: any submission attempt left?
     if (!getHasSubmissionLeft(totalSubmitted, numberRetake)){
       return "noSubmissionLeft";
     }
 
-    log.debug("check 4");
-    // check 4: accept late submission?
+    log.debug("check 7");
+    // check 7: accept late submission?
     boolean acceptLateSubmission = AssessmentAccessControlIfc.
         ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
 
-    log.debug("check 5");
-    // check 5: has dueDate arrived? if so, does it allow late submission?
+    // check 7: has dueDate arrived? if so, does it allow late submission?
     // If it is a timed assessment and "No Late Submission" and not during a Retake, always go through. Because in this case the 
     // assessment will be auto-submitted anyway - when time is up or when current date reaches due date (if the time limited is 
     // longer than due date,) for either case, we want to redirect to the normal "submision successful page" after submitting.
@@ -2663,20 +2680,8 @@ public class DeliveryBean
     	}
     }
 
-    log.debug("check 6");
-    // check 6: is it still available?
-    if (isRetracted(isSubmitForGrade)){
-     return "isRetracted";
-    }
-
-    log.debug("check 6.1");
-    // check 6: is it still available?
-    if (isRetractedForEdit()){
-        return "isRetractedForEdit";
-    }
-    
-    log.debug("check 7");
-    // check 7: is timed assessment? and time has expired?
+    log.debug("check 8");
+    // check 8: is timed assessment? and time has expired?
     if (isTimeRunning() && timeExpired()){ 
       return "timeExpired";
     }
@@ -2744,6 +2749,14 @@ public class DeliveryBean
   private boolean isRetractedForEdit(){
 	  Integer status = publishedAssessment.getStatus();
 	  if (status.equals(AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS)) {
+		  return true;
+	  }
+	  return false;
+  }
+  
+  private boolean isNeedResubmit(){
+	  Integer status = adata.getStatus();
+	  if (status.equals(AssessmentGradingIfc.NEED_RESUBMIT)) {
 		  return true;
 	  }
 	  return false;

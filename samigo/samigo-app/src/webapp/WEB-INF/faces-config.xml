@@ -604,6 +604,10 @@
       <from-outcome>assessmentNotAvailable</from-outcome>
       <to-view-id>/jsf/delivery/assessmentNotAvailable.jsp</to-view-id>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>saveForLaterWarning</from-outcome>
+      <to-view-id>/jsf/delivery/saveForLaterWarning.jsp</to-view-id>
+    </navigation-case>
   </navigation-rule>
 
   <!-- INDEX -->
