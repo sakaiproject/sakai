@@ -59,7 +59,6 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   private String assessmentTitle;
   private String timeElapse;
   private String feedback;
-  private boolean needResubmit;
   private String statistics;
   private boolean submitted;
   private String grade;
@@ -133,16 +132,6 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
     this.feedback = feedback;
   }
 
-  public boolean getNeedResubmit()
-  {
-    return needResubmit;
-  }
-
-  public void setNeedResubmit(boolean needResubmit)
-  {
-    this.needResubmit = needResubmit;
-  }
-  
   public String getStatistics()
   {
     return statistics;
