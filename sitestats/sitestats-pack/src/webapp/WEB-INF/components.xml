@@ -28,21 +28,10 @@
 		<!-- OPTIONS: -->		
 			
 			<!-- Tool event definition file (events to be collected) -->
-			<!-- Default:
-					1. File specified in property below
-					2. If (1.) not found/specified, load defaults from bundled config file:
-						sitestats-api/api/src/config/org/sakaiproject/sitestats.config/toolEventDef.xml
-			 -->
-			<!-- <property name="toolEventsDefinitionFile" value="${sakai.home}/toolEventsDef.xml" /> -->
-			
-			<!-- Tool event definition file: add support for new tools or new events to existing tools -->
-			<!-- <property name="toolEventsAddDefinitionFile" value="${sakai.home}/toolEventsAddDef.xml" /> -->
-			
-			<!-- Tool event definition file: remove support for entire Tools or subset of Tool events -->
-			<!-- <property name="toolEventsRemoveDefinitionFile" value="${sakai.home}/toolEventsRemoveDef.xml" /> -->
+			<!-- MOVED TO BEAN: org.sakaiproject.sitestats.api.event.FileEventRegistry -->
 			
 			<!-- Force enable/disable site visits if SAK-8499 is solved.
-				Probably don't need to cahnge: by default, this is true if display.users.present=true in sakai.properties -->			
+				Probably don't need to canche: by default, this is true if display.users.present=true in sakai.properties -->			
 			<!-- <property name="enableSiteVisits" value="true" /> -->
 
 			<!-- Enable/disable site activity charts -->
@@ -100,9 +89,7 @@
 		singleton="true">
 		
 		<!-- Event Registries -->
-		<property name="fileEventRegistry">
-			<bean class="org.sakaiproject.sitestats.impl.event.FileEventRegistry"/>
-		</property>
+		<property name="fileEventRegistry" ref="org.sakaiproject.sitestats.api.event.FileEventRegistry"/>
 		<property name="entityBrokerEventRegistry">
 		  <bean class="org.sakaiproject.sitestats.impl.event.EntityBrokerEventRegistry" init-method="init">
 		      <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
@@ -117,6 +104,23 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />                
 	</bean>	
+	<bean id="org.sakaiproject.sitestats.api.event.FileEventRegistry"
+	   class="org.sakaiproject.sitestats.impl.event.FileEventRegistry"
+	   lazy-init="true" singleton="true">
+            <!-- Tool event definition file (events to be collected) -->
+            <!-- Default:
+                    1. File specified in property below
+                    2. If (1.) not found/specified, load defaults from bundled config file:
+                        sitestats-api/api/src/config/org/sakaiproject/sitestats.config/toolEventDef.xml
+             -->
+            <!-- <property name="toolEventsDefinitionFile" value="${sakai.home}/toolEventsDef.xml" /> -->
+            
+            <!-- Tool event definition file: add support for new tools or new events to existing tools -->
+            <!-- <property name="toolEventsAddDefinitionFile" value="${sakai.home}/toolEventsAddDef.xml" /> -->
+            
+            <!-- Tool event definition file: remove support for entire Tools or subset of Tool events -->
+            <!-- <property name="toolEventsRemoveDefinitionFile" value="${sakai.home}/toolEventsRemoveDef.xml" /> -->
+	  </bean>
 	
 	
 	<!-- ReportManager ______________________________________________________________________________ -->
