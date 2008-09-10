@@ -557,7 +557,7 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String EMAIL_CHAR = "@";
 
 	// Special tool id for Home page
-	private static final String HOME_TOOL_ID = "home";
+	private static final String HOME_TOOL_ID = "sakai.iframe.site";
 	private static final String SITE_INFORMATION_TOOL="sakai.iframe.site";
 
 	private static final String STATE_CM_LEVELS = "site.cm.levels";
@@ -8300,7 +8300,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (pageList != null && pageList.size() != 0) {
 					for (ListIterator i = pageList.listIterator(); i.hasNext();) {
 						SitePage page = (SitePage) i.next();
-						if (rb.getString("java.home").equals(page.getTitle()))
+						if (pageHasToolId(page.getTools(), HOME_TOOL_ID))
 						{
 							homePage = page;
 							break;
@@ -8443,31 +8443,36 @@ public class SiteAction extends PagedResourceActionII {
 
 				if (toolId.equals(HOME_TOOL_ID)) {
 					homeSelected = true;
-				} else if (isMultipleInstancesAllowed(findOriginalToolId(state, toolId))) 
-				{
-					// if user is adding either EmailArchive tool, News tool
-					// or Web Content tool, go to the Customize page for the
-					// tool
-					if (!existTools.contains(toolId)) {
+					idsSelected.add(toolId);
+				} else
+				{ 	
+					String originId = findOriginalToolId(state, toolId);	
+					if (isMultipleInstancesAllowed(originId)) 
+					{
+						// if user is adding either EmailArchive tool, News tool
+						// or Web Content tool, go to the Customize page for the
+						// tool
+						if (!existTools.contains(toolId)) {
+							goToToolConfigPage = true;
+							multipleToolIdSet.add(toolId);
+							multipleToolIdTitleMap.put(toolId, ToolManager.getTool(originId).getTitle());
+						}
+					}
+					else if (toolId.equals("sakai.mailbox") && !existTools.contains(toolId)) {
+						// get the email alias when an Email Archive tool
+						// has been selected
 						goToToolConfigPage = true;
-						multipleToolIdSet.add(toolId);
-						multipleToolIdTitleMap.put(toolId, ToolManager.getTool(toolId).getTitle());
+						String channelReference = mailArchiveChannelReference((String) state
+								.getAttribute(STATE_SITE_INSTANCE_ID));
+						List aliases = AliasService.getAliases(
+								channelReference, 1, 1);
+						if (aliases.size() > 0) {
+							state.setAttribute(STATE_TOOL_EMAIL_ADDRESS,
+									((Alias) aliases.get(0)).getId());
+						}
 					}
+					idsSelected.add(toolId);
 				}
-				else if (toolId.equals("sakai.mailbox") && !existTools.contains(toolId)) {
-					// get the email alias when an Email Archive tool
-					// has been selected
-					goToToolConfigPage = true;
-					String channelReference = mailArchiveChannelReference((String) state
-							.getAttribute(STATE_SITE_INSTANCE_ID));
-					List aliases = AliasService.getAliases(
-							channelReference, 1, 1);
-					if (aliases.size() > 0) {
-						state.setAttribute(STATE_TOOL_EMAIL_ADDRESS,
-								((Alias) aliases.get(0)).getId());
-					}
-				}
-				idsSelected.add(toolId);
 
 			}
 
@@ -9388,115 +9393,83 @@ public class SiteAction extends PagedResourceActionII {
 	} // sitePropertiesIntoState
 
 	/**
-	 * pageMatchesPattern returns true if a SitePage matches a WorkSite Setup
-	 * pattern
-	 * 
+	 * pageMatchesPattern returns tool id if a SitePage matches a WorkSite Setuppattern
+	 * otherwise return null
+	 * @param state
+	 * @param page
+	 * @return
 	 */
-	private boolean pageMatchesPattern(SessionState state, SitePage page) {
+	private String pageMatchesPattern(SessionState state, SitePage page) {
 		List pageToolList = page.getTools();
 
 		// if no tools on the page, return false
 		if (pageToolList == null || pageToolList.size() == 0) {
-			return false;
+			return null;
 		}
-
-		// for the case where the page has one tool
-		ToolConfiguration toolConfiguration = (ToolConfiguration) pageToolList
-				.get(0);
 
 		// don't compare tool properties, which may be changed using Options
 		List toolList = new Vector();
 		int count = pageToolList.size();
-		boolean match = false;
+		
+		// check Home tool first
+		if (pageHasToolId(pageToolList, HOME_TOOL_ID)) 
+			return HOME_TOOL_ID;
 
-		// check Worksite Setup Home pattern
-		if (page.getTitle() != null
-				&& page.getTitle().equals(rb.getString("java.home"))) {
-			return true;
-
-		} // Home
-		else if (page.getTitle() != null
-				&& page.getTitle().equals(rb.getString("java.help"))) {
-			// if the count of tools on the page doesn't match, return false
-			if (count != 1) {
-				return false;
-			}
-
-			// if the page layout doesn't match, return false
-			if (page.getLayout() != SitePage.LAYOUT_SINGLE_COL) {
-				return false;
-			}
-
-			// if tooId isn't sakai.contactSupport, return false
-			if (!(toolConfiguration.getTool().getId())
-					.equals("sakai.contactSupport")) {
-				return false;
-			}
-
-			return true;
-		} // Help
-		else if (page.getTitle() != null && page.getTitle().equals("Chat")) {
-			// if the count of tools on the page doesn't match, return false
-			if (count != 1) {
-				return false;
-			}
-
-			// if the page layout doesn't match, return false
-			if (page.getLayout() != SitePage.LAYOUT_SINGLE_COL) {
-				return false;
-			}
-
-			// if the tool doesn't match, return false
-			if (!(toolConfiguration.getTool().getId()).equals("sakai.chat")) {
-				return false;
-			}
-
-			// if the channel doesn't match value for main channel, return false
-			String channel = toolConfiguration.getPlacementConfig()
-					.getProperty("channel");
-			if (channel == null) {
-				return false;
-			}
-			if (!(channel.equals(NULL_STRING))) {
-				return false;
-			}
-
-			return true;
-		} // Chat
-		else {
-			// if the count of tools on the page doesn't match, return false
-			if (count != 1) {
-				return false;
-			}
-
-			// if the page layout doesn't match, return false
-			if (page.getLayout() != SitePage.LAYOUT_SINGLE_COL) {
-				return false;
-			}
-
+		// Other than Home page, no other page is allowed to have more than one tool within. Otherwise, WSetup/Site Info tool won't handle it
+		if (count != 1)
+		{
+			return null;
+		}
+		// if the page layout doesn't match, return false
+		else if (page.getLayout() != SitePage.LAYOUT_SINGLE_COL) {
+			return null;
+		}
+		else
+		{
+			// for the case where the page has one tool
+			ToolConfiguration toolConfiguration = (ToolConfiguration) pageToolList.get(0);
+			
 			toolList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
-
+	
 			if (pageToolList != null || pageToolList.size() != 0) {
 				// if tool attributes don't match, return false
-				match = false;
+				String match = null;
 				for (ListIterator i = toolList.listIterator(); i.hasNext();) {
 					MyTool tool = (MyTool) i.next();
 					if (toolConfiguration.getTitle() != null) {
 						if (toolConfiguration.getTool() != null
 								&& toolConfiguration.getTool().getId().indexOf(
 										tool.getId()) != -1) {
-							match = true;
+							match = tool.getId();
 						}
 					}
 				}
-				if (!match) {
-					return false;
-				}
+				return match;
 			}
-		} // Others
-		return true;
+		}
+		
+		return null;
 
 	} // pageMatchesPattern
+
+
+	/**
+	 * check whether the page tool list contains certain toolId
+	 * @param pageToolList
+	 * @param toolId
+	 * @return
+	 */
+	private boolean pageHasToolId(List pageToolList, String toolId) {
+		for (Iterator iPageToolList = pageToolList.iterator(); iPageToolList.hasNext();)
+		{
+			ToolConfiguration toolConfiguration = (ToolConfiguration) iPageToolList.next();
+			if (toolId.equals(toolConfiguration.getTool().getId()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * siteToolsIntoState is the replacement for siteToolsIntoState_ Make a list
@@ -9539,16 +9512,14 @@ public class SiteAction extends PagedResourceActionII {
 			for (ListIterator i = pageList.listIterator(); i.hasNext();) {
 				SitePage page = (SitePage) i.next();
 				// collect the pages consistent with Worksite Setup patterns
-				if (pageMatchesPattern(state, page)) {
-					if (page.getTitle().equals(rb.getString("java.home"))) {
-						wSetupTool = HOME_TOOL_ID;
+				wSetupTool = pageMatchesPattern(state, page);
+				if (wSetupTool != null) {
+					if (wSetupTool.equals(HOME_TOOL_ID))
+					{
 						check_home = true;
 					}
 					else 
 					{
-						List pageToolList = page.getTools();
-						wSetupTool = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
-						
 						if (isMultipleInstancesAllowed(findOriginalToolId(state, wSetupTool)))
 						{
 							String mId = page.getId() + wSetupTool;

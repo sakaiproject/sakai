@@ -23,7 +23,7 @@
 			<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString("feat.tools.list.summary")"  style="width:auto">
 				<tr #if($check_home) class="selectedSelected"  #end id="row-home">
 					<td>
-						<input type="checkbox" name="selectedTools" value="home" id="home"
+						<input type="checkbox" name="selectedTools" value="sakai.iframe.site" id="home"
 							#if ($check_home)
 								checked="checked"
 							#end
@@ -60,15 +60,15 @@
 								#end
 							#end
 						id="row-$rowCount">
-						<td>	
+						<td>
 							<input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"
 								#if ($!defaultTools.indexOf($toolId) != -1)
 									checked="checked" disabled="disabled"
 								#else
 									onchange="this.checked ? document.getElementById('row-$rowCount').className='selectedSelected' :document.getElementById('row-$rowCount').className=''"
 									#if($toolRegistrationSelectedList)
-										#foreach($tId in $toolRegistrationSelectedList)
-											#if ($tId.indexOf($toolId) != -1)
+									#foreach($tId in $toolRegistrationSelectedList)
+											#if ($tId == $toolId)
 												checked="checked"
 											#end
 										#end
