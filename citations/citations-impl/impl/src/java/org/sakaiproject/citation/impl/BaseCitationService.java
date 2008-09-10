@@ -1638,7 +1638,7 @@ public abstract class BaseCitationService implements CitationService
 			Field tempField = null; // This holds the current field being evaluated while iterating through
 			                        // Fields
 			Iterator iter = null; // The iterator used to boogie through the Schema Fields
-			boolean status = true; // Used to maintain/exit the tag lookup while loop
+			boolean noFieldMapping = true; // Used to maintain/exit the tag lookup while loop
 			String[] RIScodes = null; // This holds the RISCodes valid for a given schema
 			String urlId = null; // Used to set the preferred URL
 			
@@ -1776,9 +1776,9 @@ public abstract class BaseCitationService implements CitationService
 					// Get all the valid RIS fields for this particular schema type
 					Fields = schema.getFields();
 					iter = Fields.iterator();
-					status = true;
+					noFieldMapping = true;
 
-					while (iter.hasNext() && status == true)
+					while (iter.hasNext() && noFieldMapping)
 					{
 						tempField = (Field) iter.next();
 
@@ -1786,7 +1786,7 @@ public abstract class BaseCitationService implements CitationService
 
 						RIScodes = tempField.getIdentifierComplex(RIS_FORMAT);
 
-						for(int j=0; j< RIScodes.length && status; j++)
+						for(int j=0; j< RIScodes.length && noFieldMapping; j++)
 						{
 
 //							logger.debug("importFromRisList: Seeing if I can find a match that has the " +
@@ -1796,13 +1796,13 @@ public abstract class BaseCitationService implements CitationService
 							// (e.g. "BT, T1" vs "BT","T1")
 							if (RIScode.equalsIgnoreCase(RIScodes[j]))
 							{
-								status = false;
+								noFieldMapping = false;
 								logger.debug("importFromRisList: Found field mapping");
 							}
 						} // end for j (loop through complex RIS codes)
 					} // end while
 
-					if (status) // couldn't find the field mapping
+					if (noFieldMapping) // couldn't find the field mapping
 					{
 /*						if (schema.getIdentifier().equalsIgnoreCase("book"))
 						{
@@ -1862,10 +1862,10 @@ public abstract class BaseCitationService implements CitationService
 							  i = i-1;
 						  }
 
-					} // end if status (field not found)
+					} // end if noFieldMapping (field not found)
 					
 					
-					else // ! status. We found a field in the Schema
+					else // ! noFieldMapping. We found a field in the Schema
 					{
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
 								     " => " + RISvalue);
