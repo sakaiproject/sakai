@@ -6336,8 +6336,14 @@ public class SiteAction extends PagedResourceActionII {
 								// if there is a difference between the role setting, remove the entry from group and add it back with correct role, all are marked "not provided"
 								if (!g.getUserRole(gMemberId).equals(siteMember.getRole()))
 								{
+									Role siteRole = siteMember.getRole();
+									if (g.getRole(siteRole.getId()) == null)
+									{
+										// in case there is no matching role as that in the site, create such role and add it to the user
+										g.addRole(siteRole.getId(), siteRole);
+									}
 									g.removeMember(gMemberId);
-									g.addMember(gMemberId, siteMember.getRole().getId(), siteMember.isActive(), false);
+									g.addMember(gMemberId, siteRole.getId(), siteMember.isActive(), false);
 								}
 							}
 						}
