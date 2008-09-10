@@ -1643,6 +1643,7 @@ public abstract class BaseCitationService implements CitationService
 			String urlId = null; // Used to set the preferred URL
 			
 			boolean KWTag = false; // used to track EndNote continuation lines. 
+			int delimiterIndex  = 0; // used to find the index of the hyphen to separate RIScode from RISvalue
 
 			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
 
@@ -1666,7 +1667,7 @@ public abstract class BaseCitationService implements CitationService
 					
 					// New parsing code 2008-09 based on first delimiter not index in String
 
-					int delimiterIndex  = currentLine.indexOf('-');
+					delimiterIndex  = currentLine.indexOf('-');
 
 					// if we found a hyphen
 					if (delimiterIndex != -1)
@@ -1784,7 +1785,20 @@ public abstract class BaseCitationService implements CitationService
 						  logger.debug("importFromRisList: Cannot find field mapping for RIScode " +
 		                               RIScode + " for Schema = " + schema);
 
-						  if (KWTag)
+						  // recompute hyphen location for KWTag check. Computation earlier may have gotten mangled
+						  
+						  delimiterIndex  = currentLine.indexOf('-');
+						  
+						  if (delimiterIndex == -1)
+						  {
+							  RIScode = "CODENOTFOUND";
+						  }
+						  else
+						  {
+								RIScode = currentLine.substring(0, delimiterIndex).trim();
+						  }
+
+						  if (KWTag && (RIScode.length() != 2) ) // KWTag and not a possible RIScode
 						  {
 							  logger.debug("importFromRisList: continuation of KW found (EndNote oddity). Hacking KW tag and resending line through the import system");
 							  risImportList.set(i, "KW - " + currentLine);
