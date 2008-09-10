@@ -1797,8 +1797,14 @@ public abstract class BaseCitationService implements CitationService
 						  {
 								RIScode = currentLine.substring(0, delimiterIndex).trim();
 						  }
-
-						  if (KWTag && (RIScode.length() != 2) ) // KWTag and not a possible RIScode
+						  
+						  if (RIScode.equalsIgnoreCase("UR"))
+						  {
+							urlId = addCustomUrl("", RISvalue);
+							setPreferredUrl(urlId);
+							logger.debug("importFromRisList: set preferred url to " + urlId + " which is " + RISvalue);
+						  }
+						  else if (KWTag && (RIScode.length() != 2) ) // KWTag and not a possible RIScode
 						  {
 							  logger.debug("importFromRisList: continuation of KW found (EndNote oddity). Hacking KW tag and resending line through the import system");
 							  risImportList.set(i, "KW - " + currentLine);
@@ -1816,17 +1822,8 @@ public abstract class BaseCitationService implements CitationService
 						else
 							KWTag = false;
 
-						if (RIScode.equalsIgnoreCase("UR"))
-						{
-							urlId = addCustomUrl("", RISvalue);
-							setPreferredUrl(urlId);
-							logger.debug("importFromRisList: set preferred url to " + urlId + " which is " + RISvalue);
-						}
-						else
-						{
-							// We found the mapping in the previous while loop. Set the citation property
-							setCitationProperty(tempField.getIdentifier(), RISvalue);
-						}
+						// We found the mapping in the previous while loop. Set the citation property
+						setCitationProperty(tempField.getIdentifier(), RISvalue);
 					} // end else which means we found the mapping
 
 				} // end else of i == 0
