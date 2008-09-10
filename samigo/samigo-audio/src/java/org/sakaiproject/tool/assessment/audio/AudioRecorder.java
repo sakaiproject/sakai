@@ -183,8 +183,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
 	ImageIcon playIcon = null;
 	
-	ImageIcon saveIcon = null;
-
 	ImageIcon stopIcon = null;
 	
 	Applet containingApplet = null;
@@ -204,7 +202,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		try {
 			recordIcon = new ImageIcon(new URL(imageUrl + "/audio_record.gif"));
 			playIcon = new ImageIcon(new URL(imageUrl + "/audio_play.gif"));
-			saveIcon = new ImageIcon("");
 			stopIcon = new ImageIcon(new URL(imageUrl + "/audio_stop.gif"));
 		} catch (Exception ex) {
 			reportStatus("**** cannot create image icons for applet:"
@@ -307,8 +304,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		playB = addButton(res.getString("Play"), buttonsPanel, false, params
 				.isEnablePlay());
 		saveButton = addButton(res.getString("Save_and_close"), Font.BOLD, buttonsPanel, false, params.isEnableSave());
-		if (saveIcon != null)
-			saveButton.setIcon(saveIcon);
+
 		if (playIcon != null)
 			playB.setIcon(playIcon);
 //		SpringUtilities.makeCompactGrid(buttonsPanel, 2, 3, 5, 5, 5, 5);
