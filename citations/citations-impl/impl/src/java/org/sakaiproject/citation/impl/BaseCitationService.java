@@ -1744,7 +1744,7 @@ public abstract class BaseCitationService implements CitationService
 							setSchema(schema);
 					} // end else (else processes RIScode == "TY")
 				} // end if i == 0
-				else // process the RIS entries after the first mandatory TY/Schema code
+				else // i > 0 so we are on a line other than the first line of the RIS record.  Let's process the RIS entries after the first mandatory TY/Schema code
 				{
 				   	if (RIScode.equalsIgnoreCase("ER")) // RIScode "ER" signifies the end of a citation record
 					{
