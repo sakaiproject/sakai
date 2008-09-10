@@ -1664,7 +1664,7 @@ public abstract class BaseCitationService implements CitationService
 				{
 					// get the RIS code
 					
-					// New parsing code based on first delimiter not index in String
+					// New parsing code 2008-09 based on first delimiter not index in String
 
 					int delimiterIndex  = currentLine.indexOf('-');
 
