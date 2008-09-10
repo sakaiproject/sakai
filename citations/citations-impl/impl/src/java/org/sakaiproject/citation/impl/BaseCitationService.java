@@ -1657,7 +1657,7 @@ public abstract class BaseCitationService implements CitationService
 				// that we know won't be processed for this line.
 				if (currentLine.length() < 4)
 				{
-					RIScode = "";
+					RIScode = "CODENOTFOUND";
 					RISvalue = "";
 				}
 				else
@@ -1693,7 +1693,7 @@ public abstract class BaseCitationService implements CitationService
 					}	
 					else
 					{
-						RIScode = "";
+						RIScode = "CODENOTFOUND";
 						RISvalue = "";
 					}
 					
@@ -1858,7 +1858,7 @@ public abstract class BaseCitationService implements CitationService
 						  if (KWTag)
 						  {
 							  logger.debug("importFromRisList: continuation of KW found (EndNote oddity). Hacking KW tag and resending line through the import system");
-							  currentLine = "KW - " + currentLine;
+							  risImportList.set(i, "KW - " + currentLine);
 							  i = i-1;
 						  }
 
