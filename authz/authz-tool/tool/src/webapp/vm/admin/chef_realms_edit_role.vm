@@ -41,7 +41,7 @@
 			<input type="text" name="description" id="description" #if($role) value="$!role.Description"#end />
 		</p>
 		<p class="shorttext">
-			Should this role be limited to the group provider only?
+			$tlang.getString("realm.role.group")
 			<input type="radio" name="providerOnly" id="providerOnly" value="true" #if($role.providerOnly) checked="checked"#end  /> Yes
 			<input type="radio" name="providerOnly" id="providerOnly" value="false" #if( ! $role.providerOnly) checked="checked"#end  /> No
 		</p>
