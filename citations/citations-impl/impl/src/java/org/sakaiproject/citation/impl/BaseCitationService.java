@@ -1697,18 +1697,6 @@ public abstract class BaseCitationService implements CitationService
 						RISvalue = "";
 					}
 					
-//					below is the old parsing code
-
-/*						
-					RIScode = currentLine.substring(0, 2);
-					logger.debug("importFromRisList: substr code = " + RIScode);
-
-					// If the RIS line is of the right minimum length, get the RIS value.
-					if (currentLine.length() >= 7)
-						RISvalue = currentLine.substring(6);
-					else // Just set the value to some default value
-						RISvalue = "";
-*/
 					logger.debug("importFromRisList: substr value = " + RISvalue);
 				}
 
@@ -1762,14 +1750,6 @@ public abstract class BaseCitationService implements CitationService
 					{
 					   	logger.debug("importFromRisList: Read an ER. End of citation.");
 
-/*
-					   	if (((String) getCitationProperty(Schema.TITLE)).length() == 0 &&
-					   		((String) getCitationProperty(Schema.SOURCE_TITLE)).length() > 0)
-					   	{
-						   	logger.debug("importFromRisList: Setting empty TITLE to non empty SOURCE_TITLE");
-					   		setCitationProperty(Schema.TITLE, getCitationProperty(Schema.SOURCE_TITLE));
-					   	}
-*/
 						return true; // ER signals end of citation
 					} // end of citation
 
@@ -1789,9 +1769,6 @@ public abstract class BaseCitationService implements CitationService
 						for(int j=0; j< RIScodes.length && noFieldMapping; j++)
 						{
 
-//							logger.debug("importFromRisList: Seeing if I can find a match that has the " +
-//									     "given code '" + RIScode + "' == '" + RIScodes[j] + "' for Schema " + schema.getIdentifier());
-
 							// Need Trim in case RIS complex value has a space after the delimiter
 							// (e.g. "BT, T1" vs "BT","T1")
 							if (RIScode.equalsIgnoreCase(RIScodes[j]))
@@ -1804,55 +1781,7 @@ public abstract class BaseCitationService implements CitationService
 
 					if (noFieldMapping) // couldn't find the field mapping
 					{
-/*						if (schema.getIdentifier().equalsIgnoreCase("book"))
-						{
-
-							if (RIScode.equalsIgnoreCase("T1")) // Refworks
-							{
-									setCitationProperty(Schema.TITLE, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode +
-											     " to " + Schema.TITLE);
-							}
-							else
-								logger.debug("importFromRisList: Cannot find Field mapping");
-
-						} // end book schema mapping exceptions
-						else if (schema.getIdentifier().equalsIgnoreCase("article"))
-						{
-							if (RIScode.equalsIgnoreCase("AU")) // EndNote
-							{
-									setCitationProperty(Schema.CREATOR, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode +
-											     " to " + Schema.CREATOR);
-							}
-							else if (RIScode.equalsIgnoreCase("PY")) // EndNote
-							{
-									setCitationProperty(Schema.YEAR, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode +
-											     " to " + Schema.YEAR);
-							}
-							else if (RIScode.equalsIgnoreCase("TI")) // EndNote
-							{
-									setCitationProperty(Schema.TITLE, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode +
-											     " to " + Schema.TITLE);
-							}
-							else
-								logger.debug("importFromRisList: Cannot find Field mapping");
-						} // end article schema mapping exceptions
-						else if (schema.getIdentifier().equalsIgnoreCase("unknown"))
-						{
-							if (RIScode.equalsIgnoreCase("AU")) // EndNote
-							{
-									setCitationProperty(Schema.CREATOR, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode +
-											     " to " + Schema.CREATOR);
-							}
-							else
-								logger.debug("importFromRisList: Cannot find Field mapping");
-						} // end unknown schema mapping exceptions
-						else
-*/						  logger.debug("importFromRisList: Cannot find field mapping for RIScode " +
+						  logger.debug("importFromRisList: Cannot find field mapping for RIScode " +
 		                               RIScode + " for Schema = " + schema);
 
 						  if (KWTag)
@@ -1862,9 +1791,7 @@ public abstract class BaseCitationService implements CitationService
 							  i = i-1;
 						  }
 
-					} // end if noFieldMapping (field not found)
-					
-					
+					} // end if noFieldMapping (field not found)					
 					else // ! noFieldMapping. We found a field in the Schema
 					{
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
