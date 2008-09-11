@@ -637,7 +637,7 @@ function handleEnterKeyPress(ev)
 			<p class="act">
 				<input type="button" accesskey="d" class="active"  name="save" value="$tlang.getString('gen.savdragra')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.savdratit")" />
 				<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.retustud')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.retustudtit")" />	
-				<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='previewgrade';document.gradeForm.submit();return false;" />
+				<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='previewgrade';document.gradeForm.submit();return false;" />
 				<input type="button" accesskey="x" name="cancel" value="$tlang.getString('gen.can')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='cancelgrade';document.gradeForm.submit();return false;" />
 			</p>
 	</form>
