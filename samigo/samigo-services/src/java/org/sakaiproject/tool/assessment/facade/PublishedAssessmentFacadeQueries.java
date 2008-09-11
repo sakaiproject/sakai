@@ -292,6 +292,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		publishedAccessControl.setFinalPageUrl(a.getFinalPageUrl());
 		publishedAccessControl.setUnlimitedSubmissions(a
 				.getUnlimitedSubmissions());
+		publishedAccessControl.setMarkForReview(a.getMarkForReview());
 		publishedAccessControl.setAssessmentBase(p);
 		return publishedAccessControl;
 	}

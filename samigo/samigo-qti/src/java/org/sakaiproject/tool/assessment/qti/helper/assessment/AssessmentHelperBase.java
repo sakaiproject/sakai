@@ -314,6 +314,7 @@ public abstract class AssessmentHelperBase
     Integer itemNavigation = accessControl.getItemNavigation();
     Integer itemNumbering = accessControl.getItemNumbering();
     Integer assessmentFormat = accessControl.getAssessmentFormat();
+    Integer markForReview = accessControl.getMarkForReview();
     Integer lateHandling = accessControl.getLateHandling();
     Integer retryAllowed = accessControl.getRetryAllowed();
     Integer submissionsSaved = accessControl.getSubmissionsSaved();
@@ -374,6 +375,15 @@ public abstract class AssessmentHelperBase
       assessmentXml.setFieldentry("QUESTION_NUMBERING", "RESTART");
     }
 
+    if (accessControl.MARK_FOR_REVIEW.equals(markForReview))
+    {
+      assessmentXml.setFieldentry("MARK_FOR_REVIEW", "True");
+    }
+    else if (accessControl.NOT_MARK_FOR_REVIEW.equals(markForReview))
+    {
+      assessmentXml.setFieldentry("MARK_FOR_REVIEW", "False");
+    }
+    
     if (accessControl.ACCEPT_LATE_SUBMISSION.equals(lateHandling))
     {
       assessmentXml.setFieldentry("LATE_HANDLING", "True");

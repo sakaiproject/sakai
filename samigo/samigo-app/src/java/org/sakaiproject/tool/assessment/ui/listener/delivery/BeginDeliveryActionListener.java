@@ -236,6 +236,13 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setBeginTime(null);
     delivery.setFeedbackOnDate(false);
     delivery.setDueDate(control.getDueDate());
+    
+    if (control.getMarkForReview() != null && (Integer.valueOf(1)).equals(control.getMarkForReview())) {
+    	delivery.setDisplayMardForReview(true);
+    }
+    else {
+    	delivery.setDisplayMardForReview(false);
+    }
 
     // #1 - set submission remains
     int totalSubmissions = (service.getTotalSubmission(AgentFacade.getAgentString(),

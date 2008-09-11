@@ -129,6 +129,12 @@ public class SaveAssessmentSettings
     if (assessmentSettings.getAssessmentFormat()!=null )
      control.setAssessmentFormat(new Integer(assessmentSettings.getAssessmentFormat()));
 
+    if (assessmentSettings.getIsMarkForReview())
+        control.setMarkForReview(AssessmentAccessControl.MARK_FOR_REVIEW);
+    else {
+    	control.setMarkForReview(AssessmentAccessControl.NOT_MARK_FOR_REVIEW);
+    }
+
     // d. set Submissions
     if (assessmentSettings.getUnlimitedSubmissions()!=null){
       if (!assessmentSettings.getUnlimitedSubmissions().

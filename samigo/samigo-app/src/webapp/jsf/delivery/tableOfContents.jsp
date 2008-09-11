@@ -137,8 +137,8 @@ function clickSubmitForGrade(){
   </h5>
   <h:graphicImage  alt="#{deliveryMessages.alt_unans_q}" url="/images/tree/blank.gif" />
   <h:outputText value="#{deliveryMessages.unans_q}" /><br/>
-  <h:graphicImage  alt="#{deliveryMessages.alt_q_marked}" url="/images/tree/marked.gif" />
-  <h:outputText value="#{deliveryMessages.q_marked}" />
+  <h:graphicImage  alt="#{deliveryMessages.alt_q_marked}" url="/images/tree/marked.gif" rendered="#{delivery.displayMardForReview}" />
+  <h:outputText value="#{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
 
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />

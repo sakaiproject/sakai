@@ -70,6 +70,9 @@ public class AssessmentAccessControl
   // itemNumbering
   public static final Integer CONTINUOUS_NUMBERING = new Integer(1);
   public static final Integer RESTART_NUMBERING_BY_PART = new Integer(2);
+  // markForReview
+  public static final Integer MARK_FOR_REVIEW = new Integer(1);
+  public static final Integer NOT_MARK_FOR_REVIEW = new Integer(0);
   // submissionsAllowed
   public static final Integer UNLIMITED_SUBMISSIONS_ALLOWED = new Integer(9999);
   // lateHandling
@@ -101,6 +104,7 @@ public class AssessmentAccessControl
   private String releaseTo;
   private String username;
   private String password;
+  private Integer markForReview;
 
   /**
    * Creates a new SubmissionModel object.
@@ -387,4 +391,12 @@ public class AssessmentAccessControl
   }
   
 
+  public Integer getMarkForReview() {
+	return this.markForReview;
+  }
+
+  public void setMarkForReview(Integer markForReview) {
+	this.markForReview = markForReview;
+  }
+   
 }

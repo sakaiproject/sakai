@@ -54,6 +54,9 @@ public interface AssessmentAccessControlIfc
   // itemNumbering
   public static Integer CONTINUOUS_NUMBERING = new Integer(1);
   public static Integer RESTART_NUMBERING_BY_PART = new Integer(2);
+  //markForReview
+  public static final Integer MARK_FOR_REVIEW = new Integer(1);
+  public static final Integer NOT_MARK_FOR_REVIEW = new Integer(0);
   // submissionsAllowed
   public static Integer UNLIMITED_SUBMISSIONS_ALLOWED = new Integer(9999);
   public static Integer UNLIMITED_SUBMISSIONS = new Integer(1);
@@ -161,5 +164,7 @@ public interface AssessmentAccessControlIfc
 
   void setUnlimitedSubmissions(Boolean unlimitedSubmissions);
 
+  Integer getMarkForReview();
 
+  void setMarkForReview(Integer markForReview);
 }

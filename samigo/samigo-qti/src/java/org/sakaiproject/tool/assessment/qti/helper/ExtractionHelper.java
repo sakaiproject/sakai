@@ -831,6 +831,17 @@ public class ExtractionHelper
       control.setAssessmentFormat(control.BY_ASSESSMENT);
     }
 
+    // Mark for Review
+    if ("True".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "MARK_FOR_REVIEW")))
+    {
+      control.setMarkForReview(control.MARK_FOR_REVIEW);
+    }
+    else
+    {
+      control.setMarkForReview(control.NOT_MARK_FOR_REVIEW);
+    }
+    
     //Submissions
     // submissions allowed
     String maxAttempts =

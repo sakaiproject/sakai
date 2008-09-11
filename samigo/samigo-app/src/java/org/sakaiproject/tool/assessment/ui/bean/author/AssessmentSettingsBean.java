@@ -195,6 +195,8 @@ public class AssessmentSettingsBean
   private String originalRetractDateString;
   private String originalFeedbackDateString;
   
+  private boolean isMarkForReview;
+  
   /**
    *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
    *  used to take the internal format from calendar picker and move it
@@ -310,6 +312,13 @@ public class AssessmentSettingsBean
         if (accessControl.getSubmissionsSaved()!=null) // bad name, this is autoSaved
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
+        if (accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview())) {
+            this.isMarkForReview = true;
+        }
+        else {
+        	this.isMarkForReview = false;
+        }
+        
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions().booleanValue()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
@@ -1517,7 +1526,6 @@ public class AssessmentSettingsBean
 	  this.originalRetractDateString = "";
 	  this.originalFeedbackDateString = "";
   }
-
   
   /**
    * gopalrc Nov 2007
@@ -1635,4 +1643,15 @@ public class AssessmentSettingsBean
 	  assessmentSettings.setRubrics(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.RUBRICS)));
 	  return "editAssessmentSettings";
   }
+  
+  public boolean getIsMarkForReview()
+  {
+	  return this.isMarkForReview;
+  }
+  
+  public void setIsMarkForReview(boolean isMarkForReview)
+  {
+	  this.isMarkForReview = isMarkForReview;
+  }
+
 }

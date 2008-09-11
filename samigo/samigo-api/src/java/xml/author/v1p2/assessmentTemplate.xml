@@ -251,6 +251,15 @@
       </qtimetadatafield>
       <!--Possible Values -->
       <!--True, False -->
+
+     <!-- ***************************************** Mark for Review  ****************************** -->
+     <qtimetadatafield>
+        <fieldlabel>MARK_FOR_REVIEW</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
      <!-- *****************************************Submissions  ****************************** -->
      <qtimetadatafield>
         <fieldlabel>LATE_HANDLING</fieldlabel>

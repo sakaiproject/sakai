@@ -98,12 +98,16 @@ should be included in file importing DeliveryMessages
 
 <f:verbatim><br /></f:verbatim>
 
-<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
-   rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
-            && delivery.navigation ne '1' }" />
-<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}"
-  rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
-            && delivery.navigation ne '1'}" />
+<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
+                || delivery.actionString=='takeAssessment' 
+                || delivery.actionString=='takeAssessmentViaUrl')
+             && delivery.navigation ne '1' && delivery.displayMardForReview }">
+<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
+	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
+	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('../author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../author/markForReviewTipText.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" >
+		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+	</h:outputLink>
+</h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">

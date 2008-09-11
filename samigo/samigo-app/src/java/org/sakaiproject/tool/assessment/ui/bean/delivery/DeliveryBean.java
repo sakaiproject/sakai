@@ -103,6 +103,7 @@ public class DeliveryBean
   private boolean reviewMarked;
   private boolean reviewAll;
   private boolean reviewBlank;
+  private boolean displayMardForReview;
   private int itemIndex;
   private int size;
   private String action;
@@ -2971,4 +2972,24 @@ public class DeliveryBean
 		  return "takeAssessment";
 	  }
 
+	  /**
+	   *
+	   *
+	   * @return
+	   */
+	  public boolean getDisplayMardForReview()
+	  {
+	    return this.displayMardForReview;
+	  }
+
+	  /**
+	   *
+	   *
+	   * @param reviewMarked
+	   */
+	  public void setDisplayMardForReview(boolean displayMardForReview)
+	  {
+	    this.displayMardForReview = displayMardForReview;
+	  }
+	  
 }

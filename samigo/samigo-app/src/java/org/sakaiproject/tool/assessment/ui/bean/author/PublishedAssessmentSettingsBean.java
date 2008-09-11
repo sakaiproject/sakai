@@ -178,6 +178,8 @@ public class PublishedAssessmentSettingsBean
   private String originalFeedbackDateString;
   private boolean updateMostCurrentSubmission = false;
   
+  private boolean isMarkForReview;
+  
   /*
    * Creates a new AssessmentBean object.
    */
@@ -246,6 +248,13 @@ public class PublishedAssessmentSettingsBean
         if (accessControl.getSubmissionsSaved()!=null)
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
+        if (accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview())) {
+            this.isMarkForReview = true;
+        }
+        else {
+        	this.isMarkForReview = false;
+        }
+        
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions().booleanValue()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
@@ -1367,6 +1376,14 @@ public class PublishedAssessmentSettingsBean
 			}
 		}
 		return groupsAuthorized;
+	}
+
+	public boolean getIsMarkForReview() {
+		return this.isMarkForReview;
+	}
+
+	public void setIsMarkForReview(boolean isMarkForReview) {
+		this.isMarkForReview = isMarkForReview;
 	}
 }
 

@@ -125,7 +125,6 @@ function saveTime()
 <%@ include file="/jsf/delivery/assessmentDeliveryHeading.jsp" %>
 </f:subview>
 
-
 <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
 <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>

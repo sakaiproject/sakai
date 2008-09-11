@@ -319,6 +319,25 @@ function showHideReleaseGroups(){
     </div></div>
   </samigo:hideDivision>
 
+<!-- *** MARK FOR REVIEW *** -->
+<h:panelGroup>
+  <samigo:hideDivision title="#{assessmentSettingsMessages.mark_for_review}" >
+    <f:verbatim><div class="tier2"></f:verbatim>
+    <h:panelGrid columns="1">
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="markForReview" value="#{publishedSettings.isMarkForReview}" disabled="true"/>
+        <h:outputLabel for="timed_assmt" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
+		<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('markForReviewTipText.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" >
+          <h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+        </h:outputLink>
+      </h:panelGroup>
+      <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_1}" />
+	  <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_2}" />
+    </h:panelGrid>
+	<f:verbatim></div></f:verbatim>
+  </samigo:hideDivision>
+</h:panelGroup>
+
   <!-- *** SUBMISSIONS *** -->
   <samigo:hideDivision id="div7" title="#{assessmentSettingsMessages.t_submissions}" >
 <%--     DEBUGGING:

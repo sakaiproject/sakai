@@ -518,6 +518,43 @@ function showHideReleaseGroups(){
   </samigo:hideDivision>
 </h:panelGroup>
 
+<!-- *** MARK FOR REVIEW *** -->
+<!-- *** (enabled for linear assessment) *** -->
+<h:panelGroup rendered="#{assessmentSettings.itemNavigation != 1}">
+  <samigo:hideDivision title="#{assessmentSettingsMessages.mark_for_review}" >
+    <f:verbatim><div class="tier2"></f:verbatim>
+    <h:panelGrid columns="1">
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
+        <h:outputLabel for="timed_assmt" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
+        <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('markForReviewTipText.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" >
+            <h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+        </h:outputLink>
+      </h:panelGroup>
+      <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_1}" />
+	  <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_2}" />
+    </h:panelGrid>
+	 <f:verbatim></div></f:verbatim>
+  </samigo:hideDivision>
+</h:panelGroup>
+
+<!-- *** (disabled for linear assessment) *** -->
+<h:panelGroup rendered="#{assessmentSettings.itemNavigation == 1}">
+  <samigo:hideDivision title="#{assessmentSettingsMessages.mark_for_review}" >
+    <f:verbatim><div class="tier2"></f:verbatim>
+    <h:panelGrid columns="1">
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="markForReview2" value="false" disabled="true"/>
+        <h:outputLabel for="timed_assmt" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
+      </h:panelGroup>
+      <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_1}" />
+	  <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_2}" />
+    </h:panelGrid>
+	<f:verbatim></div></f:verbatim>
+  </samigo:hideDivision>
+</h:panelGroup>
+
+
   <!-- *** SUBMISSIONS *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true or assessmentSettings.valueMap.lateHandling_isInstructorEditable==true or assessmentSettings.valueMap.autoSave_isInstructorEditable==true}" >
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_submissions}" >

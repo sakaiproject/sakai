@@ -68,6 +68,7 @@ public class PublishedAccessControl
   private String username;
   private String password;
   private Boolean unlimitedSubmissions;
+  private Integer markForReview;
 
   /**
    * Creates a new SubmissionModel object.
@@ -371,4 +372,11 @@ public class PublishedAccessControl
     this.unlimitedSubmissions = unlimitedSubmissions;
   }
 
+  public Integer getMarkForReview() {
+	  return this.markForReview;
+  }
+
+  public void setMarkForReview(Integer markForReview) {
+	  this.markForReview = markForReview;
+  }
 }

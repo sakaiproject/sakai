@@ -110,6 +110,7 @@
     <property name="username" type="string" length="255" column="USERNAME" not-null="false" />
     <property name="password" type="string" length="255" column="PASSWORD" not-null="false" />
     <property name="finalPageUrl" type="string" length="1023" column="FINALPAGEURL" not-null="false" />
+    <property name="markForReview" type="integer" column="MARKFORREVIEW" not-null="false" />
 
 <!--
     <property name="unlimitedSubmissions">
