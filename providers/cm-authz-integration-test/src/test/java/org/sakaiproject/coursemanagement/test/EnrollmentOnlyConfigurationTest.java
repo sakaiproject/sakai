@@ -4,11 +4,11 @@
 *
 ***********************************************************************************
 *
- * Copyright (c) 2008 Sakai Foundation
+ * Copyright 2008 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *       http://www.osedu.org/licenses/ECL-2.0
  *
@@ -27,14 +27,24 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.site.api.Site;
 
 /**
- * Test the default configuration of the Course Management Group provider.
+ * Test a simpler integration of course management services with Sakai site
+ * groups and roles, based solely on enrollment sets and not including any
+ * coordination with department administrators, etc.
+ * 
+ * This configuration also allows for course management EIDs that contain the
+ * "+" character (e.g., "Advanced C++") by using "|" as a provider string
+ * separator.
  */
-public class DefaultConfigurationTest extends ConfigurationTestBase {
+public class EnrollmentOnlyConfigurationTest extends ConfigurationTestBase {
+	static final Log log = LogFactory.getLog(EnrollmentOnlyConfigurationTest.class);
+	
 	private static String officialInstructorOfA = "officialInstructorOfA";
 	private static String unofficialInstructorOfA = "unofficialInstructorOfA";
 	private static String adminOfOfferingA = "adminOfOfferingA";
@@ -49,6 +59,7 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 	private static String expelledStudentALec1 = "expelledStudentALec1";
 	private static String unofficialStudentALec1 = "unofficialStudentALec1";
 	private static String gsiALec1 = "gsiALec1";
+	private static String taAsEnrollmentALec1 = "taAsEnrollmentALec1";
 	
 	private static String term1 = "term1";
 	private static String courseOfferingA = "courseOfferingA";
@@ -58,13 +69,17 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 	private static String canonicalA = "canonicalA";
 	private static String canonicalB = "canonicalB";
 	private static String enrollmentALec1 = "enrollmentALec1";
-	private static String sectionALec1 = "sectionALec1";
-	private static String sectionADis1 = "sectionADis1";
+	
+	// Let's try to confuse the service by including some "+" characters in
+	// the section EIDs....
+	private static String sectionALec1 = "sectionA C++ Lec1";
+	private static String sectionADis1 = "sectionA Site + Sound /+/-/ Dis1";
+	
 	private static String enrollmentBLec1 = "enrollmentBLec1";
 	private static String sectionBLec1 = "sectionBLec1";
 
 	static {
-		setSakaiHome(DefaultConfigurationTest.class, "default");
+		setSakaiHome(EnrollmentOnlyConfigurationTest.class, "enrollment-only-configuration");
 	}
 
 	protected void onSetUp() throws Exception {
@@ -73,21 +88,23 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 		/*
 			What we need to test:
 			
-			The Sakai authz side will be interested in three types of roles: Instructor, Teaching Assistant, and Student.
+			The Sakai authz side will be interested in two types of roles: Instructor and Student.
 			
 			From the CM side, a section's official instructor will get the "Instructor" role.
 			
-			Users with an enrollment status of "enrolled" or "wait" will get the "Student" role. Other enrollment statuses
-			("expelled", etc.,) will result in non-membership. A dropped status will result in non-membership.
+			Users with an enrollment status of "E" or "W" will get the "Student" role. Other enrollment statuses
+			("X", etc.,) will result in non-membership. A dropped status will result in non-membership.
 			
-			Remaining users who are members of the section will be mapped "I" to "Instructor", "S" to "Student", and
-			"GSI" to "Teaching Assistant". Other types of membership will be discarded.
+			Remaining users who are members of the section will be mapped "teacher" to "Instructor" and
+			"learner" to "Student". Other types of membership will be discarded.
 			
-			At the CourseOffering level, "CourseAdmin" or "I" members will get the "Instructor" role.
+			No attention will be paid to memberships atg the CourseOffering or CourseSet levels.
 			
-			At the CourseSet level, "DeptAdmin" members will get the "Instructor" role. No one else gets anything.
+			When a user is mapped to multiple roles, they're preferred in the order: "Instructor", "Student".
 			
-			When a user is mapped to multiple roles, they're preferred in the order: "Instructor", "Teaching Assistant", "Student".
+			Sakai's arcane site authorization approach involves gluing course management EIDs together into
+			"realm provider" strings. The default provider uses a plus sign as the glue. Check this doesn't
+			block EIDs that contain the "+" character.
 		*/
 
 		addUser(officialInstructorOfA);
@@ -104,6 +121,7 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 		addUser(expelledStudentALec1);
 		addUser(unofficialStudentALec1);
 		addUser(gsiALec1);
+		addUser(taAsEnrollmentALec1);
 		
 		courseManagementAdmin.createCourseSet(deptA, deptA, deptA, "DEPT", null);
 		courseManagementAdmin.addOrUpdateCourseSetMembership(deptAdminOfADept, "DeptAdmin", deptA, "active");
@@ -128,18 +146,19 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 		courseManagementAdmin.createSection(sectionADis1, sectionADis1, sectionADis1, "discussion", null, courseOfferingA, null);
 		courseManagementAdmin.createSection(sectionBLec1, sectionBLec1, sectionBLec1, "lecture", null, courseOfferingB, enrollmentBLec1);
 		
-		courseManagementAdmin.addOrUpdateCourseOfferingMembership(unofficialInstructorOfA, "I", courseOfferingA, "active");
+		courseManagementAdmin.addOrUpdateCourseOfferingMembership(unofficialInstructorOfA, "teacher", courseOfferingA, "active");
 		
-		courseManagementAdmin.addOrUpdateEnrollment(waitListedStudentALec1, enrollmentALec1, "wait", "4", "letter");
-		courseManagementAdmin.addOrUpdateEnrollment(enrolledStudentBLec1, enrollmentBLec1, "enrolled", "4", "letter");
-		courseManagementAdmin.addOrUpdateEnrollment(droppedStudentALec1, enrollmentALec1, "enrolled", "4", "letter");
+		courseManagementAdmin.addOrUpdateEnrollment(waitListedStudentALec1, enrollmentALec1, "W", "4", "letter");
+		courseManagementAdmin.addOrUpdateEnrollment(enrolledStudentBLec1, enrollmentBLec1, "E", "4", "letter");
+		courseManagementAdmin.addOrUpdateEnrollment(droppedStudentALec1, enrollmentALec1, "E", "4", "letter");
 		courseManagementAdmin.removeEnrollment(droppedStudentALec1, enrollmentALec1);
-		courseManagementAdmin.addOrUpdateEnrollment(expelledStudentALec1, enrollmentALec1, "expelled", "4", "letter");
+		courseManagementAdmin.addOrUpdateEnrollment(expelledStudentALec1, enrollmentALec1, "X", "4", "letter");
+		courseManagementAdmin.addOrUpdateEnrollment(taAsEnrollmentALec1, enrollmentALec1, "VeryWellTrusted", "4", "letter");
 		
-		courseManagementAdmin.addOrUpdateSectionMembership(studentADis1, "S", sectionADis1, "active");
+		courseManagementAdmin.addOrUpdateSectionMembership(studentADis1, "learner", sectionADis1, "active");
 		courseManagementAdmin.addOrUpdateSectionMembership(gsiALec1, "GSI", sectionALec1, "active");
 		courseManagementAdmin.addOrUpdateSectionMembership(deptAdminAndGsi, "GSI", sectionALec1, "active");
-		courseManagementAdmin.addOrUpdateSectionMembership(instructorOfB, "I", sectionBLec1, "active");
+		courseManagementAdmin.addOrUpdateSectionMembership(instructorOfB, "teacher", sectionBLec1, "active");
 		
 		// Now let's make some course sites.
 		Site site = siteService.addSite(courseOfferingA, "course");
@@ -182,6 +201,11 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 		member = site.getMember(droppedStudentALec1);
 		Assert.assertNull(member);
 		
+		// Check for the enrollment record mapped to another role.
+		member = site.getMember(taAsEnrollmentALec1);
+		Assert.assertNotNull(member);
+		Assert.assertEquals("Teaching Assistant", member.getRole().getId());
+		
 		// Check for the student in a discussion section.
 		member = site.getMember(studentADis1);
 		Assert.assertNotNull(member);
@@ -191,35 +215,30 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 		member = site.getMember(enrolledStudentBLec1);
 		Assert.assertNull(member);
 		
-		// Check for the TA.
+		// Check for non-integration of the TA.
 		member = site.getMember(gsiALec1);
-		Assert.assertNotNull(member);
-		Assert.assertEquals("Teaching Assistant", member.getRole().getId());
+		Assert.assertNull(member);
 		
-		// Check for the TA who also happens to be a DeptAdmin.
+		// Check for non-integration of the TA who also happens to be a DeptAdmin.
 		member = site.getMember(deptAdminAndGsi);
-		Assert.assertNotNull(member);
-		Assert.assertEquals("Instructor", member.getRole().getId());
+		Assert.assertNull(member);
 		
 		// Check for the official instructor of the enrollment set.
 		member = site.getMember(officialInstructorOfA);
 		Assert.assertNotNull(member);
 		Assert.assertEquals("Instructor", member.getRole().getId());
 		
-		// Check for the course offering member in the instructor role.
+		// Check for non-integration of the course offering member in the instructor role.
 		member = site.getMember(unofficialInstructorOfA);
-		Assert.assertNotNull(member);
-		Assert.assertEquals("Instructor", member.getRole().getId());
+		Assert.assertNull(member);
 		
-		// Check for the department administrator.
+		// Check for non-integration of the department administrator.
 		member = site.getMember(deptAdminOfADept);
-		Assert.assertNotNull(member);
-		Assert.assertEquals("Instructor", member.getRole().getId());
+		Assert.assertNull(member);
 		
-		// Check for the course admin.
+		// Check for non-integration of the course admin.
 		member = site.getMember(adminOfOfferingA);
-		Assert.assertNotNull(member);
-		Assert.assertEquals("Instructor", member.getRole().getId());
+		Assert.assertNull(member);
 		
 		// Check for an instructor in another course site.
 		member = site.getMember(instructorOfB);

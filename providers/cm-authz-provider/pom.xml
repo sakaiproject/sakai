@@ -28,26 +28,12 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-coursemanagement-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
   </dependencies>
-  <developers>
-    <developer>
-      <id>jholtzman</id>
-      <name>Josh Holtzman</name>
-      <email>jholtzman@berkeley.edu</email>
-      <organization>UC Berkeley</organization>
-      <organizationUrl>http://media.berkeley.edy</organizationUrl>
-      <roles>
-        <role>Lead Developer</role>
-      </roles>
-      <timezone>-8</timezone>
-    </developer>
-  </developers>
   <reports/>
   <build>
     <resources/>

@@ -22,7 +22,6 @@ package org.sakaiproject.coursemanagement.impl.provider;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,15 +36,22 @@ import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 
 /**
  * Resolves user roles in CourseOfferings.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class CourseSetRoleResolver implements RoleResolver {
+public class CourseSetRoleResolver extends BaseRoleResolver {
 	private static final Log log = LogFactory.getLog(CourseSetRoleResolver.class);
-		
-	/** Map of CM course set roles to Sakai roles */
-	Map roleMap;
+
+	// Configuration keys.
+	public static final String COURSE_SET_ROLE_TO_SITE_ROLE = "courseSetRoleToSiteRole";
+
+	/**
+	 * Internal configuration.
+	 */
+	public void init() {
+		if (configuration != null) {
+			setRoleMap((Map<String, String>)configuration.get(COURSE_SET_ROLE_TO_SITE_ROLE));
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -53,7 +59,13 @@ public class CourseSetRoleResolver implements RoleResolver {
 	public Map<String, String> getUserRoles(CourseManagementService cmService, Section section) {
 		Map<String, String> userRoleMap = new HashMap<String, String>();
 
-		Set csEids = getCourseSetEids(cmService,section);
+		// Don't bother doing anything if the integration is configured to ignore
+		// CourseSet memberships.
+		if ((roleMap == null) || (roleMap.size() == 0)) {
+			return userRoleMap;
+		}
+
+		Set<String> csEids = getCourseSetEids(cmService,section);
 		if(csEids.isEmpty()) {
 			if(log.isDebugEnabled()) log.debug("There are no course sets associated with section " + section.getEid());
 			return new HashMap<String, String>();
@@ -64,16 +76,14 @@ public class CourseSetRoleResolver implements RoleResolver {
 		
 		// TODO:  We need to account for cases where a user has different roles in multiple course sets.
 		
-		for(Iterator iter = csEids.iterator(); iter.hasNext();) {
-			String eid = (String)iter.next();
-			Set csMembers = cmService.getCourseSetMemberships(eid);
+		for(String eid : csEids) {
+			Set<Membership> csMembers = cmService.getCourseSetMemberships(eid);
 			if(csMembers == null) {
 				if(log.isDebugEnabled()) log.debug("CourseSet " + eid + " has a null set of members");
 				continue;
 			}
 			if(log.isDebugEnabled()) log.debug("CourseSet " + eid + " has " + csMembers.size() + " members");
-			for(Iterator memberIter = csMembers.iterator(); memberIter.hasNext();) {
-				Membership membership = (Membership)memberIter.next();
+			for(Membership membership : csMembers) {
 				String sakaiRole = convertRole(membership.getRole());
 				if(sakaiRole != null) {
 					if(log.isDebugEnabled()) log.debug("Adding user " + membership.getUserId() + " to userRoleMap with role " + sakaiRole);
@@ -89,11 +99,17 @@ public class CourseSetRoleResolver implements RoleResolver {
 	 */
 	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid) {
 		Map<String, String> sectionRoles = new HashMap<String, String>();
-		Map courseSetRoles = cmService.findCourseSetRoles(userEid);
+
+		// Don't bother doing anything if the integration is configured to ignore
+		// CourseSet memberships.
+		if ((roleMap == null) || (roleMap.size() == 0)) {
+			return sectionRoles;
+		}
+
+		Map<String, String> courseSetRoles = cmService.findCourseSetRoles(userEid);
 		
 		// Look at each of the course sets for which this user has a role
-		for(Iterator csIter = courseSetRoles.keySet().iterator(); csIter.hasNext();) {
-			String csEid = (String)csIter.next();
+		for(String csEid : courseSetRoles.keySet()) {
 			String csRole = (String)courseSetRoles.get(csEid);
 			
 			// If this course set role shouldn't be added to the site, ignore this course set
@@ -103,14 +119,12 @@ public class CourseSetRoleResolver implements RoleResolver {
 			}
 			
 			// Look at each of the course offerings in the course set
-			Set courseOfferings = cmService.getCourseOfferingsInCourseSet(csEid);
-			for(Iterator coIter = courseOfferings.iterator(); coIter.hasNext();) {
-				CourseOffering co = (CourseOffering)coIter.next();
+			Set<CourseOffering> courseOfferings = cmService.getCourseOfferingsInCourseSet(csEid);
+			for(CourseOffering co : courseOfferings) {
 				// Get the sections in each course offering
-				Set sections = cmService.getSections(co.getEid());
-				for(Iterator secIter = sections.iterator(); secIter.hasNext();) {
+				Set<Section> sections = cmService.getSections(co.getEid());
+				for(Section section : sections) {
 					// Add the section EIDs and *CourseSet* role to the sectionRoles map
-					Section section = (Section)secIter.next();
 					sectionRoles.put(section.getEid(), sakaiRole);
 				}
 			}
@@ -134,45 +148,23 @@ public class CourseSetRoleResolver implements RoleResolver {
 		if(log.isDebugEnabled()) log.debug("Found canonical course " + cc);
 		
 		// Now that we have the CourseOffering, check for cross-listed courses
-		Set xListedCourseOfferings = cmService.getEquivalentCourseOfferings(co.getEid());
-		Set xListedCanonCourses = cmService.getEquivalentCanonicalCourses(cc.getEid());
+		Set<CourseOffering> xListedCourseOfferings = cmService.getEquivalentCourseOfferings(co.getEid());
+		Set<CanonicalCourse> xListedCanonCourses = cmService.getEquivalentCanonicalCourses(cc.getEid());
 
 		// Collect all of the CourseSet EIDs connected to this course or an equivalent
 		Set<String> csEids = co.getCourseSetEids();
 		if(log.isDebugEnabled()) log.debug("Course offering " + co.getEid() + " is a member of " + csEids.size() + " course sets");
 
 		// Collect all of the CourseSet EIDs for which these cross listed course offerings are a member
-		for(Iterator coIter = xListedCourseOfferings.iterator(); coIter.hasNext();) {
-			CourseOffering xListCo = (CourseOffering)coIter.next();
+		for(CourseOffering xListCo : xListedCourseOfferings) {
 			String xListCcEid = xListCo.getCanonicalCourseEid();
 			CanonicalCourse xListCc = cmService.getCanonicalCourse(xListCcEid);
 			csEids.addAll(xListCc.getCourseSetEids());
 		}
-		for(Iterator ccIter = xListedCanonCourses.iterator(); ccIter.hasNext();) {
-			CanonicalCourse xListCc = (CanonicalCourse)ccIter.next();
+		for(CanonicalCourse xListCc : xListedCanonCourses) {
 			csEids.addAll(xListCc.getCourseSetEids());
 		}
 		if(log.isDebugEnabled()) log.debug("Found " + csEids.size() + " course sets for section " + section.getEid() );
 		return csEids;
-	}
-
-	public String convertRole(String cmRole) {
-		if (cmRole == null) {
-			log.warn("Can not convert CM role 'null' to a sakai role.");
-			return null;
-		}
-		String sakaiRole = (String)roleMap.get(cmRole);
-		if(sakaiRole== null) {
-			log.warn("Unable to find sakai role for CM role " + cmRole);
-			return null;
-		} else {
-			return sakaiRole;
-		}
-	}
-
-	// Dependency injection
-	
-	public void setRoleMap(Map roleMap) {
-		this.roleMap = roleMap;
 	}
 }

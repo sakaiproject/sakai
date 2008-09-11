@@ -35,21 +35,35 @@ import org.sakaiproject.coursemanagement.api.Section;
 
 /**
  * Resolves user roles in CourseOfferings.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class CourseOfferingRoleResolver implements RoleResolver {
+public class CourseOfferingRoleResolver extends BaseRoleResolver {
 	private static final Log log = LogFactory.getLog(CourseOfferingRoleResolver.class);
+
+	// Configuration keys.
+	public static final String COURSE_OFFERING_ROLE_TO_SITE_ROLE = "courseOfferingRoleToSiteRole";
 	
-	/** Map of CM course offering roles to Sakai roles */
-	Map roleMap;
+	/**
+	 * Internal configuration.
+	 */
+	public void init() {
+		if (configuration != null) {
+			setRoleMap((Map<String, String>)configuration.get(COURSE_OFFERING_ROLE_TO_SITE_ROLE));
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public Map<String, String> getUserRoles(CourseManagementService cmService, Section section) {
 		Map<String, String> userRoleMap = new HashMap<String, String>();
+
+		// Don't bother doing anything if the integration is configured to ignore
+		// CourseOffering memberships.
+		if ((roleMap == null) || (roleMap.size() == 0)) {
+			return userRoleMap;
+		}
+		
 		String coEid = section.getCourseOfferingEid();
 		
 		// Get the members of this course offering
@@ -63,7 +77,7 @@ public class CourseOfferingRoleResolver implements RoleResolver {
 			equivMembers.addAll(cmService.getCourseOfferingMemberships(equivCo.getEid()));
 		}
 
-		// Add the course offering memebers
+		// Add the course offering members
 		addMemberRoles(userRoleMap, coMembers);
 		
 		// Add the equivalent course offering members (but don't override any roles in the original course offering)
@@ -93,15 +107,20 @@ public class CourseOfferingRoleResolver implements RoleResolver {
 	 */
 	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid) {
 		Map<String, String> sectionRoles = new HashMap<String, String>();
-		
+
+		// Don't bother doing anything if the integration is configured to ignore
+		// CourseOffering memberships.
+		if ((roleMap == null) || (roleMap.size() == 0)) {
+			return sectionRoles;
+		}
+
 		// Find all of the course offerings for which this user is a member
 		Map<String, String> courseOfferingRoles = cmService.findCourseOfferingRoles(userEid);
 		if(log.isDebugEnabled()) log.debug("Found " + courseOfferingRoles.size() + " course offering roles for " + userEid);
 
 		// Add all of the equivalent course offerings-> role mappings for this user
-		Set<String> coEids = new HashSet(courseOfferingRoles.keySet());
-		for(Iterator<String> coIter = coEids.iterator(); coIter.hasNext();) {
-			String coEid = coIter.next();
+		Set<String> coEids = new HashSet<String>(courseOfferingRoles.keySet());
+		for(String coEid : coEids) {
 			Set<CourseOffering> equivOfferings = cmService.getEquivalentCourseOfferings(coEid);
 			for(Iterator<CourseOffering> equivIter = equivOfferings.iterator(); equivIter.hasNext();) {
 				CourseOffering equiv = equivIter.next();
@@ -131,26 +150,6 @@ public class CourseOfferingRoleResolver implements RoleResolver {
 			}
 		}
 		return sectionRoles;
-	}
-
-
-	public String convertRole(String cmRole) {
-		if (cmRole == null) {
-			log.warn("Can not convert CM role 'null' to a sakai role.");
-			return null;
-		}
-		String sakaiRole = (String)roleMap.get(cmRole);
-		if(sakaiRole== null) {
-			log.warn("Unable to find sakai role for CM role " + cmRole);
-			return null;
-		} else {
-			return sakaiRole;
-		}
-	}
-	// Dependency injection
-	
-	public void setRoleMap(Map roleMap) {
-		this.roleMap = roleMap;
 	}
 
 }

@@ -27,9 +27,6 @@ import org.sakaiproject.coursemanagement.api.Section;
 
 /**
  * Resolves users roles in CM objects.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
- *
  */
 public interface RoleResolver {
 
@@ -58,13 +55,4 @@ public interface RoleResolver {
 	 * @return The user's roles, or null if the user has no role in this CM object
 	 */
 	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid);
-	
-	/**
-	 * Converts a CM role to a Sakai role.
-	 * 
-	 * @param cmRole The role according to CM
-	 * @return The role to use in a Sakai site or group, or null if the CM role should
-	 * not be expressed as a role in a Sakai site or group.
-	 */
-	String convertRole(String cmRole);
 }

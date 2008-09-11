@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<!--
+		This configures a simpler integration of course management services with
+		Sakai site groups and roles, based solely on enrollment sets and not including
+		any coordination with department administrators, etc.
+	-->
+
+	<util:map id="org.sakaiproject.coursemanagement.GroupProviderConfiguration">
+		<entry key="siteRoleResolutionOrder">
+			<list>
+				<value>Instructor</value>
+				<value>Teaching Assistant</value>
+				<value>Student</value>
+			</list>
+		</entry>
+		<entry key="officialInstructorToSiteRole" value="Instructor"/>
+		<entry key="enrollmentStatusToSiteRole">
+			<map>
+				<entry key="E" value="Student"/>
+				<entry key="W" value="Student"/>
+				
+				<!-- A less contrived example would be an installation with multiple student roles. -->
+				<entry key="VeryWellTrusted" value="Teaching Assistant"/>
+			</map>
+		</entry>
+		<entry key="sectionRoleToSiteRole">
+			<map>
+				<entry key="teacher" value="Instructor"/>
+				<entry key="learner" value="Student"/>
+			</map>
+		</entry>
+	</util:map>
+
+</beans>
