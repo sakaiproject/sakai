@@ -25,8 +25,9 @@ public class DBHelper {
 		if(!M_sql.getVendor().equals("mysql") || !M_sql.getVendor().equals("oracle"))
 			return;
 		notifiedIndexesUpdate = false;
+		Connection c = null;
 		try{
-			Connection c = M_sql.borrowConnection();
+			c = M_sql.borrowConnection();
 			List<String> sstEventsIxs = listIndexes(c, "SST_EVENTS");
 			List<String> sstResourcesIxs = listIndexes(c, "SST_RESOURCES");
 			List<String> sstSiteActivityIxs = listIndexes(c, "SST_SITEACTIVITY");
@@ -66,10 +67,12 @@ public class DBHelper {
 			if(sstSiteVisitsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
 			else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_DATE_ID_IX")) createIndex(c, "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
 
-			c.close();
 		}catch(Exception e){
 			LOG.error("Error while updating indexes", e);
 			e.printStackTrace();
+		}finally{
+			if(c != null)
+				M_sql.returnConnection(c);
 		}
 	}
 
@@ -79,7 +82,7 @@ public class DBHelper {
 		notifiedIndexesUpdate = true;
 	}
 	
-	private List<String> listIndexes(Connection c, String table) {
+	private List<String> listIndexes(Connection c, String table) throws SQLException {
 		List<String> indexes = new ArrayList<String>();
 		String sql = null;
 		int pos = 1;
@@ -90,44 +93,59 @@ public class DBHelper {
 			sql = "select * from all_indexes where table_name = '" + table + "'";
 			pos = 2;
 		}
+		Statement st = null;
+		ResultSet rs = null;
 		try{
-			Statement s = c.createStatement();
-			ResultSet rs = s.executeQuery(sql);
+			st = c.createStatement();
+			rs = st.executeQuery(sql);
 			while (rs.next()){
 				String ixName = rs.getString(pos);
 				indexes.add(ixName);
 			}
-			rs.close();
-			s.close();
 		}catch(SQLException e){
 			LOG.warn("Failed to execute sql: " + sql, e);
+		}finally{
+			try {
+                if (rs != null)
+                    rs.close();
+            }
+            finally {
+                if (st != null)
+                	st.close();
+            }
 		}
 		return indexes;
 	}
 
-	private void createIndex(Connection c, String index, String field, String table) {
+	private void createIndex(Connection c, String index, String field, String table) throws SQLException {
 		notifyIndexesUpdate();
 		String sql = "create index " + index + " on " + table + "(" + field + ")";
+		Statement st = null;
 		try{
-			Statement s = c.createStatement();
-			s.execute(sql);
-			s.close();
+			st = c.createStatement();
+			st.execute(sql);
 		}catch(SQLException e){
 			LOG.warn("Failed to execute sql: " + sql, e);
+		}finally{
+			if (st != null)
+                st.close();
 		}
 	}
 
-	private void renameIndex(Connection c, String oldIndex, String newIndex, String field, String table) {
+	private void renameIndex(Connection c, String oldIndex, String newIndex, String field, String table) throws SQLException {
 		String sql = null;
 		notifyIndexesUpdate();
 		if(M_sql.getVendor().equals("mysql")) sql = "ALTER TABLE " + table + " DROP INDEX " + oldIndex + ", ADD INDEX " + newIndex + " USING BTREE(" + field + ")";
 		else if(M_sql.getVendor().equals("oracle")) sql = "ALTER INDEX " + oldIndex + " RENAME TO " + newIndex;
+		Statement st = null;
 		try{
-			Statement s = c.createStatement();
-			s.execute(sql);
-			s.close();
+			st = c.createStatement();
+			st.execute(sql);
 		}catch(SQLException e){
 			LOG.warn("Failed to execute sql: " + sql, e);
+		}finally{
+			if (st != null)
+                st.close();
 		}
 	}
 }

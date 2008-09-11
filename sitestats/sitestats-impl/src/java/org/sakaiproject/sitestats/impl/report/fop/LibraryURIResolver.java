@@ -2,6 +2,7 @@ package org.sakaiproject.sitestats.impl.report.fop;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -19,13 +20,21 @@ public class LibraryURIResolver implements URIResolver {
 
 	public Source resolve(String href, String base) throws TransformerException {
 		if(!href.startsWith(LIBRARY_HANDLER) || libraryRoot == null)
-			return null; 
+			return null;
+		FileInputStream fis = null;
 		try{
 			String resource = href.substring(LIBRARY_HANDLER.length()); // chop off the library://
-			FileInputStream fis = new FileInputStream(libraryRoot + resource);
+			fis = new FileInputStream(libraryRoot + resource);
 			return new StreamSource(fis, resource);
 		}catch(Exception e){
 			throw new TransformerException(e);
+		}finally{
+			if(fis != null)
+				try{
+					fis.close();
+				}catch(IOException e){
+					/* Ignore */
+				}
 		}
 	}
 

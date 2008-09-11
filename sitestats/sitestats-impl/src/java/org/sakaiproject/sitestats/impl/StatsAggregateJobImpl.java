@@ -80,7 +80,13 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		}
 		if(lastJobRun == null && !statsUpdateManager.isCollectThreadEnabled()){
 			if(getStartEventId() < 0){
-				LOG.warn("First StatsAggregateJob job run will use last SAKAI_EVENT.EVENT_ID (id = "+getLastEventIdInTable()+"). To override this, please specify a new eventId in sakai.properties (property: startEventId@org.sakaiproject.sitestats.api.StatsAggregateJob=n, where n>=0). This value is for the first job run only.");
+				long lastEventIdInTable = 0;
+				try{
+					lastEventIdInTable = getLastEventIdInTable();
+				}catch(SQLException e){
+					LOG.warn("Unable to check last eventId in table SAKAI_EVENT --> assuming 0.", e);
+				}
+				LOG.warn("First StatsAggregateJob job run will use last SAKAI_EVENT.EVENT_ID (id = "+lastEventIdInTable+"). To override this, please specify a new eventId in sakai.properties (property: startEventId@org.sakaiproject.sitestats.api.StatsAggregateJob=n, where n>=0). This value is for the first job run only.");
 			}else{
 				LOG.warn("First StatsAggregateJob job run will use 'startEventId' ("+getStartEventId()+") specified in sakai.properties. This value is for the first job run only.");
 			}
@@ -116,8 +122,12 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		LOG.info("Starting job: " + jobName);
 		
 		// check for SAKAI_EVENT.CONTEXT column
-		checkForContextColumn();
-		LOG.info("SAKAI_EVENT.CONTEXT exists? "+isEventContextSupported);
+		try{
+			checkForContextColumn();
+			LOG.info("SAKAI_EVENT.CONTEXT exists? "+isEventContextSupported);
+		}catch(SQLException e1){
+			LOG.warn("Unable to check existence of SAKAI_EVENT.CONTEXT", e1);
+		}
 
 		// configure job
 		JobRun lastJobRun;
@@ -135,14 +145,23 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			LOG.warn("First job run: using 'startEventId' ("+getStartEventId()+") specified in sakai.properties. This value is for the first job run only.");
 			jobRun.setStartEventId(getStartEventId());
 		}else{
-			long lastEventIdInTable = getLastEventIdInTable();
+			long lastEventIdInTable = 0;
+			try{
+				lastEventIdInTable = getLastEventIdInTable();
+			}catch(SQLException e){
+				LOG.warn("Unable to check last eventId in table SAKAI_EVENT --> assuming 0.", e);
+			}
 			LOG.warn("First job run: no 'startEventId' specified in sakai.properties; using last SAKAI_EVENT.EVENT_ID (id = "+lastEventIdInTable+"). This value is for the first job run only.");
 			jobRun.setStartEventId(lastEventIdInTable);
 		}
 
 		// start job
-		result = startJob();
-		LOG.info("Summary: " + result);
+		try{
+			result = startJob();
+			LOG.info("Summary: " + result);
+		}catch(SQLException e){
+			LOG.error("Summary: job run failed", e);
+		}
 
 		// persist job info
 		saveJobRun(jobRun);
@@ -163,26 +182,38 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		return false;
 	}
 
-	private long getLastEventIdInTable() {
+	private long getLastEventIdInTable() throws SQLException {
 		if(lastEventIdInTable == -1) {
-			Connection connection = getEventDbConnection();
+			Connection connection = null;
+			Statement st = null;
+			ResultSet rs = null;
 			try{
-				Statement st = connection.createStatement();
-				ResultSet rs = st.executeQuery(LAST_EVENT_ID);
+				connection = getEventDbConnection();
+				st = connection.createStatement();
+				rs = st.executeQuery(LAST_EVENT_ID);
 				if(rs.next()){
 					lastEventIdInTable = rs.getLong("LAST_ID");
 				}
-				rs.close();			
-				st.close();
 			}catch(SQLException e){
 				LOG.error("Unable to retrieve events", e); 
+			}finally{
+				try{
+					if(rs != null)
+						rs.close();
+				}finally{
+					try{
+						if(st != null)
+							st.close();
+					}finally{
+						closeEventDbConnection(connection);
+					}
+				}
 			}
-			closeEventDbConnection(connection);
 		}
 		return lastEventIdInTable;
 	}
 
-	private String startJob() {
+	private String startJob() throws SQLException {
 		List<Event> eventsQueue = new ArrayList<Event>();
 		long counter = 0;
 		long offset = 0;
@@ -194,12 +225,16 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		Date lastEventDateWithSuccess = null;
 		boolean abortIteration = false;
 		long start = System.currentTimeMillis();
+		boolean sqlError = false;
+		String returnMessage = null;
 		
 		Connection connection = getEventDbConnection();
 		long eventIdLowerLimit = getEventIdLowerLimit();
+		PreparedStatement st = null;
+		ResultSet rs = null;
 		try{
-			PreparedStatement st = connection.prepareStatement(sqlGetEvent);
-			ResultSet rs = null;
+			st = connection.prepareStatement(sqlGetEvent);
+			rs = null;
 			
 			while(!abortIteration) {
 				abortIteration = true;
@@ -270,27 +305,42 @@ public class StatsAggregateJobImpl implements StatefulJob {
 							offset += getMaxEventsPerRun() - counter;
 						}
 					}else{
-						st.close();
-						closeEventDbConnection(connection);
-						abortIteration = true;
-						String msg = "An error occurred while processing/persisting events to db. Please check your logs, fix possible problems and re-run this job (will start after last successful processed event).";
-						LOG.error(msg);
-						return msg; 
+						returnMessage = "An error occurred while processing/persisting events to db. Please check your logs, fix possible problems and re-run this job (will start after last successful processed event).";
+						LOG.error(returnMessage);
+						throw new Exception(returnMessage);
 					}
 				}
 			}
-			
-			st.close();
+
 		}catch(SQLException e){
-			e.printStackTrace();
-			closeEventDbConnection(connection);
-			LOG.error("Unable to retrieve events", e);
-			return "Unable to retrieve events due to: " + e.getMessage(); 
+			sqlError = true;
+			if(returnMessage != null) {
+				returnMessage = "Unable to retrieve events due to: " + e.getMessage();
+				LOG.error("Unable to retrieve events", e);
+			}
 		}catch(Exception e){
-			e.printStackTrace();
-			closeEventDbConnection(connection);
-			LOG.error("Unable to retrieve events due to an unknown cause", e);
-			return "Unable to retrieve events due to: " + e.getMessage(); 
+			sqlError = true;
+			if(returnMessage != null) {
+				returnMessage = "Unable to retrieve events due to: " + e.getMessage(); 
+				LOG.error("Unable to retrieve events due to an unknown cause", e);
+			}
+		}finally{
+			try{
+				if(rs != null)
+					rs.close();
+			}finally{
+				try{
+					if(st != null)
+						st.close();
+				}finally{
+					closeEventDbConnection(connection);
+				}
+			}
+		}
+		
+		// error occurred
+		if(sqlError) {
+			return returnMessage; 
 		}
 		
 		if(firstEventIdProcessed == -1 && jobRun != null){
@@ -306,7 +356,6 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			saveJobRun(jobRun);
 		}
 		
-		closeEventDbConnection(connection);
 		long end = System.currentTimeMillis();
 		return counter + " events processed (ids: "+firstEventIdProcessed+" - "+lastProcessedEventIdWithSuccess+") in "+((end-start)/1000)+"s";
 	}
@@ -411,16 +460,18 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		}
 	}
 
-	private void checkForContextColumn() {
+	private void checkForContextColumn() throws SQLException {
 		// Check for SAKAI_EVENT.CONTEXT table column
-		Connection connection = getEventDbConnection();
+		Connection connection = null;
+		PreparedStatement st = null;
+		ResultSet rs = null;	
 		try{
+			connection = getEventDbConnection();
 			if(isOracle)
 				sqlGetEvent = ORACLE_GET_EVENT;
 			else
 				sqlGetEvent = MYSQL_GET_EVENT;
-			PreparedStatement st = connection.prepareStatement(sqlGetEvent);
-			ResultSet rs = null;	
+			st = connection.prepareStatement(sqlGetEvent);
 			if(!isOracle){
 				st.setLong(1, 0);	// MySQL >= startId	
 				st.setLong(2, 1);	// MySQL < endId
@@ -433,16 +484,25 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			if(rs.next()){
 				rs.getString("CONTEXT");
 			}
-			rs.close();			
-			st.close();
 			
 			isEventContextSupported = true;
 			LOG.debug("SAKAI_EVENT.CONTEXT IS present.");
 		}catch(SQLException e){
 			LOG.debug("SAKAI_EVENT.CONTEXT is NOT present.");
 			isEventContextSupported = false;
-		}
-		closeEventDbConnection(connection);
+		}finally{
+			try{
+				if(rs != null)
+					rs.close();
+			}finally{
+				try{
+					if(st != null)
+						st.close();
+				}finally{
+					closeEventDbConnection(connection);
+				}
+			}
+		}		
 	}
 
 	// ################################################################

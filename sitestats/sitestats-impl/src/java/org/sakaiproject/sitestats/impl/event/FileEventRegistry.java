@@ -2,6 +2,7 @@ package org.sakaiproject.sitestats.impl.event;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.MissingResourceException;
 
@@ -92,12 +93,21 @@ public class FileEventRegistry implements EventRegistry {
 		if(customEventRegistryFile != null) {
 			File customDefs = new File(customEventRegistryFile);
 			if(customDefs.exists()){
+				FileInputStream in = null;
 				try{
 					LOG.info("init(): - loading custom event registry from: " + customDefs.getAbsolutePath());
-					eventRegistry = DigesterUtil.parseToolEventsDefinition(new FileInputStream(customDefs));
+					in = new FileInputStream(customDefs);
+					eventRegistry = DigesterUtil.parseToolEventsDefinition(in);
 					customEventRegistryFileLoaded = true;
 				}catch(Throwable t){
 					LOG.warn("init(): - trouble loading event registry from : " + customDefs.getAbsolutePath(), t);
+				}finally{
+					if(in != null)
+						try{
+							in.close();
+						}catch(IOException e){
+							LOG.warn("init(): - failed to close inputstream (event registry from : " + customDefs.getAbsolutePath()+")");
+						}
 				}
 			}else {
 				LOG.warn("init(): - custom event registry file not found: "+customDefs.getAbsolutePath());
