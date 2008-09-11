@@ -1378,8 +1378,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       data.setIsLate(new Boolean(false));
     if (data.getForGrade().booleanValue())
       data.setStatus(new Integer(1));
-    else
-      data.setStatus(new Integer(0));
+    
     data.setTotalOverrideScore(new Float(0));
   }
 
@@ -1703,6 +1702,17 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	      e.printStackTrace();
 	    }
 	    return name;
+  }
+  
+  public List getNeedResubmitList(String agentId) {
+	  List list = null;
+	    try {
+	    	list = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getNeedResubmitList(agentId);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return list;
   }
 }
 

@@ -203,4 +203,5 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public String getFilename(Long itemGradingId, String agentId, String filename);
 
+  public List getNeedResubmitList(String agentId);
 }

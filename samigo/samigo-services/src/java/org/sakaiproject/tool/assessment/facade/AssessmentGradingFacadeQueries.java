@@ -2233,4 +2233,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
    	    }
 	}
 	
+	public List getNeedResubmitList(String agentId) {
+		Object[] values = { agentId, false, 4};
+
+		List list = getHibernateTemplate()
+				.find("select a.publishedAssessmentId from AssessmentGradingData a where a.agentId=? and a.forGrade=? and a.status=?", values);
+		return list;
+	}
 }

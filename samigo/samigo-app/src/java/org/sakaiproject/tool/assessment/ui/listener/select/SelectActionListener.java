@@ -123,11 +123,14 @@ public class SelectActionListener
         publishedAssessmentService.getBasicInfoOfAllPublishedAssessments(
         AgentFacade.getAgentString(), this.getTakeableOrderBy(select),
         select.isTakeableAscending(), AgentFacade.getCurrentSiteId());
-
+    
+    GradingService gradingService = new GradingService();
+    List needResubmitList = gradingService.getNeedResubmitList(AgentFacade.getAgentString());
+    
     
     // filter out the one that the given user do not have right to access
-    ArrayList takeableList = getTakeableList(publishedAssessmentList,  h);
-
+    ArrayList takeableList = getTakeableList(publishedAssessmentList,  h, needResubmitList);
+    
     // 1c. prepare delivery bean
     ArrayList takeablePublishedList = new ArrayList();
     for (int i = 0; i < takeableList.size(); i++) {
@@ -148,6 +151,14 @@ public class SelectActionListener
         delivery.setPastDue(true);
       else
         delivery.setPastDue(false);
+      
+      if (needResubmitList.contains(f.getPublishedAssessmentId())) {
+    	  delivery.setNeedResubmit(true);
+      }
+      else {
+    	  delivery.setNeedResubmit(false);
+      }
+    	  
       takeablePublishedList.add(delivery);
     }
 
@@ -434,7 +445,7 @@ public class SelectActionListener
   // agent is authorizaed and filter out the one that does not meet the
   // takeable criteria.
   // SAK-1464: we also want to filter out assessment released To Anonymous Users
-  private ArrayList getTakeableList(ArrayList assessmentList, HashMap h) {
+  private ArrayList getTakeableList(ArrayList assessmentList, HashMap h, List needResubmitList) {
     ArrayList takeableList = new ArrayList();
     GradingService gradingService = new GradingService();
     HashMap numberRetakeHash = gradingService.getNumberRetakeHash(AgentFacade.getAgentString());
@@ -443,14 +454,15 @@ public class SelectActionListener
       PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
       if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
           && f.getReleaseTo().indexOf("Anonymous Users") == -1 ) {
-        if (isAvailable(f, h, numberRetakeHash, actualNumberRetake))
+        if (isAvailable(f, h, numberRetakeHash, actualNumberRetake, needResubmitList)) {
           takeableList.add(f);
+        }
       }
     }
     return takeableList;
   }
 
-  public boolean isAvailable(PublishedAssessmentFacade f, HashMap h, HashMap numberRetakeHash, HashMap actualNumberRetakeHash) {
+  public boolean isAvailable(PublishedAssessmentFacade f, HashMap h, HashMap numberRetakeHash, HashMap actualNumberRetakeHash, List needResubmitList) {
     boolean returnValue = false;
     //1. prepare our significant parameters
     Integer status = f.getStatus();
@@ -462,6 +474,19 @@ public class SelectActionListener
     if (!Integer.valueOf(1).equals(status)) {
     	return false;
     }
+    
+    if (startDate != null && startDate.after(currentDate)) {
+    	return false;
+    }
+    
+    if (retractDate != null && retractDate.before(currentDate)) {
+    	return false;
+    }
+    
+    if (needResubmitList.contains(f.getPublishedAssessmentId())) {
+    	return true;
+    }
+    
     boolean acceptLateSubmission = AssessmentAccessControlIfc.
         ACCEPT_LATE_SUBMISSION.equals(
         f.getLateHandling());
@@ -504,8 +529,13 @@ public class SelectActionListener
 					returnValue = true;
 				}
 			}
-    	}
-    }
+		}
+	}
+	else {
+		if (totalSubmitted < maxSubmissionsAllowed + numberRetake) {
+			returnValue = true;
+		}
+	}
     
     return returnValue;
   }

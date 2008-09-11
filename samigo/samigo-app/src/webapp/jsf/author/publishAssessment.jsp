@@ -216,20 +216,17 @@ function toggle(){
 }
 //-->
 </script>
-
-  <h:panelGrid rendered="#{publishedSettings.itemNavigation eq '2' && !author.isEditPendingAssessmentFlow && assessmentBean.hasSubmission}" border="0" styleClass="validation" columns="2">
-  	   <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-       <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_1}" /> 
-   	   <f:verbatim>&nbsp;</f:verbatim>
-   	   <f:verbatim>&nbsp;</f:verbatim>
-  	   <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-	   <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_2}" />
-  	   <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-	   <h:panelGroup>
-         <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox2" value="#{publishedSettings.updateMostCurrentSubmission}"/>
-         <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />
-       </h:panelGroup>
-  </h:panelGrid>
+  <h:panelGroup rendered="#{publishedSettings.itemNavigation eq '2' && !author.isEditPendingAssessmentFlow && assessmentBean.hasSubmission}"  styleClass="validation">
+    <h:panelGrid  columns="1">
+      <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_1}" /> 
+	  <f:verbatim>&nbsp;</f:verbatim>
+	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_2}" />
+	  <h:panelGroup>
+        <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox2" value="#{publishedSettings.updateMostCurrentSubmission}"/>
+        <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />
+      </h:panelGroup>
+    </h:panelGrid>
+  </h:panelGroup>
 
 
 <f:verbatim><p></p></f:verbatim>

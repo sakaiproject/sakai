@@ -15,6 +15,7 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -115,6 +116,7 @@ public class RepublishAssessmentListener implements ActionListener {
 				if (!currentAgent.equals(adata.getAgentId())){
 					if (adata.getForGrade().booleanValue()) {
 						adata.setForGrade(Boolean.FALSE);
+						adata.setStatus(AssessmentGradingIfc.NEED_RESUBMIT);
 					}
 					currentAgent = adata.getAgentId();
 				}
