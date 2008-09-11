@@ -86,6 +86,7 @@ public class OverviewBean {
 	// Chart methods
 	// ######################################################################################
 	public void generateVisitsChart(OutputStream out, Object data) throws IOException {
+		LOG.debug("generateVisitsChart()");
 		ChartParamsBean params = null;
 		if(data instanceof ChartParamsBean)
 			 params = (ChartParamsBean) data;
@@ -102,6 +103,7 @@ public class OverviewBean {
 
 		try{
 			ImageIO.write(img, "png", out);
+			LOG.debug("generateVisitsChart(): chart written to outputstream");
 		}catch(Exception e){
 			// Load canceled by user. Do nothing.
 			LOG.warn("Visits chart transfer aborted by client.");
@@ -109,6 +111,7 @@ public class OverviewBean {
 	}
 	
 	public void generateActivityChart(OutputStream out, Object data) throws IOException {
+		LOG.debug("generateActivityChart()");
 		ChartParamsBean params = null;
 		if(data instanceof ChartParamsBean)
 			 params = (ChartParamsBean) data;
@@ -125,6 +128,7 @@ public class OverviewBean {
 
 		try{
 			ImageIO.write(img, "png", out);
+			LOG.debug("generateActivityChart(): chart written to outputstream");
 		}catch(Exception e){
 			// Load canceled by user. Do nothing.
 			LOG.warn("Activity chart transfer aborted by client.", e);

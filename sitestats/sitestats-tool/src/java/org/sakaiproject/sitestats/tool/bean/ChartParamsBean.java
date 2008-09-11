@@ -24,13 +24,13 @@ public class ChartParamsBean implements Serializable {
 	public static final String	CHATTYPE_PIE						= StatsManager.CHARTTYPE_PIE;
 
 	// server wide stats
-	public static final String MONTHLY_LOGIN_REPORT = StatsManager.MONTHLY_LOGIN_REPORT;
-	public static final String WEEKLY_LOGIN_REPORT = StatsManager.WEEKLY_LOGIN_REPORT;
-    public static final String DAILY_LOGIN_REPORT = StatsManager.DAILY_LOGIN_REPORT;
-	public static final String REGULAR_USERS_REPORT = StatsManager.REGULAR_USERS_REPORT;
-	public static final String HOURLY_USAGE_REPORT = StatsManager.HOURLY_USAGE_REPORT;
-	public static final String TOP_ACTIVITIES_REPORT = StatsManager.TOP_ACTIVITIES_REPORT;
-	public static final String TOOL_REPORT = StatsManager.TOOL_REPORT;
+	public static final String MONTHLY_LOGIN_REPORT 				= StatsManager.MONTHLY_LOGIN_REPORT;
+	public static final String WEEKLY_LOGIN_REPORT 					= StatsManager.WEEKLY_LOGIN_REPORT;
+    public static final String DAILY_LOGIN_REPORT 					= StatsManager.DAILY_LOGIN_REPORT;
+	public static final String REGULAR_USERS_REPORT 				= StatsManager.REGULAR_USERS_REPORT;
+	public static final String HOURLY_USAGE_REPORT 					= StatsManager.HOURLY_USAGE_REPORT;
+	public static final String TOP_ACTIVITIES_REPORT 				= StatsManager.TOP_ACTIVITIES_REPORT;
+	public static final String TOOL_REPORT 							= StatsManager.TOOL_REPORT;
         
 	private static final int	DEFAULT_CHART_WIDTH					= 400;
 	private static final int	DEFAULT_CHART_HEIGHT				= 200;

@@ -201,6 +201,7 @@
 		destroy-method="destroy">
 		
 		<!-- Sakai services -->
+        <property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
         <!--
