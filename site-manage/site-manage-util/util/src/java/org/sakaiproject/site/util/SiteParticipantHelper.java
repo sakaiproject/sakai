@@ -55,6 +55,8 @@ public class SiteParticipantHelper {
 	 * @param enrollmentSet
 	 */
 	public static void addParticipantsFromEnrollmentSet(Map participantsMap, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet, String sectionTitle) {
+		boolean refreshed = false;
+		
 		if (enrollmentSet != null)
 		{
 			Set enrollments = cms.getEnrollments(enrollmentSet.getEid());
@@ -74,6 +76,26 @@ public class SiteParticipantHelper {
 						User user = UserDirectoryService.getUserByEid(e.getUserId());
 						String userId = user.getId();
 						Member member = realm.getMember(userId);
+						
+						// this person is in the cm, so they should be in the realm
+						// force a refresh. Only do this once, since a refresh should get everyone
+						// it would be nice for AuthzGroupService to expose refresh, but a save
+						// will do it
+						if (member == null && !refreshed) {
+						    try {
+								// do it only once
+								refreshed = true;
+								// refresh the realm
+								AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm.getId());
+								AuthzGroupService.save(realmEdit);
+								// refetch updated realm
+								realm = AuthzGroupService.getAuthzGroup(realm.getId());
+								member = realm.getMember(userId);
+						    } catch (Exception exc) {
+						    	M_log.warn("SiteParticipantHelper.addParticipantsFromEnrollment " + exc.getMessage());
+						    }
+						}
+						
 						if (member != null && member.isProvided())
 						{
 							try
@@ -127,6 +149,8 @@ public class SiteParticipantHelper {
 	 * @param memberships
 	 */
 	public static void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, Set memberships, String sectionTitle) {
+		boolean refreshed = false;
+		
 		if (memberships != null)
 		{
 			for (Iterator mIterator = memberships.iterator();mIterator.hasNext();)
@@ -137,6 +161,26 @@ public class SiteParticipantHelper {
 					User user = UserDirectoryService.getUserByEid(m.getUserId());
 					String userId = user.getId();
 					Member member = realm.getMember(userId);
+					
+					// this person is in the cm, so they should be in the realm
+					// force a refresh. Only do this once, since a refresh should get everyone
+					// it would be nice for AuthzGroupService to expose refresh, but a save
+					// will do it
+					if (member == null && !refreshed) {
+					    try {
+							// do it only once
+							refreshed = true;
+							// refresh the realm
+							AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm.getId());
+							AuthzGroupService.save(realmEdit);
+							// refetch updated realm
+							realm = AuthzGroupService.getAuthzGroup(realm.getId());
+							member = realm.getMember(userId);
+					    } catch (Exception exc) {
+					    	M_log.warn("SiteParticipantHelper:addParticipantsFromMembership " + exc.getMessage());
+					    }
+					}
+					
 					if (member != null && member.isProvided())
 					{
 						// get or add provided participant
