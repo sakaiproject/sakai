@@ -14,7 +14,6 @@ import org.sakaiproject.sitestats.api.StatsManager;
 public class EntryServlet extends HttpServlet {
 	private static final long		serialVersionUID	= 1L;
 	private static Log				LOG					= LogFactory.getLog(EntryServlet.class);
-	private StatsManager			m_sm				= (StatsManager) ComponentManager.get(StatsManager.class);
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, java.io.IOException {
 		doGet(req, resp);
@@ -23,7 +22,8 @@ public class EntryServlet extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
 		try{
 			StringBuilder path = new StringBuilder(request.getContextPath());
-			if(m_sm.isEnableSiteVisits() || m_sm.isEnableSiteActivity()){
+			StatsManager statsManager = (StatsManager) ComponentManager.get(StatsManager.class);
+			if(statsManager.isEnableSiteVisits() || statsManager.isEnableSiteActivity()){
 				path.append("/overview.jsf");
 			}else{
 				path.append("/reports.jsf");

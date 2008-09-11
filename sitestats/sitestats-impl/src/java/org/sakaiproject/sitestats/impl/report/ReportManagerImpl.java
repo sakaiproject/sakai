@@ -432,8 +432,10 @@ public class ReportManagerImpl implements ReportManager {
 			LOG.error("Exception while generating SiteStats PDF report", e);
 		}finally{
 			try{
-				if(out != null) out.close();
-				return out.toByteArray();
+				if(out != null) {
+					out.close();
+					return out.toByteArray();
+				}
 			}catch(IOException e){
 				LOG.error("IOException while writing SiteStats PDF report", e);
 			}

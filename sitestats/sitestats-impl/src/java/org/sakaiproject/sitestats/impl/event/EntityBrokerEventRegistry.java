@@ -206,7 +206,7 @@ public class EntityBrokerEventRegistry implements EventRegistry, EntityProviderL
 	// ################################################################
 	// Utility Classes
 	// ################################################################
-	public class EventLocaleKey {
+	public static class EventLocaleKey {
 		String	eventId = "";
 		String	locale = "";
 

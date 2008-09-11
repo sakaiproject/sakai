@@ -562,8 +562,14 @@ public class ChartServiceImpl implements ChartService {
 				return 1;
 			else return 0;
 		}
-		public boolean equals(Object obj) {
-			return compareTo(obj) == 0;
+		public boolean equals(Object o) {
+			if(!(o instanceof Day))
+				return false;
+			int otherDay = ((Day) o).getDay();
+			if(day == otherDay)
+				return true;
+			else
+				return false;
 		}	
 		public int hashCode() {
 			return getDay();

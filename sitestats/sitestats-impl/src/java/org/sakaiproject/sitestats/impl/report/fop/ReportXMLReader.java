@@ -86,7 +86,7 @@ public class ReportXMLReader extends AbstractObjectReader {
 		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_act_basedon") ,M_rm.getReportFormattedParams().getReportActivityBasedOn(report));
 		String reportResourceAction = M_rm.getReportFormattedParams().getReportResourceAction(report);
 		// resources action
-		if(reportResourceAction != null && reportResourceAction != null)
+		if(reportResourceAction != null)
 			generateReportSummaryHeaderRow(M_rm.getReportFormattedParams().getReportResourceActionTitle(report) ,reportResourceAction);
 		// activity selection
 		String reportActivitySelection = M_rm.getReportFormattedParams().getReportActivitySelection(report);

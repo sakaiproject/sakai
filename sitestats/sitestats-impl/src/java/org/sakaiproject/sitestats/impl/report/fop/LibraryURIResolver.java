@@ -2,6 +2,7 @@ package org.sakaiproject.sitestats.impl.report.fop;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.transform.Source;
@@ -9,8 +10,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 public class LibraryURIResolver implements URIResolver {
+	private Log					LOG				= LogFactory.getLog(LibraryURIResolver.class);
 	private final static String	LIBRARY_HANDLER	= "library://";
 	private String libraryRoot = null;
 	
@@ -22,19 +27,23 @@ public class LibraryURIResolver implements URIResolver {
 		if(!href.startsWith(LIBRARY_HANDLER) || libraryRoot == null)
 			return null;
 		FileInputStream fis = null;
+		StreamSource ss = null;
 		try{
 			String resource = href.substring(LIBRARY_HANDLER.length()); // chop off the library://
 			fis = new FileInputStream(libraryRoot + resource);
-			return new StreamSource(fis, resource);
-		}catch(Exception e){
+			ss = new StreamSource(fis, resource);
+			return ss;
+		}catch(FileNotFoundException e){
 			throw new TransformerException(e);
 		}finally{
-			if(fis != null)
+			// If FileInputStream is closed as suggested by FindBugs, code doesn't work!
+			/*if(fis != null) {
 				try{
 					fis.close();
 				}catch(IOException e){
-					/* Ignore */
+					LOG.debug("Unable to read library image: "+href);
 				}
+			}*/
 		}
 	}
 
