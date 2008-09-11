@@ -224,13 +224,14 @@ public class UserPrefsTool
 
 	private String[] tablist;
 
-	private int noti_selection, tab_selection, timezone_selection, language_selection,j;
+	private int noti_selection, tab_selection, timezone_selection, language_selection, privacy_selection,j;
 
 	//The preference list names
 	private String Notification="prefs_noti_title";
 	private String CustomTab="prefs_tab_title";
 	private String Timezone="prefs_timezone_title";
 	private String Language="prefs_lang_title";
+	private String Privacy="prefs_privacy_title";
 	
 	private boolean refreshMode=false;
 
@@ -725,6 +726,7 @@ public class UserPrefsTool
 			else if(tablist[i].equals(CustomTab)) tab_selection=i+1;
 			else if(tablist[i].equals(Timezone)) timezone_selection=i+1;
 			else if (tablist[i].equals(Language)) language_selection=i+1;
+			else if (tablist[i].equals(Privacy)) privacy_selection=i+1;
 			else LOG.warn(tablist[i] + " is not valid!!! Re-configure preference.pages at sakai.properties");
 		}
 
@@ -775,6 +777,16 @@ public class UserPrefsTool
 			processActionLocFrmEdit();
 		}
 		return language_selection;
+	}
+	
+	public int getPrivacy_selection()
+	{
+		//Loading the data for notification in the refresh mode
+		if (privacy_selection==1 && refreshMode==true)
+		{
+			processActionPrivFrmEdit();
+		}
+		return privacy_selection;
 	}
 
 
@@ -1973,7 +1985,14 @@ public class UserPrefsTool
 	 */
 	public boolean isPrivacyEnabled()
 	{
-		return ServerConfigurationService.getBoolean(ENABLE_PRIVACY_STATUS, false);
+		//return ServerConfigurationService.getBoolean(ENABLE_PRIVACY_STATUS, false);
+		if (getPrivacy_selection()==0){
+			return false;
+		}
+		else {
+			return true;
+		}
+		
 	}
 
 	/**
