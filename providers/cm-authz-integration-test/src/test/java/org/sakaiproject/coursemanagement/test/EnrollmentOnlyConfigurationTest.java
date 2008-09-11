@@ -79,7 +79,7 @@ public class EnrollmentOnlyConfigurationTest extends ConfigurationTestBase {
 	private static String sectionBLec1 = "sectionBLec1";
 
 	static {
-		setSakaiHome(EnrollmentOnlyConfigurationTest.class, "enrollment-only-configuration");
+		setSakaiHome("enrollment-only-configuration");
 	}
 
 	protected void onSetUp() throws Exception {

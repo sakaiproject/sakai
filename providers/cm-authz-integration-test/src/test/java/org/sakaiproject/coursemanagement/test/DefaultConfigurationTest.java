@@ -64,7 +64,7 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 	private static String sectionBLec1 = "sectionBLec1";
 
 	static {
-		setSakaiHome(DefaultConfigurationTest.class, "default");
+		setSakaiHome("default");
 	}
 
 	protected void onSetUp() throws Exception {
