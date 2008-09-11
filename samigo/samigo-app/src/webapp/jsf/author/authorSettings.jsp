@@ -106,6 +106,7 @@ function disableAllFeedbackCheck(feedbackType)
       }
     }
   }
+
   document.forms[0].onsubmit();
   document.forms[0].submit();
 }
@@ -236,6 +237,35 @@ function showHideReleaseGroups(){
   }
 }
 
+function setBlockDivs()
+{  
+   //alert("setBlockDivs()");
+   var divisionNo = ""; 
+   var blockDivs = ""; 
+   blockElements = document.getElementsByTagName("div");
+   //alert("blockElements.length" + blockElements.length);
+   for (i=0 ; i < blockElements.length; i++)
+   {
+      divisionNo = "" + blockElements[i].id;
+	  //alert("divisionNo=" + divisionNo);
+	  //alert("display=" + blockElements[i].style.display);
+      if(divisionNo.indexOf("__hide_division_assessmentSettingsAction") >=0 && blockElements[i].style.display == "block")
+      { 
+         //alert("divisionNo=" + divisionNo);
+         var id = divisionNo.substring(41);
+		 if (blockDivs == "") {
+            blockDivs = id;
+         }
+		 else {
+			 blockDivs = blockDivs + ";" + id; 
+		 }
+		 //alert("blockDivs=" + blockDivs);
+	  }
+   }
+   //document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = "_id224";
+   document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = blockDivs;
+}
+
 
 //-->
 </script>
@@ -251,6 +281,7 @@ function showHideReleaseGroups(){
 <h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
 
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
+  <h:inputHidden id="blockDivs" value=""/>
 
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
@@ -430,9 +461,8 @@ function showHideReleaseGroups(){
     <h:panelGrid
         summary="#{templateMessages.timed_assmt_sec}">
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}">
-        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();document.forms[0].onsubmit();document.forms[0].submit();"
+        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();"
          value="#{assessmentSettings.valueMap.hasTimeAssessment}">
-					<f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.TimedAssessmentChangeListener" />
 				</h:selectBooleanCheckbox>
         <h:outputText value="#{assessmentSettingsMessages.timed_assessment} " />
 				<h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}" disabled="#{!assessmentSettings.valueMap.hasTimeAssessment}" >
@@ -471,7 +501,7 @@ function showHideReleaseGroups(){
   <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" /><f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="itemNavigation" value="#{assessmentSettings.itemNavigation}"  layout="pageDirection" 
-		onclick="submitForm();">
+		onclick="setBlockDivs();submitForm();">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
         </h:selectOneRadio>
@@ -520,16 +550,22 @@ function showHideReleaseGroups(){
 
 <!-- *** MARK FOR REVIEW *** -->
 <!-- *** (enabled for linear assessment) *** -->
-<h:panelGroup rendered="#{assessmentSettings.itemNavigation != 1}">
+<h:panelGroup>
   <samigo:hideDivision title="#{assessmentSettingsMessages.mark_for_review}" >
     <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid columns="1">
-      <h:panelGroup>
+	  <!-- random navigation -->
+      <h:panelGroup rendered="#{assessmentSettings.itemNavigation != 1}">
         <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
         <h:outputLabel for="timed_assmt" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
         <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('markForReviewTipText.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" >
             <h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
         </h:outputLink>
+      </h:panelGroup>
+  	  <!-- linear navigation -->
+	  <h:panelGroup rendered="#{assessmentSettings.itemNavigation == 1}">
+        <h:selectBooleanCheckbox id="markForReview2" value="false" disabled="true"/>
+        <h:outputLabel for="timed_assmt" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
       </h:panelGroup>
       <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_1}" />
 	  <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_2}" />
@@ -537,23 +573,6 @@ function showHideReleaseGroups(){
 	 <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
 </h:panelGroup>
-
-<!-- *** (disabled for linear assessment) *** -->
-<h:panelGroup rendered="#{assessmentSettings.itemNavigation == 1}">
-  <samigo:hideDivision title="#{assessmentSettingsMessages.mark_for_review}" >
-    <f:verbatim><div class="tier2"></f:verbatim>
-    <h:panelGrid columns="1">
-      <h:panelGroup>
-        <h:selectBooleanCheckbox id="markForReview2" value="false" disabled="true"/>
-        <h:outputLabel for="timed_assmt" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
-      </h:panelGroup>
-      <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_1}" />
-	  <h:outputText value="#{assessmentSettingsMessages.mark_for_review_text_2}" />
-    </h:panelGrid>
-	<f:verbatim></div></f:verbatim>
-  </samigo:hideDivision>
-</h:panelGroup>
-
 
   <!-- *** SUBMISSIONS *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true or assessmentSettings.valueMap.lateHandling_isInstructorEditable==true or assessmentSettings.valueMap.autoSave_isInstructorEditable==true}" >
@@ -658,7 +677,7 @@ function showHideReleaseGroups(){
    
       <h:panelGrid border="0" columns="1"  >
         <h:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}"
-           layout="pageDirection" onclick="disableAllFeedbackCheck(this.value);">
+           layout="pageDirection" onclick="setBlockDivs();disableAllFeedbackCheck(this.value);">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.immediate_feedback}"/>
           <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.feedback_on_submission} #{assessmentSettingsMessages.note_of_feedback_on_submission}"/>
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.no_feedback}"/>
@@ -884,7 +903,8 @@ function showHideReleaseGroups(){
 </h:form>
 <!-- end content -->
 </div>
-         <script language="javascript" style="text/JavaScript">hideUnhideAllDivsExceptOne('none');showHideReleaseGroups();</script>
+         <script language="javascript" style="text/JavaScript">retainHideUnhideStatus('none');showHideReleaseGroups();</script>
+
       </body>
     </html>
   </f:view>

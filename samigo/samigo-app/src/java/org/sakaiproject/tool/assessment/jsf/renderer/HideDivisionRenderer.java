@@ -146,22 +146,6 @@ public class HideDivisionRenderer extends Renderer
   {
     ResponseWriter writer = context.getResponseWriter();
     writer.write("</div>");
-    
-    ToolSession session = SessionManager.getCurrentToolSession();
-    if(session!=null && session.getAttribute("sam_expande_hide_div_id") != null)
-    {
-      String jsfId = (String) component.getAttributes().get("id");
-      if(((String)session.getAttribute("sam_expande_hide_div_id")).equalsIgnoreCase(jsfId))
-      {
-      	//String contextPath = context.getExternalContext().getRequestContextPath();
-      	
-      	writer.write("<script type=\"text/javascript\">");
-      	writer.write("  setExceptionId('" + session.getAttribute("sam_expande_hide_div_id") +"');");
-      	writer.write("</script>");
-      	
-      	session.removeAttribute("sam_expande_hide_div_id");
-      }
-    }
   }
 
 }

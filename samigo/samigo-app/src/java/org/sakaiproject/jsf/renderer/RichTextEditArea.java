@@ -439,7 +439,9 @@ public class RichTextEditArea extends Renderer
     writer.write("\n\tvar status =  document.getElementById(client_id + '_textinput_current_status');");
     writer.write("\n\tif (status.value == \"firsttime\") {");
     writer.write("\n\t\tstatus.value = \"expaneded\";");
-    writer.write("\n\t\tchef_setupformattedtextarea(client_id, true);\n\t}");
+    writer.write("\n\t\tchef_setupformattedtextarea(client_id, true);");
+    writer.write("\n\t\tsetBlockDivs();");
+    writer.write("\n\t\tretainHideUnhideStatus('none');\n\t}");
     writer.write("\n\telse if (status.value == \"collapsed\") {");
     writer.write("\n\t\tstatus.value = \"expaneded\";");
     writer.write("\n\t\texpandMenu(client_id);\n\t}");

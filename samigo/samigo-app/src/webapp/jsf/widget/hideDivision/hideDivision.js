@@ -27,6 +27,7 @@ var wysiwygShowHideDiv=false;
 // show/hide hideDivision tag with JSF id of "hideDivisionNo" with "context" path
 function showHideDiv(hideDivisionNo, context)
 {
+  //alert("showHideDiv()");
   var tmpdiv = "__hide_division_" + hideDivisionNo;
   var tmpimg = "__img_hide_division_" + hideDivisionNo;
   var divisionNo = getTheElement(tmpdiv);
@@ -63,6 +64,7 @@ function showHideDiv(hideDivisionNo, context)
 // if a DIV id has our special flag, toggle its visibility
 function hideUnhideAllDivs(action)
 {
+  //alert("hideUnhideAllDivs()");
   if(runHide==true)
   {
     runHide=false;
@@ -90,6 +92,7 @@ function hideUnhideAllDivs(action)
 
 function hideUnhideAllDivsExceptFirst(action)
 {
+  //alert("hideUnhideAllDivsExceptFirst()");
   if(runHide==true)
   {
     runHide=false;
@@ -122,7 +125,7 @@ function hideUnhideAllDivsWithWysiwyg(action)
 // for all wysiwygs in division; needed for Gecko based browsers
 function resetWysiwygi(hDiv)
 {
- 
+ //alert("resetWysiwygi()");
  if (document.htmlareas != undefined)
  {
    var counter = document.htmlareas.length;
@@ -196,8 +199,7 @@ function resetWysiwygi(hDiv)
 // remove the secret wysiwyg divs that substituted for the textareas
 function removeWysiwygi(hDiv)
 {
-
-//alert("removeWysiwygi for " + hDiv.id);
+	//alert("removeWysiwygi for " + hDiv.id);
     var subDivs=hDiv.getElementsByTagName("div");
     for (i=0;i<subDivs.length;i++)
     {
@@ -251,39 +253,68 @@ function getTheElement(thisid){
  *
  * TODO: When we upgrade to FCK 2.3, switch this to look for FF version as 
  * this bug is fixed in FCK 2.3 for FF > 1.5
+ *
+ * Fix for SAK-6937 - don't do anything here. Make a call to retainHideUnhideStatus().
  */
 function FCKeditor_OnComplete( editorInstance )
 {
+   //alert("FCKeditor_OnComplete()");
+   /*
    if (navigator.product == "Gecko")
    { 
       hideDivs();
-   } 
+   }
+   */
 }
 
-
-var exceptionId = "";
-function setExceptionId(thisExceptionIdValue)
-{
-  exceptionId = thisExceptionIdValue;
-}
-function hideUnhideAllDivsExceptOne(action)
+var exceptionIds = "";
+function retainHideUnhideStatus(action)
 {
   wysiwygShowHideDiv = true;
-
-  var exceptionFullId = "__hide_division_" + exceptionId;
+  //alert("retainHideUnhideStatus()");
+  exceptionIds = document.forms[0].elements['assessmentSettingsAction:blockDivs'].value
+  var exceptionIdArray = new Array();
+  if (exceptionIds != "") {
+	  var splitDivs = exceptionIds.split(";");
+      //alert("splitDivs length=" + splitDivs.length);
+	  for(i = 0; i < splitDivs.length; i++){
+		var exceptionFullId = "__hide_division_assessmentSettingsAction:" + splitDivs[i];
+	    //alert("exceptionFullId=" + exceptionFullId);
+		exceptionIdArray.push(exceptionFullId);
+	  }
+  }
+  
+  //alert("length=" + exceptionIdArray.length);
 
   if(runHide==true)
   {
     runHide=false;
     myDocumentElements=document.getElementsByTagName("div");
+
     for (i=0;i<myDocumentElements.length;i++)
     {
+      var unhide = "false";
       divisionNo = "" + myDocumentElements[i].id;
-      if((divisionNo != null) && (divisionNo== exceptionFullId))
+      if(divisionNo != null && exceptionIdArray.length != 0)
       {
-        continue;
+		 //alert("divisionNo=" + divisionNo);
+         for(j = 0; j < exceptionIdArray.length; j++){
+			 if (exceptionIdArray[j] == divisionNo) {
+				 //alert("exceptionIdArray[j]=" + exceptionIdArray[j]);
+				 //alert("unhide!");
+				 unhide = "true";
+				 myDocumentElements[i].style.display = "block";
+  			     var exceptionImgId = "__img" + exceptionIdArray[j].substring(1);
+				 var imgNo = getTheElement(exceptionImgId);
+				 if(imgNo) {
+					 imgNo.src = "/samigo/images/down_arrow.gif";
+				 }
+				 break;
+			 }
+		 }
       }
-      if (divisionNo.indexOf("__hide_division_")==0)
+
+      if (unhide == "false" && divisionNo.indexOf("__hide_division_")==0)
       {
         elem = document.getElementById(divisionNo);
         if (elem)
@@ -294,6 +325,7 @@ function hideUnhideAllDivsExceptOne(action)
           }
           else
           {
+			//alert("reset?!");
             elem.style.display =action;
           }
         }
@@ -305,7 +337,9 @@ function hideUnhideAllDivsExceptOne(action)
 
 //Huong's adding for use of authoring and template setting page
 function showDivs()
-{  var divisionNo=""; 
+{   
+    //alert("showDivs()");
+	var divisionNo=""; 
     myDocumentElements=document.getElementsByTagName("div");
     for (i=0;i<myDocumentElements.length;i++)
     {
@@ -318,7 +352,9 @@ function showDivs()
     }  
  }
 function hideDivs()
-{  var divisionNo=""; 
+{  
+	//alert("hideDivs()");
+	var divisionNo=""; 
     myDocumentElements=document.getElementsByTagName("div");
     for (i=0;i<myDocumentElements.length;i++)
     {
@@ -333,7 +369,9 @@ function hideDivs()
 
 
 function showHideDivs(showOrHide)
-{  var divisionNo=""; 
+{  
+    //alert("showHideDivs()");
+	var divisionNo=""; 
     myDocumentElements=document.getElementsByTagName("div");
     for (i=0;i<myDocumentElements.length;i++)
     {
@@ -356,6 +394,7 @@ function showHideDivs(showOrHide)
 
 function hideDiv(hideDivisionNo, context)
 {
+  //alert("hideDiv()");
   var tmpdiv = "__hide_division_" + hideDivisionNo;
   var tmpimg = "__img_hide_division_" + hideDivisionNo;
   var divisionNo = getTheElement(tmpdiv);
@@ -416,7 +455,9 @@ function toggleDiv(idNo)
 }
 
 function hideAll()
-{ myDocumentElements=document.getElementsByTagName("span");
+{ 
+	//alert("hideAll()");
+	myDocumentElements=document.getElementsByTagName("span");
     for (i=0;i<myDocumentElements.length;i++)
     {
       divisionNo = "" + myDocumentElements[i].id;
