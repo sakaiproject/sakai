@@ -29,7 +29,6 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -50,6 +49,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.umem.api.Authz;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -118,7 +118,7 @@ public class UserListBean {
 	// ######################################################################################
 	// UserRow, UserSitesRow CLASS
 	// ######################################################################################
-	public class UserRow implements Serializable {
+	public static class UserRow implements Serializable {
 		private static final long	serialVersionUID	= 1L;
 		private String				userID;
 		private String				userEID;
@@ -216,7 +216,7 @@ public class UserListBean {
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_USER_ID)){
-							String s1 = r1.getUserEID().toLowerCase();
+							String s1 = r1.getUserEID();
 							String s2 = r2.getUserEID();
 							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
 							if(sortAscending) return res;
@@ -252,7 +252,7 @@ public class UserListBean {
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_INTERNAL_USER_ID)){
-							String s1 = r1.getUserID().toLowerCase();
+							String s1 = r1.getUserID();
 							String s2 = r2.getUserID();
 							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
 							if(sortAscending) return res;
@@ -329,11 +329,14 @@ public class UserListBean {
 						}
 					}
 				}		
-				
+
+				Connection c = null;
+				Statement st = null;
+				ResultSet rs = null;
 				try{
-					Connection c = M_sql.borrowConnection();
-					Statement st = c.createStatement();
-					ResultSet rs = st.executeQuery(sql);
+					c = M_sql.borrowConnection();
+					st = c.createStatement();
+					rs = st.executeQuery(sql);
 					while (rs.next()){
 						String id = rs.getString("USER_ID");
 						String eid = rs.getString("EID");
@@ -347,14 +350,24 @@ public class UserListBean {
 						Timestamp modifiedOn = rs.getTimestamp("MODIFIEDON");
 						String mo = modifiedOn.toString();
 						// For internal users, making the assumption that eid will do for displayId
-						userRows.add(new UserRow(id, eid, eid, getFullName(f, l), e, t, 
+						userRows.add(new UserRow(id, eid, eid, getFullName(id, f, l), e, t, 
 								     USER_AUTH_INTERNAL, co, mo));
 					}
-					rs.close();
-					st.close();
-					M_sql.returnConnection(c);
 				}catch(SQLException e){
 					LOG.error("SQL error occurred while retrieving list of internal users: "+e.getMessage());
+				}finally{
+					try{
+						if(rs != null)
+							rs.close();
+					}finally{
+						try{
+							if(st != null)
+								st.close();
+						}finally{
+							if(c != null)
+								M_sql.returnConnection(c);
+						}
+					}
 				}
 			}
 		}catch(Exception e){
@@ -366,20 +379,33 @@ public class UserListBean {
 		try{
 			if(selectedAuthority.equals(USER_AUTH_ALL) || selectedAuthority.equals(USER_AUTH_EXTERNAL)){
 				List eUsers = new ArrayList();
+				Connection c = null;
+				Statement st = null;
+				ResultSet rs = null;
 				try{
-					Connection c = M_sql.borrowConnection();
+					c = M_sql.borrowConnection();
 					String sqlE = "SELECT DISTINCT USER_ID FROM SAKAI_REALM_RL_GR WHERE USER_ID NOT IN (SELECT USER_ID FROM SAKAI_USER)";
-					Statement st = c.createStatement();
-					ResultSet rs = st.executeQuery(sqlE);
+					st = c.createStatement();
+					rs = st.executeQuery(sqlE);
 					while (rs.next()){
 						String id = rs.getString("USER_ID");
 						eUsers.add(id);
 					}
-					rs.close();
-					st.close();
-					M_sql.returnConnection(c);
 				}catch(SQLException e){
 					LOG.error("SQL error occurred while retrieving list of external users: "+e.getMessage());
+				}finally{
+					try{
+						if(rs != null)
+							rs.close();
+					}finally{
+						try{
+							if(st != null)
+								st.close();
+						}finally{
+							if(c != null)
+								M_sql.returnConnection(c);
+						}
+					}
 				}
 				
 				// 3. Get info and filter external users from UserDirectoryProvider
@@ -402,19 +428,19 @@ public class UserListBean {
 					eid = u.getEid();
 					dispId = u.getDisplayId();
 					e = u.getEmail();
-					n = getFullName(u.getFirstName(), u.getLastName());
+					n = getFullName(id, u.getFirstName(), u.getLastName());
 					t = u.getType();
 					t = (t == null) ? "" : t;
-					if(!t.equals("")) addExtraUserType(t);
+					if(!"".equals(t)) addExtraUserType(t);
 					co = (u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate();
                     mo = (u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate();
 					boolean add = false;
 					if(filtering && !searching){
-						if((!selectedUserType.equals(USER_TYPE_NONE) && t.equals(selectedUserType)) || (selectedUserType.equals(USER_TYPE_NONE) && t.equals(""))) add = true;
+						if((!selectedUserType.equals(USER_TYPE_NONE) && t.equals(selectedUserType)) || (selectedUserType.equals(USER_TYPE_NONE) && "".equals(t))) add = true;
 					}else if(!filtering && searching){
 						if(n.toLowerCase().matches(regexp) || e.toLowerCase().matches(regexp) || id.toLowerCase().matches(regexp)) add = true;
 					}else if(filtering && searching){
-						if((!selectedUserType.equals(USER_TYPE_NONE) && t.equals(selectedUserType)) || (selectedUserType.equals(USER_TYPE_NONE) && t.equals(""))){
+						if((!selectedUserType.equals(USER_TYPE_NONE) && t.equals(selectedUserType)) || (selectedUserType.equals(USER_TYPE_NONE) && "".equals(t))){
 							if(n.toLowerCase().matches(regexp) || e.toLowerCase().matches(regexp) || id.toLowerCase().matches(regexp)) add = true;
 						}
 					}else{
@@ -423,9 +449,10 @@ public class UserListBean {
 					if(add) userRows.add(new UserRow(id, eid, dispId, n, e, t, USER_AUTH_EXTERNAL, co, mo));
 				}
 			}
-		}catch(Exception e){
-			LOG.warn("Exception occurred while querying external users: " + e.getMessage());
-			e.printStackTrace();
+		}catch(RuntimeException e){
+			LOG.warn("Exception occurred while querying external users: " + e.getMessage(), e);
+		}catch(SQLException e){
+			LOG.warn("SQL error occurred while querying external users: " + e.getMessage(), e);
 		}
 
 		// 4. Update pager
@@ -434,18 +461,19 @@ public class UserListBean {
 			renderPager = true;
 		else
 			renderPager = false;
-//		if(totalItems <= pageSize){
-//			renderPager = false;
-//		}
-//		else renderPager = true;
 		firstItem = 0;
 	}
 	
-	private String getFullName(String fName, String lName){
-		fName = fName == null ? "" : fName;
-		lName = lName == null ? "" : lName;
-		String firstName = fName.equals("") ? "" : fName;
-		return lName.equals("") ? firstName : (fName.equals("") ? lName : lName+", "+fName);
+	private String getFullName(String id, String firstName, String lastName){
+		String fullName = "";
+		try{
+			fullName = M_uds.getUser(id).getDisplayName();
+		}catch(UserNotDefinedException e){
+			String _firstName = firstName == null ? "" : firstName;
+			String _lastName = lastName == null ? "" : lastName;
+			fullName = "".equals(_lastName) ? _firstName : ("".equals(_firstName) ? _lastName : _lastName+", "+_firstName);
+		}
+		return fullName;
 	}
 
 	// ######################################################################################
@@ -457,7 +485,7 @@ public class UserListBean {
 		return "userlist";
 	}
 
-	public String processActionClearSearch() {
+	public String processActionClearSearch() throws SQLException {
 		this.selectedUserType = ((SelectItem) getUserTypes().get(0)).getLabel();
 		this.selectedAuthority = ((SelectItem) getUserAuthorities().get(0)).getLabel();
 		searchKeyword = null;
@@ -467,8 +495,6 @@ public class UserListBean {
 	}
 
 	public void processActionSearchChangeListener(ValueChangeEvent event) {
-		String newValue = (String) event.getNewValue();
-		newValue = (newValue == null) ? "" : newValue;
 		searchKeyword = (searchKeyword == null) ? "" : searchKeyword.trim();
 	}
 
@@ -511,9 +537,6 @@ public class UserListBean {
 	}
 
 	public int getPageSize() {
-//		if(totalItems <= pageSize){
-//			return totalItems;
-//		}
 		return pageSize;
 	}
 
@@ -565,21 +588,21 @@ public class UserListBean {
 		this.userSortColumn = sortColumn;
 	}
 	
-	private void addExtraUserType(String newType){
+	private void addExtraUserType(String newType) throws SQLException{
 		boolean found = false;
+		if(userTypes == null)
+			userTypes = getUserTypes();
 		Iterator it = userTypes.iterator();
 		while(it.hasNext()){
 			if(((SelectItem) it.next()).getLabel().equals(newType))
 				found = true;
 		}
 		if(!found){
-			if(userTypes == null)
-				getUserTypes();
 			userTypes.add(userTypes.size()-1,new SelectItem(newType));
 		}
 	}
 	
-	public List getUserTypes() {
+	public List getUserTypes() throws SQLException {
 		if(userTypes == null){
 			Properties config = M_tm.getCurrentPlacement().getConfig();
 			Boolean userTypeLimitToSelf = Boolean.parseBoolean(config.getProperty(CFG_USER_TYPE_LIMIT_TO_SELF, "false"));
@@ -591,19 +614,24 @@ public class UserListBean {
 				userTypes.add(new SelectItem(M_uds.getCurrentUser().getType()));				
 			}else if(!"".equals(userTypeLimitToListStr)){
 				userTypeLimitToList = userTypeLimitToListStr.split(",");
-				String all = "";
+				StringBuilder all = new StringBuilder();
 				for(int i=0; i<userTypeLimitToList.length; i++){
 					userTypes.add(new SelectItem(userTypeLimitToList[i]));
-					all += "'"+ userTypeLimitToList[i] +"'";
+					all.append("'");
+					all.append(userTypeLimitToList[i]);
+					all.append("'");
 					if(i<userTypeLimitToList.length-1)
-						all += ",";
+						all.append(",");
 				}
-				userTypes.add(0,new SelectItem(all,USER_TYPE_ALL));
+				userTypes.add(0,new SelectItem(all.toString(),USER_TYPE_ALL));
 			}else
 			{					
 				userTypes.add(new SelectItem(USER_TYPE_ALL));
+				Connection c = null;
+				Statement st = null;
+				ResultSet rs = null;
 				try{
-					Connection c = M_sql.borrowConnection();
+					c = M_sql.borrowConnection();
 					String vendor = M_sql.getVendor();
 					String sql = null;
 					if(vendor.equalsIgnoreCase("oracle")){
@@ -611,17 +639,27 @@ public class UserListBean {
 					}else{
 						sql = "select distinct TYPE from SAKAI_USER where TYPE!='' and TYPE is not null;";
 					}
-					Statement st = c.createStatement();
-					ResultSet rs = st.executeQuery(sql);
+					st = c.createStatement();
+					rs = st.executeQuery(sql);
 					while (rs.next()){
 						String type = rs.getString(1);
 						userTypes.add(new SelectItem(type));
 					}
-					rs.close();
-					st.close();
-					M_sql.returnConnection(c);
 				}catch(SQLException e){
 					LOG.error("SQL error occurred while retrieving user types: " + e.getMessage(), e);
+				}finally{
+					try{
+						if(rs != null)
+							rs.close();
+					}finally{
+						try{
+							if(st != null)
+								st.close();
+						}finally{
+							if(c != null)
+								M_sql.returnConnection(c);
+						}
+					}
 				}
 				userTypes.add(new SelectItem(USER_TYPE_NONE));
 			}
@@ -629,7 +667,7 @@ public class UserListBean {
 		return userTypes;
 	}
 
-	public String getSelectedUserType() {
+	public String getSelectedUserType() throws SQLException {
 		if(this.selectedUserType != null) return this.selectedUserType;
 		else{
 			this.selectedUserType = ((SelectItem) getUserTypes().get(0)).getLabel();
@@ -638,7 +676,6 @@ public class UserListBean {
 	}
 
 	public void setSelectedUserType(String type) {
-		//this.selectedUserType = type;
 		this.newUserType = type;
 	}
 
@@ -659,7 +696,6 @@ public class UserListBean {
 	}
 
 	public void setSelectedAuthority(String type) {
-		//this.selectedAuthority = type;
 		this.newAuthority = type;
 	}
 	
@@ -671,9 +707,7 @@ public class UserListBean {
 	// CSV export
 	// ######################################################################################
 	public void exportAsCsv(ActionEvent event) {
-		String prefix = new String("UserListing");
-		Export.writeAsCsv(getAsCsv(userRows), prefix);
-		FacesContext faces = FacesContext.getCurrentInstance();
+		Export.writeAsCsv(getAsCsv(userRows), "UserListing");
 	}
 
 	private String getAsCsv(List list) {

@@ -98,7 +98,7 @@ public class SiteListBean {
 	/** Private vars */
 	private Collator					collator			= Collator.getInstance();
 	private long						timeSpentInGroups	= 0;
-	private String						portalURL			= ServerConfigurationService.getPortalUrl();
+	private static String				portalURL			= ServerConfigurationService.getPortalUrl();
 	private String						message				= "";
 
 	// ######################################################################################
@@ -156,14 +156,11 @@ public class SiteListBean {
 		}
 
 		public String getSiteURL() {
-			try{
-				// return M_ss.getSite(siteId).getUrl();
-				if(site != null) return site.getUrl();
-				else return portalURL + "/site/" + siteId;
-			}catch(Exception e){
-				LOG.warn("Unable to generate URL for site id: " + siteId);
-				return "";
-			}
+			StringBuilder siteUrl = new StringBuilder();
+			siteUrl.append(portalURL);
+			siteUrl.append("/site/");
+			siteUrl.append(siteId);
+			return siteUrl.toString();
 		}
 
 		public String getGroups() {
@@ -256,7 +253,11 @@ public class SiteListBean {
 	
 			if(refreshQuery){
 				LOG.debug("Refreshing query...");
-				doSearch();
+				try{
+					doSearch();
+				}catch(SQLException e){
+					LOG.warn("Failed to perform search on usermembership", e);
+				}
 				refreshQuery = false;
 			}
 			
@@ -268,11 +269,15 @@ public class SiteListBean {
 	/**
 	 * Uses complex SQL for site membership, user role and group membership.<br>
 	 * For a 12 site users it takes < 1 secs!
+	 * @throws SQLException 
 	 */
-	private void doSearch() {
+	private void doSearch() throws SQLException {
 		userSitesRows = new ArrayList();
+		Connection c = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
 		try{
-			Connection c = M_sql.borrowConnection();
+			c = M_sql.borrowConnection();
 			String sql = "select ss.SITE_ID, ss.TITLE, ss.TYPE, ss.PUBLISHED, srr.ROLE_NAME, srrg.ACTIVE, "+
 						" (select VALUE from SAKAI_SITE_PROPERTY ssp where ss.SITE_ID = ssp.SITE_ID and ssp.NAME = 'term') TERM " +
 						"from SAKAI_SITE ss, SAKAI_REALM sr, SAKAI_REALM_RL_GR srrg, SAKAI_REALM_ROLE srr " +
@@ -283,36 +288,52 @@ public class SiteListBean {
 						"and ss.IS_USER = 0 " + 
 						"and ss.IS_SPECIAL = 0 " +
 						"ORDER BY ss.TITLE";
-			PreparedStatement pst = c.prepareStatement(sql);
+			pst = c.prepareStatement(sql);
 			pst.setString(1, userId);
-			ResultSet rs = pst.executeQuery();
+			rs = pst.executeQuery();
 			while (rs.next()){
 				String id = rs.getString("SITE_ID");
 				String t = rs.getString("TITLE");
 				String tp = rs.getString("TYPE");
-				String pv = rs.getString("PUBLISHED").equals("1")? msgs.getString("status_published") : msgs.getString("status_unpublished");;
+				String pv = rs.getString("PUBLISHED");
+				if("1".equals(pv)) {
+					pv = msgs.getString("status_published");
+				}else{
+					pv = msgs.getString("status_unpublished"); 
+				}
 				String rn = rs.getString("ROLE_NAME");
 				String grps = getGroups(userId, id);
 				String active = rs.getString("ACTIVE").trim().equals("1")? msgs.getString("site_user_status_active") : msgs.getString("site_user_status_inactive");
 				String term = rs.getString("TERM");
-				term = term == null? "" : term;
-				UserSitesRow row = new UserSitesRow(id, t, tp, grps, rn, pv, active, term);
-				userSitesRows.add(row);
+				if(term == null)
+					term = "";
+				userSitesRows.add(new UserSitesRow(id, t, tp, grps, rn, pv, active, term));
 			}
-			rs.close();
-			pst.close();
-			M_sql.returnConnection(c);
 		}catch(SQLException e){
 			LOG.warn("SQL error occurred while retrieving user memberships for user: " + userId, e);
 			LOG.warn("UserMembership will use alternative methods for retrieving user memberships.");
 			doSearch3();
+		}finally{
+			try{
+				if(rs != null)
+					rs.close();
+			}finally{
+				try{
+					if(pst != null)
+						pst.close();
+				}finally{
+					if(c != null)
+						M_sql.returnConnection(c);
+				}
+			}
 		}
 	}
 
 	/**
 	 * Uses ONLY Sakai API for site membership, user role and group membership.
+	 * @throws SQLException 
 	 */
-	private void doSearch2() {
+	private void doSearch2() throws SQLException {
 		long start = (new Date()).getTime();
 		userSitesRows = new ArrayList();
 		thisUserId = M_session.getCurrentSessionUserId();
@@ -335,17 +356,21 @@ public class SiteListBean {
 	 * Uses single simple SQL for site membership, uses API for user role and
 	 * group membership.<br>
 	 * For a 12 site users it takes ~30secs!
+	 * @throws SQLException 
 	 * @deprecated
 	 */
-	private void doSearch3() {
+	private void doSearch3() throws SQLException {
 		userSitesRows = new ArrayList();
 		timeSpentInGroups = 0;
+		Connection c = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
 		try{
-			Connection c = M_sql.borrowConnection();
+			c = M_sql.borrowConnection();
 			String sql = "select distinct(SAKAI_SITE_USER.SITE_ID) from SAKAI_SITE_USER,SAKAI_SITE where SAKAI_SITE.SITE_ID=SAKAI_SITE_USER.SITE_ID and IS_USER=0 and IS_SPECIAL=0 and USER_ID=?";
-			PreparedStatement pst = c.prepareStatement(sql);
+			pst = c.prepareStatement(sql);
 			pst.setString(1, userId);
-			ResultSet rs = pst.executeQuery();
+			rs = pst.executeQuery();
 			while (rs.next()){
 				String id = rs.getString("SITE_ID");
 				try{
@@ -356,46 +381,25 @@ public class SiteListBean {
 					LOG.warn("Unable to retrieve site for site id: " + id, e);
 				}
 			}
-			rs.close();
-			pst.close();
-			M_sql.returnConnection(c);
 		}catch(SQLException e){
 			LOG.warn("SQL error occurred while retrieving user memberships for user: " + userId, e);
 			LOG.warn("UserMembership will use alternative methods for retrieving user memberships (ONLY Published sites will be listed).");
 			doSearch2();
+		}finally{
+			try{
+				if(rs != null)
+					rs.close();
+			}finally{
+				try{
+					if(pst != null)
+						pst.close();
+				}finally{
+					if(c != null)
+						M_sql.returnConnection(c);
+				}
+			}
 		}
 		LOG.debug("Group ops took " + (timeSpentInGroups / 1000) + " secs");
-	}
-
-	/**
-	 * Uses SQL queries for getting group membership (very very fast).
-	 * @param userId The user ID.
-	 * @param site The Site object
-	 * @return A String with group list.
-	 */
-	private String getGroups2(String userId, String siteId) {
-		StringBuilder groups = new StringBuilder();
-		try{
-			Connection c = M_sql.borrowConnection();
-			String sql = "select TITLE " + "from SAKAI_SITE_GROUP,SAKAI_REALM,SAKAI_REALM_RL_GR " + "where SITE_ID=? "
-					+ "and SAKAI_REALM.REALM_ID=CONCAT('/site/',CONCAT(SITE_ID,CONCAT('/group/',GROUP_ID))) " + "and SAKAI_REALM.REALM_KEY=SAKAI_REALM_RL_GR.REALM_KEY "
-					+ "and SAKAI_REALM_RL_GR.USER_ID=? " + "ORDER BY TITLE";
-			PreparedStatement pst = c.prepareStatement(sql);
-			pst.setString(1, siteId);
-			pst.setString(2, userId);
-			ResultSet rs = pst.executeQuery();
-			while (rs.next()){
-				String t = rs.getString("TITLE");
-				if(groups.length() != 0) groups.append(", ");
-				groups.append(t);
-			}
-			rs.close();
-			pst.close();
-			M_sql.returnConnection(c);
-		}catch(SQLException e){
-			LOG.error("SQL error occurred while retrieving group memberships for user: " + userId, e);
-		}
-		return groups.toString();
 	}
 
 	/**
@@ -419,12 +423,15 @@ public class SiteListBean {
 		return groups.toString();
 	}
 	
-	public String getGroups(String userId, String siteId) {
+	public String getGroups(String userId, String siteId) throws SQLException {
 		long start = (new Date()).getTime();
 		StringBuilder groups = new StringBuilder();
 		String siteReference = M_site.siteReference(siteId);
+		Connection c = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
 		try{
-			Connection c = M_sql.borrowConnection();
+			c = M_sql.borrowConnection();
 			String sql = "select SS.GROUP_ID, SS.TITLE TITLE, SS.DESCRIPTION " 
 					+ "from SAKAI_SITE_GROUP SS, SAKAI_REALM R, SAKAI_REALM_RL_GR RRG " 
 					+ "where R.REALM_ID = concat(concat('"+siteReference+"','/group/'), SS.GROUP_ID) "
@@ -432,20 +439,30 @@ public class SiteListBean {
 					+ "and RRG.USER_ID = ? "
 					+ "and SS.SITE_ID = ? "
 					+ "ORDER BY TITLE";
-			PreparedStatement pst = c.prepareStatement(sql);
+			pst = c.prepareStatement(sql);
 			pst.setString(1, userId);
 			pst.setString(2, siteId);
-			ResultSet rs = pst.executeQuery();
+			rs = pst.executeQuery();
 			while (rs.next()){
 				String t = rs.getString("TITLE");
 				if(groups.length() != 0) groups.append(", ");
 				groups.append(t);
 			}
-			rs.close();
-			pst.close();
-			M_sql.returnConnection(c);
 		}catch(SQLException e){
 			LOG.error("SQL error occurred while retrieving group memberships for user: " + userId, e);
+		}finally{
+			try{
+				if(rs != null)
+					rs.close();
+			}finally{
+				try{
+					if(pst != null)
+						pst.close();
+				}finally{
+					if(c != null)
+						M_sql.returnConnection(c);
+				}
+			}
 		}
 		long end = (new Date()).getTime();
 		timeSpentInGroups += (end - start);
@@ -523,18 +540,20 @@ public class SiteListBean {
 	}
 
 	public String getUserDisplayId() {
+		String displayId = null;
 		try{
-			return UserDirectoryService.getUser(userId).getDisplayId();
+			displayId = UserDirectoryService.getUser(userId).getDisplayId();
 		}catch(UserNotDefinedException e){
-			return userId;
+			displayId = userId;
 		}
+		return displayId;
 	}
 
 	public void setUserId(String id) {
 		this.userId = id;
 	}
 
-	public boolean getSitesSortAscending() {
+	public boolean isSitesSortAscending() {
 		return this.sitesSortAscending;
 	}
 
