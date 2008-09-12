@@ -591,24 +591,30 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		Iterator<EventStat> i = objects.iterator();
 		while(i.hasNext()){
 			EventStat eUpdate = i.next();
-			Criteria c = session.createCriteria(EventStatImpl.class);
-			c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-			c.add(Expression.eq("eventId", eUpdate.getEventId()));
-			c.add(Expression.eq("userId", eUpdate.getUserId()));
-			c.add(Expression.eq("date", eUpdate.getDate()));
+			String eExistingSiteId = null;
 			EventStat eExisting = null;
 			try{
-				eExisting = (EventStat) c.uniqueResult();
+				Criteria c = session.createCriteria(EventStatImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("eventId", eUpdate.getEventId()));
+				c.add(Expression.eq("userId", eUpdate.getUserId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (EventStat) c.uniqueResult();
+				}catch(Exception ex){
+					LOG.debug("More than 1 result when unique result expected.", ex);
+					eExisting = (EventStat) c.list().get(0);
+				}
+				if(eExisting == null) 
+					eExisting = eUpdate;
+				else
+					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
+	
+				eExistingSiteId = eExisting.getSiteId();
 			}catch(Exception ex){
-				LOG.debug("More than 1 result when unique result expected.", ex);
-				eExisting = (EventStat) c.list().get(0);
+				//If something happens, skip the event processing
+				ex.printStackTrace();
 			}
-			if(eExisting == null) 
-				eExisting = eUpdate;
-			else
-				eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
-
-			String eExistingSiteId = eExisting.getSiteId();
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
 		}
@@ -619,25 +625,28 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		Iterator<ResourceStat> i = objects.iterator();
 		while(i.hasNext()){
 			ResourceStat eUpdate = i.next();
-			Criteria c = session.createCriteria(ResourceStatImpl.class);
-			c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-			c.add(Expression.eq("resourceRef", eUpdate.getResourceRef()));
-			c.add(Expression.eq("resourceAction", eUpdate.getResourceAction()));
-			c.add(Expression.eq("userId", eUpdate.getUserId()));
-			c.add(Expression.eq("date", eUpdate.getDate()));
 			ResourceStat eExisting = null;
+			String eExistingSiteId = null;
 			try{
-				eExisting = (ResourceStat) c.uniqueResult();
-			}catch(Exception ex){
-				LOG.debug("More than 1 result when unique result expected.", ex);
-				eExisting = (ResourceStat) c.list().get(0);
+				Criteria c = session.createCriteria(ResourceStatImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("resourceRef", eUpdate.getResourceRef()));
+				c.add(Expression.eq("resourceAction", eUpdate.getResourceAction()));
+				c.add(Expression.eq("userId", eUpdate.getUserId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (ResourceStat) c.uniqueResult();
+				}catch(Exception ex){
+					LOG.debug("More than 1 result when unique result expected.", ex);
+					eExisting = (ResourceStat) c.list().get(0);
+				}
+				if(eExisting == null) 
+					eExisting = eUpdate;
+				else
+					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
+			}catch(Exception e){
+				e.printStackTrace();
 			}
-			if(eExisting == null) 
-				eExisting = eUpdate;
-			else
-				eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
-
-			String eExistingSiteId = eExisting.getSiteId();
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
 		}
@@ -648,23 +657,29 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		Iterator<SiteActivity> i = objects.iterator();
 		while(i.hasNext()){
 			SiteActivity eUpdate = i.next();
-			Criteria c = session.createCriteria(SiteActivityImpl.class);
-			c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-			c.add(Expression.eq("eventId", eUpdate.getEventId()));
-			c.add(Expression.eq("date", eUpdate.getDate()));
 			SiteActivity eExisting = null;
+			String eExistingSiteId = null;
 			try{
-				eExisting = (SiteActivity) c.uniqueResult();
-			}catch(Exception ex){
-				LOG.debug("More than 1 result when unique result expected.", ex);
-				eExisting = (SiteActivity) c.list().get(0);
+				Criteria c = session.createCriteria(SiteActivityImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("eventId", eUpdate.getEventId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (SiteActivity) c.uniqueResult();
+				}catch(Exception ex){
+					LOG.debug("More than 1 result when unique result expected.", ex);
+					eExisting = (SiteActivity) c.list().get(0);
+				}
+				if(eExisting == null) 
+					eExisting = eUpdate;
+				else
+					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
+	
+				eExistingSiteId = eExisting.getSiteId();
+			}catch(Exception e){
+				e.printStackTrace();
 			}
-			if(eExisting == null) 
-				eExisting = eUpdate;
-			else
-				eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
-
-			String eExistingSiteId = eExisting.getSiteId();
+			
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
 		}
@@ -675,25 +690,30 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		Iterator<SiteVisits> i = objects.iterator();
 		while(i.hasNext()){
 			SiteVisits eUpdate = i.next();
-			Criteria c = session.createCriteria(SiteVisitsImpl.class);
-			c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-			c.add(Expression.eq("date", eUpdate.getDate()));
 			SiteVisits eExisting = null;
+			String eExistingSiteId = null;
 			try{
-				eExisting = (SiteVisits) c.uniqueResult();
-			}catch(Exception ex){
-				LOG.debug("More than 1 result when unique result expected.", ex);
-				eExisting = (SiteVisits) c.list().get(0);
+				Criteria c = session.createCriteria(SiteVisitsImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (SiteVisits) c.uniqueResult();
+				}catch(Exception ex){
+					LOG.debug("More than 1 result when unique result expected.", ex);
+					eExisting = (SiteVisits) c.list().get(0);
+				}
+				if(eExisting == null){
+					eExisting = eUpdate;
+				}else{
+					eExisting.setTotalVisits(eExisting.getTotalVisits() + eUpdate.getTotalVisits());
+				}
+				Integer mapUV = map.get(new UniqueVisitsKey(eExisting.getSiteId(), eExisting.getDate()));
+				eExisting.setTotalUnique(mapUV == null? 1 : mapUV.longValue());
+	
+				eExistingSiteId = eExisting.getSiteId();
+			}catch(Exception e){
+				e.printStackTrace();
 			}
-			if(eExisting == null){
-				eExisting = eUpdate;
-			}else{
-				eExisting.setTotalVisits(eExisting.getTotalVisits() + eUpdate.getTotalVisits());
-			}
-			Integer mapUV = map.get(new UniqueVisitsKey(eExisting.getSiteId(), eExisting.getDate()));
-			eExisting.setTotalUnique(mapUV == null? 1 : mapUV.longValue());
-
-			String eExistingSiteId = eExisting.getSiteId();
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
 		}
