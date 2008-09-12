@@ -585,25 +585,7 @@ public class Query extends SruQueryBase implements Constants
    */
   private String normalizeSortKey(String sortKey)
   {
-    String newKey = sortKey;
-
-  	if (StringUtils.isNull(sortKey))
-  	{
-  		newKey = DEFAULT_SORT_KEY;
-  	}
-    /*
-     * The default sort key is defined in the client API.  We shouldn't
-     * reference it here.
-     *
-     * org.sakaiproject.citation.api.SearchManager.DEFAULT_SORT_BY = "rank"
-     */
-  	if (sortKey.equals("rank"))
-  	{
-  		newKey = DEFAULT_SORT_KEY;
-  	}
-
-    _log.debug("Sort Key normalized as: " + newKey);
-    return newKey;
+    return "received";
   }
 
   /*
