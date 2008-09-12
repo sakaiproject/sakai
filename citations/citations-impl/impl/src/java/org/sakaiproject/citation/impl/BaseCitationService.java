@@ -1642,7 +1642,7 @@ public abstract class BaseCitationService implements CitationService
 			String[] RIScodes = null; // This holds the RISCodes valid for a given schema
 			String urlId = null; // Used to set the preferred URL
 			
-			boolean KWTag = false; // used to track EndNote continuation lines. 
+			String continueTag = null; // used to track EndNote continuation lines. 
 			int delimiterIndex  = 0; // used to find the index of the hyphen to separate RIScode from RISvalue
 
 			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
@@ -1775,6 +1775,7 @@ public abstract class BaseCitationService implements CitationService
 							if (RIScode.equalsIgnoreCase(RIScodes[j]))
 							{
 								noFieldMapping = false;
+								continueTag = null;
 								logger.debug("importFromRisList: Found field mapping");
 							}
 						} // end for j (loop through complex RIS codes)
@@ -1802,12 +1803,13 @@ public abstract class BaseCitationService implements CitationService
 						  {
 							urlId = addCustomUrl("", RISvalue);
 							setPreferredUrl(urlId);
+							continueTag = RIScode.toUpperCase();
 							logger.debug("importFromRisList: set preferred url to " + urlId + " which is " + RISvalue);
 						  }
-						  else if (KWTag && (RIScode.length() != 2) ) // KWTag and not a possible RIScode
+						  else if (continueTag != null && (RIScode.length() != 2) ) // continuation and not a possible RIScode
 						  {
-							  logger.debug("importFromRisList: continuation of KW found (EndNote oddity). Hacking KW tag and resending line through the import system");
-							  risImportList.set(i, "KW - " + currentLine);
+							  logger.debug("importFromRisList: continuation of tag found (EndNote oddity). Hacking tag and resending line through the import system");
+							  risImportList.set(i, continueTag + " - " + currentLine);
 							  i = i-1;
 						  }
 
@@ -1818,9 +1820,7 @@ public abstract class BaseCitationService implements CitationService
 								     " => " + RISvalue);
 						
 						if (RIScode.equalsIgnoreCase("KW"))
-							KWTag = true;
-						else
-							KWTag = false;
+							continueTag = RIScode.toUpperCase();
 
 						// We found the mapping in the previous while loop. Set the citation property
 						setCitationProperty(tempField.getIdentifier(), RISvalue);
