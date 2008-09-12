@@ -515,7 +515,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       try {
          ChatMessage message = getChatManager().createNewMessage(
                getCurrentChannel().getChatChannel(), SessionManager.getCurrentSessionUserId());
-         message.setBody(newMessageText);
+         message.setBody( Web.cleanHtml(newMessageText) );
          if (!newMessageText.equals("")) {
             newMessageText = "";
             getChatManager().updateMessage(message);

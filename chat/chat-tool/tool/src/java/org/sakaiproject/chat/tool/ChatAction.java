@@ -64,6 +64,7 @@ import org.sakaiproject.util.PresenceObservingCourier;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>
@@ -949,7 +950,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 			try
 			{
 				ChatMessageEdit edit = channel.addChatMessage();
-				edit.setBody(message);
+				edit.setBody( Web.cleanHtml(message) );
 				channel.commitMessage(edit);
 			}
 			catch (PermissionException e)

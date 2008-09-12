@@ -58,6 +58,7 @@ import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 
+import org.sakaiproject.util.Web;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -370,7 +371,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 	    	  message.setChatChannel(channel);
 	    	  message.setOwner(owner);
 	    	  message.setMessageDate(messageDate);
-	    	  message.setBody(body);
+	    	  message.setBody( Web.cleanHtml(body) );
 	    	  message.setMigratedMessageId(migratedId);
 	    	  
 	    	  

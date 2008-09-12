@@ -60,6 +60,7 @@ import org.sakaiproject.message.impl.BaseMessageService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.Web;
 
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
@@ -677,7 +678,7 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 		{
 			ChatMessageEdit edit = (ChatMessageEdit) addMessage();
 			ChatMessageHeaderEdit header = edit.getChatHeaderEdit();
-			edit.setBody(body);
+			edit.setBody( Web.cleanHtml(body) );
 			header.replaceAttachments(attachments);
 
 			commitMessage(edit);
