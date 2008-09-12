@@ -201,7 +201,7 @@ public class SiteSetupQuestionFileParser
 	    		}
 	    		catch (Exception ee)
 	    		{
-	    			m_log.warn("exists(): cannot find resource " + reference.getId() + ee.toString());
+	    			m_log.info("exists(): cannot find resource " + reference.getId() + ee.toString());
 	    		}
 	    		clearSecurityAdvisor();
 

@@ -9396,7 +9396,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			catch (IdUnusedException e)
 			{
-				M_log.warn(this + ".setTemplateListForContext: cannot find site with id " + siteTemplateId, e);
+				M_log.info(this + ".setTemplateListForContext: cannot find site with id " + siteTemplateId);
 			}
 		}
 		
