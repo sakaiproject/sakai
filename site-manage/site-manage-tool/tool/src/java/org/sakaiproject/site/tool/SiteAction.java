@@ -557,7 +557,6 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String EMAIL_CHAR = "@";
 
 	// Special tool id for Home page
-	private static final String HOME_TOOL_ID = "sakai.iframe.site";
 	private static final String SITE_INFORMATION_TOOL="sakai.iframe.site";
 
 	private static final String STATE_CM_LEVELS = "site.cm.levels";
@@ -613,6 +612,44 @@ public class SiteAction extends PagedResourceActionII {
 	// used in the configuration file to specify which tool attributes are configurable through WSetup tool, and what are the default value for them.
 	private String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute_";
 	private String CONFIG_TOOL_ATTRIBUTE_DEFAULT = "wsetup.config.tool.attribute.default_";
+	
+	/**
+	 * what is the main tool id within Home page?
+	 * @param state
+	 * @param siteType
+	 * @return
+	 */
+	private String getHomeToolId(SessionState state)
+	{
+		String rv = "";
+		
+		String siteType = state.getAttribute(STATE_SITE_TYPE) != null? (String) state.getAttribute(STATE_SITE_TYPE):"";
+		Set categories = new HashSet();
+		categories.add(siteType);
+		Set toolRegistrationList = ToolManager.findTools(categories, null);
+		
+		if (siteType.equalsIgnoreCase("myworkspace"))
+		{
+			// first try with the myworkspace information tool
+			if (ToolManager.getTool("sakai.iframe.myworkspace") != null)
+				rv = "sakai.iframe.myworkspace";
+			
+			if (rv.equals(""))
+			{
+				// try again with MOTD tool
+				if (ToolManager.getTool("sakai.motd") != null)
+					rv = "sakai.motd";
+			}
+		}
+		else
+		{
+			// try the site information tool
+			if (ToolManager.getTool("sakai.iframe.site") != null)
+				rv = "sakai.iframe.site";
+		}
+		return rv;
+	}
+	
 	/**
 	 * Populate the state object, if needed.
 	 */
@@ -1377,7 +1414,7 @@ public class SiteAction extends PagedResourceActionII {
 			Boolean checkHome = (Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED);
 			if (checkHome == null) {
 				if ((defaultSelectedTools != null)
-						&& defaultSelectedTools.contains(HOME_TOOL_ID)) {
+						&& defaultSelectedTools.contains(getHomeToolId(state))) {
 					checkHome = Boolean.TRUE;
 				}
 			}
@@ -1417,6 +1454,8 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("backIndex", "2");	// back to new site information page
 			}
 
+			context.put("homeToolId", getHomeToolId(state));
+			
 			return (String) getContext(data).get("template") + TEMPLATE[3];
 		case 5:
 			/*
@@ -2257,6 +2296,8 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("oldSelectedTools", state
 					.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
 
+			context.put("homeToolId", getHomeToolId(state));
+			
 			return (String) getContext(data).get("template") + TEMPLATE[26];
 		case 27:
 			/*
@@ -5526,7 +5567,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private String findOriginalToolId(SessionState state, String toolId) {
 		// treat home tool differently
-		if (toolId.equals(HOME_TOOL_ID))
+		if (toolId.equals(getHomeToolId(state)))
 		{
 			return toolId;
 		}
@@ -7912,7 +7953,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		
 		// Home tool chosen?
-		if (chosenList.contains(HOME_TOOL_ID)) {
+		if (chosenList.contains(getHomeToolId(state))) {
 			// add home tool later
 			hasHome = true;
 		}
@@ -7984,9 +8025,9 @@ public class SiteAction extends PagedResourceActionII {
 
 		// see if Home and/or Help in the wSetupPageList (can just check title
 		// here, because we checked patterns before adding to the list)
-		for (ListIterator i = wSetupPageList.listIterator(); i.hasNext();) {
+		for (ListIterator i = wSetupPageList.listIterator(); !homeInWSetupPageList && i.hasNext();) {
 			wSetupPage = (WorksiteSetupPage) i.next();
-			if (wSetupPage.getToolId().equals(HOME_TOOL_ID)) {
+			if (wSetupPage.getToolId().equals(getHomeToolId(state))) {
 				homeInWSetupPageList = true;
 			}
 		}
@@ -8006,7 +8047,7 @@ public class SiteAction extends PagedResourceActionII {
 							.hasNext();) {
 						WorksiteSetupPage comparePage = (WorksiteSetupPage) i
 								.next();
-						if ((comparePage.getToolId()).equals(HOME_TOOL_ID)) {
+						if ((comparePage.getToolId()).equals(getHomeToolId(state))) {
 							homePage = comparePage;
 						}
 					}
@@ -8083,7 +8124,7 @@ public class SiteAction extends PagedResourceActionII {
 
 				wSetupHome.pageId = page.getId();
 				wSetupHome.pageTitle = page.getTitle();
-				wSetupHome.toolId = HOME_TOOL_ID;
+				wSetupHome.toolId = getHomeToolId(state);
 				wSetupPageList.add(wSetupHome);
 
 				// Add worksite information tool
@@ -8143,7 +8184,7 @@ public class SiteAction extends PagedResourceActionII {
 			WorksiteSetupPage removePage = new WorksiteSetupPage();
 			for (ListIterator i = wSetupPageList.listIterator(); i.hasNext();) {
 				WorksiteSetupPage comparePage = (WorksiteSetupPage) i.next();
-				if (comparePage.getToolId().equals(HOME_TOOL_ID)) {
+				if (comparePage.getToolId().equals(getHomeToolId(state))) {
 					removePage = comparePage;
 				}
 			}
@@ -8300,7 +8341,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (pageList != null && pageList.size() != 0) {
 					for (ListIterator i = pageList.listIterator(); i.hasNext();) {
 						SitePage page = (SitePage) i.next();
-						if (pageHasToolId(page.getTools(), HOME_TOOL_ID))
+						if (pageHasToolId(page.getTools(), getHomeToolId(state)))
 						{
 							homePage = page;
 							break;
@@ -8441,7 +8482,7 @@ public class SiteAction extends PagedResourceActionII {
 			for (int i = 0; i < l.size(); i++) {
 				String toolId = (String) l.get(i);
 
-				if (toolId.equals(HOME_TOOL_ID)) {
+				if (toolId.equals(getHomeToolId(state))) {
 					homeSelected = true;
 					idsSelected.add(toolId);
 				} else
@@ -9412,8 +9453,8 @@ public class SiteAction extends PagedResourceActionII {
 		int count = pageToolList.size();
 		
 		// check Home tool first
-		if (pageHasToolId(pageToolList, HOME_TOOL_ID)) 
-			return HOME_TOOL_ID;
+		if (pageHasToolId(pageToolList, getHomeToolId(state))) 
+			return getHomeToolId(state);
 
 		// Other than Home page, no other page is allowed to have more than one tool within. Otherwise, WSetup/Site Info tool won't handle it
 		if (count != 1)
@@ -9514,7 +9555,7 @@ public class SiteAction extends PagedResourceActionII {
 				// collect the pages consistent with Worksite Setup patterns
 				wSetupTool = pageMatchesPattern(state, page);
 				if (wSetupTool != null) {
-					if (wSetupTool.equals(HOME_TOOL_ID))
+					if (wSetupTool.equals(getHomeToolId(state)))
 					{
 						check_home = true;
 					}
@@ -9600,7 +9641,7 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_TOOL_HOME_SELECTED) != null
 				&& ((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED))
 						.booleanValue()) {
-			rv.add(HOME_TOOL_ID);
+			rv.add(getHomeToolId(state));
 		}
 
 		// look for null site type
@@ -9809,7 +9850,7 @@ public class SiteAction extends PagedResourceActionII {
 		for (int i = 0; i < selectedTools.size(); i++) 
 		{
 			String id = (String) selectedTools.get(i);
-			if (id.equalsIgnoreCase(HOME_TOOL_ID)) {
+			if (id.equalsIgnoreCase(getHomeToolId(state))) {
 				has_home = true;
 			} else if (id.equalsIgnoreCase("sakai.mailbox")) {
 				// if Email archive tool is selected, check the email alias

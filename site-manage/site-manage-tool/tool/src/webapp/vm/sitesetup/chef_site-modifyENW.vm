@@ -62,7 +62,7 @@
 				#if(!$toolExist)
 					#set($originToolId = false)
 					#foreach ($tId in $!multipleToolIdSet)
-						#if ($toolId!="sakai.iframe.site" && $toolId.indexOf($tId) != -1)
+						#if ($toolId!=$!homeToolId && $toolId.indexOf($tId) != -1)
 							## exclue Home tool
 							#set($originToolId=$tId)
 						#end
