@@ -19,6 +19,7 @@
   <modules>
     <module>allhands</module>
     <module>cm-authz-provider</module>
+    <module>cm-authz-integration-test</module>
     <module>component</module>
     <module>federating</module>
     <module>imsent</module>

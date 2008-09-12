@@ -10,27 +10,25 @@
   <name>sakai-coursemanagement-authz-provider-impl</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-coursemanagement-authz-provider-integration-test</artifactId>
+  <properties>
+    <skipLongTests>true</skipLongTests>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-test-harness</artifactId>
       <scope>test</scope>
     </dependency>
-<!--org.sakaiprojectsakai-authz-apitest-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-coursemanagement-api</artifactId>
+      <scope>test</scope>
     </dependency>
-<!--org.sakaiprojectsakai-entity-api-->
-<!--org.sakaiprojectsakai-site-api-->
-<!--org.sakaiprojectsakai-tool-api-->
-<!--org.sakaiprojectsakai-user-api-->
-<!-- This is dragged in purely because SiteService throws "PermissionException" -->
-<!--org.sakaiprojectsakai-util-api-->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
@@ -54,26 +52,12 @@
     </dependency>
   </dependencies>
   <build>
-<!-- TODO Fix in master POM -->
     <testSourceDirectory>src/test/java</testSourceDirectory>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-<!-- TODO These settings should all be set as defaults in the master POM -->
-        <version>2.4.3</version>
         <configuration>
-          <systemProperties>
-            <property>
-              <name>maven.tomcat.home</name>
-              <value>${maven.tomcat.home}</value>
-            </property>
-            <property>
-              <name>test.sakai.home</name>
-              <value>${test.sakai.home}</value>
-            </property>
-          </systemProperties>
-<!-- Need to clear out static configuration data between tests. -->
+          <skipTests>${skipLongTests}</skipTests>
           <forkMode>pertest</forkMode>
         </configuration>
       </plugin>
