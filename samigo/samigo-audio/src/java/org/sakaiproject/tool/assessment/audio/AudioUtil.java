@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 
 public class AudioUtil {
 
-	private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
+	private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.bundle";
 
 	private static final String RESOURCE_NAME = "AudioResources";
 

@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 
 public class ColorModel
 {
-  private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
+  private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.bundle";
   private static final String RESOURCE_NAME = "colors";
   private static ResourceBundle colors = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
     RESOURCE_NAME, Locale.getDefault());
