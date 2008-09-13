@@ -4,8 +4,7 @@
   <parent>
     <artifactId>polls-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.1-SNAPSHOT</version>
-<!-- polls.version -->
+    <version>1.1-SNAPSHOT</version><!-- polls.version -->
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-poll-tool</name>
@@ -16,7 +15,7 @@
     </description>
   <properties>
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-    <rsfutil.version>0.7.3</rsfutil.version>
+    <rsfutil.version>0.7.4</rsfutil.version>
   </properties>
   <packaging>war</packaging>
   <dependencies>
@@ -90,4 +89,18 @@
       <type>war</type>
     </dependency>
   </dependencies>
+
+  <!-- for RSF snapshots -->
+    <repositories>
+        <repository>
+            <id>caret-maven2-dev</id>
+            <name>Caret Maven 2 Dev Repo</name>
+            <layout>default</layout>
+            <url>https://www2.caret.cam.ac.uk/maven2dev</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
 </project>
