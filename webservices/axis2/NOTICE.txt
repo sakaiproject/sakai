@@ -1,0 +1,5 @@
+
+Axis2 support for Sakai was originally developed by Katherine 
+Edwards (katherine.edwards2@mail.mcgill.ca) as part of the
+2008 Google Summer of Code effort.
+

@@ -18,6 +18,7 @@
   </scm>
   <modules>
     <module>axis</module>
+    <module>axis2</module>
     <module>util</module>
   </modules>
   <dependencyManagement>

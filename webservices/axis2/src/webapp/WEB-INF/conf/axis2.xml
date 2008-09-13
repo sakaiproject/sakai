@@ -1,0 +1,329 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+ 
+<axisconfig name="AxisJava2.0">
+    <!-- ================================================= -->
+    <!-- Parameters -->
+    <!-- ================================================= -->
+    <parameter name="hotdeployment">true</parameter>
+    <parameter name="hotupdate">false</parameter>
+    <parameter name="enableMTOM">false</parameter>
+    <parameter name="enableSwA">false</parameter>
+
+    <!--Uncomment if you want to enable file caching for attachments -->
+    <!--parameter name="cacheAttachments">true</parameter>
+    <parameter name="attachmentDIR"></parameter>
+    <parameter name="sizeThreshold">4000</parameter-->
+
+    <!--This will give out the timout of the configuration contexts, in seconds-->
+    <parameter name="ConfigContextTimeoutInterval">30</parameter>
+
+    <!--During a fault, stacktrace can be sent with the fault message. The following flag will control -->
+    <!--that behaviour.-->
+    <parameter name="sendStacktraceDetailsWithFaults">false</parameter>
+
+    <!--If there aren't any information available to find out the fault reason, we set the message of the expcetion-->
+    <!--as the faultreason/Reason. But when a fault is thrown from a service or some where, it will be -->
+    <!--wrapped by different levels. Due to this the initial exception message can be lost. If this flag-->
+    <!--is set then, Axis2 tries to get the first exception and set its message as the faultreason/Reason.-->
+    <parameter name="DrillDownToRootCauseForFaultReason">false</parameter>
+
+    <parameter name="userName">admin</parameter>
+    <parameter name="password">axis2</parameter>
+
+    <!--To override repository/services you need to uncomment following parameter and value SHOULD be absolute file path.-->
+    <!--<parameter name="ServicesDirectory">service</parameter>-->
+    <!--To override repository/modules you need to uncomment following parameter and value SHOULD be absolute file path-->
+    <!--<parameter name="ModulesDirectory">modules</parameter>-->
+
+
+
+    <!--Following params will set the proper context paths for invocations. All the endpoints will have a commons context-->
+    <!--root which can configured using the following contextRoot parameter-->
+    <!--<parameter name="contextRoot">axis2</parameter>-->
+
+    <!--Our HTTP endpoints can handle both REST and SOAP. Following parameters can be used to distingiush those endpoints-->
+    <!--In case of a servlet, if you change this you have to manually change the settings of your servlet container to map this -->
+    <!--context path to proper Axis2 servlets-->
+    <!--<parameter name="servicePath">services</parameter>-->
+    <!--<parameter name="restPath">rest</parameter>-->
+
+
+    <!--Set the flag to true if you want to enable transport level session mangment-->
+    <parameter name="manageTransportSession">false</parameter>
+
+    <!-- Following parameter will completely disable REST handling in Axis2-->
+    <parameter name="disableREST" locked="true">false</parameter>
+
+    <!-- If you have a frontend host which exposes this webservice using a different public URL  -->
+    <!-- use this parameter to override autodetected url -->
+    <!--<parameter name="httpFrontendHostUrl">https://someotherhost/context</parameter>-->
+
+
+    <!--    The way of adding listener to the system-->
+    <!--    <listener class="org.apache.axis2.ObserverIMPL">-->
+    <!--        <parameter name="RSS_URL">http://127.0.0.1/rss</parameter>-->
+    <!--    </listener>-->
+
+    <!-- ================================================= -->
+    <!-- Message Receivers -->
+    <!-- ================================================= -->
+    <!--This is the Deafult Message Receiver for the system , if you want to have MessageReceivers for -->
+    <!--all the other MEP implement it and add the correct entry to here , so that you can refer from-->
+    <!--any operation -->
+    <!--Note : You can ovride this for particular service by adding the same element with your requirement-->
+    <messageReceivers>
+        <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
+                         class="org.apache.axis2.receivers.RawXMLINOnlyMessageReceiver"/>
+        <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out"
+                         class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+    </messageReceivers>
+
+    <!-- ================================================= -->
+    <!-- Message Formatter -->
+    <!-- ================================================= -->
+    <!--Following content type to message formatter mapping can be used to implement support for different message -->
+    <!--format  serialization in Axis2. These message formats are expected to be resolved based on the content type. -->
+    <messageFormatters>
+        <messageFormatter contentType="application/x-www-form-urlencoded"
+                          class="org.apache.axis2.transport.http.XFormURLEncodedFormatter"/>
+        <messageFormatter contentType="application/xml"
+                          class="org.apache.axis2.transport.http.ApplicationXMLFormatter"/>
+        <messageFormatter contentType="text/xml"
+                          class="org.apache.axis2.transport.http.ApplicationXMLFormatter"/>
+        <messageFormatter contentType="application/echo+xml"
+                          class="org.apache.axis2.transport.http.ApplicationXMLFormatter"/>
+    </messageFormatters>
+
+    <!-- ================================================= -->
+    <!-- Transport Ins -->
+    <!-- ================================================= -->
+    <transportReceiver name="http"
+                       class="org.apache.axis2.transport.http.SimpleHTTPServer">
+        <parameter name="port">6060</parameter>
+        <!-- Here is the complete list of supported parameters (see example settings further below):
+            port: the port to listen on (default 6060)
+            hostname:  if non-null, url prefix used in reply-to endpoint references                                 (default null)
+            originServer:  value of http Server header in outgoing messages                                         (default "Simple-Server/1.1")
+            requestTimeout:  value in millis of time that requests can wait for data                                (default 20000)
+            requestTcpNoDelay:  true to maximize performance and minimize latency                                   (default true)
+                                false to minimize bandwidth consumption by combining segments
+            requestCoreThreadPoolSize:  number of threads available for request processing (unless queue fills up)  (default 25)
+            requestMaxThreadPoolSize:  number of threads available for request processing if queue fills us         (default 150)
+                                       note that default queue never fills up:  see HttpFactory
+            threadKeepAliveTime:  time to keep threads in excess of core size alive while inactive                  (default 180)
+                                  note that no such threads can exist with default unbounded request queue
+            threadKeepAliveTimeUnit:  TimeUnit of value in threadKeepAliveTime (default SECONDS)                    (default SECONDS)
+        -->
+        <!-- <parameter name="hostname"                 >http://www.myApp.com/ws</parameter> -->
+        <!-- <parameter name="originServer"             >My-Server/1.1</parameter>           -->
+        <!-- <parameter name="requestTimeout"           >10000</parameter>                   -->
+        <!-- <parameter name="requestTcpNoDelay"        >false</parameter>                   -->
+        <!-- <parameter name="requestCoreThreadPoolSize">50</parameter>                      -->
+        <!-- <parameter name="requestMaxThreadPoolSize" >100</parameter>                     -->
+        <!-- <parameter name="threadKeepAliveTime"      >240000</parameter>                  -->
+        <!-- <parameter name="threadKeepAliveTimeUnit"  >MILLISECONDS</parameter>            -->
+    </transportReceiver>
+    
+    <!--Uncomment this and configure as appropriate for JMS transport support, after setting up your JMS environment (e.g. ActiveMQ)
+    <transportReceiver name="jms" class="org.apache.axis2.transport.jms.JMSListener">
+        <parameter name="myTopicConnectionFactory">
+        	<parameter name="java.naming.factory.initial">org.apache.activemq.jndi.ActiveMQInitialContextFactory</parameter>
+        	<parameter name="java.naming.provider.url">tcp://localhost:61616</parameter>
+        	<parameter name="transport.jms.ConnectionFactoryJNDIName">TopicConnectionFactory</parameter>
+        </parameter>
+
+        <parameter name="myQueueConnectionFactory">
+        	<parameter name="java.naming.factory.initial">org.apache.activemq.jndi.ActiveMQInitialContextFactory</parameter>
+        	<parameter name="java.naming.provider.url">tcp://localhost:61616</parameter>
+        	<parameter name="transport.jms.ConnectionFactoryJNDIName">QueueConnectionFactory</parameter>
+        </parameter>
+
+        <parameter name="default">
+        	<parameter name="java.naming.factory.initial">org.apache.activemq.jndi.ActiveMQInitialContextFactory</parameter>
+        	<parameter name="java.naming.provider.url">tcp://localhost:61616</parameter>
+        	<parameter name="transport.jms.ConnectionFactoryJNDIName">QueueConnectionFactory</parameter>
+        </parameter>
+    </transportReceiver>-->
+
+    <!--Uncomment if you want to have SMTP transport support-->
+    <!--<transportReceiver name="mail" class="org.apache.axis2.transport.mail.SimpleMailListener">-->
+    <!--<parameter name="transport.mail.pop3.host">127.0.0.1</parameter>-->
+    <!--<parameter name="transport.mail.pop3.user">axis2</parameter>-->
+    <!--<parameter name="transport.mail.pop3.password">axis2</parameter>-->
+    <!--<parameter name="transport.mail.pop3.port">110</parameter>-->
+    <!--<parameter name="transport.mail.replyToAddress">axis2@127.0.0.1</parameter>-->
+    <!--</transportReceiver>-->
+
+	<!--Uncomment if you want to have TCP transport support-->
+    <!--transportReceiver name="tcp"
+                       class="org.apache.axis2.transport.tcp.TCPServer">
+        <parameter name="port">6060</parameter-->>
+        <!--If you want to give your own host address for EPR generation-->
+        <!--uncommet following paramter , and set as you required.-->
+        <!--<parameter name="hostname">tcp://myApp.com/ws</parameter>-->
+    <!-- /transportReceiver -->
+
+    <!-- ================================================= -->
+    <!-- Transport Outs -->
+    <!-- ================================================= -->
+
+    <transportSender name="tcp"
+                     class="org.apache.axis2.transport.tcp.TCPTransportSender"/>
+    <transportSender name="local"
+                     class="org.apache.axis2.transport.local.LocalTransportSender"/>
+    <transportSender name="http"
+                     class="org.apache.axis2.transport.http.CommonsHTTPTransportSender">
+        <parameter name="PROTOCOL">HTTP/1.1</parameter>
+        <parameter name="Transfer-Encoding">chunked</parameter>
+        
+        <!-- If following is set to 'true', optional action part of the Content-Type will not be added to the SOAP 1.2 messages -->
+        <!--  <parameter name="OmitSOAP12Action">true</parameter>  -->
+    </transportSender>
+    
+    <transportSender name="https"
+                     class="org.apache.axis2.transport.http.CommonsHTTPTransportSender">
+        <parameter name="PROTOCOL">HTTP/1.1</parameter>
+        <parameter name="Transfer-Encoding">chunked</parameter>
+    </transportSender>
+    <!--Uncomment this and configure as appropriate for JMS transport support, after setting up your JMS environment (e.g. ActiveMQ)
+    <transportSender name="jms"
+                     class="org.apache.axis2.transport.jms.JMSSender"/>
+    -->
+
+    <!-- Uncomment this one with the appropriate papameters to enable the SMTP transport Receiver
+   <transportSender name="mailto" class="org.apache.axis2.transport.mail.MailTransportSender">
+       <parameter name="transport.mail.smtp.host">127.0.0.1</parameter>
+       <parameter name="transport.mail.smtp.user">axis2</parameter>
+       <parameter name="transport.mail.smtp.password">axis2</parameter>
+       <parameter name="transport.mail.smtp.port">25</parameter>
+   </transportSender>
+   -->
+
+    <!-- ================================================= -->
+    <!-- Global Modules  -->
+    <!-- ================================================= -->
+    <!-- Comment this to disable Addressing -->
+    <module ref="addressing"/>
+
+    <!--Configuring module , providing parameters for modules whether they refer or not-->
+    <!--<moduleConfig name="addressing">-->
+    <!--<parameter name="addressingPara">N/A</parameter>-->
+    <!--</moduleConfig>-->
+
+    <!-- ================================================= -->
+    <!-- Clustering  -->
+    <!-- ================================================= -->
+    <!-- Configure and uncomment following for preparing Axis2 to a clustered environment -->
+    <!-- 
+    <cluster class="org.apache.axis2.cluster.tribes.TribesClusterManager">
+    	<parameter name="param1">value1</parameter>
+    </cluster>
+     -->
+     
+    <!-- ================================================= -->
+    <!-- Phases  -->
+    <!-- ================================================= -->
+    <phaseOrder type="InFlow">
+        <!--  System predefined phases       -->
+        <phase name="Transport">
+            <handler name="RequestURIBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.RequestURIBasedDispatcher">
+                <order phase="Transport"/>
+            </handler>
+            <handler name="SOAPActionBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.SOAPActionBasedDispatcher">
+                <order phase="Transport"/>
+            </handler>
+        </phase>
+        <phase name="Addressing">
+             <handler name="AddressingBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.AddressingBasedDispatcher">
+                 <order phase="Addressing"/>
+            </handler>
+        </phase>
+        <phase name="Security"/>
+        <phase name="PreDispatch"/>
+        <phase name="Dispatch" class="org.apache.axis2.engine.DispatchPhase">
+            <handler name="RequestURIBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.RequestURIBasedDispatcher"/>
+            <handler name="SOAPActionBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.SOAPActionBasedDispatcher"/>
+            <handler name="RequestURIOperationDispatcher"
+                     class="org.apache.axis2.dispatchers.RequestURIOperationDispatcher"/>
+            <handler name="SOAPMessageBodyBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.SOAPMessageBodyBasedDispatcher"/>
+
+            <handler name="HTTPLocationBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.HTTPLocationBasedDispatcher"/>
+        </phase>
+        <phase name="RMPhase"/>
+        <!--  System predefined phases       -->
+        <!--   After Postdispatch phase module author or service author can add any phase he want      -->
+        <phase name="OperationInPhase"/>
+        <phase name="soapmonitorPhase"/>
+    </phaseOrder>
+    <phaseOrder type="OutFlow">
+        <!--      user can add his own phases to this area  -->
+        <phase name="soapmonitorPhase"/>
+        <phase name="OperationOutPhase"/>
+        <!--system predefined phase-->
+        <!--these phase will run irrespective of the service-->
+        <phase name="RMPhase"/>
+        <phase name="PolicyDetermination"/>
+        <phase name="MessageOut"/>
+        <phase name="Security"/>
+    </phaseOrder>
+    <phaseOrder type="InFaultFlow">
+        <phase name="Addressing">
+             <handler name="AddressingBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.AddressingBasedDispatcher">
+                 <order phase="Addressing"/>
+            </handler>
+        </phase>
+        <phase name="Security"/>
+        <phase name="PreDispatch"/>
+        <phase name="Dispatch" class="org.apache.axis2.engine.DispatchPhase">
+            <handler name="RequestURIBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.RequestURIBasedDispatcher"/>
+            <handler name="SOAPActionBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.SOAPActionBasedDispatcher"/>
+            <handler name="RequestURIOperationDispatcher"
+                     class="org.apache.axis2.dispatchers.RequestURIOperationDispatcher"/>
+            <handler name="SOAPMessageBodyBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.SOAPMessageBodyBasedDispatcher"/>
+
+            <handler name="HTTPLocationBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.HTTPLocationBasedDispatcher"/>
+        </phase>
+        <phase name="RMPhase"/>
+        <!--      user can add his own phases to this area  -->
+        <phase name="OperationInFaultPhase"/>
+        <phase name="soapmonitorPhase"/>
+    </phaseOrder>
+    <phaseOrder type="OutFaultFlow">
+        <!--      user can add his own phases to this area  -->
+        <phase name="soapmonitorPhase"/>
+        <phase name="OperationOutFaultPhase"/>
+        <phase name="RMPhase"/>
+        <phase name="PolicyDetermination"/>
+        <phase name="MessageOut"/>
+    </phaseOrder>
+</axisconfig>
+

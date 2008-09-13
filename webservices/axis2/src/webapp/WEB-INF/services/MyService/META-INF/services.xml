@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<service name="MyService">
+	<description>
+		A simple example web service
+	</description>
+	
+	<parameter name="ServiceClass" locked="false">
+		org.sakaiproject.axis2.MyService
+	</parameter>
+	
+	<operation name="sayhi">
+		<messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+	</operation>
+
+</service>
