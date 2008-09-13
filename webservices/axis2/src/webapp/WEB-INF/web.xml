@@ -1,40 +1,71 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-
 <!DOCTYPE web-app
-
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
-    
-
 <web-app>
-
-
-
     <servlet>
-
         <servlet-name>AxisServlet</servlet-name>
-
         <display-name>Apache-Axis Servlet</display-name>
-
         <servlet-class>
-
             org.apache.axis2.transport.http.AxisServlet</servlet-class>
-
         <load-on-startup>1</load-on-startup>
-
     </servlet>
 
+    <!-- Note - the default settings may refuse localhost - but will accept
+         if you use the IP address of your computer as follows:
+         http://192.168.0.105:8080/sakai-axis2/services/MyService?wsdl
+    -->
 
+    <filter>
+        <filter-name>RemoteHostFilter</filter-name>
+        <filter-class>
+            org.sakaiproject.util.RemoteHostFilter
+        </filter-class>
+        <!--
+        <description>
+            Filters (allows/denies) requests based on configured
+            hostname/ip-address
+        </description>
+        -->
+        <init-param>
+            <param-name>allow</param-name>
+            <!-- Allow "Private Use" IP addresses by default -->
+            <param-value>
+                localhost, 127\.0\.0\.1, 192\.168\.[0-9.]+, 10\.[0-9.]+,
+                172\.1[6-9]\.[0-9.]+, 172\.2[0-9]\.[0-9.]+,
+	        172\.3[0-1]\.[0-9.]+
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>log-allowed</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>deny</param-name>
+            <!-- No Explicit Denials, implies deny unless allowed -->
+            <param-value></param-value>
+        </init-param>
+        <init-param>
+            <param-name>log-denied</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
 
-  <servlet-mapping>
+    <filter-mapping>
+        <filter-name>RemoteHostFilter</filter-name>
+        <servlet-name>
+        	AxisServlet
+	</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
 
-    <servlet-name>AxisServlet</servlet-name>
-
-    <url-pattern>/services/*</url-pattern>
-
-  </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>/services/*</url-pattern>
+    </servlet-mapping>
 
 </web-app>
 
