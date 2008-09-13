@@ -30,24 +30,24 @@
 					<input rsf:id="reset" value="Reset" type="submit" onclick="return checkReset();"/>
 				</p>
 				<div class="alertMessage" id="call-results">
-					<strong rsf:id="message">Note: Changes to page ordering will not take effect until you click 'Save'. Deleting, Adding or Editing a Page is saved immediately</strong>
+					<strong rsf:id="msg=welcome">Note: Changes to page ordering will not take effect until you click 'Save'. Deleting, Adding or Editing a Page is saved immediately</strong>
 				</div>
 	 			<table id="page-list">
 	  				<tr><td>
 						<div class="tool_list">
 							<div id="list-label">
-								<strong rsf:id="list-label">Current Pages</strong>
+								<strong rsf:id="msg=curr_pages">Current Pages</strong>
 							</div>
 							<ul tabIndex="2" class="sortable" id="sort1">
 								<li rsf:id="page-row:" id="content:::page-row::" class="sortable_item" title="Click And Drag Pages Into The Order That You Want" >
 									<div class="item_edit_box" style="display: none;">
 										<div>
-											<label rsf:id="page-name-label">Title</label>
-											<input class="new_title" rsf:id="page-name-input"></input>
+											<label rsf:id="page-name-label"for="page-name-input">Title</label>
+											<input rsf:id="page-name-input" class="new_title" id="page-name-input"></input>
 										</div>
 										<div>
-											<label rsf:id="page-config-label">URL</label>
-											<input class="new_config" rsf:id="page-config-input"></input>
+											<label rsf:id="msg=url" for="page-config-input">URL</label>
+											<input rsf:id="page-config-input" id="page-config-input" class="new_config" ></input>
 											<a href="#" onclick="doBrowseLocalContent(this)" rsf:id="browse-link">Browse</a>
 										</div>
 										<a href="#" rsf:id="save-edit-link" onclick="doSaveEdit(this); return false;" title="Save Changes To This Page" alt="Save">
@@ -78,9 +78,9 @@
 					</td></tr>
 				</table>
 				<input rsf:id="state-init" id="content:::state-init" type="hidden"/>
-				<span id="del-message"><strong rsf:id="del-message" class="hidden"/></span>
-				<span id="exit-message"><strong rsf:id="exit-message" class="hidden"/></span>
-				<span id="reset-message"><strong rsf:id="reset-message" class="hidden"/></span>
+				<span id="del-message"><strong rsf:id="msg=del_message" class="hidden"/></span>
+				<span id="exit-message"><strong rsf:id="msg=exit_message" class="hidden"/></span>
+				<span id="reset-message"><strong rsf:id="msg=confirm_reset_message" class="hidden"/></span>
 				<p class="act">
 					<input accesskey ="s" class="active" rsf:id="save" value="Save" type="submit" onclick="serialize('sort1');"/>
 					<input accesskey ="x" rsf:id="revert" value="Cancel" type="submit"/>

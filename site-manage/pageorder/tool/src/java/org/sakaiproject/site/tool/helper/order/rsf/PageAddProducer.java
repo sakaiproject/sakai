@@ -11,6 +11,7 @@ import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
@@ -38,28 +39,23 @@ public class PageAddProducer implements ViewComponentProducer, NavigationCaseRep
         return VIEW_ID;
     }
 
-    public void fillComponents(UIContainer arg0, ViewParameters arg1, ComponentChecker arg2) {
+    public void fillComponents(UIContainer tofill, ViewParameters arg1, ComponentChecker arg2) {
      
-        UIForm toolsForm = UIForm.make(arg0, "tools-form");
+        UIForm toolsForm = UIForm.make(tofill, "tools-form");
 
-        List tools = handler.getAvailableTools();
+        List<Tool> tools = handler.getAvailableTools();
 
         StringList toolItems = new StringList();
         
         UISelect toolSelect = UISelect.makeMultiple(toolsForm, "select-tools",
                       null, "#{SitePageEditHandler.selectedTools}", new String[] {});
 
-        UIOutput.make(toolsForm, "prompt", messageLocator.getMessage("add_prompt")
-                      + " " + handler.title + "...");
-        UIOutput.make(toolsForm, "instructions", messageLocator.getMessage("add_inst"));
-        UIOutput.make(toolsForm, "select-title", messageLocator.getMessage("add_select-title"));
-        UIOutput.make(toolsForm, "tool-title", messageLocator.getMessage("add_tool-title"));
-        UIOutput.make(toolsForm, "desc-title", messageLocator.getMessage("add_desc-title"));
-           
+        UIMessage.make(toolsForm, "prompt", "add_prompt", new Object[] {handler.title});
+  
         for (int i = 0; i < tools.size(); i++ ) {
             UIBranchContainer toolRow = UIBranchContainer.make(toolsForm, "tool-row:", Integer.toString(i));
 
-            Tool tool = (Tool) tools.get(i);
+            Tool tool = tools.get(i);
             
             UIOutput.make(toolRow, "tool-name", tool.getTitle());
             UIOutput.make(toolRow, "tool-id", tool.getId());
@@ -71,11 +67,10 @@ public class PageAddProducer implements ViewComponentProducer, NavigationCaseRep
         
         toolSelect.optionlist.setValue(toolItems.toStringArray());
         
-        UICommand.make(toolsForm, "save", messageLocator.getMessage("add_selected"), 
+        UICommand.make(toolsForm, "save", UIMessage.make("add_selected"), 
                        "#{SitePageEditHandler.addTools}");
 
-        UICommand.make(toolsForm, "cancel", messageLocator.getMessage("cancel"), 
-                       "#{SitePageEditHandler.back}");
+        UICommand.make(toolsForm, "cancel", UIMessage.make("cancel")).setReturn("back");
    
     }
     

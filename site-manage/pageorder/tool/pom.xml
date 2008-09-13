@@ -18,9 +18,7 @@
   <packaging>war</packaging>
   <properties>
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-    <rsfutil.version>0.7.2</rsfutil.version>
-    <ponderutilcore.version>1.2.2</ponderutilcore.version>
-    <jservletutil.version>1.2.2</jservletutil.version>
+    <rsfutil.version>0.7.4</rsfutil.version>
   </properties>
   <dependencies>
     <dependency>

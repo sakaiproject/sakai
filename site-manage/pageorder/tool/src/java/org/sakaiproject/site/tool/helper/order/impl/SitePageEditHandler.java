@@ -1,5 +1,6 @@
 package org.sakaiproject.site.tool.helper.order.impl;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -8,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Vector;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -25,25 +25,27 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Web;
 
+import uk.org.ponder.util.UniversalRuntimeException;
+
 /**
  * 
  * @author Joshua Ryan joshua.ryan@asu.edu
  *
  */
 public class SitePageEditHandler {
-    public Site site = null;
-    public SiteService siteService = null;
-    public ToolManager toolManager = null;
-    public SessionManager sessionManager = null;
+    public Site site;
+    public SiteService siteService;
+    public ToolManager toolManager;
+    public SessionManager sessionManager;
     public ServerConfigurationService serverConfigurationService;
-    private Map pages = null;
+    private Map<String, SitePage> pages;
     public String[] selectedTools = new String[] {};
-    private Set unhideables = null;
-    public String state = null;
+    private Set<String> unhideables;
+    public String state;
     public String title = "";
-    public String test = null;
-    public boolean update = false;
-    public boolean done = false;
+    public String test;
+    public boolean update;
+    public boolean done;
     
     //Just something dumb to bind to in order to supress warning messages
     public String nil = null;
@@ -89,18 +91,18 @@ public class SitePageEditHandler {
      * Gets the pages for the current site
      * @return Map of pages (id, page)
      */
-    public Map getPages() {
+    public Map<String, SitePage> getPages() {
         if (site == null) {
             init();
         }
         if (update) {
-            pages = new LinkedHashMap();
+            pages = new LinkedHashMap<String, SitePage>();
             if (site != null)
             {    
-                List pageList = site.getOrderedPages();
+                List<SitePage> pageList = site.getOrderedPages();
                 for (int i = 0; i < pageList.size(); i++) {
                     
-                    SitePage page = (SitePage) pageList.get(i);
+                    SitePage page = pageList.get(i);
                     pages.put(page.getId(), page);
                 }
             }
@@ -140,7 +142,7 @@ public class SitePageEditHandler {
         
         String conf = serverConfigurationService.getString(UNHIDEABLES_CFG);
         if (conf != null) {
-            unhideables = new HashSet();
+            unhideables = new HashSet<String>();
             String[] toolIds = conf.split(",");
             for (int i = 0; i < toolIds.length; i++) {
                 unhideables.add(toolIds[i].trim());
@@ -154,23 +156,28 @@ public class SitePageEditHandler {
      * @throws IdUnusedException
      * @throws PermissionException
      */
-    public void saveSite(Site site) throws IdUnusedException, PermissionException {
-        siteService.save(site);
+    public void saveSite(Site site) {
+        try {
+          siteService.save(site);
+        }
+        catch (Exception e) {
+          throw UniversalRuntimeException.accumulate(e, "Error saving site");
+        }
     }
     
     /**
      * Gets the list of tools that can be added to the current site
      * @return List of Tools
      */
-    public List getAvailableTools() {
+    public List<Tool> getAvailableTools() {
 
-        List tools = new Vector();
+        List<Tool> tools = new ArrayList<Tool>();
 
         if (site == null) {
             init();
         }
         
-        Set categories = new HashSet();
+        Set<String> categories = new HashSet<String>();
 
         if (site.getType() == null || siteService.isUserSite(site.getId())) {
             categories.add("myworkspace");
@@ -179,9 +186,9 @@ public class SitePageEditHandler {
             categories.add(site.getType());
         }
         
-        Set toolRegistrations = toolManager.findTools(categories, null);
+        Set<Tool> toolRegistrations = toolManager.findTools(categories, null);
         
-        Vector multiPlacementToolIds = new Vector();
+        List<String> multiPlacementToolIds = new ArrayList<String>();
 
         String items[];
         if (serverConfigurationService.getString(MULTI_TOOLS) != null && 
@@ -194,8 +201,6 @@ public class SitePageEditHandler {
             multiPlacementToolIds.add(items[i]);
         }
      
-        List currentTools = new Vector();
-        
         SortedIterator i = new SortedIterator(toolRegistrations.iterator(), new ToolComparator());
         for (; i.hasNext();)
         {
@@ -234,15 +239,10 @@ public class SitePageEditHandler {
                         "/page/" + page.getId() +
                         "/tool/" + selectedTools[i] +
                         "/placement/" + placement.getId(), false));
-            } 
-            catch (IdUnusedException e) {
-                e.printStackTrace();
-                return null;
-            } 
-            catch (PermissionException e) {
-                e.printStackTrace();
-                return null;
             }
+            catch(Exception e) {
+                throw UniversalRuntimeException.accumulate(e, "Error adding tool " + selectedTools[i]);
+                }
         }
       
         return "success";
@@ -295,14 +295,6 @@ public class SitePageEditHandler {
         return "done";
     }
     
-    /**
-     * Cancel out of the current action and go back to main view
-     * 
-     */
-    public String back() {
-      return "back";
-    }
-    
     public String reset() {
         site.setCustomPageOrdered(false);
         try {
@@ -334,7 +326,7 @@ public class SitePageEditHandler {
             init();
         }
 
-        List requiredTools = null;
+        List<String> requiredTools = null;
         if (site.getType() == null || siteService.isUserSite(site.getId())) {
             requiredTools = serverConfigurationService.getToolsRequired("myworkspace");
         }
@@ -356,13 +348,13 @@ public class SitePageEditHandler {
      * @return true if users with out site.upd can see the page
      */
     public boolean isVisible(SitePage page) {
-        List tools = page.getTools();
-        Iterator iPt = tools.iterator();
+        List<ToolConfiguration> tools = page.getTools();
+        Iterator<ToolConfiguration> iPt = tools.iterator();
 
         boolean visible = false;
         while( !visible && iPt.hasNext() ) 
         {
-            ToolConfiguration placement = (ToolConfiguration) iPt.next();
+            ToolConfiguration placement = iPt.next();
             Properties roleConfig = placement.getConfig();
             String roleList = roleConfig.getProperty(TOOL_CFG_FUNCTIONS);
 
@@ -408,13 +400,13 @@ public class SitePageEditHandler {
      * @return true if this tool is allowed to be hidden
      */
     public boolean allowsHide(SitePage page) {
-        List tools = page.getTools();
-        Iterator iPt = tools.iterator();
+        List<ToolConfiguration> tools = page.getTools();
+        Iterator<ToolConfiguration> iPt = tools.iterator();
 
         boolean hideable = true;
         while( hideable && iPt.hasNext() )
         {
-            ToolConfiguration placement = (ToolConfiguration) iPt.next();
+            ToolConfiguration placement = iPt.next();
 
             if (!allowsHide(placement.getToolId())) {
                 hideable = false;
@@ -469,13 +461,13 @@ public class SitePageEditHandler {
             init();
         }
         SitePage page = site.getPage(pageId);
-        List tools = page.getTools();
-        Iterator iterator = tools.iterator();
+        List<ToolConfiguration> tools = page.getTools();
+        Iterator<ToolConfiguration> iterator = tools.iterator();
 
         //If all the tools on a page require site.upd then only users with site.upd will see
         //the page in the site nav of Charon... not sure about the other Sakai portals floating about
         while( iterator.hasNext() ) {
-            ToolConfiguration placement = (ToolConfiguration) iterator.next();
+            ToolConfiguration placement = iterator.next();
             Properties roleConfig = placement.getPlacementConfig();
             String roleList = roleConfig.getProperty(TOOL_CFG_FUNCTIONS);
             boolean saveChanges = false;
@@ -527,14 +519,9 @@ public class SitePageEditHandler {
                     "/page/" + page.getId() +
                     "/tool/" + toolId +
                     "/placement/" + placement.getId(), false));
-        } 
-        catch (IdUnusedException e) {
-            e.printStackTrace();
-            return null;
-        } 
-        catch (PermissionException e) {
-            e.printStackTrace();
-            return null;
+        }
+        catch (Exception e) {
+            throw UniversalRuntimeException.accumulate(e, "Error adding page " + title);
         }
         init();
         
@@ -549,8 +536,7 @@ public class SitePageEditHandler {
      * @throws IdUnusedException
      * @throws PermissionException
      */
-    public String removePage(String pageId)
-                            throws IdUnusedException, PermissionException {
+    public String removePage(String pageId) {
         SitePage page = site.getPage(pageId);
         site.removePage(page);
         saveSite(site);
@@ -573,8 +559,7 @@ public class SitePageEditHandler {
      * @throws IdUnusedException
      * @throws PermissionException
      */
-    public String setTitle(String pageId, String newTitle)
-                          throws IdUnusedException, PermissionException {
+    public String setTitle(String pageId, String newTitle) {
         SitePage page = site.getPage(pageId);
         String oldTitle = page.getTitle();
         page.setTitle(newTitle);
@@ -609,8 +594,7 @@ public class SitePageEditHandler {
      * @throws IdUnusedException
      * @throws PermissionException
      */
-    public void setConfig(String pageId, String config, String value)
-                          throws IdUnusedException, PermissionException {
+    public void setConfig(String pageId, String config, String value) {
         SitePage page = site.getPage(pageId);
 
         // TODO: Find a way to call each tool to ask what fields they need configured
@@ -630,8 +614,7 @@ public class SitePageEditHandler {
      * @author joshuaryan
      *
      */
-    private class ToolComparator
-    implements Comparator
+    private class ToolComparator implements Comparator<Tool>
     {    
         /**
         * implementing the Comparator compare function
@@ -639,11 +622,10 @@ public class SitePageEditHandler {
         * @param o2 The second object
         * @return The compare result. 1 is o1 < o2; 0 is o1.equals(o2); -1 otherwise
         */
-        public int compare ( Object o1, Object o2)
+        public int compare (Tool o1, Tool o2)
         {
-            try
-            {
-                return ((Tool) o1).getTitle().compareTo(((Tool) o2).getTitle());
+            try {
+                return o1.getTitle().compareTo(o2.getTitle());
             }
             catch (Exception e)
             {

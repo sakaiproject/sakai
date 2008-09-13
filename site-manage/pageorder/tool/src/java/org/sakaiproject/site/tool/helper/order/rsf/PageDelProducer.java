@@ -1,14 +1,11 @@
 package org.sakaiproject.site.tool.helper.order.rsf;
 
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
@@ -30,54 +27,31 @@ public class PageDelProducer implements ViewComponentProducer, ViewParamsReporte
         return VIEW_ID;
     }
 
-    public void fillComponents(UIContainer arg0, ViewParameters arg1, ComponentChecker arg2) {
-        PageEditViewParameters params = null;
+    public void fillComponents(UIContainer tofill, ViewParameters viewParams, ComponentChecker arg2) {
+        PageEditViewParameters params = (PageEditViewParameters) viewParams;
 
-        String pageId = null;
-        
         UIBranchContainer mode = null;
-        
-        try {
-            params = (PageEditViewParameters) arg1;
-            pageId = params.pageId;
-            
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            mode = UIBranchContainer.make(arg0, "mode-failed:");
-            UIOutput.make(mode, "message", e.getLocalizedMessage());
-            return;
-        }    
-        
-        if ("nil".equals(pageId)) {
-            mode = UIBranchContainer.make(arg0, "mode-failed:");
+ 
+        if (params.pageId == null) {
+            mode = UIBranchContainer.make(tofill, "mode-failed:");
             UIOutput.make(mode, "message", messageLocator
                     .getMessage("error_pageid"));
         }
         else {
             try {
-                String title = handler.removePage( pageId );
+                String title = handler.removePage(params.pageId);
 
-                mode = UIBranchContainer.make(arg0, "mode-pass:");
-                UIOutput.make(mode, "pageId", pageId);
-                UIOutput.make(mode, "message", title + " " + messageLocator
-                        .getMessage("success_removed"));
+                mode = UIBranchContainer.make(tofill, "mode-pass:");
+                UIOutput.make(mode, "pageId", params.pageId);
+                UIMessage.make(mode, "message", "success_removed", new Object[] {title});
 
-            } catch (IdUnusedException e) {
-                mode = UIBranchContainer.make(arg0, "mode-failed:");
-                UIOutput.make(mode, "message", e.getLocalizedMessage());
-                e.printStackTrace();
-            } catch (PermissionException e) {
-                mode = UIBranchContainer.make(arg0, "mode-failed:");
-                UIOutput.make(mode, "message", e.getLocalizedMessage());
-                e.printStackTrace();
+            } catch (Exception e) {
+                ErrorUtil.renderError(tofill, e);
             }
         }
     }
     
     public ViewParameters getViewParameters() {
-        PageEditViewParameters params = new PageEditViewParameters();
-        params.pageId = "nil";
-        return params;
+        return new PageEditViewParameters();
     }
 }

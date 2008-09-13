@@ -1,17 +1,12 @@
 package org.sakaiproject.site.tool.helper.order.rsf;
 
-import java.net.URLDecoder;
-
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
 
-import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
@@ -27,132 +22,82 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
 
     public SitePageEditHandler handler;
     public static final String VIEW_ID = "PageEdit";
-    public MessageLocator messageLocator;
 
     public String getViewID() {
         return VIEW_ID;
     }
 
-    public void fillComponents(UIContainer arg0, ViewParameters arg1, ComponentChecker arg2) {
-        PageEditViewParameters params = null;
+    public void fillComponents(UIContainer tofill, ViewParameters paramso, ComponentChecker arg2) {
+        PageEditViewParameters params = (PageEditViewParameters) paramso;
 
-        String pageId = null;
-        String newTitle = null;
-        String visible = null;
-        String newConfig = null;
- 
         UIBranchContainer mode = null;
- 
-        try {
-            params = (PageEditViewParameters) arg1;
-            pageId = params.pageId;
-            newTitle = URLDecoder.decode(params.newTitle, "UTF-8");
-            visible = params.visible;
-            newConfig = URLDecoder.decode(params.newConfig, "UTF-8");
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            mode = UIBranchContainer.make(arg0, "mode-failed:");
-            UIOutput.make(mode, "message", e.getLocalizedMessage());
-            return;
-        }    
 
-        if (!"nil".equals(pageId)) {
-            if (!"nil".equals(newTitle)) {
-                if (newTitle != null && !"".equals(newTitle)) {
+        if (params.pageId != null) {
+            if (params.newTitle != null) {
+                if (!"".equals(params.newTitle)) {
                     try {
-                        String oldTitle = handler.setTitle(pageId, newTitle);
+                        String oldTitle = handler.setTitle(params.pageId, params.newTitle);
                       
-                        mode = UIBranchContainer.make(arg0, "mode-pass:");
-                        UIOutput.make(mode, "page-title", newTitle);
-                        UIOutput.make(mode, "message", oldTitle + " " + messageLocator
-                                .getMessage("success_changed") + " " + newTitle);
-
+                        mode = UIBranchContainer.make(tofill, "mode-pass:");
+                        UIOutput.make(mode, "page-title", params.newTitle);
+                        UIMessage.make(mode, "message", "success_changed", new Object[] {oldTitle, params.newTitle});
                     }
-                    catch (IdUnusedException e) {
-                        mode = UIBranchContainer.make(arg0, "mode-failed:");
-                        UIOutput.make(mode, "message", e.getLocalizedMessage());
-                        e.printStackTrace();
-                    } 
-                    catch (PermissionException e) {
-                        mode = UIBranchContainer.make(arg0, "mode-failed:");
-                        UIOutput.make(mode, "message", e.getLocalizedMessage());
-                        e.printStackTrace();
+                    catch (Exception e) {
+                       ErrorUtil.renderError(tofill, e);
                     }
                 }
                 else {
-                    mode = UIBranchContainer.make(arg0, "mode-failed:");
-                    UIOutput.make(mode, "message", messageLocator
-                        .getMessage("error_title_null"));
+                    mode = UIBranchContainer.make(tofill, "mode-failed:");
+                    UIMessage.make(mode, "message", "error_title_null");
                 }
             }
             
-            if (newConfig != null && !"nil".equals(newConfig)) {
+            if (params.newConfig != null) {
                 try {
                     // TODO: Add ability to configure any arbitrary setting
-                    handler.setConfig(pageId, "source", newConfig);
+                    handler.setConfig(params.pageId, "source", params.newConfig);
                 }
-                catch (IdUnusedException e) {
-                    mode = UIBranchContainer.make(arg0, "mode-failed:");
-                    UIOutput.make(mode, "message", e.getLocalizedMessage());
-                    e.printStackTrace();
-                } 
-                catch (PermissionException e) {
-                    mode = UIBranchContainer.make(arg0, "mode-failed:");
-                    UIOutput.make(mode, "message", e.getLocalizedMessage());
-                    e.printStackTrace();
-                }
+                catch (Exception e) {
+                  ErrorUtil.renderError(tofill, e);
+               }
             }
 
-            if ("true".equals(visible) || "false".equals(visible)) {
+            if ("true".equals(params.visible) || "false".equals(params.visible)) {
                 try {            
-                    if ("true".equals(visible)) {
-                        handler.showPage(pageId);
+                    if ("true".equals(params.visible)) {
+                        handler.showPage(params.pageId);
                     }
                     else {
-                        handler.hidePage(pageId);
+                        handler.hidePage(params.pageId);
                     }
                     Site site = handler.site;
-                    SitePage page = site.getPage(pageId);
+                    SitePage page = site.getPage(params.pageId);
                     String oldTitle = page.getTitle();
                     
-                    mode = UIBranchContainer.make(arg0, "mode-pass:");
+                    mode = UIBranchContainer.make(tofill, "mode-pass:");
                     UIOutput.make(mode, "page-title", oldTitle);
-                    if ("true".equals(visible)) {
-                        UIOutput.make(mode, "message", oldTitle + " " + messageLocator
-                                .getMessage("success_visible")); 
+                    if ("true".equals(params.visible)) {
+                        UIMessage.make(mode, "message", "success_visible",
+                            new Object[] {oldTitle});
                     }
                     else {
-                        UIOutput.make(mode, "message", oldTitle + " " + messageLocator
-                                .getMessage("success_hidden")); 
+                      UIMessage.make(mode, "message", "success_hidden",
+                          new Object[] {oldTitle});
                     }
                 } 
-                catch (IdUnusedException e) {
-                    mode = UIBranchContainer.make(arg0, "mode-failed:");
-                    UIOutput.make(mode, "message", e.getLocalizedMessage());
-                    e.printStackTrace();
-                }
-                catch (PermissionException e) {
-                    mode = UIBranchContainer.make(arg0, "mode-failed:");
-                    UIOutput.make(mode, "message", e.getLocalizedMessage());
-                    e.printStackTrace();
-                }
+                catch (Exception e) {
+                  ErrorUtil.renderError(tofill, e);
+               }
             }
         }
         else {
-            UIOutput.make(mode, "message", messageLocator
-                    .getMessage("error_pageid"));
+            mode = UIBranchContainer.make(tofill, "mode-failed:");
+            UIMessage.make(mode, "message", "error_pageid");
         }
     }
     
     public ViewParameters getViewParameters() {
-        PageEditViewParameters params = new PageEditViewParameters();
-
-        //Bet you can't guess what my first language was? ;-)
-        params.pageId = "nil";
-        params.newTitle = "nil";
-        params.newConfig = "nil";
-        return params;
+        return new PageEditViewParameters();
     }
 
 }

@@ -7,7 +7,6 @@
   <bean id="PageListProducer"
       class="org.sakaiproject.site.tool.helper.order.rsf.PageListProducer">
     <property name="handler" ref="SitePageEditHandler" />
-    <property name="messageLocator" ref="messageLocator"/>
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
@@ -16,19 +15,16 @@
   <bean id="PageAddProducer"
       class="org.sakaiproject.site.tool.helper.order.rsf.PageAddProducer">
     <property name="handler" ref="SitePageEditHandler" />
-    <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
   <bean id="PageEditProdcuer" 
       class="org.sakaiproject.site.tool.helper.order.rsf.PageEditProducer">
     <property name="handler" ref="SitePageEditHandler" />
-    <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
   <bean id="PageDelProdcuer" 
       class="org.sakaiproject.site.tool.helper.order.rsf.PageDelProducer">
     <property name="handler" ref="SitePageEditHandler" />
-    <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
   <bean id="SitePageEditHandler" init-method="init"
