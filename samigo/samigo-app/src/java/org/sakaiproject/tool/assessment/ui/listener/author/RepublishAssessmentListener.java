@@ -12,11 +12,19 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
+import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -29,7 +37,11 @@ public class RepublishAssessmentListener implements ActionListener {
 
 	private static Log log = LogFactory
 			.getLog(RepublishAssessmentListener.class);
-
+	private static final GradebookServiceHelper gbsHelper =
+	    IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+	private static final boolean integrated =
+	    IntegrationContextFactory.getInstance().isIntegrated();
+	  
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
 				.lookupBean("assessmentBean");
@@ -45,58 +57,25 @@ public class RepublishAssessmentListener implements ActionListener {
 
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
-
-		// If there are submissions, need to regrade them
-		if (hasGradingData) {
-			regradeRepublishedAssessment(publishedAssessmentService, (PublishedAssessmentIfc) assessment);
-		}
-
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-		//		 get the managed bean, author and set all the list
+		
+		// If there are submissions, need to regrade them
+		if (author.getIsRepublishAndRegrade() && hasGradingData) {
+			regradeRepublishedAssessment(publishedAssessmentService, assessment);
+			updateGB(assessment, true);
+		}
+		else {
+			updateGB(assessment, false);
+		}
 		GradingService gradingService = new GradingService();
-		HashMap map = gradingService
-				.getSubmissionSizeOfAllPublishedAssessments();
-
-		// 1. need to update active published list in author bean
-		ArrayList activePublishedList = publishedAssessmentService
-				.getBasicInfoOfAllActivePublishedAssessments(author
-						.getPublishedAssessmentOrderBy(), author
-						.isPublishedAscending());
-		author.setPublishedAssessments(activePublishedList);
-		setSubmissionSize(activePublishedList, map);
-
-		// 2. need to update inactive published list in author bean
-		ArrayList inactivePublishedList = publishedAssessmentService
-				.getBasicInfoOfAllInActivePublishedAssessments(author
-						.getInactivePublishedAssessmentOrderBy(), author
-						.isInactivePublishedAscending());
-		author.setInactivePublishedAssessments(inactivePublishedList);
-		setSubmissionSize(inactivePublishedList, map);
-
-		// 3. reset the core listing
-		// 'cos user may change core assessment title and publish - sigh
 		AssessmentService assessmentService = new AssessmentService();
-		ArrayList assessmentList = assessmentService
-				.getBasicInfoOfAllActiveAssessments(author
-						.getCoreAssessmentOrderBy(), author.isCoreAscending());
-		// get the managed bean, author and set the list
-		author.setAssessments(assessmentList);
+		AuthorActionListener authorActionListener = new AuthorActionListener();
+		authorActionListener.prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
+		
 		author.setOutcome("author");
 	}
-
-	private void setSubmissionSize(ArrayList list, HashMap map) {
-		for (int i = 0; i < list.size(); i++) {
-			PublishedAssessmentFacade p = (PublishedAssessmentFacade) list
-					.get(i);
-			Integer size = (Integer) map.get(p.getPublishedAssessmentId());
-			if (size != null) {
-				p.setSubmissionSize(size.intValue());
-				//log.info("*** submission size" + size.intValue());
-			}
-		}
-	}
 	
-	private void regradeRepublishedAssessment (PublishedAssessmentService pubService, PublishedAssessmentIfc publishedAssessment) {
+	private void regradeRepublishedAssessment (PublishedAssessmentService pubService, PublishedAssessmentFacade publishedAssessment) {
 		HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
 		HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
 		HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
@@ -108,7 +87,6 @@ public class RepublishAssessmentListener implements ActionListener {
 		GradingService service = new GradingService();
 		List list = service.getAllAssessmentGradingData(publishedAssessment.getPublishedAssessmentId());
 		Iterator iter = list.iterator();
-		
 		if (updateMostCurrentSubmission) {
 		    String currentAgent = "";
 			while (iter.hasNext()) {
@@ -116,8 +94,8 @@ public class RepublishAssessmentListener implements ActionListener {
 				if (!currentAgent.equals(adata.getAgentId())){
 					if (adata.getForGrade().booleanValue()) {
 						adata.setForGrade(Boolean.FALSE);
-						adata.setStatus(AssessmentGradingIfc.NEED_RESUBMIT);
 					}
+					adata.setStatus(AssessmentGradingIfc.NEED_RESUBMIT);
 					currentAgent = adata.getAgentId();
 				}
 				service.storeGrades(adata, true, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true);
@@ -127,6 +105,78 @@ public class RepublishAssessmentListener implements ActionListener {
 			while (iter.hasNext()) {
 				AssessmentGradingData adata = (AssessmentGradingData) iter.next();
 				service.storeGrades(adata, true, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true);
+			}
+		}
+	}
+
+	private void updateGB(PublishedAssessmentFacade assessment, boolean regradeAndRepublish) {
+		// a. if Gradebook does not exists, do nothing
+		// b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
+		// a new record. At the end, populate the scores by calling updateExternalAssessmentScores
+		GradebookService g = null;
+		if (integrated) {
+			g = (GradebookService) SpringBeanLocator.getInstance().getBean(
+					"org.sakaiproject.service.gradebook.GradebookService");
+		}
+
+		if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)) { 
+			PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
+			//Integer scoringType = EvaluationModelIfc.HIGHEST_SCORE;
+			if (evaluation == null) {
+				evaluation = new PublishedEvaluationModel();
+				evaluation.setAssessmentBase(assessment.getData());
+			}
+			
+			Integer scoringType = evaluation.getScoringType();
+			if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+
+				if (regradeAndRepublish) {
+					try {
+						log.debug("before gbsHelper.removeGradebook()");
+						gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
+					} catch (Exception e1) {
+						// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
+						log.info("Exception thrown in updateGB():" + e1.getMessage());
+					}
+				}
+				try {
+					log.debug("before gbsHelper.addToGradebook()");
+					gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), g);
+					
+					// any score to copy over? get all the assessmentGradingData and copy over
+					GradingService gradingService = new GradingService();
+					// need to decide what to tell gradebook
+					List list = null;
+
+					if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
+						list = gradingService.getHighestSubmittedAssessmentGradingList(assessment.getPublishedAssessmentId());
+					} else {
+						list = gradingService.getLastSubmittedAssessmentGradingList(assessment.getPublishedAssessmentId());
+					}
+					
+					log.debug("list size =" + list.size());
+					for (int i = 0; i < list.size(); i++) {
+						try {
+							AssessmentGradingData ag = (AssessmentGradingData) list.get(i);
+							log.debug("ag.scores " + ag.getTotalAutoScore());
+							gbsHelper.updateExternalAssessmentScore(ag, g);
+						} catch (Exception e) {
+							log.warn("Exception occues in " + i	+ "th record. Message:" + e.getMessage());
+						}
+					}
+				} catch (Exception e2) {
+					log.warn("Exception thrown in updateGB():" + e2.getMessage());
+				}
+			}
+			else{ //remove
+				try{
+					gbsHelper.removeExternalAssessment(
+							GradebookFacade.getGradebookUId(),
+							assessment.getPublishedAssessmentId().toString(), g);
+				}
+				catch(Exception e){
+					log.info("*** oh well, looks like there is nothing to remove:"+e.getMessage());
+				}
 			}
 		}
 	}

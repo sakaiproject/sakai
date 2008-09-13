@@ -40,19 +40,45 @@
  <!-- content... -->
  <h:form id="publishAssessmentForm">
    <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
-   <h3><h:outputText  value="#{assessmentSettingsMessages.publish_assessment_confirmation}" /></h3>
+   <h3>
+      <h:outputText  value="#{assessmentSettingsMessages.publish_assessment_confirmation}" rendered="#{author.isEditPendingAssessmentFlow}"/>
+      <h:outputText  value="#{assessmentSettingsMessages.republish_assessment_confirmation}" rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}"/>
+      <h:outputText  value="#{assessmentSettingsMessages.regrade_republish_assessment_confirmation}" rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}"/>
+   </h3>
 <div class="tier1">
 
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
-  <div class="validation">
-       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_1}" />
-	   <br/>
-       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_2_no_hyphen}" rendered="#{author.isEditPendingAssessmentFlow}"/>
-       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_2_hyphen}" rendered="#{!author.isEditPendingAssessmentFlow}"/>
-	   <br/>
-       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_3}" rendered="#{!author.isEditPendingAssessmentFlow}"/>
-   </div>
+  <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}" styleClass="validation">
+    <h:panelGrid  columns="1">
+	   <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_1}" />
+       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_2_no_hyphen}"/>
+    </h:panelGrid>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}" styleClass="validation">
+       <h:outputText value="#{assessmentSettingsMessages.republish_confirm_message}" />
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && (author.isRepublishAndRegrade && !assessmentBean.hasSubmission)}" styleClass="validation">
+    <h:panelGrid  columns="1">
+	   <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_3}" />
+       <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_4}" />
+    </h:panelGrid>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{publishedSettings.itemNavigation eq '2' && !author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade && assessmentBean.hasSubmission}"  styleClass="validation">
+    <h:panelGrid  columns="1">
+      <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_1}" /> 
+	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_2}" />
+	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_3}" />
+	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_4}" />
+	  <h:panelGroup>
+        <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox2" value="#{publishedSettings.updateMostCurrentSubmission}"/>
+        <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />
+      </h:panelGroup>
+    </h:panelGrid>
+  </h:panelGroup>
 
 <h:panelGrid columns="2" rowClasses="shorttext" rendered="#{author.isEditPendingAssessmentFlow}">
 
@@ -203,6 +229,15 @@
 	</h:panelGroup>
 </h:panelGrid>
 
+
+    <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}" styleClass="validation">
+       <h:outputText value="#{assessmentSettingsMessages.edit_settings_1}"/>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}" styleClass="validation">
+       <h:outputText value="#{assessmentSettingsMessages.edit_settings_2}"/>
+    </h:panelGroup>
+
 <script language="javascript" type="text/JavaScript">
 <!--
 var clicked = 'false';
@@ -216,17 +251,6 @@ function toggle(){
 }
 //-->
 </script>
-  <h:panelGroup rendered="#{publishedSettings.itemNavigation eq '2' && !author.isEditPendingAssessmentFlow && assessmentBean.hasSubmission}"  styleClass="validation">
-    <h:panelGrid  columns="1">
-      <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_1}" /> 
-	  <f:verbatim>&nbsp;</f:verbatim>
-	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_2}" />
-	  <h:panelGroup>
-        <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox2" value="#{publishedSettings.updateMostCurrentSubmission}"/>
-        <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />
-      </h:panelGroup>
-    </h:panelGrid>
-  </h:panelGroup>
 
 
 <f:verbatim><p></p></f:verbatim>
@@ -239,11 +263,11 @@ function toggle(){
             type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
        </h:commandButton>
 
-		<h:commandButton  value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}" action="publishAssessment">
+		<h:commandButton  value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade && assessmentBean.hasGradingData}" action="publishAssessment">
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
 		</h:commandButton>
 
-		<h:commandButton  value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}" action="publishAssessment">
+		<h:commandButton  value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}" action="publishAssessment">
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
 		</h:commandButton>
 

@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 
@@ -120,7 +121,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 	{
 	}
 
-	public boolean updateGradebook(PublishedAssessmentData publishedAssessment, GradebookService g) throws Exception
+	public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment, GradebookService g) throws Exception
 	{
 		// TODO Auto-generated method stub
 		return false;

@@ -170,6 +170,14 @@ public class EditAssessmentListener
 			return;
 		}
 		
+		GradingService gradingService = new GradingService();
+        boolean hasGradingData = gradingService.getHasGradingData(Long.valueOf(publishedAssessmentId));
+        if (author.getEditPubAssessmentRestricted() && hasGradingData) {
+                author.setOutcome("editPublishedAssessmentError");
+                return;
+        }
+        assessmentBean.setHasGradingData(hasGradingData);
+        
 		// pass authz, move on
 		author.setIsEditPendingAssessmentFlow(false);
 		// Retract the published assessment for edit by updating the retract date to now
@@ -186,10 +194,6 @@ public class EditAssessmentListener
 		// initalize the itemtype
 		itemauthorBean.setItemType("");
 		itemauthorBean.setItemTypeString("");
-		
-		GradingService gradingService = new GradingService();
-		boolean hasGradingData = gradingService.getHasGradingData(Long.valueOf(publishedAssessmentId));
-		assessmentBean.setHasGradingData(hasGradingData);
   }
   
   public boolean passAuthz(FacesContext context, String ownerId){

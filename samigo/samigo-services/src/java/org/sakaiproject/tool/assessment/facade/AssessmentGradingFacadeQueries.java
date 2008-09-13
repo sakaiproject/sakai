@@ -192,8 +192,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
       		Query q = session.createQuery(
-      				"from AssessmentGradingData a where a.publishedAssessmentId=? order by a.agentId asc, a.submittedDate desc");
+      				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.status <> ? order by a.agentId asc, a.submittedDate desc");
       		q.setLong(0, publishedId.longValue());
+    		q.setInteger(1, AssessmentGradingIfc.NO_SUBMISSION);
       		return q.list();
       	};
       };
@@ -499,6 +500,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return h;
   }
 
+  public HashMap getAGDataSizeOfAllPublishedAssessments() {
+		HashMap agDataSizeMap = new HashMap();
+		List list = getHibernateTemplate()
+				.find(
+						"select a.publishedAssessmentId, count(a) from AssessmentGradingData a group by a.publishedAssessmentId");
+		Iterator iter = list.iterator();
+		while (iter.hasNext()) {
+			Object o[] = (Object[]) iter.next();
+			agDataSizeMap.put(o[0], o[1]);
+		}
+		return agDataSizeMap;
+  }
+  
   public Long saveMedia(byte[] media, String mimeType){
     log.debug("****"+AgentFacade.getAgentString()+"saving media...size="+media.length+" "+(new Date()));
     MediaData mediaData = new MediaData(media, mimeType);
@@ -535,6 +549,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public void removeMediaById(Long mediaId){
+	  removeMediaById(mediaId, null);
+  }
+  public void removeMediaById(Long mediaId, Long itemGradingId){
     String mediaLocation = null;
     Session session = null;
     Connection conn = null;
@@ -579,6 +596,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
     catch (Exception e) {
       log.warn("problem removing file="+e.getMessage());
+    }
+    
+    if (itemGradingId != null) {
+    	ItemGradingData itemGradingData = getItemGrading(itemGradingId);
+    	itemGradingData.setAutoScore(Float.valueOf(0));
+    	saveItemGrading(itemGradingData);
     }
   }
 

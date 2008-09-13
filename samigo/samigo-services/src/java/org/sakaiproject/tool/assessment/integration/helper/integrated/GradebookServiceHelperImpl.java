@@ -218,7 +218,7 @@ public void removeExternalAssessment(String gradebookUId,
    * @return false: cannot update the gradebook
    * @throws java.lang.Exception
    */
-  public boolean updateGradebook(PublishedAssessmentData publishedAssessment,
+  public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment,
 		  GradebookService g) throws Exception
   {
     log.debug("updateGradebook start");

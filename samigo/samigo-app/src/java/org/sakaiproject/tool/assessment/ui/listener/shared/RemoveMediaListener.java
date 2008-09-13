@@ -65,7 +65,8 @@ public class RemoveMediaListener implements ActionListener
 
     // #1. get all the info need from bean
     String mediaId = mediaBean.getMediaId();
-    mediaService.remove(mediaId);
+    Long itemGradingId = mediaBean.getItemGradingId();
+    mediaService.remove(mediaId, itemGradingId);
 
     // #2. update time based on server
     if (delivery.isTimeRunning() && delivery.timeExpired()){

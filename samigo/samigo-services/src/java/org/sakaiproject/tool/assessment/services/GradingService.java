@@ -232,8 +232,7 @@ public class GradingService
     return l;
   }
 
-
-  private ArrayList getAssessmentGradingsByScoringType(
+  public ArrayList getAssessmentGradingsByScoringType(
        Integer scoringType, Long publishedAssessmentId){
     List l = null;
     // get the list of highest score
@@ -362,6 +361,11 @@ public class GradingService
         getSubmissionSizeOfAllPublishedAssessments();
   }
 
+  public HashMap getAGDataSizeOfAllPublishedAssessments()  {
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+          getAGDataSizeOfAllPublishedAssessments();
+  }
+  
   public Long saveMedia(byte[] media, String mimeType){
     return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
         saveMedia(media, mimeType);
@@ -709,7 +713,7 @@ public class GradingService
         itemGrading.setOverrideScore(new Float(0));
         // note that totalItems & fibAnswersMap would be modified by the following method
         autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                               totalItems, fibAnswersMap, publishedAnswerHash);
+                               totalItems, fibAnswersMap, publishedAnswerHash, regrade);
         log.debug("**!regrade, autoScore="+autoScore);
         if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
           totalItems.put(itemId, new Float(autoScore));
@@ -779,12 +783,16 @@ public class GradingService
         data.setItemGradingSet(new HashSet());
     	saveOrUpdateAssessmentGrading(data);
     	log.debug("****x7. "+(new Date()).getTime());	
-    	
-    	notifyGradebookByScoringType(data, pub);
+    	if (!regrade) {
+    		notifyGradebookByScoringType(data, pub);
+    	}
     }
     log.debug("****x8. "+(new Date()).getTime());
     
-    if (Boolean.TRUE.equals(data.getForGrade())) {
+    // I am not quite sure what the following code is doing... I modified this based on my assumption:
+    // If this happens dring regrade, we don't want to clean these data up
+    // We only want to clean them out in delivery
+    if (!regrade && Boolean.TRUE.equals(data.getForGrade())) {
     	// remove the assessmentGradingData created during gradiing (by updatding total score page)
     	removeUnsubmittedAssessmentGradingData(data);
     }
@@ -814,10 +822,23 @@ public class GradingService
     }
   }
 
+  public void notifyGradebookByScoringType(PublishedAssessmentIfc pub) {
+		EvaluationModelIfc e = pub.getEvaluationModel();
+		if (e != null) {
+			String toGradebookString = e.getToGradeBook();
+			boolean toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+
+			if (toGradebook) {
+				ArrayList al = getAssessmentGradingsByScoringType(e.getScoringType(), pub.getPublishedAssessmentId());
+				notifyGradebook(al, pub);
+			}
+		}
+	}
+  
   private float getScoreByQuestionType(ItemGradingIfc itemGrading, ItemDataIfc item,
                                        Long itemType, HashMap publishedItemTextHash, 
                                        HashMap totalItems, HashMap fibAnswersMap,
-                                       HashMap publishedAnswerHash){
+                                       HashMap publishedAnswerHash, boolean regrade){
     //float score = (float) 0;
     float initScore = (float) 0;
     float autoScore = (float) 0;
@@ -920,6 +941,9 @@ public class GradingService
       case 6: // file upload
       case 7: // audio recording
               //overridescore - cwen
+    	  	  if (regrade && itemGrading.getAutoScore() != null) {
+    	  	    autoScore = itemGrading.getAutoScore();
+    	  	  }
               if (itemGrading.getOverrideScore() != null)
                 autoScore += itemGrading.getOverrideScore().floatValue();
               if (!totalItems.containsKey(itemId))

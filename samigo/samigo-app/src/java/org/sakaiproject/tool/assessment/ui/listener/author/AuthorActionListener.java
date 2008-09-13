@@ -32,6 +32,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -90,35 +91,50 @@ public class AuthorActionListener
       author.setAssessmentTemplateList(templateList);
     }
 
-    //#2 - prepare core assessment list
-    author.setCoreAssessmentOrderBy(AssessmentFacadeQueries.TITLE);
-    ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
-        AssessmentFacadeQueries.TITLE, author.isCoreAscending());
-    // get the managed bean, author and set the list
-    author.setAssessments(assessmentList);
-
-    //#3 This map contains (Long, Integer)=(publishedAssessmentId, submissionSize)
-    HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
-
-    //#4 - prepare published assessment list
-    author.setPublishedAssessmentOrderBy(PublishedAssessmentFacadeQueries.TITLE);
-    ArrayList publishedList = publishedAssessmentService.getBasicInfoOfAllActivePublishedAssessments(
-        PublishedAssessmentFacadeQueries.TITLE,true);
-    setSubmissionSize(publishedList, map);
-    // get the managed bean, author and set the list
-    author.setPublishedAssessments(publishedList);
-    log.debug("**** published list size ="+publishedList.size());
-
-    //#5 - prepare published inactive assessment list
-    author.setInactivePublishedAssessmentOrderBy(PublishedAssessmentFacadeQueries.TITLE);
-    ArrayList inactivePublishedList = publishedAssessmentService.getBasicInfoOfAllInActivePublishedAssessments(
-       PublishedAssessmentFacadeQueries.TITLE,true);
-    setSubmissionSize(inactivePublishedList, map);
-    // get the managed bean, author and set the list
-    author.setInactivePublishedAssessments(inactivePublishedList);
-
+    prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
+    
+    String s = ServerConfigurationService.getString("samigo.editPubAssessment.restricted");
+	if (s != null && s.toLowerCase().equals("false")) {
+		author.setEditPubAssessmentRestricted(false);
+	}
+	else {
+		author.setEditPubAssessmentRestricted(true);
+	}
   }
 
+  public void prepareAssessmentsList(AuthorBean author, AssessmentService assessmentService, GradingService gradingService, PublishedAssessmentService publishedAssessmentService) {
+		// #2 - prepare core assessment list
+		author.setCoreAssessmentOrderBy(AssessmentFacadeQueries.TITLE);
+		ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
+						AssessmentFacadeQueries.TITLE, author.isCoreAscending());
+		// get the managed bean, author and set the list
+		author.setAssessments(assessmentList);
+
+		// #3 This map contains (Long, Integer)=(publishedAssessmentId,
+		// submissionSize)
+		HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
+		HashMap agMap = gradingService.getAGDataSizeOfAllPublishedAssessments();
+
+		// #4 - prepare published assessment list
+		author.setPublishedAssessmentOrderBy(PublishedAssessmentFacadeQueries.TITLE);
+		ArrayList publishedList = publishedAssessmentService.getBasicInfoOfAllActivePublishedAssessments(
+						PublishedAssessmentFacadeQueries.TITLE, true);
+		setSubmissionSize(publishedList, map);
+		setHasAssessmentGradingData(publishedList, agMap);
+		// get the managed bean, author and set the list
+		author.setPublishedAssessments(publishedList);
+		log.debug("**** published list size =" + publishedList.size());
+
+		// #5 - prepare published inactive assessment list
+		author.setInactivePublishedAssessmentOrderBy(PublishedAssessmentFacadeQueries.TITLE);
+		ArrayList inactivePublishedList = publishedAssessmentService.getBasicInfoOfAllInActivePublishedAssessments(
+						PublishedAssessmentFacadeQueries.TITLE, true);
+		setSubmissionSize(inactivePublishedList, map);
+		setHasAssessmentGradingData(inactivePublishedList, agMap);
+		// get the managed bean, author and set the list
+		author.setInactivePublishedAssessments(inactivePublishedList);
+  }
+  
   private void setSubmissionSize(ArrayList list, HashMap map){
     for (int i=0; i<list.size();i++){
       PublishedAssessmentFacade p =(PublishedAssessmentFacade)list.get(i);
@@ -129,6 +145,20 @@ public class AuthorActionListener
     }
   }
 
+  private void setHasAssessmentGradingData(ArrayList list, HashMap agMap) {
+      boolean hasAssessmentGradingData = true;
+      for (int i = 0; i < list.size(); i++) {
+              PublishedAssessmentFacade p = (PublishedAssessmentFacade) list
+                              .get(i);
+              if (agMap.get(p.getPublishedAssessmentId()) != null) {
+                      hasAssessmentGradingData = true;
+              } else {
+                      hasAssessmentGradingData = false;
+              }
+              p.setHasAssessmentGradingData(hasAssessmentGradingData);
+      }
+  }
+  
   private void removeDefaultTemplate(ArrayList templateList){
     for (int i=0; i<templateList.size();i++){
       AssessmentTemplateFacade a = (AssessmentTemplateFacade) templateList.get(i);

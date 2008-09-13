@@ -204,9 +204,14 @@ public class DeliveryActionListener
             	  //agData = (AssessmentGradingData) service.getHighestAssessmentGrading(id, agent);
             	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent);
               }
+              if (agData == null) {
+            	  delivery.setOutcome("reviewAssessmentError");
+            	  return;
+              }
               log.debug("GraderComments: getComments()" + agData.getComments());
               delivery.setGraderComment(agData.getComments());
               delivery.setAssessmentGradingId(agData.getAssessmentGradingId());
+              delivery.setOutcome("takeAssessment");
               break;
  
       case 4: // Grade assessment
@@ -2150,6 +2155,8 @@ public class DeliveryActionListener
 	  return seed;
   }
 
+  // Set the published assessment status here
+  // If it is retracted for edit, redirect to an error page
   protected void setStatus(DeliveryBean delivery, PublishedAssessmentService pubService, Long publishedAssessmentId) {
 	Integer status = pubService.getPublishedAssessmentStatus(publishedAssessmentId);
 	delivery.getPublishedAssessment().setStatus(status);

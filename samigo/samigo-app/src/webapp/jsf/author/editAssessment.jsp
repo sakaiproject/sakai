@@ -70,15 +70,14 @@ document.links[newindex].onclick();
 <!-- content... -->
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
-  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
-    <h:panelGrid  columns="1">
-	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
-	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
-	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!assessmentBean.hasGradingData}"/>
-    </h:panelGrid>
-  </h:panelGroup>
+<h:messages styleClass="validation"/>
+<div class="validation">
+  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" rendered="#{!author.isEditPendingAssessmentFlow}"/>
+  <br/>
+  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"/>
+  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}"/>
+</div>
 
   <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
   <h:inputHidden id="showCompleteAssessment" value="#{author.showCompleteAssessment}"/>
@@ -156,12 +155,12 @@ document.links[newindex].onclick();
 <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" />
 
 <h:panelGroup>
-  <h:commandButton id="republishRegrade" value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
+  <h:commandButton id="republish" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow}"
       action="saveSettingsAndConfirmPublish" >
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
   </h:commandButton>
 
-  <h:commandButton id="republish" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}"
+  <h:commandButton id="republishRegrade" value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
       action="saveSettingsAndConfirmPublish" >
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
   </h:commandButton>
@@ -384,20 +383,25 @@ document.links[newindex].onclick();
 </div>
 
 <p class="navList">
-  <h:commandButton  value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
-      action="saveSettingsAndConfirmPublish" />
+<h:panelGroup>
+  <h:commandButton id="republish1" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow}"
+      action="saveSettingsAndConfirmPublish" >
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
+  </h:commandButton>
 
-  <h:commandButton  value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}"
-      action="saveSettingsAndConfirmPublish" />
+  <h:commandButton id="republishRegrade1" value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
+      action="saveSettingsAndConfirmPublish" >
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
+  </h:commandButton>
+</h:panelGroup>
 </p>
 
-  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
-    <h:panelGrid  columns="1">
-	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
-	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
-	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!assessmentBean.hasGradingData}"/>
-    </h:panelGrid>
-  </h:panelGroup>
+<div class="validation">
+  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" rendered="#{!author.isEditPendingAssessmentFlow}"/>
+  <br/>
+  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"/>
+  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}"/>
+</div>
 
 </h:form>
 <!-- end content -->

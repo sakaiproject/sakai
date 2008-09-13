@@ -29,6 +29,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 
@@ -74,7 +75,9 @@ public class AuthorBean implements Serializable
   private boolean isEditPendingAssessmentFlow = true;
   private String fromPage;
   private boolean isRetractedForEdit = false;
-  
+  private boolean editPubAssessmentRestricted;
+  private boolean isRepublishAndRegrade = false;
+    
 
   /**
    * @return the id
@@ -516,5 +519,24 @@ public class AuthorBean implements Serializable
   {
     this.isRetractedForEdit = isRetractedForEdit;
   }
+
+  public boolean getEditPubAssessmentRestricted()
+  {
+	  return editPubAssessmentRestricted;
+  }
+
+  public void setEditPubAssessmentRestricted(boolean editPubAssessmentRestricted)
+  {
+	  this.editPubAssessmentRestricted = editPubAssessmentRestricted;
+  }
   
+  public boolean getIsRepublishAndRegrade()
+  {
+	  return isRepublishAndRegrade;
+  }
+
+  public void setIsRepublishAndRegrade(boolean isRepublishAndRegrade)
+  {
+	  this.isRepublishAndRegrade = isRepublishAndRegrade;
+  }
 }

@@ -1869,6 +1869,7 @@ public class DeliveryBean
       itemGradingData.setAgentId(agent);
       itemGradingData.setOverrideScore(new Float(0));
     }
+    itemGradingData.setAutoScore(Float.valueOf(0));
     setAssessmentGrading(adata);
 
     // 5. save ItemGradingData alone 'cos assessmentGrading score won't be changed

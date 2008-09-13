@@ -209,7 +209,7 @@ sorting actions for table:
 
     <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback != 'true'}" escape="false"/>
 
-	<h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="takeAssessment" rendered="#{reviewable.feedback == 'true'}">
+	<h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" rendered="#{reviewable.feedback == 'true'}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="nofeedback" value="false"/>
         <f:param name="actionString" value="reviewAssessment"/>

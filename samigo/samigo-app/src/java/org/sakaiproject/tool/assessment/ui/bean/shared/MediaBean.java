@@ -43,7 +43,9 @@ public class MediaBean
 private String mediaId;
   private String mediaUrl;
   private String filename;
+  private Long itemGradingId;
 
+  
   public MediaBean()
   {
   }
@@ -78,4 +80,13 @@ private String mediaId;
     return filename;
   }
 
+  public void setItemGradingId(Long itemGradingId)
+  {
+    this.itemGradingId = itemGradingId;
+  }
+
+  public Long getItemGradingId()
+  {
+    return itemGradingId;
+  }
 }

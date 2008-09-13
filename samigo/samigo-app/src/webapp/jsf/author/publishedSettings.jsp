@@ -705,6 +705,7 @@ function setBlockDivs()
 
 <p class="act">
   <!-- Publish button -->
+  <!--
   <h:commandButton id="publish" value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" action="saveSettingsAndConfirmPublish" rendered="#{author.isRetractedForEdit}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
     <f:param name="publishedAssessmentId" value="#{assessmentBean.assessmentId}"/>
@@ -713,7 +714,7 @@ function setBlockDivs()
   <h:commandButton id="publish2" value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" action="author" rendered="#{!author.isRetractedForEdit}">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
-
+  -->
   <!-- Save button -->
   <h:commandButton accesskey="#{assessmentSettingsMessages.a_saveSettings}" type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />

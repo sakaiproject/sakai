@@ -431,6 +431,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     itemGrading.setAttemptsRemaining(new Integer(attemptsRemaining));
     itemGrading.setSubmittedDate(new Date());
     itemGrading.setAnswerText(mediaId + "");
+    itemGrading.setAutoScore(Float.valueOf(0));
     gradingService.saveItemGrading(itemGrading);
 
     // 3. if saveToDB, remove file from file system

@@ -98,11 +98,15 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public HashMap getSubmissionSizeOfAllPublishedAssessments();
 
+  public HashMap getAGDataSizeOfAllPublishedAssessments();
+  
   public Long saveMedia(byte[] media, String mimeType);
 
   public Long saveMedia(MediaData mediaData);
 
   public void removeMediaById(Long mediaId);
+  
+  public void removeMediaById(Long mediaId, Long itemGradingId);
 
   public MediaData getMedia(Long mediaId);
 

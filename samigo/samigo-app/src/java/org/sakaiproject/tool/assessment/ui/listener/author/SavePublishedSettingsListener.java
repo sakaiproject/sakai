@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessContr
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
@@ -122,7 +123,7 @@ public class SavePublishedSettingsListener
     }
     
     updateGB(assessmentSettings, assessment);
-
+    
     assessmentService.saveAssessment(assessment);
 
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
@@ -242,6 +243,11 @@ public class SavePublishedSettingsListener
 	      // Otherwise, do nothing
 	      if (assessmentSettings.getToDefaultGradebook() != null) {
 	    	  evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+	      }
+	      
+	      // If the assessment is retracted for edit, we don't sync with gradebook (only until it is republished)
+	      if(AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS.equals(assessment.getStatus())) {
+	      	return;
 	      }
 	      Integer scoringType = evaluation.getScoringType();
 	      if (evaluation.getToGradeBook()!=null && 

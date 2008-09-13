@@ -114,7 +114,11 @@ public class PublishAssessmentListener
   			
   			publish(assessment, assessmentSettings);
   			
-  			resetAllAssessmentsList(author, assessmentService);
+  			GradingService gradingService = new GradingService();
+  			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+  			AuthorActionListener authorActionListener = new AuthorActionListener();
+  			authorActionListener.prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
+  			
   			
   			repeatedPublish = Boolean.TRUE;
   		}
@@ -161,50 +165,6 @@ public class PublishAssessmentListener
       PublishedMetaData meta = new PublishedMetaData(pub.getData(),
           AssessmentMetaDataIfc.ALIAS, alias);
       publishedAssessmentService.saveOrUpdateMetaData(meta);
-    }
-  }
-
-  public void resetAllAssessmentsList(AuthorBean author,
-			AssessmentService assessmentService) {
-		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		// get the managed bean, author and set all the list
-		GradingService gradingService = new GradingService();
-		HashMap map = gradingService
-				.getSubmissionSizeOfAllPublishedAssessments();
-
-		// 1. need to update active published list in author bean
-		ArrayList activePublishedList = publishedAssessmentService
-				.getBasicInfoOfAllActivePublishedAssessments(author
-						.getPublishedAssessmentOrderBy(), author
-						.isPublishedAscending());
-		author.setPublishedAssessments(activePublishedList);
-		setSubmissionSize(activePublishedList, map);
-
-		// 2. need to update active published list in author bean
-		ArrayList inactivePublishedList = publishedAssessmentService
-				.getBasicInfoOfAllInActivePublishedAssessments(author
-						.getInactivePublishedAssessmentOrderBy(), author
-						.isInactivePublishedAscending());
-		author.setInactivePublishedAssessments(inactivePublishedList);
-		setSubmissionSize(inactivePublishedList, map);
-
-		// 3. reset the core listing
-		// 'cos user may change core assessment title and publish - sigh
-		ArrayList assessmentList = assessmentService
-				.getBasicInfoOfAllActiveAssessments(author
-						.getCoreAssessmentOrderBy(), author.isCoreAscending());
-		// get the managed bean, author and set the list
-		author.setAssessments(assessmentList);
-	}
-  
-  private void setSubmissionSize(ArrayList list, HashMap map) {
-    for (int i = 0; i < list.size(); i++) {
-      PublishedAssessmentFacade p = (PublishedAssessmentFacade) list.get(i);
-      Integer size = (Integer) map.get(p.getPublishedAssessmentId());
-      if (size != null) {
-        p.setSubmissionSize(size.intValue());
-        //log.info("*** submission size" + size.intValue());
-      }
     }
   }
 

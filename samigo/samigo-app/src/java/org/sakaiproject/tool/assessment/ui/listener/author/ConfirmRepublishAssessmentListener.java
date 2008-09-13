@@ -53,24 +53,28 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		   	return;
 		}
 
-		savePublishedSettingsListener.updateGB(assessmentSettings, assessment);
+		//savePublishedSettingsListener.updateGB(assessmentSettings, assessment);
 
 		assessmentService.saveAssessment(assessment);
 		
 		//These outcome are set for Cancel button in publishAssessment.jsp
 		String actionCommand = ae.getComponent().getId();
-		if ("republishRegrade".equals(actionCommand)) {
+		if (actionCommand.startsWith("republishRegrade")) {
 			log.debug("republishRegrade");
 			author.setOutcome("editAssessment");
+			author.setIsRepublishAndRegrade(true);
 		}
-		else if ("republish".equals(actionCommand)) {
+		else if (actionCommand.startsWith("republish")) {
 			log.debug("republish");
 			author.setOutcome("editAssessment");
+			author.setIsRepublishAndRegrade(false);
 		}
-		else if ("publish".equals(actionCommand)) {
+		/* This is commented out for 1534
+		else if (actionCommand.startsWith("publish")) {
 			log.debug("publish");
 			author.setOutcome("editPublishedAssessmentSettings");
 		}
+		*/
 		
 		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil
 			.lookupBean("publishedSettings");

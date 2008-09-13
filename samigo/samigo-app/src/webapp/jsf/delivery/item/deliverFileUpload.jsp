@@ -85,6 +85,7 @@ should be included in file importing DeliveryMessages
             <f:param name="mediaId" value="#{media.mediaId}"/>
             <f:param name="mediaUrl" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}"/>
             <f:param name="mediaFilename" value="#{media.filename}"/>
+            <f:param name="itemGradingId" value="#{media.itemGradingData.itemGradingId}"/>
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.ConfirmRemoveMediaListener" />
           </h:commandLink>
         </h:column>

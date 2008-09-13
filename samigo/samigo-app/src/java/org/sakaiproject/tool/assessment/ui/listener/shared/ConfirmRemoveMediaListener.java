@@ -53,12 +53,15 @@ public class ConfirmRemoveMediaListener implements ActionListener
         getExternalContext().getRequestParameterMap().get("mediaUrl");
     String mediaFilename = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("mediaFilename");
+    String itemGradingId = (String) FacesContext.getCurrentInstance().
+    	getExternalContext().getRequestParameterMap().get("itemGradingId");
 
     MediaBean mediaBean = (MediaBean) ContextUtil.lookupBean(
         "mediaBean");
     mediaBean.setMediaId(mediaId);
     mediaBean.setMediaUrl(mediaUrl);
     mediaBean.setFilename(mediaFilename);
+    mediaBean.setItemGradingId(Long.valueOf(itemGradingId));
 
   }
 

@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 
 /**
@@ -48,7 +49,7 @@ public interface GradebookServiceHelper extends Serializable
   public boolean addToGradebook(PublishedAssessmentData publishedAssessment,
     GradebookService g) throws Exception;
 
-  public boolean updateGradebook(PublishedAssessmentData publishedAssessment,
+  public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment,
     GradebookService g) throws Exception;
 
   public boolean isAssignmentDefined(String assessmentTitle,
