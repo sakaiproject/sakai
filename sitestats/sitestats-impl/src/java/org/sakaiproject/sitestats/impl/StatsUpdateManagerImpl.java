@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,6 +95,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
 	private List<String>					registeredEvents					= null;
 	private Map<String, ToolInfo>			eventIdToolMap						= null;
+	
+	private final ReentrantLock				lock								= new ReentrantLock();
 
 
 	
@@ -199,7 +202,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#collectEvent(org.sakaiproject.event.api.Event)
 	 */
-	public synchronized boolean collectEvent(Event e) {
+	public boolean collectEvent(Event e) {
 		if(e != null) {
 			long startTime = System.currentTimeMillis();
 			preProcessEvent(e);
@@ -213,7 +216,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#collectEvents(java.util.List)
 	 */
-	public synchronized boolean collectEvents(List<Event> events) {
+	public boolean collectEvents(List<Event> events) {
 		if(events != null) {
 			int eventCount = events.size();
 			if(eventCount > 0) {
@@ -234,7 +237,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#collectEvents(org.sakaiproject.event.api.Event[])
 	 */
-	public synchronized boolean collectEvents(Event[] events) {
+	public boolean collectEvents(Event[] events) {
 		int eventCount = events.length;
 		if(eventCount > 0) {
 			long startTime = System.currentTimeMillis();
@@ -380,7 +383,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	// ################################################################
 	// Event process methods
 	// ################################################################	
-	private synchronized void preProcessEvent(Event e) {
+	private void preProcessEvent(Event e) {
 		String userId = e.getUserId();
 		e = fixMalFormedEvents(e);
 		if(registeredEvents.contains(e.getEvent()) && isValidEvent(e)){
@@ -421,7 +424,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}//else LOG.info("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 	}
 	
-	private synchronized void consolidateEvent(Date date, String eventId, String resourceRef, String userId, String siteId) {
+	private void consolidateEvent(Date date, String eventId, String resourceRef, String userId, String siteId) {
 		if(eventId == null)
 			return;
 		// update		
@@ -484,7 +487,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}else if(StatsManager.SITEVISIT_EVENTID.equals(eventId)){
 			// add to visitsMap
 			String key = siteId+date;
-			synchronized(visitsMap){
+			lock.lock();
+			try{
 				SiteVisits e1 = visitsMap.get(key);
 				if(e1 == null){
 					e1 = new SiteVisitsImpl();
@@ -495,10 +499,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				// unique visits are determined when updating to db:
 				//   --> e1.setTotalUnique(totalUnique);
 				visitsMap.put(key, e1);
-			}			
-			UniqueVisitsKey keyUniqueVisits = new UniqueVisitsKey(siteId, date);
-			// place entry on map so we can update unique visits later
-			uniqueVisitsMap.put(keyUniqueVisits, Integer.valueOf(1));
+				// place entry on map so we can update unique visits later
+				UniqueVisitsKey keyUniqueVisits = new UniqueVisitsKey(siteId, date);
+				uniqueVisitsMap.put(keyUniqueVisits, Integer.valueOf(1));
+			}finally{
+				lock.unlock();
+			}
 		}
 	}
 	
