@@ -257,7 +257,7 @@ public class AudioPanel
    */
   public static void main(String[] args)
   {
-    String media = res.getString("_audio");
+      String media = "./audio";
     if (args.length > 0)
     {
       File file = new File(args[0]);

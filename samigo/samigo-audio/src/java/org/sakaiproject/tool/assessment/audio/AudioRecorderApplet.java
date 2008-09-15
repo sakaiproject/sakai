@@ -92,7 +92,7 @@ public class AudioRecorderApplet extends JApplet {
 		}
 		res = AudioUtil.getInstance().getResourceBundle();
 
-		String media = res.getString("_audio");
+                String media = "./audio";
 		String param = null;
 		
 		//"Center" means center position
