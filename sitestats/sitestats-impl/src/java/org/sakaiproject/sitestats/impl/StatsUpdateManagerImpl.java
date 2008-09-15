@@ -650,6 +650,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					eExisting = eUpdate;
 				else
 					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
+				
+				eExistingSiteId = eExisting.getSiteId();
 			}catch(Exception e){
 				e.printStackTrace();
 			}
