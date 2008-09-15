@@ -792,7 +792,8 @@ placeholder till more standard way of doing it*/
 .loginform td #eid, .loginform td #pw {
 	padding:.2em;
 	font-family:verdana, arial, helvetica, sans-serif;
-	font-size:1em;
+	border: 1px solid #AAAAAA;
+}
 
 .loginform td #submit{
 	color:#09C;
