@@ -83,6 +83,7 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
@@ -1427,7 +1428,13 @@ public class ListItem
 	{
 		// description
 		String description = params.getString("description" + index);
-		this.setDescription(description);
+		if(description != null)
+		{
+			StringBuilder errorMessages = new StringBuilder();
+			description = FormattedText.processFormattedText(description, errorMessages);
+			// what to do with errorMessages
+			this.setDescription(description);
+		}
 	}
 
 	protected void captureCHHMountpoint(ParameterParser params, String index) 
