@@ -79,7 +79,7 @@ table{
 	font-size: 1em;
 }
 code {
-	font-family:verdana, arial, helvetica, sans-serif;
+	font-family: verdana, arial, helvetica, sans-serif;
 	font-size:1em;
 }
 
@@ -789,13 +789,10 @@ placeholder till more standard way of doing it*/
 	color: #fff;
 }
 
-.loginform td #eid{
-	width: 10.6em;
-}
-
-.loginform td #pwd{
-	width: 10em;
-}
+.loginform td #eid, .loginform td #pw {
+	padding:.2em;
+	font-family:verdana, arial, helvetica, sans-serif;
+	font-size:1em;
 
 .loginform td #submit{
 	color:#09C;
