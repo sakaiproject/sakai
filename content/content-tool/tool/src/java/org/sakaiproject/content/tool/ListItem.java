@@ -1433,6 +1433,10 @@ public class ListItem
 			StringBuilder errorMessages = new StringBuilder();
 			description = FormattedText.processFormattedText(description, errorMessages);
 			// what to do with errorMessages
+			if(errorMessages.length() > 0)
+			{
+				logger.warn("ListItem.captureDescription() containingCollectionId: " + this.containingCollectionId + " id: " + this.id + " error in FormattedText.processFormattedText(): " + errorMessages.toString());
+			}
 			this.setDescription(description);
 		}
 	}
