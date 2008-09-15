@@ -220,9 +220,9 @@ public class LoginTool extends HttpServlet
 				+ "				<form method=\"post\" action=\"ACTION\" enctype=\"application/x-www-form-urlencoded\">"
 				+ "                                        MSG" + "							<table border=\"0\" class=\"loginform\" summary=\"layout\">"
 				+ "								<tr>" + "									<td>" + "										<label for=\"eid\">EID</label>" + "									</td>"
-				+ "									<td>" + "										<input name=\"eid\" id=\"eid\"  type=\"text\"/>" + "									</td>"
+				+ "									<td>" + "										<input name=\"eid\" id=\"eid\" type=\"text\" size=\"15\"/>" + "									</td>"
 				+ "								</tr>" + "								<tr>" + "									<td>" + "										<label for=\"pw\">PW</label>" + "									</td>"
-				+ "									<td>" + "										<input name=\"pw\" id=\"pw\"  type=\"password\"/>" + "									</td>"
+				+ "									<td>" + "										<input name=\"pw\" id=\"pw\" type=\"password\" size=\"15\"/>" + "									</td>"
 				+ "								</tr>" + "								<tr>" + "									<td colspan=\"2\">"
 				+ "										<input name=\"submit\" type=\"submit\" id=\"submit\" value=\"LoginSubmit\"/>" + "									</td>"
 				+ "								</tr>" + "							</table>" + "						</form>" + "					</td>" + "				</tr>" + "			</table>";
