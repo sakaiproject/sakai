@@ -59,6 +59,11 @@ implements org.osid.repository.AssetIterator {
 	private org.osid.shared.Id recordStructureId;
 	private org.osid.repository.Asset asset;
 	private org.osid.repository.Record record;
+	/*
+	 * Preferred URL handling
+	 */
+	private String preferredUrl;
+	private String preferredUrlFormat;
 
 	// for SAX parsing
 	private StringBuilder textBuffer;
@@ -359,6 +364,11 @@ implements org.osid.repository.AssetIterator {
 			org.xml.sax.SAXException {
 		if( qName.equals( "record" ) ) {
 			populateAssetFromText( "record_start" );
+			/*
+			 * No preferred URL seen (yet)
+			 */
+			preferredUrl = null;
+			preferredUrlFormat = null;
 		}
 	}
 
@@ -421,7 +431,38 @@ implements org.osid.repository.AssetIterator {
 						"gracefully process inLineCitation value.", re );
 			}
 
+      // create a preferred URL (if we found all the parts)
+      try 
+      {
+        if (preferredUrl != null)
+        {
+          if ((preferredUrlFormat != null) &&
+             !(preferredUrlFormat.equalsIgnoreCase("HTML")))
+          {
+  				  LOG.debug("Unexpected URL format: " + preferredUrlFormat);
+  			  }
+
+          if ((preferredUrlFormat == null) || 
+              (preferredUrlFormat.equalsIgnoreCase("HTML")))
+          {
+  				  record.createPart(PreferredUrlPartStructure.getInstance().getId(), 
+  				                    preferredUrl);
+  			  }
+  			}
+  		} 
+  		catch( org.osid.repository.RepositoryException exception) 
+  		{
+  			LOG.warn("Failed to create preferred URL Part", exception);
+  		}
+  		finally
+  		{
+  		  preferredUrl = null;
+  		  preferredUrlFormat = null;
+  		}
+
+      // All done with this asset
 			assetQueue.add( asset );
+			return;
 		}
 
 		if( textBuffer == null ) {
@@ -486,14 +527,15 @@ implements org.osid.repository.AssetIterator {
 				record.createPart( TypePartStructure.getInstance().getId(),
 						text );
 			} else if( elementName.equals( "url" ) ) {
-				record.createPart( URLPartStructure.getInstance().getId(),
-						text );
+				record.createPart( URLPartStructure.getInstance().getId(), text );
+				preferredUrl = text;
 			} else if( elementName.equals( "urlLabel" ) ) {
 				record.createPart( URLLabelPartStructure.getInstance().getId(),
 						text );
 			} else if( elementName.equals( "urlFormat" ) ) {
 				record.createPart( URLFormatPartStructure.getInstance().getId(),
 						text );
+			  preferredUrlFormat = text;
 			} else if( elementName.equals( "volume" ) ) {
 				record.createPart( VolumePartStructure.getInstance().getId(),
 						text );

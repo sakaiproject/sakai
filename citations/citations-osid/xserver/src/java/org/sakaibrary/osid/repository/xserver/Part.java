@@ -95,6 +95,8 @@ implements org.osid.repository.Part
 				this.partStructure = IsnIdentifierPartStructure.getInstance();
 			} else if (partStructureId.isEqual(URLPartStructure.getInstance().getId())) {
 				this.partStructure = URLPartStructure.getInstance();
+			} else if (partStructureId.isEqual(PreferredUrlPartStructure.getInstance().getId())) {
+				this.partStructure = PreferredUrlPartStructure.getInstance();
 			} else if (partStructureId.isEqual(URLLabelPartStructure.getInstance().getId())) {
 				this.partStructure = URLLabelPartStructure.getInstance();
 			} else if (partStructureId.isEqual(URLFormatPartStructure.getInstance().getId())) {
