@@ -84,7 +84,7 @@ public class SectionRoleResolver extends BaseRoleResolver {
 			}
 
 			// Check for enrollments
-			if ((enrollmentStatusRoleMap != null) || (enrollmentStatusRoleMap.size() > 0)) {
+			if ((enrollmentStatusRoleMap != null) && (enrollmentStatusRoleMap.size() > 0)) {
 				Set<Enrollment> enrollments = cmService.getEnrollments(section.getEnrollmentSet().getEid());
 				for(Enrollment enr : enrollments) {
 					if(enr.isDropped()) {
@@ -102,7 +102,7 @@ public class SectionRoleResolver extends BaseRoleResolver {
 		}
 		
 		// Check for memberships
-		if ((roleMap != null) || (roleMap.size() > 0)) {
+		if ((roleMap != null) && (roleMap.size() > 0)) {
 			Set<Membership> memberships = cmService.getSectionMemberships(section.getEid());
 			for(Membership membership : memberships) {
 				// Only add the membership role if the user isn't enrolled or an official instructor(these take precedence)
@@ -121,7 +121,7 @@ public class SectionRoleResolver extends BaseRoleResolver {
 		Map<String, String> groupRoleMap = new HashMap<String, String>();
 		
 		// Start with the sectionEid->role map
-		if ((roleMap != null) || (roleMap.size() > 0)) {
+		if ((roleMap != null) && (roleMap.size() > 0)) {
 			Map<String, String> sectionRoles = cmService.findSectionRoles(userEid);
 
 			// Convert these roles to Sakai roles
@@ -131,7 +131,7 @@ public class SectionRoleResolver extends BaseRoleResolver {
 		}
 
 		// Next add all enrollments to the sectionEid->role map, overriding memberships
-		if ((enrollmentStatusRoleMap != null) || (enrollmentStatusRoleMap.size() > 0)) {
+		if ((enrollmentStatusRoleMap != null) && (enrollmentStatusRoleMap.size() > 0)) {
 			Set<Section> enrolledSections = cmService.findEnrolledSections(userEid);
 			if(log.isDebugEnabled()) log.debug("Found " + enrolledSections.size() + " currently enrolled sections for user " + userEid);
 			for(Section section : enrolledSections) {
