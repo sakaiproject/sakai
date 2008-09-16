@@ -8,8 +8,8 @@ UPDATE CHAT2_CHANNEL
 SET numberParam = Case When filterParam = 0 or filterType <> 'SelectByNumber' Then 10 Else filterParam End,
 timeParam = Case When filterparam = 0 or filterType <> 'SelectMessagesByTime' Then 3 Else filterParam End;
 
-alter table chat2_channel modify column timeParam int not null;
-alter table chat2_channel modify column numberParam int not null;
+alter table CHAT2_CHANNEL modify column timeParam int not null;
+alter table CHAT2_CHANNEL modify column numberParam int not null;
 
 --SAK-12176 Messages-Send cc to recipients' email address(es)
 
