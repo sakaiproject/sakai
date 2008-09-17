@@ -1,9 +1,0 @@
-MAVEN 1 INSTALLATION
-====================
-
-Manually copy jars to maven repository (adapt paths to your installation):
-    1a. mkdir -p ~/.maven/repository/org.ajax4jsf/jars
-    1b. cp lib/ajax4jsf-1.1.1.jar ~/.maven/repository/org.ajax4jsf/jars
-    
-    2a. mkdir -p ~/.maven/repository/org.apache.xmlgraphics/jars
-    2b. cp lib/xmlgraphics-commons-1.1.jar ~/.maven/repository/org.apache.xmlgraphics/jars
