@@ -206,6 +206,8 @@ public interface AssessmentFacadeQueriesAPI {
 
 	public void copyAllAssessments(String fromContext, String toContext);
 	
+	public void copyAssessment(String assessmentId, String apepndCopyTitle);
+	
 	public List getAllActiveAssessmentsByAgent(String fromContext);
 
 	public Set copyItemAttachmentSet(ItemData newItem, Set itemAttachmentSet);

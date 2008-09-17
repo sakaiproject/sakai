@@ -1822,7 +1822,100 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		}
 		getHibernateTemplate().saveOrUpdateAll(newList); // write
 	}
+	
+	public void copyAssessment(String assessmentId, String apepndCopyTitle) {
+		AssessmentData assessmentData = loadAssessment(Long.valueOf(assessmentId));
+		assessmentData.setSectionSet(getSectionSetForAssessment(assessmentData));
+		
+		AssessmentData newAssessmentData = prepareAssessment(assessmentData, ServerConfigurationService.getServerUrl());
+		updateTitleForCopy(newAssessmentData, apepndCopyTitle);
+		getHibernateTemplate().saveOrUpdate(newAssessmentData);
+		
+		// authorization
+		PersistenceService.getInstance().getAuthzQueriesFacade()
+		.createAuthorization(AgentFacade.getCurrentSiteId(), "EDIT_ASSESSMENT", newAssessmentData.getAssessmentId().toString());
 
+		// reset PARTID in ItemMetaData to the section of the newly created section
+		Set sectionSet = newAssessmentData.getSectionSet();
+		Iterator sectionIter = sectionSet.iterator();
+		while (sectionIter.hasNext()) {
+			SectionData section = (SectionData) sectionIter.next();
+			Set itemSet = section.getItemSet();
+			Iterator itemIter = itemSet.iterator();
+			while (itemIter.hasNext()) {
+				ItemData item = (ItemData) itemIter.next();
+				Set itemMetaDataSet = item.getItemMetaDataSet();
+				Iterator itemMetaDataIter = itemMetaDataSet.iterator();
+				while (itemMetaDataIter.hasNext()) {
+					ItemMetaData itemMetaData = (ItemMetaData) itemMetaDataIter.next();
+					if (itemMetaData.getLabel() != null && itemMetaData.getLabel().equals(ItemMetaDataIfc.PARTID)) {
+						log.debug("sectionId = " + section.getSectionId());
+						itemMetaData.setEntry(section.getSectionId().toString());
+					}
+				}
+			}
+		}
+		getHibernateTemplate().saveOrUpdate(newAssessmentData);
+	}
+
+    private void updateTitleForCopy(AssessmentData assessmentData, String apepndCopyTitle){
+    	//String apepndCopyTitle = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "append_copy_title");
+    	StringBuffer sb = new StringBuffer(assessmentData.getTitle());
+    	sb.append(" ");
+    	sb.append(apepndCopyTitle);
+    	String newTitle = getNewAssessmentTitleForCopy(sb.toString());
+    	assessmentData.setTitle(newTitle);
+	  }
+	
+    private String getNewAssessmentTitleForCopy(String title) {
+    	title = title.trim();
+    	log.debug(title);
+    	final String currentSiteId = AgentFacade.getCurrentSiteId();
+    	String query = "select a.title"
+    		+ " from AssessmentData a, AuthorizationData z where "
+    		+ " a.title like ? and z.functionId='EDIT_ASSESSMENT' and "
+    		+ " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
+
+    	final String hql = query;
+    	final String titlef = title + "%";
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session)
+    		throws HibernateException, SQLException {
+    			Query q = session.createQuery(hql);
+    			q.setString(0, titlef);
+    			q.setString(1, currentSiteId);
+    			return q.list();
+    		};
+    	};
+    	List list = getHibernateTemplate().executeFind(hcb);
+
+    	int startIndex = title.length();
+    	int maxNumCopy = 0;
+    	if (list.size() > 0) {
+    		// query in mysql & hsqldb are not case sensitive, check that title
+    		// found is indeed what we
+    		// are looking
+    		for (int i = 0; i < list.size(); i++) {
+    			String existingTitle = ((String) list.get(i)).trim();
+    			if (existingTitle.startsWith(title)) {
+    				try{
+    					int numCopy = Integer.parseInt(existingTitle.substring(startIndex));
+    					if (numCopy > maxNumCopy) {
+    						maxNumCopy = numCopy;
+    					}
+    				}
+    				catch(NumberFormatException e){
+    					log.error("existingTitle = " + existingTitle + ", title = " + title + ", startIndex = " + startIndex + ", error message: " + e.getMessage());
+    				}
+    			}
+    		}
+    	}
+    	log.debug("maxNumCopy = " + maxNumCopy);
+    	int nextNumCopy = maxNumCopy + 1;
+    	String newAssessmentTitle = title + nextNumCopy;
+    	return newAssessmentTitle;
+    }
+    
 	public AssessmentData prepareAssessment(AssessmentData a, String protocol) {
 		AssessmentData newAssessment = new AssessmentData(new Long("0"), a
 				.getTitle(), a.getDescription(), a.getComments(), null,
@@ -1917,6 +2010,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		newAccessControl.setFinalPageUrl(a.getFinalPageUrl());
 		newAccessControl.setUnlimitedSubmissions(a.getUnlimitedSubmissions());
 		newAccessControl.setAssessmentBase(p);
+		newAccessControl.setMarkForReview(a.getMarkForReview());
 		return newAccessControl;
 	}
 

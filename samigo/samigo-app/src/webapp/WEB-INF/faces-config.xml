@@ -773,6 +773,10 @@
       <to-view-id>/jsf/author/removeAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>confirmCopyAssessment</from-outcome>
+      <to-view-id>/jsf/author/confirmCopyAssessment.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>confirmRemovePublishedAssessment</from-outcome>
       <to-view-id>/jsf/author/removePublishedAssessment.jsp</to-view-id>
     </navigation-case>

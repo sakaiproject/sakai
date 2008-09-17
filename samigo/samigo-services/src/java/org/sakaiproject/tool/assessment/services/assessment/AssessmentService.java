@@ -748,10 +748,19 @@ public class AssessmentService {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
 					.copyAllAssessments(fromContext, toContext);
 		} catch (Exception e) {
+			log.error(e.getMessage());
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void copyAssessment(String assessmentId, String apepndCopyTitle) {
+		try {
+			PersistenceService.getInstance().getAssessmentFacadeQueries()
+					.copyAssessment(assessmentId, apepndCopyTitle);
+		} catch (Exception e) {
 			log.error(e);
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	public List getAllActiveAssessmentsbyAgent(String fromContext) {

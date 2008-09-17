@@ -147,13 +147,27 @@
       <!-- AuthorBean.editAssessmentSettings() prepare the edit page -->
       <!-- action=editAssessmentSettings if pass authz -->
       <span class="itemAction">
-      <h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editAssessmentSettings_author" immediate="true" action="#{author.getOutcome}"
-         rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}">
-        <h:outputText id="linkSettings" value="#{authorFrontDoorMessages.link_settings}"/>
+
+      <h:commandLink title="#{authorFrontDoorMessages.t_copyAssessment}" id="copyAssessment" immediate="true" 
+        rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}"
+        action="confirmCopyAssessment">
+        <h:outputText id="linkCopy" value="#{authorFrontDoorMessages.link_copy}"/>
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmCopyAssessmentListener" />
       </h:commandLink>
-        <h:outputText value=" #{authorFrontDoorMessages.separator} " 
+
+	  <h:outputText value=" #{authorFrontDoorMessages.separator} " 
+          rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}"/>
+
+      <h:commandLink title="#{authorFrontDoorMessages.t_exportAssessment}" id="exportAssessment" immediate="true" 
+        rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}"
+        action="chooseExportType">
+        <h:outputText id="linkExport" value="#{authorFrontDoorMessages.link_export}"/>
+        <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ChooseExportTypeListener" />
+      </h:commandLink>
+      
+	  <h:outputText value=" #{authorFrontDoorMessages.separator} " 
           rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}"/>
 
       <!-- action=confirmRemoveAssessment if pass authz -->
@@ -164,15 +178,15 @@
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemoveAssessmentListener" />
       </h:commandLink>
-        <h:outputText value=" #{authorFrontDoorMessages.separator} " 
+        
+	  <h:outputText value=" #{authorFrontDoorMessages.separator} " 
           rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}" />
 
-      <h:commandLink title="#{authorFrontDoorMessages.t_exportAssessment}" id="exportAssessment" immediate="true" 
-        rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}"
-        action="chooseExportType">
-        <h:outputText id="linkExport" value="#{authorFrontDoorMessages.link_export}"/>
+	  <h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editAssessmentSettings_author" immediate="true" action="#{author.getOutcome}"
+         rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}">
+        <h:outputText id="linkSettings" value="#{authorFrontDoorMessages.link_settings}"/>
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ChooseExportTypeListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
       </h:commandLink>
 
 </span>
