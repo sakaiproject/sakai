@@ -8,11 +8,11 @@
 	<bean id="richTextEvolver" parent="sakaiFCKTextEvolver" />
 
 	<!-- error prograting bean -->
-	<bean id="allErrorsAllowable"
+	<!-- <bean id="allErrorsAllowable"
 		class="org.sakaiproject.poll.tool.beans.ErrorHandler">
 		<property name="errorStateManager" ref="errorStateManager" />
 	</bean>
-
+ -->
 	<bean id="pollToolBean"
 		class="org.sakaiproject.poll.tool.params.PollToolBean">
 		<property name="pollListManager"

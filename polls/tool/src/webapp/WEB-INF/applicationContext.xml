@@ -1,108 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!-- documented by aaronz@vt.edu -->
-<!-- RSF version by antranig@caret.cam.ac.uk - 
-    some contents moved from "spring-beans.xml" -->
+	<!--
+		RSF version by antranig@caret.cam.ac.uk - some contents moved from
+		"spring-beans.xml"
+	-->
 <beans>
 
     <!-- entity providers -->
-    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
-        class="org.sakaiproject.poll.tool.entityproviders.PollEntityProvider">
-            <property name="pollListManager" 
-                ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-            <property name="pollVoteManager" 
-                ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
-    </bean>
-
-    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
-        class="org.sakaiproject.poll.tool.entityproviders.PollOptionEntityProvider">
-            <property name="pollListManager" 
-                ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-    </bean>
-
-    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
-        class="org.sakaiproject.poll.tool.entityproviders.PollVoteEntityProvider">
-            <property name="pollListManager" 
-                ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-            <property name="pollVoteManager" 
-                ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
-    </bean>
-
-
-    <!--  Spring messageSource replaces JSF message-bundle from faces-config.xml -->
-    <bean id="messageSource"
-        class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-        <property name="basename" value="classpath:org/sakaiproject/poll/bundle/Messages" />
-        <property name="cacheSeconds" value="10" />
-    </bean>
-
-    <bean id="voteGuard" parent="writeGuardParent">
-        <property name="guardedPath" value="voteCollection" />
-        <property name="guard">
-            <bean class="org.sakaiproject.poll.tool.validators.VoteValidator">
-                <property name="pollListManager"
-                    ref="org.sakaiproject.tool.poll.api.PollListManager" />
-                <property name="messageLocator" ref="messageLocator" />
-                <property name="pollVoteManager"
-                    ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
-                <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-            </bean>
-        </property>
-    </bean>
-
-    <bean id="optionGuard" parent="writeGuardParent">
-        <property name="guardedPath" value="option" />
-        <property name="guard">
-            <bean class="org.sakaiproject.poll.tool.validators.OptionValidator">
-                <property name="pollListManager"
-                    ref="org.sakaiproject.tool.poll.api.PollListManager" />
-                <property name="messageLocator" ref="messageLocator" />
-                <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-            </bean>
-        </property>
-    </bean>
-
-
-    <bean parent="requestAddressibleParent">
-        <property name="value"
-            value="pollToolBean, voteBean, pollVoteProducer, voteCollection,option,poll, pollGuard, permissionAction, roleperms, optionValidator" />
-    </bean>
-    <bean id="voteBean" class="org.sakaiproject.poll.tool.params.VoteBean" />
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.poll.tool.entityproviders.PollEntityProvider">
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+		<property name="pollVoteManager"
+			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+	</bean>
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.poll.tool.entityproviders.PollOptionEntityProvider">
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+	</bean>
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.poll.tool.entityproviders.PollVoteEntityProvider">
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+		<property name="pollVoteManager"
+			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+	</bean>
+	<!--
+		Spring messageSource replaces JSF message-bundle from faces-config.xml
+	-->
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename"
+			value="classpath:org/sakaiproject/poll/bundle/Messages" />
+		<property name="cacheSeconds" value="10" />
+	</bean>
+	<bean id="voteGuard" parent="writeGuardParent">
+		<property name="guardedPath" value="voteCollection" />
+		<property name="guard">
+			<bean class="org.sakaiproject.poll.tool.validators.VoteValidator">
+				<property name="pollListManager"
+					ref="org.sakaiproject.tool.poll.api.PollListManager" />
+				<property name="messageLocator" ref="messageLocator" />
+				<property name="pollVoteManager"
+					ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+				<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+			</bean>
+		</property>
+	</bean>
+	<bean id="optionGuard" parent="writeGuardParent">
+		<property name="guardedPath" value="option" />
+		<property name="guard">
+			<bean class="org.sakaiproject.poll.tool.validators.OptionValidator">
+				<property name="pollListManager"
+					ref="org.sakaiproject.tool.poll.api.PollListManager" />
+				<property name="messageLocator" ref="messageLocator" />
+				<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+			</bean>
+		</property>
+	</bean>
+	<bean parent="requestAddressibleParent">
+		<property name="value"
+			value="pollToolBean, voteBean, pollVoteProducer, voteCollection,option,poll, pollGuard, permissionAction, roleperms, optionValidator" />
+	</bean>
+	<bean id="voteBean" class="org.sakaiproject.poll.tool.params.VoteBean" />
     <!-- Scope for the vote bean -->
-    <bean id="VoteScope" parent="beanScopeParent">
-        <property name="copyPreservingBeans" value="voteBean" />
-    </bean>
+	<bean id="VoteScope" parent="beanScopeParent">
+		<property name="copyPreservingBeans" value="voteBean" />
+	</bean>
+	<bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
+		<property name="value" value="true" />
+	</bean>
+	<bean id="templateResolverStrategy" parent="CRITemplateResolverStrategy">
+		<property name="baseDirectory" value="templates/" />
+	</bean>
+	<!--
+		Override this definition from RSF-evolvers, to reflect the fact we are
+		serving the RSF components templates from our own webapp (as provided
+		using the "partial WAR" build strategy
+	-->
+	<bean id="componentsTemplateResourceBase" class="java.lang.String">
+		<constructor-arg value="/" />
+	</bean>
 
-    <bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
-        <property name="value" value="true" />
-    </bean>
-    <bean id="templateResolverStrategy" parent="CRITemplateResolverStrategy">
-        <property name="baseDirectory" value="templates/" />
-    </bean>
-    <!-- Override this definition from RSF-evolvers, to reflect the fact we are
-        serving the RSF components templates from our own webapp (as provided using
-        the "partial WAR" build strategy -->
-    <bean id="componentsTemplateResourceBase" class="java.lang.String">
-        <constructor-arg value="/" />
-    </bean>
-
+  <bean id="messageTemplateContributor" parent="templateContributorParent">
+  	<property name="baseDirectory" value="component-templates/" />
+  	<property name="templateNames"	value="Messages" />
+  </bean>
 
     <!-- added to propogate errors -->
-    <bean id="redirectOnLevel1Error" class="uk.org.ponder.springutil.BooleanFactory">
-        <property name="value" value="false" />
-    </bean>
-
-    <bean id="fatalErrorHandler"
-        class="uk.org.ponder.rsf.processor.support.DefaultFatalErrorHandler">
-        <property name="propagatedExceptions" value="java.lang.Throwable" />
-    </bean>
-
-    <bean parent="alterationWrapperParent">
-        <property name="value">
-            <bean parent="RSACBridgeProxy">
-                <property name="targetBeanName" value="allErrorsAllowable" />
-            </bean>
-        </property>
-    </bean>
-
+	<!--  <bean id="redirectOnLevel1Error" class="uk.org.ponder.springutil.BooleanFactory">
+		<property name="value" value="false" />
+	</bean>
+	<bean id="fatalErrorHandler"
+		class="uk.org.ponder.rsf.processor.support.DefaultFatalErrorHandler">
+		<property name="propagatedExceptions" value="java.lang.Throwable" />
+	</bean>
+	<bean parent="alterationWrapperParent">
+		<property name="value">
+			<bean parent="RSACBridgeProxy">
+				<property name="targetBeanName" value="allErrorsAllowable" />
+			</bean>
+		</property>
+	</bean>
+	<bean id="sakai-ErrorFilter" class="uk.ac.cam.caret.sakai.rsf.errors.ErrorFilter">
+		<property name="ignoredKeys" value="rsf.invalid.date" />
+	</bean> -->
 </beans>

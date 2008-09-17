@@ -159,20 +159,6 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		      ComponentChecker checker) {
 		  
 		
-		  //process any messages
-		if (tml.size() > 0) {
-		    	for (int i = 0; i < tml.size(); i ++ ) {
-		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
-		    		if (tml.messageAt(i).args != null ) {	    		
-		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode(),(String[])tml.messageAt(i).args[0]);
-		    		} else {
-		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode());
-		    		}
-		    		
-		    	}
-			}
-		  
-		  
 	    User currentuser = userDirectoryService.getCurrentUser();
 	    String currentuserid = currentuser.getId();
 		   
@@ -356,9 +342,12 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	  }
 
 	  public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
-		  
-		 // OptionViewParameters outgoing = (OptionViewParameters) result.resultingView;
+		  // OptionViewParameters outgoing = (OptionViewParameters) result.resultingView;
 		  Poll poll = (Poll) actionReturn;
+		  if (poll == null) { 
+			  return;
+		  }
+		  
 		  m_log.debug("Action result got poll: " + poll.getPollId());
 		  m_log.debug("resulting view is: " + result.resultingView);
 		  
