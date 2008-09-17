@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -83,6 +84,17 @@ public class BeginDeliveryActionListener implements ActionListener
       delivery.setActionString(actionString);
     }
     int action = delivery.getActionMode();
+    PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
+    delivery.setPublishedAssessment(pub);
+    
+    if (DeliveryBean.REVIEW_ASSESSMENT == action && AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
+    	// Bug 1547: If this is during review and the assessment is retracted for edit now, 
+    	// set the outcome to isRetractedForEdit2 error page.
+    	delivery.setAssessmentTitle(pub.getTitle());
+    	delivery.setOutcome("isRetractedForEdit2");
+    	return;
+    }
+    
     // reset DeliveryBean before begin
     ResetDeliveryListener reset = new ResetDeliveryListener();
     reset.processAction(null);
@@ -99,9 +111,6 @@ public class BeginDeliveryActionListener implements ActionListener
 
     // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
     delivery.setProtocol(ContextUtil.getProtocol());
-
-    PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
-    delivery.setPublishedAssessment(pub);
 
     // populate backing bean from published assessment
     populateBeanFromPub(delivery, pub);

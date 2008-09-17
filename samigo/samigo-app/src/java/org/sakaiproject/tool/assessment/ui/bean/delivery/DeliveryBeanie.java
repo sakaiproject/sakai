@@ -85,6 +85,7 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   private String display_dateFormat= "yyyy-MMM-dd hh:mm aaa";
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
   private boolean hasRandomDrawPart;
+  private boolean isAssessmentRetractForEdit;
   
   /**
    * Creates a new DeliveryBean object.
@@ -409,5 +410,13 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
 	public void setHasRandomDrawPart(boolean param) {
 		this.hasRandomDrawPart = param;
 	}
+	
+	public boolean getIsAssessmentRetractForEdit() {
+		return this.isAssessmentRetractForEdit;
+	}
 
+	public void setIsAssessmentRetractForEdit(boolean isAssessmentRetractForEdit) {
+		this.isAssessmentRetractForEdit = isAssessmentRetractForEdit;
+	}
+	
 }

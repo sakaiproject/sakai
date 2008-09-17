@@ -588,9 +588,15 @@
       <from-outcome>isRetracted</from-outcome>
       <to-view-id>/jsf/delivery/isRetracted.jsp</to-view-id>
     </navigation-case>
+    <!-- isRetractedForEdit is the error page during taking assessment
+         isRetractedForEdit2 is the error page during review submitted assessment -->
     <navigation-case>
       <from-outcome>isRetractedForEdit</from-outcome>
       <to-view-id>/jsf/delivery/isRetractedForEdit.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>isRetractedForEdit2</from-outcome>
+      <to-view-id>/jsf/delivery/isRetractedForEdit2.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeExpired</from-outcome>

@@ -42,6 +42,8 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 
 /**
  * <p>
@@ -181,8 +183,16 @@ public class HistogramListener
 		  GradingService delegate = new GradingService();
 		  PublishedAssessmentService pubService = new PublishedAssessmentService();
 		  ArrayList scores = delegate.getTotalScores(publishedId, which);
-		  HashMap itemScores = delegate.getItemScores(new Long(publishedId),
-				  new Long(0), which);
+          if (scores.size() == 0) {
+			// Similar case in Bug 1537, but clicking Statistics link instead of assignment title.
+			// Therefore, redirect the the same page.
+			DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+			delivery.setOutcome("reviewAssessmentError");
+			delivery.setActionString(ContextUtil.lookupParam("actionString"));
+			return true;
+		  }
+		  
+		  HashMap itemScores = delegate.getItemScores(new Long(publishedId), new Long(0), which);
 		  //log.info("ItemScores size = " + itemscores.keySet().size());
 		  histogramScores.setPublishedId(publishedId);
 
@@ -241,6 +251,22 @@ public class HistogramListener
 				  .toString());
 		  
 		  if (pub != null) {
+
+		    String actionString = ContextUtil.lookupParam("actionString");
+			if (actionString != null && actionString.equals("reviewAssessment")){
+				   DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+				   if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
+				   // Bug 1547: If this is during review and the assessment is retracted for edit now, 
+				   // set the outcome to isRetractedForEdit2 error page.
+				   delivery.setOutcome("isRetractedForEdit2");
+				   delivery.setActionString(actionString);
+				   return true;
+				   }
+				   else {
+						   delivery.setOutcome("histogramScores");
+				   }
+			}
+
 			  assessmentName = pub.getTitle();
 			  //log.info("ASSESSMENT NAME= " + assessmentName);
 			  // if section set is null, initialize it - daisyf , 01/31/05

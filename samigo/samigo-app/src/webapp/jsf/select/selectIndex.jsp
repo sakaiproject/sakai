@@ -207,9 +207,10 @@ sorting actions for table:
       </h:panelGroup>
       </f:facet>
 
-    <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback != 'true'}" escape="false"/>
 
-	<h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" rendered="#{reviewable.feedback == 'true'}">
+    <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit}" escape="false"/>
+
+	<h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="nofeedback" value="false"/>
         <f:param name="actionString" value="reviewAssessment"/>
@@ -226,15 +227,18 @@ sorting actions for table:
 
 
   <f:verbatim><br /></f:verbatim>
-       <h:commandLink title="#{selectIndexMessages.t_histogram}" action="histogramScores" immediate="true"  
-        rendered="#{reviewable.feedback ne 'false' && reviewable.statistics && !reviewable.hasRandomDrawPart}">
+       <h:commandLink title="#{selectIndexMessages.t_histogram}"  action="#{delivery.getOutcome}" immediate="true"  
+        rendered="#{reviewable.feedback ne 'false' && reviewable.statistics && !reviewable.hasRandomDrawPart && !reviewable.isAssessmentRetractForEdit}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="hasNav" value="false"/>
         <f:param name="allSubmissions" value="true" />
+        <f:param name="actionString" value="reviewAssessment"/>
         <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
         <h:outputText value="#{selectIndexMessages.stats} "/>
        </h:commandLink>
+
+       <h:outputText value="#{selectIndexMessages.assessmentRetractedForEdit}" rendered="#{reviewable.isAssessmentRetractForEdit}" styleClass="validate" />
 
 <%-- OK, Marc wants links for all submitted assessments regardless if feedback is available, see SAM-229
      So, command these out for 1.5
@@ -282,12 +286,13 @@ sorting actions for table:
          </h:panelGroup>
       </f:facet>
       <h:outputText value="#{reviewable.feedbackDateString}" 
-        rendered="#{reviewable.feedbackDelivery eq '2'}" >
+        rendered="#{reviewable.feedbackDelivery eq '2' && !reviewable.isAssessmentRetractForEdit}" >
       </h:outputText>
       <h:outputText value="#{selectIndexMessages.immediate}" 
-        rendered="#{reviewable.feedbackDelivery eq '1' || reviewable.feedbackDelivery eq '4'}" />
+        rendered="#{(reviewable.feedbackDelivery eq '1' || reviewable.feedbackDelivery eq '4') && !reviewable.isAssessmentRetractForEdit}" />
+
        <h:outputText value="#{selectIndexMessages.not_applicable}" 
-        rendered="#{reviewable.feedbackDelivery==null || reviewable.feedbackDelivery eq '3'}" />
+        rendered="#{reviewable.feedbackDelivery==null || reviewable.feedbackDelivery eq '3' || reviewable.isAssessmentRetractForEdit}" />
     </h:column>
 
 <%-- STATISTICS --%>
@@ -391,8 +396,8 @@ sorting actions for table:
           </h:commandLink>
         </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{reviewable.roundedRawScore} " rendered="#{reviewable.showScore eq 'true'}" />
-      <h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{reviewable.showScore eq 'false'}" />
+      <h:outputText value="#{reviewable.roundedRawScore} " rendered="#{reviewable.showScore eq 'true'  && !reviewable.isAssessmentRetractForEdit}" />
+      <h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{reviewable.showScore eq 'false' || reviewable.isAssessmentRetractForEdit}" />
         
 <h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.multipleSubmissions eq 'true' && reviewable.scoringOption eq '1'}"/>
       

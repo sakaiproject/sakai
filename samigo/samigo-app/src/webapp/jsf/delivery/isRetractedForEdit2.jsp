@@ -8,7 +8,7 @@
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <!--
-* $Id: reviewAssessmentError.jsp 22618 2007-03-14 19:58:35Z ktsao@stanford.edu $
+* $Id: isRetractedForError2.jsp 22618 2007-03-14 19:58:35Z $
 <%--
 ***********************************************************************************
 *
@@ -41,7 +41,7 @@
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
 <!-- content... -->
-<h:form id="takeAssessmentForm" enctype="multipart/form-data">
+<h:form id="isRetractedForError2" enctype="multipart/form-data">
 
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
@@ -53,11 +53,10 @@
 
   <h:panelGroup styleClass="validation">
     <h:panelGrid  columns="1">
-	   <h:outputText value="#{deliveryMessages.review_error_1}" />
-       <h:outputText value="#{deliveryMessages.review_error_2}"/>
+	   <h:outputText value="#{deliveryMessages.is_retracted_for_edit2}" />
+       <h:outputText value="#{deliveryMessages.feedback_not_available}"/>
     </h:panelGrid>
   </h:panelGroup>
-
 </h:form>
 <!-- end content -->
 </div>

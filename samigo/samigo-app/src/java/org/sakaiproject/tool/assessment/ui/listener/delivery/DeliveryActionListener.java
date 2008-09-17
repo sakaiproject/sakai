@@ -46,6 +46,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -108,25 +109,31 @@ public class DeliveryActionListener
       log.debug("**** MacNetscape="+person.getIsMacNetscapeBrowser());
       // 1. get managed bean
       DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-      //log.debug("***DeliveryBean in deliveryListener = "+delivery);
-      // a. set publishedId, note that id can be changed by isPreviewingMode()
+      
+      
+      // set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
 
-      // b. Clear elapsed time, set not timed out
-      clearElapsedTime(delivery);
-
-      // 3. get assessment from deliveryBean if id matches. otherwise, this is the 1st time
+      // 2. get assessment from deliveryBean if id matches. otherwise, this is the 1st time
       // that DeliveryActionListener is called, so pull it from DB
       PublishedAssessmentFacade publishedAssessment = getPublishedAssessment(delivery, id);
-      // e. set show student score
+      int action = delivery.getActionMode();
+      if (DeliveryBean.REVIEW_ASSESSMENT == action && AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(publishedAssessment.getStatus())) {
+      	// Bug 1547: If this is during review and the assessment is retracted for edit now, 
+    	// there is no action needed (the outcome is set in BeginDeliveryActionListener).
+      	return;
+      }
+      // Clear elapsed time, set not timed out
+      clearElapsedTime(delivery);
+
+      // set show student score
       setShowStudentScore(delivery, publishedAssessment);
       setShowStudentQuestionScore(delivery, publishedAssessment);
       setDeliverySettings(delivery, publishedAssessment);
       
-      int action = delivery.getActionMode();
       
-      // 2. there 3 types of navigation: by question (question will be displayed one at a time), 
+      // 3. there 3 types of navigation: by question (question will be displayed one at a time), 
       // by part (questions in a part will be displayed together) or by assessment (i.e. 
       // all questions will be displayed on one page). When navigating from TOC, a part number
       // signal that the navigation is either by question or by part. We then must set the 
