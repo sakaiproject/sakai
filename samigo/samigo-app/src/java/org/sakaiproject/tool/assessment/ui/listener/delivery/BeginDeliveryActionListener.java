@@ -85,7 +85,6 @@ public class BeginDeliveryActionListener implements ActionListener
     }
     int action = delivery.getActionMode();
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
-    delivery.setPublishedAssessment(pub);
     
     if (DeliveryBean.REVIEW_ASSESSMENT == action && AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
     	// Bug 1547: If this is during review and the assessment is retracted for edit now, 
@@ -111,7 +110,10 @@ public class BeginDeliveryActionListener implements ActionListener
 
     // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
     delivery.setProtocol(ContextUtil.getProtocol());
-
+    
+    // set the published assessment
+    delivery.setPublishedAssessment(pub);
+    
     // populate backing bean from published assessment
     populateBeanFromPub(delivery, pub);
 

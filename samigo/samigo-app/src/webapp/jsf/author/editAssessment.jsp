@@ -72,12 +72,13 @@ document.links[newindex].onclick();
 <h:form id="assesssmentForm">
 
 <h:messages styleClass="validation"/>
-<div class="validation">
-  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" rendered="#{!author.isEditPendingAssessmentFlow}"/>
-  <br/>
-  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"/>
-  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}"/>
-</div>
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
+    <h:panelGrid  columns="1">
+	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
+	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
+	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!assessmentBean.hasGradingData}"/>
+    </h:panelGrid>
+  </h:panelGroup>
 
   <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
   <h:inputHidden id="showCompleteAssessment" value="#{author.showCompleteAssessment}"/>
@@ -396,12 +397,13 @@ document.links[newindex].onclick();
 </h:panelGroup>
 </p>
 
-<div class="validation">
-  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" rendered="#{!author.isEditPendingAssessmentFlow}"/>
-  <br/>
-  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"/>
-  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}"/>
-</div>
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
+    <h:panelGrid  columns="1">
+	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
+	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
+	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!assessmentBean.hasGradingData}"/>
+    </h:panelGrid>
+  </h:panelGroup>
 
 </h:form>
 <!-- end content -->
