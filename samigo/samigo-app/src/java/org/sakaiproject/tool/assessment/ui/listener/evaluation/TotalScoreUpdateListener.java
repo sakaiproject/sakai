@@ -119,7 +119,7 @@ public class TotalScoreUpdateListener
         	log.debug("update is true");
             AssessmentGradingData data = new AssessmentGradingData();
           if (!agentResults.getAssessmentGradingId().equals(new Long(-1)) ) {
-	    // these are students who have submitted for grades.
+	        // these are students who have submitted for grades.
             // Add up new score
             agentResults.setFinalScore(newScore+"");
             BeanUtils.copyProperties(data, agentResults);
@@ -140,12 +140,12 @@ public class TotalScoreUpdateListener
             BeanUtils.copyProperties(data, agentResults);
 
             data.setAgentId(agentResults.getIdString());
-  	    data.setForGrade(Boolean.FALSE);
-	    //data.setStatus(new Integer(1));
+  	        data.setForGrade(Boolean.FALSE);
+	        //data.setStatus(new Integer(1));
             data.setIsLate(Boolean.FALSE);
-   	    data.setItemGradingSet(new HashSet());
+   	        data.setItemGradingSet(new HashSet());
     	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
-	    // tell hibernate this is a new record
+	        // tell hibernate this is a new record
     	    data.setAssessmentGradingId(new Long(0));
             data.setSubmittedDate(null);
             data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));

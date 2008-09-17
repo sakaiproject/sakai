@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -821,19 +822,6 @@ public class GradingService
       notifyGradebook(d, pub);
     }
   }
-
-  public void notifyGradebookByScoringType(PublishedAssessmentIfc pub) {
-		EvaluationModelIfc e = pub.getEvaluationModel();
-		if (e != null) {
-			String toGradebookString = e.getToGradeBook();
-			boolean toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
-
-			if (toGradebook) {
-				ArrayList al = getAssessmentGradingsByScoringType(e.getScoringType(), pub.getPublishedAssessmentId());
-				notifyGradebook(al, pub);
-			}
-		}
-	}
   
   private float getScoreByQuestionType(ItemGradingIfc itemGrading, ItemDataIfc item,
                                        Long itemType, HashMap publishedItemTextHash, 
@@ -1010,51 +998,62 @@ public class GradingService
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        /* for testing the catch block 
-        if (retryCount >2)
-          throw new Exception();
-        */
         gbsHelper.updateExternalAssessmentScore(data, g);
         retryCount = 0;
       }
+      catch (org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException ante) {
+    	  log.warn("problem sending grades to gradebook: " + ante.getMessage());
+          if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
+        	  retryCount = retry(retryCount, ante, pub, true);
+          }
+          else {
+        	  // Otherwise, do the same exeption handling as others
+        	  retryCount = retry(retryCount, ante, pub, false);
+          }
+      }
       catch (Exception e) {
-        log.warn("problem sending grades to gradebook: "+e.getMessage());
-        log.warn("retrying...sending grades to gradebook. ");
-        //String errorMessage = e.getMessage();
-          log.warn("retry....");
-          retryCount--;
-          try {
-            int deadlockInterval = PersistenceService.getInstance().getDeadlockInterval().intValue();
-            Thread.sleep(deadlockInterval);
-          }
-          catch(InterruptedException ex){
-            log.warn(ex.getMessage());
-          }
-         if (retryCount==0) {
-            // after retries, still failed updating gradebook
-            log.warn("After all retries, still failed ...  Now throw error to UI");
-            throw new GradebookServiceException(e);
-         }
+    	  retryCount = retry(retryCount, e, pub, false);
       }
     }
-
-////
-
-/*
-        try {
-            gbsHelper.updateExternalAssessmentScore(data, g);
-        } catch (Exception e) {
-            // Got GradebookException from gradebook tool 
-            e.printStackTrace();
-            throw new GradebookServiceException(e);
-
-        }
-*/
     } else {
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
     }
   }
 
+  private int retry(int retryCount, Exception e, PublishedAssessmentIfc pub, boolean retractForEditStatus) {
+	  log.warn("retrying...sending grades to gradebook. ");
+	  log.warn("retry....");
+      retryCount--;
+      try {
+    	  int deadlockInterval = PersistenceService.getInstance().getDeadlockInterval().intValue();
+    	  Thread.sleep(deadlockInterval);
+      }
+      catch(InterruptedException ex){
+    	  log.warn(ex.getMessage());
+      }
+      if (retryCount==0) {
+    	  if (retractForEditStatus) {
+    		  // This happens in following scenario:
+              // 1. The assessment is active and has "None" for GB setting
+              // 2. Instructor retracts it for edit and update the to "Send to GB"
+              // 3. Instructor updates something on the total Score page
+              // Because the GB will not be created until the assessment gets republished,
+              // "AssessmentNotFoundException" will be thrown here. Since, this is the expected
+              // exception, we simply log a debug message without retrying or notifying the user.
+              // Of course, you can argue about what if the assessment gets deleted by other cause.
+              // But I would say the major cause would be this "retract" scenario. Also, without knowing 
+        	  // the change history of the assessment, I think this is the best handling. 
+        	  log.info("We quietly sallow the AssessmentNotFoundException excption here. Published Assessment Name: " + pub.getTitle());
+    	  }
+    	  else {
+    		  // after retries, still failed updating gradebook
+    		  log.warn("After all retries, still failed ...  Now throw error to UI");
+    		  throw new GradebookServiceException(e);
+    	  }
+      }
+      return retryCount;
+  }
+  
  /**
    * This grades Fill In Blank questions.  (see SAK-1685) 
 

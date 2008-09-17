@@ -194,7 +194,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		Query q = session.createQuery(
       				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.status <> ? order by a.agentId asc, a.submittedDate desc");
       		q.setLong(0, publishedId.longValue());
-    		q.setInteger(1, AssessmentGradingIfc.NO_SUBMISSION);
+    		q.setInteger(1, AssessmentGradingIfc.NO_SUBMISSION.intValue());
       		return q.list();
       	};
       };
@@ -1069,13 +1069,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   
   public List getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId){
-	    final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId asc, a.finalScore desc";
+	    final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? and (a.forGrade=? or (a.forGrade=? and a.status=?)) order by a.agentId asc, a.finalScore desc";
 
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(query);
 	    		q.setLong(0, publishedAssessmentId.longValue());
 	    		q.setBoolean(1, true);
+	    		q.setBoolean(2, false);
+	    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
 	    		return q.list();
 	    	};
 	    };

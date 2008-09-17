@@ -603,11 +603,20 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
         }        
       }
       
-      if (autoGrade) {
-          results.setStatus(AssessmentGradingIfc.AUTO_GRADED);
-      }
-      else {
-          results.setStatus(AssessmentGradingIfc.NEED_HUMAN_ATTENTION);
+      // Update the status to AUTO_GRADED or NEED_HUMAN_ATTENTION only when the 
+      // assessment has been submitted.
+      // If the assessment has not yet been submitted but only updated by instructor, 
+      // we leave the status as NO_SUBMISSION.
+      // Note: I think "if(results.getForGrade())" is enough here for now. But I still 
+      // put the second condition "!AssessmentGradingIfc.NO_SUBMISSION.equals(results.getStatus())"
+      // to avoid breaking by new statuses created later.
+      if (results.getForGrade() && !AssessmentGradingIfc.NO_SUBMISSION.equals(results.getStatus())) {
+    	  if (autoGrade) {
+    		  results.setStatus(AssessmentGradingIfc.AUTO_GRADED);
+    	  }
+    	  else {
+    		  results.setStatus(AssessmentGradingIfc.NEED_HUMAN_ATTENTION);
+    	  }
       }
       Date dueDate = null;
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
