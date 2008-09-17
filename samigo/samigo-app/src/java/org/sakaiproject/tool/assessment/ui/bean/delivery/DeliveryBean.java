@@ -2757,6 +2757,9 @@ public class DeliveryBean
   }
   
   private boolean isNeedResubmit(){
+	  if (adata == null) {
+		  return false;
+	  }
 	  Integer status = adata.getStatus();
 	  if (status.equals(AssessmentGradingIfc.NEED_RESUBMIT)) {
 		  return true;

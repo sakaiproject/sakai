@@ -91,9 +91,6 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
   </h:commandLink>
 </p>
 
-<p>
-
-
 <!-- GRADER COMMENT FOR REVIEW ASSESSMENT -->
 <h:outputText rendered="#{delivery.feedbackComponent.showGraderComment 
                        && delivery.actionString=='reviewAssessment'
