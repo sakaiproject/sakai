@@ -1,5 +1,5 @@
 /*
- *   SakaiScript.jws - updated for Sakai 2.1
+ *   SakaiScript.jws - updated for Sakai 2.5
  *
  */
  
@@ -947,6 +947,34 @@ public String getSiteDescription(String sessionid, String siteid) throws AxisFau
 	} 
 	
 	return siteDescription; 
+}
+
+
+/** 
+* Get a site's skin 
+* 
+* @param	sessionid	the id of a valid session
+* @param	siteid		the id of the site you want the skin of 
+* @return				description of the site or string containing error 
+* @throws	AxisFault 
+* 
+*/ 
+public String getSiteSkin(String sessionid, String siteid) throws AxisFault { 
+
+	Session s = establishSession(sessionid); 
+
+	String siteSkin = ""; 
+	
+	try { 
+		Site site = SiteService.getSite(siteid); 
+		siteSkin = site.getSkin(); 
+	} 
+	catch (Exception e) { 
+		LOG.error("WS getSiteSkin(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage(); 
+	} 
+	
+	return siteSkin; 
 }
 
 
