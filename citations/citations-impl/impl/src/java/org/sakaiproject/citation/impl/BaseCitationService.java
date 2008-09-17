@@ -206,9 +206,6 @@ public abstract class BaseCitationService implements CitationService
 			m_citationProperties = new Hashtable();
 			m_urls = new Hashtable();
 
-			String preferredUrl = null;
-			boolean usePreferredUrls = m_configService.getSiteConfigUsePreferredUrls();
-
 			boolean unknownSchema = true;
 			String title = null;
 
@@ -216,7 +213,19 @@ public abstract class BaseCitationService implements CitationService
 			Set multivalued = getMultivalued();
 
 			String description;
+      /*
+       * How to use the preferred URL?  We can omit it, use it as the title 
+       * link, or supply it as the related link.
+       *
+			 * "preferred" (below) has one of three values: false, related-link, 
+			 *                                              or title-link
+			 */
+			String preferredUrl = null;
+			String preferred = m_configService.getSiteConfigUsePreferredUrls();
 
+			boolean usePreferredUrlAsTitle = preferred.equals("title-link");
+			boolean usePreferredUrls = !preferred.equals("false");
+      
 			// assetId = asset.getId().getIdString();
 			try
 			{
@@ -392,10 +401,14 @@ public abstract class BaseCitationService implements CitationService
 			  String id;
         /*
          * Save the URL without a label (it'll get the default label at
-         * render-time) and set it as the preferred (title) link
+         * render-time) and [optionally] set it as the preferred (title) link
          */
 			  id = addCustomUrl("", preferredUrl);
-			  setPreferredUrl(id);
+			  
+			  if (usePreferredUrlAsTitle)
+			  {
+			    setPreferredUrl(id);
+			  }
 			}
 		}
 

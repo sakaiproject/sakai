@@ -244,15 +244,15 @@ public class ConfigurationService
 	}
 
   /**
-   * Should we use "preferred" URLs found by Library Search as the title link?
-   * @return true if so
+   * How should we use "preferred" URLs found by Library Search as the title link?
+   * @return "false", "related-link", or "title-link"
    */
-	public static boolean getSiteConfigUsePreferredUrls()
+	public static String getSiteConfigUsePreferredUrls()
 	{
 		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
 		if (instance == null)
 		{
-			return false;
+			return "false";
 		}
 		return instance.getSiteConfigUsePreferredUrls();
 	}

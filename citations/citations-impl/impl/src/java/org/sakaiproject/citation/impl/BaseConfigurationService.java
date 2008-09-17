@@ -425,26 +425,39 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   }
 
   /**
-   * For the title link:  Should we use URLs marked as "preferred" by 
-   *                      the OSID implementation?
+   * How should we use URLs marked as "preferred" by the OSID implementation?
+   * The choices are:
+   *<ul>
+   * <li> "false" (do not use the preferred URL at all)
+   * <li> "title-link" (provide the preferred URL as the title link)
+   * <li> "related-link" (provide as a related link, not as the title link)
+   *</ul>
+   * Note: "false" is the default value if nothing is specified in the 
+   *       configuration file 
    *
-   * @return true or false, as specified in the configuration 
-   *         file (false if nothing specified)
+   * @return "related-link", "title-link", or "false"
    */
-  public synchronized boolean getSiteConfigUsePreferredUrls()
+  public synchronized String getSiteConfigUsePreferredUrls()
   {
-    String value = getConfigurationParameter("provide-preferred-url");
+    String value = getConfigurationParameter("provide-direct-url");
 
-    if (value != null)
+    if (value == null)
     {
-      if (!isBoolean(value))
-      {
-        m_log.debug("Found \"" 
-                    + value 
-                    + "\" for provide-preferred-url, expected true or false"); 
-      }
+      return "false";
     }
-    return "true".equalsIgnoreCase(value);
+    
+    value = value.trim().toLowerCase();
+    
+    if (!(value.equals("false") || 
+          value.equals("related-link") || 
+          value.equals("title-link")))
+    {
+      m_log.debug("Invalid value for <provide-direct-url>: \"" 
+                  + value 
+                  + "\", using \"false\""); 
+      value = "false";
+    }
+    return value;
   }
 
   /**
@@ -695,7 +708,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       saveParameter(document, parameterMap, "openurl-label");
       saveParameter(document, parameterMap, "openurl-resolveraddress");
       
-      saveParameter(document, parameterMap, "provide-preferred-url");
+      saveParameter(document, parameterMap, "provide-direct-url");
       
       saveParameter(document, parameterMap, "google-baseurl");
       saveParameter(document, parameterMap, "sakai-serverkey");
@@ -724,16 +737,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     {
       parameterMap.put(name, value);
     }
-  }
-
-  /**
-   * Is the specified value "boolean"
-   * @param value Text to validate
-   * @return true if <code>value</code> is a variant of true/false
-   */
-  private boolean isBoolean(String value)
-  {
-    return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
   }
 
   /*

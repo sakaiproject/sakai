@@ -144,10 +144,10 @@ public interface ConfigurationService
   public String getSiteConfigSakaiServerKey();
 
   /**
-   * Should we use "preferred" URLs found by Library Search as the title link?
-   * @return true if so
+   * How should we use "preferred" URLs found by Library Search as the title link?
+   * @return "false", "related-link", or "title-link"
    */
-  public boolean getSiteConfigUsePreferredUrls();
+  public String getSiteConfigUsePreferredUrls();
 
   /**
    * Get the maximum number of databases we can search at one time
