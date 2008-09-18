@@ -67,8 +67,13 @@ public class ChatMessage implements Entity {
       return body;
    }
    
-   /** Get body of chat message, stripped of any html anchor tags
-    **/
+ 	/**
+ 	 * @deprecated 
+ 	 * 
+ 	 * 	this method is deprecated because bad regular expression. it causes CPU pegged up.
+ 	 * 	refer to: SAK-14471
+ 	 *             
+ 	 */
    public String getUnformattedBody() {
       String unformattedBody = body;
       
