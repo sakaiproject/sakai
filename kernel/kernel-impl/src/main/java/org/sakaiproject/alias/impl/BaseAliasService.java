@@ -439,7 +439,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		a.setTarget(target);
 
 		// update the properties
-		addLiveUpdateProperties(a.getPropertiesEdit());
+		addLiveProperties(a.getPropertiesEdit());
 
 		// complete the edit
 		m_storage.commit(a);
@@ -759,8 +759,15 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			return;
 		}
 
-		// update the properties
-		addLiveUpdateProperties(edit.getPropertiesEdit());
+		// If we're doing an update just change the modification
+		if (SECURE_UPDATE_ALIAS.equals(((BaseAliasEdit)edit).getEvent()))
+		{
+			addLiveUpdateProperties(edit.getPropertiesEdit());
+		}
+		else
+		{
+			addLiveProperties(edit.getPropertiesEdit());
+		}
 
 		// complete the edit
 		m_storage.commit(edit);
