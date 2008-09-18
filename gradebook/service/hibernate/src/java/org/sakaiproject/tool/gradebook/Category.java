@@ -315,7 +315,7 @@ public class Category implements Serializable
 	 * The methods below are used with the GradableObjects because all three
 	 * are displayed in a dataTable together
 	 */
-	public boolean isCategory() {
+	public boolean getIsCategory() {
 		return true;
 	}
 	public boolean isCourseGrade() {

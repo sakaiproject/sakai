@@ -165,7 +165,7 @@
 						</h:panelGroup>
 					</h:panelGroup>
 					
-					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.category}"/>
+					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.isCategory}"/>
 				</h:column>
 				
 				<h:column>
@@ -188,7 +188,7 @@
 			      </t:commandSortHeader>
 			    </f:facet>
 	
-					<h:outputText value="#{row.weight}" rendered="#{row.category}">
+					<h:outputText value="#{row.weight}" rendered="#{row.isCategory}">
 						<f:convertNumber type="percent" maxFractionDigits="2" />
 					</h:outputText>
 				</h:column>
@@ -240,7 +240,7 @@
 							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted}" />
 						</h:panelGroup>
 						
-						<h:outputText value="#{row}" escape="false" rendered="#{row.category}">
+						<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 						</h:outputText>
         </h:column>
