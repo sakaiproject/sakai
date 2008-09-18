@@ -96,6 +96,11 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
         this.entityBrokerManager = entityBrokerManager;
     }
 
+    private EntityEncodingManager entityEncodingManager;
+    public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
+        this.entityEncodingManager = entityEncodingManager;
+    }
+
     // SAKAI
     private AuthzGroupService authzGroupService;
     public void setAuthzGroupService(AuthzGroupService authzGroupService) {
@@ -625,6 +630,14 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
      */
     public <T> T convert(Object object, Class<T> type) {
         return entityBrokerManager.getReflectUtil().convert(object, type);
+    }
+
+    public Map<String, Object> decodeData(String data, String format) {
+        return entityEncodingManager.decodeData(data, format);
+    }
+
+    public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
+        return entityEncodingManager.encodeData(data, format, name, properties);
     }
 
 }

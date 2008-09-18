@@ -29,6 +29,7 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 
@@ -438,5 +439,37 @@ public interface DeveloperHelperService {
      * @throws UnsupportedOperationException if the conversion cannot be completed
      */
     public <T> T convert(Object object, Class<T> type);
+
+    /**
+     * Encode data into a given format, can handle any java object,
+     * note that unsupported formats and invalid data will result in an exception <br/>
+     * Current formats supported: JSON, XML, HTML
+     * 
+     * @param data the data to encode
+     * @param format the format to use for output (from {@link Formats})
+     * @param name (optional) the name to use for the encoded data (e.g. root node for XML)
+     * @param properties (optional) extra properties to add into the encoding, ignored if encoded object is not a map or bean
+     * @return the encoded string in the requested format
+     * @throws UnsupportedOperationException if the data cannot be encoded
+     * @throws IllegalArgumentException if the format requested cannot be encoded because there is no encoder
+     */
+    public String encodeData(Object data, String format, String name, Map<String, Object> properties);
+
+    /**
+     * Decode a string of a specified format into a java map of simple objects <br/> 
+     * Returned map can be fed into {@link #populate(Object, Map)} if you want to convert it
+     * into a known object type <br/> 
+     * Types are likely to require conversion as guesses are made about the right formats,
+     * use of the {@link #convert(Object, Class)} method is recommended <br/>
+     * Current formats supported: JSON, XML
+     * 
+     * @param data encoded data
+     * @param format the format of the encoded data (from {@link Formats})
+     * @return a map containing all the data derived from the encoded data
+     * @throws UnsupportedOperationException if the data cannot be decoded
+     * @throws IllegalArgumentException if the data cannot be decoded because there is no decoder for that format
+     */
+    public Map<String, Object> decodeData(String data, String format);
+    
 
 }
