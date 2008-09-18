@@ -3,15 +3,34 @@
 }
 
 /*skinned sortable header - sort icons*/
+thead tr .header a {
+	padding-right: 25px;
+}
+thead tr div .reset-order a {
+	background-image: url(/library/image/sakai/sortdescending.gif);
+	background-repeat: no-repeat;
+}
 thead tr .headerSortUp a {
-	background-image: url(../images/sortdescending.gif);
+	background-image: url(/library/image/sakai/sortdescending.gif);
 	background-repeat: no-repeat;
 	background-position: 90% center;
 	padding-right: 25px;
 }
 thead tr .headerSortDown a {
-	background-image: url(../images/sortascending.gif);
+	background-image: url(/library/image/sakai/sortascending.gif);
 	background-repeat: no-repeat;
 	background-position: 90% center;
 	padding-right: 25px;
+}
+.portletBody #sortableTable .reset-order {
+	background-image: url(/library/image/sakai/expand-collapse.gif);
+	background-repeat: no-repeat;
+	background-position: center center;
+	height: 15px;
+	width: 25px;
+	border: none;
+	cursor: hand;
+}
+.portletBody #sortableTable .reset-order #reset-order-link span {
+	display: none;
 }
