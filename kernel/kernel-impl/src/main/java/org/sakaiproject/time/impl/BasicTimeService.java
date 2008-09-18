@@ -394,7 +394,10 @@ public class BasicTimeService implements TimeService
          Locale M_locale = null;
          String langLoc[] = localeId.split("_");
          if ( langLoc.length >= 2 )
-            M_locale = new Locale(langLoc[0], langLoc[1]);
+        	 if (langLoc[0].equals("en") && langLoc[1].equals("ZA"))
+        		 M_locale = new Locale("en", "GB");
+        	 else
+        		 M_locale = new Locale(langLoc[0], langLoc[1]);
          else
             M_locale = new Locale(langLoc[0]);
 
