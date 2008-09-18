@@ -185,12 +185,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
   </h:commandLink>
 --%>
  </span>
- <br />
    <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
-
- <br />
-
 </p>
 </div>
- <br />
 </h:form>
