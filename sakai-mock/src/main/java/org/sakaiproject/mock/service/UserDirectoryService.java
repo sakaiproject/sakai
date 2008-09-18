@@ -184,6 +184,16 @@ public class UserDirectoryService implements
 		return getUsers();
 	}
 
+	public List<User> getUsersByEids(Collection<String> eids)
+	{
+		List<User> userList = new ArrayList<User>();
+		for(Iterator<Entry<String, org.sakaiproject.mock.domain.User>> iter = users.entrySet().iterator(); iter.hasNext();) {
+			org.sakaiproject.mock.domain.User user = iter.next().getValue();
+			if(eids.contains(user.getEid())) userList.add(user);
+		}
+		return userList;
+	}
+
 	public UserEdit mergeUser(Element el) throws UserIdInvalidException {
 		return null;
 	}
