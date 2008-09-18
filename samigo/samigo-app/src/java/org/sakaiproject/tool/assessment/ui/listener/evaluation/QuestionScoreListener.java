@@ -537,6 +537,7 @@ public class QuestionScoreListener implements ActionListener,
 					// make their selection
 					if (bean.getTypeId().equals("1")
 							|| bean.getTypeId().equals("2")
+							|| bean.getTypeId().equals("12")
 							|| bean.getTypeId().equals("3")
 							|| bean.getTypeId().equals("4")
 							|| bean.getTypeId().equals("9")) {

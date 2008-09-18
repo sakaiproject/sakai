@@ -1007,7 +1007,7 @@ public class DeliveryActionListener
     	
     	//calculate total # of correct answers. 
     	int correctAnswers = 0;
-    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
+    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
     		Iterator itemTextIter = item.getItemTextArray().iterator();
     		while (itemTextIter.hasNext()){
     			ItemTextIfc itemText = (ItemTextIfc) itemTextIter.next();
@@ -1048,7 +1048,7 @@ public class DeliveryActionListener
       		    	break;
     			  }
     		  }
-    		  else if  ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
+    		  else if  ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
       		    if ((answer !=null) && (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())){
     		    	haswronganswer =true;
     		    	
@@ -1071,7 +1071,7 @@ public class DeliveryActionListener
     		  }
     		   
     	}
-    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
+    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) )|| (item.getTypeId().equals(TypeIfc.MATCHING) )){
     		if (mcmc_match_counter==correctAnswers){
     			haswronganswer=false;
     		}
@@ -1179,6 +1179,7 @@ public class DeliveryActionListener
         if ( (answer.getText() == null || answer.getText().trim().equals(""))
             && (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
                 item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
+                item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ||
                 item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)))
         {
           // Ignore, it's a null answer
@@ -1188,6 +1189,7 @@ public class DeliveryActionListener
           // Set the label and key
           if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
               item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
+              item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ||
               item.getTypeId().equals(TypeIfc.MATCHING))
           {
             answer.setLabel(Character.toString(alphabet.charAt(k++)));
@@ -1253,6 +1255,7 @@ public class DeliveryActionListener
     ArrayList answers = new ArrayList();
     if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
         item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
+        item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ||
         item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) ||
         item.getTypeId().equals(TypeIfc.TRUE_FALSE) ||
         item.getTypeId().equals(TypeIfc.MATCHING))

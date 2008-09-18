@@ -112,7 +112,7 @@
    </samigo:wysiwyg>
 </h:panelGrid>
 <br/>
- <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
+ <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
   <h:outputText value="#{authorMessages.feedback_optional}" />
  <h:panelGrid>
    <!-- WYSIWYG  -->
@@ -122,15 +122,6 @@
 </h:panelGrid>
 </h:panelGroup>
 
- <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-  <h:outputText value="#{authorMessages.feedback_optional}" />
- <h:panelGrid>
-   <!-- WYSIWYG  -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes">
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
-</h:panelGrid>
-</h:panelGroup>
   </div>
 
 

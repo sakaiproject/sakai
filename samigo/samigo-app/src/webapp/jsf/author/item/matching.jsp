@@ -177,18 +177,10 @@
 <div class="tier2">
   
 <!-- WYSIWYG -->
-<h:panelGrid rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1'}">
+<h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
   <h:outputText value="#{authorMessages.correct_match_feedback_opt}"/>
   <f:verbatim><br/></f:verbatim>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.corrMatchFeedback}" hasToggle="yes">
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
-   </h:panelGrid>
-
-  <h:panelGrid rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1'}">
-   <h:outputText value="#{authorMessages.incorrect_match_feedback_opt}"/>
-   <f:verbatim><br/></f:verbatim>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.incorrMatchFeedback}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
    </h:panelGrid>
@@ -196,15 +188,7 @@
   <f:verbatim><br/></f:verbatim>
 
   <!-- WYSIWYG -->
- <h:panelGrid rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'}">
-  <h:outputText value="#{authorMessages.correct_match_feedback_opt}"/>
-  <f:verbatim><br/></f:verbatim>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.corrMatchFeedback}" hasToggle="yes">
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
-
-  <h:panelGrid rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'}">
+  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
    <h:outputText value="#{authorMessages.incorrect_match_feedback_opt}"/>
    <f:verbatim><br/></f:verbatim>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.incorrMatchFeedback}" hasToggle="yes">
@@ -275,20 +259,10 @@
  <!-- 8 FEEDBACK -->
   <f:verbatim></f:verbatim>
 <f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{authorMessages.correct_incorrect_an}" rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}"/>
-  <h:outputLabel value="#{authorMessages.correct_incorrect_an}" rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}"/>
+  <h:outputLabel value="#{authorMessages.correct_incorrect_an}" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}"/>
 <f:verbatim><br/></br/></div><div class="tier2"></f:verbatim>
 
-
- <h:panelGrid rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-  <h:outputText value="#{authorMessages.correct_answer_opti}" />
-  <f:verbatim><br/></f:verbatim>
-  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
- </h:panelGrid>
-
-  <h:panelGrid rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
+<h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
   <h:outputText value="#{authorMessages.correct_answer_opti}" />
   <f:verbatim><br/></f:verbatim>
   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
@@ -298,15 +272,7 @@
 
 <f:verbatim><br/></f:verbatim>
 
- <h:panelGrid rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-  <h:outputText value="#{authorMessages.incorrect_answer_op}"/>
-  <f:verbatim><br/></f:verbatim>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" >
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
- </h:panelGrid>
-
- <h:panelGrid rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
+ <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
   <h:outputText value="#{authorMessages.incorrect_answer_op}"/>
   <f:verbatim><br/></f:verbatim>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" >

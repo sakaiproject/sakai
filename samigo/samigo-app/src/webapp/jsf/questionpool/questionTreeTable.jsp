@@ -155,7 +155,7 @@ onkeypress=
      <h:outputText rendered="#{question.typeId== 8}" value="#{authorMessages.fill_in_the_blank}"/>
      <h:outputText rendered="#{question.typeId== 9}" value="#{authorMessages.matching}"/>
      <h:outputText rendered="#{question.typeId== 11}" value="#{authorMessages.fill_in_numeric}"/>
-     
+     <h:outputText rendered="#{question.typeId== 12}" value="#{authorMessages.multiple_choice_type}"/>
 
     </h:column>
 

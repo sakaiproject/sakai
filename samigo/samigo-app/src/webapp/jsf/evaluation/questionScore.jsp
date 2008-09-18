@@ -187,7 +187,7 @@ document.location='../evaluation/questionScore';
          <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_match}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '2'}">
-         <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_mult_mult}"/>
+         <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_mult_mult_ms}"/>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '4'}">
          <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_tf}"/>
@@ -201,6 +201,9 @@ document.location='../evaluation/questionScore';
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '1'}">
     <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_mult_sing}"/>
+      </h:panelGroup>
+     <h:panelGroup rendered="#{questionScores.typeId == '12'}">
+    <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_mult_mult_ss}"/>
       </h:panelGroup>
  </h:column>
 
@@ -249,7 +252,7 @@ document.location='../evaluation/questionScore';
     </f:subview>
   </h:panelGroup>
   <h:panelGroup
-    rendered="#{questionScores.typeId == '1' ||
+    rendered="#{questionScores.typeId == '1' || questionScores.typeId == '12' ||
                 questionScores.typeId == '3'}">
     <f:subview id="displayMultipleChoiceSingleCorrect">
     <%@ include file="/jsf/evaluation/item/displayMultipleChoiceSingleCorrect.jsp" %>
@@ -315,7 +318,7 @@ document.location='../evaluation/questionScore';
         </h:selectOneMenu>
 
         <h:selectOneMenu value="#{questionScores.selectedSARationaleView}" id="inlinepopup1" 
-         rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4'  || questionScores.typeId == '5')}" 
+         rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}" 
        	 required="true" onchange="document.forms[0].submit();" >
            <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.responses_popup}" />
            <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.responses_inline}" />
@@ -367,7 +370,7 @@ document.location='../evaluation/questionScore';
         </h:selectOneMenu>
 
 		<h:selectOneMenu value="#{questionScores.selectedSARationaleView}" id="inlinepopup2" 
-         rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4'  || questionScores.typeId == '5')}" 
+         rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}" 
        	 required="true" onchange="document.forms[0].submit();" >
            <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.responses_popup}" />
            <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.responses_inline}" />
@@ -854,13 +857,13 @@ document.location='../evaluation/questionScore';
 		<h:outputText  escape="false" value="#{description.fullAnswer}"/>
     </h:panelGroup>
     
-    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '1'}">
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '1'}">
 		<h:outputLink title="#{evaluationMessages.t_rationale}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
     		<h:outputText  value="(#{evaluationMessages.click_rationale})" />
     	</h:outputLink>
     </h:panelGroup>
     
-    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
 		<h:outputText escape="false" value="#{description.rationale}"/>
     </h:panelGroup>
     
@@ -868,7 +871,7 @@ document.location='../evaluation/questionScore';
     
 <%--
     <h:outputLink title="#{evaluationMessages.t_rationale}"
-      rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}" 
+      rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12 || questionScores.typeId == '4') && description.rationale ne ''}" 
       value="#" onclick="javascript:window.alert('#{description.rationale}');" onkeypress="javascript:window.alert('#{description.rationale}');" >
     <h:outputText  value="(#{evaluationMessages.click_rationale})"/>
     </h:outputLink>
@@ -921,14 +924,14 @@ document.location='../evaluation/questionScore';
 		<h:outputText  escape="false" value="#{description.fullAnswer}"/>
     </h:panelGroup>
     
-    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '1'}">
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '1'}">
 		<h:outputLink title="#{evaluationMessages.t_rationale}"  
 	value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
     		<h:outputText  value="(#{evaluationMessages.click_rationale})" />
     	</h:outputLink>
     </h:panelGroup>
     
-    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
 		<h:outputText escape="false" value="#{description.rationale}"/>
     </h:panelGroup>
 
@@ -980,14 +983,14 @@ document.location='../evaluation/questionScore';
 		<h:outputText  escape="false" value="#{description.fullAnswer}"/>
     </h:panelGroup>
     
-    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '1'}">
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '1'}">
 		<h:outputLink title="#{evaluationMessages.t_rationale}"  
 	value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
     		<h:outputText  value="(#{evaluationMessages.click_rationale})" />
     	</h:outputLink>
     </h:panelGroup>
     
-    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
 		<h:outputText escape="false" value="#{description.rationale}"/>
     </h:panelGroup>
     

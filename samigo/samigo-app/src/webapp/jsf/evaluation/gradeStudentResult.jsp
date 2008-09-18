@@ -234,7 +234,7 @@ document.location='../evaluation/gradeStudentResult';
             </h:panelGroup>
 
             <h:panelGroup
-              rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 3}">
+              rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 12 || question.itemData.typeId == 3}">
               <f:subview id="deliverMultipleChoiceSingleCorrect">
                 <%@ include file="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.jsp" %>
               </f:subview>

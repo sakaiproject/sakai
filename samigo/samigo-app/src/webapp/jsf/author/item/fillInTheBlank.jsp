@@ -115,35 +115,23 @@
 </h:panelGrid>
 <%-- FEEDBACK --%>
 <f:verbatim><div class="longtext"></f:verbatim>
- <h:outputLabel value="#{authorMessages.correct_incorrect_an}" rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}"/>
- <h:outputLabel value="#{authorMessages.correct_incorrect_an}" rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}"/>
+ <h:outputLabel value="#{authorMessages.correct_incorrect_an}" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}"/>
 <f:verbatim> <div class="tier2"></f:verbatim>
   
-  <h:panelGrid rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-   <h:outputText value="#{authorMessages.correct_answer_opti}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes">
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
-  <h:panelGrid rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
+  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
    <h:outputText value="#{authorMessages.correct_answer_opti}" />
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
 
-  <h:panelGrid rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
+  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
    <h:outputText value="#{authorMessages.incorrect_answer_op}" />
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
-  <h:panelGrid rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
-   <h:outputText value="#{authorMessages.incorrect_answer_op}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes">
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
+  
  <f:verbatim> </div></div></f:verbatim>
  <%-- METADATA --%>
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">

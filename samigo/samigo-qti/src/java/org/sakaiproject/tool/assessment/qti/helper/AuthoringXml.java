@@ -85,6 +85,7 @@ public class AuthoringXml
   public static final String ITEM_FILE = "fileUploadTemplate.xml";
   public static final String ITEM_MATCH = "matchTemplate.xml";
   public static final String ITEM_MCMC = "mcMCTemplate.xml";
+  public static final String ITEM_MCMC_SS = "mcMCSSTemplate.xml";
   public static final String ITEM_MCSC = "mcSCTemplate.xml";
   public static final String ITEM_SURVEY = "mcSurveyTemplate.xml";
   public static final String ITEM_TF = "trueFalseTemplate.xml";

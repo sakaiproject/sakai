@@ -127,6 +127,10 @@ public class ItemAddListener
 
     if(iType.equals(TypeFacade.MULTIPLE_CORRECT.toString()))
 	checkMC(false);
+    
+    if(iType.equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.toString()))
+    checkMC(false);
+    
     if(iType.equals(TypeFacade.MATCHING.toString()))
         {   
             ArrayList l=item.getMatchItemBeanList();
@@ -952,7 +956,8 @@ public class ItemAddListener
 		}
 
 		else if ((item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE))
-				|| (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT))) {
+				|| (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT))
+				|| (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION))) {
 			// this is for both single/multiple correct multiple choice types
 
 			// for single choice
@@ -1017,7 +1022,8 @@ public class ItemAddListener
 		  preparePublishedTextForFIBFIN(item, bean, delegate, false);
 	  }
 	  else if ( (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE)) ||
-	             (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT))) {
+	             (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT)) ||
+	             (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION))) {
 		  preparePublishedTextForMC(item, bean, delegate);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.MATCHING)) {
@@ -1615,7 +1621,7 @@ public class ItemAddListener
    **/
   public boolean isCorrectChoice(ItemBean bean, String label) {
     boolean returnvalue = false;
-    if (!bean.getMultipleCorrect()) {
+    if (TypeFacade.MULTIPLE_CHOICE.toString().equals(bean.getItemType())) {
       String corranswer = ContextUtil.lookupParam("itemForm:selectedRadioBtn");
       if (corranswer.equals(label)) {
         returnvalue = true;

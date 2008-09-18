@@ -585,7 +585,8 @@ public class HistogramListener
     if (itemScores == null)
       itemScores = new ArrayList();
     if (qbean.getQuestionType().equals("1") ||  // mcsc
-        qbean.getQuestionType().equals("2") ||  // mcmc
+        qbean.getQuestionType().equals("2") ||  // mcmcms
+        qbean.getQuestionType().equals("12") ||  // mcmcss
         qbean.getQuestionType().equals("3") ||  // mc survey
         qbean.getQuestionType().equals("4") || // tf
         qbean.getQuestionType().equals("9") || // matching
@@ -631,7 +632,9 @@ public class HistogramListener
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("2")) // mcmc
       getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals("3")) // mc survey
+    else if (qbean.getQuestionType().equals("12")) 
+      getTFMCScores(publishedAnswerHash, scores, qbean, answers);
+    else if (qbean.getQuestionType().equals("3"))
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("4")) // tf
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
@@ -1862,7 +1865,10 @@ public class HistogramListener
 		  return rb.getString("q_mult_sing");
 	  }
 	  if (typeId == 2) {
-		  return rb.getString("q_mult_mult");
+		  return rb.getString("q_mult_mult_ms");
+	  }
+	  if (typeId == 12) {
+		  return rb.getString("q_mult_mult_ss");
 	  }
 	  if (typeId == 3) {
 		  return rb.getString("q_mult_surv");

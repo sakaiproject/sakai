@@ -174,16 +174,15 @@ log.debug("item.getItemType() , use default type 1 = " + item.getItemType());
 log.debug("after getting item.getItemType() ");
         switch (itype) {
                 case 1:
-                        item.setMultipleCorrect(Boolean.FALSE.booleanValue());
-                        item.setMultipleCorrectString(TypeFacade.MULTIPLE_CHOICE.toString());
                         nextpage = "multipleChoiceItem";
                         break;
                 case 2:
 // never really use this, put here for completeness
-                        item.setMultipleCorrect(Boolean.TRUE.booleanValue());
-                        item.setMultipleCorrectString(TypeFacade.MULTIPLE_CORRECT.toString());
                         nextpage = "multipleChoiceItem";
                         break;
+                case 12:
+                		nextpage = "multipleChoiceItem";
+                		break;
                 case 3:
                         nextpage = "surveyItem";
                         break;

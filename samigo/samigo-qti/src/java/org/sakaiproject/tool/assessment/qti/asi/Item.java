@@ -178,7 +178,8 @@ public class Item extends ASIBaseClass
     //  rshastri: SAK-1824
     if((item.getTypeId().equals(TypeIfc.TRUE_FALSE) ||
     		item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE)||
-    		item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT)) && item.getHasRationale() !=null)
+    		item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
+    		item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) && item.getHasRationale() !=null)
     {	
     	setFieldentry("hasRationale", item.getHasRationale().toString());
     }
@@ -353,6 +354,11 @@ public class Item extends ASIBaseClass
   public boolean  isMCMC()
   {
     return AuthoringConstantStrings.MCMC.equals(this.getItemType()) ? true : false;
+  }
+  
+  public boolean  isMCMCSS()
+  {
+    return AuthoringConstantStrings.MCMCSS.equals(this.getItemType()) ? true : false;
   }
 
   public boolean  isMCSC()

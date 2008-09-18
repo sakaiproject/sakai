@@ -619,7 +619,7 @@ public class ItemBean
   {
     this.multipleCorrectString = multipleCorrect;
   }
-
+  
   public void setMultipleChoiceAnswers(ArrayList list)
   {
     this.multipleChoiceAnswers= list;
@@ -943,13 +943,12 @@ public class ItemBean
 	//FacesContext context = FacesContext.getCurrentInstance();
 	String type = (String) event.getNewValue();
 	if ((type == null) || type.equals(TypeFacade.MULTIPLE_CHOICE.toString())) {
-	  setMultipleCorrect(false);
-	  setMultipleCorrectString(TypeFacade.MULTIPLE_CHOICE.toString());
 	  setItemType(TypeFacade.MULTIPLE_CHOICE.toString());
 	}
+	else if (type.equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.toString())) {
+	  setItemType(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.toString());
+	}
 	else {
-	  setMultipleCorrect(true);
-	  setMultipleCorrectString(TypeFacade.MULTIPLE_CORRECT.toString());
 	  setItemType(TypeFacade.MULTIPLE_CORRECT.toString());
 	}
 
@@ -1003,7 +1002,7 @@ public class ItemBean
               setAdditionalChoices("0");
 
               // if mcmc, need to set corrAnswers 
-              if (getMultipleCorrect()) {
+              if (TypeFacade.MULTIPLE_CORRECT.toString().equals(this.itemType) || TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.toString().equals(this.itemType)) {
                  ArrayList corranswersList = ContextUtil.paramArrayValueLike("mccheckboxes");
                  int corrsize = corranswersList.size();
                  int counter = 0;

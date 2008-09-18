@@ -129,19 +129,7 @@
 
 
  <!-- FEEDBACK -->
- <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
-  <f:verbatim><div class="longtext"></f:verbatim>
-   <h:outputLabel value="#{authorMessages.feedback_optional}<br />" />
-
-  <h:panelGrid >
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" >
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
- <f:verbatim> </div></f:verbatim>
-</h:panelGroup>
-
- <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
+ <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
   <f:verbatim><div class="longtext"></f:verbatim>
    <h:outputLabel value="#{authorMessages.feedback_optional}<br />" />
 

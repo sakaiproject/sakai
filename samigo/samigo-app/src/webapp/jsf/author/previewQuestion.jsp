@@ -87,6 +87,10 @@
             <%@ include file="/jsf/author/questionpreview/MultipleChoiceMultipleCorrect.jsp" %>
           </h:panelGroup>
 
+		   <h:panelGroup rendered="#{itemContents.itemData.typeId == 12}">
+            <%@ include file="/jsf/author/questionpreview/MultipleChoiceMultipleCorrect.jsp" %>
+          </h:panelGroup>
+
           <h:panelGroup rendered="#{itemContents.itemData.typeId == 3}">
             <%@ include file="/jsf/author/questionpreview/MultipleChoiceSurvey.jsp" %>
           </h:panelGroup>

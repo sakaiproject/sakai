@@ -173,7 +173,12 @@ public class ItemTypeExtractionStrategy
     else if (toGuess.indexOf("single") != -1 &&
              toGuess.indexOf("correct") != -1)
     {
-      itemType = AuthoringConstantStrings.MCSC;
+      if (toGuess.indexOf("selection") != -1) {
+    	  itemType = AuthoringConstantStrings.MCMCSS;
+      }
+      else {
+        itemType = AuthoringConstantStrings.MCSC;
+      }
     }
     else if (toGuess.indexOf("multiple") != -1 &&
              toGuess.indexOf("correct") != -1)
@@ -262,6 +267,7 @@ public class ItemTypeExtractionStrategy
       if (typeString.trim().equalsIgnoreCase(typeArray[i]))
       {
         type = new Long(i);
+        break;
       }
     }
     return type;

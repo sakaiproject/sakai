@@ -259,7 +259,7 @@ public class ItemHelper20Impl extends ItemHelperBase
   {
     // other types either have no answer or include them in their template
     if (!itemXml.isMatching() && !itemXml.isFIB() && !itemXml.isFIN() &&
-        !itemXml.isMCSC() && !itemXml.isMCMC())
+        !itemXml.isMCSC() && !itemXml.isMCMC() && !itemXml.isMCMCSS())
     {
       return;
     }

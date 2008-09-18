@@ -275,7 +275,8 @@ document.links[newindex].onclick();
 
 	<h:panelGroup >
      <h:outputText rendered="#{question.itemData.typeId== 1}" value=" #{authorMessages.multiple_choice_sin}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{authorMessages.multiple_choice_mul}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{authorMessages.multiple_correct_ms}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 12}" value=" #{authorMessages.multiple_correct_ss}"/>
      <h:outputText rendered="#{question.itemData.typeId== 3}" value=" #{authorMessages.multiple_choice_surv}"/>
      <h:outputText rendered="#{question.itemData.typeId== 4}" value=" #{authorMessages.true_false}"/>
      <h:outputText rendered="#{question.itemData.typeId== 5}" value=" #{authorMessages.short_answer_essay}"/>
@@ -353,6 +354,10 @@ document.links[newindex].onclick();
 
           <h:panelGroup rendered="#{question.itemData.typeId == 1}">
             <%@ include file="/jsf/author/preview_item/MultipleChoiceSingleCorrect.jsp" %>
+          </h:panelGroup>
+
+		  <h:panelGroup rendered="#{question.itemData.typeId == 12}">
+            <%@ include file="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.jsp" %>
           </h:panelGroup>
 <f:verbatim> </div></f:verbatim>
 <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">

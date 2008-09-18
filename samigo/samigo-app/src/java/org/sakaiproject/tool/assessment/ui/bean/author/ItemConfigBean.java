@@ -255,7 +255,7 @@ private static final String msgResource =
     if (isShowAllMultipleChoice())
       list.add(new SelectItem("1",
         getResourceDisplayName("multiple_choice_type")));
-
+    
     if (showSurvey)
       list.add(new SelectItem("3",
         getResourceDisplayName("multiple_choice_surv")));

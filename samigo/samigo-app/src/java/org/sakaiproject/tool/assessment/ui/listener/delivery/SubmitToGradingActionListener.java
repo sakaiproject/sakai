@@ -488,6 +488,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		// 2. add any modified SAQ/TF/FIB/Matching/MCMR/Audio/FIN
 		switch (typeId) {
 		case 1: // MC
+		case 12: // MC Single Selection
 		case 3: // Survey
 			boolean answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {

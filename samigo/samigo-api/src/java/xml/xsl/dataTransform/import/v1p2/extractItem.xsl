@@ -249,6 +249,7 @@
         <!-- this is lame, but true false acts like a 2 answer MCSC with answers True, False -->
         <xsl:when test=".//render_choice and $labels='TF'">True False</xsl:when>
         <xsl:when test=".//render_choice and @title='Multiple Correct'">Multiple Correct Answer</xsl:when>
+        <xsl:when test=".//render_choice and @title='Multiple Correct Single Selection'">Multiple Correct Single Selection</xsl:when>
         <xsl:when test=".//render_choice and @title='Multiple Choice'">Multiple Choice</xsl:when>
         <xsl:otherwise>Short Answers/Essay</xsl:otherwise>
       </xsl:choose>

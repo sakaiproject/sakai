@@ -196,17 +196,17 @@ public class ItemModifyListener implements ActionListener
       }
       switch (itype) {
                 case 1:
-                        bean.setMultipleCorrect(false);
-                        bean.setMultipleCorrectString(TypeFacade.MULTIPLE_CHOICE.toString());
                         itemauthorbean.setItemTypeString("Multiple Choice");
                         nextpage = "multipleChoiceItem";
                         break;
                 case 2:
-                        bean.setMultipleCorrect(true);
-                        bean.setMultipleCorrectString(TypeFacade.MULTIPLE_CORRECT.toString());
                         itemauthorbean.setItemTypeString("Multiple Choice");
                         nextpage = "multipleChoiceItem";
                         break;
+                case 12:
+                    	itemauthorbean.setItemTypeString("Multiple Choice");
+                    	nextpage = "multipleChoiceItem";
+                    	break;
                 case 3:
                         itemauthorbean.setItemTypeString("Survey");  // need to get it from properties file
                         nextpage = "surveyItem";
@@ -394,7 +394,7 @@ public class ItemModifyListener implements ActionListener
        
        
 
-       if ((new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) ||(new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) ) {
+       if ((Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) ||(Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) || (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) ) {
 	 Set answerobjlist = itemText.getAnswerSet();
          String afeedback =  "" ;
 	 Iterator iter1 = answerobjlist.iterator();
@@ -430,7 +430,7 @@ public class ItemModifyListener implements ActionListener
          }
 
 	// set correct choice for single correct
-       if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) {
+       if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) {
 	 Iterator iter2 = correctlist.iterator();
          while(iter2.hasNext())
 	 {
@@ -442,7 +442,7 @@ public class ItemModifyListener implements ActionListener
 	}
 
 	// set correct choice for multiple correct
-       if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) {
+       if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT) || Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
 	int corrsize = correctlist.size();
 	String[] corrchoices = new String[corrsize];
 	Iterator iter3 = correctlist.iterator();

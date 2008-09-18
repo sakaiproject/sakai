@@ -57,6 +57,7 @@ public abstract class ItemHelperBase
   protected static final long ITEM_SURVEY = TypeIfc.MULTIPLE_CHOICE_SURVEY.
     longValue();
   protected static final long ITEM_MCMC = TypeIfc.MULTIPLE_CORRECT.longValue();
+  protected static final long ITEM_MCMC_SS = TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue();
   protected static final long ITEM_TF = TypeIfc.TRUE_FALSE.longValue();
   protected static final long ITEM_MATCHING = TypeIfc.MATCHING.longValue();
 
@@ -245,6 +246,10 @@ public abstract class ItemHelperBase
     else if (ITEM_MCMC == typeId)
     {
       template = AuthoringXml.ITEM_MCMC;
+    }
+    else if (ITEM_MCMC_SS == typeId)
+    {
+      template = AuthoringXml.ITEM_MCMC_SS;
     }
     else if (ITEM_TF == typeId)
     {

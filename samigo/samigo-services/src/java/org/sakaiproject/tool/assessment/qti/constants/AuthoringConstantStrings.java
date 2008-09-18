@@ -77,6 +77,7 @@ file = File Upload
   public static final String FIB =  "Fill In the Blank";
   public static final String FIN = "Numeric Response";
   public static final String MCMC = "Multiple Correct Answer";
+  public static final String MCMCSS = "Multiple Correct Single Selection";
   public static final String MCSC = "Multiple Choice";
   public static final String TF = "True False";
   public static final String SURVEY = "Multiple Choice Survey";
@@ -110,7 +111,7 @@ file = File Upload
   // I'm just adding an "" to make FIN the itemTypes[11].  This is used in ItemTypeExtractionStrategy.getValidType()
   
   public static final String[] itemTypes =
-  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING,"", FIN };
+  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING,"", FIN, MCMCSS };
   
 
   // Feedback Type

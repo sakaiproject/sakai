@@ -1445,7 +1445,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     // other types either have no answer or include them in their template, or,
     // in matching, generate all in setItemTextMatching()
     if (!itemXml.isFIB() && !itemXml.isMCSC() && !itemXml.isFIN()
-        && !itemXml.isMCMC() && !itemXml.isEssay() && !itemXml.isSurvey())
+        && !itemXml.isMCMC() && !itemXml.isMCMCSS() && !itemXml.isEssay() && !itemXml.isSurvey())
     {
       return;
     }
@@ -1542,7 +1542,7 @@ public class ItemHelper12Impl extends ItemHelperBase
   {
     //log.info("setFeedback()");
 
-    boolean hasAnswerLevelFeedback = itemXml.isMCMC() || itemXml.isMCSC();
+    boolean hasAnswerLevelFeedback = itemXml.isMCMC() || itemXml.isMCSC()|| itemXml.isMCMCSS();
     //log.info("itemXml.getItemType(): " + itemXml.getItemType());
     //log.info("hasAnswerLevelFeedback: " + hasAnswerLevelFeedback);
 

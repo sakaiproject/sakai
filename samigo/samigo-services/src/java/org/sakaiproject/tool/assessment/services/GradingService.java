@@ -700,13 +700,14 @@ public class GradingService
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
       HashMap totalItems = new HashMap();
       log.debug("****x2. "+(new Date()).getTime());
+      float autoScore = (float) 0;
       while(iter.hasNext())
       {
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
         Long itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
-        Long itemType = item.getTypeId();
-        float autoScore = (float) 0;
+        Long itemType = item.getTypeId();  
+    	autoScore = (float) 0;
 
         itemGrading.setAssessmentGradingId(data.getAssessmentGradingId());
         //itemGrading.setSubmittedDate(new Date());
@@ -716,7 +717,7 @@ public class GradingService
         autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
                                totalItems, fibAnswersMap, publishedAnswerHash, regrade);
         log.debug("**!regrade, autoScore="+autoScore);
-        if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
+        if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType) || !(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION).equals(itemType))
           totalItems.put(itemId, new Float(autoScore));
         
         if (regrade && TypeIfc.AUDIO_RECORDING.equals(itemType))
@@ -835,15 +836,15 @@ public class GradingService
     int type = itemType.intValue();
     switch (type){ 
       case 1: // MC Single Correct
+      case 12: // MC Multiple Correct Single Selection    	  
       case 3: // MC Survey
-      case 4: // True/False 
+      case 4: // True/False     	  
               autoScore = getAnswerScore(itemGrading, publishedAnswerHash);
               //overridescore
               if (itemGrading.getOverrideScore() != null)
                 autoScore += itemGrading.getOverrideScore().floatValue();
 	      totalItems.put(itemId, new Float(autoScore));
               break;
-
       case 2: // MC Multiple Correct
               ItemTextIfc itemText = (ItemTextIfc) publishedItemTextHash.get(itemGrading.getPublishedItemTextId());
               ArrayList answerArray = itemText.getAnswerArray();

@@ -48,6 +48,7 @@ public interface ItemHelperIfc
   public static final long ITEM_SURVEY = TypeIfc.MULTIPLE_CHOICE_SURVEY.
     longValue();
   public static final long ITEM_MCMC = TypeIfc.MULTIPLE_CORRECT.longValue();
+  public static final long ITEM_MCMC_SS = TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue();
   public static final long ITEM_TF = TypeIfc.TRUE_FALSE.longValue();
   public static final long ITEM_MATCHING = TypeIfc.MATCHING.longValue();
   public String[] itemTypes =

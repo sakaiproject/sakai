@@ -847,7 +847,8 @@ public class HistogramQuestionScoresBean
   {
     if ("True False".equals(questionType) ||
       "Multiple Choice".equals(questionType) ||
-      "Multiple Correct Answer".equals(questionType)
+      "Multiple Correct Answer".equals(questionType) ||
+      "Multiple Correct Single Selection".equals(questionType) 
       )
     {
       return false; //shouldn't happen
