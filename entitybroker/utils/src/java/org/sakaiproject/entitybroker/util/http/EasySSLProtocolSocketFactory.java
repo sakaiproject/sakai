@@ -222,7 +222,7 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
     }
 
     public boolean equals(Object obj) {
-        return ((obj != null) && obj.getClass().equals(EasySSLProtocolSocketFactory.class));
+        return ((obj != null) && obj.getClass().equals(this.getClass()));
     }
 
     public int hashCode() {

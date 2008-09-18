@@ -114,8 +114,8 @@ public class URLRedirect {
       if (methodName == null || "".equals(methodName)) {
          throw new IllegalArgumentException("URLRedirect construction failed: methodName must not be null or empty string");
       }
-      if (methodArgTypes == null || "".equals(methodArgTypes)) {
-         throw new IllegalArgumentException("URLRedirect construction failed: methodArgTypes must not be null or empty string");
+      if (methodArgTypes == null) {
+         throw new IllegalArgumentException("URLRedirect construction failed: methodArgTypes must not be null");
       }
       this.methodName = methodName;
       this.methodArgTypes = methodArgTypes;

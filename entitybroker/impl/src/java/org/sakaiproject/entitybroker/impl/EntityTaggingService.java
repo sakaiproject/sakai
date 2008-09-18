@@ -362,7 +362,7 @@ public class EntityTaggingService implements TagProvider {
       Set<String> setTags = new HashSet<String>();
       for (String tag : tags) {
          setTags.add(tag);
-         if (curTags.contains(tags)) {
+         if (curTags.contains(tag)) {
             continue;
          } else {
             addTags.add(tag);
