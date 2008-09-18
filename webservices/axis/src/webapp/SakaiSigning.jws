@@ -19,59 +19,51 @@
  *
  **********************************************************************************/
 
-import java.util.Date;
+import java.io.*;
+import java.security.*;
+import java.security.interfaces.*;
+import java.security.spec.*;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import javax.crypto.*;
+import javax.crypto.interfaces.*;
+import javax.crypto.spec.*;
 
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
-
+import org.apache.axis.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
-
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.site.api.ToolConfiguration;
-
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.User;
-
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
-
-import org.sakaiproject.authz.cover.SecurityService;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
-
-import java.util.Properties;
-import java.util.Calendar;
-import org.apache.axis.AxisFault;
-
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Xml;
-
-import java.io.*;
-
-import java.security.*;
-import java.security.spec.*;
-import java.security.interfaces.*;
-
-import javax.crypto.*;
-import javax.crypto.spec.*;
-import javax.crypto.interfaces.*;
-
 
 public class SakaiSigning {
 
+    private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiSigning");
+
+	private static String EVENT_TESTSIGN = "linktool.testsign";
+	private static String EVENT_GETSESSION = "linktool.getsession";
+    
     private static SecretKey salt;
     private static SecretKey privateKey;
 
@@ -96,7 +88,6 @@ public class SakaiSigning {
     }
 
     public String testsign(String data) throws AxisFault {
-//	Session s = establishSession(sessionid);
 
     if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
     	return "not enabled";
@@ -109,6 +100,10 @@ public class SakaiSigning {
 	if (java.lang.Math.abs(mstime - System.currentTimeMillis()) > 30000)
 	  return "stale value";
 
+	// post the event
+	LOG.info("testsign request: " + data);
+    EventTrackingService.post(EventTrackingService.newEvent(EVENT_TESTSIGN, null, true));
+	
 	return verifysign(data);
     }
 
@@ -138,12 +133,24 @@ public class SakaiSigning {
         return getsession(null, object);
     }
 
+    public String getSessionToServer(String object) throws AxisFault {
+        return getsession(null, object) + "," + 
+        	ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
+    }
+
+    public String getSessionToServer(String data, String object) throws AxisFault {
+        return getsession(data, object) + "," + 
+    	ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
+    }
+    
     public String getsession(String data, String object) throws AxisFault {
-//	Session s = establishSession(sessionid);
 
     if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
         throw new AxisFault("not enabled");
     	
+
+	LOG.info("getsession request");
+
     // Check user data
 
     if (data != null) {
@@ -171,14 +178,28 @@ public class SakaiSigning {
 	if (!result)
           throw new AxisFault("failed on session object");
 
+    Session s = null;
+    String sessionid = null;
+    String userref = null;
+    
 	if (object.equals("currentuser") && data != null)
-	   return makesession(data, "internaluser=");
+	   s = makesession(data, "internaluser=");
 	else 
-	   return makesession(object, "user=");
+	   s = makesession(object, "user=");
 
+	if (s != null) {
+		sessionid = s.getId();
+		String userid = s.getUserId(); 
+		userref = (userid != null) ? UserDirectoryService.userReference(userid) : null;
+	}
+	
+    // post the login event
+    EventTrackingService.post(EventTrackingService.newEvent(EVENT_GETSESSION, userref, true));
+	
+	return sessionid;
     }
 
-    private String makesession(String spec, String attr) throws AxisFault {
+    Session makesession(String spec, String attr) throws AxisFault {
 	
 	int i;
 	if (!spec.startsWith(attr)) {
@@ -210,7 +231,7 @@ public class SakaiSigning {
 	s.setUserId(user.getId());
 	s.setUserEid(user.getEid());
 
-	return s.getId();
+	return s;
     }
 
     public String touchsession(String esessions) throws AxisFault {
@@ -329,4 +350,3 @@ public class SakaiSigning {
     }
 
 }
-
