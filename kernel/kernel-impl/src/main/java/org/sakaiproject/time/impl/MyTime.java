@@ -460,6 +460,9 @@ public class MyTime implements Time
 	 */
 	public boolean before(Time other)
 	{
+		if (other == null) 
+		   return false;
+
 		return (m_millisecondsSince < ((MyTime) other).m_millisecondsSince);
 	}
 
@@ -468,6 +471,9 @@ public class MyTime implements Time
 	 */
 	public boolean after(Time other)
 	{
+		if (other == null) 
+		   return true;
+
 		return (m_millisecondsSince > ((MyTime) other).m_millisecondsSince);
 	}
 
