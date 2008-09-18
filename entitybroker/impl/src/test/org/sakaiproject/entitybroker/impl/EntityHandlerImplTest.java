@@ -30,7 +30,6 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
-import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
@@ -120,7 +119,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertTrue(xml.length() > 20);
          assertTrue(xml.contains(TestData.PREFIX4));
          assertTrue(xml.contains("<id>4-one</id>"));
-         assertTrue(xml.contains(EntityXStream.ENTITY_REF));
+         assertTrue(xml.contains(EntityEncodingManager.ENTITY_REFERENCE));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
@@ -137,7 +136,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertTrue(json.length() > 20);
          assertTrue(json.contains(TestData.PREFIX4));
          assertTrue(json.contains("\"id\":\"4-one\","));
-         assertTrue(json.contains(EntityXStream.ENTITY_REF));
+         assertTrue(json.contains(EntityEncodingManager.ENTITY_REFERENCE));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
@@ -768,7 +767,7 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(content);
          assertTrue(content.length() > 80);
          assertTrue(content.contains(TestData.PREFIXA1));
-         assertTrue(content.contains("<number>"+(num*2)+"</number>"));
+         assertTrue(content.contains((num*2)+"</number>"));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }

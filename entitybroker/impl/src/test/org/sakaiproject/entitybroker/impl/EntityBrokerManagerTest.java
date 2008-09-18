@@ -32,7 +32,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
+import org.sakaiproject.genericdao.util.ReflectUtils;
 
 /**
  * Testing the central logic of the entity handler
@@ -205,11 +205,12 @@ public class EntityBrokerManagerTest extends TestCase {
     * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#getReflectUtil()}.
     */
    public void testGetReflectUtil() {
-      ReflectUtil ru = entityBrokerManager.getReflectUtil();
+      ReflectUtils ru = entityBrokerManager.getReflectUtil();
       assertNotNull(ru);
-      ReflectUtil ru2 = null;
+      ReflectUtils ru2 = null;
       for (int i = 0; i < 1000; i++) {
          ru2 = entityBrokerManager.getReflectUtil();
+         assertNotNull(ru2);
       }
       assertNotNull(ru2);
       assertEquals(ru2, ru);

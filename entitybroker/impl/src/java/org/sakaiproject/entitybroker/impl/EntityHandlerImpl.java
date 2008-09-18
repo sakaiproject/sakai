@@ -84,10 +84,10 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
-import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundException;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.sakaiproject.genericdao.util.exceptions.FieldnameNotFoundException;
 
 /**
  * Implementation of the handler for the EntityBroker system<br/>
@@ -214,7 +214,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                     format = Formats.HTML;
                 }
                 RequestUtils.setResponseEncoding(format, res);
-                String output = entityDescriptionManager.makeDescribeAll(format);
+                String output = entityDescriptionManager.makeDescribeAll(format, req.getLocale()); // possibly get the locale from other places?
                 res.setContentLength(output.getBytes().length);
                 try {
                     res.getWriter().write(output);
@@ -249,7 +249,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                     if (entityId == null || "".equals(entityId)) {
                         entityId = FAKE_ID;
                     }
-                    String output = entityDescriptionManager.makeDescribeEntity(view.getEntityReference().getPrefix(), entityId, format);
+                    String output = entityDescriptionManager.makeDescribeEntity(view.getEntityReference().getPrefix(), entityId, format, req.getLocale());
                     res.setContentLength(output.getBytes().length);
                     try {
                         res.getWriter().write(output);
@@ -425,19 +425,21 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                             if (outputable != null) {
                                                 if (customAction != null) {
                                                     // override format from the custom action
-                                                    if (actionReturn.format != null) {
+                                                    if (actionReturn != null 
+                                                            && actionReturn.format != null) {
                                                         format = actionReturn.format;
                                                     }
                                                 }
                                                 String[] outputFormats = outputable.getHandledOutputFormats();
-                                                if (outputFormats == null || ReflectUtil.contains(outputFormats, format) ) {
+                                                if (outputFormats == null || ReflectUtils.contains(outputFormats, format) ) {
                                                     // we are handling this type of format for this entity
                                                     RequestUtils.setResponseEncoding(format, res);
 
                                                     EntityReference ref = view.getEntityReference();
                                                     // get the entities to output
                                                     List<EntityData> entities = null;
-                                                    if (customAction != null) {
+                                                    if (customAction != null 
+                                                            && actionReturn != null) {
                                                         // get entities from a custom action
                                                         entities = actionReturn.entitiesList;
                                                         if (entities != null) {
@@ -520,7 +522,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                             Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
                                             if (inputable != null) {
                                                 String[] inputFormats = inputable.getHandledInputFormats();
-                                                if (inputFormats == null || ReflectUtil.contains(inputFormats, format) ) {
+                                                if (inputFormats == null || ReflectUtils.contains(inputFormats, format) ) {
                                                     // we are handling this type of format for this entity
                                                     Object entity = null;
                                                     InputStream inputStream = null;
@@ -836,7 +838,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         } else {
             if (AccessFormats.class.isAssignableFrom(evAccessProvider.getClass())) {
                 String[] accessFormats = ((AccessFormats)evAccessProvider).getHandledAccessFormats();
-                if (accessFormats != null && ! ReflectUtil.contains(accessFormats, view.getFormat()) ) {
+                if (accessFormats != null && ! ReflectUtils.contains(accessFormats, view.getFormat()) ) {
                     throw new FormatUnsupportedException("Access provider for " + view.getEntityReference().getPrefix() 
                             + " will not handle this format ("+view.getFormat()+")",
                             view.getEntityReference()+"", view.getFormat());

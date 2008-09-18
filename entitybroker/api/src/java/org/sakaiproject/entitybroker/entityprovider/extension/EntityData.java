@@ -125,11 +125,13 @@ public class EntityData {
         }
         return entityDisplayTitle;
     }
+    private transient boolean displayTitleSet = false; // needed to avoid encoding
     /**
      * @return true if the display title is actually set, false if it is null and will return an auto-generated value
      */
     public boolean isDisplayTitleSet() {
-        return entityDisplayTitle != null;
+        displayTitleSet = entityDisplayTitle != null;
+        return displayTitleSet;
     }
 
     /**

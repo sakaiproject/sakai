@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
+import org.sakaiproject.genericdao.util.ReflectUtils;
 
 
 /**
@@ -115,7 +115,7 @@ public class RequestStorageImpl implements RequestStorage {
                 // type matches the requested one
                 togo = (T) value;
             } else {
-                togo = (T) ReflectUtil.getInstance().convert(value, type);
+                togo = (T) ReflectUtils.getInstance().convert(value, type);
             }
         }
         return togo;

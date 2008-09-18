@@ -35,10 +35,10 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
  */
 public class EntityReference {
 
-   public static final char SEPARATOR = EntityView.SEPARATOR;
-   public static final char PERIOD = EntityView.PERIOD;
+   public static transient final char SEPARATOR = EntityView.SEPARATOR;
+   public static transient final char PERIOD = EntityView.PERIOD;
 
-   protected String originalReference;
+   protected transient String originalReference;
    /**
     * This is a special method and should not normally be used,
     * use {@link #toString()} or {@link #getReference()}
@@ -83,13 +83,14 @@ public class EntityReference {
 
    // CONSTRUCTORS
 
-   private boolean empty = true;
+   private transient boolean empty = true;
    /**
     * @return true if this object contains no reference data, false if it contains a valid reference
     */
    public boolean isEmpty() {
       return empty;
    }
+
    public EntityReference() { }
 
    /**

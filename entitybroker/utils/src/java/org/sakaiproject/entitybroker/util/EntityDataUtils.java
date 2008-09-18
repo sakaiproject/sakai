@@ -35,8 +35,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
-import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundException;
+import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.sakaiproject.genericdao.util.exceptions.FieldnameNotFoundException;
 
 
 /**
@@ -130,11 +130,11 @@ public class EntityDataUtils {
                     // attempt to get the id if it was not provided
                     String entityId = null;
                     try {
-                        entityId = ReflectUtil.getInstance().getFieldValueAsString(entity, "entityId", EntityId.class);
+                        entityId = ReflectUtils.getInstance().getFieldValueAsString(entity, "entityId", EntityId.class);
                     } catch (FieldnameNotFoundException e) {
                         try {
                             // try just id only as well
-                            entityId = ReflectUtil.getInstance().getFieldValueAsString(entity, "id", null);
+                            entityId = ReflectUtils.getInstance().getFieldValueAsString(entity, "id", null);
                         } catch (FieldnameNotFoundException e1) {
                             entityId = null;
                         }

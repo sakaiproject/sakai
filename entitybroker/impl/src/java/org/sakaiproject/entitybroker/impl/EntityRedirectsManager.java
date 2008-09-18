@@ -44,7 +44,7 @@ import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.ProcessedTemplate;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
+import org.sakaiproject.genericdao.util.ReflectUtils;
 
 
 /**
@@ -163,7 +163,7 @@ public class EntityRedirectsManager {
                                 args[i] = segmentValues;
                             } else {
                                 throw new IllegalStateException("URL redirect method ("+redirect+") contains an invalid methodArgTypes, " +
-                                        "only valid types allowed: " + ReflectUtil.arrayToString(validParamTypes));
+                                        "only valid types allowed: " + ReflectUtils.arrayToString(validParamTypes));
                             }
                         }
                         try {
@@ -359,7 +359,7 @@ public class EntityRedirectsManager {
             }
             if (!found) {
                 throw new IllegalArgumentException("Invalid redirect method: param type is not allowed: " + paramType.getName() 
-                        + " : valid types include: " + ReflectUtil.arrayToString(validParamTypes));
+                        + " : valid types include: " + ReflectUtils.arrayToString(validParamTypes));
             }
         }
         return validParams;

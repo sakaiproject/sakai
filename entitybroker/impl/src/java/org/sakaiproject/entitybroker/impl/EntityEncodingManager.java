@@ -48,12 +48,13 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
-import org.sakaiproject.entitybroker.impl.util.EntityXStream;
-import org.sakaiproject.entitybroker.util.map.OrderedMap;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
-
-import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-import com.thoughtworks.xstream.io.xml.XppDomDriver;
+import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.sakaiproject.genericdao.util.StringUtils;
+import org.sakaiproject.genericdao.util.map.ArrayOrderedMap;
+import org.sakaiproject.genericdao.util.transcoders.HTMLTranscoder;
+import org.sakaiproject.genericdao.util.transcoders.JSONTranscoder;
+import org.sakaiproject.genericdao.util.transcoders.Transcoder;
+import org.sakaiproject.genericdao.util.transcoders.XMLTranscoder;
 
 
 /**
@@ -64,6 +65,10 @@ import com.thoughtworks.xstream.io.xml.XppDomDriver;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class EntityEncodingManager {
+
+    public static final String ENTITY_REFERENCE = "entityReference";
+    public static final String ENTITY_ID = "entityId";
+    public static final String ENTITY_URL = "entityURL";
 
     private static Log log = LogFactory.getLog(EntityEncodingManager.class);
 
@@ -119,7 +124,7 @@ public class EntityEncodingManager {
         Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
         if (outputable != null) {
             String[] outputFormats = outputable.getHandledOutputFormats();
-            if (outputFormats == null || ReflectUtil.contains(outputFormats, format) ) {
+            if (outputFormats == null || ReflectUtils.contains(outputFormats, format) ) {
                 boolean handled = false;
                 /* try to use the provider formatter if one available,
                  * if it decided not to handle it or none is available then control passes to internal
@@ -173,7 +178,7 @@ public class EntityEncodingManager {
         Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
         if (inputable != null) {
             String[] inputFormats = inputable.getHandledInputFormats();
-            if (inputFormats == null || ReflectUtil.contains(inputFormats, format) ) {
+            if (inputFormats == null || ReflectUtils.contains(inputFormats, format) ) {
                 boolean handled = false;
                 /* try to use the provider translator if one available,
                  * if it decided not to handle it or none is available then control passes to internal
@@ -227,9 +232,6 @@ public class EntityEncodingManager {
     public Object internalInputTranslator(EntityReference ref, String format, InputStream input, HttpServletRequest req) {
         Object entity = null;
 
-        // get the encoder to use
-        EntityXStream encoder = getEncoderForFormat(format, false);
-
         Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Inputable.class);
         if (inputable != null) {
             // get a the current entity object or a sample
@@ -243,8 +245,8 @@ public class EntityEncodingManager {
                             entity = current;
                             try {
                                 entityBrokerManager.getReflectUtil().populateFromParams(entity, params);
-                            } catch (Exception e) {
-                                throw new IllegalArgumentException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), e);
+                            } catch (RuntimeException e) {
+                                throw new EntityEncodingException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), ref+"", e);
                             }
                         } else {
                             // no request params, bad request
@@ -252,35 +254,41 @@ public class EntityEncodingManager {
                                     ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
                         }
                     }
-                } else if (encoder != null) {
+                } else {
+                    // all other formats
                     if (input == null) {
                         // no request params, bad request
                         throw new EntityException("No input for input translation (input cannot be null) for reference: " + ref, 
                                 ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
                     } else {
-                        encoder.alias(ref.getPrefix(), current.getClass());
-                        // START classloader protection
-                        ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+                        String data = StringUtils.makeStringFromInputStream(input);
+                        Map<String, Object> decoded = null;
                         try {
-                            Object classloaderIndicator = current;
-                            ClassLoader newClassLoader = classloaderIndicator.getClass().getClassLoader();
-                            encoder.setClassLoader(newClassLoader);
-                            // translate using the encoder
-                            entity = encoder.fromXML(input, current);
-                            // END run in classloader
-                        } catch (RuntimeException e) {
-                            throw new EntityEncodingException("Failure during internal input encoding of entity: " + ref, ref.toString(), e);
-                        } finally {
-                            encoder.setClassLoader(currentClassLoader);
+                            decoded = decodeData(data, format);
+                        } catch (IllegalArgumentException iae) {
+                            throw new EntityEncodingException("No encoder available for the given format ("+format+"), ref=" + ref + ":" + iae.getMessage(), ref.toString(), iae);
+                        } catch (UnsupportedOperationException uoe) {
+                            throw new EntityEncodingException("Failure during internal input encoding of entity: " + ref + " to format ("+format+"):" + uoe.getMessage(), ref.toString(), uoe);
                         }
-                        // END classloader protection
+                        entity = current;
+                        // handle the special case where the JSON was created by xstream or something else that puts the data inside an object with a "root"
+                        if (decoded.size() == 1 && decoded.containsKey(ref.getPrefix())) {
+                            Object o = decoded.get(ref.getPrefix());
+                            if (o instanceof Map) {
+                                decoded = (Map<String, Object>) o;
+                            }
+                        }
+                        try {
+                            ReflectUtils.getInstance().populate(entity, decoded);
+                        } catch (RuntimeException e) {
+                            throw new EntityEncodingException("Unable to populate bean for ref ("+ref+") from data: " + decoded + ":" + e.getMessage(), ref+"", e);
+                        }
                     }
                 }
             }
         } else {
             throw new IllegalArgumentException("This entity ("+ref+") does not allow input translation");
         }
-
         if (entity == null) {
             throw new EntityException("Unable to encode entity from input for reference: " + ref, ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -308,7 +316,7 @@ public class EntityEncodingManager {
         if (format == null) { format = Outputable.HTML; }
 
         // check the format to see if we can handle it
-        if (! ReflectUtil.contains(HANDLED_OUTPUT_FORMATS, format)) {
+        if (! ReflectUtils.contains(HANDLED_OUTPUT_FORMATS, format)) {
             throw new FormatUnsupportedException("Internal output formatter cannot handle format ("+format+") for ref ("+ref+")", ref+"", format);
         }
 
@@ -326,17 +334,10 @@ public class EntityEncodingManager {
             log.info("No entities to format ("+format+") and output for ref (" + ref + ")");
         }
 
-        // get the encoder to use
-        EntityXStream encoder = getEncoderForFormat(format, true);
-
         String encoded = null;
         if (EntityView.VIEW_LIST.equals(view.getViewKey()) 
                 || ref.getId() == null) {
             // encoding a collection of entities
-            if (encoder != null) {
-                setEncoderDataAlias(ref.getPrefix(), entities, encoder);
-            }
-
             StringBuilder sb = new StringBuilder(40);
 
             // make header
@@ -353,22 +354,18 @@ public class EntityEncodingManager {
             // loop through and encode items
             int encodedEntities = 0;
             for (EntityData entity : entities) {
-                String encode = encodeEntity(ref, format, entity, encoder);
-                if (encode.length() > 3) {
-                    if (Formats.JSON.equals(format)) {
-                        if (encodedEntities > 0) {
-                            sb.append(",\n");
+                try {
+                    String encode = encodeEntity(ref, format, entity);
+                    if (encode.length() > 3) {
+                        if (Formats.JSON.equals(format) 
+                                && encodedEntities > 0) {
+                            sb.append(",");
                         }
-                        // special JSON cleanup (strips off the {"stuff": ... })
-                        encode = encode.substring(encode.indexOf(':')+1, encode.length()-1);
-                    } else {
-                        // HTML and XML
-                        if (encodedEntities > 0) {
-                            sb.append("\n");
-                        }
+                        sb.append(encode);                     
+                        encodedEntities++;
                     }
-                    sb.append(encode);                     
-                    encodedEntities++;
+                } catch (RuntimeException e) {
+                    throw new EntityEncodingException("Failure during internal output encoding of entity set on entity: " + ref, ref.toString(), e);
                 }
             }
 
@@ -378,17 +375,11 @@ public class EntityEncodingManager {
             } else if (Formats.JSON.equals(format)) {
                 sb.append("\n]}");
             } else if (Formats.XML.equals(format)) {
-                sb.append("\n</" + ref.getPrefix() + COLLECTION + ">");
+                sb.append("</" + ref.getPrefix() + COLLECTION + ">");
             } else { // general case
                 sb.append("\nSize: " + encodedEntities + "\n");
             }
             encoded = sb.toString();
-//          } else {
-//          // just dump the whole thing to a string if there is no encoder
-//          EntityData ed = new EntityData(ref, null, entities);
-//          ed.setEntityURL( entityBrokerManager.makeFullURL(workingView.getEntityURL()) );
-//          encoded = encodeEntity(ref, workingView, ed, null);
-//          }
         } else {
             // encoding a single entity
             EntityData toEncode = entities.get(0);
@@ -396,17 +387,14 @@ public class EntityEncodingManager {
                 throw new EntityEncodingException("Failed to encode data for entity (" + ref 
                         + "), entity object to encode could not be found (null object in list)", ref.toString());
             } else {
-                if (encoder != null) {
-                    setEncoderDataAlias(ref.getPrefix(), entities, encoder);
-                }
                 try {
-                    encoded = encodeEntity(ref, format, toEncode, encoder);
+                    encoded = encodeEntity(ref, format, toEncode);
                 } catch (RuntimeException e) {
                     throw new EntityEncodingException("Failure during internal output encoding of entity: " + ref, ref.toString(), e);
                 }
             }
         }
-        // put the encoded data into the OS
+        // put the encoded data into the stream
         try {
             byte[] b = encoded.getBytes(Formats.UTF_8);
             output.write(b);
@@ -417,90 +405,61 @@ public class EntityEncodingManager {
         }
     }
 
-    /**
-     * Sets the encoded alias so that the data output is clear and easy to read by
-     * making the prefix the text used in the outside XML,
-     * this basically affects the way the encoded XML looks when it is dumped
-     * and is Xstream specific
-     */
-    private void setEncoderDataAlias(String prefix, List<EntityData> entities, EntityXStream encoder) {
-        Class<?> entityClass = null;
-        if (! entities.isEmpty()) {
-            EntityData ed = entities.get(0);
-            if (ed != null) {
-                Object obj = ed.getData();
-                entityClass = obj.getClass();
-            }
-        }
-        if (entityClass != null) {
-            if ( Collection.class.isAssignableFrom(entityClass)
-                    && Map.class.isAssignableFrom(entityClass)
-                    && String.class.equals(entityClass) ) {
-                // do not alias these
-            } else {
-                encoder.alias(prefix, entityClass);
-            }
-        }
-    }
-
 
     /**
-     * stores the various xstream processors for handling the different types of data
-     */
-    private Map<String, EntityXStream> xstreams = new HashMap<String, EntityXStream>();
-    /**
-     * @param format
-     * @param output if true then get the encode for output, if false then for input
-     * @return the appropriate encoder for the format
-     */
-    public EntityXStream getEncoderForFormat(String format, boolean output) {
-        EntityXStream encoder = null;
-        if (Formats.JSON.equals(format)) {
-            // http://jira.sakaiproject.org/jira/browse/SAK-13681
-//          if (output) {
-//          if (! xstreams.containsKey(format)) {
-//          xstreams.put( format, new EntityXStream(new JsonHierarchicalStreamDriver()) );
-//          }
-//          } else {
-//          format += "-IN";
-//          if (! xstreams.containsKey(format)) {
-//          xstreams.put( format, new EntityXStream(new JettisonMappedXmlDriver()) );
-//          }
-//          }
-            if (! xstreams.containsKey(format)) {
-                EntityXStream exs = new EntityXStream(new JettisonMappedXmlDriver());
-                xstreams.put( format, exs );
-            }
-            encoder = xstreams.get(format);
-        } else if (Formats.XML.equals(format)) {
-            if (! xstreams.containsKey(format)) {
-                EntityXStream exs = new EntityXStream(new XppDomDriver());
-                xstreams.put( format, exs );
-            }
-            encoder = xstreams.get(format);
-        } else {
-            encoder = null; // do a toString dump
-        }
-        return encoder;
-    }
-
-    /**
+     * Encodes entity data
      * @param ref the entity reference
-     * @param format 
+     * @param format the format to encode the data into
      * @param entityData entity data to encode
-     * @param encoder (optional) enhanced xstream encoder or null if no encoder available
      * @return the encoded entity or "" if encoding fails
      */
-    public String encodeEntity(EntityReference ref, String format, EntityData entityData, EntityXStream encoder) {
+    public String encodeEntity(EntityReference ref, String format, EntityData entityData) {
         String encoded = "";
         if (entityData == null) {
             throw new IllegalArgumentException("entity data to encode must not be null");
         }
-        if (encoder != null) { // XML and JSON
+        if (Formats.HTML.equals(format)) {
+            // special handling for HTML
+            StringBuilder sb = new StringBuilder(200);
+            sb.append("  <div style='padding-left:1em;'>\n");
+            sb.append("    <div style='font-weight:bold;'>"+entityData.getDisplayTitle()+"</div>\n");
+            sb.append("    <table border='1'>\n");
+            sb.append("      <caption style='font-weight:bold;'>Entity Data</caption>\n");
+            sb.append("      <tr><td>entityReference</td><td>"+entityData.getEntityReference()+"</td></tr>\n");
+            sb.append("      <tr><td>entityURL</td><td>"+entityData.getEntityURL()+"</td></tr>\n");
+            if (entityData.getEntityRef() != null) {
+                sb.append("      <tr><td>entityPrefix</td><td>"+entityData.getEntityRef().getPrefix()+"</td></tr>\n");
+                if (entityData.getEntityRef().getId() != null) {
+                    sb.append("      <tr><td>entityID</td><td>"+entityData.getEntityRef().getId()+"</td></tr>\n");
+                }
+            }
+            if (entityData.getData() != null) {
+                sb.append("      <tr><td>entity-object</td><td>"+entityData.getData()+"</td></tr>\n");
+                sb.append("      <tr><td>entity-type</td><td>"+entityData.getData().getClass().getName()+"</td></tr>\n");
+                // dump entity data
+                sb.append("      <tr><td colspan='2'>");
+                sb.append( encodeData(entityData.getData(), Formats.HTML, null, null) );
+                sb.append("</td></tr>");
+            } else {
+                sb.append("      <tr><td>entity-object</td><td><i>null</i></td></tr>\n");
+            }
+            sb.append("    </table>\n");
+            Map<String, Object> props = entityData.getEntityProperties();
+            if (!props.isEmpty()) {
+                sb.append("    <table border='1'>\n");
+                sb.append("      <caption style='font-weight:bold;'>Properties</caption>\n");
+                for (Entry<String, Object> entry : props.entrySet()) {
+                    sb.append("      <tr><td>"+entry.getKey()+"</td><td>"+entry.getValue()+"</td></tr>\n");
+                }
+                sb.append("    </table>\n");
+            }
+            sb.append("  </div>\n");
+            encoded = sb.toString();
+        } else {
             // TODO encode the props from the entity data specially? (this may be the only data)
             // encode the entity itself
             Object toEncode = entityData;
-            Map<String, Object> entityProps = new OrderedMap<String, Object>();
+            Map<String, Object> entityProps = new ArrayOrderedMap<String, Object>();
             if (entityData.getData() != null) {
                 Class<?> type = entityData.getData().getClass();
                 if (Collection.class.isAssignableFrom(type) 
@@ -512,102 +471,128 @@ public class EntityEncodingManager {
                     // if it is a POJO then use it
                     toEncode = entityData.getData();
                     // add in the extra props
-                    Class<?> entityClass = toEncode.getClass();
-                    entityProps.put(EntityXStream.EXTRA_DATA_CLASS, entityClass);
-                    entityProps.put(EntityXStream.ENTITY_REF, entityData.getEntityReference());
-                    entityProps.put("entityURL", entityData.getEntityURL());
+                    entityProps.put(ENTITY_REFERENCE, entityData.getEntityReference());
+                    entityProps.put(ENTITY_URL, entityData.getEntityURL());
                     if (entityData.getEntityRef().getId() != null) {
-                        entityProps.put("entityId", entityData.getEntityRef().getId());
+                        entityProps.put(ENTITY_ID, entityData.getEntityRef().getId());
                     }
                 }
             }
             // encode the object
-            encoded = encoder.toXML(toEncode, entityProps);
-        } else {
-            // handle formats without an encoder (basically everything which is not XML and JSON)
-            if (Formats.HTML.equals(format)) {
-                StringBuilder sb = new StringBuilder(200);
-                sb.append("  <div style='padding-left:1em;'>\n");
-                sb.append("    <div style='font-weight:bold;'>"+entityData.getDisplayTitle()+"</div>\n");
-                sb.append("    <table border='1'>\n");
-                sb.append("      <caption style='font-weight:bold;'>Entity Data</caption>\n");
-                sb.append("      <tr><td>entityReference</td><td>"+entityData.getEntityReference()+"</td></tr>\n");
-                sb.append("      <tr><td>entityURL</td><td>"+entityData.getEntityURL()+"</td></tr>\n");
-                if (entityData.getEntityRef() != null) {
-                    sb.append("      <tr><td>entityPrefix</td><td>"+entityData.getEntityRef().getPrefix()+"</td></tr>\n");
-                    if (entityData.getEntityRef().getId() != null) {
-                        sb.append("      <tr><td>entityID</td><td>"+entityData.getEntityRef().getId()+"</td></tr>\n");
-                    }
-                }
-                if (entityData.getData() != null) {
-                    sb.append("      <tr><td>entity-object</td><td>"+entityData.getData()+"</td></tr>\n");
-                    sb.append("      <tr><td>entity-type</td><td>"+entityData.getData().getClass().getName()+"</td></tr>\n");
-                    // dump entity data
-                    Map<String, Object> values = entityBrokerManager.getReflectUtil().getObjectValues(entityData.getData());
-                    for (Entry<String, Object> entry : values.entrySet()) {
-                        sb.append("      <tr><td>"+entry.getKey()+"</td><td>"+entry.getValue()+"</td></tr>\n");
-                    }
-                } else {
-                    sb.append("      <tr><td>entity-object</td><td><i>null</i></td></tr>\n");
-                }
-                sb.append("    </table>\n");
-                Map<String, Object> props = entityData.getEntityProperties();
-                if (!props.isEmpty()) {
-                    sb.append("    <table border='1'>\n");
-                    sb.append("      <caption style='font-weight:bold;'>Properties</caption>\n");
-                    for (Entry<String, Object> entry : props.entrySet()) {
-                        sb.append("      <tr><td>"+entry.getKey()+"</td><td>"+entry.getValue()+"</td></tr>\n");
-                    }
-                    sb.append("    </table>\n");
-                }
-                sb.append("  </div>\n");
-                encoded = sb.toString();
-            } else {
-                // just toString this and dump it out
+            try {
+                encoded = encodeData(toEncode, format, ref.getPrefix(), entityProps);
+            } catch (IllegalArgumentException e) {
+                // no transcoder so just toString this and dump it out
                 encoded = ref.getPrefix() + " : " + entityData;
             }
         }
         return encoded;
     }
 
-    public String encodeData(Map<String, Object> data, String format) {
+    protected static final String DATA_KEY = Transcoder.DATA_KEY;
+
+    private Map<String, Transcoder> transcoders;
+    public Transcoder getTranscoder(String format) {
+        if (transcoders == null) {
+            transcoders = new HashMap<String, Transcoder>();
+            JSONTranscoder jt = new JSONTranscoder();
+            transcoders.put(jt.getHandledFormat(), jt);
+            XMLTranscoder xt = new XMLTranscoder(true, true, false);
+            transcoders.put(xt.getHandledFormat(), xt);
+            HTMLTranscoder ht = new HTMLTranscoder();
+            transcoders.put(ht.getHandledFormat(), ht);
+        }
+        Transcoder transcoder = transcoders.get(format);
+        if (transcoder == null) {
+            throw new IllegalArgumentException("Failed to find a transcoder for format, none exists, cannot encode or decode data for format: " + format);
+        }
+        return transcoder;
+    }
+
+    /**
+     * Encode data into a given format, can handle any java object,
+     * note that unsupported formats will result in an exception
+     * 
+     * @param data the data to encode
+     * @param format the format to use for output (from {@link Formats})
+     * @param name (optional) the name to use for the encoded data (e.g. root node for XML)
+     * @param properties (optional) extra properties to add into the encoding, ignored if encoded object is not a map or bean
+     * @return the encoded string
+     * @throws UnsupportedOperationException if the data cannot be encoded
+     */
+    public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
         if (format == null) {
             format = Formats.XML;
         }
         String encoded = "";
         if (data != null) {
-            if (Formats.JSON.equals(format)) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("{");
-                int i = 0;
-                for (Entry<String, Object> entry : data.entrySet()) {
-                    sb.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\" ");
-                    
-                    i++;
-                }
-                sb.append("}");
-                encoded = sb.toString();
-            } else if (Formats.XML.equals(format)) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("<data>\n");
-                for (Entry<String, Object> entry : data.entrySet()) {
-                    sb.append("    <"+entry.getKey()+">"+entry.getValue()+"</"+entry.getKey()+">\n");
-                }
-                sb.append("</data>\n");
-                encoded = sb.toString();
-            } else if (Formats.HTML.equals(format)) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("<table border='1'>\n");
-                for (Entry<String, Object> entry : data.entrySet()) {
-                    sb.append("    <tr><td>"+entry.getKey()+"</td><td>"+entry.getValue()+"</td></tr>\n");
-                }
-                sb.append("</table>\n");
-                encoded = sb.toString();
-            } else {
-                encoded = data.toString();
+            Transcoder transcoder = getTranscoder(format);
+            try {
+                encoded = transcoder.encode(data, name, properties);
+            } catch (RuntimeException e) {
+                // convert failure to UOE
+                throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
             }
         }
         return encoded;
     }
+
+    /**
+     * Decode a string of a specified format into a java map <br/> 
+     * Returned map can be fed into the {@link ReflectUtils#populate(Object, Map)} if you want to convert it
+     * into a known object type <br/> 
+     * Types are likely to require conversion as guesses are made about the right formats,
+     * use of the {@link ReflectUtils#convert(Object, Class)} method is recommended
+     * 
+     * @param data encoded data
+     * @param format the format of the encoded data (from {@link Formats})
+     * @return a map containing all the data derived from the encoded data
+     * @throws UnsupportedOperationException if the data cannot be decoded
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> decodeData(String data, String format) {
+        if (format == null) {
+            format = Formats.XML;
+        }
+        Map<String, Object> decoded = new ArrayOrderedMap<String, Object>();
+        if (data != null && ! "".equals(data)) {
+            Object decode = null;
+            Transcoder transcoder = getTranscoder(format);
+            try {
+                decode = transcoder.decode(data);
+                if (decode instanceof Map) {
+                    decoded = (Map<String, Object>) decode;
+                } else {
+                    decoded.put(DATA_KEY, decode);
+                }
+            } catch (RuntimeException e) {
+                // convert failure to UOE
+                throw new UnsupportedOperationException("Failure decoding data ("+data+") for format ("+format+"): " + e.getMessage(), e);
+            }
+        }
+        return decoded;
+    }
+
+    /**
+     * Using GSON is hopeless:
+     * http://code.google.com/p/google-gson/issues/detail?id=45
+     * 
+     * Gson gson = getGson();
+     * encoded = gson.toJson(data, new TypeToken<Map<String, Object>>() {}.getType());
+     * decoded = gson.fromJson(data, new TypeToken<Map<String, Object>>() {}.getType());
+     */
+    //    protected SoftReference<Gson> gsonCoder = null;
+    //    /**
+    //     * Get the gson encoder in an efficient way to avoid recreating it over and over and over again
+    //     * @return the gson encoder
+    //     */
+    //    protected Gson getGson() {
+    //        Gson gson = gsonCoder == null ? null : gsonCoder.get();
+    //        if (gson == null) {
+    //            gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+    //            gsonCoder = new SoftReference<Gson>(gson);
+    //        }
+    //        return gson;
+    //    }
 
 }

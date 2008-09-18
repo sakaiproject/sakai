@@ -154,7 +154,10 @@ public class HttpRESTUtils {
             System.out.println("WARN: data cannot be passed in DELETE requests, data will be ignored (org.sakaiproject.entitybroker.util.http.HttpUtils#fireRequest)");
          }
          httpMethod = dm;
+      } else {
+          throw new IllegalArgumentException("Cannot handle method: " + method);
       }
+
       // set the standard stuff we use for all requests
       httpMethod.setFollowRedirects(true);
 

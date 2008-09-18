@@ -25,7 +25,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.impl.mocks.FakeEvent;
-import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
@@ -376,7 +375,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
         assertTrue(fo.length() > 20);
         assertTrue(fo.contains(TestData.PREFIX4));
         assertTrue(fo.contains("<id>4-one</id>"));
-        assertTrue(fo.contains(EntityXStream.ENTITY_REF));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
 
         // test list of entities
         ArrayList<EntityData> testEntities = new ArrayList<EntityData>();
@@ -392,7 +391,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
         assertTrue(fo.contains("<id>4-one</id>"));
         assertTrue(fo.contains("<id>4-two</id>"));
         assertFalse(fo.contains("<id>4-three</id>"));
-        assertTrue(fo.contains(EntityXStream.ENTITY_REF));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
 
     }
 

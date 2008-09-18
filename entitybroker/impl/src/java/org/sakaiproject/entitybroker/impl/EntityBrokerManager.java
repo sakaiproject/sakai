@@ -48,8 +48,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
-import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundException;
+import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.sakaiproject.genericdao.util.exceptions.FieldnameNotFoundException;
 
 
 /**
@@ -81,10 +81,8 @@ public class EntityBrokerManager {
         this.serverConfigurationService = serverConfigurationService;
     }
 
-    // use a singleton instance attached to the classloader for everyone
-    private ReflectUtil reflectUtil = ReflectUtil.getInstance();
-    public ReflectUtil getReflectUtil() {
-        return reflectUtil;
+    public ReflectUtils getReflectUtil() {
+        return ReflectUtils.getInstance();
     }
 
     /**

@@ -54,7 +54,7 @@ public class EntityDescriptionManagerTest extends TestCase {
    public void testDescribeAll() {
 
       // test describe all entities
-      String content = entityDescriptionManager.makeDescribeAll(null);
+      String content = entityDescriptionManager.makeDescribeAll(null, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX1));
@@ -66,7 +66,7 @@ public class EntityDescriptionManagerTest extends TestCase {
       assertTrue(content.contains(TestData.PREFIX7));
       assertTrue(content.contains(TestData.PREFIX8));
 
-      content = entityDescriptionManager.makeDescribeAll(Formats.XML);
+      content = entityDescriptionManager.makeDescribeAll(Formats.XML, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX1));
@@ -82,36 +82,36 @@ public class EntityDescriptionManagerTest extends TestCase {
    public void testDescribeEntity() {
 
       // test describe single entity space
-      String content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX1, "test", null);
+      String content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX1, "test", null, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX1));
 
       // XML
-      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX1, "test", Formats.XML);
+      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX1, "test", Formats.XML, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX1));
 
       // prefix 4
-      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX4, "test", null);
+      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX4, "test", null, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX4));
 
-      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX6, "test", null);
+      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX6, "test", null, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX6));
 
       // XML
-      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX6, "test", Formats.XML);
+      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX6, "test", Formats.XML, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX6));
 
       // test an entity which is describeable
-      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX7, "test", Formats.HTML);
+      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX7, "test", Formats.HTML, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX7));
@@ -119,7 +119,7 @@ public class EntityDescriptionManagerTest extends TestCase {
       assertTrue(content.contains("This is a test description of Createable"));
 
       // XML
-      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX7, "test", Formats.XML);
+      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX7, "test", Formats.XML, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX7));
@@ -128,7 +128,7 @@ public class EntityDescriptionManagerTest extends TestCase {
       assertTrue(content.contains("This is a test description of Createable"));
 
       // test an entity which is DescribePropertiesable
-      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX8, "test", Formats.HTML);
+      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX8, "test", Formats.HTML, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX8));
@@ -136,7 +136,7 @@ public class EntityDescriptionManagerTest extends TestCase {
       assertTrue(content.contains("CUSTOM Deleteable"));
 
       // XML
-      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX8, "test", Formats.XML);
+      content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX8, "test", Formats.XML, null);
       assertNotNull(content);
       assertTrue(content.length() > 80);
       assertTrue(content.contains(TestData.PREFIX8));
@@ -146,7 +146,7 @@ public class EntityDescriptionManagerTest extends TestCase {
 
       // test invalid describe
       try {
-         content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX9, "test", null);
+         content = entityDescriptionManager.makeDescribeEntity(TestData.PREFIX9, "test", null, null);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());

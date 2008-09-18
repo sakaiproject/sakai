@@ -31,6 +31,7 @@ import org.sakaiproject.genericdao.api.mappers.StatementMapper;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.genericdao.springjdbc.JdbcGeneralGenericDao;
+import org.sakaiproject.genericdao.util.JDBCUtils.QueryData;
 
 /**
  * Internal dao for entity broker internal services
@@ -116,29 +117,11 @@ public class EntityBrokerDaoImpl extends JdbcGeneralGenericDao implements Entity
       if (name != null && name.length() > 0) {
          search.addRestriction( new Restriction("propertyName", name) );
       }
-      SQLdata sd = makeSQLfromSearch(EntityProperty.class, search);
+      QueryData sd = makeQueryFromSearch(EntityProperty.class, search);
       String sql = makeSQL(getDeleteTemplate(EntityProperty.class), 
             getTableNameFromClass(EntityProperty.class), 
             StatementMapper.WHERE, sd.getAfterTableSQL());
       return getJdbcTemplate().update(sql, sd.getArgs());
-
-//      NamesRecord nr = getNamesRecord(EntityProperty.class);
-//      String entityRefColumn = nr.getColumnForProperty("entityRef");
-//      List<Object> params = new ArrayList<Object>();
-//
-//      String whereSQL = "where " + entityRefColumn + " = ?";
-//      params.add(entityReference);
-//
-//      if (name != null) {
-//         whereSQL += " and " + nr.getColumnForProperty("propertyName") + " = ?";
-//         params.add(name);
-//      }
-//
-//      String sql = makeSQL(getDeleteTemplate(EntityProperty.class), 
-//            getTableNameFromClass(EntityProperty.class), 
-//            StatementMapper.WHERE, whereSQL);
-//
-//      return getJdbcTemplate().update(sql, params.toArray());
    }
 
    public int deleteTags(String entityReference, String[] tags) {
@@ -146,29 +129,11 @@ public class EntityBrokerDaoImpl extends JdbcGeneralGenericDao implements Entity
       if (tags != null && tags.length > 0) {
          search.addRestriction( new Restriction("tag", tags) );
       }
-      SQLdata sd = makeSQLfromSearch(EntityTagApplication.class, search);
+      QueryData sd = makeQueryFromSearch(EntityTagApplication.class, search);
       String sql = makeSQL(getDeleteTemplate(EntityTagApplication.class), 
             getTableNameFromClass(EntityTagApplication.class), 
             StatementMapper.WHERE, sd.getAfterTableSQL());
       return getJdbcTemplate().update(sql, sd.getArgs());
    }
-/**
-   public List<String> getEntityRefsForTags(Search search, boolean matchAll) {
-      // FIXME - not working yet
-      if (matchAll) {
-         NamesRecord nr = getNamesRecord(EntityTagApplication.class);
-         String refColumn = nr.getColumnForProperty("entityRef");
-         SQLdata sd = makeSQLfromSearch(EntityTagApplication.class, search);
-         String sql = "select "+refColumn+" from " 
-               +getTableNameFromClass(EntityTagApplication.class)+sd.getAfterTableSQL()
-               +" group by "+refColumn;
-         List<Map<String, Object>> l = getJdbcTemplate().queryForList(sql, sd.getArgs());
-         for (Map<String, Object> m : l) {
-            String reference = (String) m.get(refColumn);
-         }
-      }
-      // TODO Auto-generated method stub
-      return null;
-   }
-**/
+
 }

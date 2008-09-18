@@ -49,7 +49,7 @@ import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.impl.util.VersionConstants;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
+import org.sakaiproject.genericdao.util.ReflectUtils;
 
 
 /**
@@ -127,9 +127,13 @@ public class EntityDescriptionManager {
      * this is only available as XML and XHTML
      * 
      * @param format XML or HTML (default is HTML)
+     * @param locale the locale to use for any translations
      * @return the description string for all known entities
      */
-    public String makeDescribeAll(String format) {
+    public String makeDescribeAll(String format, Locale locale) {
+        if (locale == null) {
+            locale = entityProperties.getLocale();
+        }
         Map<String, List<Class<? extends EntityProvider>>> map = entityProviderManager.getRegisteredEntityCapabilities();
         String describeURL = entityBrokerManager.makeFullURL("") + SLASH_DESCRIBE;
         String output = "";
@@ -145,14 +149,13 @@ public class EntityDescriptionManager {
             Collections.sort(prefixes);
             for (int i = 0; i < prefixes.size(); i++) {
                 String prefix = prefixes.get(i);
-                describeEntity(sb, prefix, FAKE_ID, format, false, map.get(prefix));
+                describeEntity(sb, prefix, FAKE_ID, format, false, map.get(prefix), locale);
             }
             sb.append("  </prefixes>\n");
             sb.append("</describe>\n");
             output = sb.toString();
         } else {
             // just do HTML if not one of the handled ones
-            Locale locale = entityProperties.getLocale();
             StringBuilder sb = new StringBuilder(300);
             sb.append(XML_HEADER);
             sb.append(XHTML_HEADER);
@@ -166,7 +169,7 @@ public class EntityDescriptionManager {
             Collections.sort(prefixes);
             for (int i = 0; i < prefixes.size(); i++) {
                 String prefix = prefixes.get(i);
-                describeEntity(sb, prefix, FAKE_ID, format, false, map.get(prefix));
+                describeEntity(sb, prefix, FAKE_ID, format, false, map.get(prefix), locale);
             }
             sb.append(XHTML_FOOTER);
             output = sb.toString();
@@ -194,22 +197,26 @@ public class EntityDescriptionManager {
      * @param prefix an entity prefix
      * @param id the entity id to use for generating URLs
      * @param format a format to output, HTML and XML supported
+     * @param locale the locale to use for translations
      * @return the description string
      * @throws IllegalArgumentException if the entity does not exist
      */
-    public String makeDescribeEntity(String prefix, String id, String format) {
+    public String makeDescribeEntity(String prefix, String id, String format, Locale locale) {
+        if (locale == null) {
+            locale = entityProperties.getLocale();
+        }
         if (entityProviderManager.getProviderByPrefix(prefix) == null) {
             throw new IllegalArgumentException("Invalid prefix ("+prefix+"), entity with that prefix does not exist");
         }
         StringBuilder sb = new StringBuilder(250);
         if (Formats.XML.equals(format)) {
             sb.append(XML_HEADER);
-            describeEntity(sb, prefix, id, format, true, null);
+            describeEntity(sb, prefix, id, format, true, null, locale);
         } else {
             // just do HTML if not one of the handled ones
             sb.append(XML_HEADER);
             sb.append(XHTML_HEADER);
-            describeEntity(sb, prefix, id, format, true, null);
+            describeEntity(sb, prefix, id, format, true, null, locale);
             sb.append(XHTML_FOOTER);
         }
         return sb.toString();
@@ -223,11 +230,15 @@ public class EntityDescriptionManager {
      * @param format
      * @param extra
      * @param caps
-     * @return
+     * @param locale used for translations
+     * @return the entity description
      */
-    protected String describeEntity(StringBuilder sb, String prefix, String id, String format, boolean extra, List<Class<? extends EntityProvider>> caps) {
+    protected String describeEntity(StringBuilder sb, String prefix, String id, String format, boolean extra, List<Class<? extends EntityProvider>> caps, Locale locale) {
         if (caps == null) {
             caps = entityProviderManager.getPrefixCapabilities(prefix);
+        }
+        if (locale == null) {
+            locale = entityProperties.getLocale();
         }
         String directUrl = entityBrokerManager.makeFullURL("");
         if (Formats.XML.equals(format)) {
@@ -236,7 +247,7 @@ public class EntityDescriptionManager {
             sb.append("    <prefix>\n");
             sb.append("      <prefix>" + prefix + "</prefix>\n");
             sb.append("      <describeURL>" + describePrefixUrl + "</describeURL>\n");
-            String description = getEntityDescription(prefix, null);
+            String description = getEntityDescription(prefix, null, locale);
             if (description != null) {
                 sb.append("      <description>" + description + "</description>\n");            
             }
@@ -245,33 +256,33 @@ public class EntityDescriptionManager {
                 EntityView ev = entityBrokerManager.makeEntityView(new EntityReference(prefix, id), null, null);
                 if (caps.contains(CollectionResolvable.class)) {
                     sb.append("      <collectionURL>" + ev.getEntityURL(EntityView.VIEW_LIST, null) + "</collectionURL>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST);
+                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST, locale);
                     if (viewDesc != null) {
                         sb.append("      <collectionDescription>"+viewDesc+"</collectionDescription>\n");
                     }
                 }
                 if (caps.contains(Createable.class)) {
                     sb.append("      <createURL>" + ev.getEntityURL(EntityView.VIEW_NEW, null) + "</createURL>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW);
+                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW, locale);
                     if (viewDesc != null) {
                         sb.append("      <createDescription>"+viewDesc+"</createDescription>\n");
                     }
                 }
                 sb.append("      <showURL>" + ev.getEntityURL(EntityView.VIEW_SHOW, null) + "</showURL>\n");
-                String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW);
+                String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
                 if (viewDesc != null) {
                     sb.append("      <showDescription>"+viewDesc+"</showDescription>\n");
                 }
                 if (caps.contains(Updateable.class)) {
                     sb.append("      <updateURL>" + ev.getEntityURL(EntityView.VIEW_EDIT, null) + "</updateURL>\n");
-                    String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT);
+                    String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
                     if (viewDesc2 != null) {
                         sb.append("      <updateDescription>"+viewDesc2+"</updateDescription>\n");
                     }
                 }
                 if (caps.contains(Deleteable.class)) {
                     sb.append("      <deleteURL>" + ev.getEntityURL(EntityView.VIEW_DELETE, null) + "</deleteURL>\n");
-                    String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE);
+                    String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
                     if (viewDesc2 != null) {
                         sb.append("      <deleteDescription>"+viewDesc2+"</deleteDescription>\n");
                     }
@@ -291,7 +302,7 @@ public class EntityDescriptionManager {
                             sb.append("          <method>"+EntityView.translateViewKeyToMethod(customAction.viewKey)+"</method>\n");
                             sb.append("          <viewKey>"+customAction.viewKey+"</viewKey>\n");
                         }
-                        String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action);
+                        String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action, locale);
                         if (actionDesc != null) {
                             sb.append("          <description>"+actionDesc+"</description>\n");
                         }
@@ -370,7 +381,7 @@ public class EntityDescriptionManager {
                         sb.append("          <field>\n");
                         sb.append("            <name>"+ key +"</name>\n");
                         sb.append("            <type>"+ type.getName() +"</type>\n");
-                        String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key);
+                        String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key, locale);
                         if (fieldDesc != null) {
                             sb.append("            <description>"+ fieldDesc +"</description>\n");
                         }
@@ -393,7 +404,7 @@ public class EntityDescriptionManager {
                         if (redirect.methodName != null) {
                             sb.append("          <methodName>"+redirect.methodName+"</methodName>\n");
                         }
-                        String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template);
+                        String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template, locale);
                         if (redirectDesc != null) {
                             sb.append("          <description>"+redirectDesc+"</description>\n");
                         }
@@ -411,7 +422,7 @@ public class EntityDescriptionManager {
                 sb.append("          <name>"+class1.getSimpleName()+"</name>\n");
                 sb.append("          <type>"+class1.getName()+"</type>\n");
                 if (extra) {
-                    String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName());
+                    String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName(), locale);
                     if (capabilityDescription != null) {
                         sb.append("          <description>" + capabilityDescription + "</description>\n");                  
                     }
@@ -421,12 +432,11 @@ public class EntityDescriptionManager {
             sb.append("      </capabilities>\n");
             sb.append("    </prefix>\n");
         } else {
-            Locale locale = entityProperties.getLocale();
             // just do HTML if not one of the handled ones
             String describePrefixUrl = directUrl + "/" + prefix + SLASH_DESCRIBE;
             sb.append("    <h3><a href='"+describePrefixUrl+"'>"+prefix+"</a>"
                     + makeFormatUrlHtml(describePrefixUrl, Formats.XML) +"</h3>\n");
-            String description = getEntityDescription(prefix, null);
+            String description = getEntityDescription(prefix, null, locale);
             if (description != null) {
                 sb.append("      <div style='font-style: italics; padding-left:0.5em; padding-bottom:0.4em; width:90%;'>" + description + "</div>\n");
             }
@@ -448,7 +458,7 @@ public class EntityDescriptionManager {
                     sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.collection.url", locale)
                             +": <a href='"+ directUrl+url +"'>"+url+"<a/>"
                             + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST);
+                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST, locale);
                     if (viewDesc != null) {
                         sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
                     }
@@ -459,7 +469,7 @@ public class EntityDescriptionManager {
                     sb.append("        <div>\n");
                     sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.create.url", locale)
                             +": <a href='"+ directUrl+url +"'>"+url+"<a/></div>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW);
+                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW, locale);
                     if (viewDesc != null) {
                         sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
                     }
@@ -471,7 +481,7 @@ public class EntityDescriptionManager {
                 sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.show.url", locale)
                         +": <a href='"+ directUrl+url +"'>"+url+"<a/>"
                         + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
-                String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW);
+                String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
                 if (viewDesc2 != null) {
                     sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc2+"</div>\n");
                 }
@@ -482,7 +492,7 @@ public class EntityDescriptionManager {
                     sb.append("        <div>\n");
                     sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.update.url", locale)
                             +": <a href='"+ directUrl+url +"'>"+url+"<a/></div>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT);
+                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
                     if (viewDesc != null) {
                         sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
                     }
@@ -493,7 +503,7 @@ public class EntityDescriptionManager {
                     sb.append("        <div>\n");
                     sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)
                             +": <a href='"+ directUrl+url +"'>"+url+"<a/></div>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE);
+                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
                     if (viewDesc != null) {
                         sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
                     }
@@ -521,7 +531,7 @@ public class EntityDescriptionManager {
                                 + "<span>["+actionURL+"]</span> "
                                 + formatsHtml
                                 + "<br/>\n");
-                        String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action);
+                        String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action, locale);
                         if (actionDesc != null) {
                             sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+actionDesc+"</div>\n");
                         }
@@ -568,7 +578,7 @@ public class EntityDescriptionManager {
                         sb.append("        <div>\n");
                         sb.append("          <span>"+(i+1)+")</span> &nbsp; <span style='font-weight:bold;'>"+key
                                 +"</span> :: <span>"+type.getName()+"</span><br/>\n");
-                        String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key);
+                        String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key, locale);
                         if (fieldDesc != null) {
                             sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+fieldDesc+"</div>\n");
                         }
@@ -592,7 +602,7 @@ public class EntityDescriptionManager {
                         sb.append("          <span>"+(i+1)+")</span> &nbsp; "
                                 + makeRedirectLink(replacePrefix(redirect.template, prefix), directUrl)
                                 + " ==&gt; <span>"+target+"</span><br/>\n");
-                        String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template);
+                        String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template, locale);
                         if (redirectDesc != null) {
                             sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+redirectDesc+"</div>\n");
                         }
@@ -625,7 +635,7 @@ public class EntityDescriptionManager {
                 sb.append(class1.getName());
                 sb.append("</td><td>");
                 if (extra) {
-                    String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName());
+                    String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName(), locale);
                     if (capabilityDescription != null) {
                         sb.append(capabilityDescription);
                     }
@@ -710,8 +720,8 @@ public class EntityDescriptionManager {
                             formats = accessFormats;
                         } else {
                             for (int i = 0; i < accessFormats.length; i++) {
-                                if (! ReflectUtil.contains(formats, accessFormats[i])) {
-                                    ReflectUtil.appendArray(formats, accessFormats[i]);
+                                if (! ReflectUtils.contains(formats, accessFormats[i])) {
+                                    ReflectUtils.appendArray(formats, accessFormats[i]);
                                 }
                             }
                         }
@@ -734,6 +744,9 @@ public class EntityDescriptionManager {
 
     protected String makeFormatsString(String[] formats, String[] extraFormats, Locale locale) {
         String s = "";
+        if (locale == null) {
+            locale = entityProperties.getLocale();
+        }
         if (formats == null) {
             s = "<i>"+entityProperties.getProperty(DESCRIBE, "describe.entity.formats.none", locale)+"</i>";
         } else if (formats.length == 0) {
@@ -769,14 +782,17 @@ public class EntityDescriptionManager {
     }
 
     /**
-     * Get the descriptions for an entity OR its capabilites OR custom actions
+     * Get the descriptions for an entity OR its capabilities OR custom actions
      * @param prefix an entity prefix
      * @param descriptionkey (optional) the key (simplename for capability, action.actionkey for actions)
+     * @param locale the Locale to use for translations
      * @return the description (may be blank) OR null if there is none
      */
-    protected String getEntityDescription(String prefix, String descriptionkey) {
+    protected String getEntityDescription(String prefix, String descriptionkey, Locale locale) {
         String value = null;
-        Locale locale = entityProperties.getLocale();
+        if (locale == null) {
+            locale = entityProperties.getLocale();
+        }
         // get from EP first if possible
         DescribeDefineable describer = entityProviderManager.getProviderByPrefixAndCapability(prefix, DescribeDefineable.class);
         if (describer != null) {

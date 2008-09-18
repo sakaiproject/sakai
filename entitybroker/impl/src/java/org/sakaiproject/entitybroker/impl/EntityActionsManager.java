@@ -56,7 +56,7 @@ import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorag
 import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
+import org.sakaiproject.genericdao.util.ReflectUtils;
 
 
 /**
@@ -189,7 +189,7 @@ public class EntityActionsManager {
                args[i] = actionParams;
             } else {
                throw new IllegalStateException("custom action ("+customAction+") contains an invalid methodArgTypes, " +
-               		"only valid types allowed: " + ReflectUtil.arrayToString(validParamTypes));
+               		"only valid types allowed: " + ReflectUtils.arrayToString(validParamTypes));
             }
          }
          try {
@@ -362,7 +362,7 @@ public class EntityActionsManager {
          }
          if (!found) {
             throw new IllegalArgumentException("Invalid custom action method: param type is not allowed: " + paramType.getName() 
-                  + " : valid types include: " + ReflectUtil.arrayToString(validParamTypes));
+                  + " : valid types include: " + ReflectUtils.arrayToString(validParamTypes));
          }
       }
       return validParams;

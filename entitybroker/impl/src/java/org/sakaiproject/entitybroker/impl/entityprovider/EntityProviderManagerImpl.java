@@ -34,6 +34,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -56,9 +57,10 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.impl.EntityActionsManager;
 import org.sakaiproject.entitybroker.impl.EntityRedirectsManager;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
-import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
-import org.sakaiproject.entitybroker.util.refmap.ReferenceMap;
-import org.sakaiproject.entitybroker.util.refmap.ReferenceType;
+
+import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.sakaiproject.genericdao.util.refmap.ReferenceMap;
+import org.sakaiproject.genericdao.util.refmap.ReferenceType;
 
 /**
  * Base implementation of the entity provider manager
@@ -556,7 +558,7 @@ public void registerEntityProvider(EntityProvider entityProvider) {
     */
    @SuppressWarnings("unchecked")
    protected static List<Class<? extends EntityProvider>> extractCapabilities(EntityProvider provider) {
-      List<Class<?>> superclasses = ReflectUtil.getSuperclasses(provider.getClass());
+      List<Class<?>> superclasses = ReflectUtils.getSuperclasses(provider.getClass());
       Set<Class<? extends EntityProvider>> capabilities = new HashSet<Class<? extends EntityProvider>>();
 
       for (Class<?> superclazz : superclasses) {
