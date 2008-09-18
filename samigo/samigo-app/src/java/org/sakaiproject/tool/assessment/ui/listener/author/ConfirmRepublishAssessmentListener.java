@@ -31,6 +31,7 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
 		Long assessmentId = assessmentSettings.getAssessmentId();
 		PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId.toString());
+		/*
 		PublishedAccessControl control = (PublishedAccessControl)assessment.getAssessmentAccessControl();
 		if (control == null){
 			control = new PublishedAccessControl();
@@ -38,35 +39,36 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 			// later
 		    control.setAssessmentBase(assessment.getData());
 		}
-	    
+	    */
 		EventTrackingService.post(EventTrackingService.newEvent("sam.pubsetting.edit", "publishedAssessmentId=" + assessmentId, true));
 		FacesContext context = FacesContext.getCurrentInstance();
-		boolean error = savePublishedSettingsListener.setPublishedSettings(assessmentSettings, context, control, assessment, false);
+		//boolean error = savePublishedSettingsListener.setPublishedSettings(assessmentService, assessmentSettings, context, control, assessment, false);
+		/*
 		if (error){
 		   	assessmentSettings.setOutcome("editPublishedAssessmentSettings");
 		   	return;
 		}
-
+		*/
 		boolean gbError = savePublishedSettingsListener.checkScore(assessmentSettings, assessment, context);
 		if (gbError){
-		   	assessmentSettings.setOutcome("editPublishedAssessmentSettings");
+		   	author.setOutcome("editAssessment");
 		   	return;
 		}
 
 		//savePublishedSettingsListener.updateGB(assessmentSettings, assessment);
 
-		assessmentService.saveAssessment(assessment);
+		//assessmentService.saveAssessment(assessment);
 		
 		//These outcome are set for Cancel button in publishAssessment.jsp
 		String actionCommand = ae.getComponent().getId();
 		if (actionCommand.startsWith("republishRegrade")) {
 			log.debug("republishRegrade");
-			author.setOutcome("editAssessment");
+			//author.setOutcome("editAssessment");
 			author.setIsRepublishAndRegrade(true);
 		}
 		else if (actionCommand.startsWith("republish")) {
 			log.debug("republish");
-			author.setOutcome("editAssessment");
+			//author.setOutcome("editAssessment");
 			author.setIsRepublishAndRegrade(false);
 		}
 		/* This is commented out for 1534
@@ -93,5 +95,6 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 			assessmentBean.setHasSubmission(false);
 		}
 		publishedAssessmentSettings.setUpdateMostCurrentSubmission(false);
+		author.setOutcome("saveSettingsAndConfirmPublish");
 	}
 }

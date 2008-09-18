@@ -23,7 +23,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,17 +35,18 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
-import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.api.Reference;
 
 /**
  * <p>Title: Samigo</p>
@@ -58,17 +58,47 @@ public class SaveAssessmentAttachmentListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SaveAssessmentAttachmentListener.class);
-
+  
+  // this is to indicate which flow
+  // if it is true, that means we save the assessment attachment in setting page of a pending assessment (authorSettings.jsp)
+  // if it is false, that means we save the assessment attachment in setting page of a published assessment (publishedSettings.jsp)
+  private boolean isForAuthorSettings;
+  
   public SaveAssessmentAttachmentListener()
   {
   }
+  
+  public SaveAssessmentAttachmentListener(boolean isForAuthorSettings)
+  {
+	  this.isForAuthorSettings = isForAuthorSettings;
+  }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
-
-    // attach item attachemnt to assessmentBean
-    List attachmentList = prepareAssessmentAttachment(assessmentSettings);
-    assessmentSettings.setAttachmentList(attachmentList);
+	  AssessmentService assessmentService = null;
+	  AssessmentIfc assessment = null;
+	  List attachmentList = new ArrayList();
+	  if (isForAuthorSettings) {
+		  assessmentService = new AssessmentService();
+		  AssessmentSettingsBean assessmentSettingsBean = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
+		  if (assessmentSettingsBean.getAssessment() != null){
+			  assessment = assessmentSettingsBean.getAssessment();
+			  // attach item attachemnt to assessmentBean
+			  attachmentList = prepareAssessmentAttachment(assessment, assessmentService);
+			  
+		  }
+		  assessmentSettingsBean.setAttachmentList(attachmentList);
+	  }
+	  else {
+		  assessmentService = new PublishedAssessmentService();
+		  PublishedAssessmentSettingsBean publishedAssessmentSettingsBean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean(
+		  "publishedSettings");
+		  if (publishedAssessmentSettingsBean.getAssessment() != null){
+			  assessment = publishedAssessmentSettingsBean.getAssessment();
+		      // attach item attachemnt to assessmentBean
+			  attachmentList = prepareAssessmentAttachment(assessment, assessmentService);
+		  }
+		  publishedAssessmentSettingsBean.setAttachmentList(attachmentList);
+	  }  
   }
 
   private HashMap getResourceIdHash(Set attachmentSet){
@@ -83,13 +113,7 @@ public class SaveAssessmentAttachmentListener
     return map;
   }
 
-  private List prepareAssessmentAttachment(AssessmentSettingsBean bean){
-    AssessmentFacade assessment = null;
-    // assessment == null => assessment does not exist yet
-    if (bean.getAssessment() != null){
-	assessment = bean.getAssessment();
-    }
-
+  private List prepareAssessmentAttachment(AssessmentIfc assessment, AssessmentService assessmentService){
     ToolSession session = SessionManager.getCurrentToolSession();
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
       
@@ -100,7 +124,6 @@ public class SaveAssessmentAttachmentListener
       HashMap map = getResourceIdHash(attachmentSet);
       ArrayList newAttachmentList = new ArrayList();
 
-      AssessmentService assessmentService = new AssessmentService();
       String protocol = ContextUtil.getProtocol();
 
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
@@ -116,15 +139,14 @@ public class SaveAssessmentAttachmentListener
             log.debug("**** ref.name="+ref.getProperties().getProperty(
                        ref.getProperties().getNamePropDisplayName()));
             AssessmentAttachmentIfc newAttach = assessmentService.createAssessmentAttachment(
-                                                (AssessmentIfc)assessment.getData(),
+                                                assessment,
                                                 ref.getId(), ref.getProperties().getProperty(
                                                 ref.getProperties().getNamePropDisplayName()),
                                                 protocol);
             newAttachmentList.add(newAttach);
 	  }
           else{ 
-            // attachment already exist, let's add it to new list and
-	    // check it off from map
+            // attachment already exist, let's add it to new list and check it off from map
             newAttachmentList.add((AssessmentAttachmentIfc)map.get(resourceId));
             map.remove(resourceId);
 	  }

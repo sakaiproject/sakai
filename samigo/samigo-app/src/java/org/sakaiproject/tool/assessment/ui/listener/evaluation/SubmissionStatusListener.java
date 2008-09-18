@@ -375,7 +375,7 @@ public class SubmissionStatusListener
 				if ((Boolean.FALSE).equals(assessmentAccessControl.getUnlimitedSubmissions())) {
 					maxSubmissionsAllowed = assessmentAccessControl.getSubmissionsAllowed().intValue();
 				}
-				if ((totalSubmitted == maxSubmissionsAllowed + numberRetake)) {
+				if ((totalSubmitted >= maxSubmissionsAllowed + numberRetake)) {
 					return true;
 				}
 			}

@@ -50,12 +50,23 @@ should be included in file importing DeliveryMessages
   <h:outputText escape="false" value="#{question.itemData.answerKey}" />
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
   <h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
   <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
+  <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
+  <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
+<f:verbatim><br/></f:verbatim>
+</h:panelGroup>
+
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
+  <h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
+  <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
+<f:verbatim><br/></f:verbatim>
+</h:panelGroup>
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
   <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
   <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
 <f:verbatim><br/></f:verbatim>

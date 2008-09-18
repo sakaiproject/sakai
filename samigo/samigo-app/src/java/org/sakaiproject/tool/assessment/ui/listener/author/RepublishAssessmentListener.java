@@ -62,11 +62,8 @@ public class RepublishAssessmentListener implements ActionListener {
 		// If there are submissions, need to regrade them
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
 			regradeRepublishedAssessment(publishedAssessmentService, assessment);
-			updateGB(assessment, true);
 		}
-		else {
-			updateGB(assessment, false);
-		}
+		updateGB(assessment);
 		GradingService gradingService = new GradingService();
 		AssessmentService assessmentService = new AssessmentService();
 		AuthorActionListener authorActionListener = new AuthorActionListener();
@@ -109,7 +106,7 @@ public class RepublishAssessmentListener implements ActionListener {
 		}
 	}
 
-	private void updateGB(PublishedAssessmentFacade assessment, boolean regradeAndRepublish) {
+	private void updateGB(PublishedAssessmentFacade assessment) {
 		// a. if Gradebook does not exists, do nothing
 		// b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
 		// a new record. At the end, populate the scores by calling updateExternalAssessmentScores
@@ -130,15 +127,14 @@ public class RepublishAssessmentListener implements ActionListener {
 			Integer scoringType = evaluation.getScoringType();
 			if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 
-				if (regradeAndRepublish) {
-					try {
-						log.debug("before gbsHelper.removeGradebook()");
-						gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
-					} catch (Exception e1) {
-						// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
-						log.info("Exception thrown in updateGB():" + e1.getMessage());
-					}
+				try {
+					log.debug("before gbsHelper.removeGradebook()");
+					gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
+				} catch (Exception e1) {
+					// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
+					log.info("Exception thrown in updateGB():" + e1.getMessage());
 				}
+				
 				try {
 					log.debug("before gbsHelper.addToGradebook()");
 					gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), g);

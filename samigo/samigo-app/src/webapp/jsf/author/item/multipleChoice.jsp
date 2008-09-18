@@ -160,11 +160,19 @@
  </h:panelGrid>
 
  
-          <h:outputText value="#{authorMessages.feedback_optional}" rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}" />
+          <h:outputText value="#{authorMessages.feedback_optional}" rendered="#{itemauthor.target == 'questionpool' || (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1')}" />
     
+          <h:outputText value="#{authorMessages.feedback_optional}" rendered="#{itemauthor.target == 'questionpool' || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1')}" />
+
         <!-- WYSIWYG -->
 
-<h:panelGrid rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}">
+  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1')}">
+         <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="yes" >
+           <f:validateLength maximum="4000"/>
+         </samigo:wysiwyg>
+  </h:panelGrid>
+
+  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1')}">
          <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="yes" >
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
@@ -236,7 +244,7 @@
 
 
  <!-- 8 FEEDBACK -->
-<h:panelGroup rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '2'}">
+<h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2')}">
  <h:outputText value=" " escape="false"/>
  <f:verbatim> <div class="longtext"></f:verbatim>
   <h:outputLabel value="#{authorMessages.correct_incorrect_an}" />
@@ -244,9 +252,7 @@
  <f:verbatim><div class="tier2"> </f:verbatim>
   <h:outputText value="#{authorMessages.correct_answer_opti}" />
 <br/>
-  <!-- WYSIWYG -->
-  
-
+  <!-- WYSIWYG --> 
 <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
      <f:validateLength maximum="4000"/>
@@ -263,8 +269,34 @@
 </h:panelGrid>
  <f:verbatim></div> </f:verbatim>
 </h:panelGroup>
- <!-- METADATA -->
 
+<h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2')}">
+ <h:outputText value=" " escape="false"/>
+ <f:verbatim> <div class="longtext"></f:verbatim>
+  <h:outputLabel value="#{authorMessages.correct_incorrect_an}" />
+ <f:verbatim></div> </f:verbatim>
+ <f:verbatim><div class="tier2"> </f:verbatim>
+  <h:outputText value="#{authorMessages.correct_answer_opti}" />
+<br/>
+  <!-- WYSIWYG --> 
+<h:panelGrid>
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
+     <f:validateLength maximum="4000"/>
+   </samigo:wysiwyg>
+</h:panelGrid>
+ <f:verbatim><br/> </f:verbatim>
+ <h:outputText value="#{authorMessages.incorrect_answer_op}" />
+
+  <!-- WYSIWYG -->
+   <h:panelGrid>
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="yes" >
+     <f:validateLength maximum="4000"/>
+   </samigo:wysiwyg>
+</h:panelGrid>
+ <f:verbatim></div> </f:verbatim>
+</h:panelGroup>
+
+ <!-- METADATA -->
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>

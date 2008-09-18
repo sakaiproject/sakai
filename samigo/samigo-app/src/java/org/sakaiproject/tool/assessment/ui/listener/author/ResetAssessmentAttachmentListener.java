@@ -23,10 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -34,19 +31,19 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: Samigo</p>
@@ -64,28 +61,24 @@ public class ResetAssessmentAttachmentListener
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-    AssessmentSettingsBean bean = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
-    AssessmentService assessmentService = new AssessmentService();
-    String assessmentId = bean.getAssessmentId().toString();
-	log.debug("***assessmentId="+assessmentId);
-    if (assessmentId !=null && !("").equals(assessmentId)){
-      AssessmentIfc assessment = (AssessmentIfc) assessmentService.getAssessment(assessmentId);
-      resetAssessmentAttachment(bean.getResourceHash(), assessment.getAssessmentAttachmentList());
-    }
-    else{
-	resetAssessmentAttachment(bean.getResourceHash(), new ArrayList());
-    }
-    
-    //  Set the outcome once Save button is clicked
-    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-    bean.setOutcomeCancel(author.getFromPage());
+	  AssessmentService assessmentService = new AssessmentService();
+	  AssessmentSettingsBean assessmentSettingsBean = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
+	  String assessmentId = assessmentSettingsBean.getAssessmentId().toString();
+
+	  log.debug("***assessmentId="+assessmentId);
+	  if (assessmentId !=null && !("").equals(assessmentId)){
+		  AssessmentIfc assessment = (AssessmentIfc) assessmentService.getAssessment(assessmentId);
+		  resetAssessmentAttachment(assessment.getAssessmentAttachmentList(), assessmentService);
+	  }
+	  else{
+		  resetAssessmentAttachment(new ArrayList(), assessmentService);
+	  }
   }
 
-  public void resetAssessmentAttachment(HashMap resourceHash, List attachmentList){
+  public void resetAssessmentAttachment(List attachmentList, AssessmentService assessmentService){
 
     // 1. we need to make sure that attachment removed/added by file picker 
     //    will be restored/remove when user cancels the entire modification
-    AssessmentService assessmentService = new AssessmentService();
     if (attachmentList != null){
       for (int i=0; i<attachmentList.size(); i++){
          AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);

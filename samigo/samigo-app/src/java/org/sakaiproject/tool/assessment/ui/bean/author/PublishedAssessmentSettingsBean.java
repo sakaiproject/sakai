@@ -42,7 +42,6 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
@@ -50,9 +49,19 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -63,9 +72,13 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
 
 
 public class PublishedAssessmentSettingsBean
@@ -179,7 +192,7 @@ public class PublishedAssessmentSettingsBean
   private boolean updateMostCurrentSubmission = false;
   
   private boolean isMarkForReview;
-  
+  private List attachmentList;
   /*
    * Creates a new AssessmentBean object.
    */
@@ -235,6 +248,8 @@ public class PublishedAssessmentSettingsBean
         this.timeLimit = accessControl.getTimeLimit(); // in seconds
         if (timeLimit !=null && timeLimit.intValue()>0)
           setTimeLimitDisplay(timeLimit.intValue());
+        else 
+            resetTimeLimitDisplay();
         if ((new Integer(1)).equals(assessment.getAssessmentAccessControl().getTimedAssessment()))
           this.timedAssessment = true;
         if ((new Integer(1)).equals(assessment.getAssessmentAccessControl().getAutoSubmit()))
@@ -819,6 +834,12 @@ public class PublishedAssessmentSettingsBean
     this.timedSeconds = new Integer(time % 60);
   }
 
+  public void resetTimeLimitDisplay(){
+	    this.timedHours=new Integer(0);
+	    this.timedMinutes = new Integer(0);
+	    this.timedSeconds = new Integer(0);
+  }
+  
   // followings are set of SelectItem[] used in authorSettings.jsp
   public SelectItem[] getHours() {
     return hours;
@@ -1384,6 +1405,76 @@ public class PublishedAssessmentSettingsBean
 
 	public void setIsMarkForReview(boolean isMarkForReview) {
 		this.isMarkForReview = isMarkForReview;
+	}
+
+	public List getAttachmentList() {
+		return attachmentList;
+	}
+
+	public void setAttachmentList(List attachmentList)
+	{
+		this.attachmentList = attachmentList;
+	}
+
+	private boolean hasAttachment = false;
+	public boolean getHasAttachment(){
+	    if (attachmentList!=null && attachmentList.size() >0)
+	      this.hasAttachment = true;
+	    return this.hasAttachment;
+	}
+
+	public String addAttachmentsRedirect() {
+		// 1. redirect to add attachment
+		try	{
+			List filePickerList = new ArrayList();
+			if (attachmentList != null){
+				filePickerList = prepareReferenceList(attachmentList);
+			}
+			ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
+			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			context.redirect("sakai.filepicker.helper/tool");
+		}
+		catch(Exception e){
+			log.error("fail to redirect to attachment page: " + e.getMessage());
+		}
+		return "editPublishedAssessmentSettings";
+	}
+
+	public void setAssessmentAttachment(){
+		SaveAssessmentAttachmentListener lis = new SaveAssessmentAttachmentListener(false);
+		lis.processAction(null);
+	}
+
+	private List prepareReferenceList(List attachmentList){
+		List list = new ArrayList();
+		for (int i=0; i<attachmentList.size(); i++){
+			ContentResource cr = null;
+			AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
+			try{
+				cr = ContentHostingService.getResource(attach.getResourceId());
+			}
+			catch (PermissionException e) {
+				log.warn("PermissionException from ContentHostingService:"+e.getMessage());
+			}
+			catch (IdUnusedException e) {
+				log.warn("IdUnusedException from ContentHostingService:"+e.getMessage());
+				// <-- bad sign, some left over association of assessment and resource, 
+				// use case: user remove resource in file picker, then exit modification without
+				// proper cancellation by clicking at the left nav instead of "cancel".
+				// Also in this use case, any added resource would be left orphan. 
+				PublishedAssessmentService assessmentService = new PublishedAssessmentService();
+				assessmentService.removeAssessmentAttachment(attach.getAttachmentId().toString());
+			}
+			catch (TypeException e) {
+				log.warn("TypeException from ContentHostingService:"+e.getMessage());
+			}
+			if (cr!=null){
+		    	Reference ref = EntityManager.newReference(cr.getReference());
+		        if (ref !=null ) list.add(ref);
+			}
+		}
+		return list;
 	}
 }
 

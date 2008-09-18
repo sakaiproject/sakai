@@ -148,7 +148,33 @@
   </div>
 
    <!-- FEEDBACK -->
-<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}"><br/>
+<h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}"><br/>
+  <f:verbatim><div class="longtext"></f:verbatim>
+  <h:outputLabel value="#{authorMessages.correct_incorrect_an}" />
+<f:verbatim></div>
+ <div class="tier2"></f:verbatim>
+  <h:outputLabel value="#{authorMessages.correct_answer_opti}" />
+
+  <!-- WYSIWYG -->
+  <h:panelGrid>
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes">
+     <f:validateLength maximum="4000"/>
+   </samigo:wysiwyg>
+</h:panelGrid>
+
+ <f:verbatim></div><div class="tier2"></f:verbatim>
+ <h:outputLabel  value="#{authorMessages.incorrect_answer_op}" />
+
+  <!-- WYSIWYG -->
+  <h:panelGrid>
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes">
+     <f:validateLength maximum="4000"/>
+   </samigo:wysiwyg>
+
+  </h:panelGrid><f:verbatim></div></f:verbatim>
+</h:panelGroup>
+
+<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}"><br/>
   <f:verbatim><div class="longtext"></f:verbatim>
   <h:outputLabel value="#{authorMessages.correct_incorrect_an}" />
 <f:verbatim></div>

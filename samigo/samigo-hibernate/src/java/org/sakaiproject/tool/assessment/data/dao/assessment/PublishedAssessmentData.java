@@ -152,7 +152,7 @@ public class PublishedAssessmentData
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null);
+			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null);
   }
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,
@@ -162,15 +162,24 @@ public class PublishedAssessmentData
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null);
+			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null);
   }
 
+  public PublishedAssessmentData(Long id, String title, String releaseTo,
+          Date startDate, Date dueDate, Date retractDate,
+          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
+          Integer lateHandling,
+          Boolean unlimitedSubmissions,
+          Integer submissionsAllowed, Integer scoringType, Integer status) {
+	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
+			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null);
+  }
   public PublishedAssessmentData(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, Date retractDate,
                                  Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
                                  Integer lateHandling,
                                  Boolean unlimitedSubmissions,
-                                 Integer submissionsAllowed, Integer scoringType, Integer status) {
+                                 Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate) {
     this.assessmentBaseId = id;
     this.title = title;
     this.releaseTo = releaseTo;
@@ -191,6 +200,7 @@ public class PublishedAssessmentData
       this.submissionsAllowed = submissionsAllowed;
     this.scoringType = scoringType;
     this.status = status;
+    this.lastModifiedDate = lastModifiedDate;
   }
 
   public PublishedAssessmentData(Long id, int submissionSize) {

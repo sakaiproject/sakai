@@ -24,7 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;

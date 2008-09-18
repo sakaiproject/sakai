@@ -105,6 +105,7 @@ public class SelectActionListener
         "select");
 
     select.setHasHighestMultipleSubmission(false);  // reset property
+    select.setHasAnyAssessmentBeenModified(false);
     
     // look for some sort information passed as parameters
     processSortInfo(select);
@@ -255,6 +256,7 @@ public class SelectActionListener
 
         delivery.setTimeElapse(getTimeElapsed(g.getTimeElapsed()));
         delivery.setSubmissionDate(g.getSubmittedDate());
+        delivery.setHasAssessmentBeenModified(getHasAssessmentBeenModified(select, g, publishedAssessmentHash));
 	/*
         if (g.getSubmittedDate() != null && g.getAttemptDate() != null) {
           long time = g.getSubmittedDate().getTime() -
@@ -647,6 +649,21 @@ public class SelectActionListener
       return p.getFeedbackDelivery().toString();
     else
       return null;
+  }
+  
+  private boolean getHasAssessmentBeenModified(SelectAssessmentBean select, AssessmentGradingFacade g, HashMap publishedAssessmentHash){
+	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
+	        get(g.getPublishedAssessmentId());
+	    if (p != null) {
+	    	if (!Integer.valueOf(AssessmentIfc.RETRACT_FOR_EDIT_STATUS).equals(p.getStatus()) && p.getLastModifiedDate().after(g.getSubmittedDate())) {
+	    		log.debug("AssessmentGradingId = " + g.getAssessmentGradingId());
+	    		log.debug("LastModifiedDate = " + p.getLastModifiedDate());
+	    		log.debug("SubmittedDate = " + g.getSubmittedDate());
+	    		select.setHasAnyAssessmentBeenModified(true);
+	    		return true;
+	    	}
+	    }
+	    return false;
   }
 
   private String getTimeElapsed(Integer s){

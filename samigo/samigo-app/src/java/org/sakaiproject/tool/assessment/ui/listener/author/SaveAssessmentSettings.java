@@ -51,11 +51,15 @@ import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: Samigo</p>2
@@ -263,7 +267,7 @@ public class SaveAssessmentSettings
     assessmentService.saveAssessment(assessment);
 
     // added by daisyf, 10/10/06
-    updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData());
+    updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData(), true);
     EventTrackingService.post(EventTrackingService.newEvent("sam.setting.edit", "assessmentId=" + assessmentSettings.getAssessmentId(), true));
     
     //added by gopalrc, 6 Nov 2007
@@ -305,7 +309,7 @@ public class SaveAssessmentSettings
   }
 
 
-  private void updateMetaWithValueMap(AssessmentIfc assessment, HashMap map){
+  public void updateMetaWithValueMap(AssessmentIfc assessment, HashMap map){
     //log.info("** map size ="+map.size());
     if (map!=null && map.keySet()!=null){
         Iterator iter = map.keySet().iterator();
@@ -364,7 +368,7 @@ public class SaveAssessmentSettings
 	return true;
     }
   
-  private void updateAttachment(List oldList, List newList, AssessmentIfc assessment){
+  public void updateAttachment(List oldList, List newList, AssessmentIfc assessment, boolean isAuthorSettings){
     if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return;
     List list = new ArrayList();
     HashMap map = getAttachmentIdHash(oldList);
@@ -381,7 +385,13 @@ public class SaveAssessmentSettings
       }
     }      
     // save new ones
-    AssessmentService assessmentService = new AssessmentService();
+    AssessmentService assessmentService = null;
+    if (isAuthorSettings) {
+		assessmentService = new AssessmentService();
+	}
+	else {
+		assessmentService = new PublishedAssessmentService();
+	}
     assessmentService.saveOrUpdateAttachments(list);
 
     // remove old ones

@@ -49,6 +49,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
@@ -254,14 +255,21 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
 
-      // case 3: assessment settings mofification, then set 
-      //         assessmentSettingsBean.attachmentList = filepicker list
+      // case 3.1: assessment settings mofification, then set assessmentSettingsBean.attachmentList = filepicker list
       if (target.indexOf("/jsf/author/authorSettings") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 AssessmentSettingsBean bean = (AssessmentSettingsBean) ContextUtil.lookupBeanFromExternalServlet(
                                "assessmentSettings", req, res);
          bean.setAssessmentAttachment();
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
+      }
+      // case 3.2: published assessment settings mofification, then set assessmentSettingsBean.attachmentList = filepicker list
+      if (target.indexOf("/jsf/author/publishedSettings") > -1 
+    		  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
+    	  PublishedAssessmentSettingsBean bean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBeanFromExternalServlet(
+    	                               "publishedSettings", req, res);
+    	         bean.setAssessmentAttachment();
+    	         toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
 
       // case 4: create new mail, then set

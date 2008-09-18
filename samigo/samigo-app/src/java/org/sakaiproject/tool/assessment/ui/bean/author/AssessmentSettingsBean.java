@@ -106,7 +106,6 @@ public class AssessmentSettingsBean
   private final static long serialVersionUID = -630950053380808339L;
     private String outcomeSave;
     private String outcomePublish;
-    private String outcomeCancel;
   private AssessmentFacade assessment;
   private AssessmentTemplateFacade template;
   private Long assessmentId;
@@ -462,16 +461,6 @@ public class AssessmentSettingsBean
     public void setOutcomeSave(String outcomeSave)
     {
   this.outcomeSave=outcomeSave;
-    }
-    
-    public String getOutcomeCancel()
-    {
-    	return this.outcomeCancel;
-    }
-    
-    public void setOutcomeCancel(String outcomeCancel)
-    {
-    	this.outcomeCancel=outcomeCancel;
     }
     
     public String getOutcomePublish()
@@ -1442,7 +1431,7 @@ public class AssessmentSettingsBean
   }
 
   public void setAssessmentAttachment(){
-    SaveAssessmentAttachmentListener lis = new SaveAssessmentAttachmentListener();
+    SaveAssessmentAttachmentListener lis = new SaveAssessmentAttachmentListener(true);
     lis.processAction(null);
   }
 

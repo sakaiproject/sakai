@@ -218,13 +218,10 @@ sorting actions for table:
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-
         <h:outputText value="#{reviewable.assessmentTitle}" escape="false"/> 
-
-
-
-       </h:commandLink>
-
+    </h:commandLink>
+    
+	<h:outputText value="#{selectIndexMessages.asterisk_2}" rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified}" styleClass="validate"/> 
 
   <f:verbatim><br /></f:verbatim>
        <h:commandLink title="#{selectIndexMessages.t_histogram}"  action="#{delivery.getOutcome}" immediate="true"  
@@ -484,9 +481,12 @@ sorting actions for table:
       </h:outputText>
     </h:column>
   </h:dataTable>
-   
-  <h:outputText value="#{selectIndexMessages.asterisk}#{selectIndexMessages.highest_note}" rendered="#{select.hasHighestMultipleSubmission}"/>
-   
+
+<h:panelGrid columns="1">
+  <h:outputText value="#{selectIndexMessages.asterisk} #{selectIndexMessages.highest_note}" rendered="#{select.hasHighestMultipleSubmission}"/>
+  <h:outputText value="#{selectIndexMessages.asterisk_2} #{selectIndexMessages.has_been_modified}" rendered="#{select.hasAnyAssessmentBeenModified}" styleClass="validate"/>
+</h:panelGrid>
+
   </div></div>
   </h:form>
 </div>

@@ -271,9 +271,7 @@ function toggle(){
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
 		</h:commandButton>
 
-       <!-- Cancel button -->
-       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{assessmentSettings.cancelFromPublishing}" rendered="#{author.isEditPendingAssessmentFlow}"/>
-
+       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" rendered="#{author.isEditPendingAssessmentFlow}"/>
 	   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" rendered="#{!author.isEditPendingAssessmentFlow}">
 		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
 	   </h:commandButton>

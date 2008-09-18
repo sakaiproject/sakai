@@ -157,12 +157,12 @@ document.links[newindex].onclick();
 
 <h:panelGroup>
   <h:commandButton id="republish" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow}"
-      action="saveSettingsAndConfirmPublish" >
+      action="#{author.getOutcome}" >
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
   </h:commandButton>
 
   <h:commandButton id="republishRegrade" value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
-      action="saveSettingsAndConfirmPublish" >
+      action="#{author.getOutcome}" >
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
   </h:commandButton>
 
@@ -386,12 +386,12 @@ document.links[newindex].onclick();
 <p class="navList">
 <h:panelGroup>
   <h:commandButton id="republish1" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow}"
-      action="saveSettingsAndConfirmPublish" >
+      action="#{author.getOutcome}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
   </h:commandButton>
 
   <h:commandButton id="republishRegrade1" value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
-      action="saveSettingsAndConfirmPublish" >
+      action="#{author.getOutcome}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
   </h:commandButton>
 </h:panelGroup>

@@ -41,6 +41,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -347,4 +349,11 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public Integer getPublishedAssessmentStatus(Long publishedAssessmentId);
   
+  public AssessmentAttachmentIfc createAssessmentAttachment(
+			AssessmentIfc assessment, String resourceId, String filename,
+			String protocol);
+
+  public void removeAssessmentAttachment(Long assessmentAttachmentId);
+  
+  public void saveOrUpdateAttachments(List list);
 }

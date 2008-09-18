@@ -55,7 +55,8 @@ public class SelectAssessmentBean
   private boolean reviewableAscending = true;
   private org.sakaiproject.tool.assessment.ui.model.PagingModel reviewPager;
   private org.sakaiproject.tool.assessment.ui.model.PagingModel takePager;
-  private boolean hasHighestMultipleSubmission=false;  // this is used to display the message on the bottom if there are any highest multiple submissions. 
+  private boolean hasHighestMultipleSubmission = false;  // this is used to display the message on the bottom if there are any highest multiple submissions. 
+  private boolean hasAnyAssessmentBeenModified = false;  // this is used to display the message on the bottom if there is any assessment been modified after submitted.
   /**
    * ArrayLists should be lists of DeliveryBean objects
    *
@@ -257,4 +258,16 @@ public boolean isHasHighestMultipleSubmission() {
 public void setHasHighestMultipleSubmission(boolean hasHighestMultipleSubmission) {
 	this.hasHighestMultipleSubmission = hasHighestMultipleSubmission;
 }
+
+public boolean getHasAnyAssessmentBeenModified() {
+	return hasAnyAssessmentBeenModified;
+}
+
+/**
+ * @param hasHighestMultipleSubmission The hasHighestMultipleSubmission to set.
+ */
+public void setHasAnyAssessmentBeenModified(boolean hasAnyAssessmentBeenModified) {
+	this.hasAnyAssessmentBeenModified = hasAnyAssessmentBeenModified;
+}
+
 }

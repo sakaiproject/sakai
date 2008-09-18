@@ -98,8 +98,23 @@
   </h:selectOneMenu>
 </h:panelGrid>
 <%-- FEEDBACK --%>
- <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+ <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
+ <h:outputLabel value="#{authorMessages.correct_incorrect_an}" />
+<f:verbatim> <div class="tier2"></f:verbatim>
+  <h:panelGrid>
+   <h:outputText value="#{authorMessages.correct_answer_opti}" />
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes">
+     <f:validateLength maximum="4000"/>
+   </samigo:wysiwyg>
+   <h:outputText value="#{authorMessages.incorrect_answer_op}" />
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes">
+     <f:validateLength maximum="4000"/>
+   </samigo:wysiwyg>
+  </h:panelGrid>
+ <f:verbatim> </div></div></f:verbatim>
+</h:panelGroup>
 
+<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
  <h:outputLabel value="#{authorMessages.correct_incorrect_an}" />
 <f:verbatim> <div class="tier2"></f:verbatim>
   <h:panelGrid>

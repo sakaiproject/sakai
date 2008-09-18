@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -87,6 +88,8 @@ public class EditPublishedSettingsListener
     author.setOutcome("editPublishedAssessmentSettings");
     author.setIsEditPendingAssessmentFlow(false);
     assessmentSettings.setAssessment(assessment);
+    assessmentSettings.setAttachmentList(((AssessmentIfc)assessment.getData()).getAssessmentAttachmentList());
+
     // To unEscapeHtml for the fields that have been through ContextUtil.processFormattedText
     assessmentSettings.setTitle(FormattedText.unEscapeHtml(assessment.getTitle()));
     assessmentSettings.setAuthors(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.AUTHORS)));

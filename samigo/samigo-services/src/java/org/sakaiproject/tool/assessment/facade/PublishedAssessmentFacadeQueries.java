@@ -47,6 +47,11 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -91,7 +96,9 @@ import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -1335,7 +1342,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 				+ " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, "
-				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status) "
+				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
@@ -1399,7 +1406,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 							.getRetractDate(), p.getFeedbackDate(), p
 							.getFeedbackDelivery(), p.getFeedbackAuthoring(), p
 							.getLateHandling(), p.getUnlimitedSubmissions(), p
-							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus());
+							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate());
 			pubList.add(f);
 		}
 		return pubList;
@@ -2673,5 +2680,91 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			// just set to AssessmentBaseIfc.DEAD_STATUS
 			return Integer.valueOf(2);
 		}
+	}
+	
+	public AssessmentAttachmentIfc createAssessmentAttachment(
+			AssessmentIfc assessment, String resourceId, String filename,
+			String protocol) {
+		PublishedAssessmentAttachment attach = null;
+		Boolean isLink = Boolean.FALSE;
+		try {
+			ContentResource cr = ContentHostingService.getResource(resourceId);
+			if (cr != null) {
+				ResourceProperties p = cr.getProperties();
+				attach = new PublishedAssessmentAttachment();
+				attach.setAssessment(assessment);
+				attach.setResourceId(resourceId);
+				attach.setFilename(filename);
+				attach.setMimeType(cr.getContentType());
+				// we want to display kb, so divide by 1000 and round the result
+				attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
+				if (cr.getContentType().lastIndexOf("url") > -1) {
+					isLink = Boolean.TRUE;
+					if (!filename.toLowerCase().startsWith("http")) {
+						String adjustedFilename = "http://" + filename;
+						attach.setFilename(adjustedFilename);
+					} else {
+						attach.setFilename(filename);
+					}
+				} else {
+					attach.setFilename(filename);
+				}
+				attach.setIsLink(isLink);
+				attach.setStatus(AssessmentAttachmentIfc.ACTIVE_STATUS);
+				attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+				attach.setCreatedDate(new Date());
+				attach.setLastModifiedBy(p.getProperty(p
+						.getNamePropModifiedBy()));
+				attach.setLastModifiedDate(new Date());
+				attach.setLocation(getRelativePath(cr.getUrl(), protocol));
+				// getHibernateTemplate().save(attach);
+			}
+		} catch (PermissionException pe) {
+			pe.printStackTrace();
+		} catch (IdUnusedException ie) {
+			ie.printStackTrace();
+		} catch (TypeException te) {
+			te.printStackTrace();
+		}
+		return attach;
+	}
+	
+	private String fileSizeInKB(int fileSize) {
+		String fileSizeString = "1";
+		int size = Math.round(fileSize / 1024);
+		if (size > 0) {
+			fileSizeString = size + "";
+		}
+		return fileSizeString;
+	}
+	
+	public void removeAssessmentAttachment(Long assessmentAttachmentId) {
+		PublishedAssessmentAttachment assessmentAttachment = (PublishedAssessmentAttachment) getHibernateTemplate()
+				.load(PublishedAssessmentAttachment.class, assessmentAttachmentId);
+		AssessmentIfc assessment = assessmentAttachment.getAssessment();
+		// String resourceId = assessmentAttachment.getResourceId();
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				if (assessment != null) { // need to dissociate with
+					// assessment before deleting in
+					// Hibernate 3
+					Set set = assessment.getAssessmentAttachmentSet();
+					set.remove(assessmentAttachment);
+					getHibernateTemplate().delete(assessmentAttachment);
+					retryCount = 0;
+				}
+			} catch (Exception e) {
+				log.warn("problem delete publishedAssessmentAttachment: "
+						+ e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
+			}
+		}
+	}
+	
+	public void saveOrUpdateAttachments(List list) {
+		getHibernateTemplate().saveOrUpdateAll(list);
 	}
 }

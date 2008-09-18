@@ -61,7 +61,11 @@ should be included in file importing DeliveryMessages
              better -daisyf --%>
         <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
-              <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+              <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+                <h:outputLabel value="#{authorMessages.correct}: " />
+                <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
+              </h:panelGroup>
+			  <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
                 <h:outputLabel value="#{authorMessages.correct}: " />
                 <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
               </h:panelGroup>
@@ -72,7 +76,11 @@ should be included in file importing DeliveryMessages
 
         <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
-              <h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+              <h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
+                <h:outputLabel value="#{authorMessages.incorrect}: " />
+                <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
+              </h:panelGroup>
+			  <h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
                 <h:outputLabel value="#{authorMessages.incorrect}: " />
                 <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
               </h:panelGroup>
@@ -89,12 +97,23 @@ should be included in file importing DeliveryMessages
       <h:outputText escape="false" value="#{question.itemData.answerKey}" />
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
       <h:outputLabel value="#{authorMessages.correct}:"/>
       <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
      <h:outputLabel value="#{authorMessages.incorrect}:"/>
       <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
 </h:panelGroup>
+
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
+      <h:outputLabel value="#{authorMessages.correct}:"/>
+      <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
+<f:verbatim><br/></f:verbatim>
+</h:panelGroup>
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
+     <h:outputLabel value="#{authorMessages.incorrect}:"/>
+      <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+</h:panelGroup>
+

@@ -37,6 +37,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -45,7 +46,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -599,10 +602,33 @@ public class PublishedAssessmentService extends AssessmentService{
 	   }
    }
 
-   
-
    public Integer getPublishedAssessmentStatus(Long publishedAssessmentId) {
 	   return PersistenceService.getInstance().
 	     getPublishedAssessmentFacadeQueries().getPublishedAssessmentStatus(publishedAssessmentId);
+   }
+   
+   public AssessmentAttachmentIfc createAssessmentAttachment(
+			AssessmentIfc assessment, String resourceId, String filename,
+			String protocol) {
+		AssessmentAttachmentIfc attachment = null;
+		try {
+			PublishedAssessmentFacadeQueriesAPI queries = PersistenceService
+					.getInstance().getPublishedAssessmentFacadeQueries();
+			attachment = queries.createAssessmentAttachment(assessment,
+					resourceId, filename, protocol);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return attachment;
+   }
+   
+   public void removeAssessmentAttachment(String attachmentId) {
+		PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+				.removeAssessmentAttachment(new Long(attachmentId));
+   }
+
+   public void saveOrUpdateAttachments(List list) {
+		PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+				.saveOrUpdateAttachments(list);
    }
 }

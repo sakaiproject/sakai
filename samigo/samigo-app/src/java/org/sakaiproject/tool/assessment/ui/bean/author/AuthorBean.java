@@ -77,7 +77,10 @@ public class AuthorBean implements Serializable
   private boolean isRetractedForEdit = false;
   private boolean editPubAssessmentRestricted;
   private boolean isRepublishAndRegrade = false;
-    
+  // This parameter is used to indicate whether we should display the 
+  // warning text next to assignment title retracted by edit in instructor/admin view.
+  // It is true if at least one of the assessment is currently "retract for edit".
+  private boolean isAnyAssessmentRetractForEdit = false;    
 
   /**
    * @return the id
@@ -538,5 +541,13 @@ public class AuthorBean implements Serializable
   public void setIsRepublishAndRegrade(boolean isRepublishAndRegrade)
   {
 	  this.isRepublishAndRegrade = isRepublishAndRegrade;
+  }
+  
+  public boolean getIsAnyAssessmentRetractForEdit(){
+	  return isAnyAssessmentRetractForEdit;
+  }
+
+  public void setIsAnyAssessmentRetractForEdit(boolean isAnyAssessmentRetractForEdit){
+	  this.isAnyAssessmentRetractForEdit = isAnyAssessmentRetractForEdit;
   }
 }

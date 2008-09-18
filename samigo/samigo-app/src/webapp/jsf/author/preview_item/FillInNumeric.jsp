@@ -48,10 +48,19 @@ should be included in file importing DeliveryMessages
 
   <h:outputLabel rendered="#{answer.text != null && answer.text ne ''}" value="#{authorMessages.preview_model_short_answer}: "/>
   <h:outputText rendered="#{answer.text != null && answer.text ne ''}" escape="false" value="#{answer.text}" />
-  <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne '' && assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.correctItemFeedback}: "/>
-  <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne '' && assessmentSettings.feedbackAuthoring ne '2'}"
+  <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne '' && author.isEditPendingAssessmentFlow &&  assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.correctItemFeedback}: "/>
+  <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne '' && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}"
     value="#{question.itemData.correctItemFeedback}" escape="false" />
-  <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne '' && assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.incorrectItemFeedback}: "/>
-  <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne '' && assessmentSettings.feedbackAuthoring ne '2'}"
+  <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne '' && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.incorrectItemFeedback}: "/>
+  <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne '' && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}"
     value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+
+  <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne '' && !author.isEditPendingAssessmentFlow &&  publishedSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.correctItemFeedback}: "/>
+  <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne '' && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}"
+    value="#{question.itemData.correctItemFeedback}" escape="false" />
+  <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne '' && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.incorrectItemFeedback}: "/>
+  <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne '' && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}"
+    value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+  
 </h:panelGrid>
+
