@@ -169,6 +169,12 @@ document.links[newindex].onclick();
 </h:panelGroup>
 </h:panelGrid>
 
+<h:panelGrid columns="1" width="100%" columnClasses="navList" border="0" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}">
+  <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('regradeRepublishPopUp.faces','RegradeRepublish','width=400,height=400,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('regradeRepublishPopUp.faces','RegradeRepublishPopUp','width=400,height=400,scrollbars=yes, resizable=yes');" >
+    <h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+  </h:outputLink>
+</h:panelGrid>
+
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
   <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
@@ -401,6 +407,13 @@ document.links[newindex].onclick();
   </h:commandButton>
 </h:panelGroup>
 </p>
+
+<h:panelGrid columns="1" width="100%" columnClasses="navList" border="0" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}">
+  <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('regradeRepublishPopUp.faces','RegradeRepublish','width=400,height=400,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('regradeRepublishPopUp.faces','RegradeRepublishPopUp','width=400,height=400,scrollbars=yes, resizable=yes');" >
+    <h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
+  </h:outputLink>
+</h:panelGrid>
+
 
   <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
     <h:panelGrid  columns="1">
