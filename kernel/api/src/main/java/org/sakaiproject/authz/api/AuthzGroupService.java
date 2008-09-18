@@ -114,6 +114,12 @@ public interface AuthzGroupService extends EntityProducer
 
 	/**
 	 * Save the changes made to the AuthzGroup. The AuthzGroup must already exist, and the user must have permission to update.
+	 *
+	 * A side-effect of this call is to refresh current memberships based on
+	 * the state of the group's associated provider, if any. (For example, to
+	 * update site memberships based on course enrollment records.) Since there
+	 * is no other public method that refreshes group memberships, this method
+	 * may be useful even to clients who don't edit the AuthzGroup directly.
 	 * 
 	 * @param azGroup
 	 *        The AuthzGroup to save.
