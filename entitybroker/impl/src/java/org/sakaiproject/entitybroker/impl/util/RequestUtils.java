@@ -224,9 +224,12 @@ public class RequestUtils {
     private static HashSet<String> ignoreSet = null;
     private static HashSet<String> getIgnoreSet() {
         if (ignoreSet == null) {
-            ignoreSet = new HashSet<String>();
-            for (int i = 0; i < ignoreForSearch.length; i++) {
-                ignoreSet.add(ignoreForSearch[i]);
+            // load the array into a set for easier and faster checks
+            synchronized (ignoreSet) {
+                ignoreSet = new HashSet<String>();
+                for (int i = 0; i < ignoreForSearch.length; i++) {
+                    ignoreSet.add(ignoreForSearch[i]);
+                }
             }
         }
         return ignoreSet;
