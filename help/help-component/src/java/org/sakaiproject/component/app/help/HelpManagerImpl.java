@@ -51,6 +51,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -107,7 +108,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import sun.misc.BASE64Encoder;
+
 
 /**
  * HelpManager provides database and search capabilitites for the Sakai help tool.
@@ -504,9 +505,7 @@ public List getActiveContexts(Map session)
         urlConnection = urlResource.openConnection();
 
         String basicAuthUserPass = getRestConfiguration().getRestCredentials();
-        String encoding = new BASE64Encoder().encode(basicAuthUserPass
-            .getBytes());
-
+        String encoding = Base64.encodeBase64(basicAuthUserPass.getBytes("utf-8")).toString();       
         urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
 
         sBuffer = new StringBuilder();

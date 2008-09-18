@@ -31,6 +31,7 @@ import java.net.URLConnection;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.help.RestConfiguration;
@@ -38,7 +39,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import sun.misc.BASE64Encoder;
+
 
 /**
  * @author <a href="mailto:jlannan.iupui.edu">Jarrod Lannan</a>
@@ -193,9 +194,8 @@ public class RestConfigurationImpl implements RestConfiguration
       URLConnection urlConnection = url.openConnection();
 
       String basicAuthUserPass = getRestCredentials();
-      String encoding = new BASE64Encoder()
-          .encode(basicAuthUserPass.getBytes());
-
+      String encoding = Base64.encodeBase64(basicAuthUserPass.getBytes("utf-8")).toString();
+      
       urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
 
       br = new BufferedReader(new InputStreamReader(urlConnection

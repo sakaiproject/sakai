@@ -45,6 +45,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.help.HelpManager;
@@ -58,7 +59,8 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import sun.misc.BASE64Encoder;
+
+
 
 public class RestContentProvider
 {
@@ -430,9 +432,8 @@ public class RestContentProvider
 
       String basicAuthUserPass = helpManager.getRestConfiguration()
           .getRestCredentials();
-      String encoding = new BASE64Encoder()
-          .encode(basicAuthUserPass.getBytes());
-
+   
+      String encoding = Base64.encodeBase64(basicAuthUserPass.getBytes("utf-8")).toString();
       urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
 
       StringBuilder sBuffer = new StringBuilder();
