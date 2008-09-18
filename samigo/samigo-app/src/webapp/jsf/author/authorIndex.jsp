@@ -465,6 +465,8 @@
       </h:commandLink>
       <h:outputText id="inactivePublishedAssessmentTitle2" value="#{inactivePublishedAssessment.title}" escape="false"
         rendered="#{(!authorization.editAnyAssessment and !authorization.editOwnAssessment) or (author.editPubAssessmentRestricted and inactivePublishedAssessment.hasAssessmentGradingData)}" />
+     
+	  <h:outputText value="#{authorFrontDoorMessages.asterisk_2}" rendered="#{inactivePublishedAssessment.status == 3}" styleClass="validate"/>
       <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<br />"/>
 
         <span class="itemAction"> 
@@ -591,6 +593,11 @@
      
     </h:column>
   </h:dataTable>
+
+  <h:panelGrid columns="1">
+    <h:outputText value="#{authorFrontDoorMessages.asterisk_2} #{authorFrontDoorMessages.retracted_for_edit}" rendered="#{author.isAnyAssessmentRetractForEdit == true}" styleClass="validate"/>
+  </h:panelGrid>
+
 </div>
 </div>
 

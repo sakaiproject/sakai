@@ -80,7 +80,7 @@ public class AuthorBean implements Serializable
   // This parameter is used to indicate whether we should display the 
   // warning text next to assignment title retracted by edit in instructor/admin view.
   // It is true if at least one of the assessment is currently "retract for edit".
-  private boolean isAnyAssessmentRetractForEdit = false;    
+  private boolean isAnyAssessmentRetractForEdit = false;
 
   /**
    * @return the id
@@ -178,7 +178,7 @@ public class AuthorBean implements Serializable
   public ArrayList getInactivePublishedAssessments(){
     return inactivePublishedAssessments;
   }
-
+  
   /**
    * do we show the complete asseassement?
    * @return boolean

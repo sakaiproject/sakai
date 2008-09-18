@@ -103,12 +103,23 @@ public class PublishedAssessmentFacade
   // amended by gopalrc Nov 2007 to include releaseToGroups
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, String releaseToGroups){
-    this.publishedAssessmentId = id;
-    this.title = title;
-    this.releaseTo = releaseTo;
-    this.startDate = startDate;
-    this.dueDate = dueDate;
-    this.releaseToGroups = releaseToGroups; // added by gopalrc Nov 2007
+	  this.publishedAssessmentId = id;
+	  this.title = title;
+	  this.releaseTo = releaseTo;
+	  this.startDate = startDate;
+	  this.dueDate = dueDate;
+      this.releaseToGroups = releaseToGroups; // added by gopalrc Nov 2007
+  }
+
+  public PublishedAssessmentFacade(Long id, String title, String releaseTo,
+		  Date startDate, Date dueDate, Integer status, String releaseToGroups){
+	  this.publishedAssessmentId = id;
+	  this.title = title;
+	  this.releaseTo = releaseTo;
+	  this.startDate = startDate;
+	  this.dueDate = dueDate;
+	  this.status = status;
+	  this.releaseToGroups = releaseToGroups;
   }
 
   // constructor that whole min. info, used for listing

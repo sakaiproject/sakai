@@ -111,6 +111,17 @@ public class PublishedAssessmentData
     this.dueDate = dueDate;
     this.retractDate = retractDate;
   }
+  
+  public PublishedAssessmentData(Long id, String title, String releaseTo,
+          Date startDate, Date dueDate, Date retractDate, Integer status) {
+	  this.assessmentBaseId = id;
+	  this.title = title;
+	  this.releaseTo = releaseTo;
+	  this.startDate = startDate;
+	  this.dueDate = dueDate;
+	  this.retractDate = retractDate;
+	  this.status = status;
+  }
 
   /**
    * Someone forgot to check this in, so I'm adding it.

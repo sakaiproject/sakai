@@ -1214,7 +1214,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		
 		String orderBy = getOrderBy(sortString);
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"
-				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) from PublishedAssessmentData p,"
+				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, p.status) from PublishedAssessmentData p,"
 				+ " PublishedAccessControl c, AuthorizationData z  "
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
 				+ " and ((p.status=:activeStatus and (c.dueDate<=:today or c.retractDate<=:today)) or p.status=:editStatus)"
@@ -1270,7 +1270,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
 					.getPublishedAssessmentId(), p.getTitle(),
-					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), releaseToGroups);
+					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getStatus(), releaseToGroups);
 			pubList.add(f);
 		}
 		return pubList;

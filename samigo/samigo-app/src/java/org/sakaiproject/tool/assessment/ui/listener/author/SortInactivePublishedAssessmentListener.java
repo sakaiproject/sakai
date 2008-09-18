@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -32,6 +33,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -69,6 +71,21 @@ public class SortInactivePublishedAssessmentListener
 
    // get the managed bean, author and set the list
    author.setInactivePublishedAssessments(inactivePublishedList);
+   boolean isAnyAssessmentRetractForEdit = false;
+   Iterator iter = inactivePublishedList.iterator();
+   while (iter.hasNext()) {
+	   PublishedAssessmentFacade publishedAssessmentFacade = (PublishedAssessmentFacade) iter.next();
+		if (Integer.valueOf(3).equals(publishedAssessmentFacade.getStatus())) {
+		   isAnyAssessmentRetractForEdit = true;
+		   break;
+	   }
+   }
+   if (isAnyAssessmentRetractForEdit) {
+	   author.setIsAnyAssessmentRetractForEdit(true);
+   }
+   else {
+	   author.setIsAnyAssessmentRetractForEdit(false);
+   }
    setSubmissionSize(inactivePublishedList, map);
   }
 
