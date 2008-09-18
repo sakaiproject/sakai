@@ -31,7 +31,7 @@ public class VersionConstants {
      * The current version of the application for updating purposes,
      * this should always be the NEXT version of the tool if this is trunk code
      */
-    public static String APP_VERSION = "1.3.5";
+    public static String APP_VERSION = "1.3.5"; 
 
     public static String SVN_REVISION = "$Revision$";
     public static String SVN_LAST_UPDATE = "$Date$";
