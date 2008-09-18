@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.impl.collector;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -157,7 +158,8 @@ public class BeanCollectorAutoRegistrar implements ApplicationListener, Applicat
     * 
     * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
     */
-   private static class OrderComparator implements Comparator<Object> {
+   public static class OrderComparator implements Comparator<Object>, Serializable {
+      public final static long serialVersionUID = 1l;
       public int compare(Object arg0, Object arg1) {
          if (arg0 instanceof OrderedBean &&
                arg1 instanceof OrderedBean) {

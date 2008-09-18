@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -334,13 +335,15 @@ public class EntityData {
         return "ED: ref="+entityReference+":display="+entityDisplayTitle+":url="+entityURL+":props("+getEntityProperties().size()+"):data="+data;
     }
 
-    public static class ReferenceComparator implements Comparator<EntityData> {
+    public static class ReferenceComparator implements Comparator<EntityData>, Serializable {
+        public final static long serialVersionUID = 1l;
         public int compare(EntityData o1, EntityData o2) {
             return o1.entityReference.compareTo(o2.entityReference);
         }
     }
 
-    public static class TitleComparator implements Comparator<EntityData> {
+    public static class TitleComparator implements Comparator<EntityData>, Serializable {
+        public final static long serialVersionUID = 1l;
         public int compare(EntityData o1, EntityData o2) {
             return o1.getDisplayTitle().compareTo(o2.getDisplayTitle());
         }
