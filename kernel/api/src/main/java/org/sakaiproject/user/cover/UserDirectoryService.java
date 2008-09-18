@@ -98,6 +98,14 @@ public class UserDirectoryService
 		return service.getUsers(param0);
 	}
 
+	public static java.util.List<org.sakaiproject.user.api.User> getUsersByEids(java.util.Collection<String> param0)
+	{
+		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
+		if (service == null) return null;
+
+		return service.getUsersByEids(param0);
+	}
+
 	public static java.util.List getUsers()
 	{
 		org.sakaiproject.user.api.UserDirectoryService service = getInstance();

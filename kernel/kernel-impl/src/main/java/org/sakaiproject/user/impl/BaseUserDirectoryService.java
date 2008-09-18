@@ -24,6 +24,7 @@ package org.sakaiproject.user.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -733,6 +734,26 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public List getUsers(Collection ids)
 	{
+		// Clean IDs to match the by-user case.
+		Set<String> searchIds = new HashSet<String>();
+		for (Iterator<Object> idIter = ids.iterator(); idIter.hasNext(); )
+		{
+			String id = (String)idIter.next();
+			id = cleanEid(id);
+			if (id != null) searchIds.add(id);
+		}
+		
+		if (m_separateIdEid)
+		{
+			return m_storage.getUsersByIds(searchIds);
+		}
+		
+		// Fall back to the old logic if this is a legacy system where 
+		// "ID == EID", since that setting makes it difficult
+		// to optimize while maintaining backwards compatibility: the user
+		// record may be in the Sakai user table or not, and may be in the
+		// EID-mapping table or not.
+		
 		// User objects to return
 		List<UserEdit> rv = new Vector<UserEdit>();
 
@@ -740,16 +761,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		Collection<UserEdit> fromProvider = new Vector<UserEdit>();
 
 		// for each requested id
-		for (Iterator i = ids.iterator(); i.hasNext();)
+		for (String id : searchIds)
 		{
-			String id = (String) i.next();
-
-			// clean up the id
-			id = cleanId(id);
-
-			// skip nulls
-			if (id == null) continue;
-
 			// see if we've done this already in this thread
 			String ref = userReference(id);
 			UserEdit user = getCachedUser(ref);
@@ -798,6 +811,27 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		return rv;
+	}
+	
+	/**
+	 * @see org.sakaiproject.user.api.UserDirectoryService#getUsersByEids(java.util.Collection)
+	 */
+	public List<User> getUsersByEids(Collection<String> eids)
+	{
+		if (!m_separateIdEid)
+		{
+			return getUsers(eids);
+		}
+		
+		// Clean EIDs to match the by-user case.
+		Set<String> searchEids = new HashSet<String>();
+		for (String eid : eids)
+		{
+			eid = cleanEid(eid);
+			if (eid != null) searchEids.add(eid);
+		}
+		
+		return m_storage.getUsersByEids(searchEids);
 	}
 
 	/**
@@ -2748,6 +2782,26 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 * @return The id mapped to this eid, or null if none.
 		 */
 		public String checkMapForId(String eid);
+		
+		/**
+		 * Since optimizing this call requires access to SQL result sets and
+		 * internally-maintained caches, all the real work is performed by
+		 * the storage class. 
+		 * 
+		 * @param ids
+		 * @return any user records with matching IDs
+		 */
+		public List<User> getUsersByIds(Collection<String> ids);
+		
+		/**
+		 * Since optimizing this call requires access to SQL result sets and
+		 * internally-maintained caches, all the real work is performed by
+		 * the storage class. 
+		 * 
+		 * @param eids
+		 * @return any user records with matching EIDs
+		 */
+		public List<User> getUsersByEids(Collection<String> eids);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

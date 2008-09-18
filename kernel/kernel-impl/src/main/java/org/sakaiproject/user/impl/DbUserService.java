@@ -23,9 +23,13 @@ package org.sakaiproject.user.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import net.sf.ehcache.Cache;
@@ -34,9 +38,11 @@ import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.StorageUser;
@@ -225,7 +231,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		
 		/** A prior version's storage model. */
 		protected Storage m_oldStorage = null;
-
+		
 		/**
 		 * Construct.
 		 * 
@@ -625,14 +631,10 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		 */
 		public String checkMapForId(String eid)
 		{
-			// if we are not doing separate id/eid, do nothing
-			if (!m_separateIdEid) return eid;
-
+			String id = getCachedIdByEid(eid);
+			if (id != null)
 			{
-				Element e = cache.get(IDCACHE+eid);
-				if ( e != null ) {
-					return (String) e.getObjectValue();
-				}
+				return id;
 			}
 
 			String statement = userServiceSql.getUserIdSql();
@@ -642,7 +644,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 			if (rv.size() > 0)
 			{
-				String id = (String) rv.get(0);
+				id = (String) rv.get(0);
 				cache.put(new Element(EIDCACHE+id,eid));
 				cache.put(new Element(IDCACHE+eid,id));
 				return id;
@@ -651,8 +653,257 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			cache.put(new Element(IDCACHE+eid,null));
 			return null;
 		}
-		
 
+		protected String getCachedIdByEid(String eid)
+		{
+			// if we are not doing separate id/eid, do nothing
+			if (!m_separateIdEid) return eid;
+
+			Element e = cache.get(IDCACHE+eid);
+			if ( e != null )
+			{
+				return (String) e.getObjectValue();
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		protected UserEdit getCachedUserByEid(String eid)
+		{
+			UserEdit user = null;
+			String id = getCachedIdByEid(eid);
+			if (id != null)
+			{
+				user = getCachedUser(userReference(id));
+			}
+			return user;
+		}
+		
+		public List<User> getUsersByIds(Collection<String> ids)
+		{
+			List<User> foundUsers = new ArrayList<User>();
+			
+			// Put all the already cached user records to one side.
+			Set<String> idsToSearch = new HashSet<String>();
+			for (String id : ids)
+			{
+				UserEdit cachedUser = getCachedUser(userReference(id));
+				if (cachedUser != null)
+				{
+					foundUsers.add(cachedUser);
+				}
+				else
+				{
+					idsToSearch.add(id);
+				}
+			}
+			
+			UserWithEidReader userWithEidReader = new UserWithEidReader(false);
+			userWithEidReader.findMappedUsers(idsToSearch);
+				
+			// Add the Sakai-maintained user records.
+			foundUsers.addAll(userWithEidReader.getUsersFromSakaiData());
+				
+			// Finally, fill in the provided user records.
+			List<UserEdit> usersToQueryProvider = userWithEidReader.getUsersToQueryProvider();
+			if ((m_provider != null) && !usersToQueryProvider.isEmpty())
+			{
+				m_provider.getUsers(usersToQueryProvider);
+				
+				// Make sure that returned users are mapped and cached correctly.
+				for (UserEdit user : usersToQueryProvider)
+				{
+					putUserInCaches(user);
+					foundUsers.add(user);
+				}
+			}
+			
+			return foundUsers;
+		}
+
+		public List<User> getUsersByEids(Collection<String> eids)
+		{
+			List<User> foundUsers = new ArrayList<User>();
+			
+			// Put all the already cached user records to one side.
+			Set<String> eidsToSearch = new HashSet<String>();
+			for (String eid : eids)
+			{
+				UserEdit cachedUser = getCachedUserByEid(eid);
+				if (cachedUser != null)
+				{
+					foundUsers.add(cachedUser);
+				}
+				else
+				{
+					eidsToSearch.add(eid);
+				}
+			}
+			
+			UserWithEidReader userWithEidReader = new UserWithEidReader(true);
+			userWithEidReader.findMappedUsers(eidsToSearch);
+				
+			// Add the Sakai-maintained user records.
+			foundUsers.addAll(userWithEidReader.getUsersFromSakaiData());
+				
+			// We'll need to query the provider about any EIDs which did not appear
+			// in the ID-EID mapping table, since this might be the first time
+			// we've encountered them.
+			List<UserEdit> usersToQueryProvider = new ArrayList<UserEdit>(userWithEidReader.getUsersToQueryProvider());
+			for (UserEdit user : userWithEidReader.getUsersFromSakaiData())
+			{
+				eidsToSearch.remove(user.getEid());
+			}
+			for (UserEdit user : userWithEidReader.getUsersToQueryProvider())
+			{
+				eidsToSearch.remove(user.getEid());
+			}
+			for (String eid : eidsToSearch)
+			{
+				usersToQueryProvider.add(new BaseUserEdit(null, eid));
+			}
+			
+			// Finally, fill in the provided user records.
+			if ((m_provider != null) && !usersToQueryProvider.isEmpty())
+			{
+				m_provider.getUsers(usersToQueryProvider);
+				
+				// Make sure that returned users are mapped and cached correctly.
+				for (UserEdit user : usersToQueryProvider)
+				{
+					ensureMappedIdForProvidedUser(user);
+					putUserInCaches(user);
+					foundUsers.add(user);
+				}
+			}
+			
+			return foundUsers;
+		}
+	
+		protected void putUserInCaches(UserEdit user)
+		{
+			// Update ID-EID mapping cache.
+			String id = user.getId();
+			String eid = user.getEid();
+			cache.put(new Element(EIDCACHE+id, eid));
+			cache.put(new Element(IDCACHE+eid, id));
+			
+			// Update user record cache.
+			putCachedUser(userReference(id), user);
+		}
+	
+		/**
+		 * Given just a BaseUserEdit object, there's no officially supported way to
+		 * distinguish between a Sakai-stored user with all null metadata and a
+		 * mapped user whose metadata must be obtained from a provider. Rather
+		 * than hack a simulated flag out of a check for all-null fields, this
+		 * reader splits the database results into two piles: one of fully read
+		 * user records, and one of UserEdit ID-and-EID shells. The only way to
+		 * get this data out of the legacy SqlService interface is to treat the
+		 * list-gathering as a side-effect of the SqlReader interface.
+		 */
+		protected class UserWithEidReader implements SqlReader
+		{
+			private List<UserEdit> usersFromSakaiData = new ArrayList<UserEdit>();
+			private List<UserEdit> usersToQueryProvider = new ArrayList<UserEdit>();
+			private boolean isEidSearch;
+			
+			public UserWithEidReader(boolean isEidSearch)
+			{
+				this.isEidSearch = isEidSearch;
+			}
+			
+			public void findMappedUsers(Collection<String> searchValues)
+			{
+				int maxEidsInQuery = userServiceSql.getMaxInputsForSelectWhereInQueries();
+				Set<String> remainingSearchValues = new HashSet<String>(searchValues);
+				
+				while (!remainingSearchValues.isEmpty())
+				{
+					// Break the search up into safe chunks.
+					Set<String> valuesForQuery = new HashSet<String>();
+					if (remainingSearchValues.size() <= maxEidsInQuery)
+					{
+						valuesForQuery.addAll(remainingSearchValues);
+						remainingSearchValues.clear();
+					}
+					else
+					{
+						Iterator<String> valueIter = remainingSearchValues.iterator();
+						for (int i = 0; i < maxEidsInQuery; i++)
+						{
+							valuesForQuery.add(valueIter.next());
+							valueIter.remove();
+						}
+					}
+					
+					// Use a single query to gather all obtainable fields from
+					// the Sakai user data tables.
+					Object[] valueArray = valuesForQuery.toArray();
+					String sqlStatement = isEidSearch ?
+							userServiceSql.getUsersWhereEidsInSql(valueArray.length) :
+							userServiceSql.getUsersWhereIdsInSql(valueArray.length);
+					m_sql.dbRead(sqlStatement, valueArray, this);
+				}
+			}
+
+			/**
+			 * The return object here is of less interest than the list-gathering
+			 * properties.
+			 */
+			public Object readSqlResultRecord(ResultSet result) throws SqlReaderFinishedException
+			{
+				BaseUserEdit userEdit = null;
+				try
+				{
+					String idFromMap = result.getString(1);
+					String eidFromMap = result.getString(2);
+
+					// If it's a provided user, then all these will be null.
+					String idFromSakaiUser = result.getString(3);
+					String email = result.getString(4);
+					String email_lc = result.getString(5);	// Unused
+					String firstName = result.getString(6);
+					String lastName = result.getString(7);
+					String type = result.getString(8);
+					String pw = result.getString(9);
+					String createdBy = result.getString(10);
+					String modifiedBy = result.getString(11);
+					Time createdOn = (result.getObject(12) != null) ? timeService().newTime(result.getTimestamp(12, sqlService().getCal()).getTime()) : null;
+					Time modifiedOn = (result.getObject(13) != null) ? timeService().newTime(result.getTimestamp(13, sqlService().getCal()).getTime()) : null;
+
+					// create the Resource from these fields
+					userEdit = new BaseUserEdit(idFromMap, eidFromMap, email, firstName, lastName, type, pw, createdBy, createdOn, modifiedBy, modifiedOn);
+
+					if (idFromSakaiUser != null)
+					{
+						usersFromSakaiData.add(userEdit);
+
+						// Cache management is why this needs to be an inner class.
+						putUserInCaches(userEdit);
+					}
+					else
+					{
+						usersToQueryProvider.add(userEdit);
+					}
+				}
+				catch (SQLException e)
+				{
+					M_log.warn("readSqlResultRecord: " + e, e);
+				}
+				return userEdit;
+			}
+
+			public List<UserEdit> getUsersFromSakaiData() {
+				return usersFromSakaiData;
+			}
+			public List<UserEdit> getUsersToQueryProvider() {
+				return usersToQueryProvider;
+			}
+
+		}
 	}
 
 	/**

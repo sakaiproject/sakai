@@ -545,4 +545,10 @@ public class MockUserDirectoryService implements UserDirectoryService
 		return false;
 	}
 
+	public List<User> getUsersByEids(Collection<String> eids)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

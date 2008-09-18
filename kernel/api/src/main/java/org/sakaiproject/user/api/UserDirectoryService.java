@@ -343,6 +343,14 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return A list (User) of all the users within the record range given (sorted by sort name).
 	 */
 	List getUsers(int first, int last);
+	
+	/**
+	 * Find all the users matching the given EID strings.
+	 * 
+	 * @param eids
+	 * @return A list of user objects corresponding to the valid EIDs
+	 */
+	List<User> getUsersByEids(Collection<String> eids);
 
 	/**
 	 * Add a new user to the directory, from a definition in XML. Must commitEdit() to make official, or cancelEdit() when done!

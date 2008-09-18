@@ -71,7 +71,14 @@ public interface UserDirectoryProvider
 	boolean getUser(UserEdit edit);
 
 	/**
-	 * Access a collection of UserEdit objects; if the user is found, update the information, otherwise remove the UserEdit object from the collection.
+	 * Check each user in the specified collection of UserEdit objects. If the user is known,
+	 * update the information. Otherwise remove the UserEdit object from the collection.
+	 * 
+	 * IMPORTANT: Use an Iterator to handle removal rather than calling the Collection
+	 * "remove(Object)" method. The current implementation of UserEdit uses the user ID
+	 * field to determine equality, but user EIDs which have never been mapped by
+	 * Sakai will result in UserEdit objects with empty ID fields. In such circumstances,
+	 * the Collection "remove" method may fail or produce incorrect results.   
 	 * 
 	 * @param users
 	 *        The UserEdit objects (with eid set) to fill in or remove.

@@ -73,4 +73,40 @@ public class UserServiceSqlDefault implements UserServiceSql
 	{
 		return "SAKAI_USER.USER_ID = SAKAI_USER_ID_MAP.USER_ID AND (SAKAI_USER.USER_ID = ? OR UPPER(EID) LIKE UPPER(?) OR EMAIL_LC LIKE ? OR UPPER(FIRST_NAME) LIKE UPPER(?) OR UPPER(LAST_NAME) LIKE UPPER(?))";
 	}
+
+	/**
+	 * @see org.sakaiproject.user.impl.UserServiceSql#getUsersWhereEidsInSql(int)
+	 */
+	public String getUsersWhereEidsInSql(int numberOfSearchValues) {
+		StringBuilder sqlBuilder = new StringBuilder(
+			"select SAKAI_USER_ID_MAP.*, SAKAI_USER.* from SAKAI_USER_ID_MAP left join SAKAI_USER on SAKAI_USER.USER_ID=SAKAI_USER_ID_MAP.USER_ID where SAKAI_USER_ID_MAP.EID in (");
+		for (int i = 0; i < (numberOfSearchValues - 1); i++)
+		{
+			sqlBuilder.append("?,");
+		}
+		sqlBuilder.append("?)");
+		return sqlBuilder.toString();
+	}
+
+	/**
+	 * @see org.sakaiproject.user.impl.UserServiceSql#getUsersWhereEidsInSql(int)
+	 */
+	public String getUsersWhereIdsInSql(int numberOfSearchValues) {
+		StringBuilder sqlBuilder = new StringBuilder(
+			"select SAKAI_USER_ID_MAP.*, SAKAI_USER.* from SAKAI_USER_ID_MAP left join SAKAI_USER on SAKAI_USER.USER_ID=SAKAI_USER_ID_MAP.USER_ID where SAKAI_USER_ID_MAP.USER_ID in (");
+		for (int i = 0; i < (numberOfSearchValues - 1); i++)
+		{
+			sqlBuilder.append("?,");
+		}
+		sqlBuilder.append("?)");
+		return sqlBuilder.toString();
+	}
+
+	/**
+	 * @see org.sakaiproject.user.impl.UserServiceSql#getMaxInputsForSelectWhereInQueries()
+	 */
+	public int getMaxInputsForSelectWhereInQueries() {
+		// For Oracle, the maximum supported number of expressions in a list is 1000. 
+		return 1000;
+	}
 }

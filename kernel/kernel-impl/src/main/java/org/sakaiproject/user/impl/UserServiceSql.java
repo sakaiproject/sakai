@@ -55,4 +55,23 @@ public interface UserServiceSql
 	 * return the sql statement which retrieves the where clause from the sakai_user_id_map table.
 	 */
 	String getUserWhereSql();
+	
+	/**
+	 * Return a "SELECT... WHERE... IN" statement to find multiple user records by EID in a single query.
+	 * The EID value count is used to generate the correct "(?, ?, ?)" string. 
+	 */
+	String getUsersWhereEidsInSql(int numberOfSearchValues);
+	
+	/**
+	 * Return a "SELECT... WHERE... IN" statement to find multiple user records (with their EIDs) by ID
+	 * in a single query. The ID value count is used to generate the correct "(?, ?, ?)" string. 
+	 */
+	String getUsersWhereIdsInSql(int numberOfSearchValues);
+	
+	/**
+	 * The maximum size of a "SELECT... WHERE... IN" query varies by database, but when it's reached, the
+	 * error can be difficult to interpret. This should be set to a reasonably safe value and used by
+	 * clients to break very long queries into a set of somewhat shorter ones. 
+	 */
+	int getMaxInputsForSelectWhereInQueries();
 }
