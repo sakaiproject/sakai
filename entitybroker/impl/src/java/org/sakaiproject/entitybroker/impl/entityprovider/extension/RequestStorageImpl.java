@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.impl.entityprovider.extension;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -218,7 +219,8 @@ public class RequestStorageImpl implements RequestStorage {
         return getRequestValues(request, includeHeaders, includeParams, includeAttributes);
     }
 
-    public class EntryComparator implements Comparator<Entry<String, Object>> {
+    public class EntryComparator implements Comparator<Entry<String, Object>>, Serializable {
+        public final static long serialVersionUID = 1l;
         public int compare(Entry<String, Object> o1, Entry<String, Object> o2) {
             return o1.getKey().compareTo(o2.getKey());
         }

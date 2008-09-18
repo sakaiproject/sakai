@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.impl.entityprovider;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -70,515 +71,517 @@ import org.sakaiproject.genericdao.util.refmap.ReferenceType;
  */
 public class EntityProviderManagerImpl implements EntityProviderManager {
 
-   private static Log log = LogFactory.getLog(EntityProviderManagerImpl.class);
+    private static Log log = LogFactory.getLog(EntityProviderManagerImpl.class);
 
-   private RequestStorage requestStorage;
-   public void setRequestStorage(RequestStorage requestStorage) {
-      this.requestStorage = requestStorage;
-   }
+    private RequestStorage requestStorage;
+    public void setRequestStorage(RequestStorage requestStorage) {
+        this.requestStorage = requestStorage;
+    }
 
-   private RequestGetter requestGetter;
-   public void setRequestGetter(RequestGetter requestGetter) {
-      this.requestGetter = requestGetter;
-   }
+    private RequestGetter requestGetter;
+    public void setRequestGetter(RequestGetter requestGetter) {
+        this.requestGetter = requestGetter;
+    }
 
-   private EntityPropertiesService entityProperties;
-   public void setEntityProperties(EntityPropertiesService entityProperties) {
-      this.entityProperties = entityProperties;
-   }
+    private EntityPropertiesService entityProperties;
+    public void setEntityProperties(EntityPropertiesService entityProperties) {
+        this.entityProperties = entityProperties;
+    }
 
-   private EntityActionsManager entityActionsManager;
-   public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
-      this.entityActionsManager = entityActionsManager;
-   }
+    private EntityActionsManager entityActionsManager;
+    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
+        this.entityActionsManager = entityActionsManager;
+    }
 
-   private EntityRedirectsManager entityRedirectsManager;
-   public void setEntityRedirectsManager(EntityRedirectsManager entityRedirectsManager) {
-      this.entityRedirectsManager = entityRedirectsManager;
-   }
+    private EntityRedirectsManager entityRedirectsManager;
+    public void setEntityRedirectsManager(EntityRedirectsManager entityRedirectsManager) {
+        this.entityRedirectsManager = entityRedirectsManager;
+    }
 
-   protected ReferenceMap<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.SOFT);
+    protected ReferenceMap<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.SOFT);
 
-   @SuppressWarnings("unchecked")
-   protected ReferenceMap<String, EntityProviderListener> listenerMap = new ReferenceMap<String, EntityProviderListener>(ReferenceType.STRONG, ReferenceType.SOFT);
+    @SuppressWarnings("unchecked")
+    protected ReferenceMap<String, EntityProviderListener> listenerMap = new ReferenceMap<String, EntityProviderListener>(ReferenceType.STRONG, ReferenceType.SOFT);
 
-   // old CHMs were switched to RMs to avoid holding strong references and allowing clean classloader unloads
-// protected ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
-// protected ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
+    // old CHMs were switched to RMs to avoid holding strong references and allowing clean classloader unloads
+    // protected ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
+    // protected ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
 
 
-   public void init() {
-      log.info("init");
-      // register the describe prefix to reserve it and load up the describe properties
-      registerEntityProvider(
-            new DescribePropertiesable() {
-               public String getEntityPrefix() {
-                  return EntityRequestHandler.DESCRIBE;
-               }
-               public String getBaseName() {
-                  return getEntityPrefix();
-               }
-               public ClassLoader getResourceClassLoader() {
-                  return EntityProviderManagerImpl.class.getClassLoader();
-               }
+    public void init() {
+        log.info("init");
+        // register the describe prefix to reserve it and load up the describe properties
+        registerEntityProvider(
+                new DescribePropertiesable() {
+                    public String getEntityPrefix() {
+                        return EntityRequestHandler.DESCRIBE;
+                    }
+                    public String getBaseName() {
+                        return getEntityPrefix();
+                    }
+                    public ClassLoader getResourceClassLoader() {
+                        return EntityProviderManagerImpl.class.getClassLoader();
+                    }
+                }
+        );
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.managers.EntityProviderManager#getProviderByPrefix(java.lang.String)
+     */
+    public EntityProvider getProviderByPrefix(String prefix) {
+        EntityProvider provider = getProviderByPrefixAndCapability(prefix, CoreEntityProvider.class);
+        if (provider == null) {
+            provider = getProviderByPrefixAndCapability(prefix, EntityProvider.class);
+        }
+        return provider;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getProviderByPrefixAndCapability(java.lang.String, java.lang.Class)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends EntityProvider> T getProviderByPrefixAndCapability(String prefix, Class<T> capability) {
+        T provider = null;
+        if (capability == null) {
+            throw new NullPointerException("capability cannot be null");
+        }
+        String bikey = getBiKey(prefix, capability);
+        provider = (T) prefixMap.get(bikey);
+        return provider;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getRegisteredPrefixes()
+     */
+    public Set<String> getRegisteredPrefixes() {
+        Set<String> togo = new HashSet<String>();
+        for (String bikey : prefixMap.keySet()) {
+            togo.add(getPrefix(bikey));
+        }
+        return togo;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getPrefixCapabilities(java.lang.String)
+     */
+    public List<Class<? extends EntityProvider>> getPrefixCapabilities(String prefix) {
+        List<Class<? extends EntityProvider>> caps = new ArrayList<Class<? extends EntityProvider>>();
+        for (String bikey : prefixMap.keySet()) {
+            String curPrefix = EntityProviderManagerImpl.getPrefix(bikey);
+            if (curPrefix.equals(prefix)) {
+                caps.add( getCapability(bikey) );
             }
-      );
-   }
+        }
+        Collections.sort(caps, new ClassComparator());
+        return caps;
+    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.managers.EntityProviderManager#getProviderByPrefix(java.lang.String)
-    */
-   public EntityProvider getProviderByPrefix(String prefix) {
-      EntityProvider provider = getProviderByPrefixAndCapability(prefix, CoreEntityProvider.class);
-      if (provider == null) {
-         provider = getProviderByPrefixAndCapability(prefix, EntityProvider.class);
-      }
-      return provider;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getProviderByPrefixAndCapability(java.lang.String, java.lang.Class)
-    */
-   @SuppressWarnings("unchecked")
-   public <T extends EntityProvider> T getProviderByPrefixAndCapability(String prefix, Class<T> capability) {
-      T provider = null;
-      if (capability == null) {
-         throw new NullPointerException("capability cannot be null");
-      }
-      String bikey = getBiKey(prefix, capability);
-      provider = (T) prefixMap.get(bikey);
-      return provider;
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getRegisteredPrefixes()
-    */
-   public Set<String> getRegisteredPrefixes() {
-      Set<String> togo = new HashSet<String>();
-      for (String bikey : prefixMap.keySet()) {
-         togo.add(getPrefix(bikey));
-      }
-      return togo;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getPrefixCapabilities(java.lang.String)
-    */
-   public List<Class<? extends EntityProvider>> getPrefixCapabilities(String prefix) {
-      List<Class<? extends EntityProvider>> caps = new ArrayList<Class<? extends EntityProvider>>();
-      for (String bikey : prefixMap.keySet()) {
-         String curPrefix = EntityProviderManagerImpl.getPrefix(bikey);
-         if (curPrefix.equals(prefix)) {
-            caps.add( getCapability(bikey) );
-         }
-      }
-      Collections.sort(caps, new ClassComparator());
-      return caps;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getRegisteredEntityCapabilities()
-    */
-   public Map<String, List<Class<? extends EntityProvider>>> getRegisteredEntityCapabilities() {
-      Map<String, List<Class<? extends EntityProvider>>> m = new HashMap<String, List<Class<? extends EntityProvider>>>();
-      ArrayList<String> list = new ArrayList<String>( prefixMap.keySet() );
-      Collections.sort(list);
-      for (String bikey : list) {
-         String prefix = getPrefix(bikey);
-         if (! m.containsKey(prefix)) {
-            m.put(prefix, new ArrayList<Class<? extends EntityProvider>>());
-         }
-         m.get(prefix).add( getCapability(bikey) );
-      }      
-      return m;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getProvidersByCapability(java.lang.Class)
-    */
-   @SuppressWarnings("unchecked")
-   public <T extends EntityProvider> List<T> getProvidersByCapability(Class<T> capability) {
-      ArrayList<T> providers = new ArrayList<T>();
-      String capName = capability.getName();
-      for (Entry<String, EntityProvider> entry : prefixMap.entrySet()) {
-         String name = EntityProviderManagerImpl.getCapabilityName(entry.getKey());
-         if (capName.equals(name)) {
-            providers.add((T)entry.getValue());
-         }
-      }
-      Collections.sort(providers, new EntityProviderComparator());
-      return providers;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getPrefixesByCapability(java.lang.Class)
-    */
-   public <T extends EntityProvider> List<String> getPrefixesByCapability(Class<T> capability) {
-      ArrayList<String> prefixes = new ArrayList<String>();
-      String capName = capability.getName();
-      for (Entry<String, EntityProvider> entry : prefixMap.entrySet()) {
-         String name = EntityProviderManagerImpl.getCapabilityName(entry.getKey());
-         if (capName.equals(name)) {
-            prefixes.add( EntityProviderManagerImpl.getPrefix(entry.getKey()) );
-         }
-      }
-      Collections.sort(prefixes);
-      return prefixes;
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#registerEntityProvider(org.sakaiproject.entitybroker.entityprovider.EntityProvider)
-    */
-   @SuppressWarnings("unchecked")
-public void registerEntityProvider(EntityProvider entityProvider) {
-      if (entityProvider == null) {
-          throw new IllegalArgumentException("entityProvider cannot be null");
-      }
-      String prefix = new String( entityProvider.getEntityPrefix() ); // copy to make sure this string is in the EB ClassLoader
-      new EntityReference(prefix, ""); // this checks the prefix is valid
-      // we are now registering describe ourselves
-//      if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
-//         throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be used");
-//      }
-      List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
-      int count = 0;
-      for (Class<? extends EntityProvider> superclazz : superclasses) {
-         registerPrefixCapability(prefix, superclazz, entityProvider);
-         count++;
-         // special handling for certain EPs if needed
-         if (superclazz.equals(RequestAware.class)) {
-            // need to shove in the requestGetter on registration
-            ((RequestAware)entityProvider).setRequestGetter(requestGetter);
-         } else if (superclazz.equals(RequestStorable.class)) {
-            // need to shove in the request storage on registration
-            ((RequestStorable)entityProvider).setRequestStorage(requestStorage);
-         } else if (superclazz.equals(ActionsExecutable.class)) {
-            // register the custom actions
-            CustomAction[] customActions = new CustomAction[0];
-            if ( superclasses.contains(ActionsExecutionControllable.class) 
-                  || superclasses.contains(ActionsDefineable.class) ) {
-               customActions = ((ActionsDefineable)entityProvider).defineActions();
-               if (customActions == null) {
-                  throw new IllegalArgumentException("ActionsExecutable: defineActions returns null, " +
-                  		"it must return an array of custom actions (or you can use ActionsExecutable)");
-               }
-               if (!superclasses.contains(ActionsExecutionControllable.class)) {
-                  // do the actions defineable validation check
-                  EntityActionsManager.validateCustomActionMethods((ActionsDefineable)entityProvider);
-               }
-            } else {
-               // auto detect the custom actions
-               customActions = entityActionsManager.findCustomActions(entityProvider, true);
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getRegisteredEntityCapabilities()
+     */
+    public Map<String, List<Class<? extends EntityProvider>>> getRegisteredEntityCapabilities() {
+        Map<String, List<Class<? extends EntityProvider>>> m = new HashMap<String, List<Class<? extends EntityProvider>>>();
+        ArrayList<String> list = new ArrayList<String>( prefixMap.keySet() );
+        Collections.sort(list);
+        for (String bikey : list) {
+            String prefix = getPrefix(bikey);
+            if (! m.containsKey(prefix)) {
+                m.put(prefix, new ArrayList<Class<? extends EntityProvider>>());
             }
-            // register the actions
-            Map<String,CustomAction> actions = new HashMap<String, CustomAction>();
-            for (CustomAction customAction : customActions) {
-               String action = customAction.action;
-               if (action == null || "".equals(action) || EntityRequestHandler.DESCRIBE.equals(action)) {
-                  throw new IllegalStateException("action keys cannot be null, '', or "
-                        +EntityRequestHandler.DESCRIBE+", invalid custom action defined in defineActions");
-               }
-               actions.put(action, customAction);
-            }
-            entityActionsManager.setCustomActions(prefix, actions);
-         } else if (superclazz.equals(Describeable.class)) {
-            // need to load up the default properties into the cache
-            if (! superclasses.contains(DescribePropertiesable.class)) {
-               // only load if the props are not defined elsewhere
-               ClassLoader cl = entityProvider.getClass().getClassLoader();
-               entityProperties.loadProperties(prefix, null, cl);
-            }
-         } else if (superclazz.equals(DescribePropertiesable.class)) {
-            // load up the properties from the provided CL and basename
-            ClassLoader cl = ((DescribePropertiesable)entityProvider).getResourceClassLoader();
-            String baseName = ((DescribePropertiesable)entityProvider).getBaseName();
-            entityProperties.loadProperties(prefix, baseName, cl);
-         } else if (superclazz.equals(Redirectable.class)) {
-            URLRedirect[] redirects = entityRedirectsManager.findURLRedirectMethods(entityProvider);
-            entityRedirectsManager.addURLRedirects(prefix, redirects);
-         } else if (superclazz.equals(RedirectDefinable.class)) {
-            URLRedirect[] redirects = EntityRedirectsManager.validateDefineableTemplates((RedirectDefinable)entityProvider);
-            entityRedirectsManager.addURLRedirects(prefix, redirects);
-         } else if (superclazz.equals(RedirectControllable.class)) {
-            URLRedirect[] redirects = EntityRedirectsManager.validateControllableTemplates((RedirectControllable)entityProvider);
-            entityRedirectsManager.addURLRedirects(prefix, redirects);
-         }
-      }
-      log.info("EntityBroker: Registered entity provider ("+entityProvider.getClass().getName()
-            +") prefix ("+prefix+") with "+count+" capabilities");
+            m.get(prefix).add( getCapability(bikey) );
+        }      
+        return m;
+    }
 
-      // call the registered listeners
-      for (Iterator<EntityProviderListener> iterator = listenerMap.values().iterator(); iterator.hasNext();) {
-          EntityProviderListener<? extends EntityProvider> providerListener = iterator.next();
-          callListener(providerListener, entityProvider);
-      }
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.EntityProviderManager#unregisterEntityBroker(org.sakaiproject.entitybroker.EntityProvider)
-    */
-   public void unregisterEntityProvider(EntityProvider entityProvider) {
-      final String prefix = entityProvider.getEntityPrefix();
-      if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
-         throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be unregistered");
-      }
-      List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
-      int count = 0;
-      for (Class<? extends EntityProvider> capability : superclasses) {
-         // ensure that the root EntityProvider is never absent from the map unless
-         // there is a call to unregisterEntityProviderByPrefix
-         if (EntityProvider.class.equals(capability)) {
-            if (getProviderByPrefixAndCapability(prefix, EntityProvider.class) != null) {
-               // needed to ensure that we always have at LEAST the base level EP for a registered entity
-               registerEntityProvider(new EntityProvider() {
-                  public String getEntityPrefix() {
-                     return prefix;
-                  }
-               });
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getProvidersByCapability(java.lang.Class)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends EntityProvider> List<T> getProvidersByCapability(Class<T> capability) {
+        ArrayList<T> providers = new ArrayList<T>();
+        String capName = capability.getName();
+        for (Entry<String, EntityProvider> entry : prefixMap.entrySet()) {
+            String name = EntityProviderManagerImpl.getCapabilityName(entry.getKey());
+            if (capName.equals(name)) {
+                providers.add((T)entry.getValue());
             }
-         } else {
-            unregisterCapability(prefix, capability);
+        }
+        Collections.sort(providers, new EntityProviderComparator());
+        return providers;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getPrefixesByCapability(java.lang.Class)
+     */
+    public <T extends EntityProvider> List<String> getPrefixesByCapability(Class<T> capability) {
+        ArrayList<String> prefixes = new ArrayList<String>();
+        String capName = capability.getName();
+        for (Entry<String, EntityProvider> entry : prefixMap.entrySet()) {
+            String name = EntityProviderManagerImpl.getCapabilityName(entry.getKey());
+            if (capName.equals(name)) {
+                prefixes.add( EntityProviderManagerImpl.getPrefix(entry.getKey()) );
+            }
+        }
+        Collections.sort(prefixes);
+        return prefixes;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#registerEntityProvider(org.sakaiproject.entitybroker.entityprovider.EntityProvider)
+     */
+    @SuppressWarnings("unchecked")
+    public void registerEntityProvider(EntityProvider entityProvider) {
+        if (entityProvider == null) {
+            throw new IllegalArgumentException("entityProvider cannot be null");
+        }
+        String prefix = new String( entityProvider.getEntityPrefix() ); // copy to make sure this string is in the EB ClassLoader
+        new EntityReference(prefix, ""); // this checks the prefix is valid
+        // we are now registering describe ourselves
+        //      if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
+        //         throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be used");
+        //      }
+        List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
+        int count = 0;
+        for (Class<? extends EntityProvider> superclazz : superclasses) {
+            registerPrefixCapability(prefix, superclazz, entityProvider);
             count++;
-         }
-      }
-      // clean up the properties cache
-      entityProperties.unloadProperties(prefix);
+            // special handling for certain EPs if needed
+            if (superclazz.equals(RequestAware.class)) {
+                // need to shove in the requestGetter on registration
+                ((RequestAware)entityProvider).setRequestGetter(requestGetter);
+            } else if (superclazz.equals(RequestStorable.class)) {
+                // need to shove in the request storage on registration
+                ((RequestStorable)entityProvider).setRequestStorage(requestStorage);
+            } else if (superclazz.equals(ActionsExecutable.class)) {
+                // register the custom actions
+                CustomAction[] customActions = new CustomAction[0];
+                if ( superclasses.contains(ActionsExecutionControllable.class) 
+                        || superclasses.contains(ActionsDefineable.class) ) {
+                    customActions = ((ActionsDefineable)entityProvider).defineActions();
+                    if (customActions == null) {
+                        throw new IllegalArgumentException("ActionsExecutable: defineActions returns null, " +
+                        "it must return an array of custom actions (or you can use ActionsExecutable)");
+                    }
+                    if (!superclasses.contains(ActionsExecutionControllable.class)) {
+                        // do the actions defineable validation check
+                        EntityActionsManager.validateCustomActionMethods((ActionsDefineable)entityProvider);
+                    }
+                } else {
+                    // auto detect the custom actions
+                    customActions = entityActionsManager.findCustomActions(entityProvider, true);
+                }
+                // register the actions
+                Map<String,CustomAction> actions = new HashMap<String, CustomAction>();
+                for (CustomAction customAction : customActions) {
+                    String action = customAction.action;
+                    if (action == null || "".equals(action) || EntityRequestHandler.DESCRIBE.equals(action)) {
+                        throw new IllegalStateException("action keys cannot be null, '', or "
+                                +EntityRequestHandler.DESCRIBE+", invalid custom action defined in defineActions");
+                    }
+                    actions.put(action, customAction);
+                }
+                entityActionsManager.setCustomActions(prefix, actions);
+            } else if (superclazz.equals(Describeable.class)) {
+                // need to load up the default properties into the cache
+                if (! superclasses.contains(DescribePropertiesable.class)) {
+                    // only load if the props are not defined elsewhere
+                    ClassLoader cl = entityProvider.getClass().getClassLoader();
+                    entityProperties.loadProperties(prefix, null, cl);
+                }
+            } else if (superclazz.equals(DescribePropertiesable.class)) {
+                // load up the properties from the provided CL and basename
+                ClassLoader cl = ((DescribePropertiesable)entityProvider).getResourceClassLoader();
+                String baseName = ((DescribePropertiesable)entityProvider).getBaseName();
+                entityProperties.loadProperties(prefix, baseName, cl);
+            } else if (superclazz.equals(Redirectable.class)) {
+                URLRedirect[] redirects = entityRedirectsManager.findURLRedirectMethods(entityProvider);
+                entityRedirectsManager.addURLRedirects(prefix, redirects);
+            } else if (superclazz.equals(RedirectDefinable.class)) {
+                URLRedirect[] redirects = EntityRedirectsManager.validateDefineableTemplates((RedirectDefinable)entityProvider);
+                entityRedirectsManager.addURLRedirects(prefix, redirects);
+            } else if (superclazz.equals(RedirectControllable.class)) {
+                URLRedirect[] redirects = EntityRedirectsManager.validateControllableTemplates((RedirectControllable)entityProvider);
+                entityRedirectsManager.addURLRedirects(prefix, redirects);
+            }
+        }
+        log.info("EntityBroker: Registered entity provider ("+entityProvider.getClass().getName()
+                +") prefix ("+prefix+") with "+count+" capabilities");
 
-      log.info("EntityBroker: Unregistered entity provider ("+entityProvider.getClass().getName()+") and "+count+" capabilities");
-   }
+        // call the registered listeners
+        for (Iterator<EntityProviderListener> iterator = listenerMap.values().iterator(); iterator.hasNext();) {
+            EntityProviderListener<? extends EntityProvider> providerListener = iterator.next();
+            callListener(providerListener, entityProvider);
+        }
+    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#unregisterEntityProviderCapability(java.lang.String,
-    *      java.lang.Class)
-    */
-   public void unregisterCapability(String prefix, Class<? extends EntityProvider> capability) {
-      if (prefix == null || capability == null) {
-         throw new IllegalArgumentException("prefix and capability cannot be null");
-      }
-      if (EntityProvider.class.equals(capability)) {
-         throw new IllegalArgumentException(
-               "Cannot separately unregister root EntityProvider capability - use unregisterEntityProviderByPrefix instead");
-      }
-      String key = getBiKey(prefix, capability);
-      prefixMap.remove(key);
-      // do any cleanup that needs to be done when unregistering
-      if (ActionsExecutable.class.equals(capability)) {
-         // clean up the list of custom actions
-         entityActionsManager.removeCustomActions(prefix);
-      } else if (Describeable.class.isAssignableFrom(capability)) {
-         // clean up properties record
-         entityProperties.unloadProperties(prefix);
-      } else if (Redirectable.class.isAssignableFrom(capability)) {
-         // clean up the redirect URLs record
-         entityRedirectsManager.removeURLRedirects(prefix);
-      }
-      log.info("EntityBroker: Unregistered entity provider capability ("+capability.getName()+") for prefix ("+prefix+")");
-   }
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityProviderManager#unregisterEntityBroker(org.sakaiproject.entitybroker.EntityProvider)
+     */
+    public void unregisterEntityProvider(EntityProvider entityProvider) {
+        final String prefix = entityProvider.getEntityPrefix();
+        if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
+            throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be unregistered");
+        }
+        List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
+        int count = 0;
+        for (Class<? extends EntityProvider> capability : superclasses) {
+            // ensure that the root EntityProvider is never absent from the map unless
+            // there is a call to unregisterEntityProviderByPrefix
+            if (EntityProvider.class.equals(capability)) {
+                if (getProviderByPrefixAndCapability(prefix, EntityProvider.class) != null) {
+                    // needed to ensure that we always have at LEAST the base level EP for a registered entity
+                    registerEntityProvider(new EntityProvider() {
+                        public String getEntityPrefix() {
+                            return prefix;
+                        }
+                    });
+                }
+            } else {
+                unregisterCapability(prefix, capability);
+                count++;
+            }
+        }
+        // clean up the properties cache
+        entityProperties.unloadProperties(prefix);
 
-   /*
-    * (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.EntityProviderManager#unregisterEntityProviderByPrefix(java.lang.String)
-    */
-   public void unregisterEntityProviderByPrefix(String prefix) {
-      if (prefix == null) {
-         throw new NullPointerException("prefix cannot be null");
-      }
-      for (String bikey : prefixMap.keySet()) {
-         String keypref = getPrefix(bikey);
-         if (keypref.equals(prefix)) {
-            prefixMap.remove(bikey);
-         }
-      }
-      log.info("EntityBroker: Unregistered entity prefix ("+prefix+")");
-   }
+        log.info("EntityBroker: Unregistered entity provider ("+entityProvider.getClass().getName()+") and "+count+" capabilities");
+    }
 
-   /**
-    * Allows for easy registration of a prefix and capability
-    * 
-    * @param prefix
-    * @param capability
-    * @param provider
-    * @return true if the provider is newly registered, false if it was already registered
-    */
-   public boolean registerPrefixCapability(String prefix,
-         Class<? extends EntityProvider> capability, EntityProvider entityProvider) {
-      String key = getBiKey(prefix, capability);
-      return prefixMap.put(key, entityProvider) == null;
-   }
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#unregisterEntityProviderCapability(java.lang.String,
+     *      java.lang.Class)
+     */
+    public void unregisterCapability(String prefix, Class<? extends EntityProvider> capability) {
+        if (prefix == null || capability == null) {
+            throw new IllegalArgumentException("prefix and capability cannot be null");
+        }
+        if (EntityProvider.class.equals(capability)) {
+            throw new IllegalArgumentException(
+            "Cannot separately unregister root EntityProvider capability - use unregisterEntityProviderByPrefix instead");
+        }
+        String key = getBiKey(prefix, capability);
+        prefixMap.remove(key);
+        // do any cleanup that needs to be done when unregistering
+        if (ActionsExecutable.class.equals(capability)) {
+            // clean up the list of custom actions
+            entityActionsManager.removeCustomActions(prefix);
+        } else if (Describeable.class.isAssignableFrom(capability)) {
+            // clean up properties record
+            entityProperties.unloadProperties(prefix);
+        } else if (Redirectable.class.isAssignableFrom(capability)) {
+            // clean up the redirect URLs record
+            entityRedirectsManager.removeURLRedirects(prefix);
+        }
+        log.info("EntityBroker: Unregistered entity provider capability ("+capability.getName()+") for prefix ("+prefix+")");
+    }
 
-   /**
-    * @deprecated use {@link #getProviderByPrefix(String)} instead
-    */
-   public EntityProvider getProviderByReference(String reference) {
-      EntityReference ref = new EntityReference(reference);
-      return getProviderByPrefix(ref.prefix);
-   }
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityProviderManager#unregisterEntityProviderByPrefix(java.lang.String)
+     */
+    public void unregisterEntityProviderByPrefix(String prefix) {
+        if (prefix == null) {
+            throw new NullPointerException("prefix cannot be null");
+        }
+        for (String bikey : prefixMap.keySet()) {
+            String keypref = getPrefix(bikey);
+            if (keypref.equals(prefix)) {
+                prefixMap.remove(bikey);
+            }
+        }
+        log.info("EntityBroker: Unregistered entity prefix ("+prefix+")");
+    }
 
-   
-   // LISTENERS
+    /**
+     * Allows for easy registration of a prefix and capability
+     * 
+     * @param prefix
+     * @param capability
+     * @param provider
+     * @return true if the provider is newly registered, false if it was already registered
+     */
+    public boolean registerPrefixCapability(String prefix,
+            Class<? extends EntityProvider> capability, EntityProvider entityProvider) {
+        String key = getBiKey(prefix, capability);
+        return prefixMap.put(key, entityProvider) == null;
+    }
 
-   @SuppressWarnings("unchecked")
-   public <T extends EntityProvider> void registerListener(EntityProviderListener<T> listener, boolean includeExisting) {
-       if (listener == null) {
-           throw new IllegalArgumentException("listener cannot be null");
-       }
-       // unregister first
-       unregisterListener(listener);
-       // get the filter values
-       String prefix = listener.getPrefixFilter();
-       Class<T> capability = listener.getCapabilityFilter();
-       // make the key ensuring it is unique
-       String key = prefix + ":" + capability + ":" + UUID.randomUUID();
-       // store the listener
-       listenerMap.put(key, listener);
-       // do the immediate calls if requested
-       if (includeExisting) {
-           if (capability == null && prefix == null) {
-               // all
-               List<T> providers = (List<T>) getProvidersByCapability(EntityProvider.class);
-               for (T provider : providers) {
-                   listener.run(provider);
-               }
-           } else if (capability == null) {
-               // get by prefix
-               T provider = (T) getProviderByPrefix(prefix);
-               if (provider != null) {
-                   listener.run(provider);
-               }
-           } else if (prefix == null) {
-               // get by capability
-               List<T> l = getProvidersByCapability(capability);
-               for (T provider : l) {
-                   listener.run(provider);
-               }
-           } else {
-               // get by prefix and capability
-               T provider = getProviderByPrefixAndCapability(prefix, capability);
-               if (provider != null) {
-                   listener.run(provider);
-               }
-           }
-       }
-   }
-
-   /**
-    * Called from {@link #registerEntityProvider(EntityProvider)} when registering a provider
-    */
-   @SuppressWarnings("unchecked")
-   private void callListener(EntityProviderListener providerListener, EntityProvider entityProvider) {
-       // get the filter values
-       String prefix = providerListener.getPrefixFilter();
-       Class<? extends EntityProvider> capability = providerListener.getCapabilityFilter();
-       // call the listener and give it the provider
-       if (capability == null && prefix == null) {
-           // any
-           providerListener.run(entityProvider);
-       } else if (capability == null) {
-           // by prefix only
-           if (prefix.equals(entityProvider.getEntityPrefix())) {
-               providerListener.run(entityProvider);
-           }
-       } else if (prefix == null) {
-           // by capability only
-           if (capability.isAssignableFrom(entityProvider.getClass())) {
-               providerListener.run(entityProvider);
-           }
-       } else {
-           // by prefix and capability only
-           if (prefix.equals(entityProvider.getEntityPrefix()) 
-                   && capability.isAssignableFrom(entityProvider.getClass())) {
-               providerListener.run(entityProvider);
-           }
-       }
-   }
-
-   @SuppressWarnings("unchecked")
-   public <T extends EntityProvider> void unregisterListener(EntityProviderListener<T> listener) {
-       if (listener == null) {
-           throw new IllegalArgumentException("listener cannot be null");
-       }
-       if (! listenerMap.isEmpty()) {
-           // try to find by the object equality and then remove
-           String key = null;
-           for (Entry<String, EntityProviderListener> entry : listenerMap.entrySet()) {
-               if (listener.equals(entry.getValue())) {
-                   key = entry.getKey();
-                   break;
-               }
-           }
-           if (key != null) {
-               listenerMap.remove(key);
-           }
-       }
-   }
+    /**
+     * @deprecated use {@link #getProviderByPrefix(String)} instead
+     */
+    public EntityProvider getProviderByReference(String reference) {
+        EntityReference ref = new EntityReference(reference);
+        return getProviderByPrefix(ref.prefix);
+    }
 
 
-   // STATICS
+    // LISTENERS
 
-   // BIKEY methods
-   protected static String getBiKey(String prefix, Class<? extends EntityProvider> clazz) {
-      return prefix + "/" + clazz.getName();
-   }
+    @SuppressWarnings("unchecked")
+    public <T extends EntityProvider> void registerListener(EntityProviderListener<T> listener, boolean includeExisting) {
+        if (listener == null) {
+            throw new IllegalArgumentException("listener cannot be null");
+        }
+        // unregister first
+        unregisterListener(listener);
+        // get the filter values
+        String prefix = listener.getPrefixFilter();
+        Class<T> capability = listener.getCapabilityFilter();
+        // make the key ensuring it is unique
+        String key = prefix + ":" + capability + ":" + UUID.randomUUID();
+        // store the listener
+        listenerMap.put(key, listener);
+        // do the immediate calls if requested
+        if (includeExisting) {
+            if (capability == null && prefix == null) {
+                // all
+                List<T> providers = (List<T>) getProvidersByCapability(EntityProvider.class);
+                for (T provider : providers) {
+                    listener.run(provider);
+                }
+            } else if (capability == null) {
+                // get by prefix
+                T provider = (T) getProviderByPrefix(prefix);
+                if (provider != null) {
+                    listener.run(provider);
+                }
+            } else if (prefix == null) {
+                // get by capability
+                List<T> l = getProvidersByCapability(capability);
+                for (T provider : l) {
+                    listener.run(provider);
+                }
+            } else {
+                // get by prefix and capability
+                T provider = getProviderByPrefixAndCapability(prefix, capability);
+                if (provider != null) {
+                    listener.run(provider);
+                }
+            }
+        }
+    }
 
-   protected static String getPrefix(String bikey) {
-      int slashpos = bikey.indexOf('/');
-      return bikey.substring(0, slashpos);
-   }
+    /**
+     * Called from {@link #registerEntityProvider(EntityProvider)} when registering a provider
+     */
+    @SuppressWarnings("unchecked")
+    private void callListener(EntityProviderListener providerListener, EntityProvider entityProvider) {
+        // get the filter values
+        String prefix = providerListener.getPrefixFilter();
+        Class<? extends EntityProvider> capability = providerListener.getCapabilityFilter();
+        // call the listener and give it the provider
+        if (capability == null && prefix == null) {
+            // any
+            providerListener.run(entityProvider);
+        } else if (capability == null) {
+            // by prefix only
+            if (prefix.equals(entityProvider.getEntityPrefix())) {
+                providerListener.run(entityProvider);
+            }
+        } else if (prefix == null) {
+            // by capability only
+            if (capability.isAssignableFrom(entityProvider.getClass())) {
+                providerListener.run(entityProvider);
+            }
+        } else {
+            // by prefix and capability only
+            if (prefix.equals(entityProvider.getEntityPrefix()) 
+                    && capability.isAssignableFrom(entityProvider.getClass())) {
+                providerListener.run(entityProvider);
+            }
+        }
+    }
 
-   protected static String getCapabilityName(String bikey) {
-      int slashpos = bikey.indexOf('/');
-      String className = bikey.substring(slashpos + 1);
-      return className;
-   }
+    @SuppressWarnings("unchecked")
+    public <T extends EntityProvider> void unregisterListener(EntityProviderListener<T> listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("listener cannot be null");
+        }
+        if (! listenerMap.isEmpty()) {
+            // try to find by the object equality and then remove
+            String key = null;
+            for (Entry<String, EntityProviderListener> entry : listenerMap.entrySet()) {
+                if (listener.equals(entry.getValue())) {
+                    key = entry.getKey();
+                    break;
+                }
+            }
+            if (key != null) {
+                listenerMap.remove(key);
+            }
+        }
+    }
 
-   @SuppressWarnings("unchecked")
-   protected static Class<? extends EntityProvider> getCapability(String bikey) {
-      int slashpos = bikey.indexOf('/');
-      String className = bikey.substring(slashpos + 1);
-      Class<?> c;
-      try {
-         c = Class.forName(className);
-      } catch (ClassNotFoundException e) {
-         throw new RuntimeException("Could not get Class from classname: " + className);
-      }
-      return (Class<? extends EntityProvider>) c;
-   }
 
-   // OTHER
+    // STATICS
 
-   /**
-    * Get the capabilities implemented by this provider
-    * 
-    * @param provider
-    * @return
-    */
-   @SuppressWarnings("unchecked")
-   protected static List<Class<? extends EntityProvider>> extractCapabilities(EntityProvider provider) {
-      List<Class<?>> superclasses = ReflectUtils.getSuperclasses(provider.getClass());
-      Set<Class<? extends EntityProvider>> capabilities = new HashSet<Class<? extends EntityProvider>>();
+    // BIKEY methods
+    protected static String getBiKey(String prefix, Class<? extends EntityProvider> clazz) {
+        return prefix + "/" + clazz.getName();
+    }
 
-      for (Class<?> superclazz : superclasses) {
-         if (superclazz.isInterface() && EntityProvider.class.isAssignableFrom(superclazz)) {
-            capabilities.add((Class<? extends EntityProvider>) superclazz);
-         }
-      }
-      return new ArrayList<Class<? extends EntityProvider>>(capabilities);
-   }
+    protected static String getPrefix(String bikey) {
+        int slashpos = bikey.indexOf('/');
+        return bikey.substring(0, slashpos);
+    }
 
-   public class EntityProviderComparator implements Comparator<EntityProvider> {
-      public int compare(EntityProvider o1, EntityProvider o2) {
-         return o1.getEntityPrefix().compareTo(o2.getEntityPrefix());
-      }
-   }
+    protected static String getCapabilityName(String bikey) {
+        int slashpos = bikey.indexOf('/');
+        String className = bikey.substring(slashpos + 1);
+        return className;
+    }
 
-   public class ClassComparator implements Comparator<Class<?>> {
-      public int compare(Class<?> o1, Class<?> o2) {
-         return o1.getName().compareTo(o2.getName());
-      }
-   }
+    @SuppressWarnings("unchecked")
+    protected static Class<? extends EntityProvider> getCapability(String bikey) {
+        int slashpos = bikey.indexOf('/');
+        String className = bikey.substring(slashpos + 1);
+        Class<?> c;
+        try {
+            c = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Could not get Class from classname: " + className);
+        }
+        return (Class<? extends EntityProvider>) c;
+    }
+
+    // OTHER
+
+    /**
+     * Get the capabilities implemented by this provider
+     * 
+     * @param provider
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected static List<Class<? extends EntityProvider>> extractCapabilities(EntityProvider provider) {
+        List<Class<?>> superclasses = ReflectUtils.getSuperclasses(provider.getClass());
+        Set<Class<? extends EntityProvider>> capabilities = new HashSet<Class<? extends EntityProvider>>();
+
+        for (Class<?> superclazz : superclasses) {
+            if (superclazz.isInterface() && EntityProvider.class.isAssignableFrom(superclazz)) {
+                capabilities.add((Class<? extends EntityProvider>) superclazz);
+            }
+        }
+        return new ArrayList<Class<? extends EntityProvider>>(capabilities);
+    }
+
+    public class EntityProviderComparator implements Comparator<EntityProvider>, Serializable {
+        public final static long serialVersionUID = 1l;
+        public int compare(EntityProvider o1, EntityProvider o2) {
+            return o1.getEntityPrefix().compareTo(o2.getEntityPrefix());
+        }
+    }
+
+    public class ClassComparator implements Comparator<Class<?>>, Serializable {
+        public final static long serialVersionUID = 1l;
+        public int compare(Class<?> o1, Class<?> o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    }
 
 }
