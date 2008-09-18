@@ -155,6 +155,12 @@ languages, as follows:
     Translated by: n/a
     Contact: Ratana Lim (ratana@ic.ucsb.edu) 
     Local ID:km_KH 
+    
+25) French (France)
+   Status: (target release 2.6 or earlier)
+   Translated by: n/a
+   Contact: Jean-Francois Leveque (jean-francois.leveque@upmc.fr)
+   Local ID: fr_FR
 
 The default language locale must be defined at boot time (though this 
 can be over-ridden by user preferences), by setting the tomcat 
