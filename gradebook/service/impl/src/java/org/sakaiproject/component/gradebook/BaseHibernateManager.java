@@ -21,6 +21,7 @@
 **********************************************************************************/
 package org.sakaiproject.component.gradebook;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,6 +45,7 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -55,17 +57,13 @@ import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradebookProperty;
+import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
-
-import java.lang.IllegalArgumentException;
-import java.math.BigDecimal;
 
 /**
  * Provides methods which are shared between service business logic and application business
@@ -1344,5 +1342,44 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 return comments;
             }
         });
+    }
+    
+    protected void finalizeNullGradeRecords(final Gradebook gradebook) {
+    	final Set<String> studentUids = getAllStudentUids(gradebook.getUid());
+		final Date now = new Date();
+		final String graderId = getAuthn().getUserUid();
+    	getHibernateTemplate().execute(new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			List<Assignment> countedAssignments = session.createQuery(
+    				"from Assignment as asn where asn.gradebook.id=:gb and asn.removed=false and asn.notCounted=false and asn.ungraded=false").
+    				setLong("gb", gradebook.getId().longValue()).list();
+    			for (Assignment assignment : countedAssignments) {
+    				List<AssignmentGradeRecord> scoredGradeRecords = session.createQuery(
+    					"from AssignmentGradeRecord as agr where agr.gradableObject.id=:go").
+    					setLong("go", assignment.getId()).list();
+    				Map<String, AssignmentGradeRecord> studentToGradeRecordMap = new HashMap<String, AssignmentGradeRecord>();
+    				for (AssignmentGradeRecord scoredGradeRecord : scoredGradeRecords) {
+    					studentToGradeRecordMap.put(scoredGradeRecord.getStudentId(), scoredGradeRecord);
+    				}
+    				for (String studentUid : studentUids) {
+    					AssignmentGradeRecord gradeRecord = studentToGradeRecordMap.get(studentUid);
+   						if (gradeRecord != null) {
+   							if (gradeRecord.getPointsEarned() == null) {
+   								gradeRecord.setPointsEarned(new Double(0));
+   							} else {
+   								continue;
+   							}
+   						} else {
+   							gradeRecord = new AssignmentGradeRecord(assignment, studentUid, new Double(0));
+   						}
+						gradeRecord.setGraderId(graderId);
+						gradeRecord.setDateRecorded(now);
+						session.saveOrUpdate(gradeRecord);
+						session.save(new GradingEvent(assignment, graderId, studentUid, gradeRecord.getPointsEarned()));
+    				}
+    			}
+    			return null;
+    		}
+    	});
     }
 }

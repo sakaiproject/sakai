@@ -699,4 +699,13 @@ public interface GradebookService {
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 
+	/**
+	 * Finalize the gradebook's course grades by setting all still-unscored assignments
+	 * to zero scores.
+	 * @param gradebookUid
+	 * @throws GradebookNotFoundException
+	 */
+	public void finalizeGrades(String gradebookUid)
+			throws GradebookNotFoundException;
+	
 }

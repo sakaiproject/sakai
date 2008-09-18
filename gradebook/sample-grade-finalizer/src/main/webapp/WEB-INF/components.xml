@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="classpath*:META-INF/spring/spring-service.xml" />
+	
+	<bean id="gradesFinalizerQuartzJob"
+		class="org.sakaiproject.gradebooksample.GradesFinalizerQuartzJob">
+		<property name="gradesFinalizer" ref="gradesFinalizer"/>
+	</bean>
+	
+	<bean id="gradesFinalizerQuartzJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		init-method="init">
+		<property name="beanId" value="gradesFinalizerQuartzJob"/>
+		<property name="jobName" value="Finalize course grades; specify Job Name as 'siteUid=xxxx-xxx-xxx' or 'academicSessionEid=xxxx'"/>
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+	</bean>
+
+</beans>

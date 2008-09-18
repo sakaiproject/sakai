@@ -2510,4 +2510,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		if (log.isInfoEnabled()) log.info("Score updated in gradebookUid=" + gradebookUid + ", assignmentName=" + assignmentName + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
 	}
+
+	public void finalizeGrades(String gradebookUid)
+			throws GradebookNotFoundException {
+		if (!getAuthz().isUserAbleToGradeAll(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to finalize grades");
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+		finalizeNullGradeRecords(getGradebook(gradebookUid));
+	}
 }

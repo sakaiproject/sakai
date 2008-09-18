@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>gradebook-base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>2.6.0RC1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>sakai-gradebooksample-grade-finalizer</artifactId>
+	<name>sakai-gradebooksample-grade-finalizer</name>
+	<packaging>sakai-component</packaging>
+	<properties>
+		<deploy.target>components</deploy.target>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-gradebook-service-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+
+		<!-- For running via Maven -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-test-harness</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${sakai.spring.groupId}</groupId>
+			<artifactId>${sakai.spring.artifactId}</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+
+		<!-- For running as a Quartz job -->
+		<dependency>
+			<groupId>quartz</groupId>
+			<artifactId>quartz</artifactId>
+		</dependency>
+	</dependencies>
+
+  <build>
+    <!--
+      Restore standard Maven 2 directory structure so that we
+      can more clearly distinguish production from test
+      source directories. (The Sakai master pom.xml eliminates
+      "main" and puts all the normal "main" subdirectories
+      directly under "src".)
+    -->
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+      </resource>
+    </resources>
+    <plugins>
+
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>org.sakaiproject.maven.plugins</groupId>
+        <artifactId>sakai</artifactId>
+        <configuration>
+          <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+          <webResources>
+            <resource>
+            	<directory>${basedir}/src/main/resources</directory>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <executable>java</executable>
+          <arguments>
+          	<argument>-Dtomcat.home=${tomcat.home}</argument>
+          	<argument>-Dsakai.home=${sakai.home}</argument>
+          	<!-- Comment out the next line if this is not a demo site. -->
+          	<argument>-Dsakai.demo=true</argument>
+          	<argument>-classpath</argument>
+          	<classpath/>
+          	<argument>${added.exec.arg}</argument>
+          	<argument>org.sakaiproject.gradebooksample.GradesFinalizerExec</argument>
+         </arguments>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>

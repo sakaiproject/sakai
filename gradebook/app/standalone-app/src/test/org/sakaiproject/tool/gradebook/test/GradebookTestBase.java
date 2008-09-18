@@ -113,7 +113,11 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
 		List enrollments = new ArrayList();
 		for (Iterator iter = studentUids.iterator(); iter.hasNext(); ) {
 			String studentUid = (String)iter.next();
-			userManager.createUser(studentUid, null, null, null);
+			
+			// Some recently GradebookService methods assume unique user display IDs,
+			// so make sure to set that as well.
+			userManager.createUser(studentUid, null, null, studentUid);
+			
 			EnrollmentRecord sectionEnrollment = (EnrollmentRecord)integrationSupport.addSiteMembership(studentUid, gradebook.getUid(), Role.STUDENT);
 			enrollments.add(sectionEnrollment);
 		}

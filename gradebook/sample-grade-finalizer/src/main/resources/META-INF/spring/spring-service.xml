@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="gradesFinalizer" class="org.sakaiproject.gradebooksample.GradesFinalizer">
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="actAsUserEid" value="admin"/>
+	</bean>
+
+</beans>

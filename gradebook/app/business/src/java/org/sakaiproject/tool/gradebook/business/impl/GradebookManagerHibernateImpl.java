@@ -2550,40 +2550,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     
     public void fillInZeroForNullGradeRecords(Gradebook gradebook)
     {
-    	Set studentUids = getAllStudentUids(getGradebookUid(gradebook.getId()));
-    	List assigns = getAssignments(gradebook.getId(), Assignment.DEFAULT_SORT, true);
-    	for(Iterator iter = assigns.iterator(); iter.hasNext();)
-    	{
-    		Assignment assignment = (Assignment)iter.next();
-    		if(assignment.isCounted() && !assignment.getUngraded())
-    		{
-    			List records = getAssignmentGradeRecords(assignment, studentUids);
-    			Map recordsMap = new HashMap();
-    			for(Iterator recordsIter = records.iterator(); recordsIter.hasNext();)
-    			{
-    				AssignmentGradeRecord agr = (AssignmentGradeRecord)recordsIter.next();
-    				recordsMap.put(agr.getStudentId(), agr);
-    			}
-    			List updateAssignmentRecord = new ArrayList();
-    			for(Iterator studentsIter = studentUids.iterator(); studentsIter.hasNext();)
-    			{
-    				String studentUid = (String)studentsIter.next();
-    				if(recordsMap.get(studentUid) != null && 
-    						((AssignmentGradeRecord)recordsMap.get(studentUid)).getPointsEarned() == null)
-    				{
-    					AssignmentGradeRecord agr = (AssignmentGradeRecord)recordsMap.get(studentUid);
-    					agr.setPointsEarned(new Double(0));
-    					updateAssignmentRecord.add(agr);
-    				}
-    				else if(recordsMap.get(studentUid) == null)
-    				{
-    					AssignmentGradeRecord gradeRecord = new AssignmentGradeRecord(assignment, studentUid, new Double(0));
-    					updateAssignmentRecord.add(gradeRecord);
-    				}
-    			}
-    			updateAssignmentGradeRecords(assignment, updateAssignmentRecord);
-    		}
-    	}
+    	finalizeNullGradeRecords(gradebook);
     }
 
     public void convertGradePointsForUpdatedTotalPoints(Gradebook gradebook, Assignment assignment, Double newTotal, List studentUids)
@@ -2659,8 +2626,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			if (synchronizer != null && !synchronizer.isProjectSite())
     			{
     				synchronizer.addLegacyAssignment(name);
-    			}  
-
+    			}
+    			
     			// Save the new assignment
     			Long id = (Long)session.save(asn);
 
