@@ -103,16 +103,16 @@ public class PublishedAssessmentFacade
   // amended by gopalrc Nov 2007 to include releaseToGroups
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, String releaseToGroups){
-	  this.publishedAssessmentId = id;
-	  this.title = title;
-	  this.releaseTo = releaseTo;
-	  this.startDate = startDate;
-	  this.dueDate = dueDate;
-      this.releaseToGroups = releaseToGroups; // added by gopalrc Nov 2007
+	  this(id, title, releaseTo, startDate, dueDate, releaseToGroups, null, null);
   }
-
+  
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-		  Date startDate, Date dueDate, Integer status, String releaseToGroups){
+		  Date startDate, Date dueDate, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
+	  this(id, title, releaseTo, startDate, dueDate, null, releaseToGroups, lastModifiedDate, lastModifiedBy);
+  }
+  
+  public PublishedAssessmentFacade(Long id, String title, String releaseTo,
+		  Date startDate, Date dueDate, Integer status, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
 	  this.publishedAssessmentId = id;
 	  this.title = title;
 	  this.releaseTo = releaseTo;
@@ -120,6 +120,8 @@ public class PublishedAssessmentFacade
 	  this.dueDate = dueDate;
 	  this.status = status;
 	  this.releaseToGroups = releaseToGroups;
+	  this.lastModifiedDate = lastModifiedDate;
+	  this.lastModifiedBy = lastModifiedBy;
   }
 
   // constructor that whole min. info, used for listing
@@ -429,6 +431,7 @@ public class PublishedAssessmentFacade
   public void setAssessmentMetaDataSet(Set publishedMetaDataSet) {
     this.publishedMetaDataSet = publishedMetaDataSet;
     this.data.setAssessmentMetaDataSet(publishedMetaDataSet);
+    this.publishedMetaDataMap = getAssessmentMetaDataMap(publishedMetaDataSet);
   }
 
   public HashMap getAssessmentMetaDataMap(Set publishedMetaDataSet) {
@@ -458,6 +461,7 @@ public class PublishedAssessmentFacade
   }
 
   public void addAssessmentMetaData(String label, String entry) {
+	this.publishedMetaDataMap = getAssessmentMetaDataMap();	  
     if (this.publishedMetaDataMap.get(label)!=null){
       // just update
       Iterator iter = this.publishedMetaDataSet.iterator();

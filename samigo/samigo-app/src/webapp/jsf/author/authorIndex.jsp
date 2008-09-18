@@ -193,33 +193,14 @@
     </h:column>
     <h:column>
       <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortLastModified}" id="sortCoreByLastModifiedDateActionA" immediate="true" action="sort"  rendered="#{author.coreAssessmentOrderBy!='lastModifiedDate'}">
-          <h:outputText value="#{authorFrontDoorMessages.header_last_modified_date}" styleClass="currentSort"/>
-          <f:param name="coreSortType" value="lastModifiedDate"/>
-          <f:param name="coreAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
-        </h:commandLink>
- <h:commandLink title="#{authorFrontDoorMessages.t_sortLastModified}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='lastModifiedDate' && author.coreAscending }">
-       <h:outputText  value="#{authorFrontDoorMessages.header_last_modified_date} " styleClass="currentSort" />
-         
-           <f:param name="coreAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortLastModifiedDescending}" rendered="#{author.coreAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink  title="#{authorFrontDoorMessages.t_sortLastModified}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='lastModifiedDate'&& !author.coreAscending }">
-              <h:outputText  value="#{authorFrontDoorMessages.header_last_modified_date} " styleClass="currentSort" />
-           <f:param name="coreAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortLastModifiedAscending}" rendered="#{!author.coreAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
-      </f:facet>
-      <!--h:panelGrid columns="4"-->
-        <h:outputText id="lastModifiedDate" value="#{coreAssessment.lastModifiedDate}">
-         <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
-        </h:outputText>
-      <!--/h:panelGrid-->
+        <h:outputText value="#{authorFrontDoorMessages.header_last_modified}"/>
+	  </f:facet>
+  	  <h:outputText value="#{coreAssessment.lastModifiedBy}" />
+      <h:outputText escape="false" value="<br />"/>
+      <h:outputText value="#{coreAssessment.lastModifiedDate}">
+         <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
+      </h:outputText>
+      
     </h:column>
   </h:dataTable>
 </div>
@@ -412,6 +393,19 @@
           <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
       </h:outputText>
     </h:column>
+
+	<h:column>
+      <f:facet name="header">
+        <h:outputText value="#{authorFrontDoorMessages.header_last_modified}"/>
+	  </f:facet>
+
+  	  <h:outputText value="#{publishedAssessment.lastModifiedBy}" />
+      <h:outputText escape="false" value="<br />"/>
+      <h:outputText value="#{publishedAssessment.lastModifiedDate}">
+         <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
+      </h:outputText>
+    </h:column>
+
   </h:dataTable>
 
   <!--inactive-->
@@ -590,7 +584,18 @@
       <h:outputText value="#{inactivePublishedAssessment.dueDate}" >
         <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
         </h:outputText>
-     
+    </h:column>
+
+	<h:column>
+      <f:facet name="header">
+        <h:outputText value="#{authorFrontDoorMessages.header_last_modified}"/>
+	  </f:facet>
+
+  	  <h:outputText value="#{inactivePublishedAssessment.lastModifiedBy}" />
+      <h:outputText escape="false" value="<br />"/>
+      <h:outputText value="#{inactivePublishedAssessment.lastModifiedDate}">
+         <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
+      </h:outputText>
     </h:column>
   </h:dataTable>
 

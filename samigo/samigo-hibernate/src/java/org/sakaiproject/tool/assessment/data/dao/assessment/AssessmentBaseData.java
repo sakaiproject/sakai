@@ -90,6 +90,18 @@ public class AssessmentBaseData
     this.title = title;
     this.lastModifiedDate = lastModifiedDate;
   }
+  
+  /**
+   * This is another cheap object created for holding just the Id, title &
+   * lastModifiedDate. This object is merely used for display. It is not used
+   * for persistence.
+   */
+  public AssessmentBaseData(Long assessmentBaseId, String title,Date lastModifiedDate, String lastModifiedBy){
+	    this.assessmentBaseId = assessmentBaseId;
+	    this.title = title;
+	    this.lastModifiedDate = lastModifiedDate;
+	    this.lastModifiedBy = lastModifiedBy;
+	  }
 
   public AssessmentBaseData(Long assessmentBaseId, String title,Date lastModifiedDate, Long typeId){
     this.assessmentBaseId = assessmentBaseId;

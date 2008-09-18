@@ -1138,7 +1138,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String orderBy = getOrderBy(sortString);
 		
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
-				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) "
+				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, p.lastModifiedDate, p.lastModifiedBy) "
 				+ " from PublishedAssessmentData p, PublishedAccessControl c, AuthorizationData z  "
 				+ " where c.assessment.publishedAssessmentId = p.publishedAssessmentId and p.status=:status and "
 				+ " p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId "
@@ -1183,6 +1183,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		ArrayList pubList = new ArrayList();
 		TreeMap groupsForSite = null;
 		String releaseToGroups;
+		String lastModifiedBy = "";
+		AgentFacade agent = null;
+
 		for (int i = 0; i < list.size(); i++) {
 			PublishedAssessmentData p = (PublishedAssessmentData) list.get(i);
 			releaseToGroups = null;
@@ -1194,9 +1197,15 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				releaseToGroups = getReleaseToGroupsAsString(groupsForSite, assessmentId);
 			}
 			
+
+			agent = new AgentFacade(p.getLastModifiedBy());
+			if (agent != null) {
+				lastModifiedBy = agent.getFirstName() + " " + agent.getLastName();
+			}
+
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
 					.getPublishedAssessmentId(), p.getTitle(),
-					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), releaseToGroups);
+					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), releaseToGroups, p.getLastModifiedDate(), lastModifiedBy);
 			pubList.add(f);
 		}
 		return pubList;
@@ -1214,7 +1223,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		
 		String orderBy = getOrderBy(sortString);
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"
-				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, p.status) from PublishedAssessmentData p,"
+				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, p.status, p.lastModifiedDate, p.lastModifiedBy) from PublishedAssessmentData p,"
 				+ " PublishedAccessControl c, AuthorizationData z  "
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
 				+ " and ((p.status=:activeStatus and (c.dueDate<=:today or c.retractDate<=:today)) or p.status=:editStatus)"
@@ -1255,11 +1264,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		ArrayList pubList = new ArrayList();
 		TreeMap groupsForSite = null;
 		String releaseToGroups;
-		
+		String lastModifiedBy = "";
+		AgentFacade agent = null;
 		for (int i = 0; i < list.size(); i++) {
 			PublishedAssessmentData p = (PublishedAssessmentData) list.get(i);
 			releaseToGroups = null;
-			
 			if (p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
 				if (groupsForSite == null) {
 					groupsForSite = getGroupsForSite();
@@ -1268,9 +1277,13 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				releaseToGroups = getReleaseToGroupsAsString(groupsForSite, assessmentId);
 			}
 
+			agent = new AgentFacade(p.getLastModifiedBy());
+			if (agent != null) {
+				lastModifiedBy = agent.getFirstName() + " " + agent.getLastName();
+			}
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
 					.getPublishedAssessmentId(), p.getTitle(),
-					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getStatus(), releaseToGroups);
+					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getStatus(), releaseToGroups, p.getLastModifiedDate(), lastModifiedBy);
 			pubList.add(f);
 		}
 		return pubList;

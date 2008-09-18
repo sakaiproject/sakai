@@ -78,14 +78,7 @@ public class SortCoreAssessmentListener
    * @return
    */
   private String getCoreOrderBy(AuthorBean author) {
-    String sort = author.getCoreAssessmentOrderBy();
-    String returnType =  AssessmentFacadeQueries.TITLE;
-    if (sort != null && sort.equals("lastModifiedDate"))
-    {
-	returnType = AssessmentFacadeQueries.LASTMODIFIEDDATE;
-    }
-
-    return returnType;
+    return AssessmentFacadeQueries.TITLE;
   }
 
 /**

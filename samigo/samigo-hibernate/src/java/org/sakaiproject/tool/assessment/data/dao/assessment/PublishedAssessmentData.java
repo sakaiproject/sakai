@@ -112,6 +112,24 @@ public class PublishedAssessmentData
     this.retractDate = retractDate;
   }
   
+  /**
+   * "Convenient Constructor"
+   * This is a cheap object created for holding just the Id, title &
+   * delivery dates. This object is merely used for display. It is not used
+   * for persistence.
+   */
+  public PublishedAssessmentData(Long id, String title, String releaseTo,
+                                 Date startDate, Date dueDate, Date retractDate, Date lastModifiedDate, String lastModifiedBy) {
+    this.assessmentBaseId = id;
+    this.title = title;
+    this.releaseTo = releaseTo;
+    this.startDate = startDate;
+    this.dueDate = dueDate;
+    this.retractDate = retractDate;
+    this.lastModifiedDate = lastModifiedDate;
+    this.lastModifiedBy = lastModifiedBy;
+  }
+  
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate, Integer status) {
 	  this.assessmentBaseId = id;
@@ -121,6 +139,19 @@ public class PublishedAssessmentData
 	  this.dueDate = dueDate;
 	  this.retractDate = retractDate;
 	  this.status = status;
+  }
+  
+  public PublishedAssessmentData(Long id, String title, String releaseTo,
+          Date startDate, Date dueDate, Date retractDate, Integer status, Date lastModifiedDate, String lastModifiedBy) {
+	  this.assessmentBaseId = id;
+	  this.title = title;
+	  this.releaseTo = releaseTo;
+	  this.startDate = startDate;
+	  this.dueDate = dueDate;
+	  this.retractDate = retractDate;
+	  this.status = status;
+	  this.lastModifiedDate = lastModifiedDate;
+	  this.lastModifiedBy = lastModifiedBy;
   }
 
   /**

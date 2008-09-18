@@ -97,8 +97,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	// private ResourceBundle rb =
 	// ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
-	public static final String LASTMODIFIEDDATE = "lastModifiedDate";
-
 	public static final String TITLE = "title";
 
 	public AssessmentFacadeQueries() {
@@ -751,7 +749,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 
 	public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy,
 			final String siteAgentId, boolean ascending) {
-		String query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "
+		String query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.lastModifiedBy) "
 				+ " from AssessmentData a, AuthorizationData z where a.status=? and "
 				+ " a.assessmentBaseId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString=? order by a." + orderBy;
@@ -777,10 +775,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		// new Object[] {siteAgentId},
 		// new org.hibernate.type.Type[] {Hibernate.STRING});
 		ArrayList assessmentList = new ArrayList();
+		String lastModifiedBy = "";
+		AgentFacade agent = null;
 		for (int i = 0; i < list.size(); i++) {
 			AssessmentData a = (AssessmentData) list.get(i);
+			agent = new AgentFacade(a.getLastModifiedBy());
+			if (agent != null) {
+				lastModifiedBy = agent.getFirstName() + " " + agent.getLastName();
+			}
 			AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(),
-					a.getTitle(), a.getLastModifiedDate());
+					a.getTitle(), a.getLastModifiedDate(), lastModifiedBy);
 			assessmentList.add(f);
 		}
 		return assessmentList;

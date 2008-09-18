@@ -84,6 +84,23 @@ public class AssessmentFacade extends AssessmentBaseFacade
     super.setTitle(title);
     super.setLastModifiedDate(lastModifiedDate);
   }
+  
+  /**
+   * IMPORTANT: this constructor do not have "data", this constructor is
+   * merely used for holding assessmentBaseId (which is the assessmentId), Title
+   * & lastModifiedDate for displaying purpose.
+   * This constructor does not persist data (which it has none) to DB
+   * @param id
+   * @param title
+   * @param lastModifiedDate
+   */
+  public AssessmentFacade(Long id, String title, Date lastModifiedDate, String lastModifiedBy) {
+    // in the case of template assessmentBaseId is the assessmentTemplateId
+    super.setAssessmentBaseId(id);
+    super.setTitle(title);
+    super.setLastModifiedDate(lastModifiedDate);
+    super.setLastModifiedBy(lastModifiedBy);
+  }
 
   public AssessmentFacade(AssessmentIfc data, Boolean loadSection) {
     try {

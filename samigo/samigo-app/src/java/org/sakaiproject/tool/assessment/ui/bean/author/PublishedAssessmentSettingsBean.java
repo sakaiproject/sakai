@@ -806,8 +806,19 @@ public class PublishedAssessmentSettingsBean
     return values.get(key);
   }
 
-  public void setValueMap(HashMap newMap){
-    this.values = newMap;
+  public void setValueMap(HashMap newMap) {
+	  HashMap h = new HashMap();
+	  Iterator iter = newMap.keySet().iterator();
+	  while (iter.hasNext()) {
+		  String key = (String) iter.next();
+		  Object o = newMap.get(key);
+		  if ((key.equals("ASSESSMENT_AUTHORS")))
+			  ;
+		  else {
+			  h.put(key, o);
+		  }
+	  }
+	  this.values = h;
   }
 
   public HashMap getValueMap(){
