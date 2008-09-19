@@ -35,7 +35,7 @@
 	 <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
      <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
      <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-    
+     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     
     
     <property name="toolName" ><value>email</value></property>
@@ -64,7 +64,7 @@
 	 <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
      <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
      <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-     
+     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     <property name="toolName" ><value>announcement</value></property>
     <property name="addEvents" >
       <list>

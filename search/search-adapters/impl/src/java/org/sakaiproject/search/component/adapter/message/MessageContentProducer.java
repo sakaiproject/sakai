@@ -32,6 +32,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -48,6 +49,8 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.HTMLParser;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.javax.PagingPosition;
 
@@ -90,7 +93,14 @@ public class MessageContentProducer implements EntityContentProducer
 
 	// injected dependency
 	private ServerConfigurationService serverConfigurationService;
+	
+	//injected dependency
+	private SiteService siteService;
 
+
+	//ContextualDisplayService
+	ContextualUserDisplayService contextualUserDisplayService;
+	
 	public void init()
 	{
 
@@ -106,6 +116,8 @@ public class MessageContentProducer implements EntityContentProducer
 			}
 			searchIndexBuilder.registerEntityContentProducer(this);
 		}
+		
+		contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
 	}
 
 	/**
@@ -189,7 +201,22 @@ public class MessageContentProducer implements EntityContentProducer
 
 				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.3")); //$NON-NLS-1$
 				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.4"));
-				SearchUtils.appendCleanString(mh.getFrom().getDisplayName(), sb); //$NON-NLS-1$
+				//is the user aliased in this context?
+				String displayName = null;
+				if (contextualUserDisplayService != null)
+				{
+					Reference ref1 = entityManager.newReference(m.getReference());
+					String context = siteService.siteReference(ref1.getContext());
+					displayName = contextualUserDisplayService.getUserDisplayName(mh.getFrom(), context);
+					//the service may return a null
+					if (displayName == null)
+						displayName = mh.getFrom().getDisplayName();
+				}
+				else
+				{
+					displayName = mh.getFrom().getDisplayName();
+				}
+				SearchUtils.appendCleanString(displayName, sb); //$NON-NLS-1$
 				sb.append("\n"); //$NON-NLS-1$
 				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.11")); //$NON-NLS-1$
 				String mBody = m.getBody();
@@ -267,6 +294,8 @@ public class MessageContentProducer implements EntityContentProducer
 				String subject = RESOURCE_BUNDLE.getString("MessageContentProducer.2"); //$NON-NLS-1$
 				try
 				{
+					
+					
 					Method getSubject = c.getMethod("getSubject", //$NON-NLS-1$
 							new Class[] {});
 					Object o = getSubject.invoke(mh, new Object[] {});
@@ -276,9 +305,26 @@ public class MessageContentProducer implements EntityContentProducer
 				{
 					log.debug("Didnt get Subject  from " + mh); //$NON-NLS-1$
 				}
+				
+				//is the user aliased in this context?
+				String displayName = null;
+				if (contextualUserDisplayService != null)
+				{
+					Reference ref1 = entityManager.newReference(m.getReference());
+					String context = siteService.siteReference(ref1.getContext());
+					displayName = contextualUserDisplayService.getUserDisplayName(mh.getFrom(), context);
+					//the service may return a null
+					if (displayName == null)
+						displayName = mh.getFrom().getDisplayName();
+				}
+				else
+				{
+					displayName = mh.getFrom().getDisplayName();
+				}
+				
 				String title = subject
 						+ RESOURCE_BUNDLE.getString("MessageContentProducer.36") //$NON-NLS-1$
-						+ mh.getFrom().getDisplayName();
+						+ displayName;
 
 				String r = SearchUtils.appendCleanString(title, null).toString();
 				if (log.isDebugEnabled())
@@ -808,4 +854,7 @@ public class MessageContentProducer implements EntityContentProducer
 		this.serverConfigurationService = serverConfigurationService;
 	}
 
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
 }
