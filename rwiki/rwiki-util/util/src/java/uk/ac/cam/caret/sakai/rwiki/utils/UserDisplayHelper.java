@@ -31,12 +31,12 @@ public class UserDisplayHelper
 
 	private static boolean displayID = ServerConfigurationService.getBoolean("wiki.display.user.id", false);
 	
-	public static String formatDisplayName(String name)
+	public static String formatDisplayName(String name, String context)
 	{
-		return formatDisplayName(name, Messages.getString("UserDisplayHelper.0")); //$NON-NLS-1$
+		return formatDisplayName(name, Messages.getString("UserDisplayHelper.0"), context); //$NON-NLS-1$
 	}
 
-	public static String formatDisplayName(String name, String defaultName)
+	public static String formatDisplayName(String name, String defaultName, String context)
 	{
 		if ( name == null ) {
 			return defaultName;
@@ -51,9 +51,18 @@ public class UserDisplayHelper
 			return defaultName + " (" + XmlEscaper.xmlEscape(name) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if ( displayID ) {
-			return XmlEscaper.xmlEscape(user.getDisplayName() + " (" + user.getDisplayId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (context != null)
+				return XmlEscaper.xmlEscape(user.getDisplayName(context) + " (" + user.getDisplayId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+			else 
+				return XmlEscaper.xmlEscape(user.getDisplayName() + " (" + user.getDisplayId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			return XmlEscaper.xmlEscape(user.getDisplayName()); //$NON-NLS-1$ //$NON-NLS-2$
+			if (context != null)
+				return XmlEscaper.xmlEscape(user.getDisplayName(context)); //$NON-NLS-1$ //$NON-NLS-2$
+			else 
+				return XmlEscaper.xmlEscape(user.getDisplayName()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
+	
+	
+
 }
