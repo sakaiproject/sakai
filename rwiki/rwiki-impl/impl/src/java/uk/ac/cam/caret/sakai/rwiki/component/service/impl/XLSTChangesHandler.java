@@ -312,7 +312,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 					SchemaNames.ATTR_USER, "string", rwco.getUser()); //$NON-NLS-1$
 			propA.addAttribute("", SchemaNames.ATTR_DISPLAY_USER, //$NON-NLS-1$
 					SchemaNames.ATTR_DISPLAY_USER, "string", UserDisplayHelper //$NON-NLS-1$
-							.formatDisplayName(rwco.getUser(), rwco.getRealm()));
+							.formatDisplayName(rwco.getUser()));
 			propA.addAttribute("", SchemaNames.ATTR_REVISION, //$NON-NLS-1$
 					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco //$NON-NLS-1$
 							.getRevision()));
@@ -372,7 +372,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 					SchemaNames.ATTR_USER, "string", rwco.getUser()); //$NON-NLS-1$
 			propA.addAttribute("", SchemaNames.ATTR_DISPLAY_USER, //$NON-NLS-1$
 					SchemaNames.ATTR_DISPLAY_USER, "string", UserDisplayHelper //$NON-NLS-1$
-							.formatDisplayName(rwco.getUser(), rwco.getRealm()));
+							.formatDisplayName(rwco.getUser()));
 			propA.addAttribute("", SchemaNames.ATTR_REVISION, //$NON-NLS-1$
 					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco //$NON-NLS-1$
 							.getRevision()));

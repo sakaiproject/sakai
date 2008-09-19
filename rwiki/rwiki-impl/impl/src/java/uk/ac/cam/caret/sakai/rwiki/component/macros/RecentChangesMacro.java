@@ -172,7 +172,7 @@ public class RecentChangesMacro extends BaseMacro
 							+ dateFormat.format(object.getVersion()));
 					writer.write(Messages.getString("RecentChangesMacro.14") //$NON-NLS-1$
 							+ UserDisplayHelper.formatDisplayName(object
-									.getUser(), object.getRealm()));
+									.getUser()));
 				}
 
 			}
