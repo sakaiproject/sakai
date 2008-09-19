@@ -189,7 +189,10 @@ public class MessageContentProducer implements EntityContentProducer
 
 				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.3")); //$NON-NLS-1$
 				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.4"));
-				SearchUtils.appendCleanString(mh.getFrom().getDisplayName(), sb); //$NON-NLS-1$
+ 				Reference ref1 = entityManager.newReference(m.getReference());
+ 				String context = ref1.getContext();
+ 				log.debug("found context of: " + context);
+ 				SearchUtils.appendCleanString(mh.getFrom().getDisplayName(context),sb); //$NON-NLS-1$
 				sb.append("\n"); //$NON-NLS-1$
 				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.11")); //$NON-NLS-1$
 				String mBody = m.getBody();
@@ -276,9 +279,11 @@ public class MessageContentProducer implements EntityContentProducer
 				{
 					log.debug("Didnt get Subject  from " + mh); //$NON-NLS-1$
 				}
-				String title = subject
-						+ RESOURCE_BUNDLE.getString("MessageContentProducer.36") //$NON-NLS-1$
-						+ mh.getFrom().getDisplayName();
+ 				Reference ref1 = entityManager.newReference(m.getReference());
+ 				String context = ref1.getContext();
+ 				log.debug("found context of: " + context);
+  				String title = subject + Messages.getString("MessageContentProducer.36") //$NON-NLS-1$
+ 						+ mh.getFrom().getDisplayName(context);
 
 				String r = SearchUtils.appendCleanString(title, null).toString();
 				if (log.isDebugEnabled())
