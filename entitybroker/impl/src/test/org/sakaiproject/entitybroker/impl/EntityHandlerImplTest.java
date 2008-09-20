@@ -135,7 +135,8 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(json);
          assertTrue(json.length() > 20);
          assertTrue(json.contains(TestData.PREFIX4));
-         assertTrue(json.contains("\"id\":\"4-one\","));
+         assertTrue(json.contains("\"id\":"));
+         assertTrue(json.contains("\"4-one\","));
          assertTrue(json.contains(EntityEncodingManager.ENTITY_REFERENCE));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");

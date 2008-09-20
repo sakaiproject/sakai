@@ -499,9 +499,9 @@ public class EntityEncodingManager {
     public Transcoder getTranscoder(String format) {
         if (transcoders == null) {
             transcoders = new HashMap<String, Transcoder>();
-            JSONTranscoder jt = new JSONTranscoder();
+            JSONTranscoder jt = new JSONTranscoder(true, true, false);
             transcoders.put(jt.getHandledFormat(), jt);
-            XMLTranscoder xt = new XMLTranscoder(true, true, false);
+            XMLTranscoder xt = new XMLTranscoder(true, true, false, false);
             transcoders.put(xt.getHandledFormat(), xt);
             HTMLTranscoder ht = new HTMLTranscoder();
             transcoders.put(ht.getHandledFormat(), ht);

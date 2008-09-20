@@ -203,7 +203,8 @@ public class EntityEncodingManagerTest extends TestCase {
         assertNotNull(fo);
         assertTrue(fo.length() > 20);
         assertTrue(fo.contains(TestData.PREFIX4));
-        assertTrue(fo.contains("\"id\":\"4-one\","));
+        assertTrue(fo.contains("\"id\":"));
+        assertTrue(fo.contains("\"4-one\","));
         assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
 
         // HTML test valid resolveable entity

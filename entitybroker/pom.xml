@@ -212,8 +212,8 @@
             <dependency>
                 <groupId>org.sakaiproject</groupId>
                 <artifactId>generic-dao</artifactId>
-<!--                <version>0.9.9</version>-->
-                <version>[0.9.9,1.0.0)</version>
+<!--                <version>0.9.10</version>-->
+                <version>[0.9.10,1.0.0)</version>
             </dependency>
 <!-- IMPL dependencies -->
             <dependency>
