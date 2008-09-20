@@ -49,11 +49,11 @@ public class EntityData {
     private Object data;
     public void setData(Object entity) {
         this.data = entity;
-//      if (data != null) {
-//      this.entity = new WeakReference<Object>(data);
-//      } else {
-//      this.entity = null;
-//      }
+        //      if (data != null) {
+        //      this.entity = new WeakReference<Object>(data);
+        //      } else {
+        //      this.entity = null;
+        //      }
     }
     /**
      * (OPTIONAL - may be null)
@@ -63,11 +63,11 @@ public class EntityData {
      */
     public Object getData() {
         return this.data;
-//      if (this.entity == null) {
-//      return null;
-//      } else {
-//      return this.entity.get();
-//      }
+        //      if (this.entity == null) {
+        //      return null;
+        //      } else {
+        //      return this.entity.get();
+        //      }
     }
 
     private String entityId = null;
@@ -122,7 +122,11 @@ public class EntityData {
      */
     public String getDisplayTitle() {
         if (this.entityDisplayTitle == null) {
-            return this.entityRef.getPrefix() + " : " + entityReference;
+            if (this.entityRef != null) {
+                return this.entityRef.getPrefix() + " : " + entityReference;
+            } else {
+                return "data";
+            }
         }
         return entityDisplayTitle;
     }
@@ -201,6 +205,24 @@ public class EntityData {
      */
     public boolean isPopulated() {
         return populated;
+    }
+
+    /**
+     * indicates that this is a holder and should be discarded and the data
+     * rendered into the given format without it
+     */
+    private transient boolean dataOnly = false;
+    /**
+     * FOR INTERNAL USE ONLY - do not use
+     */
+    public void setDataOnly(boolean dataOnly) {
+        this.dataOnly = dataOnly;
+    }
+    /**
+     * @return true if this is a data holder and the data inside it should be rendered alone without this wrapper
+     */
+    public boolean isDataOnly() {
+        return dataOnly;
     }
 
     /**
@@ -309,6 +331,26 @@ public class EntityData {
         setEntityProperties(entityProperties);
     }
 
+    /**
+     * Using this as a data wrapper only
+     * @param data any data to wrap this in
+     */
+    public EntityData(Object data) {
+        this(data, null);
+    }
+
+    /**
+     * Using this as a data wrapper only
+     * @param data any data to wrap this in
+     * @param entityProperties a set of properties to return along with the entity information,
+     * this may be presented and used for filtering,
+     */
+    public EntityData(Object data, Map<String, Object> entityProperties) {
+        setData(data);
+        setEntityProperties(entityProperties);
+        this.dataOnly = true;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (null == obj)
@@ -332,7 +374,7 @@ public class EntityData {
 
     @Override
     public String toString() {
-        return "ED: ref="+entityReference+":display="+entityDisplayTitle+":url="+entityURL+":props("+getEntityProperties().size()+"):data="+data;
+        return "ED: ref="+entityReference+":display="+entityDisplayTitle+":url="+entityURL+":props("+getEntityProperties().size()+"):dataOnly="+dataOnly+":data="+data;
     }
 
     public static class ReferenceComparator implements Comparator<EntityData>, Serializable {

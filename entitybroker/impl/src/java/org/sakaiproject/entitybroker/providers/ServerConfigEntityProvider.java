@@ -45,6 +45,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResol
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
@@ -100,14 +101,15 @@ public class ServerConfigEntityProvider implements CoreEntityProvider, Outputabl
     @SuppressWarnings("unchecked")
     public Object getClusterServers(EntityReference ref) {
         List<String> servers = clusterService.getServers();
-        EntityData ed = new EntityData(ref+"/servers", "servers", servers);
-        return ed;
+        // wrapped the data in an EntityData object so it is encoded as is
+        return new EntityData(servers);
     }
 
     @EntityCustomAction(action="values",viewKey=EntityView.VIEW_LIST)
-    public Map<String, Object> getAllValues() {
+    public Object getAllValues() {
         TreeMap<String, Object> tm = new TreeMap<String, Object>( getKnownSettings() );
-        return tm;
+        // wrapped the data in an ActionReturn object so it is encoded as is
+        return new ActionReturn(tm);
     }
 
     @EntityCustomAction(action="names",viewKey=EntityView.VIEW_LIST)
@@ -115,10 +117,16 @@ public class ServerConfigEntityProvider implements CoreEntityProvider, Outputabl
         Map<String, Object> tm = getKnownSettings();
         ArrayList<String> names = new ArrayList<String>( tm.keySet() );
         Collections.sort(names);
-        EntityData ed = new EntityData(ref+"/names", "names", names);
-        return ed;
+        // wrapped the data in an ActionReturn object so it is encoded as is
+        return new ActionReturn(names);
     }
 
+    /*
+     * NOTE for anyone looking at this code, there are multiple ways to return data so that
+     * the extra meta data is not encoded or the data is not wrapped in an entity data object,
+     * use of the EntityData object directly is one way, the preferred way is to use the ActionReturn
+     * since it is generally the way to handle data returns from custom actions
+     */
 
     public boolean entityExists(String id) {
         if (id == null) {

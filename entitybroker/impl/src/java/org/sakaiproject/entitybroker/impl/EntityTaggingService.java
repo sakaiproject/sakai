@@ -128,7 +128,7 @@ public class EntityTaggingService implements TagProvider {
             int allCount = tags.length;
             for (Entry<String, Integer> entry : matchMap.entrySet()) {
                if (entry.getValue() >= allCount) {
-                  results.add( new EntityData(entry.getKey(), null) );
+                  results.add( new EntityData(entry.getKey(), (String)null) );
                }
             }
             Collections.sort(results, new EntityData.ReferenceComparator());
@@ -141,7 +141,7 @@ public class EntityTaggingService implements TagProvider {
                } else {
                   refToTags.put(tagApp.getEntityRef(), tagApp.getTag());
                   // note: no display available here
-                  results.add( new EntityData(tagApp.getEntityRef(), null) );
+                  results.add( new EntityData(tagApp.getEntityRef(), (String)null) );
                }
             }
             // add in the tags property

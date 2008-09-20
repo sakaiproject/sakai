@@ -20,10 +20,8 @@
 
 package org.sakaiproject.entitybroker.impl;
 
-import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +46,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
+import org.sakaiproject.genericdao.util.ConstructorUtils;
 import org.sakaiproject.genericdao.util.ReflectUtils;
 import org.sakaiproject.genericdao.util.exceptions.FieldnameNotFoundException;
 
@@ -271,7 +270,7 @@ public class EntityBrokerManager {
         } else {
             if (entityExists(ref)) {
                 String url = getEntityURL(ref.toString(), EntityView.VIEW_SHOW, null);
-                ed = new EntityData(ref, null);
+                ed = new EntityData(ref, (String)null);
                 ed.setEntityURL(url);
             }
         }
@@ -464,7 +463,7 @@ public class EntityBrokerManager {
         }
         HashMap<String, EntityView> views = new HashMap<String, EntityView>();
         for (EntityData entityData : data) {
-            if (entityData.isPopulated()) {
+            if (entityData.isPopulated() || entityData.isDataOnly()) {
                 continue;
             } else {
                 entityData.setPopulated(true);
@@ -485,28 +484,10 @@ public class EntityBrokerManager {
             // check what we are dealing with
             boolean isPOJO = false;
             if (entityData.getData() != null) {
-                if (entityData.getData().getClass().isPrimitive()
-                        || entityData.getData().getClass().isArray()
-                        || Collection.class.isAssignableFrom(entityData.getData().getClass())
-                        || OutputStream.class.isAssignableFrom(entityData.getData().getClass())
-                        || Number.class.isAssignableFrom(entityData.getData().getClass())
-                        || String.class.isAssignableFrom(entityData.getData().getClass()) ) {
-                    isPOJO = false;
-                } else {
+                if ( ConstructorUtils.isClassBean(entityData.getData().getClass()) ) {
                     isPOJO = true;
                 }
             }
-            // get all properties out of this thing (this gets the values out of the object and puts them in the properties map)
-            // commented out since I think this is not desireable any more
-//            if (isPOJO) {
-//                if (Map.class.isAssignableFrom(entityData.getData().getClass())) {
-//                    // skip
-//                } else {
-//                    Map<String, Object> values = getReflectUtil().getObjectValues(entityData.getData());
-//                    Map<String, Object> props = EntityDataUtils.extractMapProperties( values );
-//                    EntityDataUtils.putAllNewInMap(entityData.getEntityProperties(), props);
-//                }
-//            }
             // attempt to set display title if not set
             if (! entityData.isDisplayTitleSet()) {
                 boolean titleNotSet = true;

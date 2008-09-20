@@ -47,7 +47,11 @@ public interface OutputFormattable extends Outputable {
     * Formats the entity or collection included or referred to by this entity ref object
     * into output according to the format string provided,
     * Should take into account the reference when determining what the entities are
-    * and how to encode them
+    * and how to encode them <br/>
+    * <b>NOTE:</b> be careful to correctly handle the list of entities which are meant
+    * to be encoded, note that the {@link EntityData} objects include meta data and
+    * the data they contain can be of any object type (though all data will come from 
+    * your provider so the types should not be surprising)
     * 
     * @param ref the parsed reference object which uniquely represents this entity
     * @param format a string constant indicating the extension format (from {@link Formats}) 

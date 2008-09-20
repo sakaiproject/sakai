@@ -328,8 +328,8 @@ public class EntityDescriptionManager {
 
                 String[] inputFormats = getFormats(prefix, false);
                 sb.append("      <inputFormats>\n");
-                if (outputFormats != null) {
-                    if (outputFormats.length == 0) {
+                if (inputFormats != null) {
+                    if (inputFormats.length == 0) {
                         sb.append("        <format>*</format>\n");
                     } else {
                         for (int i = 0; i < inputFormats.length; i++) {

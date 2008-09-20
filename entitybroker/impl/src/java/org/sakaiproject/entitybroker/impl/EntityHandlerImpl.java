@@ -454,10 +454,18 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                             // this was a single object return so it should be encoded as such, thus we will recode the correct reference into the view
                                                             ArrayList<EntityData> eList = new ArrayList<EntityData>();
                                                             EntityData ed = actionReturn.entityData;
+                                                            // set title if not set
+                                                            if (! ed.isDisplayTitleSet()) {
+                                                                ed.setDisplayTitle(customAction.action);
+                                                            }
+                                                            // add to list
                                                             eList.add( ed );
                                                             entities = eList;
+                                                            // make entity reference
                                                             ref = ed.getEntityRef();
-                                                            if (ref.getId() == null) {
+                                                            if (ref == null) {
+                                                                ref = new EntityReference(prefix, customAction.action);
+                                                            } else if (ref.getId() == null) {
                                                                 ref = new EntityReference(ref.getPrefix(), customAction.action);
                                                             }
                                                             view.setEntityReference( ref );
@@ -468,7 +476,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                         Search search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
                                                         entities = entityBrokerManager.getEntitiesData(ref, search, requestStorage.getStorageMapCopy());
                                                     }
-                                                    // set the modifed header (use the sole entity in the list if there is one only)
+                                                    // set the modified header (use the sole entity in the list if there is one only)
                                                     setLastModifiedHeaders(res, (entities != null && entities.size()==1 ? entities.get(0) : null), System.currentTimeMillis());
 
                                                     if (EntityView.Method.HEAD.name().equals(view.getMethod())) {

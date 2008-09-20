@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +47,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
+import org.sakaiproject.genericdao.util.ConstructorUtils;
 import org.sakaiproject.genericdao.util.ReflectUtils;
 import org.sakaiproject.genericdao.util.StringUtils;
 import org.sakaiproject.genericdao.util.map.ArrayOrderedMap;
@@ -69,6 +69,7 @@ public class EntityEncodingManager {
     public static final String ENTITY_REFERENCE = "entityReference";
     public static final String ENTITY_ID = "entityId";
     public static final String ENTITY_URL = "entityURL";
+    public static final String ENTITY_TITLE = "entityTitle";
 
     private static Log log = LogFactory.getLog(EntityEncodingManager.class);
 
@@ -355,7 +356,7 @@ public class EntityEncodingManager {
             int encodedEntities = 0;
             for (EntityData entity : entities) {
                 try {
-                    String encode = encodeEntity(ref, format, entity);
+                    String encode = encodeEntity(ref.getPrefix(), format, entity);
                     if (encode.length() > 3) {
                         if (Formats.JSON.equals(format) 
                                 && encodedEntities > 0) {
@@ -388,7 +389,7 @@ public class EntityEncodingManager {
                         + "), entity object to encode could not be found (null object in list)", ref.toString());
             } else {
                 try {
-                    encoded = encodeEntity(ref, format, toEncode);
+                    encoded = encodeEntity(ref.getPrefix(), format, toEncode);
                 } catch (RuntimeException e) {
                     throw new EntityEncodingException("Failure during internal output encoding of entity: " + ref, ref.toString(), e);
                 }
@@ -408,16 +409,16 @@ public class EntityEncodingManager {
 
     /**
      * Encodes entity data
-     * @param ref the entity reference
+     * @param prefix the entity prefix related to this data
      * @param format the format to encode the data into
      * @param entityData entity data to encode
      * @return the encoded entity or "" if encoding fails
      */
-    public String encodeEntity(EntityReference ref, String format, EntityData entityData) {
-        String encoded = "";
-        if (entityData == null) {
-            throw new IllegalArgumentException("entity data to encode must not be null");
+    public String encodeEntity(String prefix, String format, EntityData entityData) {
+        if (prefix == null || format == null || entityData == null) {
+            throw new IllegalArgumentException("prefix, format, and entity data to encode must not be null");
         }
+        String encoded = "";
         if (Formats.HTML.equals(format)) {
             // special handling for HTML
             StringBuilder sb = new StringBuilder(200);
@@ -425,21 +426,22 @@ public class EntityEncodingManager {
             sb.append("    <div style='font-weight:bold;'>"+entityData.getDisplayTitle()+"</div>\n");
             sb.append("    <table border='1'>\n");
             sb.append("      <caption style='font-weight:bold;'>Entity Data</caption>\n");
-            sb.append("      <tr><td>entityReference</td><td>"+entityData.getEntityReference()+"</td></tr>\n");
-            sb.append("      <tr><td>entityURL</td><td>"+entityData.getEntityURL()+"</td></tr>\n");
-            if (entityData.getEntityRef() != null) {
-                sb.append("      <tr><td>entityPrefix</td><td>"+entityData.getEntityRef().getPrefix()+"</td></tr>\n");
-                if (entityData.getEntityRef().getId() != null) {
-                    sb.append("      <tr><td>entityID</td><td>"+entityData.getEntityRef().getId()+"</td></tr>\n");
+            if (! entityData.isDataOnly()) {
+                sb.append("      <tr><td>entityReference</td><td>"+entityData.getEntityReference()+"</td></tr>\n");
+                sb.append("      <tr><td>entityURL</td><td>"+entityData.getEntityURL()+"</td></tr>\n");
+                if (entityData.getEntityRef() != null) {
+                    sb.append("      <tr><td>entityPrefix</td><td>"+entityData.getEntityRef().getPrefix()+"</td></tr>\n");
+                    if (entityData.getEntityRef().getId() != null) {
+                        sb.append("      <tr><td>entityID</td><td>"+entityData.getEntityRef().getId()+"</td></tr>\n");
+                    }
                 }
             }
             if (entityData.getData() != null) {
-                sb.append("      <tr><td>entity-object</td><td>"+entityData.getData()+"</td></tr>\n");
                 sb.append("      <tr><td>entity-type</td><td>"+entityData.getData().getClass().getName()+"</td></tr>\n");
                 // dump entity data
-                sb.append("      <tr><td colspan='2'>");
+                sb.append("      <tr><td colspan='2'>Data:<br/>\n");
                 sb.append( encodeData(entityData.getData(), Formats.HTML, null, null) );
-                sb.append("</td></tr>");
+                sb.append("      </td></tr>\n");
             } else {
                 sb.append("      <tr><td>entity-object</td><td><i>null</i></td></tr>\n");
             }
@@ -456,34 +458,36 @@ public class EntityEncodingManager {
             sb.append("  </div>\n");
             encoded = sb.toString();
         } else {
-            // TODO encode the props from the entity data specially? (this may be the only data)
             // encode the entity itself
-            Object toEncode = entityData;
+            Object toEncode = entityData; // default to encoding the entity data object
             Map<String, Object> entityProps = new ArrayOrderedMap<String, Object>();
             if (entityData.getData() != null) {
-                Class<?> type = entityData.getData().getClass();
-                if (Collection.class.isAssignableFrom(type) 
-                        || Map.class.isAssignableFrom(type)
-                        || String.class.isAssignableFrom(type)) {
-                    // special handling for maps and lists and strings
-                    toEncode = entityData;
-                } else {
-                    // if it is a POJO then use it
+                if (entityData.isDataOnly()) {
                     toEncode = entityData.getData();
-                    // add in the extra props
-                    entityProps.put(ENTITY_REFERENCE, entityData.getEntityReference());
-                    entityProps.put(ENTITY_URL, entityData.getEntityURL());
-                    if (entityData.getEntityRef().getId() != null) {
-                        entityProps.put(ENTITY_ID, entityData.getEntityRef().getId());
+                    // no meta data except properties if there are any
+                    entityProps.putAll( entityData.getEntityProperties() );
+                } else {
+                    if (ConstructorUtils.isClassBean(entityData.getData().getClass())) {
+                        // encode the bean directly if it is one
+                        toEncode = entityData.getData();
+                        // add in the extra props
+                        entityProps.put(ENTITY_REFERENCE, entityData.getEntityReference());
+                        entityProps.put(ENTITY_URL, entityData.getEntityURL());
+                        if (entityData.getEntityRef().getId() != null) {
+                            entityProps.put(ENTITY_ID, entityData.getEntityRef().getId());
+                        }
+                        if (entityData.isDisplayTitleSet()) {
+                            entityProps.put(ENTITY_TITLE, entityData.getDisplayTitle());
+                        }
                     }
                 }
             }
-            // encode the object
+            // do the encoding
             try {
-                encoded = encodeData(toEncode, format, ref.getPrefix(), entityProps);
+                encoded = encodeData(toEncode, format, prefix, entityProps);
             } catch (IllegalArgumentException e) {
                 // no transcoder so just toString this and dump it out
-                encoded = ref.getPrefix() + " : " + entityData;
+                encoded = prefix + " : " + entityData;
             }
         }
         return encoded;

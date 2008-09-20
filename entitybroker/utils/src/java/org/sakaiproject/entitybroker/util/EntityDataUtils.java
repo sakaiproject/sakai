@@ -115,7 +115,6 @@ public class EntityDataUtils {
      * Make an entity data object out of whatever entity is given,
      * use the given reference, if there is no id then this will attempt to get one otherwise it will use prefix only
      */
-    @SuppressWarnings("unchecked")
     public static EntityData makeEntityData(EntityReference ref, Object entity) {
         EntityData ed = null;
         if (entity != null) {
@@ -157,8 +156,9 @@ public class EntityDataUtils {
                     } else {
                         ed = ar.entityData;
                     }
-                } else if (Map.class.isAssignableFrom(resultClass)) {
-                    props = EntityDataUtils.extractMapProperties((Map)entity);
+// removed because it makes a mess of the output, maybe add this in later though -AZ
+//                } else if (Map.class.isAssignableFrom(resultClass)) {
+//                    props = EntityDataUtils.extractMapProperties((Map)entity);
                 }
                 if (ed == null) {
                     ed = new EntityData(ref, null, entityObject, props);

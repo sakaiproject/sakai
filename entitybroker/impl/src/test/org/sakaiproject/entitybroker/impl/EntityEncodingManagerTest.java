@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -83,6 +84,56 @@ public class EntityEncodingManagerTest extends TestCase {
 
      }
 
+    public void testEncodeEntity() {
+        String encoded = null;
+        EntityData ed = null;
+
+        ed = new EntityData(new EntityReference(TestData.REF4), "Aaron Title", TestData.entity4);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("Aaron Title"));
+        assertTrue(encoded.contains("something0"));
+
+        ed = new EntityData(new EntityReference(TestData.REF4), "Aaron Title2", TestData.entity4_two);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("Aaron Title2"));
+        assertTrue(encoded.contains("something1"));
+
+        // test encoding random stuff
+        Map<String, Object> map = new ArrayOrderedMap<String, Object>();
+        map.put("A", "aaron");
+        map.put("B", "becky");
+        map.put("C", "minerva");
+        ed = new EntityData(map);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("aaron"));
+        assertTrue(encoded.contains("becky"));
+
+        List<String> l = new ArrayList<String>();
+        l.add("AZ");
+        l.add("BZ");
+        l.add("CZ");
+        ed = new EntityData(l);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("AZ"));
+        assertTrue(encoded.contains("BZ"));
+
+        String[] array = new String[] {"A","B","C"};
+        ed = new EntityData(array);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("A"));
+        assertTrue(encoded.contains("B"));
+
+    }
 
     /**
      * Test method for {@link EntityHandlerImpl#internalOutputFormatter(EntityView, javax.servlet.http.HttpServletRequest, HttpServletResponse)}
