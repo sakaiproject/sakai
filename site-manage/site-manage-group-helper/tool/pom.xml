@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>site-manage-base</artifactId>
@@ -18,9 +19,7 @@
   <packaging>war</packaging>
   <properties>
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-    <rsfutil.version>0.7.2</rsfutil.version>
-    <ponderutilcore.version>1.2.2</ponderutilcore.version>
-    <jservletutil.version>1.2.2</jservletutil.version>
+    <rsfutil.version>0.7.4</rsfutil.version>
   </properties>
   <dependencies>
     <dependency>
@@ -79,12 +78,10 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>2.1</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
   </dependencies>
   <build>

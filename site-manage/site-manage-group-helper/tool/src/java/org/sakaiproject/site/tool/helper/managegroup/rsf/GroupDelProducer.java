@@ -1,57 +1,41 @@
 package org.sakaiproject.site.tool.helper.managegroup.rsf;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
-import org.sakaiproject.site.tool.helper.managegroup.rsf.GroupEditViewParameters;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.user.api.User;
 
 import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
-import uk.ac.cam.caret.sakai.rsf.util.SakaiURLUtil;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UIInput;
-import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
-import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
-import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
-import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.stringutil.StringList;
 
 /**
  * 
- * @author
+ * @author Dr. WHO?
  *
  */
-public class GroupDelProducer 
-implements ViewComponentProducer, DynamicNavigationCaseReporter{
+public class GroupDelProducer implements ViewComponentProducer, ActionResultInterceptor {
     
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(GroupDelProducer.class);
@@ -127,11 +111,20 @@ implements ViewComponentProducer, DynamicNavigationCaseReporter{
         params.id = null;
         return params;
     }
-    
-    public List reportNavigationCases() {
-        List togo = new ArrayList();
-        togo.add(new NavigationCase("success", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
-    	togo.add(new NavigationCase("cancel", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
-        return togo;
+
+    // old and busted
+//    public List reportNavigationCases() {
+//        List togo = new ArrayList();
+//        togo.add(new NavigationCase("success", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
+//    	togo.add(new NavigationCase("cancel", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
+//        return togo;
+//    }
+
+    // new hotness
+    public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
+        if ("success".equals(actionReturn) || "cancel".equals(actionReturn)) {
+            result.resultingView = new SimpleViewParameters(GroupListProducer.VIEW_ID);
+        }
     }
+
 }
