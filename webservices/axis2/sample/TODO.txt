@@ -1,2 +1,11 @@
-Need to write instructions on how to run this.
+This sample client is easy enough to run. 
+In order for it to work, you'll need to build and deploy the sample service with a command
+that looks something like 
+mvn -Dmaven.test.skip=true -Dmaven.tomcat.home=/usr/local/apache-tomcat-5.5.26 clean install sakai:deploy
+from inside the axis2 directory. Once you have it deployed and Tomcat is up and running, then you can
+run this from inside Eclipse by selecting Run/Run As/Java Application.
+As is, you should see "Hello, Katie" appear on the console. That means everything is good!
+
+You can probably run this from the command line as well, but that involves setting
+the build path. You should be able to get away with pulling in just the axis2, axiom and jsr173_api jars.
 
