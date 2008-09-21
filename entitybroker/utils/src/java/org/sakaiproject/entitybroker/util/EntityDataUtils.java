@@ -143,7 +143,6 @@ public class EntityDataUtils {
                     }
                 }
                 Object entityObject = entity;
-                Map<String, Object> props = null;
                 if (ActionReturn.class.isAssignableFrom(resultClass)) {
                     ActionReturn ar = (ActionReturn) entity;
                     if (ar.entityData == null) {
@@ -161,7 +160,7 @@ public class EntityDataUtils {
 //                    props = EntityDataUtils.extractMapProperties((Map)entity);
                 }
                 if (ed == null) {
-                    ed = new EntityData(ref, null, entityObject, props);
+                    ed = new EntityData(ref, null, entityObject, null);
                 }
             }
         }
