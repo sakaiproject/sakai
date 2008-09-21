@@ -22,9 +22,11 @@ package org.sakaiproject.entitybroker.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
@@ -49,7 +51,10 @@ import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.impl.util.VersionConstants;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+import org.sakaiproject.genericdao.util.ArrayUtils;
+import org.sakaiproject.genericdao.util.ConstructorUtils;
 import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.sakaiproject.genericdao.util.ClassFields.FieldsFilter;
 
 
 /**
@@ -135,6 +140,9 @@ public class EntityDescriptionManager {
             locale = entityProperties.getLocale();
         }
         Map<String, List<Class<? extends EntityProvider>>> map = entityProviderManager.getRegisteredEntityCapabilities();
+        // take out the "describe" EP if it is in there
+        map.remove(DESCRIBE);
+        // now get to creating the descriptions
         String describeURL = entityBrokerManager.makeFullURL("") + SLASH_DESCRIBE;
         String output = "";
         if (Formats.XML.equals(format)) {
@@ -233,6 +241,7 @@ public class EntityDescriptionManager {
      * @param locale used for translations
      * @return the entity description
      */
+    @SuppressWarnings("unchecked")
     protected String describeEntity(StringBuilder sb, String prefix, String id, String format, boolean extra, List<Class<? extends EntityProvider>> caps, Locale locale) {
         if (caps == null) {
             caps = entityProviderManager.getPrefixCapabilities(prefix);
@@ -370,26 +379,53 @@ public class EntityDescriptionManager {
                 // Resolvable Entity Info
                 Object entity = entityBrokerManager.getSampleEntityObject(prefix, null);
                 if (entity != null) {
+                    Class<?> entityType = entity.getClass();
                     sb.append("      <entityClass>\n");
-                    sb.append("        <class>"+ entity.getClass().getName() +"</class>\n");
-                    sb.append("        <fields>\n");
-                    Map<String, Class<?>> entityTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass());
-                    ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
-                    Collections.sort(keys);
-                    for (String key : keys) {
-                        Class<?> type = entityTypes.get(key);
-                        sb.append("          <field>\n");
-                        sb.append("            <name>"+ key +"</name>\n");
-                        sb.append("            <type>"+ type.getName() +"</type>\n");
-                        String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key, locale);
-                        if (fieldDesc != null) {
-                            sb.append("            <description>"+ fieldDesc +"</description>\n");
+                    sb.append("        <class>"+ entityType.getName() +"</class>\n");
+                    if (ConstructorUtils.isClassSimple(entityType)) {
+                        sb.append("        <type>simple</type>\n");
+                    } else if (ConstructorUtils.isClassCollection(entityType)) {
+                        sb.append("        <type>collection</type>\n");
+                    } else if (ConstructorUtils.isClassArray(entityType)) {
+                        sb.append("        <type>array</type>\n");
+                        sb.append("        <componentType>"+ArrayUtils.type((Object[])entity).getName()+"</componentType>\n");
+                    } else if (ConstructorUtils.isClassMap(entityType)) {
+                        sb.append("        <type>map</type>\n");
+                        // get the types of the map keys if possible
+                        Map m = (Map) entity;
+                        if (m.size() > 0) {
+                            Entry entry = (Entry) m.entrySet().iterator().next();
+                            sb.append("        <keyType>"+(entry.getKey()==null?Object.class.getName():entry.getKey().getClass().getName())+"</keyType>\n");
+                            sb.append("        <valueType>"+(entry.getValue()==null?Object.class.getName():entry.getValue().getClass().getName())+"</valueType>\n");
                         }
-                        sb.append("          </field>\n");
+                    } else {
+                        sb.append("        <type>bean</type>\n");
+                        sb.append("        <fields>\n");
+                        // get all the read and write fields from this object
+                        Map<String, Class<?>> readTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass(), FieldsFilter.SERIALIZABLE);
+                        Map<String, Class<?>> writeTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass(), FieldsFilter.WRITEABLE);
+                        Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
+                        entityTypes.putAll(writeTypes);
+                        ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
+                        Collections.sort(keys);
+                        for (String key : keys) {
+                            Class<?> type = entityTypes.get(key);
+                            sb.append("          <field>\n");
+                            sb.append("            <name>"+ key +"</name>\n");
+                            sb.append("            <type>"+ type.getName() +"</type>\n");
+                            sb.append("            <readable>"+ readTypes.containsKey(key) +"</readable>\n");
+                            sb.append("            <writeable>"+ writeTypes.containsKey(key) +"</writeable>\n");
+                            String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key, locale);
+                            if (fieldDesc != null) {
+                                sb.append("            <description>"+ fieldDesc +"</description>\n");
+                            }
+                            sb.append("          </field>\n");
+                        }
+                        sb.append("        </fields>\n");
                     }
-                    sb.append("        </fields>\n");
                     sb.append("      </entityClass>\n");
                 }
+
                 // Redirects
                 List<URLRedirect> redirects = entityRedirectsManager.getURLRedirects(prefix);
                 if (! redirects.isEmpty()) {
@@ -567,22 +603,76 @@ public class EntityDescriptionManager {
                 // Resolvable Entity Info
                 Object entity = entityBrokerManager.getSampleEntityObject(prefix, null);
                 if (entity != null) {
-                    sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entity.getClass().getName() +"</h4>\n");
+                    Class<?> entityType = entity.getClass();
+                    sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entityType.getName() +"</h4>\n");
                     sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
-                    Map<String, Class<?>> entityTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass());
-                    ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
-                    Collections.sort(keys);
-                    for (int i = 0; i < keys.size(); i++) {
-                        String key = keys.get(i);
-                        Class<?> type = entityTypes.get(key);
-                        sb.append("        <div>\n");
-                        sb.append("          <span>"+(i+1)+")</span> &nbsp; <span style='font-weight:bold;'>"+key
-                                +"</span> :: <span>"+type.getName()+"</span><br/>\n");
-                        String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key, locale);
-                        if (fieldDesc != null) {
-                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+fieldDesc+"</div>\n");
+                    if (ConstructorUtils.isClassSimple(entityType)) {
+                        sb.append( makeResolveType("simple", null, locale));
+                    } else if (ConstructorUtils.isClassCollection(entityType)) {
+                        sb.append( makeResolveType("collection", null, locale));
+                    } else if (ConstructorUtils.isClassArray(entityType)) {
+                        String cType = "Component Class: " + ArrayUtils.type((Object[])entity).getName();
+                        sb.append( makeResolveType("array", cType, locale));
+                    } else if (ConstructorUtils.isClassMap(entityType)) {
+                        // get the types of the map keys if possible
+                        String mapTypes = null;
+                        Map m = (Map) entity;
+                        if (m.size() > 0) {
+                            Entry entry = (Entry) m.entrySet().iterator().next();
+                            mapTypes = (entry.getKey()==null?Object.class.getName():entry.getKey().getClass().getName())
+                                +" => "
+                                +(entry.getValue()==null?Object.class.getName():entry.getValue().getClass().getName());
                         }
-                        sb.append("        </div>\n");
+                        sb.append( makeResolveType("map", mapTypes, locale));
+                    } else {
+                        sb.append( makeResolveType("bean", null, locale));
+                        sb.append("        <table width='80%' cellpadding='0' cellspacing='0'>\n");
+                        sb.append("          <thead>\n");
+                        sb.append("            <tr>\n");
+                        sb.append("              <td width='1%'></td>\n");
+                        sb.append("              <td>"+ entityProperties.getProperty(DESCRIBE, "describe.capabilities.name", locale) +"</td>\n");
+                        sb.append("              <td>"+ entityProperties.getProperty(DESCRIBE, "describe.capabilities.type", locale) +"</td>\n");
+                        sb.append("              <td>"+ entityProperties.getProperty(DESCRIBE, "describe.entity.field.status", locale) +"</td>\n");
+                        sb.append("            </tr>\n");
+                        sb.append("          </thead>\n");
+                        sb.append("          <tbody>\n");
+                        // get all the read and write fields from this object
+                        Map<String, Class<?>> readTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass(), FieldsFilter.SERIALIZABLE);
+                        Map<String, Class<?>> writeTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass(), FieldsFilter.WRITEABLE);
+                        Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
+                        entityTypes.putAll(writeTypes);
+                        ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
+                        Collections.sort(keys);
+                        for (int i = 0; i < keys.size(); i++) {
+                            String key = keys.get(i);
+                            Class<?> type = entityTypes.get(key);
+                            String status = null;
+                            String trStyle = "";
+                            if (! readTypes.containsKey(key)) {
+                                // write only
+                                status = entityProperties.getProperty(DESCRIBE, "describe.entity.field.write.only", locale);
+                                trStyle = " style='color:blue;'";
+                            } else if (! writeTypes.containsKey(key)) {
+                                // read only
+                                status = entityProperties.getProperty(DESCRIBE, "describe.entity.field.read.only", locale);
+                                trStyle = " style='color:red;'";
+                            } else {
+                                // read/write
+                                status = entityProperties.getProperty(DESCRIBE, "describe.entity.field.read.write", locale);
+                            }
+                            sb.append("            <tr"+trStyle+"><td>"+(i+1)+")&nbsp;</td>"
+                            		+ "<td style='font-weight:bold;'>"+ key +"</td>"
+                            		+ "<td>"+ type.getName() +"</td>"
+                            		+ "<td style='font-style:italic;'>"+status+"</td></tr>\n");
+                            String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key, locale);
+                            if (fieldDesc != null) {
+                                sb.append("            <tr><td></td><td colspan='3' style='font-style:italic;font-size:0.9em;'>");
+                                sb.append(fieldDesc);
+                                sb.append("</td></tr>\n");
+                            }
+                        }
+                        sb.append("          </tbody>\n");
+                        sb.append("        </table>\n");
                     }
                     sb.append("      </div>\n");
                 }
@@ -616,33 +706,35 @@ public class EntityDescriptionManager {
             sb.append("      <div style='font-size:1.1em; font-weight:bold; font-style:italic; padding-left:0.5em;'>"
                     +entityProperties.getProperty(DESCRIBE, "describe.capabilities", locale)+": "+caps.size()+"</div>\n");
             sb.append("      <table width='95%' style='padding-left:1.5em;'>\n");
-            sb.append("        <tr style='font-size:0.9em;'><th width='1%'></th><th width='14%'>"
-                    +entityProperties.getProperty(DESCRIBE, "describe.capabilities.name", locale)
-                    +"</th><th width='30%'>"
-                    +entityProperties.getProperty(DESCRIBE, "describe.capabilities.type", locale)
-                    +"</th>");
-            if (extra) {   sb.append("<th width='55%'>"
-                    +entityProperties.getProperty(DESCRIBE, "describe.capabilities.description", locale)
-                    +"</th>"); }
-            sb.append("</tr>\n");
-            int counter = 1;
-            for (Class<? extends EntityProvider> class1 : caps) {
-                sb.append("        <tr style='font-size:0.9em;'><td>");
-                sb.append(counter++);
-                sb.append("</td><td>");
-                sb.append(class1.getSimpleName());
-                sb.append("</td><td>");
-                sb.append(class1.getName());
-                sb.append("</td><td>");
-                if (extra) {
-                    String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName(), locale);
-                    if (capabilityDescription != null) {
-                        sb.append(capabilityDescription);
+            if (extra) {
+                sb.append("        <tr style='font-size:0.9em;'><th width='1%'></th><th width='14%'>"
+                        +entityProperties.getProperty(DESCRIBE, "describe.capabilities.name", locale)
+                        +"</th><th width='30%'>"
+                        +entityProperties.getProperty(DESCRIBE, "describe.capabilities.type", locale)
+                        +"</th>");
+                if (extra) {   sb.append("<th width='55%'>"
+                        +entityProperties.getProperty(DESCRIBE, "describe.capabilities.description", locale)
+                        +"</th>"); }
+                sb.append("</tr>\n");
+                int counter = 1;
+                for (Class<? extends EntityProvider> class1 : caps) {
+                    sb.append("        <tr style='font-size:0.9em;'><td>");
+                    sb.append(counter++);
+                    sb.append("</td><td>");
+                    sb.append(class1.getSimpleName());
+                    sb.append("</td><td>");
+                    sb.append(class1.getName());
+                    sb.append("</td><td>");
+                    if (extra) {
+                        String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName(), locale);
+                        if (capabilityDescription != null) {
+                            sb.append(capabilityDescription);
+                        }
                     }
+                    sb.append("</td></tr>\n");
                 }
-                sb.append("</td></tr>\n");
+                sb.append("      </table>\n");
             }
-            sb.append("      </table>\n");
         }
         return sb.toString();
     }
@@ -673,6 +765,22 @@ public class EntityDescriptionManager {
     }
 
     // DESCRIBE formatting utilities
+
+    protected String makeResolveType(String typeName, String extra, Locale locale) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("        <div><b>");
+        sb.append( entityProperties.getProperty(DESCRIBE, "describe.capabilities.type", locale) );
+        sb.append(" :: ");
+        sb.append(typeName);
+        sb.append("</b>");
+        if (extra != null) {
+            sb.append(" (");
+            sb.append(extra);
+            sb.append(") ");
+        }
+        sb.append("</div>\n");
+        return sb.toString();
+    }
 
     /**
      * @param customAction
