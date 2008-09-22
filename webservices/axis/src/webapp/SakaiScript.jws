@@ -1496,7 +1496,6 @@ public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, S
  * @throws	AxisFault		returns <exception /> string if exception encountered and logs it	
  *
  */
-
 public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid, String authzgrouproles) throws AxisFault {
 	
 	Session s = establishSession(sessionid);
@@ -1555,6 +1554,65 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
 	}
 		
 }
+
+
+/**
+ * Gets list of ALL users in an authzgroup
+ *
+ * 
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup or site you want to get the users in (if site: /site/SITEID)
+ * @return					xml doc of the list of users, display name and roleid
+ * @throws	AxisFault		returns <exception /> string if exception encountered	
+ *
+ *
+ */
+public String getUsersInAuthzGroup(String sessionid, String authzgroupid) throws AxisFault {
+	
+	Session s = establishSession(sessionid);
+	
+	try {
+		
+		AuthzGroup azg = AuthzGroupService.getAuthzGroup(authzgroupid);
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		
+		for (Iterator i = azg.getUsers().iterator(); i.hasNext(); ) {
+			String id = (String) i.next();
+			try {
+				User user = UserDirectoryService.getUser(id);
+				
+				Node userNode = dom.createElement("user");
+				Node userId = dom.createElement("id");
+				userId.appendChild(dom.createTextNode(user.getEid()));
+				Node userName = dom.createElement("name");
+				userName.appendChild(dom.createTextNode(user.getDisplayName()));
+				Node userRole = dom.createElement("role");
+				userRole.appendChild(dom.createTextNode(role));
+				
+				userNode.appendChild(userId);
+				userNode.appendChild(userName);
+				userNode.appendChild(userRole);
+				list.appendChild(userNode);
+				
+			} catch (Exception e) {
+				//Exception with this user, log the error, skip this user and continue to the next
+				LOG.warn("WS getUsersInAuthzGroup(): error processing user " + id + " : " + e.getClass().getName() + " : " + e.getMessage());
+			}
+		}
+		return Xml.writeDocumentToString(dom);
+	}
+	catch (Exception e) {
+        LOG.warn("WS getUsersInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+	}
+}
+
+
+
+
 
 /** 
  * Copy the calendar events from one site to another
