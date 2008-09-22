@@ -1733,8 +1733,13 @@ public class SiteAction extends PagedResourceActionII {
 					// if the page order helper is available, not
 					// stealthed and not hidden, show the link
 					if (notStealthOrHiddenTool("sakai-site-pageorder-helper")) {
-						b.add(new MenuEntry(rb.getString("java.orderpages"),
-								"doPageOrderHelper"));
+						
+						// in particular, need to check site types for showing the tool or not
+						if (isPageOrderAllowed(siteType))
+						{
+							b.add(new MenuEntry(rb.getString("java.orderpages"), "doPageOrderHelper"));
+						}
+						
 					}
 					
 				}
@@ -2897,7 +2902,23 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // buildContextForTemplate
 
-
+	/**
+	 * whether the PageOrderHelper is allowed to be shown in this site type
+	 * @param siteType
+	 * @return
+	 */
+	private boolean isPageOrderAllowed(String siteType) {
+		boolean rv = true;
+		String hidePageOrderSiteTypes = ServerConfigurationService.getString("hide.pageorder.site.types", "");
+		if ( hidePageOrderSiteTypes.length() != 0)
+		{
+			if (new ArrayList<String>(Arrays.asList(StringUtil.split(hidePageOrderSiteTypes, ","))).contains(siteType))
+			{
+				rv = false;
+			}
+		}
+		return rv;
+	}
 
 	private void multipleToolIntoContext(Context context, SessionState state) {
 		// titles for multiple tool instances
