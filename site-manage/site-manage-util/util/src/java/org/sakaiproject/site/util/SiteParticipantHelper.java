@@ -1,6 +1,8 @@
 package org.sakaiproject.site.util;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +64,7 @@ public class SiteParticipantHelper {
 			Set enrollments = cms.getEnrollments(enrollmentSet.getEid());
 			if (enrollments != null)
 			{
+				Map<String, User> eidToUserMap = getEidUserMapFromEnrollments(enrollments);
 				for (Iterator eIterator = enrollments.iterator();eIterator.hasNext();)
 				{
 					Enrollment e = (Enrollment) eIterator.next();
@@ -73,7 +76,10 @@ public class SiteParticipantHelper {
 					
 					try 
 					{
-						User user = UserDirectoryService.getUserByEid(e.getUserId());
+						User user = eidToUserMap.get(e.getUserId());
+						if (user == null) {
+							throw new UserNotDefinedException(e.getUserId());
+						}
 						String userId = user.getId();
 						Member member = realm.getMember(userId);
 						
@@ -140,7 +146,26 @@ public class SiteParticipantHelper {
 			}
 		}
 	}
-	
+
+	/**
+	 * Collect all student user data in one call.
+	 * 
+	 * @param enrollments
+	 * @return
+	 */
+	public static Map<String, User> getEidUserMapFromEnrollments(Collection<Enrollment> enrollments) {
+		Set<String> enrollmentEids = new HashSet<String>();
+		for (Enrollment enrollment : enrollments) {
+			enrollmentEids.add(enrollment.getUserId());
+		}
+		Map<String, User> eidToUserMap = new HashMap<String, User>();
+		List<User> enrollmentUsers = UserDirectoryService.getUsersByEids(enrollmentEids);
+		for (User user : enrollmentUsers) {
+			eidToUserMap.put(user.getEid(), user);
+		}
+		return eidToUserMap;
+	}
+
 	/**
 	 * Add participant from provider-defined membership set
 	 * @param participants
