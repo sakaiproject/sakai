@@ -37,6 +37,13 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 
+import org.sakaiproject.calendar.cover.CalendarService; 
+import org.sakaiproject.calendar.api.Calendar; 
+import org.sakaiproject.calendar.api.CalendarEdit; 
+import org.sakaiproject.calendar.api.CalendarEvent; 
+import org.sakaiproject.calendar.api.CalendarEventEdit; 
+import org.sakaiproject.time.api.TimeService; 
+
 import java.util.Properties;
 import org.apache.axis.AxisFault;
 
@@ -1549,6 +1556,54 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
 		
 }
 
+/** 
+ * Copy the calendar events from one site to another
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	sourceSiteId	the id of the site containing the calendar entries you want copied
+ * @param	targetSiteId	the roles that you want to filter on (string with spaces as delimiters)
+ * @return		        	success or exception
+ * @throws	AxisFault		
+ *
+ */
+public String copyCalendarEvents(String sessionid, String sourceSiteId, String targetSiteId) throws AxisFault { 
+
+	Session session = establishSession(sessionid); 
+	
+	//setup source and target calendar strings
+	String calId1 = "/calendar/calendar/"+sourceSiteId+"/main"; 
+	String calId2 = "/calendar/calendar/"+targetSiteId+"/main"; 
+	
+	try { 
+		//get calendars
+		Calendar calendar1 = CalendarService.getCalendar(calId1); 
+		CalendarEdit calendar2 = CalendarService.editCalendar(calId2); 
+	
+		//for every event in calendar1, add it to calendar2
+		List eventsList = calendar1.getEvents(null, null); 
+	
+		for (Iterator i = eventsList.Iterator(); i.hasNext();) { 
+			CalendarEvent cEvent = (CalendarEvent) i.next(); 
+			CalendarEventEdit cedit = calendar2.addEvent(); 
+			cedit.setRange(cEvent.getRange()); 
+			cedit.setDisplayName(cEvent.getDisplayName()); 
+			cedit.setDescription(cEvent.getDescription()); 
+			cedit.setType(cEvent.getType()); 
+			cedit.setLocation(cEvent.getLocation()); 
+			cedit.setDescriptionFormatted(cEvent.getDescriptionFormatted()); 
+			cedit.setRecurrenceRule(cEvent.getRecurrenceRule()); 
+			calendar2.commitEvent(cedit); 
+			//LOG.warn(cEvent.getDisplayName()); 
+		}
+		//save calendar 2
+		CalendarService.commitCalendar(calendar2); 
+		
+	} catch (Exception e) { 
+		LOG.error("WS copyCalendarEvents(): error " + e.getClass().getName() + " : " + e.getMessage()); 
+		return e.getClass().getName() + " : " + e.getMessage(); 
+	} 
+	return "success"; 
+} 
 
 
 
