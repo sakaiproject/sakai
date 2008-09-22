@@ -40,7 +40,7 @@ should be included in file importing DeliveryMessages
 <f:verbatim><br /></f:verbatim>
 <f:verbatim><br /></f:verbatim>
 <f:verbatim><div id="</f:verbatim><h:outputText value="question#{question.itemData.itemId}" /><f:verbatim>" style="</f:verbatim><h:outputText value="display:none;" rendered="#{question==null or question.hasNoMedia}" /><f:verbatim>" ></f:verbatim>
-  <h:panelGrid cellpadding="10" columns="2">
+  <h:panelGrid cellpadding="10" columns="2" rendered="#{question!=null and !question.hasNoMedia}">
     <h:panelGroup>
       <h:outputText escape="false" value="
 	    <object classid=\"clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B\"  codebase=\"http://www.apple.com/qtactivex/qtplugin.cab\" width=\"300\" height=\"25\">
