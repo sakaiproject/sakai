@@ -22,6 +22,8 @@
 package org.sakaiproject.importer.impl;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +31,7 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.cover.ImportMetadataService;
@@ -38,6 +41,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class SakaiArchiveFileParser extends ZipFileParser {
 	
@@ -65,14 +69,33 @@ public class SakaiArchiveFileParser extends ZipFileParser {
 		this.pathToData = unArchiveLocation;
 		String absolutepathToManifest = pathToData + "/" + "import_mappings.xml";
 	    absolutepathToManifest = absolutepathToManifest.replace('\\', '/');
-	    DocumentBuilder docBuilder;
-	    try {
-			docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		    InputStream fis = new FileInputStream(absolutepathToManifest);
-		    this.importMappings = (Document) docBuilder.parse(fis);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        InputStream fis = null;
+        try {
+            fis = new FileInputStream(absolutepathToManifest);
+            DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            this.importMappings = (Document) docBuilder.parse(fis);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
 
 	}
 	
