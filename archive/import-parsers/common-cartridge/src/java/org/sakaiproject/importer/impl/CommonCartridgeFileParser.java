@@ -59,6 +59,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import sun.util.logging.resources.logging;
+
 public class CommonCartridgeFileParser extends IMSFileParser {
 	private static final String CC_SCHEMA_NAME = "IMS Common Cartridge";
 	
@@ -154,14 +156,35 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 		
 		public Document getDescriptor(Node resourceNode) {
 			String descriptorFilename = XPathHelper.getNodeValue("./file/@href",resourceNode);
+			Document doc = null;
 			DocumentBuilder docBuilder;
+			InputStream fis = null;
 		    try {
+                fis = new FileInputStream(pathToData + "/" + descriptorFilename);
 				docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			    InputStream fis = new FileInputStream(pathToData + "/" + descriptorFilename);
-			    return (Document) docBuilder.parse(fis);
-			} catch (Exception e) {
-				return null;
+			    doc = (Document) docBuilder.parse(fis);
+			} catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block (this is here since it is not clear what this should do in this case)
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                // TODO Auto-generated catch block (this is here since it is not clear what this should do in this case)
+                e.printStackTrace();
+            } catch (SAXException e) {
+                // TODO Auto-generated catch block (this is here since it is not clear what this should do in this case)
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block (this is here since it is not clear what this should do in this case)
+                e.printStackTrace();
+            } finally {
+                if (fis != null) {
+    			    try {
+    			        fis.close();
+                    } catch (IOException e) {
+                        // oh well, we tried
+                    }
+                }
 			}
+            return doc;
 		}
 
 		public String getDescription(Node resourceNode) {
