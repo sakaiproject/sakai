@@ -430,9 +430,8 @@ public class RestContentProvider
           + helpManager.getRestConfiguration().getRestDomain());
       URLConnection urlConnection = url.openConnection();
 
-      String basicAuthUserPass = helpManager.getRestConfiguration()
-          .getRestCredentials();
-   
+      String basicAuthUserPass = helpManager.getRestConfiguration().getRestCredentials();
+
       String encoding = Base64.encodeBase64(basicAuthUserPass.getBytes("utf-8")).toString();
       urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
 
@@ -440,11 +439,15 @@ public class RestContentProvider
 
       BufferedReader br = new BufferedReader(
               new InputStreamReader(urlConnection.getInputStream(),"UTF-8"), 512);
-      int readReturn = 0;
-      char[] cbuf = new char[512];
-      while ((readReturn = br.read(cbuf, 0, 512)) != -1)
-      {
-        sBuffer.append(cbuf, 0, readReturn);
+      try {
+          int readReturn = 0;
+          char[] cbuf = new char[512];
+          while ((readReturn = br.read(cbuf, 0, 512)) != -1)
+          {
+            sBuffer.append(cbuf, 0, readReturn);
+          }
+      } finally {
+          br.close();
       }
 
       Document transformedDocument = getTransformedDocument(context, sBuffer);
