@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<name>Profile2 Base</name>
+	<groupId>uk.ac.lancs.e_science</groupId>
+	<artifactId>profile2-base</artifactId>
+	<url></url>
+	<description></description>
+	
+	<packaging>pom</packaging>
+	<version>1.0</version>
+	
+	<parent>
+    	<artifactId>base</artifactId>
+    	<groupId>org.sakaiproject</groupId>
+    	<version>M2</version>
+    	<relativePath>../pom.xml</relativePath>
+  	</parent>
+	
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
+  	
+
+    <modules>
+        <module>tool</module>
+    </modules>
+
+    <!-- handles the management of all related dependencies -->
+    <!-- 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>uk.ac.lancs.e_science</groupId>
+            	<artifactId>example-scheduler-jobs</artifactId>
+                <version>1.0</version>
+            </dependency>
+          </dependencies>
+    </dependencyManagement>
+    -->
+</project>

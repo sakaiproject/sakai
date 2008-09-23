@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<name>Profile2 Tool</name>
+	<groupId>uk.ac.lancs.e_science</groupId>
+	<artifactId>sakai-profile2-tool</artifactId>
+	<url></url>
+	<description></description>
+
+	<packaging>war</packaging>
+	<version>1.0</version>
+	
+	<parent>
+		<groupId>uk.ac.lancs.e_science</groupId>
+		<artifactId>profile2-base</artifactId>
+	    <version>1.0</version>
+	    <relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<organization>
+        <name>Lancaster University, Centre for e-Science</name>
+        <url>http://e-science.lancs.ac.uk</url>
+    </organization>
+    <inceptionYear>2008</inceptionYear>
+	<developers>
+		<developer>
+			<name>Steve Swinsburg</name>
+			<email>s.swinsburg@lancaster.ac.uk</email>
+		</developer>
+	</developers>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<dependencies>
+		<!--  WICKET DEPENDENCIES -->
+
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket</artifactId>
+			<version>${wicket.version}</version>
+		</dependency>
+		<!-- OPTIONAL 
+			<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-extensions</artifactId>
+			<version>${wicket.version}</version>
+			</dependency>
+		-->
+		
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-spring</artifactId>
+			<version>${wicket.version}</version>
+    	</dependency>
+    	
+    	<dependency>
+      		<groupId>org.apache.wicket</groupId>
+      		<artifactId>wicket-spring-annot</artifactId>
+      		<version>${wicket.version}</version>
+    	</dependency>
+		
+		
+		<!--  SAKAI DEPENDENCIES -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+    	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+    	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+    	</dependency>
+		
+
+		<!-- LOGGING DEPENDENCIES - LOG4J -->
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+		</dependency>
+
+
+		<!--  JETTY DEPENDENCIES FOR TESTING  -->
+
+		<dependency>
+			<groupId>org.mortbay.jetty</groupId>
+			<artifactId>jetty</artifactId>
+			<version>${jetty.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mortbay.jetty</groupId>
+			<artifactId>jetty-util</artifactId>
+			<version>${jetty.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mortbay.jetty</groupId>
+			<artifactId>jetty-management</artifactId>
+			<version>${jetty.version}</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<filtering>false</filtering>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<filtering>false</filtering>
+				<directory>src/test/java</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
+		<plugins>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>maven-jetty-plugin</artifactId>
+			</plugin>
+		</plugins>
+			
+			
+			
+	</build>
+
+	<properties>
+		<wicket.version>1.3.0-beta3</wicket.version>
+		<jetty.version>6.1.4</jetty.version>
+	</properties>
+
+</project>

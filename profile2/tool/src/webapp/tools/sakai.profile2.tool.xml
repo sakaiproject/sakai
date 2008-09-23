@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="sakai.profile2.tool" 
+    	title="Profile2" 
+    	description="Profile Tool v2">
+
+      <category name="myworkspace" />
+      <category name="project" />
+
+    </tool>
+</registration>
+

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->
+	<bean id="profileApplication" class="uk.ac.lancs.e_science.profile2.ProfileApplication"/>
+    
+    
+</beans>
