@@ -79,7 +79,7 @@ public class UserServiceSqlDefault implements UserServiceSql
 	 */
 	public String getUsersWhereEidsInSql(int numberOfSearchValues) {
 		StringBuilder sqlBuilder = new StringBuilder(
-			"select SAKAI_USER_ID_MAP.*, SAKAI_USER.* from SAKAI_USER_ID_MAP left join SAKAI_USER on SAKAI_USER.USER_ID=SAKAI_USER_ID_MAP.USER_ID where SAKAI_USER_ID_MAP.EID in (");
+			"select SAKAI_USER_ID_MAP.USER_ID, SAKAI_USER_ID_MAP.EID, SAKAI_USER.USER_ID AS USER_USER_ID, SAKAI_USER.EMAIL, SAKAI_USER.FIRST_NAME, SAKAI_USER.LAST_NAME, SAKAI_USER.TYPE, SAKAI_USER.PW, SAKAI_USER.CREATEDBY, SAKAI_USER.MODIFIEDBY, SAKAI_USER.CREATEDON, SAKAI_USER.MODIFIEDON from SAKAI_USER_ID_MAP left join SAKAI_USER on SAKAI_USER_ID_MAP.USER_ID=SAKAI_USER.USER_ID where SAKAI_USER_ID_MAP.EID in (");
 		for (int i = 0; i < (numberOfSearchValues - 1); i++)
 		{
 			sqlBuilder.append("?,");
@@ -93,7 +93,7 @@ public class UserServiceSqlDefault implements UserServiceSql
 	 */
 	public String getUsersWhereIdsInSql(int numberOfSearchValues) {
 		StringBuilder sqlBuilder = new StringBuilder(
-			"select SAKAI_USER_ID_MAP.*, SAKAI_USER.* from SAKAI_USER_ID_MAP left join SAKAI_USER on SAKAI_USER.USER_ID=SAKAI_USER_ID_MAP.USER_ID where SAKAI_USER_ID_MAP.USER_ID in (");
+			"select SAKAI_USER_ID_MAP.USER_ID, SAKAI_USER_ID_MAP.EID, SAKAI_USER.USER_ID AS USER_USER_ID, SAKAI_USER.EMAIL, SAKAI_USER.FIRST_NAME, SAKAI_USER.LAST_NAME, SAKAI_USER.TYPE, SAKAI_USER.PW, SAKAI_USER.CREATEDBY, SAKAI_USER.MODIFIEDBY, SAKAI_USER.CREATEDON, SAKAI_USER.MODIFIEDON from SAKAI_USER_ID_MAP left join SAKAI_USER on SAKAI_USER_ID_MAP.USER_ID=SAKAI_USER.USER_ID where SAKAI_USER_ID_MAP.USER_ID in (");
 		for (int i = 0; i < (numberOfSearchValues - 1); i++)
 		{
 			sqlBuilder.append("?,");

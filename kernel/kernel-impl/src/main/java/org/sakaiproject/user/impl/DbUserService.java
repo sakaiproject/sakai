@@ -864,15 +864,14 @@ public abstract class DbUserService extends BaseUserDirectoryService
 					// If it's a provided user, then all these will be null.
 					String idFromSakaiUser = result.getString(3);
 					String email = result.getString(4);
-					String email_lc = result.getString(5);	// Unused
-					String firstName = result.getString(6);
-					String lastName = result.getString(7);
-					String type = result.getString(8);
-					String pw = result.getString(9);
-					String createdBy = result.getString(10);
-					String modifiedBy = result.getString(11);
-					Time createdOn = (result.getObject(12) != null) ? timeService().newTime(result.getTimestamp(12, sqlService().getCal()).getTime()) : null;
-					Time modifiedOn = (result.getObject(13) != null) ? timeService().newTime(result.getTimestamp(13, sqlService().getCal()).getTime()) : null;
+					String firstName = result.getString(5);
+					String lastName = result.getString(6);
+					String type = result.getString(7);
+					String pw = result.getString(8);
+					String createdBy = result.getString(9);
+					String modifiedBy = result.getString(10);
+					Time createdOn = (result.getObject(11) != null) ? timeService().newTime(result.getTimestamp(11, sqlService().getCal()).getTime()) : null;
+					Time modifiedOn = (result.getObject(12) != null) ? timeService().newTime(result.getTimestamp(12, sqlService().getCal()).getTime()) : null;
 
 					// create the Resource from these fields
 					userEdit = new BaseUserEdit(idFromMap, eidFromMap, email, firstName, lastName, type, pw, createdBy, createdOn, modifiedBy, modifiedOn);
