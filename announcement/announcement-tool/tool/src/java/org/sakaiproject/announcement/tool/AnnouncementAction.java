@@ -1001,7 +1001,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		
 		//Check for MOTD, if yes then is not ok to show permissions button
-		if(placement.getTitle().equals("MOTD") && placement.getId().contains("admin")){
+		if("MOTD".equals(placement.getTitle()) && (placement != null && placement.getId().contains("admin"))) {
 			buildMenu(portlet, context, rundata, state, menu_new, menu_delete, menu_revise, this.isOkToShowMergeButton(statusName),
 					false, this.isOkToShowOptionsButton(statusName), displayOptions);
 		}
