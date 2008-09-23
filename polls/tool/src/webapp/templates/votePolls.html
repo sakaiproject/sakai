@@ -11,19 +11,24 @@
 <script type="text/javascript">
 $(document).ready(function() {
 $("#sortableTable").tablesorter({
-	sortList: [[2,0]],
+	sortList: [[2,1]], // Initial order by the latest (NOT earliest) closing date
 	headers: { 
+            1: { 
+                // Convert the Date string into an ISO standard format, ready for proper sorting.
+                sorter: 'isoDate'
+            }, 
+            2: {  
+                sorter: 'isoDate' 
+            }, 
             3: { 
                 // disable it by setting the property sorter to false 
                 sorter: false 
             }, 
             4: { 
-                // disable it by setting the property sorter to false 
                 sorter: false 
             } 
         } 
-});
-return false;
+	});
 });
 </script>
 <!--tryng this -->
