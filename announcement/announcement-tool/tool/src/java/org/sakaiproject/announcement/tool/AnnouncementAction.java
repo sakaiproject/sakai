@@ -3848,7 +3848,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 
 		// let the permissions button to be the last one in the toolbar
-		if (!displayOptions.isShowOnlyOptionsButton())
+		if (displayOptions != null && !displayOptions.isShowOnlyOptionsButton())
 		{
 			// add permissions, if allowed
 			if (menu_permissions)
