@@ -3723,9 +3723,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage) 
 	{
-		try
-		{
-			ZipOutputStream out = new ZipOutputStream(outputStream);
+	    ZipOutputStream out = null;
+		try {
+			out = new ZipOutputStream(outputStream);
 
 			// create the folder structor - named after the assignment's title
 			String root = Validator.escapeZipEntry(assignmentTitle) + Entity.SEPARATOR;
@@ -3876,17 +3876,27 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			out.write(grades);
 			gradesCSVEntry.setSize(grades.length);
 			out.closeEntry();
-			
-			// Complete the ZIP file
-			out.finish();
-			out.flush();
-			out.close();
 		}
 		catch (IOException e)
 		{
 			exceptionMessage.append("Can not establish the IO to create zip file. ");
 			M_log.warn(this + " zipSubmissions IOException unable to create the zip file for assignment "
 					+ assignmentTitle);
+		} finally {
+            // Complete the ZIP file
+		    if (out != null) {
+	            try {
+                    out.finish();
+                    out.flush();
+                } catch (IOException e) {
+                    // tried
+                }
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    // tried
+                }
+		    }
 		}
 	}
 
