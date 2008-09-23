@@ -69,6 +69,11 @@ public class SAK11204Fix
 	 */
 	public void apply(boolean autoDDL)
 	{
+ 		// Check for sak11204.disable -- should only be set after successful upgrade completion
+		boolean disableUpgrade = serverConfigurationService.getBoolean("sak11204.disable", false);
+		if ( disableUpgrade )
+			return;
+
 		int upgrade = checkSAK11204ForUpgrade();
 
 		if (upgrade == UPGRADE_SCHEMA)
@@ -113,8 +118,7 @@ public class SAK11204Fix
 			}
 			log.info("SAK-11204: Schema Update Sucessfull ");
 		}
-		boolean forceUpgrade = serverConfigurationService.getBoolean(
-				"sak11204.forceupgrade", false);
+		boolean forceUpgrade = serverConfigurationService.getBoolean("sak11204.forceupgrade", false);
 		if (upgrade == MIGRATE || forceUpgrade)
 		{
 			// get a list of channels
@@ -165,8 +169,6 @@ public class SAK11204Fix
 	 */
 	private int checkSAK11204ForUpgrade()
 	{
-
-		{
 			String test = "select count(*) from CALENDAR_EVENT where (RANGE_START is null) or (RANGE_END is null)";
 			Connection connection = null;
 			Statement s = null;
@@ -188,7 +190,7 @@ public class SAK11204Fix
 						return MIGRATE;
 					}
 				} else {
-					log.warn("Could not count null range fields, assuming migrate ");
+					log.warn("SAK-11204: Could not count null range fields, assuming migrate ");
 					return MIGRATE;
 				}
 			}
@@ -226,7 +228,6 @@ public class SAK11204Fix
 				{
 				}
 			}
-		}
 	}
 
 }
