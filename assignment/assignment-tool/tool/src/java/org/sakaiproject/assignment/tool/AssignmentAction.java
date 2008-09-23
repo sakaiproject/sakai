@@ -5746,14 +5746,15 @@ public class AssignmentAction extends PagedResourceActionII
 						if (e != null)
 						{
 							aEdit.getProperties().addProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, e.getId());
+
+		                     // edit the calendar ojbject and add an assignment id field
+	                        CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
+	                                
+	                        edit.setField(NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getId());
+	                        
+	                        c.commitEvent(edit);
 						}
-						
-						// edit the calendar ojbject and add an assignment id field
-						CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
-								
-						edit.setField(NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getId());
-						
-						c.commitEvent(edit);
+						// TODO do we care if the event is null?
 						
 					}
 					catch (IdUnusedException ee)
