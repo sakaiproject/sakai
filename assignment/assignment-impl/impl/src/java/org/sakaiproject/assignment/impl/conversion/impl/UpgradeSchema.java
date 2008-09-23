@@ -82,10 +82,12 @@ public class UpgradeSchema
 		if (config != null)
 		{
 			log.info("Using Config " + config);
-			File f = new File(config);
 			FileInputStream fin = new FileInputStream(config);
-			p.load(fin);
-			fin.close();
+			try {
+    			p.load(fin);
+			} finally {
+			    fin.close();
+			}
 			StringBuilder sb = new StringBuilder();
 			Object[] keys = p.keySet().toArray();
 			Arrays.sort(keys);
