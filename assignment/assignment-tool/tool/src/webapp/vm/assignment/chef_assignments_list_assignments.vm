@@ -320,11 +320,11 @@ function allowClick(object)
 											#if ($assignment.draft && $!allowUpdateAssignment )
 												<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
 													<span class="highlight">$tlang.getString("gen.dra2") </span>
-														$validator.escapeHtml($validator.limit($!assignment.getTitle(), 40))
+														$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
 												</a>
 											#else
 												<a href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
-													$validator.escapeHtml($validator.limit($!assignment.getTitle(), 40))
+													$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
 												</a>
 											#end
 										</h4>
@@ -370,9 +370,9 @@ function allowClick(object)
 												#else
 													<a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
 												#end
-												$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
+												$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a>
 											#else
-												$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))
+												$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)
 												#if ($!allowSubmit)
 													<div class="itemAction">
 														<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
@@ -396,12 +396,12 @@ function allowClick(object)
 													## if not submitted or returned and still allowed to submit within the due time
 													#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || (!$!submissionSubmitted && !$!submissionReturned))
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a></h4>
+														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 													#else
-														<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a></h4>														
+														<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>														
 													#end
 												#else
-												 <h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a></h4>
+												 <h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 												#end
 												#if ($taggable)
 													<div class="itemAction">
@@ -435,7 +435,7 @@ function allowClick(object)
 													</div>
 												#end
 											#else
-												<a href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a></h4>
+												<a href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 											#end
 										#end
 										#set ($deleted = false)
