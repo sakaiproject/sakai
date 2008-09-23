@@ -56,74 +56,151 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
 	}
 	
 	public void buildSourceFolder(Collection selectedItems) {		
-		try {
-			File dir = new File(pathToArchive + "/source"); //directory where file would be saved
-			if (!dir.exists())
-			{
-			  dir.mkdirs();
-			}
-			  for (Iterator i = selectedItems.iterator();i.hasNext();)
-			  {
-			    ImportMetadata impvalue = (ImportMetadata) i.next();
-			    String selectedFileName = impvalue.getFileName();
-			    ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
-				ZipEntry entry;
-				String entryName;
-				entry = (ZipEntry) zipStream.getNextEntry();
-			    while (entry != null) {
-			    	entryName = entry.getName();
-			    	if (entryName.equals(selectedFileName)) {
-			    		File zipEntryFile = new File(dir.getPath() + "/" + entryName);
-			            if (!zipEntryFile.isDirectory()) {
-				            FileOutputStream ofile = new FileOutputStream(zipEntryFile);
-				            byte[] buffer = new byte[1024 * 10];
-				            int bytesRead;
-				            while ((bytesRead = zipStream.read(buffer)) != -1)
-				            {
-				              ofile.write(buffer, 0, bytesRead);
-				            }
-			
-				            ofile.close();
-			            }
-			            zipStream.closeEntry();
-			            zipStream.close();
-			            break;
-			    	}
-			    	entry = (ZipEntry) zipStream.getNextEntry();
-			    }
-			  }
-			  // now take care of attachment files
-			  ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
-				ZipEntry entry;
-				String entryName;
-				entry = (ZipEntry) zipStream.getNextEntry();
-			    while (entry != null) {
-			    	entryName = entry.getName();
-			    	if (!entryName.endsWith(".xml")) {
-			    		File zipEntryFile = new File(dir.getPath() + "/" + entryName);
-			            if (!zipEntryFile.isDirectory()) {
-				            FileOutputStream ofile = new FileOutputStream(zipEntryFile);
-				            byte[] buffer = new byte[1024 * 10];
-				            int bytesRead;
-				            while ((bytesRead = zipStream.read(buffer)) != -1)
-				            {
-				              ofile.write(buffer, 0, bytesRead);
-				            }
-			
-				            ofile.close();
-			            }
-			            zipStream.closeEntry();
-			    	}
-			    	entry = (ZipEntry) zipStream.getNextEntry();
-			    }
-			    zipStream.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	    File dir = new File(pathToArchive + "/source"); //directory where file would be saved
+	    if (!dir.exists())
+	    {
+	        dir.mkdirs();
+	    }
+	    for (Iterator i = selectedItems.iterator();i.hasNext();)
+	    {
+	        ImportMetadata impvalue = (ImportMetadata) i.next();
+	        String selectedFileName = impvalue.getFileName();
+	        ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
+	        try {
+    	        ZipEntry entry;
+    	        String entryName;
+    	        try {
+                    entry = (ZipEntry) zipStream.getNextEntry();
+                } catch (IOException e) {
+                    entry = null; // I think this is ok
+                }
+    	        while (entry != null) {
+    	            entryName = entry.getName();
+    	            if (entryName.equals(selectedFileName)) {
+    	                // TODO this code block is identical to the code below? (See A1)
+    	                File zipEntryFile = new File(dir.getPath() + "/" + entryName);
+    	                if (!zipEntryFile.isDirectory()) {
+    	                    FileOutputStream ofile = null;
+                            try {
+                                ofile = new FileOutputStream(zipEntryFile);
+                                byte[] buffer = new byte[1024 * 10];
+                                int bytesRead;
+                                while ((bytesRead = zipStream.read(buffer)) != -1)
+                                {
+                                    ofile.write(buffer, 0, bytesRead);
+                                }
+                            } catch (FileNotFoundException e) {
+                                // TODO Auto-generated catch block (is this ok?)
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block (is this ok?)
+                                e.printStackTrace();
+                            } finally {
+                                if (ofile != null) {
+            	                    try {
+                                        ofile.close();
+                                    } catch (IOException e) {
+                                        // tried
+                                    }
+                                }
+                            }
+    	                }
+    	                try {
+                            zipStream.closeEntry();
+                        } catch (IOException e) {
+                            // tried
+                        }
+    	                try {
+                            zipStream.close();
+                        } catch (IOException e) {
+                            // tried
+                        }
+    	                break;
+    	            }
+    	            try {
+    	                entry = (ZipEntry) zipStream.getNextEntry();
+    	            } catch (IOException e) {
+    	                entry = null; // I think this is ok
+    	            }
+    	        }
+	        } finally {
+                try {
+                    zipStream.closeEntry();
+                } catch (IOException e) {
+                    // tried
+                }
+                try {
+                    zipStream.close();
+                } catch (IOException e) {
+                    // tried
+                }
+	        }
+	    }
+	    // now take care of attachment files
+	    ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
+	    try {
+    	    ZipEntry entry;
+    	    String entryName;
+            try {
+                entry = (ZipEntry) zipStream.getNextEntry();
+            } catch (IOException e) {
+                entry = null; // I think this is ok
+            }
+    	    while (entry != null) {
+    	        entryName = entry.getName();
+    	        if (!entryName.endsWith(".xml")) {
+                    // TODO A1 this code block is identical to the code above?
+    	            File zipEntryFile = new File(dir.getPath() + "/" + entryName);
+    	            if (!zipEntryFile.isDirectory()) {
+    	                FileOutputStream ofile = null;
+                        try {
+                            ofile = new FileOutputStream(zipEntryFile);
+                            byte[] buffer = new byte[1024 * 10];
+                            int bytesRead;
+                            while ((bytesRead = zipStream.read(buffer)) != -1)
+                            {
+                                ofile.write(buffer, 0, bytesRead);
+                            }
+                        } catch (FileNotFoundException e) {
+                            // TODO Auto-generated catch block (is this ok?)
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block (is this ok?)
+                            e.printStackTrace();
+                        } finally {
+                            if (ofile != null) {
+                                try {
+                                    ofile.close();
+                                } catch (IOException e) {
+                                    // tried
+                                }
+                            }
+                        }
+    	            }
+    	            try {
+                        zipStream.closeEntry();
+                    } catch (IOException e) {
+                        // tried
+                    }
+    	        }
+                try {
+                    entry = (ZipEntry) zipStream.getNextEntry();
+                } catch (IOException e) {
+                    entry = null; // I think this is ok
+                }
+    	    }
+	    } finally {
+            try {
+                zipStream.closeEntry();
+            } catch (IOException e) {
+                // tried
+            }
+            try {
+                zipStream.close();
+            } catch (IOException e) {
+                // tried
+            }
+	    }
 	}
 
 
