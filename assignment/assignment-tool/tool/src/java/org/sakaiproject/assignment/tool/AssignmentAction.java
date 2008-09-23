@@ -10963,31 +10963,36 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		return rv;
 	}
-		private byte[] readIntoBytes(ZipInputStream zin, String fName, long length) throws IOException {
-		
-			StringBuilder b = new StringBuilder();
+
+	private byte[] readIntoBytes(ZipInputStream zin, String fName, long length) throws IOException {
 			
 			byte[] buffer = new byte[4096];
 			
 			File f = File.createTempFile("asgnup", "tmp");
 			
 			FileOutputStream fout = new FileOutputStream(f);
-			int len;
-			while ((len = zin.read(buffer)) > 0)
-			{
-				fout.write(buffer, 0, len);
+			try {
+    			int len;
+    			while ((len = zin.read(buffer)) > 0)
+    			{
+    				fout.write(buffer, 0, len);
+    			}
+    			zin.closeEntry();
+			} finally {
+			    fout.close();
 			}
-			zin.closeEntry();
-			fout.close();
 			
 			FileInputStream fis = new FileInputStream(f);
 			FileChannel fc = fis.getChannel();
-			byte[] data = new byte[(int)(fc.size())];   // fc.size returns the size of the file which backs the channel
-			ByteBuffer bb = ByteBuffer.wrap(data);
-			fc.read(bb);
-			
-			//remove the file
-			fc.close(); // The file channel needs to be closed before the deletion.
+			byte[] data = null;
+			try {
+    			data = new byte[(int)(fc.size())];   // fc.size returns the size of the file which backs the channel
+    			ByteBuffer bb = ByteBuffer.wrap(data);
+    			fc.read(bb);
+			} finally {
+			    fc.close(); // The file channel needs to be closed before the deletion.
+			}
+            //remove the file
 			f.delete();
 			
 			return data;
