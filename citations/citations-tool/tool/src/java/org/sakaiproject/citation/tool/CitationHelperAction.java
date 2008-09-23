@@ -1913,7 +1913,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		} // end catch
 		finally {
 		    if (bread != null) {
-		        bread.close();
+		        try {
+                    bread.close();
+                } catch (IOException e) {
+                    // tried
+                }
 		    }
 		}
 
