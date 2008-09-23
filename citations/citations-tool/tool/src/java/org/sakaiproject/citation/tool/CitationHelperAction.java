@@ -1911,6 +1911,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			logger.debug("ISR error = " + e);
 		} // end catch
+		finally {
+		    if (bread != null) {
+		        bread.close();
+		    }
+		}
 
 		logger.debug("fileString = \n" + fileString);
 
