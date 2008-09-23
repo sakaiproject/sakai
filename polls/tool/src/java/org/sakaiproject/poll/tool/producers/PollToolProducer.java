@@ -49,6 +49,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIVerbatim;
 
@@ -231,11 +232,17 @@ DefaultView,NavigationCaseReporter {
 				null, "#{pollToolBean.deleteids}", new String[] {});
 
 		//get the headers for the table
-		UIMessage.make(deleteForm, "poll-question-title","poll_question_title");
+		/*UIMessage.make(deleteForm, "poll-question-title","poll_question_title");
 		UIMessage.make(deleteForm, "poll-open-title", "poll_open_title");
-		UIMessage.make(deleteForm, "poll-close-title", "poll_close_title");
+		UIMessage.make(deleteForm, "poll-close-title", "poll_close_title");*/
 		UIMessage.make(deleteForm, "poll-result-title", "poll_result_title");
 		UIMessage.make(deleteForm, "poll-remove-title", "poll_remove_title");
+		
+		UILink.make(tofill,"poll-question-title",messageLocator.getMessage("poll_question_title"), "#");
+		UILink.make(tofill,"poll-open-title",messageLocator.getMessage("poll_open_title"), "#");
+		UILink.make(tofill,"poll-close-title",messageLocator.getMessage("poll_close_title"), "#");
+
+
 
 		StringList deletable = new StringList();
 		

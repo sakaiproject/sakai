@@ -4,7 +4,27 @@
 <title>Polls</title>
 <link rsf:id="scr=portal-matter" href="https://vula.uct.ac.za/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
 <link href="https://vula.uct.ac.za/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" rsf:id="scr=portal-matter" />
+<link href="../css/poll_base.css" type="text/css" rel="stylesheet" media="all"/>
 <script  rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script language="javascript" type="text/javascript" src="../js/jquery-1.2.6.js"></script>
+<script language="javascript" type="text/javascript" src="../js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+$("#sortableTable").tablesorter({
+	headers: { 
+            3: { 
+                // disable it by setting the property sorter to false 
+                sorter: false 
+            }, 
+            4: { 
+                // disable it by setting the property sorter to false 
+                sorter: false 
+            } 
+        } 
+});
+return false;
+});
+</script>
 <!--tryng this -->
 </head>
 
@@ -25,12 +45,12 @@
 <form rsf:id="delete-poll-form">
 <!-- This span is needed here to guide the renderer away to the checkboxes -->
 <span rsf:id="delete-poll"/>
-<table class="listHier lines nolines" border="0" cellspacing="0">
+<table id="sortableTable" class="listHier lines nolines" border="0" cellspacing="0">
   <thead>
     <tr> 
-      <th rsf:id="poll-question-title">Question</th>
-      <th rsf:id="poll-open-title">Opening</th>
-      <th rsf:id="poll-close-title">Closing</th>
+      <th><a rsf:id="poll-question-title" title="Sort by Question" href="#">Question</a></th>
+      <th><a rsf:id="poll-open-title" title=" Sort by Opening Date" href="#">Opening</a></th>
+      <th><a rsf:id="poll-close-title" title="Sort by Closing Date" href="#">Closing</a></th>
       <th rsf:id="poll-result-title">Results</th>
       <th rsf:id="poll-remove-title">Remove?</th>
     </tr>
