@@ -477,103 +477,97 @@ public List getActiveContexts(Map session)
    * @throws IOException
    * @throws MalformedURLException
    */
-  protected Document getDocument(ResourceBean resource) throws IOException,
-      MalformedURLException
-  {
+  protected Document getDocument(ResourceBean resource) throws IOException, MalformedURLException {
 
-    Document doc = new Document();
-
-    if (resource.getContexts() != null)
-    {
-      for (Iterator i = resource.getContexts().iterator(); i.hasNext();)
+      Document doc = new Document();
+      if (resource.getContexts() != null)
       {
-        doc.add(Field.Keyword("context", "\"" + ((String) i.next()) + "\""));
+          for (Iterator i = resource.getContexts().iterator(); i.hasNext();)
+          {
+              doc.add(Field.Keyword("context", "\"" + ((String) i.next()) + "\""));
+          }
       }
-    }
 
-
-    URL urlResource;
-    URLConnection urlConnection = null;
-    StringBuilder sBuffer = new StringBuilder();
-    if (resource.getLocation() == null || resource.getLocation().startsWith("/"))
-    {
-      // handle REST content
-      if (!getRestConfiguration().getOrganization().equals("sakai"))
+      URL urlResource;
+      URLConnection urlConnection = null;
+      StringBuilder sb = new StringBuilder();
+      if (resource.getLocation() == null || resource.getLocation().startsWith("/"))
       {
-        urlResource = new URL(getRestConfiguration().getRestUrlInDomain() + resource.getDocId()
-            + "?domain=" + getRestConfiguration().getRestDomain());
-        urlConnection = urlResource.openConnection();
+          // handle REST content
+          if (!getRestConfiguration().getOrganization().equals("sakai"))
+          {
+              urlResource = new URL(getRestConfiguration().getRestUrlInDomain() + resource.getDocId()
+                      + "?domain=" + getRestConfiguration().getRestDomain());
+              urlConnection = urlResource.openConnection();
 
-        String basicAuthUserPass = getRestConfiguration().getRestCredentials();
-        String encoding = Base64.encodeBase64(basicAuthUserPass.getBytes("utf-8")).toString();       
-        urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
+              String basicAuthUserPass = getRestConfiguration().getRestCredentials();
+              String encoding = Base64.encodeBase64(basicAuthUserPass.getBytes("utf-8")).toString();       
+              urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
 
-        sBuffer = new StringBuilder();
+              BufferedReader br = new BufferedReader(new InputStreamReader(
+                      urlConnection.getInputStream()), 512);
+              try {
+                  int readReturn = 0;
+                  char[] cbuf = new char[512];
+                  while ((readReturn = br.read(cbuf, 0, 512)) != -1)
+                  {
+                      sb.append(cbuf, 0, readReturn);
+                  }
+              } finally {
+                  br.close();
+              }
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-            urlConnection.getInputStream()), 512);
-        int readReturn = 0;
-        char[] cbuf = new char[512];
-        while ((readReturn = br.read(cbuf, 0, 512)) != -1)
-        {
-          sBuffer.append(cbuf, 0, readReturn);
-        }
-
-        // if document is coming from corpus then get document name from xml and assign to resource
-        String resourceName = getRestConfiguration().getResourceNameFromCorpusDoc(sBuffer.toString());
-        resource.setName(resourceName);
-        storeResource(resource);
-
-      }
-      else if (!"".equals(EXTERNAL_URL))
-      {
-        // handle external help location
-        urlResource = new URL(EXTERNAL_URL + resource.getLocation());
+              // if document is coming from corpus then get document name from xml and assign to resource
+              String resourceName = getRestConfiguration().getResourceNameFromCorpusDoc(sb.toString());
+              resource.setName(resourceName);
+              storeResource(resource);
+          }
+          else if (!"".equals(EXTERNAL_URL))
+          {
+              // handle external help location
+              urlResource = new URL(EXTERNAL_URL + resource.getLocation());
+          }
+          else
+          {
+              // handle classpath location
+              urlResource = getClass().getResource(resource.getLocation());
+          }
       }
       else
       {
-        // handle classpath location
-        urlResource = getClass().getResource(resource.getLocation());
+          // handle external location specified in reg file
+          urlResource = new URL(resource.getLocation());
       }
-    }
-    else
-    {
-      // handle external location specified in reg file
-      urlResource = new URL(resource.getLocation());
-    }
 
-    if (urlResource == null)
-    {
-      return null;
-    }
-
-    if (resource.getLocation() != null){
-      doc.add(Field.Keyword("location", resource.getLocation()));
-    }
-
-    //doc.add(Field.Keyword("name", resource.getName()));
-    doc.add(Field.Keyword("id", resource.getId().toString()));
-
-    if (getRestConfiguration().getOrganization().equals("sakai"))
-    {
-      Reader reader = new BufferedReader(new InputStreamReader(urlResource
-          .openStream()));
-
-      int readReturn = 0;
-      char[] cbuf = new char[512];
-      while ((readReturn = reader.read(cbuf, 0, 512)) != -1)
+      if (urlResource == null)
       {
-        sBuffer.append(cbuf, 0, readReturn);
+          return null;
       }
 
-      doc.add(Field.Text("content", sBuffer.toString()));
-    }
-    else
-    {
-      doc.add(Field.Text("content", sBuffer.toString()));
-    }
+      if (resource.getLocation() != null){
+          doc.add(Field.Keyword("location", resource.getLocation()));
+      }
 
-    return doc;
+      //doc.add(Field.Keyword("name", resource.getName()));
+      doc.add(Field.Keyword("id", resource.getId().toString()));
+
+      if (getRestConfiguration().getOrganization().equals("sakai"))
+      {
+          Reader reader = new BufferedReader(new InputStreamReader(urlResource.openStream()));
+          try {
+              int readReturn = 0;
+              char[] cbuf = new char[512];
+              while ((readReturn = reader.read(cbuf, 0, 512)) != -1)
+              {
+                  sb.append(cbuf, 0, readReturn);
+              }
+          } finally {
+              reader.close();
+          }
+      }
+      doc.add(Field.Text("content", sb.toString()));
+
+      return doc;
   }
 
   /**
