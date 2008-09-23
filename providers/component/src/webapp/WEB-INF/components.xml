@@ -116,8 +116,7 @@
 	<bean id="org.sakaiproject.authz.api.GroupProvider"
 			class="org.sakaiproject.provider.authzGroup.SampleGroupProvider"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 		<property name="courseStudents"><value>22</value></property>
 	</bean>
 -->
@@ -129,8 +128,7 @@
 	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 			class="org.sakaiproject.provider.user.SampleUserDirectoryProvider"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 		<property name="courseStudents"><value>500</value></property>
 	</bean>
 -->
@@ -141,8 +139,7 @@
         <bean id="org.sakaiproject.authz.api.GroupProvider"
                         class="org.sakaiproject.provider.authzGroup.AllHandsGroupProvider"
                         init-method="init"
-                        destroy-method="destroy"
-                        singleton="true">
+                        destroy-method="destroy">
         </bean>
 -->
 
@@ -153,8 +150,7 @@
 	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 			class="org.sakaiproject.component.imsent.user.IMSEntUserDirectoryProvider"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="autoDdl"><value>true</value></property>
 	</bean>
@@ -170,8 +166,7 @@
 	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 			class="org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 		<property name="domain"><value>mydomain.edu</value></property>
 		<property name="loginContext"><value>KerberosAuthentication</value></property>
 		<property name="cachettl"><value>600000</value></property>
@@ -185,7 +180,7 @@
    <bean
   		id="org.sakaiproject.user.api.UserDirectoryProvider"
   		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
-  		init-method="init" destroy-method="destroy" singleton="true">
+  		init-method="init" destroy-method="destroy">
   		<property name="myProvider">
   			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.provider1" />
   		</property>
@@ -196,7 +191,7 @@
   	<bean
   		id="org.sakaiproject.user.api.UserDirectoryProvider.chain1"
   		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
-  		init-method="init" destroy-method="destroy" singleton="true">
+  		init-method="init" destroy-method="destroy">
   		<property name="myProvider">
   			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.provider2" />
   		</property>
