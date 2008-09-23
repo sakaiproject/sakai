@@ -24,6 +24,7 @@ package org.sakaiproject.importer.impl;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,67 +85,96 @@ public abstract class ZipFileParser implements ImportFileParser {
 	protected abstract Collection getCategoriesFromArchive(String pathToData);
 
 	protected String unzipArchive(byte[] fileData, String unArchiveLocation) {
-		String localArchiveLocation = Long.toString(new java.util.Date().getTime());
-		String pathToData = unArchiveLocation + "/" + localArchiveLocation;
-		File dir = new File(pathToData); //directory where file would be saved
-	    if (!dir.exists())
-	    {
-	      dir.mkdirs();
+	    String localArchiveLocation = Long.toString(new java.util.Date().getTime());
+	    String pathToData = unArchiveLocation + "/" + localArchiveLocation;
+	    File dir = new File(pathToData); //directory where file would be saved
+	    if (!dir.exists()) {
+	        dir.mkdirs();
 	    }
-	    
-		try
-	    {
-		  Set dirsMade = new TreeSet();
-		  ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
-		  ZipEntry entry = (ZipEntry) zipStream.getNextEntry();
-	      while (entry != null)
-	      {
-	        String zipName = entry.getName();
-	        // figure out if the manifest file is buried somewhere below the top of the archive
-	        if (zipName.endsWith("imsmanifest.xml") && !zipName.startsWith("imsmanifest.xml")) {
-	        	localArchiveLocation += "/" + zipName.substring(0, zipName.lastIndexOf("/"));
-	        }
-	        
-	        //for attachment type files
-	            // Get the directory part.
-	            int ix = zipName.lastIndexOf('/');
-	            if (ix <= 0) ix = zipName.lastIndexOf('\\');
-	            if (ix > 0) {
-	              String dirName = zipName.substring(0, ix).replace("\\", "/");
-	              if (!dirsMade.contains(dirName)) {
-	                File d = new File(dir.getPath() + "/" + dirName);
-	                // If it already exists as a dir, don't do anything
-	                if (!(d.exists() && d.isDirectory())) {
-	                  // Try to create the directory, warn if it fails
-	                	if (!d.mkdirs()) {
-	                        //Log.warn("Warning: unable to mkdir " + dir.getPath() + "/" + dirName);
-	                      }  
-	                  dirsMade.add(dirName);
-	                }
-	              }
-	            }
-	            File zipEntryFile = new File(dir.getPath() + "/" + zipName.replace("\\", "/"));
-	            if (!zipEntryFile.isDirectory()) {
-		            FileOutputStream ofile = new FileOutputStream(zipEntryFile);
-		            byte[] buffer = new byte[1024 * 10];
-		            int bytesRead;
-		            while ((bytesRead = zipStream.read(buffer)) != -1)
-		            {
-		              ofile.write(buffer, 0, bytesRead);
-		            }
-	
-		            ofile.close();
-	            }
-	            zipStream.closeEntry();
-	            entry = zipStream.getNextEntry();
-	      }
+
+	    Set<String> dirsMade = new TreeSet<String>();
+	    ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
+	    try {
+    	    ZipEntry entry = null;
+    	    try {
+    	        entry = (ZipEntry) zipStream.getNextEntry();
+    	    } catch (IOException e) {
+    	        // TODO I think this is actually ok since this basically goes until it fails anyway
+    	        entry = null;
+    	    }
+    	    while (entry != null)
+    	    {
+    	        String zipName = entry.getName();
+    	        // figure out if the manifest file is buried somewhere below the top of the archive
+    	        if (zipName.endsWith("imsmanifest.xml") && !zipName.startsWith("imsmanifest.xml")) {
+    	            localArchiveLocation += "/" + zipName.substring(0, zipName.lastIndexOf("/"));
+    	        }
+    
+    	        //for attachment type files
+    	        // Get the directory part.
+    	        int ix = zipName.lastIndexOf('/');
+    	        if (ix <= 0) ix = zipName.lastIndexOf('\\');
+    	        if (ix > 0) {
+    	            String dirName = zipName.substring(0, ix).replace("\\", "/");
+    	            if (!dirsMade.contains(dirName)) {
+    	                File d = new File(dir.getPath() + "/" + dirName);
+    	                // If it already exists as a dir, don't do anything
+    	                if (!(d.exists() && d.isDirectory())) {
+    	                    // Try to create the directory, warn if it fails
+    	                    if (!d.mkdirs()) {
+    	                        //Log.warn("Warning: unable to mkdir " + dir.getPath() + "/" + dirName);
+    	                    }  
+    	                    dirsMade.add(dirName);
+    	                }
+    	            }
+    	        }
+    	        File zipEntryFile = new File(dir.getPath() + "/" + zipName.replace("\\", "/"));
+    	        if (!zipEntryFile.isDirectory()) {
+    	            FileOutputStream ofile = null;
+                    try {
+                        ofile = new FileOutputStream(zipEntryFile);
+                        byte[] buffer = new byte[1024 * 10];
+                        int bytesRead;
+                        while ((bytesRead = zipStream.read(buffer)) != -1)
+                        {
+                            ofile.write(buffer, 0, bytesRead);
+                        }
+                    } catch (FileNotFoundException e) {
+                        // TODO Auto-generated catch block (is this ok?)
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block (is this ok?)
+                        e.printStackTrace();
+                    } finally {
+                        if (ofile != null) {
+                            try {
+                                ofile.close();
+                            } catch (IOException e) {
+                                // we tried
+                            }
+                        }
+                    }
+    	        }
+                try {
+                    zipStream.closeEntry();
+                } catch (IOException e) {
+                    // we tried
+                }
+    	        try {
+    	            entry = (ZipEntry) zipStream.getNextEntry();
+    	        } catch (IOException e) {
+    	            // TODO I think this is actually ok since this basically goes until it fails anyway
+    	            entry = null;
+    	        }
+    	    }
+	    } finally {
+            try {
+                zipStream.closeEntry();
+            } catch (IOException e) {
+                // we tried
+            }
 	    }
-	    catch (Exception e5)
-	    {
-	      // todo handle errors
-	    	e5.printStackTrace();
-	    }
-		return localArchiveLocation;
+	    return localArchiveLocation;
 	}
 	
 	protected boolean fileExistsInArchive(String pathAndFilename, byte[] archive) {
