@@ -50,59 +50,65 @@ public class ContentServlet extends HttpServlet
   /**
    * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
-  protected void doGet(HttpServletRequest req, HttpServletResponse res)
-      throws ServletException, IOException
-  {
+  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-    getHelpManager().initialize();
-    String docId = req.getParameter(DOC_ID);
+      getHelpManager().initialize();
+      String docId = req.getParameter(DOC_ID);
 
-    OutputStreamWriter writer = new OutputStreamWriter(res.getOutputStream(), "UTF-8");
-    res.setContentType(TEXT_HTML);
+      OutputStreamWriter writer = new OutputStreamWriter(res.getOutputStream(), "UTF-8");
+      try {
+          res.setContentType(TEXT_HTML);
 
-    Resource resource = getHelpManager().getResourceByDocId(docId);
+          Resource resource = getHelpManager().getResourceByDocId(docId);
 
-    URL url;
-    if (resource != null)
-    {
-      if (!getHelpManager().getRestConfiguration().getOrganization()
-          .equalsIgnoreCase("sakai"))
-      {
-        writer.write(RestContentProvider.getTransformedDocument(
-            getServletContext(), getHelpManager(), resource));
+          URL url;
+          if (resource != null)
+          {
+              if (!getHelpManager().getRestConfiguration().getOrganization()
+                      .equalsIgnoreCase("sakai"))
+              {
+                  writer.write(RestContentProvider.getTransformedDocument(
+                          getServletContext(), getHelpManager(), resource));
+              } else {
+                  if (resource.getLocation().startsWith("/"))
+                  {
+                      if (!"".equals(getHelpManager().getExternalLocation()))
+                      {
+                          url = new URL(getHelpManager().getExternalLocation()
+                                  + resource.getLocation());
+                      }
+                      else
+                      {
+                          url = HelpManager.class.getResource(resource.getLocation());
+                      }
+
+                      BufferedReader br = new BufferedReader(
+                              new InputStreamReader(url.openStream(),"UTF-8"));
+                      try {
+                          String sbuf;
+                          while ((sbuf = br.readLine()) != null)
+                          {
+                              writer.write( sbuf );
+                              writer.write( System.getProperty("line.separator") );
+                          }
+                      } finally {
+                          br.close();
+                      }
+                  }
+                  else
+                  {
+                      res.sendRedirect(resource.getLocation());
+                  }
+              }
+          } 
+      } finally {
+          try {
+              writer.flush();
+          } catch (IOException e) {
+              // ignore
+          }
+          writer.close();
       }
-      else
-        if (resource.getLocation().startsWith("/"))
-        {
-          if (!"".equals(getHelpManager().getExternalLocation()))
-          {
-            url = new URL(getHelpManager().getExternalLocation()
-                + resource.getLocation());
-          }
-          else
-          {
-            url = HelpManager.class.getResource(resource.getLocation());
-          }
-
-          BufferedReader br = new BufferedReader(
-                  new InputStreamReader(url.openStream(),"UTF-8"));
-
-          int readReturn = 0;
-          String sbuf;
-          while ((sbuf = br.readLine()) != null)
-          {
-            writer.write( sbuf );
-            writer.write( System.getProperty("line.separator") );
-          }
-          br.close();
-        }
-        else
-        {
-          res.sendRedirect(resource.getLocation());
-        }
-    }    
-    writer.flush();
-    writer.close();
   }
 
   /**
