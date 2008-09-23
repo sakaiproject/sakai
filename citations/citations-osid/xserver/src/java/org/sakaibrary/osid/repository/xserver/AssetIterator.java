@@ -103,22 +103,27 @@ implements org.osid.repository.AssetIterator {
 		java.util.ArrayList regexArray = new java.util.ArrayList();
 
 		java.io.InputStream is = this.getClass().getResourceAsStream( filename );
-		java.io.BufferedReader regexes = new java.io.BufferedReader(
-				new java.io.InputStreamReader( is ) );
-
-		// read the regex file and add regexes to array
-		String regex;
-		while( ( regex = regexes.readLine() ) != null ) {
-			String [] nameRegex = regex.split( "=" );
-
-			CitationRegex citationRegex = new CitationRegex();
-			citationRegex.setName( nameRegex[ 0 ].trim() );
-			citationRegex.setRegex( nameRegex[ 1 ].trim() );
-
-			regexArray.add( citationRegex );
+		try {
+    		java.io.BufferedReader regexes = new java.io.BufferedReader(
+    				new java.io.InputStreamReader( is ) );
+    		try {
+        		// read the regex file and add regexes to array
+        		String regex;
+        		while( ( regex = regexes.readLine() ) != null ) {
+        			String [] nameRegex = regex.split( "=" );
+        
+        			CitationRegex citationRegex = new CitationRegex();
+        			citationRegex.setName( nameRegex[ 0 ].trim() );
+        			citationRegex.setRegex( nameRegex[ 1 ].trim() );
+        
+        			regexArray.add( citationRegex );
+        		}
+    		} finally {
+    		    regexes.close();
+    		}
+		} finally {
+	        is.close();
 		}
-		regexes.close();
-		is.close();
 
 		return regexArray;
 	}
