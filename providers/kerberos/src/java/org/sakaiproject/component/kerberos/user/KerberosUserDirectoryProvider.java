@@ -45,7 +45,7 @@ import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.StringUtil;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * <p>
@@ -688,7 +688,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 			MessageDigest md = MessageDigest.getInstance("SHA");
 			md.update(plaintext.getBytes("UTF-8"));
 			byte raw[] = md.digest();
-			String hash = (new BASE64Encoder()).encode(raw);
+			String hash = new String(Base64.encodeBase64(raw));
 			return hash;
 		}
 		catch (Exception e)
