@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.pages;
+package uk.ac.lancs.e_science.profile2.tool.pages;
 
 import org.apache.log4j.Logger;
 

@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.pages;
+package uk.ac.lancs.e_science.profile2.tool.pages;
 
 public class Dispatcher extends BasePage {
 	

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>Profile2 PACK</name>
+	<groupId>uk.ac.lancs.e_science</groupId>
+	<artifactId>sakai-profile2-pack</artifactId>
+	<url></url>
+	<description></description>
+
+	<packaging>sakai-component</packaging>
+	<version>${tool.version}</version>	
+	<parent>
+		<groupId>uk.ac.lancs.e_science</groupId>
+		<artifactId>profile2-base</artifactId>
+	    <version>${tool.version}</version>
+	    <relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<properties>
+    	<deploy.target>components</deploy.target>
+  	</properties>
+  	
+  	<dependencies>
+
+        <!-- internal dependencies -->
+        <dependency>
+            <groupId>uk.ac.lancs.e_science</groupId>
+            <artifactId>sakai-profile2-impl</artifactId>
+            <version>${tool.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build />
+
+
+</project>

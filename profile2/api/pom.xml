@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>Profile2 API</name>
+	<groupId>uk.ac.lancs.e_science</groupId>
+	<artifactId>sakai-profile2-api</artifactId>
+	<url></url>
+	<description></description>
+
+	<packaging>jar</packaging>
+	<version>${tool.version}</version>	
+	<parent>
+		<groupId>uk.ac.lancs.e_science</groupId>
+		<artifactId>profile2-base</artifactId>
+	    <version>${tool.version}</version>
+	    <relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<properties>
+    	<deploy.target>shared</deploy.target>
+  	</properties>
+  	
+  	<!-- 
+  	<dependencies>
+
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket</artifactId>
+			<version>${wicket.version}</version>
+		</dependency>
+  	
+  	</dependencies>
+  	-->
+
+</project>
