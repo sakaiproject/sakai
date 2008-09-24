@@ -41,7 +41,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public interface BrowseSearchable extends EntityProvider {
+public interface BrowseSearchable extends Browseable {
 
     /**
      * Returns the list of entities which are being browsed based on the given parameters

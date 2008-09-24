@@ -39,7 +39,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public interface BrowseNestable extends EntityProvider {
+public interface BrowseNestable extends Browseable {
 
     /**
      * Defines the parent entity type for this one
