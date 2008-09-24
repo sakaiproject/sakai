@@ -2495,12 +2495,6 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 			
-			// for non-electronic assignment
-			if (assignment.getContent() != null && assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-			{
-				updateNonElectronicSubmissions(state, assignment);
-			}
-			
 			List<UserSubmission> userSubmissions = prepPage(state);
 			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
 			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
@@ -2588,45 +2582,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 	
-	/**
-	 * Synchronize the submissions for non electronic assignment with the current user set
-	 * @param state
-	 * @param assignment
-	 */
-	private void updateNonElectronicSubmissions(SessionState state, Assignment assignment) {
-		List submissions = AssignmentService.getSubmissions(assignment);
-		// the following operation is accessible for those with add assignment right
-		List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(assignment.getReference());
-		
-		HashSet<String> submittersIdSet = getSubmittersIdSet(submissions);
-		HashSet<String> allowAddSubmissionUsersIdSet = getAllowAddSubmissionUsersIdSet(allowAddSubmissionUsers);
-		
-		if (!submittersIdSet.equals(allowAddSubmissionUsersIdSet))
-		{
-			// get the difference between two sets
-			try
-			{
-				HashSet<String> addSubmissionUserIdSet = (HashSet<String>) allowAddSubmissionUsersIdSet.clone();
-				addSubmissionUserIdSet.removeAll(submittersIdSet);
-				HashSet<String> removeSubmissionUserIdSet = (HashSet<String>) submittersIdSet.clone();
-				removeSubmissionUserIdSet.removeAll(allowAddSubmissionUsersIdSet);
-		        
-				try
-				{
-					addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, removeSubmissionUserIdSet, assignment); 
-				}
-				catch (Exception ee)
-				{
-					M_log.warn(this + ":updateNonElectronicSubmission " + ee.getMessage());
-				}
-			}
-			catch (Exception e)
-			{
-				M_log.warn(this + ":updateNonElectronicSubmission " + e.getMessage());
-			}
-		}
-	}
-
 	/**
 	 * build the instructor view of an assignment
 	 */
@@ -5056,13 +5011,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 				if (post)
 				{
-					// only if user is posting the assignment
-					if (ac.getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-					{
-						// update submissions
-						updateNonElectronicSubmissions(state, a);
-					}
-					else if (bool_change_from_non_electronic)
+					if (bool_change_from_non_electronic)
 					{
 						// not non_electronic type any more
 						List submissions = AssignmentService.getSubmissions(a);
