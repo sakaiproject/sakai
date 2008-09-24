@@ -27,7 +27,8 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * For example, it will provide lists of entities which are visible to users in locations
  * which can be looked through and selected<br/>
  * This is the root interface for browsing entities and does not do anything by itself,
- * you must add at least {@link BrowseableCollection} or {@link BrowseSearchable} interface to this
+ * you must add at least {@link BrowseableCollection} or {@link BrowseSearchable} interface to this <br/>
+ * If your entities are nested then the nested ones will need to implement {@link BrowseNestable} <br/>
  * Entities which do not implement this will not appear in lists of entities which are being browsed<br/>
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
  *  
