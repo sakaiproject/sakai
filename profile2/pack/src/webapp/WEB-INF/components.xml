@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+ 	<bean id="uk.ac.lancs.e_science.profile2.api.SakaiProxy"
+    	class="uk.ac.lancs.e_science.profile2.impl.SakaiProxyImpl"
+    	init-method="init">
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+
+
+
+
+
+    <!-- Bring in the hibernate related beans 
+    <import resource="spring-hibernate.xml" />
+    <import resource="sakai-hibernate.xml" />
+	-->
+	
+    <!-- create an external logic bean which abstracts out the Sakai bits -->
+    <!-- 
+    <bean id="org.sakaiproject.examplesakaifullrsftool.logic.ExternalLogic"
+        class="org.sakaiproject.examplesakaifullrsftool.logic.ExternalLogicImpl"
+        init-method="init">
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService"
+            ref="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
+    -->
+  
+    <!-- create a logic bean, give it the dao from above -->
+    <!-- 
+    <bean id="org.sakaiproject.examplesakaifullrsftool.logic.ExampleSakaiFullRSFToolLogic"
+        class="org.sakaiproject.examplesakaifullrsftool.logic.ExampleSakaiFullRSFToolLogicImpl"
+        init-method="init">
+        <property name="dao" 
+            ref="org.sakaiproject.examplesakaifullrsftool.dao.ExampleSakaiFullRSFToolDao" />
+        <property name="externalLogic"
+            ref="org.sakaiproject.examplesakaifullrsftool.logic.ExternalLogic" />
+    </bean>
+    -->
+    <!-- create an entity provider bean -->
+    <!-- 
+    <bean class="org.sakaiproject.examplesakaifullrsftool.logic.entity.ExampleSakaiFullRSFToolEntityProvider">
+        <property name="logic" ref="org.sakaiproject.examplesakaifullrsftool.logic.ExampleSakaiFullRSFToolLogic" />
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+    </bean>
+    -->
+</beans>
