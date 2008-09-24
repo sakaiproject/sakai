@@ -42,6 +42,30 @@
 			<version>${sakai.version}</version>
 			<scope>provided</scope>
     	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+    	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+    	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+    	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+    	</dependency>
     	
     	<!--  logging dependency -->
 		<dependency>

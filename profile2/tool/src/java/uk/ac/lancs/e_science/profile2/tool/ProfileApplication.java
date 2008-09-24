@@ -30,12 +30,10 @@ public class ProfileApplication extends WebApplication {
 	public ProfileApplication() {
 	}
 	
-	public static ProfileApplication get()
-	{
+	public static ProfileApplication get() {
 		return (ProfileApplication) Application.get();
 	}
 		
-	
 	public Class getHomePage() {
 		return Dispatcher.class;
 	}

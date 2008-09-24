@@ -11,7 +11,7 @@ public class Dispatcher extends BasePage {
 			else
 				setResponsePage(new MemberBlog());
 		*/
-		setResponsePage(new ViewProfile());
+		setResponsePage(new MyProfile());
 		
 	}
 }

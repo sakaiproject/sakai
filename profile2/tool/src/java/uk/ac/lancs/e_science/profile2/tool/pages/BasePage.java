@@ -22,10 +22,10 @@ import org.apache.log4j.Logger;
 public class BasePage extends WebPage implements IHeaderContributor {
 
 	private transient Logger log = Logger.getLogger(BasePage.class);
-	protected Link viewProfileLink;
-	protected Link editProfileLink;
-	
-	protected SakaiProxy sakaiProxy;
+	protected Link myProfileLink;
+	protected Link testDataLink;
+
+	protected transient SakaiProxy sakaiProxy; //transient to stop log
 	
 
 	
@@ -38,29 +38,30 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//get sakaiProxy
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
-    	//view profile link
-    	viewProfileLink = new Link("viewProfileLink") {
+		
+    	//my profile link
+    	myProfileLink = new Link("myProfileLink") {
 			public void onClick() {
-				setResponsePage(new ViewProfile());
+				setResponsePage(new MyProfile());
 			}
 		};
-		//viewProfileLink.add(new Label("viewProfileLabel",new ResourceModel("link.view")));
-		viewProfileLink.add(new Label("viewProfileLabel","View profile"));
-		add(viewProfileLink);
+		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my")));
+		add(myProfileLink);
     	
-		//edit profile link
-		editProfileLink = new Link("editProfileLink") {
+		
+		
+		
+		//test data link
+		testDataLink = new Link("testDataLink") {
 			public void onClick() {
-				setResponsePage(new EditProfile());
+				setResponsePage(new TestData());
 			}
 		};
-		//editProfileLink.add(new Label("editProfileLabel",new ResourceModel("link.edit")));
-		editProfileLink.add(new Label("editProfileLabel","Edit your profile"));
-		add(editProfileLink);
+		testDataLink.add(new Label("testDataLabel",new ResourceModel("link.test")));
+		add(testDataLink);
 		
-		add(new Label("testingLabel",sakaiProxy.getCurrentUserId()));
+		
 
-		
     	
     }
 	
