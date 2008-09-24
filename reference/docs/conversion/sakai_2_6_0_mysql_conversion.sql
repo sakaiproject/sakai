@@ -187,3 +187,7 @@ ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD MARKFORREVIEW INTEGER NULL;
 -- SAK-14472
 INSERT INTO SAM_TYPE_T (TYPEID , AUTHORITY, DOMAIN, KEYWORD, DESCRIPTION, STATUS, CREATEDBY, CREATEDDATE, LASTMODIFIEDBY, LASTMODIFIEDDATE)
     VALUES (12 , 'stanford.edu', 'assessment.item', 'Multiple Correct Single Selection', NULL, 1, 1, SYSDATE(), 1, SYSDATE());
+-- SAK-14474
+update sam_assessaccesscontrol_t set autosubmit = 0;
+update sam_publishedaccesscontrol_t set autosubmit = 0;
+alter table SAM_ASSESSMENTGRADING_T add ISAUTOSUBMITTED INTEGER null DEFAULT '0';
