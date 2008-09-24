@@ -28,8 +28,10 @@ import java.util.Set;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Browseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
@@ -373,9 +375,13 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
     public List<EntityData> browseEntities(String prefix, Search search, String userReference, String associatedReference, Map<String, Object> params);
 
     /**
+     * For authors of entity browsing systems, this provides a list of all the meta data related to the entities
+     * in the system which are {@link Browseable}, this provides the root entities when there is no parent prefix provided <br/>
      * 
-     * @return the list of all entity prefixes that are browseable
+     * @param parentPrefix (optional) the parent prefix to get the browseable entities for,
+     * if this is null then all the root browseable entities are returned
+     * @return the list of meta data for all entity prefixes that are {@link Browseable}
      */
-    //public List<String> getBrowseableEntityPrefixes();
+    public List<BrowseEntity> getBrowseableEntities(String parentPrefix);
 
 }
