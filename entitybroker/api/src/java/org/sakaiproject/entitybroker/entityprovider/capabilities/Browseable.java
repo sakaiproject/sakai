@@ -40,6 +40,9 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  */
 public abstract interface Browseable extends EntityProvider {
 
-   // this space intentionally left blank
+    public static final String BROWSE_TITLE_KEY = "browse";
+    public static final String BROWSE_DESC_KEY = "browse.description";
+
+    // this space intentionally left blank
 
 }

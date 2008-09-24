@@ -44,6 +44,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.access.AccessFormats;
+import org.sakaiproject.entitybroker.access.AccessViews;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
@@ -844,6 +845,16 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                 // classloader protection END
             }
         } else {
+            // check if this view key is specifically disallowed
+            if (AccessViews.class.isAssignableFrom(evAccessProvider.getClass())) {
+                String[] entityViewKeys = ((AccessViews)evAccessProvider).getHandledEntityViews();
+                if (entityViewKeys != null && ! ReflectUtils.contains(entityViewKeys, view.getViewKey()) ) {
+                    throw new EntityException("Access provider for " + view.getEntityReference().getPrefix() 
+                            + " will not handle this view ("+view.getViewKey()+"): " + view,
+                            view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);
+                }
+            }
+            // check if this format is specifically disallowed
             if (AccessFormats.class.isAssignableFrom(evAccessProvider.getClass())) {
                 String[] accessFormats = ((AccessFormats)evAccessProvider).getHandledAccessFormats();
                 if (accessFormats != null && ! ReflectUtils.contains(accessFormats, view.getFormat()) ) {

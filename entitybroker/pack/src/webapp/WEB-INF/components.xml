@@ -158,6 +158,10 @@
             ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="entityProviderManager"
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+        <property name="entityProperties" 
+            ref="org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService" />
+        <property name="entityViewAccessProviderManager" 
+            ref="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.impl.EntityDescriptionManager"

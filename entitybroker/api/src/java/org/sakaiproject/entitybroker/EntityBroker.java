@@ -366,13 +366,15 @@ public interface EntityBroker extends PropertiesProvider, TagProvider {
      *           a globally unique reference to an entity, this is the entity that the 
      *           returned browseable data must be associated with (e.g. limited by reference to a location or associated entity), 
      *           this may be null to indicate there is no association limit
+     * @param parentReference (optional) if not null then only the entities which have the referenced entity as a parent will be searched,
+     * if null then the parent/child relationship would be ignored when searching browseable entities
      * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
      * @return a list of entity data objects which contain the reference, URL, display title and optionally other entity data
      * @throws SecurityException if the data cannot be accessed by the current user or is not publicly accessible
      * @throws IllegalArgumentException if the prefix is invalid or the search is invalid
      * @throws IllegalStateException if any other error occurs
      */
-    public List<EntityData> browseEntities(String prefix, Search search, String userReference, String associatedReference, Map<String, Object> params);
+    public List<EntityData> browseEntities(String prefix, Search search, String userReference, String associatedReference, String parentReference, Map<String, Object> params);
 
     /**
      * For authors of entity browsing systems, this provides a list of all the meta data related to the entities

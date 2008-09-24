@@ -37,6 +37,7 @@ public class BrowseEntity {
     private String prefix;
     private String title;
     private String description;
+    private String parentPrefix;
     private List<String> nestedPrefixes;
     private List<String> entityAccessViews;
 
@@ -69,17 +70,33 @@ public class BrowseEntity {
      */
     public BrowseEntity(String prefix, String title, String description, String[] nestedPrefixes, String[] entityViewKeys) {
         this.prefix = prefix;
+        setTitleDesc(title, description);
+        setNestedPrefixes(nestedPrefixes);
+        setEntityViewKeys(entityViewKeys);
+    }
+
+    public void setTitleDesc(String title, String description) {
         this.title = title;
         this.description = description;
+    }
+
+    public void setNestedPrefixes(String[] nestedPrefixes) {
         if (nestedPrefixes != null && nestedPrefixes.length > 0) {
-            for (int i = 0; i < entityViewKeys.length; i++) {
-                addNestedPrefix(entityViewKeys[i]);
+            for (int i = 0; i < nestedPrefixes.length; i++) {
+                addNestedPrefix(nestedPrefixes[i]);
             }
+        } else {
+            this.nestedPrefixes = null;
         }
-        if (entityViewKeys != null) {
+    }
+
+    public void setEntityViewKeys(String[] entityViewKeys) {
+        if (entityViewKeys != null && entityViewKeys.length > 0) {
             for (int i = 0; i < entityViewKeys.length; i++) {
                 addEntityViewKeys(entityViewKeys[i]);
             }
+        } else {
+            this.entityAccessViews = null;
         }
     }
 
@@ -109,6 +126,10 @@ public class BrowseEntity {
         }
     }
 
+    public void setParentPrefix(String parentPrefix) {
+        this.parentPrefix = parentPrefix;
+    }
+
     /**
      * @return the entity prefix for this browseable entity type
      */
@@ -132,6 +153,13 @@ public class BrowseEntity {
      */
     public String getDescription() {
         return this.description;
+    }
+
+    /**
+     * @return the prefix for the parent entity type for this type of entity OR null if this is a root type
+     */
+    public String getParentPrefix() {
+        return parentPrefix;
     }
 
     /**

@@ -376,35 +376,35 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#browseEntities(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.lang.String, java.lang.String, java.util.Map)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#browseEntities(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.lang.String, java.lang.String, EntityReference, java.util.Map)}.
     */
    public void testBrowseEntities() {
-      List<EntityData> data = entityBrokerManager.browseEntities(TestData.PREFIX4, null, null, null, null);
+      List<EntityData> data = entityBrokerManager.browseEntities(TestData.PREFIX4, null, null, null, null, null);
       assertNotNull(data);
       assertEquals(0, data.size());
 
-      data = entityBrokerManager.browseEntities(TestData.PREFIXB1, null, null, null, null);
+      data = entityBrokerManager.browseEntities(TestData.PREFIXB1, null, null, null, null, null);
       assertNotNull(data);
       assertEquals(3, data.size());
       assertEquals(EntityData.class, data.get(0).getClass());
 
-      data = entityBrokerManager.browseEntities(TestData.PREFIXB2, null, null, null, null);
+      data = entityBrokerManager.browseEntities(TestData.PREFIXB2, null, null, null, null, null);
       assertNotNull(data);
       assertEquals(3, data.size());
       assertEquals(EntityData.class, data.get(0).getClass());
 
-      data = entityBrokerManager.browseEntities(TestData.PREFIXB2, null, "/user/aaronz", null, null);
+      data = entityBrokerManager.browseEntities(TestData.PREFIXB2, null, "/user/aaronz", null, null, null);
       assertNotNull(data);
       assertEquals(1, data.size());
       assertEquals(EntityData.class, data.get(0).getClass());
 
-      data = entityBrokerManager.browseEntities(TestData.PREFIXB2, null, "/user/aaronz", "/site/siteAZ", null);
+      data = entityBrokerManager.browseEntities(TestData.PREFIXB2, null, "/user/aaronz", "/site/siteAZ", null, null);
       assertNotNull(data);
       assertEquals(2, data.size());
       assertEquals(EntityData.class, data.get(0).getClass());
 
       try {
-         data = entityBrokerManager.browseEntities(null, null, null, null, null);
+         data = entityBrokerManager.browseEntities(null, null, null, null, null, null);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());

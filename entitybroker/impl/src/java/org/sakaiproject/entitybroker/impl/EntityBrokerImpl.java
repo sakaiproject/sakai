@@ -278,12 +278,16 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
      * @see org.sakaiproject.entitybroker.EntityBroker#browseEntities(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.lang.String, java.lang.String, java.util.Map)
      */
     public List<EntityData> browseEntities(String prefix, Search search,
-            String userReference, String associatedReference, Map<String, Object> params) {
+            String userReference, String associatedReference, String parentReference, Map<String, Object> params) {
+        EntityReference parentRef = null;
+        if (parentReference != null) {
+            parentRef = entityBrokerManager.parseReference(parentReference);
+        }
         List<EntityData> data = null;
         try {
             requestStorage.setRequestValues(params);
             if (params == null) { params = new HashMap<String, Object>(); }
-            data = entityBrokerManager.browseEntities(prefix, search, userReference, associatedReference, params);
+            data = entityBrokerManager.browseEntities(prefix, search, userReference, associatedReference, parentRef, params);
         } finally {
             requestStorage.reset();
         }
@@ -294,8 +298,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
      * @see org.sakaiproject.entitybroker.EntityBroker#getBrowseableEntities(java.lang.String)
      */
     public List<BrowseEntity> getBrowseableEntities(String parentPrefix) {
-        // TODO Auto-generated method stub
-        return null;
+        List<BrowseEntity> l = entityBrokerManager.getBrowseableEntities(parentPrefix);
+        return l;
     }
 
 

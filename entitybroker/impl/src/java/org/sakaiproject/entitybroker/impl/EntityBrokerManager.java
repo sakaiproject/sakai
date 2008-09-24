@@ -22,6 +22,7 @@ package org.sakaiproject.entitybroker.impl;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,20 +32,28 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.access.AccessViews;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseNestable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Browseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseableCollection;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
+import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.genericdao.util.ConstructorUtils;
 import org.sakaiproject.genericdao.util.ReflectUtils;
@@ -73,6 +82,17 @@ public class EntityBrokerManager {
     private EntityProviderManager entityProviderManager;
     public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
         this.entityProviderManager = entityProviderManager;
+    }
+
+    private EntityPropertiesService entityPropertiesService;
+    public void setEntityPropertiesService(EntityPropertiesService entityPropertiesService) {
+        this.entityPropertiesService = entityPropertiesService;
+    }
+
+    private EntityViewAccessProviderManager entityViewAccessProviderManager;
+    public void setEntityViewAccessProviderManager(
+            EntityViewAccessProviderManager entityViewAccessProviderManager) {
+        this.entityViewAccessProviderManager = entityViewAccessProviderManager;
     }
 
     private ServerConfigurationService serverConfigurationService;
@@ -327,38 +347,118 @@ public class EntityBrokerManager {
      * @param search
      * @param userReference
      * @param associatedReference
+     * @param parentEntityRef
      * @param params
      * @return a list of entity data results to browse
      */
     public List<EntityData> browseEntities(String prefix, Search search,
-            String userReference, String associatedReference, Map<String, Object> params) {
+            String userReference, String associatedReference, EntityReference parentEntityRef, Map<String, Object> params) {
         if (prefix == null) {
             throw new IllegalArgumentException("No prefix supplied for entity browsing resolution, prefix was null");
         }
         List<EntityData> results = null;
-        // check for browse searchable first
-        BrowseSearchable searchable = entityProviderManager.getProviderByPrefixAndCapability(prefix, BrowseSearchable.class);
-        if (searchable != null) {
-            search = EntityDataUtils.translateStandardSearch(search);
-            List<EntityData> l = searchable.browseEntities(search, userReference, associatedReference, params);
-            if (l != null) {
-                results = new ArrayList<EntityData>( l );
+        search = EntityDataUtils.translateStandardSearch(search);
+        if (parentEntityRef != null) {
+            // do the special call to get nested children items
+            BrowseNestable nestable = entityProviderManager.getProviderByPrefixAndCapability(prefix, BrowseNestable.class);
+            if (nestable != null) {
+                List<EntityData> l = nestable.getChildrenEntities(parentEntityRef, search, userReference, associatedReference, params);
+                if (l != null) {
+                    results = new ArrayList<EntityData>( l );
+                }
+                populateEntityData( l );
             }
-            populateEntityData( l );
         } else {
-            // get from the collection if available
-            BrowseableCollection provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, BrowseableCollection.class);
-            if (provider != null) {
-                search = EntityDataUtils.translateStandardSearch(search);
-                EntityReference ref = new EntityReference(prefix, "");
-                List<?> l = getEntitiesData(ref, search, params);
-                results = convertToEntityData(l, ref);
+            // check for browse searchable first
+            BrowseSearchable searchable = entityProviderManager.getProviderByPrefixAndCapability(prefix, BrowseSearchable.class);
+            if (searchable != null) {
+                List<EntityData> l = searchable.browseEntities(search, userReference, associatedReference, params);
+                if (l != null) {
+                    results = new ArrayList<EntityData>( l );
+                }
+                populateEntityData( l );
+            } else {
+                // get from the collection if available
+                BrowseableCollection provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, BrowseableCollection.class);
+                if (provider != null) {
+                    EntityReference ref = new EntityReference(prefix, "");
+                    List<?> l = getEntitiesData(ref, search, params);
+                    results = convertToEntityData(l, ref);
+                }
             }
         }
         if (results == null) {
             results = new ArrayList<EntityData>();
         }
         return results;
+    }
+
+    /**
+     * Get the meta data about browseable entities
+     * @param parentPrefix the prefix of the parent type (null for the root types)
+     * @return the list of browseable entity meta data
+     */
+    public List<BrowseEntity> getBrowseableEntities(String parentPrefix) {
+        Map<String, BrowseEntity> results = new HashMap<String, BrowseEntity>();
+        // first we sorta have to get all the browseable entities info
+        List<Browseable> browseableProviders = entityProviderManager.getProvidersByCapability(Browseable.class);
+        for (Browseable browseable : browseableProviders) {
+            String prefix = browseable.getEntityPrefix();
+            // add the current prefix to the list of browseable entities
+            BrowseEntity currentBE = results.get(prefix);
+            if (currentBE == null) {
+                currentBE = new BrowseEntity(prefix);
+                results.put(prefix, currentBE);
+            }
+            BrowseNestable bnProvider = entityProviderManager.getProviderByPrefixAndCapability(prefix, BrowseNestable.class);
+            if (bnProvider != null) {
+                // this must be a non-root node
+                results.put(prefix, new BrowseEntity(prefix));
+                String parent = bnProvider.getParentprefix();
+                currentBE.setParentPrefix(parent); // add this parent prefix to current
+
+                BrowseEntity parentBE = results.get(parent);
+                // make the parent if it does not exist yet
+                if (parentBE == null) {
+                    parentBE = new BrowseEntity(parent);
+                    results.put(parent, parentBE);
+                }
+                parentBE.addNestedPrefix(prefix); // add the child prefix to the parent
+            }
+            // add in the title/desc if available
+            Describeable dProvider = entityProviderManager.getProviderByPrefixAndCapability(prefix, Describeable.class);
+            if (dProvider != null) {
+                String title = entityPropertiesService.getProperty(prefix, Browseable.BROWSE_TITLE_KEY);
+                String description = entityPropertiesService.getProperty(prefix, Browseable.BROWSE_DESC_KEY);
+                currentBE.setTitleDesc(title, description);
+            }
+            // add in the access views info
+            EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
+            if (evap != null) {
+                if (AccessViews.class.isAssignableFrom(evap.getClass())) {
+                    String[] entityViewKeys = ((AccessViews)evap).getHandledEntityViews();
+                    currentBE.setEntityViewKeys(entityViewKeys);
+                }
+            }
+        }
+        // now filter down to what was asked for only
+        List<BrowseEntity> l = new ArrayList<BrowseEntity>();
+        for (BrowseEntity browseEntity : results.values()) {
+            if (parentPrefix == null) {
+                // get root items only
+                if (browseEntity.getParentPrefix() == null) {
+                    l.add(browseEntity);
+                }
+            } else {
+                // get items with matching parents only
+                if (browseEntity.getParentPrefix() != null 
+                        && parentPrefix.equals(browseEntity.getParentPrefix())) {
+                    l.add(browseEntity);
+                }
+            }
+        }
+        Collections.sort(l, new BrowseEntity.TitleComparator());
+        return l;
     }
 
     /**

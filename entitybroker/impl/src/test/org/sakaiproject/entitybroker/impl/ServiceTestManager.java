@@ -108,6 +108,8 @@ public class ServiceTestManager {
       entityBrokerManager = new EntityBrokerManager();
       entityBrokerManager.setEntityProviderManager( entityProviderManager );
       entityBrokerManager.setServerConfigurationService( serverConfigurationService );
+      entityBrokerManager.setEntityPropertiesService( entityPropertiesService );
+      entityBrokerManager.setEntityViewAccessProviderManager(entityViewAccessProviderManager);
 
       entityDescriptionManager = new EntityDescriptionManager();
       entityDescriptionManager.setEntityProviderManager( entityProviderManager );
