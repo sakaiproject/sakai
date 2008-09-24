@@ -205,7 +205,11 @@ public interface AssessmentGradingFacadeQueriesAPI
     
   public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId);
   
+  
   public String getFilename(Long itemGradingId, String agentId, String filename);
 
   public List getNeedResubmitList(String agentId);
+  
+  public void autoSubmitAssessments();
+  
 }

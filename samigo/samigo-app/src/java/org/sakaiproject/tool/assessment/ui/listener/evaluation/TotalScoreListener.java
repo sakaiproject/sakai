@@ -622,8 +622,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
       if (ac!=null)
         dueDate = ac.getDueDate();
-      if (dueDate == null || gdata.getSubmittedDate() == null || gdata.getSubmittedDate().before(dueDate)) {   // SAK-5504
-      //if (dueDate == null || gdata.getSubmittedDate().before(dueDate)) {
+      if (dueDate == null || gdata.getSubmittedDate() == null || gdata.getSubmittedDate().before(dueDate)) {   
         results.setIsLate(Boolean.FALSE);
       }
       else {
@@ -633,6 +632,26 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
         // LATE_SUBMISSION as a status. Comment out the following line for this reason.
         //results.setStatus(AssessmentGradingIfc.LATE_SUBMISSION);
       }
+      
+      if (gdata.getIsAutoSubmitted() != null && gdata.getIsAutoSubmitted().equals(Boolean.TRUE)) {
+    	  results.setIsAutoSubmitted(true);
+      }
+      else {
+    	  results.setIsAutoSubmitted(false);
+      }
+      
+      // For assessments accept late submission, if 
+	  // 1. student starts taking it after the due date
+	  // 2. the assessment is submitted by auto-submit (not student)
+	  // we want to display LATE instead of AUTO-SUBMIT on the total scores page
+	  // That's why we set this info here
+	  if (dueDate != null && gdata.getAttemptDate() != null && gdata.getAttemptDate().after(dueDate)) {
+		  results.setIsAttemptDateAfterDueDate(true);
+	  }
+	  else {
+		  results.setIsAttemptDateAfterDueDate(false);
+	  }
+	  
       AgentFacade agent = new AgentFacade(gdata.getAgentId());
       results.setLastName(agent.getLastName());
       results.setFirstName(agent.getFirstName());

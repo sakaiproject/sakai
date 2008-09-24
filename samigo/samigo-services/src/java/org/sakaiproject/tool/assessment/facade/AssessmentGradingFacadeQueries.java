@@ -2265,4 +2265,51 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				.find("select a.publishedAssessmentId from AssessmentGradingData a where a.agentId=? and a.forGrade=? and a.status=?", values);
 		return list;
 	}
+	
+	public void autoSubmitAssessments() {
+		Object[] values = { 1 };
+
+		List list = getHibernateTemplate()
+				.find("select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
+						" a.agentId, a.submittedDate, a.isLate, a.forGrade, a.totalAutoScore, a.totalOverrideScore, " +
+						" a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
+						" from AssessmentGradingData a, PublishedAccessControl c " +
+						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
+						" and current_timestamp() >= c.dueDate and c.autoSubmit = ? " +
+						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc ", values);
+		
+	    Iterator iter = list.iterator();
+	    String lastAgentId = "";
+	    Long lastPublishedAssessmentId = Long.valueOf(0);
+	    ArrayList toBeAutoSubmittedList = new ArrayList();
+	    while (iter.hasNext()) {
+	    	AssessmentGradingData adata = (AssessmentGradingData) iter.next();
+	    	if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())) {
+	    		if (!lastAgentId.equals(adata.getAgentId())) {
+    				lastAgentId = adata.getAgentId();
+	    			if (Boolean.FALSE.equals(adata.getForGrade())) {
+	    				adata.setForGrade(Boolean.TRUE);
+	    				adata.setIsAutoSubmitted(Boolean.TRUE);
+	    				adata.setSubmittedDate(new Date());
+	    				adata.setStatus(Integer.valueOf(1));
+	    				toBeAutoSubmittedList.add(adata);
+	    			}
+	    		}
+	    	}
+	    	else {
+	    		lastPublishedAssessmentId = adata.getPublishedAssessmentId();
+				lastAgentId = adata.getAgentId();
+	    		if (Boolean.FALSE.equals(adata.getForGrade())) {
+	    			adata.setForGrade(Boolean.TRUE);
+	    			adata.setIsAutoSubmitted(Boolean.TRUE);
+	    			adata.setSubmittedDate(new Date());
+	    			adata.setStatus(Integer.valueOf(1));
+	    			toBeAutoSubmittedList.add(adata);
+	    		}
+	    	}
+
+	    }
+	      
+	    this.saveOrUpdateAll(toBeAutoSubmittedList);
+	}
 }

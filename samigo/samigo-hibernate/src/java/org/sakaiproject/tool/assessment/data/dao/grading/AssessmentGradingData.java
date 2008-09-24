@@ -64,6 +64,8 @@ public class AssessmentGradingData
   private int totalSubmitted;
   private Long publishedAssessmentId;
   private String publishedAssessmentTitle;
+  private Boolean isAutoSubmitted;
+  
   public AssessmentGradingData() {
   }
 
@@ -73,7 +75,7 @@ public class AssessmentGradingData
       Date submittedDate, Boolean isLate,
       Boolean forGrade, Float totalAutoScore, Float totalOverrideScore,
       Float finalScore, String comments, Integer status, String gradedBy,
-      Date gradedDate,  Date attemptDate, Integer timeElapsed
+      Date gradedDate,  Date attemptDate, Integer timeElapsed, Boolean isAutoSubmitted
       ){
     this.assessmentGradingId = assessmentGradingId;
     this.publishedAssessmentId = publishedAssessmentId;
@@ -91,8 +93,43 @@ public class AssessmentGradingData
     this.gradedDate = gradedDate;
     this.attemptDate = attemptDate;
     this.timeElapsed = timeElapsed;
+    this.isAutoSubmitted = isAutoSubmitted;
   }
 
+  public AssessmentGradingData(Long assessmentGradingId,
+	      Long publishedAssessmentId, String publishedAssessmentTitle, String agentId,
+	      Date submittedDate, Boolean isLate,
+	      Boolean forGrade, Float totalAutoScore, Float totalOverrideScore,
+	      Float finalScore, String comments, Integer status, String gradedBy,
+	      Date gradedDate,  Date attemptDate, Integer timeElapsed){
+	  this(assessmentGradingId, publishedAssessmentId, publishedAssessmentTitle, agentId,
+		   submittedDate, isLate, forGrade, totalAutoScore, totalOverrideScore, finalScore, 
+		   comments, status, gradedBy, gradedDate, attemptDate, timeElapsed, Boolean.valueOf(false));
+  }
+  
+  public AssessmentGradingData(Long assessmentGradingId,
+		  Long publishedAssessmentId, String agentId,
+		  Date submittedDate, Boolean isLate,
+		  Boolean forGrade, Float totalAutoScore, Float totalOverrideScore,
+		  Float finalScore, String comments, Integer status, String gradedBy,
+		  Date gradedDate,  Date attemptDate, Integer timeElapsed){
+	  this.assessmentGradingId = assessmentGradingId;
+	  this.publishedAssessmentId = publishedAssessmentId;
+	  this.agentId = agentId;
+	  this.submittedDate = submittedDate;
+	  this.isLate = isLate;
+	  this.forGrade = forGrade;
+	  this.totalAutoScore = totalAutoScore;
+	  this.totalOverrideScore = totalOverrideScore;
+	  this.finalScore = finalScore;
+	  this.comments = comments;
+	  this.status = status;
+	  this.gradedBy = gradedBy;
+	  this.gradedDate = gradedDate;
+	  this.attemptDate = attemptDate;
+	  this.timeElapsed = timeElapsed;
+  }
+  
   public AssessmentGradingData(Long publishedAssessmentId, int totalSubmitted){
     this.publishedAssessmentId = publishedAssessmentId;
     this.totalSubmitted = totalSubmitted;
@@ -284,6 +321,11 @@ public class AssessmentGradingData
     this.submittedDate = submittedDate;
   }
 
+  public Boolean getIsAutoSubmitted() {
+	return isAutoSubmitted;
+  }
 
-
+  public void setIsAutoSubmitted(Boolean isAutoSubmitted) {
+	this.isAutoSubmitted = isAutoSubmitted;
+  }
 }

@@ -220,7 +220,11 @@ public class TemplateUpdateListener
 		  aac.setUnlimitedSubmissions(Boolean.TRUE);
       }
       aac.setLateHandling(new Integer(templateBean.getLateHandling()));
-      aac.setAutoSubmit(new Integer(templateBean.getAutoSave()));
+      
+      if (templateBean.getValueMap().get("automaticSubmission_isInstructorEditable") == null) {
+    	  templateBean.setValue("automaticSubmission_isInstructorEditable", "false");
+      }
+      aac.setAutoSubmit(new Integer(templateBean.getAutomaticSubmission()));
 
       // Evaluation Model
       EvaluationModelIfc model = template.getEvaluationModel();

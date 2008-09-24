@@ -250,10 +250,14 @@ public class PublishedAssessmentSettingsBean
           setTimeLimitDisplay(timeLimit.intValue());
         else 
             resetTimeLimitDisplay();
-        if ((new Integer(1)).equals(assessment.getAssessmentAccessControl().getTimedAssessment()))
+        if ((new Integer(1)).equals(accessControl.getTimedAssessment()))
           this.timedAssessment = true;
-        if ((new Integer(1)).equals(assessment.getAssessmentAccessControl().getAutoSubmit()))
+        if ((new Integer(1)).equals(accessControl.getAutoSubmit())) {
           this.autoSubmit = true;
+        }
+        else {
+          this.autoSubmit = false;        	
+        }
         if (accessControl.getAssessmentFormat()!=null)
           this.assessmentFormat = accessControl.getAssessmentFormat().toString(); // question/part/assessment on separate page
         if (accessControl.getItemNavigation()!=null)

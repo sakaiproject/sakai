@@ -329,7 +329,20 @@
     </h:selectOneRadio>
     </h:panelGroup>
     </h:panelGrid>
-</div></div>
+</div>
+
+    <!-- AUTOMATIC SUBMISSION -->
+    <div class="longtext"><h:outputLabel value="#{templateMessages.automatic_submission}" rendered="#{templateIndex.automaticSubmissionEnabled}"/></div>
+        <div class="tier3">
+     <h:panelGrid columns="2"
+      summary="#{templateMessages.automatic_submission" rendered="#{templateIndex.automaticSubmissionEnabled}">
+
+        <h:selectBooleanCheckbox id="automatic_submission"
+          value="#{template.valueMap.automaticSubmission_isInstructorEditable}"/>
+        <h:outputLabel for="automatic_submission" value="#{templateMessages.automatic_submission}"/>
+    </h:panelGrid>
+    </div></div>
+
     <!-- AUTOSAVE -->
 <%-- hide for 1.5 release SAM-148
     <h:outputText style="h4" styleClass="tier2"

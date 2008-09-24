@@ -48,6 +48,7 @@
     <property name="status" type="integer" column="STATUS" not-null="true" />
     <property name="attemptDate" type="timestamp" column="ATTEMPTDATE" not-null="false" />
     <property name="timeElapsed" type="integer" column="TIMEELAPSED" not-null="false" />
+    <property name="isAutoSubmitted" type="boolean" column="ISAUTOSUBMITTED" not-null="false" />
     <set name="itemGradingSet" table="SAM_ITEMGRADING_T" cascade="all" order-by="itemGradingId asc"
       inverse="true" lazy="true">
       <key column="ASSESSMENTGRADINGID"/>

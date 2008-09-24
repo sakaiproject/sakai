@@ -56,6 +56,7 @@ import org.sakaiproject.tool.assessment.samlite.api.Question;
 import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.w3c.dom.Document;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class SamLiteServiceImpl implements SamLiteService {
 	private static Log log = LogFactory.getLog(SamLiteServiceImpl.class);
@@ -387,7 +388,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		buildMetaDataField(metadata, "EDIT_ALLOW_IP", "True");
 		buildMetaDataField(metadata, "EDIT_USERID", "True");
 		buildMetaDataField(metadata, "CONSIDER_DURATION", "False");
-		buildMetaDataField(metadata, "AUTO_SUBMIT", "True");
+		buildMetaDataField(metadata, "AUTO_SUBMIT", "False");
 		buildMetaDataField(metadata, "EDIT_DURATION", "True");
 		buildMetaDataField(metadata, "EDIT_AUTO_SUBMIT", "True");
 		buildMetaDataField(metadata, "NAVIGATION", "Linear");
@@ -457,7 +458,15 @@ public class SamLiteServiceImpl implements SamLiteService {
 		buildMetaDataField(metadata, "bgImage_isInstructorEditable", "true");
 		buildMetaDataField(metadata, "metadataAssess_isInstructorEditable", "true");
 		buildMetaDataField(metadata, "metadataParts_isInstructorEditable", "true");
-		buildMetaDataField(metadata, "metadataQuestions_isInstructorEditable", "true");		
+		buildMetaDataField(metadata, "metadataQuestions_isInstructorEditable", "true");
+		
+		String autoSubmitEnabled = ServerConfigurationService.getString("samigo.autoSubmit.enabled");
+	    if (autoSubmitEnabled == null || autoSubmitEnabled.equals("") || !autoSubmitEnabled.equals("true")) {
+	    	buildMetaDataField(metadata, "automaticSubmission_isInstructorEditable", "false");
+	    }
+	    else {
+	    	buildMetaDataField(metadata, "automaticSubmission_isInstructorEditable", "true");
+	    }
 	}
 	
 	private void processQuestion(SectionType section, Question question) {

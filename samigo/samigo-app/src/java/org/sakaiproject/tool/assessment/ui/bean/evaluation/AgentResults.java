@@ -72,6 +72,8 @@ private Long assessmentGradingId;
   private ArrayList itemGradingArrayList;
   private String rationale="";
   private boolean retakeAllowed;
+  private boolean isAutoSubmitted;
+  private boolean isAttemptDateAfterDueDate;
   
   public AgentResults() {
   }
@@ -352,5 +354,19 @@ private Long assessmentGradingId;
 	}
 	public void setRetakeAllowed(boolean retakeAllowed) {
 		this.retakeAllowed = retakeAllowed;
+	}
+	
+	public boolean getIsAutoSubmitted() {
+		return this.isAutoSubmitted;
+	}
+	public void setIsAutoSubmitted(boolean isAutoSubmitted) {
+		this.isAutoSubmitted = isAutoSubmitted;
+	}
+	
+	public boolean getIsAttemptDateAfterDueDate() {
+		return this.isAttemptDateAfterDueDate;
+	}
+	public void setIsAttemptDateAfterDueDate(boolean isAttemptDateAfterDueDate) {
+		this.isAttemptDateAfterDueDate = isAttemptDateAfterDueDate;
 	}
 }

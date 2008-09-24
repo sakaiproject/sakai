@@ -300,8 +300,12 @@ public class AssessmentSettingsBean
           resetTimeLimitDisplay();
         if ((new Integer(1)).equals(accessControl.getTimedAssessment()))
           this.timedAssessment = true;
-        if ((new Integer(1)).equals(accessControl.getAutoSubmit()))
+        if ((new Integer(1)).equals(accessControl.getAutoSubmit())) {
           this.autoSubmit = true;
+        }
+        else {
+          this.autoSubmit = false;
+        }
         if (accessControl.getAssessmentFormat()!=null)
           this.assessmentFormat = accessControl.getAssessmentFormat().toString(); // question/part/assessment on separate page
         if (accessControl.getItemNavigation()!=null)

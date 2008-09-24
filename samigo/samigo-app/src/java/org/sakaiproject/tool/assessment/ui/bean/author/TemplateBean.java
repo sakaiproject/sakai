@@ -52,6 +52,7 @@ public class TemplateBean implements Serializable
   private String submissionModel = "1";
   private String submissionNumber;
   private String lateHandling = "1";
+  private String automaticSubmission = "0";
   private String autoSave = "1";
   private String feedbackType = "1";
   private String feedbackAuthoring = "1";
@@ -88,6 +89,7 @@ public class TemplateBean implements Serializable
     values.put("dueDate_isInstructorEditable", Boolean.TRUE);
     values.put("releaseDate_isInstructorEditable", Boolean.TRUE);
     values.put("lateHandling_isInstructorEditable", Boolean.TRUE);
+    values.put("automaticSubmission_isInstructorEditable", Boolean.FALSE);
     values.put("feedbackType_isInstructorEditable", Boolean.TRUE);
     values.put("feedbackAuthoring_isInstructorEditable", Boolean.TRUE);
     values.put("feedbackComponents_isInstructorEditable", Boolean.TRUE);
@@ -429,6 +431,26 @@ public class TemplateBean implements Serializable
   public String getSubmissionNumber()
   {
     return submissionNumber;
+  }
+
+  /**
+   * automaticSubmission
+   *
+   * @param newAutomaticSubmission  3
+   */
+  public void setAutomaticSubmission(String newAutomaticSubmission)
+  {
+	  automaticSubmission = newAutomaticSubmission;
+  }
+
+  /**
+   * automaticSubmission
+   *
+   * @return
+   */
+  public String getAutomaticSubmission()
+  {
+    return checker(automaticSubmission, "0");
   }
 
   /**

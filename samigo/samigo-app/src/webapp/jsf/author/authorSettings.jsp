@@ -460,7 +460,7 @@ function setBlockDivs()
 --%>
     <h:panelGrid
         summary="#{templateMessages.timed_assmt_sec}">
-      <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}">
+      <h:panelGroup>
         <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();"
          value="#{assessmentSettings.valueMap.hasTimeAssessment}">
 				</h:selectBooleanCheckbox>
@@ -606,6 +606,29 @@ function setBlockDivs()
         </h:selectOneRadio>
       </h:panelGrid>
    <f:verbatim> </div> </f:verbatim>
+    </h:panelGroup>
+
+    <!-- AUTOMATIC SUBMISSION -->
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
+      <f:verbatim> <div class="longtext"> </f:verbatim> 
+      <h:outputLabel value="#{assessmentSettingsMessages.automatic_submission}" />
+      <f:verbatim> </div></f:verbatim>
+      <f:verbatim><div class="tier3"></f:verbatim>
+      <h:panelGrid columns="1" border="0">
+	    <h:panelGroup>
+	      <h:selectBooleanCheckbox value="#{assessmentSettings.autoSubmit}"/>
+          <h:outputLabel value="#{assessmentSettingsMessages.auto_submit}"/>
+        </h:panelGroup>
+		<h:panelGroup>
+          <f:verbatim>&nbsp;</f:verbatim>
+          <h:outputText value="#{assessmentSettingsMessages.automatic_submission_note_1}"/>
+		</h:panelGroup>
+	    <h:panelGroup>
+          <f:verbatim>&nbsp;</f:verbatim>
+          <h:outputText value="#{assessmentSettingsMessages.automatic_submission_note_2}"/>
+		</h:panelGroup>
+      </h:panelGrid>
+      <f:verbatim> </div> </f:verbatim>
     </h:panelGroup>
 
     <!-- AUTOSAVE -->

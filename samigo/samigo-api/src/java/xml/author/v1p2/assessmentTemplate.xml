@@ -666,6 +666,10 @@
         <fieldlabel>lateHandling_isInstructorEditable</fieldlabel>
         <fieldentry>True</fieldentry>
       </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>automaticSubmission_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
       <!--Possible Values -->
       <!--True, False -->
       <qtimetadatafield>

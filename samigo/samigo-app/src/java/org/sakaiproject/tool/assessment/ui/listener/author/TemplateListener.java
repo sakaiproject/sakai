@@ -40,6 +40,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * <p>Description: Listener for the Template(Assessment Type) page</p>
@@ -69,6 +70,14 @@ public class TemplateListener extends TemplateBaseListener
     // look for some sort information passed as parameters
     processSortInfo(templateIndex);
 
+    String autoSubmitEnabled = ServerConfigurationService.getString("samigo.autoSubmit.enabled");
+    if (autoSubmitEnabled == null || autoSubmitEnabled.equals("") || !autoSubmitEnabled.equals("true")) {
+    	templateIndex.setAutomaticSubmissionEnabled(false);
+    }
+    else {
+    	templateIndex.setAutomaticSubmissionEnabled(true);
+    }
+    
     ArrayList templates = new ArrayList();
     try
     {

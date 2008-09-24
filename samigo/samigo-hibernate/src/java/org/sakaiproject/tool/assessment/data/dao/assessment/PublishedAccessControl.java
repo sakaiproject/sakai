@@ -59,7 +59,7 @@ public class PublishedAccessControl
   private Date scoreDate;
   private Date feedbackDate;
   private Date retractDate;
-  private Integer autoSubmit;  // auto submit when time expires
+  private Integer autoSubmit;  // auto submit when due date arrives
   private Integer itemNavigation; // linear (1)or random (0)
   private Integer itemNumbering;  // continuous between parts(1), restart between parts(0)
   private String submissionMessage;

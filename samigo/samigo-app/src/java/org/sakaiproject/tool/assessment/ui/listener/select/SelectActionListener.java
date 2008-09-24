@@ -655,7 +655,7 @@ public class SelectActionListener
 	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
 	        get(g.getPublishedAssessmentId());
 	    if (p != null) {
-	    	if (!Integer.valueOf(AssessmentIfc.RETRACT_FOR_EDIT_STATUS).equals(p.getStatus()) && p.getLastModifiedDate().after(g.getSubmittedDate())) {
+	    	if (!Integer.valueOf(AssessmentIfc.RETRACT_FOR_EDIT_STATUS).equals(p.getStatus()) && g.getSubmittedDate() != null && p.getLastModifiedDate().after(g.getSubmittedDate())) {
 	    		log.debug("AssessmentGradingId = " + g.getAssessmentGradingId());
 	    		log.debug("LastModifiedDate = " + p.getLastModifiedDate());
 	    		log.debug("SubmittedDate = " + g.getSubmittedDate());

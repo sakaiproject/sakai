@@ -680,12 +680,6 @@ public class QuestionScoreListener implements ActionListener,
 						results.setRationale(rationale);
 						results.setSubmittedDate(gdata.getSubmittedDate());
 
-						if (dueDate == null || gdata.getSubmittedDate() == null
-								|| gdata.getSubmittedDate().before(dueDate))
-							results.setIsLate(Boolean.FALSE);
-						else
-							results.setIsLate(Boolean.TRUE);
-
 						AgentFacade agent = new AgentFacade(gdata.getAgentId());
 						// log.info("Rachel: agentid = " + gdata.getAgentId());
 						results.setLastName(agent.getLastName());

@@ -190,7 +190,7 @@ function checkUncheckTimeBox(){
 }
 </script>
 
-<div class="portletBody">
+<f:verbatim><div class="portletBody"></f:verbatim>
 <!-- content... -->
 <h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
   <h:inputHidden id="assessmentId" value="#{publishedSettings.assessmentId}"/>
@@ -207,7 +207,7 @@ function checkUncheckTimeBox(){
      <h:outputText id="x1" value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{publishedSettings.title}"/>
     </h3>
 
-<div class="tier1">
+<f:verbatim><div class="tier1"></f:verbatim>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 
 <h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();" onkeypress="showDivs();">
@@ -220,15 +220,15 @@ function checkUncheckTimeBox(){
 <h:outputText value="#{templateMessages.allMenus}"/>
 
   <samigo:hideDivision id="div1" title="#{assessmentSettingsMessages.t_assessmentIntroduction}" >
-<div class="tier2">
+<f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="shorttext"
       summary="#{templateMessages.enter_template_info_section}">
         <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}"/>
         <h:inputText id="assessment_title" size="80" value="#{publishedSettings.title}" />
 
-        <h:outputLabel value="#{assessmentSettingsMessages.assessment_creator}"  rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
+        <h:outputLabel value="#{assessmentSettingsMessages.assessment_creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
 
-        <h:outputText value="#{publishedSettings.creator}"  rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
+        <h:outputText value="#{publishedSettings.creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
 
         <h:outputLabel for="assessment_author" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_authors}"/>
 
@@ -257,7 +257,7 @@ function checkUncheckTimeBox(){
 
   <!-- *** DELIVERY DATES *** -->
   <samigo:hideDivision id="div2" title="#{assessmentSettingsMessages.t_deliveryDates}" >
-    <div class="tier2">
+    <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="shorttext"
       summary="#{templateMessages.delivery_dates_sec}">
 
@@ -265,22 +265,21 @@ function checkUncheckTimeBox(){
       <samigo:datePicker value="#{publishedSettings.startDateString}" size="25" id="startDate" />
 
       <h:outputText value="#{assessmentSettingsMessages.assessment_due_date}" />
-      <samigo:datePicker value="#{publishedSettings.dueDateString}" size="25" id="endDate" />
+      <samigo:datePicker value="#{publishedSettings.dueDateString}" size="25" id="endDate"/>
 
-      <h:outputText value="#{assessmentSettingsMessages.assessment_retract_date}" />
+      <h:outputText value="#{assessmentSettingsMessages.assessment_retract_date}"/>
       <samigo:datePicker value="#{publishedSettings.retractDateString}" size="25" id="retractDate" />
 
-      <h:commandButton accesskey="#{assessmentSettingsMessages.a_retract}" type="submit" value="#{assessmentSettingsMessages.button_retract_now}" action="confirmAssessmentRetract"  styleClass="active" rendered="#{publishedSettings.active == true}"/>
+      <h:commandButton accesskey="#{assessmentSettingsMessages.a_retract}" type="submit" value="#{assessmentSettingsMessages.button_retract_now}" action="confirmAssessmentRetract"  styleClass="active" />
 
 
     </h:panelGrid>
-    </div>
-
+    <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
 
   <!-- *** RELEASED TO *** -->
 <samigo:hideDivision title="#{assessmentSettingsMessages.t_releasedTo}" id="div3">
-  <div class="tier2">
+  <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid   summary="#{templateMessages.released_to_info_sec}">
       <h:selectOneRadio disabled="true" layout="pagedirection" value="#{publishedSettings.firstTargetSelected}">
         <f:selectItems value="#{assessmentSettings.publishingTargets}" />
@@ -305,19 +304,20 @@ function checkUncheckTimeBox(){
         <h:outputText value="#{publishedSettings.publishedUrl}" />
       </h:panelGroup>
     
-  </div>
+  <f:verbatim></div></f:verbatim>
 </samigo:hideDivision>
 
   <!-- *** HIGH SECURITY *** -->
+  <h:panelGroup rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true or publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}" >
   <samigo:hideDivision title="#{assessmentSettingsMessages.t_highSecurity}" id="div4">
-<div class="tier2">
+	<f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid border="0" columns="2" columnClasses="longtext"
         summary="#{templateMessages.high_security_sec}">
-      <h:outputText value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" />
+      <h:outputText value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true}"/>
       <h:inputTextarea value="#{publishedSettings.ipAddresses}" cols="40" rows="5"
-        disabled="true"/>
-      <h:outputText value="#{assessmentSettingsMessages.high_security_secondary_id_pw}"/>
-      <h:panelGrid border="0" columns="2"  >
+        disabled="true" rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true}"/>
+      <h:outputText value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}"/>
+      <h:panelGrid border="0" columns="2" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}" >
         <h:outputLabel value="#{assessmentSettingsMessages.high_security_username}"/>
         <h:inputText size="20" value="#{publishedSettings.username}"
           disabled="true"/>
@@ -327,13 +327,15 @@ function checkUncheckTimeBox(){
           disabled="true"/>
       </h:panelGrid>
     </h:panelGrid>
-</div>
+<f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
+</h:panelGroup>
 
 
   <!-- *** TIMED *** -->
+  <h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
   <samigo:hideDivision id="div5" title="#{assessmentSettingsMessages.t_timedAssessment}">
-<div class="tier2">
+<f:verbatim><div class="tier2"></f:verbatim>
 <%--DEBUGGING:
      Time Limit= <h:outputText value="#{publishedSettings.timeLimit}" /> ;
      Hours= <h:outputText value="#{publishedSettings.timedHours}" /> ;
@@ -341,7 +343,7 @@ function checkUncheckTimeBox(){
      hasQuestions?= <h:outputText value="#{not publishedSettings.hasQuestions}" />
 --%>
     <h:panelGrid summary="#{templateMessages.timed_assmt_sec}">
-	  <h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}">
+	  <h:panelGroup>
         <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();"
          value="#{publishedSettings.valueMap.hasTimeAssessment}">
 		</h:selectBooleanCheckbox>
@@ -358,27 +360,21 @@ function checkUncheckTimeBox(){
         <h:outputText value="#{assessmentSettingsMessages.auto_submit_description}" />
       </h:panelGroup>
     </h:panelGrid>
-<%-- SAK-3578: auto submit will always be true for timed assessment,
-     so no need to have this option
-    <h:panelGrid  >
-      <h:panelGroup>
-       <h:selectBooleanCheckbox  disabled="true"
-         value="#{publishedSettings.valueMap.hasAutosubmit}"/>
-        <h:outputText value="#{assessmentSettingsMessages.auto_submit}" />
-     </h:panelGroup>
-    </h:panelGrid>
---%>
-</div>
+<f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
+  </h:panelGroup>
 
   <!-- *** ASSESSMENT ORGANIZATION *** -->
+  <h:panelGroup rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true or publishedSettings.valueMap.displayChucking_isInstructorEditable==true or publishedSettings.valueMap.displayNumbering_isInstructorEditable==true }" >
+
   <samigo:hideDivision id="div6" title="#{assessmentSettingsMessages.t_assessmentOrganization}" >
+  <f:verbatim><div class="tier2"></f:verbatim>
+
 <%--     DEBUGGING:  Layout= <h:outputText value="#{publishedSettings.assessmentFormat}" /> ;
      navigation= <h:outputText value="#{publishedSettings.itemNavigation}" /> ;
      numbering= <h:outputText value="#{publishedSettings.itemNumbering}" />
 --%>
   <!-- NAVIGATION -->
-  <div class="tier2">
   <h:panelGroup rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true}">
   <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" />
   <f:verbatim></div><div class="tier3"></f:verbatim>
@@ -393,7 +389,10 @@ function checkUncheckTimeBox(){
   </h:panelGroup>
     
     <!-- QUESTION LAYOUT -->
-    <div class="longtext"><h:outputLabel value="#{assessmentSettingsMessages.question_layout}" /></div><div class="tier3">
+  <h:panelGroup rendered="#{publishedSettings.valueMap.displayChucking_isInstructorEditable==true}">
+    <f:verbatim><div class="longtext"></f:verbatim>
+	<h:outputLabel value="#{assessmentSettingsMessages.question_layout}" />
+	<f:verbatim></div><div class="tier3"></f:verbatim>
 
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="assessmentFormat" value="#{publishedSettings.assessmentFormat}"  layout="pageDirection"  rendered="#{publishedSettings.itemNavigation!=1}">
@@ -409,10 +408,14 @@ function checkUncheckTimeBox(){
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.layout_by_assessment}"/>
         </h:selectOneRadio>
       </h:panelGrid>
-    </div>
+    <f:verbatim></div></f:verbatim>
+  </h:panelGroup>
 
     <!-- NUMBERING -->
-    <div class="longtext"><h:outputLabel value="#{assessmentSettingsMessages.numbering}" /></div><div class="tier3">
+  <h:panelGroup rendered="#{publishedSettings.valueMap.displayNumbering_isInstructorEditable==true}">
+    <f:verbatim><div class="longtext"></f:verbatim>
+	<h:outputLabel value="#{assessmentSettingsMessages.numbering}" />
+	<f:verbatim></div><div class="tier3"></f:verbatim>
 
        <h:panelGrid columns="2"  >
          <h:selectOneRadio id="itemNumbering"
@@ -421,8 +424,11 @@ function checkUncheckTimeBox(){
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.part_numbering}"/>
          </h:selectOneRadio>
       </h:panelGrid>
-    </div></div>
+    <f:verbatim></div></f:verbatim>
+  </h:panelGroup>
+  <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
+  </h:panelGroup>
 
 <!-- *** MARK FOR REVIEW *** -->
 <h:panelGroup>
@@ -444,15 +450,20 @@ function checkUncheckTimeBox(){
 </h:panelGroup>
 
   <!-- *** SUBMISSIONS *** -->
+  <h:panelGroup rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true or publishedSettings.valueMap.lateHandling_isInstructorEditable==true or publishedSettings.valueMap.autoSave_isInstructorEditable==true}" >
   <samigo:hideDivision id="div7" title="#{assessmentSettingsMessages.t_submissions}" >
 <%--     DEBUGGING:
      Unlimited= <h:outputText value="#{publishedSettings.unlimitedSubmissions}" /> ;
      Submissions= <h:outputText value="#{publishedSettings.submissionsAllowed}" /> ;
      lateHandling= <h:outputText value="#{publishedSettings.lateHandling}" />
 --%>
-<div class="tier2">
+<f:verbatim><div class="tier2"></f:verbatim>
     <!-- NUMBER OF SUBMISSIONS -->
-     <div class="longtext"><h:outputLabel value="#{assessmentSettingsMessages.submissions}" /></div> <div class="tier3"><f:verbatim><table><tr><td></f:verbatim>
+    <h:panelGroup rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}">
+     <f:verbatim><div class="longtext"></f:verbatim>
+	 <h:outputLabel value="#{assessmentSettingsMessages.submissions}" />
+	 <f:verbatim></div><div class="tier3"></f:verbatim>
+	 <f:verbatim><table><tr><td></f:verbatim>
 
         <h:selectOneRadio id="unlimitedSubmissions" 
             value="#{publishedSettings.unlimitedSubmissions}" layout="pageDirection">
@@ -467,10 +478,14 @@ function checkUncheckTimeBox(){
               <h:outputLabel value="#{assessmentSettingsMessages.limited_submission}" />
             </h:panelGroup>
     <f:verbatim></td></tr></table></f:verbatim>
-     </div>
-    <!-- LATE HANDLING -->
+     <f:verbatim></div></f:verbatim>
+   </h:panelGroup>
 
-   <div class="longtext"><h:outputLabel value="#{assessmentSettingsMessages.late_handling}" /></div><div class="tier3">
+	<!-- LATE HANDLING -->
+   <h:panelGroup rendered="#{publishedSettings.valueMap.lateHandling_isInstructorEditable==true}">
+   <f:verbatim><div class="longtext"></f:verbatim>
+   <h:outputLabel value="#{assessmentSettingsMessages.late_handling}" />
+   <f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="lateHandling" 
             value="#{publishedSettings.lateHandling}"  layout="pageDirection">
@@ -478,12 +493,36 @@ function checkUncheckTimeBox(){
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.accept_latesubmission}"/>
         </h:selectOneRadio>
       </h:panelGrid>
-    </div>
+    <f:verbatim></div></f:verbatim>
+   </h:panelGroup>
+
+    <!-- AUTOMATIC SUBMISSION -->
+    <h:panelGroup rendered="#{publishedSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
+      <f:verbatim> <div class="longtext"> </f:verbatim> 
+      <h:outputLabel value="#{assessmentSettingsMessages.automatic_submission}"/>
+      <f:verbatim> </div></f:verbatim>
+      <f:verbatim><div class="tier3"></f:verbatim>
+      <h:panelGrid columns="1" border="0">
+	    <h:panelGroup>
+	      <h:selectBooleanCheckbox id="automaticSubmission" value="#{publishedSettings.autoSubmit}"/>
+          <h:outputLabel value="#{assessmentSettingsMessages.auto_submit}"/>
+        </h:panelGroup>
+		<h:panelGroup>
+          <f:verbatim>&nbsp;</f:verbatim>
+          <h:outputText value="#{assessmentSettingsMessages.automatic_submission_note_1}"/>
+		</h:panelGroup>
+	    <h:panelGroup>
+          <f:verbatim>&nbsp;</f:verbatim>
+          <h:outputText value="#{assessmentSettingsMessages.automatic_submission_note_2}"/>
+		</h:panelGroup>
+      </h:panelGrid>
+      <f:verbatim> </div> </f:verbatim>
+   </h:panelGroup>
 
     <!-- AUTOSAVE -->
 <%-- hide for 1.5 release SAM-148
     <div class="longtext"><h:outputLabel value="#{assessmentSettingsMessages.auto_save}" /></div>
-    <div class="tier3">
+    <f:verbatim><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="autoSave"  disabled="true"
             value="#{publishedSettings.submissionsSaved}"  layout="pageDirection">
@@ -493,14 +532,18 @@ function checkUncheckTimeBox(){
       </h:panelGrid>
     </div>
 --%>
-</div>
+<f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
+  </h:panelGroup>
 
   <!-- *** SUBMISSION MESSAGE *** -->
+<h:panelGroup rendered="#{publishedSettings.valueMap.submissionMessage_isInstructorEditable==true or publishedSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
   <samigo:hideDivision id="div8" title="#{assessmentSettingsMessages.t_submissionMessage}" >
-    <div class="tier2"><div class="longtext">
+    <f:verbatim><div class="tier2"></f:verbatim>
+    <h:panelGrid rendered="#{publishedSettings.valueMap.submissionMessage_isInstructorEditable==true}">
+	<f:verbatim><div class="longtext"></f:verbatim>
       <h:outputLabel value="#{assessmentSettingsMessages.submission_message}" />
-      <br/>
+      <h:outputText value="<br />" escape="false"/>
       <h:panelGrid width="630" border="1">
         <h:outputText value="#{publishedSettings.submissionMessage}<br /><br /><br />"
           escape="false"/>
@@ -509,22 +552,30 @@ function checkUncheckTimeBox(){
       <h:inputTextarea cols="80" rows="5"  disabled="true"
           value="#{publishedSettings.submissionMessage}" />
 --%>
-
-    <br/>
- </div>
-  <div class="longtext">
-      <h:outputLabel value="#{assessmentSettingsMessages.submission_final_page_url}" /><br/>
+ <f:verbatim></div></f:verbatim>
+ </h:panelGrid>
+  <h:panelGroup rendered="#{publishedSettings.valueMap.finalPageURL_isInstructorEditable==true}">
+  <f:verbatim><div class="longtext"></f:verbatim>
+      <h:outputLabel value="#{assessmentSettingsMessages.submission_final_page_url}" />
+      <h:outputText value="<br />" escape="false"/>
       <h:inputText size="80"  disabled="true" value="#{publishedSettings.finalPageUrl}" />
-</div></div>
+<f:verbatim></div></f:verbatim>
+ </h:panelGroup>
+<f:verbatim></div></f:verbatim>
 
   </samigo:hideDivision>
+</h:panelGroup>
 
   <!-- *** FEEDBACK *** -->
+  <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or publishedSettings.valueMap.feedbackType_isInstructorEditable==true or publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
   <samigo:hideDivision id="div9" title="#{assessmentSettingsMessages.t_feedback}" >
  
  <!-- FEEDBACK AUTHORING -->
-  <div class="tier2">
-    <div class="longtext"><h:outputLabel value="#{assessmentSettingsMessages.feedback_authoring}" /></div><div class="tier3">
+  <f:verbatim><div class="tier2"></f:verbatim>
+   <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
+    <f:verbatim><div class="longtext"></f:verbatim>
+	<h:outputLabel value="#{assessmentSettingsMessages.feedback_authoring}" />
+	<f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGroup>
       <h:panelGrid columns="1"  >
         <h:selectOneRadio id="feedbackAuthoring" 
@@ -536,9 +587,13 @@ function checkUncheckTimeBox(){
         </h:selectOneRadio>
       </h:panelGrid>
    </h:panelGroup>
-  </div>
-
-    <div class="longtext"><h:outputLabel value="#{assessmentSettingsMessages.feedback_delivery}" /></div><div class="tier3">
+  <f:verbatim></div></f:verbatim>
+  </h:panelGroup>
+  
+	<h:panelGroup rendered="#{publishedSettings.valueMap.feedbackType_isInstructorEditable==true}">
+    <f:verbatim><div class="longtext"></f:verbatim>
+	<h:outputLabel value="#{assessmentSettingsMessages.feedback_delivery}" />
+	<f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGroup>
       <h:panelGrid columns="1" rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable!=true}" >
         <h:selectOneRadio id="feedbackDelivery1"  disabled="true" 
@@ -555,8 +610,9 @@ function checkUncheckTimeBox(){
 		<h:inputText value="#{publishedSettings.feedbackDateString}" size="25" disabled="true"/>
         </h:panelGroup>
       </h:panelGrid>
+    </h:panelGroup>
 
-      <h:panelGrid columns="1" rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}" >
+      <h:panelGrid columns="1" rendered="#{publishedSettings.valueMap.feedbackType_isInstructorEditable==true}" >
   		<h:selectOneRadio id="feedbackDelivery2" rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}"
              value="#{publishedSettings.feedbackDelivery}"
            layout="pageDirection" onclick="setBlockDivs();disableAllFeedbackCheck(this.value);">
@@ -589,9 +645,10 @@ function checkUncheckTimeBox(){
         </h:panelGrid>
       </h:panelGrid>
     </h:panelGroup>
-</div><div class="longtext">
-   <h:outputLabel value="#{templateMessages.select_feedback_comp}" /></div><div class="tier3">
-    <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable!=true}">
+<f:verbatim></div><div class="longtext"></f:verbatim>
+   <h:outputLabel value="#{templateMessages.select_feedback_comp}" />
+   <f:verbatim></div><div class="tier3"></f:verbatim>
+    <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackComponents_isInstructorEditable!=true}">
       <h:panelGrid columns="2"  >
        <h:panelGroup>
           <h:selectBooleanCheckbox  disabled="true" id="feedbackCheckbox11"
@@ -643,7 +700,7 @@ function checkUncheckTimeBox(){
       </h:panelGrid>
     </h:panelGroup>
 	
-	<h:panelGroup rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
+	<h:panelGroup rendered="#{publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
       <h:panelGrid columns="2"  >
        <h:panelGroup>
           <h:selectBooleanCheckbox id="feedbackCheckbox21"
@@ -694,13 +751,16 @@ function checkUncheckTimeBox(){
    
       </h:panelGrid>
     </h:panelGroup>
-	</div></div>
+	<f:verbatim></div></div></f:verbatim>
   </samigo:hideDivision>
+  </h:panelGroup>
 
   <!-- *** GRADING *** -->
+  <h:panelGroup rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true or publishedSettings.valueMap.toGradebook_isInstructorEditable==true or publishedSettings.valueMap.recordedScore_isInstructorEditable==true}" >
   <samigo:hideDivision id="div10" title="#{assessmentSettingsMessages.t_grading}" >
   <f:verbatim><div class="tier2"></f:verbatim>
-  <h:panelGroup rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true}"> <f:verbatim> <div class="longtext"></f:verbatim>  <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" /><f:verbatim></div><div class="tier3"> </f:verbatim>
+  <h:panelGroup rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true}"> <f:verbatim> <div class="longtext"></f:verbatim>  <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" />
+  <f:verbatim></div><div class="tier3"> </f:verbatim>
         <h:panelGrid columns="2"  >
           <h:selectOneRadio id="anonymousGrading" value="#{publishedSettings.anonymousGrading}"  layout="pageDirection">
             <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.not_anonymous}"/>
@@ -742,7 +802,7 @@ function checkUncheckTimeBox(){
 
   <!-- *** COLORS AND GRAPHICS	*** -->
   <samigo:hideDivision id="div11" title="#{assessmentSettingsMessages.t_graphics}" >
-<div class="tier2">
+<f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="shorttext" >
       <h:outputLabel value="#{assessmentSettingsMessages.background_color}" />
       <h:inputText size="80" value="#{publishedSettings.bgColor}"
@@ -754,11 +814,14 @@ function checkUncheckTimeBox(){
     </h:panelGrid>
    <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
+  </h:panelGroup>
 
   <!-- *** META *** -->
-
+  <h:panelGroup rendered="#{publishedSettings.valueMap.metadataAssess_isInstructorEditable==true}">
   <samigo:hideDivision title="#{assessmentSettingsMessages.t_metadata}" id="div13">
-   <div class="tier2"><div class="longtext"> <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> </div><div class="tier3">
+   <f:verbatim><div class="tier2"><div class="longtext"></f:verbatim>
+   <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
+   <f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="shorttext">
       <h:outputLabel value="#{assessmentSettingsMessages.metadata_keywords}"/>
       <h:inputText size="80" value="#{publishedSettings.keywords}"  disabled="true"/>
@@ -768,8 +831,11 @@ function checkUncheckTimeBox(){
 
       <h:outputLabel value="#{assessmentSettingsMessages.metadata_rubrics}"/>
       <h:inputText size="80" value="#{publishedSettings.rubrics}"  disabled="true"/>
-    </h:panelGrid></div>
-    <div class="longtext"> <h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" /></div><div class="tier3">
+    </h:panelGrid>
+	<f:verbatim></div></f:verbatim>
+    <f:verbatim><div class="longtext"></f:verbatim>
+	<h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
+	<f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGrid columns="2"  >
 <%-- see bug# SAM-117 -- no longer required in Samigo
      <h:selectBooleanCheckbox  disabled="true"
@@ -780,10 +846,11 @@ function checkUncheckTimeBox(){
        value="#{publishedSettings.valueMap.hasMetaDataForQuestions}"/>
  <h:outputText value="#{assessmentSettingsMessages.metadata_questions}" />
     </h:panelGrid>
-</div></div>
+<f:verbatim></div></div></f:verbatim>
   </samigo:hideDivision>
+  </h:panelGroup>
 
-</div>
+<f:verbatim></div></f:verbatim>
 
 <p class="act">
   <!-- Publish button -->
@@ -815,7 +882,7 @@ function checkUncheckTimeBox(){
 </p>
 </h:form>
 <!-- end content -->
-</div>
+<f:verbatim></div></f:verbatim>
 
         <script language="javascript" style="text/JavaScript">retainHideUnhideStatus('none');showHideReleaseGroups();</script>
 

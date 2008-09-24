@@ -60,6 +60,7 @@ public class IndexBean implements Serializable
   private String agent_id;
   private String templateOrderBy= "templateName";
   private boolean templateAscending= true;
+  private boolean automaticSubmissionEnabled = false;
 
   private static Log log = LogFactory.getLog(IndexBean.class);
 
@@ -407,4 +408,11 @@ public class IndexBean implements Serializable
     return outcome;
   }
 
+  public void setAutomaticSubmissionEnabled(boolean automaticSubmissionEnabled){
+	  this.automaticSubmissionEnabled = automaticSubmissionEnabled ;
+  }
+
+  public boolean getAutomaticSubmissionEnabled(){
+	  return automaticSubmissionEnabled;
+  }
 }

@@ -1738,6 +1738,15 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    }
 	    return list;
   }
+  
+  public void autoSubmitAssessments() {
+	  try {
+		  PersistenceService.getInstance().
+		  getAssessmentGradingFacadeQueries().autoSubmitAssessments();
+	  } catch (Exception e) {
+		  e.printStackTrace();
+	  }
+  }
 }
 
 

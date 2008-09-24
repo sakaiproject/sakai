@@ -165,6 +165,12 @@ public class SaveAssessmentSettings
     if (assessmentSettings.getSubmissionsSaved()!=null){
       control.setSubmissionsSaved(new Integer(assessmentSettings.getSubmissionsSaved()));
     }
+    
+    if (assessmentSettings.getAutoSubmit())
+        control.setAutoSubmit(AssessmentAccessControl.AUTO_SUBMIT);
+    else {
+    	control.setAutoSubmit(AssessmentAccessControl.DO_NOT_AUTO_SUBMIT);
+    }
     assessment.setAssessmentAccessControl(control);
 
     // e. set Submission Messages

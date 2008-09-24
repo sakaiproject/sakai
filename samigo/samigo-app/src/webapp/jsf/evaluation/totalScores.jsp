@@ -273,8 +273,6 @@ return;
          <h:outputText value="#{description.firstName}" />
          <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
-         <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
@@ -324,8 +322,6 @@ return;
          <h:outputText value="#{description.firstName}" />
          <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
-         <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
@@ -374,8 +370,6 @@ return;
          <h:outputText value="#{description.firstName}" />
          <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
-         <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
@@ -416,8 +410,6 @@ return;
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores">
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
-         <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
@@ -443,8 +435,6 @@ return;
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true">
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
-         <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
@@ -469,8 +459,6 @@ return;
      <h:panelGroup>
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true">
          <h:outputText value="#{description.assessmentGradingId}" />
-         <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
          <f:actionListener
@@ -583,11 +571,25 @@ return;
         <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
           <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
-		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
+		<h:panelGroup rendered="#{description.isAutoSubmitted == 'false' && description.isLate == 'true' && description.attemptDate != null
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
 					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
 			<f:verbatim><br/></f:verbatim>
 			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
+		</h:panelGroup>
+
+		<h:panelGroup rendered="#{description.isAutoSubmitted == 'true' && description.isAttemptDateAfterDueDate == 'true' && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
+					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
+			<f:verbatim><br/></f:verbatim>
+			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
+		</h:panelGroup>
+
+		<h:panelGroup rendered="#{description.isAutoSubmitted == 'true' && description.isAttemptDateAfterDueDate == 'false' && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
+					&& !totalScores.isTimedAssessment eq 'true'}">
+			<f:verbatim><br/></f:verbatim>
+			<h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
 		</h:panelGroup>
 		
       <h:outputText value="#{evaluationMessages.no_submission}"

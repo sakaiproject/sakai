@@ -42,14 +42,14 @@
            </execution>
         </executions>
         <configuration>
-           <keystore>/somepath/your.keystore</keystore>
-           <alias>youralias</alias>
-           <storepass>yourpassword</storepass>
+           <keystore>C:/tmp/.keystore</keystore>
+           <alias>audioApplet</alias>
+           <storepass>mypassword</storepass>
            <verify>true</verify>
         </configuration>
       </plugin>
     </plugins>
-    -->
+-->
     <resources>
       <resource>
         <directory>${basedir}/src/java</directory>
