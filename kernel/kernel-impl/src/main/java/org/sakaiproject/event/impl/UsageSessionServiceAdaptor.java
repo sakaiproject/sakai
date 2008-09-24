@@ -495,7 +495,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		sakaiSession.setUserEid(eid);
 
 		// update the user's externally provided realm definitions
-		authzGroupService().refreshUser(eid);
+		authzGroupService().refreshUser(uid);
 
 		// post the login event
 		eventTrackingService().post(eventTrackingService().newEvent(event != null ? event : EVENT_LOGIN, null, true));
