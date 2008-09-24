@@ -21,6 +21,7 @@
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -57,12 +58,17 @@ public interface BrowseNestable extends Browseable {
      * @param search (optional) a search object which can define the order to return entities,
      * search filters, and total number of entities returned, may be empty but will not be null,
      * implementors are encouraged to support ordering and limiting of the number of returned results at least
-     * @param tags (optional) a set of tags which may be considered as a filter when returning the entities
+     * @param userReference (optional) the unique entity reference for a user which is browsing the results, 
+     * this may be null to indicate that only items which are visible to all users should be shown
+     * @param associatedReference (optional) a globally unique reference to an entity, this is the entity that the 
+     *           returned browseable data must be associated with (e.g. limited by reference to a location/site/group or other associated entity), 
+     *           this may be null to indicate there is no association limit
+     * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
      * @return a list of entity data objects which contain the reference, URL, display title and optionally other entity data
      * @throws SecurityException if the data cannot be accessed by the current user or is not publicly accessible
      * @throws IllegalArgumentException if the reference is invalid or the search is invalid
      * @throws IllegalStateException if any other error occurs
      */
-    public List<EntityData> getChildrenEntities(EntityReference parentRef, Search search, String[] tags);
+    public List<EntityData> getChildrenEntities(EntityReference parentRef, Search search, String userReference, String associatedReference, Map<String, Object> params);
 
 }

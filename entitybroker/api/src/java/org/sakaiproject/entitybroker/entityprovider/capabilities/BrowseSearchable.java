@@ -52,9 +52,8 @@ public interface BrowseSearchable extends Browseable {
      * implementors are encouraged to support ordering and limiting of the number of returned results at least
      * @param userReference (optional) the unique entity reference for a user which is browsing the results, 
      * this may be null to indicate that only items which are visible to all users should be shown
-     * @param associatedReference (optional) 
-     *           a globally unique reference to an entity, this is the entity that the 
-     *           returned browseable data must be associated with (e.g. limited by reference to a location/site/group or associated entity), 
+     * @param associatedReference (optional) a globally unique reference to an entity, this is the entity that the 
+     *           returned browseable data must be associated with (e.g. limited by reference to a location/site/group or other associated entity), 
      *           this may be null to indicate there is no association limit
      * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
      * @return a list of entity data objects which contain the reference, URL, display title and optionally other entity data
