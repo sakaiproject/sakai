@@ -29,7 +29,11 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * This is the root interface for browsing entities and does not do anything by itself,
  * you must add at least {@link BrowseableCollection} or {@link BrowseSearchable} interface to this <br/>
  * If your entities are nested then the nested ones will need to implement {@link BrowseNestable} <br/>
- * Entities which do not implement this will not appear in lists of entities which are being browsed<br/>
+ * Entities which do not implement this will not appear in lists of entities which are being browsed <br/>
+ * Internationalization keys:<br/>
+ * {prefix}.browse = the name to show in the browse list for this entity <br/>
+ * {prefix}.browse.description = the optional description that is viable to show in the browse list for this entity <br/>
+ * <br/>
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
  *  
  * @author Aaron Zeckoski (azeckoski @ gmail.com)

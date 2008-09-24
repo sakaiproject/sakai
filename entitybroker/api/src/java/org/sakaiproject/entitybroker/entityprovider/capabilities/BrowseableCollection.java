@@ -32,6 +32,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * for the provided search object in their implementation of 
  * {@link CollectionResolvable#getEntities(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search)}<br/>
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
+ * See {@link Browseable} for the i18n keys <br/>
  * This extends {@link CollectionResolvable}, use the {@link BrowseSearchable} interface if you require more control
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)

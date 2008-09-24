@@ -44,7 +44,8 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 public interface BrowseSearchable extends Browseable {
 
     /**
-     * Returns the list of entities which are being browsed based on the given parameters
+     * Returns the list of entities which are being browsed based on the given parameters <br/>
+     * See {@link Browseable} for the i18n keys <br/>
      * 
      * @param search a search object which can define the order to return entities,
      * search filters, and total number of entities returned, may be empty but will not be null,
