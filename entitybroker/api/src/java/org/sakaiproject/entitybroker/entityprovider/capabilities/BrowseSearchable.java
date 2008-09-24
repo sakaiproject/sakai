@@ -35,9 +35,9 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  * This provides fine grained control over which entities will appear in a browse list,
  * normally {@link CollectionResolvable} should show all entities, however, for the browse list
  * we will explicitly filter by users and/or locations and may not show all entities,
- * entities which do not implement this or {@link Browseable} will not appear in lists of entities which are being browsed<br/>
+ * entities which do not implement this or {@link BrowseableCollection} will not appear in lists of entities which are being browsed<br/>
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
- * This is the configuration interface for {@link Browseable} (the convention interface)
+ * This is the configuration interface for {@link BrowseableCollection} (the convention interface)
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
@@ -53,7 +53,7 @@ public interface BrowseSearchable extends EntityProvider {
      * this may be null to indicate that only items which are visible to all users should be shown
      * @param associatedReference (optional) 
      *           a globally unique reference to an entity, this is the entity that the 
-     *           returned browseable data must be associated with (e.g. limited by reference to a location or associated entity), 
+     *           returned browseable data must be associated with (e.g. limited by reference to a location/site/group or associated entity), 
      *           this may be null to indicate there is no association limit
      * @param params (optional) incoming set of parameters which may be used to send data specific to this request, may be null
      * @return a list of entity data objects which contain the reference, URL, display title and optionally other entity data

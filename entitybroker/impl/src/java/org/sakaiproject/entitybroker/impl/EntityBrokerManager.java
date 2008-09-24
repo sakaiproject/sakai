@@ -36,7 +36,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Browseable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseableCollection;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
@@ -347,7 +347,7 @@ public class EntityBrokerManager {
             populateEntityData( l );
         } else {
             // get from the collection if available
-            Browseable provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, Browseable.class);
+            BrowseableCollection provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, BrowseableCollection.class);
             if (provider != null) {
                 search = EntityDataUtils.translateStandardSearch(search);
                 EntityReference ref = new EntityReference(prefix, "");

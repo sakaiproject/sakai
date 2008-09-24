@@ -29,13 +29,14 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * Entities which do not implement this will not appear in lists of entities which are being browsed<br/>
  * This is the convention interface and simply uses the results of calls to {@link CollectionResolvable} to
  * provide lists of entities for browsing, the implementor should be sure that ordering and limiting are supported
- * for the provided search object in their implementation of {@link CollectionResolvable#getEntities(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search)}<br/>
+ * for the provided search object in their implementation of 
+ * {@link CollectionResolvable#getEntities(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search)}<br/>
  * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
  * This extends {@link CollectionResolvable}, use the {@link BrowseSearchable} interface if you require more control
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public interface Browseable extends EntityProvider, CollectionResolvable {
+public interface BrowseableCollection extends EntityProvider, CollectionResolvable {
 
    // this space intentionally left blank
 

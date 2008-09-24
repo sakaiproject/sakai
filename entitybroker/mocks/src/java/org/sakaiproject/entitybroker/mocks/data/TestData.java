@@ -11,7 +11,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsDefineab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutionControllable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Browseable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseableCollection;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
@@ -373,7 +373,7 @@ public class TestData {
     */
    public RedirectControllableEntityProviderMock entityProviderU3 = new RedirectControllableEntityProviderMock(PREFIXU3, IDSU3);
    /**
-    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link Browseable}
+    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link BrowseableCollection}
     */
    public BrowsableEntityProviderMock entityProviderB1 = new BrowsableEntityProviderMock(PREFIXB1, IDSB1);
    /**

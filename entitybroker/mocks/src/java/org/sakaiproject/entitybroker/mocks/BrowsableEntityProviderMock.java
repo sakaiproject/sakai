@@ -21,7 +21,7 @@
 package org.sakaiproject.entitybroker.mocks;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Browseable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseableCollection;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
@@ -29,7 +29,7 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 
 
 /**
- * Stub class to make it possible to test the {@link Browseable} capability, will perform like the
+ * Stub class to make it possible to test the {@link BrowseableCollection} capability, will perform like the
  * actual class so it can be reliably used for testing<br/> 
  * Will perform all {@link CRUDable} operations as well as allowing for internal data output processing<br/>
  * Returns {@link MyEntity} objects<br/>
@@ -38,7 +38,7 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class BrowsableEntityProviderMock extends CRUDableEntityProviderMock implements CoreEntityProvider, Browseable {
+public class BrowsableEntityProviderMock extends CRUDableEntityProviderMock implements CoreEntityProvider, BrowseableCollection {
 
    public BrowsableEntityProviderMock(String prefix, String[] ids) {
       super(prefix, ids);
