@@ -479,47 +479,44 @@ public class RichTextEditArea extends Renderer
         String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
         String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());        
 
-        if ("archival".equals(ServerConfigurationService.getString("tags.focus")))
-             writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
-        else {
-            boolean resourceSearch = EditorConfiguration.enableResourceSearch();
-            if(resourceSearch)
-            {
-            	// need to set document.__pid to placementId
-            	String placementId = ToolManager.getCurrentPlacement().getId();
-            	writer.write("\t\tdocument.__pid=\"" + placementId + "\";\n");
-            	
-            	// need to set document.__baseUrl to baseUrl
-            	String baseUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
-            	writer.write("\t\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
-            }
+        boolean resourceSearch = EditorConfiguration.enableResourceSearch();
+        if(resourceSearch)
+        {
+        	// need to set document.__pid to placementId
+        	String placementId = ToolManager.getCurrentPlacement().getId();
+        	writer.write("\t\tdocument.__pid=\"" + placementId + "\";\n");
 
-            writer.write("\n\t\tvar courseId = \"" + collectionId + "\";"); 
-          writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " + 
-                "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
-          writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " + 
-                "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Link&CurrentFolder=\" + courseId;");
-          writer.write("\n\toFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + " +  
-                "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Flash&CurrentFolder=\" + courseId;");
-          writer.write("\n\toFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + " +  
-                "\"" + connector + "?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=\" + courseId;");
-          writer.write("\n\toFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + " +  
-                "\"" + connector + "?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=\" + courseId;");
-          writer.write("\n\toFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + " +  
-                "\"" + connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=\" + courseId;");
-	
-          writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
 
-          if(resourceSearch)
-          {
-        	  writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config_rs.js\";\n");
-          }
-          else
-          {
-        	  writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
-          }
+        	// need to set document.__baseUrl to baseUrl
+        	String baseUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
+        	writer.write("\t\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
         }
 
+
+        writer.write("\n\t\tvar courseId = \"" + collectionId + "\";"); 
+        writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " + 
+        		"\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
+        writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " + 
+        		"\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Link&CurrentFolder=\" + courseId;");
+        writer.write("\n\toFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + " +  
+        		"\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Flash&CurrentFolder=\" + courseId;");
+        writer.write("\n\toFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + " +  
+        		"\"" + connector + "?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=\" + courseId;");
+        writer.write("\n\toFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + " +  
+        		"\"" + connector + "?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=\" + courseId;");
+        writer.write("\n\toFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + " +  
+        		"\"" + connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=\" + courseId;");
+
+        writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
+
+        if(resourceSearch)
+        {
+        	writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config_rs.js\";\n");
+        }
+        else
+        {
+        	writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+        }
     }
     writer.write("\n\tdocument.wysiwyg = \"FCKeditor\";");
     writer.write("\n\n\toFCKeditor.ReplaceTextarea();\n\t}\n");
