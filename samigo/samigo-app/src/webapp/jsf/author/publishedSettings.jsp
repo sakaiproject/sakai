@@ -431,8 +431,8 @@ function checkUncheckTimeBox(){
   </h:panelGroup>
 
 <!-- *** MARK FOR REVIEW *** -->
-<h:panelGroup>
-  <samigo:hideDivision title="#{assessmentSettingsMessages.mark_for_review}" >
+<h:panelGroup rendered="#{publishedSettings.valueMap.markForReview_isInstructorEditable==true}">
+  <samigo:hideDivision title="#{assessmentSettingsMessages.mark_for_review}">
     <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid columns="1">
       <h:panelGroup>

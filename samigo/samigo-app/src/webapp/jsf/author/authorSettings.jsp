@@ -550,7 +550,7 @@ function setBlockDivs()
 
 <!-- *** MARK FOR REVIEW *** -->
 <!-- *** (disabled for linear assessment) *** -->
-<h:panelGroup>
+<h:panelGroup rendered="#{assessmentSettings.valueMap.markForReview_isInstructorEditable==true}">
   <samigo:hideDivision title="#{assessmentSettingsMessages.mark_for_review}" >
     <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid columns="1">

@@ -485,6 +485,7 @@ public abstract class AssessmentHelperBase
       "displayNumbering_isInstructorEditable",
       "submissionModel_isInstructorEditable",
       "lateHandling_isInstructorEditable",
+      "markForReview_isInstructorEditable",
       "automaticSubmission_isInstructorEditable",
       "autoSave_isInstructorEditable",
       "submissionMessage_isInstructorEditable",

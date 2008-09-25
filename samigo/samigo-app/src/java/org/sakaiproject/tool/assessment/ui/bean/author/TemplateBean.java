@@ -89,6 +89,7 @@ public class TemplateBean implements Serializable
     values.put("dueDate_isInstructorEditable", Boolean.TRUE);
     values.put("releaseDate_isInstructorEditable", Boolean.TRUE);
     values.put("lateHandling_isInstructorEditable", Boolean.TRUE);
+    values.put("markForReview_isInstructorEditable", Boolean.FALSE);
     values.put("automaticSubmission_isInstructorEditable", Boolean.FALSE);
     values.put("feedbackType_isInstructorEditable", Boolean.TRUE);
     values.put("feedbackAuthoring_isInstructorEditable", Boolean.TRUE);
