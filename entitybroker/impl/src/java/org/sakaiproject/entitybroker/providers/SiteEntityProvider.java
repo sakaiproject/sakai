@@ -222,7 +222,7 @@ public class SiteEntityProvider implements CoreEntityProvider, RESTful, ActionsE
             // put in properties
             ResourcePropertiesEdit rpe = s.getPropertiesEdit();
             rpe.set(site.getProperties());
-        } else if (entity.getClass().isAssignableFrom(EntityUser.class)) {
+        } else if (entity.getClass().isAssignableFrom(EntitySite.class)) {
             // if they instead pass in the myuser object
             EntitySite site = (EntitySite) entity;
             s.setCustomPageOrdered(site.isCustomPageOrdered());
