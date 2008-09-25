@@ -1015,6 +1015,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			state.removeAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS);
 			state.removeAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER);
 			state.removeAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID);
+			state.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 		}
 		
  	}	// cleanup
