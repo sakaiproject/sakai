@@ -1049,6 +1049,16 @@ background-image: url(../../image/silk/comment.png);
 	background-image: url(../../image/silk/drive_user.png);
 }
 
+.icon-sakai-motd { 
+	background-image: url(../../image/silk/house.png); 
+} 
+.icon-sakai-sitebrowser { 
+	background-image: url(../../image/silk/world.png); 
+} 
+icon-sakai-createuser { 
+	background-image: url(../../image/silk/user_add.png); 
+} 
+
 
 
 
