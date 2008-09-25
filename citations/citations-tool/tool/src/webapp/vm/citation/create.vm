@@ -8,6 +8,8 @@
 </script>
 
 <div class="portletBody">
+        #set ($fromListPage = $state.getAttribute("fromListPage"))
+
 	<div class="indnt1" style="border: 3px solid red; display: none;" id="hiddenMessage">
 		<div style="margin: 10px 10px 10px 10px;">
 			<h3>
@@ -32,10 +34,17 @@
 			  value="$tlang.getString("submit.create")"
 			  onclick="javascript: if( checkRequiredFields( '$tlang.getString( "required.alert" )' ) ) { document.getElementById('sakai_action').value='doCreateCitation'; submitform('$FORM_NAME'); }"
 			/>
+			
+	      #if($fromListPage)
+			<input type="button" name="CancelCitation" id="CancelCitation"
+			  value="$tlang.getString("cancel.create")"
+	    	  onclick="document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
+		  #else
 			<input type="button" name="CancelCitation" id="CancelCitation"
 			  value="$tlang.getString("cancel.create")"
 			  onclick="document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
 			/>
+		  #end
 		</p>
 	
 		<form name="$FORM_NAME" id="$FORM_NAME" method="post" action="#toolForm("CitationHelperAction")">
@@ -127,16 +136,26 @@
 				  value="$tlang.getString("submit.create")"
 				  onclick="javascript: if( checkRequiredFields( '$tlang.getString( "required.alert" )' ) ) { document.getElementById('sakai_action').value='doCreateCitation'; submitform('$FORM_NAME'); }"
 				/>
-				<input type="button" name="CancelCitation" id="CancelCitation"
-				  value="$tlang.getString("cancel.create")"
-				  onclick="document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
-				/>
+				
+	        #if($fromListPage)
+			  <input type="button" name="CancelCitation" id="CancelCitation"
+			    value="$tlang.getString("cancel.create")"
+	    	    onclick="document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
+		    #else
+			  <input type="button" name="CancelCitation" id="CancelCitation"
+			    value="$tlang.getString("cancel.create")"
+			    onclick="document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
+			  />
+			#end
+			
 	    	</p>
 		</form>
 		<div id="scratch_space">
 		</div>
 	</div>
 </div>
+  #if ($state.removeAttribute("fromListPage"))
+  #end
 
 <script type="text/javascript">
 	var templates = new Array();
