@@ -630,6 +630,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	public String buildImportCitationsPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
+		context.put("state", state);
+
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 
@@ -650,7 +652,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
      */
     public String buildAddCitationsPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
     {
-		// always put appropriate bundle in velocity context
+    	context.put("state", state);
+
+    	 // always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 
 		// body onload handler
@@ -724,6 +728,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public String buildCreatePanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
+    	context.put("state", state);
+
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 
@@ -878,6 +884,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public String buildListPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
+		state.setAttribute("fromListPage", true);
+		
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 
@@ -1590,6 +1598,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// Remove session collection
 		state.removeAttribute(STATE_COLLECTION_ID);
 		state.removeAttribute(STATE_COLLECTION);
+		
+		state.removeAttribute("fromListPage");
 
 	}	// doFinish
 
@@ -1658,6 +1668,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		pipe.setActionCompleted(true);
 
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+
+		state.removeAttribute("fromListPage");
 
 		cleanup(toolSession, CitationHelper.CITATION_PREFIX, state);
 
