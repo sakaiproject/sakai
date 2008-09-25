@@ -1590,7 +1590,7 @@ public String getUsersInAuthzGroup(String sessionid, String authzgroupid) throws
 				Node userName = dom.createElement("name");
 				userName.appendChild(dom.createTextNode(user.getDisplayName()));
 				Node userRole = dom.createElement("role");
-				userRole.appendChild(dom.createTextNode(role));
+				userRole.appendChild(dom.createTextNode("role"));
 				
 				userNode.appendChild(userId);
 				userNode.appendChild(userName);
@@ -1640,7 +1640,7 @@ public String copyCalendarEvents(String sessionid, String sourceSiteId, String t
 		//for every event in calendar1, add it to calendar2
 		List eventsList = calendar1.getEvents(null, null); 
 	
-		for (Iterator i = eventsList.Iterator(); i.hasNext();) { 
+		for (Iterator i = eventsList.iterator(); i.hasNext();) { 
 			CalendarEvent cEvent = (CalendarEvent) i.next(); 
 			CalendarEventEdit cedit = calendar2.addEvent(); 
 			cedit.setRange(cEvent.getRange()); 
