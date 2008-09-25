@@ -20,8 +20,12 @@
  *
  **********************************************************************************
 -->
+
+
 <script type="text/javascript" language="JavaScript">
 doubleDeep = true;
+// alert("Oye");
+// alert("fromList = $state.getAttribute("fromListPage") ");
 </script>
 <script type="text/javascript" src="#libraryLink('js/jquery.js')">
 </script>
@@ -29,8 +33,9 @@ doubleDeep = true;
 </script>
 
 <!-- template: sakai_citation-import_citations.vm -->
-
 <div class="portletBody">
+        #set ($fromListPage = $state.getAttribute("fromListPage"))
+
   <div class="indnt1">
 
     <h3 id="basicSearchHeader">$tlang.getString("import.title")</h3>
@@ -43,9 +48,17 @@ doubleDeep = true;
 
 	  <input type="button" value='$tlang.getString("label.import")' id="import1"
 	         onclick="importCitations('$FORM_NAME', '$tlang.getString("import.alert")');"/>
+			 
+	  #if($fromListPage)
+	  <input type="button" name="ReviewCitations" id="ReviewCitations1"
+             value="$tlang.getString("label.back.fromlist")"
+	    	 onclick="document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
+	  #else
 	  <input type="button" name="AddCitations" id="AddCitations1"
              value="$tlang.getString("label.back.search")"
              onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"/>
+	  #end
+	  
 	  <input type="button" value='$tlang.getString("label.cancel")' id="cancel1" type="button" 
 	         onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
 	  <p />
@@ -66,11 +79,24 @@ doubleDeep = true;
       <p />
 	  <input type="button" value='$tlang.getString("label.import")' id="import2"
 	         onclick="importCitations('$FORM_NAME', '$tlang.getString("import.alert")');"/>
-	  <input type="button" name="AddCitations" id="AddCitations2"
+			 
+	  #if($fromListPage)
+	  <input type="button" name="ReviewCitations2" id="ReviewCitations2"
+             value="$tlang.getString("label.back.fromlist")"
+	    	 onclick="document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
+	  #else
+	  <input type="button" name="AddCitations2" id="AddCitations2"
              value="$tlang.getString("label.back.search")"
              onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"/>
+	  #end
+
 	  <input type="button" value='$tlang.getString("label.cancel")' id="cancel2" type="button"
 	         onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>	
     </form>
   </div>
+  
+  #if ($state.removeAttribute("fromListPage"))
+  #end
+
 </div>
+
