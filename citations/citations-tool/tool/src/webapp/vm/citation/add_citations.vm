@@ -30,14 +30,20 @@ doubleDeep = true;
 </script>
 
 <div class="portletBody">
+        #set ($fromListPage = $state.getAttribute("fromListPage"))
 	<div class="indnt1">
 		#if ($alertMessage)
 			<br />
 			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
 			<div class="clear" ></div>
 		#end
-		<h3>$tlang.getString("title.add")</h3>
 
+	  #if($fromListPage)
+		<h3>$tlang.getString("title.search")</h3>
+	  #else
+		<h3>$tlang.getString("title.add")</h3>
+	  #end
+	  
 		#parse( "vm/citation/_details.vm" )
 
 		<p class="instruction">
@@ -81,6 +87,7 @@ doubleDeep = true;
 			  </tr>
 			#end
 			
+            #if(!$fromListPage)
 			  <tr valign="middle">
 			    <td align="center">
 			      <div class="act">
@@ -105,6 +112,7 @@ doubleDeep = true;
 			    </td>
 			    <td>$tlang.getString("import.create")</td>
 			  </tr>
+		    #end
 			</table>
 			<hr />
 			<div class="act">
@@ -127,6 +135,8 @@ doubleDeep = true;
 		</form>
 	</div>
 </div>
+  #if ($state.removeAttribute("fromListPage"))
+  #end
 <div id="messageDiv" style="display: none;"></div>
 <script type="text/javascript">
 // set up count refresh
