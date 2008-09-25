@@ -239,15 +239,6 @@ private Long attachmentId;
 	  } 
   }
   
-  public boolean getIsInlineMP3() {
-	  if (this.mimeType.equalsIgnoreCase("audio/mpeg")) {
-		  return true;
-	  }
-	  else {
-		  return false;
-	  } 
-  }
-  
   public boolean getIsInlineImage() {
 	  if (this.mimeType.equalsIgnoreCase("image/jpeg") || this.mimeType.equalsIgnoreCase("image/pjpeg") || this.mimeType.equalsIgnoreCase("image/gif") || this.mimeType.equalsIgnoreCase("image/png")) {
 		  return true;
@@ -267,7 +258,7 @@ private Long attachmentId;
   }
   
   public boolean getIsMedia() {
-	  return (getIsInlineVideo() || getIsInlineMP3() || getIsInlineImage() || getIsInlineFlash());
+	  return (getIsInlineVideo() || getIsInlineImage() || getIsInlineFlash());
   }
   
   public String getEncodedResourceId() {
