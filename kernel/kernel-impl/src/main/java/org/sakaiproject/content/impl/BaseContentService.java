@@ -8239,9 +8239,34 @@ public abstract class BaseContentService implements ContentHostingService, Cache
     public long getQuota(ContentCollection collection) {
         long quota = 0;
 
-        // use this quota unless we have one more specific
-        quota = m_siteQuota;
+        // parse a string like /user/344454534543534535353543535
+        String[] parts = StringUtil.split(collection.getId(), Entity.SEPARATOR);
+		if (parts.length >= 3) {
+	        String siteId = null;
 
+			// SITE_ID come in 2 forms (~siteid||siteid)
+			if (parts[1].equals("user")) {
+				siteId = "~" + parts[2];
+			} else {
+				siteId = parts[2];
+			}
+
+			String siteType = null;
+			// get the site type
+			try {
+				siteType = m_siteService.getSite(siteId).getType();
+			} catch (IdUnusedException e) {
+				M_log.warn("SiteService could not find the site type");
+			}
+
+			// use this quota unless we have one more specific
+			if (siteType != null) {
+				quota = Long.parseLong(m_serverConfigurationService.getString("content.quota." + siteType, Long.toString(m_siteQuota)));
+			}
+		} else {
+			quota = m_siteQuota;
+		}
+		
         // see if this collection has a quota property
         try
         {
