@@ -133,7 +133,7 @@ Added for column sort
 	#else
 		<tr class="exclude">
 			<td colspan="3" style="text-align:center; padding: 3em;">
-				<p class="instruction">$tlang.getFormattedMessage( "empty.list", $emptyListArgs )</p>
+				<p class="instruction">$tlang.getString( "empty.list" )</p>
 			</td>
 		</tr>
 	#end
