@@ -31,9 +31,9 @@
 					  }
 					</script>
 					
-					<h3>$tlang.getFormattedMessage( "title.gscholar", $titleArgs )</h3>
-					
 					#parse( "vm/_citation.vm" )
+					
+					<h2>$tlang.getFormattedMessage( "title.gscholar", $titleArgs )</h2>
 					
 					<p class="act">
 						<button type="button" onclick="history.back();">$tlang.getString( "back.gscholar" )</button>
