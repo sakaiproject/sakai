@@ -90,11 +90,7 @@ public class SakaiEventArchiveJob implements Job {
                 } catch (SQLException e) {
                     LOG.error("SQLException in finally block: " +e);
                 }
-				try {
-					if(sakaiConnection != null) SqlService.returnConnection(sakaiConnection);
-				} catch (SQLException e) {
-					LOG.error("SQLException in finally block: " +e);
-				}
+                if(sakaiConnection != null) SqlService.returnConnection(sakaiConnection);
 			}
 			
 		}
