@@ -34,6 +34,7 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -120,7 +121,7 @@ public class QuestionPoolShareBean implements Serializable
   			String agentId = (String) iter.next();
           
   			try {
-  				delegate.removeQuestionPoolAccess(agentId, getQuestionPoolId(), new Long(34));
+  				delegate.removeQuestionPoolAccess(agentId, getQuestionPoolId(), QuestionPoolData.READ_COPY);
   			}
   			catch(Exception e) {
   				e.printStackTrace();
@@ -135,7 +136,7 @@ public class QuestionPoolShareBean implements Serializable
   			String agentId = (String) iter.next();
           
   			try {
-  				delegate.addQuestionPoolAccess(agentId, this.getQuestionPoolId(), new Long(34));
+  				delegate.addQuestionPoolAccess(agentId, this.getQuestionPoolId(), QuestionPoolData.READ_COPY);
   			}
   			catch(Exception e) {
   				e.printStackTrace();

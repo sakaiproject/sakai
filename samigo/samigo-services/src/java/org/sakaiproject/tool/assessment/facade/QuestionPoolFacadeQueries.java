@@ -583,7 +583,7 @@ public class QuestionPoolFacadeQueries
    * @param itemId DOCUMENTATION PENDING
    * @param poolId DOCUMENTATION PENDING
    */
-  public void deletePool(final Long poolId, String agent, Tree tree) {
+  public void deletePool(final Long poolId, final String agent, Tree tree) {	  
     try {
         QuestionPoolData questionPool = (QuestionPoolData) getHibernateTemplate().load(QuestionPoolData.class, poolId);
 
@@ -658,10 +658,13 @@ public class QuestionPoolFacadeQueries
       // delete all QuestionPoolAccessData record first. This seems to be missing in Navigo, nope? - daisyf
       // Actually, I don't think we have ever implemented sharing between agents. So we may wnat to
       // clean up this bit of code - daisyf 07/07/06
+      // #3a. Delete all shared pool by him sons
       final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-          Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.questionPoolId= ?");
+          Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa, QuestionPoolData as qpp " +
+        		  						"where qpa.questionPoolId = qpp.questionPoolId and (qpp.questionPoolId=? or qpp.parentPoolId=?) ");
           q.setLong(0, poolId.longValue());
+          q.setLong(1, poolId.longValue());
           return q.list();
     	};
       };
@@ -873,6 +876,43 @@ public class QuestionPoolFacadeQueries
             log.warn("problem saving pool: "+e.getMessage());
             retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
           }
+        }
+        
+        // add a QuestionPoolAccessData record for all users who are sharing the subpool
+        final long parentPoolId = new
+        Long(qpp.getParentPoolId().longValue());
+        final String ownerId = qpp.getOwnerId();
+
+        if (parentPoolId != 0) {
+        	final HibernateCallback hcb = new HibernateCallback(){
+        		public Object doInHibernate(Session session) throws
+        		HibernateException, SQLException {
+        			Query q = session.createQuery("from QuestionPoolAccessData as qpa where qpa.questionPoolId=? and qpa.agentId<>?");
+        			q.setLong(0, parentPoolId);
+        			q.setString(1, ownerId);
+        			return q.list();
+        		};
+        	};
+        	List<QuestionPoolAccessData> listSubpool =
+        		getHibernateTemplate().executeFind(hcb);
+        	for (QuestionPoolAccessData questioPoolData : listSubpool) {
+        		qpa = new
+        		QuestionPoolAccessData(qpp.getQuestionPoolId(),
+        				questioPoolData.getAgentId(), QuestionPoolData.READ_COPY);
+        		retryCount =
+        			PersistenceService.getInstance().getRetryCount().intValue();
+        		while (retryCount > 0){
+        			try {
+        				getHibernateTemplate().save(qpa);
+        				retryCount = 0;
+        			}
+        			catch (DataAccessException e) {
+        				log.warn("problem saving pool: "+e.getMessage());
+        				retryCount =
+        					PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        			}
+        		}
+        	}
         }
       }
       return pool;
@@ -1351,16 +1391,49 @@ public class QuestionPoolFacadeQueries
   /**
    * Shared Pools with other user
    */
-  public void addQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId) {
+  public void addQuestionPoolAccess(String user, final Long questionPoolId, Long accessTypeId) {	  
 	  QuestionPoolAccessData qpad = new QuestionPoolAccessData(questionPoolId, user, accessTypeId);
 
 	  getHibernateTemplate().saveOrUpdate(qpad);
+	  // We need to share all subpools of the shared pool
+	  final HibernateCallback hcb = new HibernateCallback() {
+		  public Object doInHibernate(Session session) throws
+		  HibernateException, SQLException {
+			  Query q = session.createQuery("select qp from QuestionPoolData as qp where qp.parentPoolId= ?");
+			  q.setLong(0, questionPoolId.longValue());
+			  return q.list();
+		  };
+	  };
+	  List<QuestionPoolData> qpList =
+		  getHibernateTemplate().executeFind(hcb);
+	  for (QuestionPoolData pool : qpList) {
+		  qpad = new QuestionPoolAccessData(pool.getQuestionPoolId(),
+				  user, accessTypeId);
+		  getHibernateTemplate().saveOrUpdate(qpad);
+	  }
   }
 
-  public void removeQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId) {
+  public void removeQuestionPoolAccess(String user, final Long questionPoolId, Long accessTypeId) {	  
 	  QuestionPoolAccessData qpad = new QuestionPoolAccessData(questionPoolId, user, accessTypeId);
 
 	  getHibernateTemplate().delete(qpad);
+
+	  // We need to remove all subpools of the shared pool
+	  final HibernateCallback hcb = new HibernateCallback() {
+		  public Object doInHibernate(Session session) throws
+		  HibernateException, SQLException {
+			  Query q = session.createQuery("select qp from QuestionPoolData as qp where qp.parentPoolId= ?");
+			  q.setLong(0, questionPoolId.longValue());
+			  return q.list();
+		  };
+	  };
+	  List<QuestionPoolData> qpList =
+		  getHibernateTemplate().executeFind(hcb);
+	  for (QuestionPoolData pool : qpList) {
+		  qpad = new QuestionPoolAccessData(pool.getQuestionPoolId(),
+				  user, accessTypeId);
+		  getHibernateTemplate().delete(qpad);
+	  }
   }
 
   public List<AgentFacade> getAgentsWithAccess(final Long questionPoolId) {

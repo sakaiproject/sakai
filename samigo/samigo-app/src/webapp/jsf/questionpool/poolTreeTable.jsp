@@ -81,16 +81,16 @@
   <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool}" value=" #{questionPoolMessages.separator} " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" value="#{questionPoolMessages.separator} " />
 
-<h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool}" id="movelink" immediate="true" action="#{questionpool.startMovePool}">
+<h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" id="movelink" immediate="true" action="#{questionpool.startMovePool}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 
 <!-- Share Pool -->
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
-  <h:commandLink rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" id="sharelink" immediate="true" action="#{questionpoolshare.startSharePool}" >
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId && pool.parentPoolId == 0}" value=" #{questionPoolMessages.separator} " />
+  <h:commandLink rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId && pool.parentPoolId == 0}" id="sharelink" immediate="true" action="#{questionpoolshare.startSharePool}" >
   <h:outputText value="#{questionPoolMessages.t_sharePool}" />
   <f:param name="qpid" value="#{pool.questionPoolId}"/>           
 </h:commandLink>
