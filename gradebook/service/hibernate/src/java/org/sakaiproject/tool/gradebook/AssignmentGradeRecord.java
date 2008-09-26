@@ -38,6 +38,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     private String letterEarned;
     private Double percentEarned;
     private boolean userAbleToView;
+    private Boolean excludedFromGrade;
 
     public AssignmentGradeRecord() {
         super();
@@ -165,6 +166,18 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     	agr.setStudentId(studentId);
     	return agr;
     }
+
+	public Boolean isExcludedFromGrade() {
+		return excludedFromGrade;
+	}
+	
+	public Boolean getExcludedFromGrade() {
+		return excludedFromGrade;
+	}
+
+	public void setExcludedFromGrade(Boolean isExcludedFromGrade) {
+		this.excludedFromGrade = isExcludedFromGrade;
+	}
 }
 
 

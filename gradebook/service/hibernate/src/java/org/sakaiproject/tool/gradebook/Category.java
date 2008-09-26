@@ -21,6 +21,7 @@ public class Category implements Serializable
 	private Double mean; //mean value of percentage for this category
 	private List assignmentList;
 	private int assignmentCount;
+	private Boolean extraCredit;
 	
 	public static Comparator nameComparator;
 	public static Comparator averageScoreComparator;
@@ -341,5 +342,17 @@ public class Category implements Serializable
 	
 	public void setAssignmentCount(int assignmentCount){
 		this.assignmentCount = assignmentCount;
+	}
+
+	public Boolean isExtraCredit() {
+		return extraCredit;
+	}
+	
+	public Boolean getExtraCredit() {
+		return extraCredit;
+	}
+
+	public void setExtraCredit(Boolean isExtraCredit) {
+		this.extraCredit = isExtraCredit;
 	}
 }

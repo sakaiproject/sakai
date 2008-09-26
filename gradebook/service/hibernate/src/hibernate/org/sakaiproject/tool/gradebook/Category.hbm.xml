@@ -24,6 +24,8 @@
 		<property name="drop_lowest" column="DROP_LOWEST" type="integer" not-null="false" />
 		
 		<property name="removed" column="REMOVED" type="boolean" />
+		
+		<property name="extraCredit" column="IS_EXTRA_CREDIT" type="boolean" not-null="false" />
   </class>
   
  	<database-object>
