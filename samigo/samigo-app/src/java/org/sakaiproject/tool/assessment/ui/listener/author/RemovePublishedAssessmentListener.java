@@ -32,8 +32,14 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -48,6 +54,11 @@ public class RemovePublishedAssessmentListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(RemovePublishedAssessmentListener.class);
+  private static final GradebookServiceHelper gbsHelper =
+		IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+  private static final boolean integrated =
+		IntegrationContextFactory.getInstance().isIntegrated();
+
   public RemovePublishedAssessmentListener()
   {
   }
@@ -58,9 +69,11 @@ public class RemovePublishedAssessmentListener
     String assessmentId = pulishedAssessment.getAssessmentId();
     if (assessmentId != null)
     {
-      log.debug("assessmentId = " + assessmentId); 	
-      RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId, "remove");
-      thread.start();
+      log.debug("assessmentId = " + assessmentId); 	    
+      PublishedAssessmentService assessmentService = new PublishedAssessmentService();
+      assessmentService.removeAssessment(assessmentId, "remove");
+      removeFromGradebook(assessmentId);
+          
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
       ArrayList publishedAssessmentList = author.getPublishedAssessments();
       ArrayList list = new ArrayList();
@@ -100,5 +113,21 @@ public class RemovePublishedAssessmentListener
     else {
     	log.warn("Could not remove published assessment - assessment id is null");
     }
+  }
+  
+  private void removeFromGradebook(String assessmentId) {
+	  GradebookService g = null;
+	  if (integrated)
+	  {
+		  g = (GradebookService) SpringBeanLocator.getInstance().
+		  getBean("org.sakaiproject.service.gradebook.GradebookService");
+	  }
+	  try {
+		  log.debug("before gbsHelper.removeGradebook()");
+		  gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessmentId, g);
+	  } catch (Exception e1) {
+		  // Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
+		  log.info("Exception thrown in updateGB():" + e1.getMessage());
+	  }
   }
 }
