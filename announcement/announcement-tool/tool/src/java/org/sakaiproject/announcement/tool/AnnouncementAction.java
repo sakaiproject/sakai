@@ -981,7 +981,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 		AnnouncementActionState.DisplayOptions displayOptions = state.getDisplayOptions();
 		
-		if(statusName=="showMetadata")
+		if(statusName=="showMetadata" && channel!=null)
 		{
 			String messageReference = state.getMessageReference();
 			AnnouncementMessage message;
@@ -997,9 +997,9 @@ public class AnnouncementAction extends PagedResourceActionII
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 		}
-		
+				
 		//Check for MOTD, if yes then is not ok to show permissions button
 		if("MOTD".equals(placement.getTitle()) && (placement != null && placement.getId().contains("admin"))) {
 			buildMenu(portlet, context, rundata, state, menu_new, menu_delete, menu_revise, this.isOkToShowMergeButton(statusName),
