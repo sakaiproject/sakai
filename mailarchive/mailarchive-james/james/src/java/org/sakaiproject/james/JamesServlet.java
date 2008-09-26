@@ -24,8 +24,10 @@ package org.sakaiproject.james;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 
@@ -171,121 +173,149 @@ public class JamesServlet extends HttpServlet
 		m_runner = new JamesRunner();
 	}
 
+	/**
+	 * This method is a disaster, it could have many exceptions but none of them are handled and nothing
+	 * is logged -AZ
+	 */
 	protected void customizeConfig(String host, String dns1, String dns2, String smtpPort)
 	{
-		try
-		{
-			// read the config file
-			File f = new File(m_phoenixHome + "/apps/james/SAR-INF/config.xml");
-			BufferedReader input = new BufferedReader(new FileReader(f));
-			StringBuilder contents = new StringBuilder();
-			String line = null;
-			while ((line = input.readLine()) != null)
-			{
-				contents.append(line);
-				contents.append(System.getProperty("line.separator"));
-			}
-			input.close();
+        StringBuilder contents = new StringBuilder();
 
-			// modify [HOST], [DNS1], [DNS2] and [SMTP.PORT]
-			int pos = -1;
-			String target = "[HOST]";
-			while ((pos = contents.indexOf(target)) != -1)
-			{
-				contents.replace(pos, pos + target.length(), host);
-			}
+        // read the config file
+	    try {
+            File f = new File(m_phoenixHome + "/apps/james/SAR-INF/config.xml");
+            BufferedReader input = new BufferedReader(new FileReader(f));
+            try {
+                String line = null;
+                while ((line = input.readLine()) != null)
+                {
+                    contents.append(line);
+                    contents.append(System.getProperty("line.separator"));
+                }
+            } finally {
+                input.close();
+            }
 
-			target = "<server>[DNS1]</server>";
-			pos = contents.indexOf(target);
-			if (pos != -1)
-			{
-				if ((dns1 != null) && (dns1.length() > 0))
-				{
-					contents.replace(pos, pos + target.length(), "<server>" + dns1 + "</server>");
-				}
-				else
-				{
-					contents.replace(pos, pos + target.length(), "");
-				}
-			}
+            // modify [HOST], [DNS1], [DNS2] and [SMTP.PORT]
+            int pos = -1;
+            String target = "[HOST]";
+            while ((pos = contents.indexOf(target)) != -1)
+            {
+                contents.replace(pos, pos + target.length(), host);
+            }
 
-			target = "<server>[DNS2]</server>";
-			pos = contents.indexOf(target);
-			if (pos != -1)
-			{
-				if ((dns2 != null) && (dns2.length() > 0))
-				{
-					contents.replace(pos, pos + target.length(), "<server>" + dns2 + "</server>");
-				}
-				else
-				{
-					contents.replace(pos, pos + target.length(), "");
-				}
-			}
+            target = "<server>[DNS1]</server>";
+            pos = contents.indexOf(target);
+            if (pos != -1)
+            {
+                if ((dns1 != null) && (dns1.length() > 0))
+                {
+                    contents.replace(pos, pos + target.length(), "<server>" + dns1 + "</server>");
+                }
+                else
+                {
+                    contents.replace(pos, pos + target.length(), "");
+                }
+            }
 
-			target = "<port>[SMTP.PORT]</port>";
-			pos = contents.indexOf(target);
-			if (pos != -1)
-			{
-				if ((smtpPort == null) || (smtpPort.length() == 0))
-				{
-					smtpPort = "25";
-				}
-				contents.replace(pos, pos + target.length(), "<port>" + smtpPort + "</port>");
-			}
+            target = "<server>[DNS2]</server>";
+            pos = contents.indexOf(target);
+            if (pos != -1)
+            {
+                if ((dns2 != null) && (dns2.length() > 0))
+                {
+                    contents.replace(pos, pos + target.length(), "<server>" + dns2 + "</server>");
+                }
+                else
+                {
+                    contents.replace(pos, pos + target.length(), "");
+                }
+            }
 
-			// write it back
-			Writer output = null;
-			try
-			{
-				output = new BufferedWriter(new FileWriter(f));
-				output.write(contents.toString());
-			}
-			finally
-			{
-				if (output != null) output.close();
-			}
-		}
-		catch (Exception e)
-		{
-		}
+            target = "<port>[SMTP.PORT]</port>";
+            pos = contents.indexOf(target);
+            if (pos != -1)
+            {
+                if ((smtpPort == null) || (smtpPort.length() == 0))
+                {
+                    smtpPort = "25";
+                }
+                contents.replace(pos, pos + target.length(), "<port>" + smtpPort + "</port>");
+            }
 
-		try
-		{
-			// read the environment file
-			File f = new File(m_phoenixHome + "/apps/james/SAR-INF/environment.xml");
-			BufferedReader input = new BufferedReader(new FileReader(f));
-			StringBuilder contents = new StringBuilder();
-			String line = null;
-			while ((line = input.readLine()) != null)
-			{
-				contents.append(line);
-				contents.append(System.getProperty("line.separator"));
-			}
-			input.close();
+            // write it back
+            Writer output = null;
+            try
+            {
+                output = new BufferedWriter(new FileWriter(f));
+                output.write(contents.toString());
+            } catch (IOException e) {
+                // TODO it was empty before
+            }
+            finally
+            {
+                if (output != null) {
+                    try {
+                        output.close();
+                    } catch (IOException e) {
+                        // tried
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            // TODO it was empty before
+        } catch (IOException e) {
+            // TODO empty
+        }
 
-			// modify [SAKAI.HOME]
-			int pos = -1;
-			String target = "[SAKAI.HOME]";
-			while ((pos = contents.indexOf(target)) != -1)
-			{
-				contents.replace(pos, pos + target.length(), System.getProperty("sakai.home"));
-			}
+        contents = new StringBuilder();
 
-			// write it back
-			Writer output = null;
-			try
-			{
-				output = new BufferedWriter(new FileWriter(f));
-				output.write(contents.toString());
-			}
-			finally
-			{
-				if (output != null) output.close();
-			}
-		}
-		catch (Exception e)
-		{
-		}
+        // read the environment file
+        File environmentFile = new File(m_phoenixHome + "/apps/james/SAR-INF/environment.xml");
+        try {
+            BufferedReader environmentInput = new BufferedReader(new FileReader(environmentFile));
+            try {
+                String line = null;
+                while ((line = environmentInput.readLine()) != null)
+                {
+                    contents.append(line);
+                    contents.append(System.getProperty("line.separator"));
+                }
+            } finally {
+                environmentInput.close();
+            }
+
+            // modify [SAKAI.HOME]
+            int pos2 = -1;
+            String target2 = "[SAKAI.HOME]";
+            while ((pos2 = contents.indexOf(target2)) != -1)
+            {
+                contents.replace(pos2, pos2 + target2.length(), System.getProperty("sakai.home"));
+            }
+
+            // write it back
+            Writer output2 = null;
+            try
+            {
+                output2 = new BufferedWriter(new FileWriter(environmentFile));
+                output2.write(contents.toString());
+            } catch (IOException e) {
+                // TODO empty before
+            } finally {
+                if (output2 != null) {
+                    try {
+                        output2.close();
+                    } catch (IOException e) {
+                        // tried
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            // TODO empty before
+        } catch (IOException e) {
+            // TODO empty before
+        }
+
 	}
+
 }
