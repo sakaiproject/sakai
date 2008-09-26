@@ -124,6 +124,9 @@
 		<jsp-config>
 			<jsp-property-group>
 				<url-pattern>*.jsp</url-pattern>
+				<!-- SAK-13408 - JSP 2.0 EL tags ignored by default on Websphere, 
+					contrary to Tomcat which does not ignore by default. -->
+				<el-ignored>false</el-ignored>
 				<include-prelude>/jsp/prelude.jspf</include-prelude>
 			</jsp-property-group>
 		</jsp-config>
