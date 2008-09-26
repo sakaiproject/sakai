@@ -188,3 +188,8 @@ INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY", "DOMAIN", "KEYWORD", "DESCRIPTION
 update sam_assessaccesscontrol_t set autosubmit = 0;
 update sam_publishedaccesscontrol_t set autosubmit = 0;
 alter table SAM_ASSESSMENTGRADING_T add ISAUTOSUBMITTED number(1, 0) default '0' null;
+
+-- SAK-13646
+alter table GB_GRADABLE_OBJECT_T add (IS_EXTRA_CREDIT number(1,0), ASSIGNMENT_WEIGHTING double precision);
+alter table GB_CATEGORY_T add (IS_EXTRA_CREDIT number(1,0));
+alter table GB_GRADE_RECORD_T add (IS_EXCLUDED_FROM_GRADE number(1,0));
