@@ -27,7 +27,7 @@ public class SamLiteBean implements Serializable {
 	private String data;
 	private String assessmentTemplateId;
 	
-	private boolean isVisible = false;
+	private boolean isVisible = true;
 	
 	private AuthorBean authorBean;
 	
@@ -44,8 +44,8 @@ public class SamLiteBean implements Serializable {
 	
 	public SamLiteBean() {
 		String samliteProperty = ServerConfigurationService.getString("samigo.samliteEnabled");
-		if (null != samliteProperty && !"".equals(samliteProperty)) 
-			isVisible = "true".equalsIgnoreCase(samliteProperty);
+		if (null != samliteProperty && "false".equalsIgnoreCase(samliteProperty)) 
+			isVisible = false;
 	}
 	
 	public void parse() {
