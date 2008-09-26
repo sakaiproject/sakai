@@ -23,6 +23,7 @@ package org.sakaiproject.chat2.tool;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.tool.ChatTool;
@@ -31,6 +32,8 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.chat2.model.ChatChannel;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -56,6 +59,8 @@ public class ChatDelivery extends BaseDelivery
 	protected boolean m_beepOnDelivery = false;
 
    protected String placementId = "";
+   
+   private ContextualUserDisplayService contextualUserDisplayService;
    
 	/**
 	 * Construct.
@@ -149,7 +154,11 @@ public class ChatDelivery extends BaseDelivery
 
          StringBuilder retvalBuf = new StringBuilder();
 			retvalBuf.append( "try { appendMessage('" );
-			retvalBuf.append( sender.getDisplayName() );
+			
+			String displayName = getUserDisplayName(sender, channel.getContext());
+			retvalBuf.append( Web.escapeJsQuoted(displayName) );
+			 
+			//	retvalBuf.append( StringEscapeUtils.escapeJavaScript(contextualUserDisplayService.getUserDisplayId(sender, channel.getContext())) );
 			retvalBuf.append( "', '" );
 			retvalBuf.append( sender.getId() );
 			retvalBuf.append( "', '" );
@@ -200,5 +209,19 @@ public class ChatDelivery extends BaseDelivery
 		if (StringUtil.different(cob.getMessage().getId(), getMessage().getId() )) return false;
 
 		return true;
+	}
+	
+	private String getUserDisplayName(User u, String context) {
+		contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
+		
+		if (contextualUserDisplayService == null) {
+			return u.getDisplayName(); 
+		} else {
+		  	  String ret = contextualUserDisplayService.getUserDisplayName(u, "/site/" + context);
+	    	  if (ret == null)
+	    		  ret = u.getDisplayName();
+	    	  return ret;
+	      
+		}
 	}
 }

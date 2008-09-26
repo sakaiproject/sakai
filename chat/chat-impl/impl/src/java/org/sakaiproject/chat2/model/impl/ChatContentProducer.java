@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatMessage;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -49,11 +50,12 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-
 /**
  * @author chrismaurer
  *
@@ -70,7 +72,16 @@ public class ChatContentProducer implements EntityContentProducer {
    
    private ResourceLoader toolBundle;
    
-   protected void init() throws Exception {
+   private ContextualUserDisplayService contextualUserDisplayService;
+   
+   private UserDirectoryService userDirectoryService;
+   
+   private SiteService siteService;
+   public void setSiteService(SiteService siteService) {
+	   this.siteService = siteService;
+   }
+
+protected void init() throws Exception {
       logger.info("init()");
       
       if ("true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
@@ -85,7 +96,12 @@ public class ChatContentProducer implements EntityContentProducer {
             getSearchService().registerFunction((String) i.next());
          }
          getSearchIndexBuilder().registerEntityContentProducer(this);
+                
+         
       }
+      
+      contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
+
    }
    
    /**
@@ -215,7 +231,7 @@ public class ChatContentProducer implements EntityContentProducer {
       }
    }
    
-   protected String getMessageOwnerDisplayName(String user)
+   protected String getMessageOwnerDisplayName(String user, String context)
    {
       User sender = null;
       try {
@@ -224,7 +240,15 @@ public class ChatContentProducer implements EntityContentProducer {
          logger.error(e);
          return user;
       }
-      return sender.getDisplayName();
+      if (contextualUserDisplayService == null) {
+    	  return sender.getDisplayName();
+      } else {
+    	  
+    	  String ret = contextualUserDisplayService.getUserDisplayName(sender, siteService.siteReference(context));
+    	  if (ret == null)
+    		  ret = sender.getDisplayName();
+    	  return ret;
+      }
    }
 
    /**
@@ -247,7 +271,8 @@ public class ChatContentProducer implements EntityContentProducer {
             
             sb.append(getMessageFromBundle("chat_header")); //$NON-NLS-1$
             sb.append(getMessageFromBundle("chat_from"));
-            SearchUtils.appendCleanString(getMessageOwnerDisplayName(m.getOwner()),sb); //$NON-NLS-1$
+            String context = m.getChatChannel().getContext();
+            SearchUtils.appendCleanString(getMessageOwnerDisplayName(m.getOwner(),context),sb); //$NON-NLS-1$
             sb.append("\n"); //$NON-NLS-1$
             sb.append(getMessageFromBundle("chat_body")); //$NON-NLS-1$
             SearchUtils.appendCleanString(m.getBody(), sb);
@@ -457,7 +482,7 @@ public class ChatContentProducer implements EntityContentProducer {
             Class c = m.getClass();
             String subject = getMessageFromBundle("chat_message"); //$NON-NLS-1$
             String title = subject + getMessageFromBundle("chat_from") //$NON-NLS-1$
-                  + getMessageOwnerDisplayName(m.getOwner());
+                  + getMessageOwnerDisplayName(m.getOwner(), m.getChatChannel().getContext());
             return SearchUtils.appendCleanString(title,null).toString();
 
          }

@@ -121,6 +121,7 @@
       <property name="searchIndexBuilder">
       	<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
       </property>
+      <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     </bean>
 
     <bean id="org.sakaiproject.chat.api.ChatService"
