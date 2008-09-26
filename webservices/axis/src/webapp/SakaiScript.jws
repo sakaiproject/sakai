@@ -1584,14 +1584,23 @@ public String getUsersInAuthzGroup(String sessionid, String authzgroupid) throws
 			try {
 				User user = UserDirectoryService.getUser(id);
 				
+				//wrapping user node
 				Node userNode = dom.createElement("user");
+				
+				//id child node
 				Node userId = dom.createElement("id");
 				userId.appendChild(dom.createTextNode(user.getEid()));
+				
+				//name child node
 				Node userName = dom.createElement("name");
 				userName.appendChild(dom.createTextNode(user.getDisplayName()));
-				Node userRole = dom.createElement("role");
-				userRole.appendChild(dom.createTextNode("role"));
 				
+				//role child node
+				Node userRole = dom.createElement("role");
+				String role = azg.getUserRole(id).getId();
+				userRole.appendChild(dom.createTextNode(role));
+				
+				//add all clicd nodes into the parent node
 				userNode.appendChild(userId);
 				userNode.appendChild(userName);
 				userNode.appendChild(userRole);
