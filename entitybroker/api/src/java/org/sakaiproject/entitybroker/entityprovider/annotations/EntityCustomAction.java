@@ -49,22 +49,24 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
  * {@link EntityView} : the current entity view for this request (contains extension, url, segments) <br/>
  * {@link EntityReference} : the current entity reference (prefix and optional id) <br/>
  * {@link String} : entity prefix <br/>
- * {@link OutputStream} : stream to place outbound data into <br/>
+ * {@link OutputStream} : stream to place outbound data (probably binary) into for transmission <br/>
  * {@link Map} ({@link String} => {@link Object}) : a map of the actions parameters (params from the action request) <br/>
  * <br/>
  * These methods should return one of the following: <br/>
  * 1) null (this is ok in most circumstances to indicate the method is done, use an exception to indicate failure) <br/>
  * 2) an {@link ActionReturn} (this is a special object used to indicate return states and handle binary data) <br/>
- * 3) a UTF-8 encoded OutputStream or String <br/>
- * 4) a List of entity objects <br/>
- * 5) an entity object <br/>
- * 6) a boolean value (true indicates success and is the same as returning null, false indicates failure and causes an {@link EntityNotFoundException} <br/>
+ * 3) an {@link EntityData} (this is a special object used to wrap the object and provide meta data) <br/>
+ * 4) a UTF-8 encoded OutputStream or String <br/>
+ * 5) a List of entity objects <br/>
+ * 6) an entity object <br/>
+ * 7) a boolean value (true indicates success and is the same as returning null, false indicates failure and causes an {@link EntityNotFoundException} <br/>
  * <br/>
  * Can throw the following exceptions and have them translated and handled, all others will pass through:<br/>
  * {@link EntityNotFoundException} to indicate the entity request could not find the data that was requested <br/>
  * {@link IllegalArgumentException} to indicate that the incoming params or the request was invalid <br/>
  * {@link FormatUnsupportedException} to indicate that the requested format is not supported for this entity request <br/>
  * {@link EntityException} to indicate a specific entity failure occurred <br/>
+ * {@link SecurityException} to indicate that the the current user is no allowed to perform this action <br/>
  * {@link IllegalStateException} to indicate a general failure has occurred <br/>
  * <br/>
  * @see CustomAction

@@ -241,13 +241,13 @@ public class EntityActionsManager {
             } else if (List.class.isAssignableFrom(resultClass)) {
                 // convert the list to a list of EntityData
                 List<EntityData> data = EntityDataUtils.convertToEntityData((List<?>) result, ref);
-                actionReturn = new ActionReturn(data, null);
+                actionReturn = new ActionReturn(data, (String) null);
             } else if (EntityData.class.isAssignableFrom(resultClass)) {
-                actionReturn = new ActionReturn( (EntityData) result, null);
+                actionReturn = new ActionReturn( (EntityData) result, (String) null);
             } else {
                 // assume this is an entity object (not ED)
                 EntityData ed = EntityDataUtils.makeEntityData(ref, result);
-                actionReturn = new ActionReturn( ed, null);
+                actionReturn = new ActionReturn( ed, (String) null);
             }
         }
         return actionReturn;

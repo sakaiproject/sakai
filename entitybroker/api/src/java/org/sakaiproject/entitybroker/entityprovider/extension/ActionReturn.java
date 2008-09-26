@@ -22,6 +22,7 @@ package org.sakaiproject.entitybroker.entityprovider.extension;
 
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -33,6 +34,21 @@ import java.util.List;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class ActionReturn {
+
+    public static enum Header {
+        EXPIRES ("Expires"),
+        DATE ("Date"),
+        ETAG ("ETag"),
+        LAST_MODIFIED ("Last-Modified"),
+        CACHE_CONTROL ("Cache-Control");
+
+        private String value;
+        Header(String value) { this.value = value; }
+        @Override
+        public String toString() {
+            return value;
+        }
+    };
 
     /**
      * The encoding to use for the output when it is returned
@@ -62,12 +78,37 @@ public class ActionReturn {
      * Indicates the format (from {@link Formats}) to return the entity data in if there is any,
      * if using an outputstream, use encoding and mimetype
      */
-    public String format;
+    public String format;    
+    /**
+     * Indicates the format (from {@link Formats}) to return the entity data in if there is any,
+     * if using an outputstream, use encoding and mimetype
+     */
+    public void setFormat(String format) {
+        this.format = format;
+    }
+    /**
+     * Optional headers to include in the response (can use the header constants if desired: {@link Header}),
+     * Example: <br/>
+     * headers.put(Header.EXPIRES.toString(), "12378389233737"); <br/>
+     * headers.put("myHeaderKey", "my Value to put in the header"); <br/>
+     */
+    public Map<String, String> headers;
+    /**
+     * Set the optional headers to include in the response (can use the header constants if desired: {@link Header}),
+     * Example: <br/>
+     * headers.put(Header.EXPIRES.toString(), "12378389233737"); <br/>
+     * headers.put("myHeaderKey", "my Value to put in the header"); <br/>
+     */
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+
 
     /**
-     * Set the outputstream to indicate it was used,
+     * Set the OutputStream to indicate it was used,
      * uses default encoding UTF-8 and type of text/xml
-     * @param output an outputstream of data to send as is
+     * @param output an OutputStream of data to send as is
      */
     public ActionReturn(OutputStream output) {
         this.output = output;
@@ -111,17 +152,32 @@ public class ActionReturn {
      * @param data the data to encode (any java objects including collections, POJOs, maps, etc.)
      */
     public ActionReturn(Object data) {
-        this.entityData = new EntityData(data);
+        this(data, null, null);
     }
 
     /**
      * Special constructor which will ensure the data is output exactly as is without adding in the entity meta data
      * @param data the data to encode (any java objects including collections, POJOs, maps, etc.)
+     * @param headers (optional) headers to include in the response (can use the header constants if desired: {@link Header})
+     */
+    public ActionReturn(Object data, Map<String, String> headers) {
+        this(data, headers, null);
+    }
+
+    /**
+     * Special constructor which will ensure the data is output exactly as is without adding in the entity meta data
+     * @param data the data to encode (any java objects including collections, POJOs, maps, etc.)
+     * @param headers (optional) headers to include in the response (can use the header constants if desired: {@link Header})
      * @param format (optional) the format to return this data in (from {@link Formats}), e.g. Formats.XML
      */
-    public ActionReturn(Object data, String format) {
-        this.entityData = new EntityData(data);
+    public ActionReturn(Object data, Map<String, String> headers, String format) {
+        if (data != null && EntityData.class.isAssignableFrom(data.getClass())) {
+            this.entityData = (EntityData) data;
+        } else {
+            this.entityData = new EntityData(data);
+        }
         this.format = format;
+        setHeaders(headers);
     }
 
     /**
@@ -147,7 +203,40 @@ public class ActionReturn {
     @Override
     public String toString() {
         return "actionReturn: encode=" + this.encoding + ": format=" + this.format + ": mime=" + this.mimeType 
-        + ": output=" + (this.output != null) + ": list=" + (this.entitiesList != null) + ": data=" + (this.entityData != null);
+        + ": output=" + (this.output != null) + ": list=" + (this.entitiesList != null) 
+        + ": data=" + (this.entityData != null) + ": headers=" + this.headers;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public OutputStream getOutput() {
+        return output;
+    }
+
+    public String getOutputString() {
+        return outputString;
+    }
+
+    public EntityData getEntityData() {
+        return entityData;
+    }
+
+    public List<EntityData> getEntitiesList() {
+        return entitiesList;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
 }

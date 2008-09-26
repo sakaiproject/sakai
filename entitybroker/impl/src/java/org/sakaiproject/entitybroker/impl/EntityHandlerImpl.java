@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -99,16 +100,6 @@ import org.sakaiproject.genericdao.util.exceptions.FieldnameNotFoundException;
  */
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
-
-    private static final String HEADER_EXPIRES = "Expires";
-
-    private static final String HEADER_DATE = "Date";
-
-    private static final String HEADER_ETAG = "ETag";
-
-    private static final String HEADER_LAST_MODIFIED = "Last-Modified";
-
-    private static final String HEADER_CACHE_CONTROL = "Cache-Control";
 
     protected static final String DIRECT = TemplateParseUtil.DIRECT_PREFIX;
 
@@ -337,7 +328,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
                             // identify the type of request (input or output) and the action (will be encoded in the viewKey)
                             boolean output = RequestUtils.isRequestOutput(req, view);
-                            setResponseHeaders(view, res, null);
+                            setResponseHeaders(view, res, requestStorage.getStorageMapCopy(), null);
 
                             boolean handled = false;
                             // PROCESS CUSTOM ACTIONS
@@ -383,6 +374,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                     res.setStatus(HttpServletResponse.SC_OK);
                                     handled = true;
                                 } else {
+                                    // if there are headers then set them now
+                                    addResponseHeaders(res, actionReturn.getHeaders());
                                     // if the custom action returned entity data then we will encode it for output
                                     if (actionReturn.entitiesList == null
                                             && actionReturn.entityData == null) {
@@ -898,8 +891,9 @@ public class EntityHandlerImpl implements EntityRequestHandler {
      * @param view
      * @param res
      * @param params
+     * @param headers any headers to add on
      */
-    protected void setResponseHeaders(EntityView view, HttpServletResponse res, Map<String, Object> params) {
+    protected void setResponseHeaders(EntityView view, HttpServletResponse res, Map<String, Object> params, Map<String, String> headers) {
         boolean noCache = false;
         long currentTime = System.currentTimeMillis();
         long lastModified = currentTime;
@@ -925,18 +919,20 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         setLastModifiedHeaders(res, null, lastModified);
 
         // set the cache headers
+        
         if (noCache) {
-            res.addHeader(HEADER_CACHE_CONTROL, "must-revalidate");
-            res.addHeader(HEADER_CACHE_CONTROL, "private");
-            res.addHeader(HEADER_CACHE_CONTROL, "no-store");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "must-revalidate");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-store");
         } else {
             // response.addHeader("Cache-Control", "must-revalidate");
-            res.addHeader(HEADER_CACHE_CONTROL, "public");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "public");
         }
-        res.addHeader(HEADER_CACHE_CONTROL, "max-age=600");
-        res.addHeader(HEADER_CACHE_CONTROL, "s-maxage=600");
-        res.setDateHeader(HEADER_DATE, currentTime);
-        res.setDateHeader(HEADER_EXPIRES, currentTime + 600000);
+        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=600");
+        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=600");
+
+        res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
+        res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 600000);
 
         // set the EB specific headers
         String prefix = view.getEntityReference().getPrefix();
@@ -949,6 +945,23 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         // set Sakai sdata compliant headers
         res.setHeader("x-sdata-handler", provider == null ? EntityBroker.class.getName() : provider.getClass().getName());
         res.setHeader("x-sdata-url", view.getOriginalEntityUrl());
+
+        // add in any extra headers last
+        addResponseHeaders(res, headers);
+    }
+
+    /**
+     * Adds in headers to the response as needed
+     * @param res
+     * @param headers
+     */
+    protected void addResponseHeaders(HttpServletResponse res, Map<String, String> headers) {
+        // add in any extra headers last
+        if (headers != null && ! headers.isEmpty()) {
+            for (Entry<String, String> entry : headers.entrySet()) {
+                res.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     /**
@@ -988,9 +1001,9 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             lastModified = lastModifiedTime;
         }
         // ETag or Last-Modified
-        res.setDateHeader(HEADER_LAST_MODIFIED, lastModified);
+        res.setDateHeader(ActionReturn.Header.LAST_MODIFIED.toString(), lastModified);
         String currentEtag = String.valueOf(lastModified);
-        res.setHeader(HEADER_ETAG, currentEtag);
+        res.setHeader(ActionReturn.Header.ETAG.toString(), currentEtag);
     }
 
     private Long makeLastModified(Object lm) {

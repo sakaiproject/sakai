@@ -66,7 +66,7 @@ public class ActionsDefineableEntityProviderMock extends CRUDableEntityProviderM
       MyEntity me = (MyEntity) getEntity(view.getEntityReference());
       MyEntity togo = me.copy();
       togo.setNumber( togo.getNumber() * 2 );
-      return new ActionReturn(new EntityData(view.getEntityReference().toString(), togo.getStuff(), togo), null);
+      return new ActionReturn(new EntityData(view.getEntityReference().toString(), togo.getStuff(), togo), (String)null);
    }
 
    public void xxxChange(EntityReference ref) {
