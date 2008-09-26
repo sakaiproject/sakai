@@ -5,9 +5,6 @@
 <!-- Antranig Basman (antranig@caret.cam.ac.uk) -->
 <beans>
 
-    <!-- Bring in the entity provider beans -->
-    <import resource="entity-providers.xml" />
-
     <bean id="sakaiAutoDDL"
         factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
         factory-method="getBoolean">

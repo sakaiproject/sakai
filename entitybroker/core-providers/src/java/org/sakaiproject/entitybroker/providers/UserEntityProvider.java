@@ -1,6 +1,6 @@
 /**
- * $Id$
- * $URL$
+ * $Id: UserEntityProvider.java 51727 2008-09-03 09:00:03Z aaronz@vt.edu $
+ * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/UserEntityProvider.java $
  * UserEntityProvider.java - entity-broker - Jun 28, 2008 2:59:57 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation
@@ -37,6 +37,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -51,16 +52,11 @@ import org.sakaiproject.user.api.UserPermissionException;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class UserEntityProvider implements CoreEntityProvider, RESTful, Describeable, AutoRegisterEntityProvider {
+public class UserEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, Describeable {
 
     private UserDirectoryService userDirectoryService;
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
-    }
-
-    private DeveloperHelperService developerHelperService;
-    public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-        this.developerHelperService = developerHelperService;
     }
 
     public static String PREFIX = "user";

@@ -1,6 +1,6 @@
 /**
- * $Id$
- * $URL$
+ * $Id: MembershipEntityProvider.java 51727 2008-09-03 09:00:03Z aaronz@vt.edu $
+ * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/MembershipEntityProvider.java $
  * ServerConfigEntityProvider.java - entity-broker - Jul 17, 2008 2:19:03 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation
@@ -44,6 +44,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
@@ -57,14 +58,9 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class MembershipEntityProvider implements CoreEntityProvider, RESTful, ActionsExecutable, AutoRegisterEntityProvider {
+public class MembershipEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, ActionsExecutable {
 
     private static Log log = LogFactory.getLog(MembershipEntityProvider.class);
-
-    public DeveloperHelperService developerHelperService;
-    public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-        this.developerHelperService = developerHelperService;
-    }
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {

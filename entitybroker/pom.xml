@@ -49,6 +49,7 @@
                 <module>pack</module>
                 <module>mocks</module>
                 <module>utils</module>
+                <module>core-providers</module>
             </modules>
         </profile>
         <profile>
@@ -78,7 +79,14 @@
                 <module>pack</module>
                 <module>mocks</module>
                 <module>utils</module>
+                <module>core-providers</module>
                 <module>deploy-assembly</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>providers</id>
+            <modules>
+                <module>core-providers</module>
             </modules>
         </profile>
     </profiles>

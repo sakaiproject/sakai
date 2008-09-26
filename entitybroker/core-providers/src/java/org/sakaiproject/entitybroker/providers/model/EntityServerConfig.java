@@ -1,6 +1,6 @@
 /**
- * $Id$
- * $URL$
+ * $Id: EntityServerConfig.java 51318 2008-08-24 05:28:47Z csev@umich.edu $
+ * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/EntityServerConfig.java $
  * EntityServerConfig.java - entity-broker - Jul 17, 2008 12:14:38 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation

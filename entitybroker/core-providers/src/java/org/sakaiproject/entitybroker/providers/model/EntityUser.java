@@ -1,6 +1,6 @@
 /**
- * $Id$
- * $URL$
+ * $Id: EntityUser.java 51727 2008-09-03 09:00:03Z aaronz@vt.edu $
+ * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/EntityUser.java $
  * EntityUser.java - entity-broker - Jun 28, 2008 5:24:57 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation

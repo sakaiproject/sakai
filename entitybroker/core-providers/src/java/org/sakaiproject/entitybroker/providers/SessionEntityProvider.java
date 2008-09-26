@@ -1,6 +1,6 @@
 /**
- * $Id$
- * $URL$
+ * $Id: SessionEntityProvider.java 51318 2008-08-24 05:28:47Z csev@umich.edu $
+ * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/SessionEntityProvider.java $
  * SessionEntityProvider.java - entity-broker - Jul 15, 2008 4:03:52 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation
@@ -44,6 +44,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -55,17 +56,11 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class SessionEntityProvider implements CoreEntityProvider, CRUDable, CollectionResolvable, 
-      Inputable, Outputable, RequestAware, Describeable, 
-      RedirectDefinable, ActionsExecutable, AutoRegisterEntityProvider {
+public class SessionEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, CRUDable, CollectionResolvable, 
+      Inputable, Outputable, RequestAware, Describeable, RedirectDefinable, ActionsExecutable {
 
    public static String AUTH_USERNAME = "_username";
    public static String AUTH_PASSWORD = "_password";
-
-   public DeveloperHelperService developerHelperService;
-   public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-      this.developerHelperService = developerHelperService;
-   }
 
    public SessionManager sessionManager;
    public void setSessionManager(SessionManager sessionManager) {

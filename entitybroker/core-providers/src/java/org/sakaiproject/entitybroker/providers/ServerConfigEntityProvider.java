@@ -1,6 +1,6 @@
 /**
- * $Id$
- * $URL$
+ * $Id: ServerConfigEntityProvider.java 52527 2008-09-20 20:23:54Z aaronz@vt.edu $
+ * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/ServerConfigEntityProvider.java $
  * ServerConfigEntityProvider.java - entity-broker - Jul 17, 2008 2:19:03 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation
@@ -49,6 +49,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 
 
 /**
@@ -57,8 +58,8 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class ServerConfigEntityProvider implements CoreEntityProvider, Outputable, Resolvable, 
-    CollectionResolvable, AutoRegisterEntityProvider, ActionsExecutable, Describeable {
+public class ServerConfigEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, Outputable, Resolvable, 
+    CollectionResolvable, ActionsExecutable, Describeable {
 
     public String[] includedStringSettings = new String[] {
             "portalPath",
@@ -76,11 +77,6 @@ public class ServerConfigEntityProvider implements CoreEntityProvider, Outputabl
             "auto.ddl",
             "display.users.present"
     };
-
-    public DeveloperHelperService developerHelperService;
-    public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-        this.developerHelperService = developerHelperService;
-    }
 
     private ServerConfigurationService serverConfigurationService;
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {

@@ -1,6 +1,6 @@
 /**
- * $Id$
- * $URL$
+ * $Id: SiteEntityProvider.java 52667 2008-09-25 16:00:21Z aaronz@vt.edu $
+ * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/SiteEntityProvider.java $
  * SiteEntityProvider.java - entity-broker - Jun 29, 2008 8:35:55 AM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation
@@ -38,6 +38,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -54,16 +55,12 @@ import org.sakaiproject.site.api.SiteService.SortType;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class SiteEntityProvider implements CoreEntityProvider, RESTful, ActionsExecutable, Redirectable, AutoRegisterEntityProvider {
+public class SiteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, 
+        RESTful, ActionsExecutable, Redirectable {
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
-    }
-
-    private DeveloperHelperService developerHelperService;
-    public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-        this.developerHelperService = developerHelperService;
     }
 
     public static String PREFIX = "site";

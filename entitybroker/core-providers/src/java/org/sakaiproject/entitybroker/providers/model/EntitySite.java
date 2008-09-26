@@ -1,6 +1,6 @@
 /**
- * $Id$
- * $URL$
+ * $Id: EntitySite.java 51318 2008-08-24 05:28:47Z csev@umich.edu $
+ * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/EntitySite.java $
  * EntitySite.java - entity-broker - Jun 29, 2008 9:31:10 AM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation
