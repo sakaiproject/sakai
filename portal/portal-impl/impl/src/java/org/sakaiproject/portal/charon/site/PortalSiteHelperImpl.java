@@ -577,9 +577,30 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		// theMap.put("pageNavSitContentshead",
 		// Web.escapeHtml(rb.getString("sit_contentshead")));
 
-		// Handle Presense
-		boolean showPresence = ServerConfigurationService.getBoolean(
-				"display.users.present", true);
+		// Display presence? Global property display.users.present may be always / never / true / false
+		// If true or false, the value may be overriden by the site property display-users-present
+		// which may be true or false.
+				
+		boolean showPresence;
+		String globalShowPresence = ServerConfigurationService.getString("display.users.present");
+				
+		if ("never".equals(globalShowPresence)) {
+			showPresence = false;
+		} else if ("always".equals(globalShowPresence)) {
+			showPresence = true;
+		} else {
+			String showPresenceSite = site.getProperties().getProperty("display-users-present");
+				
+			if (showPresenceSite == null)
+			{
+				showPresence = Boolean.valueOf(globalShowPresence).booleanValue();  
+			}
+			else 
+			{
+				showPresence = Boolean.valueOf(showPresenceSite).booleanValue();
+			}	
+		}
+		
 		String presenceUrl = Web.returnUrl(req, "/presence/"
 				+ Web.escapeUrl(site.getId()));
 
