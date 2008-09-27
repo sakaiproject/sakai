@@ -202,6 +202,12 @@ public class TemplateUpdateListener
       aac.setItemNavigation(new Integer(templateBean.getItemAccessType()));
       aac.setAssessmentFormat(new Integer(templateBean.getDisplayChunking()));
       aac.setItemNumbering(new Integer(templateBean.getQuestionNumbering()));
+      if (templateBean.getMarkForReview() != null && templateBean.getMarkForReview().equals(Boolean.TRUE)) {
+    	  aac.setMarkForReview(Integer.valueOf(1));
+      }
+      else {
+    	  aac.setMarkForReview(Integer.valueOf(0));
+      }
       aac.setSubmissionsSaved(new Integer(templateBean.getSubmissionModel()));
       
       if (templateBean.getValueMap().get("submissionModel_isInstructorEditable") != null && ((Boolean) templateBean.getValueMap().get("submissionModel_isInstructorEditable")).booleanValue()) {

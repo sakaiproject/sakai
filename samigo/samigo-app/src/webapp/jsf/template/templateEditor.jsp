@@ -283,20 +283,23 @@
 
   <!-- MARK FOR REVIEW -->
   <samigo:hideDivision title="#{templateMessages.mark_for_review}">
-    <div class="tier2">
-    <div class="longtext">
-    <h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>
     <div class="tier3">
       <h:panelGrid columns="2" summary="#{templateMessages.mark_for_review}">
-        <h:selectBooleanCheckbox id="mark_for_review" value="#{template.valueMap.markForReview_isInstructorEditable}"/>
-        <h:outputLabel for="mark_for_review" value="#{templateMessages.mark_for_review}"/>
+        <h:selectBooleanCheckbox id="mark_for_review"
+          value="#{template.valueMap.markForReview_isInstructorEditable}"/>
+        <h:outputLabel for="question_layout" value="#{templateMessages.template_canbedefault}"/>
+        <h:outputText value=" "/>
+       
+	    <h:panelGroup>
+          <h:selectBooleanCheckbox id="add_mark_for_review"
+           value="#{template.markForReview}"/>
+           <h:outputLabel value="#{templateMessages.add_mark_for_review}"/>
+        </h:panelGroup>
       </h:panelGrid>
     </div>
-	</div>
   </samigo:hideDivision>
 
   <!-- *** SUBMISSIONS *** -->
-
   <samigo:hideDivision title="#{templateMessages.submissions}" id="div8">
  <div class="tier2">
 
@@ -508,7 +511,7 @@
       </h:panelGroup>
 
       <h:panelGroup>
-        <h:selectBooleanCheckbox id="question_score" 
+        <h:selectBooleanCheckbox id="student_question_score" 
           value="#{template.feedbackComponent_StudentQuestionScore}"/>
         <h:outputLabel for="student_question_score" value="#{templateMessages.student_questionscore}"/>
       </h:panelGroup>

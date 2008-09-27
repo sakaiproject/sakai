@@ -165,6 +165,7 @@ public class AssessmentAccessControl
     ((AssessmentAccessControl)cloned).setPassword(this.password);
     ((AssessmentAccessControl)cloned).setFinalPageUrl(this.finalPageUrl);
     ((AssessmentAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
+    ((AssessmentAccessControl)cloned).setMarkForReview(this.markForReview);
     return cloned;
   }
 

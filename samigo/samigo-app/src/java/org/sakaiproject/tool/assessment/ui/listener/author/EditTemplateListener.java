@@ -84,6 +84,7 @@ public class EditTemplateListener
     templateBean.setTemplateName(tempName);
     templateBean.setIdString("0"); //new template
     templateBean.setValueMap(getMetaDataMap());
+    templateBean.setMarkForReview(Boolean.FALSE);
   }
 
   // meta data contains the list of "can edit" option and we want to set

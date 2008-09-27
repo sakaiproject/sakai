@@ -49,6 +49,7 @@ public class TemplateBean implements Serializable
   private String itemAccessType = "2";
   private String displayChunking = "1";
   private String questionNumbering = "1";
+  private Boolean markForReview = Boolean.TRUE;
   private String submissionModel = "1";
   private String submissionNumber;
   private String lateHandling = "1";
@@ -392,6 +393,26 @@ public class TemplateBean implements Serializable
         || displayChunking.equals("0"))
       return "1";
     return displayChunking;
+  }
+  
+  /**
+   * submission model
+   *
+   * @param newSubmissionModel submission model
+   */
+  public void setMarkForReview(Boolean newMarkForReview)
+  {
+    markForReview = newMarkForReview;
+  }
+
+  /**
+   * submission model
+   *
+   * @return submission model
+   */
+  public Boolean getMarkForReview()
+  {
+    return markForReview;
   }
 
   /**

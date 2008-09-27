@@ -113,6 +113,16 @@ public class TemplateLoadListener
           templateBean.setDisplayChunking(aac.getAssessmentFormat().toString());
         if (aac.getItemNumbering() != null)
           templateBean.setQuestionNumbering(aac.getItemNumbering().toString());
+        if (aac.getMarkForReview() != null) {
+        	if (aac.getMarkForReview().equals(Integer.valueOf(1))) {
+        		templateBean.setMarkForReview(Boolean.TRUE);
+        	}
+        	else {
+        		templateBean.setMarkForReview(Boolean.FALSE);
+        	}
+        }
+        else
+        	templateBean.setMarkForReview(Boolean.FALSE);
         if (aac.getSubmissionsSaved() != null)
           templateBean.setSubmissionModel(aac.getSubmissionsSaved().toString());
         if (aac.getUnlimitedSubmissions().equals(Boolean.TRUE)){
