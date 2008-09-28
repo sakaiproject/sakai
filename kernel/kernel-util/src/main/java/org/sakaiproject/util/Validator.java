@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdInvalidException;
 
 /**
@@ -698,6 +699,16 @@ public class Validator
 		// need to check for any other MIME types which can be opened by browser plug-ins? %%%zqian
 		if (lType.indexOf("vrml") != -1 || lType.indexOf("CC3D") != -1) return true;
 
+		// check additional inline types for this instance specified in sakai.properties
+		String moreInlineTypes[] = ServerConfigurationService.getStrings("content.mime.inline");  
+		
+		if (moreInlineTypes != null) {
+			for (int i = 0; i < moreInlineTypes.length; i++) {
+				if (lType.equals(moreInlineTypes[i]))
+					return true;
+			}
+		}
+		
 		return false;
 
 	} // letBrowserInline
