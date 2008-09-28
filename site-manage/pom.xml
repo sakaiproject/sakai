@@ -28,6 +28,7 @@
         <module>site-manage-tool/tool</module>
         <module>site-manage-util/util</module>
         <module>site-manage-group-helper/tool</module>
+	<module>site-manage-participant-helper</module>
       </modules>
     </profile>
     <profile>
@@ -46,7 +47,8 @@
         <module>pageorder/tool</module>
         <module>site-manage-group-helper/tool</module>
         <module>site-manage-group-section-role-helper/tool</module>
-      </modules>
+     	<module>site-manage-participant-helper</module> 
+     </modules>
     </profile>
   </profiles>
   <dependencyManagement>

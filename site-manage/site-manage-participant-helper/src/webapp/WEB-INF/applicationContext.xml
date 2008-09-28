@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--  Spring messageSource replaces JSF message-bundle from faces-config.xml -->
+    <bean id="messageSource"
+        class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="classpath:org/sakaiproject/site/tool/participant/bundle/sitesetupgeneric" />
+        <property name="cacheSeconds" value="10" />
+    </bean>
+
+  <bean parent="requestAddressibleParent">
+    <property name="value" value="siteAddParticipantHandler" />
+  </bean>
+
+  <bean parent="templateContributorParent">
+    <property name="templateNames" value="Add"/>
+    <property name="baseDirectory" value="content/templates/" />
+  </bean>
+  
+  <bean id="ignoreFossilizedValues"
+    class="uk.org.ponder.springutil.BooleanFactory">
+    <property name="value" value="true" />
+  </bean>
+  
+  <!-- Create a scope to preserve the siteAddParticipantHandler (int the HTTP session for a standalone app -->
+  <bean id = "resultScope" parent="beanScopeParent">
+  	<property name="copyPreservingBeans" value="siteAddParticipantHandler" />
+  	<property name="exclusive" value="true" />
+  </bean>
+</beans>

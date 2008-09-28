@@ -185,9 +185,6 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private org.sakaiproject.sitemanage.api.AffiliatedSectionProvider affiliatedSectionProvider = (org.sakaiproject.sitemanage.api.AffiliatedSectionProvider) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.AffiliatedSectionProvider.class);
-
-	private org.sakaiproject.sitemanage.api.UserNotificationProvider userNotificationProvider = (org.sakaiproject.sitemanage.api.UserNotificationProvider) ComponentManager
-	.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
 	
 	private ContentHostingService contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 	
@@ -224,10 +221,10 @@ public class SiteAction extends PagedResourceActionII {
 			"",
 			"",
 			"-siteInfo-editAccess",
-			"-addParticipant-sameRole",
-			"-addParticipant-differentRole",// 20
-			"-addParticipant-notification",
-			"-addParticipant-confirm",
+			"",
+			"",// 20
+			"",
+			"",
 			"",
 			"",
 			"",// 25
@@ -553,8 +550,6 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_PAGESIZE_SITEINFO = "state_pagesize_siteinfo";
 
 	private static final String IMPORT_DATA_SOURCE = "import_data_source";
-
-	private static final String EMAIL_CHAR = "@";
 
 	// Special tool id for Home page
 	private static final String SITE_INFORMATION_TOOL="sakai.iframe.site";
@@ -1748,9 +1743,12 @@ public class SiteAction extends PagedResourceActionII {
 				{
 					// show add participant menu
 					if (!isMyWorkspace) {
-						// show the Add Participant menu
-						b.add(new MenuEntry(rb.getString("java.addp"),
-								"doMenu_siteInfo_addParticipant"));
+						// if the add participant helper is available, not
+						// stealthed and not hidden, show the link
+						if (notStealthOrHiddenTool("sakai-site-manage-participant-helper")) {
+							b.add(new MenuEntry(rb.getString("java.addp"),
+									"doParticipantHelper"));
+						}
 						
 						// show the Edit Class Roster menu
 						if (ServerConfigurationService.getBoolean("site.setup.allow.editRoster", true) && siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
@@ -2198,67 +2196,6 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			return (String) getContext(data).get("template") + TEMPLATE[18];
-		case 19:
-			/*
-			 * buildContextForTemplate chef_site-addParticipant-sameRole.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			context.put("roles", getRoles(state));
-			context.put("participantList", state
-					.getAttribute(STATE_ADD_PARTICIPANTS));
-			context.put("form_selectedRole", state
-					.getAttribute("form_selectedRole"));
-			return (String) getContext(data).get("template") + TEMPLATE[19];
-		case 20:
-			/*
-			 * buildContextForTemplate chef_site-addParticipant-differentRole.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			context.put("roles", getRoles(state));
-			context.put("selectedRoles", state
-					.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES));
-			context.put("participantList", state
-					.getAttribute(STATE_ADD_PARTICIPANTS));
-			return (String) getContext(data).get("template") + TEMPLATE[20];
-		case 21:
-			/*
-			 * buildContextForTemplate chef_site-addParticipant-notification.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			context.put("sitePublished", Boolean.valueOf(site.isPublished()));
-			if (state.getAttribute("form_selectedNotify") == null) {
-				state.setAttribute("form_selectedNotify", Boolean.FALSE);
-			}
-			context.put("notify", state.getAttribute("form_selectedNotify"));
-			boolean same_role = state.getAttribute("form_same_role") == null ? true
-					: ((Boolean) state.getAttribute("form_same_role"))
-							.booleanValue();
-			if (same_role) {
-				context.put("backIndex", "19");
-			} else {
-				context.put("backIndex", "20");
-			}
-			return (String) getContext(data).get("template") + TEMPLATE[21];
-		case 22:
-			/*
-			 * buildContextForTemplate chef_site-addParticipant-confirm.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			context.put("participants", state
-					.getAttribute(STATE_ADD_PARTICIPANTS));
-			context.put("notify", state.getAttribute("form_selectedNotify"));
-			context.put("roles", getRoles(state));
-			context.put("same_role", state.getAttribute("form_same_role"));
-			context.put("selectedRoles", state
-					.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES));
-			context
-					.put("selectedRole", state
-							.getAttribute("form_selectedRole"));
-			return (String) getContext(data).get("template") + TEMPLATE[22];
 		case 26:
 			/*
 			 * buildContextForTemplate chef_site-modifyENW.vm
@@ -2975,6 +2912,25 @@ public class SiteAction extends PagedResourceActionII {
 
 		// launch the helper
 		startHelper(data.getRequest(), "sakai-site-pageorder-helper");
+	}
+	
+	/**
+	 * Launch the participant Helper Tool -- for adding participant
+	 * 
+	 * @see case 12
+	 * 
+	 */
+	public void doParticipantHelper(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// pass in the siteId of the site to be ordered (so it can configure
+		// sites other then the current site)
+		SessionManager.getCurrentToolSession().setAttribute(
+				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+
+		// launch the helper
+		startHelper(data.getRequest(), "sakai-site-manage-participant-helper");
 	}
 	
 	/**
@@ -5396,12 +5352,6 @@ public class SiteAction extends PagedResourceActionII {
 			state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 			state.removeAttribute(STATE_MESSAGE);
 			removeEditToolState(state);
-		} else if (currentIndex.equals("5")) {
-			// remove related state variables
-			removeAddParticipantContext(state);
-
-			params = data.getParameters();
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if (currentIndex.equals("13") || currentIndex.equals("14")) {
 			// clean state attributes
 			state.removeAttribute(FORM_SITEINFO_TITLE);
@@ -5419,13 +5369,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		// htripath: added 'currentIndex.equals("45")' for import from file
 		// cancel
-		else if (currentIndex.equals("19") || currentIndex.equals("20")
-				|| currentIndex.equals("21") || currentIndex.equals("22")
-				|| currentIndex.equals("45")) {
-			// from adding participant pages
-			// remove related state variables
-			removeAddParticipantContext(state);
-
+		else if (currentIndex.equals("45")) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if (currentIndex.equals("3")) {
 			// from adding class
@@ -6643,12 +6587,12 @@ public class SiteAction extends PagedResourceActionII {
 			 * actionForTemplate chef_site-addParticipant.vm
 			 * 
 			 */
-			if (forward) {
+			/*if (forward) {
 				checkAddParticipant(params, state);
 			} else {
 				// remove related state variables
 				removeAddParticipantContext(state);
-			}
+			}*/
 			break;
 		case 8:
 			/*
@@ -6765,46 +6709,6 @@ public class SiteAction extends PagedResourceActionII {
 					updateCurrentStep(state, false);
 				}
 			}
-		case 19:
-			/*
-			 * actionForTemplate chef_site-addParticipant-sameRole.vm
-			 * 
-			 */
-			String roleId = StringUtil.trimToNull(params
-					.getString("selectRole"));
-			if (roleId == null && forward) {
-				addAlert(state, rb.getString("java.pleasesel") + " ");
-			} else {
-				state.setAttribute("form_selectedRole", params
-						.getString("selectRole"));
-			}
-			break;
-		case 20:
-			/*
-			 * actionForTemplate chef_site-addParticipant-differentRole.vm
-			 * 
-			 */
-			if (forward) {
-				getSelectedRoles(state, params, STATE_ADD_PARTICIPANTS);
-			}
-			break;
-		case 21:
-			/*
-			 * actionForTemplate chef_site-addParticipant-notification.vm '
-			 */
-			if (params.getString("notify") == null) {
-				if (forward)
-					addAlert(state, rb.getString("java.pleasechoice") + " ");
-			} else {
-				state.setAttribute("form_selectedNotify", new Boolean(params
-						.getString("notify")));
-			}
-			break;
-		case 22:
-			/*
-			 * actionForTemplate chef_site-addParticipant-confirm.vm
-			 * 
-			 */
 			break;
 		case 24:
 			/*
@@ -8712,234 +8616,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	}// commitSite
 
-	private boolean isValidDomain(String email) {
-		String invalidNonOfficialAccountString = ServerConfigurationService
-				.getString("invalidNonOfficialAccountString", null);
-
-		if (invalidNonOfficialAccountString != null) {
-			String[] invalidDomains = invalidNonOfficialAccountString.split(",");
-
-			for (int i = 0; i < invalidDomains.length; i++) {
-				String domain = invalidDomains[i].trim();
-
-				if (email.toLowerCase().indexOf(domain.toLowerCase()) != -1) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	private void checkAddParticipant(ParameterParser params, SessionState state) {
-		// get the participants to be added
-		int i;
-		Vector pList = new Vector();
-		HashSet existingUsers = new HashSet();
-
-		Site site = null;
-		String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-		try {
-			site = SiteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			addAlert(state, rb.getString("java.specif") + " " + siteId);
-			M_log.warn(this + ".checkAddParticipant: "+ rb.getString("java.specif") + " " + siteId, e);
-		}
-
-		// accept officialAccounts and/or nonOfficialAccount account names
-		String officialAccounts = "";
-		String nonOfficialAccounts = "";
-
-		// check that there is something with which to work
-		officialAccounts = StringUtil.trimToNull((params
-				.getString("officialAccount")));
-		nonOfficialAccounts = StringUtil.trimToNull(params
-				.getString("nonOfficialAccount"));
-		state.setAttribute("officialAccountValue", officialAccounts);
-		state.setAttribute("nonOfficialAccountValue", nonOfficialAccounts);
-
-		// if there is no uniquname or nonOfficialAccount entered
-		if (officialAccounts == null && nonOfficialAccounts == null) {
-			addAlert(state, rb.getString("java.guest"));
-			state.setAttribute(STATE_TEMPLATE_INDEX, "5");
-			return;
-		}
-
-		String at = "@";
-
-		if (officialAccounts != null) {
-			// adding officialAccounts
-			String[] officialAccountArray = officialAccounts
-					.split("\r\n");
-
-			for (i = 0; i < officialAccountArray.length; i++) {
-				String officialAccount = StringUtil.trimToNull(officialAccountArray[i].replaceAll("[\t\r\n]", ""));
-				// if there is some text, try to use it
-				if (officialAccount != null) {
-					// automaticially add nonOfficialAccount account
-					Participant participant = new Participant();
-					User u = null;
-					try {
-						// look for user based on eid first
-						u = UserDirectoryService.getUserByEid(officialAccount);
-					} catch (UserNotDefinedException e) {
-						M_log.warn(this + ".checkAddParticipant: " + officialAccount + " " + rb.getString("java.username") + " ", e);
-						//Changed user lookup to satisfy BSP-1010 (jholtzman)
-						// continue to look for the user by their email address
-						Collection usersWithEmail = UserDirectoryService.findUsersByEmail(officialAccount);
-						if(usersWithEmail != null) {
-							if(usersWithEmail.size() == 0) {
-								// If the collection is empty, we didn't find any users with this email address
-								M_log.info("Unable to find users with email " + officialAccount);
-							} else if (usersWithEmail.size() == 1) {
-								// We found one user with this email address.  Use it.
-								u = (User)usersWithEmail.iterator().next();
-							} else if (usersWithEmail.size() > 1) {
-								// If we have multiple users with this email address, pick one and log this error condition
-								// TODO Should we not pick a user?  Throw an exception?
-								M_log.warn("Found multiple user with email " + officialAccount);
-								u = (User)usersWithEmail.iterator().next();
-							}
-						}
-					}
-						
-					if (u != null)
-					{
-						M_log.info("found user with eid " + officialAccount);
-						if (site != null && site.getUserRole(u.getId()) != null) {
-							// user already exists in the site, cannot be added
-							// again
-							existingUsers.add(officialAccount);
-						} else {
-							participant.name = u.getDisplayName();
-							participant.uniqname = u.getEid();
-							participant.active = true;
-							pList.add(participant);
-						}
-					}
-				}
-			}
-		} // officialAccounts
-
-		if (nonOfficialAccounts != null) {
-			String[] nonOfficialAccountArray = nonOfficialAccounts.split("\r\n");
-			for (i = 0; i < nonOfficialAccountArray.length; i++) {
-				String nonOfficialAccount = StringUtil.trimToNull(nonOfficialAccountArray[i].replaceAll("[ \t\r\n]", ""));
-
-				// remove the trailing dots
-				while (nonOfficialAccount != null && nonOfficialAccount.endsWith(".")) {
-					nonOfficialAccount = nonOfficialAccount.substring(0,
-							nonOfficialAccount.length() - 1);
-				}
-
-				if (nonOfficialAccount != null && nonOfficialAccount.length() > 0) {
-					String[] parts = nonOfficialAccount.split(at);
-
-					if (nonOfficialAccount.indexOf(at) == -1) {
-						// must be a valid email address
-						addAlert(state, nonOfficialAccount + " "
-								+ rb.getString("java.emailaddress"));
-					} else if ((parts.length != 2) || (parts[0].length() == 0)) {
-						// must have both id and address part
-						addAlert(state, nonOfficialAccount + " "
-								+ rb.getString("java.notemailid"));
-					} else if (!Validator.checkEmailLocal(parts[0])) {
-						addAlert(state, nonOfficialAccount + " "
-								+ rb.getString("java.emailaddress")
-								+ rb.getString("java.theemail"));
-					} else if (nonOfficialAccount != null
-							&& !isValidDomain(nonOfficialAccount)) {
-						// wrong string inside nonOfficialAccount id
-						addAlert(state, nonOfficialAccount + " "
-								+ rb.getString("java.emailaddress") + " ");
-					} else {
-						Participant participant = new Participant();
-						try {
-							// if the nonOfficialAccount user already exists
-							User u = UserDirectoryService
-									.getUserByEid(nonOfficialAccount);
-							if (site != null
-									&& site.getUserRole(u.getId()) != null) {
-								// user already exists in the site, cannot be
-								// added again
-								existingUsers.add(nonOfficialAccount);
-							} else {
-								participant.name = u.getDisplayName();
-								participant.uniqname = nonOfficialAccount;
-								participant.active = true;
-								pList.add(participant);
-							}
-						} catch (UserNotDefinedException e) {
-							// if the nonOfficialAccount user is not in the system
-							// yet
-							participant.name = nonOfficialAccount;
-							participant.uniqname = nonOfficialAccount; // TODO:
-							// what
-							// would
-							// the
-							// UDS
-							// case
-							// this
-							// name
-							// to?
-							// -ggolden
-							participant.active = true;
-							pList.add(participant);
-						}
-					}
-				} // if
-			} // 	
-		} // nonOfficialAccounts
-
-		boolean same_role = true;
-		if (params.getString("same_role") == null) {
-			addAlert(state, rb.getString("java.roletype") + " ");
-		} else {
-			same_role = params.getString("same_role").equals("true") ? true
-					: false;
-			state.setAttribute("form_same_role", new Boolean(same_role));
-		}
-
-		if (state.getAttribute(STATE_MESSAGE) != null) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "5");
-		} else {
-			if (same_role) {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "19");
-			} else {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "20");
-			}
-		}
-
-		// remove duplicate or existing user from participant list
-		pList = removeDuplicateParticipants(pList, state);
-		state.setAttribute(STATE_ADD_PARTICIPANTS, pList);
-
-		// if the add participant list is empty after above removal, stay in the
-		// current page
-		if (pList.size() == 0) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "5");
-		}
-
-		// add alert for attempting to add existing site user(s)
-		if (!existingUsers.isEmpty()) {
-			int count = 0;
-			String accounts = "";
-			for (Iterator eIterator = existingUsers.iterator(); eIterator
-					.hasNext();) {
-				if (count == 0) {
-					accounts = (String) eIterator.next();
-				} else {
-					accounts = accounts + ", " + (String) eIterator.next();
-				}
-				count++;
-			}
-			addAlert(state, rb.getString("add.existingpart.1") + accounts
-					+ rb.getString("add.existingpart.2"));
-		}
-
-		return;
-
-	} // checkAddParticipant
-
 	private Vector removeDuplicateParticipants(List pList, SessionState state) {
 		// check the uniqness of list member
 		Set s = new HashSet();
@@ -8980,177 +8656,6 @@ public class SiteAction extends PagedResourceActionII {
 		return rv;
 	}
 
-	public void doAdd_participant(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		String siteTitle = getStateSite(state).getTitle();
-		String nonOfficialAccountLabel = ServerConfigurationService.getString(
-				"nonOfficialAccountLabel", "");
-
-		Hashtable selectedRoles = (Hashtable) state
-				.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES);
-
-		boolean notify = false;
-		if (state.getAttribute("form_selectedNotify") != null) {
-			notify = ((Boolean) state.getAttribute("form_selectedNotify"))
-					.booleanValue();
-		}
-		boolean same_role = ((Boolean) state.getAttribute("form_same_role"))
-				.booleanValue();
-		Hashtable eIdRoles = new Hashtable();
-
-		List addParticipantList = (List) state
-				.getAttribute(STATE_ADD_PARTICIPANTS);
-		for (int i = 0; i < addParticipantList.size(); i++) {
-			Participant p = (Participant) addParticipantList.get(i);
-			String eId = p.getEid();
-
-			// role defaults to same role
-			String role = (String) state.getAttribute("form_selectedRole");
-			if (!same_role) {
-				// if all added participants have different role
-				role = (String) selectedRoles.get(eId);
-			}
-
-			if (isOfficialAccount(eId)) {
-				// if this is a officialAccount
-				// update the hashtable
-				eIdRoles.put(eId, role);
-			} else {
-				// if this is an nonOfficialAccount
-				try {
-					UserDirectoryService.getUserByEid(eId);
-				} catch (UserNotDefinedException e) {
-					// if there is no such user yet, add the user
-					try {
-						UserEdit uEdit = UserDirectoryService
-								.addUser(null, eId);
-
-						// set email address
-						uEdit.setEmail(eId);
-
-						// set the guest user type
-						uEdit.setType("guest");
-
-						// set password to a positive random number
-						Random generator = new Random(System
-								.currentTimeMillis());
-						Integer num = new Integer(generator
-								.nextInt(Integer.MAX_VALUE));
-						if (num.intValue() < 0)
-							num = new Integer(num.intValue() * -1);
-						String pw = num.toString();
-						uEdit.setPassword(pw);
-
-						// and save
-						UserDirectoryService.commitEdit(uEdit);
-
-						boolean notifyNewUserEmail = (ServerConfigurationService
-								.getString("notifyNewUserEmail", Boolean.TRUE
-										.toString()))
-								.equalsIgnoreCase(Boolean.TRUE.toString());
-						if (notifyNewUserEmail) {
-						
-								userNotificationProvider.notifyNewUserEmail(uEdit, pw, siteTitle);
-							
-							
-						}
-					} catch (UserIdInvalidException ee) {
-						addAlert(state, nonOfficialAccountLabel + " id " + eId + " " + rb.getString("java.isinval"));
-						M_log.warn(this + ".doAdd_participant: " + nonOfficialAccountLabel + " id " + eId + " " + rb.getString("java.isinval"), ee);
-					} catch (UserAlreadyDefinedException ee) {
-						addAlert(state, "The " + nonOfficialAccountLabel + " " + eId + " " + rb.getString("java.beenused"));
-						M_log.warn(this + ".doAdd_participant: The " + nonOfficialAccountLabel + " " + eId + " " + rb.getString("java.beenused"), ee);
-					} catch (UserPermissionException ee) {
-						addAlert(state, rb.getString("java.haveadd") + " " + eId);
-						M_log.warn(this + ".doAdd_participant: " + rb.getString("java.haveadd") + " " + eId, ee);
-					}
-				}
-
-				if (state.getAttribute(STATE_MESSAGE) == null) {
-					eIdRoles.put(eId, role);
-				}
-			}
-		}
-
-		// batch add and updates the successful added list
-		List addedParticipantEIds = addUsersRealm(state, eIdRoles, notify);
-
-		// update the not added user list
-		String notAddedOfficialAccounts = NULL_STRING;
-		String notAddedNonOfficialAccounts = NULL_STRING;
-		for (Iterator iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();) {
-			String iEId = (String) iEIds.next();
-			if (!addedParticipantEIds.contains(iEId)) {
-				if (isOfficialAccount(iEId)) {
-					// no email in eid
-					notAddedOfficialAccounts = notAddedOfficialAccounts
-							.concat(iEId + "\n");
-				} else {
-					// email in eid
-					notAddedNonOfficialAccounts = notAddedNonOfficialAccounts
-							.concat(iEId + "\n");
-				}
-			}
-		}
-
-		if (addedParticipantEIds.size() != 0
-				&& (!notAddedOfficialAccounts.equals(NULL_STRING) || !notAddedNonOfficialAccounts.equals(NULL_STRING))) {
-			// at lease one officialAccount account or an nonOfficialAccount
-			// account added, and there are also failures
-			addAlert(state, rb.getString("java.allusers"));
-		}
-
-		if (notAddedOfficialAccounts.equals(NULL_STRING)
-				&& notAddedNonOfficialAccounts.equals(NULL_STRING)) {
-			// all account has been added successfully
-			removeAddParticipantContext(state);
-		} else {
-			state.setAttribute("officialAccountValue",
-					notAddedOfficialAccounts);
-			state.setAttribute("nonOfficialAccountValue",
-					notAddedNonOfficialAccounts);
-		}
-		if (state.getAttribute(STATE_MESSAGE) != null) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "22");
-		} else {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
-		}
-		return;
-
-	} // doAdd_participant
-
-
-	/**
-	 * whether the eId is considered of official account
-	 * @param eId
-	 * @return
-	 */
-	private boolean isOfficialAccount(String eId) {
-		return eId.indexOf(EMAIL_CHAR) == -1;
-	}
-
-	/**
-	 * remove related state variable for adding participants
-	 * 
-	 * @param state
-	 *            SessionState object
-	 */
-	private void removeAddParticipantContext(SessionState state) {
-		// remove related state variables
-		state.removeAttribute("form_selectedRole");
-		state.removeAttribute("officialAccountValue");
-		state.removeAttribute("nonOfficialAccountValue");
-		state.removeAttribute("form_same_role");
-		state.removeAttribute("form_selectedNotify");
-		state.removeAttribute(STATE_ADD_PARTICIPANTS);
-		state.removeAttribute(STATE_SELECTED_USER_LIST);
-		state.removeAttribute(STATE_SELECTED_PARTICIPANT_ROLES);
-
-	} // removeAddParticipantContext
-
-
-
 
 	private String getSetupRequestEmailAddress() {
 		String from = ServerConfigurationService.getString("setup.request",
@@ -9162,94 +8667,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		return from;
 	}
-
-
-
-	/*
-	 * Given a list of user eids, add users to realm If the user account does
-	 * not exist yet inside the user directory, assign role to it @return A list
-	 * of eids for successfully added users
-	 */
-	private List addUsersRealm(SessionState state, Hashtable eIdRoles, boolean notify) {
-		// return the list of user eids for successfully added user
-		List addedUserEIds = new Vector();
-
-		StringBuilder message = new StringBuilder();
-
-		if (eIdRoles != null && !eIdRoles.isEmpty()) {
-			// get the current site
-			Site sEdit = getStateSite(state);
-			if (sEdit != null) {
-				// get realm object
-				String realmId = sEdit.getReference();
-				try {
-					AuthzGroup realmEdit = AuthzGroupService
-							.getAuthzGroup(realmId);
-					for (Iterator eIds = eIdRoles.keySet().iterator(); eIds
-							.hasNext();) {
-						String eId = (String) eIds.next();
-						String role = (String) eIdRoles.get(eId);
-
-						try {
-							User user = UserDirectoryService.getUserByEid(eId);
-							if (AuthzGroupService.allowUpdate(realmId)
-									|| SiteService
-											.allowUpdateSiteMembership(sEdit
-													.getId())) {
-								realmEdit.addMember(user.getId(), role, true,
-										false);
-								addedUserEIds.add(eId);
-
-								// send notification
-								if (notify) {
-									String emailId = user.getEmail();
-									String userName = user.getDisplayName();
-									// send notification email
-									if (this.userNotificationProvider == null)
-									{
-										M_log.warn("notification provider is null!");
-									}
-									else
-									{
-										userNotificationProvider.notifyAddedParticipant(!isOfficialAccount(eId), user, sEdit.getTitle());
-									}
-									
-								}
-							}
-						} catch (UserNotDefinedException e) {
-							message.append(eId + " "
-									+ rb.getString("java.account") + " \n");
-							M_log.warn(this  + ".addUsersRealm: " + eId + " "+ rb.getString("java.account"), e);
-						} // try
-					} // for
-
-					try {
-						AuthzGroupService.save(realmEdit);
-						// post event about adding participant
-						EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
-					} catch (GroupNotDefinedException ee) {
-						message.append(rb.getString("java.realm") + realmId);
-						M_log.warn(this + ".addUsersRealm: " + rb.getString("java.realm") + realmId, ee);
-					} catch (AuthzPermissionException ee) {
-						message.append(rb.getString("java.permeditsite") + realmId);
-						M_log.warn(this + ".addUsersRealm: " + rb.getString("java.permeditsite") + realmId, ee);
-					}
-				} catch (GroupNotDefinedException eee) {
-					message.append(rb.getString("java.realm") + realmId);
-					M_log.warn(this + ".addUsersRealm: " + rb.getString("java.realm") + realmId, eee);
-				} catch (Exception eee) {
-					M_log.warn(this + ".addUsersRealm: " + eee.getMessage() + " realmId=" + realmId, eee);
-				}
-			}
-		}
-
-		if (message.length() != 0) {
-			addAlert(state, message.toString());
-		} // if
-
-		return addedUserEIds;
-
-	} // addUsersRealm
 
 	/**
 	 * addNewSite is called when the site has enough information to create a new

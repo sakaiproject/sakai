@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Confirm participant</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+</head>
+<body>
+<div class="portletBody">
+		<h3 rsf:id="msg=addconf.confirming">Confirming Add Participant(s)</h3>
+		<!-- alert message -->
+		<div rsf:id="error-row:">
+			<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+		</div>
+		<h4 class="instruction" rsf:id="msg=addconf.finish"></h4>
+		<span class="instruction" rsf:id="msg=addconf.theywill"></span>
+		<span class="instruction" rsf:id="msg=addconf.not"></span>
+		<span class="instruction" rsf:id="msg=addconf.besent"></span>
+		<form rsf:id="back" action="Add.html">
+			<table class="listHier" border="0" cellspacing="0">
+			  <thead>
+			    <tr>
+			      <th >Name</th>
+			      <th >Id</th>
+			      <th >Role</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr rsf:id="user-row:">
+			      <td rsf:id="user-name"></td>
+			      <td rsf:id="user-eid"></td>
+			      <td rsf:id="user-role"></td>
+			    </tr>
+			  </tbody>
+			</table>
+			<p class="act">
+				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit"/>
+				<input accesskey ="b" rsf:id="back" value="Back" type="submit"/>
+				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+			</p>			
+		</form>
+</div>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+ 
+  <bean id="userNotificationProvider"
+      class="org.sakaiproject.site.tool.helper.participant.impl.UserNotificationProvider">
+    <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    <property name="messageLocator" ref="messageLocator"/>
+  </bean> 
+  
+ <bean id="siteAddParticipantHandler" init-method="init"
+      class="org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler">
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="notiProvider" ref="userNotificationProvider" />
+  </bean>
+  
+  <bean id="AddProducer"
+      class="org.sakaiproject.site.tool.helper.participant.rsf.AddProducer">
+    <property name="handler" ref="siteAddParticipantHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+  </bean>
+   
+  <bean id="ConfirmProdcuer" 
+      class="org.sakaiproject.site.tool.helper.participant.rsf.ConfirmProducer">    
+    <property name="handler" ref="siteAddParticipantHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+  </bean>
+  
+  <bean id="SameRoleProducer"
+      class="org.sakaiproject.site.tool.helper.participant.rsf.SameRoleProducer">
+    <property name="handler" ref="siteAddParticipantHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+  </bean>
+  
+  <bean id="DifferentRoleProducer"
+      class="org.sakaiproject.site.tool.helper.participant.rsf.DifferentRoleProducer">
+    <property name="handler" ref="siteAddParticipantHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+  </bean>
+  
+    
+  <bean id="EmailNotiProducer"
+      class="org.sakaiproject.site.tool.helper.participant.rsf.EmailNotiProducer">
+    <property name="handler" ref="siteAddParticipantHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+  </bean>
+
+</beans>

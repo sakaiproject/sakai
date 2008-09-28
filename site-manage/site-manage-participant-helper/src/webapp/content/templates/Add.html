@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Site Add Participant</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+</head>
+
+<body>
+<div id="participant-body" class="portletBody">
+	<!-- alert message -->
+	<div rsf:id="error-row:">
+		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+	</div>
+	<div rsf:id="content:">
+		<!-- instruction for adding participant to course sites  -->
+		<h3 rsf:id="msg=java.addp">Add Participant</h3>
+		<h4 class="instruction" rsf:id="add.official"></h4>
+		<h5 class="indnt1 instruction" rsf:id = "add.official1"></h5>
+		<h5 class="indnt1 instruction" rsf:id = "add.official.instruction"></h5>
+		<!-- form for adding participant -->
+		<form rsf:id="participant-form" >
+			<!-- add official account -->
+			<h4 class="instruction" rsf:id="officialAccountSectionTitle"></h4>
+			<label rsf:id="officialAccountLabel" for ="officialAccountParticipant">
+	           Official Account Label
+	        </label>
+	        <br/>
+	        <textarea rsf:id="officialAccountParticipant" name="officialAccountParticipant" cols="35" rows="4" id="officialAccountParticipant"></textarea>
+			<a href="#" onclick="rsf:id='officialAccountPickerAction'"><h5 rsf:id="officialAccountPickerLabel"></h5></a><br />
+			<h5 class="instruction textPanelFooter" rsf:id="msg=add.multiple"></h5>
+			
+			<!-- add non-official account -->
+			<h4 class="instruction" rsf:id="nonOfficialAccountSectionTitle"></h4>
+			<label rsf:id="nonOfficialAccountLabel" for ="nonOfficialAccountParticipant">
+	           Non-Official Account Label
+	        </label>
+	        <br/>
+	        <textarea rsf:id="nonOfficialAccountParticipant" name="nonOfficialAccountParticipant" cols="35" rows="4" id="nonOfficialAccountParticipant"></textarea>
+			<h5 class="instruction textPanelFooter" rsf:id="msg=add.multiple"></h5>
+			
+			<!--  choose roles -->
+			<h4 class="instruction" rsf:id="msg=add.participants"></h4> 
+			<span rsf:id="select-roles"></span>
+			<table class="listHier lines nolines" style="width:auto" summary="">
+				<tr rsf:id="role-row:">
+					<td>
+					  <input rsf:id="role-select" title="Select role type" type="radio" id="radio" name="roleChoice" value=""/>
+					  <label rsf:id="role-label" for = "role-select">
+					  	label
+					  </label>
+					</td>		
+				</tr>
+			</table>
+			<p class="act">
+				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit"/>
+				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+			</p>
+		</form>
+	</div>
+</div>
+</body>
+</html>

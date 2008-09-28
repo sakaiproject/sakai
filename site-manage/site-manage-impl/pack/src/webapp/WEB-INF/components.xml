@@ -16,15 +16,6 @@
 			destroy-method="destroy"
 			singleton="true">
 	</bean>
-	         
-	<bean id="org.sakaiproject.sitemanage.api.UserNotificationProvider" 
-		class="org.sakaiproject.sitemanage.impl.UserNotificationProviderImpl"
-		init-method="init"
-		singleton="true" >
-		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-	</bean>
 	
 	<!--  Hibernate persistence -->
 

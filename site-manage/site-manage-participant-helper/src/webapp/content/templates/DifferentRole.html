@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Site Add Participant</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+</head>
+
+<body rsf:id="scr=sakai-body">
+<div class="portletBody">
+	<!-- alert message -->
+	<div rsf:id="error-row:">
+		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+	</div>
+	<div rsf:id="content:">
+		<h3 rsf:id="msg=adddif.choose">Choose a Role for Participants</h3>
+		<h4 class="instruction" rsf:id="msg=adddif.chroles"><span class="reqStarInline">*</span></h4>
+		<form rsf:id="differentRole-form">
+			<table class="listHier lines nolines" style="width:auto" summary="">
+				<tr rsf:id="role-row:">
+					<td>
+					  <h5 rsf:id="role-label">
+					  	role
+					  </h5>
+					</td>		
+				</tr>
+			</table>
+			<table class="listHier" border="0" cellspacing="0">
+			  <thead>
+			    <tr>
+			      <th rsf:id="msg=addconf.username">UserName</th>
+			      <th rsf:id="msg=addconf.role">Role</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <tr rsf:id="user-row:">
+			      <td rsf:id="user-name"></td>
+			      <td width="10%">
+						<select size="1" rsf:id="role-select" id="role-select" style="valign:top">
+						  <option value="" selected="selected">Please choose a role:</option>
+				          <option value="access" >access</option>
+				          <option value="maintain">maintain</option>
+				        </select>
+				      </td>
+			    </tr>
+			  </tbody>
+			</table>
+			<p class="act">
+				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit"/>
+				<input accesskey ="b" rsf:id="back" value="Back" type="submit"/>
+				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+			</p>			
+		</form>
+	</div>
+</div>
+</body>
+</html>

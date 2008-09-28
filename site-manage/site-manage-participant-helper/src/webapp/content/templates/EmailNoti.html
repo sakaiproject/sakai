@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Same Role for participant</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+</head>
+<body>
+<div class="portletBody">
+	<!-- alert message -->
+	<div rsf:id="error-row:">
+		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+	</div>
+	<div rsf:id="content:">
+		<h3 rsf:id="msg=add.addpart">Add participant to </h3>
+		<h4 class="instruction" rsf:id="msg=addnoti.anemail"></h4>
+		<!-- form for adding participant -->
+		<form rsf:id="emailNoti-form" >
+			<!--  choose notification method -->
+			<span rsf:id="select-noti"></span>
+			<table class="listHier lines nolines" style="width:auto" summary="">
+				<tr rsf:id="noti-row:">
+					<td>
+						<input rsf:id="noti-select" title="Select noti type" type="radio" id="radio" name="notiChoice" value=""/>
+					 	<label rsf:id="noti-label" for = "noti-select">
+					  		label
+					  	</label>
+					</td>		
+				</tr>
+			</table>
+			<p class="act">
+				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit"/>
+				<input accesskey ="b" rsf:id="back" value="Back" type="submit"/>
+				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+			</p>			
+		</form>
+	</div>
+</div>
+</body>
+</html>
