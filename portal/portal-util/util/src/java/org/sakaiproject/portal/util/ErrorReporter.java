@@ -39,6 +39,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -253,19 +254,20 @@ public class ErrorReporter
 	 * @param object
 	 * @param placementDisplay
 	 */
-	protected void logAndMail(String usageSessionId, String userId, String time,
+	protected void logAndMail(String bugId, String usageSessionId, String userId, String time,
 			String problem, String problemdigest, String requestURI, String userReport)
 	{
-		logAndMail(usageSessionId, userId, time, problem, problemdigest, requestURI, "",
+		logAndMail(bugId, usageSessionId, userId, time, problem, problemdigest, requestURI, "",
 				"", userReport);
 	}
 
-	protected void logAndMail(String usageSessionId, String userId, String time,
+	protected void logAndMail(String bugId, String usageSessionId, String userId, String time,
 			String problem, String problemdigest, String requestURI,
 			String requestDisplay, String placementDisplay, String userReport)
 	{
 		// log
 		M_log.warn(rb.getString("bugreport.bugreport") + " "
+				+ rb.getString("bugreport.bugid") + ": " + bugId + " "
 				+ rb.getString("bugreport.user") + ": " + userId + " "
 				+ rb.getString("bugreport.usagesession") + ": " + usageSessionId + " "
 				+ rb.getString("bugreport.time") + ": " + time + " "
@@ -332,7 +334,8 @@ public class ErrorReporter
 					+ ServerConfigurationService.getString("ui.service", "Sakai")
 					+ "\"<no-reply@" + ServerConfigurationService.getServerName() + ">";
 
-			String body = rb.getString("bugreport.user") + ": " + userEid + " ("
+			String body = rb.getString("bugreport.bugid") + ": " + bugId + "\n"
+					+ rb.getString("bugreport.user") + ": " + userEid + " ("
 					+ userName + ")\n" + rb.getString("bugreport.email") + ": "
 					+ userMail + "\n" + rb.getString("bugreport.usagesession") + ": "
 					+ usageSessionId + "\n" + rb.getString("bugreport.digest") + ": "
@@ -363,6 +366,8 @@ public class ErrorReporter
 	 */
 	public void report(HttpServletRequest req, HttpServletResponse res, Throwable t)
 	{
+		String bugId = IdManager.createUuid(); 
+				
 		String headInclude = (String) req.getAttribute("sakai.html.head");
 		String bodyOnload = (String) req.getAttribute("sakai.html.body.onload");
 		Time reportTime = TimeService.newTime();
@@ -436,6 +441,8 @@ public class ErrorReporter
 					+ FormattedText.escapeHtml(problemdigest, false) + "\">");
 			out.println("<input type=\"hidden\" name=\"session\" value=\""
 					+ FormattedText.escapeHtml(usageSessionId, false) + "\">");
+			out.println("<input type=\"hidden\" name=\"bugid\" value=\""
+					+ FormattedText.escapeHtml(bugId, false) + "\">");
 			out.println("<input type=\"hidden\" name=\"user\" value=\""
 					+ FormattedText.escapeHtml(userId, false) + "\">");
 			out.println("<input type=\"hidden\" name=\"time\" value=\""
@@ -482,7 +489,7 @@ public class ErrorReporter
 			out.println("</html>");
 
 			// log and send the preliminary email
-			logAndMail(usageSessionId, userId, time, problem, problemdigest, requestURI,
+			logAndMail(bugId, usageSessionId, userId, time, problem, problemdigest, requestURI,
 					requestDisplay, placementDisplay, null);
 		}
 		catch (Throwable any)
@@ -642,6 +649,7 @@ public class ErrorReporter
 	 */
 	public void postResponse(HttpServletRequest req, HttpServletResponse res)
 	{
+		String bugId = req.getParameter("bugid");
 		String session = req.getParameter("session");
 		String user = req.getParameter("user");
 		String time = req.getParameter("time");
@@ -652,7 +660,7 @@ public class ErrorReporter
 		String problemPlacement = req.getParameter("problemPlacement");
 
 		// log and send the followup email
-		logAndMail(session, user, time, problem, problemdigest, null, problemRequest,
+		logAndMail(bugId, session, user, time, problem, problemdigest, null, problemRequest,
 				problemPlacement, comment);
 
 		// always redirect from a post
