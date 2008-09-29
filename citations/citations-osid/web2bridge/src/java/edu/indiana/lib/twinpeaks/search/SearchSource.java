@@ -189,8 +189,8 @@ public class SearchSource {
       if (_queryClass == null) {
         _queryClass = Class.forName(_queryClassName);
       }
+      return (QueryBase) _queryClass.newInstance();
     }
-    return (QueryBase) _queryClass.newInstance();
   }
 
   /**
@@ -216,8 +216,8 @@ public class SearchSource {
       if (_searchResultClass == null) {
         _searchResultClass = Class.forName(_searchResultClassName);
       }
+      return (SearchResultBase) _searchResultClass.newInstance();
     }
-    return (SearchResultBase) _searchResultClass.newInstance();
   }
 
   /**
