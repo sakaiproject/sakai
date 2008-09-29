@@ -65,3 +65,122 @@ function removeDHTMLMask() {
  * Version 2.1.1
  */
 (function($){$.fn.bgIframe=$.fn.bgiframe=function(s){if($.browser.msie&&/6.0/.test(navigator.userAgent)){s=$.extend({top:'auto',left:'auto',width:'auto',height:'auto',opacity:true,src:'javascript:false;'},s||{});var prop=function(n){return n&&n.constructor==Number?n+'px':n;},html='<iframe class="bgiframe"frameborder="0"tabindex="-1"src="'+s.src+'"'+'style="display:block;position:absolute;z-index:-1;'+(s.opacity!==false?'filter:Alpha(Opacity=\'0\');':'')+'top:'+(s.top=='auto'?'expression(((parseInt(this.parentNode.currentStyle.borderTopWidth)||0)*-1)+\'px\')':prop(s.top))+';'+'left:'+(s.left=='auto'?'expression(((parseInt(this.parentNode.currentStyle.borderLeftWidth)||0)*-1)+\'px\')':prop(s.left))+';'+'width:'+(s.width=='auto'?'expression(this.parentNode.offsetWidth+\'px\')':prop(s.width))+';'+'height:'+(s.height=='auto'?'expression(this.parentNode.offsetHeight+\'px\')':prop(s.height))+';'+'"/>';return this.each(function(){if($('> iframe.bgiframe',this).length==0)this.insertBefore(document.createElement(html),this.firstChild);});}return this;};})(jQuery);
+
+//For SAK-13987
+var sessionId = document.cookie.replace(/^[^=]*=/, '').replace(/\..*$/, '');
+var sessionTimeOut;
+var timeoutDialogEnabled = false;
+var timeoutDialogWarningTime;
+var timeoutLoggedoutUrl;
+jQuery(document).ready(function(){
+	//TODO - find a better method for detecting logged in
+	// note a session exists whether the user is logged in or no
+	if (jQuery('div#siteNav').get(0)) {  //if Logged in
+		setup_timeout_config();
+	}
+});
+
+var setup_timeout_config = function() {
+	jQuery.ajax({
+		url: "/portal/timeout/config",
+		cache: true,
+		dataType: "text",
+		success: function(data){
+		var values = data.split("\n");
+		if (values[0] == "true") {
+			timeoutDialogEnabled = true;
+		}
+		else {
+			timeoutDialogEnabled = false;
+		}
+		timeoutDialogWarningTime = new Number(values[1]);
+		timeoutLoggedoutUrl = new String(values[2]);
+		if (timeoutDialogEnabled == true) {
+			poll_session_data();
+			fetch_timeout_dialog();
+		}
+	},
+	error: function(XMLHttpRequest, status, error) {
+		timeoutDialogEnabled = false;
+	}
+	});
+}
+
+var poll_session_data = function() {
+	jQuery.ajax({
+		url: "/direct/session/" + sessionId + ".json?auto=true",   //auto=true makes it not refresh the session lastaccessedtime
+		cache: false,
+		dataType: "json",
+		success: function(data){
+		//get the maxInactiveInterval in the same ms
+		data.maxInactiveInterval = data.maxInactiveInterval * 1000;
+		if(data.active && data.lastAccessedTime + data.maxInactiveInterval
+				> data.currentTime) {
+			//User is logged in, so now determine how much time is left
+			var remaining = data.lastAccessedTime + data.maxInactiveInterval - data.currentTime;
+			//If time remaining is less than timeoutDialogWarningTime minutes, show/update dialog box
+			if (remaining < timeoutDialogWarningTime * 1000){
+				//we are within 5 min now - show popup
+				min = Math.round(remaining / (1000 * 60));
+				show_timeout_alert(min);
+				clearTimeout(sessionTimeOut);
+				sessionTimeOut = setTimeout("poll_session_data()", 1000 * 60);
+			} else {
+				//more than timeoutDialogWarningTime min away
+				clearTimeout(sessionTimeOut);
+				sessionTimeOut = setTimeout("poll_session_data()", (remaining - timeoutDialogWarningTime*1000));
+			}
+
+		} else {
+			//the timeout length has occurred, but there is a slight delay, do this until you get a 404
+			sessionTimeOut = setTimeout("poll_session_data()", 1000 * 10);
+		}
+	},
+	error: function(XMLHttpRequest, status, error){
+		if (XMLHttpRequest.status == 404){
+			//user is not logged in
+			location.href=timeoutLoggedoutUrl;
+		}
+	}
+	});
+}
+
+function keep_session_alive(){
+	removeDHTMLMask();
+	jQuery("#timeout_alert_body").remove();
+	jQuery.get(timeoutLoggedoutUrl);
+}
+
+var timeoutDialogFragment;
+function fetch_timeout_dialog() {
+	jQuery.ajax({
+		url: "/portal/timeout?auto=true",
+		cache: true,
+		dataType: "text",
+		success: function(data) {
+		timeoutDialogFragment = data; 
+	},
+	error: function(XMLHttpRequest, status, error){
+		timeoutDialogEnabled = false;
+	}
+	});
+}
+
+function show_timeout_alert(min) {
+	if (!timeoutDialogEnabled) {
+		return;
+	}
+
+	if (!jQuery("#portalMask").get(0)){
+		createDHTMLMask();
+		jQuery("#portalMask").css("z-index", 10000);
+	}
+	if (jQuery("#timeout_alert_body").get(0)) {
+		//its there, just update the min
+		jQuery("#timeout_alert_body span").html(min);
+	} else {
+		var dialog = timeoutDialogFragment.replace("{0}", min);
+		jQuery("body").append(dialog);
+	}
+}
+
