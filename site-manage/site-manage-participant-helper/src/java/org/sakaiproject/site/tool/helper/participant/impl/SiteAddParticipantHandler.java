@@ -22,6 +22,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.Participant;
+import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
@@ -524,7 +525,7 @@ public class SiteAddParticipantHandler {
 		}
 
 		// batch add and updates the successful added list
-		List<String> addedParticipantEIds = addUsersRealm(Boolean.getBoolean(emailNotiChoice));
+		List<String> addedParticipantEIds = addUsersRealm(Boolean.parseBoolean(emailNotiChoice));
 
 		// update the not added user list
 		String notAddedOfficialAccounts = "";

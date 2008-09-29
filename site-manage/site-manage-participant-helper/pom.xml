@@ -41,6 +41,10 @@
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-site-manage-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-manage-util</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->

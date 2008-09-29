@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
- 
-  <bean id="userNotificationProvider"
-      class="org.sakaiproject.site.tool.helper.participant.impl.UserNotificationProvider">
-    <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
-    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-    <property name="messageLocator" ref="messageLocator"/>
-  </bean> 
   
  <bean id="siteAddParticipantHandler" init-method="init"
       class="org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler">
@@ -19,7 +11,7 @@
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="messageLocator" ref="messageLocator"/>
-    <property name="notiProvider" ref="userNotificationProvider" />
+    <property name="notiProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider" />
   </bean>
   
   <bean id="AddProducer"
