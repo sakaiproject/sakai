@@ -21,15 +21,14 @@
 
 
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
-import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
-import org.sakaiproject.tool.assessment.ui.queue.delivery.SubmitTimedAssessmentThread;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 
 /**
  * <p>Title: </p>
@@ -42,13 +41,13 @@ import java.util.Timer;
 
 public class TimedAssessmentQueue { 
   private static TimedAssessmentQueue instance; 
-  private HashMap queue;
+  private ConcurrentHashMap queue;
     // private SubmitTimedAssessmentThread thread;
   private Timer timer;
 
   private static Log log = LogFactory.getLog(TimedAssessmentQueue.class);
   private TimedAssessmentQueue() { 
-    queue = new HashMap();
+    queue = new ConcurrentHashMap ();
   } 
 
   public static synchronized TimedAssessmentQueue getInstance() { 
@@ -57,13 +56,14 @@ public class TimedAssessmentQueue {
     } 
     return instance; 
   } 
-
+  
   public void add(TimedAssessmentGradingModel timedAG){
-    queue.put(timedAG.getAssessmentGradingId(), timedAG);
-    log.debug("***1. TimedAssessmentQueue.add, before schedule timer="+timer);
-    scheduleTask();
-    log.debug("***2. TimedAssessmentQueue.add, after schedule timer="+timer);
-
+	  synchronized (queue) {
+		  queue.put(timedAG.getAssessmentGradingId(), timedAG);
+		  log.debug("***1. TimedAssessmentQueue.add, before schedule timer="+timer);
+		  scheduleTask();
+		  log.debug("***2. TimedAssessmentQueue.add, after schedule timer="+timer);
+	  }
   }
 
   private void scheduleTask(){
@@ -74,15 +74,17 @@ public class TimedAssessmentQueue {
   }
 
   public void remove(TimedAssessmentGradingModel timedAG){
-    queue.remove(timedAG.getAssessmentGradingId());
-    if (isEmpty()){
-      log.debug("*** before destroy, timer="+timer);
-      timer.cancel();
-      timer = null;
-      log.debug("*** after destroy, timer="+timer);
-    }
+	  synchronized (queue) {
+		  queue.remove(timedAG.getAssessmentGradingId());
+		  if (isEmpty()){
+			  log.debug("*** before destroy, timer="+timer);
+			  timer.cancel();
+			  timer = null;
+			  log.debug("*** after destroy, timer="+timer);
+		  }
+	  }
   }
-
+  
   public TimedAssessmentGradingModel get(Long assessmentGradingId){
     return (TimedAssessmentGradingModel)queue.get(assessmentGradingId);
   }
