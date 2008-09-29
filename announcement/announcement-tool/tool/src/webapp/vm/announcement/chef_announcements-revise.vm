@@ -1,89 +1,5 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-revise.vm,v 1.4 2005/05/15 04:54:19 gsilver.umich.edu Exp $ 
 
-############################################# Date selection widget macro start
-#* It appears the only difference between this macro and chef_dateselectionwidget is the onchange attribute below. TBD: Implement this better
-*#
-#macro (custom_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $onChangeAction $dateformat)
-
-	#set($yearList = [$earliestYear .. $latestYear])
-	
-   #if (! $dateFormat)
-   #set ($dateFormat=["m","d","y"])
-   #end
-   
-   #foreach ( $format in $dateFormat )
-    
-    #* Create Month Select Box
-    *#
-    
-    #if ($format=="m")
-    <select name="$monthselect_id" id="$monthselect_id" onchange="blur(); $onChangeAction">
-      #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("jan")</option> #else <option value="1">$tlang.getString("jan")</option> #end
-        
-		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("feb")</option> #else <option value="2">$tlang.getString("feb")</option> #end
-        
-		#if ($monthSelected == 3) <option value="3" selected="selected">$tlang.getString("mar")</option> #else <option value="3">$tlang.getString("mar")</option> #end
-        
-		#if ($monthSelected == 4) <option value="4" selected="selected">$tlang.getString("apr")</option> #else <option value="4">$tlang.getString("apr")</option> #end
-        
-		#if ($monthSelected == 5) <option value="5" selected="selected">$tlang.getString("may")</option> #else <option value="5">$tlang.getString("may")</option> #end
-        
-		#if ($monthSelected == 6) <option value="6" selected="selected">$tlang.getString("jun")</option> #else <option value="6">$tlang.getString("jun")</option> #end
-        
-		#if ($monthSelected == 7) <option value="7" selected="selected">$tlang.getString("jul")</option> #else <option value="7">$tlang.getString("jul")</option> #end
-        
-		#if ($monthSelected == 8) <option value="8" selected="selected">$tlang.getString("aug")</option> #else <option value="8">$tlang.getString("aug")</option> #end
-        
-		#if ($monthSelected == 9) <option value="9" selected="selected">$tlang.getString("sep")</option> #else <option value="9">$tlang.getString("sep")</option> #end
-        
-		#if ($monthSelected == 10) <option value="10" selected="selected">$tlang.getString("oct")</option> #else <option value="10">$tlang.getString("oct")</option> #end
-        
-		#if ($monthSelected == 11) <option value="11" selected="selected">$tlang.getString("nov")</option> #else <option value="11">$tlang.getString("nov")</option> #end
-        
-		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("dec")</option> #else <option value="12">$tlang.getString("dec")</option> #end
-
-    </select>
-    #end
-    
-    #* Create Day Select Box
-    *#
-    
-    #if ($format=="d")
-    <select name="$dayselect_id" id="$dayselect_id" onchange="blur(); $onChangeAction">
-    #foreach($d in [1..31])
-        #if($d == $daySelected)
-            <option value="$d" selected="selected">$d</option>
-        #else
-            <option value="$d">$d</option>
-        #end
-	 #end
-    </select>
-    #end
-    
-    #* Create Year Select Box
-    *#
-    
-    #if ($format=="y")
-    <select name="$yearselect_id" id="$yearselect_id" onchange="blur(); $onChangeAction">
-        #foreach ($y in $yearList)
-            #if ($y == $yearSelected)
-                    <option value="$y" selected="selected">$y</option>
-            #else
-                    <option value="$y">$y</option>
-            #end
-		#end
-    </select>
-    #end
-    
-   #end
-	
-   
-   #* Create Date Selection Popup
-   *#
-	
-	#chef_dateselectionwidgetpopup($yearselect_id $monthselect_id $dayselect_id)
-	
-#end
 ############################################# Date selection widget macro end
 ##
 ############################################# Time selection widget macro begin
@@ -387,7 +303,7 @@
 				<tr>
 					<td colspan="3"></td>
 					<td>
-						#custom_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;" $dateFormat)
+						#chef_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX $dateFormat "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
 					</td>
 					<td>
 						#custom_timeSelectionWidget("release" $releaseDate "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
@@ -416,7 +332,7 @@
 				<tr>
 					<td colspan="3"></td>
 					<td>
-						#custom_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;" $dateFormat)
+						#chef_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX $dateFormat "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;")
 					</td>
 					<td>
 						#custom_timeSelectionWidget("retract" $retractDate "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;")
