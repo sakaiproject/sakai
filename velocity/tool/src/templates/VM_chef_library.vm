@@ -258,10 +258,21 @@
 # $monthSelected  The month selected
 # $daySelected    The day selected
 *# ------------------------------------------------------------------
-#macro (chef_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected)
+
+#macro (chef_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $dateFormat)
 
 	#set($yearList = [$earliestYear .. $latestYear])
 	
+   #if (! $dateFormat)
+   #set ($dateFormat=["m","d","y"])
+   #end
+   
+   #foreach ( $format in $dateFormat )
+    
+    #* Create Month Select Box
+    *#
+    
+    #if ($format=="m")
     <select name="$monthselect_id" id="$monthselect_id">  
       #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("jan")</option> #else <option value="1">$tlang.getString("jan")</option> #end
         
@@ -288,21 +299,28 @@
 		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("dec")</option> #else <option value="12">$tlang.getString("dec")</option> #end
 
     </select>
+    #end
     
+    #* Create Day Select Box
+    *#
+    
+    #if ($format=="d")
     <select name="$dayselect_id" id="$dayselect_id">
-		
-    #foreach($d in [1..31])
+      #foreach($d in [1..31])
         #if($d == $daySelected)
             <option value="$d" selected="selected">$d</option>
         #else
             <option value="$d">$d</option>
         #end
-	#end
-	
+	   #end
     </select>
+    #end
     
+    #* Create Year Select Box
+    *#
+    
+    #if ($format=="y")
     <select name="$yearselect_id" id="$yearselect_id">
-		
         #foreach ($y in $yearList)
             #if ($y == $yearSelected)
                     <option value="$y" selected="selected">$y</option>
@@ -310,10 +328,16 @@
                     <option value="$y">$y</option>
             #end
 		#end
-		
     </select>
+    #end
+    
+   #end
 	
-	#chef_dateselectionwidgetpopup($yearselect_id $monthselect_id $dayselect_id)
+   
+   #* Create Date Selection Popup
+   *#
+   
+   #chef_dateselectionwidgetpopup($yearselect_id $monthselect_id $dayselect_id)
 	
 #end
 
