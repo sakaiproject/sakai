@@ -257,23 +257,26 @@
 # $yearSelected   The year selected
 # $monthSelected  The month selected
 # $daySelected    The day selected
+# $dateFormat     Locale specific date format pattern
+# $onChangeAction optional javascript for onchange attribute
 *# ------------------------------------------------------------------
 
-#macro (chef_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $dateFormat)
+#macro (chef_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $dateFormat $onChangeAction)
 
 	#set($yearList = [$earliestYear .. $latestYear])
 	
-   #if (! $dateFormat)
-   #set ($dateFormat=["m","d","y"])
-   #end
-   
    #foreach ( $format in $dateFormat )
     
     #* Create Month Select Box
     *#
     
     #if ($format=="m")
-    <select name="$monthselect_id" id="$monthselect_id">  
+    
+    #if ($onChangeAction)     
+    <select name="$monthselect_id" id="$monthselect_id" onchange="blur(); $onChangeAction">
+    #else
+    <select name="$monthselect_id" id="$monthselect_id">
+    #end
       #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("jan")</option> #else <option value="1">$tlang.getString("jan")</option> #end
         
 		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("feb")</option> #else <option value="2">$tlang.getString("feb")</option> #end
@@ -305,7 +308,11 @@
     *#
     
     #if ($format=="d")
+    #if ($onChangeAction)
+    <select name="$dayselect_id" id="$dayselect_id" onchange="blur(); $onChangeAction">
+    #else
     <select name="$dayselect_id" id="$dayselect_id">
+    #end
       #foreach($d in [1..31])
         #if($d == $daySelected)
             <option value="$d" selected="selected">$d</option>
@@ -320,16 +327,20 @@
     *#
     
     #if ($format=="y")
-    <select name="$yearselect_id" id="$yearselect_id">
+      #if ($onChangeAction)
+      <select name="$yearselect_id" id="$yearselect_id" onchange="blur(); $onChangeAction">
+      #else
+      <select name="$yearselect_id" id="$yearselect_id">
+      #end
         #foreach ($y in $yearList)
             #if ($y == $yearSelected)
                     <option value="$y" selected="selected">$y</option>
             #else
                     <option value="$y">$y</option>
             #end
-		#end
-    </select>
-    #end
+        #end
+      </select>
+      #end
     
    #end
 	
