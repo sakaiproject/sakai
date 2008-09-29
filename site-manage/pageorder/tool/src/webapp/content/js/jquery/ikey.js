@@ -134,7 +134,9 @@ jQuery.iKey = {
 		if (jQuery.iKey.focusedNode == null) {
 			jQuery.iKey.focusedNode = jQuery('.' + event.data.accept, event.data.domNode).get(0);
 		}
-		jQuery.iKey.focusNode(jQuery.iKey.focusedNode, event);
+		if (jQuery.iKey.keying == true) {
+			jQuery.iKey.focusNode(jQuery.iKey.focusedNode, event);
+		}
 	},
 
 	/**
@@ -222,6 +224,9 @@ jQuery.iKey = {
 		// left arrow
 		else if (kCode == 37 && (event.data.axis || event.data.axis == 'horizontally')) {
 			jQuery.iKey.handleUpAction(event.ctrlKey, event);
+		}
+		else {
+			return true;
 		}
 		return false;
 	},
