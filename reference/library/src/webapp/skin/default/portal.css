@@ -584,6 +584,19 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	cursor: text;
 }
 
+/** Portal Timeout **/
+#timeout_alert_body {
+    position: absolute;
+    background: #fff;
+    color: #000;
+    border: 4px solid #0198CD;
+    width: 450px;
+    top: 20%;
+    left: 50%;
+    margin-left: -225px;
+    z-index: 10000;
+    padding: 5px 5px 5px 10px;
+}
 
 
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
