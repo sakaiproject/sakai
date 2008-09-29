@@ -133,6 +133,8 @@ public class DiscussionForumTool
   private static final String PERMISSION_MODE_TEMPLATE = "template";
   private static final String PERMISSION_MODE_FORUM = "forum";
   private static final String PERMISSION_MODE_TOPIC = "topic";
+  
+  private static final String MULTIPLE_WINDOWS = "pvt_multiple_windows";
 
   private DiscussionForumBean selectedForum;
   private DiscussionTopicBean selectedTopic;
@@ -295,6 +297,9 @@ public class DiscussionForumTool
   private List postingOptions = null;
   
   private boolean grade_too_large_make_sure = false;
+  
+  private int forumClickCount = 0;
+  private int topicClickCount = 0;
   
   /**
    * 
@@ -752,6 +757,7 @@ public class DiscussionForumTool
   public String processActionDisplayForum()
   {
     LOG.debug("processDisplayForum()");
+    forumClickCount++;
     if (getDecoratedForum() == null)
     {
       LOG.error("Forum not found");
@@ -812,6 +818,8 @@ public class DiscussionForumTool
   public String processActionNewForum()
   {
     LOG.debug("processActionNewForum()");
+    forumClickCount = 0;
+    topicClickCount = 0;
     
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_FORUM);
@@ -844,6 +852,8 @@ public class DiscussionForumTool
   public String processActionForumSettings()
   {
     LOG.debug("processForumSettings()");
+    forumClickCount = 0;
+    topicClickCount = 0;
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_FORUM);
     
@@ -926,7 +936,11 @@ public class DiscussionForumTool
   public String processActionSaveForumAndAddTopic()
   {
     LOG.debug("processActionSaveForumAndAddTopic()");
-
+    if(forumClickCount != 0 || topicClickCount != 0) {
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	return FORUM_SETTING_REVISE;
+    }
+    
     if(selectedForum !=null && selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null) && 
     		(selectedForum.getForum().getShortDescription().length() > 255))
@@ -975,7 +989,10 @@ public class DiscussionForumTool
   public String processActionSaveForumSettings()
   {
     LOG.debug("processActionSaveForumSettings()");
-    
+    if(forumClickCount != 0 || topicClickCount != 0) {
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	return FORUM_SETTING_REVISE;
+    }
     if(selectedForum !=null && selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null) && 
     		(selectedForum.getForum().getShortDescription().length() > 255))
@@ -1011,7 +1028,11 @@ public class DiscussionForumTool
   public String processActionSaveForumAsDraft()
   {
     LOG.debug("processActionSaveForumAsDraft()");
-
+    if(forumClickCount != 0 || topicClickCount != 0) {
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	return FORUM_SETTING_REVISE;
+    }
+    
     if(selectedForum !=null && selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null) && 
     		(selectedForum.getForum().getShortDescription().length() > 255))
@@ -1115,7 +1136,8 @@ public class DiscussionForumTool
   public String processActionNewTopic()
   {   
     LOG.debug("processActionNewTopic()");
-    
+    topicClickCount = 0 ;
+    forumClickCount = 0;
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_TOPIC);
          
@@ -1136,6 +1158,7 @@ public class DiscussionForumTool
     attachments.clear();
     prepareRemoveAttach.clear();
     setFromMainOrForumOrTopic();
+
     return TOPIC_SETTING_REVISE;
   }
 
@@ -1145,7 +1168,8 @@ public class DiscussionForumTool
   public String processActionReviseTopicSettings()
   {
     LOG.debug("processActionReviseTopicSettings()");
-    
+    topicClickCount = 0;
+    forumClickCount = 0;
     setPermissionMode(PERMISSION_MODE_TOPIC);
     setEditMode(true);
         
@@ -1203,7 +1227,10 @@ public class DiscussionForumTool
   public String processActionSaveTopicAndAddTopic()
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
-    
+    if(topicClickCount != 0 || forumClickCount != 0) {
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	return TOPIC_SETTING_REVISE;
+    }
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
     		(selectedTopic.getTopic().getShortDescription()!=null) && 
     		(selectedTopic.getTopic().getShortDescription().length() > 255))
@@ -1257,6 +1284,10 @@ public class DiscussionForumTool
   public String processActionSaveTopicSettings()
   {
     LOG.debug("processActionSaveTopicSettings()");
+    if(topicClickCount != 0 || forumClickCount != 0) {
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	return TOPIC_SETTING_REVISE;
+    }
     
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
     		(selectedTopic.getTopic().getShortDescription()!=null) && 
@@ -1294,7 +1325,10 @@ public class DiscussionForumTool
   public String processActionSaveTopicAsDraft()
   {
     LOG.debug("processActionSaveTopicAsDraft()");
-    
+    if(topicClickCount != 0 || forumClickCount != 0) {
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	return TOPIC_SETTING_REVISE;
+    }
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
     		(selectedTopic.getTopic().getShortDescription()!=null) && 
     		(selectedTopic.getTopic().getShortDescription().length() > 255))
@@ -2497,6 +2531,7 @@ public class DiscussionForumTool
     {
       LOG.debug("processActionDisplayTopicById(String" + externalTopicId + ")");
     }
+    topicClickCount++;
     if(resetTopicById(externalTopicId)){
     	return ALL_MESSAGES;
     } else {
@@ -5889,6 +5924,11 @@ public class DiscussionForumTool
 	    {
 	        final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
 	        return rb.getString(key);
+	    }
+
+	    public static String getResourceBundleString(String key, Object[] args) {
+	    	final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
+	    	return rb.getFormattedMessage(key, args);
 	    }
 
 		public boolean getGradebookExist() 
