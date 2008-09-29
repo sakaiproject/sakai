@@ -16,6 +16,16 @@ By default, a user's successful authentication is valid for 5 minutes.
 This mechanism prevents WebDAV, which sends authenticates on every 
 connection, from overloading local KDCs.
 
+NOTE: As of Sakai 2.5, a central authentication cache for the
+UserDirectoryService has been implemented:
+
+http://jira.sakaiproject.org/jira/browse/SAK-13403
+
+As such, the caching mechanism in the Kerberos provider is scheduled
+for deprecation in Sakai 2.7. Implementors using Kerberos are
+encouraged to use the central cache to tune the longevity of their
+authentication.
+
 In addition, to protect the integrity of your Kerberos password, the 
 use of a secure Web front-end is HIGHLY recommended.
 
@@ -67,7 +77,7 @@ If authentication fails, contact your local administrator for help.
 3) Uncommment the required dependency shown near "Needed for the
 Kerberos Provider" in the "<dependency>" section of:
 
-    providers/component/project.xml
+    providers/component/pom.xml
 
 Then, change the domain parameter from "mydomain.edu" to your domain 
 and, if necessary, the value of the cachettl parameter in
@@ -124,11 +134,11 @@ CacheTTL=300000
 
 INFO:
 org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init()
-SakaiHome=/spare/sakai-201/jakarta-tomcat-5.5.9/sakai/
+SakaiHome=/usr/local/sakai/sakai-demo/sakai/
 SakaiPropertyKrb5Conf=null
 SakaiPropertyAuthLoginConfig=kerberos/sakai-jaas.conf
 SystemPropertyKrb5Conf=null
-SystemPropertyAuthLoginConfig=/spare/sakai-201/jakarta-tomcat-5.5.9/sakai/kerberos/sakai.jaas.conf
+SystemPropertyAuthLoginConfig=/usr/local/sakai/sakai-demo/sakai/kerberos/sakai.jaas.conf
 
 In the above, "null" entries indicate the use of systemwide defaults.
 
@@ -146,6 +156,11 @@ loginContext -- the name of the JAAS LoginContext to use
 cachettl -- time (in milliseconds) to cache list of authenticated logins
 requireLocalAccount -- require a local account to login (true/false)
 knownUserMsg -- error message used to determine valid Kerberos principal
+
+In addition, all of the properties can be set in the sakai.properties
+file by specifying a value in this format:
+
+<PROPERTY>@org.sakaiproject.user.api.UserDirectoryProvider=<VALUE>
 
 If you wish to allow anyone with a valid Kerberos principal to login 
 into Sakai without a local account, you must configure the last two.
@@ -188,3 +203,5 @@ add these two lines:
 where STRING is replaced by "Integrity check on decrypted field 
 failed" Note: This string is the default, culled from RFC 1510.
 
+These properties can also be specified in the sakai.properties file as
+noted above.

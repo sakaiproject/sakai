@@ -12,16 +12,26 @@ to see if there is an existing systemwide configuration. If there is,
 your administrator can show you how to select the appropriate 
 LoginContext for use with Sakai.
 
-By default, the provider provides authentication ONLY for existing 
-accounts in the local Sakai user database (where Sakai user ids and 
-Kerberos principals are the same). If you wish to allow anyone with a 
-valid Kerberos principal to use Sakai, follow the instructions below 
+By default, the provider provides authentication ONLY for existing
+accounts in the local Sakai user database (where Sakai user ids and
+Kerberos principals are the same). If you wish to allow anyone with a
+valid Kerberos principal to use Sakai, follow the instructions below
 under ADVANCED OPTIONS in the accompanying INSTALL.txt.
 
 This provider implements a configurable, in-memory caching mechanism. 
 By default, a user's successful authentication is valid for 5 minutes. 
 This mechanism prevents WebDAV, which sends authenticates on every 
 connection, from overloading local KDCs.
+
+NOTE: As of Sakai 2.5, a central authentication cache for the
+UserDirectoryService has been implemented:
+
+http://jira.sakaiproject.org/jira/browse/SAK-13403
+
+As such, the caching mechanism in the Kerberos provider is scheduled
+for deprecation in Sakai 2.7. Implementors using Kerberos are
+encouraged to use the central cache to tune the longevity of their
+authentication.
 
 In addition, to protect the integrity of your Kerberos password, the 
 use of a secure Web front-end is HIGHLY recommended.
@@ -76,7 +86,7 @@ If authentication fails, contact your local administrator for help.
 3) Uncommment the required dependency shown near "Needed for the
 Kerberos Provider" in the "<dependency>" section of:
 
-    providers/component/project.xml
+    providers/component/pom.xml
 
 Then, change the domain parameter from "mydomain.edu" to your domain 
 and, if necessary, the value of the cachettl parameter in
