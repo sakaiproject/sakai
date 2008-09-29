@@ -205,24 +205,4 @@
       </testResource>
     </testResources>
   </build>
-<!--  needed for XmlSchema -->
-  <repositories>
-    <repository>
-      <id>ibiblio</id>
-      <name>ibiblio maven repository</name>
-      <url>http://ibiblio.org/maven/</url>
-      <layout>legacy</layout>
-    </repository>
-    <repository>
-      <id>apache</id>
-      <name>Apache maven repository</name>
-      <url>http://www.apache.org/dist/java-repository/</url>
-      <layout>legacy</layout>
-    </repository>
-    <repository>
-      <id>java.net</id>
-      <url>http://download.java.net/maven/1</url>
-      <layout>legacy</layout>
-    </repository>
-  </repositories>
 </project>
