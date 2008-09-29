@@ -68,6 +68,15 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 	{
 		return "select count(1) from SAKAI_REALM_ROLE where ROLE_NAME = ?";
 	}
+	
+	public String getCountRoleFunctionSql()
+	{
+		return "select count(1) from SAKAI_REALM_RL_FN MAINTABLE "
+				+ "		JOIN SAKAI_REALM_ROLE ROLE ON ROLE.ROLE_KEY = MAINTABLE.ROLE_KEY "
+				+ "		JOIN SAKAI_REALM_FUNCTION FUNCTIONS ON FUNCTIONS.FUNCTION_KEY = MAINTABLE.FUNCTION_KEY "
+				+ "		JOIN SAKAI_REALM REALM ON REALM.REALM_KEY = MAINTABLE.REALM_KEY "
+				+ "		where ROLE.ROLE_NAME = ? AND FUNCTIONS.FUNCTION_NAME = ? AND REALM.REALM_ID = ?";
+	}
 
 	public String getDeleteRealmProvider1Sql()
 	{
@@ -296,6 +305,27 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 
 			sql += "?) ";
 		}
+		return sql;
+	}
+	
+	public String getSelectRealmIdRoleSwapSql(Collection azGroups)
+	{
+		String sql = "select     SR.REALM_ID " + "from       SAKAI_REALM_FUNCTION SRF "
+				+ "inner join SAKAI_REALM_RL_FN SRRF on SRF.FUNCTION_KEY = SRRF.FUNCTION_KEY "
+				+ "inner join SAKAI_REALM_RL_GR SRRG on SRRF.REALM_KEY = SRRG.REALM_KEY "
+				+ "inner join SAKAI_REALM SR on SRRF.REALM_KEY = SR.REALM_KEY "
+				+ "join SAKAI_REALM_ROLE ROLE on ROLE.ROLE_KEY = SRRF.ROLE_KEY "
+				+ "where      SRF.FUNCTION_NAME = ? and SRRG.USER_ID = ? and SRRG.ACTIVE = '1' ";
+
+		if (azGroups != null)
+		{
+			sql += "and SR.REALM_ID in (";
+			for (int i = 0; i < azGroups.size() - 1; i++)
+				sql += "?,";
+		
+			sql += "?) ";
+		}
+		sql += "and ROLE.ROLE_NAME = ? "; 
 		return sql;
 	}
 

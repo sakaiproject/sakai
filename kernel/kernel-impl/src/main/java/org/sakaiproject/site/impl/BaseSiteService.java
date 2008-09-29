@@ -438,6 +438,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
+			functionManager().registerFunction(SITE_ROLE_SWAP);
 			functionManager().registerFunction(SITE_VISIT);
 			functionManager().registerFunction(SITE_VISIT_UNPUBLISHED);
 			functionManager().registerFunction(SECURE_ADD_SITE);
@@ -721,7 +722,11 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		}
 		else
 		{
-			unlock(SITE_VISIT_UNPUBLISHED, rv.getReference());
+			String roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap/site/" + id);
+			if (roleswap!=null) // if in a swapped mode, treat it as a normal site else do the normal unpublished check
+				unlock(SITE_VISIT, rv.getReference());
+			else
+				unlock(SITE_VISIT_UNPUBLISHED, rv.getReference());
 		}
 
 		return rv;
@@ -751,6 +756,14 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		return unlockCheck(SECURE_UPDATE_GROUP_MEMBERSHIP, siteReference(id));
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public boolean allowRoleSwap(String id)
+	{
+		return unlockCheck(SITE_ROLE_SWAP, siteReference(id));
+	}
+	
 	/**
 	 * @inheritDoc
 	 */

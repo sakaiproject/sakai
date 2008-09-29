@@ -50,6 +50,8 @@
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
  		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
  		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
 
   		<property name="cacheMinutes"><value>5</value></property>
 	</bean>

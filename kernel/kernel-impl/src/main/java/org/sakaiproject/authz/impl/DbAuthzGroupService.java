@@ -43,6 +43,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.db.api.SqlServiceDeadlockException;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -721,9 +722,26 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 			String sql = dbAuthzGroupSql.getSelectRealmIdSql(azGroups);
 			int size = 2;
+			String roleswap = null; // define the roleswap variable
 			if (azGroups != null)
 			{
 				size += azGroups.size();
+				for (Iterator i = azGroups.iterator(); i.hasNext();)
+				{
+					String[] refs = StringUtil.split(i.next().toString(), Entity.SEPARATOR); // splits the azGroups values so we can look for swapped state
+					for (int i2 = 0; i2 < refs.length; i2++)  // iterate through the groups to see if there is a swapped state in the variable
+					{
+						roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap/site/" + refs[i2]);
+						if (roleswap!=null) // break from this loop if a swapped state is found
+							break;
+					}
+					if (roleswap!=null)
+					{
+						sql = dbAuthzGroupSql.getSelectRealmIdRoleSwapSql(azGroups);  // redefine the sql we use if there's a role swap
+						size++; // increase the "size" by 1 for our new sql
+						break; // break from the loop
+					}
+				}
 			}
 			Object[] fields = new Object[size];
 			fields[0] = lock;
@@ -734,6 +752,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				for (Iterator i = azGroups.iterator(); i.hasNext();)
 				{
 					fields[pos++] = i.next();
+				}
+				if (roleswap!=null) // add in name of the role for the alternate query
+				{
+					fields[pos++] = roleswap;
 				}
 			}
 
@@ -1451,6 +1473,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			fields[1] = lock;
 			fields[2] = realmId;
 
+			// checks to see if the user has the roleswap variable set in the session
+			String roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap" + fields[2]);
+
+            if (roleswap != null)
+            {
+            	fields[0] = roleswap; // set the field to the student role for the alternate sql
+            	statement = dbAuthzGroupSql.getCountRoleFunctionSql(); // set the function for our alternate sql
+            }
+            
 			List resultsNew = m_sql.dbRead(statement, fields, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
@@ -1509,10 +1540,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// any of the grant or role realms
 			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(ANON_ROLE, AUTH_ROLE, auth, inClause);
 			Object[] fields = new Object[2 + (2 * realms.size())];
+			Object[] fields2 = new Object[3]; // for roleswap
 			int pos = 0;
 			for (Iterator i = realms.iterator(); i.hasNext();)
 			{
 				String role = (String) i.next();
+				if (role.startsWith("/site/")) 
+					fields2[2] = role;
 				fields[pos++] = role;
 			}
 			fields[pos++] = lock;
@@ -1523,21 +1557,49 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				fields[pos++] = role;
 			}
 
-			List results = m_sql.dbRead(statement, fields, new SqlReader()
-			{
-				public Object readSqlResultRecord(ResultSet result)
+			// TODO: would be better to get this initially to make the code more efficient, but the realms collection does not have a common 
+			// order for the site's id which is needed to determine if the session variable exists
+			String roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap" + fields2[2]);
+			List results = null;
+			if (roleswap != null)
+            {
+				fields2[0] = roleswap;
+				fields2[1] = lock;
+				statement = dbAuthzGroupSql.getCountRoleFunctionSql();
+				results = m_sql.dbRead(statement, fields2, new SqlReader()
 				{
-					try
+					public Object readSqlResultRecord(ResultSet result)
 					{
-						int count = result.getInt(1);
-						return Integer.valueOf(count);
+						try
+						{
+							int count = result.getInt(1);
+							return new Integer(count);
+						}
+						catch (SQLException ignore)
+						{
+							return null;
+						}
 					}
-					catch (SQLException ignore)
+				});
+            }
+			else
+			{
+				results = m_sql.dbRead(statement, fields, new SqlReader()
+				{
+					public Object readSqlResultRecord(ResultSet result)
 					{
-						return null;
+						try
+						{
+							int count = result.getInt(1);
+							return new Integer(count);
+						}
+						catch (SQLException ignore)
+						{
+							return null;
+						}
 					}
-				}
-			});
+				});
+			}
 
 			boolean rv = false;
 			int count = -1;
@@ -2225,7 +2287,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// prepare the return
 			String rv = null;
-			if ((results != null) && (!results.isEmpty()))
+			// checks to see if the user has the roleswap variable set in the session
+			String roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap" + fields[0]);
+			if (roleswap != null)
+            	rv = roleswap;
+			else if ((results != null) && (!results.isEmpty()))
 			{
 				rv = (String) results.get(0);
 				if (results.size() > 1)

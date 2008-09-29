@@ -55,6 +55,8 @@ public class SiteService
 	public static java.lang.String APPLICATION_ID = org.sakaiproject.site.api.SiteService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.site.api.SiteService.REFERENCE_ROOT;
+	
+	public static java.lang.String SITE_ROLE_SWAP = org.sakaiproject.site.api.SiteService.SITE_ROLE_SWAP;
 
 	public static java.lang.String SITE_VISIT = org.sakaiproject.site.api.SiteService.SITE_VISIT;
 
@@ -454,4 +456,11 @@ public class SiteService
 		return service.getLayoutNames();
 	}
 
+	public static boolean allowRoleSwap(java.lang.String param0)
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return false;
+
+		return service.allowRoleSwap(param0);
+	}
 }

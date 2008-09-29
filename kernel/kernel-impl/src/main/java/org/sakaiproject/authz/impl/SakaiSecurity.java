@@ -32,13 +32,17 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.MultiRefCache;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.StringUtil;
 
 /**
  * <p>
@@ -84,6 +88,16 @@ public abstract class SakaiSecurity implements SecurityService
 	 * @return the EntityManager collaborator.
 	 */
 	protected abstract EntityManager entityManager();
+	
+	/**
+	 * @return the SessionManager collaborator.
+	 */
+	protected abstract SessionManager sessionManager();
+	
+	/**
+	 * @return the EventTrackingService collaborator.
+	 */
+	protected abstract EventTrackingService eventTrackingService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
@@ -271,6 +285,19 @@ public abstract class SakaiSecurity implements SecurityService
 	{
 		// check the cache
 		String command = "unlock@" + userId + "@" + function + "@" + entityRef;
+		String[] refs = StringUtil.split(entityRef, Entity.SEPARATOR);
+		String roleswap = null;
+		for (int i = 0; i < refs.length; i++) // Checking for existence of roll swapped state
+		{
+			roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswapFlagForClearing/" + refs[i]);
+			if (roleswap!=null) // check if our flag is set
+			{
+				sessionManager().getCurrentSession().removeAttribute("roleswapFlagForClearing/" + refs[i]); // remove the session attribute so we don't repeatedly call thi
+				eventTrackingService().post(eventTrackingService().newEvent(function, "/realm/" + entityRef, true)); // this will clear the cache for the site and render the pages correctly by forcing the permissions to be rechecked
+				break;
+			}
+		}
+		
 		if (m_callCache != null)
 		{
 			final Boolean value = (Boolean) m_callCache.get(command);
