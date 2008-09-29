@@ -1730,6 +1730,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
+		context.put("dateFormat", getDateFormatString());
 
 		final String channelId = state.getChannelId();
 

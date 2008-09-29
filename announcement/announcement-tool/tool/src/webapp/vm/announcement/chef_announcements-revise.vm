@@ -1,10 +1,22 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-revise.vm,v 1.4 2005/05/15 04:54:19 gsilver.umich.edu Exp $ 
 
 ############################################# Date selection widget macro start
-#macro (custom_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $onChangeAction)
+#* It appears the only difference between this macro and chef_dateselectionwidget is the onchange attribute below. TBD: Implement this better
+*#
+#macro (custom_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $onChangeAction $dateformat)
 
 	#set($yearList = [$earliestYear .. $latestYear])
 	
+   #if (! $dateFormat)
+   #set ($dateFormat=["m","d","y"])
+   #end
+   
+   #foreach ( $format in $dateFormat )
+    
+    #* Create Month Select Box
+    *#
+    
+    #if ($format=="m")
     <select name="$monthselect_id" id="$monthselect_id" onchange="blur(); $onChangeAction">
       #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("jan")</option> #else <option value="1">$tlang.getString("jan")</option> #end
         
@@ -31,21 +43,28 @@
 		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("dec")</option> #else <option value="12">$tlang.getString("dec")</option> #end
 
     </select>
+    #end
     
+    #* Create Day Select Box
+    *#
+    
+    #if ($format=="d")
     <select name="$dayselect_id" id="$dayselect_id" onchange="blur(); $onChangeAction">
-		
     #foreach($d in [1..31])
         #if($d == $daySelected)
             <option value="$d" selected="selected">$d</option>
         #else
             <option value="$d">$d</option>
         #end
-	#end
-	
+	 #end
     </select>
+    #end
     
+    #* Create Year Select Box
+    *#
+    
+    #if ($format=="y")
     <select name="$yearselect_id" id="$yearselect_id" onchange="blur(); $onChangeAction">
-		
         #foreach ($y in $yearList)
             #if ($y == $yearSelected)
                     <option value="$y" selected="selected">$y</option>
@@ -53,8 +72,14 @@
                     <option value="$y">$y</option>
             #end
 		#end
-		
     </select>
+    #end
+    
+   #end
+	
+   
+   #* Create Date Selection Popup
+   *#
 	
 	#chef_dateselectionwidgetpopup($yearselect_id $monthselect_id $dayselect_id)
 	
@@ -112,70 +137,7 @@
 				#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
 			</select>
 #end
-############################################# Time selection widget macro end
-##
-############################################# macro prop_dateSelection 
-#macro(prop_dateSelectionWidget $propName $propValue)
 
-## Setup a date selection widget
-#set($theDate = $propValue.breakdownLocal())
-#set($year = $theDate.year)
-#set($earliestYear = $year - 10)
-#set($latestYear = $year + 10)	
-#set($month = $theDate.month)
-#set($day = $theDate.day)
-
-#chef_dateselectionwidget("${propName}_year" "${propName}_month" "${propName}_day" $earliestYear $latestYear $year $month $day)
-
-#end
-############################################# end of macro prop_dateSelection 
-
-##
-############################################# macro prop_timeSelection 
-#macro(prop_timeSelectionWidget $propName $propValue)
-
-## Setup a time selection widget
-#set($theTime = $propValue.breakdownLocal())
-#set($hour = $theTime.hour)
-#set($minute = $theTime.min)
-#set($second = $theTime.sec)
-#set($timeType = "am")
-#if($hour == 12 && $minute > 0)
-#set($timeType = "pm")
-#end
-#if($hour == 0 && $minute == 0)
-#set($timeType = "pm")
-#end
-#if($hour>12)
-#set($hour = $hour - 12)
-#set($timeType = "pm")
-#elseif ($hour == 0)
-#set($hour = 12)
-#end
-<select name="${propName}_hour" id="${propName}_hour">
-#foreach($hr in [1..12])
-	<option#if($hr == $hour) selected="selected"#end value="$hr">$hr</option>
-#end
-</select>
-:
-<select name="${propName}_minute" id="${propName}_minute">
-#foreach($min in [0..59])
-	<option value="$min"#if($min == $minute) selected="selected"#end>#if($min < 10)0#end$min</option>
-#end
-</select>
-:
-<select name="${propName}_second" id="${propName}_second">
-#foreach($sec in [0..59])
-	<option value="$sec"#if($sec == $second) selected="selected"#end>#if($sec < 10)0#end$sec</option>
-#end
-</select>
-<select name="${propName}_ampm" id="${propName}_ampm">
-    #if($timeType =="am") <option selected="selected">am</option> #else <option>am</option> #end
-    #if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
-</select>
-#end
-############################################# end of macro prop_timeSelection 
-##
 ############################################# chef_announcements-revise.vm start
 <script type="text/javascript" language="JavaScript">
   focus_path = ["subject"];
@@ -425,7 +387,7 @@
 				<tr>
 					<td colspan="3"></td>
 					<td>
-						#custom_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
+						#custom_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;" $dateFormat)
 					</td>
 					<td>
 						#custom_timeSelectionWidget("release" $releaseDate "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
@@ -454,7 +416,7 @@
 				<tr>
 					<td colspan="3"></td>
 					<td>
-						#custom_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;")
+						#custom_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;" $dateFormat)
 					</td>
 					<td>
 						#custom_timeSelectionWidget("retract" $retractDate "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;")
