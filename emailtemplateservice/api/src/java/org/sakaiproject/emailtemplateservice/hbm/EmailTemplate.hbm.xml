@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<!-- Evaluation project lead: Aaron Zeckoski (aaronz@vt.edu) -->
+<hibernate-mapping default-cascade="none">
+    <class name="org.sakaiproject.emailtemplateservice.model.EmailTemplate" table="EMAIL_TEMPLATE_ITEM" dynamic-insert="false" dynamic-update="false">
+        <id name="id" type="java.lang.Long" unsaved-value="null">
+            <column name="ID" />
+            <generator class="native" />
+        </id>
+        <property name="lastModified" type="java.util.Date">
+            <column name="LAST_MODIFIED" not-null="true" />
+        </property>
+        <!-- this should be the internal userId -->
+        <property name="owner" type="java.lang.String" index="email_templ_owner">
+            <column name="OWNER" not-null="true" length="255" />
+        </property>
+        <!-- the subject -->
+        <property name="subject" type="text">
+	        <column name="SUBJECT" not-null="true"/>
+        </property>
+        <!-- the email template message -->
+        <property name="message" type="text">
+            <column name="MESSAGE" not-null="true" />
+        </property>
+        <property name="key" type="java.lang.String" index="email_templ_key">
+        	<column name="TEMPLATE_KEY" not-null="true" length="255"/>
+        </property>
+        <property name="locale" type="java.lang.String">
+        	<column name="TEMPLATE_LOCALE" not-null="false" length="255"/>
+        </property>
+        <!-- identifies this email template as a default template and indicates the type (reminder, available, etc.), use constants -->
+        <property name="defaultType" type="java.lang.String" unique="false" length="255" />
+	</class>
+</hibernate-mapping>

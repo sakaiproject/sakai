@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--  Request-scope beans for TaskList - actually just the handler -->
+<beans>
+
+ <bean class="org.sakaiproject.emailtemplateservice.tool.producers.MainViewProducer">
+ 	<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+
+ </bean>
+ 
+ <bean class="org.sakaiproject.emailtemplateservice.tool.producers.ModifyEmailProducer">
+ 	<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+ 	<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+ 	<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+ </bean>
+ 
+ <bean name="EmailTemplateLocator" class="org.sakaiproject.emailtemplateservice.tool.locators.EmailTemplateLocator">
+ 	<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+ 	<property name="messages" ref="targettedMessageList" />
+ </bean>
+ 
+ <!-- <bean name="emailTemplateBean" class="org.sakaiproject.emailtemplateservice.tool.EmailTemplateBean">
+ </bean> -->
+ 
+ 
+</beans>
+
+

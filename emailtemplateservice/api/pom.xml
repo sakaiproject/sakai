@@ -1,0 +1,39 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <name>Sakai Emailtemplateservice API</name>
+    <groupId>org.sakaiproject.emailtemplateservice</groupId>
+    <artifactId>emailtemplateservice-api</artifactId>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2007</inceptionYear>
+    <description>Emailtemplateservice interfaces (API)</description>
+    <packaging>jar</packaging>
+
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
+    <!-- the base is parent -->
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>emailtemplateservice</artifactId>
+        <version>0.3-SNAPSHOT</version><!--emailtemplateservice.version-->
+    </parent>
+
+    <dependencies />
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
+
+</project>

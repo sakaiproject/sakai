@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <name>Sakai Emailtemplateservice Tool</name>
+    <groupId>org.sakaiproject.emailtemplateservice</groupId>
+    <artifactId>emailtemplateservice-tool</artifactId>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2007</inceptionYear>
+    <description>Emailtemplateservice webapp (tool)</description>
+    <packaging>war</packaging>
+
+    <!-- the base is the parent pom -->
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>emailtemplateservice</artifactId>
+        <version>0.3-SNAPSHOT</version><!--emailtemplateservice.version-->
+    </parent>
+
+    <properties>
+        <rsfutil.version>0.7.3</rsfutil.version>
+        <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+        <deploy.webappname>Emailtemplateservice</deploy.webappname>
+        <appserver.id>${sakai.appserver.id}</appserver.id>
+    </properties>
+
+    <dependencies>
+
+        <!-- Internal dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.emailtemplateservice</groupId>
+            <artifactId>emailtemplateservice-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
+        </dependency>
+
+        <!-- Sakai RSF dependency -->
+        <dependency>
+            <groupId>uk.org.ponder.sakairsf</groupId>
+            <artifactId>sakairsf</artifactId>
+            <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.org.ponder.sakairsf</groupId>
+            <artifactId>SakaiRSFComponents-evolvers</artifactId>
+            <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>uk.org.ponder.sakairsf</groupId>
+            <artifactId>SakaiRSFComponents-templates</artifactId>
+            <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+            <type>war</type>
+        </dependency>
+
+        <!-- Sakai dependencies (all RSF apps must have this) -->
+		        <!-- Sakai Kernel dependencies -->
+        <dependency>
+        	<groupId>org.sakaiproject.kernel</groupId>
+        	<artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.sakaiproject.kernel</groupId>
+        	<artifactId>sakai-component-manager</artifactId>
+        </dependency>
+
+        <!-- apache commons logging -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+
+    </dependencies>
+
+
+</project>
