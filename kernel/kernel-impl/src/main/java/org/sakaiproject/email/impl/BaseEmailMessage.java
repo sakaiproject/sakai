@@ -53,7 +53,7 @@ public class BaseEmailMessage implements EmailMessage
 	/**
 	 * Recipients of message
 	 */
-	private Map<RecipientType, List<EmailAddress>> recipients;
+	private Map<RecipientType, List<EmailAddress>> recipients = new HashMap<RecipientType, List<EmailAddress>>();
 
 	/**
 	 * Subject of message
@@ -195,9 +195,7 @@ public class BaseEmailMessage implements EmailMessage
 	 */
 	public List<EmailAddress> getRecipients(RecipientType type)
 	{
-		List<EmailAddress> retval = null;
-		if (recipients != null)
-			retval = recipients.get(type);
+		List<EmailAddress> retval = recipients.get(type);
 		return retval;
 	}
 
