@@ -1,8 +1,8 @@
 --SAK-12527 Changes to Chat Room options do not work consistently
 
 -- add column timeParam and numberParam 
-alter table CHAT2_CHANNEL add (column timeParam int);
-alter table CHAT2_CHANNEL add (column numberParam int);
+alter table CHAT2_CHANNEL add column timeParam int;
+alter table CHAT2_CHANNEL add column numberParam int;
 
 UPDATE CHAT2_CHANNEL
 SET numberParam = Case When filterParam = 0 or filterType <> 'SelectByNumber' Then 10 Else filterParam End,
