@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.providers;
+package org.sakaiproject.entitybroker.providers.model;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -134,7 +134,6 @@ public class EntitySite implements Site {
       this.lastModified = System.currentTimeMillis();
    }
 
-   @SuppressWarnings("unchecked")
    public EntitySite(Site site) {
       this.site = site;
       this.id = site.getId();

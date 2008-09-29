@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.providers;
+package org.sakaiproject.entitybroker.providers.model;
 
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 

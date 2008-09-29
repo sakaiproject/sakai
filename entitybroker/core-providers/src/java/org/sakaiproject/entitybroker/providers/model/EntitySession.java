@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.providers;
+package org.sakaiproject.entitybroker.providers.model;
 
 import java.util.Collection;
 import java.util.Enumeration;
