@@ -104,7 +104,7 @@
 					#set($todayYear = $realDate.breakdownLocal().Year)
 					#set($earliestYear = $todayYear - 3)
 					#set($latestYear = $todayYear + 4)
-					#chef_dateselectionwidget("endYear" "endMonth" "endDay" $earliestYear $latestYear $yearInt $month $day)
+					#chef_dateselectionwidget("endYear" "endMonth" "endDay" $earliestYear $latestYear $yearInt $month $day $dateFormat)
 				</p>	
 				<p class="checkbox">
 					<input type="radio" name="CountOrTill" value="Never" id="never"

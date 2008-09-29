@@ -265,7 +265,7 @@ function ampmChange(FieldName)
 				#set($day = $event.getRange().firstTime().breakdownLocal().day)
 				#set($year = $event.getRange().firstTime().breakdownLocal().year)
 			#end 
-			#chef_dateselectionwidget("yearSelect" "month" "day" $earliestYear $latestYear $year $month $day)
+			#chef_dateselectionwidget("yearSelect" "month" "day" $earliestYear $latestYear $year $month $day $dateFormat)
 		</p>	
 		<p class="shorttext">
 			<span class="reqStar">*</span>

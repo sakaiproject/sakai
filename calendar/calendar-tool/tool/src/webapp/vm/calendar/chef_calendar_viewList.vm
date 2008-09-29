@@ -49,7 +49,7 @@
 				<form name="listform1" method="post" action="#toolForm("$action")">
 					<div class="shorttext">
 						<label for="customStartMonth">$tlang.getString('viewl.st')</label>
-						#chef_dateselectionwidget("customStartYear" "customStartMonth" "customStartDay" $ddStartYear $ddEndYear $customStartYear $customStartMonth $customStartDay)
+						#chef_dateselectionwidget("customStartYear" "customStartMonth" "customStartDay" $ddStartYear $ddEndYear $customStartYear $customStartMonth $customStartDay $dateFormat)
 					</div>	
 					<div class="shorttext">
 					<label for="customEndMonth">$tlang.getString('viewl.ed')&nbsp;</label>
