@@ -229,7 +229,8 @@
       <modules>
         <module>was</module>
       </modules>
-    </profiles>
+    </profile>
+  </profiles>
   <reporting>
     <plugins>
       <plugin>
