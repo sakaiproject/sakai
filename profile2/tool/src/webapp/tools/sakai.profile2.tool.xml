@@ -1,12 +1,14 @@
 <?xml version="1.0"?>
 <registration>
-    <tool id="sakai.profile2.tool" 
-    	title="Profile2" 
-    	description="Profile Tool v2">
+	<tool id="sakai.profile2.tool" 
+		title="Profile2" 
+		description="Profile Tool v2">
 
-      <category name="myworkspace" />
-      <category name="project" />
+      	<category name="myworkspace" />
+      	<category name="project" />
 
+		<configuration name="functions.require" /> 
+		
     </tool>
 </registration>
 

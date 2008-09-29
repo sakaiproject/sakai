@@ -22,16 +22,16 @@
     	<deploy.target>shared</deploy.target>
   	</properties>
   	
-  	<!-- 
   	<dependencies>
 
 		<dependency>
-			<groupId>org.apache.wicket</groupId>
-			<artifactId>wicket</artifactId>
-			<version>${wicket.version}</version>
-		</dependency>
-  	
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-common-edu-person-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+    	</dependency>
+    	
+    
   	</dependencies>
-  	-->
 
 </project>

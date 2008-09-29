@@ -5,16 +5,21 @@
 <beans>
 
  	<bean id="uk.ac.lancs.e_science.profile2.api.SakaiProxy"
-    	class="uk.ac.lancs.e_science.profile2.impl.SakaiProxyImpl"
-    	init-method="init">
+    	class="uk.ac.lancs.e_science.profile2.impl.SakaiProxyImpl">
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
+        
 	</bean>
-
-
+	
+	<bean id="uk.ac.lancs.e_science.profile2.api.Profile"
+    	class="uk.ac.lancs.e_science.profile2.impl.ProfileImpl">
+	</bean>
+	
+	
 
 
 

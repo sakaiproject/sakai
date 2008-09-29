@@ -1,7 +1,10 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
+import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import org.apache.log4j.Logger;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -11,6 +14,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
 
 
 
@@ -60,6 +64,23 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return securityService.isSuperUser(userId);
 	}
 	
+	//we use SakaiProxy to get us the SakaiPerson object for a given user
+	//then we use that object to get attributes about the person.
+	public SakaiPerson getSakaiPerson(String userId) {
+		
+		SakaiPerson sakaiPerson = null;
+		
+		try {
+			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return sakaiPerson;
+	}
+	
+	
+	
+	
 	
 	
 	
@@ -90,10 +111,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.userDirectoryService = userDirectoryService;
 	}
 	
+	private SakaiPersonManager sakaiPersonManager;
+	public void setSakaiPersonManager(SakaiPersonManager sakaiPersonManager) {
+		this.sakaiPersonManager = sakaiPersonManager;
+	}
+	
+	
+	
 		
 	public void init() {
-		log.debug("init");
+		log.debug("init()");
 	}
+
 	
 
 	

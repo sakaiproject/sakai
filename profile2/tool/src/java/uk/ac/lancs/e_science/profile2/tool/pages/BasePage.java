@@ -13,8 +13,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
+import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-
 import org.apache.log4j.Logger;
 
 
@@ -24,9 +24,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	private transient Logger log = Logger.getLogger(BasePage.class);
 	protected Link myProfileLink;
 	protected Link testDataLink;
+	protected Link myFriendsLink;
 
-	protected transient SakaiProxy sakaiProxy; //transient to stop log
-	
+	protected transient SakaiProxy sakaiProxy;
+	protected transient Profile profile;
 
 	
 	public BasePage() {
@@ -35,9 +36,12 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		if(log.isDebugEnabled()) log.debug("BasePage()");
 
-		//get sakaiProxy
+		//get sakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
+		//get Profile API
+		profile = ProfileApplication.get().getProfile();
+
 		
     	//my profile link
     	myProfileLink = new Link("myProfileLink") {
@@ -47,6 +51,15 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my")));
 		add(myProfileLink);
+		
+		//my friends link
+    	myFriendsLink = new Link("myFriendsLink") {
+			public void onClick() {
+				//setResponsePage(new MyFriends());
+			}
+		};
+		myFriendsLink.add(new Label("myFriendsLabel",new ResourceModel("link.friends")));
+		add(myFriendsLink);
     	
 		
 		
@@ -101,7 +114,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		//Tool additions
 		response.renderCSSReference("css/profile2.css");
-		response.renderJavascriptReference("javascript/profile2.js");
+		//response.renderJavascriptReference("javascript/profile2.js");
 		response.renderJavascriptReference("/library/js/jquery.js");
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 				

@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+<wicket:panel>	
+		
+	
+	<div id="myInfo" class="mainSection">
+		<div class="mainSectionHeading">My Info</div>
+		
+		<div class="mainSectionContent editable">
+		
+			<div class="editButton"><a href="#" wicket:id="editButton">edit</a></div>
+			
+			<div class="profile">
+			
+			<dl>
+				<dt><span wicket:id="profileNicknameLabel">[profileNicknameLabel]</span></dt>
+				<dd><span wicket:id="profileNicknameContent">[profileNicknameContent]</span></dd>
+				
+				<dt><span wicket:id="profilePositionLabel">[profilePositionLabel]</span></dt>
+				<dd><span wicket:id="profilePositionContent">[profilePositionContent]</span></dd>
+				
+				<dt><span wicket:id="profileDepartmentLabel">[profileDepartmentLabel]</span></dt>
+				<dd><span wicket:id="profileDepartmentContent">[profileDepartmentContent]</span></dd>
+				
+			</dl>
+			</div>
+			
+			
+		</div>
+	</div>
+	
+	<div id="myInfoEdit" class="mainSection" style="display:none;">
+		<div class="mainSectionHeading">My Info Edit</div>
+		
+		<div class="mainSectionContent editable">
+		
+			<p>EDITABLE</p>
+			<p>EDITABLE</p>
+			<p>EDITABLE</p>
+			<p>EDITABLE</p>
+			<p>EDITABLE</p>
+			
+			<input type="button" value="Save changes" />
+		</div>
+	</div>
+	
+	
+	
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

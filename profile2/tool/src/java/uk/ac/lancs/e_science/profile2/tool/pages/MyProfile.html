@@ -2,12 +2,87 @@
 "http://www.w3.org/TR/html4/strict.dtd">
 <html  
       xmlns="http://www.w3.org/1999/xhtml"  
-      xmlns:wicket="http://wicket.sourceforge.net"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
       xml:lang="en"  
       lang="en">
 <body>
 <wicket:extend>
-    <h3><span wicket:id="viewProfileHeading">[viewProfileHeading]</span></h3>
+	
+	<div id="pageWrapper">
+	
+	<div id="leftPanel">
+    	<div id="myPhoto"><img src="images/no_image.gif" /></div>
+    	
+    	<ul id="sideLink">
+    		<li><a href="something">a link</a></li>
+    		<li>another link</li>
+    	</ul>
+    	
+    	<div class="sideBox">
+    		<div class="sideBoxHeading">My Sites</div>
+    		<div class="sideBoxContent">
+    		
+    		</div>
+    	</div>
+    	
+    	<p>something</p>
+		<p>goes</p>
+		<p>here</p>
+		<p>here</p>
+		<p>here</p>
+		<p>here</p>
+		<p>here</p>
+    </div>
+	
+	<div id="mainPanel">
+	
+		<!-- heading -->
+	    <div id="profileHeading">
+	    	<span id="profileHeadingName" wicket:id="profileHeadingName">[profileHeadingName]</span>&nbsp;<span id="profileHeadingStatus" wicket:id="profileHeadingStatus">[profileHeadingStatus]</span>&nbsp;<span id="profileHeadingStatusLastUpdated" wicket:id="profileHeadingStatusLastUpdated">[profileHeadingStatusLastUpdated]</span>
+	    </div>
+	
+		<!--  panels -->
+		<div wicket:id="myInfoPanel">[myInfoPanel]</div>
+	
+		<div wicket:id="myInterestsPanel">[myInterestsPanel]</div>
+	
+	</div>
+	
+	<div id="rightPanel">
+	</div>
+	
+	
+	</div>
+	
+	<!--  scripts for MyProfile page -->
+	<script type="text/javascript">
+
+		//init
+		$(document).ready(function(){ 
+			//resize iframe
+			setMainFrameHeight(window.name);
+
+			//hide edit buttons
+			$(".editButton").hide();
+		});
+
+		//show the edit button when hovering over an editable section
+		$(document).ready(function(){ 
+
+			$(".editable").hover(
+				function () {
+					$(this).children(".editButton").show();
+				}, 
+				function () {
+					$(this).children(".editButton").hide();
+				}
+			);
+
+		});
+
+	</script>
+	
 </wicket:extend>
 </body>
 </html>
+

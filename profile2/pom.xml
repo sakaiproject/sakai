@@ -32,6 +32,10 @@
 			<name>Steve Swinsburg</name>
 			<email>s.swinsburg@lancaster.ac.uk</email>
 		</developer>
+		<developer>
+			<name>Adrian Fish</name>
+			<email>a.fish@lancaster.ac.uk</email>
+		</developer>
 	</developers>
 
 	<licenses>
@@ -42,14 +46,14 @@
 		</license>
 	</licenses>
 	  	
-
+	<!-- 
     <modules>
         <module>api</module>
         <module>impl</module>
 		<module>pack</module>
 		<module>tool</module>
-
     </modules>
+    -->
     
     <properties>
     	<tool.version>1.0</tool.version>
@@ -71,4 +75,35 @@
           </dependencies>
     </dependencyManagement>
     -->
+    
+    <profiles>
+        <profile>
+            <id>full</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>api</module>
+                <module>impl</module>
+                <module>pack</module>
+                <module>tool</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>tool</id>
+            <modules>
+                <module>tool</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>api</id>
+            <modules>
+                <module>api</module>
+            </modules>
+        </profile>
+        
+    </profiles>
+    
+    
+    
 </project>

@@ -1,0 +1,165 @@
+/* Profile2 styles */
+
+
+
+#leftPanel {
+	float: left;
+	width: 150px;
+}
+
+#mainPanel {
+	margin-left:165px;
+	margin-right:215px;
+	padding:8px;
+}
+
+#rightPanel {
+	float:right;
+	width:200px;
+	padding:8px;
+}
+
+#leftPanel, #rightPanel, #mainPanel { 
+	padding-bottom: 32767px;
+	margin-bottom: -32767px;
+}
+#pageWrapper { 
+	margin-top: 5px;
+	overflow:hidden;
+}
+
+#myPhoto {
+}
+
+
+
+
+/* profile heading styles */
+#profileHeading {
+	}
+
+#profileHeadingName {
+	font-size: 140%;
+	font-weight: bold;
+}
+
+#profileHeadingStatus {
+	font-size: normal;
+}
+
+#profileHeadingStatusLastUpdated {
+	font-size: xx-small;
+}
+
+
+
+
+
+
+/* sideLink styles */
+#sideLink ul {
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 0px;
+	list-style-type:none !important;
+}
+
+#sideLink li {
+	border-bottom-style: solid;
+	border-bottom-color: #09c;
+	border-bottom-width: thin;
+	padding-top: 2px;
+	margin-left: -40px;
+	padding-left: 5px;
+	list-style-type:none  !important;
+}
+
+#sideLink li a {
+	text-decoration: none !important;
+	display:block; /* makes whole li clickable */
+}
+
+#sideLink li:hover {
+	background-color: #D1ECF6;
+}
+
+#sideLink li#selected {
+	background-color: #D1ECF6;
+}
+  
+  
+  
+  
+  
+/* sideBox styles */
+.sideBox {
+	border-top: 1px solid black;
+	}
+
+.sideBoxHeading {
+	padding: 0px;
+	display:block;
+	background-color: #B8D5F8;
+}
+	
+.sideBoxContent {
+		
+}
+
+
+
+
+
+/* mainSection styles */
+.mainSection {
+	margin-top: 10px;
+}
+
+
+.mainSectionHeading {
+	display:block;
+	font-weight: bold;
+	border-bottom-style: solid;
+	border-bottom-color: #09c;
+	border-bottom-width: thin;
+	margin-bottom: 0px;
+}
+
+.mainSectionContent {
+	padding-top: 5px;
+}
+
+.editButton {
+	float:right;
+	clear: none;
+	text-decoration: none;
+	font-size: x-small;
+	padding-left: 24px;
+	padding-bottom: 2px;
+	padding-top: 2px;
+	margin-top: 4px;
+	margin-right: 0px;
+	background-repeat: no-repeat;
+	background-position: 4px center;
+	background-image: url("/library/image/silk/pencil.png");
+}
+
+.editButton:hover {
+	background-color: #ffff77;
+}
+
+
+/* profile info section */
+.profile dt {
+	width:120px;
+	float:left;
+}
+
+.profile dd {
+	padding-left: 2px;
+	padding-bottom: 4px;
+}
+
+
+
+		

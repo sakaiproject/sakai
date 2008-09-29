@@ -1,5 +1,7 @@
 package uk.ac.lancs.e_science.profile2.api;
 
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
+
 public interface SakaiProxy {
 	
 	public String getCurrentSiteId();
@@ -13,4 +15,7 @@ public interface SakaiProxy {
 	public String getUserEmail(String userId);
 	
 	public boolean isUserAdmin(String userId);
+	
+	public SakaiPerson getSakaiPerson(String userId);
+		
 }

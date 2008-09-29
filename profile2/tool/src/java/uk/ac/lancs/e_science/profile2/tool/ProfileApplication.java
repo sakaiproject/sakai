@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.Application;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
+import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.tool.pages.Dispatcher;
 
 
@@ -13,6 +14,8 @@ public class ProfileApplication extends WebApplication {
 	private transient Logger logger = Logger.getLogger(ProfileApplication.class);
 	
 	private transient SakaiProxy sakaiProxy;
+	private transient Profile profile;
+
 	
 	protected void init(){
 		
@@ -30,14 +33,17 @@ public class ProfileApplication extends WebApplication {
 	public ProfileApplication() {
 	}
 	
-	public static ProfileApplication get() {
-		return (ProfileApplication) Application.get();
-	}
-		
+	//setup homepage		
 	public Class getHomePage() {
 		return Dispatcher.class;
 	}
+	
+	//expose ProfileApplication itself
+	public static ProfileApplication get() {
+		return (ProfileApplication) Application.get();
+	}
 
+	//expose SakaiProxy API
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
@@ -45,6 +51,16 @@ public class ProfileApplication extends WebApplication {
 	public SakaiProxy getSakaiProxy() {
 		return sakaiProxy;
 	}
+	
+	//expose Profile API
+	public void setProfile(Profile profile) {
+		this.profile = profile;
+	}
+
+	public Profile getProfile() {
+		return profile;
+	}
+	
 	
 	
 	
