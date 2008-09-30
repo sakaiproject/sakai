@@ -41,7 +41,7 @@ public class SessionContext
 	/**
 	 * Cache name
 	 */
-	private final static String	CACHENAME			= "org.sakai.sakaibrary.http-osid-sessioncache";
+	private final static String	CACHENAME			= "org.sakaiproject.sakaibrary.http-osid-sessioncache";
 	/**
 	 * Items held in memory
 	 */
