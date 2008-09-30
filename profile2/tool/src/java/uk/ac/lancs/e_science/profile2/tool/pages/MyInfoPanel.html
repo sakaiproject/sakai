@@ -17,37 +17,41 @@
 		
 			<div class="editButton"><a href="#" wicket:id="editButton">edit</a></div>
 			
-			<div class="profile">
-			
-			<dl>
-				<dt><span wicket:id="profileNicknameLabel">[profileNicknameLabel]</span></dt>
-				<dd><span wicket:id="profileNicknameContent">[profileNicknameContent]</span></dd>
-				
-				<dt><span wicket:id="profilePositionLabel">[profilePositionLabel]</span></dt>
-				<dd><span wicket:id="profilePositionContent">[profilePositionContent]</span></dd>
-				
-				<dt><span wicket:id="profileDepartmentLabel">[profileDepartmentLabel]</span></dt>
-				<dd><span wicket:id="profileDepartmentContent">[profileDepartmentContent]</span></dd>
-				
-			</dl>
+			<div class="profileItem" wicket:id="profileNickname">
+				<span class="profileLabel" wicket:id="profileNicknameLabel">[profileNicknameLabel]</span>
+				<span class="profileContent" wicket:id="profileNicknameContent">[profileNicknameContent]</span>
 			</div>
 			
+			<div class="profileItem" wicket:id="profileBirthday">	
+				<span class="profileLabel" wicket:id="profileBirthdayLabel">[profileBirthdayLabel]</span>
+				<span class="profileContent" wicket:id="profileBirthdayContent">[profileBirthdayContent]</span>
+			</div>
 			
 		</div>
 	</div>
+	
+	
 	
 	<div id="myInfoEdit" class="mainSection" style="display:none;">
 		<div class="mainSectionHeading">My Info Edit</div>
 		
 		<div class="mainSectionContent editable">
-		
-			<p>EDITABLE</p>
-			<p>EDITABLE</p>
-			<p>EDITABLE</p>
-			<p>EDITABLE</p>
-			<p>EDITABLE</p>
 			
-			<input type="button" value="Save changes" />
+			<form wicket:id="myInfoForm">
+				
+				<div class="profileItemEdit">
+					<label for="profileNicknameField"><span class="profileLabelEdit" wicket:id="profileNicknameLabel">[profileNicknameLabel]</span></label>
+					<input type="text" wicket:id="myNicknameField" name="profileNicknameField" id="profileNicknameField" class="formInputField" />
+				</div>
+				
+			
+				<input type="submit" wicket:id="submit" value="Save changes" />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type="button" wicket:id="cancel" value="Cancel"/>
+			
+			</form>
+			
+			
 		</div>
 	</div>
 	

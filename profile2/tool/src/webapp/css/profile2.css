@@ -36,7 +36,8 @@
 
 /* profile heading styles */
 #profileHeading {
-	}
+	margin-left: -10px;
+}
 
 #profileHeadingName {
 	font-size: 140%;
@@ -94,7 +95,7 @@
 /* sideBox styles */
 .sideBox {
 	border-top: 1px solid black;
-	}
+}
 
 .sideBoxHeading {
 	padding: 0px;
@@ -137,8 +138,9 @@
 	padding-left: 24px;
 	padding-bottom: 2px;
 	padding-top: 2px;
+	padding-right: 2px;
 	margin-top: 4px;
-	margin-right: 0px;
+	margin-right: 10px;
 	background-repeat: no-repeat;
 	background-position: 4px center;
 	background-image: url("/library/image/silk/pencil.png");
@@ -146,19 +148,51 @@
 
 .editButton:hover {
 	background-color: #ffff77;
+	display:block;
 }
 
 
-/* profile info section */
-.profile dt {
-	width:120px;
-	float:left;
+/* profile information and edit sections */
+.profileItem,
+.profileItemEdit{
+	display: block;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	font-size: 90%;
 }
 
-.profile dd {
+.profileLabel,
+.profileLabelEdit {
+	width: 120px;
+	float: left;
+	color: #5D5D5D;
+	vertical-align: top;
+	
+}
+
+.profileLabel {
+	font-weight: normal;
+}
+
+.profileLabelEdit {
+	font-weight: bold;
+}
+
+.profileContent {
 	padding-left: 2px;
-	padding-bottom: 4px;
 }
+
+.formInputField {
+	padding-left: 2px;
+	border: 1px solid #aaa;
+	margin: .2em;
+}
+
+.formInputField:focus {
+	border-color: black;
+	background: #ffc;
+}
+
 
 
 

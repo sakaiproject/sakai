@@ -12,10 +12,6 @@ public class ProfileImpl implements Profile {
 	public ProfileImpl() {
 	}
 
-	
-
-	
-	/*	
 	public String getUserStatus(String userId) {
 		return "this is my status";
 	}
@@ -23,6 +19,11 @@ public class ProfileImpl implements Profile {
 	public String getUserStatusLastUpdated(String userId) {
 		return "on Monday";
 	}
+	
+
+	
+	/*	
+	
 	
 	public boolean setUserStatus(String userId, String status) {
 		return true;

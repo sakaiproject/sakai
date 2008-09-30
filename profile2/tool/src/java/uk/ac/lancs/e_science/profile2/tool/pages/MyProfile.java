@@ -19,13 +19,11 @@ public class MyProfile extends BasePage {
 		//get some user info
 		String userId = sakaiProxy.getCurrentUserId();
 		String userDisplayName = sakaiProxy.getUserDisplayName(userId);
-		//String userStatus = profile.getUserStatus(userId);
-		//String userStatusLastUpdated = profile.getUserStatusLastUpdated(userId);
-		String userStatus = "is at the computer";
-		String userStatusLastUpdated = "on Monday";
+		String userStatus = profile.getUserStatus(userId);
+		String userStatusLastUpdated = profile.getUserStatusLastUpdated(userId);
 
+		//get SakaiPerson
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-		
 		//if the person does not have a sakaiPseron entry, we need to create them one
 		
 		
@@ -36,12 +34,12 @@ public class MyProfile extends BasePage {
 		//status
 		add(new Label("profileHeadingStatus", userStatus));
 		//status last updated
-		add(new Label("profileHeadingStatusLastUpdated", "hello"));
+		add(new Label("profileHeadingStatusLastUpdated", userStatusLastUpdated));
 	    
 
 		//panels
 		add(new MyInfoPanel("myInfoPanel", sakaiProxy, profile, sakaiPerson));
-		add(new MyInterestsPanel("myInterestsPanel"));
+		//add(new MyInterestsPanel("myInterestsPanel"));
 		
 		
 	}
