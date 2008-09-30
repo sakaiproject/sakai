@@ -10406,65 +10406,67 @@ public class AssignmentAction extends PagedResourceActionII
 		String aReference = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 		String associateGradebookAssignment = null;
 		
-		boolean hasSubmissionText = false;
-		boolean hasSubmissionAttachment = false;
-		boolean hasGradeFile = false;
-		boolean hasFeedbackText = false;
-		boolean hasComment = false;
-		boolean hasFeedbackAttachment = false;
-		boolean releaseGrades = false;
+		List<String> choices = params.getStrings("uploadChoices") != null?new ArrayList(Arrays.asList(params.getStrings("uploadChoices"))):null;
 		
-		// check against the content elements selection
-		if (params.getString("studentSubmissionText") != null)
-		{
-			// should contain student submission text information
-			hasSubmissionText = true;
-		}
-		if (params.getString("studentSubmissionAttachment") != null)
-		{
-			// should contain student submission attachment information
-			hasSubmissionAttachment = true;
-		}
-		if (params.getString("gradeFile") != null)
-		{
-			// should contain grade file
-			hasGradeFile = true;	
-		}
-		if (params.getString("feedbackTexts") != null)
-		{
-			// inline text
-			hasFeedbackText = true;
-		}
-		if (params.getString("feedbackComments") != null)
-		{
-			// comments.txt should be available
-			hasComment = true;
-		}
-		if (params.getString("feedbackAttachments") != null)
-		{
-			// feedback attachment
-			hasFeedbackAttachment = true;
-		}
-		if (params.getString("release") != null)
-		{
-			// comments.xml should be available
-			releaseGrades = params.getBoolean("release");
-		}
-		state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT, Boolean.valueOf(hasSubmissionText));
-		state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT, Boolean.valueOf(hasSubmissionAttachment));
-		state.setAttribute(UPLOAD_ALL_HAS_GRADEFILE, Boolean.valueOf(hasGradeFile));
-		state.setAttribute(UPLOAD_ALL_HAS_COMMENTS, Boolean.valueOf(hasComment));
-		state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT, Boolean.valueOf(hasFeedbackText));
-		state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, Boolean.valueOf(hasFeedbackAttachment));
-		state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
-		
-		if (!hasSubmissionText && !hasSubmissionAttachment && !hasFeedbackText && !hasGradeFile && !hasComment && !hasFeedbackAttachment)
+		if (choices == null || choices.size() == 0)
 		{
 			// has to choose one upload feature
 			addAlert(state, rb.getString("uploadall.alert.choose.element"));
 		}
 		else
 		{
+			boolean hasSubmissionText = false;
+			boolean hasSubmissionAttachment = false;
+			boolean hasGradeFile = false;
+			boolean hasFeedbackText = false;
+			boolean hasComment = false;
+			boolean hasFeedbackAttachment = false;
+			boolean releaseGrades = false;
+			
+			// check against the content elements selection
+			if (choices.contains("studentSubmissionText"))
+			{
+				// should contain student submission text information
+				hasSubmissionText = true;
+			}
+			if (choices.contains("studentSubmissionAttachment"))
+			{
+				// should contain student submission attachment information
+				hasSubmissionAttachment = true;
+			}
+			if (choices.contains("gradeFile"))
+			{
+				// should contain grade file
+				hasGradeFile = true;	
+			}
+			if (choices.contains("feedbackTexts"))
+			{
+				// inline text
+				hasFeedbackText = true;
+			}
+			if (choices.contains("feedbackComments"))
+			{
+				// comments.txt should be available
+				hasComment = true;
+			}
+			if (choices.contains("feedbackAttachments"))
+			{
+				// feedback attachment
+				hasFeedbackAttachment = true;
+			}
+			if (params.getString("release") != null)
+			{
+				// comments.xml should be available
+				releaseGrades = params.getBoolean("release");
+			}
+			state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT, Boolean.valueOf(hasSubmissionText));
+			state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT, Boolean.valueOf(hasSubmissionAttachment));
+			state.setAttribute(UPLOAD_ALL_HAS_GRADEFILE, Boolean.valueOf(hasGradeFile));
+			state.setAttribute(UPLOAD_ALL_HAS_COMMENTS, Boolean.valueOf(hasComment));
+			state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT, Boolean.valueOf(hasFeedbackText));
+			state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, Boolean.valueOf(hasFeedbackAttachment));
+			state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
+			
 			// constructor the hashtable for all submission objects
 			Hashtable submissionTable = new Hashtable();
 			Assignment assignment = null;
