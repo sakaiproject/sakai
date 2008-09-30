@@ -71,6 +71,14 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
             throw new SecurityException("user must be logged in to create new options");
         }
         Option option = (Option) entity;
+        // check minimum settings
+        if (option.getPollId() == null) {
+            throw new IllegalArgumentException("Poll ID must be set to create an option");
+        }
+        // check minimum settings
+        if (option.getOptionText() == null) {
+            throw new IllegalArgumentException("Poll Option text must be set to create an option");
+        }
         checkOptionPermission(userReference, option);
         // set default values
         option.setUUId( UUID.randomUUID().toString() );
@@ -95,7 +103,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
             throw new IllegalArgumentException("No option found to update for the given reference: " + ref);
         }
         Option option = (Option) entity;
-        checkOptionPermission(userReference, option);
+        checkOptionPermission(userReference, current);
         developerHelperService.copyBean(option, current, 0, new String[] {"id", "pollId", "UUId"}, true);
         boolean saved = pollListManager.saveOption(current);
         if (!saved) {
@@ -186,16 +194,13 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
      */
     private void checkOptionPermission(String userRef, Option option) {
         if (option.getPollId() == null) {
-            throw new IllegalArgumentException("Poll Id must be set to create an option");
+            throw new IllegalArgumentException("Poll Id must be set in the option to check permissions: " + option);
         }
         Long pollId = option.getPollId();
-        if (option.getOptionText() == null) {
-            throw new IllegalArgumentException("Poll Option text must be set to create an option");
-        }
-        // validate poll
+        // validate poll exists
         Poll poll = pollListManager.getPollById(pollId, false);
         if (poll == null) {
-            throw new IllegalArgumentException("Invalid poll id ("+pollId+"), could not find poll");
+            throw new IllegalArgumentException("Invalid poll id ("+pollId+"), could not find poll from option: " + option);
         }
         // check permissions
         String siteRef = "/site/" + poll.getSiteId();
