@@ -140,7 +140,7 @@ public class SiteParticipantHelper {
 					} catch (UserNotDefinedException exception) {
 						// deal with missing user quietly without throwing a
 						// warning message
-						M_log.warn("SiteParticipantHelper.addParticipantsFromEnrollmentSet: " + exception.getMessage() + " user id = " + e.getUserId(), exception);
+						M_log.warn("SiteParticipantHelper.addParticipantsFromEnrollmentSet: " + exception.getMessage() + " user id = " + e.getUserId());
 					}
 				}
 			}
@@ -233,7 +233,7 @@ public class SiteParticipantHelper {
 				} catch (UserNotDefinedException exception) {
 					// deal with missing user quietly without throwing a
 					// warning message
-					M_log.warn("SiteParticipantHelper.addParticipantsFromMemberships: user id = " + m.getUserId(), exception);
+					M_log.warn("SiteParticipantHelper.addParticipantsFromMemberships: user not defined id = " + m.getUserId());
 				}
 			}
 		}
@@ -250,7 +250,7 @@ public class SiteParticipantHelper {
 			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
 			rv = realm.getProviderGroupId();
 		} catch (GroupNotDefinedException e) {
-			M_log.warn("SiteParticipantHelper.getExternalRealmId: site realm not found", e);
+			M_log.warn("SiteParticipantHelper.getExternalRealmId: site realm not found " + realmId);
 		}
 		return rv;
 
@@ -347,7 +347,7 @@ public class SiteParticipantHelper {
 				}
 				catch (IdNotFoundException e)
 				{
-					M_log.warn("SiteParticipantHelper.prepareParticipants: "+ e.getMessage() + " sectionId=" + providerCourseEid, e);
+					M_log.warn("SiteParticipantHelper.prepareParticipants: "+ e.getMessage() + " sectionId=" + providerCourseEid);
 				}
 			}
 			
@@ -379,12 +379,12 @@ public class SiteParticipantHelper {
 				} catch (UserNotDefinedException e) {
 					// deal with missing user quietly without throwing a
 					// warning message
-					M_log.warn("SiteParticipantHelper.prepareParticipants: "+ e.getMessage(), e);
+					M_log.warn("SiteParticipantHelper.prepareParticipants: user not defined "+ g.getUserEid());
 				}
 			}
 
 		} catch (GroupNotDefinedException ee) {
-			M_log.warn("SiteParticipantHelper.prepareParticipants:  IdUnusedException " + realmId, ee);
+			M_log.warn("SiteParticipantHelper.prepareParticipants:  IdUnusedException " + realmId);
 		}
 		return participantsMap.values();
 	}
