@@ -528,6 +528,9 @@ public class SiteAction extends PagedResourceActionII {
 
 	// types of site whose title can be editable
 	public static final String TITLE_EDITABLE_SITE_TYPE = "title_editable_site_type";
+	
+	// maximum length of a site title
+	private  static final String STATE_SITE_TITLE_MAX = "site_title_max_length";
 
 	// types of site where site view roster permission is editable
 	public static final String EDIT_VIEW_ROSTER_SITE_TYPE = "edit_view_roster_site_type";
@@ -1959,6 +1962,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("title", state.getAttribute(FORM_SITEINFO_TITLE));
 			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, site.getType())));
 			context.put("type", site.getType());
+			context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
 
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
@@ -6131,6 +6135,10 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			state.setAttribute(STATE_VISITED_TEMPLATES, templates);
+		}
+		if (state.getAttribute(STATE_SITE_TITLE_MAX) == null) {
+			int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 20);
+			state.setAttribute(STATE_SITE_TITLE_MAX, siteTitleMaxLength);
 		}
 	} // init
 

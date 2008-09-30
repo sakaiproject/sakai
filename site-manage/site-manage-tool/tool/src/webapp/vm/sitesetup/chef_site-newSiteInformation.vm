@@ -151,7 +151,7 @@
 			<label for="title">
 				$tlang.getString("sinfo.stitle")
 			</label>
-				<input type="text" name="title" class="req" id="title" maxlength="20" size="20" value="$validator.escapeHtml($form_title)" />
+				<input type="text" name="title" class="req" id="title" maxlength="$!titleMaxLength" size="20" value="$validator.escapeHtml($form_title)" />
 			#else
 			<span>
 				$tlang.getString("sinfo.stitle")
