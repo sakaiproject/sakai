@@ -66,33 +66,17 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
     }
 
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-        String userRef = developerHelperService.getCurrentUserReference();
-        if (userRef == null) {
+        String userReference = developerHelperService.getCurrentUserReference();
+        if (userReference == null) {
             throw new SecurityException("user must be logged in to create new options");
         }
         Option option = (Option) entity;
-        if (option.getPollId() == null) {
-            throw new IllegalArgumentException("Poll Id must be set to create an option");
-        }
-        Long pollId = option.getPollId();
-        if (option.getOptionText() == null) {
-            throw new IllegalArgumentException("Poll Option text must be set to create an option");
-        }
-        // validate poll
-        Poll poll = pollListManager.getPollById(pollId, false);
-        if (poll == null) {
-            throw new IllegalArgumentException("Invalid poll id ("+pollId+"), could not find poll");
-        }
-        // check permissions
-        String siteRef = "/site/" + poll.getSiteId();
-        if (! developerHelperService.isUserAllowedInEntityReference(userRef, PollListManager.PERMISSION_ADD, siteRef)) {
-            throw new SecurityException("User ("+userRef+") is not allowed to add options in this poll ("+pollId+")");
-        }
+        checkOptionPermission(userReference, option);
         // set default values
         option.setUUId( UUID.randomUUID().toString() );
         boolean saved = pollListManager.saveOption(option);
         if (!saved) {
-            throw new IllegalStateException("Unable to save option ("+option+") for user ("+userRef+"): " + ref);
+            throw new IllegalStateException("Unable to save option ("+option+") for user ("+userReference+"): " + ref);
         }
         return option.getId()+"";
     }
@@ -111,14 +95,12 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
             throw new IllegalArgumentException("No option found to update for the given reference: " + ref);
         }
         Option option = (Option) entity;
-        String location = developerHelperService.getCurrentLocationReference();
-        // should this check a different permission?
-        boolean allowed = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, location);
-        if (!allowed) {
-            throw new SecurityException("Current user ("+userReference+") cannot update poll options in location ("+location+")");
-        }
+        checkOptionPermission(userReference, option);
         developerHelperService.copyBean(option, current, 0, new String[] {"id", "pollId", "UUId"}, true);
-        pollListManager.saveOption(current);
+        boolean saved = pollListManager.saveOption(current);
+        if (!saved) {
+            throw new IllegalStateException("Unable to update option ("+option+") for user ("+userReference+"): " + ref);
+        }
     }
 
     public void deleteEntity(EntityReference ref, Map<String, Object> params) {
@@ -131,12 +113,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         if (option == null) {
             throw new IllegalArgumentException("No option found to delete for the given reference: " + ref);
         }
-        String location = developerHelperService.getCurrentLocationReference();
-        // should this check a different permission?
-        boolean allowed = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, location);
-        if (!allowed) {
-            throw new SecurityException("Current user ("+userReference+") cannot update poll options in location ("+location+")");
-        }
+        checkOptionPermission(userReference, option);
         pollListManager.deleteOption(option);
     }
 
@@ -202,6 +179,30 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
     }
 
+    /**
+     * Checks if the given user can create/update/delete options
+     * @param userRef
+     * @param option
+     */
+    private void checkOptionPermission(String userRef, Option option) {
+        if (option.getPollId() == null) {
+            throw new IllegalArgumentException("Poll Id must be set to create an option");
+        }
+        Long pollId = option.getPollId();
+        if (option.getOptionText() == null) {
+            throw new IllegalArgumentException("Poll Option text must be set to create an option");
+        }
+        // validate poll
+        Poll poll = pollListManager.getPollById(pollId, false);
+        if (poll == null) {
+            throw new IllegalArgumentException("Invalid poll id ("+pollId+"), could not find poll");
+        }
+        // check permissions
+        String siteRef = "/site/" + poll.getSiteId();
+        if (! developerHelperService.isUserAllowedInEntityReference(userRef, PollListManager.PERMISSION_ADD, siteRef)) {
+            throw new SecurityException("User ("+userRef+") is not allowed to create/update/delete options in this poll ("+pollId+")");
+        }
+    }
 
     /**
      * @param id
