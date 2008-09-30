@@ -45,7 +45,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 
 /**
  * <p>Title: Samigo</p>
@@ -84,7 +83,7 @@ public class ResetPartAttachmentListener
       for (int i=0; i<attachmentList.size(); i++){
          AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
          try{
-           ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
+           ContentResource cr = AssessmentService.getContentHostingService().getResource(attach.getResourceId());
 	 }
          catch (PermissionException e) {
            log.warn("PermissionException from ContentHostingService:"+e.getMessage());

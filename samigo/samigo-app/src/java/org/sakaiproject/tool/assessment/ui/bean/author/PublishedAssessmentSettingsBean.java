@@ -51,7 +51,6 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -93,6 +92,8 @@ public class PublishedAssessmentSettingsBean
       integrationContextFactory.getGradebookServiceHelper();
   private static final boolean integrated =
       integrationContextFactory.isIntegrated();
+
+  
   /**
    *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
    *  used to take the internal format from calendar picker and move it
@@ -1467,7 +1468,7 @@ public class PublishedAssessmentSettingsBean
 			ContentResource cr = null;
 			AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
 			try{
-				cr = ContentHostingService.getResource(attach.getResourceId());
+				cr = AssessmentService.getContentHostingService().getResource(attach.getResourceId());
 			}
 			catch (PermissionException e) {
 				log.warn("PermissionException from ContentHostingService:"+e.getMessage());

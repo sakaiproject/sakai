@@ -40,7 +40,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -997,13 +996,13 @@ public class ExtractionHelper
     AssessmentAttachmentIfc assessmentAttachment;
     String[] attachmentArray = attachment.split("\\n");
     HashSet set = new HashSet();
+	AttachmentHelper attachmentHelper = new AttachmentHelper();
+	AssessmentService assessmentService = new AssessmentService();
     for (int i = 0; i < attachmentArray.length; i++) {
     	String[] attachmentInfo = attachmentArray[i].split("\\|");
     	String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
     	String filename = attachmentInfo[1];
-    	AttachmentHelper attachementHelper = new AttachmentHelper();
-    	ContentResource contentResource = attachementHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
-    	AssessmentService assessmentService = new AssessmentService();
+    	ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
     	assessmentAttachment = assessmentService.createAssessmentAttachment(assessment, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
     	assessmentAttachment.setAssessment((AssessmentIfc)assessment.getData());
     	set.add(assessmentAttachment);
@@ -1036,13 +1035,13 @@ public class ExtractionHelper
     SectionAttachmentIfc sectionAttachment;
     String[] attachmentArray = attachment.split("\\n");
     HashSet set = new HashSet();
+	AttachmentHelper attachmentHelper = new AttachmentHelper();
+	AssessmentService assessmentService = new AssessmentService();
     for (int i = 0; i < attachmentArray.length; i++) {
     	String[] attachmentInfo = attachmentArray[i].split("\\|");
     	String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
     	String filename = attachmentInfo[1];
-    	AttachmentHelper attachementHelper = new AttachmentHelper();
-    	ContentResource contentResource = attachementHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
-    	AssessmentService assessmentService = new AssessmentService();
+    	ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
     	sectionAttachment = assessmentService.createSectionAttachment(section, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
     	sectionAttachment.setSection(section.getData());
     	set.add(sectionAttachment);
@@ -1075,13 +1074,13 @@ public class ExtractionHelper
     ItemAttachmentIfc itemAttachment;
     String[] attachmentArray = attachment.split("\\n");
     HashSet set = new HashSet();
+	AttachmentHelper attachmentHelper = new AttachmentHelper();
+	AssessmentService assessmentService = new AssessmentService();
     for (int i = 0; i < attachmentArray.length; i++) {
     	String[] attachmentInfo = attachmentArray[i].split("\\|");
     	String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
     	String filename = attachmentInfo[1];
-    	AttachmentHelper attachementHelper = new AttachmentHelper();
-    	ContentResource contentResource = attachementHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
-    	AssessmentService assessmentService = new AssessmentService();
+    	ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
     	itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
     	itemAttachment.setItem(item.getData());
     	set.add(itemAttachment);
@@ -1098,10 +1097,11 @@ public class ExtractionHelper
 		if (unzipLocation == null) {
 			return text;
 		}  
+
 	    // first check if there is any content resource attachment
 		// if no - no action is needed
 		String accessURL = ServerConfigurationService.getAccessUrl();
-		String referenceRoot = ContentHostingService.REFERENCE_ROOT;
+		String referenceRoot = AssessmentService.getContentHostingService().REFERENCE_ROOT;
 		String prependString = accessURL + referenceRoot;
 		String importedPrependString = getImportedPrependString(text);
 		if (text == null || importedPrependString == null) {
@@ -1115,6 +1115,7 @@ public class ExtractionHelper
 			String oldResourceId = null;
 			String resourceId = null;
 			ContentResource contentResource = null;
+			AttachmentHelper attachmentHelper = new AttachmentHelper();
 			StringBuffer updatedText = new StringBuffer(splittedString[0]);
 			for (int i = 1; i < splittedString.length; i++) {
 				log.debug("splittedString[" + i + "] = " + splittedString[i]);
@@ -1133,8 +1134,7 @@ public class ExtractionHelper
 				filename = oldSplittedResourceId[oldSplittedResourceId.length - 1];
 				MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
 				contentType = mimetypesFileTypeMap.getContentType(filename);
-				AttachmentHelper attachementHelper = new AttachmentHelper();
-				contentResource = attachementHelper.createContentResource(fullFilePath, filename, contentType);
+				contentResource = attachmentHelper.createContentResource(fullFilePath, filename, contentType);
 				
 				if (contentResource != null) {
 					resourceId = contentResource.getId();
@@ -1152,7 +1152,7 @@ public class ExtractionHelper
   
   private String getImportedPrependString(String text) {
 		String accessPath = ServerConfigurationService.getAccessPath();
-		String referenceRoot = ContentHostingService.REFERENCE_ROOT;
+		String referenceRoot = AssessmentService.getContentHostingService().REFERENCE_ROOT;
 		String importedPrependString = accessPath + referenceRoot;
 
 		String[] splittedString = text.split("src=\"");

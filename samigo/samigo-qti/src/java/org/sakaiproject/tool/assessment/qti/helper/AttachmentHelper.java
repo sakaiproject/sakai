@@ -31,7 +31,6 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUsedException;
@@ -39,13 +38,14 @@ import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class AttachmentHelper {
 	private static Log log = LogFactory.getLog(AttachmentHelper.class);
-
+	
 	public ContentResource createContentResource(String fullFilePath, String filename, String mimeType) {
 		ContentResource contentResource = null;
 		int BUFFER_SIZE = 2048;
@@ -72,12 +72,12 @@ public class AttachmentHelper {
 				content = byteArrayOutputStream.toByteArray();
 			}
 			
-			ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
+			ResourcePropertiesEdit props = AssessmentService.getContentHostingService().newResourceProperties();
 			// Maybe we need to put in some properties?
 			// props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 			// props.addProperty(ResourceProperties.PROP_DESCRIPTION, name);
 
-			contentResource = ContentHostingService.addAttachmentResource(
+			contentResource = AssessmentService.getContentHostingService().addAttachmentResource(
 						filename, ToolManager.getCurrentPlacement().getContext(), 
 						ToolManager.getTool("sakai.samigo").getTitle(), mimeType, content, props);
 		} catch (IdInvalidException e) {

@@ -36,8 +36,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.cover.ToolManager; 
-import org.sakaiproject.content.cover.ContentHostingService; 
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -477,7 +477,7 @@ public class RichTextEditArea extends Renderer
     {
 
         String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
-        String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());        
+        String collectionId = AssessmentService.getContentHostingService().getSiteCollection(ToolManager.getCurrentPlacement().getContext());        
 
         boolean resourceSearch = EditorConfiguration.enableResourceSearch();
         if(resourceSearch)

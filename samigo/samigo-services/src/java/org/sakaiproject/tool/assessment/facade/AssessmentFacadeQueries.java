@@ -37,7 +37,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -1522,7 +1521,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		ItemAttachmentIfc attach = null;
 		Boolean isLink = Boolean.FALSE;
 		try {
-			ContentResource cr = ContentHostingService.getResource(resourceId);
+			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 			if (cr != null) {
 				ResourceProperties p = cr.getProperties();
 				if (isEditPendingAssessmentFlow) {
@@ -1573,7 +1572,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		SectionAttachment attach = null;
 		Boolean isLink = Boolean.FALSE;
 		try {
-			ContentResource cr = ContentHostingService.getResource(resourceId);
+			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 			if (cr != null) {
 				ResourceProperties p = cr.getProperties();
 				attach = new SectionAttachment();
@@ -1646,7 +1645,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		AssessmentAttachment attach = null;
 		Boolean isLink = Boolean.FALSE;
 		try {
-			ContentResource cr = ContentHostingService.getResource(resourceId);
+			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 			if (cr != null) {
 				ResourceProperties p = cr.getProperties();
 				attach = new AssessmentAttachment();
@@ -1720,7 +1719,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		AttachmentData attach = null;
 		Boolean isLink = Boolean.FALSE;
 		try {
-			ContentResource cr = ContentHostingService.getResource(resourceId);
+			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 			if (cr != null) {
 				ResourceProperties p = cr.getProperties();
 				attach = new AttachmentData();

@@ -40,7 +40,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -779,7 +778,7 @@ private List attachmentList;
       ContentResource cr = null;
       AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
       try{
-        cr = ContentHostingService.getResource(attach.getResourceId());
+        cr = AssessmentService.getContentHostingService().getResource(attach.getResourceId());
       }
       catch (PermissionException e) {
     	  log.warn("PermissionException from ContentHostingService:"+e.getMessage());

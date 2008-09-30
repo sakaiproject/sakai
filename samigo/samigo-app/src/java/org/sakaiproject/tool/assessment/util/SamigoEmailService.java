@@ -47,12 +47,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -218,7 +218,7 @@ public class SamigoEmailService {
 	}
 
 	private File getAttachedFile(String resourceId) throws PermissionException, IdUnusedException, TypeException, ServerOverloadException, IOException {
-		ContentResource cr = ContentHostingService.getResource(resourceId);
+		ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 		log.debug("getAttachedFile(): resourceId = " + resourceId);
 		byte[] data = cr.getContent();
 		StringBuilder sbPrefixedPath = new StringBuilder(prefixedPath);

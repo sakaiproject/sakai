@@ -33,7 +33,6 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -95,7 +94,7 @@ public class ResetItemAttachmentListener
       for (int i=0; i<attachmentList.size(); i++){
          AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
          try{
-           ContentResource cr = ContentHostingService.getResource(attach.getResourceId());
+           ContentResource cr = AssessmentService.getContentHostingService().getResource(attach.getResourceId());
 	 }
          catch (PermissionException e) {
            log.warn("PermissionException from ContentHostingService:"+e.getMessage());

@@ -37,12 +37,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
@@ -104,7 +104,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	byte[] media = null;
 	try {
 		// create a copy of the resource
-		cr = ContentHostingService.getResource(resourceId);
+		cr = AssessmentService.getContentHostingService().getResource(resourceId);
 		media = cr.getContent();
 	    log.debug("**** media.length = " + media.length);
 		

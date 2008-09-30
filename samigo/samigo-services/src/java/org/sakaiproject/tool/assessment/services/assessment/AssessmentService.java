@@ -29,7 +29,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -562,7 +563,7 @@ public class AssessmentService {
 			if (resourceId.toLowerCase().startsWith("/attachment")) {
 				try {
 					log.debug("removing=" + resourceId);
-					ContentHostingService.removeResource(resourceId);
+					AssessmentService.getContentHostingService().removeResource(resourceId);
 				} catch (PermissionException e) {
 					log.warn("cannot remove resourceId=" + resourceId + ":"
 							+ e.getMessage());
@@ -601,9 +602,9 @@ public class AssessmentService {
 		ContentResource cr_copy = null;
 		try {
 			// create a copy of the resource
-			ContentResource cr = ContentHostingService.getResource(resourceId);
+			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 			String escapedName = escapeResourceName(filename);
-			cr_copy = ContentHostingService.addAttachmentResource(escapedName, 
+			cr_copy = AssessmentService.getContentHostingService().addAttachmentResource(escapedName, 
 					ToolManager.getCurrentPlacement().getContext(), 
 					ToolManager.getTool("sakai.samigo").getTitle(), cr
 					.getContentType(), cr.getContent(), cr.getProperties());
@@ -786,4 +787,7 @@ public class AssessmentService {
 		    return PersistenceService.getInstance().getAssessmentFacadeQueries().copyItemAttachmentSet(newItem, itemAttachmentSet);
 	  }
 
+	  public static ContentHostingService getContentHostingService(){
+		  return (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+	  }
 }

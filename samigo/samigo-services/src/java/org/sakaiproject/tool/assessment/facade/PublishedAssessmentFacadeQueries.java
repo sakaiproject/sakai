@@ -47,7 +47,6 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -2701,7 +2700,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		PublishedAssessmentAttachment attach = null;
 		Boolean isLink = Boolean.FALSE;
 		try {
-			ContentResource cr = ContentHostingService.getResource(resourceId);
+			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 			if (cr != null) {
 				ResourceProperties p = cr.getProperties();
 				attach = new PublishedAssessmentAttachment();

@@ -68,7 +68,6 @@ import org.sakaiproject.exception.TypeException;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -1116,7 +1115,7 @@ public class ItemAuthorBean
       AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
       try{
         log.debug("*** resourceId="+attach.getResourceId());
-        cr = ContentHostingService.getResource(attach.getResourceId());
+        cr = AssessmentService.getContentHostingService().getResource(attach.getResourceId());
       }
       catch (PermissionException e) {
     	  log.warn("ContentHostingService.getResource() throws PermissionException="+e.getMessage());

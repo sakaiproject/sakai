@@ -38,7 +38,6 @@ import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.dom4j.io.DOMWriter;
 import org.sakaiproject.component.cover.ServerConfigurationService; 
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
@@ -60,6 +59,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.xml.sax.SAXException;
+import org.sakaiproject.content.api.ContentHostingService;
 
 /**
  * <p>
@@ -75,6 +75,8 @@ public class ManifestGenerator {
 	private String assessmentId;
 
 	private HashMap contentMap = new HashMap();
+	
+	private ContentHostingService contentHostingService;
 
 	public ManifestGenerator(String assessmentId) {
 		this.assessmentId = assessmentId;
@@ -144,7 +146,8 @@ public class ManifestGenerator {
 		Element resourceElement = DocumentHelper.createElement("resource");
 		resourceElement.addAttribute("identifier", "Resource1");
 		resourcesElement.add(resourceElement);
-
+		
+		setContentHostingService();
 		getAttachments();
 		getFCKAttachments();
 		Iterator iter = contentMap.keySet().iterator();
@@ -178,7 +181,7 @@ public class ManifestGenerator {
 				AssessmentAttachment assessmentAttachment = (AssessmentAttachment) assessmentAttachmentIter
 						.next();
 				resourceId = assessmentAttachment.getResourceId();
-				content = ContentHostingService.getResource(resourceId)
+				content = contentHostingService.getResource(resourceId)
 						.getContent();
 				contentMap.put(resourceId.replace(" ", ""), content);
 			}
@@ -204,7 +207,7 @@ public class ManifestGenerator {
 					sectionAttachment = (SectionAttachment) sectionAttachmentIter
 							.next();
 					resourceId = sectionAttachment.getResourceId();
-					content = ContentHostingService.getResource(resourceId)
+					content = contentHostingService.getResource(resourceId)
 							.getContent();
 					contentMap.put(resourceId.replace(" ", ""), content);
 				}
@@ -219,7 +222,7 @@ public class ManifestGenerator {
 						itemAttachment = (ItemAttachment) itemAttachmentIter
 								.next();
 						resourceId = itemAttachment.getResourceId();
-						content = ContentHostingService.getResource(resourceId)
+						content = contentHostingService.getResource(resourceId)
 								.getContent();
 						contentMap.put(resourceId.replace(" ", ""), content);
 					}
@@ -308,7 +311,7 @@ public class ManifestGenerator {
 
 	private void processDescription(String description) {
 		String prependString = ServerConfigurationService.getAccessUrl()
-				+ ContentHostingService.REFERENCE_ROOT;
+				+ contentHostingService.REFERENCE_ROOT;
 		
 		// Hardcode here for now because I cannot find the API to get them
 		// Also, it is hardcoded in BaseContentService.java
@@ -341,7 +344,7 @@ public class ManifestGenerator {
 						
 						if (src.indexOf(siteCollection) > -1) {
 							resourceId = src.replace(prependString, "");
-							content = ContentHostingService.getResource(resourceId).getContent();
+							content = contentHostingService.getResource(resourceId).getContent();
 							if (content != null) {
 								contentMap.put(resourceId.replace(" ", ""), content);
 							}
@@ -349,14 +352,14 @@ public class ManifestGenerator {
 						else if (src.indexOf(userCollection) > -1) {
 							eidResourceId = src.replace(prependString, "");
 							resourceId = eidResourceId.replace(eid, userId);
-							content = ContentHostingService.getResource(resourceId).getContent();
+							content = contentHostingService.getResource(resourceId).getContent();
 							if (content != null) {
 								contentMap.put(eidResourceId.replace(" ", ""), content);
 							}
 						}
 						else if (src.indexOf(attachment) > -1) {
 							resourceId = src.replace(prependString, "");
-							content = ContentHostingService.getResource(resourceId).getContent();
+							content = contentHostingService.getResource(resourceId).getContent();
 							if (content != null) {
 								contentMap.put(resourceId.replace(" ", ""), content);
 							}
@@ -379,6 +382,12 @@ public class ManifestGenerator {
 		} catch (ServerOverloadException e) {
 			log.error(e.getMessage());
 			e.printStackTrace();
+		}
+	}
+	
+	public void setContentHostingService(){
+		if (contentHostingService == null) {
+			this.contentHostingService = AssessmentService.getContentHostingService();
 		}
 	}
 }
