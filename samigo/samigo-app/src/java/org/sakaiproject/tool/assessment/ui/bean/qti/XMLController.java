@@ -182,7 +182,7 @@ private static Log log = LogFactory.getLog(XMLController.class);
                          qtiVersion + ")");
       Document doc = qtiService.getExportedAssessment(id, qtiVersion);
       xmlBean.setDescription(
-        "Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
+        "Exported QTI XML produced by Sakai's Tests and Quizzes tool (Samigo)");
       xmlBean.setName("assessment " + id);
       setUpXmlNoDecl(XmlUtil.getDOMString(doc));
     }
@@ -280,7 +280,7 @@ private static Log log = LogFactory.getLog(XMLController.class);
       QTIService qtiService = new QTIService();
       Document doc = qtiService.getExportedItem(id, qtiVersion);
       xmlBean.setDescription(
-        "Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
+        "Exported QTI XML produced by Sakai's Tests and Quizzes tool (Samigo)");
       xmlBean.setName("item " + id); // get from document later
       setUpXmlNoDecl(XmlUtil.getDOMString(doc));
     }
@@ -313,7 +313,7 @@ private static Log log = LogFactory.getLog(XMLController.class);
       }
       Document doc = qtiService.getExportedItemBank(ids, qtiVersion);
       xmlBean.setDescription(
-        "Exported QTI XML Copyright: Copyright (c) 2005 Sakai");
+        "Exported QTI XML produced by Sakai's Tests and Quizzes tool (Samigo)");
       xmlBean.setName("object bank for items " + id); // get from document later
       setUpXmlNoDecl(XmlUtil.getDOMString(doc));
     }
