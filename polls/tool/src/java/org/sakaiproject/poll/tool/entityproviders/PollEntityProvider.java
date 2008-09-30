@@ -164,7 +164,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (!allowed) {
             throw new SecurityException("Current user ("+userReference+") cannot update polls in location ("+location+")");
         }
-        developerHelperService.copyBean(poll, current, 0, new String[] {"id", "pollId", "owner","siteId","creationDate"}, true);
+        developerHelperService.copyBean(poll, current, 0, new String[] {"id", "pollId", "owner","siteId","creationDate","reference","url","properties"}, true);
         pollListManager.savePoll(current);
     }
 
