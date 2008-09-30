@@ -191,6 +191,15 @@ INSERT INTO SAM_TYPE_T (TYPEID , AUTHORITY, DOMAIN, KEYWORD, DESCRIPTION, STATUS
 update sam_assessaccesscontrol_t set autosubmit = 0;
 update sam_publishedaccesscontrol_t set autosubmit = 0;
 alter table SAM_ASSESSMENTGRADING_T add ISAUTOSUBMITTED INTEGER null DEFAULT '0';
+-- SAK-14430
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY) VALUES(1, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY) VALUES(2, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY) VALUES(3, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY) VALUES(4, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY) VALUES(6, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTID, LABEL, ENTRY) VALUES(7, 'markForReview_isInstructorEditable', 'true');
+update sam_assessaccesscontrol_t set markforreview = 1 where assessmentid = 2;
+
 
 -- SAK-13646
 alter table GB_GRADABLE_OBJECT_T

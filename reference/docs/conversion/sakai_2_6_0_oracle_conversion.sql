@@ -188,6 +188,15 @@ INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY", "DOMAIN", "KEYWORD", "DESCRIPTION
 update sam_assessaccesscontrol_t set autosubmit = 0;
 update sam_publishedaccesscontrol_t set autosubmit = 0;
 alter table SAM_ASSESSMENTGRADING_T add ISAUTOSUBMITTED number(1, 0) default '0' null;
+-- SAK-14430 
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY) VALUES(sam_assessMetaData_id_s.nextVal, 1, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY) VALUES(sam_assessMetaData_id_s.nextVal, 2, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY) VALUES(sam_assessMetaData_id_s.nextVal, 3, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY) VALUES(sam_assessMetaData_id_s.nextVal, 4, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY) VALUES(sam_assessMetaData_id_s.nextVal, 6, 'markForReview_isInstructorEditable', 'true');
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY) VALUES(sam_assessMetaData_id_s.nextVal, 7, 'markForReview_isInstructorEditable', 'true');
+update sam_assessaccesscontrol_t set markforreview = 1 where assessmentid = 2;
+
 
 -- SAK-13646
 alter table GB_GRADABLE_OBJECT_T add (IS_EXTRA_CREDIT number(1,0), ASSIGNMENT_WEIGHTING double precision);
