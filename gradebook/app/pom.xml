@@ -11,29 +11,10 @@
   <artifactId>sakai-gradebook-app</artifactId>
   <groupId>org.sakaiproject</groupId>
   <name>sakai-gradebook-app</name>
-<profiles>
-   <profile>
-      <id>production</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <modules>
-	<module>business</module>
-	<module>sakai-tool</module>
-	<module>ui</module>
-      </modules>
-      </profile>
-      <profile>
-	<id>full</id>
-	<modules>
-          <module>business</module>
-          <module>sakai-tool</module>
-          <module>standalone-app</module>
-          <module>ui</module>
-      </modules>
-     </profile>
-</profiles>
-
-
-
+  <modules>
+    <module>business</module>
+    <module>sakai-tool</module>
+    <module>standalone-app</module>
+    <module>ui</module>
+  </modules>
 </project>
