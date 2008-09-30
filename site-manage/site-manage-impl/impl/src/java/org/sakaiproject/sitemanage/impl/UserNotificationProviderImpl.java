@@ -153,9 +153,9 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		String from = serverConfigurationService.getString("setup.request",
 				null);
 		if (from == null) {
-			M_log.warn(this + " - no 'setup.request' in configuration");
 			from = "postmaster@".concat(serverConfigurationService
 					.getServerName());
+			M_log.warn(this + " - no 'setup.request' in configuration, using: "+ from);
 		}
 		return from;
 	}
