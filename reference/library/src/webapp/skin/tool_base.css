@@ -593,6 +593,26 @@ h3 .breadCrumb{
 	font-size: .8em;
 }
 
+/*
+new message types - see http://bugs.sakaiproject.org/jira/browse/SAK-14197 
+and for usage http://www.umich.edu/~gsilver/messages/
+*/
+.messageError,.messageValidation,.messageConfirmation,.messageSuccess,.messageInformation,.messageInstruction,.messageProgress{/*common to all messages types*/ margin:.5em 0;padding:3px 3px 3px 2em;background-position:3px 3px;background-repeat:no-repeat;height:100%;overflow:hidden;clear:both}
+.messageError{background-image:url(images/exclamation.png);background-color:#fbb;border:1px solid #c00}
+.messageValidation{background-image:url(images/error.png);background-color:#fee;border:1px solid #f55}
+.messageConfirmation{background-image:url(images/asterisk_orange.png);background-color:#ffe;border:1px solid #b71}
+.messageSuccess{background-image:url(images/accept.png);background-color:#dec;border:1px solid #9c6}
+.messageInformation{background-image:url(images/bell.png);background-color:#eee;border:1px solid #ccc;color:#000}
+.messageInstruction{background-color:#fff;color:#555;padding:3px .3em 3px 0}
+.messageProgress{background-image:url(images/progress.gif);background-color:transparent;border:1px solid #9c6}
+.messageError h4,.messageValidation h4,.messageConfirmation h4,.messageSuccess h4,.messageInformation h4,.messageInstruction h4,.messageProgress h4{display:inline}
+h4.message,h5.message,h6.message,p.message{font-size:1em;float:left;width:90%;padding:0 .2em;margin:0}
+ul.message{list-style:none;width:90%;margin:0;padding:0;float:left;background-position:3px 3px !important;background-repeat:no-repeat}
+ul.message li{list-style:none;margin:0;padding:0 0 5px 0}
+p.closeMe{float:right;width:2em;cursor:pointer;text-align:right;margin:0;padding:0;clear:right}
+em.closeMe{font-style:normal;cursor:pointer;padding-left:1em}
+.messageContent{clear:both;margin-top:2em}
+.messageError .messageError,.messageValidation .messageValidation,.messageInformation .messageInformation,.messageConfirmation .messageConfirmation,.messageSuccess .messageSuccess,.messageInstruction .messageInstruction,.messageProgress .messageProgress{background-image:none;border:none;padding-left:0}
 /*SECTION 7 DATA PANELS*/
 /*panels of normal text can have a header (ie - title) and a footer element (ie - metadata such as author, date, etc)*/
 /*see synoptic view of announcements*/
