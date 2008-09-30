@@ -41,6 +41,8 @@ import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 /**
  * A role-based authorization filter which takes four parameters:
  * <ul>
@@ -135,7 +137,11 @@ public class RoleFilter implements Filter {
 				isAuthorized = false;
 			}
 
-			if (isAuthorized) {
+			// SAK-13408 - This fix addresses the problem of the filter receiving a blank field on WebSphere.
+			// Without this, users would be denied access to the tool.
+			if("websphere".equals(ServerConfigurationService.getString("servlet.container")) && (isAuthorized || pageName.equals("")) ) {
+				chain.doFilter(request, response);
+			} else if ( !"websphere".equals(ServerConfigurationService.getString("servlet.container")) && isAuthorized) {
 				chain.doFilter(request, response);
 			} else {
 				logger.error("AUTHORIZATION FAILURE: User " + userUid + " in gradebook " + gradebookUid + " attempted to reach URL " + request.getRequestURL());
