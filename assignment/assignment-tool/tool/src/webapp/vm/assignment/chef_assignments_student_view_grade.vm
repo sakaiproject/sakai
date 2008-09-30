@@ -78,30 +78,7 @@
 						$tlang.getString("gen.gra2") 
 					</th>
 					<td>
-					#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
-						##show grade when release or returned
-						#if ($assignment.getContent().TypeOfGrade != 1)
-							$submission.GradeDisplay
-						#else
-							$tlang.getString("gen.nograd")
-						#end
-					#else
-						#if ($submission.Returned)
-							#if ($!returnTime && $!submitTime && $returnTime.after($submitTime))
-								$tlang.getString("gen.returned") $returnTime.toStringLocalFull()
-								#if ($submission.Graded)	
-									, $submission.GradeDisplay
-								#end
-							#elseif ($!submitTime)
-								$tlang.getString("gen.resub") $submitTime.toStringLocalFull()
-								#if ($submitTime.after($assignment.DueTime))
-									<span class="highlight"> $tlang.getString("gen.late")</span>
-								#end
-							#end
-						#else
-							$tlang.getString("ungra")
-						#end
-					#end
+					$submission.getGradeDisplay()
 					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
 					#if ($gradeScale == "Points")
 						(max $assignment.getContent().getMaxGradePointDisplay())
