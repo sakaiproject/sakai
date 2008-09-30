@@ -152,7 +152,13 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
             throw new IllegalArgumentException("No poll found to update for the given reference: " + ref);
         }
         Poll poll = (Poll) entity;
-        String location = developerHelperService.getCurrentLocationReference();
+        String siteId = developerHelperService.getCurrentLocationId();
+        if (poll.getSiteId() == null) {
+            poll.setSiteId( siteId );
+        } else {
+            siteId = poll.getSiteId();
+        }
+        String location = "/site/" + siteId;
         // should this check a different permission?
         boolean allowed = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, location);
         if (!allowed) {
