@@ -1609,10 +1609,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
 		String range = StringUtil.trimToNull((String) state.getAttribute(NEW_ASSIGNMENT_RANGE));
-		if (range != null)
-		{
-			context.put("range", range);
-		}
+		context.put("range", range != null?range:"site");
 		
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		// put site object into context
@@ -4488,7 +4485,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// assignment range?
 		String range = data.getParameters().getString("range");
 		state.setAttribute(NEW_ASSIGNMENT_RANGE, range);
-		if (range.equals("groups"))
+		if ("groups".equals(range))
 		{
 			String[] groupChoice = data.getParameters().getStrings("selectedGroups");
 			if (groupChoice != null && groupChoice.length != 0)
@@ -4965,7 +4962,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				Site site = SiteService.getSite(siteId);
 				Collection groupChoice = (Collection) state.getAttribute(NEW_ASSIGNMENT_GROUPS);
-				if (range.equals(Assignment.AssignmentAccess.GROUPED) && (groupChoice == null || groupChoice.size() == 0))
+				if (Assignment.AssignmentAccess.GROUPED.equals(range) && (groupChoice == null || groupChoice.size() == 0))
 				{
 					// show alert if no group is selected for the group access assignment
 					addAlert(state, rb.getString("java.alert.youchoosegroup"));
@@ -5344,7 +5341,7 @@ public class AssignmentAction extends PagedResourceActionII
 			if (!addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_NO))
 			{
 				// if integrate with Gradebook
-				if (!AssignmentService.getAllowGroupAssignmentsInGradebook() && (range.equals("groups")))
+				if (!AssignmentService.getAllowGroupAssignmentsInGradebook() && ("groups".equals(range)))
 				{
 					// if grouped assignment is not allowed to add into Gradebook
 					addAlert(state, rb.getString("java.alert.noGroupedAssignmentIntoGB"));
@@ -5760,12 +5757,12 @@ public class AssignmentAction extends PagedResourceActionII
 
 		try
 		{
-			if (range.equals("site"))
+			if ("site".equals(range))
 			{
 				a.setAccess(Assignment.AssignmentAccess.SITE);
 				a.clearGroupAccess();
 			}
-			else if (range.equals("groups"))
+			else if ("groups".equals(range))
 			{
 				a.setGroupAccess(groups);
 			}
