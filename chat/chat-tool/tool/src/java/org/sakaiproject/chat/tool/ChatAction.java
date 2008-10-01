@@ -950,7 +950,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 			try
 			{
 				ChatMessageEdit edit = channel.addChatMessage();
-				edit.setBody( Web.cleanHtml(message) );
+				edit.setBody(FormattedText.processFormattedText(message, new StringBuilder()));
 				channel.commitMessage(edit);
 			}
 			catch (PermissionException e)
