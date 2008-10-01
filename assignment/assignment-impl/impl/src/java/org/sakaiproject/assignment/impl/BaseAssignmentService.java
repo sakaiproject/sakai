@@ -5508,11 +5508,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String numItemsString = null;
 			String attributeString = null;
 			String itemString = null;
-			assignment.setAttribute("id", m_id);
-			assignment.setAttribute("title", m_title);
-			assignment.setAttribute("section", m_section);
-			assignment.setAttribute("context", m_context);
-			assignment.setAttribute("assignmentcontent", m_assignmentContent);
+			
+			// SAK-13408 -The XML implementation in Websphere throws an LSException if the
+			// attribute is null, while in Tomcat it assumes an empty string. The following
+			// sets the attribute to an empty string if the value is null.
+			assignment.setAttribute("id", m_id == null ? "" : m_id);
+			assignment.setAttribute("title", m_title == null ? "" : m_title);
+			assignment.setAttribute("section", m_section == null ? "" : m_section);
+			assignment.setAttribute("context", m_context == null ? "" : m_context);
+			assignment.setAttribute("assignmentcontent", m_assignmentContent == null ? "" : m_assignmentContent);
 			assignment.setAttribute("draft", getBoolString(m_draft));
 			assignment.setAttribute("opendate", getTimeString(m_openTime));
 			assignment.setAttribute("duedate", getTimeString(m_dueTime));
@@ -6817,9 +6821,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String itemString = null;
 			Reference tempReference = null;
 
-			content.setAttribute("id", m_id);
-			content.setAttribute("context", m_context);
-			content.setAttribute("title", m_title);
+			// SAK-13408 -The XML implementation in Websphere throws an LSException if the
+			// attribute is null, while in Tomcat it assumes an empty string. The following
+			// sets the attribute to an empty string if the value is null.
+			content.setAttribute("id", m_id == null ? "" : m_id);
+			content.setAttribute("context", m_context == null ? "" : m_context);
+			content.setAttribute("title", m_title == null ? "" : m_title);
 			content.setAttribute("groupproject", getBoolString(m_groupProject));
 			content.setAttribute("indivgraded", getBoolString(m_individuallyGraded));
 			content.setAttribute("releasegrades", getBoolString(m_releaseGrades));
@@ -8353,16 +8360,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String itemString = null;
 			Reference tempReference = null;
 
-			
+			// SAK-13408 -The XML implementation in Websphere throws an LSException if the
+			// attribute is null, while in Tomcat it assumes an empty string. The following
+			// sets the attribute to an empty string if the value is null. 
 			submission.setAttribute("reviewScore",Integer.toString(m_reviewScore));
-			submission.setAttribute("reviewReport",m_reviewReport);
-			submission.setAttribute("reviewStatus",m_reviewStatus);
+			submission.setAttribute("reviewReport",m_reviewReport == null ? "" : m_reviewReport);
+			submission.setAttribute("reviewStatus",m_reviewStatus == null ? "" : m_reviewStatus);
 			
-			
-			submission.setAttribute("id", m_id);
-			submission.setAttribute("context", m_context);
-			submission.setAttribute("scaled_grade", m_grade);
-			submission.setAttribute("assignment", m_assignment);
+			submission.setAttribute("id", m_id == null ? "" : m_id);
+			submission.setAttribute("context", m_context == null ? "" : m_context);
+			submission.setAttribute("scaled_grade", m_grade == null ? "" : m_grade);
+			submission.setAttribute("assignment", m_assignment == null ? "" : m_assignment);
+
 			submission.setAttribute("datesubmitted", getTimeString(m_timeSubmitted));
 			submission.setAttribute("datereturned", getTimeString(m_timeReturned));
 			submission.setAttribute("lastmod", getTimeString(m_timeLastModified));
