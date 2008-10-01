@@ -98,6 +98,10 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 	public boolean allowViewRoster(String id) {
 		return true;
 	}
+	
+	public boolean allowRoleSwap(String id) {
+		return true;
+	}
 
 	public int countSites(SelectionType type, Object ofType, String criteria,
 			Map propertyCriteria) {
