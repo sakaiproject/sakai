@@ -72,7 +72,7 @@
 	padding-top: 2px;
 	margin-left: -40px;
 	padding-left: 5px;
-	list-style-type:none  !important;
+	list-style-type: none !important;
 }
 
 #sideLink li a {
@@ -194,6 +194,13 @@
 }
 
 
+/* Style for wicket's feedback message panel */
+.alertMessage ul {
+	list-style-type: none !important;
+	margin-left: -40px;
+	margin-bottom: 0px;
+	margin-top: 0px;
+}
 
 
 		

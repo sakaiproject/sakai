@@ -4,6 +4,8 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
@@ -16,6 +18,12 @@ public class MyProfile extends BasePage {
 		
 		if(log.isDebugEnabled()) log.debug("MyProfile()");
 		
+		//add the feedback panel for any error messages, go here.
+		FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
+		add(feedbackPanel);
+		feedbackPanel.setVisible(false); //hide by default
+
+		
 		//get some user info
 		String userId = sakaiProxy.getCurrentUserId();
 		String userDisplayName = sakaiProxy.getUserDisplayName(userId);
@@ -24,10 +32,12 @@ public class MyProfile extends BasePage {
 
 		//get SakaiPerson
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-		//if the person does not have a sakaiPseron entry, we need to create them one
-		
-		
-		
+		//if the person does not have a sakaiPerson entry, we need to create them one
+		if(sakaiPerson == null) {
+			error("You don't have a sakaiPerson record, crap.");
+			feedbackPanel.setVisible(true); //explicitly show it
+
+		} 
 		
 		//heading
 		add(new Label("profileHeadingName", userDisplayName));
@@ -36,10 +46,17 @@ public class MyProfile extends BasePage {
 		//status last updated
 		add(new Label("profileHeadingStatusLastUpdated", userStatusLastUpdated));
 	    
+		
+		
+		
+		
 
+		
 		//panels
-		add(new MyInfoPanel("myInfoPanel", sakaiProxy, profile, sakaiPerson));
+		Panel myInfoPanel = new MyInfoPanel("myInfoPanel", sakaiProxy, profile, sakaiPerson);
+		add(myInfoPanel);
 		//add(new MyInterestsPanel("myInterestsPanel"));
+		
 		
 		
 	}

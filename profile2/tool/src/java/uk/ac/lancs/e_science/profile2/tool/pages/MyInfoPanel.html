@@ -9,8 +9,7 @@
 
 <wicket:panel>	
 		
-	
-	<div id="myInfo" class="mainSection">
+	<div id="myInfo" wicket:id="myInfo" class="mainSection">
 		<div class="mainSectionHeading">My Info</div>
 		
 		<div class="mainSectionContent editable">
@@ -40,8 +39,8 @@
 			<form wicket:id="myInfoForm">
 				
 				<div class="profileItemEdit">
-					<label for="profileNicknameField"><span class="profileLabelEdit" wicket:id="profileNicknameLabel">[profileNicknameLabel]</span></label>
-					<input type="text" wicket:id="myNicknameField" name="profileNicknameField" id="profileNicknameField" class="formInputField" />
+					<label for="nickname"><span class="profileLabelEdit" wicket:id="nicknameLabel">[nicknameLabel]</span></label>
+					<input type="text" wicket:id="nickname" name="nickname" id="nickname" class="formInputField" />
 				</div>
 				
 			

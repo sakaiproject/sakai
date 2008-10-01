@@ -22,7 +22,7 @@ public class ProfileApplication extends WebApplication {
 		//super.init();
 		//if(logger.isDebugEnabled()) logger.debug("init()");
 		//getMarkupSettings().setStripWicketTags(true);
-		//mountBookmarkablePage("/home", Dispatcher.class);
+		mountBookmarkablePage("/my", Dispatcher.class);
 		
 		//addComponentInstantiationListener(new SpringComponentInjector(this));
 		//getResourceSettings().setThrowExceptionOnMissingResource(true);
