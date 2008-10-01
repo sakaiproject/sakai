@@ -7436,6 +7436,10 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(GRADE_SUBMISSION_GRADE, g);
 		}
+		else
+		{
+			state.removeAttribute(GRADE_SUBMISSION_GRADE);
+		}
 
 		String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
 
