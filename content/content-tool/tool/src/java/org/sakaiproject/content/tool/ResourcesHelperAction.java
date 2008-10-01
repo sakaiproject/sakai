@@ -204,6 +204,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("DOT", ListItem.DOT);
 		context.put("calendarMap", new HashMap());
 		
+		context.put("dateFormat", getDateFormatString());
+		
 		String mode = (String) state.getAttribute(ResourceToolAction.STATE_MODE);
 
 		if (mode == null)
@@ -282,7 +284,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("TYPE_TEXT", ResourceType.TYPE_TEXT);
 		context.put("TYPE_UPLOAD", ResourceType.TYPE_UPLOAD);
 		context.put("TYPE_URL", ResourceType.TYPE_URL);
-		
+
 		String template = "";
 
 		switch(pipe.getAction().getActionType())

@@ -1,17 +1,3 @@
-##
-############################################# macro prop_dateSelection 
-#macro(prop_dateSelectionWidget $propName $propValue)	
-## Setup a date selection widget
-#set($theDate = $propValue.breakdownLocal())
-#set($year = $theDate.year)
-#set($earliestYear = $year - 10)
-#set($latestYear = $year + 10)	
-#set($month = $theDate.month)
-#set($day = $theDate.day)
-#custom_dateselectionwidget("${propName}_year" "${propName}_month" "${propName}_day" "$earliestYear" "$latestYear" "$year" "$month" "$day" "")
-#end
-############################################# end of macro prop_dateSelection 
-
 		######################## ================ Optional Properties of Item ================ ########################
 		<input type="hidden" name="metadataGroup${DOT}$i" id="metadataGroup${DOT}$i" value="" />
 		#if(!$item && $model)#set($item = $model)#end
@@ -59,7 +45,7 @@
 									#set($theValue = $today)
 								#end 
 								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
-								#resources_dateselectionwidget("$!{tag.fullname}" "${i}" $theValue)
+								#resources_dateselectionwidget("$!{tag.fullname}" "${i}" $theValue $dateFormat)
 							#elseif("$!tag.widget" == "$!DATETIME")
 								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
 									$tag.label
@@ -70,7 +56,7 @@
 									#set($theValue = $today)
 								#end 
 								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
-								#resources_dateselectionwidget("$!{tag.fullname}" "${i}" $theValue)
+								#resources_dateselectionwidget("$!{tag.fullname}" "${i}" $theValue $dateFormat)
 								#resources_timeSelectionWidget("$!{tag.fullname}" "${i}" $theValue)
 							#elseif("$!tag.widget" == "$!TIME")
 								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">

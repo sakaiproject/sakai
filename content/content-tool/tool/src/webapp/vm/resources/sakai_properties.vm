@@ -18,48 +18,14 @@
 	document.calendars[calendarcounter] = new Array(yearselect_id, monthselect_id, dayselect_id, inputfield_id);
 *#
 
-#macro (resources_dateselectionwidget $prefix $suffix $current_value)
+#macro (resources_dateselectionwidget $prefix $suffix $current_value $dateFormat)
 	#set($yearSelected = $current_value.year)
 	#set($earliestYear = $yearSelected - 4)
 	#set($latestYear = $yearSelected + 4)
 	#set($monthSelected = $current_value.month)
 	#set($daySelected = $current_value.day)
-	<select name="${prefix}_month${DOT}${suffix}" id="${prefix}_month${DOT}${suffix}">  
-    	#if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("month.jan")</option> #else <option value="1">$tlang.getString("month.jan")</option> #end
- 		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("month.feb")</option> #else <option value="2">$tlang.getString("month.feb")</option> #end
-		#if ($monthSelected == 3) <option value="3" selected="selected">$tlang.getString("month.mar")</option> #else <option value="3">$tlang.getString("month.mar")</option> #end
-		#if ($monthSelected == 4) <option value="4" selected="selected">$tlang.getString("month.apr")</option> #else <option value="4">$tlang.getString("month.apr")</option> #end
-		#if ($monthSelected == 5) <option value="5" selected="selected">$tlang.getString("month.may")</option> #else <option value="5">$tlang.getString("month.may")</option> #end
-		#if ($monthSelected == 6) <option value="6" selected="selected">$tlang.getString("month.jun")</option> #else <option value="6">$tlang.getString("month.jun")</option> #end
-		#if ($monthSelected == 7) <option value="7" selected="selected">$tlang.getString("month.jul")</option> #else <option value="7">$tlang.getString("month.jul")</option> #end
-		#if ($monthSelected == 8) <option value="8" selected="selected">$tlang.getString("month.aug")</option> #else <option value="8">$tlang.getString("month.aug")</option> #end
-		#if ($monthSelected == 9) <option value="9" selected="selected">$tlang.getString("month.sep")</option> #else <option value="9">$tlang.getString("month.sep")</option> #end
-		#if ($monthSelected == 10) <option value="10" selected="selected">$tlang.getString("month.oct")</option> #else <option value="10">$tlang.getString("month.oct")</option> #end
-		#if ($monthSelected == 11) <option value="11" selected="selected">$tlang.getString("month.nov")</option> #else <option value="11">$tlang.getString("month.nov")</option> #end
-		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("month.dec")</option> #else <option value="12">$tlang.getString("month.dec")</option> #end
-    </select>
-    <select name="${prefix}_day${DOT}${suffix}" id="${prefix}_day${DOT}${suffix}">
-	    #foreach($d in [1..31])
-	        #if($d == $daySelected)
-	            <option value="$d" selected="selected">$d</option>
-	        #else
-	            <option value="$d">$d</option>
-	        #end
-		#end
-    </select>
-    <select name="${prefix}_year${DOT}${suffix}" id="${prefix}_year${DOT}${suffix}">
-        #foreach ($y in [$earliestYear .. $latestYear])
-            #if ($y == $yearSelected)
-                    <option value="$y" selected="selected">$y</option>
-            #else
-                    <option value="$y">$y</option>
-            #end
-		#end
-    </select>
-    <img id="${prefix}_calendar${DOT}${suffix}" src="/library/calendar/images/calendar/cal.gif" alt="" style="cursor: pointer;" title="Popup date selector" />
-    <input type="hidden" name="chef_calendarhiddenfield${calendarcounter}" id="chef_calendarhiddenfield${calendarcounter}" />
-	#set($cValue = $calendarMap.put("$calendarcounter", ["${prefix}_year${DOT}${suffix}", "${prefix}_month${DOT}${suffix}", "${prefix}_day${DOT}${suffix}", "chef_calendarhiddenfield${calendarcounter}"]))
-	#set($calendarcounter = $calendarcounter + 1)
+   
+   #chef_dateselectionwidget("${prefix}_year${DOT}${suffix}" "${prefix}_month${DOT}${suffix}" "${prefix}_day${DOT}${suffix}" $earliestYear $latestYear $yearSelected $monthSelected $daySelected $dateFormat "")
 #end
 
 #macro(resources_timeSelectionWidget $prefix $suffix $current_value)
@@ -347,7 +313,7 @@
 					<td>
 					</td>
 					<td>
-						#resources_dateselectionwidget("release" "$i" $model.releaseDate.breakdownLocal() )
+						#resources_dateselectionwidget("release" "$i" $model.releaseDate.breakdownLocal() $dateFormat )
 					</td>
 					<td>
 						#resources_timeSelectionWidget("release" "$i" $model.releaseDate)
@@ -387,7 +353,7 @@
 					<td>
 					</td>
 					<td>
-						#resources_dateselectionwidget("retract" "$i" $model.retractDate.breakdownLocal())
+						#resources_dateselectionwidget("retract" "$i" $model.retractDate.breakdownLocal() $dateFormat)
 					</td>
 					<td>
 						#resources_timeSelectionWidget("retract" "$i" $model.retractDate)

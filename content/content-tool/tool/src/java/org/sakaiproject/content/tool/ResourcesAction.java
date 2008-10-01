@@ -532,14 +532,11 @@ public class ResourcesAction
 
 	public static final String MODE_ATTACHMENT_SELECT_INIT = "resources.attachment_select_initialized";
 
-	//private static final String MODE_CREATE = "create";
 	private static final String MODE_CREATE_WIZARD = "createWizard";
 
 	/************** the more context *****************************************/
 
 	private static final String MODE_DAV = "webdav";
-
-	private static final String MODE_DELETE_CONFIRM = "deleteConfirm";
 
 	/************** the edit context *****************************************/
 
@@ -789,13 +786,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	protected static final String STATE_USING_CREATIVE_COMMONS = PREFIX + "usingCreativeCommons";
 
 	/** vm files for each mode. */
-	//private static final String TEMPLATE_LIST = "content/chef_resources_list";
-	//private static final String TEMPLATE_EDIT = "content/chef_resources_edit";
-	//private static final String TEMPLATE_CREATE = "content/chef_resources_create";
 	private static final String TEMPLATE_DAV = "content/chef_resources_webdav";
-	//private static final String TEMPLATE_ITEMTYPE = "content/chef_resources_itemtype";
-	//private static final String TEMPLATE_SELECT = "content/chef_resources_select";
-	//private static final String TEMPLATE_ATTACH = "content/chef_resources_attach";
 
 	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
 
@@ -807,9 +798,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	private static final String TEMPLATE_OPTIONS = "content/sakai_resources_options";
 	
-	private static final String TEMPLATE_PROPERTIES = "content/chef_resources_properties";
-
-	// private static final String TEMPLATE_REPLACE = "_replace";
 	private static final String TEMPLATE_REORDER = "content/chef_resources_reorder";
 
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
@@ -3775,67 +3763,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 	}
 
-//	/**
-//	* Edit the editable collection/resource properties
-//	*/
-//	public static void doEdit ( RunData data )
-//	{
-//		ParameterParser params = data.getParameters ();
-//		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-//
-//		Map current_stack_frame = pushOnStack(state);
-//
-//		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
-//
-//		// cancel copy if there is one in progress
-//		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-//		{
-//			initCopyContext(state);
-//		}
-//
-//		// cancel move if there is one in progress
-//		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-//		{
-//			initMoveContext(state);
-//		}
-//
-//		String id = NULL_STRING;
-//		id = params.getString ("id");
-//		if(id == null || id.length() == 0)
-//		{
-//			// there is no resource selected, show the alert message to the user
-//			addAlert(state, rb.getString("choosefile2"));
-//			return;
-//		}
-//
-//		current_stack_frame.put(STATE_STACK_EDIT_ID, id);
-//
-//		String collectionId = (String) params.getString("collectionId");
-//		if(collectionId == null)
-//		{
-//			collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-//			state.setAttribute(STATE_HOME_COLLECTION_ID, collectionId);
-//		}
-//		current_stack_frame.put(STATE_STACK_EDIT_COLLECTION_ID, collectionId);
-//
-//		ResourcesEditItem item = getEditItem(id, collectionId, data);
-//
-//		if (state.getAttribute(STATE_MESSAGE) == null)
-//		{
-//			// got resource and sucessfully populated item with values
-//			// state.setAttribute (STATE_MODE, MODE_EDIT);
-//			state.setAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE, ResourcesAction.MODE_ATTACHMENT_EDIT_ITEM_INIT);
-//			state.setAttribute(STATE_EDIT_ALERTS, new HashSet());
-//			current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
-//
-//		}
-//		else
-//		{
-//			popFromStack(state);
-//		}
-//
-//	}	// doEdit
-
 	/**
 	 * @param pedit
 	 * @param metadataGroups
@@ -4723,8 +4650,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 											RunData data,
 											SessionState state)
 	{
-		//context.put("sysout", System.out);
-		//context.put("tlang",rb);
 		// find the ContentTypeImage service
 		
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -4733,6 +4658,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
 		context.put("DOT", ListItem.DOT);
 		context.put("calendarMap", new HashMap());
+		
+		context.put("dateFormat", getDateFormatString());
 		
 		context.put("TYPE_FOLDER", ResourceType.TYPE_FOLDER);
 		context.put("TYPE_HTML", ResourceType.TYPE_HTML);
@@ -4792,39 +4719,18 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			else
 			{
 				// build the context for list view
-				//template = buildChefListContext (portlet, context, data, state);
 				template = buildListContext (portlet, context, data, state);
 			}
 		}
-//		else if (mode.equals (MODE_CREATE))
-//		{
-//			// build the context for create item
-//			template = buildCreateContext (portlet, context, data, state);
-//		}
 		else if(mode.equals(MODE_CREATE_WIZARD))
 		{
 			template = buildCreateWizardContext(portlet, context, data, state);
 		}
-//		else if (mode.equals (MODE_DELETE_CONFIRM))
-//		{
-//			// build the context for the basic step of delete confirm page
-//			template = buildDeleteConfirmContext (portlet, context, data, state);
-//		}
 		else if (mode.equals (MODE_DELETE_FINISH))
 		{
 			// build the context for the basic step of delete confirm page
 			template = buildDeleteFinishContext (portlet, context, data, state);
 		}
-//		else if (mode.equals (MODE_MORE))
-//		{
-//			// build the context to display the property list
-//			template = buildMoreContext (portlet, context, data, state);
-//		}
-//		else if (mode.equals (MODE_EDIT))
-//		{
-//			// build the context to display the property list
-//			template = buildEditContext (portlet, context, data, state);
-//		}
 		else if (mode.equals (MODE_OPTIONS))
 		{
 			template = buildOptionsPanelContext (portlet, context, data, state);
