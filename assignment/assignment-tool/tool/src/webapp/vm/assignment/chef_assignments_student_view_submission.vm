@@ -109,11 +109,6 @@
 					</th>
 					<td>
 						$validator.escapeHtml($assignment.getTitle())
-						#set ($deleted = false)
-						#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
-						#if ($!deleted.equalsIgnoreCase("true"))
-							<span class="highlight">(Assignment has been deleted)</span>
-						#end
 					</td>
 				</tr>
 				<tr>
@@ -334,11 +329,6 @@
 			## 1- text only; 2-attachment only; 3-text and attachment
 			#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
 			#if (($submissionType==1) || ($submissionType==3))
-				#if ($!deleted.equalsIgnoreCase("true"))
-					<h4>$tlang.getString("gen.yousub") </h4>
-					##if the assignment has been deleted, disable the action button
-					$validator.escapeHtmlFormattedText($!value_submission_text)
-				#else
 					#*
 					#if (!$submitted || ($submitted && !$timeSubmitted))
 						## for draft submission
@@ -395,7 +385,6 @@
 							$validator.escapeHtmlFormattedText($!value_submission_text)
 						#end							
 					#end*#
-				#end
 			#end
 			#if (($submissionType==2) || ($submissionType==3)) 
 				#if ($submissionType==2)
@@ -443,10 +432,6 @@
 						</ul>
 					#end	 
 					<p class="act">
-						#if ($!deleted.equalsIgnoreCase("true"))
-							##if the assignment has been deleted, disable the action button
-							<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" />
-						#else
 							##if the submission has not been submitted or has been returned and not yet resubmitted
 							#if (!$submitted || ($submitted && !$timeSubmitted) || ($returned && $!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted)))
 								#if ($!closeTime)
@@ -483,7 +468,6 @@
 									/>										
 								#end
 							#end
-						#end
 					</p>
 				#end
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
@@ -618,18 +602,6 @@
 					</p>
 				#end
 			<div class="act">
-				## student role
-				#if ($!deleted.equalsIgnoreCase("true"))
-					##if the assignment has been deleted, disable the action button
-					<input 
-						type="button" 
-						name="cancel" 
-						accesskey="x"
-						id="cancel" 
-						value="$tlang.getString("gen.don")"
-						onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
-					/>
-				#else
 					#if ($!closeTime && $currentTime.after($!closeTime) || !$allowSubmit)
 						<input 
 							type="button" 
@@ -693,7 +665,6 @@
 							/>
 						#end
 					#end
-				#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>
 		#else

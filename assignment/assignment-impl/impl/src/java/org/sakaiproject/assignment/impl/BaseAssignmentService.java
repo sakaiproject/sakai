@@ -2611,22 +2611,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				if ((context.equals(tempAssignment.getContext()))
 						|| (context.equals(getGroupNameFromContext(tempAssignment.getContext()))))
 				{
-					String deleted = tempAssignment.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-					if (deleted == null || deleted.equals(""))
+					if (tempAssignment.getDraft())
 					{
-						// not deleted, show it
-						if (tempAssignment.getDraft())
-						{
-							// who can see the draft assigment
-							if (isDraftAssignmentVisible(tempAssignment, context))
-							{
-								retVal.add(tempAssignment);
-							}
-						}
-						else
+						// who can see the draft assigment
+						if (isDraftAssignmentVisible(tempAssignment, context))
 						{
 							retVal.add(tempAssignment);
 						}
+					}
+					else
+					{
+						retVal.add(tempAssignment);
 					}
 				}
 			}

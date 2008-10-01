@@ -108,9 +108,7 @@
 							#set($assignments=false)
 							#set($assignments=$!studentAssignmentsTable.get($member))
 							#foreach ($assignment in $!assignments)
-								#set ($deleted = false)
-								#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
-								#if (!$assignment.Draft && !$deleted.equalsIgnoreCase("true"))
+								#if (!$assignment.Draft)
 									## not show the draft assignment
 									#set($submission = false)
 									#set($submission = $assignmentService.getSubmission($assignment.Reference, $member))
