@@ -179,7 +179,7 @@ public class RequestUtils {
                     _method = _method.toUpperCase().trim();
                     if (EntityView.Method.DELETE.name().equals(_method)) {
                         view.setViewKey(EntityView.VIEW_DELETE);
-                    } else if (EntityView.Method.PUT.equals(_method)) {
+                    } else if (EntityView.Method.PUT.name().equals(_method)) {
                         if (view.getEntityReference().getId() == null) {
                             // this should be a modification of a list
                             view.setViewKey(EntityView.VIEW_NEW);
