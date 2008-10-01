@@ -228,7 +228,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, getContextSiteId())){
     	return true;
     }
-    if (isForumOwner(forum))
+    if (forumManager.isForumOwner(forum))
     {
       return true;
     }
@@ -436,13 +436,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       // LOG.debug("This Forum is Locked");
       // return false;
       // }
-      if (isTopicOwner(topic))
-      {
-        return true;
-      }
-
       // if owner then allow change of settings on the topic or on forum.
-      if (topic.getCreatedBy().equals(getCurrentUserId()))
+      if (forumManager.isTopicOwner(topic))
       {
         return true;
       }
@@ -1319,40 +1314,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     Placement placement = toolManager.getCurrentPlacement();
     String presentSiteId = placement.getContext();
     return presentSiteId;
-  }
-
-  /**
-   * @param forum
-   * @return
-   */
-  private boolean isForumOwner(DiscussionForum forum)
-  {
-    if (LOG.isDebugEnabled())
-    {
-      LOG.debug("isForumOwner(DiscussionForum " + forum + ")");
-    }
-    if (forum.getCreatedBy().equals(getCurrentUserId()))
-    {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * @param topic
-   * @return
-   */
-  private boolean isTopicOwner(DiscussionTopic topic)
-  {
-    if (LOG.isDebugEnabled())
-    {
-      LOG.debug("isTopicOwner(DiscussionTopic " + topic + ")");
-    }
-    if (topic.getCreatedBy().equals(getCurrentUserId()))
-    {
-      return true;
-    }
-    return false;
   }
 
   /**

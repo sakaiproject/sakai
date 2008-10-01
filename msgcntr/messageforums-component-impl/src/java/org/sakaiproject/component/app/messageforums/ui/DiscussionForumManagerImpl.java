@@ -1520,6 +1520,48 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		  LOG.error(e.getMessage(), e);
 	  }
   }
+  
+  /**
+   * @param forum
+   * @return
+   */
+  public boolean isForumOwner(DiscussionForum forum)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isForumOwner(DiscussionForum " + forum + ")");
+    }
+    if (forum.getCreatedBy().equals(userDirectoryService.getCurrentUser()) && !isRoleSwapView())
+    {
+      return true;
+    }
+    return false;
+  }
+  
+  private boolean isRoleSwapView()
+  {
+  	String roleswap = (String)sessionManager.getCurrentSession().getAttribute("roleswap" + getContextSiteId());
+  	if (roleswap!=null)
+  		return true;
+  	return false;
+  }
+
+  /**
+   * @param topic
+   * @return
+   */
+  public boolean isTopicOwner(DiscussionTopic topic)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isTopicOwner(DiscussionTopic " + topic + ")");
+    }
+    if (topic.getCreatedBy().equals(userDirectoryService.getCurrentUser()) && !isRoleSwapView())
+    {
+      return true;
+    }
+    return false;
+  }
 
   private boolean getTopicAccess(DiscussionTopic t)
   {
@@ -1528,10 +1570,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       LOG.debug("getTopicAccess(DiscussionTopic" + t + ")");
     }
     if (t.getDraft().equals(Boolean.FALSE)
-        || (t.getDraft().equals(Boolean.TRUE) && t.getCreatedBy().equals(
-            sessionManager.getCurrentSessionUserId())) || isInstructor()
-        || securityService.isSuperUser()
-        || t.getCreatedBy().equals(sessionManager.getCurrentSessionUserId()))
+    		|| isInstructor()
+            || securityService.isSuperUser()
+            || isTopicOwner(t))
     {
       return true;
     }

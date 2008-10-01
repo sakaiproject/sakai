@@ -518,11 +518,10 @@ public class DiscussionForumTool
           return forums;
         }
         // TODO: put this logic in database layer
-        if (forum.getDraft().equals(Boolean.FALSE)||(forum.getDraft().equals(Boolean.TRUE)&& forum.getCreatedBy().equals(getUserId()) 
-            )||SecurityService.isSuperUser()
-            ||isInstructor()
-            ||forum.getCreatedBy().equals(
-            getUserId()))
+        if (forum.getDraft().equals(Boolean.FALSE)
+            	||SecurityService.isSuperUser()
+                ||isInstructor()
+                ||forumManager.isForumOwner(forum))
         { 
           //DiscussionForumBean decoForum = getDecoratedForum(forum);
         	DiscussionForumBean decoForum = getDecoratedForumWithPersistentForumAndTopics(forum, msgIdReadStatusMap);
@@ -2126,11 +2125,10 @@ public class DiscussionForumTool
 		  if (topic == null)
 				continue;
 //		  TODO: put this logic in database layer
-		  if (topic != null && topic.getDraft().equals(Boolean.FALSE)||
-				  (topic.getDraft().equals(Boolean.TRUE)&&topic.getCreatedBy().equals(getUserId()))
+		  if (topic != null && topic.getDraft().equals(Boolean.FALSE)
 				  ||isInstructor()
-				  ||SecurityService.isSuperUser()||topic.getCreatedBy().equals(
-						  getUserId()))
+				  ||SecurityService.isSuperUser()
+				  ||forumManager.isTopicOwner(topic))
 		  { 
 
 			  DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic, forum,
@@ -2195,11 +2193,10 @@ public class DiscussionForumTool
     {
       DiscussionTopic topic = (DiscussionTopic) iter.next();
 //    TODO: put this logic in database layer
-      if (topic.getDraft().equals(Boolean.FALSE)||
-          (topic.getDraft().equals(Boolean.TRUE)&&topic.getCreatedBy().equals(getUserId()))
-          ||isInstructor()
-          ||SecurityService.isSuperUser()||topic.getCreatedBy().equals(
-          getUserId()))
+      if (topic.getDraft().equals(Boolean.FALSE)
+              ||isInstructor()
+              ||SecurityService.isSuperUser()
+              ||forumManager.isTopicOwner(topic))
       { 
         if (topic != null)
         {

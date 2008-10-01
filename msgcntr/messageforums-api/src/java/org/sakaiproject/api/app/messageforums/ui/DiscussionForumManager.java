@@ -468,4 +468,20 @@ public interface DiscussionForumManager
    * @return forumId
    */
   public String ForumIdForMessage(Long messageId);
+  
+  /**
+   *
+   * @param topic
+   * @return true if current use created the topic;
+   * in role swap view this will always be false
+   */
+  public boolean isTopicOwner(DiscussionTopic topic);
+ 	  	 
+  /**
+   *
+   * @param forum
+   * @return true if current use created the forum;
+   * in role swap view this will always be false
+   */
+  public boolean isForumOwner(DiscussionForum forum);
 }
