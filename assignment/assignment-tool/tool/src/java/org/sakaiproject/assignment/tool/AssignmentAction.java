@@ -724,7 +724,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String template = null;
 
 		context.put("tlang", rb);
-
+		context.put("dateFormat", getDateFormatString());
 		context.put("cheffeedbackhelper", this);
 
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);

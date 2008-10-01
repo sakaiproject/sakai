@@ -607,7 +607,7 @@ function handleEnterKeyPress(ev)
 						<label for="$name_ResubmitMonth">
 							$tlang.getString("gen.acesubunt")
 						</label>
-						#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay)
+						#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
 						$tlang.getString("gen.at") 
 						<select name="$name_ResubmitHour" id="$name_ResubmitHour">
 							#foreach ($i in [1..12])

@@ -176,7 +176,7 @@ $(document).ready(function() {
 			<label for="new_assignment_openmonth">
 				$tlang.getString("newassig.opedat")
 			</label>	
-			#chef_dateselectionwidget($name_OpenYear $name_OpenMonth $name_OpenDay $!value_year_from $!value_year_to $value_OpenYear $value_OpenMonth $value_OpenDay)
+			#chef_dateselectionwidget($name_OpenYear $name_OpenMonth $name_OpenDay $!value_year_from $!value_year_to $value_OpenYear $value_OpenMonth $value_OpenDay $dateFormat "")
 			$tlang.getString("gen.at") 
 			<select name="$name_OpenHour" id="$name_OpenHour">
 				#foreach ($i in [1..12])
@@ -210,7 +210,7 @@ $(document).ready(function() {
 			<label for="new_assignment_duemonth">
 				$tlang.getString("gen.duedat")
 			</label>
-			#chef_dateselectionwidget($name_DueYear $name_DueMonth $name_DueDay $!value_year_from $!value_year_to $value_DueYear $value_DueMonth $value_DueDay)
+			#chef_dateselectionwidget($name_DueYear $name_DueMonth $name_DueDay $!value_year_from $!value_year_to $value_DueYear $value_DueMonth $value_DueDay $dateFormat "")
 				$tlang.getString("gen.at") 
 			<select name="$name_DueHour" id="$name_DueHour">
 				#foreach ($i in [1..12])
@@ -242,7 +242,7 @@ $(document).ready(function() {
 				$tlang.getString("gen.acesubunt")
 			</label>
 			#if ($value_EnableCloseDate)
-				#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay $!value_year_from $!value_year_to $value_CloseYear $value_CloseMonth $value_CloseDay)
+				#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay $!value_year_from $!value_year_to $value_CloseYear $value_CloseMonth $value_CloseDay $dateFormat "")
 				$tlang.getString("gen.at") 
 				<select name="$name_CloseHour" id="$name_CloseHour">
 					#foreach ($i in [1..12])
@@ -1007,7 +1007,7 @@ $(document).ready(function() {
 					<td>
 					</td>
 					<td>
-						#chef_dateselectionwidget("allPurposeReleaseYear" "allPurposeReleaseMonth" "allPurposeReleaseDay" $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay)
+						#chef_dateselectionwidget("allPurposeReleaseYear" "allPurposeReleaseMonth" "allPurposeReleaseDay" $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay $dateFormat "")
 					</td>
 					<td>
 						<select name="allPurposeReleaseHour" id="allPurposeReleaseHour">
@@ -1065,7 +1065,7 @@ $(document).ready(function() {
 					<td>
 					</td>
 					<td>
-						#chef_dateselectionwidget("allPurposeRetractYear" "allPurposeRetractMonth" "allPurposeRetractDay" $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay)    
+						#chef_dateselectionwidget("allPurposeRetractYear" "allPurposeRetractMonth" "allPurposeRetractDay" $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay $dateFormat "")
 					</td>
 					<td>
 						<select name="allPurposeRetractHour" id="allPurposeRetractHour">
