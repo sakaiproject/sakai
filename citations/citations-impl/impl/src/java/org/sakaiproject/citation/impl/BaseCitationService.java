@@ -1729,9 +1729,9 @@ public abstract class BaseCitationService implements CitationService
 					{
 						// RIS resource type forced mappings
 
-						if (RISvalue.equalsIgnoreCase("NEWS"))
+						if (RISvalue.equalsIgnoreCase("NEWS") || RISvalue.equalsIgnoreCase("MGZN"))
 						{
-						   	logger.debug("importFromRisList: force mapping NEWS resource type to JOUR");
+						   	logger.debug("importFromRisList: force mapping NEWS or MGZN resource type to JOUR");
 							RISvalue = "JOUR";
 						}
 
@@ -3859,11 +3859,18 @@ public abstract class BaseCitationService implements CitationService
 		m_RISType.put("book", "BOOK");
 		m_RISType.put("chapter", "CHAP");
 		m_RISType.put("report", "RPRT");
+		m_RISType.put("proceed", "CONF");
+		m_RISType.put("electronic", "ELEC");
+		m_RISType.put("thesis", "THES");
+		
 
 		m_RISTypeInverse.put("BOOK", "book");
 		m_RISTypeInverse.put("CHAP", "chapter");
 		m_RISTypeInverse.put("JOUR", "article");
 		m_RISTypeInverse.put("RPRT", "report");
+		m_RISTypeInverse.put("CONF", "proceed");
+		m_RISTypeInverse.put("ELEC", "electronic");
+		m_RISTypeInverse.put("THES", "thesis");
 	}
 
 	static
