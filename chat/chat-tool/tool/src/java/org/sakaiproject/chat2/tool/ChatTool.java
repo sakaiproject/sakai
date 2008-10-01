@@ -67,6 +67,7 @@ import org.sakaiproject.util.DirectRefreshDelivery;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.FormattedText;
 
 /**
  *
@@ -515,7 +516,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       try {
          ChatMessage message = getChatManager().createNewMessage(
                getCurrentChannel().getChatChannel(), SessionManager.getCurrentSessionUserId());
-         message.setBody( Web.cleanHtml(newMessageText) );
+         message.setBody( FormattedText.processFormattedText(newMessageText, new StringBuilder()) );
          if (!newMessageText.equals("")) {
             newMessageText = "";
             getChatManager().updateMessage(message);
