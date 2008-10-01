@@ -59,6 +59,7 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
  * The GradingService calls the back end to get/store grading information. 
@@ -990,7 +991,9 @@ public class GradingService
     GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 
-    if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)
+    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+	String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());
+    if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)
         && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
         if(log.isDebugEnabled()) log.debug("Attempting to update a score in the gradebook");
 

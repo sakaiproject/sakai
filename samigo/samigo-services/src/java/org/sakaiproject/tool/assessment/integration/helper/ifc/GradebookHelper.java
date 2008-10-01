@@ -37,7 +37,7 @@ import java.io.Serializable;
 
 public interface GradebookHelper extends Serializable
 {
-  public String getGradebookUId();
-
+  public String getGradebookUId(String siteId);
+  
   public String getDefaultGradebookUId();
 }

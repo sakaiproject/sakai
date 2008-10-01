@@ -53,7 +53,7 @@ public class GradebookHelperImpl implements GradebookHelper
    * Hardcoded stub.  Get current gradebook uid.
    * @return Gradebook #10
    */
-  public String getGradebookUId(){
+  public String getGradebookUId(String siteId){
     return "QA_8";
   }
 

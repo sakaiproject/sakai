@@ -57,8 +57,8 @@ public class GradebookHelperImpl implements GradebookHelper
    * This will *fail* unless called from an integrated Sakai context!
    * @return the current gradebook uid.
    */
-  public String getGradebookUId()
-  {
+  public String getGradebookUId(String siteId)
+  {  
     String context;
 
     Placement placement = null;
@@ -75,11 +75,16 @@ public class GradebookHelperImpl implements GradebookHelper
     {
       log.warn(
         "getGradebookUId() - no tool placement found, probably taking an " +
-        "assessment via URL.  Gradebook not updated.");
-      return null;
+        "assessment via URL.");
+      if (siteId == null) {
+    	  log.warn("getGradebookUId() - siteId is null too.");
+          return null;
+      }
+      else {
+    	  return siteId;
+      }
     }
     context = placement.getContext();
-
     return context;
   }
 

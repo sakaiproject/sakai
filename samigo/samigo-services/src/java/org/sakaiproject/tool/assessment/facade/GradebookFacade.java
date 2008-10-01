@@ -52,9 +52,14 @@ private static Log log = LogFactory.getLog(GradebookFacade.class);
    * Get current gradebook uid.
    * @return the current gradebook uid.
    */
+  public static String getGradebookUId(String siteId)
+  {
+    return helper.getGradebookUId(siteId);
+  }
+  
   public static String getGradebookUId()
   {
-    return helper.getGradebookUId();
+    return getGradebookUId(null);
   }
 
   /**
