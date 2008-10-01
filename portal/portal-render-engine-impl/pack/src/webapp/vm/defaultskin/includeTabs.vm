@@ -42,7 +42,25 @@
 						</select>
 					</div>
 					#end
-
+					#if ($viewAsStudentLink)
+					<div align="right" valign="center">
+						#if ($roleSwitchState)
+							<a href="$switchRoleUrl">${rloader.rs_exitRoleSwap} $roleUrlValue ${rloader.rs_view}</a>
+						#else
+							#if ($roleswapdropdown)
+							    ${rloader.rs_viewSiteAs}<a href="$switchRoleUrl"></a>
+		                        <select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }"> 	 
+		                        	<option value="" selected="selected">${rloader.rs_selectRole}</option> 	 
+		                        #foreach( $role in $siteRoles) 	 
+		                            <option value="$switchRoleUrl$role$panelString">$role</option> 	 
+		                        #end 	 
+		                        </select>
+		                    #else
+								<a href="$switchRoleUrl">${rloader.rs_enterRoleSwap} $roleUrlValue ${rloader.rs_view}</a>
+							#end
+						#end
+					</div>
+					#end
 					#if ($tabsAddLogout)
 					<div class="galleryLogin">
 						<a href="$tabsLogoutUrl">${rloader.sit_log}</a>
