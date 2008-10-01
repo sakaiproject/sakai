@@ -65,7 +65,7 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
  * {@link EntityNotFoundException} to indicate the entity request could not find the data that was requested <br/>
  * {@link IllegalArgumentException} to indicate that the incoming params or the request was invalid <br/>
  * {@link FormatUnsupportedException} to indicate that the requested format is not supported for this entity request <br/>
- * {@link EntityException} to indicate a specific entity failure occurred <br/>
+ * {@link EntityException} to indicate a specific entity failure occurred, can include a response code and error message <br/>
  * {@link SecurityException} to indicate that the the current user is no allowed to perform this action <br/>
  * {@link IllegalStateException} to indicate a general failure has occurred <br/>
  * <br/>
@@ -77,6 +77,22 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface EntityCustomAction {
-   String action() default "";
-   String viewKey() default EntityView.VIEW_SHOW;
+    /**
+     * (optional) The action key which will be used to trigger the action (e.g. promote) <br/>
+     * By default the name of the method is used as the action key if this is not set,
+     * trigger this action using a URL like: /direct/{prefix}/{name}
+     * @return the name to use for this custom action
+     */
+    String action() default "";
+    /**
+     * (optional) Must match one of the VIEW constants from {@link EntityView} <br/>
+     * The view type which this action works with (i.e. allowed to trigger the action), this
+     * roughly translates to the GET/POST/PUT/DELETE in http<br/>
+     * e.g. GET /user/action would be {@link EntityView#VIEW_LIST}
+     * while POST /user/aaronz/action would be {@link EntityView#VIEW_NEW},
+     * can be null to match all viewkeys (i.e. to allow this action
+     * from any http method type and on collections and entities) <br/>
+     * @return the view key constant from {@link EntityView}
+     */
+    String viewKey() default EntityView.VIEW_SHOW;
 }

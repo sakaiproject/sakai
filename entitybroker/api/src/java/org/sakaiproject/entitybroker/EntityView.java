@@ -35,8 +35,17 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil.Template;
 
 
 /**
- * Defines an entity view which can be controlled via templates,
- * views have unique view keys related to them
+ * Defines an entity view (a specific way to looking at entity data, e.g. LIST of entities, SHOW a single entity, 
+ * UPDATE an entity, DELETE an entity, create a NEW entity),
+ * each view has a unique view key constant related to it (e.g. {@link #VIEW_LIST}) <br/>
+ * The view contains all the known information about a view request including
+ * the entity prefix, reference, full path and segments, format (extension),
+ * method (POST, GET, etc.), and view key (type). The Entity View can
+ * generate the URL for this view based on the data it contains. <br/>
+ * Views use URL templates which can be controlled via custom templates if desired. <br/>
+ * <b>NOTE:</b> For those using custom actions, the view is typically LIST if you are returning data
+ * of an unspecified size. If you want to perform write operations (POST, UPDATE, DELETE), you will need
+ * to use the appropriate view constant. See the docs on each constant for more detail.
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
@@ -151,7 +160,8 @@ public class EntityView implements Cloneable, Serializable {
 
     private String viewKey;
     /**
-     * @return the key which uniquely identifies the view we are associated with
+     * @return the key which uniquely identifies the view we are associated with,
+     * uses the constants like {@link #VIEW_LIST} and {@link #VIEW_NEW}
      */
     public String getViewKey() {
         return viewKey;

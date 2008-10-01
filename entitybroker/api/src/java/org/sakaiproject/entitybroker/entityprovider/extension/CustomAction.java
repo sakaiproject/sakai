@@ -48,7 +48,7 @@ public class CustomAction {
      * The view type which this action goes with, this
      * roughly translates to the GET/POST/PUT/DELETE in http<br/>
      * e.g. GET /user/action would be {@link EntityView#VIEW_LIST}
-     * while POST /user/aaronz/action would be {@link EntityView#VIEW_SHOW},
+     * while POST /user/aaronz/action would be {@link EntityView#VIEW_NEW},
      * can be null to match all viewkeys (i.e. to allow this action
      * from any http method type and on collections and entities)
      */

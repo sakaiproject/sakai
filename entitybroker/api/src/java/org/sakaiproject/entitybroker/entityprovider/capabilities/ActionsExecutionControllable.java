@@ -72,12 +72,13 @@ public interface ActionsExecutionControllable extends ActionsDefineable {
      * 6) a boolean value (true indicates success and is the same as returning null, false indicates failure and causes an {@link EntityNotFoundException} <br/>
      * <br/>
      * Note: Can throw the indicated exceptions and have them translated and handled, all others will pass through
-     * 
-     * @throws EntityNotFoundException to indicate the entity request could not find the data that was requested 
-     * @throws IllegalArgumentException to indicate that the incoming params or the request was invalid 
-     * @throws FormatUnsupportedException to indicate that the requested format is not supported for this entity request 
-     * @throws EntityException to indicate a specific entity failure occurred 
-     * @throws IllegalStateException to indicate a general failure has occurred 
+     * Can throw the following exceptions and have them translated and handled, all others will pass through:<br/>
+     * {@link EntityNotFoundException} to indicate the entity request could not find the data that was requested <br/>
+     * {@link IllegalArgumentException} to indicate that the incoming params or the request was invalid <br/>
+     * {@link FormatUnsupportedException} to indicate that the requested format is not supported for this entity request <br/>
+     * {@link EntityException} to indicate a specific entity failure occurred, can include a response code and error message <br/>
+     * {@link SecurityException} to indicate that the the current user is no allowed to perform this action <br/>
+     * {@link IllegalStateException} to indicate a general failure has occurred <br/>
      */
     Object executeActions(EntityView entityView, String action, Map<String, Object> actionParams, OutputStream outputStream);
 
