@@ -313,12 +313,6 @@
         <directory>${basedir}/../ui/src/bundle</directory>
       </resource>
       <resource>
-        <directory>${basedir}/src/hibernate</directory>
-        <includes>
-          <include>hibernate.properties</include>
-        </includes>
-      </resource>
-      <resource>
         <directory>src/resources</directory>
       </resource>
     </resources>
