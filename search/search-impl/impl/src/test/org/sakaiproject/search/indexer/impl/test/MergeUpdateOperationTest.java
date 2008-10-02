@@ -281,6 +281,8 @@ public class MergeUpdateOperationTest extends TestCase
 
 		assertEquals("There were errors validating the index, check log ", 0,tds.checkIndexContents(items,indexSearcher));
 
+		indexSearcher.close();
+		
 		log.info("==PASSED========================== " + this.getClass().getName()
 				+ ".testRunOnce");
 
