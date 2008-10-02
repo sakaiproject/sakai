@@ -22,29 +22,19 @@
       <modules>
         <module>content-help</module>
         <module>content-tool/tool</module>
-        <module>content-impl/pack</module>
       </modules>
     </profile>
     <profile>
       <id>framework-jcr</id>
       <modules>
         <module>content-help</module>
-        <module>content-impl-jcr/impl</module>
-        <module>content-jcr-migration-api</module>
-        <module>content-jcr-migration-impl</module>
         <module>content-tool/tool</module>
-        <module>content-impl-jcr/pack</module>
-        <module>contentmultiplex-impl/impl</module>
       </modules>
     </profile>
     <profile>
       <id>full-jcr</id>
       <modules>
         <module>content-help</module>
-        <module>content-jcr-migration-api</module>
-        <module>content-jcr-migration-impl</module>
-        <module>content-impl-jcr/impl</module>
-        <module>content-impl-jcr/pack</module>
         <module>content-impl-providers/impl</module>
         <module>content-impl-providers/pack</module>
         <module>content-tool/tool</module>
