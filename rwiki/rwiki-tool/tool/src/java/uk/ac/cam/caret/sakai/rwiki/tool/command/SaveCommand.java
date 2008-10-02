@@ -51,6 +51,8 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.helper.ErrorBeanHelper;
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 
 /**
  * @author andrew
@@ -106,7 +108,7 @@ public class SaveCommand implements HttpCommand
 
 		ViewParamsHelperBean vphb = (ViewParamsHelperBean) rssb
 				.getNameHelperBean();
-
+		String tid = org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
 		String content = vphb.getContent();
 		String save = vphb.getSaveType();
 		String name = vphb.getGlobalName();
@@ -138,21 +140,34 @@ public class SaveCommand implements HttpCommand
 			session.setAttribute("STORED_PARAMETERS", parameterMap);
 
 			ViewBean vb = rssb.getViewBean();
-
+			
 			// FIXME Knowledge of URL structure assumed!
 			WikiPageAction returnAction = WikiPageAction.LINK_ATTACHMENT_RETURN_ACTION;
 			if (save.equals(EditBean.EMBED_ATTACHMENT_VALUE))
 			{
 				returnAction = WikiPageAction.EMBED_ATTACHMENT_RETURN_ACTION;
 			}
-			session.setAttribute(ATTACHMENT_HELPER + Tool.HELPER_DONE_URL,
-					request.getContextPath() + request.getServletPath()
-							+ vb.getActionUrl(returnAction, true));
+			
+			// SAK-13408 - Tomcat and WAS have different URL structures; Attempting to add a 
+			// link or image would lead to site unavailable errors in websphere if the tomcat
+			// URL structure is used.
+			if("websphere".equals(ServerConfigurationService.getString("servlet.container"))){
+				session.setAttribute(ATTACHMENT_HELPER + Tool.HELPER_DONE_URL,
+						request.getContextPath() + request.getServletPath()
+						+ "/tool/" + tid + vb.getActionUrl(returnAction, true));
+			}
+			else {
+				session.setAttribute(ATTACHMENT_HELPER + Tool.HELPER_DONE_URL,
+						request.getContextPath() + request.getServletPath()
+						+ vb.getActionUrl(returnAction, true));
+			}
 
 			session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS,
 					FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 
 			String fromText;
+			
+
 			if (returnAction
 					.equals(WikiPageAction.LINK_ATTACHMENT_RETURN_ACTION))
 			{
@@ -166,9 +181,17 @@ public class SaveCommand implements HttpCommand
 			session.setAttribute(FilePickerHelper.FILE_PICKER_FROM_TEXT,
 					fromText);
 
-			response.sendRedirect(request.getContextPath()
-					+ request.getServletPath() + "/helper/" + ATTACHMENT_HELPER
-					+ "/tool");
+			if("websphere".equals(ServerConfigurationService.getString("servlet.container"))){
+				 //WS-57 - In Websphere the URL which the user is directed to contains a duplicate tool id. This fix will remove the 
+				 //dulpicate tool id that is passed in to the method sendRedirect() as the url being built
+				 response.sendRedirect("helper/" + ATTACHMENT_HELPER + "/tool");
+			}
+			else{
+				response.sendRedirect(request.getContextPath()
+						+ request.getServletPath() + "/helper/" + ATTACHMENT_HELPER
+						+ "/tool");
+			}
+
 			return;
 		}
 		else if (save.equals(EditBean.CANCEL_VALUE))
