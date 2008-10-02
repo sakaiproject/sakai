@@ -202,7 +202,18 @@ public class ControllerServlet2 extends HttpServlet
 			}
 			if (path.startsWith("/"))
 			{
-				path = path.substring(1);
+				// SAK-13408 - Websphere must be told to look in a different directory for .vm files. 
+				// This fix forces the class to use the default directory and file when using WebSphere.
+				ServerConfigurationService  serverConfigurationService
+					 = (ServerConfigurationService) wac.getBean(ServerConfigurationService.class.getName());
+				if (serverConfigurationService == null)
+				{
+					throw new ServletException("Unable to get " + ServerConfigurationService.class.getName());
+				}
+				if ("websphere".equals(serverConfigurationService.getString("servlet.container")))
+					path = "index";
+				else
+					path = path.substring(1);
 			}
 			template = path;
 		}
