@@ -53,7 +53,7 @@
 					</div>	
 					<div class="shorttext">
 					<label for="customEndMonth">$tlang.getString('viewl.ed')&nbsp;</label>
-					#chef_dateselectionwidget("customEndYear" "customEndMonth" "customEndDay" $ddStartYear $ddEndYear $customEndYear $customEndMonth $customEndDay "")
+					#chef_dateselectionwidget("customEndYear" "customEndMonth" "customEndDay" $ddStartYear $ddEndYear $customEndYear $customEndMonth $customEndDay $dateFormat "")
 				</div>	
 				<p class="labelindnt">	<input name="eventSubmit_doCustomdate" type="submit" value="$tlang.getString('view.apply')" /></p>
 				</form>
