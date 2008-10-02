@@ -23,6 +23,7 @@ package org.sakaiproject.event.api;
 
 import java.util.Observer;
 
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -144,16 +145,33 @@ public interface EventTrackingService
 	void deleteObserver(Observer observer);
 
 	/**
-	 * Add an event voter.
+	 * Sets the event delay handler if the service is to allow events to be delayed to a specified
+	 * firing time.
 	 * 
-	 * @param voter
+	 * @param handler
 	 */
-	void addVoter(EventVoter voter);
+	void setEventDelayHandler(EventDelayHandler handler);
 
 	/**
-	 * Delete an event voter.
+	 * Schedule an event to be fired at a specific time.  If the time is null or already passed, the
+	 * event is fired immediately.
 	 * 
-	 * @param voter
+	 * @param event
+	 * @param fireTime
 	 */
-	void deleteVoter(EventVoter voter);
+	void delay(Event event, Time fireTime);
+
+	/**
+	 * Cancel all delayed events for a resource that haven't yet fired.
+	 * 
+	 * @param resource
+	 */
+	void cancelDelays(String resource);
+
+	/**
+	 * Cancel delays for a resource of a certain event
+	 * @param resource
+	 * @param event
+	 */
+	void cancelDelays(String resource, String event);
 }

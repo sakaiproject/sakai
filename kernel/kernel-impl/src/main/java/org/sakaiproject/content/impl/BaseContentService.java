@@ -140,7 +140,6 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.DefaultEntityHandler;
-import org.sakaiproject.util.EntityReaderAdapter;
 import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
@@ -2569,8 +2568,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		// track it (no notification)
-		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, edit.getReference(null), true,
+		String ref = edit.getReference(null);
+		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, ref, true,
 				NotificationService.NOTI_NONE));
+		EventTrackingService.cancelDelays(ref);
 
 	} // removeCollection
 
@@ -2690,10 +2691,28 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		//ThreadLocalManager.set("getResources@" + containerId, null);
 
 		// track it (no notification)
-		EventTrackingService.post(EventTrackingService.newEvent(((BaseCollectionEdit) edit).getEvent(), edit.getReference(null), true,
-				NotificationService.NOTI_NONE));
+		// delete any delays for this same event then fire new event
+		String ref = edit.getReference(null);
+		EventTrackingService.cancelDelays(ref, ((BaseCollectionEdit) edit).getEvent());
+		EventTrackingService.post(EventTrackingService.newEvent(((BaseCollectionEdit) edit)
+				.getEvent(), ref, true, NotificationService.NOTI_NONE));
+
+		postAvailableEvent(edit, ref);
 
 	} // commitCollection
+
+	private void postAvailableEvent(GroupAwareEntity entity, String ref)
+	{
+		// cancel all scheduled available events for this entity. 
+		EventTrackingService.cancelDelays(ref, EVENT_RESOURCE_AVAILABLE);
+
+		// if resource isn't available yet, schedule an event to tell when it becomes available
+		if (entity.isAvailable())
+		{
+			EventTrackingService.delay(EventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE, ref,
+					false), entity.getReleaseDate());
+		}
+	}
 
 	/**
 	 * Recursively traverse the heirarchy of ContentEntity objects contained within a collection and remove access groups if they 
@@ -4367,8 +4386,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		// track it (no notification)
-		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, edit.getReference(null), true,
+		String ref = edit.getReference(null);
+		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, ref, true,
 				NotificationService.NOTI_NONE));
+		EventTrackingService.cancelDelays(ref);
 
 	} // removeResource
 
@@ -4970,13 +4991,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				((BaseResourceEdit) edit).closeEdit();
 				
 				// track it (no notification)
-				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_ADD, edit.getReference(null), true,
+				String ref = edit.getReference(null);
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_ADD, ref, true,
 						NotificationService.NOTI_NONE));
+				postAvailableEvent(edit, ref);
 
 				m_storage.removeResource(thisResource);
 
 				// track it (no notification)
-				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, thisResource.getReference(null), true,
+				String thisRef = thisResource.getReference(null);
+				EventTrackingService.cancelDelays(thisRef);
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, thisRef, true,
 						NotificationService.NOTI_NONE));
 
 				if (M_log.isDebugEnabled()) M_log.debug("moveResource successful");
@@ -5516,9 +5541,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		ThreadLocalManager.set("getResources@" + containerId, null);
 
 		// track it
-		// edit.getReference() returns the 
-		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), edit.getReference(null), true,
-				priority));
+		// edit.getReference() returns the
+		String ref = edit.getReference(null);
+		EventTrackingService.cancelDelays(ref, ((BaseResourceEdit) edit).getEvent());
+		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(),
+				ref, true, priority));
+		postAvailableEvent(edit, ref);
 
 	} // commitResourceEdit
 	
@@ -7884,8 +7912,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		// track it
-		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), edit.getReference(null), true,
+		String ref = edit.getReference(null);
+		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), ref, true,
 				NotificationService.NOTI_NONE));
+		postAvailableEvent(edit, ref);
 
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();

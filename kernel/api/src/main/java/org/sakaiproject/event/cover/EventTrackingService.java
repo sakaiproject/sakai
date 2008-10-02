@@ -22,6 +22,8 @@
 package org.sakaiproject.event.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.time.api.Time;
 
 /**
  * <p>
@@ -127,5 +129,29 @@ public class EventTrackingService
 		if (service == null) return;
 
 		service.post(param0);
+	}
+
+	public static void delay(Event event, Time fireTime)
+	{
+		org.sakaiproject.event.api.EventTrackingService service = getInstance();
+		if (service == null) return;
+
+		service.delay(event, fireTime);
+	}
+
+	public static void cancelDelays(String resource)
+	{
+		org.sakaiproject.event.api.EventTrackingService service = getInstance();
+		if (service == null) return;
+
+		service.cancelDelays(resource);
+	}
+
+	public static void cancelDelays(String resource, String event)
+	{
+		org.sakaiproject.event.api.EventTrackingService service = getInstance();
+		if (service == null) return;
+
+		service.cancelDelays(resource, event);
 	}
 }

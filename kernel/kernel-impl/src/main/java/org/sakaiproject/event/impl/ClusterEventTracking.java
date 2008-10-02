@@ -82,11 +82,6 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	 */
 	protected abstract ServerConfigurationService serverConfigurationService();
 
-	/**
-	 * @return the TimeService collaborator.
-	 */
-	protected abstract TimeService timeService();
-
 	/*************************************************************************************************************************************************
 	 * Configuration
 	 ************************************************************************************************************************************************/

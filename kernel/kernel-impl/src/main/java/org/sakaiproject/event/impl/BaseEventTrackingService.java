@@ -22,7 +22,6 @@
 package org.sakaiproject.event.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -31,14 +30,15 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventDelayHandler;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.EventVoter;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
@@ -63,7 +63,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	/** An observable object helper for see-only-local-events observers. */
 	protected MyObservable m_localObservableHelper = new MyObservable();
 
-	protected ArrayList<EventVoter> eventVoters = new ArrayList<EventVoter>();
+	protected EventDelayHandler delayHandler;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Observable implementation
@@ -155,6 +155,10 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 */
 	protected abstract EntityManager entityManager();
 
+	/**
+	 * @return the TimeService collaborator.
+	 */
+	protected abstract TimeService timeService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -179,6 +183,12 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * EventTracking implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	public void setEventDelayHandler(EventDelayHandler handler)
+	{
+		M_log.info("Setting the event delay handler to " + handler + " [was: " + delayHandler + "]");
+		this.delayHandler = handler;
+	}
 
 	/**
 	 * Construct a Event object.
@@ -233,7 +243,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	{
 		return new BaseEvent(event, resource, context, modify, priority);
 	}
-	
+
 	/**
 	 * Post an event
 	 * 
@@ -262,9 +272,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			be.setUserId(id);
 		}
 
-		// poll the voters for response
-		if (pollVoters(be))
-			postEvent(be);
+		postEvent(be);
 	}
 
 	/**
@@ -283,8 +291,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 		be.setSessionId(id);
 
-		if (pollVoters(be))
-			postEvent(be);
+		postEvent(be);
 	}
 
 	/**
@@ -312,13 +319,42 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			securityService().pushAdvisor(newResourceAdvisor(be.getUserId()));
 		}
 
-		// poll the voters for response
-		if (pollVoters(be))
-			postEvent(be);
+		postEvent(be);
 
 		// if an advisor was used, pop it off.
 		if (useAdvisor)
 			securityService().popAdvisor();
+	}
+
+	public void delay(Event event, Time fireTime)
+	{
+		Time now = timeService().newTime();
+		if (fireTime != null || fireTime.before(now))
+		{
+			postEvent(event);
+		}
+		else
+		{
+			if (delayHandler != null)
+			{
+				delayHandler.createDelay(event, fireTime);
+			}
+			else
+			{
+				M_log.warn("Unable to create delayed event because delay handler is unset.  Firing now.");
+				postEvent(event);
+			}
+		}
+	}
+
+	public void cancelDelays(String resource)
+	{
+		delayHandler.deleteDelay(resource);
+	}
+
+	public void cancelDelays(String resource, String event)
+	{
+		delayHandler.deleteDelay(resource, event);
 	}
 
 	/**
@@ -423,49 +459,6 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		m_observableHelper.deleteObserver(observer);
 		m_priorityObservableHelper.deleteObserver(observer);
 		m_localObservableHelper.deleteObserver(observer);
-	}
-
-	/**
-	 * Add an event voter.
-	 * 
-	 * @param voter
-	 *            The voter to add.
-	 */
-	public void addVoter(EventVoter voter)
-	{
-		eventVoters.add(voter);
-	}
-
-	/**
-	 * Delete an event voter.
-	 * 
-	 * @param voter
-	 *            The voter to delete.
-	 */
-	public void deleteVoter(EventVoter voter)
-	{
-		eventVoters.remove(voter);
-	}
-
-	/**
-	 * Check the event voters to see if anyone votes against an event. Any 'nay' votes will stop an
-	 * event from processing.
-	 * 
-	 * @param event
-	 * @return
-	 */
-	protected boolean pollVoters(Event event)
-	{
-		boolean result = true;
-		for (EventVoter voter: eventVoters)
-		{
-			result &= voter.vote(event);
-
-			// since the vote has to be unanimous, no need in waiting after a 'nay'
-			if (!result)
-				break;
-		}
-		return result;
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -644,8 +637,6 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			m_priority = priority;
 			m_context = context;
 		}
-
-
 		
 		/**
 		 * Construct
