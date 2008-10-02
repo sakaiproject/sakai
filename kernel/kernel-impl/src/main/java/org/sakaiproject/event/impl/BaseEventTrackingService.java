@@ -329,7 +329,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	public void delay(Event event, Time fireTime)
 	{
 		Time now = timeService().newTime();
-		if (fireTime != null || fireTime.before(now))
+		if (fireTime == null || fireTime.before(now))
 		{
 			postEvent(event);
 		}
@@ -349,12 +349,18 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	public void cancelDelays(String resource)
 	{
-		delayHandler.deleteDelay(resource);
+		if (delayHandler != null)
+		{
+			delayHandler.deleteDelay(resource);
+		}
 	}
 
 	public void cancelDelays(String resource, String event)
 	{
-		delayHandler.deleteDelay(resource, event);
+		if (delayHandler != null)
+		{
+			delayHandler.deleteDelay(resource, event);
+		}
 	}
 
 	/**
