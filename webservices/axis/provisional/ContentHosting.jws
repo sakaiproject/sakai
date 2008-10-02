@@ -1,5 +1,6 @@
 /*
  *   ContentHosting.jws - developed against Sakai 2.4.0
+ *						- redeveloped for Sakai 2.6 by Steve Swinsburg
  *
  */
  
@@ -39,7 +40,8 @@ import org.sakaiproject.site.api.SitePage;
 
 import org.sakaiproject.time.api.Time;
 
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentEntity;
@@ -70,10 +72,11 @@ import org.w3c.dom.Node;
  *	to get the root collection id for a given site id, from there, collections can be recursively opened
  *	and examined for resources.
  *
- *	TODO:  Add logging entries.
+ *	TODO:  Add better logging entries and clean up return values so they are standardised.
  *
  *	@author Mark J. Norton <a href="mailto:markjnorton@earthlink.net">
  *	@author David Horwitz <a href="dhorwitz@ched.uct.ac.za">
+  *	@author Steve Swinsburg <a href="s.swinsburg@lancaster.ac.uk">
  */
 public class ContentHosting {
 	
@@ -83,6 +86,23 @@ public class ContentHosting {
 	public static String RESOURCE_TYPE_COLLECTION = "collection";
 	public static String RESOURCE_TYPE_RESOURCE = "resource";
 	public static String RESOURCE_TYPE_ATTACHMENT = "attachment";
+	
+	private ContentHostingService contentHostingService;
+	
+	
+	/**
+	 *	Get ContentHostingService member variable from the ComponentManager automatically
+	 *
+	 *	@return ContentHosting handle
+	 *
+	 *	@author Steve Swinsburg
+	 */
+	public ContentHosting() {
+		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+	}
+
+	
+	
 	
 	/**
 	 *	Used to establish the current user session given a session id.
@@ -103,6 +123,9 @@ public class ContentHosting {
 		return s;
 	}
 
+	
+	
+	
 	/**
 	 *	Get the collection id for the root collection associated with this site context.
 	 *
@@ -112,7 +135,8 @@ public class ContentHosting {
 	 *	@author Dave
 	 */
 	private String getCollectionId (String context) {
- 		return	ContentHostingService.getSiteCollection(context);
+		
+ 		return	contentHostingService.getSiteCollection(context);
 	}
 
 	/**
@@ -159,7 +183,7 @@ public class ContentHosting {
 			//establish the session
 			Session s = establishSession(sessionid);
 			String collectionId = getCollectionId(context);
-			ContentCollection collection = ContentHostingService.getCollection(collectionId);
+			ContentCollection collection = contentHostingService.getCollection(collectionId);
 			return collection.getBodySizeK();
 		}
 		catch (Exception e) {
@@ -167,7 +191,7 @@ public class ContentHosting {
 		}
 		return -1;
 	}
-
+	
 	/**
 	 *	Get content information about a site.
 	 *
@@ -175,43 +199,44 @@ public class ContentHosting {
 	 *	@return an XML document with site elements and attributes about each
 	 *
 	 *	@author David Horwitz
+	 *	@author Steve Swinsburg
+	 *
+	 * TODO - do we want element/attributes as the XML or nodes/childnodes like the rest of the web services?
+	 *
 	 */
 	public String getAllSitesCollectionSize(String sessionid) {
 		try {
+		
 			Session s = establishSession(sessionid);
-			System.out.println("Session established about to get sites");
 			List sites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, null, SortType.TITLE_ASC, null);
-			//System.out.println("got a list of " + sites.size());
 			
 			Document dom = Xml.createDocument();
-			Node all = dom.createElement("Assignments");
-			dom.appendChild(all);
+			Node list = dom.createElement("list");
+			dom.appendChild(list);
 			
 			for (int i = 0; i <sites.size();i++){
-				Site thisSite = (Site)sites.get(i);
-			        //System.out.println("got site " + thisSite.getTitle()); 
-			        Long size = getSiteCollectionSize(sessionid,thisSite.getId());
-			        //System.out.println("this site has " + size + " in content");
-			        Element uElement = dom.createElement("site");
-			        uElement.setAttribute("id", thisSite.getId());
-			        uElement.setAttribute("title", thisSite.getTitle());
-	        		uElement.setAttribute("size", size.toString());
-	        		uElement.setAttribute("type", thisSite.getType());
-	        		uElement.setAttribute("createdBy", thisSite.getCreatedBy().getEid());
-	        		Time time = thisSite.getCreatedTime();
-	        		uElement.setAttribute("createdTime", time.getDisplay() );
+				Site site = (Site)sites.get(i);
+				Long size = getSiteCollectionSize(sessionid,site.getId());
+				Element siteNode = dom.createElement("site");
+				siteNode.setAttribute("id", site.getId());
+				siteNode.setAttribute("title", site.getTitle());
+				siteNode.setAttribute("size", size.toString());
+				siteNode.setAttribute("type", site.getType());
+				siteNode.setAttribute("createdBy", site.getCreatedBy().getEid());
+				Time time = site.getCreatedTime();
+				siteNode.setAttribute("createdTime", time.getDisplay() );
 	        		
-				all.appendChild(uElement);
+				list.appendChild(siteNode);
 			}
 			
-			String retVal = Xml.writeDocumentToString(dom);
-			return retVal;
+			return Xml.writeDocumentToString(dom);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		return "failure";
+		return "<exception/>";
 	}
+
 
 	/**
 	 *	Create a root collection for a site given it's context.
@@ -224,7 +249,6 @@ public class ContentHosting {
 	 *	@author David Horwitz
 	 */
 	public String createTopFolder(String sessionId, String context, String name) {			
-		//System.out.println("going to create folder " + name + " in site " + context);
 		String collectionId = getCollectionId(context);
 		return createFolder(sessionId, collectionId, name);
 	}
@@ -241,19 +265,18 @@ public class ContentHosting {
 	 */
 	public String createFolder(String sessionid, String collectionId, String name) {
 	
-		// System.out.println("going to create folder " + name + " in site " + collectionId);
 		try {
 			//establish the session
 			Session s = establishSession(sessionid);
 
 			String newCollectionId = collectionId + name + Entity.SEPARATOR;
 			
-			ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties ();
+			ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
 			
 			resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, name);
 			//resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, description);
 			
-			ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties);
+			ContentCollection collection = contentHostingService.addCollection(newCollectionId, resourceProperties);
 			
 			return newCollectionId;
 		}
@@ -286,7 +309,7 @@ public class ContentHosting {
 			//establish the session
 			Session s = establishSession(sessionid);
 
-			ResourcePropertiesEdit props = ContentHostingService.newResourceProperties ();
+			ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
 			props.addProperty (ResourceProperties.PROP_DISPLAY_NAME, name);
 			props.addProperty (ResourceProperties.PROP_DESCRIPTION, description);
 
@@ -300,7 +323,7 @@ public class ContentHosting {
 			}
 			
 			//System.out.println("name is: " + name +" , collection: " + collectionId + " resp: " + props);
-			ContentResource cont = ContentHostingService.addResource(name, collectionId, 10, type, content, props ,0);
+			ContentResource cont = contentHostingService.addResource(name, collectionId, 10, type, content, props ,0);
 
 			//ContentResource cont = ContentHostingService.addResource(name, collectionId, 10,"content", 
 			//	contentMime, props, new ArrayList(), 1); 
@@ -337,7 +360,7 @@ public class ContentHosting {
 			//establish the session
 			Session s = establishSession(sessionid);
 			
-			ContentResource res = ContentHostingService.getResource (resourceId);
+			ContentResource res = contentHostingService.getResource (resourceId);
 			
 			byte[] data = res.getContent();
 			encodedData = Base64.encode (data);
@@ -379,11 +402,11 @@ public class ContentHosting {
 
 				for (Iterator i = sites.iterator(); i.hasNext();) {
 					Site site = (Site)i.next();
-					String rootId = ContentHostingService.getSiteCollection(site.getId());
+					String rootId = contentHostingService.getSiteCollection(site.getId());
 
 					try {
 						// If site has no CHS root, it will throw unused id exception.
-						ContentCollection coll = ContentHostingService.getCollection (rootId);
+						ContentCollection coll = contentHostingService.getCollection (rootId);
 
 						Node item = getResourceBlock (coll, dom);
 
@@ -401,8 +424,7 @@ public class ContentHosting {
 		}
 		else {
 			try {
-				System.out.println ("*****  get collection:  "+id);
-				ContentCollection coll = ContentHostingService.getCollection (id);
+				ContentCollection coll = contentHostingService.getCollection (id);
 				List entities = coll.getMemberResources();
 				
 				for (Iterator i = entities.iterator(); i.hasNext();) {
@@ -414,8 +436,7 @@ public class ContentHosting {
 			}
 			catch (TypeException ex1) {
 				try {
-					System.out.println ("*****  get resource:  "+id);
-					ContentResource res = ContentHostingService.getResource (id);
+					ContentResource res = contentHostingService.getResource (id);
 					Node item = getResourceBlock (res, dom);
 					list.appendChild(item);
 				}
@@ -425,8 +446,7 @@ public class ContentHosting {
 			}
 			catch (IdUnusedException ex3) {
 				try {
-					System.out.println ("*****  get resource:  "+id);
-					ContentResource res = ContentHostingService.getResource (id);
+					ContentResource res = contentHostingService.getResource (id);
 					Node item = getResourceBlock (res, dom);
 					list.appendChild(item);
 				}
@@ -472,13 +492,13 @@ public class ContentHosting {
 		}
 		else {
 			try {
-				ContentCollection coll = ContentHostingService.getCollection (id);
+				ContentCollection coll = contentHostingService.getCollection (id);
 				Node item = getResourceBlock (coll, dom);
 				dom.appendChild(item);
 			}
 			catch (TypeException ex1) {
 				try {
-					ContentResource res = ContentHostingService.getResource (id);
+					ContentResource res = contentHostingService.getResource (id);
 					Node item = getResourceBlock (res, dom);
 					dom.appendChild(item);
 				}
@@ -488,7 +508,7 @@ public class ContentHosting {
 			}
 			catch (IdUnusedException ex3) {
 				try {
-					ContentResource res = ContentHostingService.getResource (id);
+					ContentResource res = contentHostingService.getResource (id);
 					Node item = getResourceBlock (res, dom);
 					dom.appendChild(item);
 				}
@@ -599,4 +619,6 @@ public class ContentHosting {
 		
 		return item;
 	}
+	
+	
 }
