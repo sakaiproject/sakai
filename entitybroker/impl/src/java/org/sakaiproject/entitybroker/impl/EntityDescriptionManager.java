@@ -51,10 +51,10 @@ import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.impl.util.VersionConstants;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
-import org.sakaiproject.genericdao.util.ArrayUtils;
-import org.sakaiproject.genericdao.util.ConstructorUtils;
-import org.sakaiproject.genericdao.util.ReflectUtils;
-import org.sakaiproject.genericdao.util.ClassFields.FieldsFilter;
+import org.azeckoski.reflectutils.ArrayUtils;
+import org.azeckoski.reflectutils.ConstructorUtils;
+import org.azeckoski.reflectutils.ReflectUtils;
+import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
 
 
 /**

@@ -59,9 +59,9 @@ import org.sakaiproject.entitybroker.impl.EntityActionsManager;
 import org.sakaiproject.entitybroker.impl.EntityRedirectsManager;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 
-import org.sakaiproject.genericdao.util.ReflectUtils;
-import org.sakaiproject.genericdao.util.refmap.ReferenceMap;
-import org.sakaiproject.genericdao.util.refmap.ReferenceType;
+import org.azeckoski.reflectutils.ReflectUtils;
+import org.azeckoski.reflectutils.refmap.ReferenceMap;
+import org.azeckoski.reflectutils.refmap.ReferenceType;
 
 /**
  * Base implementation of the entity provider manager

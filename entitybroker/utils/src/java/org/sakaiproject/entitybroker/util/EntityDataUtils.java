@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.azeckoski.reflectutils.ReflectUtils;
+import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
@@ -35,8 +37,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.genericdao.util.ReflectUtils;
-import org.sakaiproject.genericdao.util.exceptions.FieldnameNotFoundException;
 
 
 /**

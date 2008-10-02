@@ -44,7 +44,7 @@ import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.ProcessedTemplate;
-import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.azeckoski.reflectutils.ReflectUtils;
 
 
 /**

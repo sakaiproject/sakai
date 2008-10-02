@@ -22,8 +22,8 @@ package org.sakaiproject.entitybroker.impl.access;
 
 import java.util.Map;
 
-import org.sakaiproject.genericdao.util.refmap.ReferenceMap;
-import org.sakaiproject.genericdao.util.refmap.ReferenceType;
+import org.azeckoski.reflectutils.refmap.ReferenceMap;
+import org.azeckoski.reflectutils.refmap.ReferenceType;
 
 /**
  * A common generic implementation class for managers of different kinds of access providers.

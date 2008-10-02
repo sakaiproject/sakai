@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -168,6 +169,12 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 s.setShortDescription(site.getShortDescription());
                 s.setSkin(site.getSkin());
                 s.setTitle(site.getTitle());
+                // attempt to set the owner as requested
+                String ownerUserId = site.getOwner();
+                if (ownerUserId != null) {
+                    ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerUserId);
+                }
+                // save the site
                 siteService.save(s);
                 siteId = s.getId();
             } catch (IdInvalidException e) {
@@ -239,6 +246,11 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             for (String key : site.getProps().keySet()) {
                 String value = site.getProps().get(key);
                 rpe.addProperty(key, value);
+            }
+            // attempt to set the owner as requested
+            String ownerUserId = site.getOwner();
+            if (ownerUserId != null) {
+                ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerUserId);
             }
         } else {
             throw new IllegalArgumentException("Invalid entity for update, must be Site or EntitySite object");

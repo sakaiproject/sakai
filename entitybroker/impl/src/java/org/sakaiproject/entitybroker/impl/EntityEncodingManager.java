@@ -34,6 +34,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.azeckoski.reflectutils.ConstructorUtils;
+import org.azeckoski.reflectutils.ReflectUtils;
+import org.azeckoski.reflectutils.StringUtils;
+import org.azeckoski.reflectutils.map.ArrayOrderedMap;
+import org.azeckoski.reflectutils.transcoders.HTMLTranscoder;
+import org.azeckoski.reflectutils.transcoders.JSONTranscoder;
+import org.azeckoski.reflectutils.transcoders.Transcoder;
+import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
@@ -47,14 +55,6 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
-import org.sakaiproject.genericdao.util.ConstructorUtils;
-import org.sakaiproject.genericdao.util.ReflectUtils;
-import org.sakaiproject.genericdao.util.StringUtils;
-import org.sakaiproject.genericdao.util.map.ArrayOrderedMap;
-import org.sakaiproject.genericdao.util.transcoders.HTMLTranscoder;
-import org.sakaiproject.genericdao.util.transcoders.JSONTranscoder;
-import org.sakaiproject.genericdao.util.transcoders.Transcoder;
-import org.sakaiproject.genericdao.util.transcoders.XMLTranscoder;
 
 
 /**

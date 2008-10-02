@@ -88,8 +88,8 @@ import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.genericdao.util.ReflectUtils;
-import org.sakaiproject.genericdao.util.exceptions.FieldnameNotFoundException;
+import org.azeckoski.reflectutils.ReflectUtils;
+import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 
 /**
  * Implementation of the handler for the EntityBroker system<br/>

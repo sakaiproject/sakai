@@ -24,11 +24,11 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.azeckoski.reflectutils.refmap.ReferenceMap;
+import org.azeckoski.reflectutils.refmap.ReferenceType;
 import org.sakaiproject.entitybroker.event.EventReceiver;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.genericdao.util.refmap.ReferenceMap;
-import org.sakaiproject.genericdao.util.refmap.ReferenceType;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

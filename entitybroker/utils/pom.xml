@@ -42,8 +42,8 @@
         -->
 <!-- required for bean cloning and reflection -->
         <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>generic-dao</artifactId>
+            <groupId>org.azeckoski</groupId>
+            <artifactId>reflectutils</artifactId>
             <type>jar</type>
         </dependency>
 <!-- required for sending http requests -->

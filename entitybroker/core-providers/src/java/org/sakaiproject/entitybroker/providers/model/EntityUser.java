@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
+import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
@@ -45,6 +46,7 @@ import org.w3c.dom.Element;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
+@ReflectIgnoreClassFields({"createdBy","modifiedBy","properties"})
 public class EntityUser implements User {
 
    @EntityId

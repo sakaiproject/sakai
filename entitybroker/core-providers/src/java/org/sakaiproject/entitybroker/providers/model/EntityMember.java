@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.providers.model;
 
+import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -31,6 +32,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@ReflectIgnoreClassFields({"role"})
 public class EntityMember implements Member {
 
     @EntityId

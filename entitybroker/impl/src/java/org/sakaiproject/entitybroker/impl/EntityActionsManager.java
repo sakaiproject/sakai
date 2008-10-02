@@ -56,7 +56,7 @@ import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorag
 import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
-import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.azeckoski.reflectutils.ReflectUtils;
 
 
 /**

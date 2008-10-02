@@ -32,7 +32,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
-import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.azeckoski.reflectutils.ReflectUtils;
 
 /**
  * Testing the central logic of the entity handler

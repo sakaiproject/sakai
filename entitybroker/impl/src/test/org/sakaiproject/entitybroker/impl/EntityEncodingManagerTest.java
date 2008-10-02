@@ -40,7 +40,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
-import org.sakaiproject.genericdao.util.map.ArrayOrderedMap;
+import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 
 /**
  * Testing the central logic of the entity handler

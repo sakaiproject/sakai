@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
-import org.sakaiproject.genericdao.util.ReflectUtils;
+import org.azeckoski.reflectutils.ReflectUtils;
 
 
 /**

@@ -28,15 +28,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
+import org.azeckoski.reflectutils.annotations.ReflectTransient;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntitySummary;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 import org.sakaiproject.site.api.Group;
@@ -54,6 +56,7 @@ import org.w3c.dom.Element;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
+@ReflectIgnoreClassFields({"createdBy","modifiedBy","properties","propertiesEdit","pages","members","orderedPages","roles","users"})
 public class EntitySite implements Site {
 
    private static final long serialVersionUID = 7526472295622776147L;
@@ -540,6 +543,7 @@ public class EntitySite implements Site {
       throw new UnsupportedOperationException();
    }
 
+   @ReflectTransient
    public Element toXml(Document arg0, Stack arg1) {
       if (site != null) {
          return site.toXml(arg0, arg1);

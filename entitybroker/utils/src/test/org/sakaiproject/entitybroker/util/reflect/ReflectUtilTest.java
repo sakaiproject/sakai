@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.sakaiproject.genericdao.util.ReflectUtils;
-import org.sakaiproject.genericdao.util.exceptions.FieldnameNotFoundException;
+import org.azeckoski.reflectutils.ReflectUtils;
+import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 
 import junit.framework.TestCase;
 
