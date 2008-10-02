@@ -774,13 +774,21 @@ function checkUncheckTimeBox(){
     <h:panelGroup rendered="#{publishedSettings.valueMap.toGradebook_isInstructorEditable==true && publishedSettings.gradebookExists==true}">
      <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options}" />
 	 <f:verbatim></div><div class="tier3"></f:verbatim>
-      <h:panelGrid columns="2"  >
-        <h:selectOneRadio id="toDefaultGradebook"
+      <h:panelGrid columns="2" rendered="#{publishedSettings.firstTargetSelected != 'Anonymous Users'}">
+        <h:selectOneRadio id="toDefaultGradebook1"
             value="#{publishedSettings.toDefaultGradebook}"  layout="pageDirection">
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook} #{assessmentSettingsMessages.gradebook_note_g}"/>
         </h:selectOneRadio>
       </h:panelGrid>
+
+      <h:panelGrid columns="2" rendered="#{publishedSettings.firstTargetSelected == 'Anonymous Users'}">
+        <h:selectOneRadio id="toDefaultGradebook2" disabled="true" value="2"  layout="pageDirection">
+          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook} #{assessmentSettingsMessages.gradebook_note_g}"/>
+        </h:selectOneRadio>
+      </h:panelGrid>
+
 	<f:verbatim></div></f:verbatim>
     </h:panelGroup>
 

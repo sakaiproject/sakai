@@ -223,10 +223,16 @@ public class SaveAssessmentSettings
     
     // If there is value set for toDefaultGradebook, we reset it
     // Otherwise, do nothing
-    if (assessmentSettings.getToDefaultGradebook() != null) {
-  	  evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+    if (assessmentSettings.getToDefaultGradebook() != null ) {
+    	String firstTargetSelected = assessmentSettings.getFirstTargetSelected();
+    	if (firstTargetSelected.equals("Anonymous Users")) {
+    		evaluation.setToGradeBook("2");
+    	}
+    	else {
+    		evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+    	}
     }
-
+    
     if (assessmentSettings.getScoringType()!=null)
       evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));
     assessment.setEvaluationModel(evaluation);
