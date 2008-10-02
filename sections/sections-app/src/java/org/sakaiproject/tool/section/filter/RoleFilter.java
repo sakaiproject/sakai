@@ -39,6 +39,8 @@ import org.sakaiproject.section.api.facade.manager.Context;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 /**
  * An authorization filter to keep users out of pages they are not authorized
  * to access.
@@ -119,7 +121,11 @@ public class RoleFilter implements Filter {
 				isAuthorized = true;
 			}
 
-			if (isAuthorized) {
+			// SAK-13408 - This fix addresses the problem of the filter receiving a blank field on WebSphere.
+			// Without this, users would be denied access to the tool
+			if ( "websphere".equals(ServerConfigurationService.getString("servlet.container")) && ( isAuthorized || pageName.equals(""))) {
+				chain.doFilter(request,response);
+			} else if ( !"websphere".equals(ServerConfigurationService.getString("servlet.container")) && isAuthorized ) {
 				chain.doFilter(request, response);
 			} else {
 				logger.error("AUTHORIZATION FAILURE: User " + userUid + " in site " +

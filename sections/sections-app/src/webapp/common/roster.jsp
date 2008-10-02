@@ -24,7 +24,7 @@
         <h:outputText value="#{msgs.filter_all_sections}" rendered="#{ ! rosterBean.sectionAssignable}"/>
 	</t:div>
 	
-    <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">
+    <h:panelGrid styleClass="sectionContainerNav" columns="1" columnClasses="sectionLeftNav,sectionRightNav">
         <t:div>
             <h:inputText id="search" value="#{rosterBean.searchText}"
                 onfocus="clearIfDefaultString(this, '#{msgs.roster_search_text}')"/>
