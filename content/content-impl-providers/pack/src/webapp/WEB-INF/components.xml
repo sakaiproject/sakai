@@ -24,25 +24,14 @@
         <property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
     </bean>
 
-	<bean id="org.sakaiproject.content.providers.ResourceEventVoter"
-		  class="org.sakaiproject.content.providers.ResourceEventVoter"
-		  init-method="init">
-		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService" />
-		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
-		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-		<property name="helper" ref="org.sakaiproject.content.providers.ResourceEventVoterHelper" />
-	</bean>
-
-	<bean id="org.sakaiproject.content.providers.ResourceEventVoterHelper"
-		  class="org.sakaiproject.content.providers.ResourceEventVoterHelper"
+	<bean id="org.sakaiproject.content.providers.BaseEventDelayHandler"
+		  class="org.sakaiproject.content.providers.BaseEventDelayHandler"
 		  init-method="init">
 		<property name="autoDdl" value="${auto.ddl}" />
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
 		<property name="schedInvocMgr" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>
 
 </beans>
