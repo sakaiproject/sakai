@@ -283,13 +283,13 @@ class CalendarFilter
 		if (SHOW_WEEK.equals(mode))
 		{
 			GregorianCalendar calStart =
-				new GregorianCalendar(TimeService.getLocalTimeZone());
+				new GregorianCalendar(TimeService.getLocalTimeZone(), rb.getLocale());
 			GregorianCalendar calEnd =
 				(GregorianCalendar) calStart.clone();
 
 			// Set the first/last days of the week.
-			calStart.set(GregorianCalendar.DAY_OF_WEEK, 1);
-			calEnd.set(GregorianCalendar.DAY_OF_WEEK, 7);
+			calStart.set(GregorianCalendar.DAY_OF_WEEK, calStart.getFirstDayOfWeek());
+			calEnd.set(GregorianCalendar.DAY_OF_WEEK, calStart.getFirstDayOfWeek()+6);
 
 			startYear = calStart.get(GregorianCalendar.YEAR);
 			endYear = calEnd.get(GregorianCalendar.YEAR);

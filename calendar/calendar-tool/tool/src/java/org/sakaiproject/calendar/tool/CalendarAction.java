@@ -24,6 +24,7 @@ package org.sakaiproject.calendar.tool;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -192,6 +193,8 @@ extends VelocityPortletStateAction
 	private AssignmentService assignmentService;
 	
 	private ContentHostingService contentHostingService;
+   
+	private NumberFormat monthFormat = null;
 	
 	/**
 	 * Used by callback to convert channel references to channels.
@@ -7075,6 +7078,13 @@ extends VelocityPortletStateAction
 		CalendarEventVector calendarEventVectorObj = null;
 		boolean allowed = false;
 		LinkedHashMap yearMap = new LinkedHashMap();
+
+		// Initialize month format object		
+		if ( monthFormat == null ) 
+		{
+			monthFormat = NumberFormat.getInstance();
+			monthFormat.setMinimumIntegerDigits(2);
+		}
 		
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
@@ -7128,32 +7138,14 @@ extends VelocityPortletStateAction
 			//default to current week
 			CalendarUtil calObj = new CalendarUtil();
 			calObj.setDay(stateYear, stateMonth, stateDay);
-
-			int dayofweek = calObj.getDay_Of_Week(true);
+			TimeRange weekRange = getWeekTimeRange( calObj );
+			sD = String.valueOf( weekRange.firstTime().breakdownLocal().getDay() );
+			sY = String.valueOf( weekRange.firstTime().breakdownLocal().getYear() );
+			sM = monthFormat.format( weekRange.firstTime().breakdownLocal().getMonth() );
 			
-			String ssdate = calObj.getTodayDate();
-			String eedate = calObj.getTodayDate();
-			
-			calObj.setPrevDate(dayofweek-1);
-			sY = new Integer(calObj.getYear()).toString();
-			if (calObj.getMonthInteger()<10)
-				sM = "0" + new Integer(calObj.getMonthInteger()).toString();
-			else
-				sM = new Integer(calObj.getMonthInteger()).toString();
-				
-			sD = new Integer(calObj.getDayOfMonth()).toString();
-			
-			for(int i = 0; i<6; i++)
-			{
-				calObj.getNextDate();
-			}
-			eY = new Integer(calObj.getYear()).toString();
-			if (calObj.getMonthInteger()<10)
-				eM = "0" + new Integer(calObj.getMonthInteger()).toString();
-			else
-				eM = new Integer(calObj.getMonthInteger()).toString();
-				
-			eD = new Integer(calObj.getDayOfMonth()).toString();
+			eD = String.valueOf( weekRange.lastTime().breakdownLocal().getDay() );
+			eY = String.valueOf( weekRange.lastTime().breakdownLocal().getYear() );
+			eM = monthFormat.format( weekRange.lastTime().breakdownLocal().getMonth() );
 		}
 		
 		context.put(TIME_FILTER_SETTING_CUSTOM_START_YEAR,	 Integer.valueOf(sY));
