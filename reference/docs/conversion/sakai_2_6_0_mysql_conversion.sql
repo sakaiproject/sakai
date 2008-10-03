@@ -220,3 +220,20 @@ alter table CM_ACADEMIC_SESSION_T add column IS_CURRENT bit default 0 not null;
 -- recommended that you decide which terms should be treated as current
 -- and edit this script accordingly!
 update CM_ACADEMIC_SESSION_T set IS_CURRENT=1 where CURDATE() >= START_DATE and CURDATE() <= END_DATE;
+
+--Tables for email template service (new tool - SAK-14573)
+    create table EMAIL_TEMPLATE_ITEM (
+        ID bigint not null auto_increment,
+        LAST_MODIFIED datetime not null,
+        OWNER varchar(255) not null,
+        SUBJECT text not null,
+        MESSAGE text not null,
+        TEMPLATE_KEY varchar(255) not null,
+        TEMPLATE_LOCALE varchar(255),
+        defaultType varchar(255),
+        primary key (ID)
+    );
+
+    create index email_templ_owner on EMAIL_TEMPLATE_ITEM (OWNER);
+
+    create index email_templ_key on EMAIL_TEMPLATE_ITEM (TEMPLATE_KEY);
