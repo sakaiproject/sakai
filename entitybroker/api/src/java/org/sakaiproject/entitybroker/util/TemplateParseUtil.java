@@ -119,19 +119,19 @@ public class TemplateParseUtil {
    /**
     * Defines the valid chars for a replacement variable
     */
-   public static String VALID_VAR_CHARS = "[A-Za-z0-9\\\\(\\\\)\\.\\-_=,:;!~]";
+   public static String VALID_VAR_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;!~@%]";
    /**
     * Defines the valid chars for a parser input (e.g. entity reference)
     */
-   public static String VALID_INPUT_CHARS = "[A-Za-z0-9\\\\(\\\\)\\.\\-_=,:;!~"+SEPARATOR+"]";
+   public static String VALID_INPUT_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;!~@%"+SEPARATOR+"]";
    /**
     * Defines the valid chars for a template
     */
-   public static String VALID_TEMPLATE_CHARS = "[A-Za-z0-9\\\\(\\\\)\\.\\-_=,:;&!~"+SEPARATOR+"\\{\\}]";
+   public static String VALID_TEMPLATE_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;&!~@%"+SEPARATOR+"\\{\\}]";
    /**
     * Defines the valid template chars for an outgoing template (allows ?)
     */
-   public static String VALID_TEMPLATE_CHARS_OUTGOING = "[A-Za-z0-9\\\\(\\\\)\\.\\-_=,:;&!~"+SEPARATOR+"\\{\\}\\?]";
+   public static String VALID_TEMPLATE_CHARS_OUTGOING = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;&!~@%"+SEPARATOR+"\\{\\}\\?]";
 
    /**
     * Stores the preloaded default templates
