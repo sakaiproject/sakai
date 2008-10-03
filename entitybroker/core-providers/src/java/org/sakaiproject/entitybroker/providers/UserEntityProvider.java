@@ -392,7 +392,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             }
             if (isUsingSameIdEid()) {
                 // have to actually fetch the user
-                User u = getUserById(currentUserEid);
+                User u = getUserByIdEid(currentUserEid);
                 if (u != null) {
                     userId = u.getId();
                 }
@@ -417,7 +417,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             // verify the userId is valid
             if (isUsingSameIdEid()) {
                 // have to actually fetch the user
-                User u = getUserById(currentUserId);
+                User u = getUserByIdEid(currentUserId);
                 if (u != null) {
                     userId = u.getId();
                 }
