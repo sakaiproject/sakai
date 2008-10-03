@@ -167,12 +167,14 @@ public class EntityDescriptionManager {
             StringBuilder sb = new StringBuilder(300);
             sb.append(XML_HEADER);
             sb.append(XHTML_HEADER);
-            sb.append("<h1><a href='"+ describeURL +"'>Describe all</a> registered entities"
+            sb.append("<h1><a href='"+ describeURL +"'>"+entityProperties.getProperty(DESCRIBE, "describe.all", locale)+"</a> "
+                    + entityProperties.getProperty(DESCRIBE, "describe.registered.entities", locale)
                     + makeFormatUrlHtml(describeURL, Formats.XML) +"</h1>\n");
             sb.append("  <i>RESTful URLs: <a href='http://microformats.org/wiki/rest/urls'>http://microformats.org/wiki/rest/urls</a></i><br/>\n");
             sb.append("  <h2>"+entityProperties.getProperty(DESCRIBE, "describe.all", locale)+" ("
                     +entityProperties.getProperty(DESCRIBE, "describe.registered.entities", locale)+"): "
                     +map.size()+"</h2>\n");
+            sb.append("  <div style='font-style:italic;'>"+entityProperties.getProperty(DESCRIBE, "describe.searching", locale)+"</div>\n"); // searching
             ArrayList<String> prefixes = new ArrayList<String>(map.keySet());
             Collections.sort(prefixes);
             for (int i = 0; i < prefixes.size(); i++) {

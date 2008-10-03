@@ -36,10 +36,10 @@ import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
+import org.sakaiproject.entitybroker.entityprovider.search.Order;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 
 
 /**
@@ -234,65 +234,90 @@ public class RequestUtils {
     }
 
     /**
-     * This looks at search parameters and returns anything it finds in the
+     * This looks at request parameters and returns anything it finds in the
      * request parameters that can be put into the search,
-     * supports the page params
+     * supports the page params and sorting params
      * 
-     * @param req a servlet request
+     * @param params the request params from a request (do not include headers)
      * @return a search filter object
      */
-    public static Search makeSearchFromRequestStorage(RequestStorageImpl requestStorage) {
+    public static Search makeSearchFromRequestParams(Map<String, Object> params) {
         Search search = new Search();
         int page = -1;
         int limit = -1;
         try {
-            if (requestStorage != null) {
-                Map<String, Object> params = requestStorage.getStorageMapCopy(true, false, true, true); // leave out headers
-                if (params != null) {
-                    for (Entry<String, Object> entry : params.entrySet()) {
-                        String key = entry.getKey();
-                        // filter out certain keys
-                        if (getIgnoreSet().contains(key)) {
-                            continue; // skip this key
-                        }
-                        Object value = entry.getValue();
-                        if (value == null) {
-                            // in theory this should not happen
-                            continue;
-                        } else if (value.getClass().isArray()) {
-                            // use the value as is
-                        } else {
-                            // get paging values out if possible
-                            if ("_limit".equals(key) 
-                                    || "_perpage".equals(key)
-                                    || ":perpage".equals(key)) {
-                                try {
-                                    limit = Integer.valueOf(value.toString()).intValue();
-                                    search.setLimit(limit);
-                                } catch (NumberFormatException e) {
-                                    log.warn("Invalid non-number passed in for _limit/_perpage param: " + value, e);
-                                }
-                                continue;
-                            } else if ("_start".equals(key)) {
-                                try {
-                                    int start = Integer.valueOf(value.toString()).intValue();
-                                    search.setStart(start);
-                                } catch (NumberFormatException e) {
-                                    log.warn("Invalid non-number passed in for '_start' param: " + value, e);
-                                }
-                                continue;
-                            } else if ("_page".equals(key)
-                                    || ":page".equals(key)) {
-                                try {
-                                    page = Integer.valueOf(value.toString()).intValue();
-                                } catch (NumberFormatException e) {
-                                    log.warn("Invalid non-number passed in for '_page' param: " + value, e);
-                                }
-                                continue;
-                            }
-                        }
-                        search.addRestriction( new Restriction(key, value) );
+            if (params != null) {
+                for (Entry<String, Object> entry : params.entrySet()) {
+                    String key = entry.getKey();
+                    // filter out certain keys
+                    if (getIgnoreSet().contains(key)) {
+                        continue; // skip this key
                     }
+                    Object value = entry.getValue();
+                    if (value == null) {
+                        // in theory this should not happen
+                        continue;
+                    } else if (value.getClass().isArray()) {
+                        // use the value as is
+                    } else {
+                        // get paging values out if possible
+                        if ("_limit".equals(key) 
+                                || "_perpage".equals(key)
+                                || "perpage".equals(key)) {
+                            try {
+                                limit = Integer.valueOf(value.toString()).intValue();
+                                search.setLimit(limit);
+                            } catch (NumberFormatException e) {
+                                log.warn("Invalid non-number passed in for _limit/_perpage param: " + value, e);
+                            }
+                            continue;
+                        } else if ("_start".equals(key)) {
+                            try {
+                                int start = Integer.valueOf(value.toString()).intValue();
+                                search.setStart(start);
+                            } catch (NumberFormatException e) {
+                                log.warn("Invalid non-number passed in for '_start' param: " + value, e);
+                            }
+                            continue;
+                        } else if ("_page".equals(key)
+                                || "page".equals(key)) {
+                            try {
+                                page = Integer.valueOf(value.toString()).intValue();
+                            } catch (NumberFormatException e) {
+                                log.warn("Invalid non-number passed in for '_page' param: " + value, e);
+                            }
+                            continue;
+                        } else if ("_order".equals(key)
+                                || "_sort".equals(key)
+                                || "sort".equals(key)) {
+                            if (value != null) {
+                                String val = value.toString();
+                                String[] sortBy = new String[] {val};
+                                if (val.indexOf(',') > 0) {
+                                    // multiple sort params
+                                    sortBy = val.split(",");
+                                }
+                                try {
+                                    for (int i = 0; i < sortBy.length; i++) {
+                                        String sortItem = sortBy[i].trim();
+                                        if (sortItem.endsWith("_reverse")) {
+                                            search.addOrder( new Order(sortItem.substring(0, sortItem.length()-8), false) );
+                                        } else if (sortItem.endsWith("_desc")) {
+                                            search.addOrder( new Order(sortItem.substring(0, sortItem.length()-5), false) );
+                                        } else if (sortItem.endsWith("_asc")) {
+                                            search.addOrder( new Order(sortItem.substring(0, sortItem.length()-4)) );
+                                        } else {
+                                            search.addOrder( new Order(sortItem) );
+                                        }
+                                    }
+                                } catch (RuntimeException e) {
+                                    log.warn("Failed while getting the sort/order param: " + val, e);
+                                }
+                            }
+                            continue;
+                        }
+                    }
+                    search.addRestriction( new Restriction(key, value) );
                 }
             }
         } catch (Exception e) {

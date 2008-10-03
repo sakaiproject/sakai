@@ -23,6 +23,7 @@ package org.sakaiproject.entitybroker.providers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +150,10 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         String roleId = null;
         boolean includeSites = true;
         boolean includeGroups = false;
-        if (search != null && ! search.isEmpty()) {
+        if (search == null) {
+            search = new Search();
+        }
+        if (! search.isEmpty()) {
             // process the search
             roleId = (String) search.getRestrictionValueByProperties(new String[] {"role","roleId"});
             Restriction userRes = search.getRestrictionByProperty(CollectionResolvable.SEARCH_USER_REFERENCE);
@@ -226,26 +230,40 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                 }
             }
         }
-        ArrayList<EntityData> l = new ArrayList<EntityData>();
         ArrayList<EntityMember> sortedMembers = new ArrayList<EntityMember>();
+        int count = 0;
         for (EntityMember em : members) {
             // filter out users and roles
-            if (roleId != null) {
-                if (! roleId.equals(em.getMemberRole())) {
-                    continue;
-                }
-            }
-            if (findByLocation) {
-                if (userId != null) {
-                    if (! userId.equals(em.getUserId())) {
+            if (count < search.getStart()) {
+                continue;
+            } else if ( search.getLimit() > 0 && count > search.getLimit() ) {
+                break; // no more, limit reached
+            } else {
+                // between the start and limit
+                if (roleId != null) {
+                    if (! roleId.equals(em.getMemberRole())) {
                         continue;
                     }
                 }
+                if (findByLocation) {
+                    if (userId != null) {
+                        if (! userId.equals(em.getUserId())) {
+                            continue;
+                        }
+                    }
+                }
+                sortedMembers.add(em);
             }
+            count++;
+        }
+        Comparator<EntityMember> memberComparator = new EntityMember.MemberSortName(); // default by sortname
+        Collections.sort(sortedMembers, memberComparator);
+        // now we put the members into entity data objects
+        ArrayList<EntityData> l = new ArrayList<EntityData>();
+        for (EntityMember em : sortedMembers) {
             EntityData ed = new EntityData(new EntityReference(PREFIX,em.getId()), null, em);
             l.add(ed);
         }
-        Collections.sort(l, new EntityData.ReferenceComparator()); // this is random order
         return l;
     }
 

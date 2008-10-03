@@ -340,6 +340,18 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         return eu;
     }
 
+    /*
+     * This ugliness is needed because of the edge case where people are using identical ID/EIDs
+     */
+    private Boolean usesSameIdEid = null;
+    private boolean isUsingSameIdEid() {
+        if (usesSameIdEid == null) {
+            usesSameIdEid = developerHelperService.getConfigurationSetting("separateIdEid@org.sakaiproject.user.api.UserDirectoryService", false);
+            if (usesSameIdEid == null) usesSameIdEid = Boolean.FALSE;
+        }
+        return usesSameIdEid.booleanValue();
+    }
+
     /**
      * Will check that a userId/eid is valid and will produce a valid userId from the check
      * @param currentUserId user id (can be eid)
@@ -351,20 +363,29 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             throw new IllegalArgumentException("Cannot get user from a null userId and eid, ensure at least userId or userEid are set");
         }
         String userId = null;
+        // can use the efficient methods to check if the user Id is valid
         if (currentUserId == null) {
             // try to get userId from eid
             if (currentUserEid.startsWith("/user/")) {
                 // assume the form of "/user/userId" (the UDS method is protected)
                 currentUserEid = new EntityReference(currentUserEid).getId();
             }
-            try {
-                userId = userDirectoryService.getUserId(currentUserEid);
-            } catch (UserNotDefinedException e) {
+            if (isUsingSameIdEid()) {
+                // have to actually fetch the user
+                User u = getUserById(currentUserEid);
+                if (u != null) {
+                    userId = u.getId();
+                }
+            } else {
                 try {
-                    userDirectoryService.getUserEid(currentUserEid);
-                    userId = currentUserEid;
-                } catch (UserNotDefinedException e2) {
-                    userId = null;
+                    userId = userDirectoryService.getUserId(currentUserEid);
+                } catch (UserNotDefinedException e) {
+                    try {
+                        userDirectoryService.getUserEid(currentUserEid); // simply here to throw an exception or not
+                        userId = currentUserEid;
+                    } catch (UserNotDefinedException e2) {
+                        userId = null;
+                    }
                 }
             }
         } else {
@@ -374,14 +395,22 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                 currentUserId = new EntityReference(currentUserId).getId();
             }
             // verify the userId is valid
-            try {
-                userDirectoryService.getUserEid(currentUserId);
-                userId = currentUserId;
-            } catch (UserNotDefinedException e) {
+            if (isUsingSameIdEid()) {
+                // have to actually fetch the user
+                User u = getUserById(currentUserId);
+                if (u != null) {
+                    userId = u.getId();
+                }
+            } else {
                 try {
-                    userId = userDirectoryService.getUserId(currentUserId);
-                } catch (UserNotDefinedException e2) {
-                    userId = null;
+                    userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
+                    userId = currentUserId;
+                } catch (UserNotDefinedException e) {
+                    try {
+                        userId = userDirectoryService.getUserId(currentUserId);
+                    } catch (UserNotDefinedException e2) {
+                        userId = null;
+                    }
                 }
             }
         }

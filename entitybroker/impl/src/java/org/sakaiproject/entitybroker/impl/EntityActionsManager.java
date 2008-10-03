@@ -49,6 +49,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
@@ -92,7 +93,7 @@ public class EntityActionsManager {
      * @throws IllegalStateException if a failure occurs
      */
     public ActionReturn handleCustomActionRequest(ActionsExecutable actionProvider, EntityView entityView, String action,
-            HttpServletRequest request, HttpServletResponse response) {
+            HttpServletRequest request, HttpServletResponse response, Map<String, Object> searchParams) {
         if (actionProvider == null || entityView == null || action == null || request == null || response == null) {
             throw new IllegalArgumentException("actionProvider and view and action and request and response must not be null");
         }
@@ -100,7 +101,7 @@ public class EntityActionsManager {
         Map<String, Object> actionParams = RequestStorageImpl.getRequestValues(request, true, true, true);
         EntityReference ref = entityView.getEntityReference();
         OutputStream outputStream = new LazyResponseOutputStream(response);
-        ActionReturn actionReturn = handleCustomActionExecution(actionProvider, ref, action, actionParams, outputStream, entityView);
+        ActionReturn actionReturn = handleCustomActionExecution(actionProvider, ref, action, actionParams, outputStream, entityView, searchParams);
         // now process the return into the request or response as needed
         if (actionReturn != null) {
             if (actionReturn.output != null || actionReturn.outputString != null) {
@@ -137,7 +138,7 @@ public class EntityActionsManager {
      * @throws UnsupportedOperationException if the action is not valid for this prefix
      */
     public ActionReturn handleCustomActionExecution(ActionsExecutable actionProvider, EntityReference ref, String action, 
-            Map<String, Object> actionParams, OutputStream outputStream, EntityView view) {
+            Map<String, Object> actionParams, OutputStream outputStream, EntityView view, Map<String, Object> searchParams) {
         if (actionProvider == null || ref == null || action == null || "".equals(action)) {
             throw new IllegalArgumentException("actionProvider and ref and action must not be null");
         }
@@ -183,6 +184,14 @@ public class EntityActionsManager {
                     args[i] = view;
                 } else if (String.class.equals(argType)) {
                     args[i] = actionProvider.getEntityPrefix();
+                } else if (Search.class.equals(argType)) {
+                    Search search = null;
+                    if (searchParams == null || searchParams.isEmpty()) {
+                        search = new Search();
+                    } else {
+                        search = RequestUtils.makeSearchFromRequestParams(searchParams);
+                    }
+                    args[i] = search;
                 } else if (OutputStream.class.equals(argType)) {
                     args[i] = outputStream;
                 } else if (Map.class.equals(argType)) {
@@ -256,6 +265,7 @@ public class EntityActionsManager {
     protected static Class<?>[] validParamTypes = {
         EntityReference.class,
         EntityView.class,
+        Search.class,
         String.class,
         OutputStream.class,
         Map.class

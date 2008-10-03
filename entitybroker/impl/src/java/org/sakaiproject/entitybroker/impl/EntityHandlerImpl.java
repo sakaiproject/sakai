@@ -348,7 +348,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                             view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
                                 }
                                 try {
-                                    actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, view, customAction.action, req, res);
+                                    actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, view, customAction.action, req, res, 
+                                            requestStorage.getStorageMapCopy(true, false, true, true) );
                                 } catch (SecurityException se) {
                                     // AJAX/WS type security exceptions are handled specially, no redirect
                                     throw new EntityException("Security exception handling request for view ("+view+"), "
@@ -467,7 +468,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                         }
                                                     } else {
                                                         // get from a search
-                                                        Search search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
+                                                        Search search = RequestUtils.makeSearchFromRequestParams(requestStorage.getStorageMapCopy(true, false, true, true)); // leave out headers));
                                                         entities = entityBrokerManager.getEntitiesData(ref, search, requestStorage.getStorageMapCopy());
                                                     }
                                                     // set the modified header (use the sole entity in the list if there is one only)

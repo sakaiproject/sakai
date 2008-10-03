@@ -22,6 +22,7 @@ package org.sakaiproject.entitybroker.providers.model;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Date;
 
 import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
 import org.sakaiproject.authz.api.Member;
@@ -54,7 +55,7 @@ public class EntityMember implements Member {
     private String userSortName;
     private String userEmail;
     @EntityLastModified
-    private long lastLoginTime = System.currentTimeMillis(); // TODO make this real
+    private Date lastLoginTime = new Date(); // TODO make this real
 
     private transient Member member;
 
@@ -227,7 +228,7 @@ public class EntityMember implements Member {
     }
 
     // TODO
-    public long getLastLoginTime() {
+    public Date getLastLoginTime() {
         return lastLoginTime;
     }
 
@@ -297,7 +298,7 @@ public class EntityMember implements Member {
     public static class MemberLastLogin implements Comparator<EntityMember>, Serializable {
         public static final long serialVersionUID = 1L;
         public int compare(EntityMember o1, EntityMember o2) {
-            return Long.valueOf(o1.getLastLoginTime()).compareTo(Long.valueOf(o2.getLastLoginTime()));
+            return o1.getLastLoginTime().compareTo(o2.getLastLoginTime());
         }
     }
 

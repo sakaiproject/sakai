@@ -20,13 +20,14 @@
 
 package org.sakaiproject.entitybroker.impl.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Order;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 
@@ -39,20 +40,19 @@ public class RequestUtilsTest extends TestCase {
 
    public void testMakeSearchFromRequestStorage() {
       Search search = null;
-      RequestStorageImpl requestStorage = new RequestStorageImpl();
-      requestStorage.setRequestGetter(new RequestGetterImpl());
+      Map<String, Object> params = new HashMap<String, Object>();
 
-      requestStorage.reset();
-      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
+      params.clear();
+      search = RequestUtils.makeSearchFromRequestParams(params);
       assertNotNull(search);
       assertTrue( search.isEmpty() );
       assertEquals(0, search.getRestrictions().length);
       search.addOrder( new Order("test") );
 
-      requestStorage.reset();
-      requestStorage.setRequestValue("test", "stuff");
+      params.clear();
+      params.put("test", "stuff");
 
-      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
+      search = RequestUtils.makeSearchFromRequestParams(params);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
       assertEquals(1, search.getRestrictions().length);
@@ -60,22 +60,22 @@ public class RequestUtilsTest extends TestCase {
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
 
       // make sure _method is ignored
-      requestStorage.reset();
-      requestStorage.setRequestValue("test", "stuff");
-      requestStorage.setRequestValue("_method", "PUT");
+      params.clear();
+      params.put("test", "stuff");
+      params.put("_method", "PUT");
 
-      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
+      search = RequestUtils.makeSearchFromRequestParams(params);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
       assertEquals(1, search.getRestrictions().length);
       assertNotNull( search.getRestrictionByProperty("test") );
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
 
-      requestStorage.reset();
-      requestStorage.setRequestValue("test", "stuff");
-      requestStorage.setRequestValue("other", 1000);
+      params.clear();
+      params.put("test", "stuff");
+      params.put("other", 1000);
 
-      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
+      search = RequestUtils.makeSearchFromRequestParams(params);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
       assertEquals(2, search.getRestrictions().length);
@@ -85,12 +85,12 @@ public class RequestUtilsTest extends TestCase {
       assertEquals(1000, search.getRestrictionByProperty("other").value);
 
       // test paging params
-      requestStorage.reset();
-      requestStorage.setRequestValue("test", "stuff");
-      requestStorage.setRequestValue("_limit", "10");
-      requestStorage.setRequestValue("_start", "5");
+      params.clear();
+      params.put("test", "stuff");
+      params.put("_limit", "10");
+      params.put("_start", "5");
 
-      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
+      search = RequestUtils.makeSearchFromRequestParams(params);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
       assertEquals(1, search.getRestrictions().length);
@@ -99,12 +99,12 @@ public class RequestUtilsTest extends TestCase {
       assertEquals(10, search.getLimit());
       assertEquals(5, search.getStart());
 
-      requestStorage.reset();
-      requestStorage.setRequestValue("test", "stuff");
-      requestStorage.setRequestValue("_page", "3");
-      requestStorage.setRequestValue("_perpage", "5");
+      params.clear();
+      params.put("test", "stuff");
+      params.put("_page", "3");
+      params.put("_perpage", "5");
 
-      search = RequestUtils.makeSearchFromRequestStorage(requestStorage);
+      search = RequestUtils.makeSearchFromRequestParams(params);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
       assertEquals(1, search.getRestrictions().length);
@@ -112,6 +112,81 @@ public class RequestUtilsTest extends TestCase {
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
       assertEquals(5, search.getLimit());
       assertEquals(10, search.getStart());
+   }
+
+   public void testMakeSearchFromRequestStorageOrder() {
+       Search search = null;
+       Map<String, Object> params = new HashMap<String, Object>();
+
+       params.clear();
+       params.put("test", "stuff");
+       params.put("_order", "name");
+
+       search = RequestUtils.makeSearchFromRequestParams(params);
+       assertNotNull(search);
+       assertFalse( search.isEmpty() );
+       assertEquals(1, search.getRestrictions().length);
+       assertNotNull( search.getRestrictionByProperty("test") );
+       assertEquals("stuff", search.getRestrictionByProperty("test").value);
+       assertEquals(0, search.getLimit());
+       assertEquals(0, search.getStart());
+       assertEquals(1, search.getOrders().length);
+       assertEquals("name", search.getOrders()[0].getProperty());
+       assertEquals(true, search.getOrders()[0].isAscending());
+
+       params.clear();
+       params.put("test", "stuff");
+       params.put("_order", "name_reverse");
+
+       search = RequestUtils.makeSearchFromRequestParams(params);
+       assertNotNull(search);
+       assertFalse( search.isEmpty() );
+       assertEquals(1, search.getRestrictions().length);
+       assertNotNull( search.getRestrictionByProperty("test") );
+       assertEquals("stuff", search.getRestrictionByProperty("test").value);
+       assertEquals(0, search.getLimit());
+       assertEquals(0, search.getStart());
+       assertEquals(1, search.getOrders().length);
+       assertEquals("name", search.getOrders()[0].getProperty());
+       assertEquals(false, search.getOrders()[0].isAscending());
+
+       params.clear();
+       params.put("test", "stuff");
+       params.put("_order", "name,email");
+
+       search = RequestUtils.makeSearchFromRequestParams(params);
+       assertNotNull(search);
+       assertFalse( search.isEmpty() );
+       assertEquals(1, search.getRestrictions().length);
+       assertNotNull( search.getRestrictionByProperty("test") );
+       assertEquals("stuff", search.getRestrictionByProperty("test").value);
+       assertEquals(0, search.getLimit());
+       assertEquals(0, search.getStart());
+       assertEquals(2, search.getOrders().length);
+       assertEquals("name", search.getOrders()[0].getProperty());
+       assertEquals(true, search.getOrders()[0].isAscending());
+       assertEquals("email", search.getOrders()[1].getProperty());
+       assertEquals(true, search.getOrders()[1].isAscending());
+
+       params.clear();
+       params.put("test", "stuff");
+       params.put("_order", "name,email_desc,phone_asc");
+
+       search = RequestUtils.makeSearchFromRequestParams(params);
+       assertNotNull(search);
+       assertFalse( search.isEmpty() );
+       assertEquals(1, search.getRestrictions().length);
+       assertNotNull( search.getRestrictionByProperty("test") );
+       assertEquals("stuff", search.getRestrictionByProperty("test").value);
+       assertEquals(0, search.getLimit());
+       assertEquals(0, search.getStart());
+       assertEquals(3, search.getOrders().length);
+       assertEquals("name", search.getOrders()[0].getProperty());
+       assertEquals(true, search.getOrders()[0].isAscending());
+       assertEquals("email", search.getOrders()[1].getProperty());
+       assertEquals(false, search.getOrders()[1].isAscending());
+       assertEquals("phone", search.getOrders()[2].getProperty());
+       assertEquals(true, search.getOrders()[2].isAscending());
    }
 
    /**
