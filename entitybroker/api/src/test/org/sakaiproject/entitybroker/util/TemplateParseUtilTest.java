@@ -273,6 +273,9 @@ public class TemplateParseUtilTest extends TestCase {
       template = "/{prefix}/thing?auto={something}";
       TemplateParseUtil.validateOutgoingTemplate(template);
 
+      template = "/{prefix}/thing?auto=%22AZ%2C1*2%2B3%3D5%2C+OK%3F%22";
+      TemplateParseUtil.validateOutgoingTemplate(template);
+
       template = "/{prefix}/thing?auto={something}&manual={other}";
       TemplateParseUtil.validateOutgoingTemplate(template);
 
@@ -310,7 +313,7 @@ public class TemplateParseUtilTest extends TestCase {
          assertNotNull(e.getMessage());
       }
 
-      template = "/{prefix}/{id}/?special=%";
+      template = "/{prefix}/{id}/?special=^^";
       try {
          TemplateParseUtil.validateOutgoingTemplate(template);
          fail("Should have thrown exception");
