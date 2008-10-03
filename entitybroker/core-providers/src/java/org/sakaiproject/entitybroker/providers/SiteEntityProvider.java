@@ -286,12 +286,13 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         // check if the user can access this
         String userReference = developerHelperService.getCurrentUserReference();
         if (userReference == null) {
-            if (!site.isPubView()) {
-                throw new SecurityException("This site ("+site.getReference()+") is not public and there is no current user so the site is in accessible");
+            if (! siteService.allowAccessSite(site.getId())) {
+                throw new SecurityException("This site ("+site.getReference()+") is not accessible to anon and there is no current user so the site is inaccessible");
             }
         } else {
-            if (! siteService.allowAccessSite(site.getId())) {
-                throw new SecurityException("This site ("+site.getReference()+") is not accessible for the current user: " + userReference);
+            if (! site.isPubView() 
+                    && ! siteService.allowAccessSite(site.getId())) {
+                throw new SecurityException("This site ("+site.getReference()+") is not public and is not accessible for the current user: " + userReference);
             }
         }
         return true;
