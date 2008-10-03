@@ -206,7 +206,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                     Member sm = site.getMember(userId);
                     if (sm != null) {
                         if (includeSites) {
-                            members.add( new EntityMember(sm, site.getReference()) );
+                            members.add( new EntityMember(sm, site.getReference(), null) );
                         }
                         // also check the groups
                         if (includeGroups) {
@@ -214,7 +214,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                             for (Group group : groups) {
                                 Member gm = group.getMember(userId);
                                 if (gm != null) {
-                                    members.add( new EntityMember(gm, group.getReference()) );
+                                    members.add( new EntityMember(gm, group.getReference(), null) );
                                 }
                             }
                         }
@@ -293,7 +293,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                 saveGroupMembership(sg.site, sg.group);
             }
             if (i == 0) {
-                EntityMember em = new EntityMember(userIds[0], sg.locationReference, roleId, active);
+                EntityMember em = new EntityMember(userIds[0], sg.locationReference, roleId, null, active);
                 memberId = em.getId();
             }
         }
@@ -363,7 +363,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             member = sg.group.getMember(userId);
         }
         if (member != null) {
-            em = new EntityMember(member, sg.locationReference);
+            em = new EntityMember(member, sg.locationReference, null);
         }
         return em;
     }
@@ -386,7 +386,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             members = sg.group.getMembers();
         }
         for (Member member : members) {
-            EntityMember em = new EntityMember(member, sg.locationReference);
+            EntityMember em = new EntityMember(member, sg.locationReference, null);
             l.add(em);
         }
         return l;

@@ -82,6 +82,9 @@ public class EntitySite implements Site {
     private String owner;
     private long lastModified;
 
+    // special use
+    protected String maintainerUserId;
+
     public Map<String, String> props;
 
     public Map<String, String> getProps() {
@@ -184,6 +187,34 @@ public class EntitySite implements Site {
 
     public void setOwner(String owner) {
         this.owner = owner;
+    }
+
+    /**
+     * Special method
+     * @return the owner data for the current site owner
+     */
+    public Owner getSiteOwner() {
+        Owner owner = null;
+        if (this.site != null) {
+            // TODO handle the contact info?
+            User user = site.getCreatedBy();
+            owner = new Owner(user.getId(), user.getDisplayName());
+        } else {
+            owner = new Owner(this.owner, this.owner);
+        }
+        return owner;
+    }
+
+    public void setMaintainerId(String userId) {
+        this.maintainerUserId = userId;
+    }
+    
+    /**
+     * INTERNAL USE
+     * @return the userId to set the initial maintainer to if there is one
+     */
+    public String getMaintainerUserId() {
+        return maintainerUserId;
     }
 
     @EntityLastModified

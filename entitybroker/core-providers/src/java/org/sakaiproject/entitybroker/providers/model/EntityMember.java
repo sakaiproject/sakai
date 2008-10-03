@@ -39,10 +39,12 @@ public class EntityMember implements Member {
     private String id;
     private String userId;
     private String locationReference;
+    private String userDisplayName;
     private String memberRole;
     private String userEid;
     private boolean active = true;
     private boolean provided = false;
+    // TODO private long lastLoginTime;
 
     private transient Member member;
 
@@ -53,21 +55,25 @@ public class EntityMember implements Member {
      * @param userId a unique user id (not the username), e.g. 59307d75-7863-4560-9abc-6d1c4e62a63e or 'admin'
      * @param locationReference the reference to the location (e.g. site or group) this is a membership in (e.g. '/site/mysite', '/site/mysite/group/mygroup')
      * @param memberRole the id of the membership role (e.g. maintain, access, etc.)
+     * @param userDisplayName the displayName of this user
      * @param active true if this membership should be active, false otherwise
      */
-    public EntityMember(String userId, String locationReference, String memberRole, boolean active) {
+    public EntityMember(String userId, String locationReference, String memberRole, String userDisplayName, boolean active) {
         this.id = makeId(userId, locationReference);
         this.userId = userId;
         this.locationReference = locationReference;
         this.memberRole = memberRole;
         this.active = active;
+        this.userDisplayName = userDisplayName;
+        if (this.userDisplayName == null) userDisplayName = userId;
     }
 
     /**
      * @param member a legacy Member object
      * @param locationReference the reference to the location (e.g. site or group) this is a membership in (e.g. '/site/mysite', '/site/mysite/group/mygroup')
+     * @param userDisplayName TODO
      */
-    public EntityMember(Member member, String locationReference) {
+    public EntityMember(Member member, String locationReference, String userDisplayName) {
         this.userId = member.getUserId();
         this.id = makeId(this.userId, locationReference);
         this.userEid = member.getUserEid();
@@ -76,6 +82,8 @@ public class EntityMember implements Member {
         this.member = member;
         this.active = member.isActive();
         this.provided = member.isProvided();
+        this.userDisplayName = userDisplayName;
+        if (this.userDisplayName == null) userDisplayName = member.getUserDisplayId();
     }
 
     /**
@@ -182,6 +190,10 @@ public class EntityMember implements Member {
 
     public boolean isActive() {
         return active;
+    }
+
+    public String getUserDisplayName() {
+        return userDisplayName;
     }
 
     /* (non-Javadoc)

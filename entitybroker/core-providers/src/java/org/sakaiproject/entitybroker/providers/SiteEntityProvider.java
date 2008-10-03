@@ -183,6 +183,15 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                     }
                     ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerUserId);
                 }
+                // attempt to set the maintainer as requested
+                String maintUserId = site.getMaintainerUserId();
+                if (maintUserId != null) {
+                    maintUserId = userEntityProvider.findAndCheckUserId(maintUserId, null);
+                    if (maintUserId == null) {
+                        throw new IllegalArgumentException("Invalid userId supplied for initial maintainer of site: " + site.getMaintainerUserId());
+                    }
+                    s.addMember(maintUserId, s.getMaintainRole(), true, false);
+                }
                 // save the site
                 siteService.save(s);
                 siteId = s.getId();
@@ -235,21 +244,28 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             ResourcePropertiesEdit rpe = s.getPropertiesEdit();
             rpe.set(site.getProperties());
         } else if (entity.getClass().isAssignableFrom(EntitySite.class)) {
-            // if they instead pass in the myuser object
+            // if they instead pass in the entitysite object
             EntitySite site = (EntitySite) entity;
             s.setCustomPageOrdered(site.isCustomPageOrdered());
-            s.setDescription(site.getDescription());
-            s.setIconUrl(site.getIconUrl());
-            s.setInfoUrl(site.getInfoUrl());
+            if (site.getDescription() != null)
+                s.setDescription(site.getDescription());
+            if (site.getIconUrl() != null)
+                s.setIconUrl(site.getIconUrl());
             s.setJoinable(site.isJoinable());
-            s.setJoinerRole(site.getJoinerRole());
-            s.setMaintainRole(site.getMaintainRole());
-            s.setProviderGroupId(site.getProviderGroupId());
+            if (site.getJoinerRole() != null)
+                s.setJoinerRole(site.getJoinerRole());
+            if (site.getMaintainRole() != null)
+                s.setMaintainRole(site.getMaintainRole());
+            if (site.getProviderGroupId() != null)
+                s.setProviderGroupId(site.getProviderGroupId());
             s.setPublished(site.isPublished());
             s.setPubView(site.isPubView());
-            s.setShortDescription(site.getShortDescription());
-            s.setSkin(site.getSkin());
-            s.setTitle(site.getTitle());
+            if (site.getShortDescription() != null)
+                s.setShortDescription(site.getShortDescription());
+            if (site.getSkin() != null)
+                s.setSkin(site.getSkin());
+            if (site.getTitle() != null)
+                s.setTitle(site.getTitle());
             // put in properties
             ResourcePropertiesEdit rpe = s.getPropertiesEdit();
             for (String key : site.getProps().keySet()) {
