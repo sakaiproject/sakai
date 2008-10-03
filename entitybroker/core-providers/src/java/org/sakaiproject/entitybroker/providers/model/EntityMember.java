@@ -28,7 +28,9 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 
 /**
  * Represents a membership in something (probably a site or group)
@@ -40,15 +42,18 @@ public class EntityMember implements Member {
 
     @EntityId
     private String id;
+    @EntityOwner
     private String userId;
     private String locationReference;
     private String memberRole;
     private String userEid;
     private boolean active = true;
     private boolean provided = false;
+    @EntityTitle
     private String userDisplayName;
     private String userSortName;
     private String userEmail;
+    @EntityLastModified
     private long lastLoginTime = System.currentTimeMillis(); // TODO make this real
 
     private transient Member member;

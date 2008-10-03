@@ -76,6 +76,22 @@ public class TemplateParseUtilTest extends TestCase {
       assertEquals("test", output[1]);
       assertEquals(null, output[2]);
 
+      input = "/user/asdf@vt.edu/exists";
+      output = TemplateParseUtil.findExtension(input);
+      assertNotNull(output);
+      assertEquals(3, output.length);
+      assertEquals(input, output[0]);
+      assertEquals("/user/asdf@vt.edu/exists", output[1]);
+      assertEquals(null, output[2]);
+
+      input = "/user/id=asdf@vt.edu.html";
+      output = TemplateParseUtil.findExtension(input);
+      assertNotNull(output);
+      assertEquals(3, output.length);
+      assertEquals(input, output[0]);
+      assertEquals("/user/id=asdf@vt.edu", output[1]);
+      assertEquals("html", output[2]);
+
    }
 
    /**

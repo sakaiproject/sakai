@@ -90,8 +90,8 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         if ("".equals(id)) {
             return true;
         }
-        User u = getUserByIdEid(id);
-        if (u != null) {
+        String userId = findAndCheckUserId(id, null);
+        if (userId != null) {
             return true;
         }
         return false;

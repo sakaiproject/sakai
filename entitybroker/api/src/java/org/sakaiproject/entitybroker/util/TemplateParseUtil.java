@@ -303,7 +303,9 @@ public class TemplateParseUtil {
       String extension = null;
       if (input != null) {
          int extensionLoc = input.lastIndexOf(PERIOD, input.length());
-         if (extensionLoc > 0) {
+         int sepLoc = input.lastIndexOf(SEPARATOR, input.length());
+         if (extensionLoc > 0 
+                 && sepLoc < extensionLoc) {
             stripped = input.substring(0, extensionLoc);
             if ( (input.length() - 1) > extensionLoc) {
                extension = input.substring(extensionLoc + 1);

@@ -182,7 +182,6 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                     "OR you must provide a search with the following restrictions (getting all is not supported): " +
                     "siteId, locationReference, groupId AND (optionally) roleId OR userReference, userId, user");
         }
-        ArrayList<EntityData> l = new ArrayList<EntityData>();
         List<EntityMember> members = new ArrayList<EntityMember>();
         boolean findByLocation = false;
         if (locationReference != null) {
@@ -227,6 +226,8 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                 }
             }
         }
+        ArrayList<EntityData> l = new ArrayList<EntityData>();
+        ArrayList<EntityMember> sortedMembers = new ArrayList<EntityMember>();
         for (EntityMember em : members) {
             // filter out users and roles
             if (roleId != null) {
