@@ -435,9 +435,11 @@ public class BasicEmailService implements EmailService
 
 			// if we have a full Content-Type header, set it NOW
 			// (after setting the body of the message so that format=flowed is preserved)
-			if (contentTypeHeader != null)
+			// if there attachments, the messsage type will default to multipart/mixed and should
+			// stay that way.
+			if ((attachments == null || attachments.size() == 0) && contentTypeHeader != null)
 			{
-				msg.addHeaderLine(contentTypeHeader);			
+				msg.addHeaderLine(contentTypeHeader);
 				msg.addHeaderLine(EmailHeaders.CONTENT_TRANSFER_ENCODING + ": quoted-printable");
 			}
 
