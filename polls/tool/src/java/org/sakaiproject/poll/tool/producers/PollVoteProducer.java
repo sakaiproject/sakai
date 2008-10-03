@@ -29,7 +29,7 @@ import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
-import org.sakaiproject.poll.tool.params.VoteCollectionViewParamaters;
+import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -237,7 +237,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 		List togo = new ArrayList(); // Always navigate back to this view.
 		//togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		togo.add(new NavigationCase("Error", new SimpleViewParameters(VIEW_ID)));
-		togo.add(new NavigationCase("Success", new VoteCollectionViewParamaters(ConfirmProducer.VIEW_ID)));
+		togo.add(new NavigationCase("Success", new VoteCollectionViewParameters(ConfirmProducer.VIEW_ID)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		return togo;
 	}
@@ -250,7 +250,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			return;
 		if (votes.getId() != null) {
 			m_log.debug("got a voteCollection with id: " + votes.getId());
-			result.resultingView = new VoteCollectionViewParamaters(ConfirmProducer.VIEW_ID, votes.getId());
+			result.resultingView = new VoteCollectionViewParameters(ConfirmProducer.VIEW_ID, votes.getId());
 		} else {
 			m_log.warn("no id in vote collection!");
 		}

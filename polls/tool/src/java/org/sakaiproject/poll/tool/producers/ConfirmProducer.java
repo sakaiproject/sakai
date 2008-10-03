@@ -36,7 +36,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 import org.sakaiproject.poll.tool.params.VoteBean;
-import org.sakaiproject.poll.tool.params.VoteCollectionViewParamaters;
+import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -78,7 +78,7 @@ public class ConfirmProducer implements ViewComponentProducer,NavigationCaseRepo
 			ComponentChecker arg2) {
 		// TODO Auto-generated method stub
 		
-		VoteCollectionViewParamaters params = (VoteCollectionViewParamaters) viewparams;
+		VoteCollectionViewParameters params = (VoteCollectionViewParameters) viewparams;
 		
 		
 		String voteId; 
@@ -105,7 +105,7 @@ public class ConfirmProducer implements ViewComponentProducer,NavigationCaseRepo
 
 	public ViewParameters getViewParameters() {
 		// TODO Auto-generated method stub
-		return new VoteCollectionViewParamaters(); 
+		return new VoteCollectionViewParameters(); 
 	}
 	
 }
