@@ -492,7 +492,7 @@ public class EntityDescriptionManager {
                     url = ev.getEntityURL(EntityView.VIEW_LIST, null);
                     sb.append("        <div>\n");
                     sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.collection.url", locale)
-                            +": <a href='"+ directUrl+url +"'>"+url+"<a/>"
+                            +": <a href='"+ directUrl+url +"'>"+url+"</a>"
                             + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST, locale);
                     if (viewDesc != null) {
@@ -504,7 +504,7 @@ public class EntityDescriptionManager {
                     url = ev.getEntityURL(EntityView.VIEW_NEW, null);
                     sb.append("        <div>\n");
                     sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.create.url", locale)
-                            +": <a href='"+ directUrl+url +"'>"+url+"<a/></div>\n");
+                            +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW, locale);
                     if (viewDesc != null) {
                         sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
@@ -515,7 +515,7 @@ public class EntityDescriptionManager {
                 url = ev.getEntityURL(EntityView.VIEW_SHOW, null);
                 sb.append("        <div>\n");
                 sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.show.url", locale)
-                        +": <a href='"+ directUrl+url +"'>"+url+"<a/>"
+                        +": <a href='"+ directUrl+url +"'>"+url+"</a>"
                         + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
                 String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
                 if (viewDesc2 != null) {
@@ -527,7 +527,7 @@ public class EntityDescriptionManager {
                     url = ev.getEntityURL(EntityView.VIEW_EDIT, null);
                     sb.append("        <div>\n");
                     sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.update.url", locale)
-                            +": <a href='"+ directUrl+url +"'>"+url+"<a/></div>\n");
+                            +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
                     if (viewDesc != null) {
                         sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
@@ -538,7 +538,7 @@ public class EntityDescriptionManager {
                     url = ev.getEntityURL(EntityView.VIEW_DELETE, null);
                     sb.append("        <div>\n");
                     sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)
-                            +": <a href='"+ directUrl+url +"'>"+url+"<a/></div>\n");
+                            +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
                     if (viewDesc != null) {
                         sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
@@ -705,8 +705,8 @@ public class EntityDescriptionManager {
             // Capabilities
             sb.append("      <div style='font-size:1.1em; font-weight:bold; font-style:italic; padding-left:0.5em;'>"
                     +entityProperties.getProperty(DESCRIBE, "describe.capabilities", locale)+": "+caps.size()+"</div>\n");
-            sb.append("      <table width='95%' style='padding-left:1.5em;'>\n");
             if (extra) {
+                sb.append("      <table width='95%' style='padding-left:1.5em;'>\n");
                 sb.append("        <tr style='font-size:0.9em;'><th width='1%'></th><th width='14%'>"
                         +entityProperties.getProperty(DESCRIBE, "describe.capabilities.name", locale)
                         +"</th><th width='30%'>"
