@@ -16,6 +16,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputSerializable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
@@ -39,6 +40,7 @@ import org.sakaiproject.entitybroker.mocks.RESTfulEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ReferenceParseableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.RequestStoreableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ResolvableEntityProviderMock;
+import org.sakaiproject.entitybroker.mocks.SerializeableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.TagEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.TaggableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.RedirectControllableEntityProviderMock;
@@ -267,6 +269,15 @@ public class TestData {
    public static String REFB2_3 = EntityReference.SEPARATOR + PREFIXB2
          + EntityReference.SEPARATOR + IDSB2[2];
 
+   public static String PREFIXS1 = "serialize";
+   public static String[] IDSS1 = new String[] { "AZ", "BZ", "CZ" };
+   public static String REFS1 = EntityReference.SEPARATOR + PREFIXS1
+         + EntityReference.SEPARATOR + IDSS1[0];
+   public static String REFS1_2 = EntityReference.SEPARATOR + PREFIXS1
+         + EntityReference.SEPARATOR + IDSS1[1];
+   public static String REFS1_3 = EntityReference.SEPARATOR + PREFIXS1
+         + EntityReference.SEPARATOR + IDSS1[2];
+
    public static String INVALID_REF = "invalid_reference-1";
    public static String INVALID_URL = "http://bkjskldsalkdsa/sdakljdskl/stuff";
 
@@ -380,6 +391,10 @@ public class TestData {
     * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link BrowseSearchable}
     */
    public BrowseSearchableEntityProviderMock entityProviderB2 = new BrowseSearchableEntityProviderMock(PREFIXB2, IDSB2);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link CRUDable} and {@link OutputSerializable}
+    */
+   public SerializeableEntityProviderMock entityProviderS1 = new SerializeableEntityProviderMock(PREFIXS1, IDSS1);
 
    /**
     * Basic constructor initializes test data if needed

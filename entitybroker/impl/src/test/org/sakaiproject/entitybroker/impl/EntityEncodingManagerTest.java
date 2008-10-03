@@ -406,4 +406,73 @@ public class EntityEncodingManagerTest extends TestCase {
 
     }
 
+    public void testFormatAndOutputEntity() {
+        String output = null;
+        OutputStream outputStream = new ByteArrayOutputStream();
+        EntityReference ref = null;
+        String format = Formats.XML;
+        List<EntityData> entities = null;
+
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIX4, TestData.IDS4[0]);
+        entityEncodingManager.formatAndOutputEntity(ref, format, entities, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains(TestData.PREFIX4));
+        assertTrue(output.contains(TestData.REF4));
+
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIX4, "");
+        entityEncodingManager.formatAndOutputEntity(ref, format, entities, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains(TestData.PREFIX4));
+        assertTrue(output.contains(TestData.REF4));
+        assertTrue(output.contains(TestData.REF4_two));
+        assertTrue(output.contains(TestData.REF4_3));
+
+        entities = new ArrayList<EntityData>();
+        entities.add( new EntityData(new EntityReference(TestData.REF4), "Hello1", td.entityProviderS1.myEntities.get(TestData.IDS4[0])) );
+        entities.add( new EntityData(new EntityReference(TestData.REF4_two), "Hello2", td.entityProviderS1.myEntities.get(TestData.IDS4[1])) );
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIX4, "");
+        entityEncodingManager.formatAndOutputEntity(ref, format, entities, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains("Hello"));
+        assertTrue(output.contains(TestData.PREFIX4));
+        assertTrue(output.contains(TestData.REF4));
+        assertTrue(output.contains(TestData.REF4_two));
+
+        entities = null;
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIXS1, TestData.IDSS1[0]);
+        entityEncodingManager.formatAndOutputEntity(ref, format, entities, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains(TestData.PREFIXS1));
+        assertTrue(output.contains("xtra"));
+        assertTrue(output.contains(TestData.IDSS1[0]));
+
+        entities = new ArrayList<EntityData>();
+        entities.add( new EntityData(new EntityReference(TestData.PREFIXS1, TestData.IDSS1[0]), "Hello1", td.entityProviderS1.myEntities.get(TestData.IDSS1[0])) );
+        entities.add( new EntityData(new EntityReference(TestData.PREFIXS1, TestData.IDSS1[2]), "Hello2", td.entityProviderS1.myEntities.get(TestData.IDSS1[2])) );
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIXS1, "");
+        entityEncodingManager.formatAndOutputEntity(ref, format, entities, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains(TestData.PREFIXS1));
+        assertTrue(output.contains("Hello"));
+        assertTrue(output.contains("xtra"));
+        assertTrue(output.contains(TestData.IDSS1[0]));
+        assertTrue(output.contains(TestData.IDSS1[2]));
+
+    }
+
 }

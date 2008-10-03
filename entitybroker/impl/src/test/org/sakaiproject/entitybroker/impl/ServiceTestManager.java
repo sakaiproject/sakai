@@ -103,6 +103,7 @@ public class ServiceTestManager {
       entityProviderManager.registerEntityProvider(td.entityProviderTag);
       entityProviderManager.registerEntityProvider(td.entityProviderB1);
       entityProviderManager.registerEntityProvider(td.entityProviderB2);
+      entityProviderManager.registerEntityProvider(td.entityProviderS1);
       // add new providers here
 
       entityBrokerManager = new EntityBrokerManager();

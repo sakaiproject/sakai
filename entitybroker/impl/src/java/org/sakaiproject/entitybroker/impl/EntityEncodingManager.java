@@ -48,6 +48,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputSerializable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -125,13 +126,48 @@ public class EntityEncodingManager {
         Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
         if (outputable != null) {
             String[] outputFormats = outputable.getHandledOutputFormats();
+            // check if the output formats are allowed
             if (outputFormats == null || ReflectUtils.contains(outputFormats, format) ) {
                 boolean handled = false;
+
+                // if the user wants to serialize their objects specially then allow them to translate them
+                OutputSerializable serializable = entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputSerializable.class);
+                if (serializable != null) {
+                    if (entities == null) {
+                        // these will be EntityData
+                        entities = entityBrokerManager.getEntitiesData(ref, new Search(), params);
+                    }
+                    if (! entities.isEmpty()) {
+                        // find the type of the objects this providers deals in
+                        Object sample = entityBrokerManager.getSampleEntityObject(prefix, null);
+                        Class<?> entityType = Object.class;
+                        if (sample != null) {
+                            entityType = sample.getClass();
+                        }
+                        // now translate the objects to serialize form
+                        for (EntityData entityData : entities) {
+                            Object entity = entityData.getData();
+                            // only translate if the entity is set
+                            if (entity != null) {
+                                // only translate if the type matches
+                                if (entityType.isAssignableFrom(entity.getClass())) {
+                                    try {
+                                        entity = serializable.makeSerializableObject(ref, entity);
+                                        entityData.setData(entity);
+                                    } catch (Exception e) {
+                                        throw new RuntimeException("Failure while attempting to serialize the object from ("+entity+") for ref("+ref+"): " + e.getMessage(), e);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 /* try to use the provider formatter if one available,
                  * if it decided not to handle it or none is available then control passes to internal
                  */
                 try {
-                    OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
+                    OutputFormattable formattable = entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
                     if (formattable != null) {
                         // use provider's formatter
                         formattable.formatOutput(ref, format, entities, params, outputStream);
