@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.azeckoski.reflectutils.FieldUtils;
+import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -348,7 +349,15 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     private Boolean usesSeparateIdEid = null;
     private boolean isUsingSameIdEid() {
         if (usesSeparateIdEid == null) {
-            usesSeparateIdEid = developerHelperService.getConfigurationSetting("separateIdEid@org.sakaiproject.user.api.UserDirectoryService", (Boolean)null);
+            String config = developerHelperService.getConfigurationSetting("separateIdEid@org.sakaiproject.user.api.UserDirectoryService", (String)null);
+            if (config != null) {
+                try {
+                    usesSeparateIdEid = ReflectUtils.getInstance().convert(config, Boolean.class);
+                } catch (UnsupportedOperationException e) {
+                    // oh well
+                    usesSeparateIdEid = null;
+                }
+            }
             if (usesSeparateIdEid == null) {
                 // could not get the stupid setting so attempt to check the service itself
                 try {
