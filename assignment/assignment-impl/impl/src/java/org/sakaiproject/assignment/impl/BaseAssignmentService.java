@@ -358,6 +358,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected String assignmentId(String ref)
 	{
+		if (ref == null) return ref;
 		int i = ref.lastIndexOf(Entity.SEPARATOR);
 		if (i == -1) return ref;
 		String id = ref.substring(i + 1);
