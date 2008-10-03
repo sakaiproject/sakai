@@ -816,7 +816,10 @@ public class AnnouncementAction extends PagedResourceActionII
 			if(props.isEmpty())
 				props = placement.getConfig();
 			AnnouncementActionState.DisplayOptions disOptions = state.getDisplayOptions();
-			disOptions.loadProperties(props);
+			if (disOptions != null)
+			{
+				disOptions.loadProperties(props);
+			}
 			context.put(VELOCITY_DISPLAY_OPTIONS, disOptions);
 		}
 		else
