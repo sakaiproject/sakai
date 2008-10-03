@@ -14,6 +14,7 @@
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
             class="org.sakaiproject.entitybroker.providers.SiteEntityProvider">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider" />
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"

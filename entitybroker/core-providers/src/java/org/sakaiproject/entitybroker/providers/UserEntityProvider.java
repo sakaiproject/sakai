@@ -252,7 +252,9 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     @SuppressWarnings("unchecked")
     public List<?> getEntities(EntityReference ref, Search search) {
         Collection<User> users = new ArrayList<User>();
-        if (developerHelperService.isEntityRequestInternal(ref.toString())) {
+        if (developerHelperService.getConfigurationSetting("entity.users.viewall", false)) {
+            // setting bypasses all checks
+        } else if (developerHelperService.isEntityRequestInternal(ref.toString())) {
             // internal lookups are allowed to get everything
         } else {
             // external lookups require auth
@@ -270,6 +272,15 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             }
         }
 
+        // fix up the search limits
+        if (search.getLimit() > 50 || search.getLimit() == 0) {
+            search.setLimit(50);
+        }
+        if (search.getStart() == 0 || search.getStart() > 49) {
+            search.setStart(1);
+        }
+
+        // get the search restrictions out
         Restriction restrict = search.getRestrictionByProperty("email");
         if (restrict != null) {
             // search users by email
@@ -285,12 +296,11 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             }
             if (restrict != null) {
                 // search users but match
-                users = userDirectoryService.searchUsers(restrict.value + "", 1, 50);
+                users = userDirectoryService.searchUsers(restrict.value + "", (int) search.getStart(), (int) search.getLimit());
             }
         }
         if (restrict == null) {
-            // just get all users but limit to 50
-            users = userDirectoryService.getUsers(1, 50);
+            users = userDirectoryService.getUsers((int) search.getStart(), (int) search.getLimit());
         }
         // convert these into EntityUser objects
         List<EntityUser> entityUsers = new ArrayList<EntityUser>();

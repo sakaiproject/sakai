@@ -63,6 +63,11 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         this.siteService = siteService;
     }
 
+    private UserEntityProvider userEntityProvider;
+    public void setUserEntityProvider(UserEntityProvider userEntityProvider) {
+        this.userEntityProvider = userEntityProvider;
+    }
+
     public static String PREFIX = "site";
     public String getEntityPrefix() {
         return PREFIX;
@@ -172,6 +177,10 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 // attempt to set the owner as requested
                 String ownerUserId = site.getOwner();
                 if (ownerUserId != null) {
+                    ownerUserId = userEntityProvider.findAndCheckUserId(ownerUserId, null);
+                    if (ownerUserId == null) {
+                        throw new IllegalArgumentException("Invalid userId supplied for owner of site: " + site.getOwner());
+                    }
                     ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerUserId);
                 }
                 // save the site
@@ -250,6 +259,10 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             // attempt to set the owner as requested
             String ownerUserId = site.getOwner();
             if (ownerUserId != null) {
+                ownerUserId = userEntityProvider.findAndCheckUserId(ownerUserId, null);
+                if (ownerUserId == null) {
+                    throw new IllegalArgumentException("Invalid userId supplied for owner of site: " + site.getOwner());
+                }
                 ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerUserId);
             }
         } else {

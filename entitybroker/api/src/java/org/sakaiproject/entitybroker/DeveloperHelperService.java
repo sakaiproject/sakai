@@ -105,6 +105,43 @@ public interface DeveloperHelperService {
     public Object fetchEntity(String reference);
 
 
+    // CONFIG
+
+    /**
+     * String type: gets the printable name of this server 
+     */
+    public static String SETTING_SERVER_NAME = "server.name";
+    /**
+     * String type: gets the unique id of this server (safe for clustering if used)
+     */
+    public static String SETTING_SERVER_ID = "server.cluster.id";
+    /**
+     * String type: gets the URL to this server
+     */
+    public static String SETTING_SERVER_URL = "server.main.URL";
+    /**
+     * String type: gets the URL to the portal on this server (or just returns the server URL if no portal in use)
+     */
+    public static String SETTING_PORTAL_URL = "server.portal.URL";
+    /**
+     * Boolean type: if true then there will be data preloads and DDL creation,
+     * if false then data preloads are disabled (and will cause exceptions if preload data is missing)
+     */
+    public static String SETTING_AUTO_DDL = "auto.ddl";
+
+    /**
+     * Retrieves settings from the configuration service (sakai.properties)
+     * 
+     * @param settingName the name of the setting to retrieve,
+     * Should be a string name: e.g. auto.ddl, mystuff.config, etc. OR one of the SETTING constants (e.g {@link #SETTING_AUTO_DDL})
+     * 
+     * @param defaultValue a specified default value to return if this setting cannot be found,
+     * <b>NOTE:</b> You can set the default value to null but you must specify the class type in parens
+     * @return the value of the configuration setting OR the default value if none can be found
+     */
+    public <T> T getConfigurationSetting(String settingName, T defaultValue);
+
+
     // USER
     public static final String ADMIN_USER_ID = "admin";
     public static final String ADMIN_USER_REF = "/user/admin";

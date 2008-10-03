@@ -231,6 +231,44 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
     }
 
 
+    // CONFIG
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.DeveloperHelperService#getConfigurationSetting(java.lang.String, java.lang.Object)
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getConfigurationSetting(String settingName, T defaultValue) {
+        T returnValue = defaultValue;
+        if (SETTING_SERVER_NAME.equals(settingName)) {
+            returnValue = (T) serverConfigurationService.getServerName();
+        } else if (SETTING_SERVER_URL.equals(settingName)) {
+            returnValue = (T) serverConfigurationService.getServerUrl();
+        } else if (SETTING_PORTAL_URL.equals(settingName)) {
+            returnValue = (T) serverConfigurationService.getPortalUrl();
+        } else if (SETTING_SERVER_ID.equals(settingName)) {
+            returnValue = (T) serverConfigurationService.getServerIdInstance();
+        } else {
+            if (defaultValue == null) {
+                returnValue = (T) serverConfigurationService.getString(settingName);
+                if ("".equals(returnValue)) { returnValue = null; }
+            } else {
+                if (defaultValue instanceof Number) {
+                    int num = ((Number) defaultValue).intValue();
+                    int value = serverConfigurationService.getInt(settingName, num);
+                    returnValue = (T) new Integer(value);
+                } else if (defaultValue instanceof Boolean) {
+                    boolean bool = ((Boolean) defaultValue).booleanValue();
+                    boolean value = serverConfigurationService.getBoolean(settingName, bool);
+                    returnValue = (T) new Boolean(value);
+                } else if (defaultValue instanceof String) {
+                    returnValue = (T) serverConfigurationService.getString(settingName, (String) defaultValue);
+                }
+            }
+        }
+        return returnValue;
+    }
+
+
     // USER
 
     /* (non-Javadoc)
