@@ -1,6 +1,7 @@
 package uk.ac.lancs.e_science.profile2.api;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.api.common.type.Type;
 
 public interface SakaiProxy {
 	
@@ -17,5 +18,9 @@ public interface SakaiProxy {
 	public boolean isUserAdmin(String userId);
 	
 	public SakaiPerson getSakaiPerson(String userId);
+	
+	public boolean updateSakaiPerson(SakaiPerson sakaiPerson);
+	
+	public SakaiPerson createSakaiPerson(String userId, Type recordType);
 		
 }

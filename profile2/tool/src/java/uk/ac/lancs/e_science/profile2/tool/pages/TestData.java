@@ -4,6 +4,8 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.ResourceModel;
 
+import uk.ac.lancs.e_science.profile2.tool.models.TestModel;
+
 
 public class TestData extends BasePage {
 
@@ -30,6 +32,15 @@ public class TestData extends BasePage {
 			isAdminStr = "true";
 		}
 		add(new Label("testLabel6",isAdminStr));
+		
+		
+		
+		TestModel testModel = new TestModel();
+		testModel.setName("hello");
+		
+		testModel = new TestModel(); //need a getter to ge thte model, can't call new each time, it kills it
+		add(new Label("testLabel7",testModel.getName()));
+
 
 	}
 }

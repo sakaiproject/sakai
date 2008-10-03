@@ -21,7 +21,7 @@ public class ProfileApplication extends WebApplication {
 		
 		//super.init();
 		//if(logger.isDebugEnabled()) logger.debug("init()");
-		//getMarkupSettings().setStripWicketTags(true);
+		getMarkupSettings().setStripWicketTags(true);
 		mountBookmarkablePage("/my", Dispatcher.class);
 		
 		//addComponentInstantiationListener(new SpringComponentInjector(this));

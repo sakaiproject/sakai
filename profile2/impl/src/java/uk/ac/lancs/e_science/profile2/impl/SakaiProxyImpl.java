@@ -5,6 +5,7 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
+import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -35,7 +36,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			eid = userDirectoryService.getUser(userId).getEid();
 		} catch (UserNotDefinedException e) {
-			log.warn("Cannot get eid for id: " + userId);
+			log.warn("Cannot get eid for id: " + userId + ":" + e.getClass() + ":" + e.getMessage());
 		}
 		return eid;
 	}
@@ -45,7 +46,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			name = userDirectoryService.getUser(userId).getDisplayName();
 		} catch (UserNotDefinedException e) {
-			log.warn("Cannot get displayname for id: " + userId);
+			log.warn("Cannot get displayname for id: " + userId + ":" + e.getClass() + ":" + e.getMessage());
 		}
 		return name;
 	}
@@ -55,7 +56,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			email = userDirectoryService.getUser(userId).getEmail();
 		} catch (UserNotDefinedException e) {
-			log.warn("Cannot get email for id: " + userId);
+			log.warn("Cannot get email for id: " + userId + ":" + e.getClass() + ":" + e.getMessage());
 		}
 		return email;
 	}
@@ -73,10 +74,28 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Coudln't get SakaiPerson for: " + userId + ":" + e.getClass() + ":" + e.getMessage());
 		}
 		return sakaiPerson;
 	}
+	
+	public boolean updateSakaiPerson(SakaiPerson sakaiPerson) {
+		//the save is void, so unless it throws an exception, its ok (?)
+		//I'd prefer a return value from sakaiPersonManager
+		try {
+			sakaiPersonManager.save(sakaiPerson);
+			return true;
+		} catch (Exception e) {
+			log.error("Couldn't update SakaiPerson: " + e.getClass() + ":" + e.getMessage());
+		}
+		return false;
+	}
+	
+	public SakaiPerson createSakaiPerson(String userId, Type recordType) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 	
 	

@@ -73,10 +73,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		testDataLink.add(new Label("testDataLabel",new ResourceModel("link.test")));
 		add(testDataLink);
 		
-		
-
-    	
     }
+	
+	
 	
 	
 	

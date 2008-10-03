@@ -11,6 +11,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
@@ -25,13 +26,13 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.pages.models.InfoModel;
+import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyInfoPanel extends Panel {
 	
 	private transient Logger log = Logger.getLogger(MyInfoPanel.class);
 	
-	private SakaiPerson sakaiPerson = null;
 	private String nickname = null;
 	private Date dateOfBirth = null;
 	private String birthday = null;
@@ -40,40 +41,31 @@ public class MyInfoPanel extends Panel {
 	//setup the form object
 	private class InputForm extends Form {
 		
-		public InputForm(String id) {
+		public InputForm(String id, IModel userProfileModel) {
 			
-			super(id);
+			super(id, userProfileModel);
 			
-			//assign this form the model which wil lhold the user entered fields
-			InfoModel infoModel = new InfoModel();
-		    setModel(new CompoundPropertyModel(infoModel));
+		    
+		    //get userProfile from userProfileModel
+			UserProfile userProfile = (UserProfile) getModelObject();
+			
+			//back the form with the model, if we name the form fields the same as in the object, they will automatically populate
+		    setModel(new CompoundPropertyModel(userProfileModel));
 			
 			//nickname
 			add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
 			TextField nicknameField = new TextField("nickname");
 			nicknameField.setRequired(true);
-			nicknameField.add(new AttributeAppender("value", new Model(nickname), " "));
 			add(nicknameField);
 			
-			//submit button
+			//submit button - ajax so it doesnt refresh. normal button will refresh
 			AjaxButton submitButton = new AjaxButton("submit") {
-	            protected void onSubmit(AjaxRequestTarget target, Form form) {
-	            	//process the form submit
-	            	InfoModel infoModel = (InfoModel) getModelObject();
-	            	
-	            	//we can now access the params via infoModel.getNickname() etc
-	            	System.out.println(infoModel.getNickname().toString());
-	            	
-	            	
-	            	
+				protected void onSubmit(AjaxRequestTarget target, Form form) {
+					//do nothing, the onSubmit() of the form does the processing	
+					
 	            }
-	
-	            protected void onError(AjaxRequestTarget target, Form form){
-	                // repaint the feedback panel so errors are shown
-	                //target.addComponent(feedback);
-	            }
-	        };
-	        submitButton.setLabel(new ResourceModel("button.save.changes"));
+			};
+			submitButton.setLabel(new ResourceModel("button.save.changes"));
 	        add(submitButton);
 			
 	        
@@ -93,8 +85,44 @@ public class MyInfoPanel extends Panel {
 	        cancelButton.setLabel(new ResourceModel("button.cancel"));
 	        cancelButton.setDefaultFormProcessing(false);
 	        add(cancelButton);
-	
+	        
 		}
+		
+		//using the submit handler of the form we get the data
+		
+		public void onSubmit() {
+			
+			//THIS COULD BE ABSTRACTED TO THE PROFILE.CLASS
+			
+			
+			//get the backing model
+			UserProfile userProfile = (UserProfile) getModelObject();
+			
+			//and access the attributes via the getters - the form has set them to the object
+			String nickname = userProfile.getNickname();
+			
+			//get sakaiProxy, then get userId from sakaiProxy, then get sakaiperson for that userId
+			SakaiProxy sakaiProxy = ProfileApplication.get().getSakaiProxy();
+			
+			String userId = sakaiProxy.getCurrentUserId();
+			SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
+			
+			//set the attributes from userProfile that this form dealt with, into sakaiPerson
+			//this WILL fail if there is no sakaiPerson for the user so it needs to be dealt with
+			sakaiPerson.setNickname(nickname);
+			if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
+				System.out.println("ok!");
+			} else {
+				System.out.println("nah");
+			}
+		 	
+		}
+		
+		
+		
+	
+		
+		
 	}
 	
 	
@@ -102,9 +130,17 @@ public class MyInfoPanel extends Panel {
 	private class InfoContainer extends WebMarkupContainer {
 	
 		//constructor
-		public InfoContainer(String name) {
+		public InfoContainer(String id, IModel userProfileModel) {
 			
-			super(name);
+			super(id, userProfileModel);
+			
+			//get userProfile from userProfileModel
+			UserProfile userProfile = (UserProfile)this.getModelObject();
+			
+			//get info from userProfile
+			String nickname = userProfile.getNickname();
+			String birthday = null;
+
 	
 			//edit button
 			AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
@@ -147,31 +183,17 @@ public class MyInfoPanel extends Panel {
 	
 	
 	
-	//constructor for the panel to bring the elements together
-	public MyInfoPanel(String id, SakaiProxy sakaiProxy, Profile profile, SakaiPerson sakaiPerson) {
-		super(id);
+	//panel constructor
+	public MyInfoPanel(String id, IModel userProfileModel) {
+		super(id, userProfileModel);
 		
-		//setup data about this person from the objects passed into the constructor
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy"); //need this localised
-		if(sakaiPerson != null) {
-			nickname = sakaiPerson.getNickname();
-			dateOfBirth = sakaiPerson.getDateOfBirth();
-			if(dateOfBirth != null) {
-				birthday = dateFormat.format(dateOfBirth);
-			}
-		}
-		
-		nickname="stevo";
-		birthday = "3rd January";
-	
+		//userProfileModel comes from MyProfile and is passed to the constructors for each child panel
 
-		
-		
 		//add the panel
-		add(new InfoContainer("myInfo"));
+		add(new InfoContainer("myInfo", userProfileModel));
 		
 		//add the form
-		add(new InputForm("myInfoForm"));
+		add(new InputForm("myInfoForm", userProfileModel));
 
 		
 		
