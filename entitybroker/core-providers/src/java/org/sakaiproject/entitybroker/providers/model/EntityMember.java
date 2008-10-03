@@ -20,6 +20,9 @@
 
 package org.sakaiproject.entitybroker.providers.model;
 
+import java.io.Serializable;
+import java.util.Comparator;
+
 import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -39,12 +42,14 @@ public class EntityMember implements Member {
     private String id;
     private String userId;
     private String locationReference;
-    private String userDisplayName;
     private String memberRole;
     private String userEid;
     private boolean active = true;
     private boolean provided = false;
-    // TODO private long lastLoginTime;
+    private String userDisplayName;
+    private String userSortName;
+    private String userEmail;
+    private long lastLoginTime = System.currentTimeMillis(); // TODO make this real
 
     private transient Member member;
 
@@ -55,25 +60,31 @@ public class EntityMember implements Member {
      * @param userId a unique user id (not the username), e.g. 59307d75-7863-4560-9abc-6d1c4e62a63e or 'admin'
      * @param locationReference the reference to the location (e.g. site or group) this is a membership in (e.g. '/site/mysite', '/site/mysite/group/mygroup')
      * @param memberRole the id of the membership role (e.g. maintain, access, etc.)
-     * @param userDisplayName the displayName of this user
      * @param active true if this membership should be active, false otherwise
+     * @param user the user object for this membership
      */
-    public EntityMember(String userId, String locationReference, String memberRole, String userDisplayName, boolean active) {
+    public EntityMember(String userId, String locationReference, String memberRole, boolean active, EntityUser user) {
         this.id = makeId(userId, locationReference);
         this.userId = userId;
         this.locationReference = locationReference;
         this.memberRole = memberRole;
         this.active = active;
-        this.userDisplayName = userDisplayName;
-        if (this.userDisplayName == null) userDisplayName = userId;
+        if (user != null) {
+            this.userDisplayName = user.getDisplayName();
+            this.userSortName = user.getSortName();
+            this.userEmail = user.getEmail();
+        } else {
+            this.userDisplayName = userId;
+            this.userSortName = userId;
+        }
     }
 
     /**
      * @param member a legacy Member object
      * @param locationReference the reference to the location (e.g. site or group) this is a membership in (e.g. '/site/mysite', '/site/mysite/group/mygroup')
-     * @param userDisplayName TODO
+     * @param user the user object for this membership
      */
-    public EntityMember(Member member, String locationReference, String userDisplayName) {
+    public EntityMember(Member member, String locationReference, EntityUser user) {
         this.userId = member.getUserId();
         this.id = makeId(this.userId, locationReference);
         this.userEid = member.getUserEid();
@@ -82,8 +93,14 @@ public class EntityMember implements Member {
         this.member = member;
         this.active = member.isActive();
         this.provided = member.isProvided();
-        this.userDisplayName = userDisplayName;
-        if (this.userDisplayName == null) userDisplayName = member.getUserDisplayId();
+        if (user != null) {
+            this.userDisplayName = user.getDisplayName();
+            this.userSortName = user.getSortName();
+            this.userEmail = user.getEmail();
+        } else {
+            this.userDisplayName = member.getUserDisplayId();
+            this.userSortName = member.getUserEid();
+        }
     }
 
     /**
@@ -177,7 +194,7 @@ public class EntityMember implements Member {
     }
 
     public String getUserEid() {
-        return userEid;
+        return userEid == null ? getUserId() : userEid;
     }
 
     public boolean isProvided() {
@@ -193,7 +210,20 @@ public class EntityMember implements Member {
     }
 
     public String getUserDisplayName() {
-        return userDisplayName;
+        return userDisplayName == null ? getUserEid() : userDisplayName;
+    }
+
+    public String getUserSortName() {
+        return userSortName == null ? getUserDisplayName() : userSortName;
+    }
+
+    public String getUserEmail() {
+        return userEmail == null ? getUserEid() : userEmail;
+    }
+
+    // TODO
+    public long getLastLoginTime() {
+        return lastLoginTime;
     }
 
     /* (non-Javadoc)
@@ -236,6 +266,34 @@ public class EntityMember implements Member {
             return 0;
         int compare = getUserId().compareTo(((Member) obj).getUserId());
         return compare;
+    }
+
+    public static class MemberSortName implements Comparator<EntityMember>, Serializable {
+        public static final long serialVersionUID = 1L;
+        public int compare(EntityMember o1, EntityMember o2) {
+            return o1.getUserSortName().compareTo(o2.getUserSortName());
+        }
+    }
+
+    public static class MemberEmail implements Comparator<EntityMember>, Serializable {
+        public static final long serialVersionUID = 1L;
+        public int compare(EntityMember o1, EntityMember o2) {
+            return o1.getUserEmail().compareTo(o2.getUserEmail());
+        }
+    }
+
+    public static class MemberDisplayName implements Comparator<EntityMember>, Serializable {
+        public static final long serialVersionUID = 1L;
+        public int compare(EntityMember o1, EntityMember o2) {
+            return o1.getUserDisplayName().compareTo(o2.getUserDisplayName());
+        }
+    }
+
+    public static class MemberLastLogin implements Comparator<EntityMember>, Serializable {
+        public static final long serialVersionUID = 1L;
+        public int compare(EntityMember o1, EntityMember o2) {
+            return Long.valueOf(o1.getLastLoginTime()).compareTo(Long.valueOf(o2.getLastLoginTime()));
+        }
     }
 
 }

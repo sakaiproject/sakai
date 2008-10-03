@@ -74,6 +74,15 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         return eu;
     }
 
+    @EntityCustomAction(action="exists", viewKey=EntityView.VIEW_SHOW)
+    public boolean checkUserExists(EntityView view) {
+        String userId = view.getEntityReference().getId();
+        userId = findAndCheckUserId(userId, null);
+        boolean exists = (userId != null);
+        return exists;
+    }
+
+
     public boolean entityExists(String id) {
         if (id == null) {
             return false;
@@ -316,6 +325,19 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
 
     public String[] getHandledOutputFormats() {
         return new String[] { Formats.XML, Formats.JSON };
+    }
+
+    /**
+     * Allows for easy retrieval of the user object
+     * @param userId a user Id (can be eid)
+     * @return the user object
+     * @throws IllegalArgumentException if the user Id is invalid
+     */
+    public EntityUser getUserById(String userId) {
+        userId = findAndCheckUserId(userId, null);
+        EntityReference ref = new EntityReference("user", userId);
+        EntityUser eu = (EntityUser) getEntity(ref);
+        return eu;
     }
 
     /**

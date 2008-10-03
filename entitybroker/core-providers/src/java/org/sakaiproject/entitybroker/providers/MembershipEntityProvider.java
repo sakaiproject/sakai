@@ -43,6 +43,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.providers.model.EntityMember;
+import org.sakaiproject.entitybroker.providers.model.EntityUser;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -293,7 +294,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                 saveGroupMembership(sg.site, sg.group);
             }
             if (i == 0) {
-                EntityMember em = new EntityMember(userIds[0], sg.locationReference, roleId, null, active);
+                EntityMember em = new EntityMember(userIds[0], sg.locationReference, roleId, active, null);
                 memberId = em.getId();
             }
         }
@@ -363,7 +364,8 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             member = sg.group.getMember(userId);
         }
         if (member != null) {
-            em = new EntityMember(member, sg.locationReference, null);
+            EntityUser eu = userEntityProvider.getUserById(userId);
+            em = new EntityMember(member, sg.locationReference, eu);
         }
         return em;
     }
@@ -386,7 +388,8 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             members = sg.group.getMembers();
         }
         for (Member member : members) {
-            EntityMember em = new EntityMember(member, sg.locationReference, null);
+            EntityUser eu = userEntityProvider.getUserById(member.getUserId());
+            EntityMember em = new EntityMember(member, sg.locationReference, eu);
             l.add(em);
         }
         return l;
