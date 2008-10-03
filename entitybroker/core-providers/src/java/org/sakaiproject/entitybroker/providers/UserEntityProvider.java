@@ -392,9 +392,14 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             }
             if (isUsingSameIdEid()) {
                 // have to actually fetch the user
-                User u = getUserByIdEid(currentUserEid);
-                if (u != null) {
-                    userId = u.getId();
+                User u;
+                try {
+                    u = getUserByIdEid(currentUserEid);
+                    if (u != null) {
+                        userId = u.getId();
+                    }
+                } catch (IllegalArgumentException e) {
+                    userId = null;
                 }
             } else {
                 try {
@@ -417,9 +422,13 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             // verify the userId is valid
             if (isUsingSameIdEid()) {
                 // have to actually fetch the user
-                User u = getUserByIdEid(currentUserId);
-                if (u != null) {
-                    userId = u.getId();
+                try {
+                    User u = getUserByIdEid(currentUserId);
+                    if (u != null) {
+                        userId = u.getId();
+                    }
+                } catch (IllegalArgumentException e) {
+                    userId = null;
                 }
             } else {
                 try {
