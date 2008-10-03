@@ -27,7 +27,9 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
+import org.sakaiproject.poll.tool.params.VoteCollectionViewParamaters;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -50,6 +52,8 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -62,7 +66,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
-public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporter,NavigationCaseReporter {
+public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporter, ActionResultInterceptor,NavigationCaseReporter {
 
 	public static final String VIEW_ID = "voteQuestion";
 
@@ -233,9 +237,25 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 		List togo = new ArrayList(); // Always navigate back to this view.
 		//togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		togo.add(new NavigationCase("Error", new SimpleViewParameters(VIEW_ID)));
-		togo.add(new NavigationCase("Success", new SimpleViewParameters(
-				ConfirmProducer.VIEW_ID)));
+		togo.add(new NavigationCase("Success", new VoteCollectionViewParamaters(ConfirmProducer.VIEW_ID)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		return togo;
+	}
+
+	public void interceptActionResult(ARIResult result,
+			ViewParameters incoming, Object actionReturn) {
+		
+		VoteCollection votes = (VoteCollection) actionReturn;
+		if (votes == null)
+			return;
+		if (votes.getId() != null) {
+			m_log.debug("got a voteCollection with id: " + votes.getId());
+			result.resultingView = new VoteCollectionViewParamaters(ConfirmProducer.VIEW_ID, votes.getId());
+		} else {
+			m_log.warn("no id in vote collection!");
+		}
+		
+		
+		
 	}
 }

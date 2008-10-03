@@ -33,8 +33,10 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 import org.sakaiproject.poll.tool.params.VoteBean;
+import org.sakaiproject.poll.tool.params.VoteCollectionViewParamaters;
 
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -45,7 +47,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 
-public class ConfirmProducer implements ViewComponentProducer,NavigationCaseReporter{
+public class ConfirmProducer implements ViewComponentProducer,NavigationCaseReporter, ViewParamsReporter{
 
 	public static final String VIEW_ID = "voteThanks";
 	private static Log m_log = LogFactory.getLog(PollVoteProducer.class);
@@ -72,13 +74,16 @@ public class ConfirmProducer implements ViewComponentProducer,NavigationCaseRepo
 
 
 	  
-	public void fillComponents(UIContainer tofill, ViewParameters arg1,
+	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker arg2) {
 		// TODO Auto-generated method stub
 		
+		VoteCollectionViewParamaters params = (VoteCollectionViewParamaters) viewparams;
+		
+		
 		String voteId; 
-		if (voteBean.voteCollection != null)
-			voteId = voteBean.voteCollection.getId();
+		if (params.id != null)
+			voteId = params.id;
 		else 
 			voteId="VoteId is missing!";
 		
@@ -97,5 +102,10 @@ public class ConfirmProducer implements ViewComponentProducer,NavigationCaseRepo
 		    togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		    return togo;
 		  }
+
+	public ViewParameters getViewParameters() {
+		// TODO Auto-generated method stub
+		return new VoteCollectionViewParamaters(); 
+	}
 	
 }

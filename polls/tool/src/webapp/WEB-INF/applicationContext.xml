@@ -67,11 +67,11 @@
 		<property name="value"
 			value="pollToolBean, voteBean, pollVoteProducer, voteCollection,option,poll, pollGuard, permissionAction, roleperms, optionValidator" />
 	</bean>
-	<bean id="voteBean" class="org.sakaiproject.poll.tool.params.VoteBean" />
+	
     <!-- Scope for the vote bean -->
-	<bean id="VoteScope" parent="beanScopeParent">
+	<!-- <bean id="VoteScope" parent="beanScopeParent">
 		<property name="copyPreservingBeans" value="voteBean" />
-	</bean>
+	</bean> -->
 	<bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
 		<property name="value" value="true" />
 	</bean>

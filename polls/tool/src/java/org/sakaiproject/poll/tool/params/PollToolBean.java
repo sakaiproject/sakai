@@ -203,7 +203,7 @@ public class PollToolBean {
 
 	}
 
-	public String processActionVote() {
+	public VoteCollection processActionVote() {
 		//m_log.info("got a vote! with " + optionsSelected.length + "options");
 
 
@@ -254,7 +254,7 @@ public class PollToolBean {
 
 		voteBean.voteCollection = votes;
 		m_log.debug("Votes saved about to return");
-		return "Success";
+		return votes;
 	}
 
 	public String proccessActionAddOption() {
