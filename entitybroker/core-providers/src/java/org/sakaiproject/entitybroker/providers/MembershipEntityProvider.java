@@ -41,6 +41,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResol
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.search.Order;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.providers.model.EntityMember;
@@ -256,8 +257,21 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             }
             count++;
         }
+        // handle the sorting
         Comparator<EntityMember> memberComparator = new EntityMember.MemberSortName(); // default by sortname
+        if (search.getOrders().length > 0) {
+            Order order = search.getOrders()[0]; // only one sort allowed
+            if ("email".equals(order.getProperty())) {
+                memberComparator = new EntityMember.MemberEmail();
+            } else if ("displayName".equals(order.getProperty())) {
+                memberComparator = new EntityMember.MemberDisplayName();
+            } else if ("lastLogin".equals(order.getProperty())) {
+                memberComparator = new EntityMember.MemberLastLogin();
+            }
+        }
         Collections.sort(sortedMembers, memberComparator);
+        // TODO reverse sorting?
+
         // now we put the members into entity data objects
         ArrayList<EntityData> l = new ArrayList<EntityData>();
         for (EntityMember em : sortedMembers) {

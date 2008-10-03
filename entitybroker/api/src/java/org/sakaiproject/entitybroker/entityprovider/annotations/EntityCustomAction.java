@@ -49,6 +49,7 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
  * {@link EntityView} : the current entity view for this request (contains extension, url, segments) <br/>
  * {@link EntityReference} : the current entity reference (prefix and optional id) <br/>
  * {@link String} : entity prefix <br/>
+ * {@link Search} : the search object based on the incoming params <br/>
  * {@link OutputStream} : stream to place outbound data (probably binary) into for transmission <br/>
  * {@link Map} ({@link String} => {@link Object}) : a map of the actions parameters (params from the action request) <br/>
  * <br/>

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.azeckoski.reflectutils.FieldUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -341,15 +342,25 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     /*
-     * This ugliness is needed because of the edge case where people are using identical ID/EIDs
+     * This ugliness is needed because of the edge case where people are using identical ID/EIDs,
+     * this is a really really bad hack to attempt to get the server to tell us if the eid==id for users
      */
-    private Boolean usesSameIdEid = null;
+    private Boolean usesSeparateIdEid = null;
     private boolean isUsingSameIdEid() {
-        if (usesSameIdEid == null) {
-            usesSameIdEid = developerHelperService.getConfigurationSetting("separateIdEid@org.sakaiproject.user.api.UserDirectoryService", false);
-            if (usesSameIdEid == null) usesSameIdEid = Boolean.FALSE;
+        if (usesSeparateIdEid == null) {
+            usesSeparateIdEid = developerHelperService.getConfigurationSetting("separateIdEid@org.sakaiproject.user.api.UserDirectoryService", (Boolean)null);
+            if (usesSeparateIdEid == null) {
+                // could not get the stupid setting so attempt to check the service itself
+                try {
+                    usesSeparateIdEid = FieldUtils.getInstance().getFieldValue(userDirectoryService, "m_separateIdEid", Boolean.class);
+                } catch (RuntimeException e) {
+                    // no luck here
+                    usesSeparateIdEid = null;
+                }
+            }
+            if (usesSeparateIdEid == null) usesSeparateIdEid = Boolean.FALSE;
         }
-        return usesSameIdEid.booleanValue();
+        return ! usesSeparateIdEid.booleanValue();
     }
 
     /**
