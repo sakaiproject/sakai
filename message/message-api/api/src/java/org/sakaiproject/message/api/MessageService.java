@@ -53,6 +53,9 @@ public interface MessageService extends EntityProducer, EntitySummary
 	/** Security function / event for adding channel / message. */
 	public static final String SECURE_ADD = "new";
 
+	/** Event for adding channel / message. */
+	public static final String SECURE_CREATE = "create";
+
 	/** Security function / event for removing one's own message. */
 	public static final String SECURE_REMOVE_OWN = "delete.own";
 

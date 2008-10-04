@@ -870,8 +870,12 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		// keep it
 		MessageChannelEdit channel = m_storage.putChannel(ref);
 
-		// let's not tract this event, since it is not possible to differenciate between channel actions vs message actions
-		//((BaseMessageChannelEdit) channel).setEvent(SECURE_ADD);
+		// We distinctly log the creation of a channel - even though we check the
+		// NEW for security - some might suggest that this should wait for the commit
+		// But it *has* been added - so we should know this happenned one
+		// way or another.
+		Event event = m_eventTrackingService.newEvent(eventId(SECURE_CREATE), channel.getReference(), true);
+		m_eventTrackingService.post(event);
 
 		return channel;
 
