@@ -93,6 +93,19 @@ public class PDAHandler extends PageHandler
 					siteId = parts[2];
 				}
 
+				// SAK-12873
+				// If we have no site at all and are not logged in - and there is 
+				// only one gateway site, go directly to the gateway site
+				if ( siteId == null && session.getUserId() == null) 
+				{
+					String siteList = ServerConfigurationService
+						.getString("gatewaySiteList");
+					String gatewaySiteId = ServerConfigurationService.getGatewaySiteId();
+					if ( siteList.trim().length() == 0  && gatewaySiteId.trim().length() != 0 ) {
+						siteId = gatewaySiteId;
+					}
+				}
+
 				// This is a pop-up page - it does exactly the same as
 				// /portal/page
 				// /portal/pda/site-id/page/page-id
