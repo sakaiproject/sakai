@@ -512,6 +512,23 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("pageId", Web.escapeUrl(p.getId()));
 				m.put("jsPageId", Web.escapeJavascript(p.getId()));
 				m.put("pageRefUrl", pagerefUrl);
+
+				Iterator tools = pTools.iterator();
+				//get the tool descriptions for this page, typically only one per page, execpt for the Home page
+				StringBuffer desc = new StringBuffer();
+				int tCount = 0;
+				while(tools.hasNext()){
+					ToolConfiguration t = (ToolConfiguration)tools.next();
+					if (tCount > 0){
+						desc.append(" | ");
+					}
+					desc.append(t.getTool().getDescription());
+					tCount++;
+				}
+				
+				// Just make sure no double quotes...
+				String description = desc.toString().replace('"','-');
+				m.put("description", desc.toString());
 				if (toolsOnPage != null) m.put("toolsOnPage", toolsOnPage);
 				if (includeSummary) summarizePage(m, site, p);
 				if (firstTool != null)

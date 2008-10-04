@@ -30,7 +30,7 @@
 						</li>
 		   			#else
 						<li>
-							<a class="${page.menuClass}" href="${page.pageRefUrl}" ><span>${page.pageTitle}</span></a>
+							<a class="${page.menuClass}" href="${page.pageRefUrl}" title="${page.description}" ><span>${page.pageTitle}</span></a>
 						</li>
 		   			#end
 		  		#end
