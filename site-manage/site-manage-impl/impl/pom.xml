@@ -75,6 +75,15 @@
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
+    <dependency>
+    	<groupId>org.sakaiproject.emailtemplateservice</groupId>
+    	<artifactId>emailtemplateservice-api</artifactId>
+    </dependency>
+     <dependency>
+         <artifactId>jdom</artifactId>
+         <groupId>jdom</groupId>
+         <version>1.0</version>
+      </dependency>
 <!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
 <!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->
   </dependencies>
