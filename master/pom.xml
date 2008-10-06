@@ -691,6 +691,7 @@ This is not needed now that pluto have been released
 		<artifactId>emailtemplateservice-api
 		</artifactId>
 		<version>0.3-SNAPSHOT</version>
+		<scope>provided</scope>
 	</dependency>
       <dependency>
         <groupId>org.sakaiproject.entitybroker</groupId>
