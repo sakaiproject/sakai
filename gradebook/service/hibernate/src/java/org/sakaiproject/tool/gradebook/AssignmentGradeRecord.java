@@ -170,10 +170,6 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
 	public Boolean isExcludedFromGrade() {
 		return excludedFromGrade;
 	}
-	
-	public Boolean getExcludedFromGrade() {
-		return excludedFromGrade;
-	}
 
 	public void setExcludedFromGrade(Boolean isExcludedFromGrade) {
 		this.excludedFromGrade = isExcludedFromGrade;

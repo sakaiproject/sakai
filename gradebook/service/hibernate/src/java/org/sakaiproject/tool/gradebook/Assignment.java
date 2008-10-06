@@ -451,10 +451,6 @@ public class Assignment extends GradableObject {
 		public Boolean isExtraCredit() {
 			return extraCredit;
 		}
-
-		public Boolean getExtraCredit() {
-			return extraCredit;
-		}
 		
 		public void setExtraCredit(Boolean isExtraCredit) {
 			this.extraCredit = isExtraCredit;

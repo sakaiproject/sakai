@@ -347,10 +347,6 @@ public class Category implements Serializable
 	public Boolean isExtraCredit() {
 		return extraCredit;
 	}
-	
-	public Boolean getExtraCredit() {
-		return extraCredit;
-	}
 
 	public void setExtraCredit(Boolean isExtraCredit) {
 		this.extraCredit = isExtraCredit;
