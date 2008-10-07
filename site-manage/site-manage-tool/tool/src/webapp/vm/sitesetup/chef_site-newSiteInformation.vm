@@ -142,7 +142,7 @@
 	#end
 	#if ($!isProjectSite)
 		<p class="instruction">
-			$tlang.getString("sinfo.enter3") $tlang.getString("sinfo.simplea") <span class ="reqStarInline">*</span> $tlang.getString("sinfo.means")
+			$tlang.getString("sinfo.simplea") <span class ="reqStarInline">*</span> $tlang.getString("sinfo.means")
 		</p>
 	 #end
 		<p class="shorttext required">
