@@ -2065,8 +2065,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
-			context.put("selectedTools", orderToolIds(state, (String) state
-					.getAttribute(STATE_SITE_TYPE), (List) state
+			context.put("selectedTools", orderToolIds(state, checkNullSiteType(state, site), (List) state
 					.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST)));
 			context.put("oldSelectedTools", state
 					.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
@@ -7889,7 +7888,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		
 		// order the id list
-		chosenList = orderToolIds(state, site.getType(), chosenList);
+		chosenList = orderToolIds(state, checkNullSiteType(state, site), chosenList);
 		
 		// Special case - Worksite Setup Home comes from a hardcoded checkbox on
 		// the vm template rather than toolRegistrationList
@@ -8967,16 +8966,7 @@ public class SiteAction extends PagedResourceActionII {
 		List pageList = site.getPages();
 
 		// Put up tool lists filtered by category
-		String type = site.getType();
-		if (type == null) {
-			if (SiteService.isUserSite(site.getId())) {
-				type = "myworkspace";
-			} else if (state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null) {
-				// for those sites without type, use the tool set for default
-				// site type
-				type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
-			}
-		}
+		String type = checkNullSiteType(state, site);
 		if (type == null) {
 			M_log.warn(this + ": - unknown STATE_SITE_TYPE");
 		} else {
@@ -9057,6 +9047,26 @@ public class SiteAction extends PagedResourceActionII {
 	} // siteToolsIntoState
 
 	/**
+	 * adjust site type
+	 * @param state
+	 * @param site
+	 * @return
+	 */
+	private String checkNullSiteType(SessionState state, Site site) {
+		String type = site.getType();
+		if (type == null) {
+			if (SiteService.isUserSite(site.getId())) {
+				type = "myworkspace";
+			} else if (state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null) {
+				// for those sites without type, use the tool set for default
+				// site type
+				type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
+			}
+		}
+		return type;
+	}
+
+	/**
 	 * reset the state variables used in edit tools mode
 	 * 
 	 * @state The SessionState object
@@ -9086,6 +9096,11 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 		// look for null site type
+		if (type == null && state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
+		{
+			type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
+		}
+		
 		if (type != null && toolIdList != null) {
 			Set categories = new HashSet();
 			categories.add(type);
