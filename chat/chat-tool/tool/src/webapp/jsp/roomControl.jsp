@@ -33,11 +33,13 @@ function formSubmitOnEnterJSF(field, event)
 	
 function formSubmit(field)
 {		
+		if(navigator.userAgent.indexOf("Safari")>0){ 
 		var actionInjection = document.getElementById("actionInjection");		 
 		actionInjection.name = field.name;        
 		field.form.submit();	
 		return false;
-	
+		}
+		return false;	
 }
 	
 </script>
