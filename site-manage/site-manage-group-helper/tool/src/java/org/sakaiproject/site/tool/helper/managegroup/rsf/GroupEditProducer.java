@@ -119,7 +119,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 
 		
 		 UIMessage groupDescrLabel = UIMessage.make(arg0, "group_description_label", "group.description"); 
-		 UIInput groupDescr = UIInput.make(groupForm, "group_description", "#{SiteManageGroupHandler.description}", groupDescription); 
+		 UIInput groupDescr = UIInput.make(groupForm, "group_description:", "#{SiteManageGroupHandler.description}", groupDescription); 
 		 richTextEvolver.evolveTextInput(groupDescr);
 		 UILabelTargetDecorator.targetLabel(groupDescrLabel, groupDescr);
 		 
