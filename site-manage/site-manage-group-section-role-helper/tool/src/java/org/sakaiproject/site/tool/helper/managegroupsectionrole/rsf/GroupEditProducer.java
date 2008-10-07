@@ -140,7 +140,7 @@ public class GroupEditProducer implements ViewComponentProducer, DynamicNavigati
 		 
 		
 		 UIMessage groupDescrLabel = UIMessage.make(arg0, "group_description_label", "group.description"); 
-		 UIInput groupDescr = UIInput.make(groupForm, "group_description", "#{SiteManageGroupSectionRoleHandler.description}", groupDescription); 
+		 UIInput groupDescr = UIInput.make(groupForm, "group_description:", "#{SiteManageGroupSectionRoleHandler.description}", groupDescription); 
 		 richTextEvolver.evolveTextInput(groupDescr);
 		 UILabelTargetDecorator.targetLabel(groupDescrLabel, groupDescr);
 		 

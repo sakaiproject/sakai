@@ -4,16 +4,15 @@
   <bean id="siteId" factory-bean="sakai-Placement"
     factory-method="getContext" />
     
-	<!-- rich text evolver bean def -->
-   <bean id="sakaiFCKTextEvolver2"
-   	class="org.sakaiproject.site.tool.evolvers.SakaiFCKTextEvolver">
-   	<property name="contentHostingService"
+  <bean id="sakaiFCKTextEvolver"
+ 	class="uk.ac.cam.caret.sakai.rsf.evolverimpl.SakaiFCKTextEvolver">
+ 	<property name="contentHostingService"
    		ref="org.sakaiproject.content.api.ContentHostingService" />
-   	<property name="context" ref="sakai-Context" />
-   </bean>
+ 	<property name="context" ref="sakai-Context" />
+  </bean>
 
    <!-- rich text evolver bean def -->
-   <bean id="richTextEvolver" parent="sakaiFCKTextEvolver2" />
+   <bean id="richTextEvolver" parent="sakaiFCKTextEvolver" />
    
   <bean id="GroupListProducer"
       class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupListProducer">
