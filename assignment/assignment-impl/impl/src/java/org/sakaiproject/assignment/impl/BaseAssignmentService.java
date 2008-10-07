@@ -3412,7 +3412,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			short rowNum = 0;
 			HSSFWorkbook wb = new HSSFWorkbook();
-			HSSFSheet sheet = wb.createSheet(Validator.escapeZipEntry(siteTitle));
+			
+			// a tab title in a workbook have a maximum length of 31 chars.
+			// otherwise an Exception will been thrown "Sheet name cannot be blank, greater than 31 chars, or contain any of /\*?[]"
+			// we truncate it if it's too long
+			String sheetTitle = siteTitle;
+			int siteTitleLength = sheetTitle.length();
+			if (siteTitleLength > 31) {
+			    M_log.info(this + " Site title is too long (" + siteTitleLength + " chars) truncating it down to 31 chars!");
+			    sheetTitle = sheetTitle.substring(0, 31);
+			}
+			HSSFSheet sheet = wb.createSheet(Validator.escapeZipEntry(sheetTitle));
 	
 			// Create a row and put some cells in it. Rows are 0 based.
 			HSSFRow row = sheet.createRow(rowNum++);
@@ -4157,11 +4167,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}
 						else
 						{
+							 M_log.warn(this + "handleAccess: throw IdUnusedException " + ref.getReference());
 							throw new IdUnusedException(ref.getReference());
 						}
 					}
 					catch (Throwable t)
 					{
+						 M_log.warn(this + " HandleAccess: caught exception " + t.toString() + " and rethrow it!");
 						throw new EntityNotDefinedException(ref.getReference());
 					}
 				}
