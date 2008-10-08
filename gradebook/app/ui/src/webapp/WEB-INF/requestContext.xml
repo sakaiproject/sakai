@@ -26,15 +26,13 @@
    	  <property name="messageLocator" ref="messageLocator" />
    	  <property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
    	  <property name="assignmentEntityBeanLocator" ref="Assignment"/>
+   	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
    </bean>
    
    <bean id="AssignmentGradeRecordBean" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.AssignmentGradeRecordBean">
    	  <property name="messages" ref="targettedMessageList"/>
    	  <property name="messageLocator" ref="messageLocator" />
    	  <property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
-   	  <property name="assignmentGradeRecordEntityBeanLocator" ref="AssignmentGradeRecord"/>
-   	  <property name="commentEntityBeanLocator" ref="Comment" />
-   	  <property name="eventTrackingService" ref="org_sakaiproject_tool_gradebook_facades_EventTrackingService" />
    	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
    </bean>
    

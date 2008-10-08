@@ -1579,9 +1579,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
 							  gradeDef.setGrade(agr.getLetterEarned());
 						  } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-							  gradeDef.setGrade(agr.getPercentEarned().toString());
+						      String grade = agr.getPercentEarned() != null ? agr.getPercentEarned().toString() : null;
+							  gradeDef.setGrade(grade);
 						  } else {
-							  gradeDef.setGrade(agr.getPointsEarned().toString());
+						      String grade = agr.getPointsEarned() != null ? agr.getPointsEarned().toString() : null;
+							  gradeDef.setGrade(grade);
 						  }
 					  	  	
 						  studentGrades.add(gradeDef);

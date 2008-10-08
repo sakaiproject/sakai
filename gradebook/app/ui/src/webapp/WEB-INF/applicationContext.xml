@@ -2,14 +2,6 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<!-- TODO - do we need this? - this doesn't seem to be used and causes problems after rsf upgrade to 0.7.3
-   <bean id="messageRenderer" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.GradebookMessageRenderer">
-      <property name="messageLocator">
-         <ref bean="messageLocator" />
-      </property>
-      <property name="infoStyleClass" value="success" />
-      <property name="errorStyleClass" value="alertMessageInline" />
-   </bean> -->
    
    <bean id="LocalPermissionLogic" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.locallogic.LocalPermissionLogic">
 	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
@@ -67,22 +59,6 @@
       	value="AssignmentCreator.create" />
       <property name="fetchMethod"
       	value="GradebookItemBean.getAssignmentById" />
-   </bean>
-   
-   <bean id="AssignmentGradeRecordCreator"
-   	    class="org.sakaiproject.tool.gradebook.ui.helpers.beans.AssignmentGradeRecordCreator">
-   </bean>
-   <bean id="AssignmentGradeRecord" parent="entityBeanLocatorParent">
-   	   <property name="newMethod"
-   	   	 value="AssignmentGradeRecordCreator.create" />
-   	   <property name="fetchMethod"
-   	     value="AssignmentGradeRecordBean.getAssignmentGradeRecordById" />
-   </bean>
-   
-   <bean id="CommentCreator" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.CommentCreator" />
-   <bean id="Comment" parent="entityBeanLocatorParent">
-   	   <property name="newMethod" value="CommentCreator.create" />
-   	   <property name="fetchMethod" value="AssignmentGradeRecordBean.getCommentById" />
    </bean>
 
 </beans>

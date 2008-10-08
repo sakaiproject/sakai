@@ -3,19 +3,17 @@ package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.ui.helpers.params.GradeGradebookItemViewParams;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.sakaiproject.tool.gradebook.ui.helpers.producers.HelperAwareProducer;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.ui.helpers.params.GradeGradebookItemViewParams;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import uk.org.ponder.beanutil.entity.EntityBeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -24,14 +22,10 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIVerbatim;
-import uk.org.ponder.rsf.flow.ARIResult;
-import uk.org.ponder.rsf.flow.ActionResultInterceptor;
-import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.DefaultView;
-import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
-import uk.org.ponder.rsf.viewstate.RawViewParameters;
+import uk.org.ponder.rsf.view.ComponentChecker;
+import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
@@ -65,7 +59,7 @@ public class GradeGradebookItemProducer extends HelperAwareProducer implements V
     	Gradebook gradebook  = gradebookManager.getGradebook(params.contextId);
     	Long gradebookId = gradebook.getId();
     	String userId = params.userId;
-    	List studentIds = new ArrayList();
+    	List<String> studentIds = new ArrayList<String>();
     	studentIds.add(userId);
     	
     	//get Options
@@ -84,49 +78,37 @@ public class GradeGradebookItemProducer extends HelperAwareProducer implements V
             	return;
         }
             
-    	
     	UIMessage.make(tofill, "heading", "gradebook.grade-gradebook-item.heading", new Object[]{ assignment.getName(), student_name } );
-    	
-    	//OTP
-    	String agrOTP = "AssignmentGradeRecord.";
-    	String OTPKey = "";
-    	if (agr != null && agr.getId() != null){
-    		OTPKey += agr.getId().toString();
-    	} else {
-    		OTPKey += EntityBeanLocator.NEW_PREFIX + "1";
-    	}
-    	agrOTP += OTPKey;
-    	
-    	String commentOTP = "Comment.";
-    	String commentOTPKey = "";
-    	if (comment != null && comment.getId() != null){
-    		commentOTPKey += comment.getId().toString();
-    	} else {
-    		commentOTPKey += EntityBeanLocator.NEW_PREFIX + "1";
-    	}
-    	commentOTP += commentOTPKey;
         
         //Start Form
         UIForm form = UIForm.make(tofill, "form");
         
+        String gradeToDisplay = null;
         if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS){
         	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.points_label",
         		new Object[]{ reqStar }));
-        	UIInput.make(form, "score", agrOTP + ".pointsEarned");
+        	gradeToDisplay = agr.getPointsEarned() != null ? agr.getPointsEarned().toString() : null;
         	UIMessage.make(form, "points_out_of", "gradebook.grade-gradebook-item.points_out_of", new Object[]{ assignment.getPointsPossible()});
         } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE){
         	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.percentage_label",
             		new Object[]{ reqStar }));
         	//show percent sign
         	UIMessage.make(form, "percent_sign", "gradebook.grade-gradebook-item.percent_sign");
-        	UIInput.make(form, "score", agrOTP + ".percentEarned");
+        	gradeToDisplay = agr.getPercentEarned() != null ? agr.getPercentEarned().toString() : null;
         } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER){
         	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.letter_label",
             		new Object[]{ reqStar }));
-        	UIInput.make(form, "score", agrOTP + ".letterEarned");
+        	gradeToDisplay = agr.getLetterEarned();
         }
         
-        UIInput.make(form, "comments", commentOTP + ".commentText");
+        // add the grade info now. the UIInputs only pass along the parameter info
+        // if there is a change to the value. this gets the old values in there
+        // and then they will be overwritten if there is an input value set
+        form.parameters.add( new UIELBinding("#{AssignmentGradeRecordBean.enteredGrade}", gradeToDisplay));
+        form.parameters.add( new UIELBinding("#{AssignmentGradeRecordBean.commentText}", comment.getCommentText()));
+        
+        UIInput.make(form, "score", "#{AssignmentGradeRecordBean.enteredGrade}", gradeToDisplay);
+        UIInput.make(form, "commentText", "#{AssignmentGradeRecordBean.commentText}", comment.getCommentText());
         
         form.parameters.add( new UIELBinding("#{AssignmentGradeRecordBean.gradebookId}", gradebookManager.getGradebook(params.contextId).getId()));
         form.parameters.add( new UIELBinding("#{AssignmentGradeRecordBean.studentId}", params.userId));
@@ -149,7 +131,7 @@ public class GradeGradebookItemProducer extends HelperAwareProducer implements V
     	this.gradebookManager = gradebookManager;
     }
 
-	public List reportNavigationCases()
+	public List<NavigationCase> reportNavigationCases()
 	{
 		List<NavigationCase> nav= new ArrayList<NavigationCase>();
 		nav.add(new NavigationCase("submit", new SimpleViewParameters(

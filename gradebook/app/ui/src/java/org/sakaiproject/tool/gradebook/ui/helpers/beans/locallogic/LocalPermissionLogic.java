@@ -21,8 +21,10 @@ public class LocalPermissionLogic {
 			return gradebookService.currentUserHasEditPerm(contextId);
 			
 		} else if (GradeGradebookItemProducer.VIEW_ID.equals(incoming.viewID)) {
-			String contextId = ((GradeGradebookItemViewParams) incoming).contextId;
-			return gradebookService.currentUserHasEditPerm(contextId);
+		    String gradebookUid = ((GradeGradebookItemViewParams) incoming).contextId;
+			String userId = ((GradeGradebookItemViewParams) incoming).userId;
+			Long gradableObjectId = ((GradeGradebookItemViewParams) incoming).assignmentId;
+			return gradebookService.isUserAbleToGradeItemForStudent(gradebookUid, gradableObjectId, userId);
 			
 		} else if (FinishedHelperProducer.VIEW_ID.equals(incoming.viewID)) {
 			return Boolean.TRUE;

@@ -3,14 +3,16 @@ package org.sakaiproject.tool.gradebook.ui.helpers.beans;
 import java.util.Map;
 
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.sakaiproject.tool.gradebook.ui.helpers.producers.AuthorizationFailedProducer;
 
 import uk.org.ponder.beanutil.entity.EntityBeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
-import uk.org.ponder.rsf.components.UIELBinding;
 
 public class GradebookItemBean {
 	
@@ -42,6 +44,11 @@ public class GradebookItemBean {
     public void setGradebookManager(GradebookManager gradebookManager) {
     	this.gradebookManager = gradebookManager;
     }
+    
+    private GradebookService gradebookService;
+    public void setGradebookService(GradebookService gradebookService) {
+        this.gradebookService = gradebookService;
+    }
 	
 	private Long categoryId;
 	public void setCategoryId(Long categoryId){
@@ -59,6 +66,12 @@ public class GradebookItemBean {
 	public String processActionAddItem(){
 		Boolean errorFound = Boolean.FALSE;
 		
+		Gradebook gradebook = gradebookManager.getGradebook(this.gradebookId);
+		
+		if (!gradebookService.currentUserHasEditPerm(gradebook.getUid())) {
+		    return AuthorizationFailedProducer.VIEW_ID;
+		}
+		
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
 			assignment.setNotCounted(!counted);	
@@ -70,13 +83,36 @@ public class GradebookItemBean {
 			}
 			
 			//check for null points
-			if (assignment.getPointsPossible() == null) {
-				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.null_points"));
+			if (assignment.getPointsPossible() == null ||
+			        assignment.getPointsPossible().doubleValue() <= 0) {
+			    if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+			        messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.invalid_rel_weight"));
+			    } else {
+		             messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.invalid_points"));
+			    }
 				errorFound = Boolean.TRUE;
+			}
+			
+			// check for more than 2 decimal places
+			if (assignment.getPointsPossible() != null) {
+			    String pointsAsString = assignment.getPointsPossible().toString();
+			    String[] decimalSplit = pointsAsString.split("\\.");
+			    if (decimalSplit.length == 2) {
+			        String decimal = decimalSplit[1];
+			        if (decimal != null && decimal.length() > 2) {
+			            messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.invalid_decimal"));
+			            errorFound = Boolean.TRUE;
+			        }
+			    }
 			}
 			
 			if (this.requireDueDate == null || this.requireDueDate == Boolean.FALSE) {
 				assignment.setDueDate(null);				
+			}
+			
+			if (assignment.isCounted() && !assignment.isReleased()) {
+			    messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.counted_not_released"));
+                errorFound = Boolean.TRUE;
 			}
 				
 			if (errorFound) {
