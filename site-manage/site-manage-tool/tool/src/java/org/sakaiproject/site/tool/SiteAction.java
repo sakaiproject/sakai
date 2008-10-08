@@ -6639,6 +6639,11 @@ public class SiteAction extends PagedResourceActionII {
 					state.setAttribute(FORM_SITEINFO_TITLE, title);
 					if (title == null) {
 						addAlert(state, rb.getString("java.specify") + " ");
+					} 		
+					// check for site title length
+					else if (title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT)
+					{
+						addAlert(state, rb.getString("site_group_title_length_limit_1") + SiteConstants.SITE_GROUP_TITLE_LIMIT + " " + rb.getString("site_group_title_length_limit_2"));
 					}
 				}
 
@@ -7791,6 +7796,12 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo.site_contact_email = email;
 		}
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
+		
+		// check for site title length
+		if (siteInfo.title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT)
+		{
+			addAlert(state, rb.getString("site_group_title_length_limit_1") + SiteConstants.SITE_GROUP_TITLE_LIMIT + " " + rb.getString("site_group_title_length_limit_2"));
+		}
 
 	} // updateSiteInfo
 
