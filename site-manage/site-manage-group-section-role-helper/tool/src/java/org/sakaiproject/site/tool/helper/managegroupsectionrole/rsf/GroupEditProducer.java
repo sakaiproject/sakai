@@ -26,6 +26,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -286,12 +287,15 @@ public class GroupEditProducer implements ViewComponentProducer, DynamicNavigati
          if (tml.size() > 0) {
  			for (i = 0; i < tml.size(); i ++ ) {
  				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", new Integer(i).toString());
- 				if (tml.messageAt(i).args != null ) {	    		
- 					UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode(),(String[])tml.messageAt(i).args[0]);
- 				} else {
- 		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode());
- 				}
- 		    		
+ 				TargettedMessage msg = tml.messageAt(i);
+		    	if (msg.args != null ) 
+		    	{
+		    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), (Object[]) msg.args);
+		    	} 
+		    	else 
+		    	{
+		    		UIMessage.make(errorRow,"error", msg.acquireMessageCode());
+		    	}	
  			}
          }
          
