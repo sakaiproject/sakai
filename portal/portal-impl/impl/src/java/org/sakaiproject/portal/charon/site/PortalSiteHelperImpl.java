@@ -522,6 +522,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					if (tCount > 0){
 						desc.append(" | ");
 					}
+					if ( t.getTool() == null ) continue;
 					desc.append(t.getTool().getDescription());
 					tCount++;
 				}
