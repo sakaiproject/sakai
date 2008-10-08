@@ -2215,13 +2215,13 @@ public class AssignmentAction extends PagedResourceActionII
 					if (i>0)
 					{
 						// retrieve the previous submission id
-						context.put("prevSubmissionId", ((UserSubmission) userSubmissions.get(i-1)).getSubmission().getId());
+						context.put("prevSubmissionId", ((UserSubmission) userSubmissions.get(i-1)).getSubmission().getReference());
 					}
 					
 					if (i < userSubmissions.size() - 1)
 					{
 						// retrieve the next submission id
-						context.put("nextSubmissionId", ((UserSubmission) userSubmissions.get(i+1)).getSubmission().getId());
+						context.put("nextSubmissionId", ((UserSubmission) userSubmissions.get(i+1)).getSubmission().getReference());
 					}
 				}
 			}
