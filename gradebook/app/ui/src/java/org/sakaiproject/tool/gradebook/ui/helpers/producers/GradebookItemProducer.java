@@ -84,6 +84,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	List categories = gradebookManager.getCategories(gradebookId);
     	Gradebook gradebook  = gradebookManager.getGradebook(params.contextId);
     	
+    	String newItemName = params.name;
+    	
     	//OTP
     	String assignmentOTP = "Assignment.";
     	String OTPKey = "";
@@ -126,7 +128,13 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         
         UIVerbatim.make(form, "title_label", messageLocator.getMessage("gradebook.add-gradebook-item.title_label",
         		new Object[]{ reqStar }));
-        UIInput.make(form, "title", assignmentOTP + ".name");
+        
+        // if this is a new gradebook item, use the name parameter passed via the url
+        if (add) {
+            UIInput.make(form, "title", assignmentOTP + ".name", newItemName);
+        } else {
+            UIInput.make(form, "title", assignmentOTP + ".name");
+        }
         
         if (gradebook.getGrade_type() != GradebookService.GRADE_TYPE_PERCENTAGE) {
         	UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
