@@ -1021,6 +1021,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       return;
     }
 
+    User currentUser = UserDirectoryService.getCurrentUser();
     for (Iterator i = recipients.iterator(); i.hasNext();)
     {
       User u = (User) i.next();      
@@ -1044,8 +1045,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       List additionalHeaders = new ArrayList(1);
       additionalHeaders.add("Content-Type: text/html");
       
-
-      User currentUser = UserDirectoryService.getCurrentUser();
       StringBuilder body = new StringBuilder(message.getBody());
       
       body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>"); 
@@ -1109,8 +1108,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       
       /** determines if default in sakai.properties is set, if not will make a reasonable default */
       String defaultEmail = "postmaster@" + ServerConfigurationService.getServerName();
-      String systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
-      
+      String systemEmail = null;
+      if (!ServerConfigurationService.getBoolean("msgcntr.notification.user.real.from", false)) {
+    	  systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
+      } else  {
+    	  if (u.getEmail() != null)
+    		  systemEmail = currentUser.getEmail();
+    	  else
+    		  systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
+
+      }
       /** determine if current user is equal to recipient */
       Boolean isRecipientCurrentUser = 
         (currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
