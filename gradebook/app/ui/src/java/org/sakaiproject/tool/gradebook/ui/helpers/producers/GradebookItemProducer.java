@@ -131,6 +131,9 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         
         // if this is a new gradebook item, use the name parameter passed via the url
         if (add) {
+            // add the name first as a UIELBinding to force it to save this value
+            // if the user doesn't update the name field
+            form.parameters.add( new UIELBinding(assignmentOTP + ".name", newItemName));
             UIInput.make(form, "title", assignmentOTP + ".name", newItemName);
         } else {
             UIInput.make(form, "title", assignmentOTP + ".name");
