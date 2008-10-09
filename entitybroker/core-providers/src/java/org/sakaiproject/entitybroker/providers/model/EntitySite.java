@@ -152,6 +152,7 @@ public class EntitySite implements Site {
         this.joinerRole = site.getJoinerRole();
         this.skin = site.getSkin();
         this.published = site.isPublished();
+        this.pubView = site.isPubView();
         this.type = site.getType();
         this.customPageOrdered = site.isCustomPageOrdered();
         this.maintainRole = site.getMaintainRole();
