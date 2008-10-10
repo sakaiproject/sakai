@@ -76,7 +76,7 @@ public class SimpleLdapAttributeMapperTest extends TestCase {
 				attributeMapper.getReverseAttributeMap());
 	}
 	
-	public void testExtraAttributeMapping() {
+	public void testSkipsExtraAttributeMapping() {
 		attributeMapper.setAttributeMappings(null);
 		attributeMapper.init();
 		
