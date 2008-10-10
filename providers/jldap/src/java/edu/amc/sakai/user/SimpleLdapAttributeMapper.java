@@ -219,8 +219,8 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
             if ( M_log.isDebugEnabled() ) {
                 M_log.debug("No logical name for attribute. [physical name = " + 
                         attribute.getName() + "]");
-                return;
             }
+            return;
         }
         
         for ( String logicalAttrName : logicalAttrNames ) {

@@ -24,6 +24,12 @@ package edu.amc.sakai.user;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sakaiproject.user.api.UserEdit;
+
+import com.novell.ldap.LDAPAttribute;
+import com.novell.ldap.LDAPAttributeSet;
+import com.novell.ldap.LDAPEntry;
+
 import junit.framework.TestCase;
 
 public class SimpleLdapAttributeMapperTest extends TestCase {
@@ -68,6 +74,23 @@ public class SimpleLdapAttributeMapperTest extends TestCase {
 				attributeMapper.getAttributeMappings());
 		assertEquals(attributeMapper.reverseAttributeMap(AttributeMappingConstants.DEFAULT_ATTR_MAPPINGS),
 				attributeMapper.getReverseAttributeMap());
+	}
+	
+	public void testExtraAttributeMapping() {
+		attributeMapper.setAttributeMappings(null);
+		attributeMapper.init();
+		
+		//Checking to see that the attribute mapper doesn't blow up when it gets back extra attributes -SAK-14632
+		LDAPAttributeSet attributes = new LDAPAttributeSet();
+		attributes.add(new LDAPAttribute(AttributeMappingConstants.DEFAULT_EMAIL_ATTR, "email@example.com"));
+		attributes.add(new LDAPAttribute("unrequestedAttribute", "someValue"));
+		LDAPEntry ldapEntry = new LDAPEntry("somestring",attributes);
+		LdapUserData userData = new LdapUserData();
+		
+		attributeMapper.mapLdapEntryOntoUserData(ldapEntry, userData);
+		
+		assertEquals("email@example.com", userData.getEmail());
+		
 	}
 
 }
