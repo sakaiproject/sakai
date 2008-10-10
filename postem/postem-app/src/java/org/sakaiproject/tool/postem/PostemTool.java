@@ -252,10 +252,7 @@ public class PostemTool {
 	}
 	
 	public boolean getDisplayErrors() {	
-		for(Iterator iter = FacesContext.getCurrentInstance().getMessages(); iter.hasNext();) {
-			return true;   // there is at least one message to display
-		}
-		return false;
+		return FacesContext.getCurrentInstance().getMessages().hasNext();
 	}
 	
 	public TreeMap getStudentMap() {
