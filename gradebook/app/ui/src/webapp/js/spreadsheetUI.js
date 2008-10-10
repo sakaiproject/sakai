@@ -12,7 +12,7 @@ function gethandles(){
    q3_div_table = $("#q3 div table");
    q1_width = $("#q1").width();
    q2_ul_li = $("#q2 div ul li");
-   if ( ie && $.browser.version < 7){ q2_div_ul.css("position", "absolute"); $(q4).css("left", "-3px"); }
+   if ( ie && $.browser.version < 7){ q2_div_ul.css("position", "absolute"); $(q4s).css("left", "-3px"); }
    $(q3_div).width(10000);
    $("#q1 div").width(10000);
 
