@@ -16,7 +16,76 @@
   </organization>
   <inceptionYear>2004</inceptionYear>
   <packaging>war</packaging>
+
+    <!-- profiles added for WAS support -->
+    <profiles>
+        <profile>
+            <id>full</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                  <groupId>org.sakaiproject</groupId>
+                  <artifactId>sakai-jsf-myfaces-tool</artifactId>
+                  <version>2.6.0RC1-SNAPSHOT</version>
+                  <exclusions>
+                    <!-- since postem doesnt work with the latest myfaces we have to replace the library -->
+                    <exclusion>
+                      <groupId>org.apache.myfaces.core</groupId>
+                      <artifactId>myfaces-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>org.apache.myfaces.core</groupId>
+                      <artifactId>myfaces-impl</artifactId>
+                    </exclusion>
+                  </exclusions>
+                  <type>pom</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <!-- exclude xerces xml parser apis for WAS -->
+            <id>was</id>
+            <dependencies>
+                <dependency>
+                  <groupId>org.sakaiproject</groupId>
+                  <artifactId>sakai-jsf-myfaces-tool</artifactId>
+                  <version>2.6.0RC1-SNAPSHOT</version>
+                  <exclusions>
+                    <exclusion>
+                        <groupId>jsf</groupId>
+                        <artifactId>jsf-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jsf</groupId>
+                        <artifactId>jsf-impl</artifactId>
+                    </exclusion>
+                    <!-- since postem doesnt work with the latest myfaces we have to replace the library -->
+                    <exclusion>
+                      <groupId>org.apache.myfaces.core</groupId>
+                      <artifactId>myfaces-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>org.apache.myfaces.core</groupId>
+                      <artifactId>myfaces-impl</artifactId>
+                    </exclusion>
+                  </exclusions>
+                  <type>pom</type>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
   <dependencies>
+    <!-- postem requires and older version of myfaces -->
+    <dependency>
+      <groupId>myfaces</groupId>
+      <artifactId>myfaces</artifactId>
+      <version>1.0.9</version>
+      <scope>compile</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
@@ -55,30 +124,6 @@
       <version>2.0</version>
     </dependency>
 <!--javax.servletservlet-api${sakai.servletapi.version}-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-myfaces-tool</artifactId>
-      <version>2.6.0RC1-SNAPSHOT</version>
-      <exclusions>
-<!-- since postem doesnt work with th latest myfaces we have to replace the library -->
-        <exclusion>
-          <groupId>org.apache.myfaces.core</groupId>
-          <artifactId>myfaces-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.myfaces.core</groupId>
-          <artifactId>myfaces-impl</artifactId>
-        </exclusion>
-      </exclusions>
-      <type>pom</type>
-    </dependency>
-<!-- postem requires and older version of myfaces -->
-    <dependency>
-      <groupId>myfaces</groupId>
-      <artifactId>myfaces</artifactId>
-      <version>1.0.9</version>
-      <scope>compile</scope>
-    </dependency>
   </dependencies>
   <build>
     <resources>
