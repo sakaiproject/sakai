@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -53,6 +55,8 @@ public class HelpFrameSetRender extends Renderer
 {
   private static String DEFAULT_WELCOME_PAGE = "html/help.html";
 
+  private static String HELP_DOC_REGEXP = org.sakaiproject.api.app.help.HelpManager.HELP_DOC_REGEXP;
+  
   /**
    * supports component type
    * @param component
@@ -78,6 +82,13 @@ public class HelpFrameSetRender extends Renderer
     
     String helpParameter = ((HttpServletRequest) context.getExternalContext()
         .getRequest()).getParameter("help");
+
+    Pattern p = Pattern.compile(HELP_DOC_REGEXP);
+    Matcher m = p.matcher(helpParameter);
+    
+    if (!m.matches()) {
+    	helpParameter = "unknown";
+    }
 
     String welcomepage = getWelcomePage(context);
 

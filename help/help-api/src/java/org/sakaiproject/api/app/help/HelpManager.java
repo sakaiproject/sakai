@@ -35,6 +35,8 @@ public interface HelpManager
 {
   public static final String TOOLCONFIG_HELP_COLLECTIONS = "help.collections";
   
+  public static final String HELP_DOC_REGEXP = "^[A-Za-z0-9._-]+$";
+  
   /**
    * Synchronize initialization of the manager.
    */

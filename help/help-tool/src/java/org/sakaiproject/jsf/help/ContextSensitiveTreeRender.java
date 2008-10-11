@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIData;
@@ -43,6 +45,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  */
 public class ContextSensitiveTreeRender extends Renderer
 {
+  private static String HELP_DOC_REGEXP = org.sakaiproject.api.app.help.HelpManager.HELP_DOC_REGEXP;
+  
   /**
    * supports componenet type
    * @param component
@@ -86,10 +90,18 @@ public class ContextSensitiveTreeRender extends Renderer
     writer.write("<ol id=\"root\">");
     UIData data = (UIData) component;
     Object value = data.getValue();
-    //String helpDocId = (String) component.getAttributes().get("helpDocId");
+
+    // Get and validate the help id requested
     String helpDocId = ((HttpServletRequest) context.getExternalContext()
         .getRequest()).getParameter("help");
 
+    Pattern p = Pattern.compile(HELP_DOC_REGEXP);
+    Matcher m = p.matcher(helpDocId);
+    
+    if (!m.matches()) {
+    	helpDocId = "unknown";
+    }
+    
     Set categories = (Set) value;
     
     // filter to only include top-level categories

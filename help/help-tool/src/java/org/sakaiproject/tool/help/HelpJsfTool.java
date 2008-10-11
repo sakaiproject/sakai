@@ -22,6 +22,8 @@
 package org.sakaiproject.tool.help;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +49,8 @@ public class HelpJsfTool extends JsfTool
   /** Our log (commons). */
   private static Log M_log = LogFactory.getLog(HelpJsfTool.class);
 
+  private static String HELP_DOC_REGEXP = org.sakaiproject.api.app.help.HelpManager.HELP_DOC_REGEXP;
+
   private static final String TOC_PATH = "/TOCDisplay/main";
   private static final String SEARCH_PATH = "/search/main";
   private static final String HELP_PATH = "/html";
@@ -67,6 +71,13 @@ public class HelpJsfTool extends JsfTool
 	    // if magic switch turned on, go to external webapp
 	    if (! "sakai".equals(EXTERNAL_WEBAPP_URL)) {
 	       String docId = req.getParameter("help");
+
+	       Pattern p = Pattern.compile(HELP_DOC_REGEXP);
+	       Matcher m = p.matcher(docId);
+	       
+	       if (!m.matches()) {
+	       	docId = "unknown";
+	       }
 	       
 	       String extUrl = EXTERNAL_WEBAPP_URL;
 	       
