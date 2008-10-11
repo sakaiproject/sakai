@@ -83,13 +83,14 @@ public class HelpFrameSetRender extends Renderer
     String helpParameter = ((HttpServletRequest) context.getExternalContext()
         .getRequest()).getParameter("help");
 
-    Pattern p = Pattern.compile(HELP_DOC_REGEXP);
-    Matcher m = p.matcher(helpParameter);
-    
-    if (!m.matches()) {
-    	helpParameter = "unknown";
+    if (helpParameter != null) {
+	    Pattern p = Pattern.compile(HELP_DOC_REGEXP);
+	    Matcher m = p.matcher(helpParameter);
+	    
+	    if (!m.matches()) {
+	    	helpParameter = "unknown";
+	    }
     }
-
     String welcomepage = getWelcomePage(context);
 
     tocToolUrl = tocToolUrl + "?help=" + helpParameter;

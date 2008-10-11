@@ -72,13 +72,14 @@ public class HelpJsfTool extends JsfTool
 	    if (! "sakai".equals(EXTERNAL_WEBAPP_URL)) {
 	       String docId = req.getParameter("help");
 
-	       Pattern p = Pattern.compile(HELP_DOC_REGEXP);
-	       Matcher m = p.matcher(docId);
-	       
-	       if (!m.matches()) {
-	       	docId = "unknown";
+	       if (docId != null) {
+		       Pattern p = Pattern.compile(HELP_DOC_REGEXP);
+		       Matcher m = p.matcher(docId);
+		       
+		       if (!m.matches()) {
+		       	docId = "unknown";
+		       }
 	       }
-	       
 	       String extUrl = EXTERNAL_WEBAPP_URL;
 	       
 	       if (docId != null && ! "".equals("docId")) {

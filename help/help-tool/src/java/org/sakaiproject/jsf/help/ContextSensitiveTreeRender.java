@@ -95,13 +95,14 @@ public class ContextSensitiveTreeRender extends Renderer
     String helpDocId = ((HttpServletRequest) context.getExternalContext()
         .getRequest()).getParameter("help");
 
-    Pattern p = Pattern.compile(HELP_DOC_REGEXP);
-    Matcher m = p.matcher(helpDocId);
-    
-    if (!m.matches()) {
-    	helpDocId = "unknown";
+    if (helpDocId != null) {
+	    Pattern p = Pattern.compile(HELP_DOC_REGEXP);
+	    Matcher m = p.matcher(helpDocId);
+	    
+	    if (!m.matches()) {
+	    	helpDocId = "unknown";
+	    }
     }
-    
     Set categories = (Set) value;
     
     // filter to only include top-level categories
