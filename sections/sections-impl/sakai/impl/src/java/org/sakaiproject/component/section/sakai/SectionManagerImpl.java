@@ -1271,24 +1271,31 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// Disallow if we're in an externally managed site
 		ensureInternallyManaged(section.getCourse().getUuid());
 		
-		// Set the decorator's fields
-		section.setTitle(title);
-		section.setMaxEnrollments(maxEnrollments);
-		section.setMeetings(filterMeetings(meetings));
-		
 		// Decorate the framework section
 		Group group = findGroup(sectionUuid);
-		section.decorateGroup(group);
-
-		// Save the site with its new section
-		try {
-			siteService().save(group.getContainingSite());
-			clearSite(group.getContainingSite().getId());
-			postEvent("section.update", sectionUuid);
-		} catch (IdUnusedException ide) {
-			log.error("Error saving site... could not find site for section " + group, ide);
-		} catch (PermissionException pe) {
-			log.error("Error saving site... permission denied for section " + group, pe);
+		Site site = group.getContainingSite(); 
+		
+		if (site != null && group != null) {
+			// Set the decorator's fields
+			section.setTitle(title);
+			section.setDescription(site.getTitle() + ", " + title);
+			section.setMaxEnrollments(maxEnrollments);
+			section.setMeetings(filterMeetings(meetings));
+	
+			section.decorateGroup(group);
+			
+			// Save the site with its new section
+			try {
+				siteService().save(site);
+				clearSite(site.getId());
+				postEvent("section.update", sectionUuid);
+			} catch (IdUnusedException ide) {
+				log.error("Error saving site... could not find site for section " + group, ide);
+			} catch (PermissionException pe) {
+				log.error("Error saving site... permission denied for section " + group, pe);
+			}
+		} else {
+			log.error("Error updating section: could not find site or group for section " + sectionUuid);
 		}
 	}
 
