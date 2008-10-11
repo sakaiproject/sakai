@@ -49,6 +49,9 @@
 
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+
+<h:panelGrid border="0" width="100%">
+  <h:outputText value=" " />
   <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}" styleClass="validation">
     <h:panelGrid  columns="1">
 	   <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_1}" />
@@ -56,14 +59,15 @@
     </h:panelGrid>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}" styleClass="validation">
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}">
        <h:outputText value="#{assessmentSettingsMessages.republish_confirm_message}" />
   </h:panelGroup>
 
   <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && (author.isRepublishAndRegrade && !assessmentBean.hasSubmission)}" styleClass="validation">
     <h:panelGrid  columns="1">
-	   <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_3}" />
-       <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_4}" />
+      <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_1}" /> 
+	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_2}" />
+	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_3}" />
     </h:panelGrid>
   </h:panelGroup>
 
@@ -72,15 +76,17 @@
       <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_1}" /> 
 	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_2}" />
 	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_3}" />
-	  <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip_4}" />
 	  <h:panelGroup>
         <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox2" value="#{publishedSettings.updateMostCurrentSubmission}"/>
         <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />
       </h:panelGroup>
     </h:panelGrid>
   </h:panelGroup>
+  <h:outputText value=" " />
+  <h:outputText value=" " />
+</h:panelGrid>
 
-<h:panelGrid columns="2" rowClasses="shorttext" rendered="#{author.isEditPendingAssessmentFlow}">
+<h:panelGrid columns="2" rowClasses="shorttext" rendered="#{author.isEditPendingAssessmentFlow}" border="0">
 
      <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}" rendered="#{assessmentSettings.title ne null}"/>
      <h:outputText value="#{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}" escape="false" />
@@ -217,26 +223,6 @@
 </h:panelGrid>
 
 <f:verbatim><p></p></f:verbatim>
-
-<h:panelGrid>
-	<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}">
-		<h:commandLink id="editPublishedAssessmentSettings_saveSettingsAndConfirmPublish" immediate="true" action="#{author.getOutcome}" >
-		  <h:outputText value="#{assessmentSettingsMessages.edit_these_settings}" />
-          <f:param name="publishedAssessmentId" value="#{assessmentBean.assessmentId}"/>
-		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
-		</h:commandLink>
-	    <h:outputText value=" #{assessmentSettingsMessages.before_publishing}" />
-	</h:panelGroup>
-</h:panelGrid>
-
-
-    <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}" styleClass="validation">
-       <h:outputText value="#{assessmentSettingsMessages.edit_settings_1}"/>
-    </h:panelGroup>
-
-    <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}" styleClass="validation">
-       <h:outputText value="#{assessmentSettingsMessages.edit_settings_2}"/>
-    </h:panelGroup>
 
 <script language="javascript" type="text/JavaScript">
 <!--
