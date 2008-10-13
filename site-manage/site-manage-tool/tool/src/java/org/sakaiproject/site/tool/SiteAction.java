@@ -1376,14 +1376,16 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("isProjectSite", Boolean.TRUE);
 				}
 			}
-			context.put("defaultTools", ServerConfigurationService
-					.getToolsRequired(type));
+			
+			List requiredTools = ServerConfigurationService.getToolsRequired(type);
+			// look for legacy "home" tool
+			context.put("defaultTools", replaceHomeToolId(state, requiredTools));
 
 			toolRegistrationSelectedList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			// If this is the first time through, check for tools
 			// which should be selected by default.
-			List defaultSelectedTools = ServerConfigurationService
-					.getDefaultTools(type);
+			List defaultSelectedTools = ServerConfigurationService.getDefaultTools(type);
+			defaultSelectedTools = replaceHomeToolId(state, defaultSelectedTools);
 			if (toolRegistrationSelectedList == null) {
 				toolRegistrationSelectedList = new Vector(defaultSelectedTools);
 			}
@@ -2843,7 +2845,23 @@ public class SiteAction extends PagedResourceActionII {
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 
-	} // buildContextForTemplate
+	}
+
+	/**
+	 * just in case there is still a notion of "home" for Home tool
+	 * change it to more proper home tool id
+	 * @param state
+	 * @param toolIdList
+	 * @return
+	 */
+	private List replaceHomeToolId(SessionState state, List toolIdList) {
+		if (toolIdList != null && toolIdList.contains("home"))
+		{
+			toolIdList.remove("home");
+			toolIdList.add(getHomeToolId(state));
+		}
+		return toolIdList;
+	} // replaceHomeToolId
 
 	/**
 	 * whether the PageOrderHelper is allowed to be shown in this site type
