@@ -2754,27 +2754,29 @@ public class SiteAction extends PagedResourceActionII {
 				int numSelections = 0;
 
 				if (selections != null)
+				{
 					numSelections = selections.size();
 
-				// execution will fall through these statements based on number of selections already made
-				if (numSelections == cmLevelSize - 1)
-				{
-					levelOpts[numSelections] = getCMSections((String) selections.get(numSelections-1));
-				}
-				else if (numSelections == cmLevelSize - 2)
-				{
-					levelOpts[numSelections] = getCMCourseOfferings((String) selections.get(numSelections-1), t.getEid());
-				}
-				else if (numSelections < cmLevelSize)
-				{
-					levelOpts[numSelections] = sortCmObject(cms.findCourseSets((String) cmLevels.get(numSelections==0?0:numSelections-1)));
-				}
-				// always set the top level 
-				levelOpts[0] = sortCmObject(cms.findCourseSets((String) cmLevels.get(0)));
-				// clean further element inside the array
-				for (int i = numSelections + 1; i<cmLevelSize; i++)
-				{
-					levelOpts[i] = null;
+					// execution will fall through these statements based on number of selections already made
+					if (numSelections == cmLevelSize - 1)
+					{
+						levelOpts[numSelections] = getCMSections((String) selections.get(numSelections-1));
+					}
+					else if (numSelections == cmLevelSize - 2)
+					{
+						levelOpts[numSelections] = getCMCourseOfferings((String) selections.get(numSelections-1), t.getEid());
+					}
+					else if (numSelections < cmLevelSize)
+					{
+						levelOpts[numSelections] = sortCmObject(cms.findCourseSets((String) cmLevels.get(numSelections==0?0:numSelections-1)));
+					}
+					// always set the top level 
+					levelOpts[0] = sortCmObject(cms.findCourseSets((String) cmLevels.get(0)));
+					// clean further element inside the array
+					for (int i = numSelections + 1; i<cmLevelSize; i++)
+					{
+						levelOpts[i] = null;
+					}
 				}
 
 				context.put("cmLevelOptions", Arrays.asList(levelOpts));

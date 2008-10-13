@@ -163,21 +163,16 @@
 				      </select>
 ##			  #end
 	      </p>
-		  <p>
-  				  #if($i == 2)
-				     <a href="#" onclick="javascript:blur();document.findCourseForm.option.value='manual';document.findCourseForm.submit();">
-				        $tlang.getString("nscourse.findCourse.stillNotFound")
-				     </a>
-			</p>		 
-				#end
-
 			  <!-- end creation of select box -->
 			  #set($i = $i + 1)
 		   #end
 		   <!-- end loop through fields-->
-		  
+		  	<p>
+				 	<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='manual';document.findCourseForm.submit();">
+				 		$tlang.getString("nscourse.findCourse.stillNotFound")
+				 	</a>
+				 </p>
 		    $tlang.getString("nscourse.findCourse.selected")
-		    
 			<span class="highlight">
 			  #if ($selectedCourse)
 			        $selectedCourse.title
