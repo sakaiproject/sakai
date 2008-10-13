@@ -33,27 +33,33 @@ import com.novell.ldap.LDAPEntry;
  * @author Dan McCallum, Unicon
 
  */
-public class EmptyStringUserTypeMapper implements UserTypeMapper {
+public class EmptyStringUserTypeMapper extends StringUserTypeMapper {
 	
 	/** Class-specific logger */
 	private static Log M_log = LogFactory.getLog(EmptyStringUserTypeMapper.class);
-
+	
 	/**
-	 * Always returns an empty String.
-	 * 
-	 * @param ldapEntry the user's <code>LDAPEntry</code>
-	 * @param mapper a source of mapping configuration
-	 * @return an empty String
+	 * Initializes the cached user type <code>String</code> to an
+	 * empty <code>String</code>
 	 */
-	public String mapLdapEntryToSakaiUserType(LDAPEntry ldapEntry,
-			LdapAttributeMapper mapper) {
-		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("mapLdapEntryToSakaiUserType(): returning empty String [entry DN = " + 
-					ldapEntry.getDN() + "]");
+	public EmptyStringUserTypeMapper() {
+		super("");
+	}
+	
+	/**
+	 * Overridden to log a warn message but otherwise do nothing.
+	 * This class is intended to always return an empty
+	 * <code>String</code> from any invocation of
+	 * {@link #mapLdapEntryToSakaiUserType(LDAPEntry, LdapAttributeMapper)}.
+	 * As such, reconfiguration is inappropriate.
+	 * 
+	 * @param userType ignored
+	 */
+	@Override
+	public void setUserType(String userType) {
+		if ( M_log.isWarnEnabled() ) {
+			M_log.warn("Ignoring setUserType() call. EmptyStringUserTypeMapper cannot be reconfigured. Proposed user type value [" + userType + "]");
 		}
-		
-		return "";
 	}
 
 }

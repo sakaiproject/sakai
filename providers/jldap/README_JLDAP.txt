@@ -95,12 +95,16 @@ instance members. Any additional attributes will be mapped to the User's
 ResourceProperties instance.
 
 SimpleLdapAttributeMapper collaborates with an injected UserTypeMapper
-implementation to calculate Sakai User "type". Three concrete UserTypeMapper
+implementation to calculate Sakai User "type". Four concrete UserTypeMapper
 implementations are available OOTB: 
 
   EmptyStringUserTypeMapper -- The default. Mimics historical 
     JLDAPDirectoryProvider behavior. Always assigns an empty String to 
     UserEdit.type.
+    
+  StringUserTypeMapper -- A generalization of EmptyStringUserTypeMapper
+    which allows a given String to be assigned to UserEdit.type in
+    all cases.
 
   EntryAttributeToUserTypeMapper -- Assigns a mapped attribute value, typically
     an attribute representing group membership(s), to UserEdit.type. This is a 

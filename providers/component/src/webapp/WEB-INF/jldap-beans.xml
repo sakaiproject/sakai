@@ -203,6 +203,7 @@
 			<ref bean="edu.amc.sakai.user.EmptyStringUserTypeMapper" />
 			<!-- ref bean="edu.amc.sakai.user.EntryAttributeToUserTypeMapper" /-->
 			<!-- ref bean="edu.amc.sakai.user.EntryContainerRdnToUserTypeMapper" /-->
+			<!-- ref bean="edu.amc.sakai.user.StringUserTypeMapper" /-->
 		</property>
 		
 	</bean>
@@ -220,6 +221,18 @@
 	<bean id="edu.amc.sakai.user.EmptyStringUserTypeMapper"
 		class="edu.amc.sakai.user.EmptyStringUserTypeMapper"
 		singleton="true" />
+	
+	<!-- StringUserTypeMapper assigns a configurable String to all
+	users as their Sakai "type". -->
+	<bean id="edu.amc.sakai.user.StringUserTypeMapper"
+		class="edu.amc.sakai.user.StringUserTypeMapper"
+		singleton="true">
+		
+		<!--  property name="userType">
+			<value>Registered</value>
+		</property -->
+		
+	</bean>
 		
 	<!-- EntryAttributeToUserTypeMapper calculates Sakai user
 		types by simply passing attribute values through a map with
