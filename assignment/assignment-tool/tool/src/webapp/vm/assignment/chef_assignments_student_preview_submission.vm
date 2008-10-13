@@ -42,7 +42,7 @@
 				<td>
 					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
 					$gradeScale
-					#if ($gradeScale == "Points")
+					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
 						($tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
 					#end
 				</td>

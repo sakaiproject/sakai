@@ -109,8 +109,8 @@
 										</th>
 										<td>
 											$gradeTypeTable.get($value_GradeType)
-											#if ($gradeTypeTable.get($value_GradeType) == "Points")
-												(max $value_GradePoints)
+											#if ($gradeTypeTable.get($value_GradeType) == $!tlang.getString("points"))
+												(($tlang.getString("grade.max") $value_GradePoints)
 											#end
 										</td>
 									</tr>
@@ -259,8 +259,8 @@
 								</th>
 								<td>
 									$gradeTypeTable.get($value_GradeType)
-									#if ($gradeTypeTable.get($value_GradeType) == "Points")
-										(max $value_GradePoints)
+									#if ($gradeTypeTable.get($value_GradeType) == $!tlang.getString("points"))
+										(($tlang.getString("grade.max") $value_GradePoints)
 									#end
 								</td>
 							</tr>

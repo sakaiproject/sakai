@@ -538,7 +538,7 @@ function handleEnterKeyPress(ev)
 								#elseif ($gradeType == 3)
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
-										<input type="text" name="$name_grade" size="5" maxlength="11" value="$value_grade" id="grade" onkeypress="return handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("gen.outof") $assignment.getContent().getMaxGradePointDisplay())</span>
+										<input type="text" name="$name_grade" size="5" maxlength="11" value="$value_grade" id="grade" onkeypress="return handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())</span>
 									</p>	
 								#elseif ($gradeType == 4)
 									<p class="shorttext">
