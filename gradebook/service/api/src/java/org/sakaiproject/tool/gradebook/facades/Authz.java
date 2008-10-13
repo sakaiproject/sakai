@@ -30,7 +30,9 @@ import java.util.Map;
  */
 public interface Authz {
 	public boolean isUserAbleToGrade(String gradebookUid);
+	public boolean isUserAbleToGrade(String gradebookUid, String userUid);
 	public boolean isUserAbleToGradeAll(String gradebookUid);
+	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid);
 	public boolean isUserAbleToEditAssessments(String gradebookUid);
 	public boolean isUserAbleToViewOwnGrades(String gradebookUid);
 	public boolean isUserHasGraderPermissions(String gradebookUid);
@@ -72,8 +74,8 @@ public interface Authz {
 	public List getViewableSections(String gradebookUid);
 	
 	/**
-	 * 
 	 * @param gradebookUid
+	 * @param userUid
 	 * @param categoryId
 	 * 			The category id that the desired item is associated with
 	 * @param gbCategoryType
@@ -83,10 +85,27 @@ public interface Authz {
 	 *  		up to the implementation - leave null to use all students
 	 * @param optionalSectionUid
 	 * 			null if the search should be made across all sections
-	 * @return a map of EnrollmentRecords to grade/view permission that the current user is authorized to
+	 * @return a map of EnrollmentRecords to grade/view permission that the given user is authorized to
 	 * 			view or grade for the given gradebook item
 	 */
-	public Map findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
+	public Map findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
+	
+	/**
+     * 
+     * @param gradebookUid
+     * @param categoryId
+     *          The category id that the desired item is associated with
+     * @param gbCategoryType
+     *          The category type setting for this gradebook
+     * @param optionalSearchString
+     *          a substring search for student name or display UID; the exact rules are
+     *          up to the implementation - leave null to use all students
+     * @param optionalSectionUid
+     *          null if the search should be made across all sections
+     * @return a map of EnrollmentRecords to grade/view permission that the current user is authorized to
+     *          view or grade for the given gradebook item
+     */
+    public Map findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
 	
 	/**
 	 * 

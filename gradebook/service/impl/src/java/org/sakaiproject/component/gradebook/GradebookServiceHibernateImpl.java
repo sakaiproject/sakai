@@ -1404,42 +1404,48 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   }
   
   public Map<String, String> getViewableStudentsForItemForCurrentUser(final String gradebookUid, final Long gradableObjectId) {
-	  if (gradebookUid == null || gradableObjectId == null) {
-		  throw new IllegalArgumentException("null gradebookUid or gradableObjectId passed to getViewableStudentsForUserForItem");
-	  }
-	  
-	  if (!authz.isUserAbleToGrade(gradebookUid)) {
-		  log.warn("user " + getUserUid() + " attempted to access student information for gb item " + gradableObjectId);
-		  throw new SecurityException("user " + getUserUid() + " attempted to access student information for gb item " + gradableObjectId); 
-	  }
-	  
-	  Assignment gradebookItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-		  public Object doInHibernate(Session session) throws HibernateException {
-			  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
-		  }
-	  });
-	  
-	  if (gradebookItem == null) {
-		  log.debug("The gradebook item does not exist, so returning empty set");
-		  return new HashMap();
-	  }
-	  
-	  Long categoryId = gradebookItem.getCategory() == null ? null : gradebookItem.getCategory().getId();
-	  
-	  Map<EnrollmentRecord, String> enrRecFunctionMap = new HashMap();
-	  enrRecFunctionMap = authz.findMatchingEnrollmentsForItem(gradebookUid, categoryId, getGradebook(gradebookUid).getCategory_type(), null, null);
-	  if (enrRecFunctionMap == null) {
-		  return new HashMap();
-	  }
-	  
-	  Map<String, String> studentIdFunctionMap = new HashMap();
-	  for (Iterator enrIter = enrRecFunctionMap.keySet().iterator(); enrIter.hasNext();) {
-		  EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
-		  if (enr != null && enrRecFunctionMap.get(enr) != null) {
-			  studentIdFunctionMap.put(enr.getUser().getUserUid(), enrRecFunctionMap.get(enr));
-		  }
-	  }
-	  return studentIdFunctionMap;
+	  String userUid = authn.getUserUid();
+
+	  return getViewableStudentsForItemForUser(userUid, gradebookUid, gradableObjectId);
+  }
+  
+  public Map<String, String> getViewableStudentsForItemForUser(final String userUid, final String gradebookUid, final Long gradableObjectId) {
+
+      if (gradebookUid == null || gradableObjectId == null || userUid == null) {
+          throw new IllegalArgumentException("null gradebookUid or gradableObjectId or " +
+                  "userId passed to getViewableStudentsForUserForItem." +
+                  " gradebookUid: " + gradebookUid + " gradableObjectId:" + 
+                  gradableObjectId + " userId: " + userUid);
+      }
+
+      Assignment gradebookItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException {
+              return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
+          }
+      });
+
+      if (gradebookItem == null) {
+          log.debug("The gradebook item does not exist, so returning empty set");
+          return new HashMap();
+      }
+
+      Long categoryId = gradebookItem.getCategory() == null ? null : gradebookItem.getCategory().getId();
+
+      Map<EnrollmentRecord, String> enrRecFunctionMap = new HashMap();
+
+      enrRecFunctionMap = authz.findMatchingEnrollmentsForItemForUser(userUid, gradebookUid, categoryId, getGradebook(gradebookUid).getCategory_type(), null, null);
+      if (enrRecFunctionMap == null) {
+          return new HashMap();
+      }
+
+      Map<String, String> studentIdFunctionMap = new HashMap();
+      for (Iterator enrIter = enrRecFunctionMap.keySet().iterator(); enrIter.hasNext();) {
+          EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
+          if (enr != null && enrRecFunctionMap.get(enr) != null) {
+              studentIdFunctionMap.put(enr.getUser().getUserUid(), enrRecFunctionMap.get(enr));
+          }
+      }
+      return studentIdFunctionMap;
   }
 
   public boolean isGradableObjectDefined(Long gradableObjectId) {
@@ -1475,9 +1481,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   public boolean currentUserHasGradeAllPerm(String gradebookUid) {
 	  return authz.isUserAbleToGradeAll(gradebookUid);
   }
+  
+  public boolean isUserAllowedToGradeAll(String gradebookUid, String userUid) {
+      return authz.isUserAbleToGradeAll(gradebookUid, userUid);
+  }
 
   public boolean currentUserHasGradingPerm(String gradebookUid) {
 	  return authz.isUserAbleToGrade(gradebookUid);
+  }
+  
+  public boolean isUserAllowedToGrade(String gradebookUid, String userUid) {
+      return authz.isUserAbleToGrade(gradebookUid, userUid);
   }
 
   public boolean currentUserHasEditPerm(String gradebookUid) {

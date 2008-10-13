@@ -35,6 +35,9 @@ import org.sakaiproject.section.api.facade.Role;
 
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * An implementation of Gradebook-specific authorization needs based
@@ -77,9 +80,30 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
 	public boolean isUserAbleToGrade(String gradebookUid) {
 		return (hasPermission(gradebookUid, PERMISSION_GRADE_ALL) || hasPermission(gradebookUid, PERMISSION_GRADE_SECTION));
 	}
+	
+	public boolean isUserAbleToGrade(String gradebookUid, String userUid) {
+	    try {
+	        User user = UserDirectoryService.getUser(userUid);
+	        return (hasPermission(user, gradebookUid, PERMISSION_GRADE_ALL) || hasPermission(user, gradebookUid, PERMISSION_GRADE_SECTION));
+	    } catch (UserNotDefinedException unde) {
+	        log.warn("User not found for userUid: " + userUid);
+	        return false;
+	    }
+
+	}
 
 	public boolean isUserAbleToGradeAll(String gradebookUid) {
 		return hasPermission(gradebookUid, PERMISSION_GRADE_ALL);
+	}
+	
+	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid) {
+	    try {
+	        User user = UserDirectoryService.getUser(userUid);
+	        return hasPermission(user, gradebookUid, PERMISSION_GRADE_ALL);
+	    } catch (UserNotDefinedException unde) {
+	        log.warn("User not found for userUid: " + userUid);
+	        return false;
+	    }
 	}
 
 	/**
@@ -102,6 +126,10 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
 
 	private boolean hasPermission(String gradebookUid, String permission) {
 		return SecurityService.unlock(permission, SiteService.siteReference(gradebookUid));
+	}
+	
+	private boolean hasPermission(User user, String gradebookUid, String permission) {
+	    return SecurityService.unlock(user, permission, SiteService.siteReference(gradebookUid));
 	}
 
 }

@@ -259,11 +259,9 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertTrue(gradeDef.getGrade().equals((new Double(39).toString())));
 		
 		setAuthnId(STUDENT_IN_SECTION_UID1);
-		try {
-			Map viewableStudents = gradebookService.getViewableStudentsForItemForCurrentUser(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
-			Assert.fail();
-		} catch(SecurityException e) {
-		}
+
+		Map viewableStudents = gradebookService.getViewableStudentsForItemForCurrentUser(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+		assertEquals(0, viewableStudents.size());
 	}
 	
 	public void testGetGradeDefinitionForStudentForItem() throws Exception {
@@ -450,7 +448,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		// testing w/o grader permissions
 		setAuthnId(INSTRUCTOR_UID);
 		Map viewableStudentsMap = gradebookService.getViewableStudentsForItemForCurrentUser(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
-		Assert.assertTrue(viewableStudentsMap.size() == 2);
+		Assert.assertEquals(2, viewableStudentsMap.size());
 		for (Iterator stIter = viewableStudentsMap.keySet().iterator(); stIter.hasNext();) {
 			String studentId = (String) stIter.next();
 			Assert.assertEquals(GradebookService.gradePermission, (String)viewableStudentsMap.get(studentId));
@@ -476,6 +474,32 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertEquals(GradebookService.viewPermission, (String)viewableStudentsMap.get(STUDENT_IN_SECTION_UID2));
 	}
 	
+	public void testGetViewableStudentsForItemForUser() throws Exception {
+        // testing w/o grader permissions
+        Map viewableStudentsMap = gradebookService.getViewableStudentsForItemForUser(INSTRUCTOR_UID, GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+        Assert.assertEquals(2, viewableStudentsMap.size());
+        for (Iterator stIter = viewableStudentsMap.keySet().iterator(); stIter.hasNext();) {
+            String studentId = (String) stIter.next();
+            Assert.assertEquals(GradebookService.gradePermission, (String)viewableStudentsMap.get(studentId));
+        }
+        
+        viewableStudentsMap = gradebookService.getViewableStudentsForItemForUser(TA_NO_SECT_UID, GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+        Assert.assertEquals(0, viewableStudentsMap.size());
+
+        viewableStudentsMap = gradebookService.getViewableStudentsForItemForUser(TA_UID, GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+        Assert.assertEquals(1, viewableStudentsMap.size());
+        Assert.assertEquals(GradebookService.gradePermission, (String)viewableStudentsMap.get(STUDENT_IN_SECTION_UID1));
+        
+        // now test w/ grader perms
+        Gradebook gb = gradebookManager.getGradebook(GRADEBOOK_UID_WITH_CAT);
+        // this ta is not a member of a section, but grader perms will allow viewing section
+        gradebookManager.addPermission(gb.getId(), TA_NO_SECT_UID, GradebookService.viewPermission, null, section2Uid);
+
+        viewableStudentsMap = gradebookService.getViewableStudentsForItemForUser(TA_NO_SECT_UID, GRADEBOOK_UID_WITH_CAT, asn1IdWithCat);
+        Assert.assertEquals(1, viewableStudentsMap.size());
+        Assert.assertEquals(GradebookService.viewPermission, (String)viewableStudentsMap.get(STUDENT_IN_SECTION_UID2));
+    }
+	
 	public void testGetGradesForStudentsForItem() throws Exception {
 		setAuthnId(INSTRUCTOR_UID);
 		Map studentIdFunctionMap = 
@@ -489,7 +513,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		// add a score to the gb
 		gradebookService.setAssignmentScoreString(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new String("35"), "Service Test");
 		gradeDefs = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentIds);
-		Assert.assertTrue(gradeDefs.size() == 1);
+		Assert.assertEquals(1, gradeDefs.size());
 		GradeDefinition gradeForS1 = (GradeDefinition)gradeDefs.get(0);
 		Assert.assertTrue(gradeForS1 != null);
 		Assert.assertEquals(GradebookService.GRADE_TYPE_POINTS, gradeForS1.getGradeEntryType());

@@ -399,9 +399,21 @@ public interface GradebookService {
 	 * @param gradableObjectId
 	 * @return a map of studentId to view/grade function  for the given 
 	 * gradebook and gradebook item. students who are not viewable or gradable
-	 * will not be returned
+	 * will not be returned. if the current user does not have grading privileges,
+	 * an empty map is returned
 	 */
 	public Map<String, String> getViewableStudentsForItemForCurrentUser(String gradebookUid, Long gradableObjectId);
+	
+	/**
+     * @param userUid
+     * @param gradebookUid
+     * @param gradableObjectId
+     * @return a map of studentId to view/grade function for the given 
+     * gradebook and gradebook item that the given userUid is allowed to view or grade.
+     * students who are not viewable or gradable will not be returned. if the
+     * given user does not have grading privileges, an empty map is returned
+     */
+    public Map<String, String> getViewableStudentsForItemForUser(String userUid, String gradebookUid, Long gradableObjectId);
 	
 	// Site management hooks.
 
@@ -525,11 +537,29 @@ public interface GradebookService {
 	public boolean currentUserHasGradeAllPerm(String gradebookUid);
 	
 	/**
+	 * 
 	 * @param gradebookUid
-	 * @return true if the current user has the gradebook.gradeAll or
-	 * gradebook.gradeSection permission
+	 * @param userUid
+	 * @return true if the given user is allowed to grade all students in this
+	 * gradebook
+	 */
+	public boolean isUserAllowedToGradeAll(String gradebookUid, String userUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if the current user has some form of
+     * grading privileges in the gradebook (grade all, grade section, etc)
 	 */
 	public boolean currentUserHasGradingPerm(String gradebookUid);
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param userUid
+	 * @return true if the given user has some form of
+	 * grading privileges in the gradebook (grade all, grade section, etc)
+	 */
+	public boolean isUserAllowedToGrade(String gradebookUid, String userUid);
 	
 	/**
 	 * @param gradebookUid
