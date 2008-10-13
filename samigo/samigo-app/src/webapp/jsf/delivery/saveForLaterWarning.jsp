@@ -1,4 +1,3 @@
-<html>
 <%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
@@ -42,18 +41,15 @@
 </h3>
 <br/>
   <!-- content... -->
-  <h:panelGrid border="0" styleClass="validation" columns="2">
-    <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-    <h:outputText value="#{deliveryMessages.warning_2}" />
-    <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-    <h:outputText value="#{deliveryMessages.save_for_later_warning_1}"/>
-    <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-    <h:outputText value="#{deliveryMessages.save_for_later_warning_2}"/>
-    <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-    <h:outputText value="#{deliveryMessages.save_for_later_warning_3}"/>
-    <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-    <h:outputText value="#{deliveryMessages.save_for_later_warning_4}"/>
-  </h:panelGrid>
+  <h:panelGroup styleClass="validation">
+    <h:panelGrid border="0">
+      <h:outputText value="#{deliveryMessages.warning_2}" />
+      <h:outputText value="#{deliveryMessages.save_for_later_warning_1}"/>
+      <h:outputText value="#{deliveryMessages.save_for_later_warning_2}"/>
+      <h:outputText value="#{deliveryMessages.save_for_later_warning_3}"/>
+      <h:outputText value="#{deliveryMessages.save_for_later_warning_4}"/>
+    </h:panelGrid>
+  </h:panelGroup>
 
 <h:form id="isRetracted">
  <p class="act">
