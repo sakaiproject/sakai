@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><head>
-<title>Importing Gradebook items from a
+<title>Importing grades from a
 spreadsheet</title>
 <style type="text/css">
 		/* Style for specific inline images */
-		div.image{display: inline;}
+		div.image{display: inline;}div.image{display: inline;}
 		/* Style for specific ordered lists */
 		
 		/* Style for specific table cells */
@@ -15,19 +15,9 @@ spreadsheet</title>
 </head>
 <body>
 <div class="helpBody">
-<h2>Importing Gradebook items from a
+<h2>Importing grades from a
 spreadsheet</h2>
-
-
-
-
-
-
-
-
-
-
-
+<a name="top"> </a>
 
 
 
@@ -35,6 +25,68 @@ spreadsheet</h2>
 document, you must be assigned a role having the necessary
 permissions.  To determine your role, follow the directions in <a href="content.hlp?docId=arbu">Participant roles</a>.  For a
 basic understanding of roles and permissions, see <a href="content.hlp?docId=arax">Permissions and roles: Overview</a>.</p>
+
+<p>In Gradebook, you can import grades in two different ways:</p>
+
+<ul><li><a href="#whole">Import an entire spreadsheet</a>.  This method
+will overwrite any existing grades in the Gradebook for columns with
+the same name as existing Gradebook items and create new Gradebook
+items for any columns that do not match existing Gradebook items.
+
+<br /><br />
+</li><li><a href="#item">Import individual Gradebook items</a>.  This method
+will create new Gradebook items for each spreadsheet column 
+you import.  You cannot import any columns with the same name as 
+existing Gradebook items.</li></ul>
+
+<p>You can also use the Post'Em tool to upload a
+<code>.csv</code> spreadsheet of grades (and feedback, if desired)
+that students can view. For more information, see <a href="content.hlp?docId=atik">Using the Post'Em tool</a>.</p>
+
+<p><strong>Note:</strong> You cannot import grades for Gradebook items
+sent from the Assignment tool.</p>
+
+<a name="whole"> </a><h3>Importing an entire spreadsheet</h3>
+
+<ol><li>In your site's <a href="content.hlp?docId=arcc">menubar</a>, click <strong><code>Gradebook</code></strong>.
+
+<br /><br />
+</li><li>Near the top, click <strong><code>Import Grades</code></strong>.
+
+<br /><br />
+</li><li>Download the spreadsheet template by clicking <strong><code>Download
+Spreadsheet Template</code></strong>, choosing <strong><code>Save File</code></strong>, and
+clicking <strong><code>OK</code></strong>.
+
+<br /><br />
+</li><li>Edit the spreadsheet in a spreadsheet application,
+such as Excel, and save it as a <code>.csv</code> file.
+
+<br /><br />
+</li><li>Import the spreadsheet by clicking <strong><code>Browse...</code></strong> and choosing
+the <code>.csv</code> file.
+
+<br /><br />
+</li><li>After selecting the file, click <strong><code>Import Spreadsheet</code></strong>.
+
+<br /><br />
+</li><li>The following page should show the imported grades.  When you are
+finished, click <strong><code>OK</code></strong>.
+</li></ol>
+
+<p>When using this option, it's best to download the spreadsheet template
+provided, as instructed in step 3 above.  You can upload a different
+spreadsheet in <code>.csv</code> format instead, but if you do so, you
+should format it as closely as possible to the template.  The first column
+should contain individuals' usernames, and the first row should contain
+headings, with the title and point value for each Gradebook item as in 
+this example:</p>
+
+<span class="example">  Essay 1 [100.0]</span>
+
+<p><a href="#top">Back to top</a></p>
+
+<a name="item"> </a><h3>Importing individual Gradebook items</h3>
 
 <p>To import Gradebook items, you must first create a
 <code>.csv</code> spreadsheet file containing columns of point-based
@@ -93,7 +145,9 @@ want to import. (You can select only one at a time.) Then click
 
 <br /><br />
 </li><li>On the Import Gradebook Item and Scores screen, enter the following
-information:<br /><br />
+information:
+
+<br /><br />
 
 <ul><li><strong>Title:</strong> The title you provided in the steps above
 is automatically filled in. If you didn't provide a title earlier, you
@@ -114,7 +168,6 @@ appear next to the grades in the Gradebook. This field is not required.
 <strong><code>Release this Item to Students</code></strong> option. You can deselect this
 later, if necessary.
 
-
 <br /><br />
 </li><li>To include this item when calculating the course grade, select the
 <strong><code>Include this item in course grade calculations</code></strong> option. You
@@ -124,22 +177,22 @@ can deselect this later, if necessary.
 </li><li>When you're finished, click <strong><code>Submit</code></strong>. You'll return to the
 Import Preview screen, where you'll see confirmation that your item
 was added. You can now select another item for import, or click the
-reset icon to the left of the page name to return to the main
-screen. You should see your imported item(s) listed under "Gradebook
-Items Summary".
+reset
+icon  <div class="inlineimage image"><img class="noborder" src="image/a009j.jpg" alt="Reset icon" /></div> to return to the main screen; see
+<a href="content.hlp?docId=aqzn">The reset button</a>. You should
+see your imported assignment(s) listed under "Gradebook Items
+Summary".
 </li></ol>
 
-<h4>Other import options</h4>
 
-<p>Gradebook also allows you to import grades for existing Gradebook
-items. See <a href="content.hlp?docId=avdo">Importing grades for existing Gradebook items</a></p>
 
-<p>A similar functionality is available in Sakai's Post'Em tool. You
-can upload a <code>.csv</code> spreadsheet of grades (and feedback, if
-desired) that students can view. For more information, see <a href="content.hlp?docId=atik">Using the Post'Em tool</a>.</p>
+<a name="demos"> </a>
 
 
 
+
+
+<p><a href="#top">Back to top</a></p>
 
 </div>
 </body></html>
