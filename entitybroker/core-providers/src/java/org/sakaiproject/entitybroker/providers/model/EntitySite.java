@@ -81,6 +81,7 @@ public class EntitySite implements Site {
     private boolean customPageOrdered;
     private String owner;
     private long lastModified;
+    private String[] userRoles;
 
     // special use
     protected String maintainerUserId;
@@ -138,6 +139,7 @@ public class EntitySite implements Site {
         this.providerGroupId = providerGroupId;
         this.customPageOrdered = customPageOrdered;
         this.lastModified = System.currentTimeMillis();
+        getUserRoles(); // populate the user roles
     }
 
     public EntitySite(Site site) {
@@ -159,6 +161,7 @@ public class EntitySite implements Site {
         this.providerGroupId = site.getProviderGroupId();
         this.owner = site.getCreatedBy() == null ? null : site.getCreatedBy().getId();
         this.lastModified = site.getModifiedTime() == null ? System.currentTimeMillis() : site.getModifiedTime().getTime();
+        getUserRoles(); // populate the user roles
         // properties
         ResourceProperties rp = site.getProperties();
         for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
@@ -365,6 +368,28 @@ public class EntitySite implements Site {
         this.pubView = pubView;
     }
 
+    public String[] getUserRoles() {
+        if (userRoles == null) {
+            if (site == null) {
+                userRoles = new String[] {maintainRole, joinerRole};
+            } else {
+                Set<Role> roles = (Set<Role>) site.getRoles();
+                userRoles = new String[roles.size()];
+                int i = 0;
+                for (Role role : roles) {
+                    userRoles[i] = role.getId();
+                    i++;
+                }
+            }
+        }
+        return userRoles;
+    }
+    
+    public void setUserRoles(String[] userRoles) {
+        this.userRoles = userRoles;
+    }
+    
+    
     // Site operations
 
     public Group addGroup() {
