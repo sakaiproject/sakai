@@ -1064,8 +1064,11 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 				else
 					groupAllowed = signupMeetingService.isAllowedToCreateinGroup(currentUserId, siteId, group
 							.getGroupId());
-				SignupGroupWrapper groupWrapper = new SignupGroupWrapper(group, groupAllowed);
-				groupWrappers.add(groupWrapper);
+				
+				if(groupAllowed){
+					SignupGroupWrapper groupWrapper = new SignupGroupWrapper(group, groupAllowed);
+					groupWrappers.add(groupWrapper);
+				}
 			}
 			sSiteWrapper.setSignupGroupWrappers(groupWrappers);
 			/* default setting if having site permission */
