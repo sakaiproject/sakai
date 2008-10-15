@@ -4,20 +4,16 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.0RC2-SNAPSHOT</version>
+    <version>1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Deployment Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>deploy</artifactId>
   <scm>
-    <connection>
-      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy
-    </connection>
-    <developerConnection>
-      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy
-    </developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/deploy</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/deploy</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/deploy</url>
   </scm>
 
   <packaging>pom</packaging>

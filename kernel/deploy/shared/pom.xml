@@ -4,7 +4,7 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.0RC2-SNAPSHOT</version>
+    <version>1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Kernel Direct Shared Deployer</description>
@@ -17,13 +17,9 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>
-      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared
-    </connection>
-    <developerConnection>
-      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared
-    </developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/deploy/shared</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/deploy/shared</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/deploy/shared</url>
   </scm>
 
   <packaging>pom</packaging>

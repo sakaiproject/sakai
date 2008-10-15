@@ -4,20 +4,16 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.0RC2-SNAPSHOT</version>
+    <version>1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Loader Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>loader</artifactId>
   <scm>
-    <connection>
-      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader
-    </connection>
-    <developerConnection>
-      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader
-    </developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/loader</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/loader</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/loader</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/loader</url>
   </scm>
 
   <packaging>war</packaging>

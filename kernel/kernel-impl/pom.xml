@@ -4,7 +4,7 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.0RC2-SNAPSHOT</version>
+    <version>1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Core Kernel Implementation</name>
@@ -16,18 +16,14 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>
-      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl
-    </connection>
-    <developerConnection>
-      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl
-    </developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/kernel-impl</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/kernel-impl</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/tags/kernel-1.0/kernel-impl</url>
   </scm>
   <packaging>jar</packaging>
   <properties>
-    <deploy.target/>
-    <maven.test.jvmargs/>
+    <deploy.target />
+    <maven.test.jvmargs />
   </properties>
   <build>  
     <plugins>
@@ -50,7 +46,7 @@
             </property>
             <property>
               <name>known.issues</name>
-              <value/>
+              <value />
             </property>
           </systemProperties>
         </configuration>
