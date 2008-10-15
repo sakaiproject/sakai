@@ -575,6 +575,13 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+        <preparationGoals>clean install verify</preparationGoals>
+        </configuration>
+      </plugin>
+      <plugin>
         <inherited>true</inherited>
         <groupId>org.sakaiproject.maven.plugins</groupId>
         <artifactId>sakai</artifactId>
