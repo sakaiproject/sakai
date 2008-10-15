@@ -65,9 +65,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x</url>
   </scm>
   <distributionManagement>
     <repository>

@@ -10,16 +10,16 @@
   <name>Sakai Component Manager</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-component-manager</artifactId>
-  <version>1.0.1-SNAPSHOT    </version>
+  <version>1.0.1-SNAPSHOT</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/component-manager</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/component-manager</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/component-manager</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/component-manager</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/component-manager</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/component-manager</url>
   </scm>
 
   <packaging>jar</packaging>

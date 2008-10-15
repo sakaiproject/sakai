@@ -10,16 +10,16 @@
   <name>Kernel Common </name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-common</artifactId>
-  <version>1.0.1-SNAPSHOT    </version>
+  <version>1.0.1-SNAPSHOT</version>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-common</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-common</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-common</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-common</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-common</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-common</url>
   </scm>
 
   <packaging>jar</packaging>

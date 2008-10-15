@@ -10,16 +10,16 @@
   <name>Sakai Kernel API</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-api</artifactId>
-  <version>1.0.1-SNAPSHOT    </version>
+  <version>1.0.1-SNAPSHOT</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/api</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/api</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/api</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/api</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/api</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/api</url>
   </scm>
   <packaging>jar</packaging>
   <properties>

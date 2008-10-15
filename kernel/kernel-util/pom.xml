@@ -10,16 +10,16 @@
   <name>Sakai Kernel Util</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-util</artifactId>
-  <version>1.0.1-SNAPSHOT    </version>
+  <version>1.0.1-SNAPSHOT</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-util</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-util</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-util</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-util</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-util</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-util</url>
   </scm>
 
   <packaging>jar</packaging>

@@ -10,11 +10,11 @@
   <name>Sakai Loader Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>loader</artifactId>
-  <version>1.0.1-SNAPSHOT    </version>
+  <version>1.0.1-SNAPSHOT</version>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/loader</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/loader</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/loader</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/loader</url>
   </scm>
 
   <packaging>war</packaging>

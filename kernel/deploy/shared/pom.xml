@@ -11,16 +11,16 @@
   <name>Kernel Direct Shared Deployer</name>
   <groupId>org.sakaiproject.kernel.deploy</groupId>
   <artifactId>shared</artifactId>
-  <version>1.0.1-SNAPSHOT    </version>
+  <version>1.0.1-SNAPSHOT</version>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/deploy/shared</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/deploy/shared</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/deploy/shared</url>
   </scm>
 
   <packaging>pom</packaging>
