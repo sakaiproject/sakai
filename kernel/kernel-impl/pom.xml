@@ -4,22 +4,22 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Core Kernel Implementation</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-impl</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
   <organization>
     <name>University of Cambridge</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-impl</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-impl</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-impl</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</url>
   </scm>
   <packaging>jar</packaging>
   <properties>
