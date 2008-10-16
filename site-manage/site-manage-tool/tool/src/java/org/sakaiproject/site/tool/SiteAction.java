@@ -132,7 +132,6 @@ import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
@@ -3765,10 +3764,6 @@ public class SiteAction extends PagedResourceActionII {
 					try {
 						Site site = SiteService.getSite(id);
 						site_title = site.getTitle();
-						
-						// indicate this is a realm update with possible provider id involved
-						setProviderRealmUpdateSessionAttribute();
-						
 						SiteService.removeSite(site);
 					} catch (IdUnusedException e) {
 						M_log.warn(this +".doSite_delete_confirmed - IdUnusedException " + id, e);
@@ -4840,10 +4835,6 @@ public class SiteAction extends PagedResourceActionII {
 				String providerRealm = buildExternalRealm(siteId, state,
 						providerCourseList, StringUtil.trimToNull(realmEdit.getProviderGroupId()));
 				realmEdit.setProviderGroupId(providerRealm);
-				
-				// indicate this is a realm update with provider id involved
-				setProviderRealmUpdateSessionAttribute();
-				
 				AuthzGroupService.save(realmEdit);
 			} catch (GroupNotDefinedException e) {
 				M_log.warn(this + ".updateCourseSiteSections: IdUnusedException, not found, or not an AuthzGroup object", e);
@@ -4942,15 +4933,6 @@ public class SiteAction extends PagedResourceActionII {
 				rp.removeProperty(STATE_CM_REQUESTED_SECTIONS);
 			}
 		}
-	}
-	
-	/**
-	 * set the session variable as a flag for realm provider changes.
-	 */
-	private void setProviderRealmUpdateSessionAttribute() {
-		// set the flag attribute in session variable, indicating this is a realm change with providers
-		Session session = SessionManager.getCurrentSession();
-		session.setAttribute("realm_update_with_providers", Boolean.TRUE);
 	}
 
 	/**
@@ -7469,10 +7451,6 @@ public class SiteAction extends PagedResourceActionII {
 				AuthzGroup realmEdit1 = AuthzGroupService
 						.getAuthzGroup(realmId);
 				realmEdit1.setProviderGroupId(NULL_STRING);
-				
-				// indicate this is a realm update with provider id involved
-				setProviderRealmUpdateSessionAttribute();
-				
 				AuthzGroupService.save(realmEdit1);
 			} catch (GroupNotDefinedException e) {
 				M_log.warn(this + ".updateCourseClasses: IdUnusedException, " + site.getTitle()
@@ -7496,10 +7474,6 @@ public class SiteAction extends PagedResourceActionII {
 				AuthzGroup realmEdit2 = AuthzGroupService
 						.getAuthzGroup(realmId);
 				realmEdit2.setProviderGroupId(externalRealm);
-				
-				// indicate this is a realm update with provider id involved
-				setProviderRealmUpdateSessionAttribute();
-
 				AuthzGroupService.save(realmEdit2);
 			} catch (GroupNotDefinedException e) {
 				M_log.warn(this + ".updateCourseClasses: IdUnusedException, " + site.getTitle()
