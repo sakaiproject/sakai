@@ -246,7 +246,7 @@
 
 	 <xsl:if test="$cnt &gt; 0">  
    
-  	<fo:table-cell background-color="#C0C0C0" border-color="blue" border-width="0.5pt" border-style="solid"> 
+  	<fo:table-cell background-color="#fff" border-color="blue" border-width="0.5pt" border-style="solid"> 
      <fo:block>
      <fo:leader leader-pattern="dots" 
                    rule-thickness="1.0pt"          

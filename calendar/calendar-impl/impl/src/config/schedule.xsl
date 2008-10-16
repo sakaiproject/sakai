@@ -395,8 +395,8 @@
 <xsl:param name="cnt"/>
 
 	<xsl:if test="$cnt &gt; 0">  
-  		<fo:block line-height="{$heightPerTimeslot}cm"  text-align="center"  border-color="white" border-style="solid"  
-		border-collapse="collapse"  border-width="0.4pt" background-color="#C0C0C0"> 
+  		<fo:block line-height="{$heightPerTimeslot}cm"  text-align="center"  border-color="#eee" border-style="solid"  
+		border-collapse="collapse"  border-width="0.4pt" background-color="#fff"> 
      	<fo:leader leader-pattern="dots" 
                    rule-thickness="1.0pt"          
                    leader-length="0.1cm"/> 
