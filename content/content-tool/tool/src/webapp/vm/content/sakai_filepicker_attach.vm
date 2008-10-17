@@ -81,8 +81,8 @@
 		<div class="highlightPanel">
 			<p class="shorttext">
 				<label for="upload">$tlang.getString("att.upl")</label>
-				<input type="file" name="upload" id="upload" class="upload" onchange="javascript:showNotif('submitnotif','attachButton','attachForm');document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload")';submitform('attachForm');"#if($disable_attach_links) disabled="disabled"#end />
-				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+				<input type="file" name="upload" id="upload" class="upload" onchange="javascript:showNotif('submitnotifxxx','attachButton','attachForm');document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload")';submitform('attachForm');"#if($disable_attach_links) disabled="disabled"#end />
+				<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 			</p>	
 			<p class="shorttext" style="float:left">
 				<label for="file">$tlang.getString("addi.or.url")</label>

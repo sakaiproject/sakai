@@ -69,7 +69,7 @@
 		<p class="act">
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif03','saveChanges','addFolderForm');document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCreateFolders")&flow=save';submitform('addFolderForm');" value="$tlang.getString("label.finfldr")" accesskey="s" />
 			<input type="button" name="cancel" onclick="javascript:document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addFolderForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
-			<span class="submitnotif" id="submitnotif03" style="visibility:hidden">$tlang.getString("label.proces")</span>
+			<span class="messageProgress"  id="submitnotif03" style="visibility:hidden">$tlang.getString("processmessage.folders")</span>
 		</p>
 	</form>
 </div>

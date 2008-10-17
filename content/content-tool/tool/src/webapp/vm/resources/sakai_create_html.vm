@@ -26,9 +26,9 @@
 			</table>
 		</p>
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doContinue")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doContinue")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
 			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
-			<span id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</span>
+			<span id="submitnotifxxx" class="messageProgress"  style="visibility:hidden">$tlang.getString("processmessage.html")</span>
 		</p>
 	</form>
 </div>
