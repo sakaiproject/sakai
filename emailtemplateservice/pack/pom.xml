@@ -22,6 +22,7 @@
         <groupId>org.sakaiproject</groupId>
         <artifactId>emailtemplateservice</artifactId>
         <version>0.3-SNAPSHOT</version><!--emailtemplateservice.version-->
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <dependencies>
