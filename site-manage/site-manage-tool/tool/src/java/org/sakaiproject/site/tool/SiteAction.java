@@ -6360,8 +6360,12 @@ public class SiteAction extends PagedResourceActionII {
 							}
 							else
 							{
+								// check for Site Info-managed groups: don't change roles for other groups (e.g. section-managed groups)
+								String gProp = g.getProperties().getProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED);
+								
 								// if there is a difference between the role setting, remove the entry from group and add it back with correct role, all are marked "not provided"
-								if (!g.getUserRole(gMemberId).equals(siteMember.getRole()))
+								if (gProp != null && gProp.equals(Boolean.TRUE.toString()) &&
+										!g.getUserRole(gMemberId).equals(siteMember.getRole()))
 								{
 									Role siteRole = siteMember.getRole();
 									if (g.getRole(siteRole.getId()) == null)
