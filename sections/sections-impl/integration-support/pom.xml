@@ -49,17 +49,26 @@
       sakai-util-impl is a part of the kernel implementation, p:dependency removed
       org.sakaiprojectsakai-util-impl${sakai.version}-->
 <!--
-Bindig directly to the kernel impl is not a good idea,
+Binding directly to the kernel impl is not a good idea,
 It is liable to change.
 When a test harness becomes available this code should be ported.
 
-Hard coding the version so that we dont forget.
+Hard coding the version so that we do not forget.
 -->
+	<dependency>
+    	<groupId>org.sakaiproject.kernel</groupId>
+		<artifactId>sakai-kernel-impl</artifactId>
+    	<version>1.0.1-SNAPSHOT</version>
+    </dependency>
+
+	<!--
     <dependency>
       <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-util-impl</artifactId>
       <version>1.0RC2-SNAPSHOT</version>
     </dependency>
+    -->
+
 <!-- Database dependencies -->
     <dependency>
       <groupId>hsqldb</groupId>
