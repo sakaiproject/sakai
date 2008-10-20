@@ -170,26 +170,26 @@ This is not needed now that pluto have been released
       <dependency>
         <groupId>org.sakaiproject.kernel.deploy</groupId>
         <artifactId>kernel-assembly</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
         <classifier>tomcat-overlay</classifier>
         <type>zip</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-api</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-component-manager</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-util</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
       </dependency>
 <!-- provided by the JDK, here to ensure its not packaged in child poms 
      child poms may still override if necessary -->
