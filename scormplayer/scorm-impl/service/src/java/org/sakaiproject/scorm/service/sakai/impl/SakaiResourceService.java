@@ -142,7 +142,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		pathBuilder.append(getContentPackageDirectoryPath(resourceId));
 		pathBuilder.append(launchLine);
 		
-		return pathBuilder.toString().replace(" ", "%20");
+		return pathBuilder.toString(); //.replace(" ", "%20");
 	}
 	
 	public List<ContentPackageResource> getResources(String uuid) {
