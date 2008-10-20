@@ -36,6 +36,17 @@
 					<label for="role$velocityCount">$role.Id</label>
 				</p>	
 			#end
+			
+			##Active/Inactive user (SAK-14378 )
+			<h4>
+				$tlang.getString("realm.edit.status")
+			</h4>				
+			<p class="checkbox">
+					<input type="radio" name="status" id="active" value="true" #if($grant.Active==true)checked="checked"#end/>
+					<label for="active">$tlang.getString("realm.edit.active")</label><br>
+					<input type="radio" name="status" id="inactive" value="false" #if($grant.Active==false)checked="checked"#end /> 
+					<label for="inactive">$tlang.getString("realm.edit.inactive")</label>
+			</p>					
 				<h4>	
 					$tlang.getString("realm.user.continue")
 				</h4>	

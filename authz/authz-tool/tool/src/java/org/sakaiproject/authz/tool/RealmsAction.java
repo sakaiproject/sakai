@@ -54,6 +54,7 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 
@@ -440,6 +441,7 @@ public class RealmsAction extends PagedResourceActionII
 
 		// get this user's role - only if not provided
 		Member grant = realm.getMember(user.getId());
+		context.put("grant", grant);
 		if ((grant != null) && (!grant.isProvided()) && (grant.getRole() != null))
 		{
 			context.put("roles", grant.getRole());
@@ -1175,6 +1177,13 @@ public class RealmsAction extends PagedResourceActionII
 	{
 		// get the role
 		String roles = StringUtil.trimToNull(data.getParameters().getString("roles"));
+		
+		//get status
+		Boolean status=true;
+		String checkForStatus=data.getParameters().get("status");
+		if (!(checkForStatus==null)){
+		status=data.getParameters().getBoolean("status");
+		}
 
 		// we are setting for either a new user or this user
 		User user = (User) state.getAttribute("user");
@@ -1205,8 +1214,8 @@ public class RealmsAction extends PagedResourceActionII
 		Member grant = realm.getMember(user.getId());
 
 		// if no change, change nothing
-		if ((roles == null) && ((grant == null) || (grant.isProvided()))) return true;
-		if ((roles != null) && (grant != null) && (grant.getRole().getId().equals(roles)) && !grant.isProvided()) return true;
+		if ((roles == null) && ((grant == null) && ((checkForStatus == null) || (grant.isProvided())))) return true;
+		if ((roles != null) && (grant != null) && (grant.getRole().getId().equals(roles) && (grant.isActive()==status)) && !grant.isProvided()) return true;
 
 		// clear out this user's settings
 		realm.removeMember(user.getId());
@@ -1215,7 +1224,7 @@ public class RealmsAction extends PagedResourceActionII
 		if (roles != null)
 		{
 			// TODO: active, provided
-			realm.addMember(user.getId(), roles, true, false);
+			realm.addMember(user.getId(), roles, status, false);
 		}
 
 		return true;
