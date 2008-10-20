@@ -43,6 +43,8 @@ package org.sakaiproject.scorm.ui;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,7 +86,14 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 		
 		Map parameters = requestParameters.getParameters();
 		
-		this.resourceName = (String)parameters.get("resourceName");
+		String resName = (String)parameters.get("resourceName");
+		try {
+			resName = URLDecoder.decode(resName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+	        // Very unlikely, but report anyway.
+        	log.error("Error while URL decoding: '"+resName+"'", e);
+        }
+		this.resourceName = resName;
 	}
 	
 	public void detach(RequestCycle arg0) {

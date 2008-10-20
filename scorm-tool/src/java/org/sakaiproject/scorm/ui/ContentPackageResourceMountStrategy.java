@@ -103,7 +103,14 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 			if (!url.endsWith("/"))
 				url.append("/");
 
-			url.append("resourceName");
+			
+			try {
+				resourceName = URLDecoder.decode(resourceName, "UTF-8");
+	        } catch (UnsupportedEncodingException e) {
+		        // Very unlikely, but report anyway.
+	        	log.error("Error while URL decoding: '"+resourceName+"'", e);
+	        }
+	        url.append("resourceName");
 			
 			if (!resourceName.startsWith("/"))
 				url.append("/");

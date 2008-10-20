@@ -21,6 +21,8 @@
 package org.sakaiproject.scorm.ui;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -101,6 +103,12 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 		if (resourceId.startsWith("/"))
 			resourceId = resourceId.substring(1);
 		
+		try {
+	        launchLine = URLDecoder.decode(launchLine, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+	        // Very unlikely, but report anyway.
+        	log.error("Error while URL decoding: '"+launchLine+"'", e);
+        }
 		/*StringBuilder nameBuilder = new StringBuilder(resourceId);
 		
 		if (!resourceId.endsWith("/") && !launchLine.startsWith("/")) 
