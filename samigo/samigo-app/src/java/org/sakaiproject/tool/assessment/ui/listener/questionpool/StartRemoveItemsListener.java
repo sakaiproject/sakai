@@ -95,8 +95,9 @@ public class StartRemoveItemsListener implements ActionListener
       qpoolbean.setOutcome("removeQuestionFromPool");
       }
       else {
-         // otherwise go to poollist
-        qpoolbean.setOutcome("poolList");
+    	  // otherwise go to poollist
+    	  qpoolbean.setItemsToDelete(null);  
+    	  qpoolbean.setOutcome("poolList");
         }
     }
     catch (Exception e) {

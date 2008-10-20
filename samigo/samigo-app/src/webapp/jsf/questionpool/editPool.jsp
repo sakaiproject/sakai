@@ -149,8 +149,8 @@ var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>
 </h4>
   <div class="tier2">
 <div class="navIntraToolLink">
-  <h:commandButton accesskey="#{questionPoolMessages.a_update}" id="removeSubmit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.remove}">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" /> 
+  <h:commandButton accesskey="#{questionPoolMessages.a_update}" id="removeSubmit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.removeQuestionsFromPool}" value="#{questionPoolMessages.remove}">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />
   </h:commandButton>
  
  <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />

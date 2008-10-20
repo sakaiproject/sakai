@@ -1303,7 +1303,7 @@ public String getAddOrEdit()
  public String removeQuestionsFromPool(){
      String sourceId = this.getCurrentPool().getId().toString();
 
-     List itemlist = this.getItemsToDelete();
+     List itemlist = this.getItemsToDelete() == null ? new ArrayList() : this.getItemsToDelete();
 
      Iterator iter = itemlist.iterator();
      while(iter.hasNext())
@@ -2085,5 +2085,10 @@ String poolId = ContextUtil.lookupParam("qpid");
   	public String getAgentId()
   	{
   		return AgentFacade.getAgentString();
+  	}
+  	
+  	public String getOwner() {
+  		String owner = AgentFacade.getDisplayName(getAgentId());
+  		return owner;
   	}
 }

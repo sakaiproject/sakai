@@ -884,17 +884,13 @@ public class QuestionPoolFacadeQueries
         final String ownerId = qpp.getOwnerId();
 
         if (parentPoolId != 0) {
-        	final HibernateCallback hcb = new HibernateCallback(){
-        		public Object doInHibernate(Session session) throws
-        		HibernateException, SQLException {
-        			Query q = session.createQuery("from QuestionPoolAccessData as qpa where qpa.questionPoolId=? and qpa.agentId<>?");
-        			q.setLong(0, parentPoolId);
-        			q.setString(1, ownerId);
-        			return q.list();
-        		};
-        	};
-        	List<QuestionPoolAccessData> listSubpool =
-        		getHibernateTemplate().executeFind(hcb);
+        	List<QuestionPoolAccessData> listSubpool = new ArrayList();
+        	try {
+        		listSubpool = getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId=? and qpa.agentId<>?", 
+        				new Object[] {new Long(parentPoolId), ownerId});
+        	} catch (Exception e1) {
+        		log.warn("problem finding pool: "+e1.getMessage());
+        	}
         	for (QuestionPoolAccessData questioPoolData : listSubpool) {
         		qpa = new
         		QuestionPoolAccessData(qpp.getQuestionPoolId(),

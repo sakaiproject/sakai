@@ -76,9 +76,9 @@
   <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
+<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
 
-<h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true'}"  id="movelink" immediate="true" action="#{questionpool.startMovePool}">
+<h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="movelink" immediate="true" action="#{questionpool.startMovePool}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
@@ -90,8 +90,8 @@
 </h:commandLink>
 --%>
 
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
-<h:commandLink title="#{questionPoolMessages.t_removePool}" rendered="#{questionpool.importToAuthoring != 'true'}"  id="removelink" immediate="true" action="#{questionpool.confirmRemovePool}">
+<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
+<h:commandLink title="#{questionPoolMessages.t_removePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="removelink" immediate="true" action="#{questionpool.confirmRemovePool}">
   <h:outputText id="remove" value="#{questionPoolMessages.remove}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
