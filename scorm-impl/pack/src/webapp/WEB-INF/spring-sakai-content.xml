@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- The version that makes use of the Sakai repository to store content, but serves it through the tool -->
+	<bean id="org.sakaiproject.scorm.service.api.ScormResourceService"
+		class="org.sakaiproject.scorm.service.sakai.impl.SakaiResourceService"
+		singleton="true">
+		
+		<lookup-method name="configurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+		
+	</bean>
+
+
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
+		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl"
+		singleton="true">
+		
+	</bean>
+
+</beans>

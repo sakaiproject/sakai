@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.datamodels" default-lazy="false">
+	
+	<class name="org.adl.datamodels.DMElement" table="SCORM_ELEMENT_T" discriminator-value="0">
+	
+		<id name="id" column="ELEMENT_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+
+		<discriminator column="CLASS_TYPE" type="string"/>
+
+		<many-to-one name="mDescription" column="DESCRIPTION" cascade="none" class="org.adl.datamodels.DMElementDescriptor"/>
+
+		<!-- JLR removed index="SCORM_ELEMENT_DESC_IDX"  from line below 1/28/2008 -->
+		<!--many-to-one insert="false" update="false" name="mDescription" column="DESCRIPTION" index="SCORM_ELEMENT_DESC_IDX" class="org.adl.datamodels.DMElementDescriptor" fetch="join" /-->
+		<!--one-to-one name="mDescription" class="org.adl.datamodels.DMElementDescriptor" /-->
+		
+		
+		<!-- Ditto index="SCORM_ELEMENT_PARENT_IDX" -->
+		
+		<!--one-to-one name="mParent" cascade="all" class="org.adl.datamodels.DMElement" constrained="true"/-->
+		
+		<many-to-one name="mParent" cascade="none" column="PARENT" class="org.adl.datamodels.DMElement" fetch="join" />
+	
+		<list name="mChildrenBindings" table="SCORM_LIST_BINDINGS_T">
+			<key column="ELEMENT_ID" />
+			<list-index column="SORT_ORDER"/>
+			<element column="BINDING" type="string"/>
+		</list>
+				
+		<map name="mChildren" table="SCORM_MAP_CHILDREN_T">
+    		<key column="ELEMENT_ID"/>
+    		<map-key column="CHILD_BINDING" type="string"/>
+    		<many-to-many column="CHILD_ID" class="org.adl.datamodels.DMElement"/>
+		</map>
+	
+		<list name="mRecords" table="SCORM_LIST_RECORDS_T">
+			<key column="ELEMENT_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="RECORD_ID" class="org.adl.datamodels.DMElement"/>
+		</list>
+	
+		<property name="mValue" column="VALUE" />
+	
+		<list name="mDelimiters" table="SCORM_LIST_DELIMITERS_T">
+			<key column="ELEMENT_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="DELIM_ID" class="org.adl.datamodels.DMDelimiter"/>
+		</list>
+		
+		<property name="mInitialized" column="IS_INITIALIZED" />
+		
+		<property name="mTruncSPM" column="TRUNC_SPM" />
+
+		<subclass name="org.adl.datamodels.ieee.SCORM_2004_DMElement" 
+			discriminator-value="org.adl.datamodels.ieee.SCORM_2004_DMElement">
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.nav.SCORM_2004_NAV_DMElement"
+			discriminator-value="org.adl.datamodels.nav.SCORM_2004_NAV_DMElement">
+			
+			<!-- ditto index="SCORM_ELEMENT_NAVDM_IDX" -->
+			<many-to-one name="mDM" column="NAVIGATION_DM" class="org.adl.datamodels.nav.SCORM_2004_NAV_DM" />
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.Children"
+			discriminator-value="org.adl.datamodels.Children">
+			
+			<property name="mBinding" column="BINDING" />
+			
+			<list name="mChildrenList" table="SCORM_LIST_BINDINGS_T">
+				<key column="ELEMENT_ID" />
+				<list-index column="SORT_ORDER"/>
+				<element column="BINDING" type="string"/>
+			</list>
+			
+			<property name="mRandomize" column="IS_RANDOMIZED" />
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.Count"
+			discriminator-value="org.adl.datamodels.Count">
+			
+			<property name="mBinding" column="BINDING" />
+			
+			<property name="mCount" column="DM_COUNT" />
+			
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.ieee.Version" 
+			discriminator-value="org.adl.datamodels.ieee.Version">
+		</subclass>
+
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.sourceforge.net/" xml:lang="en" lang="en">
+<head>
+	<wicket:head>
+		<title>SCORM Console</title>
+	</wicket:head>
+</head>
+<body>
+	<wicket:extend>
+		<div id="header" class="navIntraTool">
+			<img wicket:id="listIcon" class="pageIcon"/>&nbsp;<a href="#" wicket:id="listLink"></a> &nbsp;&nbsp;<img wicket:id="uploadIcon" class="pageIcon"/>&nbsp;<a href="#" wicket:id="uploadLink"></a> &nbsp;&nbsp;<img wicket:id="validateIcon" class="pageIcon"/>&nbsp;<a href="#" wicket:id="validateLink"></a>
+		</div>	
+
+		<wicket:enclosure child="breadcrumbs">
+			<b><div wicket:id="breadcrumbs"></div></b>
+			<p/>
+		</wicket:enclosure>
+
+	    <h3><img wicket:id="pageIcon" class="pageIcon"/>&nbsp;&nbsp;<span wicket:id="page.title">Console</span></h3>
+
+	    <div class="navPanel" style="height:auto">
+			<wicket:enclosure key="feedback">
+				<p class="information"><span wicket:id="feedback"></span></p>
+			</wicket:enclosure>
+			<div class="viewNav">
+				<p class="instruction"><wicket:message key="page.instructions"/></p>
+			</div>
+		</div>
+		
+		<wicket:child/>
+		
+	</wicket:extend>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<!-- Bring in the HBM related beans -->
+	<import resource="hibernate-hbms.xml" />
+
+	<!-- Bring in the hibernate daos -->
+	<import resource="spring-hibernate-daos.xml" />
+	
+	<!-- Bring in the sakai daos -->
+	<import resource="spring-sakai-daos.xml" />
+	
+	<!-- Bring in the sakai implementation service beans -->
+	<import resource="spring-sakai-service.xml" />
+	
+	<!-- Bring in the sakai content hosting handler beans -->
+	<import resource="spring-sakai-content.xml" />
+	
+	<!-- // Comment this out if you want to use 'standalone' content storage in place of Sakai's standard repository -->
+	<!--
+	<import resource="spring-sakai-chh.xml" />
+	-->
+	
+	<!-- Bring in the standalone webapp beans -->
+	<!-- // To store your content in tomcat's file system, uncomment this and comment
+                        out the spring-sakai-chh.xml import above -->                      
+	<!--
+	<import resource="spring-standalone-webapp.xml" />
+	-->
+		
+	<bean id="org.sakaiproject.scorm.adl.ADLConsultant"
+		class="org.sakaiproject.scorm.adl.impl.ADLConsultantImpl"
+		singleton="true">
+		
+		<!-- Data Access Objects -->
+		<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
+		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+		<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
+		
+	</bean>
+	
+	<!-- This bean serves the Scorm API calls -->
+	<bean id="org.sakaiproject.scorm.service.api.ScormApplicationService"
+		class="org.sakaiproject.scorm.service.impl.ScormApplicationServiceImpl"
+		singleton="true">
+		
+		<!-- Scorm Sequencing Service to manage navigate calls -->
+		<lookup-method name="scormSequencingService" bean="org.sakaiproject.scorm.service.api.ScormSequencingService" />
+		
+		<!-- Local utility bean -->
+		<lookup-method name="adlManager" bean="org.sakaiproject.scorm.adl.ADLConsultant" />
+		
+		<!-- Data Access Objects -->
+		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />	  
+		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
+	</bean>
+	
+	<!-- This bean manages content -->
+	<bean id="org.sakaiproject.scorm.service.api.ScormContentService"
+		class="org.sakaiproject.scorm.service.impl.ScormContentServiceImpl"
+		singleton="true">
+		
+		<!-- Service beans -->
+		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem"/>
+		<lookup-method name="resourceService" bean="org.sakaiproject.scorm.service.api.ScormResourceService" />
+		
+		<!-- Data Access Objects -->
+		<lookup-method name="contentPackageDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageDao" />
+		<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
+		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
+
+	</bean>	
+	
+	<bean id="org.sakaiproject.scorm.service.api.ScormResultService"
+		class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl"
+		singleton="true">
+		
+		<!-- Service beans -->
+		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem"/>
+		
+		<!-- Data Access Objects -->
+		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
+		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
+		
+	</bean>
+	
+	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingService"
+		class="org.sakaiproject.scorm.service.impl.ScormSequencingServiceImpl"
+		singleton="true">
+		
+		<!-- Service beans -->
+		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem"/>
+		<lookup-method name="scormContentService" bean="org.sakaiproject.scorm.service.api.ScormContentService"/> 
+		
+		<!-- Local utility bean -->
+		<lookup-method name="adlManager" bean="org.sakaiproject.scorm.adl.ADLConsultant" />
+		
+		<!-- Data Access Objects -->
+		<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
+		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />		
+	</bean>	
+	
+	<bean id="org.sakaiproject.scorm.service.api.ScormEntityProvider"
+		class="org.sakaiproject.scorm.service.impl.ScormEntityProviderImpl">
+		
+	</bean>
+	
+</beans>

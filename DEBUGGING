@@ -1,0 +1,49 @@
+Debugging the Scorm Player
+
+Obviously, there are plenty of things that can go wrong with the Scorm Player tool. But they 
+generally break down into a few different categories. Here are some log4j suggestions for
+debugging.
+
+
+(1) Serving content package resources
+
+	-Depending on your chosen ScormResourceService in components, try turning on:
+	log4j.logger.org.sakaiproject.scorm.service.sakai.impl.SakaiResourceService=DEBUG
+	or
+	log4j.logger.org.sakaiproject.scorm.service.standalone.impl.StandaloneResourceService=DEBUG 
+
+	-To see the resources being loaded into Wicket, use:
+	log4j.logger.org.sakaiproject.scorm.ui.player.components.LazyLaunchPanel=DEBUG
+
+
+(2) SJAX Communication
+
+	-To debug Wicket's AJAX communcation inside the browser, turn on these two:
+	log4j.logger.org.sakaiproject.scorm.ui.player.ScormTool=DEBUG
+	log4j.logger.org.sakaiproject.wicket.protocol.http.SakaiWebApplication=DEBUG
+
+	-To see high-level output from the SCORM API Communication at the server, turn on:
+	log4j.logger.org.sakaiproject.scorm.ui.player.components.SjaxContainer=DEBUG	
+
+	-To see more detailed output from the SCORM API Communcation at the server, turn on:
+	log4j.logger.org.sakaiproject.scorm.service.impl.ScormApplicationServiceImpl=DEBUG
+
+
+(3) ADL Code problems
+
+	These are a bit more intractable, since we can usually assume that ADL got the SCORM logic right,
+	but there were a few things that changed when we brought that code into the player. The most
+	notable is that anything we store in the database using Hibernate returns List interface objects
+	rather than Vectors, as the original ADL code required. Also, where the ADL code assumed an empty
+	Vector would be NULL, Hibernate always returns an empty List. So there may still be places 
+	where the ADL code assumes NULL and it's getting back a List of size 0. The attempt has been made
+	to find all these and patch them to check for empty Lists. 
+
+
+(4) Database/Hibernate issues
+
+	Probably, to debug these, you'll want to turn on the Hibernate debugging. 
+
+
+
+

@@ -1,0 +1,98 @@
+/* scorm.css : Styles for scorm player */
+body {
+	/*margin: 20px 20px 0px 20px;*/
+	margin: 0px;
+}
+
+div.my-tree div.wicket-tree {
+	height: auto;
+	width: 100%;
+	margin-top: 0px;
+	padding-top: 0px;
+	padding-right: 10px;
+}
+
+.pageIcon {
+	vertical-align:middle;
+}
+
+.smalltext {
+	font-size:9;
+	font-color:lightgray;	
+}
+
+.scormPlayerPanel {
+
+}
+
+.scormNavPanel {
+	height: 600px;
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+	padding-right: 10px;
+	overflow-y: scroll;
+}
+
+.scormAdminPanel {
+	border: 1px solid black;
+	margin: 10px;
+	padding: 5px;
+}
+
+.scormContentPanel {
+	margin-left: 10px;
+	padding-left: 5px;
+}
+
+.scormButtonPanel {
+	background:url(/sakai-scorm-tool/images/buttonBarBackground.gif) repeat-x;
+	height: 44px;
+	padding-top: 4px;
+}
+
+.scormActionButton {
+
+}
+
+.scormNotification {
+		
+}
+
+.scormRoundbox{
+	background: #6E6E6E;
+	width:400px;
+	margin-bottom:20px;
+	color:#fff;
+	text-align:left;
+	clear:both;
+}
+
+.scormRoundbox h3{
+	font-size:1.55em;
+	font-color:white;
+	padding: 15px 15px 10px 15px;
+	border-bottom: 1px dotted #e8e8e8;
+	margin-bottom:10px;
+	clear:both;
+}
+
+.scormRoundbox p{
+font-size:1.5em;
+padding: 0px 15px 15px 16px;
+}
+
+.scormRoundbox ul, .anchor ul{
+font-size:1.5em;
+padding: 0px 15px 15px 16px;
+}
+
+.scormRoundbox ul li, .anchor ul li{
+	list-style: circle inside;
+	padding:2px 0;
+}
+
+
+
+
+

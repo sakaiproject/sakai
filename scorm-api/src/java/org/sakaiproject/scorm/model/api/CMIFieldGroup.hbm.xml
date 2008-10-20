@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" package="org.sakaiproject.scorm.model.api" default-lazy="false">
+	
+		
+	<class name="org.sakaiproject.scorm.model.api.CMIFieldGroup" table="SCORM_CMI_FIELD_GROUP_T">
+		<id name="id" column="GROUP_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="contentPackageId" column="CONTENT_PACKAGE_ID" />
+		
+		<list name="list" table="SCORM_LIST_CMI_FIELDS_T">
+			<key column="GROUP_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="FIELD_ID" class="org.sakaiproject.scorm.model.api.CMIField"/>
+		</list>
+
+	</class>
+	
+</hibernate-mapping>

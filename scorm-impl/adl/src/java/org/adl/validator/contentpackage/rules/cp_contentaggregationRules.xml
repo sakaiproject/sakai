@@ -1,0 +1,510 @@
+<!--
+******************************************************************************
+**
+** Advanced Distributed Learning Co-Laboratory (ADL Co-Lab) Hub grants you
+** ("Licensee") a non-exclusive, royalty free, license to use, modify and
+** redistribute this software in source and binary code form, provided that
+** i) this copyright notice and license appear on all copies of the software;
+** and ii) Licensee does not utilize the software in a manner which is
+** disparaging to ADL Co-Lab Hub.
+**
+** This software is provided "AS IS," without a warranty of any kind.  ALL
+** EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
+** ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+** OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED.  ADL Co-Lab Hub AND ITS LICENSORS
+** SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF
+** USING, MODIFYING OR DISTRIBUTING THE SOFTWARE OR ITS DERIVATIVES.  IN NO
+** EVENT WILL ADL Co-Lab Hub OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE,
+** PROFIT OR DATA, OR FOR DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL,
+** INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE
+** THEORY OF LIABILITY, ARISING OUT OF THE USE OF OR INABILITY TO USE
+** SOFTWARE, EVEN IF ADL Co-Lab Hub HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+** DAMAGES.
+**
+******************************************************************************
+-->
+
+<rules type="imsmanifest" appprof="contentaggregation">
+
+   <element name="manifest" path="">
+     <min>1</min>
+     <max>1</max>
+     <attrib name="identifier">
+       <min>1</min>
+       <max>1</max>
+       <datatype>id</datatype>
+     </attrib>
+     <attrib name="version">
+       <min>0</min>
+       <max>1</max>
+       <spm>20</spm>
+       <datatype>text</datatype>
+     </attrib>
+     <attrib name="base">
+       <min>0</min>
+       <max>1</max>
+       <spm>2000</spm>
+       <datatype>xmlbase</datatype>
+     </attrib>
+     <datatype>parent</datatype>
+   </element>
+
+   <element name="metadata" path="manifest">
+     <min>1</min>
+     <max>1</max>
+     <datatype>parent</datatype>
+   </element>
+
+   <element name="schema" path="manifest.metadata">
+     <min>1</min>
+     <max>1</max>
+     <datatype>vocabulary</datatype>
+     <vocab restriction="restricted">ADL SCORM</vocab>
+   </element>
+
+   <element name="schemaversion" path="manifest.metadata">
+      <min>1</min>
+      <max>1</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">CAM 1.3</vocab>
+       <vocab restriction="restricted">2004 3rd Edition</vocab>
+   </element>
+
+   <element name="location" path="manifest.metadata">
+      <min>0</min>
+      <spm>2000</spm>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="lom" path="manifest.metadata">
+      <min>0</min>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="organizations" path="manifest">
+      <min>1</min>
+      <max>1</max>
+      <attrib name="default">
+          <min>1</min>
+          <max>1</max>
+          <datatype>idref</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="organization" path="manifest.organizations">
+      <min>1</min>
+      <attrib name="identifier">
+          <min>1</min>
+          <max>1</max>
+          <datatype>id</datatype>
+      </attrib>
+      <attrib name="structure">
+          <min>0</min>
+          <max>1</max>
+          <spm>200</spm>
+          <datatype>text</datatype>
+      </attrib>
+      <attrib name="objectivesGlobalToSystem">
+          <min>0</min>
+          <max>1</max>
+          <datatype>vocabulary</datatype>
+          <vocab restriction="restricted">true</vocab>
+          <vocab restriction="restricted">false</vocab>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="title" path="manifest.organizations.organization">
+      <min>1</min>
+      <max>1</max>
+      <spm>200</spm>
+      <datatype>text</datatype>
+   </element>
+
+   <element name="item" path="manifest.organizations.organization">
+      <min>1</min>
+      <attrib name="identifier">
+          <min>1</min>
+          <max>1</max>
+          <datatype>id</datatype>
+      </attrib>
+      <attrib name="identifierref">
+          <min>0</min>
+          <max>1</max>
+          <spm>2000</spm>
+          <datatype>idref</datatype>
+      </attrib>
+      <attrib name="isvisible">
+          <min>0</min>
+          <max>1</max>
+          <datatype>vocabulary</datatype>
+          <vocab restriction="restricted">true</vocab>
+          <vocab restriction="restricted">false</vocab>
+      </attrib>
+      <attrib name="parameters">
+          <min>0</min>
+          <max>1</max>
+          <spm>1000</spm>
+          <datatype>text</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="title" path="manifest.organizations.organization.item">
+      <min>0</min>
+      <max>1</max>
+      <spm>200</spm>
+      <datatype>text</datatype>
+   </element>
+
+   <element name="item" path="manifest.organizations.organization.item">
+      <min>0</min>
+      <attrib name="identifier">
+          <min>1</min>
+          <max>1</max>
+          <datatype>id</datatype>
+      </attrib>
+      <attrib name="identifierref">
+          <min>0</min>
+          <max>1</max>
+          <spm>2000</spm>
+          <datatype>idref</datatype>
+      </attrib>
+      <attrib name="isvisible">
+          <min>0</min>
+          <max>1</max>
+          <datatype>vocabulary</datatype>
+          <vocab restriction="restricted">true</vocab>
+          <vocab restriction="restricted">false</vocab>
+      </attrib>
+      <attrib name="parameters">
+          <min>0</min>
+          <max>1</max>
+          <spm>1000</spm>
+          <datatype>text</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="metadata" path="manifest.organizations.organization.item">
+      <min>0</min>
+      <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="schema" path="manifest.organizations.organization.item.metadata">
+      <min>0</min>
+      <max>0</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">ADL SCORM</vocab>
+   </element>
+
+   <element name="schemaversion" path="manifest.organizations.organization.item.metadata">
+      <min>0</min>
+      <max>0</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">CAM 1.3</vocab>
+   </element>
+
+   <element name="location" path="manifest.organizations.organization.item.metadata">
+      <min>0</min>
+      <spm>2000</spm>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="lom" path="manifest.organizations.organization.item.metadata">
+      <min>0</min>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="timeLimitAction" path="manifest.organizations.organization.item">
+      <min>0</min>
+      <max>1</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">exit,message</vocab>
+      <vocab restriction="restricted">exit,no message</vocab>
+      <vocab restriction="restricted">continue,message</vocab>
+      <vocab restriction="restricted">continue,no message</vocab>
+   </element>
+
+   <element name="dataFromLMS" path="manifest.organizations.organization.item">
+      <min>0</min>
+      <max>1</max>
+      <spm>4000</spm>
+      <datatype>text</datatype>
+   </element>
+
+   <element name="completionThreshold" path="manifest.organizations.organization.item">
+     <min>0</min>
+     <max>1</max>
+     <datatype>decimal</datatype>
+  </element>
+
+   <element name="sequencing" path="manifest.organizations.organization.item">
+      <min>0</min>
+      <max>1</max>
+      <datatype>sequencing</datatype>
+   </element>
+
+   <element name="sequencingCollection" path="manifest">
+      <min>0</min>
+      <max>1</max>
+      <datatype>sequencing</datatype>
+   </element>
+
+   <element name="presentation" path="manifest.organizations.organization.item">
+      <min>0</min>
+      <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="navigationInterface" path="manifest.organizations.organization.item.presentation">
+      <min>0</min>
+      <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="hideLMSUI" path="manifest.organizations.organization.item.presentation.navigationInterface">
+      <min>0</min>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">previous</vocab>
+      <vocab restriction="restricted">continue</vocab>
+      <vocab restriction="restricted">exit</vocab>
+      <vocab restriction="restricted">exitAll</vocab>
+      <vocab restriction="restricted">abandon</vocab>
+      <vocab restriction="restricted">abandonAll</vocab>
+      <vocab restriction="restricted">suspendAll</vocab>
+   </element>
+
+   <element name="metadata" path="manifest.organizations.organization">
+      <min>0</min>
+      <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="schema" path="manifest.organizations.organization.metadata">
+      <min>0</min>
+      <max>0</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">ADL SCORM</vocab>
+   </element>
+
+   <element name="schemaversion" path="manifest.organizations.organization.metadata">
+      <min>0</min>
+      <max>0</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">CAM 1.3</vocab>
+   </element>
+
+   <element name="location" path="manifest.organizations.organization.metadata">
+      <min>0</min>
+      <spm>2000</spm>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="lom" path="manifest.organizations.organization.metadata">
+      <min>0</min>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="sequencing" path="manifest.organizations.organization">
+      <min>0</min>
+      <max>1</max>
+      <datatype>sequencing</datatype>
+   </element>
+
+   <element name="resources" path="manifest">
+      <min>1</min>
+      <max>1</max>
+      <attrib name="base">
+        <min>0</min>
+        <max>1</max>
+        <spm>2000</spm>
+        <datatype>xmlbase</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="resource" path="manifest.resources">
+      <min>0</min>
+      <attrib name="identifier">
+          <min>1</min>
+          <max>1</max>
+          <datatype>id</datatype>
+      </attrib>
+      <attrib name="type">
+          <min>1</min>
+          <max>1</max>
+          <spm>1000</spm>
+          <datatype>text</datatype>
+      </attrib>
+      <attrib name="href">
+          <min>0</min>
+          <max>1</max>
+          <spm>2000</spm>
+          <datatype>uri</datatype>
+      </attrib>
+      <attrib name="scormType">
+          <min>1</min>
+          <max>1</max>
+          <datatype>vocabulary</datatype>
+          <vocab restriction="restricted">sco</vocab>
+          <vocab restriction="restricted">asset</vocab>
+      </attrib>
+      <attrib name="base">
+        <min>0</min>
+        <max>1</max>
+        <spm>2000</spm>
+        <datatype>xmlbase</datatype>
+      </attrib>
+      <attrib name="persistState">
+        <min>0</min>
+        <max>1</max>
+        <datatype>vocabulary</datatype>
+        <vocab restriction="restricted">true</vocab>
+        <vocab restriction="restricted">false</vocab>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="metadata" path="manifest.resources.resource">
+      <min>0</min>
+      <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="schema" path="manifest.resources.resource.metadata">
+      <min>0</min>
+      <max>0</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">ADL SCORM</vocab>
+   </element>
+
+   <element name="schemaversion" path="manifest.resources.resource.metadata">
+      <min>0</min>
+      <max>0</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">CAM 1.3</vocab>
+   </element>
+
+   <element name="location" path="manifest.resources.resource.metadata">
+      <min>0</min>
+      <spm>2000</spm>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="lom" path="manifest.resources.resource.metadata">
+      <min>0</min>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="file" path="manifest.resources.resource">
+      <min>0</min>
+       <attrib name="href">
+           <min>1</min>
+           <max>1</max>
+           <spm>2000</spm>
+           <datatype>uri</datatype>
+       </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="metadata" path="manifest.resources.resource.file">
+     <min>0</min>
+     <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="schema" path="manifest.resources.resource.file.metadata">
+      <min>0</min>
+      <max>0</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">ADL SCORM</vocab>
+   </element>
+
+   <element name="schemaversion" path="manifest.resources.resource.file.metadata">
+      <min>0</min>
+      <max>0</max>
+      <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">CAM 1.3</vocab>
+   </element>
+
+   <element name="location" path="manifest.resources.resource.file.metadata">
+      <min>0</min>
+      <spm>2000</spm>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="lom" path="manifest.resources.resource.file.metadata">
+      <min>0</min>
+      <datatype>metadata</datatype>
+   </element>
+
+   <element name="dependency" path="manifest.resources.resource">
+      <min>0</min>
+      <attrib name="identifierref">
+          <min>1</min>
+          <max>1</max>
+          <spm>2000</spm>
+          <datatype>idref</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <!-- ssp stuff here-->
+
+   <element name="bucket" path="manifest.resources.resource">
+      <min>0</min>
+      <attrib name="bucketID">
+          <min>1</min>
+          <max>1</max>
+          <datatype>id</datatype>
+      </attrib>
+      <attrib name="bucketType">
+          <min>0</min>
+          <max>1</max>
+          <datatype>id</datatype>
+      </attrib>
+      <attrib name="persistence">
+          <min>0</min>
+          <max>1</max>
+          <datatype>vocabulary</datatype>
+      <vocab restriction="restricted">session</vocab>
+      <vocab restriction="restricted">course</vocab>
+      <vocab restriction="restricted">learner</vocab>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+  <element name="size" path="manifest.resources.resource.bucket">
+      <min>1</min>
+      <max>1</max>
+      <attrib name="minimum">
+          <min>0</min>
+          <max>1</max>
+          <datatype>integer</datatype>
+      </attrib>
+      <attrib name="requested">
+          <min>1</min>
+          <max>1</max>
+          <datatype>integer</datatype>
+      </attrib>
+      <attrib name="reducible">
+          <min>0</min>
+          <max>1</max>
+          <datatype>boolean</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+   
+   <!-- sub manifest element rules being here -->
+   <!-- sub manifest element rules are commented out due to the removal of (sub)manifest in SCORM 3rd Edition -->
+
+   <element name="manifest" path="manifest">
+      <min>0</min>
+      <datatype>parent</datatype>
+   </element>
+
+</rules>
+

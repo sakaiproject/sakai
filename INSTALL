@@ -1,0 +1,59 @@
+INSTALLATION DIRECTIONS
+
+FIRST STEP: Checkout the Foundation 2.5.x branch of Sakai and build it. At UCDavis we've also
+been successfully running it against our local 2.4.x branch, which is fairly close to the
+2.4.x maintenance branch. 
+(You'll need maven 2 installed and configured, and a tomcat dir
+as per the normal Sakai directions for building)
+
+(1) svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-5-x/ sakai
+
+(2) cd sakai/
+
+(3) mvn clean install sakai:deploy
+
+
+SECOND STEP: Install sakai-wicket
+
+(1) In your sakai base directory (e.g. sakai/), svn co https://source.sakaiproject.org/contrib/wicket/sakai-wicket/trunk/ sakai-wicket 
+
+(2) Modify the pom.xml at the base directory (e.g. sakai/pom.xml) to include a module "sakai-wicket" (and "scorm", as directed below)
+
+(3) cd sakai-wicket/
+
+(4) It shouldn't be necessary to mess with the wicket version any longer (1.3.0 seems to work
+for us just fine)
+
+(5) mvn clean install sakai:deploy
+
+
+THIRD STEP: Install the scorm component (api, impl, and tool) -- you may already have done this, if you're reading this file.
+
+(1) In your sakai base directory (e.g. sakai/), svn co https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/ scorm
+
+(2) Modify the pom.xml at the base directory (e.g. sakai/pom.xml) to include a module "scorm"
+
+(2.b) [optional] You may also modify the components.xml as per the in-line comments to use
+		 the StandaloneResourceService in place of the SakaiResourceService -- doing
+		 this will mean that the resources get unpacked and stored in a directory
+		 called 'contentPackages' wherever you run startup.sh (by default) for the
+		 tomcat instance (or under logs, depending on your tomcat config). This
+		 will improve the performance of the player slightly, and leads to a 
+		 less tightly integrated deployment with Sakai. Of course, since the 
+		 other services (notably LearningManagementSystem) depend on Sakai, this 
+	         is mostly an academic distinction for the moment. It's important to note
+		 that this deployment will be incompatible with the default deployment -- 
+		 each time you change you will no longer be able to access resources stored
+		 in the other method. Also, if you do use StandaloneResourceService you
+		 will want to think about whether that data will stick around when/if you
+		 rebuild Sakai and/or redeploy Tomcat. 
+
+(3) cd scorm/
+
+(4) mvn clean install sakai:deploy
+
+
+FOURTH STEP: Start up tomcat.
+
+
+

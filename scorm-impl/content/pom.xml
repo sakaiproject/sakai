@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+        <modelVersion>4.0.0</modelVersion>
+        <parent>
+                <artifactId>scorm-base</artifactId>
+                <groupId>org.sakaiproject</groupId>
+                <version>M2</version>
+                <relativePath>../../pom.xml</relativePath>
+        </parent>
+        <name>sakai-scorm-content-impl</name>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-scorm-content-impl</artifactId>
+        <description>
+          This project creates the content implementation used by the Sakai Scorm Tool
+        </description>
+        <packaging>jar</packaging>
+
+
+	<dependencies>
+		<!-- SCORM dependencies -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-scorm-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+				
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-scorm-adl-impl</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+				
+		<!-- Sakai dependencies -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-content-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- External dependencies -->
+		<dependency>
+	  		<groupId>net.sf.ehcache</groupId>
+      		<artifactId>ehcache</artifactId>
+      		<version>${sakai.ehcache.version}</version>
+      		<type>jar</type>
+      		<scope>provided</scope>
+    	</dependency>
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>xpp3</groupId>
+			<artifactId>xpp3</artifactId>
+			<version>1.1.3.3</version>
+		</dependency>
+    </dependencies>
+    <build>
+    <plugins>
+    <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-surefire-plugin</artifactId>
+         <configuration>
+           <systemProperties>
+              <property>
+                 <name>testZipFileName</name>
+                 <value>testZipFile.zip</value>
+              </property>
+              <property>
+                 <name>testAddFileName</name>
+                 <value>applicationContext.xml</value>
+              </property>
+          </systemProperties>
+         </configuration>
+     </plugin>
+     </plugins>
+     
+     <testResources>
+     	<testResource>
+     	<directory>${basedir}/src/test/resources</directory>
+     	<includes>
+          <include>testZipFile.zip</include>
+          <include>applicationContext.xml</include>
+        </includes>
+     	</testResource>
+     </testResources>
+     </build>
+
+</project>
+

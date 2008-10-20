@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.scorm"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/scorm/model/api/ActivityTreeHolder.hbm.xml</value>
+				<value>org/sakaiproject/scorm/model/api/Attempt.hbm.xml</value>
+				<value>org/sakaiproject/scorm/model/api/ContentPackage.hbm.xml</value>
+				<value>org/sakaiproject/scorm/model/api/ContentPackageManifest.hbm.xml</value>
+				
+				<value>org/adl/datamodels/DMDelimiter.hbm.xml</value>
+				<value>org/adl/datamodels/DMDelimiterDescriptor.hbm.xml</value>
+				<value>org/adl/datamodels/DMElement.hbm.xml</value>
+				<value>org/adl/datamodels/DMElementDescriptor.hbm.xml</value>
+				<value>org/adl/datamodels/DataModel.hbm.xml</value>
+				<value>org/adl/datamodels/DMTypeValidator.hbm.xml</value>
+				<value>org/adl/datamodels/SCODataManager.hbm.xml</value>
+				
+				<value>org/adl/sequencer/ADLValidRequests.hbm.xml</value>
+				
+				<value>org/adl/validator/contentpackage/LaunchData.hbm.xml</value>
+				
+				<!--value>org/adl/sequencer/SequencerMappings.hbm.xml</value-->
+			</list>
+		</property>
+	</bean>
+</beans>

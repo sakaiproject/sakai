@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="SCORMPlayerWebApp" version="2.4" 
+	xmlns="http://java.sun.com/xml/ns/j2ee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+	<display-name>sakai-scorm-tool</display-name>
+	<description>Sakai SCORM Player</description>
+
+	<distributable />
+
+	<context-param>
+	  <param-name>CONFIGURATION</param-name>
+	  <param-value>DEPLOYMENT</param-value>
+	</context-param>
+
+	<filter>
+	    <filter-name>sakai.request</filter-name>
+	    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+	    <init-param>
+            <param-name>upload.enabled</param-name>
+            <param-value>false</param-value>
+        </init-param>
+	</filter>
+	
+	<filter>
+	    <filter-name>hibernate.filter</filter-name>
+	    <filter-class>org.sakaiproject.scorm.ui.player.HibernateFilter</filter-class>
+	    <init-param>
+            <param-name>sessionFactoryBeanName</param-name>
+            <param-value>org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory</param-value>
+        </init-param>
+	</filter>
+
+  	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.scorm.tool</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+  	
+  	<!--filter-mapping>
+	    <filter-name>hibernate.filter</filter-name>
+	    <servlet-name>sakai.scorm.tool</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping-->
+  	  	 	
+  	<servlet>
+	    <servlet-name>sakai.scorm.tool</servlet-name>
+	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+	    
+	    <init-param>
+	      	<param-name>applicationFactoryClassName</param-name>
+	      	<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+	    </init-param>
+	    <init-param>
+			<param-name>applicationBean</param-name>
+			<param-value>toolWicketApplication</param-value>
+		</init-param>
+  	</servlet>
+  	
+  	<servlet>
+	    <servlet-name>sakai.scorm.access</servlet-name>
+	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+	    
+	    <init-param>
+	      	<param-name>applicationFactoryClassName</param-name>
+	      	<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+	    </init-param>
+	    <init-param>
+			<param-name>applicationBean</param-name>
+			<param-value>scormAccessProviderApplication</param-value>
+		</init-param>
+  	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>sakai.scorm.tool</servlet-name>
+		<url-pattern>/tool/*</url-pattern>		
+	</servlet-mapping>
+		
+	<servlet-mapping>
+		<servlet-name>sakai.scorm.access</servlet-name>
+		<url-pattern>/access/*</url-pattern>		
+	</servlet-mapping>
+  	
+  	
+
+	<!--  The ToolListener causes this tool to be registered with Sakai.  -->
+  	<listener>
+    	<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+  	</listener>
+  	<listener>
+    	<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+  	</listener>
+
+	<session-config>
+		<session-timeout>60</session-timeout>
+	</session-config>
+	
+	<welcome-file-list>
+	<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
+</web-app>

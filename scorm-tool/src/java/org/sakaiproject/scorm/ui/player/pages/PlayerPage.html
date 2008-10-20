@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<head>
+	<title>SCORM Content</title>
+</head>
+<wicket:extend>
+	<div class="scormButtonPanel">
+		<form wicket:id="buttonForm" tabindex="0">
+			<input tabindex="-1" class="scormActionButton" type="image" wicket:id="startButton" value="Start" alt="Start" title="Begin this lesson"/>
+			<img src="/sakai-scorm-tool/images/divider.gif" alt="|"/>
+			<input tabindex="-1" class="scormActionButton" type="image" wicket:id="prevButton" value="Back" alt="Back" title="Return to the previous object"/>
+			<input tabindex="-1" class="scormActionButton" type="image" wicket:id="nextButton" value="Next" alt="Next" title="Continue to the next object"/>
+			<img src="/sakai-scorm-tool/images/divider.gif" alt="|"/>
+			<input tabindex="-1" class="scormActionButton" type="image" wicket:id="suspendButton" value="Suspend" alt="Suspend" title="Suspend this lesson"/>
+			<input tabindex="-1" class="scormActionButton" type="image" wicket:id="quitButton" value="Quit" alt="Quit" title="Exit"/>
+		</form>
+	</div>
+  	<div wicket:id="actionPanel" class="scormPlayerPanel"/>
+</wicket:extend>

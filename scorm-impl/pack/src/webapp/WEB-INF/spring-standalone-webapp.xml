@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- The webapp (standalone) version -->
+	<bean id="org.sakaiproject.scorm.service.api.ScormResourceService"
+		class="org.sakaiproject.scorm.service.standalone.impl.StandaloneResourceService"
+		singleton="true">		
+	</bean>
+	
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
+		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl"
+		singleton="true">
+		
+	</bean>
+	
+</beans>

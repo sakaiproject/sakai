@@ -1,0 +1,289 @@
+<html>
+<head>
+	<style>
+		body {
+			font-family:'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;
+			font-size:80%;
+		}
+	
+		.pageIcon {
+			vertical-align:middle;
+		}
+		
+		.detailSummaryWrapper {
+			clear: both;
+			padding: 0px;
+			margin: 0px;
+			margin-top: 20px;
+			margin-right: 5px;
+			border: 1px solid #ccc;
+			border-top: 2px solid #ccc;
+			border-right: 2px solid #ccc;
+			border-bottom: 0px;
+		}
+		
+		.tagTable {
+			padding: 0px;
+			margin: 0px;
+		}
+		
+		.tagLabel {
+			background: transparent; 
+			font-size:10px;
+			font-weight: normal;	
+			color: black;
+			width:90px;
+			margin-bottom: 0px;
+		}
+		
+		.tagLabelContent {
+			display:block; 
+			background:#ccc; 
+			border:0 solid #ccc; 
+			border-width:0 1px;
+			padding: 3px;
+			text-align: center;
+		}
+		
+		.longTagLabel {
+			background: transparent; 
+			font-size:12px;
+			font-weight: normal;	
+			color: black;
+			width:150px;
+			margin-bottom: 0px;
+		}
+		
+		.tagItem {
+			font-size:11px;
+			font-weight:normal;
+			border: 1px solid #ccc;
+			margin-top: 0px;
+			margin-right: 20px;
+			padding: 10px;
+			padding-top: 20px;
+			padding-bottom: 20px;
+		}
+		
+		.smallTagWrapper {
+			float: left;
+			display: block;
+			font-size:11px;
+			font-weight:normal;
+			border: 0px solid #ccc;
+			border-top: 0px solid #ccc;
+			border-left: 1px solid #ccc;
+			border-bottom: 0px solid #ccc;
+			margin: 0px;
+			padding: 0px;
+		}
+		
+		.smallTagWrapper {
+			float: left;
+			display: block;
+			font-size:11px;
+			font-weight:normal;
+			border: 0px solid #ccc;
+			border-top: 0px solid #ccc;
+			border-left: 1px solid #ccc;
+			border-bottom: 0px solid #ccc;
+			margin: 0px;
+			padding: 0px;
+		}
+		
+		.smallTagWrapperItem {
+			width: 100px;
+			font-size:11px;
+			font-weight:normal;
+			margin-top: 0px;
+			margin-right: 20px;
+			padding: 5px;
+			padding-top: 10px;
+			padding-bottom: 10px;
+		}
+
+		.tagWrapper {
+			clear: both;
+			font-size:11px;
+			font-weight:normal;
+			border: 0px solid #ccc;
+			border-top: 1px solid #ccc;
+			border-left: 1px solid #ccc;
+			border-bottom: 1px solid #ccc;
+			margin: 0px;
+			padding: 0px;
+		}
+		
+		.tagWrapperLeft {
+			float: left;
+			display: block;
+			font-size:11px;
+			font-weight:normal;
+			border: 1px solid #ccc;
+			border-top: 0px;
+			border-bottom: 0px;
+			margin: 0px;
+			padding: 0px;
+			width: 50%;
+		}
+		
+		.tagWrapperRight {
+			float:left;
+			display:block; 
+			font-size:11px;
+			font-weight:normal;
+			border: 0px solid #ccc;
+			margin: 0px;
+			padding: 0px;
+			width: 49%;
+		}
+		
+		.tagWrapperItem {
+			font-size:11px;
+			font-weight:normal;
+			margin-top: 0px;
+			margin-right: 20px;
+			padding: 10px;
+			padding-top: 20px;
+			padding-bottom: 20px;
+		}
+
+		.tagLabelTop, .tagLabelBottom {
+			display:block; 
+			background:transparent; 
+			font-size:1px;
+		}
+		
+		.tagLabelb1, .tagLabelb2, .tagLabelb3, .tagLabelb4 {
+			display:block; 
+			overflow:hidden;
+		}
+		
+		.tagLabelb1, .tagLabelb2, .tagLabelb3 {
+			height:1px;
+		}
+		
+		.tagLabelb2, .tagLabelb3, .tagLabelb4 {
+			background:#ccc; 
+			border-left:1px solid #ccc; 
+			border-right:1px solid #ccc;
+		}
+		
+		.tagLabelb1 {
+			margin:0 5px; 
+			background:#ccc;
+		}
+		
+		.tagLabelb2 {
+			margin:0 3px; 
+			border-width:0 2px;
+		}
+		
+		.tagLabelb3 {
+			margin:0 2px;
+		}
+		
+		.tagLabelb4 {
+			height:2px; 
+			margin:0 1px;
+		}
+		
+	</style>
+</head>
+<body>
+<wicket:panel>
+	<div class="detailSummaryWrapper">
+		<div class="tagTable">
+			<div class="smallTagWrapper">
+				<div class="tagLabel">
+					<div class="tagLabelContent">
+						<wicket:message key="type.label">[type label]</wicket:message>
+					</div>
+				</div>
+				<div class="smallTagWrapperItem" wicket:id="type">[type]</div>
+			</div>
+
+			<div class="smallTagWrapper">
+				<div class="tagLabel">
+					<div class="tagLabelContent">							
+						<wicket:message key="id.label">[id label]</wicket:message>
+					</div>
+				</div>
+				<div class="smallTagWrapperItem" wicket:id="interactionId">[id]</div>
+			</div>
+
+			<div class="smallTagWrapper">
+				<div class="tagLabel">
+					<div class="tagLabelContent">
+						<wicket:message key="weighting.label">[weighting label]</wicket:message>
+					</div>
+				</div>
+				<div class="smallTagWrapperItem" wicket:id="weighting">[weighting]</div>	
+			</div>
+
+			<div class="smallTagWrapper">
+				<div class="tagLabel">
+					<div class="tagLabelContent">
+						<wicket:message key="timestamp.label">[time label]</wicket:message>
+					</div>
+				</div>
+				<div class="smallTagWrapperItem" wicket:id="timestamp">[timestamp]</div>	
+			</div>
+
+			<div class="smallTagWrapper">
+				<div class="tagLabel">
+					<div class="tagLabelContent">
+						<wicket:message key="latency.label">[latency label]</wicket:message>
+					</div>
+				</div>
+				<div class="smallTagWrapperItem" wicket:id="latency">[latency]</div>
+			</div>
+
+			<div class="smallTagWrapper">
+				<div class="tagLabel">
+					<div class="tagLabelContent">
+						<wicket:message key="result.label">[result label]</wicket:message>
+					</div>
+				</div>
+				<div class="smallTagWrapperItem">
+					<img wicket:id="resultIcon" style="vertical-align: middle;"/>
+					<span wicket:id="result">[result]</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="tagWrapper">
+			<div class="longTagLabel">
+				<div class="tagLabelContent">
+					<wicket:message key="description.label">[desc label]</wicket:message>
+				</div>
+			</div>
+			<div class="tagWrapperItem" wicket:id="description">[description]</div>
+		</div>
+
+		<div class="tagWrapperLeft">
+			<div class="longTagLabel">
+				<div class="tagLabelContent">
+					<wicket:message key="learner.response.label">[lr label]</wicket:message>
+				</div>
+			</div>
+			<div class="tagWrapperItem" wicket:id="learnerResponse">[learner response]</div>
+		</div>
+		
+		<div class="tagWrapperRight">
+			<div class="longTagLabel">
+				<div class="tagLabelContent">
+					<wicket:message key="correct.response.label">[cr label]</wicket:message>
+				</div>
+			</div>
+			<div class="tagWrapperItem" wicket:id="correctResponse">[correct response]</div>
+		</div>
+		
+		<div class="tagWrapper">
+		
+		</div>
+	</div>	
+</wicket:panel>
+</body>
+
+</html>

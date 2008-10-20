@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Grab the learner information from Sakai -->
+	<bean id="org.sakaiproject.scorm.dao.LearnerDao"
+		class="org.sakaiproject.scorm.dao.sakai.LearnerDaoImpl"
+		singleton="true">
+
+		<lookup-method name="cms" bean="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+		<lookup-method name="groupProvider" bean="org.sakaiproject.authz.api.GroupProvider" />
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" /> 
+	</bean>
+	
+	
+	<!--bean id="org.sakaiproject.scorm.dao.api.DataManagerDao"
+		class="org.sakaiproject.scorm.dao.sakai.DataManagerDaoImpl"
+		singleton="true">
+		
+		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+		
+	</bean-->
+	
+	
+	<!--
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
+		class="org.sakaiproject.scorm.dao.standalon.StandaloneActivityTreeDaoImpl"
+		singleton="true">
+		
+	</bean>
+	-->
+	
+	<!-- THIS ONE'S BROKEN RIGHT NOW needs to store the resourceId somewhere for later lookup  can't use 'key'
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
+		class="org.sakaiproject.scorm.dao.sakai.SakaiActivityTreeDaoImpl"
+		singleton="true">
+		
+		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+	</bean>
+	-->
+
+</beans>

@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.datamodels" default-lazy="false">
+	
+	
+	<class name="org.adl.datamodels.DMTypeValidator" table="SCORM_TYPE_VALIDATOR_T">
+		
+		<id name="id" column="ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+		
+		<discriminator column="VALIDATOR_TYPE" type="string"/>
+		
+		<property name="mType" column="TYPE" />
+	
+		<subclass name="org.adl.datamodels.datatypes.DateTimeValidator" 
+			discriminator-value="DATE_TIME">
+			<property name="mIncludeSubSecs" column="INCLUDE_SUB_SECS"/>
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.datatypes.DurationValidator" 
+			discriminator-value="DURATION">
+		</subclass>
+				
+		<subclass name="org.adl.datamodels.datatypes.InteractionValidator" 
+			discriminator-value="INTERACTION">
+			<property name="mAllowEmpty" column="INTER_ALLOW_EMPTY"/>
+			<property name="mElement" column="ELEMENT"/>
+			<property name="mInteractionType" column="INTERACTION_TYPE"/>
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.datatypes.IntRangeValidator" 
+			discriminator-value="INT_RANGE">
+			<property name="mMax" column="INT_MAX"/>
+			<property name="mMin" column="INT_MIN"/>
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.datatypes.LangStringValidator" 
+			discriminator-value="LANG_STRING">
+			<property name="mAllowEmpty" column="LANG_ALLOW_EMPTY"/>
+			<property name="mIANALangauges" column="IANA_LANGUAGES" type="text"/>
+			<property name="mISOCountries" column="ISO_COUNTRIES" type="text"/>
+			<property name="mISOExLanguages" column="ISO_EX_LANGUAGES" type="text"/>
+			<property name="mISOLanguages" column="ISO_LANGUAGES" type="text"/>
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.datatypes.RealRangeValidator" 
+			discriminator-value="REAL_RANGE">
+			<property name="mMax" column="REAL_MAX"/>
+			<property name="mMin" column="REAL_MIN"/>
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.datatypes.ResultValidator" 
+			discriminator-value="RESULT">
+			<property name="mVocabList" column="RESULT_VOCAB_LIST"/>
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.datatypes.SPMRangeValidator" 
+			discriminator-value="SPM_RANGE">
+			<property name="mSPM" column="SPM"/>
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.datatypes.URIValidator" 
+			discriminator-value="URI">
+			<property name="mSPM" column="URI_SPM"/>
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.datatypes.VocabularyValidator" 
+			discriminator-value="VOCABULARY">
+			<property name="mVocabList" column="VOCAB_LIST"/>
+		</subclass>
+		
+	</class>
+	
+</hibernate-mapping>

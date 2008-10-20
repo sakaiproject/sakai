@@ -1,0 +1,27 @@
+<projectDescription>
+  <name>sakai-scorm-client-impl</name>
+  <comment>This project creates the client implementation used by the Sakai Scorm Tool</comment>
+  <projects>
+    <project>sakai-scorm-content-impl</project>
+    <project>sakai-scorm-model-impl</project>
+    <project>sakai-scorm-api</project>
+    <project>sakai-scorm-adl-impl</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.eclipse.wst.common.project.facet.core.builder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.eclipse.wst.validation.validationbuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>org.eclipse.wst.common.project.facet.core.nature</nature>
+    <nature>org.eclipse.wst.common.modulecore.ModuleCoreNature</nature>
+    <nature>org.eclipse.jem.workbench.JavaEMFNature</nature>
+  </natures>
+</projectDescription>

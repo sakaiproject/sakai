@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.sourceforge.net/" xml:lang="en" lang="en">
+<head>
+	<wicket:head>
+		<title>SCORM Console</title>
+	</wicket:head>
+</head>
+<body>
+	<wicket:extend>
+
+		<form wicket:id="removeForm">
+		
+			<div class="alertMessage">
+				<span wicket:id="alert"></span>
+			</div>
+			<div style="display:block;clear:both" ></div>
+		
+			<table class="listHier" wicket:id="removeTable"/>
+		
+			<p class ="act">
+				<input type="submit" wicket:id="submit" class="active" wicket:message="value:page.submit" accesskey="s" />
+				<input type="submit" wicket:id="cancel" wicket:message="value:page.cancel" accesskey="x" />
+			</p>
+		</form>
+
+	</wicket:extend>
+</body>
+</html>

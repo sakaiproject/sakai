@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>scorm-base</artifactId>
+  <name>Sakai Scorm Project</name>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/</developerConnection>
+    <url>https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk</url>
+  </scm>
+
+  <properties>
+    <sakai.entitybroker.version>1.2.0</sakai.entitybroker.version>
+  </properties>
+
+  <packaging>pom</packaging>
+  <modules>
+    <module>scorm-api</module>
+    <module>scorm-impl/adl</module>
+    <module>scorm-impl/client</module>
+    <module>scorm-impl/content</module>
+    <module>scorm-impl/model</module>
+    <module>scorm-impl/service</module>
+    <module>scorm-impl/pack</module>
+    <module>scorm-tool</module>
+  </modules>
+</project>
