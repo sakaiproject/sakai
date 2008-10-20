@@ -370,13 +370,15 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			outStream.close();
 			
 			//convert resource content to UTF-8 charset
+			/*
 			String resourceContent = new String(outStream.toByteArray());
 			ByteArrayOutputStream encodedStream = new ByteArrayOutputStream();
 			OutputStreamWriter ow = new OutputStreamWriter(encodedStream, "UTF-8");
 			ow.write(resourceContent);
 			ow.close();
+			*/
 			
-			resource.setContent(encodedStream.toByteArray());
+			resource.setContent(outStream.toByteArray());
 			resource.setContentType(getMimeType(entry.getName()));
 			resource.setHidden();
 						
