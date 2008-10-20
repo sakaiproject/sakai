@@ -1021,7 +1021,23 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       return;
     }
 
+
     User currentUser = UserDirectoryService.getCurrentUser();
+
+    //build the message body
+    List additionalHeaders = new ArrayList(1);
+    additionalHeaders.add("Content-Type: text/html");
+    
+
+    /** determines if default in sakai.properties is set, if not will make a reasonable default */
+    String defaultEmail = "postmaster@" + ServerConfigurationService.getServerName();
+    String systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
+   
+    String bodyString = buildMessageBody(message);
+
+    
+    //this only needs to be doen if the message is not being sen
+
     for (Iterator i = recipients.iterator(); i.hasNext();)
     {
       User u = (User) i.next();      
@@ -1041,83 +1057,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       {
       	forwardingEnabled = true;
       }
-      
-      List additionalHeaders = new ArrayList(1);
-      additionalHeaders.add("Content-Type: text/html");
-      
-      StringBuilder body = new StringBuilder(message.getBody());
-      
-      body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>"); 
-      
-      // need to filter out hidden users if there are any and:
-      //   a non-instructor (! site.upd)
-      //   instructor but not the author
-      String sendToString = message.getRecipientsAsText();
-      if (sendToString.indexOf("(") > 0 && (! isInstructor() || !isEmailPermit()|| (!message.getAuthor().equals(getAuthorString()))) ) {
-    	  sendToString = sendToString.substring(0, sendToString.indexOf("("));
-      }
-      
-      body.insert(0, "To: " + sendToString + "<p/>");
-      
-      if (message.getAttachments() != null && message.getAttachments().size() > 0) {
-                           
-          body.append("<br/><br/>");
-          for (Iterator iter = message.getAttachments().iterator(); iter.hasNext();) {
-            Attachment attachment = (Attachment) iter.next();
-            //body.append("<a href=\"" + attachment.getAttachmentUrl() +
-                        //"\">" + attachment.getAttachmentName() + "</a><br/>");            
-            body.append("<a href=\"" + messageManager.getAttachmentUrl(attachment.getAttachmentId()) +
-                "\">" + attachment.getAttachmentName() + "</a><br/>");            
-          }
-      }
-      
-      String siteTitle = null;
-      try{
-        siteTitle = SiteService.getSite(getContextId()).getTitle();
-      }
-      catch (IdUnusedException e){
-        LOG.error(e.getMessage(), e);
-      }
-      
-      String thisPageId = "";
-      ToolSession ts = sessionManager.getCurrentToolSession();
-  	  if (ts != null)
-	  {
-  	    ToolConfiguration tool = SiteService.findTool(ts.getPlacementId());
-  	    if (tool != null)
-  	    {
-  	      thisPageId = tool.getPageId();
-  	    }
-	  }
-
-      String footer = "<p>----------------------<br>" +
-                      getResourceBundleString(EMAIL_FOOTER1) + " " + ServerConfigurationService.getString("ui.service") +
-                      " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
-                      siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n" +
-                      getResourceBundleString(EMAIL_FOOTER4) +
-                      " <a href=\"" +
-                      ServerConfigurationService.getPortalUrl() + 
-                      "/site/" + ToolManager.getCurrentPlacement().getContext() +
-                      "/page/" + thisPageId+
-                      "\">";
-                                            
-      footer += siteTitle + "</a>.</p>";                      
-      body.append(footer);
-
-      String bodyString = body.toString();
-      
-      /** determines if default in sakai.properties is set, if not will make a reasonable default */
-      String defaultEmail = "postmaster@" + ServerConfigurationService.getServerName();
-      String systemEmail = null;
-      if (!ServerConfigurationService.getBoolean("msgcntr.notification.user.real.from", false)) {
-    	  systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
-      } else  {
-    	  if (u.getEmail() != null)
-    		  systemEmail = currentUser.getEmail();
-    	  else
-    		  systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
-
-      }
+            
       /** determine if current user is equal to recipient */
       Boolean isRecipientCurrentUser = 
         (currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
@@ -1141,17 +1081,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
               isRecipientCurrentUser);
           recipientList.add(receiver);                    
       }      
-      else if (asEmail){
-    	  
-    	 PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-                  userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
-                  isRecipientCurrentUser);
-    	 recipientList.add(receiver);
-    	  
-         emailService.send(systemEmail, u.getEmail(), message.getTitle(), 
-            bodyString, u.getEmail(), null, additionalHeaders);
-      }      
-      else{        
+      else {        
         PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
             userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
             isRecipientCurrentUser);
@@ -1159,6 +1089,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       }
     }
 
+    //send as 1 action to all recipients
+    if (asEmail){
+    	//we need to add som headers
+    	additionalHeaders.add("From: " + systemEmail);
+    	additionalHeaders.add("Subject: " + message.getTitle());
+    	emailService.sendToUsers(recipients, additionalHeaders, bodyString);
+	
+ }
+    
+    
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
     		currentUserAsString, typeManager.getSentPrivateMessageType(),
@@ -1170,6 +1110,73 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     savePrivateMessage(message, false);
   }
+
+  private String buildMessageBody(PrivateMessage message) {
+	  User currentUser = UserDirectoryService.getCurrentUser();
+	  StringBuilder body = new StringBuilder(message.getBody());
+
+	  body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>"); 
+
+	  // need to filter out hidden users if there are any and:
+	  //   a non-instructor (! site.upd)
+	  //   instructor but not the author
+	  String sendToString = message.getRecipientsAsText();
+	  if (sendToString.indexOf("(") > 0 && (! isInstructor() || !isEmailPermit()|| (!message.getAuthor().equals(getAuthorString()))) ) {
+		  sendToString = sendToString.substring(0, sendToString.indexOf("("));
+	  }
+
+	  body.insert(0, "To: " + sendToString + "<p/>");
+
+	  if (message.getAttachments() != null && message.getAttachments().size() > 0) {
+
+		  body.append("<br/><br/>");
+		  for (Iterator iter = message.getAttachments().iterator(); iter.hasNext();) {
+			  Attachment attachment = (Attachment) iter.next();
+			  //body.append("<a href=\"" + attachment.getAttachmentUrl() +
+			  //"\">" + attachment.getAttachmentName() + "</a><br/>");            
+			  body.append("<a href=\"" + messageManager.getAttachmentUrl(attachment.getAttachmentId()) +
+					  "\">" + attachment.getAttachmentName() + "</a><br/>");            
+		  }
+	  }
+
+	  String siteTitle = null;
+	  try{
+		  siteTitle = SiteService.getSite(getContextId()).getTitle();
+	  }
+	  catch (IdUnusedException e){
+		  LOG.error(e.getMessage(), e);
+	  }
+
+	  String thisPageId = "";
+	  ToolSession ts = sessionManager.getCurrentToolSession();
+	  if (ts != null)
+	  {
+		  ToolConfiguration tool = SiteService.findTool(ts.getPlacementId());
+		  if (tool != null)
+		  {
+			  thisPageId = tool.getPageId();
+		  }
+	  }
+
+	  String footer = "<p>----------------------<br>" +
+	  getResourceBundleString(EMAIL_FOOTER1) + " " + ServerConfigurationService.getString("ui.service") +
+	  " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
+	  siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n" +
+	  getResourceBundleString(EMAIL_FOOTER4) +
+	  " <a href=\"" +
+	  ServerConfigurationService.getPortalUrl() + 
+	  "/site/" + ToolManager.getCurrentPlacement().getContext() +
+	  "/page/" + thisPageId+
+	  "\">";
+
+	  footer += siteTitle + "</a>.</p>";                      
+	  body.append(footer);
+
+	  String bodyString = body.toString();
+
+	  return bodyString;
+  }
+
 
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#markMessageAsReadForUser(org.sakaiproject.api.app.messageforums.PrivateMessage)
