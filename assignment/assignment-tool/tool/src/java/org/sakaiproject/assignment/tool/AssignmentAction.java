@@ -3004,8 +3004,7 @@ public class AssignmentAction extends PagedResourceActionII
 											User[] submitters = aSubmission.getSubmitters();
 											String submitterId = submitters[0].getId();
 											String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
-											Double grade = (gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(state,gradeString)) : null;
-											gExternal.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitterId, gradeString);
+											g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitterId, displayGrade(state,gradeString), "");
 										}
 									}
 								}
@@ -3023,7 +3022,7 @@ public class AssignmentAction extends PagedResourceActionII
 								AssignmentSubmission aSubmission = (AssignmentSubmission) AssignmentService
 										.getSubmission(submissionRef);
 								User[] submitters = aSubmission.getSubmitters();
-								String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
+								String gradeString = displayGrade(state, StringUtil.trimToNull(aSubmission.getGrade()));
 
 								if (associateGradebookAssignment != null)
 								{
@@ -5406,7 +5405,6 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// need to remove the associated gradebook entry if 1) it is external and 2) no other assignment are associated with it
 				removeNonAssociatedExternalGradebookEntry(context, a.getReference(), oAssociateGradebookAssignment,gExternal, gradebookUid);
-					
 			}
 		}
 	}
