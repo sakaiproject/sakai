@@ -108,6 +108,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -8687,6 +8688,24 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public String getGrade()
 		{
+			Assignment m = getAssignment();
+			String gAssignmentName = StringUtil.trimToNull(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			if (gAssignmentName != null)
+			{
+				GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+				String gradebookUid = m.getContext();
+				if (g.isGradebookDefined(gradebookUid) && g.isAssignmentDefined(gradebookUid, gAssignmentName))
+				{
+					org.sakaiproject.service.gradebook.shared.Assignment gAssignment = g.getAssignment(gradebookUid, gAssignmentName);
+					Map studentMap = g.getViewableStudentsForItemForCurrentUser(gradebookUid, gAssignment.getId());
+					String userId = (String) m_submitters.get(0);
+					if (studentMap.containsKey(userId))
+					{
+						// return student score from Gradebook
+						return g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId);
+					}
+				}
+			}
 			return m_grade;
 		}
 
@@ -8698,31 +8717,32 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public String getGradeDisplay()
 		{
 			Assignment m = getAssignment();
+			String grade = getGrade();
 			if (m.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
 			{
-				if (m_grade != null && m_grade.length() > 0 && !m_grade.equals("0"))
+				if (grade != null && grade.length() > 0 && !grade.equals("0"))
 				{
 					try
 					{
-						Integer.parseInt(m_grade);
+						Integer.parseInt(grade);
 						// if point grade, display the grade with one decimal place
-						return m_grade.substring(0, m_grade.length() - 1) + "." + m_grade.substring(m_grade.length() - 1);
+						return grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
 					}
 					catch (Exception e)
 					{
-						return m_grade;
+						return grade;
 					}
 				}
 				else
 				{
-					return StringUtil.trimToZero(m_grade);
+					return StringUtil.trimToZero(grade);
 				}
 			}
 			else
 			{
-				if (m_grade != null && m_grade.length() > 0)
+				if (grade != null && grade.length() > 0)
 				{
-					return StringUtil.trimToZero(m_grade);
+					return StringUtil.trimToZero(grade);
 				}
 				else
 				{
