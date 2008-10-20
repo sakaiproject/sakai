@@ -223,6 +223,7 @@ public class RealmsAction extends PagedResourceActionII
 		context.put("startNumber", Integer.valueOf(startNumber));
 		context.put("endNumber", Integer.valueOf(endNumber));
 		context.put("totalNumber", Integer.valueOf(totalNumber));
+		pagingInfoToContext(state, context);
 
 		// build the menu
 		Menu bar = new MenuImpl();
@@ -232,7 +233,7 @@ public class RealmsAction extends PagedResourceActionII
 		}
 
 		// add the paging commands
-		addListPagingMenus(bar, state);
+		//addListPagingMenus(bar, state);
 
 		// add the search commands
 		addSearchMenus(bar, state);
