@@ -3908,7 +3908,9 @@ private   int   getNum(char letter,   String   a)
         if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())){
           for (Iterator a = allCourseUsers.iterator(); a.hasNext();){
             MembershipItem member = (MembershipItem) a.next();            
-              returnSet.add(member.getUser());            
+              returnSet.add(member.getUser());
+              //if all users have been selected we may as well return and ignore any other entries
+              return returnSet;
           }
         }
         else if (MembershipItem.TYPE_ROLE.equals(item.getType())){
@@ -3965,7 +3967,9 @@ private   int   getNum(char letter,   String   a)
         if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())){
           for (Iterator a = allCourseUsers.iterator(); a.hasNext();){
             MembershipItem member = (MembershipItem) a.next();            
-              returnSet.add(member.getUser());            
+            returnSet.add(member.getUser());
+            //if all users have been selected we may as well return and ignore any other entries
+            return returnSet;
           }
         }
         else if (MembershipItem.TYPE_ROLE.equals(item.getType())){
