@@ -115,11 +115,10 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -2880,12 +2879,14 @@ public class AssignmentAction extends PagedResourceActionII
 		// to remove.
 		String assignmentToolTitle = getToolTitle();
 
-		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradebookExternalAssessmentService gExternal = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+		
 		String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
 		if (g.isGradebookDefined(gradebookUid))
 		{
-			boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, assignmentRef);
-			boolean isExternalAssociateAssignmentDefined = g.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
+			boolean isExternalAssignmentDefined=gExternal.isExternalAssignmentDefined(gradebookUid, assignmentRef);
+			boolean isExternalAssociateAssignmentDefined = gExternal.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
 			boolean isAssignmentDefined = g.isAssignmentDefined(gradebookUid, associateGradebookAssignment);
 
 			if (addUpdateRemoveAssignment != null)
@@ -2897,8 +2898,7 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						// add assignment to gradebook
-						g.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title,
-								newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()), assignmentToolTitle);
+						gExternal.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()), assignmentToolTitle, false);
 					}
 					catch (AssignmentHasIllegalPointsException e)
 					{
@@ -2937,7 +2937,7 @@ public class AssignmentAction extends PagedResourceActionII
 						    Assignment a = AssignmentService.getAssignment(associateGradebookAssignment);
 
 						    // update attributes if the GB assignment was created for the assignment
-						    g.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()));
+						    gExternal.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()), false);
 						}
 					    catch(Exception e)
 				        {
@@ -2948,7 +2948,7 @@ public class AssignmentAction extends PagedResourceActionII
 				else if (addUpdateRemoveAssignment.equals("remove"))
 				{
 					// remove assignment and all submission grades
-					removeNonAssociatedExternalGradebookEntry((String) state.getAttribute(STATE_CONTEXT_STRING), assignmentRef, associateGradebookAssignment, g, gradebookUid);
+					removeNonAssociatedExternalGradebookEntry((String) state.getAttribute(STATE_CONTEXT_STRING), assignmentRef, associateGradebookAssignment, gExternal, gradebookUid);
 				}
 			}
 
@@ -2992,7 +2992,7 @@ public class AssignmentAction extends PagedResourceActionII
 									if (isExternalAssociateAssignmentDefined)
 									{
 										// the associated assignment is externally maintained
-										g.updateExternalAssessmentScores(gradebookUid, associateGradebookAssignment, m);
+										gExternal.updateExternalAssessmentScoresString(gradebookUid, associateGradebookAssignment, m);
 									}
 									else if (isAssignmentDefined)
 									{
@@ -3005,13 +3005,13 @@ public class AssignmentAction extends PagedResourceActionII
 											String submitterId = submitters[0].getId();
 											String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
 											Double grade = (gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(state,gradeString)) : null;
-											g.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitterId, grade, assignmentToolTitle);
+											gExternal.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitterId, gradeString);
 										}
 									}
 								}
 								else if (isExternalAssignmentDefined)
 								{
-									g.updateExternalAssessmentScores(gradebookUid, assignmentRef, m);
+									gExternal.updateExternalAssessmentScoresString(gradebookUid, assignmentRef, m);
 								}
 							}
 						}
@@ -3027,23 +3027,23 @@ public class AssignmentAction extends PagedResourceActionII
 
 								if (associateGradebookAssignment != null)
 								{
-									if (g.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment))
+									if (gExternal.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment))
 									{
 										// the associated assignment is externally maintained
-										g.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
-												(gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(state,gradeString)) : null);
+										gExternal.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
+												(gradeString != null && aSubmission.getGradeReleased()) ? gradeString : "");
 									}
 									else if (g.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
 									{
 										// the associated assignment is internal one, update records
-										g.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
-												(gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(state,gradeString)) : null, assignmentToolTitle);
+										g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
+												(gradeString != null && aSubmission.getGradeReleased()) ? gradeString : "", "");
 									}
 								}
 								else
 								{
-									g.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(),
-											(gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(state,gradeString)) : null);
+									gExternal.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(),
+											(gradeString != null && aSubmission.getGradeReleased()) ? gradeString : "");
 								}
 							}
 							catch (Exception e)
@@ -3068,11 +3068,11 @@ public class AssignmentAction extends PagedResourceActionII
 								if (isExternalAssociateAssignmentDefined)
 								{
 									// if the old associated assignment is an external maintained one
-									g.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(), null);
+									gExternal.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(), null);
 								}
 								else if (isAssignmentDefined)
 								{
-									g.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(), null, assignmentToolTitle);
+									g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[0].getId(), null, assignmentToolTitle);
 								}
 							}
 						}
@@ -3084,7 +3084,7 @@ public class AssignmentAction extends PagedResourceActionII
 								AssignmentSubmission aSubmission = (AssignmentSubmission) AssignmentService
 										.getSubmission(submissionRef);
 								User[] submitters = aSubmission.getSubmitters();
-								g.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(), null);
+								gExternal.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(), null);
 							}
 							catch (Exception e)
 							{
@@ -5327,6 +5327,8 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private void initIntegrateWithGradebook(SessionState state, String siteId, String aOldTitle, String oAssociateGradebookAssignment, AssignmentEdit a, String title, Time dueTime, int gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, String range) {
 
+		GradebookExternalAssessmentService gExternal = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+		
 		String context = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		boolean gradebookExists = isGradebookDefined();
 
@@ -5385,7 +5387,7 @@ public class AssignmentAction extends PagedResourceActionII
 							if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
 							{
 								// if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
-								removeNonAssociatedExternalGradebookEntry(context, a.getReference(), oAssociateGradebookAssignment,g, gradebookUid);
+								removeNonAssociatedExternalGradebookEntry(context, a.getReference(), oAssociateGradebookAssignment,gExternal, gradebookUid);
 							}
 						}
 						catch (NumberFormatException nE)
@@ -5403,14 +5405,14 @@ public class AssignmentAction extends PagedResourceActionII
 			else
 			{
 				// need to remove the associated gradebook entry if 1) it is external and 2) no other assignment are associated with it
-				removeNonAssociatedExternalGradebookEntry(context, a.getReference(), oAssociateGradebookAssignment,g, gradebookUid);
+				removeNonAssociatedExternalGradebookEntry(context, a.getReference(), oAssociateGradebookAssignment,gExternal, gradebookUid);
 					
 			}
 		}
 	}
 
-	private void removeNonAssociatedExternalGradebookEntry(String context, String assignmentReference, String associateGradebookAssignment, GradebookService g, String gradebookUid) {
-		boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
+	private void removeNonAssociatedExternalGradebookEntry(String context, String assignmentReference, String associateGradebookAssignment, GradebookExternalAssessmentService gExternal, String gradebookUid) {
+		boolean isExternalAssignmentDefined=gExternal.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
 		if (isExternalAssignmentDefined)
 		{
 			// iterate through all assignments currently in the site, see if any is associated with this GB entry
@@ -5428,7 +5430,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// so if none of the assignment in this site is associated with the entry, remove the entry
 			if (!found)
 			{
-				g.removeExternalAssessment(gradebookUid, associateGradebookAssignment);
+				gExternal.removeExternalAssessment(gradebookUid, associateGradebookAssignment);
 			}
 		}
 	}
