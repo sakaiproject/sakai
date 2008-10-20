@@ -22,7 +22,8 @@
         <property name="location" column="LOCATION"/>
         <property name="SCORMType" column="SCORM_TYPE"/>
         <property name="itemTitle" column="ITEM_TITLE"/>
-        <property name="dataFromLMS" column="DATA_FROM_LMS"/>
+        <property name="dataFromLMS" column="DATA_FROM_LMS" type="text"/>
+        <!-- ALTER TABLE `scorm_launch_data_t` MODIFY COLUMN `DATA_FROM_LMS` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci; -->
         <property name="timeLimitAction" column="TIME_LIMIT_ACTION"/>
         <property name="minNormalizedMeasure" column="MIN_NORMALIZED_MEASURE"/>
         <property name="attemptAbsoluteDurationLimit" column="ATTEMPT_ABS_DUR_LIMIT"/>
