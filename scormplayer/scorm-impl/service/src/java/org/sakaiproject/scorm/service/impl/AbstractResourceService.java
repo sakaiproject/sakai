@@ -49,8 +49,8 @@ public abstract class AbstractResourceService implements ScormResourceService {
 	
 	protected boolean isValidArchive(String mimeType) {
 		
-		return (mimeType != null && (mimeType.equals("application/zip")
-				|| mimeType.equals("application/x-download")));
+		return (mimeType != null && (mimeType.startsWith("application/zip")
+				|| mimeType.startsWith("application/x-download")));
 
 	}
 	
