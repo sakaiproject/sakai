@@ -148,7 +148,8 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 			m_log.debug("got a paramater with id: " + Long.valueOf(aivp.id));
 			// passed in an id so we should be modifying an item if we can find it
 			option = pollListManager.getOptionById(Long.valueOf(aivp.id));
-			poll = pollListManager.getPollById(option.getOptionId());
+			// SAK-14702 : Bugfix
+			poll = pollListManager.getPollById(option.getPollId());
 			UIMessage.make(tofill,"new-option-title","edit_option_title");
 		} else {
 			option = new Option();
