@@ -13,6 +13,70 @@
 		<div class="instruction">
 			$tlang.getString("sitlis.theare") 
 		</div>
+		
+##paging widget
+		<div class="listNav">
+						#if($totalNumber>0)
+						<div class="instruction">	
+						$tlang.getString("sitedipag.list.youare") $startNumber - $endNumber $tlang.getString("sitedipag.list.of") $totalNumber $tlang.getString("sitedipag.list.results")
+						</div>
+						#end
+						#if ($pagesize != 0)
+							#if ($goFPButton == "true")
+								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("sitedipag.first")" />
+								</form>
+							#else
+								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+								</form>
+							#end
+							#if ($goPPButton == "true")
+								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('sitedipag.previous') $pagesize"  accesskey="p" />
+								</form>
+							#else
+								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+								</form>
+							#end
+						#end
+						<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+							<span class="skip">$tlang.getString("sitedipag.listnavselect")</span>
+							<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+								<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("sitedipag.show5")</option>
+								<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("sitedipag.show10")</option>
+								<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("sitedipag.show20")</option>
+								<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("sitedipag.show50")</option>
+								<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("sitedipag.show100")</option>
+								<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("sitedipag.show200")</option>
+							</select>
+						</form>
+						#if ($pagesize != 0)
+							#if ($goNPButton == "true")
+								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('sitedipag.next') $pagesize"  accesskey="n" />
+								</form>
+							#else
+								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+								</form>
+							#end
+							#if ($goLPButton == "true")
+								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('sitedipag.last')" />
+								</form>
+							#else
+								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+								</form>
+							#end
+						#end
+					</div>
+				</div> ##end navPanel
+				
+		
 #if ($sites.size() > 0)
 	#set ($siteCount = 0)
 		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitlis.list.summary")">
