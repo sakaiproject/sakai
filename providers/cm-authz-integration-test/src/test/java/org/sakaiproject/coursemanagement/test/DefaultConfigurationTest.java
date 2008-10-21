@@ -62,6 +62,7 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 	private static String sectionADis1 = "sectionADis1";
 	private static String enrollmentBLec1 = "enrollmentBLec1";
 	private static String sectionBLec1 = "sectionBLec1";
+	private static String sectionCanceled = "sectionCanceled";
 
 	static {
 		setSakaiHome("default");
@@ -124,6 +125,7 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 		courseManagementAdmin.createEnrollmentSet(enrollmentALec1, enrollmentALec1, enrollmentALec1, "lecture", "4", courseOfferingA, officialInstructors);
 		courseManagementAdmin.createEnrollmentSet(enrollmentBLec1, enrollmentBLec1, enrollmentBLec1, "lecture", "4", courseOfferingB, null);
 		
+		courseManagementAdmin.createSection(sectionCanceled, sectionCanceled, sectionCanceled, "lecture", null, courseOfferingA, null);
 		courseManagementAdmin.createSection(sectionALec1, sectionALec1, sectionALec1, "lecture", null, courseOfferingA, enrollmentALec1);
 		courseManagementAdmin.createSection(sectionADis1, sectionADis1, sectionADis1, "discussion", null, courseOfferingA, null);
 		courseManagementAdmin.createSection(sectionBLec1, sectionBLec1, sectionBLec1, "lecture", null, courseOfferingB, enrollmentBLec1);
@@ -143,8 +145,11 @@ public class DefaultConfigurationTest extends ConfigurationTestBase {
 		
 		// Now let's make some course sites.
 		Site site = siteService.addSite(courseOfferingA, "course");
-		site.setProviderGroupId(groupProvider.packId(new String[] {sectionALec1, sectionADis1}));
+		site.setProviderGroupId(groupProvider.packId(new String[] {sectionCanceled, sectionALec1, sectionADis1}));
 		siteService.save(site);
+		
+		// As icing on the cake, remove one of the sections. SAK-14713
+		courseManagementAdmin.removeSection(sectionCanceled);
 
 		// Add an unofficial student to the site. The save will wipe out the provided users!
 		AuthzGroup authzGroup = authzGroupService.getAuthzGroup(site.getReference());
