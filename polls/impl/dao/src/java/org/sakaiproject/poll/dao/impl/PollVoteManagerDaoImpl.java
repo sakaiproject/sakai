@@ -111,7 +111,7 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
             }
         }
         Map<Long, List<Vote>> map = new HashMap<Long, List<Vote>>();
-        if (pollIds.length > 0) {
+        if (pollIds != null && pollIds.length > 0) {
             List<Vote> votes = getHibernateTemplate().findByCriteria(d);
             // put the list of votes into a map
             for (Vote vote : votes) {

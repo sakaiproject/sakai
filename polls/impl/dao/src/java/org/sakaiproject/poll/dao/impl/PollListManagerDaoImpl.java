@@ -449,10 +449,10 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
             // /syllabus/siteid/syllabusid
             String[] parts = split(reference, Entity.SEPARATOR);
 
-            String subType = null;
+            String subType = "";
             String context = null;
             String id = null;
-            String container = null;
+            String container = "";
 
             if (parts.length > 2) {
                 // the site/context

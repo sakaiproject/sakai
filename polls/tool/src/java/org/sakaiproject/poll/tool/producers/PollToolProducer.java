@@ -192,7 +192,7 @@ DefaultView,NavigationCaseReporter {
 
 
 
-		List polls = null;
+		List<Poll> polls = new ArrayList<Poll>();
 
 
 
