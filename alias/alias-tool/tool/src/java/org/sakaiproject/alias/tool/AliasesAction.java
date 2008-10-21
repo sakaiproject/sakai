@@ -146,8 +146,27 @@ public class AliasesAction extends PagedResourceActionII
 		}
 
 		// add the paging commands
-		addListPagingMenus(bar, state);
+		//addListPagingMenus(bar, state);
+		int pageSize = Integer.valueOf(state.getAttribute(STATE_PAGESIZE).toString()).intValue();
+		int currentPageNubmer = Integer.valueOf(state.getAttribute(STATE_CURRENT_PAGE).toString()).intValue();
+		int startNumber = pageSize * (currentPageNubmer - 1) + 1;
+		int endNumber = pageSize * currentPageNubmer;
 
+		int totalNumber = 0;
+		try
+		{
+			totalNumber = Integer.valueOf(state.getAttribute(STATE_NUM_MESSAGES).toString()).intValue();
+		}
+		catch (java.lang.NullPointerException ignore) {}
+		catch (java.lang.NumberFormatException ignore) {}
+
+		if (totalNumber < endNumber) endNumber = totalNumber;
+
+		context.put("startNumber", Integer.valueOf(startNumber));
+		context.put("endNumber", Integer.valueOf(endNumber));
+		context.put("totalNumber", Integer.valueOf(totalNumber));
+		pagingInfoToContext(state, context);
+		
 		// add the search commands
 		addSearchMenus(bar, state);
 
