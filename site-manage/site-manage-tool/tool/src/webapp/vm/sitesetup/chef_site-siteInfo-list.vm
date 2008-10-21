@@ -281,7 +281,7 @@
 							#end 
 						</a>
 					</th>
-					#if ($!isCourseSite)
+					#if ($hasProviderSet)
 						<th id="coursename">
 							<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_course")" title ="$tlang.getString("sitegen.siteinfolist.sortname1")"> 
 								$tlang.getString("sitegen.siteinfolist.enrolled")
@@ -294,6 +294,8 @@
 								#end 
 							</a>
 						</th>
+					#end
+					#if ($!isCourseSite)
 						<th id="id">
 							<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_id")" title ="$tlang.getString("sitegen.siteinfolist.sortid")"> 
 								$tlang.getString("sitegen.siteinfolist.id")
@@ -369,12 +371,14 @@
 								#end)
 							</h5>
 						</td>
-						#if ($!isCourseSite)
+						#if ($hasProviderSet)
 							<td headers="coursename">
 								#set($partSection = "")
 								#set($partSection = $participant.getSection())
 								$partSection
 							</td>
+						#end
+						#if ($!isCourseSite)
 							<td headers="id">
 								#set($partId = "")
 								#set($partId = $participant.getRegId())

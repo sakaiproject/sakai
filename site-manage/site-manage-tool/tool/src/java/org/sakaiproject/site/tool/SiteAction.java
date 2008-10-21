@@ -1665,7 +1665,14 @@ public class SiteAction extends PagedResourceActionII {
 				if (siteType != null) {
 					state.setAttribute(STATE_SITE_TYPE, siteType);
 				}
-
+				
+				if (site.getProviderGroupId() != null) {
+					M_log.debug("site has provider");
+					context.put("hasProviderSet", Boolean.TRUE);
+				} else {
+					M_log.debug("site has no provider");
+					context.put("hasProviderSet", Boolean.FALSE);
+				}
 				boolean isMyWorkspace = false;
 				if (SiteService.isUserSite(site.getId())) {
 					if (SiteService.getSiteUserId(site.getId()).equals(
