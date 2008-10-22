@@ -255,11 +255,8 @@ public class EntityMember implements Member {
     /* (non-Javadoc)
      * @see org.sakaiproject.authz.api.Member#setActive(boolean)
      */
-    public void setActive(boolean arg0) {
-        if (member != null) {
-            member.setActive(arg0);
-        }
-        throw new UnsupportedOperationException();
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     /* (non-Javadoc)
