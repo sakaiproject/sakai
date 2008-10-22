@@ -64,6 +64,8 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.MergedList;
+import org.sakaiproject.util.MergedListEntryProviderBase;
+import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 
@@ -82,6 +84,7 @@ public class CalendarBean {
 	/** Used to retrieve non-notification sites for MyWorkspace page */
 	private static final String 					TABS_EXCLUDED_PREFS 	= "sakai:portal:sitenav";
 	private final String 							TAB_EXCLUDED_SITES 		= "exclude";
+	private static final String 					MERGED_CALENDARS_PROP 	= "mergedCalendarReferences";
 	
 	/** Our log (commons). */
 	private static Log								LOG						= LogFactory.getLog(CalendarBean.class);
@@ -190,59 +193,176 @@ public class CalendarBean {
 	}
 	
 	private List getCalendarReferences() {
+		// get merged calendars channel refs
+		String initMergeList = null;
+		try{
+			ToolConfiguration tc = M_ss.getSite(getSiteId()).getToolForCommonId(SCHEDULE_TOOL_ID);
+			if(tc != null) {
+				initMergeList = tc.getPlacementConfig().getProperty(MERGED_CALENDARS_PROP);
+			}
+		}catch(IdUnusedException e){
+			initMergeList = null;
+		}
+		
+		// load all calendar channels (either primary or merged calendars)
+		String primaryCalendarReference = M_ca.calendarReference(getSiteId(), SiteService.MAIN_CONTAINER);
+ 		MergedList mergedCalendarList = loadChannels(primaryCalendarReference, initMergeList, null);
+ 		
+		// add external calendar subscriptions
+        List referenceList = mergedCalendarList.getReferenceList();
+        Set subscriptionRefList = M_ecs.getCalendarSubscriptionChannelsForChannels(referenceList);
+        referenceList.addAll(subscriptionRefList);
+				
+		return referenceList;
+	}
+	
+	/**
+	 ** loadChannels -- load specified primaryCalendarReference or merged
+	 ** calendars if initMergeList is defined
+	 **/
+	private MergedList loadChannels(String primaryCalendarReference, String initMergeList, MergedList.EntryProvider entryProvider) {
 		MergedList mergedCalendarList = new MergedList();
-
 		String[] channelArray = null;
 		boolean isOnWorkspaceTab = M_ss.isUserSite(getSiteId());
-		boolean isSuperUser = M_as.isSuperUser();
 
 		// Figure out the list of channel references that we'll be using.
-		// If we're on the workspace tab, we get everything.
-		// Don't do this if we're the super-user, since we'd be
-		// overwhelmed.
-		List calendarReferences = new ArrayList();
-		if(isOnWorkspaceTab && !isSuperUser){
-			channelArray = mergedCalendarList.getAllPermittedChannels(new CalendarChannelReferenceMaker(getExcludedSitesFromTabs()));
-			if(channelArray != null){
-				for(int i = 0; i < channelArray.length; i++)
-					if(channelArray[i] != null)
-						calendarReferences.add(channelArray[i]);
-			}
+		// MyWorkspace is special: if not superuser, and not otherwise defined,
+		// get all channels
+		if(isOnWorkspaceTab && !M_as.isSuperUser() && initMergeList == null){
+			channelArray = mergedCalendarList.getAllPermittedChannels(new CalendarChannelReferenceMaker());
+		}else{
+			channelArray = mergedCalendarList.getChannelReferenceArrayFromDelimitedString(primaryCalendarReference, initMergeList);
 		}
+		if(entryProvider == null){
+			entryProvider = new MergedListEntryProviderFixedListWrapper(new EntryProvider(), primaryCalendarReference, channelArray, new CalendarReferenceToChannelConverter());
+		}
+		mergedCalendarList.loadChannelsFromDelimitedString(isOnWorkspaceTab, false, entryProvider, StringUtil.trimToZero(M_sm.getCurrentSessionUserId()), channelArray, M_as.isSuperUser(), getSiteId());
 
-		// add current site
-		calendarReferences.add(M_ca.calendarReference(getSiteId(), SiteService.MAIN_CONTAINER));
-				
-		// add external calendar subscriptions
-		Set subscriptionRefList = M_ecs.getCalendarSubscriptionChannelsForChannels(calendarReferences);
-		calendarReferences.addAll(subscriptionRefList);
-		return calendarReferences;
+		return mergedCalendarList;
 	}
-
+	
 	/*
-	 * Callback class so that we can form references in a generic way. Method
-	 * copied from Calendar legacy module: CalendarAction.java
+	 * Callback class so that we can form references in a generic way.
 	 */
 	private final class CalendarChannelReferenceMaker implements MergedList.ChannelReferenceMaker {
-		private List excludedSites = null;
-		
-		public CalendarChannelReferenceMaker(List excludedSites) {
-			this.excludedSites = excludedSites;
-		}
-		
 		public String makeReference(String siteId) {
-			if(siteHasScheduleTool(siteId)
-					&& (excludedSites == null || !excludedSites.contains(siteId)) )
-				return M_ca.calendarReference(siteId, SiteService.MAIN_CONTAINER);
-			else
-				return null;
+			return M_ca.calendarReference(siteId, SiteService.MAIN_CONTAINER);
 		}
-		
-		private boolean siteHasScheduleTool(String siteId) {
+	}
+	
+	/**
+	 * Provides a list of merged calendars by iterating through all
+	 * available calendars.
+	 */
+	private final class EntryProvider extends MergedListEntryProviderBase {
+ 		/** calendar channels from hidden sites */
+ 		private final List excludedSites = new ArrayList();
+ 		
+ 		public EntryProvider() {
+ 			this(false);
+ 		}
+ 		
+ 		public EntryProvider(boolean excludeHiddenSites) {
+ 			if(excludeHiddenSites) {
+	 			List<String> excludedSiteIds = getExcludedSitesFromTabs();
+	 			if(excludedSiteIds != null) {
+		 			for(String siteId : excludedSiteIds) {
+		 				excludedSites.add(M_ca.calendarReference(siteId, SiteService.MAIN_CONTAINER));
+		 			}
+	 			}
+ 			}
+ 		}
+ 		
+		/*
+		 * (non-Javadoc)
+		 * @see
+		 * org.sakaiproject.util.MergedListEntryProviderBase#makeReference(java
+		 * .lang.String)
+		 */
+		public Object makeObjectFromSiteId(String id) {
+			String calendarReference = M_ca.calendarReference(id, SiteService.MAIN_CONTAINER);
+			Object calendar = null;
+
+			if(calendarReference != null){
+				try{
+					calendar = M_ca.getCalendar(calendarReference);
+				}catch(IdUnusedException e){
+					// The channel isn't there.
+				}catch(PermissionException e){
+					// We can't see the channel
+				}
+			}
+
+			return calendar;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see
+		 * org.chefproject.actions.MergedEntryList.EntryProvider#allowGet(java
+		 * .lang.Object)
+		 */
+		public boolean allowGet(String ref) {
+			return !excludedSites.contains(ref) && M_ca.allowGetCalendar(ref);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see
+		 * org.chefproject.actions.MergedEntryList.EntryProvider#getContext(
+		 * java.lang.Object)
+		 */
+		public String getContext(Object obj) {
+			if(obj == null){
+				return "";
+			}
+
+			org.sakaiproject.calendar.api.Calendar calendar = (org.sakaiproject.calendar.api.Calendar) obj;
+			return calendar.getContext();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see
+		 * org.chefproject.actions.MergedEntryList.EntryProvider#getReference
+		 * (java.lang.Object)
+		 */
+		public String getReference(Object obj) {
+			if(obj == null){
+				return "";
+			}
+
+			org.sakaiproject.calendar.api.Calendar calendar = (org.sakaiproject.calendar.api.Calendar) obj;
+			return calendar.getReference();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see
+		 * org.chefproject.actions.MergedEntryList.EntryProvider#getProperties
+		 * (java.lang.Object)
+		 */
+		public ResourceProperties getProperties(Object obj) {
+			if(obj == null){
+				return null;
+			}
+
+			org.sakaiproject.calendar.api.Calendar calendar = (org.sakaiproject.calendar.api.Calendar) obj;
+			return calendar.getProperties();
+		}
+	}
+	
+	/**
+	 * Used by callback to convert channel references to channels.
+	 */
+	private final class CalendarReferenceToChannelConverter implements MergedListEntryProviderFixedListWrapper.ReferenceToChannelConverter {
+		public Object getChannel(String channelReference) {
 			try{
-				return M_ss.getSite(siteId).getToolForCommonId(SCHEDULE_TOOL_ID) != null;
+				return M_ca.getCalendar(channelReference);
 			}catch(IdUnusedException e){
-				return false;
+				return null;
+			}catch(PermissionException e){
+				return null;
 			}
 		}
 	}
