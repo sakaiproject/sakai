@@ -8,6 +8,7 @@ check_checkboxs = function(){
 }
 
 jQuery(document).ready(function(){
+    check_checkboxs();
 	$("input:checkbox[@name='release'], input:checkbox[@name='course_grade']").click(check_checkboxs);
 });
 

@@ -5,12 +5,12 @@ import java.util.Map;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.ui.helpers.producers.AuthorizationFailedProducer;
 
 import uk.org.ponder.beanutil.entity.EntityBeanLocator;
-import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 
@@ -19,6 +19,8 @@ public class GradebookItemBean {
 	private static final String CANCEL = "cancel";
 	private static final String SUBMIT = "submit";
 	private static final String FAILURE = "failure";
+	
+	public static final Long CATEGORY_UNASSIGNED = -1L;
 	
 	public Boolean requireDueDate = false;
 	
@@ -33,11 +35,6 @@ public class GradebookItemBean {
 	public void setAssignmentEntityBeanLocator(EntityBeanLocator entityBeanLocator) {
 		this.OTPMap = entityBeanLocator.getDeliveredBeans();
 		this.assignmentEntityBeanLocator = entityBeanLocator;
-	}
-
-	private MessageLocator messageLocator;
-	public void setMessageLocator (MessageLocator messageLocator) {
-		this.messageLocator = messageLocator;
 	}
 	
 	private GradebookManager gradebookManager;
@@ -123,7 +120,7 @@ public class GradebookItemBean {
 				//We have a new assignment object
 				Long id = null;
 				try {
-					if (this.categoryId != null){
+					if (this.categoryId != null && this.categoryId != CATEGORY_UNASSIGNED){
 						id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
 								assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
 					} else {
@@ -142,6 +139,18 @@ public class GradebookItemBean {
 			} else {
 				//we are editing an existing object
 				try {
+				    if (this.categoryId != null && !this.categoryId.equals(CATEGORY_UNASSIGNED)) {
+				        // we need to retrieve the category and add it to the
+				        // assignment
+				        Category cat = gradebookManager.getCategory(categoryId);
+				        if (cat != null) {
+				            assignment.setCategory(cat);
+				        }
+				    } else {
+				        // this assignment does not have a category
+				        assignment.setCategory(null);
+				    }
+				    
 					gradebookManager.updateAssignment(assignment);
 					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
 							new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
@@ -164,6 +173,11 @@ public class GradebookItemBean {
 		return CANCEL;
 	}
 	
+	/**
+	 * this is the fetchMethod for the EntityBeanLocator
+	 * @param assignmentId
+	 * @return
+	 */
 	public Assignment getAssignmentById(Long assignmentId){
 		return gradebookManager.getAssignment(assignmentId);
 	}

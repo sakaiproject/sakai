@@ -3,19 +3,16 @@ package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.tool.gradebook.Category;
-import org.sakaiproject.tool.gradebook.Assignment;
-import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookItemViewParams;
-import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.sakaiproject.tool.gradebook.ui.helpers.beans.GradebookItemBean;
+import org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookItemViewParams;
 
 import uk.org.ponder.beanutil.entity.EntityBeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -35,13 +32,13 @@ import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
+import uk.org.ponder.rsf.util.RSFUtil;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-import uk.org.ponder.rsf.util.RSFUtil;
 
 public class GradebookItemProducer implements ActionResultInterceptor,
 ViewComponentProducer, ViewParamsReporter, DefaultView {
@@ -53,11 +50,29 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 
     private String reqStar = "<span class=\"reqStar\">*</span>";
 
+    public ViewParameters getViewParameters() {
+        return new GradebookItemViewParams();
+    }
+    
+    private EntityBeanLocator assignmentBeanLocator; 
+    public void setAssignmentBeanLocator(EntityBeanLocator assignmentBeanLocator) {
+        this.assignmentBeanLocator = assignmentBeanLocator;
+    }
+    
     private MessageLocator messageLocator;
-    private ToolManager toolManager;
-    private SessionManager sessionManager;
+    public void setMessageLocator(MessageLocator messageLocator) {
+        this.messageLocator = messageLocator;
+    }
+    
     private GradebookManager gradebookManager;
-    private EntityBeanLocator assignmentBeanLocator;
+    public void setGradebookManager(GradebookManager gradebookManager) {
+        this.gradebookManager = gradebookManager;
+    }
+    
+    private GradebookService gradebookService;
+    public void setGradebookService(GradebookService gradebookService) {
+        this.gradebookService = gradebookService;
+    }
     
 	/*
 	 * You can change the date input to accept time as well by uncommenting the lines like this:
@@ -71,18 +86,24 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 	public void setDateEvolver(FormatAwareDateInputEvolver dateEvolver) {
 		this.dateEvolver = dateEvolver;
 	}
-	
-    private SiteService siteService;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
     
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
     	GradebookItemViewParams params = (GradebookItemViewParams) viewparams;
+    	
+    	if (params.contextId == null) {
+    	    //TODO do something
+    	    return;
+    	}
+    	
+    	if (!gradebookService.currentUserHasEditPerm(params.contextId)) {
+    	    UIMessage.make(tofill, "permissions_error", "gradebook.authorizationFailed.permissions_error");
+            return;
+    	}
+    	
     	//Gradebook Info
-    	Long gradebookId = gradebookManager.getGradebook(params.contextId).getId();
-    	List categories = gradebookManager.getCategories(gradebookId);
-    	Gradebook gradebook  = gradebookManager.getGradebook(params.contextId);
+    	Gradebook gradebook = gradebookManager.getGradebook(params.contextId);
+    	Long gradebookId = gradebook.getId();
+    	List<Category> categories = gradebookManager.getCategories(gradebookId);
     	
     	String newItemName = params.name;
     	
@@ -102,7 +123,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
         
         //Display None Decorator list
-		Map attrmap = new HashMap();
+		Map<String, String> attrmap = new HashMap<String, String>();
 		attrmap.put("style", "display:none");
 		DecoratorList display_none_list =  new DecoratorList(new UIFreeAttributeDecorator(attrmap));
 		
@@ -170,22 +191,26 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 	        String[] category_labels = new String[categories.size() + 1];
 	        String[] category_values = new String[categories.size() + 1];
 	        category_labels[0] = messageLocator.getMessage("gradebook.add-gradebook-item.category_unassigned");
-	        category_values[0] = ""; 
-	        int i =1;
-	        for (Iterator catIter = categories.iterator(); catIter.hasNext();){
-	        	Category cat = (Category) catIter.next();
+	        category_values[0] = GradebookItemBean.CATEGORY_UNASSIGNED.toString();
+	        int i=1;
+	        for (Category cat : categories){
 				category_labels[i] = cat.getName();
 				category_values[i] = cat.getId().toString();
 				i++;
 	        }
 	        
-	        UISelect.make(form, "category", category_values, category_labels, "#{GradebookItemBean.categoryId}");
+	        String categoryId = GradebookItemBean.CATEGORY_UNASSIGNED.toString(); // unassigned by default
+	        if (assignment.getCategory() != null) {
+	            categoryId = assignment.getCategory().getId().toString();
+	        }
+	        
+	        UISelect.make(form, "category", category_values, category_labels, "#{GradebookItemBean.categoryId}", categoryId);
         }
         
         UIBoundBoolean.make(form, "release", assignmentOTP + ".released");
         UIBoundBoolean.make(form, "course_grade", "#{GradebookItemBean.counted}", !assignment.isNotCounted());
         
-        form.parameters.add( new UIELBinding("#{GradebookItemBean.gradebookId}", gradebookManager.getGradebook(params.contextId).getId()));
+        form.parameters.add( new UIELBinding("#{GradebookItemBean.gradebookId}", gradebookId));
         
         //RSFUtil.addResultingViewBinding(form, "assignmentId", assignmentOTP + ".id");
         RSFUtil.addResultingViewBinding(form, "name", assignmentOTP + ".name");
@@ -197,27 +222,6 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         	UICommand.make(form, "add_item", UIMessage.make("gradebook.add-gradebook-item.edit_item"), "#{GradebookItemBean.processActionAddItem}");
         }
         UICommand.make(form, "cancel", UIMessage.make("gradebook.add-gradebook-item.cancel"), "#{GradebookItemBean.processActionCancel}");
-    }
-
-    public ViewParameters getViewParameters() {
-        return new GradebookItemViewParams();
-    }
-    
-    public void setMessageLocator(MessageLocator messageLocator) {
-        this.messageLocator = messageLocator;
-    }
-
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-	
-    public void setGradebookManager(GradebookManager gradebookManager) {
-    	this.gradebookManager = gradebookManager;
     }
 
 	public void interceptActionResult(ARIResult result,
@@ -233,9 +237,5 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 				result.resultingView = new RawViewParameters(params.finishURL + "?value=" + name);
 			}
 		}
-	}
-
-	public void setAssignmentBeanLocator(EntityBeanLocator assignmentBeanLocator) {
-		this.assignmentBeanLocator = assignmentBeanLocator;
 	}
 }

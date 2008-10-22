@@ -261,3 +261,7 @@ A.breadCrumb {
 A:hover.breadCrumb {
 	color: #333;
 }
+
+div.instruction {
+    margin-left: 16em;
+}

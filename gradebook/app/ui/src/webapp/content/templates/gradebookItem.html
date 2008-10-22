@@ -49,10 +49,11 @@
 						<li>
 							<input rsf:id="require_due_date" type="checkbox" />
 							<label rsf:id="require_due_date_label">Require Due Date?</label>
+							<span rsf:id="require_due_date_container" id="require_due_date_container" class="indent"><input rsf:id="due_date:" value="12/31/2007"/></span>
 						</li>
 					</ol>
 				</fieldset>
-				<div rsf:id="require_due_date_container" class="indent"><input rsf:id="due_date:" value="12/31/2007"/></div>
+				
 			</li>
 			<li rsf:id="category_li">
 				<label rsf:id="msg=gradebook.add-gradebook-item.category_label">Category</label>
@@ -62,7 +63,7 @@
 					<option value="">Quizzes</option>
 					<option value="">Exams</option>
 				</select>
-				<p rsf:id="msg=gradebook.add-gradebook-item.cateogry_instruction" class="instruction">Items not assigned to a category will not be counted toward the course grade calculation.</p>
+				<div rsf:id="msg=gradebook.add-gradebook-item.cateogry_instruction" class="instruction">Items not assigned to a category will not be counted toward the course grade calculation.</div>
 			</li>
 			<li>
 				<fieldset>
@@ -86,9 +87,9 @@ function show_due_date(){
 	el = jQuery("input:checkbox[@name='require_due_date']").get(0);
 	if (el) {
 		if (el.checked) {
-			jQuery(el).parents("fieldset:first").next('div').show();
+		    jQuery("#require_due_date_container").show();
 		} else {
-			jQuery(el).parents("fieldset:first").next('div').hide();
+		    jQuery("#require_due_date_container").hide();
 		}
 	}
 }

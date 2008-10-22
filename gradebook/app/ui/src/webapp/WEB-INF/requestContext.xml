@@ -5,17 +5,16 @@
 <beans>
 
 	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.GradebookItemProducer" >
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
 		<property name="assignmentBeanLocator" ref="Assignment" />
 	</bean>
 	
 	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.GradeGradebookItemProducer" >
 		<property name="messageLocator" ref="messageLocator" />
-		<property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>
 	
@@ -23,7 +22,6 @@
 		   
    <bean id="GradebookItemBean" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.GradebookItemBean">
    	  <property name="messages" ref="targettedMessageList"/>
-   	  <property name="messageLocator" ref="messageLocator" />
    	  <property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
    	  <property name="assignmentEntityBeanLocator" ref="Assignment"/>
    	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
