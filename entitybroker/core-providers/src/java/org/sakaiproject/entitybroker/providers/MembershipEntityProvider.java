@@ -143,7 +143,6 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
      * Gets the list of all memberships for the current user if no params provided,
      * otherwise gets memberships in a specified location or for a specified user
      */
-    @SuppressWarnings("unchecked")
     public List<?> getEntities(EntityReference ref, Search search) {
         String currentUserId = developerHelperService.getCurrentUserId();
         String userId = null;
@@ -309,6 +308,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                 roleId = sg.site.getJoinerRole();
             }
             userId = userEntityProvider.findAndCheckUserId(em.getUserId(), em.getUserEid());
+            active = em.isActive();
         } else {
             throw new IllegalArgumentException("Invalid entity for create/update, must be Member or EntityMember object");
         }
@@ -407,7 +407,6 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
      * @param locationReference a site ref with an optional group ref (can look like this: /site/siteid/group/groupId)
      * @return the list of memberships for the given location and role
      */
-    @SuppressWarnings("unchecked")
     public List<EntityMember> getMembers(String locationReference) {
         ArrayList<EntityMember> l = new ArrayList<EntityMember>();
         Set<Member> members = null;
