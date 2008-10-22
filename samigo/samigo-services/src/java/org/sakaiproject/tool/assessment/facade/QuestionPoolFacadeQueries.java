@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -139,33 +141,35 @@ public class QuestionPoolFacadeQueries
 */
 
     try {
-      Iterator j = poolList.iterator();
-      while (j.hasNext()) {
-        QuestionPoolData qpp = (QuestionPoolData) j.next();
-        // I really wish we don't need to populate  the questionpool size & subpool size for JSF
-        // watch this for performance. hope Hibernate is smart enough not to load the entire question
-        // - daisy, 10/04/04
-        // populateQuestionPoolItemDatas(qpp);
-        qpp.setSubPoolSize(new Integer(getSubPoolSize(qpp.getQuestionPoolId())));
-        
-        qpList.add(getQuestionPool(qpp));
-/*
-        QuestionPoolAccessData qpa = (QuestionPoolAccessData) h.get(qpp.
-            getQuestionPoolId());
-        if (qpa == null) {
-          // if (qpa == null), take what is set for pool.
-          if (! (QuestionPoolFacade.ACCESS_DENIED).equals(qpp.getAccessTypeId())) {
-            qpList.add(getQuestionPool(qpp));
-          }
-        }
-        else {
-          if (! (QuestionPoolFacade.ACCESS_DENIED).equals(qpa.getAccessTypeId())) {
-            qpp.setAccessTypeId(qpa.getAccessTypeId());
-            qpList.add(getQuestionPool(qpp));
-          }
-        }
-*/
-      }
+    	// counts is a hashmap going from poolid to number of subpools. It is significantly
+    	// faster to build this with a single SQL query and then look up data in it.
+    	HashMap counts = new HashMap();
+
+    	// hibernate returns a list of arrays, the arrays being the values
+    	// returned by the query, in this case poolid and count. Both are
+    	// returned as BigInteger. We need Long and Integer.
+    	Iterator i1 = getSubPoolSizes(agentId).iterator();
+    	while (i1.hasNext()) {
+    		Object[]result = (Object [])i1.next();
+    		counts.put(new Long(((BigInteger)result[0]).longValue()),new Integer(((BigInteger)result[1]).intValue()));
+    	}    	
+
+    	Iterator j = poolList.iterator();
+    	while (j.hasNext()) {
+    		QuestionPoolData qpp = (QuestionPoolData) j.next();
+    		// I really wish we don't need to populate  the questionpool size & subpool size for JSF
+    		// watch this for performance. hope Hibernate is smart enough not to load the entire question
+    		// - daisy, 10/04/04
+    		// populateQuestionPoolItemDatas(qpp);
+    		// lookup number of subpools for this pool in our handy hash table
+    		Integer subPoolSize = (Integer)counts.get(new Long(qpp.getQuestionPoolId()));
+    		if (subPoolSize == null)
+    			qpp.setSubPoolSize(new Integer(0));
+    		else
+    			qpp.setSubPoolSize(subPoolSize);
+
+    		qpList.add(getQuestionPool(qpp));
+    	}
     }
     catch (Exception e) {
       log.warn(e.getMessage());
@@ -938,8 +942,32 @@ public class QuestionPoolFacadeQueries
 	    return getHibernateTemplate().executeFind(hcb);
   }
 
-  public int getSubPoolSize(Long poolId) {
-    return getSubPools(poolId).size();
+  // get number of subpools for each pool in a single query.
+  // returns a List of arrays. Each array is 0: poolid, 1: count of subpools
+  // both are BigInteger.
+  public List getSubPoolSizes(final String agent) {
+	  final HibernateCallback hcb = new HibernateCallback(){
+		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			  SQLQuery q = session.createSQLQuery("select a.QUESTIONPOOLID,(select count(*) from SAM_QUESTIONPOOL_T b where b.PARENTPOOLID=a.QUESTIONPOOLID) from SAM_QUESTIONPOOL_T a where a.OWNERID=?");
+			  q.setString(0, agent);
+			  return q.list();
+		  };
+	  };
+	  return getHibernateTemplate().executeFind(hcb);
+  }
+
+  //number of subpools for this pool. But consider getSubPoolSizes if you're going to 
+  // need this for all the pools.
+  public int getSubPoolSize(final Long poolId) {
+	  final HibernateCallback hcb = new HibernateCallback(){
+		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			  SQLQuery q = session.createSQLQuery("select count(*) from SAM_QUESTIONPOOL_T as qpp where qpp.PARENTPOOLID=?");
+			  q.setLong(0, poolId.longValue());
+			  return q.uniqueResult();
+		  };
+	  };
+	  Object o = getHibernateTemplate().execute(hcb);
+	  return ((BigInteger)o).intValue();
   }
 
   /**
@@ -948,30 +976,16 @@ public class QuestionPoolFacadeQueries
    * @param itemId DOCUMENTATION PENDING
    * @param poolId DOCUMENTATION PENDING
    */
-
+  // Note that this is going to do a database query. If you need to do this
+  // for lots of pools consider doing getSubPoolSizes, saving the results
+  // and then testing.
   public boolean hasSubPools(final Long poolId) {
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("from QuestionPoolData as qpp where qpp.parentPoolId=?");
-	    		q.setLong(0, poolId.longValue());
-	    		return q.list();
-	    	};
-	    };
-	    List subPools = getHibernateTemplate().executeFind(hcb);
-
-//    List subPools =
-//        getHibernateTemplate().find(
-//        "from QuestionPoolData as qpp where qpp.parentPoolId=?",
-//        new Object[] {poolId}
-//        , new org.hibernate.type.Type[] {Hibernate.LONG});
-    if (subPools.size() > 0) {
-      return true;
-    }
-    else {
-      return false;
-    }
+	  int poolSize = getSubPoolSize(poolId);
+	  if (poolSize >= 0) 
+		  return true;
+	  else
+		  return false;
   }
-
 
   public boolean poolIsUnique(final Long questionPoolId, final String title, final Long parentPoolId, final String agentId) {
     final HibernateCallback hcb = new HibernateCallback(){

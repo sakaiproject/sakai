@@ -70,7 +70,10 @@ public class QuestionPoolFacade
   private Id id;
   private TypeIfc questionPoolType;
   private Id parentId;
-  private QuestionPoolFacade parentPool;
+  // remove parentPool and the code to set it. It isn't actually
+  // used, and building it involves an unnecessary database
+  // transaction.
+  //  private QuestionPoolFacade parentPool;
   // #2) set of properties of QuestionPoolDataIfc
   private Long questionPoolId;
   private Long parentPoolId;
@@ -201,8 +204,9 @@ public class QuestionPoolFacade
     this.questionPoolItems = getQuestionPoolItems();
     this.items = getQuestions();
     try {
-      this.parentPool = getParentPool();
-      if (this.parentPool != null)  // => ROOT POOL
+    	// parentPool isn't actually need
+    	// this.parentPool = findParentPool();
+    	// if (this.parentPool != null)  // => ROOT POOL
         this.parentId = getParentId();
     }
     catch (Exception ex1) {
@@ -429,11 +433,8 @@ public class QuestionPoolFacade
     }
   }
 
-  /**
-   *
-   * @return the parent pool for the question pool
-   * @throws DataFacadeException
-   */
+  // no longer needed
+  /*
   public QuestionPoolFacade getParentPool()
     throws DataFacadeException
   {
@@ -450,6 +451,7 @@ public class QuestionPoolFacade
       throw new DataFacadeException(ex.getMessage());
     }
   }
+  */
 
   // the following methods implements
   // org.sakaiproject.tool.assessment.ifc.questionpool.QuestionPoolDataIfc
