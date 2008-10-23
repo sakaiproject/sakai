@@ -4059,6 +4059,12 @@ public abstract class BaseCitationService implements CitationService
 
 	public Citation addCitation(String mediatype)
 	{
+		// work around to map google scholar's schemas with our's
+		if (mediatype != null && mediatype.equalsIgnoreCase("proceeding"))
+		{
+			mediatype = "proceed";
+		}
+
 		Citation edit = m_storage.addCitation(mediatype);
 
 		return edit;
