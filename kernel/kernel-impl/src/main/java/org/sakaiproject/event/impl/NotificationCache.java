@@ -350,7 +350,7 @@ public class NotificationCache implements Cacher, Observer {
 	 */
 	public synchronized void put(Notification payload)
 	{
-		if (disabled()) return;
+		if (disabled() || payload == null) return;
 
 		cache.put(payload.getReference(), payload);
 
