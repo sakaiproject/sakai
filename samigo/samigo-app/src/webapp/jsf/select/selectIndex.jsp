@@ -33,6 +33,51 @@
       <title><h:outputText value="#{selectIndexMessages.page_title}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+
+<!--JAVASCRIPT -->
+<script language="javascript" type="text/JavaScript">
+var linksDisabled = 'false';
+function disableLinks(clickedLink){
+	//alert("clickedLink id = " + clickedLink.id);
+	if (linksDisabled == 'false') {
+		linksDisabled = 'true';
+		//alert("document.links.length" + document.links.length);
+		var linkIds = new Array();
+		for (var i=0; i < document.links.length; i++){
+			//alert("document.links[" + i + "].id=" + document.links[i].id);
+			linkIds[i] = document.links[i].id;
+		}
+
+		for (var i=0; i < linkIds.length; i++){
+			if (linkIds[i].indexOf('selectIndexForm') >= 0) {
+				//alert("disabling..." + linkIds[i]);
+				if (linkIds[i] != clickedLink.id) {
+					//alert("disabling..." + linkIds[i]);
+					var obj = document.getElementById(linkIds[i]);
+					var href = obj.getAttribute("href");
+					var onclick = obj.getAttribute("onclick");
+					//First we store previous value in a new attribute
+					if(href && href != "" && href != null)
+					{
+					obj.setAttribute('href_bak', href);
+					}
+					if(onclick != null)
+					{
+					obj.setAttribute('onclick_back', onclick);
+					obj.setAttribute('onclick', "void(0);");
+					}
+					obj.removeAttribute('href'); 
+				}
+			}
+		}
+    }
+	else {
+		clickedLink.disable = true;
+	}
+}
+</script>
+
+
   <!-- content... -->
 <div class="portletBody">
   <h:form id="selectIndexForm">
@@ -96,7 +141,7 @@ sorting actions for table:
           </h:commandLink>
        </h:panelGroup>
       </f:facet>
-      <h:commandLink title="#{selectIndexMessages.t_takeAssessment}" id="takeAssessment" action="beginAssessment" >
+      <h:commandLink title="#{selectIndexMessages.t_takeAssessment}" id="takeAssessment" action="beginAssessment" onmouseup="disableLinks(this);">
         <f:param name="publishedId" value="#{takeable.assessmentId}" />
         <f:param name="actionString" value="takeAssessment"/>
         <f:actionListener
@@ -210,7 +255,9 @@ sorting actions for table:
 
     <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit}" escape="false"/>
 
-	<h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit}">
+    
+    <h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" id="karen"  action="#{delivery.getOutcome}" immediate="true"  
+        rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="nofeedback" value="false"/>
         <f:param name="actionString" value="reviewAssessment"/>
@@ -220,11 +267,11 @@ sorting actions for table:
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
         <h:outputText value="#{reviewable.assessmentTitle}" escape="false"/> 
     </h:commandLink>
-    
+
 	<h:outputText value="#{selectIndexMessages.asterisk_2}" rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified}" styleClass="validate"/> 
 
   <f:verbatim><br /></f:verbatim>
-       <h:commandLink title="#{selectIndexMessages.t_histogram}"  action="#{delivery.getOutcome}" immediate="true"  
+       <h:commandLink title="#{selectIndexMessages.t_histogram}" id="histogram"  action="#{delivery.getOutcome}" immediate="true"  
         rendered="#{reviewable.feedback ne 'false' && reviewable.statistics && !reviewable.hasRandomDrawPart && !reviewable.isAssessmentRetractForEdit}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="hasNav" value="false"/>
