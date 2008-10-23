@@ -32,7 +32,7 @@
   
 	<html xmlns="http://www.w3.org/1999/xhtml">
 		<head><%= request.getAttribute("html.head") %>
-			<title><h:outputText value="#{samLiteMessages.import_a}" /></title>
+			<title><h:outputText value="#{samLiteMessages.samlite_title}" /></title>
 			<style>
 				.list-column {
 					vertical-align:top;
