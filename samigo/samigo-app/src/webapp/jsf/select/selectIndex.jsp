@@ -54,17 +54,11 @@ function disableLinks(clickedLink){
 				if (linkIds[i] != clickedLink.id) {
 					//alert("disabling..." + linkIds[i]);
 					var obj = document.getElementById(linkIds[i]);
-					var href = obj.getAttribute("href");
 					var onclick = obj.getAttribute("onclick");
-					//First we store previous value in a new attribute
-					if(href && href != "" && href != null)
-					{
-					obj.setAttribute('href_bak', href);
-					}
 					if(onclick != null)
 					{
-					obj.setAttribute('onclick_back', onclick);
-					obj.setAttribute('onclick', "void(0);");
+						obj.setAttribute('onclick_back', onclick);
+						obj.setAttribute('onclick', "void(0);");
 					}
 					obj.removeAttribute('href'); 
 				}
