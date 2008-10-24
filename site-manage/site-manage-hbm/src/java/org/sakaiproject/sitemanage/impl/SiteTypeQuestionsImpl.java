@@ -125,6 +125,10 @@ public class SiteTypeQuestionsImpl implements SiteTypeQuestions
 	public void addQuestion(SiteSetupQuestion question)
 	{
 		// update order number
+		if (this.questions == null)
+		{
+			this.questions = new Vector<SiteSetupQuestion>();
+		}
 		question.setOrderNum(this.questions.size());
 		question.setSiteTypeQuestions(this);
 		this.questions.add(question);

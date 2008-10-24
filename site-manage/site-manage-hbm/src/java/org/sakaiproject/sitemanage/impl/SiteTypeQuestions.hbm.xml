@@ -31,7 +31,7 @@
             <column name="URL_Target"/>
         </property>
         
-        <list name="questions" cascade="all-delete-orphan" inverse="false">
+        <list name="questions" cascade="none" inverse="false">
 			<key column="SITETYPE_ID" />
 			<index column="ORDER_NUM" />
 			<one-to-many class="SiteSetupQuestionImpl" />

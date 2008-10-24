@@ -21,7 +21,6 @@
 package org.sakaiproject.site.util;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,11 +28,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -49,15 +49,6 @@ import org.w3c.dom.NodeList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 
 import org.sakaiproject.sitemanage.api.model.*;
 
@@ -110,7 +101,7 @@ public class SiteSetupQuestionFileParser
 	
 	protected static String m_adminSiteName = "setupQuestionsAdmin";
 	protected static String m_configFolder = "config";
-	protected static String m_answerFolder = "answer";
+	protected static String m_configBackupFolder = "configBackup";
 	protected static String m_configXml = "questions.xml";
 	
 	protected static SiteSetupQuestionMap m_siteSetupQuestionMap;
@@ -138,17 +129,17 @@ public class SiteSetupQuestionFileParser
 	}
 	
 	/**
-	 * the reference to answer folder
+	 * the reference to config backup folder
 	 * @return
 	 */
-	public static String getAnswerFolderReference()
+	public static String getConfigBackupFolderReference()
 	{
-		String answerFolderRef = null;
-		if(StringUtil.trimToNull(m_adminSiteName) != null && StringUtil.trimToNull(m_answerFolder) != null)
+		String configBackupFolderRef = null;
+		if(StringUtil.trimToNull(m_adminSiteName) != null && StringUtil.trimToNull(m_configBackupFolder) != null)
 		{
-			answerFolderRef = "/content/group/" + m_adminSiteName + "/" + m_answerFolder + "/";
+			configBackupFolderRef = "/content/group/" + m_adminSiteName + "/" + m_configBackupFolder + "/";
 		}
-		return answerFolderRef;
+		return configBackupFolderRef;
 	}
 	
 	/**
@@ -246,7 +237,14 @@ public class SiteSetupQuestionFileParser
 	   */
 	  public static SiteSetupQuestionMap updateConfig()
 	  {
-	    Reference ref = EntityManager.newReference(getConfigFolderReference() + m_configXml);
+		String configFolder = getConfigFolderReference();
+		Reference configFolderReference = EntityManager.newReference(configFolder);
+		
+		String configBackupFolder = getConfigBackupFolderReference();
+		Reference configBackupolderReference = EntityManager.newReference(configBackupFolder);
+		
+	    Reference ref = EntityManager.newReference(configFolder + m_configXml);
+	    Reference refBackup = EntityManager.newReference(configBackupFolder + m_configXml);
 
 	    if (ref != null)
 	    {
@@ -260,7 +258,61 @@ public class SiteSetupQuestionFileParser
 	        ContentResource resource = contentHostingService.getResource(ref.getId());
 	        if (resource != null)
 	        {
-	          m_siteSetupQuestionMap = populateConfig(ref.getReference(), resource.streamContent());
+	        	// step 0: set all existing questions to be non-current and remove all SiteTypeQuestions
+	        	List<SiteSetupQuestion> questions = questionService.getAllSiteQuestions();
+	        	if (questions != null && !questions.isEmpty())
+	        	{
+	        		for (SiteSetupQuestion question:questions)
+	        		{
+	        			if (question.getCurrent().equals("true"))
+	        			{
+		        			question.setCurrent("false");
+		        			questionService.saveSiteSetupQuestion(question);
+	        			}
+	        		}
+	        	}
+	        	questionService.removeAllSiteTypeQuestions();
+	        	
+	        	// Step 1: read in questions and answers
+	        	m_siteSetupQuestionMap = populateConfig(ref.getReference(), resource.streamContent());
+	          
+	        	// Step 2: make a copy of current question file
+	        	// make sure the back folder exists
+	        	if (!contentHostingService.isAvailable(configBackupolderReference.getId()))
+	        	{
+	        		try
+	        		{
+	        			ContentCollectionEdit fEdit = contentHostingService.addCollection(configBackupolderReference.getId(), m_configBackupFolder);
+	        			contentHostingService.commitCollection(fEdit);
+	        		}
+	        		catch (Exception ee)
+	        		{
+	        			m_log.warn("SiteSetupQuestionMap.updateConfig: Problem of adding backup collection " + configBackupolderReference.getId() + ee.getMessage());
+	        		}
+	        	}
+	          
+	        	if (contentHostingService.isAvailable(configBackupolderReference.getId()))
+	        	{
+	        		try
+	        		{
+	        			contentHostingService.copy(ref.getId(), refBackup.getId());
+	        		}
+	        		catch (Exception ee)
+	        		{
+	        			m_log.warn("SiteSetupQuestionMap.updateConfig: Problem of backing up question.xml file " + ee.getMessage());
+	        		}
+	        	}
+	          
+	        	// Step 3: remove question file
+	        	try
+	        	{
+	        		ContentResourceEdit rEdit = contentHostingService.editResource(ref.getId());
+	        		contentHostingService.removeResource(rEdit);
+	        	}
+	        	catch (Exception ee)
+	        	{
+	        		m_log.warn("SiteSetupQuestionMap.updateConfig: Problem of removing resource " + ref.getId() + ee.getMessage());
+	        	} 
 	        }
 	        // clear the security advisor
 	        clearSecurityAdvisor();
@@ -271,7 +323,7 @@ public class SiteSetupQuestionFileParser
 	      }
 	      catch (IdUnusedException e)
 	      {
-	        m_log.info("Citations configuration XML is missing ("
+	        m_log.info("configuration XML is missing ("
 	              +    m_configXml
 	              +    "); Citations ConfigurationService will watch for its creation");
 	      }
@@ -443,6 +495,9 @@ public class SiteSetupQuestionFileParser
 														}
 													}
 												}
+												
+												// mark this question as currently used
+												q.setCurrent("true");
 												
 												// save question
 												questionService.saveSiteSetupQuestion(q);

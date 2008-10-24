@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,6 +45,8 @@ import org.sakaiproject.sitemanage.api.model.*;
 public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements SiteSetupQuestionService {
 	
 	private static final String QUERY_ANY_SITETYPE_QUESTIONS = "findAnySiteTypeQuestions";
+	
+	private static final String QUERY_ALL_QUESTIONS = "findAllSiteSetupQuestions";
 	
 	private static final String QUERY_QUESTIONS_BY_SITETYPE = "findQuestionsBySiteType";
 	
@@ -72,25 +75,50 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	 */
    public boolean hasAnySiteTypeQuestions()
    {
-	   List rvList = getHibernateTemplate().findByNamedQuery(QUERY_ANY_SITETYPE_QUESTIONS);
-	   if (rvList != null && rvList.size() > 0)
+	   List<SiteTypeQuestions> rvList = getHibernateTemplate().findByNamedQuery(QUERY_ANY_SITETYPE_QUESTIONS);
+	   if (rvList != null && !rvList.isEmpty())
 	   {
 		   return true;
 	   }
 	   return false;
    }
+   
+   /**
+	 * {@inheritDoc}
+	 */
+  public void removeAllSiteTypeQuestions()
+  {
+	  List<SiteTypeQuestions> qList = getHibernateTemplate().findByNamedQuery(QUERY_ANY_SITETYPE_QUESTIONS);
+	  if (qList != null && !qList.isEmpty())
+	  {
+		  for(SiteTypeQuestions q : qList)
+		  {
+			  removeSiteTypeQuestions(q);
+		  }
+	  }
+  }
+   
+   /**
+	 * {@inheritDoc}
+	 */
+	public List<SiteSetupQuestion> getAllSiteQuestions()
+	{
+		List<SiteSetupQuestion> rvList = getHibernateTemplate().findByNamedQuery(QUERY_ALL_QUESTIONS);
+		return rvList;
+	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public SiteTypeQuestions getSiteTypeQuestions(String siteType)
 	{
+		SiteTypeQuestions rv = null;
 		List<SiteTypeQuestions> rvList = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_QUESTIONS_BY_SITETYPE, "siteType", siteType);
 		if (rvList != null && rvList.size() == 1)
 		{
-			return rvList.get(0);
+			rv = rvList.get(0);
 		}
-		return null;
+		return rv;
 	}
 	
 	public SiteSetupQuestionAnswer getSiteSetupQuestionAnswer(String answerId)

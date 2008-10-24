@@ -4127,7 +4127,7 @@ public class SiteAction extends PagedResourceActionII {
 		if (siteTypeQuestions != null)
 		{
 			List questionList = siteTypeQuestions.getQuestions();
-			if (questionList != null && questionList.size() > 0)
+			if (questionList != null && !questionList.isEmpty())
 			{
 				// there is at least one question defined for this type
 				if (state.getAttribute(STATE_MESSAGE) == null)
@@ -6131,16 +6131,11 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 		
-		/*<p>
-		 * This is a change related to SAK-12912
-		 * initialize the question list
-		 */
-		if (!questionService.hasAnySiteTypeQuestions())
+		// need to watch out for the config question.xml existence.
+		// read the file and put it to backup folder.
+		if (SiteSetupQuestionFileParser.isConfigurationXmlAvailable())
 		{
-			if (SiteSetupQuestionFileParser.isConfigurationXmlAvailable())
-			{
-				SiteSetupQuestionFileParser.updateConfig();
-			}
+			SiteSetupQuestionFileParser.updateConfig();
 		}
 		
 		// show UI for adding non-official participant(s) or not
@@ -7379,24 +7374,6 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_SITE_SETUP_QUESTION_ANSWER, userAnswers);	
 		}
 		return rv;
-	}
-	
-	/**
-	 * get user answers to setup questions
-	 * @param params
-	 * @return
-	 */
-	protected void saveAnswersToSetupQuestions(SessionState state)
-	{
-		String answerFolderReference = SiteSetupQuestionFileParser.getAnswerFolderReference();
-		try
-		{
-			contentHostingService.addResource(answerFolderReference + "");
-		}
-		catch (Exception e)
-		{
-			M_log.warn(this + e.getMessage());
-		}
 	}
 	
 	/**

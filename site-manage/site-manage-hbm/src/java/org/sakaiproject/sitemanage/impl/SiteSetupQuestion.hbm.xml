@@ -5,7 +5,8 @@
           
 <hibernate-mapping package="org.sakaiproject.sitemanage.impl" default-lazy="false">
 	<class name="SiteSetupQuestionImpl"
-		table="SSQ_QUESTION">
+		table="SSQ_QUESTION"
+		where=" CURRENT = 'true'">
 		
 		<comment>This table stores site setup questions</comment>
 		
@@ -29,6 +30,10 @@
         	<column name="ORDER_NUM"/>
         </property>
         
+        <property name="current" type="string" not-null="true">
+            <column name="CURRENT"/>
+        </property>
+        
         <list name="answers" cascade="all-delete-orphan" inverse="false">
 			<key column="QUESTION_ID" />
 			<index column="ORDER_NUM"/>
@@ -38,4 +43,10 @@
 		<many-to-one name="siteTypeQuestions" column="SITETYPE_ID"
 			class="SiteTypeQuestionsImpl" index="SSQ_QUESTION_SITETYPE_I" />
     </class>
+    
+    <query name = "findAllSiteSetupQuestions">
+		<![CDATA[
+			from SiteSetupQuestionImpl
+		]]>
+	</query>
 </hibernate-mapping>

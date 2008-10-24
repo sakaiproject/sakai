@@ -119,4 +119,17 @@ public interface SiteSetupQuestion extends java.io.Serializable {
 	 * @param siteTypeQuestions
 	 */
 	public void setSiteTypeQuestions(SiteTypeQuestions siteTypeQuestions);
+	
+	/**
+	 * is the question been used currently?
+	 * @return
+	 */
+	public String getCurrent();
+	
+	/**
+	 * set current status of question
+	 * @param current
+	 */
+	public void setCurrent(String current);
+	
 }

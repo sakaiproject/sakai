@@ -33,7 +33,7 @@ public class SiteSetupQuestionImpl implements SiteSetupQuestion {
 	{
 	}
 	
-	public SiteSetupQuestionImpl(List<SiteSetupQuestionAnswer> answers, boolean isMultipleAnswers, String question, boolean required, SiteTypeQuestions siteTypeQuestions, Integer orderNum)
+	public SiteSetupQuestionImpl(List<SiteSetupQuestionAnswer> answers, boolean isMultipleAnswers, String question, boolean required, SiteTypeQuestions siteTypeQuestions, Integer orderNum, String current)
 	{
 		this.answers = answers;
 		this.isMultipleAnswers = isMultipleAnswers;
@@ -41,6 +41,7 @@ public class SiteSetupQuestionImpl implements SiteSetupQuestion {
 		this.required = required;
 		this.siteTypeQuestions = siteTypeQuestions;
 		this.orderNum = orderNum;
+		this.current = current;
 	}
 	
 	private static final long serialVersionUID = 1L;
@@ -179,5 +180,25 @@ public class SiteSetupQuestionImpl implements SiteSetupQuestion {
 	public void setSiteTypeQuestions(SiteTypeQuestions siteTypeQuestions)
 	{
 		this.siteTypeQuestions = siteTypeQuestions;
+	}
+	
+	private String current="true";
+
+	/**
+	 * {@inheritDoc}
+	 * @return
+	 */
+	public String getCurrent()
+	{
+		return current;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @param current
+	 */
+	public void setCurrent(String current)
+	{
+		this.current = current;
 	}
 }
