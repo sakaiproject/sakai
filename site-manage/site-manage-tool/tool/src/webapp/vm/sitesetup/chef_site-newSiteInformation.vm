@@ -159,6 +159,13 @@
 			 &nbsp;&nbsp;$validator.escapeHtml($form_title)
 			#end
 		</p>
+		<div class="shorttext">
+ 			<label for="url">
+ 				$tlang.getString("sinfo.url_alias")
+ 			</label>
+ 				$!form_url_base
+ 				<input type="text" name="url_alias" id="url_alias" maxlength="40" size="20" value="$validator.escapeHtml($form_url_alias)" />
+ 	</div>
 		<div class="longtext">
 			<label  class="block" for="description">
 				$tlang.getString("sinfo.descr") 

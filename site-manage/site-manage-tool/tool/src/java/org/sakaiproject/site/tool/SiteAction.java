@@ -366,6 +366,12 @@ public class SiteAction extends PagedResourceActionII {
 	/** %%% in transition from putting all form variables in state */
 	private final static String FORM_TITLE = "form_title";
 
+	private final static String FORM_URL_BASE = "form_url_base";
+	
+	private final static String FORM_URL_ALIAS = "form_url_alias";
+
+	private final static String FORM_URL_ALIAS_FULL = "form_url_alias_full";
+
 	private final static String FORM_DESCRIPTION = "form_description";
 
 	private final static String FORM_HONORIFIC = "form_honorific";
@@ -1063,6 +1069,9 @@ public class SiteAction extends PagedResourceActionII {
 
 		
 		Site site = getStateSite(state);
+		
+		// get alias base path
+		String aliasBaseUrl = ServerConfigurationService.getPortalUrl() + Entity.SEPARATOR + "site" + Entity.SEPARATOR;
 
 		switch (index) {
 		case 0:
@@ -1339,8 +1348,8 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(TITLE_EDITABLE_SITE_TYPE));
 			}
 			context.put(FORM_TITLE, siteInfo.title);
-			
-			
+			context.put(FORM_URL_BASE, aliasBaseUrl);
+			context.put(FORM_URL_ALIAS, siteInfo.url_alias);
 			context.put(FORM_SHORT_DESCRIPTION, siteInfo.short_description);
 			context.put(FORM_DESCRIPTION, siteInfo.description);
 
@@ -1613,6 +1622,12 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("iconUrl", siteInfo.iconUrl);
 				}
 			}
+			
+			if (StringUtil.trimToNull(siteInfo.getUrlAlias()) != null) {
+				String urlAliasFull = aliasBaseUrl + siteInfo.getUrlAlias();
+				context.put(FORM_URL_ALIAS_FULL, urlAliasFull);
+			}
+
 			context.put("title", siteInfo.title);
 			context.put("description", siteInfo.description);
 			context.put("short_description", siteInfo.short_description);
@@ -6824,6 +6839,20 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					state.setAttribute(STATE_IMPORT_SITES, sites);
 				}
+				
+				// validate the alias
+				if (StringUtil.trimToNull(siteInfo.url_alias) != null &&
+						!siteInfo.url_alias.equals(NULL_STRING)) {
+					try {
+						AliasService.getTarget(siteInfo.url_alias);
+						addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias
+								+ " " + rb.getString("java.exists"));
+						state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+						return;
+					} catch (IdUnusedException e) {
+						// Do nothing. We want the alias to be unused.
+					}
+				}
 			}
 			break;
 		case 29:
@@ -7725,6 +7754,11 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			siteInfo.site_contact_email = email;
 		}
+
+		if (params.getString("url_alias") != null) {
+			siteInfo.url_alias = params.getString("url_alias");
+		}
+		
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 		
 		// check for site title length
@@ -8678,6 +8712,34 @@ public class SiteAction extends PagedResourceActionII {
 						siteInfo.site_contact_email);
 
 				state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
+				
+				// create an alias for the site
+				if (!siteInfo.url_alias.equals(NULL_STRING)) {
+					String alias = siteInfo.url_alias;
+					String siteReference = site.getReference();
+					try {
+						AliasService.setAlias(alias, siteReference);
+						// In case of failure, return to the confirmation page
+						// with an error and undo the site creation we've done so far
+					} catch (IdUsedException ee) {
+						addAlert(state, rb.getString("java.alias") + " " + alias
+								+ " " + rb.getString("java.exists"));
+						state.setAttribute(STATE_TEMPLATE_INDEX, params
+							.getString("template-index"));
+						SiteService.removeSite(site);
+						return;
+					} catch (IdInvalidException ee) {
+						addAlert(state, rb.getString("java.alias") + " " + alias
+								+ " " + rb.getString("java.isinval"));
+						state.setAttribute(STATE_TEMPLATE_INDEX, params
+							.getString("template-index"));
+						SiteService.removeSite(site);
+						return;
+					} catch (PermissionException ee) {
+						M_log.warn(SessionManager.getCurrentSessionUserId()
+								+ " does not have permission to add alias. ");
+					}
+				}
 
 				// commit newly added site in order to enable related realm
 				commitSite(site);
@@ -9541,6 +9603,8 @@ public class SiteAction extends PagedResourceActionII {
 		public String joinerRole = NULL_STRING;
 
 		public String title = NULL_STRING; // the short name of the site
+		
+		public String url_alias = NULL_STRING; // the url alias for the site
 
 		public String short_description = NULL_STRING; // the short (20 char)
 
@@ -9615,6 +9679,14 @@ public class SiteAction extends PagedResourceActionII {
 
 		public String getSiteContactEmail() {
 			return site_contact_email;
+		}
+
+		public void setUrlAlias(String urlAlias) {
+			this.url_alias = urlAlias;
+		}
+
+		public String getUrlAlias() {
+			return url_alias;
 		}
 
 	} // SiteInfo
