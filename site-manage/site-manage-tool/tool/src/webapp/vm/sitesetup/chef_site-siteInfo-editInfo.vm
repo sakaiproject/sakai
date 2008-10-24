@@ -90,8 +90,8 @@ function LimitText(fieldObj,maxChars)
 			</div>
 		#else
 			<div class="shorttext">
-				<label for="icon">$tlang.getString("sitediinf.ico")</label>
-				<input type="text" name="icon" id="icon" size="40" value="$!validator.escapeHtml($!iconUrl)" />
+				<label for="iconUrl">$tlang.getString("sitediinf.ico")</label>
+				<input type="text" name="iconUrl" id="iconUrl" size="40" value="$!validator.escapeHtml($!iconUrl)" />
 			</div>
 		#end
 		<p class="shorttext">
