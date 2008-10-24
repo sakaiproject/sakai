@@ -1435,9 +1435,8 @@ public class SiteAction extends PagedResourceActionII {
 			if (aliases.size() > 0) {
 				state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, ((Alias) aliases
 						.get(0)).getId());
-			} else {
-				state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 			}
+			
 			if (state.getAttribute(STATE_TOOL_EMAIL_ADDRESS) != null) {
 				context.put("emailId", state
 						.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
@@ -2249,8 +2248,7 @@ public class SiteAction extends PagedResourceActionII {
 			multipleToolIntoContext(context, state);
 			
 			context.put("toolManager", ToolManager.getInstance());
-			String emailId = (String) state
-					.getAttribute(STATE_TOOL_EMAIL_ADDRESS);
+			String emailId = (String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS);
 			if (emailId != null) {
 				context.put("emailId", emailId);
 			}
@@ -6697,7 +6695,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * actionForTemplate chef_site-modifyENW.vm
 			 * 
 			 */
-			updateSelectedToolList(state, params, forward);
+			updateSelectedToolList(state, params, true);
 			if (state.getAttribute(STATE_MESSAGE) == null) {
 				updateCurrentStep(state, forward);
 			}
@@ -8399,8 +8397,10 @@ public class SiteAction extends PagedResourceActionII {
 						// tool
 						if (!existTools.contains(toolId)) {
 							goToToolConfigPage = true;
-							multipleToolIdSet.add(toolId);
-							multipleToolIdTitleMap.put(toolId, ToolManager.getTool(originId).getTitle());
+							if (!multipleToolIdSet.contains(toolId))
+								multipleToolIdSet.add(toolId);
+							if (!multipleToolIdTitleMap.containsKey(toolId))
+								multipleToolIdTitleMap.put(toolId, ToolManager.getTool(originId).getTitle());
 						}
 					}
 					else if (toolId.equals("sakai.mailbox") && !existTools.contains(toolId)) {
@@ -9293,11 +9293,10 @@ public class SiteAction extends PagedResourceActionII {
 	 * 
 	 * @param params
 	 *            The ParameterParser object
-	 * @param verifyData
-	 *            Need to verify input data or not
+	 * @param updateConfigVariables
+	 * 			  Need to update configuration variables
 	 */
-	private void updateSelectedToolList(SessionState state,
-			ParameterParser params, boolean verifyData) {
+	private void updateSelectedToolList(SessionState state, ParameterParser params, boolean updateConfigVariables) {
 		List selectedTools = new ArrayList(Arrays.asList(params
 				.getStrings("selectedTools")));
 		Set multipleToolIdSet = (Set) state.getAttribute(STATE_MULTIPLE_TOOL_ID_SET);
@@ -9313,9 +9312,10 @@ public class SiteAction extends PagedResourceActionII {
 			if (id.equalsIgnoreCase(getHomeToolId(state))) {
 				has_home = true;
 			} else if (id.equalsIgnoreCase("sakai.mailbox")) {
-				// if Email archive tool is selected, check the email alias
-				emailId = StringUtil.trimToNull(params.getString("emailId"));
-				if (verifyData) {
+				if ( updateConfigVariables ) {
+					// if Email archive tool is selected, check the email alias
+					emailId = StringUtil.trimToNull(params.getString("emailId"));
+					
 					if (emailId == null) {
 						addAlert(state, rb.getString("java.emailarchive") + " ");
 					} else {
@@ -9345,9 +9345,11 @@ public class SiteAction extends PagedResourceActionII {
 							}
 						}
 					}
+
+					state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, emailId);
 				}
 			}
-			else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null))
+			else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null) && updateConfigVariables)
 			{
 				// newly added mutliple instances
 				String title = StringUtil.trimToNull(params.getString("title_" + id));
@@ -9379,13 +9381,14 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					multipleToolConfiguration.put(id, attributes);
 				}
+
+				// update the state objects
+				state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
+				state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
 			}
 		}
-		// update the state objects
-		state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
-		state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
+		
 		state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(has_home));
-		state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, emailId);
 	} // updateSelectedToolList
 
 	/**
