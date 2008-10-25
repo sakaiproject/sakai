@@ -73,7 +73,14 @@ public class OptionValidator implements Validator {
 
 
 		Option option = (Option) obj;
-		String stripText = FormattedText.convertFormattedTextToPlaintext(option.getOptionText()).trim();
+		
+		// SAK-14725 : BugFix
+		String stripText = null;
+		
+		if(null != option.getOptionText()) {
+			stripText = FormattedText.convertFormattedTextToPlaintext(option.getOptionText()).trim();
+		}
+		
 		logger.debug("validating Option with id:" + option.getOptionId());
 		if (option.getStatus()!=null && (option.getStatus().equals("cancel") || option.getStatus().equals("delete")))
 			return;
