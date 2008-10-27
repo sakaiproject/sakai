@@ -397,10 +397,17 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		Reference ref = EntityManager.newReference(url);
 
 		// if it didn't recognize this, return it unchanged
-		if (!ref.isKnownType()) return url;
+		if (ref.isKnownType())
+		{
+			// return the reference's url
+			String refUrl = ref.getUrl();
+			if (refUrl != null)
+			{
+				return refUrl;
+			}
+		}
 
-		// return the reference's url
-		return ref.getUrl();
+		return url;
 	}
 
 	/**
