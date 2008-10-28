@@ -2598,54 +2598,59 @@ public class DeliveryBean
                           getPublishedAssessment().getPublishedAssessmentId().toString())).intValue();
     log.debug("***totalSubmitted="+totalSubmitted);
 
-    log.debug("check 0");
+    // log.debug("check 0");
+    if (isRemoved()){
+        return "isRemoved";
+    }
+    
+    log.debug("check 1");
     // check 0: check for start date
     if (!isAvailable()){
       return ("assessmentNotAvailable");
     }
     
-    log.debug("check 1");
+    log.debug("check 2");
     // check 2: is it still available?
     if (isRetracted(isSubmitForGrade)){
      return "isRetracted";
     }
     
-    log.debug("check 2");
-    // check 2: is it still available?
+    log.debug("check 3");
+    // check 3: is it still available?
     if (isRetractedForEdit()){
         return "isRetractedForEdit";
     }
     
-    log.debug("check 3");
-    // check 3: check for multiple window & browser trick 
+    log.debug("check 4");
+    // check 4: check for multiple window & browser trick 
     if (assessmentGrading!=null && !checkDataIntegrity(assessmentGrading)){
       return ("discrepancyInData");
     }
 
-    log.debug("check 4");
-    // check 4: if workingassessment has been submiited?
+    log.debug("check 5");
+    // check 5: if workingassessment has been submiited?
     // this is to prevent student submit assessment and use a 2nd window to 
     // continue working on the submitted work.
     if (assessmentGrading!=null && getAssessmentHasBeenSubmitted(assessmentGrading)){
       return "assessmentHasBeenSubmitted";
     }
 
-    log.debug("check 5");
-    // check 5: is it need to resubmit? If yes, we don't check on submission number, dates, or time.
+    log.debug("check 6");
+    // check 6: is it need to resubmit? If yes, we don't check on submission number, dates, or time.
     if (isNeedResubmit()){
         return "safeToProceed";
     }
     
     GradingService gradingService = new GradingService();
     int numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
-    log.debug("check 6");
-    // check 6: any submission attempt left?
+    log.debug("check 7");
+    // check 7: any submission attempt left?
     if (!getHasSubmissionLeft(totalSubmitted, numberRetake)){
       return "noSubmissionLeft";
     }
 
-    log.debug("check 7");
-    // check 7: accept late submission?
+    log.debug("check 8");
+    // check 8: accept late submission?
     boolean acceptLateSubmission = AssessmentAccessControlIfc.
         ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
 
@@ -2682,8 +2687,8 @@ public class DeliveryBean
     	}
     }
 
-    log.debug("check 8");
-    // check 8: is timed assessment? and time has expired?
+    log.debug("check9");
+    // check 9: is timed assessment? and time has expired?
     if (isTimeRunning() && timeExpired()){ 
       return "timeExpired";
     }
@@ -2717,8 +2722,6 @@ public class DeliveryBean
   }
   
   private boolean pastDueDate(){
-	if (this.actionMode == PREVIEW_ASSESSMENT)
-		return false;  
     boolean pastDue = true;
     Date currentDate = new Date();
     Date dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
@@ -2729,8 +2732,6 @@ public class DeliveryBean
   }
 
   private boolean isRetracted(boolean isSubmitForGrade){
-	if (this.actionMode == PREVIEW_ASSESSMENT)
-		return false;    
     boolean isRetracted = true;
     Date currentDate = new Date();
     Date retractDate = null;
@@ -2748,6 +2749,14 @@ public class DeliveryBean
     return isRetracted;
   }
 
+  private boolean isRemoved(){
+	  Integer status = publishedAssessment.getStatus();
+	  if (status.equals(AssessmentBaseIfc.DEAD_STATUS)) {
+		  return true;
+	  }
+	  return false;
+  }
+  
   private boolean isRetractedForEdit(){
 	  Integer status = publishedAssessment.getStatus();
 	  if (status.equals(AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS)) {
