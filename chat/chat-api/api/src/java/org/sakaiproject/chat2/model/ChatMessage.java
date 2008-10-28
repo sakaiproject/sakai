@@ -66,30 +66,7 @@ public class ChatMessage implements Entity {
    public String getBody() {
       return body;
    }
-   
- 	/**
- 	 * @deprecated 
- 	 * 
- 	 * 	this method is deprecated because bad regular expression. it causes CPU pegged up.
- 	 * 	refer to: SAK-14471
- 	 *             
- 	 */
-   public String getUnformattedBody() {
-      String unformattedBody = body;
-      
-      while ( unformattedBody.matches(href_1regexp) )
-      {
-         int a1 = unformattedBody.indexOf(href_1);
-         int a2 = unformattedBody.indexOf(href_2);
-         int a3 = unformattedBody.indexOf(href_3);
-			String formatText = unformattedBody.substring(a1, a3+4); 
-			String cleanText = unformattedBody.substring(a2+2, a3);
-         unformattedBody = 
-            unformattedBody.replaceFirst( formatText, cleanText );
-      }
-      return unformattedBody;
-   }
-   
+     
    /** Set body of chat message, adding html anchor tags as appropriate
     **/
    public void setBody(String body) {

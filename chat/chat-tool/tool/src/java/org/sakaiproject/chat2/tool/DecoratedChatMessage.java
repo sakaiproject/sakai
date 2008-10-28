@@ -24,6 +24,7 @@ package org.sakaiproject.chat2.tool;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.FormattedText;
 
 public class DecoratedChatMessage {
 
@@ -78,7 +79,7 @@ public class DecoratedChatMessage {
     * @return
     */
    public String getRestrictedBody() {
-      String message = chatMessage.getBody();
+      String message = FormattedText.convertFormattedTextToPlaintext(chatMessage.getBody());
       int maxLength = chatTool.lookupSynopticOptions().getChars();
       int actualLength = message.length();
       if (maxLength < actualLength && maxLength >= 0) {
@@ -86,7 +87,11 @@ public class DecoratedChatMessage {
       }
       return message;
    }
-   
+
+   public String getUnformattedBody() {
+      return FormattedText.convertFormattedTextToPlaintext(chatMessage.getBody());
+   }
+     
    public boolean getCanRemoveMessage()
    {
       return chatTool.getCanRemoveMessage(chatMessage);

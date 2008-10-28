@@ -372,7 +372,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 	    	  message.setChatChannel(channel);
 	    	  message.setOwner(owner);
 	    	  message.setMessageDate(messageDate);
-	    	  message.setBody(FormattedText.processFormattedText(body, new StringBuilder()));
+	    	  message.setBody(FormattedText.convertPlaintextToFormattedText(body));
 	    	  message.setMigratedMessageId(migratedId);
 	    	  
 	    	  
