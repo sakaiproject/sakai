@@ -370,7 +370,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             }
         }
         if (userIds.length > 1) {
-            log.info("Batch remove memberships: siteId="+sg.site.getId()+",groupId="+sg.group == null ? "none" : sg.group.getId()
+            log.info("Batch remove memberships: siteId="+((sg.site == null) ? "none" : sg.site.getId())+",groupId="+((sg.group == null) ? "none" : sg.group.getId())
                     +",userIds=" + Search.arrayToString(userIds));
         }
     }
@@ -476,9 +476,16 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         }
         if (params != null) {
             Object uids = params.get("userIds");
-            if (uids != null && uids.getClass().isArray()) {
-                String[] batchUserIds = (String[]) uids;
-                if (batchUserIds.length > 0) {
+            if (uids != null) {
+            	String[] batchUserIds;
+            	if (uids.getClass().isArray()) {
+            		batchUserIds = (String[]) uids;
+            	} else if (uids instanceof String) {
+            		batchUserIds = new String[] {(String)uids};
+            	} else {
+            		batchUserIds = null;
+            	}
+                if (batchUserIds != null) {
                     for (int i = 0; i < batchUserIds.length; i++) {
                         String uid = userEntityProvider.findAndCheckUserId(batchUserIds[i], null);
                         if (uid != null) {
@@ -488,6 +495,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                 }
             }
         }
+        if (log.isDebugEnabled()) log.debug("Received userIds=" + userIds);
         return userIds.toArray(new String[userIds.size()]);
     }
 
