@@ -820,7 +820,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public String processActionDeleteMessage()
    {
       try {
-         getChatManager().deleteMessage(getCurrentMessage().getChatMessage());
+        DecoratedChatMessage msg = getCurrentMessage();
+        if (msg != null)
+               getChatManager().deleteMessage(msg.getChatMessage());
          return PAGE_ENTER_ROOM;
       }
       catch (PermissionException e) {
