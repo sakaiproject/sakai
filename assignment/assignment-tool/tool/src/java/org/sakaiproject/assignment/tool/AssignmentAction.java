@@ -5056,7 +5056,7 @@ public class AssignmentAction extends PagedResourceActionII
 				// assignment supplement items
 				String aId = a.getId();
 				//model answer
-				if (params.getString("modelanswer_to_delete").equals("true"))
+				if ("true".equals(params.getString("modelanswer_to_delete")))
 				{
 					// to delete the model answer
 					AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(aId);
@@ -5079,7 +5079,7 @@ public class AssignmentAction extends PagedResourceActionII
 					m_assignmentSupplementItemService.saveModelAnswer(mAnswer);
 				}
 				// note
-				if (params.getString("note_to_delete").equals("true"))
+				if ("true".equals(params.getString("note_to_delete")))
 				{
 					// to remove note item
 					AssignmentNoteItem nNote = m_assignmentSupplementItemService.getNoteItem(aId);
@@ -5099,7 +5099,7 @@ public class AssignmentAction extends PagedResourceActionII
 					m_assignmentSupplementItemService.saveNoteItem(nNote);
 				}
 				// all purpose
-				if (params.getString("allPurpose_to_delete").equals("true"))
+				if ("true".equals(params.getString("allPurpose_to_delete")))
 				{
 					// to remove allPurpose item
 					AssignmentAllPurposeItem nAllPurpose = m_assignmentSupplementItemService.getAllPurposeItem(aId);
