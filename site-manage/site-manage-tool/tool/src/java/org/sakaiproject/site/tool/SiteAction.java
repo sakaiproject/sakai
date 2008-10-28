@@ -7753,8 +7753,25 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo.site_contact_email = email;
 		}
 
-		if (params.getString("url_alias") != null) {
-			siteInfo.url_alias = params.getString("url_alias");
+		String alias = params.getString("url_alias");
+		if (alias != null) {
+			try
+			{
+				alias =  java.net.URLEncoder.encode(params.getString("url_alias"), "UTF-8");
+				siteInfo.url_alias = alias;
+				try {
+					AliasService.getTarget(alias);
+					// the alias has been used
+					addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
+				} catch (IdUnusedException ee) {
+					// wanted situation: the alias has not been used
+				}
+			} catch (java.io.UnsupportedEncodingException e)
+			{
+				// log exception
+				M_log.warn( this + " error of encoding url alias " + alias );
+			}
+			 
 		}
 		
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
@@ -8724,17 +8741,9 @@ public class SiteAction extends PagedResourceActionII {
 					} catch (IdUsedException ee) {
 						addAlert(state, rb.getString("java.alias") + " " + alias
 								+ " " + rb.getString("java.exists"));
-						state.setAttribute(STATE_TEMPLATE_INDEX, params
-							.getString("template-index"));
-						SiteService.removeSite(site);
-						return;
 					} catch (IdInvalidException ee) {
 						addAlert(state, rb.getString("java.alias") + " " + alias
 								+ " " + rb.getString("java.isinval"));
-						state.setAttribute(STATE_TEMPLATE_INDEX, params
-							.getString("template-index"));
-						SiteService.removeSite(site);
-						return;
 					} catch (PermissionException ee) {
 						M_log.warn(SessionManager.getCurrentSessionUserId()
 								+ " does not have permission to add alias. ");
