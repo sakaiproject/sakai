@@ -1,7 +1,6 @@
 /* Profile2 styles */
 
 
-
 #leftPanel {
 	float: left;
 	width: 150px;
@@ -31,6 +30,10 @@
 #myPhoto {
 }
 
+#myPhoto img {
+	max-width: 150px;
+}
+
 
 
 
@@ -49,6 +52,12 @@
 }
 
 #profileHeadingStatusLastUpdated {
+	font-size: xx-small;
+}
+
+
+/* generic styles */
+.tiny {
 	font-size: xx-small;
 }
 
@@ -152,34 +161,29 @@
 }
 
 
-/* profile information and edit sections */
-.profileItem,
-.profileItemEdit{
-	display: block;
+/* profile information sections */
+.profileContent{
 	padding-top: 2px;
 	padding-bottom: 2px;
 	font-size: 90%;
+	border: none;
 }
 
-.profileLabel,
-.profileLabelEdit {
+.profileContent .label {
 	width: 120px;
 	float: left;
 	color: #5D5D5D;
 	vertical-align: top;
-	
-}
-
-.profileLabel {
 	font-weight: normal;
 }
 
-.profileLabelEdit {
-	font-weight: bold;
+.profileContent .content {
+	padding-left: 2px;
 }
 
-.profileContent {
-	padding-left: 2px;
+.profileForm {
+	background-color: #e9edff;
+	border: 1px solid #d0d0df;
 }
 
 .formInputField {

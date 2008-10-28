@@ -1,6 +1,5 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -66,7 +65,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	//we use SakaiProxy to get us the SakaiPerson object for a given user
-	//then we use that object to get attributes about the person.
+	//then we use the SakaiPerson object to get attributes about the person.
 	public SakaiPerson getSakaiPerson(String userId) {
 		
 		SakaiPerson sakaiPerson = null;
@@ -74,10 +73,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		} catch (Exception e) {
-			log.error("Coudln't get SakaiPerson for: " + userId + ":" + e.getClass() + ":" + e.getMessage());
+			log.error("Couldn't get SakaiPerson for: " + userId + ":" + e.getClass() + ":" + e.getMessage());
 		}
 		return sakaiPerson;
 	}
+	
+	public SakaiPerson getSakaiPersonPrototype() {
+		
+		SakaiPerson sakaiPerson = null;
+		
+		try {
+			sakaiPerson = sakaiPersonManager.getPrototype();
+		} catch (Exception e) {
+			log.error("Coudln't get SakaiPerson prototype:" + e.getClass() + ":" + e.getMessage());
+		}
+		return sakaiPerson;
+		
+	}
+
+	
 	
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson) {
 		//the save is void, so unless it throws an exception, its ok (?)
@@ -91,10 +105,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 	
-	public SakaiPerson createSakaiPerson(String userId, Type recordType) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 	
 	
@@ -134,6 +145,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void setSakaiPersonManager(SakaiPersonManager sakaiPersonManager) {
 		this.sakaiPersonManager = sakaiPersonManager;
 	}
+	
 	
 	
 	

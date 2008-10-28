@@ -11,7 +11,9 @@
 	<div id="pageWrapper">
 	
 		<div id="leftPanel">
-	    	<div id="myPhoto"><img src="images/no_image.gif" /></div>
+	    	<div id="myPhoto">
+	    		<img wicket:id="photo"/>
+	    	</div>
 	    	
 	    	<ul id="sideLink">
 	    		<li><a href="something">a link</a></li>
@@ -37,18 +39,17 @@
 	    </div>
 		
 		<div id="mainPanel">
+			
+			<!--  heading/status panel -->
+			<div wicket:id="myStatusPanel">[my status panel]</div>
+            
+            <!-- messages -->
+            <span class="alertMessage" wicket:id="feedbackPanel" style="clear:none;">[feedback panel]</span>
+                
+            <!-- info -->
+            <div wicket:id="myInfo">[myInfo panel]</div>
 		
-			<!-- heading -->
-		    <div id="profileHeading">
-		    	<span id="profileHeadingName" wicket:id="profileHeadingName">[profileHeadingName]</span>&nbsp;<span id="profileHeadingStatus" wicket:id="profileHeadingStatus">[profileHeadingStatus]</span>&nbsp;<span id="profileHeadingStatusLastUpdated" wicket:id="profileHeadingStatusLastUpdated">[profileHeadingStatusLastUpdated]</span>
-		    </div>
-		    
-		    <!-- messages -->
-			<span wicket:id="feedbackPanel" class="alertMessage" style="clear:none;">[feedbackPanel]</span>
-	
 				
-			<!--  panels -->
-			<div wicket:id="myInfoPanel">[myInfoPanel]</div>
 		
 		</div>
 		
@@ -59,7 +60,7 @@
 	
 	
 	
-	<!--  scripts for MyProfile page -->
+	<!--  general MyProfile scripting - for individual panel stuff, see the panels themselves -->
 	<script type="text/javascript">
 
 		//init
@@ -71,19 +72,7 @@
 			$(".editButton").hide();
 		});
 
-		//show the edit button when hovering over an editable section
-		$(document).ready(function(){ 
-
-			$(".editable").hover(
-				function () {
-					$(this).children(".editButton").show();
-				}, 
-				function () {
-					$(this).children(".editButton").hide();
-				}
-			);
-
-		});
+		
 
 	</script>
 	

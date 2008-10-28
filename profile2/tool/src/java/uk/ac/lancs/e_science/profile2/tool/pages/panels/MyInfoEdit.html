@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+<wicket:panel>	
+	
+
+	<div class="mainSection">
+		<div class="mainSectionHeading">My Info</div>
+		
+		<div class="mainSectionContent">	
+	
+			<form wicket:id="form" class="profileForm">
+				<table class="profileContent">
+					
+					<!-- nickname -->
+					<tr wicket:id="nickname">
+						<td class="label" wicket:id="nicknameLabel">[nicknameLabel]</td>
+						<td class="content"><input type="text" wicket:id="nicknameField" class="formInputField" /></td>
+					</tr>
+					
+					<!-- birthday -->
+					<tr wicket:id="birthday">
+						<td class="label" wicket:id="birthdayLabel">[birthdayLabel]</td>
+						<td class="content"><input type="text" wicket:id="birthdayField" class="formInputField datePicker" readonly="readonly" /></td>
+					</tr>
+					
+				</table>
+				
+				<input type="submit" wicket:id="submit" value="Save changes" />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type="button" wicket:id="cancel" value="Cancel"/>
+				<!-- 
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<span wicket:id="formFeedback" style="display:none;>
+					<img src="" wicket:id="feedbackImg" />
+					<span wicket:id="feedbackMsg">[indicatorMsg]</span>
+				</span>
+				-->
+			</form>	
+		</div>
+	</div>
+	
+	<script type="text/javascript">
+		/*
+		ranged from 1900-2008 and cannot be past today
+		defaults to today if none set
+		*/
+		$(document).ready(function(){
+			$('.datePicker').datepicker({
+				yearRange: '1900:2008',
+				dateFormat: 'd-MM-yy',
+				defaultDate: new Date(),
+				hideIfNoPrevNext: true,
+				maxDate: new Date(),  
+				showOn: 'both', 
+				buttonImage: '/library/image/silk/calendar.png',
+				buttonImageOnly: true
+			});
+		});
+	</script> 
+	
+	
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

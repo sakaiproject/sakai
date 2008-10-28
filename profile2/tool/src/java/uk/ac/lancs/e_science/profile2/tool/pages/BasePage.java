@@ -1,22 +1,20 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
-import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.WebPage;
+import org.apache.log4j.Logger;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import org.apache.log4j.Logger;
 
+import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
+import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 
 
 public class BasePage extends WebPage implements IHeaderContributor {
@@ -42,7 +40,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//get Profile API
 		profile = ProfileApplication.get().getProfile();
 
-		
     	//my profile link
     	myProfileLink = new Link("myProfileLink") {
 			public void onClick() {
@@ -50,6 +47,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my")));
+		myProfileLink.add(new AttributeAppender("title", new ResourceModel("link.my.title"), " "));
+		
 		add(myProfileLink);
 		
 		//my friends link
@@ -59,6 +58,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		myFriendsLink.add(new Label("myFriendsLabel",new ResourceModel("link.friends")));
+		myProfileLink.add(new AttributeAppender("title", new ResourceModel("link.friends.title"), " "));
 		add(myFriendsLink);
     	
 		
@@ -112,11 +112,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
 		
 		//Tool additions
-		response.renderCSSReference("css/profile2.css");
-		//response.renderJavascriptReference("javascript/profile2.js");
-		response.renderJavascriptReference("/library/js/jquery.js");
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
-				
+		response.renderCSSReference("css/profile2.css");
+		response.renderJavascriptReference("javascript/profile2.js");
+		response.renderJavascriptReference("javascript/jquery-1.2.5.min.js");
+
+		
+		//for datepicker
+		response.renderCSSReference("css/flora.datepicker.css");
+		response.renderJavascriptReference("javascript/jquery.ui.core-1.5.2.min.js");
+		response.renderJavascriptReference("javascript/jquery.datepicker-1.5.2.min.js");
+
+		
 	}
 	
 	protected String getToolSkinCSS(String skinRepo) {

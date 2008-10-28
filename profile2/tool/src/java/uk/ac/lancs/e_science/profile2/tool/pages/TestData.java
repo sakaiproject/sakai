@@ -1,10 +1,16 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.ResourceModel;
 
-import uk.ac.lancs.e_science.profile2.tool.models.TestModel;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.views.TestPanel;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.views.TestPanel2;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.views.TestPanelFullReplace1;
 
 
 public class TestData extends BasePage {
@@ -33,14 +39,37 @@ public class TestData extends BasePage {
 		}
 		add(new Label("testLabel6",isAdminStr));
 		
+		//normal replace
+		final TestPanel replace = new TestPanel("replace", "this is the default message");
+		add(replace);
+		add(new Link("replaceLinkOld") {
+			public void onClick() {
+				replace.replaceWith(new TestPanel("replace", "different message"));
+			}
+		});
+		
+		//ajax replace
+		final TestPanel replaceAjax = new TestPanel("replaceAjax", "default message");
+		replaceAjax.setOutputMarkupId(true);
+		add(replaceAjax);
+		add(new AjaxFallbackLink("replaceLink") {
+			public void onClick(AjaxRequestTarget target) {
+				Component testPanel2 = new TestPanel2("replaceAjax", "replaced message");
+				testPanel2.setOutputMarkupId(true);
+				replaceAjax.replaceWith(testPanel2);
+				if(target != null) {
+					target.addComponent(testPanel2);
+				}
+			}
+		});
+		
+		//full replace - just adds the default panel in
+		final TestPanelFullReplace1 tesPanelFullReplace1 = new TestPanelFullReplace1("fullReplace");
+		tesPanelFullReplace1.setOutputMarkupId(true);
+		add(tesPanelFullReplace1);
 		
 		
-		TestModel testModel = new TestModel();
-		testModel.setName("hello");
 		
-		testModel = new TestModel(); //need a getter to ge thte model, can't call new each time, it kills it
-		add(new Label("testLabel7",testModel.getName()));
-
 
 	}
 }

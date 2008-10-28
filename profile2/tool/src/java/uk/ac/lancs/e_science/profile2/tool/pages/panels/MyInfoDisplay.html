@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+<wicket:panel>	
+	
+	
+	<div class="mainSection editable">
+		<div class="mainSectionHeading">My Info</div>
+		
+					<div class="editButton"><a href="#" wicket:id="editButton">edit</a></div>
+		
+		<div class="mainSectionContent">
+				
+			
+			<table class="profileContent">
+		
+				<!-- nickname -->
+				<tr wicket:id="nickname">
+					<td class="label" wicket:id="nicknameLabel">[nicknameLabel]</td>
+					<td class="content" wicket:id="nicknameContent">[nicknameContent]</td>
+				</tr>
+				
+				<!-- birthday -->
+				<tr wicket:id="birthday">
+					<td class="label" wicket:id="birthdayLabel">[birthdayLabel]</td>
+					<td class="content" wicket:id="birthdayContent">[birthdayContent]</td>
+				</tr>
+							
+			</table>
+		
+		</div>
+	</div>
+	
+	<!-- panel specific Javascript -->
+	<script type="text/javascript">
+		//show the edit button when hovering over an editable section
+		$(document).ready(function(){ 
+			$(".editable").hover(
+				function () {
+					$(this).children(".editButton").show();
+				}, 
+				function () {
+					$(this).children(".editButton").hide();
+				}
+			);
+		});
+	</script>
+	
+			
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+
