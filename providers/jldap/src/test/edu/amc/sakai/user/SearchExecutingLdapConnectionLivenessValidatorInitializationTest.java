@@ -41,6 +41,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 public class SearchExecutingLdapConnectionLivenessValidatorInitializationTest extends MockObjectTestCase {
 
 	private static final String UNIQUE_SEARCH_FILTER_TERM = "TESTING";
+	private static final String LOCALHOST_IDENTIFIER = "LOCALHOST_IDENTIFIER";
 	private SearchExecutingLdapConnectionLivenessValidator validator;
 	private Mock mockServerConfigService;
 	private ServerConfigurationService serverConfigService;
@@ -50,6 +51,16 @@ public class SearchExecutingLdapConnectionLivenessValidatorInitializationTest ex
 			// we need this to be a predictable value
 			protected String generateUniqueToken() {
 				return UNIQUE_SEARCH_FILTER_TERM;
+			}
+			/**
+			 * Overridden to always return a static String. This allows
+			 * us to side-step issues related to host name lookup
+			 * failures in the actual implementation. See
+			 * http://bugs.sakaiproject.org/jira/browse/SAK-14773
+			 */
+			@Override
+			protected String getLocalhostName() throws UnknownHostException {
+				return LOCALHOST_IDENTIFIER;
 			}
 		};
 		mockServerConfigService = new Mock(ServerConfigurationService.class);
@@ -66,10 +77,8 @@ public class SearchExecutingLdapConnectionLivenessValidatorInitializationTest ex
 	
 	public void testInitDefaultsHostNameToInetAddressLocalhostIfNoHostNameExplicitlyInjected() 
 	throws UnknownHostException {
-		final String EXPECTED_HOST_NAME = InetAddress.getLocalHost().toString();
-		validator.setServerConfigService(serverConfigService);
 		validator.init();
-		assertEquals(EXPECTED_HOST_NAME, validator.getHostName());
+		assertEquals(validator.getLocalhostName(), validator.getHostName());
 	}
 	
 	public void testInitDefaultsHostNameToSakaiServerNameIfNoHostNameExplicitlyInjectedAndLocalHostLookupFails() {
