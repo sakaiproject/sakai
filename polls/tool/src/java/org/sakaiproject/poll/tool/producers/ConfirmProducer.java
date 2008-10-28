@@ -35,9 +35,13 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
@@ -47,10 +51,10 @@ import java.util.List;
 import java.util.ArrayList;
 
 
-public class ConfirmProducer implements ViewComponentProducer,NavigationCaseReporter, ViewParamsReporter{
+public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporter {
 
 	public static final String VIEW_ID = "voteThanks";
-	private static Log m_log = LogFactory.getLog(PollVoteProducer.class);
+	private static Log log = LogFactory.getLog(PollVoteProducer.class);
 	private VoteBean voteBean;
 	
 	
@@ -95,17 +99,13 @@ public class ConfirmProducer implements ViewComponentProducer,NavigationCaseRepo
 	}
 
 	
-	  public List reportNavigationCases() {
-		    List togo = new ArrayList(); // Always navigate back to this view.
-		    //togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
-		    //togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
-		    togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
-		    return togo;
-		  }
+
 
 	public ViewParameters getViewParameters() {
 		// TODO Auto-generated method stub
 		return new VoteCollectionViewParameters(); 
 	}
+
+
 	
 }

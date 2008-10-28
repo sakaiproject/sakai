@@ -42,8 +42,11 @@ import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
+import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
@@ -57,7 +60,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 
-public class PollOptionDeleteProducer implements ViewComponentProducer,NavigationCaseReporter,ViewParamsReporter{
+public class PollOptionDeleteProducer implements ViewComponentProducer, ActionResultInterceptor,ViewParamsReporter{
 //,
 	public static final String VIEW_ID = "pollOptionDelete";
 	private static Log m_log = LogFactory.getLog(PollOptionDeleteProducer.class);
@@ -134,20 +137,23 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 		   
 	}
 
-	
-	  public List reportNavigationCases() {
-		    List togo = new ArrayList();
-		    togo.add(new NavigationCase(null, new SimpleViewParameters(this.VIEW_ID)));
-		    togo.add(new NavigationCase("success", new EntityCentredViewParameters(AddPollProducer.VIEW_ID, 
-	    			new EntityID("Poll", "0"))));
-		    togo.add(new NavigationCase("cancel", new EntityCentredViewParameters(AddPollProducer.VIEW_ID, 
-	    			new EntityID("Poll", "0"))));
-		    return togo;
-		  }
-	 
+
 	  public ViewParameters getViewParameters() {
 		  return new OptionViewParameters();
 
 	  }
-	 
+	  public void interceptActionResult(ARIResult result,
+			  ViewParameters incoming, Object actionReturn) {
+		  m_log.debug("intercepting action results!");
+		  Poll poll = null;
+
+		  if (actionReturn != null && actionReturn instanceof Poll) {
+			  poll = (Poll) actionReturn;
+			  m_log.debug("return is poll: " + poll.getPollId());
+			  result.resultingView = new PollViewParameters(AddPollProducer.VIEW_ID,poll.getPollId().toString());
+		  }
+
+	  }
+
+
 }

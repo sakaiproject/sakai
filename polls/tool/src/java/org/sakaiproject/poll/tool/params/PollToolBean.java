@@ -288,7 +288,7 @@ public class PollToolBean {
 		
 	}
 
-	public String proccessActionDeleteOption() {
+	public Poll proccessActionDeleteOption() {
 		m_log.info("about to delete option " + option.getId());
 		Long pollId = option.getPollId();
 		manager.deleteOption(option);
@@ -296,7 +296,7 @@ public class PollToolBean {
 		//we now need to update the poll object in memory
 		voteBean.setPoll(manager.getPollById(pollId));
 
-		return "success";
+		return manager.getPollById(pollId);
 
 	}
 	public String cancel() {
