@@ -389,7 +389,7 @@
 					#set($submitterId=$!siteUser.getDisplayId())
 					#if ($!submitterId)
 						##attach the displayId
-						#set($submitterName=$submitterName.concat("(").concat($submitterId).concat(")"))
+						#set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
 					#end
 					#set($submitTime=false)
 					#set($returnedTime=false)
