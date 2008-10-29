@@ -78,6 +78,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return sakaiPerson;
 	}
 	
+	//deprecated as its not persistable. use createSakaiPerson instead
 	public SakaiPerson getSakaiPersonPrototype() {
 		
 		SakaiPerson sakaiPerson = null;
@@ -85,17 +86,30 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.getPrototype();
 		} catch (Exception e) {
-			log.error("Coudln't get SakaiPerson prototype:" + e.getClass() + ":" + e.getMessage());
+			log.error("Couldn't get SakaiPerson prototype:" + e.getClass() + ":" + e.getMessage());
 		}
 		return sakaiPerson;
-		
 	}
+	
+	
+	public SakaiPerson createSakaiPerson(String userId) {
+		
+		SakaiPerson sakaiPerson = null;
+		
+		try {
+			sakaiPerson = sakaiPersonManager.create(userId, sakaiPersonManager.getUserMutableType());
+		} catch (Exception e) {
+			log.error("Coudln't create SakaiPerson:" + e.getClass() + ":" + e.getMessage());
+		}
+		return sakaiPerson;
+	}
+
 
 	
 	
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson) {
 		//the save is void, so unless it throws an exception, its ok (?)
-		//I'd prefer a return value from sakaiPersonManager
+		//I'd prefer a return value from sakaiPersonManager. this wraps it.
 		try {
 			sakaiPersonManager.save(sakaiPerson);
 			return true;

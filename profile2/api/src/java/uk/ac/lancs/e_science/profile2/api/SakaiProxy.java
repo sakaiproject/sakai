@@ -21,6 +21,8 @@ public interface SakaiProxy {
 	
 	public SakaiPerson getSakaiPersonPrototype();
 	
+	public SakaiPerson createSakaiPerson(String userId);
+
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson);
 	
 }
