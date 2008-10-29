@@ -288,7 +288,8 @@ public class EntityActionsManager {
                 }
                 String viewKey = ecaAnnote.viewKey();
                 if (null == viewKey || "".equals(viewKey)) {
-                    viewKey = EntityView.VIEW_SHOW;
+                    //viewKey = EntityView.VIEW_SHOW;
+                    viewKey = null; // allow any type of request
                 }
                 CustomAction ca = new CustomAction(action, viewKey, method.getName());
                 try {

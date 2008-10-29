@@ -68,6 +68,7 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
  * {@link FormatUnsupportedException} to indicate that the requested format is not supported for this entity request <br/>
  * {@link EntityException} to indicate a specific entity failure occurred, can include a response code and error message <br/>
  * {@link SecurityException} to indicate that the the current user is no allowed to perform this action <br/>
+ * {@link UnsupportedOperationException} to indicate that the current action being requested is invalid (typically indicates bad combination of viewKey and action) <br/>
  * {@link IllegalStateException} to indicate a general failure has occurred <br/>
  * <br/>
  * @see CustomAction
@@ -91,7 +92,7 @@ public @interface EntityCustomAction {
      * roughly translates to the GET/POST/PUT/DELETE in http<br/>
      * e.g. GET /user/action would be {@link EntityView#VIEW_LIST}
      * while POST /user/aaronz/action would be {@link EntityView#VIEW_NEW},
-     * can be null to match all viewkeys (i.e. to allow this action
+     * can be null or '' (empty string) to match all viewkeys (i.e. to allow this action
      * from any http method type and on collections and entities) <br/>
      * @return the view key constant from {@link EntityView}
      */
