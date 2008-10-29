@@ -397,7 +397,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
        String context = toolConfig.getContext();
        boolean canDeleteAny = can(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, context);
        boolean canDeleteOwn = can(ChatFunctions.CHAT_FUNCTION_DELETE_OWN, context);
-       boolean isOwner = SessionManager.getCurrentSessionUserId().equals(message.getOwner());
+       boolean isOwner = SessionManager.getCurrentSessionUserId() != null ?
+    		   SessionManager.getCurrentSessionUserId().equals(message.getOwner()) : false;
        
        boolean canDelete = canDeleteAny;
        
