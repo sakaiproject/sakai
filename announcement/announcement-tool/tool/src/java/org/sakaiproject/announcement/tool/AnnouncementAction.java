@@ -1377,24 +1377,58 @@ public class AnnouncementAction extends PagedResourceActionII
 		MergedList mergedAnnouncementList = new MergedList();
 
 		// TODO - MERGE FIX
-		String[] channelArrayFromConfigParameterValue = null;
-
+		String[] channelArrayFromConfigParameterValue = null;	
+		
 		// Figure out the list of channel references that we'll be using.
 		// If we're on the workspace tab, we get everything.
 		// Don't do this if we're the super-user, since we'd be
 		// overwhelmed.
-		if (isOnWorkspaceTab() && !SecurityService.isSuperUser())
-		{
-			channelArrayFromConfigParameterValue = mergedAnnouncementList
-					.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
-		}
-		else
-		{
-			channelArrayFromConfigParameterValue = mergedAnnouncementList
-					.getChannelReferenceArrayFromDelimitedString(state.getChannelId(), portlet.getPortletConfig().getInitParameter(
-							getPortletConfigParameterNameForLoadOnly(portlet)));
-		}
+		
+		//loading merged announcement channel reference, for Synoptic Announcement Tool-SAK-5865
+		if (SYNOPTIC_ANNOUNCEMENT_TOOL.equals(ToolManager.getCurrentTool().getId())){
 
+			Site site = null;
+			String initMergeList=null;
+			try {
+				site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				ToolConfiguration tc=site.getToolForCommonId("sakai.announcements");
+				if (tc!=null){
+					//Properties ps= tc.getPlacementConfig();
+					initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);	
+				}
+
+				if (isOnWorkspaceTab() && !SecurityService.isSuperUser())
+				{
+					channelArrayFromConfigParameterValue = mergedAnnouncementList
+					.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
+				}
+				else
+				{
+					channelArrayFromConfigParameterValue = mergedAnnouncementList
+					.getChannelReferenceArrayFromDelimitedString(state.getChannelId(), initMergeList);
+
+				}
+
+			} catch (IdUnusedException e1) {
+				// TODO Auto-generated catch block
+			}			
+		}
+		else {
+			if (isOnWorkspaceTab() && !SecurityService.isSuperUser())
+			{
+				channelArrayFromConfigParameterValue = mergedAnnouncementList
+						.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
+			}
+			else
+			{
+				channelArrayFromConfigParameterValue = mergedAnnouncementList
+						.getChannelReferenceArrayFromDelimitedString(state.getChannelId(), portlet.getPortletConfig().getInitParameter(
+								getPortletConfigParameterNameForLoadOnly(portlet)));
+				
+			}
+
+		}			
+		
 		mergedAnnouncementList
 				.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
 						new EntryProvider(), state.getChannelId(), channelArrayFromConfigParameterValue,
