@@ -11,7 +11,7 @@
 	
 
 	<div class="mainSection">
-		<div class="mainSectionHeading">My Info</div>
+		<div class="mainSectionHeading"><span wicket:id="heading">[Basic Information]</span></div>
 		
 		<div class="mainSectionContent">	
 	
@@ -19,15 +19,15 @@
 				<table class="profileContent">
 					
 					<!-- nickname -->
-					<tr wicket:id="nickname">
+					<tr wicket:id="nicknameContainer">
 						<td class="label" wicket:id="nicknameLabel">[nicknameLabel]</td>
-						<td class="content"><input type="text" wicket:id="nicknameField" class="formInputField" /></td>
+						<td class="content"><input type="text" wicket:id="nickname" class="formInputField" /></td>
 					</tr>
 					
 					<!-- birthday -->
-					<tr wicket:id="birthday">
+					<tr wicket:id="birthdayContainer">
 						<td class="label" wicket:id="birthdayLabel">[birthdayLabel]</td>
-						<td class="content"><input type="text" wicket:id="birthdayField" class="formInputField datePicker" readonly="readonly" /></td>
+						<td class="content"><input type="text" wicket:id="birthday" class="formInputField datePicker" readonly="readonly" /></td>
 					</tr>
 					
 				</table>

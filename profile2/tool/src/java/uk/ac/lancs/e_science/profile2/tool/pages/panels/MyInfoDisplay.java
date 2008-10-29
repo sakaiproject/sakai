@@ -10,10 +10,10 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.views.TestPanelFullReplace2;
 
 public class MyInfoDisplay extends Panel {
 	
@@ -33,29 +33,33 @@ public class MyInfoDisplay extends Panel {
 		//get userProfile from userProfileModel
 		UserProfile userProfile = (UserProfile) this.getModelObject();
 		
-		//get info from userProfile
+		//get info from userProfile since we need to validate it and turn things off if not set.
+		//otherwise we could just use a propertymodel
 		String nickname = userProfile.getNickname();
-
+		
+		
+		//heading
+		add(new Label("heading", new ResourceModel("heading.basic")));
 		
 		//nickname
-		WebMarkupContainer profileNickname = new WebMarkupContainer("nickname");
-		profileNickname.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
-		profileNickname.add(new Label("nicknameContent", nickname));
-		add(profileNickname);
+		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
+		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
+		nicknameContainer.add(new Label("nickname", nickname));
+		add(nicknameContainer);
 		if("".equals(nickname) || nickname == null) {
-			profileNickname.setVisible(false);
+			nicknameContainer.setVisible(false);
 		}
 		
 		//birthday
-		WebMarkupContainer profileBirthday = new WebMarkupContainer("birthday");
-		profileBirthday.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
-		profileBirthday.add(new Label("birthdayContent", birthday));
-		add(profileBirthday);
-		if(birthday == null) {
-			profileBirthday.setVisible(false);
+		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
+		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
+		birthdayContainer.add(new Label("birthdayt", birthday));
+		add(birthdayContainer);
+		if("".equals(birthday) || birthday == null) {
+			birthdayContainer.setVisible(false);
 		}
 		
-		
+				
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
 			public void onClick(AjaxRequestTarget target) {

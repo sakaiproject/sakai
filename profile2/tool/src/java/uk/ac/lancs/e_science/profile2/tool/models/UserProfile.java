@@ -6,7 +6,8 @@ import java.util.Date;
 public class UserProfile implements Serializable {
 
 	//we need a var and getters/setters for every field thats in the profile.
-	private String nickname;	
+	private String nickname;
+	private String birthday;
 	private Date dateOfBirth;
 	private String displayName;
 	private String email;
@@ -23,6 +24,13 @@ public class UserProfile implements Serializable {
 	}
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+	
+	public String getBirthday() {
+		return birthday;
+	}
+	public void setBirthday(String birthday) {
+		this.birthday = birthday;
 	}
 		
 	public Date getDateOfBirth() {

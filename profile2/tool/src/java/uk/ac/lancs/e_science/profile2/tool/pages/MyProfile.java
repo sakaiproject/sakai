@@ -11,6 +11,7 @@ import org.apache.wicket.model.Model;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
 
@@ -36,23 +37,29 @@ public class MyProfile extends BasePage {
 
 		//get SakaiPerson for this user
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-		//if this user does not have a sakaiPerson entry, get a prototype
+		//if null, create one.
 		if(sakaiPerson == null) {
-			sakaiPerson = sakaiProxy.getSakaiPersonPrototype();
+			log.warn("No SakaiPerson for " + userId + ". Creating one.");
+			sakaiPerson = sakaiProxy.createSakaiPerson(userId);
+			//if its still null, log an error - ideally, don't proceed.
+			if(sakaiPerson == null) {
+				log.error("Couldn't create a SakaiPerson for " + userId + ". Given up.");
+			}
 		} 
+		
 		
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
 	
 		String userDisplayName = sakaiPerson.getDisplayName();
 		if(userDisplayName == null) {
-			log.info("userDisplayName for " + userId + " was null in SakaiPerson");
+			log.info("userDisplayName for " + userId + " was null in SakaiPerson. Using UDP value.");
 			userDisplayName = sakaiProxy.getUserDisplayName(userId);
 		}
 		
 		String userEmail = sakaiPerson.getMail();
 		if(userEmail == null) {
-			log.info("userEmail for " + userId + " was null in SakaiPerson");
+			log.info("userEmail for " + userId + " was null in SakaiPerson. Using UDP value.");
 			userEmail = sakaiProxy.getUserEmail(userId);
 		}
 		
@@ -65,6 +72,9 @@ public class MyProfile extends BasePage {
 		userProfile.setDisplayName(userDisplayName);
 		userProfile.setEmail(userEmail);
 
+		
+		
+		
 		//get photo and add to page, otherwise add default image
 		pictureBytes = sakaiPerson.getJpegPhoto();
 		
@@ -78,6 +88,7 @@ public class MyProfile extends BasePage {
 		
 			add(new Image("photo",photoResource));
 		} else {
+			log.info("No photo for " + userId + ". Using blank image.");
 			add(new ContextImage("photo",new Model(UNAVAILABLE_IMAGE)));
 		}
 		
@@ -93,6 +104,11 @@ public class MyProfile extends BasePage {
 		Panel myInfoDisplay = new MyInfoDisplay("myInfo", userProfileModel);
 		myInfoDisplay.setOutputMarkupId(true);
 		add(myInfoDisplay);
+		
+		//contact panel - load the display version by default
+		Panel myContactDisplay = new MyContactDisplay("myContact", userProfileModel);
+		myContactDisplay.setOutputMarkupId(true);
+		add(myContactDisplay);
 		
 		
 	}

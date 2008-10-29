@@ -41,49 +41,59 @@ public class MyInfoEdit extends Panel {
 		//get userProfile from userProfileModel
 		UserProfile userProfile = (UserProfile) this.getModelObject();
 		
+		//heading
+		add(new Label("heading", new ResourceModel("heading.basic.edit")));
+		
 		//setup form		
 		Form form = new Form("form");
 		form.setOutputMarkupId(true);
 	    form.setModel(new CompoundPropertyModel(userProfileModel));
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model
-
+	    //just make sure that the form element id's match those in the model
+	   		
 		//nickname
-		WebMarkupContainer nickname = new WebMarkupContainer("nickname");
-		nickname.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
-		TextField nicknameField = new TextField("nicknameField", new PropertyModel(userProfile, "nickname"));
-		nicknameField.setRequired(true);
-		nickname.add(nicknameField);
-		form.add(nickname);
+		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
+		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
+		TextField nickname = new TextField("nickname", new PropertyModel(userProfile, "nickname"));
+		nicknameContainer.add(nickname);
+		form.add(nicknameContainer);
 		
-		//nickname
-		WebMarkupContainer birthday = new WebMarkupContainer("birthday");
-		birthday.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
-		TextField birthdayField = new TextField("birthdayField", new PropertyModel(userProfile, "dateOfBirth"));
-		birthdayField.setRequired(true);
-		birthday.add(birthdayField);
-		form.add(birthday);
-		
+		//birthday
+		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
+		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
+		TextField birthday = new TextField("birthday", new PropertyModel(userProfile, "birthday"));
+		birthdayContainer.add(birthday);
+		form.add(birthdayContainer);
 		
 		//submit button
 		AjaxButton submitButton = new AjaxButton("submit") {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				//call save() method, show message, then load display panel
+				//save() form, show message, then load display panel
+
+				if(save(form)) {
+					Component newPanel = new MyInfoDisplay("myInfo", userProfileModel);
+					newPanel.setOutputMarkupId(true);
+					thisPanel.replaceWith(newPanel);
+					if(target != null) {
+						target.addComponent(newPanel);
+					}
 				
-				String js = "alert('here');";
-            	target.prependJavascript(js);
+				} else {
+					String js = "alert('crap!');";
+					target.prependJavascript(js);
+				}
 				
 				
             }
 		};
-		submitButton.setDefaultFormProcessing(false); //or use the onsubmit of the form???
 		form.add(submitButton);
 		
         
 		//cancel button
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             protected void onSubmit(AjaxRequestTarget target, Form form) {
-            	System.out.println("cancel clicked");
+            	//System.out.println("cancel clicked");
             	Component newPanel = new MyInfoDisplay("myInfo", userProfileModel);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
@@ -102,6 +112,7 @@ public class MyInfoEdit extends Panel {
 		//formFeedback.add(new AjaxIndicator("feedbackImg"));
 		//form.add(formFeedback);
         
+        
 		
 		//add form to page
 		add(form);
@@ -109,34 +120,35 @@ public class MyInfoEdit extends Panel {
 	}
 	
 	//called when the form is to be saved
-	protected boolean save() {
+	private boolean save(Form form) {
 		
-/*		
+        //System.out.println(getModelObject());
+
 		//get the backing model
-		UserProfile userProfile = (UserProfile) getModelObject();
-		
-		//and access the attributes via the getters - the form sets them to the object
-		String nickname = userProfile.getNickname();
+		UserProfile userProfile = (UserProfile) form.getModelObject();
 		
 		//get sakaiProxy, then get userId from sakaiProxy, then get sakaiperson for that userId
 		SakaiProxy sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
 		String userId = sakaiProxy.getCurrentUserId();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-		
+	
 		//set the attributes from userProfile that this form dealt with, into sakaiPerson
-		//this WILL fail if there is no sakaiPerson for the user so it needs to be dealt with
-		sakaiPerson.setNickname(nickname);
+		//this WILL fail if there is no sakaiPerson for the user however this should have been caught already
+		//as a new Sakaiperson for a user is created in MyProfile if they don't have one.
+		
+		sakaiPerson.setNickname(userProfile.getNickname());
+		log.info("UserProfile nickname is: " + userProfile.getNickname());
+		log.info("SakaiPerson nickanem is: " + sakaiPerson.getNickname());
+
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
-			System.out.println("ok!");
+			log.info("Saved SakaiPerson for: " + userId );
 			return true;
 		} else {
-			System.out.println("nah");
+			log.info("Couldn't save SakaiPerson for: " + userId);
 			return false;
 		}
 	 	
-	 	*/
-		return false;
 	}
 
 	
