@@ -171,9 +171,6 @@
 			<artifactId>joda-time</artifactId>
 			<version>1.4</version>
 			<type>jar</type>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>		
 	</dependencies>
 	<build>

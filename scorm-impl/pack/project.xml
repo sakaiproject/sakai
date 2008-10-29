@@ -110,7 +110,7 @@
 			<artifactId>joda-time</artifactId>
 			<version>1.4</version>
 			<properties>
-				<war.bundle>true</war.bundle>
+				<deploy.target>shared</deploy.target>
 			</properties>
 		</dependency>
 		<dependency>
