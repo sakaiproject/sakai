@@ -236,8 +236,9 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 	protected List prepPage(SessionState state)
 	{
 		// access the page size
-		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
-
+		int pageSize = state.getAttribute(STATE_PAGESIZE) != null ?
+				((Integer) state.getAttribute(STATE_PAGESIZE)).intValue() : DEFAULT_PAGE_SIZE;
+		
 		// cleanup prior prep
 		state.removeAttribute(STATE_NUM_MESSAGES);
 
