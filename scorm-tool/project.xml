@@ -164,6 +164,17 @@
 				<deploy.target>shared</deploy.target>
 			</properties>
 		</dependency>
+		<!-- NEEDED FOR ADL DOMAIN OBJECTS -->
+		<dependency>
+			<id>joda:time</id>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>1.4</version>
+			<type>jar</type>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>		
 	</dependencies>
 	<build>
 		<sourceDirectory>src/java</sourceDirectory>
