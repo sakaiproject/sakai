@@ -1795,7 +1795,11 @@ public class SiteAction extends PagedResourceActionII {
 						// to not support group
 						// if the manage group helper is available, not
 						// stealthed and not hidden, show the link
-						if (setHelper("wsetup.groupHelper", "sakai-site-manage-group-helper", state, STATE_GROUP_HELPER_ID)) {
+						// read the helper name from configuration variable: wsetup.group.helper.name
+						// the default value is: "sakai-site-manage-group-section-role-helper"
+						// the older version of group helper which is not section/role aware is named:"sakai-site-manage-group-helper"
+						String groupHelper = ServerConfigurationService.getString("wsetup.group.helper.name", "sakai-site-manage-group-section-role-helper");
+						if (setHelper("wsetup.groupHelper", groupHelper, state, STATE_GROUP_HELPER_ID)) {
 							b.add(new MenuEntry(rb.getString("java.group"),
 									"doManageGroupHelper"));
 						}
