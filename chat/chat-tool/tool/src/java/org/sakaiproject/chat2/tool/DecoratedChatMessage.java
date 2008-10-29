@@ -38,9 +38,10 @@ public class DecoratedChatMessage {
    {
       this.chatTool = chatTool;
       this.chatMessage = chatMessage;
-      if(chatMessage!=null){
-      messageTime = TimeService.newTime(chatMessage.getMessageDate().getTime());
-      }
+      if (chatMessage != null && chatMessage.getMessageDate() != null)
+       {
+          messageTime = TimeService.newTime(chatMessage.getMessageDate().getTime());
+       }
    }
    
    public String getColor()

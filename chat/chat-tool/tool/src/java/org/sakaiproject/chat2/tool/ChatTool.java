@@ -1455,7 +1455,12 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    }
    
    public String getViewingChatRoomText() {
-      return getMessageFromBundle("viewingChatRoomText", new Object[]{getCurrentChannel().getChatChannel().getTitle()});
+      String title = null;
+      if (getCurrentChannel() != null && getCurrentChannel().getChatChannel() != null)
+      {
+         title = getCurrentChannel().getChatChannel().getTitle();
+      }
+      return getMessageFromBundle("viewingChatRoomText", new Object[]{title});
    }
    
    private void setErrorMessage(String errorMsg, Object[] extras)
