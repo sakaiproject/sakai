@@ -640,7 +640,8 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 		state.setAttribute(STATE_GO_PREV_PAGE, "");
 
 		// set the page number
-		int page = ((Integer) state.getAttribute(STATE_CURRENT_PAGE)).intValue();	// FIXME
+		int page = state.getAttribute(STATE_CURRENT_PAGE) != null ?
+				((Integer) state.getAttribute(STATE_CURRENT_PAGE)).intValue() : 2;
 		state.setAttribute(STATE_CURRENT_PAGE, new Integer(page - 1));
 
 	} // doList_prev
