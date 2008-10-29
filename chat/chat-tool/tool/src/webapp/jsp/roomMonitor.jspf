@@ -1,11 +1,6 @@
 
 
-	<!--[if lte IE 6]>
-		<script type="text/javascript" language="JavaScript">
-			document.body.style.width='97%'
-		</script>
-	<![endif]--> 
-	
+	 
 <script type="text/javascript" language="JavaScript">
 
 // set for the chatscript.js
@@ -15,7 +10,14 @@ deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessa
 
 	<sakai:script contextBase="/library" path="/js/jquery.js" />
 	<sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
-	
+	<!--[if gte IE 6]>
+	 	<script type="text/javascript" language="JavaScript">
+			$(document).ready(function() {
+				$('.chatList').css({width:'93%'});
+			});			
+		</script>	
+	 <![endif]-->                            
+
 	<sakai:messages />
 	
 
