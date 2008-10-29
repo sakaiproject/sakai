@@ -136,6 +136,11 @@ public class SiteComparator implements Comparator {
 			}
 
 			result = compareString(s1, s2);
+			
+			// sort by name if previous sort result is equal
+			if (result == 0)
+				result = compareString(((Participant) o1).getName(), ((Participant) o2).getName());
+			
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_COURSE)) {
 			// sort by whether the site is joinable or not
 			String s1 = null;
@@ -149,6 +154,11 @@ public class SiteComparator implements Comparator {
 			}
 
 			result = compareString(s1, s2);
+			
+			// sort by name if previous sort result is equal
+			if (result == 0)
+				result = compareString(((Participant) o1).getName(), ((Participant) o2).getName());
+			
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_ID)) {
 			String s1 = null;
 			if (o1.getClass().equals(Participant.class)) {
@@ -161,6 +171,11 @@ public class SiteComparator implements Comparator {
 			}
 
 			result = compareString(s1, s2);
+			
+			// sort by name if previous sort result is equal
+			if (result == 0)
+				result = compareString(((Participant) o1).getName(), ((Participant) o2).getName());
+			
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_CREDITS)) {
 			String s1 = null;
 			if (o1.getClass().equals(Participant.class)) {
@@ -173,6 +188,11 @@ public class SiteComparator implements Comparator {
 			}
 
 			result = compareString(s1, s2);
+			
+			// sort by name if previous sort result is equal
+			if (result == 0)
+				result = compareString(((Participant) o1).getName(), ((Participant) o2).getName());
+			
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_STATUS)) {
 			boolean a1 = true;
 			if (o1.getClass().equals(Participant.class)) {
