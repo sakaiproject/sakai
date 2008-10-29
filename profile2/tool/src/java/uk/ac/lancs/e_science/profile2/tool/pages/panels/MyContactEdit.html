@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+<wicket:panel>	
+	
+
+	<div class="mainSection">
+		<div class="mainSectionHeading"><span wicket:id="heading">[Contact Information]</span></div>
+		
+		<div class="mainSectionContent">	
+	
+			<form wicket:id="form" class="profileForm">
+				<table class="profileContent">
+					
+					<!-- email -->
+					<tr wicket:id="emailContainer">
+						<td class="label" wicket:id="emailLabel">[emailLabel]</td>
+						<td class="content"><input type="text" wicket:id="email" class="formInputField" size="40"/></td>
+					</tr>
+					
+				</table>
+				
+				<input type="submit" wicket:id="submit" value="Save changes" />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type="button" wicket:id="cancel" value="Cancel"/>
+				
+			</form>	
+		</div>
+	</div>
+	
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

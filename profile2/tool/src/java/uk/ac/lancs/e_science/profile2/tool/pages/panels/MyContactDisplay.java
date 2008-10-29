@@ -15,7 +15,7 @@ import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
-public class MyInfoDisplay extends Panel {
+public class MyContactDisplay extends Panel {
 	
 	private transient Logger log = Logger.getLogger(MyInfoDisplay.class);
 	
@@ -24,47 +24,34 @@ public class MyInfoDisplay extends Panel {
 	private String birthday = null;
 
 	
-	public MyInfoDisplay(String id, final IModel userProfileModel) {
+	public MyContactDisplay(String id, final IModel userProfileModel) {
 		super(id, userProfileModel);
 		
 		//this panel stuff
 		final Component thisPanel = this;
-		final String thisPanelId = "myInfo"; //wicket:id not markupId
+		final String thisPanelId = "myContact"; //wicket:id not markupId
 		
 		//get userProfile from userProfileModel
 		UserProfile userProfile = (UserProfile) this.getModelObject();
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
-		String nickname = userProfile.getNickname();
-		
+		String email = userProfile.getEmail();
 		
 		//heading
-		add(new Label("heading", new ResourceModel("heading.basic")));
+		add(new Label("heading", new ResourceModel("heading.contact")));
 		
 		//nickname
-		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
-		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
-		nicknameContainer.add(new Label("nickname", nickname));
-		add(nicknameContainer);
-		if("".equals(nickname) || nickname == null) {
-			nicknameContainer.setVisible(false);
-		}
+		WebMarkupContainer emailContainer = new WebMarkupContainer("emailContainer");
+		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
+		emailContainer.add(new Label("email", email));
+		add(emailContainer);
 		
-		//birthday
-		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
-		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
-		birthdayContainer.add(new Label("birthdayt", birthday));
-		add(birthdayContainer);
-		if("".equals(birthday) || birthday == null) {
-			birthdayContainer.setVisible(false);
-		}
 		
-				
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
 			public void onClick(AjaxRequestTarget target) {
-				Component newPanel = new MyInfoEdit(thisPanelId, userProfileModel);
+				Component newPanel = new MyContactEdit(thisPanelId, userProfileModel);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {

@@ -24,7 +24,7 @@ import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
-public class MyInfoEdit extends Panel {
+public class MyContactEdit extends Panel {
 	
 	private transient Logger log = Logger.getLogger(MyInfoEdit.class);
 	
@@ -32,18 +32,18 @@ public class MyInfoEdit extends Panel {
 	private WebMarkupContainer formFeedback;
 
 	
-	public MyInfoEdit(String id, final IModel userProfileModel) {
+	public MyContactEdit(String id, final IModel userProfileModel) {
 		super(id, userProfileModel);
 		
 		//this panel stuff
 		final Component thisPanel = this;
-		final String thisPanelId = "myInfo"; //wicket:id not markupId
+		final String thisPanelId = "myContact"; //wicket:id not markupId
 				
 		//get userProfile from userProfileModel
 		UserProfile userProfile = (UserProfile) this.getModelObject();
 		
 		//heading
-		add(new Label("heading", new ResourceModel("heading.basic.edit")));
+		add(new Label("heading", new ResourceModel("heading.contact.edit")));
 		
 		//setup form		
 		Form form = new Form("form");
@@ -54,18 +54,12 @@ public class MyInfoEdit extends Panel {
 	    //just make sure that the form element id's match those in the model
 	   		
 		//nickname
-		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
-		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
-		TextField nickname = new TextField("nickname", new PropertyModel(userProfile, "nickname"));
-		nicknameContainer.add(nickname);
-		form.add(nicknameContainer);
+		WebMarkupContainer emailContainer = new WebMarkupContainer("emailContainer");
+		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
+		TextField email = new TextField("email", new PropertyModel(userProfile, "email"));
+		emailContainer.add(email);
+		form.add(emailContainer);
 		
-		//birthday
-		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
-		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
-		TextField birthday = new TextField("birthday", new PropertyModel(userProfile, "birthday"));
-		birthdayContainer.add(birthday);
-		form.add(birthdayContainer);
 		
 		//submit button
 		AjaxButton submitButton = new AjaxButton("submit") {
@@ -73,7 +67,7 @@ public class MyInfoEdit extends Panel {
 				//save() form, show message, then load display panel
 
 				if(save(form)) {
-					Component newPanel = new MyInfoDisplay(thisPanelId, userProfileModel);
+					Component newPanel = new MyContactDisplay(thisPanelId, userProfileModel);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
 					if(target != null) {
@@ -95,7 +89,7 @@ public class MyInfoEdit extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             protected void onSubmit(AjaxRequestTarget target, Form form) {
             	//System.out.println("cancel clicked");
-            	Component newPanel = new MyInfoDisplay(thisPanelId, userProfileModel);
+            	Component newPanel = new MyContactDisplay(thisPanelId, userProfileModel);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
@@ -107,13 +101,6 @@ public class MyInfoEdit extends Panel {
         cancelButton.setDefaultFormProcessing(false);
         form.add(cancelButton);
 		
-        //feedback stuff - make this a class and insance it with diff params
-        //WebMarkupContainer formFeedback = new WebMarkupContainer("formFeedback");
-		//formFeedback.add(new Label("feedbackMsg", "some message"));
-		//formFeedback.add(new AjaxIndicator("feedbackImg"));
-		//form.add(formFeedback);
-        
-        
 		
 		//add form to page
 		add(form);
@@ -138,9 +125,7 @@ public class MyInfoEdit extends Panel {
 		//this WILL fail if there is no sakaiPerson for the user however this should have been caught already
 		//as a new Sakaiperson for a user is created in MyProfile if they don't have one.
 		
-		sakaiPerson.setNickname(userProfile.getNickname());
-		log.info("UserProfile nickname is: " + userProfile.getNickname());
-		log.info("SakaiPerson nickanem is: " + sakaiPerson.getNickname());
+		sakaiPerson.setMail(userProfile.getEmail());
 
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );
