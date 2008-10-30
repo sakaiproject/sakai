@@ -120,7 +120,7 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-wicket</artifactId>
-			<version>1.0</version>
+			<version>${sakai.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
