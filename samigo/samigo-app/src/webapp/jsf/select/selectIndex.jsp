@@ -66,7 +66,14 @@ function disableLinks(clickedLink){
 		}
     }
 	else {
-		clickedLink.disable = true;
+		//alert('linksDisabled == true');
+		var onclick = clickedLink.getAttribute("onclick");
+		if(onclick != null)
+		{
+			clickedLink.setAttribute('onclick_back', onclick);
+			clickedLink.setAttribute('onclick', "void(0);");
+		}
+		clickedLink.removeAttribute('href');
 	}
 }
 </script>
