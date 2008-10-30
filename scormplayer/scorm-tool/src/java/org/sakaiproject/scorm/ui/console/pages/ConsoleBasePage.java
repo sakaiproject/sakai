@@ -30,12 +30,15 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
 import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
 import org.sakaiproject.scorm.ui.validation.pages.ValidationPage;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 import org.sakaiproject.wicket.markup.html.link.NavIntraLink;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+
 
 public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContributor {
 
@@ -51,24 +54,50 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	protected FeedbackPanel feedback;
 	private BreadcrumbPanel breadcrumbs;
 	
+	
+	@SpringBean
+	private LearningManagementSystem lms;
+
+	
 	public ConsoleBasePage() {
 		this(null);
 	}
 	
 	public ConsoleBasePage(PageParameters params) {
+		
+		final String context = lms.currentContext();
+		final boolean canUpload = lms.canUpload(context);
+		final boolean canValidate = lms.canValidate(context);
+		
 		add(newPageTitleLabel(params));
-		add(new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class));
-		add(new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class));
-		add(new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class));
 		add(feedback = new FeedbackPanel("feedback"));
 		add(breadcrumbs = new BreadcrumbPanel("breadcrumbs"));
 		
-		add(new Icon("listIcon", LIST_ICON));
-		add(new Icon("uploadIcon", UPLOAD_ICON));
-		add(new Icon("validateIcon", VALIDATE_ICON));
+		NavIntraLink listLink = new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class);
+		NavIntraLink uploadLink = new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class);
+		NavIntraLink validateLink = new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class);
+		
+		listLink.setVisible(canUpload || canValidate);
+		uploadLink.setVisible(canUpload);
+		validateLink.setVisible(canValidate);
+		
+		add(listLink);
+		add(uploadLink);
+		add(validateLink);
+		
+		Icon listIcon = new Icon("listIcon", LIST_ICON);
+		Icon uploadIcon = new Icon("uploadIcon", UPLOAD_ICON);
+		Icon validateIcon = new Icon("validateIcon", VALIDATE_ICON);
+		
+		listIcon.setVisible(canUpload || canValidate);
+		uploadIcon.setVisible(canUpload);
+		validateIcon.setVisible(canValidate);
+		
+		add(listIcon);
+		add(uploadIcon);
+		add(validateIcon);
 		
 		Icon pageIcon = new Icon("pageIcon", getPageIconReference());
-		
 		pageIcon.setVisible(getPageIconReference() != null);
 		add(pageIcon);
 	}
