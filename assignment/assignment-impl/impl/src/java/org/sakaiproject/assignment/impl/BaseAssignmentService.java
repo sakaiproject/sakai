@@ -4995,7 +4995,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						// add the new resource into resource area
 						ContentResource attachment = m_contentHostingService.addResource(
 								Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-								ToolManager.getCurrentPlacement().getContext(), 
+								toContext,
 								1, 
 								oAttachment.getContentType(), 
 								oAttachment.getContent(), 
