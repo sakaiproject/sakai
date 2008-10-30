@@ -314,7 +314,7 @@ function allowClick(object)
 								#end
 							</td>
 							<td headers="title">
-									#if (($!allowAddAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
+									#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
 										<h4>
 											## normal instructor view
 											#if ($assignment.draft && $!allowUpdateAssignment )
@@ -534,10 +534,8 @@ function allowClick(object)
 							#end
 							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 								<td headers="remove" class="screenOnly">
-									#if ($!allowUpdateAssignment)
 										<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" />
 										<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove")</label>
-									#end 
 								</td>
 							#end
 						</tr>
