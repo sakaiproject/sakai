@@ -575,65 +575,64 @@ function handleEnterKeyPress(ev)
 						## hidden value for non-electronic submission
 						<input type="hidden" name="$name_allowResubmitNumber" id="allowResubmitNumber" value="0" />
 					#else
-					##show it only for those assignments not of type non-electronic submission
-					## for 2.4 - hide the select below and toggle its values between 0 and 1 via the checkbox below it
-					<p class="shorttext skip">
-						<label for="allowResubmitNumber">
-							$tlang.getString("allow.resubmit.number")
-						</label>
-						<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
-							#foreach ($i in [-1..10])
-								<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
-									#if($i==-1)
-										$tlang.getString("allow.resubmit.number.unlimited")
+						##show it only for those assignments not of type non-electronic submission
+						#if($!value_allowResubmitNumber==0)
+							#set($resubmitStyle="display:none")
+						#else 
+							#set($resubmitStyle="display:block")
+						#end
+						<p class="checkbox">
+							<input type="checkbox" id="tempAllowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none'}" /> 
+							<label for="tempAllowResToggle">$tlang.getString("allowResubmit")</label>
+						</p>
+						<p class="shorttext" id="allowResubmitNumber" style="$!resubmitStyle">
+							<label for="allowResubmitNumber">
+								$tlang.getString("allow.resubmit.number")
+							</label>
+							<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
+								#foreach ($i in [-1..10])
+									<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
+										#if($i==-1)
+											$tlang.getString("allow.resubmit.number.unlimited")
+										#else
+											$i
+										#end
+									</option>
+								#end
+							</select>
+						</p>
+						<p class="shorttext" id="allowResubmitTime" style="$!resubmitStyle">
+							## only show date selection when allowed to resubmit
+							<label for="$name_ResubmitMonth">
+								$tlang.getString("gen.acesubunt")
+							</label>
+							#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
+							$tlang.getString("gen.at") 
+							<select name="$name_ResubmitHour" id="$name_ResubmitHour">
+								#foreach ($i in [1..12])
+									#if ($i == $value_ResubmitHour)
+										<option value="$i" selected="selected">$i</option>
 									#else
-										$i
+										<option value="$i">$i</option>
 									#end
-								</option>
-							#end
-						</select>
-					</p>
-					<p class="checkbox">
-						<input type="checkbox" id="tempAllowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').selectedIndex='2';document.getElementById('allowResubmitTime').style.display = 'block';
-						}else{document.getElementById('allowResubmitNumber').selectedIndex='1';document.getElementById('allowResubmitTime').style.display = 'none'}" /> <label for="tempAllowResToggle">$tlang.getString("allowResubmit")</label>
-					</p>
-					#if($!value_allowResubmitNumber==0)
-						#set($closeTimeStyle="display:none")
-					#else 
-						#set($closeTimeStyle="display:block")
+								#end
+							</select>
+							<select name="$name_ResubmitMin" id="$name_ResubmitMin">
+								#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+									<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+								#end
+							</select>
+							<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM">
+								#foreach ($i in ["AM", "PM"])
+									#if ($i == $value_ResubmitAMPM)
+										<option value="$i" selected="selected">$i</option>
+									#else
+										<option value="$i">$i</option>
+									#end
+								#end
+							</select>
+						</p>
 					#end
-					## only show date selection when allowed to resubmit
-					<p class="shorttext" id="allowResubmitTime" style="$!closeTimeStyle">
-						<label for="$name_ResubmitMonth">
-							$tlang.getString("gen.acesubunt")
-						</label>
-						#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
-						$tlang.getString("gen.at") 
-						<select name="$name_ResubmitHour" id="$name_ResubmitHour">
-							#foreach ($i in [1..12])
-								#if ($i == $value_ResubmitHour)
-									<option value="$i" selected="selected">$i</option>
-								#else
-									<option value="$i">$i</option>
-								#end
-							#end
-						</select>
-						<select name="$name_ResubmitMin" id="$name_ResubmitMin">
-							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-								<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-							#end
-						</select>
-						<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM">
-							#foreach ($i in ["AM", "PM"])
-								#if ($i == $value_ResubmitAMPM)
-									<option value="$i" selected="selected">$i</option>
-								#else
-									<option value="$i">$i</option>
-								#end
-							#end
-						</select>
-					</p>	
-			#end
 			<p class="act">
 				<input type="button" accesskey="d" class="active"  name="save" value="$tlang.getString('gen.savdragra')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.savdratit")" />
 				<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.retustud')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.retustudtit")" />	

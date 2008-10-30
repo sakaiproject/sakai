@@ -339,8 +339,7 @@ $(document).ready(function() {
 				#end
 			</select>
 		</p>
-		#* comment out this option for 2.4 - will default to "0"
-			<p class="shorttext">
+		<p class="shorttext">
 				<label for="allowResubmitNumber">
 					$tlang.getString("allow.resubmit.number")
 				</label>
@@ -355,8 +354,7 @@ $(document).ready(function() {
 						</option>
 					#end
 				</select>
-			</p>
-		*#
+		</p>
 		#if ($withGrade)
 			<p class="shorttext">
 				<span class="reqStar">*</span>

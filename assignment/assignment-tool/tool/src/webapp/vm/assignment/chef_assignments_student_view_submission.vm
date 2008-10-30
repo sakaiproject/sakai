@@ -20,7 +20,15 @@
 	#set($returned=$submission.getReturned())
 	#set($closeTime = false)
 	#set($closeTime = $assignment.CloseTime)
-	#if ($!submission)
+	#set($allowResubmitNumber="0")
+	#set($allowResubmitNumber = $assignment.getProperties().getProperty("allow_resubmit_number"))
+	#if(!$!allowResubmitNumber.equals("0"))
+		#set($allowResubmitCloseTimeString=$assignment.getProperties().getProperty("allow_resubmit_closeTime"))
+		#if($!allowResubmitCloseTimeString)
+			#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
+		#end
+	#end
+	#if ($!submission && $!allowResubmitNumber.equals("0"))
 		##override the close time setting for assignment by submission's individual setting
 		#set($closeTime = $submission.CloseTime)
 	#end
@@ -602,7 +610,7 @@
 					</p>
 				#end
 			<div class="act">
-					#if ($!closeTime && $currentTime.after($!closeTime) || !$allowSubmit)
+					#if (!$!canSubmit)
 						<input 
 							type="button" 
 							name="cancel"
@@ -612,7 +620,6 @@
 							onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 						/>
 					#else
-					#if (!$submitted || ($submitted && !$timeSubmitted) || ($returned && $!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted)))
 							<input
 								type="button"
 								class="active"
@@ -654,16 +661,6 @@
 								value="$tlang.getString("gen.can")"
 								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 							/>
-						#else
-							<input 
-								type="button" 
-								name="cancel" 
-								accesskey="x"
-								id="cancel" 
-								value="$tlang.getString("gen.don")"
-								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
-							/>
-						#end
 					#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>

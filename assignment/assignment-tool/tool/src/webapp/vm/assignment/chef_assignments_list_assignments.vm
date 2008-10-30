@@ -394,7 +394,7 @@ function allowClick(object)
 														#end
 													#end
 													## if not submitted or returned and still allowed to submit within the due time
-													#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || (!$!submissionSubmitted && !$!submissionReturned))
+													#if ($service.canSubmit($assignment.getContext(), $assignment))
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 													#else

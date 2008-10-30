@@ -5177,23 +5177,24 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 				else
 				{
-					// returned 
-					if (submission.getResubmissionNum()!=0 && currentTime.before(closeTime))
-					{
-						// return true for returned submission but allow for resubmit and before the close time
-						return true;
-					}
-					else
-					{
-						// return false otherwise
-						return false;
-					}
+					// return true if resubmission is allowed and current time is before resubmission close time
+					int allowResubmitNumber = submission.getResubmissionNum();
+					Time resubmitCloseTime = a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME) != null? a.getProperties().getTimeProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME):a.getCloseTime();
+					return !(allowResubmitNumber == 0) && currentTime.before(resubmitCloseTime);
 				}
 			}
 		}
 		catch (UserNotDefinedException e)
 		{
 			// cannot find user
+			M_log.warn(this + " canSubmit(String, Assignment) " + e.getMessage() + " assignment ref=" + a.getReference());
+			return false;
+		} catch (EntityPropertyNotDefinedException e) {
+			// Property not defined
+			M_log.warn(this + " canSubmit(String, Assignment) " + e.getMessage() + " assignment ref=" + a.getReference());
+			return false;
+		} catch (EntityPropertyTypeException e) {
+			// entity property type exception
 			M_log.warn(this + " canSubmit(String, Assignment) " + e.getMessage() + " assignment ref=" + a.getReference());
 			return false;
 		}
