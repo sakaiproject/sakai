@@ -100,7 +100,21 @@
         } break;
     }
 }
+function resizeFrame(){
+    // check needed as getElementById in IE doesn't like an empty parameter so the var
+    // frame line returns an error. Firefox appears to be okay with it
+    if (window.name != "") {
+        var frame = parent.document.getElementById(window.name);
+        if (frame) {
+            var clientH = document.body.clientHeight + 10;
+            $(frame).height(clientH);
+        }
+    }
+}
 </script>
+<script type="text/javascript" src="/library/js/jquery.js">
+</script>
+
 <div class="portletBody">
 	<h3>
 		#if ( $newAnn =="true")
@@ -168,16 +182,20 @@
 			<input type="hidden" name="announceTo" id="site" value="site" checked="checked" />
 		#else
 			#if ($allowAddChannelMessage)
+				<p class="checkbox">
+					<input type="radio" name="announceTo" id="site" 
+						value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end 
+						onclick="$('#groupTable').fadeOut('slow');resizeFrame()"  />
+					<label for="site">$tlang.getString("displayto.site")</label>
+				</p>	
 				#if (!$!publicDisable)
 				<p class="checkbox">
-					<input type="radio" name="announceTo" id="pubview" value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"  />
+					<input type="radio" name="announceTo" id="pubview" 
+						value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end 
+						onclick="$('#groupTable').fadeOut('slow');resizeFrame()"   />
 					<label for="pubview">$tlang.getString("displayto.public")</label>
 				</p>
 				#end
-				<p class="checkbox">
-					<input type="radio" name="announceTo" id="site" value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"  />
-					<label for="site">$tlang.getString("displayto.site")</label>
-				</p>	
 			#else
 				#if ($!groups.size() >1)
 					<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
@@ -188,7 +206,11 @@
 			#if ($!groups)
 				## added group awareness
 				<p class="checkbox">
-					<input type="radio" name="announceTo" id="groups" value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+					<input type="radio" name="announceTo" id="groups" 
+					value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end 
+					onclick="$('#groupTable').fadeIn('slow');resizeFrame()"  />
+					##<input type="radio" name="announceTo" id="groups" value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+
 					<label for="groups">$tlang.getString("displayto.selected")</label>
 				</p>	
 				#if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))
