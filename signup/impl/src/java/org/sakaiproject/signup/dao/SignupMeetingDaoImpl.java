@@ -55,7 +55,7 @@ public class SignupMeetingDaoImpl extends HibernateCompleteGenericDao implements
 	 */
 	@SuppressWarnings("unchecked")
 	public List<SignupMeeting> getAllSignupMeetings(String siteId) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class).addOrder(Order.desc("startTime"))
+		DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class).addOrder(Order.asc("startTime"))
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
 				.createCriteria("signupSites")
 				.add(Restrictions.eq("siteId", siteId));
@@ -68,7 +68,7 @@ public class SignupMeetingDaoImpl extends HibernateCompleteGenericDao implements
 	@SuppressWarnings("unchecked")
 	public List<SignupMeeting> getSignupMeetings(String siteId, Date searchEndDate) {
 		DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class).add(
-				Restrictions.le("startTime", searchEndDate)).addOrder(Order.desc("startTime")).createCriteria(
+				Restrictions.le("startTime", searchEndDate)).addOrder(Order.asc("startTime")).createCriteria(
 				"signupSites").add(Restrictions.eq("siteId", siteId));
 
 		return getHibernateTemplate().findByCriteria(criteria);
