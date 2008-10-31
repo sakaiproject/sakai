@@ -18,6 +18,7 @@ public class ContentPackageWebResource extends WebResource {
 	private ContentPackageResourceStream resourceStream;
 	
 	public ContentPackageWebResource(ContentPackageResource resource) {
+		setCacheable(false);
 		this.resource = resource;
 		this.resourceStream = new ContentPackageResourceStream(resource);
 	}
