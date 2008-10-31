@@ -48,7 +48,7 @@ public class ZipWriterTest extends TestCase {
 			FileInputStream contentStream = null;
 			String path = testURL.getPath();
 			FileInputStream in = new FileInputStream(testURL.getPath().substring(path.indexOf(":")+1));
-			String newName= path.substring(path.indexOf(":")+1, path.lastIndexOf(File.separator)+1)+"myresult.zip";
+			String newName= path.substring(path.indexOf(":")+1, path.lastIndexOf("/")+1)+"myresult.zip";
 			
 			FileOutputStream out = new FileOutputStream(newName);
 			
