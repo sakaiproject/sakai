@@ -1,9 +1,7 @@
 <projectDescription>
   <name>sakai-scorm-tool</name>
   <comment>This project creates a war containing the Sakai Scorm Tool</comment>
-  <projects>
-    <project>sakai-scorm-api</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>

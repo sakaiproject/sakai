@@ -13,6 +13,8 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -37,6 +39,24 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Validator;
 
 public abstract class SakaiResourceService extends AbstractResourceService {
+
+	/**
+	 * Security advisor to bypass the content read access.
+	 * @author roland
+	 *
+	 */
+	private final class ContentReadSecurityAdvisor implements SecurityAdvisor {
+	    public SecurityAdvice isAllowed(String userId, String function, String reference) {
+	    	if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
+	    		return SecurityAdvice.ALLOWED;
+	    	}
+	    	if (ContentHostingService.AUTH_RESOURCE_HIDDEN.equals(function)) {
+	    		return SecurityAdvice.ALLOWED;
+	    	}
+	        return SecurityAdvice.PASS;
+	    }
+    }
+
 
 	private static Log log = LogFactory.getLog(SakaiResourceService.class);
 
@@ -263,6 +283,9 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	
 	
 	protected List<ContentPackageResource> getContentResourcesRecursive(String collectionId, String uuid, String path) {
+		
+		SecurityService.pushAdvisor(new ContentReadSecurityAdvisor());
+		
 		List<ContentPackageResource> resources = new LinkedList<ContentPackageResource>();
 		try {
 			ContentCollection collection = contentService().getCollection(collectionId);
@@ -293,14 +316,16 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 				String launchline = launchLineBuilder.toString();
 				String resourcePath = getResourcePath(uuid, launchline);
 				
-				if (member.isResource() && member instanceof ContentResource) 
-					resources.add(new ContentPackageSakaiResource(resourcePath, (ContentResource)member));
-				else if (member.isCollection() && member instanceof ContentCollection)
+				if (member.isResource() && member instanceof ContentResource) {
+	                resources.add(new ContentPackageSakaiResource(resourcePath, ((ContentResource)member)));
+                } else if (member.isCollection() && member instanceof ContentCollection)
 					resources.addAll(getContentResourcesRecursive(member.getId(), uuid, launchline));
 			}
 		
 		} catch (Exception e) {
 			log.error("Caught an exception looking for content packages", e);
+		} finally {
+			SecurityService.popAdvisor();
 		}
 		
 		return resources;
