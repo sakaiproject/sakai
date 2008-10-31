@@ -47,6 +47,9 @@ public class TimerBarTag
   private String expireScript;
   private String expireMessage1;
   private String expireMessage2;
+  private String fiveMinutesMessage1;
+  private String fiveMinutesMessage2;
+  
 
   //private TagUtil util;
   private String elapsed;
@@ -97,6 +100,8 @@ public class TimerBarTag
     TagUtil.setString(component, "expireScript", expireScript);
     TagUtil.setString(component, "expireMessage1", expireMessage1);
     TagUtil.setString(component, "expireMessage2", expireMessage2);
+    TagUtil.setString(component, "fiveMinutesMessage1", fiveMinutesMessage1);
+    TagUtil.setString(component, "fiveMinutesMessage2", fiveMinutesMessage2);
   }
   public String getWidth()
   {
@@ -147,5 +152,23 @@ public class TimerBarTag
   {
     this.expireMessage2 = expireMessage2;
   }
+  
+  public String getFiveMinutesMessage1()
+  {
+    return fiveMinutesMessage1;
+  }
+  public void setFiveMinutesMessage1(String fiveMinutesMessage1)
+  {
+    this.fiveMinutesMessage1 = fiveMinutesMessage1;
+  }
 
+  public String getFiveMinutesMessage2()
+  {
+    return fiveMinutesMessage2;
+  }
+  public void setFiveMinutesMessage2(String fiveMinutesMessage2)
+  {
+    this.fiveMinutesMessage2 = fiveMinutesMessage2;
+  }
+  
 }

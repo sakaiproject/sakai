@@ -34,11 +34,12 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <f:verbatim> <span id="bar"></f:verbatim>
 <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload == null || delivery.timeElapseFloat ge delivery.timeElapseAfterFileUploadFloat}">
 <samigo:timerBar height="15" width="300"
- 
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     expireMessage1="#{deliveryMessages.time_expired1}"
 	expireMessage2="#{deliveryMessages.time_expired2}"
+	fiveMinutesMessage1="#{deliveryMessages.five_minutes_left1}"
+	fiveMinutesMessage2="#{deliveryMessages.five_minutes_left2}"
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
 </h:panelGroup>
 
@@ -48,7 +49,9 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     elapsed="#{delivery.timeElapseAfterFileUpload}"
     expireMessage1="#{deliveryMessages.time_expired1}"
 	expireMessage2="#{deliveryMessages.time_expired2}"
-    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
+	fiveMinutesMessage1="#{deliveryMessages.five_minutes_left1}"
+	fiveMinutesMessage2="#{deliveryMessages.five_minutes_left2}"
+	expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
 </h:panelGroup>
 
 <f:verbatim>  </span></f:verbatim>

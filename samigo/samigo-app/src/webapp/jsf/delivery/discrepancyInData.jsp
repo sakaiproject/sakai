@@ -38,8 +38,24 @@
 
 <div class="portletBody">
   <!-- content... -->
-  <h3><h:outputText value="#{deliveryMessages.discrepancy_in_data_title}"/></h3>
-  <h:outputText value="#{deliveryMessages.discrepancy_in_data}"/>
+  <h3><h:outputText value="#{deliveryMessages.data_discrepancy_title}"/></h3>
+  <f:verbatim>&nbsp;</f:verbatim>
+  <h:panelGrid border="0">
+    <h:outputText value="#{deliveryMessages.data_discrepancy_1}"/>
+		<f:verbatim><ol></f:verbatim>
+	  <h:panelGrid columns="2" border="0">
+		<h:outputText value="&nbsp" escape="false"/>
+		<h:outputText value="<li> #{deliveryMessages.data_discrepancy_2}</li>" escape="false"/>
+		<h:outputText value="&nbsp" escape="false"/>
+		<h:outputText value="<li> #{deliveryMessages.data_discrepancy_3}</li>" escape="false"/>
+	  </h:panelGrid>
+		<f:verbatim></ol></f:verbatim>
+
+    <h:outputText value="#{deliveryMessages.data_discrepancy_4} <b>#{deliveryMessages.save_and_continue}</b> #{deliveryMessages.text_or} <b>#{deliveryMessages.button_save_for_later}</b>#{deliveryMessages.text_period}" escape="false"/>
+    <h:outputText value="#{deliveryMessages.data_discrepancy_5} <b>#{deliveryMessages.button_return}</b> #{deliveryMessages.data_discrepancy_6}" escape="false"/>
+  </h:panelGrid>
+
+
 
  <h:form id="discrepancyInData">
  <p class="act">

@@ -107,6 +107,8 @@ function clickSubmitForGrade(){
     elapsed="#{delivery.timeElapse}"
 	expireMessage1="#{deliveryMessages.time_expired1}"
 	expireMessage2="#{deliveryMessages.time_expired2}"
+	fiveMinutesMessage1="#{deliveryMessages.five_minutes_left1}"
+	fiveMinutesMessage2="#{deliveryMessages.five_minutes_left2}"
     expireScript="document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded; document.forms[0].elements['tableOfContentsForm:outoftime'].value='true'; clickSubmitForGrade();" />
 <f:verbatim>  </span></f:verbatim>
 

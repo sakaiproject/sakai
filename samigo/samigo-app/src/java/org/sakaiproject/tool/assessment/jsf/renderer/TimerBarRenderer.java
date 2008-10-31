@@ -118,7 +118,15 @@ public class TimerBarRenderer extends Renderer
          writer.write("\n  var action = function()");
          writer.write("\n {");
          writer.write("\n   " + attrMap.get("expireScript") + ";");
-         writer.write("\n  alert(\""  + attrMap.get("expireMessage1") + "\\n\\n" + attrMap.get("expireMessage2") + "\");");          writer.write("\n }");
+         writer.write("\n  alert(\""  + attrMap.get("expireMessage1") + "\\n\\n" + attrMap.get("expireMessage2") + "\");");          
+         writer.write("\n }");
+         writer.write("\n");
+         writer.write("\n// THE FUNCTION BELOW CONTAINS THE ACTION TAKEN WHERE THERE ARE 5 MINUTES LEFT.");
+         writer.write("\n");
+         writer.write("\n  var fiveMinutesAction = function()");
+         writer.write("\n {");
+         writer.write("\n  alert('"  + attrMap.get("fiveMinutesMessage1") + "\\n\\n" + attrMap.get("fiveMinutesMessage2") + "');");          
+         writer.write("\n }");
          writer.write("\n");
          writer.write("\n</script>");
          String contextPath = context.getExternalContext().getRequestContextPath();

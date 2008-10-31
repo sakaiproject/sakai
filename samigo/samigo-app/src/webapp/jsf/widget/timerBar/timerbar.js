@@ -90,6 +90,7 @@ id.clip.bottom=b;
 
 
 function startTimer(){
+ //alert("startTimer");
  var timeLeft=waitTime-Math.floor(loaded/10);  //loaded is in 1/10th second so divide 10. 
  var hours=Math.floor(timeLeft/3600);
  var minutes=Math.floor((timeLeft%3600)/60);
@@ -111,8 +112,9 @@ function startTimer(){
     endM=endM+1;;
     endS=endS-60;
   }
- showCountDown();
-   }
+
+  showCountDown();
+}
 
 function showCountDown(){
   var present=new Date();
@@ -120,11 +122,12 @@ function showCountDown(){
   var presentM=present.getMinutes();
   var presentS=present.getSeconds();
 
-  if((endH==presentH)&&(endM==presentM)&&(endS==presentS)){ // reaches end time
-    stopTimer();
-
-  }else{
-    var theTime=((endH*3600)+(endM*60)+endS) -((presentH*3600)+(presentM*60)+presentS);
+  var theTime=((endH*3600)+(endM*60)+endS) -((presentH*3600)+(presentM*60)+presentS);
+  if (theTime<=0) {
+	stopTimer();
+	//alert('theTime=' + theTime);
+  }
+  else {
     var remainH=Math.floor(theTime/3600);
     var remainM=Math.floor((theTime%3600)/60);
     var remainS=(theTime%3600)%60;
@@ -153,7 +156,8 @@ function progressTimerBar(){
     if(waitTime>300){ //waitTime is the timeLimit and it is in second
 		if(remainTime==300){ //waitTime is the timeLimit and it is in second
 		setRedBar = true;
-		alert('You have 5 minutes left');
+		//alert('You have 5 minutes left. "a"');
+		fiveMinutesAction();
 		}
 		else if (remainTime < 300){ setRedBar = true; } 
 
@@ -180,6 +184,7 @@ function stopTimer(){
 running=false;
 hidebar(); 
 }
+
 progressBarInit();
 
 

@@ -179,8 +179,17 @@
     <required>true</required>
     <rtexprvalue>false</rtexprvalue>
   </attribute>
+  <attribute>
+    <name>fiveMinutesMessage1</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>fiveMinutesMessage2</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
   </tag>
-
 
   <!-- we may obsolete this tag -->
   <tag>
