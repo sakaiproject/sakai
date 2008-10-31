@@ -711,7 +711,10 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			String lang = DEFAULT_USER_LANGUAGE;
 				
 			// Get the learner preference values from Sakai
-			Properties props = learner.getProperties();
+			Properties props = null;
+			if (learner != null) {
+				props = learner.getProperties();
+			}
 				
 		    if (props != null) {
 		       	if (null != props.getProperty(PREF_USER_AUDIO_LEVEL))
