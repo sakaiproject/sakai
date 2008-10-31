@@ -6,7 +6,7 @@
 <hibernate-mapping package="org.sakaiproject.sitemanage.impl" default-lazy="false">
 	<class name="SiteSetupQuestionImpl"
 		table="SSQ_QUESTION"
-		where=" CURRENT = 'true'">
+		where=" IS_CURRENT = 'true'">
 		
 		<comment>This table stores site setup questions</comment>
 		
@@ -31,7 +31,7 @@
         </property>
         
         <property name="current" type="string" not-null="true">
-            <column name="CURRENT"/>
+            <column name="IS_CURRENT"/>
         </property>
         
         <list name="answers" cascade="all-delete-orphan" inverse="false">
