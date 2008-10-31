@@ -3,11 +3,11 @@
 
 #leftPanel {
 	float: left;
-	width: 150px;
+	width: 200px;
 }
 
 #mainPanel {
-	margin-left:165px;
+	margin-left:215px;
 	margin-right:215px;
 	padding:8px;
 }
@@ -28,11 +28,37 @@
 }
 
 #myPhoto {
+	max-width: 200px;
+	position: relative;
 }
 
 #myPhoto img {
-	max-width: 150px;
+	
 }
+
+.editImageButton {
+	position:absolute;
+	right:0;
+	top:0;
+	/*height:20px;*/
+	background-color: #ffffff;
+	text-decoration: none;
+	font-size: x-small;
+	padding-left: 24px;
+	padding-bottom: 4px;
+	padding-top: 4px;
+	padding-right: 2px;
+	margin-top: 0;
+	margin-right: 0;
+	background-repeat: no-repeat;
+	background-position: 4px center;
+	background-image: url("/library/image/silk/picture_edit.png");
+
+}
+
+
+
+
 
 
 

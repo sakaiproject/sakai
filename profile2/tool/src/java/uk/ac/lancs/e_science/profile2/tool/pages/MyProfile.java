@@ -1,6 +1,11 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
+
 import org.apache.log4j.Logger;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
@@ -8,8 +13,10 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
+import uk.ac.lancs.e_science.profile2.tool.components.SelectModalWindow;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
@@ -71,7 +78,10 @@ public class MyProfile extends BasePage {
 		userProfile.setDateOfBirth(sakaiPerson.getDateOfBirth());
 		userProfile.setDisplayName(userDisplayName);
 		userProfile.setEmail(userEmail);
-
+		userProfile.setHomepage(sakaiPerson.getLabeledURI());
+		userProfile.setHomephone(sakaiPerson.getHomePhone());
+		userProfile.setWorkphone(sakaiPerson.getTelephoneNumber());
+		userProfile.setMobilephone(sakaiPerson.getMobile());
 		
 		
 		
@@ -91,6 +101,47 @@ public class MyProfile extends BasePage {
 			log.info("No photo for " + userId + ". Using blank image.");
 			add(new ContextImage("photo",new Model(UNAVAILABLE_IMAGE)));
 		}
+		
+		// The ModalWindow, showing some choices for the user to select.
+		
+		// The label that shows the result from the ModalWindow
+        final Label resultLabel = new Label("resultlabel", new Model(""));
+        resultLabel.setOutputMarkupId(true);
+        add(resultLabel);
+		
+		
+        final ModalWindow selectModalWindow = new SelectModalWindow("modalwindow"){
+
+            void onSelect(AjaxRequestTarget target, String selection) {
+                // Handle Select action
+                resultLabel.setModelObject(selection);
+                target.addComponent(resultLabel);
+                close(target);
+            }
+
+            void onCancel(AjaxRequestTarget target) {
+                // Handle Cancel action
+                resultLabel.setModelObject("ModalWindow cancelled.");
+                target.addComponent(resultLabel);
+                close(target);
+            }
+
+        };
+        add(selectModalWindow);
+
+		
+		
+		
+		
+		//change profile image button
+		AjaxFallbackLink changeProfileImage = new AjaxFallbackLink("changeProfileImage", new ResourceModel("link.change.profile.image")) {
+			public void onClick(AjaxRequestTarget target) {
+				selectModalWindow.show(target);
+			}
+						
+		};
+		changeProfileImage.setOutputMarkupId(true);
+		add(changeProfileImage);
 		
 		//configure userProfile as the model for our page
 		//we then pass the userProfileModel in the constructor to the child panels

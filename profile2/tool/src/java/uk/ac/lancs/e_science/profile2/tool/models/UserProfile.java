@@ -18,6 +18,11 @@ public class UserProfile implements Serializable {
 	private String school;
 	private String room;
 	private byte[] photo;
+	private String homepage;
+	private String workphone;
+	private String homephone;
+	private String mobilephone;
+
 	
 	public String getNickname() {
 		return nickname;
@@ -96,6 +101,30 @@ public class UserProfile implements Serializable {
 	}
 	public void setPhoto(byte[] photo) {
 		this.photo = photo;
+	}
+	public String getHomepage() {
+		return homepage;
+	}
+	public void setHomepage(String homepage) {
+		this.homepage = homepage;
+	}
+	public String getWorkphone() {
+		return workphone;
+	}
+	public void setWorkphone(String workphone) {
+		this.workphone = workphone;
+	}
+	public String getHomephone() {
+		return homephone;
+	}
+	public void setHomephone(String homephone) {
+		this.homephone = homephone;
+	}
+	public String getMobilephone() {
+		return mobilephone;
+	}
+	public void setMobilephone(String mobilephone) {
+		this.mobilephone = mobilephone;
 	}
 	
 	

@@ -20,9 +20,9 @@ import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 public class BasePage extends WebPage implements IHeaderContributor {
 
 	private transient Logger log = Logger.getLogger(BasePage.class);
-	protected Link myProfileLink;
-	protected Link testDataLink;
-	protected Link myFriendsLink;
+	//protected Link myProfileLink;
+	//protected Link testDataLink;
+	//protected Link myFriendsLink;
 
 	protected transient SakaiProxy sakaiProxy;
 	protected transient Profile profile;
@@ -40,32 +40,42 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//get Profile API
 		profile = ProfileApplication.get().getProfile();
 
+		
+		
     	//my profile link
-    	myProfileLink = new Link("myProfileLink") {
+    	Link myProfileLink = new Link("myProfileLink") {
 			public void onClick() {
 				setResponsePage(new MyProfile());
 			}
 		};
-		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my")));
-		myProfileLink.add(new AttributeAppender("title", new ResourceModel("link.my.title"), " "));
-		
+		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my.profile")));
 		add(myProfileLink);
 		
+		
+		
+		//my photos link
+    	Link myPhotosLink = new Link("myPhotosLink") {
+			public void onClick() {
+				setResponsePage(new MyProfile());
+			}
+		};
+		myPhotosLink.add(new Label("myPhotosLabel",new ResourceModel("link.my.photos")));
+		add(myPhotosLink);
+		
+		
+		
 		//my friends link
-    	myFriendsLink = new Link("myFriendsLink") {
+    	Link myFriendsLink = new Link("myFriendsLink") {
 			public void onClick() {
 				//setResponsePage(new MyFriends());
 			}
 		};
-		myFriendsLink.add(new Label("myFriendsLabel",new ResourceModel("link.friends")));
-		myProfileLink.add(new AttributeAppender("title", new ResourceModel("link.friends.title"), " "));
+		myFriendsLink.add(new Label("myFriendsLabel",new ResourceModel("link.my.friends")));
 		add(myFriendsLink);
     	
-		
-		
-		
+	
 		//test data link
-		testDataLink = new Link("testDataLink") {
+		Link testDataLink = new Link("testDataLink") {
 			public void onClick() {
 				setResponsePage(new TestData());
 			}

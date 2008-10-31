@@ -13,6 +13,7 @@
 		<div id="leftPanel">
 	    	<div id="myPhoto">
 	    		<img wicket:id="photo"/>
+	    		<a href="#" wicket:id="changeProfileImage" class="editImageButton">Change picture</a>
 	    	</div>
 	    	
 	    	<ul id="sideLink">
@@ -39,7 +40,12 @@
 	    </div>
 		
 		<div id="mainPanel">
-			
+				
+			<div wicket:id="modalwindow"></div>
+			<strong>
+            <span wicket:id="resultlabel"/>
+        	</strong>
+					
 			<!--  heading/status panel -->
 			<div wicket:id="myStatusPanel">[my status panel]</div>
             
@@ -72,6 +78,19 @@
 
 			//hide edit buttons
 			$(".editButton").hide();
+			$(".editImageButton").hide();
+
+			//on hover over the profile image, show the edit link
+			$("#myPhoto").hover(
+				function () {
+					$(this).children(".editImageButton").show();
+				}, 
+				function () {
+					$(this).children(".editImageButton").hide();
+				}
+			);
+
+			
 		});
 
 		
