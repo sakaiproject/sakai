@@ -217,3 +217,16 @@ table.preSignTable td {
 .organizerToplevelTable{
 	width: 100%;
 	}
+	
+.addAttendee{
+	cursor:pointer;
+	color: #35b;
+	text-decoration: none !important;
+}
+.disabledAddAttendee{}
+.addWaiter{
+	margin-left: 2px;
+	cursor:pointer;
+	color: #35b;
+	text-decoration: none !important;
+}

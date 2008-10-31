@@ -58,15 +58,18 @@
 						<h:dataTable id="attendees" value="#{timeSlot.attendeeWrappers}" var="attendeeWrapper">
 							<h:column>
 								<h:commandLink id="deleteAttendee" title="#{msgs.event_tool_tips_delete}" action="#{NewSignupMeetingBean.removeAttendee}" >
-									<h:graphicImage value="/images/delete.gif"  alt="delete" style="border:none" />
+									<h:graphicImage value="/images/delete.png"  alt="delete" style="border:none" />
 				   						<f:param id="deletAttendeeUserId" name="#{NewSignupMeetingBean.attendeeUserId}" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"/>
 				   				</h:commandLink>
+				   				<h:outputText value="&nbsp;" escape="false" />
 								<h:outputText value="#{attendeeWrapper.displayName}"/>
 							</h:column>
 						</h:dataTable>
 						<h:panelGroup id="addAttendee">
-				   			<h:graphicImage value="/images/add.png"  alt="add an attendee"  styleClass="addButton" style="border:nonem" onclick="showHideAddPanel('#{timeSlot.positionInTSlist}');"/>
-				   			<h:outputText value="Add" escape="false"/>	
+						<h:outputLabel onclick="showHideAddPanel('#{timeSlot.positionInTSlist}');" styleClass="addAttendee">
+				   			<h:graphicImage value="/images/add.png"  alt="add an attendee" styleClass="addButton" style="border:nonem" />
+				   			<h:outputText value="#{msgs.event_add_attendee}" escape="false"/>
+				   		</h:outputLabel>
 					   	</h:panelGroup>
 					   	
 			   			<h:panelGroup id="addPanel" style="display: none;" >
