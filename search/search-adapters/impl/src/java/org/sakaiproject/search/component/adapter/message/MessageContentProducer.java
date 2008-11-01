@@ -363,7 +363,7 @@ public class MessageContentProducer implements EntityContentProducer
 		Reference ref = getReference(reference);
 		EntityProducer ep = getProducer(ref);
 
-		if (ep.getClass().equals(messageService.getClass()))
+		if (ep != null && ep.getClass().equals(messageService.getClass()))
 		{
 			return true;
 		}
