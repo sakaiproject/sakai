@@ -437,6 +437,11 @@ public class PublishedAssessmentService extends AssessmentService{
           ArrayList answerArray = itemText.getAnswerArraySorted();
           for (int m=0;m<answerArray.size(); m++){
             AnswerIfc answer = (AnswerIfc)answerArray.get(m);
+            // SAK-14820: Sync with the scores from item. 
+            if (answer != null) {
+            	answer.setScore(item.getScore());
+            	answer.setDiscount(item.getDiscount());
+            }
             map.put(answer.getId(), answer);
 	  }  
         }
