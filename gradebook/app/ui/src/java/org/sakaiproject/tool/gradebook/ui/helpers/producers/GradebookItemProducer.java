@@ -28,7 +28,6 @@ import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
-import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -172,9 +171,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         
         Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);
         Boolean require_due_date = (assignment.getDueDate() != null);
-		UIBoundBoolean require_due = UIBoundBoolean.make(form, "require_due_date", "#{GradebookItemBean.requireDueDate}", require_due_date);
-		UIMessage require_due_label = UIMessage.make(form, "require_due_date_label", "gradebook.add-gradebook-item.require_due_date");
-		UILabelTargetDecorator.targetLabel(require_due_label, require_due);
+		UIBoundBoolean.make(form, "require_due_date", "#{GradebookItemBean.requireDueDate}", require_due_date);
+		UIMessage.make(form, "require_due_date_label", "gradebook.add-gradebook-item.require_due_date");
 		
 		UIOutput require_due_container = UIOutput.make(form, "require_due_date_container");
 		UIInput dueDateField = UIInput.make(form, "due_date:", assignmentOTP + ".dueDate");

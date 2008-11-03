@@ -85,7 +85,7 @@ form li.activefield {
    background-color: #f1f5f8;
 }
 
-form li label {
+form li label, .due_date_label {
 	display: block;
 	float: left;
 	margin-right: .5em;

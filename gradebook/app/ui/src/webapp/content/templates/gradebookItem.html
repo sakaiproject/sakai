@@ -37,27 +37,23 @@
 		<legend rsf:id="msg=gradebook.add-gradebook-item.gradebook_item_legend">Gradebook Item Details</legend>
 		<ol>
 			<li>
-				<label rsf:id="title_label"><span class="reqStar">*</span> Title</label> <input rsf:id="title" type="text" size="30" maxlength="100"/>
+				<label rsf:id="title_label" for="title"><span class="reqStar">*</span> Title</label> <input rsf:id="title" id="title" type="text" size="30" maxlength="100"/>
 			</li>
 			<li>
-				<label rsf:id="point_label"><span class="reqStar">*</span> Gradebook Item Point Value</label> <input rsf:id="point" type="text" size="30" maxlength="100"/>
+				<label rsf:id="point_label" for="point"><span class="reqStar">*</span> Gradebook Item Point Value</label> <input id="point" rsf:id="point" type="text" size="30" maxlength="100"/>
 			</li>
-			<li class="due_date">
-				<label rsf:id="msg=gradebook.add-gradebook-item.due_date_label">Due Date</label> 
-				<fieldset>
-					<ol>
-						<li>
-							<input rsf:id="require_due_date" type="checkbox" />
-							<label rsf:id="require_due_date_label">Require Due Date?</label>
-							<span rsf:id="require_due_date_container" id="require_due_date_container" class="indent"><input rsf:id="due_date:" value="12/31/2007"/></span>
-						</li>
-					</ol>
-				</fieldset>
-				
-			</li>
+			<li>
+    			<fieldset>
+    			    <div class="due_date_label">
+        			    <input rsf:id="require_due_date" type="checkbox" id="require_due_date"/>
+            			<label rsf:id="require_due_date_label" for="require_due_date">Require Due Date?</label>
+        			</div>
+        			<span rsf:id="require_due_date_container" id="require_due_date_container"><input rsf:id="due_date:" value="12/31/2007"/></span>
+    			</fieldset>
+    		</li>
 			<li rsf:id="category_li">
-				<label rsf:id="msg=gradebook.add-gradebook-item.category_label">Category</label>
-				<select rsf:id="category" size="1">
+				<label rsf:id="msg=gradebook.add-gradebook-item.category_label" for="categorySelect">Category</label>
+				<select rsf:id="category" size="1" id="categorySelect">
 					<option value="unassigned">Unassigned</option>
 					<option value="">Homework</option>
 					<option value="">Quizzes</option>
@@ -68,8 +64,8 @@
 			<li>
 				<fieldset>
 					<ol>
-						<li><input rsf:id="release" type="checkbox" /> <label rsf:id="msg=gradebook.add-gradebook-item.release_label">Release this item to Students</label></li>
-						<li class="indent"><input rsf:id="course_grade" type="checkbox" /> <label rsf:id="msg=gradebook.add-gradebook-item.course_grade_label">Include this item in course grade calculations</label></li>
+						<li><input rsf:id="release" type="checkbox" id="release"/> <label rsf:id="msg=gradebook.add-gradebook-item.release_label" for="release">Release this item to Students</label></li>
+						<li class="indent"><input rsf:id="course_grade" type="checkbox" id="course_grade"/> <label for="course_grade" rsf:id="msg=gradebook.add-gradebook-item.course_grade_label">Include this item in course grade calculations</label></li>
 					</ol>
 				</fieldset>
 			</li>

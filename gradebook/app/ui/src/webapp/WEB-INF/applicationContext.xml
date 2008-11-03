@@ -7,27 +7,16 @@
 	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
    </bean>
    
-   
     <bean id="GradebookEntityProvider" class="org.sakaiproject.tool.gradebook.ui.helpers.entity.GradebookEntityProvider"
       init-method="init" destroy-method="destroy">
       <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
       <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
     </bean>
     
-       <!-- handles configuration of internationalization messages -->
-   <bean id="messageLocator" class="uk.org.ponder.springutil.SpringMessageLocator">
-      <property name="messageSource">
-         <bean class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-            <property name="basename">
-               <value>WEB-INF/bundle/messages</value>
-            </property>
-            <property name="cacheSeconds">
-               <value>10</value>
-            </property>
-         </bean>
-      </property>
-      <property name="localeGetter" ref="requestLocaleProxy" />
-   </bean>
+    <!-- handles configuration of internationalization messages -->
+		<bean id="messageSource" parent="messageSourceParent">
+      <property name="basename" value="WEB-INF/bundle/messages" />
+    </bean>
    
    <!--  intercept incoming views to filter on permissions -->
    <bean parent="viewParamsInterceptorParent">

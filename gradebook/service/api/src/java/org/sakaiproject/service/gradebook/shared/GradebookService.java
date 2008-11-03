@@ -517,7 +517,7 @@ public interface GradebookService {
 	/**
 	 * 
 	 * @param gradableObjectId
-	 * @return true if a gradable object with the given id exists and was
+	 * @return true if a gradable object with the given id exists and was not
 	 * removed
 	 */
 	public boolean isGradableObjectDefined(Long gradableObjectId);
