@@ -36,6 +36,7 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
+import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -98,6 +99,15 @@ public class EditTemplateListener
       String label = (String) ((AssessmentMetaData)iter.next()).getLabel();
       if (("releaseTo").equals(label)){
 	  h.put(label,"SITE_MEMBERS");
+      }
+      else if (("automaticSubmission_isInstructorEditable").equals(label)){
+    	  IndexBean templateIndex = (IndexBean)ContextUtil.lookupBean("templateIndex");
+    	  if (templateIndex.getAutomaticSubmissionEnabled()) {
+    		  h.put(label, "true");
+    	  }
+    	  else {
+    		  h.put(label, "false");
+    	  }
       }
       else{
         h.put(label, "true");
