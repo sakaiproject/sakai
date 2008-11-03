@@ -41,7 +41,7 @@
    <h:inputHidden id="templateId" value="#{template.idString}"/>
 
      <div class="validation tier1">
-       <h:outputText value=",,,#{templateMessages.remove_fer_sure}" />
+       <h:outputText value="#{templateMessages.remove_fer_sure}" />
        <h:outputText value=" \"" />
        <h:outputText value="#{template.templateName}"/>
        <h:outputText value=" \"?" />
