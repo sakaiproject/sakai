@@ -356,7 +356,15 @@
 
         <h:selectBooleanCheckbox id="automatic_submission"
           value="#{template.valueMap.automaticSubmission_isInstructorEditable}"/>
-        <h:outputLabel for="automatic_submission" value="#{templateMessages.automatic_submission}"/>
+        <h:outputLabel for="automatic_submission" value="#{templateMessages.template_canbedefault}"/>
+		
+		<h:outputText value=" "/>
+		<h:panelGroup>
+		<h:selectBooleanCheckbox id="add_automatic_submission"
+          value="#{template.automaticSubmission}"/>
+        <h:outputLabel for="add_automatic_submission" value="#{templateMessages.add_automatic_submission}"/>
+        </h:panelGroup>
+
     </h:panelGrid>
     </div></div>
 
@@ -640,8 +648,6 @@
   <h:inputHidden id="templateId" value="#{template.idString}"/>
   <h:inputHidden id="createdBy" value="#{template.createdBy}"/>
   <h:inputHidden id="createdDate" value="#{template.createdDate}"/>
-
-
 
   <p class="act">
   <h:panelGroup rendered="#{(template.idString ne '1' && template.typeId ne '142') || person.isAdmin}">

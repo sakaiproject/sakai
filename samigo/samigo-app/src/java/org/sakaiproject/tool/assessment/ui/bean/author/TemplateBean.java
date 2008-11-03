@@ -53,7 +53,7 @@ public class TemplateBean implements Serializable
   private String submissionModel = "1";
   private String submissionNumber;
   private String lateHandling = "1";
-  private String automaticSubmission = "0";
+  private Boolean automaticSubmission = Boolean.FALSE;
   private String autoSave = "1";
   private String feedbackType = "1";
   private String feedbackAuthoring = "1";
@@ -460,7 +460,7 @@ public class TemplateBean implements Serializable
    *
    * @param newAutomaticSubmission  3
    */
-  public void setAutomaticSubmission(String newAutomaticSubmission)
+  public void setAutomaticSubmission(Boolean newAutomaticSubmission)
   {
 	  automaticSubmission = newAutomaticSubmission;
   }
@@ -470,9 +470,9 @@ public class TemplateBean implements Serializable
    *
    * @return
    */
-  public String getAutomaticSubmission()
+  public Boolean getAutomaticSubmission()
   {
-    return checker(automaticSubmission, "0");
+    return automaticSubmission;
   }
 
   /**

@@ -230,8 +230,14 @@ public class TemplateUpdateListener
       if (templateBean.getValueMap().get("automaticSubmission_isInstructorEditable") == null) {
     	  templateBean.setValue("automaticSubmission_isInstructorEditable", "false");
       }
-      aac.setAutoSubmit(new Integer(templateBean.getAutomaticSubmission()));
-
+      
+      if (templateBean.getAutomaticSubmission()) {
+    	  aac.setAutoSubmit(Integer.valueOf("1"));
+      }
+      else {
+    	  aac.setAutoSubmit(Integer.valueOf("0"));
+      }
+      
       // Evaluation Model
       EvaluationModelIfc model = template.getEvaluationModel();
       if (model == null)

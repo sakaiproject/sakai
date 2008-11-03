@@ -511,10 +511,6 @@ function checkUncheckTimeBox(){
           <f:verbatim>&nbsp;</f:verbatim>
           <h:outputText value="#{assessmentSettingsMessages.automatic_submission_note_1}"/>
 		</h:panelGroup>
-	    <h:panelGroup>
-          <f:verbatim>&nbsp;</f:verbatim>
-          <h:outputText value="#{assessmentSettingsMessages.automatic_submission_note_2}"/>
-		</h:panelGroup>
       </h:panelGrid>
       <f:verbatim> </div> </f:verbatim>
    </h:panelGroup>
