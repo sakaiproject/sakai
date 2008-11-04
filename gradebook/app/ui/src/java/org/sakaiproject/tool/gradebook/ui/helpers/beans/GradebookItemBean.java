@@ -55,10 +55,6 @@ public class GradebookItemBean {
 	public void setGradebookId(Long gradebookId){
 		this.gradebookId = gradebookId;
 	}
-	private Boolean counted = Boolean.FALSE;
-	public void setCounted(Boolean counted) {
-		this.counted = counted;
-	}
 	
 	public String processActionAddItem(){
 		Boolean errorFound = Boolean.FALSE;
@@ -71,7 +67,6 @@ public class GradebookItemBean {
 		
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
-			assignment.setNotCounted(!counted);	
 			
 			//check for null name
 			if (assignment.getName() == null || assignment.getName().equals("")) {
@@ -122,10 +117,10 @@ public class GradebookItemBean {
 				try {
 					if (this.categoryId != null && this.categoryId != CATEGORY_UNASSIGNED){
 						id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
-								assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+								assignment.getPointsPossible(), assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
 					} else {
 						id = gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
-								assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+								assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
 					}
 					assignment.setId(id);
 					//new UIELBinding("Assignment." + key + ".id", id);

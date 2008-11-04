@@ -205,8 +205,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 	        UISelect.make(form, "category", category_values, category_labels, "#{GradebookItemBean.categoryId}", categoryId);
         }
         
-        UIBoundBoolean.make(form, "release", assignmentOTP + ".released");
-        UIBoundBoolean.make(form, "course_grade", "#{GradebookItemBean.counted}", !assignment.isNotCounted());
+        UIBoundBoolean.make(form, "release", assignmentOTP + ".released", assignment.isReleased());
+        UIBoundBoolean.make(form, "course_grade", assignmentOTP + ".counted", assignment.isCounted());
         
         form.parameters.add( new UIELBinding("#{GradebookItemBean.gradebookId}", gradebookId));
         
