@@ -1,0 +1,193 @@
+/*pda portal*/
+.portalBodyPDA{
+	margin:0;padding:0;
+	width:auto;
+}
+/*the menu for sites*/
+
+.portletpda .portletBody{
+	font-size: 13px !important;
+}
+.portletpda .portletBody > *{
+	padding:0 .5em;
+}
+
+.portletpda .portletBody input[type="button"],
+	.portletpda .portletBody input[type="submit"],
+	.portletpda .portletBody input[type="reset"],
+	.portletpda .portletBody input[type="text"],
+	.portletpda .portletBody input[type="radio"],
+	.portletpda .portletBody input[type="checkbox"],
+	.portletpda .portletBody select{
+		margin:.3em 0;
+		font-size: .8em !important;
+}
+
+	.portletpda .portletBody input[type="text"]{
+		margin:.3em 0;
+		font-size: 1.1em !important;
+		
+	}
+.portletpda .portletBody .shorttext,
+	.portletpda .portletBody .longtext,
+	.portletpda .portletBody .checkbox{
+		padding:.3em 0;
+}
+
+.portletpda .portletBody .shorttext label,
+	.portletpda .portletBody .longtext label,
+	.portletpda .portletBody .checkbox label{
+		font-size:1.1em;
+}
+
+#pda-portlet-menu{
+	font-size: 14px !important;
+	width:100%;
+	background:#CB2DCC url(images/pda-menu-back.gif) top left repeat-x;
+	list-style: none;
+	font-family: Helvetica, Arial,sans-serif;
+	color:#fff;
+	margin:0;
+	clear: both;
+	height: 120%;
+	overflow: hidden;
+	padding: 0;
+	line-height: 1.2em;
+}
+
+#pda-portlet-menu li {
+	margin-left: 0;
+	padding:6px 8px 6px 0;
+	list-style: none;
+	display: inline;
+	float:left;
+}
+
+#pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before{
+	content: "\00BB \0020";
+	color: #ff9;
+	font-weight: bold;
+}
+
+/*the first item in the menu - may contain an instance string "CamTools" or "OnCourse"*/
+#pda-portlet-menu li.instanceNote:before{
+	content: "\00BB";
+	visibility:hidden;
+	color: #fff;
+}
+
+#pda-portlet-menu li.sitesLink:before{
+	content: "\00BB";
+	visibility:hidden;
+	color: #fff;
+}
+
+#pda-portlet-menu li.instanceNote{
+	color:#fff;
+	background:#CB2DCC url(images/pda-menu-instance-icon.gif) top left no-repeat;
+	width:38px;
+}
+/*put non site links to the right*/
+#pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink  {
+	background: none;
+	float:right;
+}
+#pda-portlet-menu li.helpLink {
+	margin-left:1em;
+}
+#pda-portlet-menu li span a{
+	color:#ff9;
+	text-decoration:none !important;
+}	
+#pda-portlet-menu li span a:hover{
+	text-decoration: underline !important;
+}
+/*all types of links in the breadcrumb are addressed in the markup and can be styled here*/
+.currentSiteParentLink{}
+.currentSiteChildLink{}
+.currentToolTitle{}
+.helpLink{}
+.logoutLink{}
+.loginLink{}
+/*the list menu (gateway sites, site lists, tool lists, may want to differentiate between them, if so can*/
+#pda-portlet-page-menu, #pda-portlet-site-menu{
+	font-size: 14px !important;
+	margin:.5em;
+	padding:0;	
+	list-style:none;
+	line-height:2em;
+	font-family: Helvetica, Arial, sans-serif;
+}
+#pda-portlet-page-menu li, #pda-portlet-site-menu li{
+	margin:6px 0;
+	padding:0;
+}
+
+#pda-portlet-site-menu a, #pda-portlet-page-menu a{
+	color:#000;
+	-webkit-tap-highlight-color:#ebe;
+	-webkit-text-size-adjust:none;  
+	text-decoration:none;
+	font-size: 110%;
+	padding-left:5px;
+	display:block;
+	margin:0
+}	
+
+#pda-portlet-site-menu a:before, #pda-portlet-page-menu a:before{
+	content: "\00BB \0020";
+	color: #000;
+	font-weight: bold;
+}	
+
+/*external login form formatting*/
+.loginPDA{
+		border-top: 1px solid #aaa;
+		margin: 3em auto;
+		width: auto;
+}
+.login th, .loginPDA th{
+		background: #ccc;
+		height:24px;
+		padding:0;
+		color:#000;
+		border:none;
+}
+
+.login td.logo, .loginPDA td.logo{
+	width: 160px;
+	background:#fff url(images/sak-small.png) 40% 20%  no-repeat
+}
+
+.login td.form, .loginPDA td.form{
+	padding: .5em;
+
+}
+
+.loginform td{
+	color: #000;
+}
+
+.loginform label{
+}
+
+.loginform td{
+	padding: .3em;
+}
+
+.loginPDA .loginform td{
+	padding: 0;
+	color: #fff;
+}
+
+.loginform td #eid, .loginform td #pw {
+	padding:.2em;
+	font-family:verdana, arial, helvetica, sans-serif;
+	border: 1px solid #AAAAAA;
+}
+
+.loginform td #submit{
+	color:#09C;
+	float: right;
+}
+
