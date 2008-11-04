@@ -159,7 +159,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
             UIInput.make(form, "title", assignmentOTP + ".name");
         }
         
-        if (gradebook.getGrade_type() != GradebookService.GRADE_TYPE_PERCENTAGE) {
+        if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
         	UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
         			new Object[]{ reqStar }));
         } else {
