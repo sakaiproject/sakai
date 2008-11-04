@@ -8156,8 +8156,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			
 			//get the review Status from ContentReview rather than using old ones
-			m_reviewStatus = this.getReviewStatus();
-			m_reviewScore  = this.getReviewScore();
+			if (contentReviewService != null) {
+				m_reviewStatus = this.getReviewStatus();
+				m_reviewScore  = this.getReviewScore();
+			}
 			
 			
 			
@@ -8452,13 +8454,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected void setAll(AssignmentSubmission submission)
 		{
 			
-			
-			m_reviewScore = submission.getReviewScore();
-			// The report given by the content review service
-			m_reviewReport = submission.getReviewReport();
-			// The status of the review service
-			m_reviewStatus = submission.getReviewStatus();
-			
+			if (contentReviewService != null) {
+				m_reviewScore = submission.getReviewScore();
+				// The report given by the content review service
+				m_reviewReport = submission.getReviewReport();
+				// The status of the review service
+				m_reviewStatus = submission.getReviewStatus();
+			}
 			
 			m_id = submission.getId();
 			m_context = submission.getContext();
