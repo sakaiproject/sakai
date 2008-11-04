@@ -35,6 +35,10 @@
         <fieldlabel>hasRationale</fieldlabel>
         <fieldentry>false</fieldentry>
       </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>RANDOMIZE</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
     </qtimetadata>
   </itemmetadata>
 <rubric>
