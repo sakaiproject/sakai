@@ -127,6 +127,23 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 	/**
 	 * Set global error status (effects all target databases)
 	 * @param sessionContext Active SessionContext
+	 * @param message Expanded error text (null if none - produces "unknown")
+	 */
+	public static void setGlobalError(SessionContext sessionContext,
+											 						  String message)
+	{
+		String	statusMessage = "*unknown*";
+
+		if (!StringUtils.isNull(message))
+		{
+			statusMessage = message;
+		}
+		setGlobalStatus(sessionContext, "ERROR", statusMessage);
+	}
+
+	/**
+	 * Set global error status (effects all target databases)
+	 * @param sessionContext Active SessionContext
 	 * @param error Error number
 	 * @param message Expanded error text (null to omit expanded message)
 	 */
