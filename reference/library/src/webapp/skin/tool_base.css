@@ -935,6 +935,7 @@ font-weight: bold;
 .synopticList{
 	margin:0;
 	padding:0;
+	list-style: none;
 }
 /*a list item - children are h3.textPanelHeader, p.textPanelFooter, div.textPanel*/
 .synopticList li{ 
