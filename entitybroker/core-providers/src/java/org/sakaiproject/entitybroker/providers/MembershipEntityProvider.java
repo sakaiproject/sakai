@@ -332,8 +332,9 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             }
         }
         if (userIds.length > 1) {
-            log.info("Batch add memberships: siteId="+sg.site.getId()+",groupId="+sg.group == null ? "none" : sg.group.getId()
-                    +",roleId="+roleId+",active="+active+", userIds=" + Search.arrayToString(userIds));
+            log.info("Batch add memberships: siteId="+((sg.site == null) ? "none" : sg.site.getId())+",groupId="+((sg.group == null) ? "none" : sg.group.getId())
+                    +",userIds=" + Search.arrayToString(userIds));
+
             memberId = "batch:" + memberId;
         }
         return memberId;
