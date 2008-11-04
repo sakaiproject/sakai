@@ -219,7 +219,19 @@ function ampmChange(FieldName)
         } break;
     }
 }
-
+function resizeFrame(){
+    // check needed as getElementById in IE doesn't like an empty parameter so the var
+    // frame line returns an error. Firefox appears to be okay with it
+    if (window.name != "") {
+        var frame = parent.document.getElementById(window.name);
+        if (frame) {
+            var clientH = document.body.clientHeight + 10;
+            $(frame).height(clientH);
+        }
+    }
+}
+</script>
+<script type="text/javascript" src="/library/js/jquery.js">
 </script>
 
 <div class="portletBody">
@@ -443,13 +455,21 @@ function ampmChange(FieldName)
 		</div>
 		
 		<p class="checkbox indnt1">
-			<input type="radio" name="scheduleTo" id="site" value="site" #if($!scheduleTo == "site" || $!event.Access == $siteAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" />
+			<input type="radio" name="scheduleTo" id="site" value="site" #if($!scheduleTo == "site" || $!event.Access == $siteAccess)checked="checked"#end 
+				onclick="$('#groupTable').fadeOut('slow');resizeFrame()"  />
+				 ##onclick="document.getElementById('groupTable').style.display = 'none';" />
 			<label for="site">$tlang.getString("displayto.site")</label>
 		</p>	
 		#if ($!groups)
 			## added group awareness
 			<p class="checkbox indnt1">
-				<input type="radio" name="scheduleTo" id="groups" value="groups" #if($!scheduleTo == "groups" || $!event.Access == $groupAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+				<input type="radio" 
+					name="scheduleTo" 
+					id="groups" 
+					value="groups" 
+					#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)checked="checked"#end 
+					onclick="$('#groupTable').fadeIn('slow');resizeFrame()"  />
+##					onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
 				<label for="groups">$tlang.getString("displayto.selected")</label>
 			</p>	
 			#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
