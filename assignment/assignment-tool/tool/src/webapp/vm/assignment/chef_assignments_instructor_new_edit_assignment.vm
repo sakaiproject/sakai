@@ -339,7 +339,7 @@ $(document).ready(function() {
 				#end
 			</select>
 		</p>
-		<p class="shorttext">
+		<p class="shorttext" style="clear:both">
 				<label for="allowResubmitNumber">
 					$tlang.getString("allow.resubmit.number")
 				</label>
@@ -356,7 +356,7 @@ $(document).ready(function() {
 				</select>
 		</p>
 		#if ($withGrade)
-			<p class="shorttext">
+			<p class="shorttext" style="clear:both">
 				<span class="reqStar">*</span>
 				<label for="$name_GradeType">
 					$tlang.getString("gen.grasca")
@@ -463,26 +463,54 @@ $(document).ready(function() {
 				<h4>
 					$!tlang.getString('grading')
 				</h4>
-				<p style="display:$!addToGBDisplay">
+				<div style="display:$!addToGBDisplay">
 				<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
 					## hide the assignment list from Gradebook when clicked
-					<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
+					<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) $('#gradebookList').fadeOut('slow');" >
 					<label for="$!gradebookChoice_no">#if(!$!noAddToGradebookChoice)$tlang.getString("grading.no")#else$tlang.getString("grading.no2")#end</label>
 					<br/>
 					#if (!$!noAddToGradebookChoice)
 						## hide the assignment list from Gradebook when clicked
-						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
+						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end onclick="if (document.getElementById('gradebookList')) $('#gradebookList').fadeOut('slow');" >
 						<label for="$!gradebookChoice_add">$tlang.getString("grading.add")</label>
 						<br/>
 					#end
 					## if there exists properiate assignment entries in Gradebook
 					#if ($!gradebookAssignments.size() > 0) 
 						## show the assignment list from Gradebook when clicked
-						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_associate" value="$!gradebookChoice_associate" #if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'block';" >
+							<input 
+								type="radio" 
+								name="$!name_Addtogradebook" 
+								id="$!gradebookChoice_associate" 
+								value="$!gradebookChoice_associate" 
+								#if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end 
+								onclick="if( document.getElementById('gradebookList') )
+								{
+									if ($('#new_assignment_grade_points').attr('value')) 
+									{
+										$('#gradebookList').fadeIn('slow');
+								
+									}
+									else
+									{
+										$('#no').attr('checked',true);
+										$('#associate').attr('checked',false);
+						        $('#gradebookListWarn' ).fadeIn('slow');
+						        $('#gradebookListWarn').animate({
+						           opacity: 1.0
+      						  }, 2500)
+						  			$('#gradebookListWarn' ).fadeOut('slow',function () {
+//								        alert('a');
+												$('#new_assignment_grade_type').focus();
+								      });
+
+									}	
+								}" >
 						<label for="$!gradebookChoice_associate">$tlang.getString("grading.associate")</label>
+						<span id="gradebookListWarn" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
 					#end
 				</div>
-			</p>	
+			</div>	
 			## if there exists properiate assignment entries in Gradebook
 			#if ($!gradebookAssignments.size() > 0) 
 				## show the "Gradebook Assignment list" choices or not
@@ -491,7 +519,7 @@ $(document).ready(function() {
 				#else
 					#set ($gbListDisplay="none")
 				#end
-				<p id="gradebookList" class="checkbox  indnt2" style="display:$gbListDisplay">
+				<p id="gradebookList" class="checkbox  indnt4" style="display:$gbListDisplay">
 					<select name="$!name_AssociateGradebookAssignment" >
 						<option  value="">$tlang.getString("grading.select")</option>
 						#foreach ($aAssignment in $!gradebookAssignments)
@@ -514,10 +542,11 @@ $(document).ready(function() {
 					$!tlang.getString('access')
 				</h4>
 				<p class="checkbox  indnt2">
-					#if (!$!allowGroupAssignmentsInGradebook)
-						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="if (document.getElementById('addToGradebook') !=null){document.getElementById('addToGradebook').style.display = 'block'};document.getElementById('groupTable').style.display = 'none';" />
+				#if (!$!allowGroupAssignmentsInGradebook)
+						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end 
+						onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow');resizeFrame()};$('#groupTable').fadeOut('slow');resizeFrame()" />
 					#else
-						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" />
+						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end  onclick="$('#groupTable').fadeOut('slow');resizeFrame()"  />
 					#end
 					<label for="site">$tlang.getString("displayto.site")</label>
 				</p>	
@@ -539,9 +568,9 @@ $(document).ready(function() {
 			## added group awareness
 			<p class="checkbox indnt2">
 				#if (!$!allowGroupAssignmentsInGradebook)
-					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+						<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow');resizeFrame()"  />
 				#else
-					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="$('#groupTable').fadeIn('slow');resizeFrame()"  />  
 				#end
 				
 				<label for="groups">$tlang.getString("displayto.selected")</label>
