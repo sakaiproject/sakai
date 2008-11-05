@@ -157,7 +157,7 @@ public class ChatDelivery extends BaseDelivery
 			retvalBuf.append( "try { appendMessage('" );
 			
 			String displayName = getUserDisplayName(sender, channel.getContext());
-			retvalBuf.append( Web.escapeJsQuoted(displayName) );
+			retvalBuf.append( Web.escapeJsQuoted(Web.escapeHtml(displayName)) );
 			 
 			//	retvalBuf.append( StringEscapeUtils.escapeJavaScript(contextualUserDisplayService.getUserDisplayId(sender, channel.getContext())) );
 			retvalBuf.append( "', '" );

@@ -27,7 +27,7 @@ deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessa
 	<ul id="topForm:chatList" class="chatList">
 
         <c:forEach items="${ChatTool.roomMessages}" var="message">
-	  <li><c:out value="<span style=\"color: ${message.color}\">${message.owner}</span>" escapeXml="false" /> 
+	  <li><c:out value="<span style=\"color: ${message.color}\">" escapeXml="false"/><c:out value="${message.owner}"/><c:out value="</span>" escapeXml="false" /> 
 
    	  <c:if test="${message.canRemoveMessage}">
 	     <c:out value="<a id=\"topForm:chatList:${serial}:deleteMessage\" href=\"#\" title=\"Delete this message\" onclick=\"location.href='${deleteUrl}${message.chatMessage.id}'\"><img id=\"topForm:chatList:${serial}:deleteIcon\" src=\"${ChatTool.serverUrl}/library/image/sakai/delete.gif\" alt=\"Delete this message\" /></a>" escapeXml="false" />
