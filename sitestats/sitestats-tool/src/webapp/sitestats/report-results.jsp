@@ -127,7 +127,7 @@
 			                <h:outputText value="#{msgs.th_user}"/>		                
 			            </t:commandSortHeader>               
 			        </f:facet>
-			        <h:outputText value="#{row.userId}" escape="false">
+			        <h:outputText value="#{row.userId}" escape="true">
 						<f:converter converterId="org.sakaiproject.sitestats.tool.jsf.converter.USER_ID_NAME"/>
 					</h:outputText>
 				</t:column>
