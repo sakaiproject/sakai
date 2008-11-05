@@ -160,10 +160,6 @@
           itemLabel="#{templateMessages.selected_groups}"/>
      </h:selectOneRadio>
      
-     <f:verbatim> Testing Testing </f:verbatim>
-     
-     
-     
   </div>
   </samigo:hideDivision>
 
