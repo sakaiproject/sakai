@@ -32,23 +32,21 @@ public class MyInfoEdit extends Panel {
 	private WebMarkupContainer formFeedback;
 
 	
-	public MyInfoEdit(String id, final IModel userProfileModel) {
-		super(id, userProfileModel);
+	public MyInfoEdit(final String id, final UserProfile userProfile) {
+		super(id);
 		
 		//this panel stuff
 		final Component thisPanel = this;
-		final String thisPanelId = "myInfo"; //wicket:id not markupId
 				
-		//get userProfile from userProfileModel
-		UserProfile userProfile = (UserProfile) this.getModelObject();
+		//create model
+		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.basic.edit")));
 		
 		//setup form		
-		Form form = new Form("form");
+		Form form = new Form("form", userProfileModel);
 		form.setOutputMarkupId(true);
-	    form.setModel(new CompoundPropertyModel(userProfileModel));
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
@@ -73,7 +71,7 @@ public class MyInfoEdit extends Panel {
 				//save() form, show message, then load display panel
 
 				if(save(form)) {
-					Component newPanel = new MyInfoDisplay(thisPanelId, userProfileModel);
+					Component newPanel = new MyInfoDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
 					if(target != null) {
@@ -95,7 +93,7 @@ public class MyInfoEdit extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             protected void onSubmit(AjaxRequestTarget target, Form form) {
             	//System.out.println("cancel clicked");
-            	Component newPanel = new MyInfoDisplay(thisPanelId, userProfileModel);
+            	Component newPanel = new MyInfoDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {

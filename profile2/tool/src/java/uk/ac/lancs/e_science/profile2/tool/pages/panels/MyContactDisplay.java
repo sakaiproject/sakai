@@ -22,18 +22,15 @@ public class MyContactDisplay extends Panel {
 	private String nickname = null;
 	private Date dateOfBirth = null;
 	private String birthday = null;
+	private int visibleFieldCount = 0;
 
 	
-	public MyContactDisplay(String id, final IModel userProfileModel) {
-		super(id, userProfileModel);
+	public MyContactDisplay(final String id, final UserProfile userProfile) {
+		super(id);
 		
 		//this panel stuff
 		final Component thisPanel = this;
-		final String thisPanelId = "myContact"; //wicket:id not markupId
-		
-		//get userProfile from userProfileModel
-		UserProfile userProfile = (UserProfile) this.getModelObject();
-		
+			
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
 		String email = userProfile.getEmail();
@@ -53,6 +50,8 @@ public class MyContactDisplay extends Panel {
 		add(emailContainer);
 		if("".equals(email) || email == null) {
 			emailContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
 		}
 		
 		//homepage
@@ -62,6 +61,8 @@ public class MyContactDisplay extends Panel {
 		add(homepageContainer);
 		if("".equals(homepage) || homepage == null) {
 			homepageContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
 		}
 		
 		//work phone
@@ -71,6 +72,8 @@ public class MyContactDisplay extends Panel {
 		add(workphoneContainer);
 		if("".equals(workphone) || workphone == null) {
 			workphoneContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
 		}
 		
 		//home phone
@@ -80,6 +83,8 @@ public class MyContactDisplay extends Panel {
 		add(homephoneContainer);
 		if("".equals(homephone) || homephone == null) {
 			homephoneContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
 		}
 		
 		//mobile phone
@@ -89,6 +94,8 @@ public class MyContactDisplay extends Panel {
 		add(mobilephoneContainer);
 		if("".equals(mobilephone) || mobilephone == null) {
 			mobilephoneContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
 		}
 			
 		
@@ -97,7 +104,7 @@ public class MyContactDisplay extends Panel {
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
 			public void onClick(AjaxRequestTarget target) {
-				Component newPanel = new MyContactEdit(thisPanelId, userProfileModel);
+				Component newPanel = new MyContactEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
@@ -109,6 +116,12 @@ public class MyContactDisplay extends Panel {
 		editButton.setOutputMarkupId(true);
 		add(editButton);
 		
+		//no fields message
+		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
+		add(noFieldsMessage);
+		if(visibleFieldCount > 0) {
+			noFieldsMessage.setVisible(false);
+		}
 	}
 	
 }

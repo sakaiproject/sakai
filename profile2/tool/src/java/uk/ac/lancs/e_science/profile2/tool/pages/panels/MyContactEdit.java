@@ -32,15 +32,14 @@ public class MyContactEdit extends Panel {
 	private WebMarkupContainer formFeedback;
 
 	
-	public MyContactEdit(String id, final IModel userProfileModel) {
-		super(id, userProfileModel);
+	public MyContactEdit(final String id, final UserProfile userProfile) {
+		super(id);
 		
 		//this panel stuff
 		final Component thisPanel = this;
-		final String thisPanelId = "myContact"; //wicket:id not markupId
 				
-		//get userProfile from userProfileModel
-		UserProfile userProfile = (UserProfile) this.getModelObject();
+		//create model
+		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.contact.edit")));
@@ -53,13 +52,40 @@ public class MyContactEdit extends Panel {
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
 	   		
-		//nickname
+		//email
 		WebMarkupContainer emailContainer = new WebMarkupContainer("emailContainer");
 		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
 		TextField email = new TextField("email", new PropertyModel(userProfile, "email"));
 		emailContainer.add(email);
 		form.add(emailContainer);
 		
+		//homepage
+		WebMarkupContainer homepageContainer = new WebMarkupContainer("homepageContainer");
+		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
+		TextField homepage = new TextField("homepage", new PropertyModel(userProfile, "homepage"));
+		homepageContainer.add(homepage);
+		form.add(homepageContainer);
+		
+		//workphone
+		WebMarkupContainer workphoneContainer = new WebMarkupContainer("workphoneContainer");
+		workphoneContainer.add(new Label("workphoneLabel", new ResourceModel("profile.phone.work")));
+		TextField workphone = new TextField("workphone", new PropertyModel(userProfile, "workphone"));
+		workphoneContainer.add(workphone);
+		form.add(workphoneContainer);
+		
+		//homephone
+		WebMarkupContainer homephoneContainer = new WebMarkupContainer("homephoneContainer");
+		homephoneContainer.add(new Label("homephoneLabel", new ResourceModel("profile.phone.home")));
+		TextField homephone = new TextField("homephone", new PropertyModel(userProfile, "homephone"));
+		homephoneContainer.add(homephone);
+		form.add(homephoneContainer);
+		
+		//mobilephone
+		WebMarkupContainer mobilephoneContainer = new WebMarkupContainer("mobilephoneContainer");
+		mobilephoneContainer.add(new Label("mobilephoneLabel", new ResourceModel("profile.phone.mobile")));
+		TextField mobilephone = new TextField("mobilephone", new PropertyModel(userProfile, "mobilephone"));
+		mobilephoneContainer.add(mobilephone);
+		form.add(mobilephoneContainer);
 		
 		//submit button
 		AjaxButton submitButton = new AjaxButton("submit") {
@@ -67,7 +93,7 @@ public class MyContactEdit extends Panel {
 				//save() form, show message, then load display panel
 
 				if(save(form)) {
-					Component newPanel = new MyContactDisplay(thisPanelId, userProfileModel);
+					Component newPanel = new MyContactDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
 					if(target != null) {
@@ -89,7 +115,7 @@ public class MyContactEdit extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             protected void onSubmit(AjaxRequestTarget target, Form form) {
             	//System.out.println("cancel clicked");
-            	Component newPanel = new MyContactDisplay(thisPanelId, userProfileModel);
+            	Component newPanel = new MyContactDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
@@ -125,7 +151,11 @@ public class MyContactEdit extends Panel {
 		//this WILL fail if there is no sakaiPerson for the user however this should have been caught already
 		//as a new Sakaiperson for a user is created in MyProfile if they don't have one.
 		
-		sakaiPerson.setMail(userProfile.getEmail());
+		sakaiPerson.setMail(userProfile.getEmail()); //email
+		sakaiPerson.setLabeledURI(userProfile.getHomepage()); //homepage
+		sakaiPerson.setTelephoneNumber(userProfile.getWorkphone()); //workphone
+		sakaiPerson.setHomePhone(userProfile.getHomephone()); //homephone
+		sakaiPerson.setMobile(userProfile.getMobilephone()); //mobilephone
 
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );

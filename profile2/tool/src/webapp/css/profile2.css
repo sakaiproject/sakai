@@ -56,8 +56,20 @@
 
 }
 
+/* when component is created, this should go in there and have a unique class name */
+.closeButton {
+	float:right;
+	clear: none;
+	text-align: right;
+}
+.closeButton:hover {
+	background-color: #ffcccc;
+}
 
 
+.instruction {
+	color: #5D5D5D;
+}
 
 
 
@@ -85,6 +97,10 @@
 /* generic styles */
 .tiny {
 	font-size: xx-small;
+}
+
+.small {
+	font-size: 90%;
 }
 
 

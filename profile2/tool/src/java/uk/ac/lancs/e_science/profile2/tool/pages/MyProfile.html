@@ -13,8 +13,11 @@
 		<div id="leftPanel">
 	    	<div id="myPhoto">
 	    		<img wicket:id="photo"/>
-	    		<a href="#" wicket:id="changeProfileImage" class="editImageButton">Change picture</a>
+	    		<a href="#" wicket:id="changePictureLink" class="editImageButton">Change picture</a>
 	    	</div>
+	    	
+	    	<div wicket:id="changePicture"></div>
+	    	
 	    	
 	    	<ul id="sideLink">
 	    		<li><a href="something">a link</a></li>
@@ -40,12 +43,7 @@
 	    </div>
 		
 		<div id="mainPanel">
-				
-			<div wicket:id="modalwindow"></div>
-			<strong>
-            <span wicket:id="resultlabel"/>
-        	</strong>
-					
+			
 			<!--  heading/status panel -->
 			<div wicket:id="myStatusPanel">[my status panel]</div>
             
@@ -66,7 +64,8 @@
 	
 	</div>
 	
-	
+	<!--  dynamic javascript, rendered from the page, if required (ie to use dynamic ID's etc) -->
+	<span wicket:id="dynamicJavascript">dynamically generated javascript goes here</span>
 	
 	<!--  general MyProfile scripting - for individual panel stuff, see the panels themselves -->
 	<script type="text/javascript">
@@ -90,10 +89,14 @@
 				}
 			);
 
+			//when the editImageButton is clicked, show the panel
+			/*
+			$(".editImageButton").click(function () {
+				$("#editImagePanel").slideToggle();
+			});
+			*/
 			
 		});
-
-		
 
 	</script>
 	

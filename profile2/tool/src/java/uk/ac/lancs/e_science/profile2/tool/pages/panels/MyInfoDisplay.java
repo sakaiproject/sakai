@@ -22,22 +22,21 @@ public class MyInfoDisplay extends Panel {
 	private String nickname = null;
 	private Date dateOfBirth = null;
 	private String birthday = null;
+	private int visibleFieldCount = 0;
 
 	
-	public MyInfoDisplay(String id, final IModel userProfileModel) {
-		super(id, userProfileModel);
+	public MyInfoDisplay(final String id, final UserProfile userProfile) {
+		super(id);
 		
 		//this panel stuff
 		final Component thisPanel = this;
-		final String thisPanelId = "myInfo"; //wicket:id not markupId
 		
 		//get userProfile from userProfileModel
-		UserProfile userProfile = (UserProfile) this.getModelObject();
+		//UserProfile userProfile = (UserProfile) this.getModelObject();
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
 		String nickname = userProfile.getNickname();
-		
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.basic")));
@@ -49,6 +48,8 @@ public class MyInfoDisplay extends Panel {
 		add(nicknameContainer);
 		if("".equals(nickname) || nickname == null) {
 			nicknameContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
 		}
 		
 		//birthday
@@ -58,13 +59,15 @@ public class MyInfoDisplay extends Panel {
 		add(birthdayContainer);
 		if("".equals(birthday) || birthday == null) {
 			birthdayContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
 		}
 		
 				
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
 			public void onClick(AjaxRequestTarget target) {
-				Component newPanel = new MyInfoEdit(thisPanelId, userProfileModel);
+				Component newPanel = new MyInfoEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
@@ -75,6 +78,13 @@ public class MyInfoDisplay extends Panel {
 		};
 		editButton.setOutputMarkupId(true);
 		add(editButton);
+		
+		//no fields message
+		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
+		add(noFieldsMessage);
+		if(visibleFieldCount > 0) {
+			noFieldsMessage.setVisible(false);
+		}
 		
 	}
 	

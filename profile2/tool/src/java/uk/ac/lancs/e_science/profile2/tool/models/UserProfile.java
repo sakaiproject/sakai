@@ -17,7 +17,7 @@ public class UserProfile implements Serializable {
 	private String department;
 	private String school;
 	private String room;
-	private byte[] photo;
+	private byte[] picture;
 	private String homepage;
 	private String workphone;
 	private String homephone;
@@ -96,11 +96,11 @@ public class UserProfile implements Serializable {
 	public void setRoom(String room) {
 		this.room = room;
 	}
-	public byte[] getPhoto() {
-		return photo;
+	public byte[] getPicture() {
+		return picture;
 	}
-	public void setPhoto(byte[] photo) {
-		this.photo = photo;
+	public void setPicture(byte[] picture) {
+		this.picture = picture;
 	}
 	public String getHomepage() {
 		return homepage;

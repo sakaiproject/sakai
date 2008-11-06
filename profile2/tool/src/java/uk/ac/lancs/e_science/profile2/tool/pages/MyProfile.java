@@ -4,7 +4,6 @@ package uk.ac.lancs.e_science.profile2.tool.pages;
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.image.Image;
@@ -16,8 +15,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.tool.components.SelectModalWindow;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
@@ -28,6 +27,7 @@ public class MyProfile extends BasePage {
 	private transient Logger log = Logger.getLogger(MyProfile.class);
 	private static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
 	private transient byte[] pictureBytes;
+	private final ChangeProfilePicture changePicture;
 
 	
 	public MyProfile() {
@@ -73,6 +73,10 @@ public class MyProfile extends BasePage {
 		//create instance of the UserProfile class
 		UserProfile userProfile = new UserProfile();
 		
+		//configure userProfile as the model for our page
+		//we then pass the userProfileModel in the constructor to the child panels
+		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
+		
 		//get rest of values from SakaiPerson and set into UserProfile
 		userProfile.setNickname(sakaiPerson.getNickname());
 		userProfile.setDateOfBirth(sakaiPerson.getDateOfBirth());
@@ -102,68 +106,65 @@ public class MyProfile extends BasePage {
 			add(new ContextImage("photo",new Model(UNAVAILABLE_IMAGE)));
 		}
 		
-		// The ModalWindow, showing some choices for the user to select.
-		
-		// The label that shows the result from the ModalWindow
-        final Label resultLabel = new Label("resultlabel", new Model(""));
-        resultLabel.setOutputMarkupId(true);
-        add(resultLabel);
-		
-		
-        final ModalWindow selectModalWindow = new SelectModalWindow("modalwindow"){
-
-            void onSelect(AjaxRequestTarget target, String selection) {
-                // Handle Select action
-                resultLabel.setModelObject(selection);
-                target.addComponent(resultLabel);
-                close(target);
-            }
-
-            void onCancel(AjaxRequestTarget target) {
-                // Handle Cancel action
-                resultLabel.setModelObject("ModalWindow cancelled.");
-                target.addComponent(resultLabel);
-                close(target);
-            }
-
-        };
-        add(selectModalWindow);
-
-		
-		
-		
+		//change picture panel
+		changePicture = new ChangeProfilePicture("changePicture", userProfile);
+		//changePicture.setOutputMarkupPlaceholderTag(true);
+		changePicture.setOutputMarkupId(true);
+		//changePicture.setVisible(false);
+		add(changePicture);
 		
 		//change profile image button
-		AjaxFallbackLink changeProfileImage = new AjaxFallbackLink("changeProfileImage", new ResourceModel("link.change.profile.image")) {
+		AjaxFallbackLink changePictureLink = new AjaxFallbackLink("changePictureLink", new ResourceModel("link.change.profile.picture")) {
 			public void onClick(AjaxRequestTarget target) {
-				selectModalWindow.show(target);
+				
+				//add the full changePicture component to the page dynamically
+				//changePicture.setVisible(true);
+				//target.addComponent(changePicture);
+				//target.appendJavascript("setMainFrameHeight(window.name);");
+				
+				//when the editImageButton is clicked, show the panel
+				//its possible this will push the content lower than the iframe, to make sure the iframe size is good.
+				
+				//String js = "$('#" + changePicture.getMarkupId() + "').slideToggle()";
+				//target.appendJavascript(js);
+				//target.appendJavascript("alert('" + changePicture.getMarkupId() + "')");
+				
 			}
 						
 		};
-		changeProfileImage.setOutputMarkupId(true);
-		add(changeProfileImage);
+		add(changePictureLink);
 		
-		//configure userProfile as the model for our page
-		//we then pass the userProfileModel in the constructor to the child panels
-		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
+		//dynamic javascript
+		StringBuilder js = new StringBuilder();
+		//js.append("<script type=\"text/javascript\">");
+		//js.append("$(document).ready(function(){");
+		//js.append("$('#" + changePicture.getMarkupId() +"').hide();");
+		//js.append("});");
+		//js.append("</script>");	
+					
+		Label dynamicJavascript = new Label("dynamicJavascript", js.toString());
+		dynamicJavascript.setEscapeModelStrings(false);
+		add(dynamicJavascript);
 		
 		//status panel
-		Panel myStatusPanel = new MyStatusPanel("myStatusPanel", userProfileModel);
+		Panel myStatusPanel = new MyStatusPanel("myStatusPanel", userProfile);
 		add(myStatusPanel);
 		
 		//info panel - load the display version by default
-		Panel myInfoDisplay = new MyInfoDisplay("myInfo", userProfileModel);
+		Panel myInfoDisplay = new MyInfoDisplay("myInfo", userProfile);
 		myInfoDisplay.setOutputMarkupId(true);
 		add(myInfoDisplay);
 		
 		//contact panel - load the display version by default
-		Panel myContactDisplay = new MyContactDisplay("myContact", userProfileModel);
+		Panel myContactDisplay = new MyContactDisplay("myContact", userProfile);
 		myContactDisplay.setOutputMarkupId(true);
 		add(myContactDisplay);
 		
+
 		
 	}
 	
+		
 	
 	
 	

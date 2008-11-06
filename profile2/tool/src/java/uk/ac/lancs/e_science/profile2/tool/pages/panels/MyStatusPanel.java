@@ -37,11 +37,8 @@ public class MyStatusPanel extends Panel {
 
 
 	//panel constructor
-	public MyStatusPanel(String id, IModel userProfileModel) {
-		super(id, userProfileModel);
-		
-		//get userProfile from userProfileModel
-		UserProfile userProfile = (UserProfile) getModelObject();
+	public MyStatusPanel(String id, UserProfile userProfile) {
+		super(id);
 		
 		
 		//get info for the status/heading block

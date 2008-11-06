@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+
+<wicket:panel>
+	<form wicket:id="form" class="profileForm">
+	
+		<!--  this should be a component -->
+		<div class="closeButton">
+			<img src="/library/image/silk/cross.png"/>
+		</div>
+		
+		<div wicket:id="feedback">feedback goes here</div>
+	
+		<p wicket:id="textSelectImage" class="small">Select an image</p>
+	
+		<p><input type="file" wicket:id="picture"/></p>
+				
+		<p><input type="submit" wicket:id="submit" value="Upload" />&nbsp;&nbsp;<img wicket:id="indicator" src="" /></p>
+		
+	</form>
+</wicket:panel>
+
+
+
+	
+</body>
+</html>
+

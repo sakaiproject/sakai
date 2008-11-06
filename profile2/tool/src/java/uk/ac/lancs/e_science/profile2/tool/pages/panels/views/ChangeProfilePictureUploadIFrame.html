@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">  
+<html xmlns:wicket>  
+<head>  
+<script type="text/javascript">  
+    function showProgressWheel() {  
+        document.images[0].style.display = ‘block’;  
+        // delay the wheel a bit so it can locally shine  
+        setTimeout(function() { document.forms[0].submit() }, 800);  
+        return false;  
+    }  
+</script>  
+</head>  
+  
+<body>  
+    <form wicket:id="form">  
+        <table style="width:500px; margin-top:0px;">  
+            <tr>  
+                <td>  
+                    <input style="width:auto;" wicket:id="file" type="file"/>  
+                </td>  
+                <td>  
+                    <input type="submit" wicket:id="submit" value="submit" />
+                </td>  
+                <td>  
+                    <img src="images/indicator.gif" style="display:none"/>  
+                </td>  
+            </tr>  
+        </table>  
+  </form>  
+  
+  <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    
+    
+  <script wicket:id="onUploaded" type="text/javascript"></script>  
+</body>  
+</html>

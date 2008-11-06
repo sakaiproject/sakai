@@ -1,8 +1,11 @@
 package uk.ac.lancs.e_science.profile2.tool;
 
 import org.apache.log4j.Logger;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Application;
+import org.apache.wicket.extensions.ajax.markup.html.form.upload.UploadWebRequest;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.WebRequest;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
@@ -23,7 +26,7 @@ public class ProfileApplication extends WebApplication {
 		//super.init();
 		//if(logger.isDebugEnabled()) logger.debug("init()");
 		getMarkupSettings().setStripWicketTags(true);
-		mountBookmarkablePage("/my", MyProfile.class);
+		//mountBookmarkablePage("/my", MyProfile.class);
 		
 		//addComponentInstantiationListener(new SpringComponentInjector(this));
 		//getResourceSettings().setThrowExceptionOnMissingResource(true);
@@ -61,8 +64,6 @@ public class ProfileApplication extends WebApplication {
 	public Profile getProfile() {
 		return profile;
 	}
-	
-	
 	
 	
 	
