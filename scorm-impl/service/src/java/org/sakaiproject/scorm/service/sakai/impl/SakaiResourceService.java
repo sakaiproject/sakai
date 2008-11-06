@@ -24,6 +24,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
@@ -190,7 +191,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			
 			ResourcePropertiesEdit props = edit.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
-	        		
+			
 	        contentService().commitResource(edit);			
 
 	        return edit.getId();
@@ -411,7 +412,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, getDisplayName(entry.getName()));
 			props.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, "UTF-8");
 			
-			contentService().commitResource(resource);
+			contentService().commitResource(resource, NotificationService.NOTI_NONE);
 			
 		} catch (Exception e) {
 			log.error("Failed to create new resource with id " + resourceId, e);

@@ -48,6 +48,7 @@ import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
@@ -94,7 +95,7 @@ public abstract class ZipCHH implements ContentHostingHandler, Addable, Serializ
 
 			ContentResourceEdit realParentEdit = contentService().editResource(realParent.getId());
 			realParentEdit.setContent(out.toByteArray());
-			contentService().commitResource(realParentEdit);
+			contentService().commitResource(realParentEdit, NotificationService.NOTI_NONE);
 		} catch (Exception soe) {
 			log.error("Caught an exception trying to add a resource", soe);
 		}
@@ -115,7 +116,7 @@ public abstract class ZipCHH implements ContentHostingHandler, Addable, Serializ
 	public void commit(ContentResourceEdit edit) {
 		if (edit.getVirtualContentEntity() == null) {
 			try {
-				contentService().commitResource(edit);
+				contentService().commitResource(edit, NotificationService.NOTI_NONE);
 			} catch (Exception e) {
 				log.error("Caught an exception committing resource", e);
 			}
@@ -137,7 +138,7 @@ public abstract class ZipCHH implements ContentHostingHandler, Addable, Serializ
 		
 			ContentResourceEdit realParentEdit = contentService().editResource(realParent.getId());
 			realParentEdit.setContent(out.toByteArray());
-			contentService().commitResource(realParentEdit);
+			contentService().commitResource(realParentEdit, NotificationService.NOTI_NONE);
 		} catch (Exception soe) {
 			log.error("Caught an exception trying to delete a resource", soe);
 		}
