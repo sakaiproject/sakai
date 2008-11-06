@@ -17,9 +17,22 @@
 			<th>$tlang.getString("gen.date")</th>
 			<td>$date.toStringLocalFull()</td>
 		</tr>
+##		<tr>
+##			<th>$tlang.getString("meta.public")</th>
+##			<td>$IsPubView</td>
+##		</tr>
 		<tr>
-			<th>$tlang.getString("meta.public")</th>
-			<td>$IsPubView</td>
+			<th>$tlang.getString("displayto.access")</th>
+			#if ($annTo == "pubview") 	<td>$tlang.getString("displayto.public")</td>
+			#elseif($annTo == "site") 	<td>$tlang.getString("displayto.site")</td>
+			#elseif ($annTo == "groups") 
+			<td>$tlang.getString("displayto.selected")</td>
+			</tr>
+			<tr>
+			<th>$tlang.getString("groups")</th>
+			<td>$annToGroups</td>				
+			#end
+		</tr>
 		</tr>
 		<tr>
 			<th>$tlang.getString("pre.notif")</th>

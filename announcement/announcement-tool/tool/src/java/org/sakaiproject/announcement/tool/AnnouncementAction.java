@@ -1690,11 +1690,49 @@ public class AnnouncementAction extends PagedResourceActionII
 		final String body = state.getTempBody();
 		final Time tempReleaseDate = state.getTempReleaseDate();
 		final Time tempRetractDate = state.getTempRetractDate();
+		String annTo=state.getTempAnnounceTo();
 		context.put("subject", subject);
 		context.put("body", body);
 		context.put("user", UserDirectoryService.getCurrentUser());
 		context.put("newAnn", (state.getIsNewAnnouncement()) ? "true" : "else");
-
+		context.put("annTo", annTo);
+	
+		
+		String channelId=state.getChannelId();
+		Collection annToGroups=state.getTempAnnounceToGroups();		
+		String allGroupString="";
+		
+		
+		if(annToGroups!=null){
+		Site site=null;
+		int count=0;
+		try {
+			site = SiteService.getSite(EntityManager.newReference(channelId).getContext());		
+			for (Iterator i = annToGroups.iterator(); i.hasNext();)
+			{
+				Group aGroup = site.getGroup((String) i.next());
+				if (aGroup != null)
+				{
+					count++;
+					if (count > 1)
+					{
+						allGroupString = allGroupString.concat(", ").concat(aGroup.getTitle());
+					}
+					else
+					{
+						allGroupString = aGroup.getTitle();
+					}
+				}
+			}
+			context.put("annToGroups", allGroupString);
+			
+		} catch (IdUnusedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		}
+		
+		
 		// Set date
 		AnnouncementMessageEdit edit = state.getEdit();
 
@@ -1749,7 +1787,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		else
 		{
 			context.put("noti", rb.getString("java.NOTI_OPTIONAL"));
-		}
+		}				
 
 		// pick the "browse" template based on the standard template name
 		String template = (String) getContext(rundata).get("template");
