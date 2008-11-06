@@ -843,7 +843,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		if (returnPath != null)
 		{
 			// where to go after
-			session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req, returnPath));
+			String returnUrl = Web.returnUrl(req, returnPath);
+			if (req.getQueryString() != null )
+				returnUrl += "?"+req.getQueryString();
+			session.setAttribute(Tool.HELPER_DONE_URL, returnUrl);
 		}
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
