@@ -111,9 +111,9 @@
 						<span class="instruction">$tlang.getString("sitediconf.none")</span>
 					#else	
 						#if (!$!name.equals($!oName))
-							<span class="highlight">$!name</span>
+							<span class="highlight">$validator.escapeHtml($!name)</span>
 						#else
-							$!name
+							$validator.escapeHtml($!name)
 						#end
 					#end	
 				</td>					

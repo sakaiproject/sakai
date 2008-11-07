@@ -361,7 +361,7 @@
 								#set ($participantName=$participant.getName())
 								#if ($participantName ==", ") 	
 								#else
-									$participantName
+									$validator.escapeHtml($participantName)
 								#end
 								(#set($displayId=false)
 								#set($displayId = $participant.getDisplayId())
