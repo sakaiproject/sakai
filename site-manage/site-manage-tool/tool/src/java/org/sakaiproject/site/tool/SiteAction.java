@@ -8054,7 +8054,7 @@ public class SiteAction extends PagedResourceActionII {
 				ToolConfiguration tool = page.addTool();
 				Tool reg = ToolManager.getTool(SITE_INFORMATION_TOOL);
 				tool.setTool(SITE_INFORMATION_TOOL, reg);
-				tool.setTitle(reg.getTitle());
+				tool.setTitle(reg != null?reg.getTitle():"");
 				tool.setLayoutHints("0,0");
 			}
 

@@ -137,6 +137,14 @@
 ##				
 ##				<br/>
 ##			  #else
+						#if ($!courseSets)
+						<select name="courseset" id="courseset">
+								#foreach ($cSet in $courseSets)
+									<option value="$cSet.getId()">$cSet.getTitle()</option>
+								#end
+						</select>
+						#end
+
 			  	<!-- use dropdown list to select from coursemanagement service provided options -->
 				  <input type=hidden name="deptChanged" id="deptChanged" value="false" />
 				  #if ($i == 0 || $i < $cmLevelSelections.size() + 1)
