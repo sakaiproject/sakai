@@ -34,7 +34,7 @@
 					$tlang.getString('confirm.submission.label.user')
 				</th>
 				<td>
-					$!user_name#if($!user_id)($!user_id)#end
+					$validator.escapeHtml($!user_name) #if($!user_id)($!user_id)#end
 				</td>
 			</tr>
 			##site

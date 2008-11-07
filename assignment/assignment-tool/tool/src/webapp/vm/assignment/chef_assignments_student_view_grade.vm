@@ -57,7 +57,7 @@
 					<td>
 						#set ($submitters = $submission.submitters)
 						#foreach ($submitter in $submitters)
-							$submitter.DisplayName<br />
+							$validator.escapeHtml($submitter.DisplayName)<br />
 						#end
 					</td>
 				</tr>

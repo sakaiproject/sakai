@@ -1161,7 +1161,7 @@ $(document).ready(function() {
 										<li>
 											<label for="$showInputString" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #end>
 												<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" checked="checked" #set($userCount=$userCount + 1) #end type="checkbox" value="$user.Id"/>
-												$user.getDisplayName()
+												$validator.escapeHtml($user.getDisplayName())
 											</label>
 										</li>
 									#end

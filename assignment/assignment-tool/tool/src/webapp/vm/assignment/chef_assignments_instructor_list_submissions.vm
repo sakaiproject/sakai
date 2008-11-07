@@ -421,7 +421,7 @@
 										<span class="highlight">$tlang.getString("gen.dra2") </span>
 										#end
 									#end
-									$submitterName
+									$validator.escapeHtml($submitterName)
 									<div class="itemAction">
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("listsub.grade")</a>
 										#foreach ($provider in $providers)
@@ -442,7 +442,7 @@
 											<span class="highlight">$tlang.getString("gen.dra2") </span>
 											#end
 										#end
-										$submitterName
+										$validator.escapeHtml($submitterName)
 									</a>
 								#end
 							</td>
@@ -529,7 +529,7 @@
 				$tlang.getString("gen.creby")
 			</th>
 			<td>
-				$userDirectoryService.getUser($assignment.getCreator()).DisplayName ($assignment.TimeCreated.toStringLocalFull())
+				$validator.escapeHtml($userDirectoryService.getUser($assignment.getCreator()).DisplayName) ($assignment.TimeCreated.toStringLocalFull())
 			</td>
 		</tr>
 		<tr>

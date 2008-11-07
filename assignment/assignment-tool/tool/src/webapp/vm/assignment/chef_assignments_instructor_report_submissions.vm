@@ -202,7 +202,7 @@
 									#end
 									#set ($count = $count + 1)
 								#end
-								$!submitterNames
+								$validator.escapeHtml($!submitterNames)
 							</td>
 							<td headers="assignment">
 								$validator.limit($validator.escapeHtml($assignment.Title), 40)
