@@ -112,7 +112,7 @@
 						$tlang.getString("gen.lastby")
 					</th>
 					<td>
-						$item.modifiedBy
+						$validator.escapeHtml($item.modifiedBy)
 					</td>
 				</tr>
 			#end
