@@ -138,7 +138,7 @@
 			#if($owner_name && $owner_name !="")
 			<tr>
 				<th>$tlang.getString("gen.owner")</th>
-				<td>$owner_name</td>
+				<td>$validator.escapeHtml($owner_name)</td>
          </tr>
 			#end
 			#if($event.Location && $event.Location !="")
