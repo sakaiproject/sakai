@@ -914,26 +914,49 @@ public class Web2Query extends HttpTransactionQueryBase {
 
     	String		text;
     	Element		element;
-			int				estimate;
-
+			int				estimate, hits;
+			/*
+			 * Database
+			 */
 			element	= DomUtils.getElement(recordElement, "TARGET");
 			target	= DomUtils.getText(element);
 			map 		= StatusUtils.getStatusMapForTarget(getSessionContext(), target);
-
+			/*
+			 * Result set
+			 */
 			element = DomUtils.getElement(recordElement, "RESULT_SET");
 			text 		= DomUtils.getText(element);
 			map.put("RESULT_SET", ((text == null) ? "<none>" : text));
-
+			/*
+			 * Get the estimated result count
+			 */
 			element = DomUtils.getElement(recordElement, "ESTIMATE");
-			text 		= DomUtils.getText(element);
-			map.put("ESTIMATE", text);
-
-			estimate = Integer.parseInt(text);
-			total		+= estimate;
-
-			map.put("STATUS", "DONE");
-			if (estimate > 0)
+			if ((text	= DomUtils.getText(element)) == null)
 			{
+				text = "0";
+			}
+			estimate = Integer.parseInt(text);
+			/*
+			 * Any hits available?
+			 */
+			element = DomUtils.getElement(recordElement, "HITS");
+			text 		= DomUtils.getText(element);
+			hits		= (text == null) ? 0 : Integer.parseInt(text);
+			/*
+			 * One common failure mode for the database connectors is to return a 
+			 * positive estimated result count with no actual hits.
+			 *
+			 * So, to use results from this database, we need to find both an 
+			 * estimate and some hits.
+			 */
+			map.put("ESTIMATE", "0");
+			map.put("STATUS", "DONE");
+
+			if ((estimate > 0) && (hits > 0))
+			{
+				map.put("ESTIMATE", String.valueOf(estimate));
+				total	+= estimate;
+
 				map.put("STATUS", "ACTIVE");
 				active++;
 			}
