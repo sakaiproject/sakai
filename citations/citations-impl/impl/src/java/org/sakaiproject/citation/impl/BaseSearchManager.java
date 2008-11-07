@@ -524,6 +524,7 @@ public class BaseSearchManager implements SearchManager, Observer
         public void setLastPage(boolean lastPage)
         {
 	        this.m_lastPage = lastPage;
+	        
         }
 
 		/* (non-Javadoc)
@@ -814,6 +815,14 @@ public class BaseSearchManager implements SearchManager, Observer
 
 		public void setSearchThread(Thread searchThread) {
 			m_searchThread = searchThread;
+		}
+		
+		public void resetSearch()
+		{
+			this.m_pageOrder.clear();
+			
+			this.m_searchResults.clear();
+			
 		}
 
 	}
@@ -2140,6 +2149,9 @@ public class BaseSearchManager implements SearchManager, Observer
 	    						re.getMessage().equals( OsidException.OPERATION_FAILED ) )
 	    				{
 	    					search.setLastPage(true);
+	    					
+	    	    			search.resetSearch();
+	    					
 
 	    					// search is over, all assets that have been retrieved have been
 	    					// optionally check searchStatus Properties for further details or information to present in UI
@@ -2171,7 +2183,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	    				re.getMessage().equals( METASEARCH_ERROR ) )
 	    		{
 	    			search.setLastPage(true);
-
+	    			
 	    			// search is over, all assets that have been retrieved have been
 	    			// optionally check searchStatus Properties for further details or information to present in UI
 	    			String message = getSearchStatusMessage(repository);
