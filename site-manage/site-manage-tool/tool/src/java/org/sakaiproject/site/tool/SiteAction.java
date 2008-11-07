@@ -2874,10 +2874,14 @@ public class SiteAction extends PagedResourceActionII {
 	 * @return
 	 */
 	private List replaceHomeToolId(SessionState state, List toolIdList) {
-		if (toolIdList != null && toolIdList.contains("home"))
+		if (toolIdList != null)
 		{
-			toolIdList.remove("home");
-			toolIdList.add(getHomeToolId(state));
+			if (toolIdList.contains("home"))
+				toolIdList.remove("home");
+		
+			String homeToolId = getHomeToolId(state);
+			if (!toolIdList.contains(homeToolId))
+				toolIdList.add(homeToolId);
 		}
 		return toolIdList;
 	} // replaceHomeToolId
