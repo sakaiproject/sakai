@@ -10,6 +10,14 @@
 	<filter>
 		<filter-name>sakai.request</filter-name>
 		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+		<!-- this must be set to false so that file uploads are NOT parsed by Sakai's RequestFilter
+			this also means that the wicket app needs to check the various sakai.properties that set upload size etc,
+			 rather than relying on the Sakai RequestFilter to do it.
+		 -->
+		<init-param>
+			<param-name>upload.enabled</param-name>
+			<param-value>false</param-value>
+      	</init-param>
 	</filter>
 	<filter-mapping>
 		<filter-name>sakai.request</filter-name>

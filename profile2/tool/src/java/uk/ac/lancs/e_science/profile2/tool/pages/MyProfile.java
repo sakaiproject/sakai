@@ -123,10 +123,9 @@ public class MyProfile extends BasePage {
 				//target.appendJavascript("setMainFrameHeight(window.name);");
 				
 				//when the editImageButton is clicked, show the panel
-				//its possible this will push the content lower than the iframe, to make sure the iframe size is good.
-				
-				//String js = "$('#" + changePicture.getMarkupId() + "').slideToggle()";
-				//target.appendJavascript(js);
+				//its possible this will push the content lower than the iframe, so make sure the iframe size is good.
+				String js = "$('#" + changePicture.getMarkupId() + "').slideToggle()";
+				target.appendJavascript(js);
 				//target.appendJavascript("alert('" + changePicture.getMarkupId() + "')");
 				
 			}
@@ -136,11 +135,11 @@ public class MyProfile extends BasePage {
 		
 		//dynamic javascript
 		StringBuilder js = new StringBuilder();
-		//js.append("<script type=\"text/javascript\">");
-		//js.append("$(document).ready(function(){");
-		//js.append("$('#" + changePicture.getMarkupId() +"').hide();");
-		//js.append("});");
-		//js.append("</script>");	
+		js.append("<script type=\"text/javascript\">");
+		js.append("$(document).ready(function(){");
+		js.append("$('#" + changePicture.getMarkupId() +"').hide();");
+		js.append("});");
+		js.append("</script>");	
 					
 		Label dynamicJavascript = new Label("dynamicJavascript", js.toString());
 		dynamicJavascript.setEscapeModelStrings(false);

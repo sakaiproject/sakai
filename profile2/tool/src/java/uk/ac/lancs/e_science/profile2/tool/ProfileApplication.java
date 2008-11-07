@@ -10,6 +10,7 @@ import org.apache.wicket.protocol.http.WebRequest;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
+import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 
 
@@ -22,6 +23,13 @@ public class ProfileApplication extends WebApplication {
 
 	
 	protected void init(){
+		
+		
+		//addComponentInstantiationListener(new SpringComponentInjector(this));
+		getResourceSettings().setThrowExceptionOnMissingResource(true);
+		//getDebugSettings().setAjaxDebugModeEnabled(log.isDebugEnabled());	
+		//getApplicationSettings().setPageExpiredErrorPage(SakaiSessionExpiredPage.class);
+		
 		
 		//super.init();
 		//if(logger.isDebugEnabled()) logger.debug("init()");
