@@ -9456,7 +9456,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			try {
 				ContentResource cr = getFirstAcceptableAttachement(attachments);
 				Assignment ass = this.getAssignment();
-				contentReviewService.queueContent(null, null, ass.getReference(), cr.getId());
+				if (ass != null)
+				{
+					contentReviewService.queueContent(null, null, ass.getReference(), cr.getId());
+				}
+				else
+				{
+					// error, assignment couldn't be found. Log the error
+					M_log.warn(this + " BaseAssignmentSubmissionEdit postAttachment: Unable to find assignment associated with submission id= " + this.m_id + " and assignment id=" + this.m_assignment);
+				}
 			} catch (QueueException qe) {
 				M_log.warn(this + " BaseAssignmentSubmissionEdit postAttachment: Unable to add content to Content Review queue: " + qe.getMessage());
 			} catch (Exception e) {
