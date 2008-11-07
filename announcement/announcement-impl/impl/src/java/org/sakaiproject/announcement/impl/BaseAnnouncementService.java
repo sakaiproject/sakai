@@ -1124,7 +1124,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 												// add the new resource into attachment collection area
 												ContentResource attachment = contentHostingService.addAttachmentResource(
 														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
-														ToolManager.getCurrentPlacement().getContext(), 
+														//ToolManager.getCurrentPlacement().getContext(), 
+														toContext, 	//don't use ToolManager.getCurrentPlacement()!
 														ToolManager.getTool("sakai.announcements").getTitle(), 
 														oAttachment.getContentType(),
 														oAttachment.getContent(), 
@@ -1137,7 +1138,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 												// add the new resource into resource area
 												ContentResource attachment = contentHostingService.addResource(
 														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-														ToolManager.getCurrentPlacement().getContext(), 
+														//ToolManager.getCurrentPlacement().getContext(), 
+														toContext, //don't use ToolManager.getCurrentPlacement()!
 														1, 
 														oAttachment.getContentType(), 
 														oAttachment.getContent(), 
