@@ -49,7 +49,7 @@
 			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-event-api</artifactId>
 			<version>${sakai.version}</version>
 			<scope>provided</scope>
