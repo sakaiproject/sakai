@@ -317,4 +317,10 @@ public interface ActiveSearch
 	 * @param A list of database IDs
 	 */
 	public void setDatabaseIds(String[] databaseIds);
+	
+	/**
+	 * Resets the search
+	 */
+	public void resetSearch();
+	
 }
