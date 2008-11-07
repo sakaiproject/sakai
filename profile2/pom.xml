@@ -46,15 +46,7 @@
 		</license>
 	</licenses>
 	  	
-	<!-- 
-    <modules>
-        <module>api</module>
-        <module>impl</module>
-		<module>pack</module>
-		<module>tool</module>
-    </modules>
-    -->
-    
+	    
     <properties>
     	<tool.version>1.0</tool.version>
     	<wicket.version>1.3.5</wicket.version>
@@ -63,19 +55,7 @@
     	<slf4j.version>1.0.1</slf4j.version>
     </properties>
 
-    <!-- handles the management of all related dependencies -->
-    <!-- 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>uk.ac.lancs.e_science</groupId>
-            	<artifactId>example-scheduler-jobs</artifactId>
-                <version>1.0</version>
-            </dependency>
-          </dependencies>
-    </dependencyManagement>
-    -->
-    
+       
     <profiles>
         <profile>
             <id>full</id>
@@ -99,6 +79,8 @@
             <id>api</id>
             <modules>
                 <module>api</module>
+                <module>impl</module>
+                <module>pack</module>
             </modules>
         </profile>
         
