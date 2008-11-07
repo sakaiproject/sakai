@@ -389,7 +389,7 @@ $(document).ready(function() {
 				</label>
 				<table border="0" style="margin:0"><tr><td>
 					<textarea name="$name_Description" id="$name_Description" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($value_Description)</textarea>
-					##	#chef_setupformattedtextarea($name_Description)
+					#chef_setupformattedtextarea($name_Description)
 					</td></tr></table>
 			</div>
 		#if ($!name_CheckAddDueDate)
