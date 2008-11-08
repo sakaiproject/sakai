@@ -31,6 +31,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -49,6 +51,9 @@ public class SuTool
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SuTool.class);
 
+	protected static final String SU_BECOME_USER = "su.become";
+	protected static final String SU_VIEW_USER = "su.view";
+
 	ResourceLoader msgs = new ResourceLoader("tool-tool-su");
 
 	// Service instance variables
@@ -63,6 +68,8 @@ public class SuTool
 
 	private ServerConfigurationService M_config = org.sakaiproject.component.cover.ServerConfigurationService
 			.getInstance();
+	
+	private EventTrackingService M_event_service = org.sakaiproject.event.cover.EventTrackingService.getInstance();
 
 	// getters for these vars
 	private String username;
@@ -132,6 +139,8 @@ public class SuTool
 		{
 			message = msgs.getString("displaying_info_for") + ": " + validatedUserEid;
 			fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_INFO, message, message + ":" + userinfo.getDisplayName()));
+			Event event = M_event_service.newEvent(SU_VIEW_USER, M_uds.userReference(validatedUserId), false);
+			M_event_service.post(event);
 			return "unconfirmed";
 		}
 
@@ -142,9 +151,13 @@ public class SuTool
 		fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_INFO, message, message + ": "
 				+ userinfo.getDisplayName()));
 		
-		// while keeping the official usage session under the real user id, swicth over everything else to be the SU'ed user
+		// while keeping the official usage session under the real user id, switch over everything else to be the SU'ed user
 		// Modeled on UsageSession's logout() and login()
 		
+		// Post an event
+		Event event = M_event_service.newEvent(SU_BECOME_USER, M_uds.userReference(validatedUserId), false);
+		M_event_service.post(event);
+
 		// logout - clear, but do not invalidate, preserve the usage session's current session
 		Vector saveAttributes = new Vector();
 		saveAttributes.add(UsageSessionService.USAGE_SESSION_KEY);
