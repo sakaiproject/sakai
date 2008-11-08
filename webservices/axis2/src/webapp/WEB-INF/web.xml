@@ -1,16 +1,14 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE web-app
-    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="axis2_webapp" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-<web-app>
-    <servlet>
-        <servlet-name>AxisServlet</servlet-name>
-        <display-name>Apache-Axis Servlet</display-name>
-        <servlet-class>
-            org.apache.axis2.transport.http.AxisServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
+  <servlet>
+    <servlet-name>AxisServlet</servlet-name>
+    <display-name>Apache-Axis Servlet</display-name>
+    <servlet-class>org.apache.axis2.transport.http.AxisServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
 
     <!-- Note - the default settings may refuse localhost - but will accept
          if you use the IP address of your computer as follows:
