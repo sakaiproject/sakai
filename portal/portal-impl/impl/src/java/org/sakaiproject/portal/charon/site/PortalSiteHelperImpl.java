@@ -619,6 +619,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}	
 		}
 		
+		// Check to see if this is a my workspace site, and if so, whether presence is disabled
+		if (showPresence && SiteService.isUserSite(site.getId()) && !ServerConfigurationService.getBoolean("display.users.present.myworkspace", true))
+			showPresence = false;
+		
 		String presenceUrl = Web.returnUrl(req, "/presence/"
 				+ Web.escapeUrl(site.getId()));
 
