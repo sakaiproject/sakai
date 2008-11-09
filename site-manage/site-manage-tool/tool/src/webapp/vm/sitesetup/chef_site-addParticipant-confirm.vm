@@ -62,7 +62,7 @@
 					</td>
 					<td headers="id">
 						<h4>
-							$participant.getName()
+							$validator.escapeHtml($participant.getName())
 						</h4>	
 					</td>
 					<td headers="role">
