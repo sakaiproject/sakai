@@ -138,11 +138,11 @@ public class ChatDelivery extends BaseDelivery
 
 		// if we don't know we can do the DOM based refresh, or we are missing channel or msg (could have been a message delete)
 		// trigger a panel refresh
-		boolean browserSupportsDomRefresh = !browserId.equals(UsageSession.UNKNOWN);
+//		boolean browserSupportsDomRefresh = !browserId.equals(UsageSession.UNKNOWN);
 		
-		if (!browserSupportsDomRefresh || channel == null)
+		if (channel == null)
 		{
-			retval = "try { this.location.replace(addAuto(this.location));} catch (error) {}";
+			retval = "try { this.location.replace(addAuto(this.location));} catch (error) {alert(error);}";
 		}
 		
 		// otherwise setup for a browser-side javascript DOM modification to insert the message
