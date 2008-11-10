@@ -242,6 +242,19 @@
 	background: #ffc;
 }
 
+.formInputField.invalid {
+    border: 2px solid red;
+    color: red;
+}
+
+.formInputField.valid {
+    /*color: green;*/
+}
+
+.feedbackLabel {
+    font-weight: bold;
+}
+
 
 /* Style for wicket's feedback message panel */
 .alertMessage ul {
@@ -250,6 +263,8 @@
 	margin-bottom: 0px;
 	margin-top: 0px;
 }
+
+
 
 
 		

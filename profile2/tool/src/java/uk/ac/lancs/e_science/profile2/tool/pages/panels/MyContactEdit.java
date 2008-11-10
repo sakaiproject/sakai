@@ -1,27 +1,28 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
+import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehavior;
+import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyContactEdit extends Panel {
@@ -51,12 +52,29 @@ public class MyContactEdit extends Panel {
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
-	   		
+	   	
+	    // FeedbackPanel
+        final FeedbackPanel feedback = new FeedbackPanel("feedback");
+        feedback.setOutputMarkupId(true);
+        form.add(feedback);
+
+        // filteredErrorLevels will not be shown in the FeedbackPanel
+        int[] filteredErrorLevels = new int[]{FeedbackMessage.ERROR};
+        feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(filteredErrorLevels));
+	    
 		//email
 		WebMarkupContainer emailContainer = new WebMarkupContainer("emailContainer");
 		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
 		TextField email = new TextField("email", new PropertyModel(userProfile, "email"));
+		email.add(EmailAddressValidator.getInstance());
 		emailContainer.add(email);
+		
+		//email feedback
+        final FeedbackLabel emailFeedback = new FeedbackLabel("emailFeedback", email, new ResourceModel("error.email.invalid"));
+        emailFeedback.setOutputMarkupId(true);
+        emailContainer.add(emailFeedback);
+        email.add(new ComponentVisualErrorBehavior("onblur", emailFeedback));
+        
 		form.add(emailContainer);
 		
 		//homepage
@@ -166,6 +184,7 @@ public class MyContactEdit extends Panel {
 		}
 	 	
 	}
+	
 
 	
 }

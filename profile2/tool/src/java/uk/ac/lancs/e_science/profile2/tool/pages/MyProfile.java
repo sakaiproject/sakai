@@ -108,9 +108,9 @@ public class MyProfile extends BasePage {
 		
 		//change picture panel
 		changePicture = new ChangeProfilePicture("changePicture", userProfile);
-		//changePicture.setOutputMarkupPlaceholderTag(true);
-		changePicture.setOutputMarkupId(true);
-		//changePicture.setVisible(false);
+		changePicture.setOutputMarkupPlaceholderTag(true);
+		//changePicture.setOutputMarkupId(true);
+		changePicture.setVisible(false);
 		add(changePicture);
 		
 		//change profile image button
@@ -118,14 +118,16 @@ public class MyProfile extends BasePage {
 			public void onClick(AjaxRequestTarget target) {
 				
 				//add the full changePicture component to the page dynamically
-				//changePicture.setVisible(true);
-				//target.addComponent(changePicture);
-				//target.appendJavascript("setMainFrameHeight(window.name);");
+				target.addComponent(changePicture);
+				changePicture.setVisible(true);
+				String js = "$('#" + changePicture.getMarkupId() + "').fadeIn('slow');";
+				target.appendJavascript(js);
+
 				
 				//when the editImageButton is clicked, show the panel
 				//its possible this will push the content lower than the iframe, so make sure the iframe size is good.
-				String js = "$('#" + changePicture.getMarkupId() + "').slideToggle()";
-				target.appendJavascript(js);
+				//String js = "$('#" + changePicture.getMarkupId() + "').slideToggle()";
+				//target.appendJavascript(js);
 				//target.appendJavascript("alert('" + changePicture.getMarkupId() + "')");
 				
 			}
@@ -135,11 +137,11 @@ public class MyProfile extends BasePage {
 		
 		//dynamic javascript
 		StringBuilder js = new StringBuilder();
-		js.append("<script type=\"text/javascript\">");
-		js.append("$(document).ready(function(){");
-		js.append("$('#" + changePicture.getMarkupId() +"').hide();");
-		js.append("});");
-		js.append("</script>");	
+		//js.append("<script type=\"text/javascript\">");
+		//js.append("$(document).ready(function(){");
+		//js.append("$('#" + changePicture.getMarkupId() +"').hide();");
+		//js.append("});");
+		//js.append("</script>");	
 					
 		Label dynamicJavascript = new Label("dynamicJavascript", js.toString());
 		dynamicJavascript.setEscapeModelStrings(false);

@@ -22,8 +22,8 @@ public class UserProfile implements Serializable {
 	private String workphone;
 	private String homephone;
 	private String mobilephone;
-
 	
+		
 	public String getNickname() {
 		return nickname;
 	}
@@ -128,6 +128,15 @@ public class UserProfile implements Serializable {
 	}
 	
 	
+	/* for the form feedback, to get around a bug */
+	private String emailFeedback;
+
+	public String getEmailFeedback() {
+		return emailFeedback;
+	}
+	public void setEmailFeedback(String emailFeedback) {
+		this.emailFeedback = emailFeedback;
+	}
 	
 	
 }

@@ -14,14 +14,20 @@
 		<div class="mainSectionHeading"><span wicket:id="heading">[Contact Information]</span></div>
 		
 		<div class="mainSectionContent">	
-	
+
 			<form wicket:id="form" class="profileForm">
+				
+				<div wicket:id="feedback"></div>
+				
 				<table class="profileContent">
 					
 					<!-- email -->
 					<tr wicket:id="emailContainer">
 						<td class="label" wicket:id="emailLabel">[emailLabel]</td>
-						<td class="content"><input type="text" wicket:id="email" class="formInputField" size="40"/></td>
+						<td class="content">
+							<input type="text" wicket:id="email" class="formInputField" size="40"/>
+							<span class="feedbackLabel" wicket:id="emailFeedback"></span>
+						</td>
 					</tr>
 					
 					<!-- homepage -->

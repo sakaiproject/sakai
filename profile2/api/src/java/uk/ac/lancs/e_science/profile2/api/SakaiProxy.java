@@ -2,6 +2,7 @@ package uk.ac.lancs.e_science.profile2.api;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.type.Type;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public interface SakaiProxy {
 	
@@ -24,5 +25,7 @@ public interface SakaiProxy {
 	public SakaiPerson createSakaiPerson(String userId);
 
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson);
+			
+	public int getMaxProfilePictureSize();
 	
 }

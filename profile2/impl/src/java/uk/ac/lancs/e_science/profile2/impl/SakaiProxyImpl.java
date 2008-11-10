@@ -1,19 +1,17 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.api.common.type.Type;
-import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
+import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 
 
 
@@ -21,6 +19,11 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private transient Logger log = Logger.getLogger(SakaiProxyImpl.class);
+    
+	
+	private final int MAX_PROFILE_IMAGE_SIZE = 2; //default if not specified in sakai.properties as profile.picture.max (megs)
+
+    
 	
 	public String getCurrentSiteId(){
 		return toolManager.getCurrentPlacement().getContext();
@@ -120,9 +123,23 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	
+	
+	private String getSakaiConfigurationParameterAsString(String parameter, String defaultValue) {
+		return(ServerConfigurationService.getString(parameter, defaultValue));
+	}
+	
+	private int getSakaiConfigurationParameterAsInt(String parameter, int defaultValue) {
+		return ServerConfigurationService.getInt(parameter, defaultValue);
+	}
+	
+	private boolean getSakaiConfigurationParameterAsBoolean(String parameter, boolean defaultValue) {
+		return ServerConfigurationService.getBoolean(parameter, defaultValue);
+	}
 
 	
-	
+	public int getMaxProfilePictureSize() {
+		return getSakaiConfigurationParameterAsInt("profile.picture.max", MAX_PROFILE_IMAGE_SIZE);
+	}
 	
 	
 	
@@ -168,6 +185,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		log.debug("init()");
 	}
 
+	
 	
 
 	
