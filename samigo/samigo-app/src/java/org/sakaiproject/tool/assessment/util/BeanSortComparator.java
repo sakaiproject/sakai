@@ -74,36 +74,53 @@ public class BeanSortComparator
    */
   public int compare(Object o1, Object o2)
   {
+	int result = 0;  
     Map m1 = describeBean(o1);
     Map m2 = describeBean(o2);
     String s1 = (String) m1.get(propertyName);
     String s2 = (String) m2.get(propertyName);
 
-    // we do not want to use null values for sorting
-    if(s1 == null)
-    {
-      s1 = "";
+    result = subCompare(s1, s2);
+    
+    // If students have the same last name, then we need to compare their first name
+    if (result == 0 && propertyName.equals("lastName")) {
+    	String firstName1 = (String) m1.get("firstName");
+        String firstName2 = (String) m2.get("firstName");
+        result = subCompare(firstName1, firstName2);
     }
-
-    if(s2 == null)
-    {
-      s2 = "";
-    }
-
-    // Deal with n/a case
-    if (s1.toLowerCase().startsWith("n/a")
-        && !s2.toLowerCase().startsWith("n/a"))
-      return 1;
-
-    if (s2.toLowerCase().startsWith("n/a") &&
-        !s1.toLowerCase().startsWith("n/a"))
-      return -1;
-
     // Take out tags
-    return s1.replaceAll("<.*?>", "").toLowerCase().compareTo
-      (s2.replaceAll("<.*?>", "").toLowerCase());
+    return result;
   }
+  
+  private int subCompare(String s1, String s2)
+  {
+	  //we do not want to use null values for sorting
+	  if(s1 == null)
+	  {
+		  s1 = "";
+	  }
 
+	  if(s2 == null)
+	  {
+		  s2 = "";
+	  }
+
+	  // Deal with n/a case
+	  if (s1.toLowerCase().startsWith("n/a")
+			  && !s2.toLowerCase().startsWith("n/a"))
+		  return 1;
+
+	  if (s2.toLowerCase().startsWith("n/a") &&
+			  !s1.toLowerCase().startsWith("n/a"))
+		  return -1;
+
+
+	  String finalS1 = s1.replaceAll("<.*?>", "");
+	  String finalS2 = s2.replaceAll("<.*?>", "");
+	  int result = finalS1.toLowerCase().compareTo(finalS2.toLowerCase());
+	  return result;
+  }
+  
   /**
    * protected utility method to wrap BeanUtils
    *
