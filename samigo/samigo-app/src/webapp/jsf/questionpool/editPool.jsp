@@ -200,7 +200,7 @@ var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
   </h:commandButton>
 
- <h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\">Processing...</span>"/>
+ <h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> #{deliveryMessages.processing}</span>"/>
  </div>
 
 </h:form>
