@@ -40,18 +40,24 @@
 			 ## select-all box
 			 <input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'uploadChoices')"  />
 			 <label for="selectall">$tlang.getString("all")</label><br/>
-				## student submission text
-				<input id="studentSubmissionText" type="checkbox" value="studentSubmissionText" name="uploadChoices" #if($!hasSubmissionText)checked="checked"#end />
-				<label for="studentSubmissionText">$tlang.getString("uploadall.choose.file.studentSubmissionText")</label><br/>
-				## student submission attachment
-				<input id="studentSubmissionAttachment" type="checkbox" value="studentSubmissionAttachment" name="uploadChoices" #if($!hasSubmissionAttachment)checked="checked"#end />
-				<label for="studentSubmissionAttachment">$tlang.getString("uploadall.choose.file.studentSubmissionAttachment")</label><br/>
+			 #if ($!includeSubmissionText)
+					## student submission text
+					<input id="studentSubmissionText" type="checkbox" value="studentSubmissionText" name="uploadChoices" #if($!hasSubmissionText)checked="checked"#end />
+					<label for="studentSubmissionText">$tlang.getString("uploadall.choose.file.studentSubmissionText")</label><br/>
+				#end
+				#if ($!includeSubmissionAttachment)
+					## student submission attachment
+					<input id="studentSubmissionAttachment" type="checkbox" value="studentSubmissionAttachment" name="uploadChoices" #if($!hasSubmissionAttachment)checked="checked"#end />
+					<label for="studentSubmissionAttachment">$tlang.getString("uploadall.choose.file.studentSubmissionAttachment")</label><br/>
+				#end
 				## grade files
 				<input id="gradeFile" type="checkbox" value="gradeFile" name="uploadChoices" #if($!hasGradeFile)checked="checked"#end />
 				<label for="gradeFile">$tlang.getString("uploadall.choose.file.gradeFile")</label><br/>
+				#if ($!includeSubmissionText)
 					## feedback text
-				<input id="feedbackTexts" type="checkbox" value="feedbackTexts" name="uploadChoices" #if($!hasFeedbackText)checked="checked"#end />
-				<label for="feedbackTexts">$tlang.getString("uploadall.choose.file.feedbackTexts")</label><br/>	
+					<input id="feedbackTexts" type="checkbox" value="feedbackTexts" name="uploadChoices" #if($!hasFeedbackText)checked="checked"#end />
+					<label for="feedbackTexts">$tlang.getString("uploadall.choose.file.feedbackTexts")</label><br/>	
+				#end
 			 ## feedback comments
 				<input id="feedbackComments" type="checkbox" value="feedbackComments" name="uploadChoices" #if($!hasComments)checked="checked"#end />
 				<label for="feedbackComments">$tlang.getString("uploadall.choose.file.feedbackComments")</label><br/>	

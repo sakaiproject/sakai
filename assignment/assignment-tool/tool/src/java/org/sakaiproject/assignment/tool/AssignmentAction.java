@@ -2831,6 +2831,27 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("accessPointUrl", (ServerConfigurationService.getAccessUrl()).concat(AssignmentService.submissionsZipReference(
 				contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF))));
+		
+		try
+		{
+			Assignment a = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
+			
+			// if the assignment is of text-only or allow both text and attachment, include option for uploading student submit text
+			context.put("includeSubmissionText", Boolean.valueOf(Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission() || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission()));
+			
+			// if the assignment is of attachment-only or allow both text and attachment, include option for uploading student attachment
+			context.put("includeSubmissionAttachment", Boolean.valueOf(Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission() || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission()));
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, rb.getString("cannotfin3"));
+			M_log.warn(this + ":build_instructor_upload_all " + e.getMessage());
+		}
+		catch (PermissionException e)
+		{
+			addAlert(state, rb.getString("youarenot14"));
+			M_log.warn(this + ":build_instructor_upload_all " + e.getMessage());
+		}
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
