@@ -435,9 +435,9 @@ public class SiteAddParticipantHandler {
 					} // for
 
 					try {
-						authzGroupService.save(realmEdit);
 						// post event about adding participant
 						EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
+						authzGroupService.save(realmEdit);
 					} catch (GroupNotDefinedException ee) {
 						targettedMessageList.addMessage(new TargettedMessage("java.realm",new Object[] { realmId }, TargettedMessage.SEVERITY_INFO));
 						M_log.warn(this + ".addUsersRealm: cannot find realm for" + realmId);
