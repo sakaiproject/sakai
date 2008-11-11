@@ -12,15 +12,13 @@
 	<form wicket:id="form" class="profileForm">
 	
 		<!--  this should be a component -->
-		<div class="closeButton">
-			<img src="/library/image/silk/cross.png"/>
-		</div>
+		<div wicket:id="closeButton">X</div>
 		
 		<div wicket:id="feedback">feedback goes here</div>
 	
 		<p wicket:id="textSelectImage" class="small">Select an image</p>
 	
-		<p><input type="file" wicket:id="picture" size="5"/></p>
+		<p><input type="file" wicket:id="picture" size="15"/></p>
 				
 		<p><input type="submit" wicket:id="submit" value="Upload" />&nbsp;&nbsp;<img wicket:id="indicator" src="" /></p>
 		

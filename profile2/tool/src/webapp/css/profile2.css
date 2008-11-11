@@ -53,6 +53,39 @@
 	background-repeat: no-repeat;
 	background-position: 4px center;
 	background-image: url("/library/image/silk/picture_edit.png");
+	border-top: thin solid #09c;
+	border-right: thin solid #09c;
+	border-bottom: thin solid #09c;
+	border-left: thin solid #09c;
+}
+
+.editImageButton:hover {
+	background-color: #ffff77;
+}
+
+
+.editButton {
+	float:right;
+	clear: none;
+	display:block;
+	text-decoration: none;
+	font-size: x-small;
+	padding-left: 24px;
+	padding-bottom: 4px;
+	padding-top: 4px; 
+	padding-right: 2px;
+	margin-top: 0;
+	margin-right: 10px;
+	background-repeat: no-repeat;
+	background-position: 4px center;
+	background-image: url("/library/image/silk/pencil.png");
+	border-left: thin solid #09c;
+	border-right: thin solid #09c;
+	border-bottom: thin solid #09c;
+}
+
+.editButton:hover {
+	background-color: #ffff77;
 }
 
 /* when component is created, this should go in there and have a unique class name */
@@ -181,29 +214,7 @@
 	padding-top: 5px;
 }
 
-.editButton {
-	float:right;
-	clear: none;
-	text-decoration: none;
-	font-size: x-small;
-	padding-left: 24px;
-	padding-bottom: 6px;
-	padding-top: 4px; 
-	padding-right: 4px;
-	margin-top: 0;
-	margin-right: 10px;
-	background-repeat: no-repeat;
-	background-position: 4px center;
-	background-image: url("/library/image/silk/pencil.png");
-	border-left: thin solid #09c;
-	border-right: thin solid #09c;
-	border-bottom: thin solid #09c;
-}
 
-.editButton:hover {
-	background-color: #ffff77;
-	display:block;
-}
 
 
 /* profile information sections */

@@ -13,6 +13,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
+import uk.ac.lancs.e_science.profile2.tool.components.CloseButton;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.views.TestPanel;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.views.TestPanel2;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.views.TestPanelFullReplace1;
@@ -110,6 +111,9 @@ public class TestData extends BasePage {
 		
 		
 		add(form);
+		
+		
+		add(new CloseButton("closeButton"));
 
 	}
 	

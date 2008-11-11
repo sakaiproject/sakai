@@ -119,9 +119,9 @@ public class MyProfile extends BasePage {
 				
 				//add the full changePicture component to the page dynamically
 				target.addComponent(changePicture);
+				String js2 = "$('#" + changePicture.getMarkupId() + "').fadeIn();";
+				target.appendJavascript(js2);
 				changePicture.setVisible(true);
-				String js = "$('#" + changePicture.getMarkupId() + "').fadeIn('slow');";
-				target.appendJavascript(js);
 
 				
 				//when the editImageButton is clicked, show the panel
