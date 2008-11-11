@@ -49,6 +49,7 @@
         <module>archive/archive-api/api</module>
         <module>archive/import-api</module>
         <module>authz</module>
+        <module>config</module>
         <module>content</module>
         <module>courier</module>
         <module>course-management/cm-api/api</module>
@@ -82,6 +83,7 @@
         <module>authz/authz-api/api</module>
         <module>authz/authz-impl/impl</module>
         <module>authz/authz-impl/pack</module>
+        <module>config</module>
         <module>content/content-api/api</module>
         <module>content/content-impl/impl</module>
         <module>content/content-impl/pack</module>
@@ -146,6 +148,7 @@
         <module>calendar</module>
         <module>chat</module>
         <module>citations</module>
+        <module>config</module>
         <module>content</module>
         <module>content-review</module>
         <module>courier</module>
