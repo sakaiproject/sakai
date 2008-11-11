@@ -41,6 +41,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.BasicAuth;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 /**
@@ -211,14 +212,18 @@ public class DirectServlet extends HttpServlet {
 
       // set the return path for after login if needed
       // (Note: in session, not tool session, special for Login helper)
+      boolean helperURLSet = false;
       if (path != null) {
           // defines where to go after login succeeds
-          String returnURL = Web.returnUrl(req, path);
-          session.setAttribute(Tool.HELPER_DONE_URL, returnURL);
+          helperURLSet = true;
+          String returnURL = Web.returnUrl( req, path );
+          String escapedReturnURL = Validator.escapeUrl( returnURL );
+          log.info("Direct Login: Setting session ("+session.getId()+") helper URL ("+Tool.HELPER_DONE_URL+") to "+returnURL+" ("+escapedReturnURL+")");
+          session.setAttribute(Tool.HELPER_DONE_URL, escapedReturnURL);
       }
 
       // check that we have a return path set; might have been done earlier
-      if (session.getAttribute(Tool.HELPER_DONE_URL) == null) {
+      if (! helperURLSet && session.getAttribute(Tool.HELPER_DONE_URL) == null) {
           session.setAttribute(Tool.HELPER_DONE_URL, "/direct/describe");
           log.warn("doLogin - no HELPER_DONE_URL found, proceeding with default HELPER_DONE_URL: " + "/direct/describe");
       }

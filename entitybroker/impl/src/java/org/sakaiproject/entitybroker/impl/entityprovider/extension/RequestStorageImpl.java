@@ -143,16 +143,17 @@ public class RequestStorageImpl implements RequestStorage {
      */
     public void reset() {
         getInternalMap().clear();
-        HttpServletRequest request = requestGetter.getRequest();
-        if (request != null) {
-            Enumeration<String> aEnum = request.getAttributeNames();
-            if (aEnum != null) {
-                for (Enumeration<String> e = aEnum ; e.hasMoreElements() ;) {
-                    String key = e.nextElement();
-                    request.removeAttribute(key);
-                }
-            }
-        }
+        // do not clear the attribute values from the request -AZ
+//        HttpServletRequest request = requestGetter.getRequest();
+//        if (request != null) {
+//            Enumeration<String> aEnum = request.getAttributeNames();
+//            if (aEnum != null) {
+//                for (Enumeration<String> e = aEnum ; e.hasMoreElements() ;) {
+//                    String key = e.nextElement();
+//                    request.removeAttribute(key);
+//                }
+//            }
+//        }
     }
 
     /**

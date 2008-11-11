@@ -303,13 +303,17 @@ public class TemplateParseUtil {
       String extension = null;
       if (input != null) {
          int extensionLoc = input.lastIndexOf(PERIOD, input.length());
-         int sepLoc = input.lastIndexOf(SEPARATOR, input.length());
-         if (extensionLoc > 0 
-                 && sepLoc < extensionLoc) {
-            stripped = input.substring(0, extensionLoc);
-            if ( (input.length() - 1) > extensionLoc) {
-               extension = input.substring(extensionLoc + 1);
-            }
+         if (extensionLoc == 0) {
+             // starts with a period so no extension, do nothing
+         } else {
+             int sepLoc = input.lastIndexOf(SEPARATOR, input.length());
+             if (extensionLoc > 0 
+                     && sepLoc < extensionLoc) {
+                stripped = input.substring(0, extensionLoc);
+                if ( (input.length() - 1) > extensionLoc) {
+                   extension = input.substring(extensionLoc + 1);
+                }
+             }
          }
       }
       return new String[] {input, stripped, extension};
