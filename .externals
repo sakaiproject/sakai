@@ -8,6 +8,7 @@ blog			https://source.sakaiproject.org/svn/blog/trunk
 calendar		https://source.sakaiproject.org/svn/calendar/trunk
 chat			https://source.sakaiproject.org/svn/chat/trunk
 citations		https://source.sakaiproject.org/svn/citations/trunk
+config			https://source.sakaiproject.org/svn/config/trunk
 content			https://source.sakaiproject.org/svn/content/trunk
 content-review		https://source.sakaiproject.org/svn/content-review/trunk
 courier			https://source.sakaiproject.org/svn/courier/trunk
