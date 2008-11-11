@@ -1,8 +1,7 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
-import java.util.ResourceBundle;
-
 import org.apache.log4j.Logger;
+import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -21,6 +20,9 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.components.CloseButton;
+import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehavior;
+import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
 
@@ -130,9 +132,19 @@ public class ChangeProfilePicture extends Panel{
 		FeedbackPanel feedback = new FeedbackPanel("feedback");
 		form.add(feedback);
 		
+		// filteredErrorLevels will not be shown in the FeedbackPanel
+        int[] filteredErrorLevels = new int[]{FeedbackMessage.ERROR};
+        feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(filteredErrorLevels));
+		
 		//upload
 		uploadField = new FileUploadField("picture");
 		form.add(uploadField);
+		
+		//file feedback will be redirected here
+        final FeedbackLabel fileFeedback = new FeedbackLabel("fileFeedback", form);
+        fileFeedback.setOutputMarkupId(true);
+        uploadField.add(new ComponentVisualErrorBehavior("onblur", fileFeedback));
+        form.add(fileFeedback);
 		
 		//submit button
 		Button submitButton = new Button("submit", new ResourceModel("button.upload"));

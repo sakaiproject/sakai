@@ -16,12 +16,13 @@
 package uk.ac.lancs.e_science.profile2.tool.components;
 
 
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.Component;
-import org.apache.wicket.AttributeModifier;
 
 /**
  * Label displaying feedback messages for FormComponents.
@@ -33,11 +34,16 @@ import org.apache.wicket.AttributeModifier;
  * 
  * Tested with Wicket 1.3.4
  * @author Daan, StuQ.nl
+ * @author Steve Swinsburg, s.swinsburg@lancaster.ac.uk
  */
 public class FeedbackLabel extends Label {
 
-    /** Field component holds a reference to the {@link Component} this FeedbackLabel belongs to */
-    private FormComponent component;
+    /** Field component holds a reference to the {@link Component} this FeedbackLabel belongs to 
+     * Generally this is a FormComponent like a TextField, but can also be the Form itself. 
+     * Using the form itself is useful for collecting errors that come from the Form and not from a FormComponent,
+     * like upload too large etc. */
+    private Component component = null;
+    
     /** Field text holds a model of the text to be shown in the FeedbackLabel */
     private IModel text = null;
 
@@ -46,18 +52,18 @@ public class FeedbackLabel extends Label {
      * @param id The non-null id of this component
      * @param component The {@link FormComponent} to show the FeedbackMessage for.
      */
-    public FeedbackLabel(String id, FormComponent component) {
+    public FeedbackLabel(String id, Component component) {
         super(id);
         this.component = component;
     }
-
+    
     /**
      * Call this constructor if you want to display a custom text
      * @param id The non-null id of this component
      * @param component The {@link FormComponent} to show the custom text for.
      * @param text The custom text to show when the FormComponent has a FeedbackMessage
      */
-    public FeedbackLabel(String id, FormComponent component, String text) {
+    public FeedbackLabel(String id, Component component, String text) {
         this(id, component, new Model(text));
     }
 
@@ -67,7 +73,7 @@ public class FeedbackLabel extends Label {
      * @param component The {@link FormComponent} to show the custom model for.
      * @param iModel The custom model to show when the {@link FormComponent} has a FeedbackMessage
      */
-    public FeedbackLabel(String id, FormComponent component, IModel iModel) {
+    public FeedbackLabel(String id, Component component, IModel iModel) {
         super(id);
         this.component = component;
         this.text=iModel;
@@ -103,5 +109,6 @@ public class FeedbackLabel extends Label {
         } else {
             this.setModel(null);
         }
+      
     }
 }

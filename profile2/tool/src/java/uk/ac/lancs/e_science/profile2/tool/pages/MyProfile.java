@@ -119,7 +119,7 @@ public class MyProfile extends BasePage {
 				
 				//add the full changePicture component to the page dynamically
 				target.addComponent(changePicture);
-				String js2 = "$('#" + changePicture.getMarkupId() + "').fadeIn();";
+				String js2 = "$('#" + changePicture.getMarkupId() + "').fadeIn();"; //this isn't firing in the right order
 				target.appendJavascript(js2);
 				changePicture.setVisible(true);
 

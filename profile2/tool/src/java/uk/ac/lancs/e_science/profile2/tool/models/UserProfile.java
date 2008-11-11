@@ -130,12 +130,20 @@ public class UserProfile implements Serializable {
 	
 	/* for the form feedback, to get around a bug */
 	private String emailFeedback;
+	private String fileFeedback;
 
 	public String getEmailFeedback() {
 		return emailFeedback;
 	}
 	public void setEmailFeedback(String emailFeedback) {
 		this.emailFeedback = emailFeedback;
+	}
+	
+	public String getFileFeedback() {
+		return fileFeedback;
+	}
+	public void setFileFeedback(String fileFeedback) {
+		this.fileFeedback = fileFeedback;
 	}
 	
 	
