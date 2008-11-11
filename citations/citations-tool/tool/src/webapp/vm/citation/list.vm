@@ -72,6 +72,12 @@
 				  />
 				#end
 				
+				<input type="button" name="AddCitations" id="AddCitations"
+				  value="$tlang.getString("label.menu")"
+				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
+				/>
+
+<!--
 				<input type="button" name="SearchCitations" id="SearchCitations"
 				  value="Search for Citations"
 				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
@@ -86,6 +92,7 @@
 				  value="$tlang.getString("addAction.create")"
 				  onclick="document.getElementById('sakai_action').value='doCreate';submitform('$FORM_NAME');"
 				/>
+-->
 
 				#if( $resourcesAddAction )
 				<input type="button" name="Cancel" id="Cancel"
@@ -117,6 +124,12 @@
 				  />
 				#end
 				
+				<input type="button" name="AddCitations" id="AddCitations"
+				  value="$tlang.getString("label.menu")"
+				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
+				/>
+
+<!--
 				<input type="button" name="SearchCitations" id="SearchCitations"
 				  value="Search for Citations"
 				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
@@ -131,6 +144,7 @@
 				  value="$tlang.getString("addAction.create")"
 				  onclick="document.getElementById('sakai_action').value='doCreate';submitform('$FORM_NAME');"
 				/>
+-->
 
 				#if( $resourcesAddAction )
 				<input type="button" name="Cancel" id="Cancel"
