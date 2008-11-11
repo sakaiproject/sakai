@@ -182,8 +182,12 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		buf.append(" " + ServerConfigurationService.getString("ui.service", "Sakai"));
 		buf.append(" (<a href=\"");
 		buf.append(ServerConfigurationService.getPortalUrl());
+		buf.append("/site/");
+		buf.append(siteId);
 		buf.append("\">");
 		buf.append(ServerConfigurationService.getPortalUrl());
+		buf.append("/site/");
+		buf.append(siteId);
 		buf.append("</a>)");
 		buf.append(newline);
 		buf.append(newline);
