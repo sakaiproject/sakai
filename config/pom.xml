@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>2.6.0RC1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<name>Sakai Config Project</name>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>config</artifactId>
+	<packaging>pom</packaging>
+	<description>The Config project is home to Sakai configuration files, including 
+	several versions of sakai.properties, a text file containing a series of key/value pairs 
+	that provide a convenient mechanism for defining a variety of configuration options for 
+	Sakai tools, services, supporting database and UI-related text such as copyright statement, 
+	institutional name, server name, etc.  Settings in sakai.properties are read on startup; thus 
+	changes to sakai.properties only take effect after you restart Sakai's servlet 
+	container (typically Apache Tomcat).</description>
+	<developers>
+        <developer>
+            <id>arwhyte</id>
+            <name>Anthony Whyte</name>
+            <email>arwhyte@sakaifoundation.org</email>
+            <url>http://confluence.sakaiproject.org/confluence/display/~arwhyte</url>
+            <organization>Sakai Foundation</organization>
+            <organizationUrl>http://www.sakaiproject.org</organizationUrl>
+            <roles>    
+                <role>Developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
+	<scm>
+		<connection>scm:svn:https://source.sakaiproject.org/svn/config/trunk</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/config/trunk</developerConnection>
+		<url>https://source.sakaiproject.org/svn/config/trunk</url>
+	</scm>
+	<modules>
+		<module>config-bundles</module>
+	</modules>
+</project>
