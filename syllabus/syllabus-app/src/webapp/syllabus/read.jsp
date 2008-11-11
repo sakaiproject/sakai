@@ -39,8 +39,8 @@
 			</p>	
 			<div class="checkbox">
 				<h:selectOneRadio value="#{SyllabusTool.entry.entry.view}"  layout="pageDirection" title="#{msgs.publicPrivate}">
-					<f:selectItem itemValue="yes" itemLabel="#{msgs.yesPublic}"/>
 					<f:selectItem itemValue="no" itemLabel="#{msgs.noPrivate}"/>
+					<f:selectItem itemValue="yes" itemLabel="#{msgs.yesPublic}"/>
 				</h:selectOneRadio>
 			</div>
 			<h4>
