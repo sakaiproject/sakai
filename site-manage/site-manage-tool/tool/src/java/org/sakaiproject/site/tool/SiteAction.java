@@ -6846,19 +6846,6 @@ public class SiteAction extends PagedResourceActionII {
 					state.setAttribute(STATE_IMPORT_SITES, sites);
 				}
 				
-				// validate the alias
-				if (StringUtil.trimToNull(siteInfo.url_alias) != null &&
-						!siteInfo.url_alias.equals(NULL_STRING)) {
-					try {
-						AliasService.getTarget(siteInfo.url_alias);
-						addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias
-								+ " " + rb.getString("java.exists"));
-						state.setAttribute(STATE_TEMPLATE_INDEX, "2");
-						return;
-					} catch (IdUnusedException e) {
-						// Do nothing. We want the alias to be unused.
-					}
-				}
 			}
 			break;
 		case 29:
@@ -7761,25 +7748,27 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo.site_contact_email = email;
 		}
 
-		String alias = params.getString("url_alias");
-		if (alias != null) {
-			try
-			{
-				alias =  java.net.URLEncoder.encode(params.getString("url_alias"), "UTF-8");
-				siteInfo.url_alias = alias;
+		if (params.getString("url_alias") != null) {
+			siteInfo.url_alias = params.getString("url_alias");
+			// The point of these site aliases is to have easy-to-recall,
+			// easy-to-guess URLs. So we take a very conservative approach
+			// here and disallow any aliases which would require special 
+			// encoding or would simply be ignored when building a valid 
+			// resource reference or outputting that reference as a URL.
+			boolean isSimpleResourceName = siteInfo.url_alias.equals(Validator.escapeResourceName(siteInfo.url_alias));
+			boolean isSimpleUrl = siteInfo.url_alias.equals(Validator.escapeUrl(siteInfo.url_alias));
+			if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
+				addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias + " " + rb.getString("java.isinval"));
+				M_log.warn(this + ".updateSiteInfo: " + rb.getString("java.alias") + " " + siteInfo.url_alias + " " + rb.getString("java.isinval"));
+			} else {
 				try {
-					AliasService.getTarget(alias);
-					// the alias has been used
-					addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
-				} catch (IdUnusedException ee) {
-					// wanted situation: the alias has not been used
+					AliasService.getTarget(siteInfo.url_alias);
+					addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias
+							+ " " + rb.getString("java.exists"));
+				} catch (IdUnusedException e) {
+					// Do nothing. We want the alias to be unused.
 				}
-			} catch (java.io.UnsupportedEncodingException e)
-			{
-				// log exception
-				M_log.warn( this + " error of encoding url alias " + alias );
 			}
-			 
 		}
 		
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
@@ -8744,17 +8733,15 @@ public class SiteAction extends PagedResourceActionII {
 					String siteReference = site.getReference();
 					try {
 						AliasService.setAlias(alias, siteReference);
-						// In case of failure, return to the confirmation page
-						// with an error and undo the site creation we've done so far
 					} catch (IdUsedException ee) {
-						addAlert(state, rb.getString("java.alias") + " " + alias
-								+ " " + rb.getString("java.exists"));
+						addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
+						M_log.warn(this + ".addNewSite: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
 					} catch (IdInvalidException ee) {
-						addAlert(state, rb.getString("java.alias") + " " + alias
-								+ " " + rb.getString("java.isinval"));
+						addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"));
+						M_log.warn(this + ".addNewSite: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"));	
 					} catch (PermissionException ee) {
-						M_log.warn(SessionManager.getCurrentSessionUserId()
-								+ " does not have permission to add alias. ");
+						addAlert(state, SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
+						M_log.warn(this + ".addNewSite: " + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
 					}
 				}
 
