@@ -884,7 +884,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public String buildListPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
-		state.setAttribute("fromListPage", true);
+//		state.setAttribute("fromListPage", true);
 		
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
