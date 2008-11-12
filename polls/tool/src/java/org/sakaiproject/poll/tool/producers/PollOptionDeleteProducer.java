@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 
-public class PollOptionDeleteProducer implements ViewComponentProducer, ActionResultInterceptor,ViewParamsReporter{
+public class PollOptionDeleteProducer implements ViewComponentProducer, ActionResultInterceptor,ViewParamsReporter {
 //,
 	public static final String VIEW_ID = "pollOptionDelete";
 	private static Log m_log = LogFactory.getLog(PollOptionDeleteProducer.class);
@@ -152,8 +152,28 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 			  m_log.debug("return is poll: " + poll.getPollId());
 			  result.resultingView = new PollViewParameters(AddPollProducer.VIEW_ID,poll.getPollId().toString());
 		  }
+		  
+		  if (result.resultingView instanceof OptionViewParameters) {
+				OptionViewParameters optvp = (OptionViewParameters) result.resultingView;
+				
+				String retVal = (String) actionReturn;
+				
+				String viewId = AddPollProducer.VIEW_ID;
+				
+				if (optvp.pollId != null) {
+					
+					if (! "option".equals(retVal)) {
+						result.resultingView = new PollViewParameters(viewId, optvp.pollId);
+					} else {
+						m_log.debug("New option for poll: " + optvp.pollId);
+						result.resultingView = new OptionViewParameters(this.VIEW_ID, optvp.id , optvp.pollId);
+					}
+
+				} else {
+					Option option = pollListManager.getOptionById(Long.valueOf(optvp.id));
+					result.resultingView = new PollViewParameters(viewId, option.getPollId().toString());
+				}
+			}
 
 	  }
-
-
 }
