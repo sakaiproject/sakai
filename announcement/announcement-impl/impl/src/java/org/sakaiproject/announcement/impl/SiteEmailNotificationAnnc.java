@@ -23,42 +23,40 @@ package org.sakaiproject.announcement.impl;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
-import org.sakaiproject.event.api.NotificationAction;
+import org.sakaiproject.event.api.NotificationEdit;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.SiteEmailNotification;
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SiteEmailNotification;
+
 
 /**
  * <p>
@@ -239,9 +237,9 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 
 		// set the subject
 		rv.add("Subject: " + getSubject(event));
-
+		
 		// from
-		rv.add(getFrom(event));
+		rv.add(getFromAddress(event));
 
 		// to
 		rv.add(getTo(event));
@@ -297,6 +295,48 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 
 		// use the message's subject
 		return "[ " + title + " - " + rb.getString("Announcement") + " ]   " + hdr.getSubject();
+	}
+	
+	/**
+	 * Format the announcement notification from address.
+	 * 
+	 * @param event
+	 *        The event that matched criteria to cause the notification.
+	 * @return the announcement notification from address.
+	 */
+	protected String getFromAddress(Event event)
+	{
+		String userEmail = "no-reply@" + ServerConfigurationService.getServerName();
+		String userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
+		String no_reply= "From: \"" + userDisplay + "\" <" + userEmail + ">";
+		String from= getFrom(event);
+		// get the message
+		Reference ref = EntityManager.newReference(event.getResource());
+		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
+		String userId=msg.getAnnouncementHeader().getFrom().getDisplayId();
+
+		//checks if "from" email id has to be included? and whether the notification is a delayed notification?. SAK-13512
+		if ((ServerConfigurationService.getString("emailFromReplyable@org.sakaiproject.event.api.NotificationService").equals("true")) && from.equals(no_reply) && userId !=null){
+						
+				try
+				{
+					User u = UserDirectoryService.getUser(userId);
+					userDisplay = u.getDisplayName();
+					userEmail = u.getEmail();
+					if ((userEmail != null) && (userEmail.trim().length()) == 0) userEmail = null;
+					
+				}
+				catch (UserNotDefinedException e)
+				{
+				}
+				
+				// some fallback positions
+				if (userEmail == null) userEmail = "no-reply@" + ServerConfigurationService.getServerName();
+				if (userDisplay == null) userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
+				from="From: \"" + userDisplay + "\" <" + userEmail + ">";
+		}
+		
+		return from;
 	}
 
 	/**
