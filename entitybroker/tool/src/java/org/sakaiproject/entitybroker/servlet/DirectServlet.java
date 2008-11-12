@@ -216,10 +216,9 @@ public class DirectServlet extends HttpServlet {
       if (path != null) {
           // defines where to go after login succeeds
           helperURLSet = true;
-          String returnURL = Web.returnUrl( req, path );
-          String escapedReturnURL = Validator.escapeUrl( returnURL );
-          log.info("Direct Login: Setting session ("+session.getId()+") helper URL ("+Tool.HELPER_DONE_URL+") to "+returnURL+" ("+escapedReturnURL+")");
-          session.setAttribute(Tool.HELPER_DONE_URL, escapedReturnURL);
+          String returnURL = Web.returnUrl( req, Validator.escapeUrl(path) );
+          log.info("Direct Login: Setting session ("+session.getId()+") helper URL ("+Tool.HELPER_DONE_URL+") to "+returnURL);
+          session.setAttribute(Tool.HELPER_DONE_URL, returnURL);
       }
 
       // check that we have a return path set; might have been done earlier
