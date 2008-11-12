@@ -236,7 +236,7 @@
             <dependency>
                 <groupId>org.azeckoski</groupId>
                 <artifactId>reflectutils</artifactId>
-                <version>0.9.7</version>
+                <version>0.9.9</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -306,7 +306,7 @@ public class EntityDescriptionManager {
                         sb.append("        <customAction>\n");
                         sb.append("          <action>"+customAction.action+"</action>\n");
                         sb.append("          <url>"+directUrl+makeActionURL(ev, customAction)+"</url>\n");
-                        if (customAction.viewKey == null) {
+                        if (customAction.viewKey == null || "".equals(customAction.viewKey)) {
                             sb.append("          <method/>\n");
                             sb.append("          <viewKey/>\n");
                         } else {
@@ -789,7 +789,11 @@ public class EntityDescriptionManager {
      * @return a URL for triggering the custom action (without http://server/direct)
      */
     protected String makeActionURL(EntityView ev, CustomAction customAction) {
-        String URL = ev.getEntityURL(customAction.viewKey, null) + EntityView.SEPARATOR + customAction.action;
+        String viewKey = customAction.viewKey;
+        if (viewKey == null || "".equals(viewKey)) {
+            viewKey = EntityView.VIEW_LIST; // default to simplest example
+        }
+        String URL = ev.getEntityURL(viewKey, null) + EntityView.SEPARATOR + customAction.action;
         return URL;
     }
 
@@ -800,7 +804,7 @@ public class EntityDescriptionManager {
      */
     protected String makeCustomActionKeyMethodText(CustomAction customAction) {
         String togo = "*";
-        if (customAction.viewKey != null) {
+        if (customAction.viewKey != null && ! "".equals(customAction.viewKey)) {
             togo = customAction.viewKey+" ("+EntityView.translateViewKeyToMethod(customAction.viewKey)+")";
         }
         return togo;

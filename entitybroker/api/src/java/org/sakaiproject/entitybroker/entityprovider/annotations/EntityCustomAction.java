@@ -42,7 +42,8 @@ import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
  * this should not be placed on any methods defined by a capability but should be placed on methods
  * which you want to be exposed as custom actions<br/>
  * By default the name of the method is used as the action key and this will work for read requests 
- * ({@link EntityView#VIEW_SHOW}), you can add in action and viewKey annotation params to change those settings<br/>
+ * (viewKey is set to {@link EntityView#VIEW_SHOW}), 
+ * you can add in action and viewKey annotation params to change those settings<br/>
  * You can describe this action using the key: <prefix>.action.<actionKey> = description<br/>
  * The methods annotated by this can have the following argument (parameter) types: <br/>
  * (type => data which will be given to the method) <br/>
@@ -87,12 +88,14 @@ public @interface EntityCustomAction {
      */
     String action() default "";
     /**
-     * (optional) Must match one of the VIEW constants from {@link EntityView} <br/>
+     * (optional) Must match one of the VIEW constants from {@link EntityView},
+     * if not set this will default to {@link EntityView#VIEW_SHOW} <br/>
      * The view type which this action works with (i.e. allowed to trigger the action), this
      * roughly translates to the GET/POST/PUT/DELETE in http<br/>
      * e.g. GET /user/action would be {@link EntityView#VIEW_LIST}
      * while POST /user/aaronz/action would be {@link EntityView#VIEW_NEW},
-     * can be null or '' (empty string) to match all viewkeys (i.e. to allow this action
+     * can be null or "" (empty string, for annotations you must use this since null is not a constant) 
+     * to match all viewkeys (i.e. to allow this action
      * from any http method type and on collections and entities) <br/>
      * @return the view key constant from {@link EntityView}
      */
