@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+    <head>        
+        <wicket:head></wicket:head>
+    </head>
+	<body>
+		<wicket:extend>
+		    <script type="text/javascript">
+		    jQuery(document).ready(function() {
+		    	checkWhatSelection();
+		    	checkWhenSelection();
+                checkWhoSelection();
+		    });
+		    </script>
+		
+            <!-- Menu -->
+            <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
+		
+            <!-- Page title -->
+            <h2>
+                <wicket:message key="menu_reports">[menu_reports]</wicket:message>
+                <span wicket:id="site">:&nbsp;<span wicket:id="siteTitle">[siteTitle]</span></span>
+            </h2>
+            
+		    <!-- Last Job run -->
+            <span wicket:id="lastJobRun"></span>
+		    
+		    <form wicket:id="reportsForm">
+		        <!-- Feedback panel (messages) -->
+		        <span wicket:id="messages"></span>
+		        
+                <div style="width:100%">
+                
+                    <!-- WHAT? -->
+		            <h4 class="summaryHeader">
+		                <img src="images/silk/icons/application_view_tile.png" border="0" alt="What?"/>
+		                <wicket:message key="report_what">[report_what]</wicket:message> 
+		            </h4>        
+		            <p class="instruction">
+		                <wicket:message key="report_what_instructions">[report_what_instructions]</wicket:message>
+		            </p>
+                    <span wicket:id="reportParams.what">
+			            <table class="sectionContainerNav" style="width:100%">
+				            <tbody>
+				                 <!-- Visits -->
+				                 <tr>
+				                     <td class="halfSize">
+				                        <input wicket:id="what-visits" type="radio" onclick="checkWhatSelection();" class="what-visits"/>
+				                        <wicket:message key="report_what_visits">[report_what_visits]</wicket:message>
+				                     </td>
+				                     <td class="halfSize"></td>
+				                 </tr>
+                                 <!-- Events -->
+                                 <tr>
+                                     <td class="halfSize">
+                                        <input wicket:id="what-events" type="radio" onclick="checkWhatSelection();" class="what-events"/>
+                                        <wicket:message key="report_what_events">[report_what_events]</wicket:message>
+                                        <br/>
+                                        <span wicket:id="reportParams.whatEventSelType">
+                                            <span id="what-events-by-selectionRadio" style="display:none">
+	                                            <!-- Events by tool -->
+	                                            <input wicket:id="what-events-bytool" type="radio" onclick="checkWhatSelection();" class="indnt2 what-events-bytool"/>
+	                                            <wicket:message key="report_what_events_bytool">[report_what_events_bytool]</wicket:message>
+	                                            <br/>
+	                                            <!-- Events by event -->
+	                                            <input wicket:id="what-events-byevent" type="radio" onclick="checkWhatSelection();" class="indnt2 what-events-byevent"/>
+	                                            <wicket:message key="report_what_events_byevent">[report_what_events_byevent]</wicket:message>
+	                                            (<span class="instruction"><wicket:message key="report_what_fine_grained_selection">[report_what_fine_grained_selection]</wicket:message></span>)
+                                            </span>
+                                        </span>
+                                     </td>
+                                     <td class="halfSize">
+                                        <span id="what-tools-select" style="display:none">
+	                                        <select wicket:id="reportParams.whatToolIds" style="width: 250px; overflow: auto;" size="7" multiple="multiple">
+	                                            <span wicket:id="selectOptionsRV1">
+	                                                <span wicket:id="selectOptions">
+	                                                    <option wicket:id="option"></option>
+	                                                </span>
+	                                           </span>
+	                                        </select>
+                                        </span>
+                                        <span id="what-events-select" style="display:none">
+	                                        <select wicket:id="reportParams.whatEventIds" style="width: 250px; overflow: auto;" size="7" multiple="multiple">
+	                                            <span wicket:id="selectOptionsRV2">
+	                                                <span wicket:id="group">
+			                                            <span wicket:id="selectOptions">
+			                                               <option wicket:id="option"></option>
+			                                            </span>
+		                                            </span>
+	                                           </span>
+	                                        </select>
+                                        </span>                                                                                
+                                     </td>
+                                 </tr>
+                                 <!-- Resources -->
+                                 <tr>
+                                     <td class="halfSize">
+                                        <input wicket:id="what-resources" type="radio" onclick="checkWhatSelection();" class="what-resources"/>
+                                        <wicket:message key="report_what_resources">[report_what_resources]</wicket:message>
+                                        <span id="what-resources-options" style="display:none">
+                                            <br/>
+                                            <input type="checkbox" wicket:id="reportParams.whatLimitedAction" class="indnt2 whatLimitedAction" onclick="checkWhatSelection();"/>
+                                            <wicket:message key="report_what_resource_action">[report_what_resource_action]</wicket:message>
+                                            <br/>
+                                            <input type="checkbox" wicket:id="reportParams.whatLimitedResourceIds" class="indnt2 whatLimitedResourceIds" onclick="checkWhatSelection();"/>
+                                            <wicket:message key="report_what_sel_resources">[report_what_sel_resources]</wicket:message>
+                                        </span>
+                                     </td>
+                                     <td class="halfSize">
+                                        <span id="what-resources-select" style="display: none">
+                                            <br/>
+                                            <select wicket:id="reportParams.whatResourceAction" onclick="checkWhatSelection();" class="whatResourceAction"/>
+                                            <br/>
+                                            <span wicket:id="reportParams.whatResourceIds" class="whatResourceIds" name="whatResourceIds"></span>
+                                        </span>
+                                     </td>
+                                 </tr>
+				            </tbody>
+	                        
+			            </table>
+                    </span>
+                
+                
+                    <!-- WHEN? -->
+                    <h4 class="summaryHeader">
+                        <img src="images/silk/icons/date.png" border="0" alt="When?"/>
+                        <wicket:message key="report_when">[report_when]</wicket:message> 
+                    </h4>        
+                    <p class="instruction">
+                        <wicket:message key="report_when_instructions">[report_when_instructions]</wicket:message>
+                    </p>
+                    <span wicket:id="reportParams.when">
+                        <table class="sectionContainerNav" style="width:100%">
+                            <tbody>
+                                 <tr>
+                                     <td class="halfSize">
+                                        <!-- All -->
+                                        <input wicket:id="when-all" type="radio" onclick="checkWhenSelection();" class="when-all"/>
+                                        <wicket:message key="report_when_all">[report_when_all]</wicket:message>
+                                     </td>
+                                     <td class="halfSize">
+                                        <!-- Last 7 days -->
+                                        <input wicket:id="when-last7days" type="radio" onclick="checkWhenSelection();" class="when-last7days"/>
+                                        <wicket:message key="report_when_last7days">[report_when_last7days]</wicket:message>
+                                     </td>
+                                 </tr>
+                                 <tr>
+                                     <td class="halfSize">
+                                        <!-- Custom -->
+                                        <input wicket:id="when-custom" type="radio" onclick="checkWhenSelection();" class="when-custom"/>
+                                        <wicket:message key="report_when_custom">[report_when_custom]</wicket:message>
+                                     </td>
+                                     <td class="halfSize">
+                                        <!-- Last 30 days -->
+                                        <input wicket:id="when-last30days" type="radio" onclick="checkWhenSelection();" class="when-last30days"/>
+                                        <wicket:message key="report_when_last30days">[report_when_last30days]</wicket:message>
+                                     </td>
+                                 </tr>
+                                 <tr id="when-customPanel" style="display:none">
+                                    <td colspan="2">
+                                        <div class="indnt2">
+	                                        <!-- Custom Panel -->
+	                                        <wicket:message key="report_when_from_date">[From:]</wicket:message>
+	                                        &nbsp;<span wicket:id="reportParams.whenFrom" />
+	                                        &nbsp;<wicket:message key="report_when_to_date">[To:]</wicket:message>
+	                                        &nbsp;<span wicket:id="reportParams.whenTo" />
+                                        </div>
+                                    </td>
+                                 </tr>
+                            </tbody>
+                        </table>
+                    </span>
+                
+                
+                    <!-- WHO? -->
+                    <h4 class="summaryHeader">
+                        <img src="images/silk/icons/user_suit.png" border="0" alt="Who?"/>
+                        <wicket:message key="report_who">[report_who]</wicket:message> 
+                    </h4>        
+                    <p class="instruction">
+                        <wicket:message key="report_who_instructions">[report_who_instructions]</wicket:message>
+                    </p>
+		            
+                    <span wicket:id="reportParams.who">
+                        <table class="sectionContainerNav" style="width:100%">
+                            <tbody>
+                                 <tr>
+                                     <!-- All -->
+                                     <td class="halfSize">
+                                        <input wicket:id="who-all" type="radio" onclick="checkWhoSelection();" class="who-all"/>
+                                        <wicket:message key="report_who_all">[report_who_all]</wicket:message>
+                                     </td>
+                                     <td class="halfSize">
+                                     </td>
+                                 </tr>
+                                 <tr>
+                                     <!-- Role -->
+                                     <td class="halfSize">
+                                        <input wicket:id="who-role" type="radio" onclick="checkWhoSelection();" class="who-role"/>
+                                        <wicket:message key="report_who_role">[report_who_role]</wicket:message>
+                                     </td>
+                                     <td class="halfSize">
+                                        <select wicket:id="reportParams.whoRoleId" class="who-role-select" style="display:none;"/>
+                                     </td>
+                                 </tr>
+                                 <tr wicket:id="who-groups-tr">
+                                     <!-- Groups -->
+                                     <td class="halfSize">
+                                        <input wicket:id="who-groups" type="radio" onclick="checkWhoSelection();" class="who-group"/>
+                                        <wicket:message key="report_who_group">[report_who_group]</wicket:message>
+                                     </td>
+                                     <td class="halfSize">
+                                        <select wicket:id="reportParams.whoGroupId" class="who-group-select" style="display:none;"/>
+                                     </td>
+                                 </tr>
+                                 <tr>
+                                     <!-- Custom -->
+                                     <td class="halfSize">
+                                        <input wicket:id="who-custom" type="radio" onclick="checkWhoSelection();" class="who-custom"/>
+                                        <wicket:message key="report_who_custom">[report_who_custom]</wicket:message>
+                                     </td>
+                                     <td class="halfSize">
+                                        <select wicket:id="reportParams.whoUserIds" style="width: 304x;" size="7" multiple="multiple" class="who-custom-select">
+                                            <span wicket:id="selectOptionsRV">
+                                                <span wicket:id="selectOptions">
+                                                    <option wicket:id="option"></option>
+                                                </span>
+                                            </span>
+                                        </select>
+                                     </td>
+                                 </tr>
+                                 <tr>
+                                     <!-- None -->
+                                     <td class="halfSize">
+                                        <input wicket:id="who-none" type="radio" onclick="checkWhoSelection();" class="who-none"/>
+                                        <wicket:message key="report_who_none">[report_who_none]</wicket:message>
+                                     </td>
+                                     <td class="halfSize">
+                                     </td>
+                                 </tr>
+                            </tbody>
+                        </table>
+                    </span>
+                </div>
+                
+                
+                <!-- BUTTONS -->
+                <p class="act">
+                    <input type="submit" wicket:id="generateReport" wicket:message="value:report_generate" class="active generateReport"/>
+                </p>
+		    </form>
+		</wicket:extend>
+	</body>
+</html>

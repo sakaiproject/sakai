@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+    <head>        
+        <wicket:head></wicket:head>
+    </head>
+    
+	<body>
+		<wicket:extend>
+		    <!-- Initial callback (determine chart size) -->
+            <script wicket:id="jsWicketChartSize" type="text/javascript">
+                function setWicketChartSize(callback) {  
+                    wicketAjaxGet(
+                            callback
+                            + '&width='+getChartWidth()
+                            + '&height='+getChartHeight()
+                            + '&maxwidth='+getMaximizedChartWidth()
+                            + '&maxheight='+getMaximizedChartHeight(), 
+                            function() {}, function() {});  
+                } 
+                function getChartWidth() {
+                    return (jQuery("#overview").width() - 10) / 2;
+                }
+                function getChartHeight() {
+                    return 200;
+                }
+                function getMaximizedChartWidth() {
+                    return jQuery("#overview").width();
+                }
+                function getMaximizedChartHeight() {
+                    return jQuery("#overview").width() / 2;
+                }
+            </script>
+            <script wicket:id="jsWicketChartSizeCall" type="text/javascript"></script>
+		
+		    <!-- Menu -->
+            <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
+		
+		    <!-- Page title -->
+            <h2>
+                <wicket:message key="menu_overview">[menu_overview]</wicket:message>
+                <span wicket:id="site">:&nbsp;<span wicket:id="siteTitle">[siteTitle]</span></span>
+            </h2>
+		    
+		    <!-- Last Job run -->
+		    <span wicket:id="lastJobRun"></span>
+		    
+		     <div id="overview" style="width: 100%">
+		        <!-- Visits -->
+		        <span wicket:id="visits">
+		            <span wicket:id="visitsPanel"></span>
+		        </span>
+		        
+		        <!-- Activity -->
+		        <span wicket:id="activity">
+		            <span wicket:id="activityPanel"></span>
+		        </span>
+		    </div>
+		    
+		</wicket:extend>
+	</body>
+</html>

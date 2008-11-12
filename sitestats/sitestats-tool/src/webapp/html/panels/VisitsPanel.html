@@ -1,0 +1,68 @@
+<html xmlns:wicket>
+<wicket:panel>
+    
+    <h4 class="summaryHeader">
+        <wicket:message key="overview_title_visits">[overview_title_visits]</wicket:message>
+    </h4>
+    
+    <table id="visitsTable" class="sectionContainerNav" style="width: 100%;">
+        <tbody>
+            <tr>
+                <td wicket:id="selectors" class="halfSize" style="width: 50%">
+                    <!-- Selectors -->
+                    <a wicket:id="lastWeekLink" class="selector"><wicket:message key="submenu_week">[last week]</wicket:message></a>
+                    <span wicket:id="lastWeekLabel" class="selector"><wicket:message key="submenu_week">[last week]</wicket:message></span>
+                    &nbsp;|&nbsp;
+                    <a wicket:id="lastMonthLink" class="selector"><wicket:message key="submenu_month">[last month]</wicket:message></a>
+                    <span wicket:id="lastMonthLabel" class="selector"><wicket:message key="submenu_month">[last month]</wicket:message></span>
+                    &nbsp;|&nbsp;
+                    <a wicket:id="lastYearLink" class="selector"><wicket:message key="submenu_year">[last year]</wicket:message></a>
+                    <span wicket:id="lastYearLabel" class="selector"><wicket:message key="submenu_year">[last year]</wicket:message></span>
+                </td>
+                <td class="halfSize" style="width: 50%"></td>
+            </tr>
+            <tr>
+                <td class="halfSize">
+                    <span wicket:id="visitsChart" style="display: block; height: 200px"></span>
+                </td>
+                <td class="halfSize">
+                        <span wicket:id="visitsTableContainer" class="visitsTableContainer" style="display: block; height: 200px"></span>
+                        <wicket:fragment wicket:id="visitsTableFragment">
+	                        <table wicket:id="visitsTableData" class="summaryTable visitsTableData" style="display: none;">
+	                            <tbody>
+	                                <tr>
+	                                    <td><label class="indnt0"><wicket:message key="overview_title_visits_sum">[visits]</wicket:message></label></td>
+	                                    <td></td>
+	                                </tr>
+	                                <tr>
+	                                    <td><label class="indnt1"><wicket:message key="overview_total_visits">[totalVisits]</wicket:message></label></td>
+	                                    <td><span wicket:id="totalVisits"></span></td>
+	                                </tr>
+	                                <tr>
+	                                    <td><label class="indnt1"><wicket:message key="overview_average">[avgVisits]</wicket:message></label></td>
+	                                    <td><span wicket:id="avgVisits"></span></td>
+	                                </tr>
+	                                <tr>
+	                                    <td><label class="indnt0"><wicket:message key="overview_title_unique_visits_sum">[Unique Visits]</wicket:message></label></td>
+	                                    <td></td>
+	                                </tr>
+	                                <tr>
+	                                    <td><label class="indnt1"><wicket:message key="overview_total_unique_visits">[totalUniqueVisits]</wicket:message></label></td>
+	                                    <td><span wicket:id="totalUniqueVisits"></span></td>
+	                                </tr>
+	                                <tr>
+	                                    <td><label class="indnt1"><wicket:message key="overview_unique_visits_total_users">[totalUniqueVisitsRel]</wicket:message></label></td>
+	                                    <td><span wicket:id="totalUniqueVisitsRel"></span></td>
+	                                </tr>
+	                            </tbody>
+	                        </table>
+	                        <script type="text/javascript"> jQuery('.visitsTableData').fadeIn(); </script>
+                        </wicket:fragment>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+  
+</wicket:panel>
+</html>
+  

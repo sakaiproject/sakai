@@ -147,6 +147,54 @@ public interface StatsManager {
 	public List<CommonStatGrpByDate> getEventStatsGrpByDate(String siteId, List<String> events, Date iDate, Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page);
 
 	/**
+	 * Get event statistics grouped by user, site, event and date
+	 * @param siteId The site ID
+	 * @param events List of events to get statistics for
+	 * @param iDate The initial date
+	 * @param fDate The final date 
+	 * @param userIds The list of user Ids
+	 * @param inverseUserSelection match users not in userIds list
+	 * @param page The PagePosition subset of items to return
+	 * @param sortBy Columns to sort by
+	 * @param sortAscending Sort ascending?
+	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
+	 */
+	public List<CommonStatGrpByDate> getEventStats(
+			final String siteId,
+			final List<String> events, 
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final String groupBy,
+			final String sortBy, 
+			final boolean sortAscending);
+	
+	/**
+	 * Get row count for event statistics grouped by user, site, event and date
+	 * @param siteId The site ID
+	 * @param events List of events to get statistics for
+	 * @param iDate The initial date
+	 * @param fDate The final date 
+	 * @param userIds The list of user Ids
+	 * @param inverseUserSelection match users not in userIds list
+	 * @param page The PagePosition subset of items to return
+	 * @param sortBy Columns to sort by
+	 * @param sortAscending Sort ascending?
+	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
+	 */
+	public int getEventStatsRowCount(
+			final String siteId,
+			final List<String> events, 
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final String groupBy,
+			final String sortBy, 
+			final boolean sortAscending);
+	
+	/**
 	 * Count event statistics grouped by user, site, event and date
 	 * @param siteId The site ID
 	 * @param events List of events to get statistics for
@@ -190,14 +238,54 @@ public interface StatsManager {
 	public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(String siteId, String resourceAction, List<String> resourceIds, Date iDate, final Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page);
 	
 	/**
-	 * Count resource statistics grouped by user, site, resource and date
+	 * Get event statistics grouped by user, site, event and date
 	 * @param siteId The site ID
-	 * @param searchKey An user ID, first or last name
+	 * @param resourceAction A specific resource action to limit to.
+	 * @param resourceIds A list of specific resources to limit to.
 	 * @param iDate The initial date
-	 * @param fDate The final date
-	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given resource access)
+	 * @param fDate The final date 
+	 * @param userIds The list of user Ids
+	 * @param inverseUserSelection match users not in userIds list
+	 * @param page The PagePosition subset of items to return
+	 * @param sortBy Columns to sort by
+	 * @param sortAscending Sort ascending?
+	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
 	 */
-	//public int countResourceStatsGrpByDateAndAction(String siteId, String searchKey, Date iDate, Date fDate);
+	public List<CommonStatGrpByDate> getResourceStats(
+			final String siteId,
+			final String resourceAction, final List<String> resourceIds,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final String groupBy,
+			final String sortBy, 
+			final boolean sortAscending);
+	
+	/**
+	 * Get row count for event statistics grouped by user, site, event and date
+	 * @param siteId The site ID
+	 * @param resourceAction A specific resource action to limit to.
+	 * @param resourceIds A list of specific resources to limit to.
+	 * @param iDate The initial date
+	 * @param fDate The final date 
+	 * @param userIds The list of user Ids
+	 * @param inverseUserSelection match users not in userIds list
+	 * @param page The PagePosition subset of items to return
+	 * @param sortBy Columns to sort by
+	 * @param sortAscending Sort ascending?
+	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
+	 */
+	public int getResourceStatsRowCount(
+			final String siteId,
+			final String resourceAction, final List<String> resourceIds,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final String groupBy,
+			final String sortBy, 
+			final boolean sortAscending);
 
 
 	// ################################################################

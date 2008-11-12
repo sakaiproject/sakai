@@ -1,0 +1,13 @@
+<html xmlns:wicket>
+<wicket:panel>
+    <form wicket:id="searchForm">
+        <wicket:message key="search_label">[search_label]</wicket:message>
+        <input wicket:id="searchKeyword" type="text"></input>
+        <input type="submit" wicket:id="search" wicket:message="value:search" class="active searchbt"/>
+        <input type="submit" wicket:id="clear" wicket:message="value:clear_search"
+            onclick="jQuery('.searchbt').val(''); return true;" 
+            onkeypress="jQuery('.searchbt').val(''); return true;"/>
+    </form>
+</wicket:panel>
+</html>
+  

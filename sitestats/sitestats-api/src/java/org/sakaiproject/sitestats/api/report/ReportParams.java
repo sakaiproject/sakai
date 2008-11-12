@@ -5,6 +5,10 @@ import java.util.List;
 
 
 public interface ReportParams {
+	
+	public String getSiteId();
+	
+	public void setSiteId(String siteId);
 
 	public String getWhat();
 

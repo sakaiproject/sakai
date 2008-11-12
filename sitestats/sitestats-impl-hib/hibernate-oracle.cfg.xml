@@ -10,5 +10,6 @@
         <property name="hibernate.connection.url">jdbc:oracle:thin:@127.0.0.1:15210:XE</property>
         <property name="hibernate.connection.username">system</property>
         <property name="hibernate.dialect">org.hibernate.dialect.Oracle9Dialect</property>
+        <property name="hibernate.query.factory_class">org.hibernate.hql.classic.ClassicQueryTranslatorFactory</property>
     </session-factory>
 </hibernate-configuration>

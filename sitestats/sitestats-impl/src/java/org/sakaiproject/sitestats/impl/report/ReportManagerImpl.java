@@ -38,6 +38,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
@@ -121,17 +122,56 @@ public class ReportManagerImpl implements ReportManager {
 	// ################################################################
 	// Interface implementation
 	// ################################################################
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getReport(java.lang.String,
-	 *      org.sakaiproject.sitestats.api.PrefsData,
-	 *      org.sakaiproject.sitestats.api.ReportParams)
-	 */
 	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params) {
+		return getReport(siteId, prefsdata, params, null, null, null, true);
+	}
+	
+	public int getReportRowCount(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition pagingPosition, String groupBy, String sortBy, boolean sortAscending) {
+		ReportProcessedParams rpp = processReportParams(siteId, prefsdata, params, pagingPosition, groupBy, sortBy, sortAscending);
+		if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
+			return M_sm.getResourceStatsRowCount(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, null, sortBy, sortAscending);
+		}else{
+			return M_sm.getEventStatsRowCount(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, null, sortBy, sortAscending);
+		}
+	}
+	
+	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition pagingPosition, String groupBy, String sortBy, boolean sortAscending) {
+		ReportProcessedParams rpp = processReportParams(siteId, prefsdata, params, pagingPosition, groupBy, sortBy, sortAscending);
+
+		// generate report
+		Report report = new ReportImpl();
+		List<CommonStatGrpByDate> data = null;
+		if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
+			//data = M_sm.getResourceStatsGrpByDateAndAction(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition);
+			data = M_sm.getResourceStats(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, null, sortBy, sortAscending);
+		}else{
+			//data = M_sm.getEventStatsGrpByDate(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition);
+			data = M_sm.getEventStats(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, null, sortBy, sortAscending);
+		}
+		
+		// add missing info in report and its parameters
+		if(report != null) {
+			report.setReportData(data);
+			report.setReportParams(params);
+			report.setReportGenerationDate(M_ts.newTime());
+		}
+		params.setWhenFrom(rpp.iDate);
+		params.setWhenTo(rpp.fDate);
+		params.setWhoUserIds(rpp.userIds);
+
+		// consolidate anonymous events
+		//report = consolidateAnonymousEvents(report);
+
+		return report;
+	}
+	
+	private ReportProcessedParams processReportParams(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition pagingPosition, String groupBy, String sortBy, boolean sortAscending) {
+		ReportProcessedParams rpp = new ReportProcessedParams();
+		
 		// what (visits, events, resources)
-		List<String> eventIds = new ArrayList<String>();
+		rpp.events = new ArrayList<String>();
 		if(params.getWhat().equals(ReportManager.WHAT_VISITS)){
-			eventIds.add(StatsManager.SITEVISIT_EVENTID);
+			rpp.events.add(StatsManager.SITEVISIT_EVENTID);
 
 		}else if(params.getWhat().equals(ReportManager.WHAT_EVENTS)){
 			if(params.getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
@@ -141,97 +181,87 @@ public class ReportManagerImpl implements ReportManager {
 					if(params.getWhatToolIds().contains(t.getToolId())){
 						Iterator<EventInfo> iE = t.getEvents().iterator();
 						while (iE.hasNext())
-							eventIds.add(iE.next().getEventId());
+							rpp.events.add(iE.next().getEventId());
 					}
 				}
-			}else eventIds.addAll(params.getWhatEventIds());
+			}else rpp.events.addAll(params.getWhatEventIds());
 
 		}
 
 		// when (dates)
-		Date from = null;
-		Date to = null;
+		rpp.fDate = null;
+		rpp.iDate = null;
 		if(params.getWhen().equals(ReportManager.WHEN_CUSTOM)){
-			from = params.getWhenFrom();
-			to = params.getWhenTo();
-		}else to = new Date();
+			rpp.iDate = params.getWhenFrom();
+			rpp.fDate = params.getWhenTo();
+		}else rpp.fDate = new Date();
 		if(params.getWhen().equals(ReportManager.WHEN_ALL)){
-			from = M_sm.getInitialActivityDate(siteId);
+			rpp.iDate = M_sm.getInitialActivityDate(siteId);
 		}else if(params.getWhen().equals(ReportManager.WHEN_LAST7DAYS)){
 			Calendar c = Calendar.getInstance();
 			c.set(Calendar.HOUR_OF_DAY, 00);
 			c.set(Calendar.MINUTE, 00);
 			c.set(Calendar.SECOND, 00);
 			c.add(Calendar.DATE, -6);
-			from = c.getTime();
+			rpp.iDate = c.getTime();
 		}else if(params.getWhen().equals(ReportManager.WHEN_LAST30DAYS)){
 			Calendar c = Calendar.getInstance();
 			c.set(Calendar.HOUR_OF_DAY, 00);
 			c.set(Calendar.MINUTE, 00);
 			c.set(Calendar.SECOND, 00);
 			c.add(Calendar.DATE, -29);
-			from = c.getTime();
+			rpp.iDate = c.getTime();
 		}
-		params.setWhenFrom(from);
-		params.setWhenTo(to);
+		params.setWhenFrom(rpp.iDate);
+		params.setWhenTo(rpp.fDate);
 
 		// who (users, groups, roles)
-		List<String> userIds = null;
-		boolean inverseWhoSelection = false;
+		rpp.userIds = null;
+		rpp.inverseUserSelection = false;
 		if(params.getWho().equals(ReportManager.WHO_ALL)){
 			;
 		}else if(params.getWho().equals(ReportManager.WHO_ROLE)){
-			userIds = new ArrayList<String>();
+			rpp.userIds = new ArrayList<String>();
 			try{
 				Site site = M_ss.getSite(siteId);
-				userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
+				rpp.userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
 			}catch(IdUnusedException e){
 				LOG.error("No site with specified siteId.");
 			}
 
 		}else if(params.getWho().equals(ReportManager.WHO_GROUPS)){
-			userIds = new ArrayList<String>();
+			rpp.userIds = new ArrayList<String>();
 			try{
 				Site site = M_ss.getSite(siteId);
-				userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
+				rpp.userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
 			}catch(IdUnusedException e){
 				LOG.error("No site with specified siteId.");
 			}
 
 		}else if(params.getWho().equals(ReportManager.WHO_CUSTOM)){
-			userIds = params.getWhoUserIds();
+			rpp.userIds = params.getWhoUserIds();
 		}else{
 			// inverse
-			inverseWhoSelection = true;
+			rpp.inverseUserSelection = true;
 		}
-		params.setWhoUserIds(userIds);
+		params.setWhoUserIds(rpp.userIds);
 
 		// generate report
 		Report report = new ReportImpl();
 		report.setReportParams(params);
 		List<CommonStatGrpByDate> data = null;
 		if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
-			List<String> resourceIds = null;
+			rpp.resourceIds = null;
 			if(params.getWhatResourceIds() != null){
-				resourceIds = new ArrayList<String>();
+				rpp.resourceIds = new ArrayList<String>();
 				Iterator<String> iR = params.getWhatResourceIds().iterator();
 				while (iR.hasNext())
-					resourceIds.add("/content" + iR.next());
+					rpp.resourceIds.add("/content" + iR.next());
 			}
-			String resourceAction = params.getWhatResourceAction();
-			data = M_sm.getResourceStatsGrpByDateAndAction(siteId, resourceAction, resourceIds, from, to, userIds, inverseWhoSelection, null);
-		}else{
-			data = M_sm.getEventStatsGrpByDate(siteId, eventIds, from, to, userIds, inverseWhoSelection, null);
+			rpp.resourceAction = params.getWhatResourceAction();			
 		}
-		report.setReportData(data);
 
-		// consolidate anonymous events
-		report = consolidateAnonymousEvents(report);
-
-		// add report generation date
-		if(report != null)
-			report.setReportGenerationDate(M_ts.newTime());
-		return report;
+		return rpp;		
 	}
 	
 	
@@ -283,7 +313,7 @@ public class ReportManagerImpl implements ReportManager {
 				userName = u.getDisplayName();
 			}catch(UserNotDefinedException e){
 				userEid = userId;
-				userName = "";
+				userName = "-";
 			}
 			row.createCell((short) 0).setCellValue(userEid);
 			row.createCell((short) 1).setCellValue(userName);
@@ -351,7 +381,7 @@ public class ReportManagerImpl implements ReportManager {
 				userName = u.getDisplayName();
 			}catch(UserNotDefinedException e){
 				userEid = userId;
-				userName = "";
+				userName = "-";
 			}
 			appendQuoted(sb, userEid);
 			sb.append(",");
@@ -530,6 +560,22 @@ public class ReportManagerImpl implements ReportManager {
 			LOG.warn("ReportManager: unable to get group title with id: " + groupId);
 		}
 		return null;
+	}
+	
+	private class ReportProcessedParams {
+		public String			siteId;
+		public List<String>		events;
+		public List<String>		anonymousEvents;
+		public List<String>		resourceIds;
+		public String			resourceAction;
+		public Date				iDate;
+		public Date				fDate;
+		public List<String>		userIds;
+		public boolean			inverseUserSelection;
+		
+		public PagingPosition	page;
+		public String			sortBy;
+		public boolean			sortAscending;
 	}
 
 	

@@ -1,0 +1,173 @@
+/* Positioning */
+.halfSize {
+	vertical-align: top;
+	text-align: left;
+	width: 50%;
+}
+.autoSize {
+	vertical-align: top;
+	text-align: left;
+	width: auto;
+}
+.left {
+	text-align: left;
+	float: left;
+	width: 100%
+}
+.leftAlign {
+    text-align: left;
+}
+.rightAlign {
+    text-align: right;
+}
+.centerAlign {
+    text-align: center;
+}
+.center {
+	text-align: center;
+}
+.right {
+	text-align: right;
+	float: right;
+	width: 100%;
+}
+.top {
+	vertical-align: top;
+}
+
+.left1 {
+	vertical-align: top;
+	text-align: left;
+	width: 80%;
+}
+
+.right1 {
+	vertical-align: top;
+	text-align: right;
+	width: 20%;
+	/*width: 160px;*/
+}
+
+.left30 {
+	vertical-align: top;
+	text-align: left;
+	width: 30%;
+}
+
+.left70 {
+	vertical-align: top;
+	text-align: left;
+	width: 70%;
+}
+
+/* Summary Header separator */
+.summaryHeader {
+	border-bottom: 1px solid silver;
+	color: #000000;
+	/*margin-top: 25px;*/
+	margin-bottom: 0px;
+}
+
+/* Summary Table */
+.summaryTable {
+	border: 1px dashed #cccccc;
+	text-align: left;
+	/*margin-top: 20px;*/
+	width: 100%;
+}
+
+label.indnt0 {
+	font-weight: bold;
+}
+
+label.indnt1 {
+	font-weight: normal;
+}
+
+.selector {
+	color: #555555;
+	font-size: 85%;
+	font-weight: normal;
+	margin: 0pt;
+}
+
+.additionalInfo {
+	color: #555555;
+	font-size: 85%;
+	font-weight: normal;
+	margin: 0pt;
+	margin-top: 3px;
+	float: right;
+}
+
+.description {
+	color: #333333;
+	font-size: 100%;
+	font-weight: normal;
+	margin: 0pt;
+}
+
+.notes {
+	color: #333333;
+	font-size: 90%;
+	font-weight: normal;
+	margin: 0pt;
+}
+
+/* Ajax loading */
+.ajaxLoading {
+	background: #ffffff url(../images/ajaxload.gif) no-repeat;
+	color: window;
+}
+
+/* Tool/Event tree nodes in preferences (for Tomahawk tree2) */
+.nodeToolSelected,.nodeEventSelected  {
+	/*font-weight: bold;*/
+}
+
+.nodeToolUnselected,.nodeEventUnselected {
+	font-weight: normal;
+	font-style: italic;
+	text-decoration: line-through;
+	color: #888888;
+}
+
+.nodeToolPartialSelected{
+	font-weight: normal;
+	font-style: italic;
+	color: #555555;
+}
+
+.eventTree li {
+    list-style: none;	
+}
+
+.navIcon {
+    cursor: pointer;
+    float: left;
+}
+
+.nodeIcon {
+	vertical-align: bottom;
+}
+
+.childCount {
+	display: none;
+	color: #555555;
+	/*font-size:85%;*/
+	font-weight: normal;
+}
+
+/* Wicket table sorting indicator */
+.wicket_orderUp a span {
+    background-image: url('/library/image/sakai/sortascending.gif');
+    background-repeat: no-repeat;
+    background-position:right center;
+    padding-right: 16px;
+}
+.wicket_orderDown a span {
+    background-image: url('/library/image/sakai/sortdescending.gif');
+    background-repeat: no-repeat;
+    background-position: right center;
+    padding-right: 16px;
+}

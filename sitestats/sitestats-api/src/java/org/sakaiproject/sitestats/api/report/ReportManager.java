@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.api.report;
 
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.sitestats.api.PrefsData;
 
 public interface ReportManager {
@@ -26,6 +27,11 @@ public interface ReportManager {
 
 	/** Produce a report based on the parameters passed. */
 	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params);
+	
+	/** Produce a report based on the parameters passed (page results). */
+	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition page, String groupBy, String sortBy, boolean sortAscending);
+	
+	public int getReportRowCount(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition page, String groupBy, String sortBy, boolean sortAscending);
 	
 	/** Return utility class to retrieve formatted report parameters. */
 	public ReportFormattedParams getReportFormattedParams();

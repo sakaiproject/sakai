@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+    <head>        
+        <wicket:head></wicket:head>
+    </head>
+	<body>
+		<wicket:extend>
+            <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
+		
+            <h2>
+                <wicket:message key="menu_prefs">[menu_prefs]</wicket:message>
+                <span wicket:id="site">:&nbsp;<span wicket:id="siteTitle">[siteTitle]</span></span>
+            </h2>
+            
+            
+            <form wicket:id="preferencesForm" name="prefsForm">
+    
+		        <span wicket:id="messages"></span>
+		    
+		        <div id="preferences" style="width: 100%">
+		        
+		            <table class="sectionContainerNav" style="width: 100%;">
+		                <tbody>
+		                    <tr>
+		                        <td class="halfSize">
+		                        
+		                            <!-- General -->
+		                            <h4 class="summaryHeader">
+		                                <wicket:message key="prefs_sep_general">[prefs_sep_general]</wicket:message>
+		                            </h4>
+		                            <p class="instruction">
+		                                <wicket:message key="instructions_prefs_general">[instructions_prefs_general]</wicket:message>
+		                            </p>
+		                            <input wicket:id="listToolEventsOnlyAvailableInSite" type="checkbox" />
+		                            <wicket:message key="prefs_listToolEventsOnlyAvailableInSite">[prefs_listToolEventsOnlyAvailableInSite]</wicket:message>
+		                            
+		                            <br/>
+		                            
+		                            <!-- Chart -->
+		                            <span wicket:id="chartPrefs">
+		                                <h4 class="summaryHeader">
+		                                    <wicket:message key="prefs_sep_chart">[prefs_sep_chart]</wicket:message>
+		                                </h4>
+		                                <p class="instruction">
+		                                    <wicket:message key="instructions_prefs_sep_chart">[instructions_prefs_sep_chart]</wicket:message>
+		                                </p>                                                    
+		                                <input wicket:id="chartIn3D" type="checkbox" />
+		                                <wicket:message key="prefs_3dCharts">[prefs_3dCharts]</wicket:message>
+		                                <br/>
+		                                <input wicket:id="itemLabelsVisible" type="checkbox" />
+		                                <wicket:message key="prefs_itemLabelsVisible">[prefs_itemLabelsVisible]</wicket:message>
+		                                <p/>
+		                                <wicket:message key="prefs_chartTransparency">[prefs_chartTransparency]</wicket:message>:
+		                                <select wicket:id="chartTransparency">
+		                                    <option>100%</option>
+		                                    <option>10%</option>
+		                                </select>                                                       
+		                            </span>
+		                            
+		                        </td>
+		                        
+		                        <td class="halfSize">
+		                        
+		                            <!-- Activity definition -->
+		                            <h4 class="summaryHeader">
+		                                <wicket:message key="prefs_sep_activity_definition">[prefs_sep_activity_definition]</wicket:message>
+		                            </h4>
+		                            <p class="instruction">
+		                                <wicket:message key="instructions_prefs_activity_tools">[instructions_prefs_activity_tools]</wicket:message>
+		                            </p>                                                    
+		                            <div wicket:id="eventRegistryTree" class="eventTree"></div>
+		                            
+		                        </td>
+		                    </tr>
+		                </tbody>
+		            </table>
+		            
+		            <!-- BUTTONS -->
+		            <p class="act">
+		                <input type="submit" wicket:id="update" wicket:message="value:update" class="active"/>
+		                <input type="submit" wicket:id="cancel" wicket:message="value:cancel"/>
+		            </p>
+		
+		        </div>
+		    
+		    </form>
+		    
+		</wicket:extend>
+	</body>
+</html>

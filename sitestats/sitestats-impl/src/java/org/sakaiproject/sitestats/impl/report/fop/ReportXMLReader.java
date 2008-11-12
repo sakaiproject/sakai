@@ -75,7 +75,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         handler.startElement("report");        
         String reportTitle = msgs.getString("reportres_title");
 		try{
-			String siteTitle = M_ss.getSite(M_tm.getCurrentPlacement().getContext()).getTitle();
+			String siteTitle = M_ss.getSite(report.getReportParams().getSiteId()).getTitle();
 			reportTitle += " (" + siteTitle + ")";
 		}catch(IdUnusedException e){
 			// ignore
@@ -179,7 +179,7 @@ public class ReportXMLReader extends AbstractObjectReader {
 				userName = user.getDisplayName();
 			}catch(UserNotDefinedException e){
 				userId = cs.getUserId();
-				userName = "";
+				userName = "-";
 			}
             handler.element("userid", userId);
             handler.element("username", userName);

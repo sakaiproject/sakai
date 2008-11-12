@@ -30,6 +30,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 
 	/** Event Registry members */
 	private List<String>				toolEventIds				= null;
+	private List<String>				anonymousToolEventIds		= null;
 	private Map<String, ToolInfo>		eventIdToolMap				= null;
 	private boolean						checkLocalEventNamesFirst	= false;
 
@@ -94,6 +95,23 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 				toolEventIds.add(i.next());
 		}
 		return toolEventIds;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.impl.event.EventRegistryService#getAnonymousEventIds()
+	 */
+	public List<String> getAnonymousEventIds() {
+		if(anonymousToolEventIds == null){
+			anonymousToolEventIds = new ArrayList<String>();
+			for(ToolInfo ti : getEventRegistry()){
+				for(EventInfo ei : ti.getEvents()){
+					if(ei.isAnonymous()){
+						anonymousToolEventIds.add(ei.getEventId());
+					}
+				}
+			}
+		}
+		return anonymousToolEventIds;
 	}
 
 	/* (non-Javadoc)

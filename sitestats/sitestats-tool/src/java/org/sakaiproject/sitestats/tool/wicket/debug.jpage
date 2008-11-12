@@ -1,0 +1,16 @@
+org.apache.wicket.datetime.PatternDateConverter c = new org.apache.wicket.datetime.PatternDateConverter("yyyy-MM-dd HH:mm:ss", true);
+java.util.Date d = new java.util.Date();
+String s = c.convertToString(d, java.util.Locale.ENGLISH);
+
+System.out.println("Date: "+d+",  String: "+s);
+
+java.util.Calendar c = java.util.Calendar.getInstance();
+c.set(java.util.Calendar.HOUR_OF_DAY, 23);
+c.set(java.util.Calendar.MINUTE, 59);
+c.set(java.util.Calendar.SECOND, 59);
+java.util.Date finalDate = c.getTime();
+java.util.Date initialDate = null;
+c.add(java.util.Calendar.MONTH, -12);
+initialDate = c.getTime();
+System.out.println("Start: "+initialDate);
+System.out.println("End: "+finalDate);

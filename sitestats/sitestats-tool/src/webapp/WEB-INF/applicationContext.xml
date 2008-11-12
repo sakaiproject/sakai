@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Here's our 'facade' bean that we can inject a reference with -->
+	<bean id="org.sakaiproject.sitestats.tool.facade.SakaiFacade"
+		class="org.sakaiproject.sitestats.tool.facade.SakaiFacadeImpl">
+		<!-- SiteStats services -->
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+        <property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz" />
+        <property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService" />
+        <property name="chartService" ref="org.sakaiproject.sitestats.api.chart.ChartService" />
+        <property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager" />
+        <property name="statsUpdateManager" ref="org.sakaiproject.sitestats.api.StatsUpdateManager" />
+        <property name="serverWideReportManager" ref="org.sakaiproject.sitestats.api.ServerWideReportManager" />
+		<!-- Sakai services -->
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+	</bean>
+
+	<!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->
+	<bean id="siteStatsApplication" class="org.sakaiproject.sitestats.tool.wicket.SiteStatsApplication">
+    	<property name="facade">
+			<ref bean="org.sakaiproject.sitestats.tool.facade.SakaiFacade"/>
+		</property>
+    </bean>
+
+    <!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->
+    <bean id="siteStatsAdminApplication" class="org.sakaiproject.sitestats.tool.wicket.SiteStatsAdminApplication">
+        <property name="facade">
+            <ref bean="org.sakaiproject.sitestats.tool.facade.SakaiFacade"/>
+        </property>
+    </bean>
+    
+</beans>

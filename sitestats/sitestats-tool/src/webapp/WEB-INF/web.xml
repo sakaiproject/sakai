@@ -5,129 +5,82 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<display-name>sitestats</display-name>
 	<description>Site Stats Tool</description>
-
-	<context-param>
-		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-		<param-value>server</param-value>
-	</context-param>
-	
-
-	<!-- Sakai request filter, mapped to anything that goes to the faces servlet -->
-	<filter>
-		<filter-name>sakai.request</filter-name>
-		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>sakai.request</filter-name>
-		<servlet-name>Faces Servlet</servlet-name>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-	
-	<!-- Ajax4JSF -->
-	<filter>
-		<display-name>Ajax4jsf Filter</display-name>
-		<filter-name>ajax4jsf</filter-name>
-		<filter-class>org.ajax4jsf.Filter</filter-class>
-		<init-param>
-			<param-name>enable-cache</param-name>
-			<param-value>false</param-value>
-		</init-param>
-	</filter>
-	<filter-mapping>
-		<filter-name>ajax4jsf</filter-name>
-		<servlet-name>Faces Servlet</servlet-name>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-
-
-	<!-- Faces Extensions Filter -->
-	<!-- <filter>
-		<filter-name>MyFacesExtensionsFilter</filter-name>
-		<filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>		
-	</filter> 
-	<filter-mapping>
-        <filter-name>MyFacesExtensionsFilter</filter-name>
-        <url-pattern>*.jsf</url-pattern>
-		<dispatcher>REQUEST</dispatcher> 
-		<dispatcher>FORWARD</dispatcher> 
-		<dispatcher>INCLUDE</dispatcher>            
-    </filter-mapping> -->
+    <distributable />
+    
+    
+    <!-- Wicket mode (development/deployment) -->
     <context-param>
-        <param-name>org.apache.myfaces.CHECK_EXTENSIONS_FILTER</param-name>
-        <param-value>false</param-value>
+        <param-name>configuration</param-name>
+        <param-value>deployment</param-value>
     </context-param>
+    
+
+    <!-- Sakai request filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+        <init-param>
+            <param-name>http.session</param-name> 
+            <param-value>tool</param-value> 
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.wicket.template</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+                
+                
+    <!-- Tool: sakai.sitestats -->
+    <servlet>
+        <servlet-name>sakai.sitestats</servlet-name>
+        <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>        
+        <init-param>
+            <param-name>applicationFactoryClassName</param-name>
+            <param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+        </init-param>
+        <init-param>
+            <param-name>applicationBean</param-name>
+            <param-value>siteStatsApplication</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>sakai.sitestats</servlet-name>
+        <url-pattern>/sakai-sitestats-tool/*</url-pattern>      
+    </servlet-mapping>
+                
+                
+    <!-- Tool: sakai.sitestats -->
+    <servlet>
+        <servlet-name>sakai.sitestats.admin</servlet-name>
+        <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>        
+        <init-param>
+            <param-name>applicationFactoryClassName</param-name>
+            <param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+        </init-param>
+        <init-param>
+            <param-name>applicationBean</param-name>
+            <param-value>siteStatsAdminApplication</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>sakai.sitestats.admin</servlet-name>
+        <url-pattern>/sakai-sitestats-tool/*</url-pattern>      
+    </servlet-mapping>
 
 
-	<!-- Sakai JSF Tool Servlet, for sakai.sitestats -->
-	<servlet>
-		<servlet-name>sakai.sitestats</servlet-name>
-		<servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
-		<init-param>
-			<param-name>default</param-name>
-			<param-value>entry.servlet</param-value>
-		</init-param>
-		<init-param>
-			<param-name>path</param-name>
-			<param-value>/sitestats</param-value>
-		</init-param>
-		<init-param>
-			<param-name>default.last.view</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-
-	<!-- Sakai JSF Tool Servlet, for sakai.sitestats.admin -->
-	<servlet>
-		<servlet-name>sakai.sitestats.admin</servlet-name>
-		<servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
-		<init-param>
-			<param-name>default</param-name>
-			<param-value>sitelist</param-value>
-		</init-param>
-		<init-param>
-			<param-name>path</param-name>
-			<param-value>/sitestats</param-value>
-		</init-param>
-		<init-param>
-			<param-name>default.last.view</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	
-	<!-- Redirects the user to the appropriate starting page, based on charts visibility -->
-	<servlet>
-		<servlet-name>Entry Servlet</servlet-name>
-		<servlet-class>org.sakaiproject.sitestats.tool.jsf.EntryServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Entry Servlet</servlet-name>
-		<url-pattern>/entry.servlet</url-pattern>
-	</servlet-mapping>
-	
-	
-
-	<!-- Faces Servlet -->
-	<servlet>
-		<servlet-name>Faces Servlet</servlet-name>
-		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-		<load-on-startup>2</load-on-startup>
-	</servlet>
-	<!-- Faces Servlet Mapping -->
-	<servlet-mapping>
-		<servlet-name>Faces Servlet</servlet-name>
-		<url-pattern>*.jsf</url-pattern>
-	</servlet-mapping>
-	
-
-	<listener>
-		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
-	</listener>
+    <!--  The ToolListener causes this tool to be registered with Sakai.  -->
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    </listener>
+    
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
 
 </web-app>

@@ -16,6 +16,12 @@ public interface EventRegistryService {
 	public List<String> getEventIds();
 
 	/**
+	 * Get all anonymous tool events.
+	 * @return A list of anonymous event ids.
+	 */
+	public List<String> getAnonymousEventIds();
+	
+	/**
 	 * Get the statisticable event registry.
 	 * Moved from StatsManager.getAllToolEventsDefinition().
 	 * @return A list of ToolInfo objects.

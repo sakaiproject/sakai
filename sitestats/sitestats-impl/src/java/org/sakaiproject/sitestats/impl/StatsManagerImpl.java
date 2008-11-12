@@ -872,7 +872,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}
 					if(page != null){
 						q.setFirstResult(page.getFirst() - 1);
-						q.setMaxResults(page.getLast() - page.getFirst());
+						q.setMaxResults(page.getLast() - page.getFirst() + 1);
 					}
 					List<Object[]> records = q.list();
 					List<CommonStatGrpByDate> results = new ArrayList<CommonStatGrpByDate>();
@@ -913,6 +913,409 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			};
 			return (List<CommonStatGrpByDate>) getHibernateTemplate().execute(hcb);
 		}
+	}
+	
+	public List<CommonStatGrpByDate> getEventStats(
+			final String siteId,
+			final List<String> events,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
+		if(siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		}else{
+			final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
+			final String hql = buildEventStatsHql(siteId, events, anonymousEvents, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
+			
+			// DO IT!
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					q.setParameterList("events", events);
+					if(userIds != null && !userIds.isEmpty())
+						q.setParameterList("users", userIds);
+					if(iDate != null)
+						q.setDate("idate", iDate);
+					if(fDate != null){
+						// adjust final date
+						Calendar c = Calendar.getInstance();
+						c.setTime(fDate);
+						c.add(Calendar.DAY_OF_YEAR, 1);
+						Date fDate2 = c.getTime();
+						q.setDate("fdate", fDate2);
+					}
+					if(anonymousEvents != null && anonymousEvents.size() > 0) {
+						q.setParameterList("anonymousEvents", anonymousEvents);
+					}
+					if(page != null){
+						q.setFirstResult(page.getFirst() - 1);
+						q.setMaxResults(page.getLast() - page.getFirst() + 1);
+					}
+					LOG.debug("getEventStats(): " + q.getQueryString());
+					List<Object[]> records = q.list();
+					List<CommonStatGrpByDate> results = new ArrayList<CommonStatGrpByDate>();
+					List<String> siteUserIds = null;
+					if(inverseUserSelection)
+						siteUserIds = getSiteUsers(siteId);
+					if(records.size() > 0){
+						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
+							if(!inverseUserSelection){
+								Object[] s = iter.next();
+								CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
+								c.setSiteId((String)s[0]);
+								c.setUserId((String)s[1]);
+								c.setRef((String)s[2]);
+								c.setCount(((Long)s[3]).longValue());
+								c.setDate((Date)s[4]);
+								results.add(c);
+							}else{
+								//siteUserIds.remove((String)s[1]);
+								siteUserIds.remove((Object) iter.next());
+							}
+						}
+					}
+					if(inverseUserSelection){
+						long id = 0;
+						Iterator<String> iU = siteUserIds.iterator();
+						while(iU.hasNext()){
+							String userId = iU.next();
+							CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
+							c.setId(id++);
+							c.setUserId(userId);
+							c.setSiteId(siteId);
+							c.setCount(0);
+							results.add(c);
+						}
+					}
+					return results;	
+				}
+			};
+			return (List<CommonStatGrpByDate>) getHibernateTemplate().execute(hcb);
+		}
+	}
+	
+	public int getEventStatsRowCount(
+			final String siteId,
+			final List<String> events,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
+		if(siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		}else{
+			final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
+			final String hql = buildEventStatsHql(siteId, events, anonymousEvents, iDate, fDate, userIds, inverseUserSelection, true, page, groupBy, sortBy, sortAscending);
+			
+			// DO IT!
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					q.setParameterList("events", events);
+					if(userIds != null && !userIds.isEmpty())
+						q.setParameterList("users", userIds);
+					if(iDate != null)
+						q.setDate("idate", iDate);
+					if(fDate != null){
+						// adjust final date
+						Calendar c = Calendar.getInstance();
+						c.setTime(fDate);
+						c.add(Calendar.DAY_OF_YEAR, 1);
+						Date fDate2 = c.getTime();
+						q.setDate("fdate", fDate2);
+					}
+					if(anonymousEvents != null && anonymousEvents.size() > 0) {
+						q.setParameterList("anonymousEvents", anonymousEvents);
+					}
+					LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
+					Integer rowCount = q.list().size();
+					if(!inverseUserSelection) {
+						return rowCount;
+					}else{
+						return getSiteUsers(siteId).size() - rowCount;
+					}	
+				}
+			};
+			return (Integer) getHibernateTemplate().execute(hcb);
+		}
+	}
+	
+	private String buildEventStatsHql(
+			final String siteId,
+			final List<String> events, 
+			final List<String> anonymousEvents,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final boolean countOnly,
+			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
+		
+		StringBuilder _hql = new StringBuilder();
+		
+		// SELECT 
+		if(!inverseUserSelection) {
+			_hql.append("select s.siteId as site, ");
+			if(anonymousEvents != null && anonymousEvents.size() > 0) {
+				_hql.append("case when s.eventId not in (:anonymousEvents) then s.userId else '-' end as user, ");
+			}else{
+				_hql.append("s.userId as user, ");
+			}
+			_hql.append("s.eventId as ref, sum(s.count) as total, max(s.date) as date ");
+		}else{
+			if(anonymousEvents != null && anonymousEvents.size() > 0) {
+				_hql.append("select distinct(case when s.eventId not in (:anonymousEvents) then s.userId else '-' end) as user ");
+			}else{
+				_hql.append("select distinct s.userId as user ");
+			}
+		}
+		
+		// FROM
+		_hql.append("from EventStatImpl as s ");
+		
+		// WHERE
+		_hql.append("where s.siteId = :siteid and s.eventId in (:events) ");
+		if(userIds != null && !userIds.isEmpty()) {
+			_hql.append("and s.userId in (:users) ");
+		}
+		if(iDate != null) {
+			_hql.append("and s.date >= :idate ");
+		}
+		if(fDate != null) {
+			_hql.append("and s.date < :fdate ");
+		}
+		if(!showAnonymousEvents) {
+			_hql.append(" and s.userId != '?' ");
+		}
+		
+		// GROUP BY
+		if(groupBy == null) {
+			_hql.append("group by s.siteId, s.userId, s.eventId ");
+		}else{
+			_hql.append(groupBy);
+			_hql.append(' ');
+		}
+		
+		// ORDER BY
+		if(sortBy != null) {
+			_hql.append("order by ");
+			_hql.append(sortBy);
+			_hql.append(sortAscending? "ASC" : "DESC");
+			_hql.append(' ');
+		}
+		
+		// get row count only
+		//if(countOnly) {
+		//	_hql.insert(0, "select count(*) as rowCount from (");
+		//	_hql.append(") as theQuery");
+		//}
+		
+		return _hql.toString();
+	}
+	
+	public List<CommonStatGrpByDate> getResourceStats(
+			final String siteId,
+			final String resourceAction, final List<String> resourceIds,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final String groupBy,
+			final String sortBy, 
+			final boolean sortAscending) {
+		if(siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		}else{
+			final String hql = buildResourceStatsHql(siteId, resourceAction, resourceIds, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
+			
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					if(userIds != null && !userIds.isEmpty())
+						q.setParameterList("users", userIds);
+					if(resourceAction != null)
+						q.setString("action", resourceAction);
+					if(resourceIds != null && !resourceIds.isEmpty())
+						q.setParameterList("resources", resourceIds);
+					if(iDate != null)
+						q.setDate("idate", iDate);
+					if(fDate != null){
+						// adjust final date
+						Calendar c = Calendar.getInstance();
+						c.setTime(fDate);
+						c.add(Calendar.DAY_OF_YEAR, 1);
+						Date fDate2 = c.getTime();
+						q.setDate("fdate", fDate2);
+					}
+					if(page != null){
+						q.setFirstResult(page.getFirst() - 1);
+						q.setMaxResults(page.getLast() - page.getFirst() + 1);
+					}
+					LOG.debug("getResourceStats(): " + q.getQueryString());
+					List<Object[]> records = q.list();
+					List<CommonStatGrpByDate> results = new ArrayList<CommonStatGrpByDate>();
+					List<String> siteUserIds = null;
+					if(inverseUserSelection) {
+						siteUserIds = getSiteUsers(siteId);
+					}
+					if(records.size() > 0){
+						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
+							if(!inverseUserSelection){
+								Object[] s = iter.next();
+								CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
+								c.setSiteId((String)s[0]);
+								c.setUserId((String)s[1]);
+								c.setRef((String)s[2]);
+								c.setRefImg(getResourceImage((String)s[2]));
+								c.setRefUrl(getResourceURL((String)s[2]));
+								c.setRefAction((String)s[3]);
+								c.setCount(((Long)s[4]).longValue());
+								c.setDate((Date)s[5]);
+								results.add(c);
+							}else{
+								//siteUserIds.remove((String)s[1]);
+								siteUserIds.remove((Object) iter.next());
+							}
+						}
+					}
+					if(inverseUserSelection){
+						long id = 0;
+						Iterator<String> iU = siteUserIds.iterator();
+						while(iU.hasNext()){
+							String userId = iU.next();
+							CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
+							c.setId(id++);
+							c.setUserId(userId);
+							c.setSiteId(siteId);
+							c.setCount(0);
+							results.add(c);
+						}
+					}
+					return results;	
+				}
+			};
+			return (List<CommonStatGrpByDate>) getHibernateTemplate().execute(hcb);
+		}
+	}
+	
+	public int getResourceStatsRowCount(
+			final String siteId,
+			final String resourceAction, final List<String> resourceIds,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final String groupBy,
+			final String sortBy, 
+			final boolean sortAscending) {
+		if(siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		}else{
+			final String hql = buildResourceStatsHql(siteId, resourceAction, resourceIds, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
+			
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					if(userIds != null && !userIds.isEmpty())
+						q.setParameterList("users", userIds);
+					if(resourceAction != null)
+						q.setString("action", resourceAction);
+					if(resourceIds != null && !resourceIds.isEmpty())
+						q.setParameterList("resources", resourceIds);
+					if(iDate != null)
+						q.setDate("idate", iDate);
+					if(fDate != null){
+						// adjust final date
+						Calendar c = Calendar.getInstance();
+						c.setTime(fDate);
+						c.add(Calendar.DAY_OF_YEAR, 1);
+						Date fDate2 = c.getTime();
+						q.setDate("fdate", fDate2);
+					}
+					LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
+					Integer rowCount = q.list().size();
+					if(!inverseUserSelection) {
+						return rowCount;
+					}else{
+						return getSiteUsers(siteId).size() - rowCount;
+					}	
+				}
+			};
+			return (Integer) getHibernateTemplate().execute(hcb);
+		}
+	}
+	
+	private String buildResourceStatsHql(
+			final String siteId,
+			final String resourceAction, final List<String> resourceIds,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final boolean countOnly,
+			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
+				
+		StringBuilder _hql = new StringBuilder();
+		
+		// SELECT 
+		if(!inverseUserSelection) {
+			_hql.append("select s.siteId as site, s.userId as user, ");
+			_hql.append("s.resourceRef, s.resourceAction, sum(s.count) as total, max(s.date) as date ");
+		}else{
+			_hql.append("select distinct s.userId as user ");
+		}
+		
+		// FROM
+		_hql.append("from ResourceStatImpl as s ");
+		
+		// WHERE
+		_hql.append("where s.siteId = :siteid ");
+		if(resourceAction != null) {
+			_hql.append("and s.resourceAction = :action ");
+		}
+		if(resourceIds != null && !resourceIds.isEmpty()) {
+			_hql.append("and s.resourceRef in (:resources) ");
+		}
+		if(userIds != null && !userIds.isEmpty()) {
+			_hql.append("and s.userId in (:users) ");
+		}
+		if(iDate != null) {
+			_hql.append("and s.date >= :idate ");
+		}
+		if(fDate != null) {
+			_hql.append("and s.date < :fdate ");
+		}
+		if(!showAnonymousEvents) {
+			_hql.append(" and s.userId != '?' ");
+		}
+		
+		// GROUP BY
+		if(groupBy == null) {
+			_hql.append("group by s.siteId, s.userId, s.resourceRef, s.resourceAction ");
+		}else{
+			_hql.append("group by ");
+			_hql.append(groupBy);
+			_hql.append(' ');
+		}
+		
+		// ORDER BY
+		if(sortBy != null) {
+			_hql.append("order by ");
+			_hql.append(sortBy);
+			_hql.append(sortAscending? "ASC" : "DESC");
+			_hql.append(' ');
+		}
+		
+		// get row count only
+		//if(countOnly) {
+		//	_hql.insert(0, "select count(*) as rowCount from (");
+		//	_hql.append(") as theQuery");
+		//}
+		
+		return _hql.toString();
 	}
 	
 	/*public int countEventStatsGrpByDate(final String siteId, final List<String> events, 
@@ -1145,7 +1548,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}
 					if(page != null){
 						q.setFirstResult(page.getFirst() - 1);
-						q.setMaxResults(page.getLast() - page.getFirst());
+						q.setMaxResults(page.getLast() - page.getFirst() + 1);
 					}
 					List<Object[]> records = q.list();
 					List<CommonStatGrpByDate> results = new ArrayList<CommonStatGrpByDate>();

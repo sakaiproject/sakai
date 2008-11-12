@@ -1,0 +1,60 @@
+<html xmlns:wicket>
+    <wicket:head>
+        <wicket:link>
+            <style type="text/css">
+			      #container {
+			         background-color: white;
+			         border-bottom: 1px solid rgb(255, 255, 255);
+			         border-left: 1px solid rgb(187, 187, 187);
+			         border-right: 1px solid rgb(255, 255, 255);
+			         border-top: 1px solid rgb(187, 187, 187);
+			         width: 304px;
+			         /*height: 147px;*/
+			         height: 220px;
+			         overflow: scroll;
+			         padding: 5px;			        
+			         display: block;
+			      }
+			      .containerHover{
+			         background-color:#EEEEEE;
+					 /*height:141px;*/
+					 height:214px;
+					 margin:1px;
+					 position:absolute;
+					 width:298px;
+			      }
+			 </style>
+			 <script type="text/javascript">			      
+			      function updateFieldWithSelectedFiles(fieldId) {
+			        var files = jQuery('#container input[@type=checkbox][@checked]');
+			        var selection;
+			        var first = true;
+			        for(var i=0; i<files.size(); i++) {
+			          if(first){
+			            selection = files.get(i).value;
+			            first = false;
+			          }else{
+			            selection = selection + '|||' + files.get(i).value;
+			          }
+			        }
+			        jQuery(fieldId).val(selection);
+			      }
+			      
+			      function saveBrowsingState(fieldId) {
+			    	var state = jQuery('#container ul.jqueryFileTree');
+			        jQuery(fieldId).val(state.html());
+			      }
+             </script>
+        </wicket:link>
+    </wicket:head>
+     
+    <wicket:body>
+		<wicket:panel>
+		      <div wicket:id="containerHover" class="containerHover"></div>
+		      <div id="container"></div>
+		      <input class="selectedFiles" wicket:id="selectedFiles" type="hidden"/>
+              <input class="browsingState" wicket:id="browsingState" type="hidden"/>
+		</wicket:panel>
+    </wicket:body>
+</html>
+  
