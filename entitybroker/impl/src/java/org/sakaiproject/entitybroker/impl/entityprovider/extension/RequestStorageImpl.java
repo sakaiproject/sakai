@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -37,17 +36,19 @@ import org.azeckoski.reflectutils.ReflectUtils;
 
 
 /**
- * Impl for the request store
+ * Impl for the request store,
+ * will store values in the request itself and will maintain a map of all request values in a threadlocal
+ * which should always be cleared at the end of the request
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
 public class RequestStorageImpl implements RequestStorage {
 
-    private ThreadLocal<ConcurrentHashMap<String, Object>> requestStore = new ThreadLocal<ConcurrentHashMap<String,Object>>();
-    protected ConcurrentHashMap<String, Object> getInternalMap() {
+    private ThreadLocal<HashMap<String, Object>> requestStore = new ThreadLocal<HashMap<String,Object>>();
+    protected HashMap<String, Object> getInternalMap() {
         if (requestStore.get() == null) {
-            requestStore.set( new ConcurrentHashMap<String, Object>() );
+            requestStore.set( new HashMap<String, Object>() );
         }
         return requestStore.get();
     }
@@ -143,17 +144,13 @@ public class RequestStorageImpl implements RequestStorage {
      */
     public void reset() {
         getInternalMap().clear();
-        // do not clear the attribute values from the request -AZ
-//        HttpServletRequest request = requestGetter.getRequest();
-//        if (request != null) {
-//            Enumeration<String> aEnum = request.getAttributeNames();
-//            if (aEnum != null) {
-//                for (Enumeration<String> e = aEnum ; e.hasMoreElements() ;) {
-//                    String key = e.nextElement();
-//                    request.removeAttribute(key);
-//                }
-//            }
-//        }
+        // only clear the known attribute values from the request -AZ
+        HttpServletRequest request = requestGetter.getRequest();
+        if (request != null) {
+            for (String key : getInternalMap().keySet()) {
+                request.removeAttribute(key);
+            }
+        }
     }
 
     /**
@@ -164,10 +161,11 @@ public class RequestStorageImpl implements RequestStorage {
     public void setRequestValue(String key, Object value) {
         HttpServletRequest request = requestGetter.getRequest();
         if (request != null) {
-            request.setAttribute(key, value);
-        } else {
-            getInternalMap().put(key, value);
+            if (value instanceof String) {
+                request.setAttribute(key, value);
+            }
         }
+        getInternalMap().put(key, value);
     }
 
     /**
