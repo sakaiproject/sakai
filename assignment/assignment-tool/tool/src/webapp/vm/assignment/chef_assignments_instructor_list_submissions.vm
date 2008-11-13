@@ -84,7 +84,8 @@
 				#set($form_label="not.graded.non.electronic.submission.grade")
 			#end
 			<div class="listNav">
-					<a href="$accessPointUrl" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+					## download all
+						<a href="#toolLinkParam("$action" "doPrep_download_all" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
 					## upload all
 						|  <a href="#toolLinkParam("$action" "doPrep_upload_all" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
 					#if ($withGrade)

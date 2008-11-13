@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +47,8 @@ import java.util.zip.ZipInputStream;
 
 import java.nio.channels.*;
 import java.nio.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -134,10 +137,12 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 /**
  * <p>
@@ -555,6 +560,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The instructor view of assignment submission report */
 	private static final String MODE_INSTRUCTOR_REPORT_SUBMISSIONS = "grarep"; // set in velocity template
+
+	/** The instructor view of download all file */
+	private static final String MODE_INSTRUCTOR_DOWNLOAD_ALL = "downloadAll"; 
 	
 	/** The instructor view of uploading all from archive file */
 	private static final String MODE_INSTRUCTOR_UPLOAD_ALL = "uploadAll"; 
@@ -888,12 +896,20 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_report_submissions(portlet, context, data, state);
 			}
 		}
+		else if (mode.equals(MODE_INSTRUCTOR_DOWNLOAD_ALL))
+		{
+			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
+			{
+				// if allowed for grading, build the context for the instructor's view of uploading all info from archive file
+				template = build_instructor_download_upload_all(portlet, context, data, state);
+			}
+		}
 		else if (mode.equals(MODE_INSTRUCTOR_UPLOAD_ALL))
 		{
 			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
 			{
 				// if allowed for grading, build the context for the instructor's view of uploading all info from archive file
-				template = build_instructor_upload_all(portlet, context, data, state);
+				template = build_instructor_download_upload_all(portlet, context, data, state);
 			}
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_REORDER_ASSIGNMENT))
@@ -2817,10 +2833,13 @@ public class AssignmentAction extends PagedResourceActionII
 	} // isGradebookDefined()
 	
 	/**
-	 * build the instructor view to upload information from archive file
+	 * build the instructor view to download/upload information from archive file
 	 */
-	protected String build_instructor_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	protected String build_instructor_download_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		boolean download = (((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_DOWNLOAD_ALL));
+		
+		context.put("download", Boolean.valueOf(download));
 		context.put("hasSubmissionText", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT));
 		context.put("hasSubmissionAttachment", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT));
 		context.put("hasGradeFile", state.getAttribute(UPLOAD_ALL_HAS_GRADEFILE));
@@ -2834,7 +2853,12 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		try
 		{
-			Assignment a = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
+			String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
+			Assignment a = AssignmentService.getAssignment(assignmentRef);
+			
+			String accessPointUrl = ServerConfigurationService.getAccessUrl().concat(AssignmentService.submissionsZipReference(
+					contextString, assignmentRef));
+			context.put("accessPointUrl", accessPointUrl);
 			
 			// if the assignment is of text-only or allow both text and attachment, include option for uploading student submit text
 			context.put("includeSubmissionText", Boolean.valueOf(Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission() || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission()));
@@ -10354,7 +10378,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 * 
 	 * @return
 	 */
-	public void doUpload_all(RunData data)
+	public void doDownload_upload_all(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
@@ -10362,16 +10386,28 @@ public class AssignmentAction extends PagedResourceActionII
 		if (flow.equals("upload"))
 		{
 			// upload
-			doUpload_all_upload(data);
+			doUpload_all(data);
+		}
+		else if (flow.equals("download"))
+		{
+			// upload
+			doDownload_all(data);
 		}
 		else if (flow.equals("cancel"))
 		{
 			// cancel
-			doCancel_upload_all(data);
+			doCancel_download_upload_all(data);
 		}
 	}
 	
-	public void doUpload_all_upload(RunData data)
+	public void doDownload_all(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+	}
+	
+	public void doUpload_all(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
@@ -10381,7 +10417,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String aReference = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 		String associateGradebookAssignment = null;
 		
-		List<String> choices = params.getStrings("uploadChoices") != null?new ArrayList(Arrays.asList(params.getStrings("uploadChoices"))):null;
+		List<String> choices = params.getStrings("choices") != null?new ArrayList(Arrays.asList(params.getStrings("choices"))):null;
 		
 		if (choices == null || choices.size() == 0)
 		{
@@ -10954,7 +10990,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 * 
 	 * @return
 	 */
-	public void doCancel_upload_all(RunData data)
+	public void doCancel_download_upload_all(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
@@ -10976,7 +11012,17 @@ public class AssignmentAction extends PagedResourceActionII
 		
 	}
 	
+	/**
+	 * Action is to preparing to go to the download all file
+	 */
+	public void doPrep_download_all(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_DOWNLOAD_ALL);
 
+	} // doPrep_download_all
+	
 	/**
 	 * Action is to preparing to go to the upload files
 	 */

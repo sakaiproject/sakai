@@ -13,74 +13,136 @@
 				theForm.submit();
 			}
 		}
+		
+		function invokeDownloadUrl(accessPointUrl, actionString, alertMessage)
+	{
+			var extraInfoArray = [];
+			if (document.getElementById('studentSubmissionText') && document.getElementById('studentSubmissionText').checked)
+			{
+					extraInfoArray[extraInfoArray.length]="studentSubmissionText=true";
+			}
+			if (document.getElementById('studentSubmissionAttachment') && document.getElementById('studentSubmissionAttachment').checked)
+			{
+					extraInfoArray[extraInfoArray.length]="studentSubmissionAttachment=true";
+			}	
+			if (document.getElementById('gradeFile') && document.getElementById('gradeFile').checked)
+			{
+					extraInfoArray[extraInfoArray.length]="gradeFile=true";
+			}
+			if (document.getElementById('feedbackTexts') && document.getElementById('feedbackTexts').checked)
+			{
+					extraInfoArray[extraInfoArray.length]="feedbackTexts=true";
+			}
+			if (document.getElementById('feedbackComments') && document.getElementById('feedbackComments').checked)
+			{
+					extraInfoArray[extraInfoArray.length]="feedbackComments=true";
+			}
+			if (document.getElementById('feedbackAttachments') && document.getElementById('feedbackAttachments').checked)
+			{
+					extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
+			}
+			if (extraInfoArray.length == 0)
+			{
+				alert(alertMessage);
+			}
+			else
+			{
+				accessPointUrl = accessPointUrl + "?";
+				for(i=0; i<extraInfoArray.length; i++) 
+				{ 
+   			accessPointUrl = accessPointUrl + extraInfoArray[i] + "&"; 
+				}
+				// cut the & in the end
+				accessPointUrl = accessPointUrl.substring(0, accessPointUrl.length-1);
+   	window.location.href=accessPointUrl;
+   	document.getElementById('uploadAllForm').action=actionString; 
+   	setTimeout("submitform('uploadAllForm')", 1500);
+   }
+	}
 	//-->
 </script>
 <div class="portletBody">
 	<h3>
+	#if ($!download)
+		$tlang.getString('downloadall.title')
+	#else
 		$tlang.getString('uploadall.title')
+	#end
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
-		$tlang.getString('uploadall.instruction')<span class="reqStarInline">*</span>
-	</p>
-	<br/>
-	<p class="instruction">
-		$tlang.getString('uploadall.instruction2')(<a href="$accessPointUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>) $tlang.getString('uploadall.instruction4')
+		#if ($!download)
+			$tlang.getString('downloadall.instruction')
+		#else
+			$tlang.getString('uploadall.instruction')<span class="reqStarInline">*</span>
+			<br />
+			$tlang.getString('uploadall.instruction2')(<a href="$accessPointUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>) $tlang.getString('uploadall.instruction4')
+		#end
 	</p>
 	<form id="uploadAllForm" name="uploadAllForm" action="#toolForm('AssignmentAction')" method="post" onsubmit="return true;" enctype="multipart/form-data">
 			<input type="hidden" name="sakai_action" id="sakai_action" value="doUpload_all" />
 			<input type="hidden" name="flow" id="flow" value="upload" />
 			<div class="highlightPanel">
-			<p class="shorttext">
-				<label for="file">$tlang.getString("uploadall.choose.file")</label>
-				<input type="file" name="file" id="file" class="upload" onchange="javascript:document.getElementById('filechosenconfirm').style.display='block';" />
-			<p id="filechosenconfirm" class="information" style="display:none;clear:both">$tlang.getString("uploadall.choose.file.confirm")</p>
-			<h4>$tlang.getString("uploadall.choose.file2")</h4>
+				#if (!$!download)
+					<p class="shorttext">
+						<label for="file">$tlang.getString("uploadall.choose.file")</label>
+						<input type="file" name="file" id="file" class="upload" onchange="javascript:document.getElementById('filechosenconfirm').style.display='block';" />
+						<p id="filechosenconfirm" class="information" style="display:none;clear:both">$tlang.getString("uploadall.choose.file.confirm")</p>
+					<h4>$tlang.getString("uploadall.choose.file2")</h4>
+			#end
 			<p class="checkbox indnt2">
 			 ## select-all box
-			 <input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'uploadChoices')"  />
+			 <input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'choices')"  />
 			 <label for="selectall">$tlang.getString("all")</label><br/>
 			 #if ($!includeSubmissionText)
 					## student submission text
-					<input id="studentSubmissionText" type="checkbox" value="studentSubmissionText" name="uploadChoices" #if($!hasSubmissionText)checked="checked"#end />
+					<input id="studentSubmissionText" type="checkbox" value="studentSubmissionText" name="choices" #if($!hasSubmissionText)checked="checked"#end />
 					<label for="studentSubmissionText">$tlang.getString("uploadall.choose.file.studentSubmissionText")</label><br/>
 				#end
 				#if ($!includeSubmissionAttachment)
 					## student submission attachment
-					<input id="studentSubmissionAttachment" type="checkbox" value="studentSubmissionAttachment" name="uploadChoices" #if($!hasSubmissionAttachment)checked="checked"#end />
+					<input id="studentSubmissionAttachment" type="checkbox" value="studentSubmissionAttachment" name="choices" #if($!hasSubmissionAttachment)checked="checked"#end />
 					<label for="studentSubmissionAttachment">$tlang.getString("uploadall.choose.file.studentSubmissionAttachment")</label><br/>
 				#end
 				## grade files
-				<input id="gradeFile" type="checkbox" value="gradeFile" name="uploadChoices" #if($!hasGradeFile)checked="checked"#end />
+				<input id="gradeFile" type="checkbox" value="gradeFile" name="choices" #if($!hasGradeFile)checked="checked"#end />
 				<label for="gradeFile">$tlang.getString("uploadall.choose.file.gradeFile")</label><br/>
 				#if ($!includeSubmissionText)
 					## feedback text
-					<input id="feedbackTexts" type="checkbox" value="feedbackTexts" name="uploadChoices" #if($!hasFeedbackText)checked="checked"#end />
+					<input id="feedbackTexts" type="checkbox" value="feedbackTexts" name="choices" #if($!hasFeedbackText)checked="checked"#end />
 					<label for="feedbackTexts">$tlang.getString("uploadall.choose.file.feedbackTexts")</label><br/>	
 				#end
 			 ## feedback comments
-				<input id="feedbackComments" type="checkbox" value="feedbackComments" name="uploadChoices" #if($!hasComments)checked="checked"#end />
+				<input id="feedbackComments" type="checkbox" value="feedbackComments" name="choices" #if($!hasComments)checked="checked"#end />
 				<label for="feedbackComments">$tlang.getString("uploadall.choose.file.feedbackComments")</label><br/>	
 			 ## feedback attachments
-				<input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="uploadChoices" #if($!hasFeedbackAttachment)checked="checked"#end />
+				<input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="choices" #if($!hasFeedbackAttachment)checked="checked"#end />
 				<label for="feedbackAttachments">$tlang.getString("uploadall.choose.file.feedbackAttachments")</label><br/>
 			</p>
-			<h4>$tlang.getString("uploadall.releaseOption")</h4>
-			<div class="checkbox  indnt2">
-				## release uploaded info
-				<input type="radio" name="release" id="release_true" value="true" #if($!releaseGrades)checked="checked"#end>
-				<label for="release_true">$tlang.getString("uploadall.releaseOption.yes")</label>
-				<br/>
-				## NOT release uploaded info
-				<input type="radio" name="release" id="release_false" value="false" #if(!$!releaseGrades)checked="checked"#end>
-				<label for="release_false">$tlang.getString("uploadall.releaseOption.no")</label>
-			</div>
+			#if (!$download)
+				<h4>$tlang.getString("uploadall.releaseOption")</h4>
+				<div class="checkbox  indnt2">
+					## release uploaded info
+					<input type="radio" name="release" id="release_true" value="true" #if($!releaseGrades)checked="checked"#end>
+					<label for="release_true">$tlang.getString("uploadall.releaseOption.yes")</label>
+					<br/>
+					## NOT release uploaded info
+					<input type="radio" name="release" id="release_false" value="false" #if(!$!releaseGrades)checked="checked"#end>
+					<label for="release_false">$tlang.getString("uploadall.releaseOption.no")</label>
+				</div>
+			#end
 			<p class="act">
-			<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
-						onclick="javascript:showNotif('submitnotif','uploadButton','uploadAllForm');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doUpload_all' 'flow=upload')'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />
-					
+			#if ($download)
+				#set($alertMessage = $tlang.getString('downloadall.alert.choose.element'))
+				#set($actionString="#toolLinkParam($action 'doCancel_download_upload_all' 'flow=cancel')")
+				<input type="button" name="downloadButton" id="downloadButton"  accesskey="d" class="active"
+						onclick="javascript:invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage');" value="$tlang.getString('downloadall.button.download')" />
+			#else
+				<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
+						onclick="javascript:showNotif('submitnotif','uploadButton','uploadAllForm');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doDownload_upload_all' 'flow=upload')'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />
+			#end	
 					<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"
-						onclick="document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doCancel_upload_all' 'flow=cancel')'; submitform('uploadAllForm');" value="$tlang.getString('gen.can')" />
+						onclick="document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doCancel_download_upload_all' 'flow=cancel')'; submitform('uploadAllForm');" value="$tlang.getString('gen.can')" />
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</p>
 		</div>

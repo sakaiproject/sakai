@@ -3606,21 +3606,71 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 	} // getGradesSpreadsheet
-
+	
 	/**
-	 * Access the submissions zip for the assignment reference.
-	 * 
-	 * @param ref
-	 *        The assignment reference.
-	 * @return The submissions zip bytes.
-	 * @throws IdUnusedException
-	 *         if there is no object with this id.
-	 * @throws PermissionException
-	 *         if the current user is not allowed to access this.
+	 * {@inheritDoc}
 	 */
 	public void getSubmissionsZip(OutputStream outputStream, String ref) throws IdUnusedException, PermissionException
  	{
 		M_log.warn(this + ": getSubmissionsZip reference=" + ref);
+		
+		getSubmissionsZip(outputStream, ref, null);
+ 	}
+
+	/**
+	 * depends on the query string from ui, determine what to include inside the submission zip
+	 * @param outputStream
+	 * @param ref
+	 * @param queryString
+	 * @throws IdUnusedException
+	 * @throws PermissionException
+	 */
+	protected void getSubmissionsZip(OutputStream out, String ref, String queryString) throws IdUnusedException, PermissionException
+ 	{
+		M_log.warn(this + ": getSubmissionsZip 2 reference=" + ref);
+		
+		boolean withStudentSubmissionText = false;
+		boolean withStudentSubmissionAttachment = false;
+		boolean withGradeFile = false;
+		boolean withFeedbackText = false;
+		boolean withFeedbackComment = false;
+		boolean withFeedbackAttachment = false;
+		
+		if (queryString != null)
+		{
+				
+			// check against the content elements selection
+			if (queryString.contains("studentSubmissionText"))
+			{
+				// should contain student submission text information
+				withStudentSubmissionText = true;
+			}
+			if (queryString.contains("studentSubmissionAttachment"))
+			{
+				// should contain student submission attachment information
+				withStudentSubmissionAttachment = true;
+			}
+			if (queryString.contains("gradeFile"))
+			{
+				// should contain grade file
+				withGradeFile = true;	
+			}
+			if (queryString.contains("feedbackTexts"))
+			{
+				// inline text
+				withFeedbackText = true;
+			}
+			if (queryString.contains("feedbackComments"))
+			{
+				// comments  should be available
+				withFeedbackComment = true;
+			}
+			if (queryString.contains("feedbackAttachments"))
+			{
+				// feedback attachment
+				withFeedbackAttachment = true;
+			}
+		}
 
 		byte[] rv = null;
 
@@ -3704,7 +3754,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			if (allowGradeSubmission(a.getReference()))
 			{
-				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), submissions.iterator(), outputStream, exceptionMessage);
+				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), submissions.iterator(), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment);
 
 				if (exceptionMessage.length() > 0)
 				{
@@ -3728,7 +3778,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	} // getSubmissionsZip
 
-	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage) 
+	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment) 
 	{
 	    ZipOutputStream out = null;
 		try {
@@ -3800,17 +3850,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									try
 									{
 										submittersName = submittersName.concat("/");
-										// create the folder structure - named after the submitter's name
-										if (typeOfSubmission != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
-										{
-											// create the text file only when a text submission is allowed
-											ZipEntry textEntry = new ZipEntry(submittersName + submittersString + "_submissionText" + ZIP_SUBMITTED_TEXT_FILE_TYPE);
-											out.putNextEntry(textEntry);
-											byte[] text = submittedText.getBytes();
-											out.write(text);
-											textEntry.setSize(text.length);
-											out.closeEntry();
-										}
 										
 										// record submission timestamp
 										if (s.getSubmitted() && s.getTimeSubmitted() != null)
@@ -3822,37 +3861,71 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 											textEntry.setSize(b.length);
 											out.closeEntry();
 										}
-										// create a feedbackText file into zip
-										ZipEntry fTextEntry = new ZipEntry(submittersName + "feedbackText.html");
-										out.putNextEntry(fTextEntry);
-										byte[] fText = s.getFeedbackText().getBytes();
-										out.write(fText);
-										fTextEntry.setSize(fText.length);
-										out.closeEntry();
 										
-										// the comments.txt file to show instructor's comments
-										ZipEntry textEntry = new ZipEntry(submittersName + "comments" + ZIP_COMMENT_FILE_TYPE);
-										out.putNextEntry(textEntry);
-										byte[] b = FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes();
-										out.write(b);
-										textEntry.setSize(b.length);
-										out.closeEntry();
+										// create the folder structure - named after the submitter's name
+										if (typeOfSubmission != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+										{
+											// include student submission text
+											if (withStudentSubmissionText)
+											{
+												// create the text file only when a text submission is allowed
+												ZipEntry textEntry = new ZipEntry(submittersName + submittersString + "_submissionText" + ZIP_SUBMITTED_TEXT_FILE_TYPE);
+												out.putNextEntry(textEntry);
+												byte[] text = submittedText.getBytes();
+												out.write(text);
+												textEntry.setSize(text.length);
+												out.closeEntry();
+											}
 										
-										// create an attachment folder for the feedback attachments
-										String feedbackSubAttachmentFolder = submittersName + rb.getString("download.feedback.attachment") + "/";
-										ZipEntry feedbackSubAttachmentFolderEntry = new ZipEntry(feedbackSubAttachmentFolder);
-										out.putNextEntry(feedbackSubAttachmentFolderEntry);
-										out.closeEntry();
-		
-										// create a attachment folder for the submission attachments
-										String sSubAttachmentFolder = submittersName + rb.getString("download.submission.attachment") + "/";
-										ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
-										out.putNextEntry(sSubAttachmentFolderEntry);
-										out.closeEntry();
-										// add all submission attachment into the submission attachment folder
-										zipAttachments(out, submittersName, sSubAttachmentFolder, s.getSubmittedAttachments());
-										// add all feedback attachment folder
-										zipAttachments(out, submittersName, feedbackSubAttachmentFolder, s.getFeedbackAttachments());
+											// include student submission feedback text
+											if (withFeedbackText)
+											{
+											// create a feedbackText file into zip
+											ZipEntry fTextEntry = new ZipEntry(submittersName + "feedbackText.html");
+											out.putNextEntry(fTextEntry);
+											byte[] fText = s.getFeedbackText().getBytes();
+											out.write(fText);
+											fTextEntry.setSize(fText.length);
+											out.closeEntry();
+											}
+										}
+										
+										if (typeOfSubmission != Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+										{
+											// include student submission attachment
+											if (withStudentSubmissionAttachment)
+											{
+												// create a attachment folder for the submission attachments
+												String sSubAttachmentFolder = submittersName + rb.getString("download.submission.attachment") + "/";
+												ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
+												out.putNextEntry(sSubAttachmentFolderEntry);
+												out.closeEntry();
+												// add all submission attachment into the submission attachment folder
+												zipAttachments(out, submittersName, sSubAttachmentFolder, s.getSubmittedAttachments());
+											}
+										}
+										
+										if (withFeedbackComment)
+										{
+											// the comments.txt file to show instructor's comments
+											ZipEntry textEntry = new ZipEntry(submittersName + "comments" + ZIP_COMMENT_FILE_TYPE);
+											out.putNextEntry(textEntry);
+											byte[] b = FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes();
+											out.write(b);
+											textEntry.setSize(b.length);
+											out.closeEntry();
+										}
+										
+										if (withFeedbackAttachment)
+										{
+											// create an attachment folder for the feedback attachments
+											String feedbackSubAttachmentFolder = submittersName + rb.getString("download.feedback.attachment") + "/";
+											ZipEntry feedbackSubAttachmentFolderEntry = new ZipEntry(feedbackSubAttachmentFolder);
+											out.putNextEntry(feedbackSubAttachmentFolderEntry);
+											out.closeEntry();
+											// add all feedback attachment folder
+											zipAttachments(out, submittersName, feedbackSubAttachmentFolder, s.getFeedbackAttachments());
+										}
 		
 										added = true;
 									}
@@ -3876,13 +3949,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			} // while -- there is submission
 
-			// create a grades.csv file into zip
-			ZipEntry gradesCSVEntry = new ZipEntry(root + "grades.csv");
-			out.putNextEntry(gradesCSVEntry);
-			byte[] grades = gradesBuffer.toString().getBytes();
-			out.write(grades);
-			gradesCSVEntry.setSize(grades.length);
-			out.closeEntry();
+			if (withGradeFile)
+			{
+				// create a grades.csv file into zip
+				ZipEntry gradesCSVEntry = new ZipEntry(root + "grades.csv");
+				out.putNextEntry(gradesCSVEntry);
+				byte[] grades = gradesBuffer.toString().getBytes();
+				out.write(grades);
+				gradesCSVEntry.setSize(grades.length);
+				out.closeEntry();
+			}
 		}
 		catch (IOException e)
 		{
@@ -4094,6 +4170,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						if (REF_TYPE_SUBMISSIONS.equals(ref.getSubType()))
 						{
+							String queryString = req.getQueryString();
 							res.setContentType("application/zip");
 							res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
 							 
@@ -4103,10 +4180,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							    out = res.getOutputStream();
 							    
 							    // get the submissions zip blob
-							    getSubmissionsZip(out, ref.getReference());
+							    getSubmissionsZip(out, ref.getReference(), queryString);
 							    
-							    out.flush();
-							    out.close();
 							}
 							catch (Throwable ignore)
 							{
@@ -4118,7 +4193,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							    {
 							        try
 							        {
-							            out.close();
+									    out.flush();
+									    out.close();
 							        }
 							        catch (Throwable ignore)
 							        {
