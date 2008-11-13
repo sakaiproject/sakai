@@ -615,27 +615,27 @@ function resizeFrame(){
 				#end
 				
 				#if ($type=="Multidisciplinary Conference") 
-				<option selected="selected" value="Multidisciplinary Conference">$tlang.getString("legend.key16")</option value=> 
+				<option selected="selected" value="Multidisciplinary Conference">$tlang.getString("legend.key13")</option value=> 
 				#else 
-				<option value="Multidisciplinary Conference">$tlang.getString("legend.key16")</option> 
+				<option value="Multidisciplinary Conference">$tlang.getString("legend.key13")</option> 
 				#end
 				
 				#if ($type =="Quiz") 
-				<option selected="selected" value="Quiz">$tlang.getString("legend.key13")</option> 
+				<option selected="selected" value="Quiz">$tlang.getString("legend.key14")</option> 
 				#else 
-				<option value="Quiz">$tlang.getString("legend.key13")</option> 
+				<option value="Quiz">$tlang.getString("legend.key14")</option> 
 				#end
 				
 				#if ($type =="Special event") 
-				<option selected="selected" value="Special event">$tlang.getString("legend.key14")</option> 
+				<option selected="selected" value="Special event">$tlang.getString("legend.key15")</option> 
 				#else 
-				<option value="Special event">$tlang.getString("legend.key14")</option> 
+				<option value="Special event">$tlang.getString("legend.key15")</option> 
 				#end
 				
 				#if ($type =="Web Assignment") 
-				<option selected="selected" value="Web Assignment">$tlang.getString("legend.key15")</option> 
+				<option selected="selected" value="Web Assignment">$tlang.getString("legend.key16")</option> 
 				#else 
-				<option value="Web Assignment">$tlang.getString("legend.key15")</option> 
+				<option value="Web Assignment">$tlang.getString("legend.key16")</option> 
 				#end
 			</select>
 		</p>
