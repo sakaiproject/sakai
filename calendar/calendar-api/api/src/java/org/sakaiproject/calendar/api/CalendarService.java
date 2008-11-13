@@ -47,6 +47,9 @@ public interface CalendarService
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "calendar";
 
+	/** Name for the event of adding a calendar */
+	public static final String EVENT_CREATE_CALENDAR = "calendar.create";
+
 	/** Name for the event of adding a calendar event. */
 	public static final String EVENT_ADD_CALENDAR = "calendar.new";
 

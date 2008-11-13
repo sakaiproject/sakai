@@ -681,7 +681,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		// keep it
 		CalendarEdit calendar = m_storage.putCalendar(ref);
 
-		((BaseCalendarEdit) calendar).setEvent(EVENT_ADD_CALENDAR);
+		((BaseCalendarEdit) calendar).setEvent(EVENT_CREATE_CALENDAR);
 
 		return calendar;
 
