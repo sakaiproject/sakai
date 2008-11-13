@@ -24,7 +24,7 @@
 			<resource>
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
-					<include>**/*.properties</include>
+					<include>**/default.sakai.properties</include>
 				</includes>
 			</resource>
 		</resources>
