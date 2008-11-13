@@ -5765,8 +5765,15 @@ extends VelocityPortletStateAction
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
 		
-		String alias = StringUtil.trimToNull(data.getParameters().getString(FORM_ALIAS));
 		String enable = StringUtil.trimToNull(data.getParameters().getString(FORM_ICAL_ENABLE));
+		String alias = StringUtil.trimToNull(data.getParameters().getString(FORM_ALIAS));
+      
+		// this will verify that no invalid characters are used
+		if ( ! Validator.escapeResourceName(alias).equals(alias) )
+		{
+			addAlert(sstate, rb.getString("java.alert.invalidname"));
+			return;
+		}
 		
 		String calId = state.getPrimaryCalendarReference();
 		Calendar calendarObj = null;
