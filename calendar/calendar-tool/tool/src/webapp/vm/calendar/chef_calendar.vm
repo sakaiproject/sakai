@@ -33,12 +33,12 @@ calendar Portlet
 <td><img src = "#imageLink("$config.getProperty('legend.icon12')")" border="0" /> $tlang.getString('legend.key12')</td>
 </tr>
 <tr>
-<td><img src = "#imageLink("$config.getProperty('legend.icon13')")" border="0" /> $tlang.getString('legend.key16')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon14')")" border="0" /> $tlang.getString('legend.key13')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon15')")" border="0" /> $tlang.getString('legend.key14')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon13')")" border="0" /> $tlang.getString('legend.key13')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon14')")" border="0" /> $tlang.getString('legend.key14')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon15')")" border="0" /> $tlang.getString('legend.key15')</td>
 </tr>
 <tr>
-<td><img src = "#imageLink("$config.getProperty('legend.icon16')")" border="0" /> $tlang.getString('legend.key15')</td>        
+<td><img src = "#imageLink("$config.getProperty('legend.icon16')")" border="0" /> $tlang.getString('legend.key16')</td>        
 </tr>
 </table>
 
@@ -72,14 +72,14 @@ calendar Portlet
 <img src = "#imageLink("$config.getProperty('legend.icon11')")" alt="$tlang.getString('legend.key11')" border="0">
 #elseif ($eventType =="Meeting")
 <img src = "#imageLink("$config.getProperty('legend.icon12')")" alt="$tlang.getString('legend.key12')" border="0">
+#elseif ($eventType =="Multidisciplinary Conference")
+<img src = "#imageLink("$config.getProperty('legend.icon13')")" alt="$tlang.getString('legend.key13')" border="0">
 #elseif ($eventType =="Quiz")
 <img src = "#imageLink("$config.getProperty('legend.icon14')")" alt="$tlang.getString('legend.key13')" border="0">
 #elseif ($eventType =="Special event")
-<img src = "#imageLink("$config.getProperty('legend.icon15')")" alt="$tlang.getString('legend.key14')" border="0">
+<img src = "#imageLink("$config.getProperty('legend.icon15')")" alt="$tlang.getString('legend.key15')" border="0">
 #elseif ($eventType =="Web Assignment")
-<img src = "#imageLink("$config.getProperty('legend.icon16')")" alt="$tlang.getString('legend.key15')" border="0">
-#elseif ($eventType =="Multidisciplinary Conference")
-<img src = "#imageLink("$config.getProperty('legend.icon13')")" alt="$tlang.getString('legend.key16')" border="0">
+<img src = "#imageLink("$config.getProperty('legend.icon16')")" alt="$tlang.getString('legend.key16')" border="0">
 #end
 #end
 
