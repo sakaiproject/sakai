@@ -20,26 +20,22 @@
 
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	
-#if ($enable_export == "true")
 	<h3>
 		$tlang.getString("ical.title")
 	</h3>
 	
-	<p class="shorttext indnt2">
-		$tlang.getString("ical.help")<br/>
-		<a href="$!icalUrl" target="_new_">$icalUrl</a>
-	</p>
+	<p class="instruction">
+#if ($enable_export == "true")
+		$tlang.getString("ical.help")	<a href="$!icalUrl" target="_new_">$icalUrl</a>
+#else      
+		$tlang.getString("ical.info")<br/>
 #end
+	</p>
+   
+   <p/>
 
 #if ($allow_export == "true")
-	<h3>
-		$tlang.getString("ical.customize")
-	</h3>
-
 	<form action="#toolForm($action)" method="post">
-		<h4 class="indnt1">
-			$tlang.getString("ical.schedname.title")
-		</h4>	
 		<p class="shorttext indnt2">
 			<label for ="$form-alias">
 				$tlang.getString("ical.schedname")
