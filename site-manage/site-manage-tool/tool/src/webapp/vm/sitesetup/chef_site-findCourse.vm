@@ -48,12 +48,10 @@
 					<input type="hidden" name="option" value="remove" />
 
 					<table class="listHier lines nolines" style="width:auto" summary="" cellpadding="0" cellspacing="0" border="0">
-						#foreach($item in $!selectedProviderCourse)
+						#foreach($item in $!selectedProviderCourseTitles)
 							<tr>
 								<td>
-									#set($pSection = false)
-									#set($pSection = $!cms.getSection($item))
-									#if ($!pSection)$pSection.getTitle()#end
+									$item
 								</td>
 								<td>
 									<!-- Remove Section -->

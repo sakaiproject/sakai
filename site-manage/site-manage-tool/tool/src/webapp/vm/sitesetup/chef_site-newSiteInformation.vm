@@ -74,13 +74,11 @@
 				<h4><span class="instruction">$tlang.getString("sinfo.youare")</span></h4>
 			</td></tr>
 			#set ($selectedProviderCourse-num=0)
-			#foreach ($item in $!selectedProviderCourse)
+			#foreach ($item in $!selectedProviderCourseTitles)
 				<tr>
 					<td style="padding-left:1em">
 					#set ($selectedProviderCourse-num=1)
-					#set($pSection = false)
-					#set($pSection = $!cms.getSection($item))
-					#if ($!pSection)$pSection.getTitle()#end
+					$item
 					</td>
 					<td>
 					<!-- Remove Section -->

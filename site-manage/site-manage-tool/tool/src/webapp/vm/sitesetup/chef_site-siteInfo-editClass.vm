@@ -21,14 +21,12 @@
 					</th>
 				</tr>
 				#set ($providerCourseListNum =0)	
-				#foreach($id in $!providerCourseList)
+				#foreach($id in $!providerCourseTitles)
 				#set ($providerCourseListNum =$providerCourseListNum + 1)	
 					<tr>
 						<td headers="class">
 							<h4><label for="pcl$providerCourseListNum">
-								#set($pSection = false)
-								#set($pSection = $!cms.getSection($id))
-								#if ($!pSection)$pSection.getTitle()#end
+								$id
 							</label></h4>
 						</td>
 						<td headers="remove" class="screenOnly">

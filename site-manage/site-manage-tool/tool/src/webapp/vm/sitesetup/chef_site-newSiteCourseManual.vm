@@ -34,11 +34,9 @@
 				<p class="instruction">
 				$tlang.getString("nscourse.already")
 				</p>
-				#foreach($id in $!providerCourseList)
+				#foreach($id in $!providerCourseTitles)
 					<p class="indnt2">
-						#set($pSection = false)
-						#set($pSection = $!cms.getSection($id))
-						#if ($!pSection)$pSection.getTitle()#end
+						$id
 					</p>
 				#end
 				#foreach($id in $!manualCourseList)
@@ -56,12 +54,10 @@
 				#end
 				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p>
 				<table class="listHier lines nolines" cellapadding="0" cellspacing="0" summary="todo: summary" style="width:auto">
-					#foreach ($item in $!selectedProviderCourse)
+					#foreach ($item in $!selectedProviderCourseTitles)
 						<tr>
 							<td>
-								#set($pSection = false)
-								#set($pSection = $!cms.getSection($item))
-								#if ($!pSection)$pSection.getTitle()#end
+								$item
 							</td>
 							<td>
 							<span class="itemAction">

@@ -19,11 +19,9 @@
 		$tlang.getString("sitegen.addcourse.foll")<br />
 	</p>
 	<ul class="attachList indnt2">
-		#foreach($id in $providerCourseList)
+		#foreach($id in $providerCourseTitles)
 			<li>
-				#set($pSection = false)
-				#set($pSection = $!cms.getSection($id))
-				#if ($!pSection)$pSection.getTitle()#end
+				$id
 			</li>
 		#end
 		#foreach($id in $!cmRequestedCourseList)
@@ -41,11 +39,9 @@
 		$tlang.getString("sitegen.addcourse.you")<br />
 	</p>
 	<ul class="attachList indnt2">
-		#foreach($id in $providerAddCourses)
+		#foreach($id in $selectedProviderCourseTitles)
 			<li>
-				#set($pSection = false)
-				#set($pSection = $!cms.getSection($id))
-				#if ($!pSection)$pSection.getTitle()#end
+				$id
 			</li>
 		#end
 	</ul>

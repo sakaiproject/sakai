@@ -1058,8 +1058,6 @@ public class SiteAction extends PagedResourceActionII {
 
 		String hasGradSites = ServerConfigurationService.getString(
 				"withDissertation", Boolean.FALSE.toString());
-		
-		context.put("cms", cms);
 
 		// course site type
 		context.put("courseSiteType", state.getAttribute(STATE_COURSE_SITE_TYPE));
@@ -1292,10 +1290,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("isProjectSite", Boolean.FALSE);
 
-				if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
-					context.put("selectedProviderCourse", state
-							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN));
-				}
+				putSelectedProviderCourseIntoContext(context, state);
 
 				List<SectionObject> cmRequestedList = (List<SectionObject>) state
 						.getAttribute(STATE_CM_REQUESTED_SECTIONS);
@@ -1586,10 +1581,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
 				context.put("isProjectSite", Boolean.FALSE);
-				if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
-					context.put("selectedProviderCourse", state
-							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN));
-				}
+				putSelectedProviderCourseIntoContext(context, state);
 				if (state.getAttribute(STATE_CM_AUTHORIZER_SECTIONS) != null) {
 					context.put("selectedAuthorizerCourse", state
 							.getAttribute(STATE_CM_AUTHORIZER_SECTIONS));
@@ -2485,16 +2477,8 @@ public class SiteAction extends PagedResourceActionII {
 				// v2.4 daisyf
 				if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null
 						|| state.getAttribute(STATE_CM_AUTHORIZER_SECTIONS) != null) {
-					List<String> providerSectionList = (List<String>) state
-							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
-					if (providerSectionList != null) {
-						/*
-						List list1 = prepareSectionObject(providerSectionList,
-								(String) state
-										.getAttribute(STATE_CM_CURRENT_USERID));
-										*/
-						context.put("selectedProviderCourse", providerSectionList);
-					}
+					
+					putSelectedProviderCourseIntoContext(context, state);
 
 					List<SectionObject> authorizerSectionList = (List<SectionObject>) state
 							.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
@@ -2585,12 +2569,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("fieldValues", state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 			}
 
-			if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
-				List l = (List) state
-						.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
-				context.put("selectedProviderCourse", l);
-				context.put("size", new Integer(l.size() - 1));
-			}
+			putSelectedProviderCourseIntoContext(context, state);
 
 			if (state.getAttribute(STATE_CM_REQUESTED_SECTIONS) != null) {
 				List l = (List) state
@@ -2670,8 +2649,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			coursesIntoContext(state, context, site);
 
-			context.put("providerAddCourses", state
-					.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN));
+			putSelectedProviderCourseIntoContext(context, state);
+			
 			if (state.getAttribute(STATE_CM_SELECTED_SECTIONS) != null)
 			{
 				context.put("cmSelectedSections", state.getAttribute(STATE_CM_SELECTED_SECTIONS));
@@ -2803,10 +2782,9 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("cmLevelOptions", Arrays.asList(levelOpts));
 				state.setAttribute(STATE_CM_LEVEL_OPTS, levelOpts);
 			}
-			if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
-				context.put("selectedProviderCourse", state
-						.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN));
-			}
+
+			putSelectedProviderCourseIntoContext(context, state);
+			
 			if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 				int courseInd = ((Integer) state
 						.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
@@ -2864,6 +2842,39 @@ public class SiteAction extends PagedResourceActionII {
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 
+	}
+
+	/**
+	 * get the titles of list of selected provider courses into context
+	 * @param context
+	 * @param state
+	 */
+	private void putSelectedProviderCourseIntoContext(Context context, SessionState state) {
+		if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
+			
+			List<String> providerSectionList = (List<String>) state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+			context.put("selectedProviderCourse", providerSectionList);
+
+			List<String> providerSectionListTitles = new Vector<String>();
+			if (providerSectionList != null)
+			{
+				for (String providerSectionId : providerSectionList)
+				{
+					try
+					{
+						Section s = cms.getSection(providerSectionId);
+						providerSectionListTitles.add(s.getTitle()); 
+					}
+					catch (Exception e)
+					{
+						providerSectionListTitles.add(providerSectionId);
+						M_log.warn(this + ".putSelectedProviderCourseIntoContext " + e.getMessage() + " sectionId=" + providerSectionId, e);
+					}
+				}
+			}
+			context.put("selectedProviderCourseTitles", providerSectionListTitles);
+			context.put("size", new Integer(providerSectionList.size() - 1));
+		}
 	}
 
 	/**
@@ -3302,21 +3313,22 @@ public class SiteAction extends PagedResourceActionII {
 		if (providerCourseList != null && providerCourseList.size() > 0) {
 			state.setAttribute(SITE_PROVIDER_COURSE_LIST, providerCourseList);
 			
-			String sectionTitleString = "";
+			List<String> sectionTitles = new Vector<String>();
 			for(int i = 0; i < providerCourseList.size(); i++)
 			{
 				String sectionId = (String) providerCourseList.get(i);
 				try
 				{
 					Section s = cms.getSection(sectionId);
-					sectionTitleString = (i>0)?sectionTitleString + "<br />" + s.getTitle():s.getTitle(); 
+					sectionTitles.add(s.getTitle());
 				}
 				catch (Exception e)
 				{
+					sectionTitles.add(sectionId);
 					M_log.warn(this + ".coursesIntoContext " + e.getMessage() + " sectionId=" + sectionId, e);
 				}
 			}
-			context.put("providedSectionTitle", sectionTitleString);
+			context.put("providerCourseTitles", sectionTitles);
 			context.put("providerCourseList", providerCourseList);
 		}
 

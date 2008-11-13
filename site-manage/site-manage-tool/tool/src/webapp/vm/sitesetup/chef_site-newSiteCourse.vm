@@ -147,29 +147,6 @@ function redirectBasedOnSelection(){
 		#end
 	</p>
 	<form name = "addCourseForm" method="post" action="#toolForm($action)">
-		## no value in the below block that I can see
-	#*
-		<p class="instruction">$tlang.getString("nscourse.already")</p>
-			<ul>
-			#foreach($id in $!providerCourseList)
-					<li>
-						#set($pSection = false)
-						#set($pSection = $!cms.getSection($id))
-						#if ($!pSection)$pSection.getTitle()#end
-					</li>
-				#end
-				#foreach($id in $!cmRequestedCourseList)
-					<li>
-							$id.title $tlang.getString("man.requested")<br />
-					</li>
-				#end
-				#foreach($id in $!manualCourseList)
-					<li>
-							$id $tlang.getString("man.requested")<br />
-					</li>
-				#end
-			</ul>
-		*#	
 		#if ($site)
 			<p class="shorttext  required">
 				<span class ="reqStar">*</span>
