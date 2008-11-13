@@ -2013,7 +2013,7 @@ public class DeliveryActionListener
         else{  // this is a new timed assessment
           delivery.setTimeElapse("0");
 	}
-        queueTimedAssessment(delivery, timeLimit, fromBeginAssessment);
+        queueTimedAssessment(delivery, timeLimit, fromBeginAssessment, publishedAssessment);
         delivery.setBeginAssessment(false);
       }
       else{ // in midst of assessment taking, sync it with timedAG
@@ -2029,7 +2029,7 @@ public class DeliveryActionListener
     }
   }
 
-  private void queueTimedAssessment(DeliveryBean delivery, int timeLimit, boolean fromBeginAssessment){
+  private void queueTimedAssessment(DeliveryBean delivery, int timeLimit, boolean fromBeginAssessment, PublishedAssessmentFacade publishedAssessment){
     AssessmentGradingData ag = delivery.getAssessmentGrading();
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
     TimedAssessmentGradingModel timedAG = queue.get(ag.getAssessmentGradingId());
@@ -2037,7 +2037,7 @@ public class DeliveryActionListener
       timedAG = new TimedAssessmentGradingModel(ag.getAssessmentGradingId(), 
                 timeLimit, timeLimit - ag.getTimeElapsed().intValue(),
                 new Date(), new Date(), // need modify later
-		false, getTimerId(delivery));
+		false, getTimerId(delivery), publishedAssessment);
       queue.add(timedAG);
       //log.debug("***0. queue="+queue);
       //log.debug("***1. put timedAG in queue, timedAG="+timedAG);

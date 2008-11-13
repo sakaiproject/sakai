@@ -24,6 +24,8 @@ package org.sakaiproject.tool.assessment.ui.model.delivery;
 
 import java.util.Date;
 
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+
 /**
  * <p>Title: </p>
  * <p>Description: </p>
@@ -45,6 +47,7 @@ public class TimedAssessmentGradingModel
   private Date localExpirationDate;
   private boolean submittedForGrade=false;
   private String timerId;
+  private PublishedAssessmentFacade publishedAssessment;
   
   /* 30 sec, this is to allow JScript clock to catch up before server submit the
    * assessment for grade
@@ -65,7 +68,7 @@ public class TimedAssessmentGradingModel
   public TimedAssessmentGradingModel(Long assessmentGradingId,
       int timeLimit, int timeLeft,
       Date beginDate, Date localBeginDate, 
-      boolean submittedForGrade, String timerId){
+      boolean submittedForGrade, String timerId, PublishedAssessmentFacade publishedAssessment){
     this.assessmentGradingId = assessmentGradingId;
     this.timeLimit = timeLimit;
     this.timeLeft = timeLeft;
@@ -76,13 +79,14 @@ public class TimedAssessmentGradingModel
     this.localBeginDate = localBeginDate;
     this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000);
     this.timerId = timerId;
+    this.publishedAssessment = publishedAssessment;
   }
 
   public TimedAssessmentGradingModel(Long assessmentGradingId,
       int timeLimit, int timeLeft, 
       int latencyBuffer, int transactionBuffer,
       Date beginDate, Date localBeginDate, 
-      boolean submittedForGrade, String timerId){
+      boolean submittedForGrade, String timerId, PublishedAssessmentFacade publishedAssessment){
     this.assessmentGradingId = assessmentGradingId;
     this.timeLimit = timeLimit;
     this.timeLeft = timeLeft;
@@ -95,6 +99,7 @@ public class TimedAssessmentGradingModel
     this.localBeginDate = localBeginDate;
     this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000);
     this.timerId = timerId;
+    this.publishedAssessment = publishedAssessment;
   }
 
   public Long getAssessmentGradingId() {
@@ -192,5 +197,12 @@ public class TimedAssessmentGradingModel
   public void setTimerId(String timerId) {
     this.timerId = timerId;
   }
+  
+  public PublishedAssessmentFacade getPublishedAssessment(){
+	  return publishedAssessment;
+  }
 
+  public void setPublishedAssessment(PublishedAssessmentFacade publishedAssessment) {
+	  this.publishedAssessment = publishedAssessment;
+  }
 }
