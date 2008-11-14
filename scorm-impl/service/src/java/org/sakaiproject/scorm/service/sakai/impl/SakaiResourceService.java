@@ -171,7 +171,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		return getContentResourcesRecursive(contentPackageDirectoryId, uuid, "");
 	}
 		
-	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden) {
+	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) {
 		String collectionId = getRootDirectoryPath();
 		
 		String fileName = new String(name);
@@ -192,7 +192,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			ResourcePropertiesEdit props = edit.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
 			
-	        contentService().commitResource(edit);			
+	        contentService().commitResource(edit, priority);			
 
 	        return edit.getId();
 		} catch (Exception e) {
