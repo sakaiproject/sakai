@@ -37,7 +37,7 @@
 					</fo:block>
 
 					<!-- Report data -->
-					<fo:block font-size="10pt" space-before="10mm">
+					<fo:block font-size="9pt" space-before="10mm">
 						<fo:table table-layout="fixed" width="100%" border-collapse="collapse">
 							<xsl:choose>
 								<xsl:when test="what = 'what-resources'">

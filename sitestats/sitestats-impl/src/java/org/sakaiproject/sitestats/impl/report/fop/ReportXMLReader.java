@@ -173,14 +173,27 @@ public class ReportXMLReader extends AbstractObjectReader {
             // user id and name
         	String userId = null;
         	String userName = null;
-            try{
-				User user = M_uds.getUser(cs.getUserId());
-				userId = user.getDisplayId();
-				userName = user.getDisplayName();
-			}catch(UserNotDefinedException e){
-				userId = cs.getUserId();
-				userName = "-";
-			}
+        	String id = cs.getUserId();
+        	if (id != null) {
+    			if(("-").equals(id)) {
+    				userId = "-";
+    				userName = msgs.getString("user_anonymous");
+    			}else if(("?").equals(id)) {
+    				userId = "-";
+    				userName = msgs.getString("user_anonymous_access");
+    			}else{
+    				try{
+    					User user = M_uds.getUser(id);
+    					userId = user.getDisplayId();
+    					userName = user.getDisplayName();
+    				}catch(UserNotDefinedException e1){
+    					userId = id;
+    					userName = msgs.getString("user_unknown");
+    				}
+    			}
+    		}else{
+    			userName = msgs.getString("user_unknown");
+    		}
             handler.element("userid", userId);
             handler.element("username", userName);
             

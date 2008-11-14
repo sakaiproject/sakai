@@ -405,7 +405,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			
 			// user check
 			if(userId == null) userId = M_uss.getSession(e.getSessionId()).getUserId();
-			if(!isCollectAdminEvents() && userId.equals("admin")){
+			if(!isCollectAdminEvents() && ("admin").equals(userId)){
+				return;
+			}if(!M_sm.isShowAnonymousAccessEvents() && ("?").equals(userId)){
 				return;
 			}
 

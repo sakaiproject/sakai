@@ -260,6 +260,18 @@ public class ReportParamsModel extends Model implements ReportParams {
 	public void setWhoUserIds(List<String> whoUserIds) {
 		this.whoUserIds = whoUserIds;
 	}
+	public void setWhoUserIds(Object o) {
+		System.out.println("setWhoUserIds(Object)");
+		this.whoUserIds = new ArrayList<String>();
+		if(o != null) {
+			System.out.println("o: "+o);
+			if(o instanceof String) {
+				this.whoUserIds.add((String) o);
+			}else{
+				System.out.println("o instance of: "+o.getClass());
+			}
+		}
+	}
 	
 	
 	// ------------------------------------------------------------
@@ -326,12 +338,14 @@ public class ReportParamsModel extends Model implements ReportParams {
 		str.append(": ");
 		str.append('[');
 		boolean first = true;
-		for(String value : values) {
-			if(!first) {
-				str.append(", ");				
+		if(values != null) {
+			for(String value : values) {
+				if(!first) {
+					str.append(", ");				
+				}
+				str.append(value);
+				first = false;
 			}
-			str.append(value);
-			first = false;
 		}
 		str.append(']');
 		if(hasMore) {

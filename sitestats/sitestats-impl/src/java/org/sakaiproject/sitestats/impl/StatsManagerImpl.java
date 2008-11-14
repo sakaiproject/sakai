@@ -101,7 +101,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private boolean						isEventContextSupported					= false;
 
 	/** Controller fields */
-	private boolean						showAnonymousEvents						= false;
+	private boolean						showAnonymousAccessEvents				= true;
 
 	/** Sakai services */
 	private EventRegistryService		M_ers;
@@ -180,8 +180,12 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return itemLabelsVisible;
 	}
 
-	public void setShowAnonymousEvents(boolean value){
-		this.showAnonymousEvents = value;
+	public void setShowAnonymousAccessEvents(boolean value){
+		this.showAnonymousAccessEvents = value;
+	}
+
+	public boolean isShowAnonymousAccessEvents(){
+		return showAnonymousAccessEvents;
 	}
 	
 	public void setLastJobRunDateVisible(boolean value) {
@@ -731,7 +735,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					Criteria c = session.createCriteria(EventStatImpl.class)
 							.add(Expression.eq("siteId", siteId))
 							.add(Expression.in("eventId", events));
-					if(!showAnonymousEvents)
+					if(!showAnonymousAccessEvents)
 						c.add(Expression.ne("userId", "?"));
 					if(userIdList != null && userIdList.size() > 0)
 						c.add(Expression.in("userId", userIdList));
@@ -770,7 +774,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousEvents)
+			if(!showAnonymousAccessEvents)
 				usersStr += " and s.userId != '?' ";
 			final String hql = "select s.siteId, s.userId, s.eventId, sum(s.count), max(s.date) " + 
 					"from EventStatImpl as s " +
@@ -844,7 +848,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousEvents)
+			if(!showAnonymousAccessEvents)
 				usersStr += " and s.userId != '?' ";
 			final String hql = "select s.siteId, s.userId, s.eventId, sum(s.count), max(s.date) " + 
 					"from EventStatImpl as s " +
@@ -1086,7 +1090,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(fDate != null) {
 			_hql.append("and s.date < :fdate ");
 		}
-		if(!showAnonymousEvents) {
+		if(!showAnonymousAccessEvents) {
 			_hql.append(" and s.userId != '?' ");
 		}
 		
@@ -1288,7 +1292,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(fDate != null) {
 			_hql.append("and s.date < :fdate ");
 		}
-		if(!showAnonymousEvents) {
+		if(!showAnonymousAccessEvents) {
 			_hql.append(" and s.userId != '?' ");
 		}
 		
@@ -1336,7 +1340,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousEvents)
+			if(!showAnonymousAccessEvents)
 				usersStr += " and s.userId != '?' ";
 			final String hql = "select count(*) " + 
 					"from EventStatImpl as s " +
@@ -1397,7 +1401,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Criteria c = session.createCriteria(ResourceStatImpl.class)
 							.add(Expression.eq("siteId", siteId));
-					if(!showAnonymousEvents)
+					if(!showAnonymousAccessEvents)
 						c.add(Expression.ne("userId", "?"));
 					if(userIdList != null && userIdList.size() > 0)
 						c.add(Expression.in("userId", userIdList));
@@ -1436,7 +1440,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousEvents)
+			if(!showAnonymousAccessEvents)
 				usersStr += " and s.userId != '?' ";
 			final String hql = "select s.siteId, s.userId, s.resourceRef, s.resourceAction, sum(s.count), max(s.date) " + 
 					"from ResourceStatImpl as s " +
@@ -1518,7 +1522,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousEvents)
+			if(!showAnonymousAccessEvents)
 				usersStr += " and s.userId != '?' ";
 			final String hql = "select s.siteId, s.userId, s.resourceRef, s.resourceAction, sum(s.count), max(s.date) " + 
 					"from ResourceStatImpl as s " +
@@ -1612,7 +1616,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousEvents)
+			if(!showAnonymousAccessEvents)
 				usersStr += " and s.userId != '?' ";
 			final String hql = "select count(*) " + 
 					"from ResourceStatImpl as s " +
@@ -1691,22 +1695,27 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}else{
 			String iDateStr = "";
 			String fDateStr = "";
+			String usersStr = "";
 			if(M_sql.getVendor().equals("oracle")){
 				if(iDate != null)
 					iDateStr = "and es.EVENT_DATE >= :idate ";
 				if(fDate != null)
 					fDateStr = "and es.EVENT_DATE < :fdate ";
+				if(!showAnonymousAccessEvents)
+					usersStr = "and es.USER_ID != '?' ";
 			}else{
 				if(iDate != null)
 					iDateStr = "and es.date >= :idate ";
 				if(fDate != null)
 					fDateStr = "and es.date < :fdate ";
+				if(!showAnonymousAccessEvents)
+					usersStr = "and es.userId != '?' ";
 			}
 			final String hql = "select es.siteId, sum(es.count) ,count(distinct es.userId), year(es.date), month(es.date)"+
 				"from EventStatImpl as es " +
 				"where es.siteId = :siteid " +
 				iDateStr + fDateStr +
-				"  and es.userId != '?' " +
+				usersStr +
 				"  and es.eventId = '"+SITEVISIT_EVENTID+"' " +
 				"group by es.siteId, year(es.date), month(es.date)";
 			final String oracleSql = "select es.SITE_ID as actSiteId, sum(es.EVENT_COUNT) as actVisits, count(distinct es.USER_ID) as actUnique, "+
@@ -1714,7 +1723,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				"from SST_EVENTS es " +
 				"where es.SITE_ID = :siteid " +
 				iDateStr + fDateStr +
-				"  and es.USER_ID != '?' " +
+				usersStr +
 				"  and es.EVENT_ID = '"+SITEVISIT_EVENTID+"' " + 
 				"group by es.SITE_ID,to_char(es.EVENT_DATE,'YYYY'), to_char(es.EVENT_DATE,'MM')";
 			
@@ -1832,10 +1841,13 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
+			String usersStr = "";
+			if(!showAnonymousAccessEvents)
+				usersStr = "and es.userId != '?' ";
 			final String hql = "select count(distinct es.userId) " +
 					"from EventStatImpl as es " +
 					"where es.siteId = :siteid " +
-					"and es.userId != '?' " +
+					usersStr +
 					"and es.eventId = 'pres.begin'";
 			
 			HibernateCallback hcb = new HibernateCallback() {
@@ -1861,14 +1873,17 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}else{
 			String iDateStr = "";
 			String fDateStr = "";
+			String usersStr = "";
 			if(iDate != null)
 				iDateStr = "and es.date >= :idate ";
 			if(fDate != null)
 				fDateStr = "and es.date < :fdate ";
+			if(!showAnonymousAccessEvents)
+				usersStr = "and es.userId != '?' ";
 			final String hql = "select count(distinct es.userId) " +
 					"from EventStatImpl as es " +
 					"where es.siteId = :siteid " +
-					"and es.userId != '?'" +
+					usersStr +
 					iDateStr + fDateStr +
 					"and es.eventId = 'pres.begin'";
 			
@@ -1967,7 +1982,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(iDate != null)
 					iDateStr = "and s.date >= :idate ";
 				if(fDate != null)
-					fDateStr = "and s.date < :fdate ";
+					fDateStr = "and s.date < :fdate ";  
 			}
 			final String hql = "select s.siteId, sum(s.count), year(s.date), month(s.date), day(s.date) " + 
 					"from SiteActivityImpl as s " +
@@ -1975,14 +1990,13 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					"and s.eventId in (:eventlist) " +
 					iDateStr + fDateStr +
 					"group by s.siteId, year(s.date), month(s.date), day(s.date)";
-			// to_char(to_date(sa.ACTIVITY_DATE,'DD-Mon-YY'),'YYYY') as actYear
 			final String oracleSql = 
-				"select s.SITE_ID as actSiteId, sum(s.ACTIVITY_COUNT) as actCount, to_char(s.ACTIVITY_DATE,'YYYY') as actYear, to_char(s.ACTIVITY_DATE,'MM') as actMonth, to_char(s.ACTIVITY_DATE,'DD') as actDay " + 
-				"from SST_SITEACTIVITY s " +
-				"where s.SITE_ID = :siteid " +
-				"and s.EVENT_ID in (:eventlist) " +
-				iDateStr + fDateStr +
-				"group by s.SITE_ID, to_char(s.ACTIVITY_DATE,'YYYY'), to_char(s.ACTIVITY_DATE,'MM'), to_char(s.ACTIVITY_DATE,'DD')";
+					"select s.SITE_ID as actSiteId, sum(s.ACTIVITY_COUNT) as actCount, to_char(s.ACTIVITY_DATE,'YYYY') as actYear, to_char(s.ACTIVITY_DATE,'MM') as actMonth, to_char(s.ACTIVITY_DATE,'DD') as actDay " + 
+					"from SST_SITEACTIVITY s " +
+					"where s.SITE_ID = :siteid " +
+					"and s.EVENT_ID in (:eventlist) " +
+					iDateStr + fDateStr +
+					"group by s.SITE_ID, to_char(s.ACTIVITY_DATE,'YYYY'), to_char(s.ACTIVITY_DATE,'MM'), to_char(s.ACTIVITY_DATE,'DD')";
 			
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -2065,7 +2079,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(iDate != null)
 					iDateStr = "and s.date >= :idate ";
 				if(fDate != null)
-					fDateStr = "and s.date < :fdate ";
+					fDateStr = "and s.date < :fdate ";  
 			}
 			final String hql = "select s.siteId, sum(s.count), year(s.date), month(s.date) " + 
 					"from SiteActivityImpl as s " +
@@ -2074,11 +2088,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					iDateStr + fDateStr +
 					"group by s.siteId, year(s.date), month(s.date)";
 			final String oracleSql = "select s.SITE_ID as actSiteId, sum(s.ACTIVITY_COUNT) as actCount, to_char(s.ACTIVITY_DATE,'YYYY') as actYear, to_char(s.ACTIVITY_DATE,'MM') as actMonth " + 
-			"from SST_SITEACTIVITY s " +
-			"where s.SITE_ID = :siteid " +
-			"and s.EVENT_ID in (:eventlist) " +
-			iDateStr + fDateStr +
-			"group by s.SITE_ID, to_char(s.ACTIVITY_DATE,'YYYY'), to_char(s.ACTIVITY_DATE,'MM')";
+					"from SST_SITEACTIVITY s " +
+					"where s.SITE_ID = :siteid " +
+					"and s.EVENT_ID in (:eventlist) " +
+					iDateStr + fDateStr +
+					"group by s.SITE_ID, to_char(s.ACTIVITY_DATE,'YYYY'), to_char(s.ACTIVITY_DATE,'MM')";
 			
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -2157,7 +2171,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(iDate != null)
 					iDateStr = "and s.date >= :idate ";
 				if(fDate != null)
-					fDateStr = "and s.date < :fdate ";
+					fDateStr = "and s.date < :fdate ";  
 			}
 			final String hql = "select s.siteId, sum(s.count), s.eventId " + 
 					"from SiteActivityImpl as s " +
@@ -2165,14 +2179,13 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					"and s.eventId in (:eventlist) " +
 					iDateStr + fDateStr +
 					"group by s.siteId, s.eventId";
-			// to_char(to_date(sa.ACTIVITY_DATE,'DD-Mon-YY'),'YYYY') as actYear
 			final String oracleSql = 
-				"select s.SITE_ID as actSiteId, sum(s.ACTIVITY_COUNT) as actCount, s.EVENT_ID as actEventId " + 
-				"from SST_SITEACTIVITY s " +
-				"where s.SITE_ID = :siteid " +
-				"and s.EVENT_ID in (:eventlist) " +
-				iDateStr + fDateStr +
-				"group by s.SITE_ID, s.EVENT_ID";
+					"select s.SITE_ID as actSiteId, sum(s.ACTIVITY_COUNT) as actCount, s.EVENT_ID as actEventId " + 
+					"from SST_SITEACTIVITY s " +
+					"where s.SITE_ID = :siteid " +
+					"and s.EVENT_ID in (:eventlist) " +
+					iDateStr + fDateStr +
+					"group by s.SITE_ID, s.EVENT_ID";
 			
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -2257,7 +2270,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(iDate != null)
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
-				fDateStr = "and s.date < :fdate ";
+				fDateStr = "and s.date < :fdate ";   
 			final String hql = "select s.siteId, sum(s.count),s.date " + 
 					"from SiteActivityImpl as s " +
 					"where s.siteId = :siteid " +
@@ -2325,7 +2338,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(iDate != null)
 				iDateStr = "and ss.date >= :idate ";
 			if(fDate != null)
-				fDateStr = "and ss.date < :fdate ";
+				fDateStr = "and ss.date < :fdate ";  
 			final String hql = "select sum(ss.count) " +
 					"from SiteActivityImpl as ss " +
 					"where ss.eventId in (:eventlist) " +

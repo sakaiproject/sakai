@@ -41,6 +41,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.convert.ConversionException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -473,6 +474,12 @@ public class ReportsPage extends BasePage {
 		ajaxUpdateLock.lock();
 		try{
 			List<SelectOption> users = new ArrayList<SelectOption>();
+			// anonymous access
+			if(facade.getStatsManager().isShowAnonymousAccessEvents()) {
+				SelectOption anon = new SelectOption("option", new Model("?"));
+				users.add(anon);
+			}
+			// site users
 			Set<String> siteUsers = null;
 			try{
 				siteUsers = facade.getSiteService().getSite(siteId).getUsers();
@@ -483,9 +490,11 @@ public class ReportsPage extends BasePage {
 			Iterator<String> i = siteUsers.iterator();
 			while(i.hasNext()){
 				String userId = i.next();
-				SelectOption opt = new SelectOption("option", new Model(userId));
-				opt.setEscapeModelStrings(true);
-				users.add(opt);
+				if(userId != null) {
+					SelectOption opt = new SelectOption("option", new Model(userId));
+					opt.setEscapeModelStrings(true);
+					users.add(opt);
+				}
 			}		
 			WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
 			rv.add(optgroupItem);
@@ -493,19 +502,22 @@ public class ReportsPage extends BasePage {
 				public String getDisplayValue(Object object) {
 					SelectOption opt = (SelectOption) object;
 					String userId = (String) opt.getModel().getObject();
-					User u = null;
-					try{
-						u = facade.getUserDirectoryService().getUser(userId);
-					}catch(UserNotDefinedException e){
-						LOG.warn("User does not exist: " + userId);
-						return "";
+					if(("?").equals(userId)) {
+						return Web.escapeHtml( (String) new ResourceModel("user_anonymous_access").getObject() );
+					}else{
+						User u = null;
+						try{
+							u = facade.getUserDirectoryService().getUser(userId);
+						}catch(UserNotDefinedException e){
+							return Web.escapeHtml(userId);
+						}
+						StringBuilder buff = new StringBuilder();
+						buff.append(u.getDisplayName());
+						buff.append(" (");
+						buff.append(u.getDisplayId());
+						buff.append(")");
+						return Web.escapeHtml(buff.toString());
 					}
-					StringBuilder buff = new StringBuilder();
-					buff.append(u.getDisplayName());
-					buff.append(" (");
-					buff.append(u.getDisplayId());
-					buff.append(")");
-					return Web.escapeHtml(buff.toString());
 				}
 				public IModel getModel(Object value) {
 					SelectOption opt = (SelectOption) value;

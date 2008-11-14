@@ -69,6 +69,8 @@ public interface StatsManager {
 
 	public boolean isServerWideStatsEnabled();
 	
+	public boolean isShowAnonymousAccessEvents();
+	
 	// ################################################################
 	// Preferences
 	// ################################################################

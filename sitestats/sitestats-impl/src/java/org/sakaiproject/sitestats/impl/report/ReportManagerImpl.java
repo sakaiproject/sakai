@@ -307,14 +307,26 @@ public class ReportManagerImpl implements ReportManager {
 			String userId = se.getUserId();
 			String userEid = null;
 			String userName = null;
-			try{
-				User u = M_uds.getUser(userId);
-				userEid = u.getDisplayId();
-				userName = u.getDisplayName();
-			}catch(UserNotDefinedException e){
-				userEid = userId;
-				userName = "-";
-			}
+			if (userId != null) {
+    			if(("-").equals(userId)) {
+    				userEid = "-";
+    				userName = msgs.getString("user_anonymous");
+    			}else if(("?").equals(userId)) {
+    				userEid = "-";
+    				userName = msgs.getString("user_anonymous_access");
+    			}else{
+    				try{
+    					User user = M_uds.getUser(userId);
+    					userEid = user.getDisplayId();
+    					userName = user.getDisplayName();
+    				}catch(UserNotDefinedException e1){
+    					userEid = userId;
+    					userName = msgs.getString("user_unknown");
+    				}
+    			}
+    		}else{
+    			userName = msgs.getString("user_unknown");
+    		}
 			row.createCell((short) 0).setCellValue(userEid);
 			row.createCell((short) 1).setCellValue(userName);
 			if(!report.getReportParams().getWho().equals(ReportManager.WHO_NONE)) {
@@ -374,15 +386,27 @@ public class ReportManagerImpl implements ReportManager {
 			// user id
 			String userId = se.getUserId();
 			String userEid = null;
-			String userName = null;
-			try{
-				User u = M_uds.getUser(userId);
-				userEid = u.getDisplayId();
-				userName = u.getDisplayName();
-			}catch(UserNotDefinedException e){
-				userEid = userId;
-				userName = "-";
-			}
+			String userName = null;			
+			if (userId != null) {
+    			if(("-").equals(userId)) {
+    				userEid = "-";
+    				userName = msgs.getString("user_anonymous");
+    			}else if(("?").equals(userId)) {
+    				userEid = "-";
+    				userName = msgs.getString("user_anonymous_access");
+    			}else{
+    				try{
+    					User user = M_uds.getUser(userId);
+    					userEid = user.getDisplayId();
+    					userName = user.getDisplayName();
+    				}catch(UserNotDefinedException e1){
+    					userEid = userId;
+    					userName = msgs.getString("user_unknown");
+    				}
+    			}
+    		}else{
+    			userName = msgs.getString("user_unknown");
+    		}
 			appendQuoted(sb, userEid);
 			sb.append(",");
 			// user name
@@ -532,21 +556,39 @@ public class ReportManagerImpl implements ReportManager {
 	}
 	
 	private String getUserDisplayId(String userId) {
-		String userEid = null;
-		try{
-			userEid = M_uds.getUser(userId).getDisplayId();
-		}catch(UserNotDefinedException e){
-			userEid = userId;
+		String userEid = null;		
+		if (userId != null) {
+			if(("-").equals(userId) || ("?").equals(userId)) {
+				userEid = "-";
+			}else{
+				try{
+					userEid = M_uds.getUser(userId).getDisplayId();
+				}catch(UserNotDefinedException e1){
+					userEid = userId;
+				}
+			}
+		}else{
+			userEid = msgs.getString("user_unknown");
 		}
 		return userEid;
 	}
 	
 	private String getUserDisplayName(String userId) {
 		String userName = null;
-		try{
-			userName = M_uds.getUser(userId).getDisplayName();
-		}catch(UserNotDefinedException e){
-			userName = "";
+		if (userId != null) {
+			if(("-").equals(userId)) {
+				userName = msgs.getString("user_anonymous");
+			}else if(("?").equals(userId)) {
+				userName = msgs.getString("user_anonymous_access");
+			}else{
+				try{
+					userName = M_uds.getUser(userId).getDisplayName();
+				}catch(UserNotDefinedException e1){
+					userName = msgs.getString("user_unknown");
+				}
+			}
+		}else{
+			userName = msgs.getString("user_unknown");
 		}
 		return userName;
 	}

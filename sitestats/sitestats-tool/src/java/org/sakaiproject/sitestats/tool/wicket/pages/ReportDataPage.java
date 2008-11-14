@@ -213,13 +213,19 @@ public class ReportDataPage extends BasePage {
 			@Override
 			public void populateItem(Item item, String componentId, IModel model) {
 				final String userId = ((CommonStatGrpByDate) model.getObject()).getUserId();
-				String name = "-";
+				String name = null;
 				if (userId != null) {
-					try{
-						name = facade.getUserDirectoryService().getUser(userId).getDisplayId();
-					}catch(UserNotDefinedException e1){
+					if(("-").equals(userId) || ("?").equals(userId)) {
 						name = "-";
+					}else{
+						try{
+							name = facade.getUserDirectoryService().getUser(userId).getDisplayId();
+						}catch(UserNotDefinedException e1){
+							name = userId;
+						}
 					}
+				}else{
+					name = (String) new ResourceModel("user_unknown").getObject();
 				}
 				item.add(new Label(componentId, name));
 			}
@@ -228,13 +234,21 @@ public class ReportDataPage extends BasePage {
 			@Override
 			public void populateItem(Item item, String componentId, IModel model) {
 				final String userId = ((CommonStatGrpByDate) model.getObject()).getUserId();
-				String name = "-";
+				String name = null;
 				if (userId != null) {
-					try{
-						name = facade.getUserDirectoryService().getUser(userId).getDisplayName();
-					}catch(UserNotDefinedException e1){
-						name = "-";
+					if(("-").equals(userId)) {
+						name = (String) new ResourceModel("user_anonymous").getObject();
+					}else if(("?").equals(userId)) {
+						name = (String) new ResourceModel("user_anonymous_access").getObject();
+					}else{
+						try{
+							name = facade.getUserDirectoryService().getUser(userId).getDisplayName();
+						}catch(UserNotDefinedException e1){
+							name = (String) new ResourceModel("user_unknown").getObject();
+						}
 					}
+				}else{
+					name = (String) new ResourceModel("user_unknown").getObject();
 				}
 				item.add(new Label(componentId, name));
 			}
