@@ -125,6 +125,8 @@ extends VelocityPortletStateAction
 	// configuration properties (initialized in initState()	 
    Properties configProps = null;
 	
+	private static final String ALERT_MSG_KEY = "alertMessage";
+	
 	private static final String CONFIRM_IMPORT_WIZARD_STATE = "CONFIRM_IMPORT";
 	private static final String WIZARD_IMPORT_FILE = "importFile";
 	private static final String GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE = "GENERIC_SELECT_FILE";
@@ -1276,8 +1278,6 @@ extends VelocityPortletStateAction
 				
 				Calendar calendarObj = null;
 				
-				StringBuilder exceptionMessage = new StringBuilder();
-				
 				String calId = state.getPrimaryCalendarReference();
 				try
 				{
@@ -1285,13 +1285,15 @@ extends VelocityPortletStateAction
 				}
 				catch (IdUnusedException e)
 				{
-					exceptionMessage.append(rb.getString("java.alert.thereis"));
-					M_log.debug(".buildCustomizeContext(): " + e);
+					context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereis"));
+					M_log.warn(".buildCustomizeContext(): " + e);
+					return;
 				}
 				catch (PermissionException e)
 				{
-					exceptionMessage.append(rb.getString("java.alert.youdont"));
-					M_log.debug(".buildCustomizeContext(): " + e);
+					context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont"));
+					M_log.warn(".buildCustomizeContext(): " + e);
+					return;
 				}
 				
 				// Get a current list of add fields.  This is a comma-delimited string.
@@ -1548,8 +1550,6 @@ extends VelocityPortletStateAction
 					addfields = addfields.substring(ADDFIELDS_DELIMITER.length());
 				}
 				
-				StringBuilder exceptionMessage = new StringBuilder();
-				
 				String calId = state.getPrimaryCalendarReference();
 				try
 				{
@@ -1559,18 +1559,21 @@ extends VelocityPortletStateAction
 				}
 				catch (IdUnusedException e)
 				{
-					exceptionMessage.append(rb.getString("java.alert.thereisno")); 
+					context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereisno")); 
 					M_log.debug(".doUpdate customize calendar IdUnusedException"+e);
+					return;
 				}
 				catch (PermissionException e)
 				{
-					exceptionMessage.append(rb.getString("java.alert.youdonthave"));
+					context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdonthave"));
 					M_log.debug(".doUpdate customize calendar "+e);
+					return;
 				}
 				catch (InUseException e)
 				{
-					exceptionMessage.append(rb.getString("java.alert.someone")); 
+					context.put(ALERT_MSG_KEY,rb.getString("java.alert.someone")); 
 					M_log.debug(".doUpdate() for CustomizeCalendar: " + e);
+					return;
 				}
 				
 				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addfields);
@@ -2554,7 +2557,6 @@ extends VelocityPortletStateAction
 		context.put("wizardImportedEvents", state.getWizardImportedEvents());
 		
 		String calId = state.getPrimaryCalendarReference();
-		StringBuilder exceptionMessage = new StringBuilder();
 		try
 		{
 			Calendar calendarObj = CalendarService.getCalendar(calId);
@@ -2585,12 +2587,12 @@ extends VelocityPortletStateAction
 		}
 		catch(IdUnusedException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.thereis"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereis"));
 			M_log.debug(".buildImportContext(): " + e);
 		}
 		catch (PermissionException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.youdont"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont"));
 			M_log.debug(".buildImportContext(): " + e);
 		}
 	}
@@ -2688,8 +2690,6 @@ extends VelocityPortletStateAction
 		dateObj1 = new MyDate();
 		boolean getEventsFlag = false;
 		
-		StringBuilder exceptionMessage = new StringBuilder();
-		
 		List attachments = state.getAttachments();
 		
 		String peid = ((JetspeedRunData)runData).getJs_peid();
@@ -2715,7 +2715,8 @@ extends VelocityPortletStateAction
 		{
 			if (CalendarService.allowGetCalendar(calId)== false)
 			{
-				exceptionMessage.append(rb.getString("java.alert.younotallow"));
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallow"));
+				return;
 			}
 			else
 			{
@@ -2766,13 +2767,15 @@ extends VelocityPortletStateAction
 				}
 				catch(IdUnusedException e)
 				{
-					exceptionMessage.append(rb.getString("java.alert.therenoactv"));
+					context.put(ALERT_MSG_KEY, rb.getString("java.alert.therenoactv"));
 					M_log.debug(".buildReviseContext(): " + e);
+					return;
 				}
 				catch (PermissionException e)
 				{
-					exceptionMessage.append(rb.getString("java.alert.younotperm"));
+					context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotperm"));
 					M_log.debug(".buildReviseContext(): " + e);
+					return;
 				}
 			}
 		}
@@ -2861,13 +2864,15 @@ extends VelocityPortletStateAction
 		}
 		catch(IdUnusedException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.thereis"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereis"));
 			M_log.debug(".buildNewContext(): " + e);
+			return;
 		}
 		catch (PermissionException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.youdont"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont"));
 			M_log.debug(".buildNewContext(): " + e);
+			return;
 		}
 		context.put("tlang",rb);
 		context.put("config",configProps);
@@ -2914,8 +2919,6 @@ extends VelocityPortletStateAction
 		MyDate dateObj1 = null;
 		dateObj1 = new MyDate();
 		
-		StringBuilder exceptionMessage = new StringBuilder();
-		
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
 		
@@ -2950,8 +2953,9 @@ extends VelocityPortletStateAction
 		
 		if ( !CalendarPermissions.allowViewEvents(selectedCalendarReference) )
 		{
-			exceptionMessage.append(rb.getString("java.alert.younotallow")); 
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallow")); 
 			M_log.debug("here in buildDescription not showing event");
+			return;
 		}
 		else
 		{
@@ -3049,13 +3053,15 @@ extends VelocityPortletStateAction
 			}
 			catch (PermissionException e)
 			{
-				exceptionMessage.append(rb.getString("java.alert.younotpermadd"));
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotpermadd"));
 				M_log.debug(".buildDescriptionContext(): " + e);
+				return;
 			}
 			catch (UserNotDefinedException e)
 			{
-				exceptionMessage.append(rb.getString("java.alert.younotpermadd"));
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotpermadd"));
 				M_log.debug(".buildDescriptionContext(): " + e);
+				return;
 			}
 		}
 		
@@ -3121,7 +3127,6 @@ extends VelocityPortletStateAction
 		monthObj1 = new MyMonth();
 		dayObj = new MyDay();
 		dateObj1 = new MyDate();
-		StringBuilder exceptionMessage = new StringBuilder();
 		
 		int month = 1;
 		int col = 3;
@@ -3150,8 +3155,7 @@ extends VelocityPortletStateAction
 		
 		if (CalendarService.allowGetCalendar(state.getPrimaryCalendarReference())== false)
 		{
-			allowed = false;
-			exceptionMessage.append(rb.getString("java.alert.younotallowsee"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallowsee"));
 			CalendarEventVectorObj = new	CalendarEventVector();
 		}
 		else
@@ -3162,12 +3166,12 @@ extends VelocityPortletStateAction
 			}
 			catch(IdUnusedException e)
 			{
-				exceptionMessage.append(rb.getString("java.alert.therenoactv"));
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.therenoactv"));
 				M_log.debug(".buildYearContext(): " + e);
 			}
 			catch (PermissionException e)
 			{
-				exceptionMessage.append(rb.getString("java.alert.younotperm"));
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotperm"));
 				M_log.debug(".buildYearContext(): " + e);
 			}
 		}
@@ -3255,7 +3259,6 @@ extends VelocityPortletStateAction
 		MyMonth monthObj2 = null;
 		
 		MyDate dateObj1 = null;
-		StringBuilder exceptionMessage = new StringBuilder();
 		CalendarEventVector CalendarEventVectorObj = null;
 		
 		dateObj1 = new MyDate();
@@ -3284,9 +3287,8 @@ extends VelocityPortletStateAction
 		// fill this month object with all days avilable for this month
 		if (CalendarService.allowGetCalendar(state.getPrimaryCalendarReference())== false)
 		{
-			exceptionMessage.append(rb.getString("java.alert.younotallow"));
-			CalendarEventVectorObj = new	CalendarEventVector();
-			
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallow"));
+			return;
 		}
 		
 		CalendarEventVectorObj =
@@ -3494,7 +3496,6 @@ extends VelocityPortletStateAction
 		Calendar calendarObj = null;
 		boolean allowed = false;
 		MyDate dateObj1 = null;
-		StringBuilder exceptionMessage = new StringBuilder();
 		CalendarEventVector CalendarEventVectorObj = null;
 		
 		String peid = ((JetspeedRunData)runData).getJs_peid();
@@ -3533,8 +3534,8 @@ extends VelocityPortletStateAction
 		
 		if (CalendarService.allowGetCalendar(calId)== false)
 		{
-			allowed = false;
-			exceptionMessage.append(rb.getString("java.alert.younotallow"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallow"));
+			return;
 		}
 		else
 		{
@@ -3613,23 +3614,15 @@ extends VelocityPortletStateAction
 			}
 			catch(IdUnusedException e)
 			{
-				exceptionMessage.append(rb.getString("java.alert.therenoactv"));
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.therenoactv"));
 				M_log.debug(".buildDayContext(): " + e);
-				
-				for(int i=0; i<20;i++)
-					eventVector.add(i,new Vector());
-				
-				dateObj1.setEventBerDay(eventVector);
+				return;
 			}
 			catch (PermissionException e)
 			{
-				exceptionMessage.append(rb.getString("java.alert.younotperm"));
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotperm"));
 				M_log.debug(".buildDayContext(): " + e);
-				
-				for(int i=0; i<20;i++)
-					eventVector.add(i,new Vector());
-				
-				dateObj1.setEventBerDay(eventVector);
+				return;
 			}
 		} 
 	 
@@ -3701,7 +3694,6 @@ extends VelocityPortletStateAction
 		MyWeek weekObj =null;
 		MyDay dayObj = null;
 		MyDate dateObj1, dateObj2 = null;
-		boolean allowed = false;
 		int dayofweek = 0;
 		
 		// new objects of myYear, myMonth, myDay, myWeek classes
@@ -3739,21 +3731,18 @@ extends VelocityPortletStateAction
 		dayObj.setDay(calObj.getDayOfMonth());
 		String calId = state.getPrimaryCalendarReference();
 		
-		StringBuilder exceptionMessage = new StringBuilder();
-		
 		// this loop will move the calendar to the begining of the week
 		
 		if (CalendarService.allowGetCalendar(calId)== false)
 		{
-			allowed = false;
-			exceptionMessage.append(rb.getString("java.alert.younotallow")); 
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallow")); 
+			return;
 		}
 		else
 		{
 			try
 			{
 				calendarObj = CalendarService.getCalendar(calId);
-				allowed = true;
 			}
 			catch(IdUnusedException e)
 			{
@@ -3761,48 +3750,31 @@ extends VelocityPortletStateAction
 				{
 					CalendarService.commitCalendar(CalendarService.addCalendar(calId));
 					calendarObj = CalendarService.getCalendar(calId);
-					allowed = true;
 				}
-				catch (PermissionException err)
+				catch (Exception err)
 				{
+					context.put(ALERT_MSG_KEY,rb.getString("java.alert.therenoactv"));
 					M_log.debug(".buildWeekContext(): " + err);
-				}
-				catch(IdUsedException err)
-				{
-					M_log.debug(".buildWeekContext(): " + err);
-				}
-				catch(IdInvalidException err)
-				{
-					M_log.debug(".buildWeekContext(): " + err);
-				}
-				catch(IdUnusedException err)
-				{
-					M_log.debug(".buildWeekContext(): " + err);
+					return;
 				}
 			}
 			catch (PermissionException e)
 			{
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotperm"));
 				M_log.debug(".buildWeekContext(): " + e);
-				allowed = false;
+				return;
 			}
 		}
 		
-		if ((allowed == true) && ( exceptionMessage.toString().length()<=0))
+		if (calendarObj.allowGetEvents() == true)
 		{
-			if (calendarObj.allowGetEvents() == true)
-			{
-				CalendarEventVectorObj =
+			CalendarEventVectorObj =
 				CalendarService.getEvents(
 				getCalendarReferenceList(
 				portlet,
 				state.getPrimaryCalendarReference(),
 				isOnWorkspaceTab()),
 				getWeekTimeRange(calObj));
-			}
-			else
-			{
-				CalendarEventVectorObj = new CalendarEventVector();
-			}
 		}
 		else
 		{
@@ -3974,7 +3946,6 @@ extends VelocityPortletStateAction
 		
 		String calId = state.getPrimaryCalendarReference();
 		Calendar calendarObj = null;
-		StringBuilder exceptionMessage = new StringBuilder();
 		
 		try
 		{
@@ -4013,13 +3984,15 @@ extends VelocityPortletStateAction
 		}
 		catch(IdUnusedException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.thereis"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereis"));
 			M_log.debug(".buildNewContext(): " + e);
+			return;
 		}
 		catch (PermissionException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.youdont"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont"));
 			M_log.debug(".buildNewContext(): " + e);
+			return;
 		}
 		
 		// Add any additional fields in the calendar.
@@ -4119,7 +4092,6 @@ extends VelocityPortletStateAction
 		
 		Calendar calendarObj = null;
 		CalendarEvent calEvent = null;
-		StringBuilder exceptionMessage = new StringBuilder();
 		
 		// get the event id from the CalendarService.
 		// send the event to the vm
@@ -4151,12 +4123,12 @@ extends VelocityPortletStateAction
 		}
 		catch (IdUnusedException  e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.noexist"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.noexist"));
 			M_log.debug(".buildDeleteContext(): " + e);
 		}
 		catch (PermissionException	 e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.youcreate"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youcreate"));
 			M_log.debug(".buildDeleteContext(): " + e);
 		}		
 	}	 // buildDeleteContext
@@ -4179,7 +4151,6 @@ extends VelocityPortletStateAction
 		Time startTime = null;
 		Time endTime = null;
 		TimeRange timeRange = null;
-		StringBuilder exceptionMessage = new StringBuilder();
 		
 		// new objects of myYear, myMonth, myDay, myWeek classes.
 		monthObj = new MyMonth();
@@ -4357,7 +4328,6 @@ extends VelocityPortletStateAction
 		if (intentionStr == null) intentionStr = "";
 		
 		Calendar calendarObj = null;
-		StringBuilder exceptionMessage = new StringBuilder();
 		
 		String calId = State.getPrimaryCalendarReference();
 		try
@@ -4366,13 +4336,15 @@ extends VelocityPortletStateAction
 		}
 		catch(IdUnusedException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.thereis"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereis"));
 			M_log.debug(".buildCustomizeContext(): " + e);
+			return;
 		}
 		catch (PermissionException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.youdont")); 
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont")); 
 			M_log.debug(".buildCustomizeContext(): " + e);
+			return;
 		}
 		
 		Map addfieldsMap = new HashMap();
@@ -4827,8 +4799,8 @@ extends VelocityPortletStateAction
 			Collection groupChoice = (Collection) sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS);
 			
 			
-			if (scheduleTo.equals("site") || 
-					(scheduleTo.equals("groups") && ((groupChoice != null) || (groupChoice.size()>0))))
+			if ( (scheduleTo != null && scheduleTo.equals("site")) || 
+				  (scheduleTo.equals("groups") && ((groupChoice != null) || (groupChoice.size()>0))))
 			{
 				for ( int i =0; i < wizardCandidateEventList.size(); i++ )
 				{
@@ -5046,7 +5018,6 @@ extends VelocityPortletStateAction
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
 		
 		Calendar calendarObj = null;
-		StringBuilder exceptionMessage = new StringBuilder();
 		String currentState = state.getState();
 		String returnState = state.getReturnState();
 		
@@ -5144,7 +5115,6 @@ extends VelocityPortletStateAction
 		
 		Calendar calendarObj = null;
 		String calId = state.getPrimaryCalendarReference();
-		StringBuilder exceptionMessage = new StringBuilder();
 		
 		try
 		{
@@ -5185,7 +5155,6 @@ extends VelocityPortletStateAction
 		CalendarEvent calendarEventObj = null;
 		Calendar calendarObj = null;
 		String calId = state.getPrimaryCalendarReference();
-		StringBuilder exceptionMessage = new StringBuilder();
 		
 		try
 		{
@@ -5262,8 +5231,6 @@ extends VelocityPortletStateAction
 		int intention = CalendarService.MOD_NA;
 		if ("t".equals(intentionStr)) intention = CalendarService.MOD_THIS;
 
-		StringBuilder exceptionMessage = new StringBuilder();
-		
 		String calId = state.getPrimaryCalendarReference();
 		
 		try
@@ -5487,7 +5454,6 @@ extends VelocityPortletStateAction
 		
 		CalendarUtil m_calObj = new CalendarUtil();
 		
-		StringBuilder exceptionMessage = new StringBuilder();
 		String id = state.getCalendarEventId();
 		
 		String calId = state.getPrimaryCalendarReference();
@@ -5501,12 +5467,14 @@ extends VelocityPortletStateAction
 		catch (IdUnusedException  e)
 		{
 			addAlert(sstate, rb.getString("java.alert.noexist"));
-			M_log.debug(".doActivityday(): " + e);
+			M_log.warn(".doActivityday(): " + e);
+			return;
 		}
 		catch (PermissionException	 e)
 		{
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
-			M_log.debug(".doActivityday(): " + e);
+			M_log.warn(".doActivityday(): " + e);
+			return;
 		}
 		
 		TimeRange tr = ce.getRange();
@@ -5916,8 +5884,6 @@ extends VelocityPortletStateAction
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
 		
-		StringBuilder exceptionMessage = new StringBuilder();
-		
 		Time m_time = TimeService.newTime();
 		TimeBreakdown b = m_time.breakdownLocal();
 		int stateYear = b.getYear();
@@ -5965,13 +5931,15 @@ extends VelocityPortletStateAction
 		}
 		catch(IdUnusedException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.thereisno"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereisno"));
 			M_log.debug(".doAdd(): " + e);
+			return;
 		}
 		catch (PermissionException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.youdont")); 
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont")); 
 			M_log.debug(".doAdd(): " + e);
+			return;
 		}
 		
 		// for section awareness - read user selection
@@ -6296,8 +6264,6 @@ extends VelocityPortletStateAction
 				int houri;
 				Calendar calendarObj = null;
 				
-				StringBuilder exceptionMessage = new StringBuilder();
-				
 				String hour = "";
 				hour = runData.getParameters().getString("startHour");
 				String title = "";
@@ -6331,13 +6297,15 @@ extends VelocityPortletStateAction
 				}
 				catch (IdUnusedException e)
 				{
-					exceptionMessage.append(rb.getString("java.alert.theresisno"));
+					context.put(ALERT_MSG_KEY,rb.getString("java.alert.theresisno"));
 					M_log.debug(".doUpdate() Other: " + e);
+					return;
 				}
 				catch (PermissionException e)
 				{
-					exceptionMessage.append(rb.getString("java.alert.youdont"));
+					context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont"));
 					M_log.debug(".doUpdate() Other: " + e);
+					return;
 				}
 				
 				// for group/section awareness
@@ -7085,7 +7053,6 @@ extends VelocityPortletStateAction
 		context.put("config",configProps);
 		MyMonth monthObj2 = null;
 		MyDate dateObj1 = new MyDate();
-		StringBuilder exceptionMessage = new StringBuilder();
 		CalendarEventVector calendarEventVectorObj = null;
 		boolean allowed = false;
 		LinkedHashMap yearMap = new LinkedHashMap();
@@ -7174,7 +7141,7 @@ extends VelocityPortletStateAction
 		if (CalendarService.allowGetCalendar(state.getPrimaryCalendarReference())== false)
 		{
 			allowed = false;
-			exceptionMessage.append(rb.getString("java.alert.younotallow"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallow"));
 			calendarEventVectorObj = new	CalendarEventVector();
 		}
 		else
@@ -7185,10 +7152,12 @@ extends VelocityPortletStateAction
 			}
 			catch(IdUnusedException e)
 			{
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.therenoactv"));
 				M_log.debug(".buildMonthContext(): " + e);
 			}
 			catch (PermissionException e)
 			{
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotperm"));
 				M_log.debug(".buildMonthContext(): " + e);
 			}
 		}
@@ -7840,8 +7809,6 @@ extends VelocityPortletStateAction
 		String intentionStr = rundata.getParameters().getString("intention");
 		if (intentionStr == null) intentionStr = "";
 		
-		StringBuilder exceptionMessage = new StringBuilder();
-		
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
@@ -7870,12 +7837,12 @@ extends VelocityPortletStateAction
 		}
 		catch(IdUnusedException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.thereis"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereis"));
 			M_log.debug(".doEditfrequency(): " + e);
 		}
 		catch (PermissionException e)
 		{
-			exceptionMessage.append(rb.getString("java.alert.youdont"));
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont"));
 			M_log.debug(".doEditfrequency(): " + e);
 		}
 		

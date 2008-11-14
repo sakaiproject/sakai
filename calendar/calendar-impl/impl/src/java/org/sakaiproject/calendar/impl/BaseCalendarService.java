@@ -3732,7 +3732,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 										}
 										catch (Throwable t)
 										{
-											M_log.warn(": trouble loading rule: " + ruleName + " : " + t);
+											M_log.warn(": trouble loading rule: " + t);
 										}
 									}
 
@@ -4785,8 +4785,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 								}
 								catch (Throwable t)
 								{
-									M_log.warn(": trouble loading rule: " + ruleName + " : "
-											+ t);
+									M_log.warn(": trouble loading rule: " + t);
 								}
 							}
 
