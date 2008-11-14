@@ -1476,6 +1476,31 @@ public class BaseExternalCalendarSubscriptionService implements
 		{
 			m_range = (TimeRange) range.clone();
 		}
+		
+		/**
+		 * Gets a site name for this calendar event
+		 */
+		public String getSiteName()
+		{
+			String calendarName = "";
+			
+			if (m_calendar_context != null)
+			{
+				try
+				{
+					Site site = m_siteService.getSite(m_calendar_context);
+					if (site != null)
+						calendarName = site.getTitle();
+				}
+				catch (IdUnusedException e)
+				{
+					m_log.warn(".getSiteName(): " + e);
+				}
+			}
+			
+			return calendarName;
+		}
+		
 	}
 
 	/**
@@ -1585,7 +1610,8 @@ public class BaseExternalCalendarSubscriptionService implements
 					cacheTime.put(key, System.currentTimeMillis());
 				}
 			}
-			super.putAll(map);
+			if ( map != null )
+				super.putAll(map);
 		}
 
 		@Override
