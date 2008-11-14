@@ -44,6 +44,9 @@ import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -66,7 +69,7 @@ import org.sakaiproject.util.SiteEmailNotification;
 public class SiteEmailNotificationAnnc extends SiteEmailNotification 
 				implements ScheduledInvocationCommand
 {
-	private ResourceLoader rb = new ResourceLoader("siteemaanc");
+	private static ResourceLoader rb = new ResourceLoader("siteemaanc");
 
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SiteEmailNotificationAnnc.class);
@@ -149,7 +152,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		Reference ref = EntityManager.newReference(event.getResource());
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
-
+				
 		// use either the configured site, or if not configured, the site (context) of the resource
 		String siteId = (getSite() != null) ? getSite() : ref.getContext();
 
@@ -202,6 +205,10 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		buf.append(hdr.getDate().toStringLocalFull());
 		buf.append(newline);
 		buf.append(newline);
+		buf.append(rb.getString("Group") + ": ");
+		buf.append(getAnnouncementGroup(msg));
+		buf.append(newline);
+		buf.append(newline);
 		buf.append(rb.getString("Message") + ": ");
 		buf.append(newline);
 		buf.append(newline);
@@ -225,6 +232,52 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		return buf.toString();
 	}
 
+	/**
+	 * get announcement group information
+	 */
+	private static String getAnnouncementGroup(AnnouncementMessage a)
+	{
+		if (a.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) != null
+				&& a.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+		{
+			return rb.getString("Public");
+		}
+		else if (a.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL))
+		{
+			return rb.getString("Allgroups");
+		}
+		else
+		{
+			int count = 0;
+			String allGroupString = "";
+			try
+			{
+				Site site = SiteService.getSite(EntityManager.newReference(a.getReference()).getContext());
+				for (Iterator i = a.getAnnouncementHeader().getGroups().iterator(); i.hasNext();)
+				{
+					Group aGroup = site.getGroup((String) i.next());
+					if (aGroup != null)
+					{
+						count++;
+						if (count > 1)
+						{
+							allGroupString = allGroupString.concat(", ").concat(aGroup.getTitle());
+						}
+						else
+						{
+							allGroupString = aGroup.getTitle();
+						}
+					}
+				}
+			}
+			catch (IdUnusedException e)
+			{
+				// No site available.
+			}
+			return allGroupString;
+		}
+	}	
+	
 	/**
 	 * @inheritDoc
 	 */
