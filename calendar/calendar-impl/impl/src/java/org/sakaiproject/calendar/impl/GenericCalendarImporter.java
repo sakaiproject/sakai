@@ -341,6 +341,15 @@ public class GenericCalendarImporter implements CalendarImporterService
 			return null;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public String getSiteName()
+		{
+			// Stub routine only
+			return null;
+		}
+		
 		/*
 		 * (non-Javadoc)
 		 * 
