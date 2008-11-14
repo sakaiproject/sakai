@@ -4271,6 +4271,30 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		} // getProperties
 
 		/**
+		 * Gets a site name for this calendar event
+		 */
+		public String getSiteName()
+		{
+			String calendarName = "";
+			
+			if (m_calendar != null)
+			{
+				try
+				{
+					Site site = SiteService.getSite(m_calendar.getContext());
+					if (site != null)
+						calendarName = site.getTitle();
+				}
+				catch (IdUnusedException e)
+				{
+					M_log.warn(".getSiteName(): " + e);
+				}
+			}
+			
+			return calendarName;
+		}
+		
+		/**
 		 * Notify the event that it has changed.
 		 * 
 		 * @param event
@@ -6456,7 +6480,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
          
 			StringBuffer comment = new StringBuffer(event.getType());
 			comment.append(" (");
-			comment.append(getSiteName(event));
+			comment.append(event.getSiteName());
 			comment.append(")");
 			icalEvent.getProperties().add(new Comment(comment.toString()));
 			
@@ -6559,7 +6583,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		//
 		if (!hideGroupIfNoSpace || trimmedTimeRange.duration() > MINIMUM_EVENT_LENGTH_IN_MSECONDS)
 		{
-			writeStringNodeToDom(doc, eventElement, GROUP_NODE, getSiteName(event));
+			writeStringNodeToDom(doc, eventElement, GROUP_NODE, event.getSiteName());
 		}
 
 		// Add the display name node.
@@ -6611,50 +6635,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		scheduleType = Integer.parseInt(scheduleTypeString);
 
 		return scheduleType;
-	}
-
-	/**
-	 * Gets a site name given a CalendarEvent
-	 */
-	protected String getSiteName(CalendarEvent event)
-	{
-		Calendar calendar = null;
-		String calendarName = "";
-
-		try
-		{
-			calendar = getCalendar(event.getCalendarReference());
-		}
-		catch (IdUnusedException e)
-		{
-			M_log.warn(".getSiteName(): " + e);
-		}
-		catch (PermissionException e)
-		{
-			M_log.warn(".getSiteNamee(): " + e);
-		}
-
-		// Use the context name as the site name.
-		if (calendar != null)
-		{
-			Site site = null;
-
-			try
-			{
-				site = SiteService.getSite(calendar.getContext());
-
-				if (site != null)
-				{
-					calendarName = site.getTitle();
-				}
-			}
-			catch (IdUnusedException e1)
-			{
-				M_log.warn(".getSiteName(): " + e1);
-			}
-		}
-
-		return calendarName;
 	}
 
 	/**

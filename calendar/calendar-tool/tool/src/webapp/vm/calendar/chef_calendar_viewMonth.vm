@@ -93,7 +93,9 @@
 
                 <div style="text-align:left;font-size:.9em;">
                 #foreach ($m in $eventsn)                    
-                    <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" title="$validator.escapeHtml($m.getDisplayName())" style="	text-decoration: none !important">
+                    <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" 
+                       title="$validator.escapeHtml($m.getDisplayName()) - $validator.escapeHtml($m.getSiteName())" 
+                       style="	text-decoration: none !important">
                     #set($size = $m.getDisplayName().length())
 						  #iconImage($m.getType())
                     #set($size = $m.getDisplayName().length())                            

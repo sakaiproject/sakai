@@ -157,6 +157,12 @@
 				<td>$validator.escapeHtml($owner_name)</td>
          </tr>
 			#end
+			#if($site_name && $site_name !="")
+			<tr>
+				<th>$tlang.getString("gen.site")</th>
+				<td>$validator.escapeHtml($site_name)</td>
+         </tr>
+			#end
 			#if($event.Location && $event.Location !="")
 				<tr> 
 					 <th>$tlang.getString("new.location")</th>

@@ -114,6 +114,13 @@ public interface CalendarEvent
 	*/
 	public String getModifiedBy();	
 
+
+	/**
+	* Gets the event's site name
+	* @return The event's site name
+	*/
+	public String getSiteName();	
+
 	/**
 	 * <p>
 	 * EventAccess enumerates different access modes for the event: site-wide or grouped.

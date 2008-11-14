@@ -114,7 +114,9 @@
                             #if ($hm.put($n, $tempCol)) #end
                         #end ## if ($n==$todayIndex)
 
-                        <a href="#" onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" title="$validator.escapeHtml($event.getDisplayName())">
+                        <a href="#" 
+                           onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" 
+                           title="$validator.escapeHtml($event.getDisplayName()) - $validator.escapeHtml($event.getSiteName())">
                         #iconImage($event.Type)
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
 
@@ -269,7 +271,9 @@
                         #end
                         #if ($hm.put($n, $tempCol)) #end
 
-                        <a href="#" onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")';return false;" title="$validator.escapeHtml($eventclass.getEvent().getDisplayName())">
+                        <a href="#" 
+                           onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")';return false;" 
+                           title="$validator.escapeHtml($event.getDisplayName()) - $validator.escapeHtml($event.getSiteName())">
                         #iconImage($event.Type)
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
             #else ## corresponding to if($eventD.getFlag()==false)
@@ -576,7 +580,9 @@
                             #if ($hm.put($n, $tempCol)) #end
                         #end ## if ($n==$todayIndex)
 
-                        <a href="#" onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" title="$validator.escapeHtml($event.getDisplayName())">
+                        <a href="#" 
+                           onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" 
+                           title="$validator.escapeHtml($event.getDisplayName()) - $validator.escapeHtml($event.getSiteName())">
                         #iconImage($event.Type)
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
 
@@ -732,7 +738,8 @@
                         #end
                         #if ($hm.put($n, $tempCol)) #end
 
-                        <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")" title="$validator.escapeHtml($eventclass.getEvent().getDisplayName())">
+                        <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")" 
+                           title="$validator.escapeHtml($eventclass.getEvent().getDisplayName()) - $validator.escapeHtml($eventclass.getEvent().getSiteName())">
                         #iconImage($event.Type)
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
             #else ## corresponding to if($eventD.getFlag()==false)

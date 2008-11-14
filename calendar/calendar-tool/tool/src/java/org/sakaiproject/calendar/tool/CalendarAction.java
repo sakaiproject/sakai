@@ -3022,6 +3022,10 @@ extends VelocityPortletStateAction
 					context.put("owner_name", ownerName);
 				}
 				
+				String siteName = calEvent.getSiteName();
+				if ( siteName != null )
+					context.put("site_name", siteName );
+               
 				RecurrenceRule rule = calEvent.getRecurrenceRule();
 				// for a brand new event, there is no saved recurring rule
 				if (rule != null)

@@ -122,7 +122,8 @@
                             ##<td width="$v%" bgcolor="#FFFF99" class="borderTopLeft">
                             <td width="$v%" class="borderTopLeft">
                         #end
-                        <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")" title="$x.getEvent().getDisplayName()">
+                        <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")" 
+                           title="$x.getEvent().getDisplayName() - $validator.escapeHtml($x.getEvent().getSiteName())">
                         #iconImage ($x.getEvent().getType())
                         $validator.escapeHtml($x.getEvent().getDisplayName())</a>   
                         </td> 
@@ -169,7 +170,9 @@
                                     ##<td width="$v%" bgcolor="#FFFF99" class="borderTopLeft">
                                     <td width="$v%" class="borderTopLeft">
                             #end
-                            <a href="#" onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")';return false;" title="$x.getEvent().getDisplayName()">
+                            <a href="#" 
+                               onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")';return false;" 
+                               title="$x.getEvent().getDisplayName() - $validator.escapeHtml($x.getEvent().getSiteName())">
                             #iconImage($x.getEvent().getType())
                             $validator.escapeHtml($x.getEvent().getDisplayName())
                             </a>
