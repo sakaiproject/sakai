@@ -24,7 +24,7 @@ public interface ScormResourceService {
 		
 	public List<Archive> getUnvalidatedArchives();
 	
-	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden);
+	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority);
 
 	public void removeResources(String collectionId) throws ResourceNotDeletedException;
 	

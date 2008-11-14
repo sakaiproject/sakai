@@ -141,7 +141,7 @@ public class StandaloneResourceService extends AbstractResourceService {
 		return new LinkedList<Archive>();
 	}
 	
-	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden) {
+	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) {
 		String uuid = UUID.randomUUID().toString();
 		
 		String fileName = new StringBuilder(name).toString();

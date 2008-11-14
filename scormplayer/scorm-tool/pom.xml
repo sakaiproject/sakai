@@ -79,6 +79,14 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-event-api</artifactId>
+			<version>${sakai.version}</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-api</artifactId>
 			<version>${sakai.entitybroker.version}</version>
