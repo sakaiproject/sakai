@@ -22,7 +22,7 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 	      {                
 	        public Object doInHibernate(Session session) throws HibernateException, SQLException
 	        {            
-	          SQLQuery query = session.createSQLQuery("select count(*) from SCORM_ATTEMPT_T where CONTENT_PACKAGE_ID=? and LEARNER_ID=? ");
+	          SQLQuery query = session.createSQLQuery("SELECT count(*) FROM SCORM_ATTEMPT_T where CONTENT_PACKAGE_ID=? and LEARNER_ID=?");
 	          query.setLong(0, contentPackageId);
 	          query.setString(1, learnerId);
 	          
