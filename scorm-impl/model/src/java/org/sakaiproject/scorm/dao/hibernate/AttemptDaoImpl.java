@@ -11,8 +11,6 @@ import org.sakaiproject.scorm.model.api.Attempt;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -35,16 +33,10 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 	      Object result = getHibernateTemplate().execute(hcb);
 	      
 	      int r = 0;
-	      
 	      if (result != null) {
-	    	  if (result instanceof BigInteger)
-	    		  r = ((BigInteger)result).intValue();
-	    	  else if (result instanceof Integer)
-	    		  r = ((Integer)result).intValue();
-	    	  else if (result instanceof BigDecimal)
-	    		  r = ((BigDecimal)result).intValue();
+	    	  if (result instanceof Number)
+	    		  r = ((Number)result).intValue();
 	      }
-	    	  
 	      return r;
 	}
 	
