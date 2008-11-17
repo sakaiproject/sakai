@@ -962,6 +962,34 @@ public class Query extends HttpTransactionQueryBase
 		
 		boolean status = false;
 		
+		
+		/* Response will look like:
+			
+		<PROGRESS>
+			<TOTAL_HITS>100</TOTAL_HITS>
+		  	<TOTAL_ESTIMATE>4449</TOTAL_ESTIMATE>
+			<STATUS>1</STATUS>
+			<ITEMS>
+				<ITEM>
+					<ENTRY key="searchURL">
+						http://server
+					</ENTRY>
+					<ENTRY key="messageID">STATUS_DONE</ENTRY>
+					<ENTRY key="moduleName">Academic Search Premier</ENTRY>
+					<ENTRY key="targetID">EBSCOASP</ENTRY>
+					<ENTRY key="hits">100</ENTRY>
+					<ENTRY key="instructionID">
+						EBSCOASP.jar:com.edulib.ice.modules.connectors.EBSCO@4
+					</ENTRY>
+					<ENTRY key="status">100</ENTRY>
+					<ENTRY key="timestamp">1226947004852</ENTRY>
+					<ENTRY key="estimate">4449</ENTRY>
+					<ENTRY key="message">Done</ENTRY>
+				</ITEM>
+			</ITEMS>
+		</PROGRESS>
+		*/
+		
 		rootElement = document.getDocumentElement();
 		
 		node = DomUtils.getElement(rootElement, "TOTAL_ESTIMATE");
