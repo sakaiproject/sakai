@@ -1,19 +1,21 @@
 package org.sakaiproject.scorm.dao.hibernate;
 
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.sakaiproject.scorm.dao.api.AttemptDao;
+import org.sakaiproject.scorm.model.api.Attempt;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-import org.sakaiproject.scorm.dao.api.AttemptDao;
-import org.sakaiproject.scorm.model.api.Attempt;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 
@@ -22,11 +24,11 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 	      {                
 	        public Object doInHibernate(Session session) throws HibernateException, SQLException
 	        {            
-	          SQLQuery query = session.createSQLQuery("SELECT count(*) FROM SCORM_ATTEMPT_T where CONTENT_PACKAGE_ID=? and LEARNER_ID=?");
-	          query.setLong(0, contentPackageId);
-	          query.setString(1, learnerId);
-	          
-	          return query.uniqueResult();
+	          Criteria criteria = session.createCriteria(Attempt.class)
+	              .add(Restrictions.eq("contentPackageId", contentPackageId))
+	              .add(Restrictions.eq("learnerId", learnerId))
+	              .setProjection(Projections.count("id"));
+	          return criteria.uniqueResult();
 	        }
 	      };       
 	      
