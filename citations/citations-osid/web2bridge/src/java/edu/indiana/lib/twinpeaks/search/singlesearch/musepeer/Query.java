@@ -222,7 +222,7 @@ public class Query extends HttpTransactionQueryBase
 			while (! isStatusReadyToBeRead(getResponseDocument()) && sleepCount < 7)
 			{
 				_log.info("Status is not ready to be read");
-				LogUtils.displayXml(_log, "Preogress", getResponseDocument());
+				LogUtils.displayXml(_log, "Progress", getResponseDocument());
 
 				try
 				{
