@@ -718,7 +718,7 @@ public class GradingService
         autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
                                totalItems, fibAnswersMap, publishedAnswerHash, regrade);
         log.debug("**!regrade, autoScore="+autoScore);
-        if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType) || !(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION).equals(itemType))
+        if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
           totalItems.put(itemId, new Float(autoScore));
         
         if (regrade && TypeIfc.AUDIO_RECORDING.equals(itemType))
@@ -869,7 +869,7 @@ public class GradingService
               if (!totalItems.containsKey(itemId)){
                 totalItems.put(itemId, new Float(autoScore));
                 //log.debug("****0. first answer score = "+autoScore);
-	      }
+              }
               else{
                 accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
                 //log.debug("****1. before adding new score = "+accumelateScore);
