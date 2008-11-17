@@ -49,9 +49,9 @@
       saveWave ="false" \
       saveAiff ="false" \
       saveToUrl ="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>" \
-      fileName ="audio_#{delivery.assessmentGrading.assessmentGradingId}" \
+      fileName ="audio_#{delivery.assessmentGrading.assessmentGradingId}_#{param.questionId}" \
       url ="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{param.questionId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}" /><f:verbatim>" \
+     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{param.questionId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}_#{param.questionId}" /><f:verbatim>" \
       imageUrl ="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/images/" /><f:verbatim>" \
       compression ="linear" \
       frequency ="16000" \
