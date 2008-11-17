@@ -39,6 +39,8 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 	      if (result != null) {
 	    	  if (result instanceof BigInteger)
 	    		  r = ((BigInteger)result).intValue();
+	    	  else if (result instanceof Integer)
+	    		  r = ((Integer)result).intValue();
 	    	  else if (result instanceof BigDecimal)
 	    		  r = ((BigDecimal)result).intValue();
 	      }
