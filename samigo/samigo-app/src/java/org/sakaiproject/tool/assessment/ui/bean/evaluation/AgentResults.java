@@ -74,6 +74,7 @@ private Long assessmentGradingId;
   private boolean retakeAllowed;
   private boolean isAutoSubmitted;
   private boolean isAttemptDateAfterDueDate;
+  private Integer timeElapsed;
   
   public AgentResults() {
   }
@@ -359,6 +360,7 @@ private Long assessmentGradingId;
 	public boolean getIsAutoSubmitted() {
 		return this.isAutoSubmitted;
 	}
+	
 	public void setIsAutoSubmitted(boolean isAutoSubmitted) {
 		this.isAutoSubmitted = isAutoSubmitted;
 	}
@@ -366,7 +368,15 @@ private Long assessmentGradingId;
 	public boolean getIsAttemptDateAfterDueDate() {
 		return this.isAttemptDateAfterDueDate;
 	}
+	
 	public void setIsAttemptDateAfterDueDate(boolean isAttemptDateAfterDueDate) {
 		this.isAttemptDateAfterDueDate = isAttemptDateAfterDueDate;
+	}
+
+	public Integer getTimeElapsed() {
+		return timeElapsed;
+	}
+	public void setTimeElapsed(Integer timeElapsed) {
+		this.timeElapsed = timeElapsed;
 	}
 }
