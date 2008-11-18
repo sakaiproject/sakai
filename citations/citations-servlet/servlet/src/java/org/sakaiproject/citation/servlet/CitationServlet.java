@@ -73,7 +73,7 @@ public class CitationServlet extends VmServlet
 	 * 
 	 */
 	public static final String SERVLET_TEMPLATE = "/vm/servlet.vm";
-	private String collectionTitle;
+	private String collectionTitle = null;
 	
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(CitationServlet.class);
@@ -82,7 +82,7 @@ public class CitationServlet extends VmServlet
 	protected static ResourceLoader rb = new ResourceLoader("citations");
 
 	/** set to true when init'ed. */
-	protected boolean m_ready = false;
+//	protected boolean m_ready = false;
 
 	protected BasicAuth basicAuth = null;
 
@@ -91,34 +91,36 @@ public class CitationServlet extends VmServlet
 		SUCCESS,
 		ERROR;
 	}
-	
-	/** init thread - so we don't wait in the actual init() call */
-	public class CitationServletInit extends Thread
-	{
-		protected CitationService m_citationService;
-		
-		public void setCitationService(CitationService service)
-		{
-			this.m_citationService = service;
-		}
-		
-		/**
-		 * construct and start the init activity
-		 */
-		public CitationServletInit()
-		{
-			m_ready = false;
-			start();
-		}
 
-		/**
-		 * run the init
-		 */
-		public void run()
-		{
-			m_ready = true;
-		}
-	}
+
+//	/** init thread - so we don't wait in the actual init() call */
+//	public class CitationServletInit extends Thread
+//	{
+//		protected CitationService m_citationService;
+		
+//		public void setCitationService(CitationService service)
+//		{
+//			this.m_citationService = service;
+//		}
+		
+//		/**
+//		 * construct and start the init activity
+//		 */
+//		public CitationServletInit()
+//		{
+//			m_ready = false;
+//			start();
+//		}
+
+//		/**
+//		 * run the init
+//		 */
+//		public void run()
+//		{
+//			m_ready = true;
+//		}
+//	}
+
 
 	/**
 	 * initialize the AccessServlet servlet
@@ -131,18 +133,18 @@ public class CitationServlet extends VmServlet
 	public void init( ServletConfig config ) throws ServletException
 	{
 		super.init(config);
-		startInit();
+//		startInit();
 		basicAuth = new BasicAuth();
 		basicAuth.init();
 	}
 
-	/**
-	 * Start the initialization process
-	 */
-	public void startInit()
-	{
-		new CitationServletInit();
-	}
+//	/**
+//	 * Start the initialization process
+//	 */
+//	public void startInit()
+//	{
+//		new CitationServletInit();
+//	}
 
 
 	/**
@@ -235,10 +237,10 @@ public class CitationServlet extends VmServlet
 		String path = params.getPath();
 		if (path == null) path = "";
 
-		if (!m_ready)
-		{
-			sendError( res, HttpServletResponse.SC_SERVICE_UNAVAILABLE );
-		}
+//		if (!m_ready)
+//		{
+//			sendError( res, HttpServletResponse.SC_SERVICE_UNAVAILABLE );
+//		}
 		
 		// parse the request path
 		String[] parts = option.split("/");
