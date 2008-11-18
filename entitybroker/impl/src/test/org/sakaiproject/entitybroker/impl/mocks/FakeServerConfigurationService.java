@@ -162,6 +162,16 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
    /*
     * (non-Javadoc)
     * 
+    * @see org.sakaiproject.component.api.ServerConfigurationService#getRawProperty(java.lang.String)
+    */
+   public String getRawProperty(String name) {
+      // TODO Auto-generated method stub
+      return null;
+   }
+   
+   /*
+    * (non-Javadoc)
+    * 
     * @see org.sakaiproject.component.api.ServerConfigurationService#getString(java.lang.String)
     */
    public String getString(String name) {
