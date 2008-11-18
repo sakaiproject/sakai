@@ -36,7 +36,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.adl.ADLConsultant;
 import org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
-import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
