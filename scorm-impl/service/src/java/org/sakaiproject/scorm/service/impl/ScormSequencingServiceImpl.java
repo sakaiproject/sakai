@@ -30,6 +30,7 @@ import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.ISequencer;
 import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
+import org.adl.sequencer.impl.ADLLaunch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.adl.ADLConsultant;
@@ -37,6 +38,7 @@ import org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
+import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -83,8 +85,11 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		update(sessionBean, sequencer, launch, manifest);
 		
 		if (request == SeqNavRequests.NAV_SUSPENDALL) {
-			sessionBean.getAttempt().setSuspended(true);
-			attemptDao().save(sessionBean.getAttempt());
+			Attempt attempt = sessionBean.getAttempt();
+			if (attempt != null) {
+				attempt.setSuspended(true);
+				attemptDao().save(attempt);
+			}
 			sessionBean.setSuspended(true);
 			sessionBean.setEnded(true);
 			sessionBean.setStarted(false);
@@ -95,10 +100,13 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			agent.displayResource(sessionBean, target);
 		
 		String result = launch.getLaunchStatusNoContent();
-		
-		if (result == null && (request == SeqNavRequests.NAV_START || request == SeqNavRequests.NAV_RESUMEALL))
-			sessionBean.setStarted(true);
-			
+		if ((request == SeqNavRequests.NAV_START || request == SeqNavRequests.NAV_RESUMEALL)) { // Start flag, check if the result is OK
+			if (result == null) { // Result is null, so OK
+				sessionBean.setStarted(true);
+			} else if (launch.getNavState().isContinueEnabled() && ADLLaunch.LAUNCH_SEQ_BLOCKED.equals(result)) { // Expected to be blocked when there is no continue.
+				sessionBean.setStarted(true);
+			}
+		}
 		return result;
 	}
 	
