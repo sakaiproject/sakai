@@ -143,7 +143,6 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
      * Gets the list of all memberships for the current user if no params provided,
      * otherwise gets memberships in a specified location or for a specified user
      */
-    @SuppressWarnings("unchecked")
     public List<?> getEntities(EntityReference ref, Search search) {
         String currentUserId = developerHelperService.getCurrentUserId();
         String userId = null;
@@ -409,7 +408,6 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
      * @param locationReference a site ref with an optional group ref (can look like this: /site/siteid/group/groupId)
      * @return the list of memberships for the given location and role
      */
-    @SuppressWarnings("unchecked")
     public List<EntityMember> getMembers(String locationReference) {
         ArrayList<EntityMember> l = new ArrayList<EntityMember>();
         Set<Member> members = null;
@@ -556,13 +554,15 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         // check if the current user can access this
         String userReference = developerHelperService.getCurrentUserReference();
         if (userReference == null) {
-            throw new SecurityException("Anonymous users may not view memberships in ("+site.getReference()+")");
+        	throw new SecurityException("Anonymous users may not view memberships in ("+site.getReference()+")");
         } else {
-            if (! siteService.allowViewRoster(site.getId())) {
-                throw new SecurityException("Memberships in this site ("+site.getReference()+") are not accessible for the current user: " + userReference);
-            }
+        	String siteId = site.getId();
+        	if (siteService.allowUpdateSite(siteId) || siteService.allowUpdateSiteMembership(siteId) || siteService.allowViewRoster(siteId)) {
+        		return true;
+        	} else {
+        		throw new SecurityException("Memberships in this site ("+site.getReference()+") are not accessible for the current user: " + userReference);            	
+        	}
         }
-        return true;
     }
 
     /**
