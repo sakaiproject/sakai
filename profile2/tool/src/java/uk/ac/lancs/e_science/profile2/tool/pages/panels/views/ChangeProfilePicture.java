@@ -12,6 +12,7 @@ import org.apache.wicket.markup.html.link.InlineFrame;
 import org.apache.wicket.markup.html.panel.Panel;
 
 
+
 public abstract class ChangeProfilePicture extends Panel {
 
 	private InlineFrame uploadIFrame = null;  

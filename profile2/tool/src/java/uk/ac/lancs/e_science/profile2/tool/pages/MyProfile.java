@@ -19,6 +19,7 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInterestsDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
 
 
@@ -86,8 +87,11 @@ public class MyProfile extends BasePage {
 		userProfile.setHomephone(sakaiPerson.getHomePhone());
 		userProfile.setWorkphone(sakaiPerson.getTelephoneNumber());
 		userProfile.setMobilephone(sakaiPerson.getMobile());
-		
-		
+		userProfile.setFavouriteBooks(sakaiPerson.getFavouriteBooks());
+		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());
+		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());
+		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
+
 		
 		//get photo and add to page, otherwise add default image
 		pictureBytes = sakaiPerson.getJpegPhoto();
@@ -160,6 +164,11 @@ public class MyProfile extends BasePage {
 		Panel myContactDisplay = new MyContactDisplay("myContact", userProfile);
 		myContactDisplay.setOutputMarkupId(true);
 		add(myContactDisplay);
+		
+		//interests panel - load the display version by default
+		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
+		myInterestsDisplay.setOutputMarkupId(true);
+		add(myInterestsDisplay);
 		
 
 		

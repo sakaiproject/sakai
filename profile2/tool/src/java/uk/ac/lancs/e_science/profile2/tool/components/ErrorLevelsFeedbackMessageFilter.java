@@ -1,9 +1,8 @@
 package uk.ac.lancs.e_science.profile2.tool.components;
 
-import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.feedback.FeedbackMessage;
+import org.apache.wicket.feedback.IFeedbackMessageFilter;
 
-import java.util.Arrays;
 
 /**
  * Filter for accepting only feedback messages with this error level.

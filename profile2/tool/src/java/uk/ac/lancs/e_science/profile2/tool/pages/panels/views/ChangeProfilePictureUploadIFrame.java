@@ -10,6 +10,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 
+
 public abstract class ChangeProfilePictureUploadIFrame extends WebPage {
 	
 	private boolean uploaded = false;  

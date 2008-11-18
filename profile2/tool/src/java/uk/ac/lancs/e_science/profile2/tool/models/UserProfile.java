@@ -22,6 +22,10 @@ public class UserProfile implements Serializable {
 	private String workphone;
 	private String homephone;
 	private String mobilephone;
+	private String favouriteBooks;
+	private String favouriteTvShows;
+	private String favouriteMovies;
+	private String favouriteQuotes;
 	
 		
 	public String getNickname() {
@@ -128,6 +132,32 @@ public class UserProfile implements Serializable {
 	}
 	
 	
+	public String getFavouriteBooks() {
+		return favouriteBooks;
+	}
+	public void setFavouriteBooks(String favouriteBooks) {
+		this.favouriteBooks = favouriteBooks;
+	}
+	public String getFavouriteTvShows() {
+		return favouriteTvShows;
+	}
+	public void setFavouriteTvShows(String favouriteTvShows) {
+		this.favouriteTvShows = favouriteTvShows;
+	}
+	public String getFavouriteMovies() {
+		return favouriteMovies;
+	}
+	public void setFavouriteMovies(String favouriteMovies) {
+		this.favouriteMovies = favouriteMovies;
+	}
+	public String getFavouriteQuotes() {
+		return favouriteQuotes;
+	}
+	public void setFavouriteQuotes(String favouriteQuotes) {
+		this.favouriteQuotes = favouriteQuotes;
+	}
+
+
 	/* for the form feedback, to get around a bug */
 	private String emailFeedback;
 	private String fileFeedback;

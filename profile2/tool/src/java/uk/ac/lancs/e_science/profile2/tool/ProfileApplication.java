@@ -1,16 +1,13 @@
 package uk.ac.lancs.e_science.profile2.tool;
 
+
 import org.apache.log4j.Logger;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Application;
-import org.apache.wicket.extensions.ajax.markup.html.form.upload.UploadWebRequest;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.protocol.http.WebRequest;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
-import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+
 
 
 

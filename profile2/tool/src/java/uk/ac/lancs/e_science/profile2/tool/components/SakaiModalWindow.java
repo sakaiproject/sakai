@@ -1,14 +1,10 @@
 package uk.ac.lancs.e_science.profile2.tool.components;
 
-import java.io.IOException;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.protocol.http.WebSession;
 
-import uk.ac.lancs.e_science.profile2.tool.pages.BasePage;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.views.ChangeProfilePicture;
 
 public class SakaiModalWindow extends ModalWindow {

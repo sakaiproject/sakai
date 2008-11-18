@@ -8,10 +8,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.swing.ImageIcon;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
+
+import javax.swing.ImageIcon;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 
@@ -110,6 +111,16 @@ public class ProfileImpl implements Profile {
 	    return os.toByteArray();
 	}
 	
+
+	public Date convertStringToDate(String dateStr) {
+		Date date = new Date();
+		return date;
+	}
+	
+	public String convertDateToString(Date date) {
+		String dateStr = "";
+		return dateStr;
+	}
 
 	
 	/*	

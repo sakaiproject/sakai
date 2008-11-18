@@ -6,6 +6,7 @@ import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
+
 public class TestPanelFullReplace2 extends Panel {
 	
 	
@@ -17,13 +18,14 @@ public class TestPanelFullReplace2 extends Panel {
 		
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new Model("click me again")) {
 			public void onClick(AjaxRequestTarget target) {
-				
+				/*
 				Component newPanel = new TestPanelFullReplace1("fullReplace");
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
 					target.addComponent(newPanel);
 				}
+				*/
 			}
 						
 		};

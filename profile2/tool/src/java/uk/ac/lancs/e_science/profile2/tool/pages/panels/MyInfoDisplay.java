@@ -1,5 +1,7 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
+
+
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -9,8 +11,6 @@ import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;

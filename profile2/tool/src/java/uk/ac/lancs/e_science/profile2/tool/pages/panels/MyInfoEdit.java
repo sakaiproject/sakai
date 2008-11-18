@@ -1,11 +1,10 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
-import java.util.Date;
+
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -14,14 +13,12 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyInfoEdit extends Panel {
@@ -137,8 +134,9 @@ public class MyInfoEdit extends Panel {
 		//as a new Sakaiperson for a user is created in MyProfile if they don't have one.
 		
 		sakaiPerson.setNickname(userProfile.getNickname());
-		log.info("UserProfile nickname is: " + userProfile.getNickname());
-		log.info("SakaiPerson nickanem is: " + sakaiPerson.getNickname());
+		//sakaiPerson.setDateOfBirth(userProfile.getDateOfBirth());
+		//ned handle on Profile and to process the date here.
+		
 
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );

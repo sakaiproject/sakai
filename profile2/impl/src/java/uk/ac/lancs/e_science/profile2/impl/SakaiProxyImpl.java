@@ -1,5 +1,6 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
+
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;

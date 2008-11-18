@@ -15,14 +15,14 @@
  */
 package uk.ac.lancs.e_science.profile2.tool.components;
 
-
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+
+
 
 /**
  * Label displaying feedback messages for FormComponents.

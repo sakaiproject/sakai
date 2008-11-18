@@ -7,6 +7,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.model.Model;
 
+
 /**
  * Behavior that checks if a {@link FormComponent} is valid. Valid {@link FormComponent} objects get the CSS class
  * 'formcomponent valid' and invalid {@link FormComponent} objects get the CSS class 'formcomponent invalid'.
