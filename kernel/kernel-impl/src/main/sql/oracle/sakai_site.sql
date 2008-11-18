@@ -381,7 +381,7 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-500', '!worksite', 'Discussion', '
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-510', '!worksite-500', '!worksite', 'sakai.discussion', 1, 'Discussion', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-510', 'category', 'false' );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-600', '!worksite', 'Assignments', '0', 6, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-610', '!worksite-600', '!worksite', 'sakai.assignment', 1, 'Assignments', NULL );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-610', '!worksite-600', '!worksite', 'sakai.assignment.grades', 1, 'Assignments', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-700', '!worksite', 'Drop Box', '0', 7, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-710', '!worksite-700', '!worksite', 'sakai.dropbox', 1, 'Drop Box', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-710', 'resources_mode', 'dropbox' );
@@ -418,7 +418,7 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-500', 'mercury', 'Discussion', '0', 
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-510', 'mercury-500', 'mercury', 'sakai.discussion', 1, 'Discussion', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('mercury', 'mercury-510', 'category', 'false' );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-600', 'mercury', 'Assignments', '0', 6, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-610', 'mercury-600', 'mercury', 'sakai.assignment', 1, 'Assignments', NULL );
+INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-610', 'mercury-600', 'mercury', 'sakai.assignment.grades', 1, 'Assignments', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-700', 'mercury', 'Drop Box', '0', 7, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-710', 'mercury-700', 'mercury', 'sakai.dropbox', 1, 'Drop Box', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('mercury', 'mercury-710', 'resources_mode', 'dropbox' );
