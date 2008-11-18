@@ -154,6 +154,13 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	{
 		return "http://something:8080/";
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.component.api.ServerConfigurationService#getRawProperties(java.lang.String)
+	 */
+	public String getRawProperty(String name) {
+		return getString(name);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.component.api.ServerConfigurationService#getString(java.lang.String)
