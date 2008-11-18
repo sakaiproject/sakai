@@ -60,8 +60,13 @@ public class BasicConfigurationService implements ServerConfigurationService
 	/** This is computed, joining the configured serverId and the set instanceId. */
 	private String serverIdInstance = null;
 
-	/** The map of values from the loaded properties - not synchronized at access. */
+	/** The map of values from the loaded properties wherein property placeholders 
+	 * <em>have</em> been dereferenced */
 	private Properties properties;
+	
+	/** The map of values from the loaded properties wherein property placeholders have
+	 * <em>not</em> been dereferenced */
+	private Properties rawProperties;
 
 	/** File name within sakai.home for the tool order file. */
 	private String toolOrderFile = null;
@@ -126,6 +131,7 @@ public class BasicConfigurationService implements ServerConfigurationService
 	 */
 	public void init()
 	{
+		this.rawProperties = sakaiProperties.getRawProperties();
 		this.properties = sakaiProperties.getProperties();
 
 		try
@@ -364,13 +370,20 @@ public class BasicConfigurationService implements ServerConfigurationService
 	{
 		return System.getProperty("sakai.home");
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getRawProperty(String name) {
+		return getString(name, rawProperties);
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getString(String name)
 	{
-		return getString(name, "");
+		return getString(name, properties);
 	}
 
 	/**
@@ -378,7 +391,15 @@ public class BasicConfigurationService implements ServerConfigurationService
 	 */
 	public String getString(String name, String dflt)
 	{
-		String rv = StringUtil.trimToNull((String) properties.get(name));
+		return getString(name, dflt, properties);
+	}
+	
+	private String getString(String name, Properties fromProperties) {
+		return getString(name, "", fromProperties);
+	}
+	
+	private String getString(String name, String dflt, Properties fromProperties) {
+		String rv = StringUtil.trimToNull((String) fromProperties.get(name));
 		if (rv == null) rv = dflt;
 
 		return rv;

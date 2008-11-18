@@ -168,6 +168,13 @@ public class MockServerConfiguratonService implements ServerConfigurationService
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.component.api.ServerConfigurationService#getRawProperty(java.lang.String)
+	 */
+	public String getRawProperty(String name) {
+		return getString(name);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.component.api.ServerConfigurationService#getString(java.lang.String)

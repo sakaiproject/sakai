@@ -190,7 +190,42 @@ public interface ServerConfigurationService
 	 * @return The configuration value with this name, or the default value if not found.
 	 */
 	boolean getBoolean(String name, boolean dflt);
-
+	
+	/**
+	 * Access the undereferenced value of the given property. That is,
+	 * Spring-style property placeholders will not be expanded as
+	 * they would be in other getters on this interface. For example,
+	 * consider the following configuration:
+	 * 
+	 * <pre>
+	 * <code>
+	 * property1=foo
+	 * property2=${property1}
+	 * </code>
+	 * </pre>
+	 * 
+	 * <p>Invoking {@link #getString(String)}, passing <code>"property2"</code>
+	 * will return <code>"foo"</code>. However, invoking this method
+	 * with the same argument will return <code>"${property1}"</code>.</p>
+	 * 
+	 * <p>Typically, a client of this method, e.g. a dynamic 
+	 * configuration management tool, is interested in reporting on the system's 
+	 * actual state from which return values of other getters are calculated. 
+	 * In such cases, caller-specified default values have no utility. Thus this 
+	 * method does not accept an argument specifying the property's default value.</p>
+	 * 
+	 * <p>For a given undefined property "X", this method should return
+	 * exactly the same value as <code>getString("X")</code>. Thus it may
+	 * not be possible in all cases to distinguish between defined and
+	 * undefined properties.</p>
+	 * 
+	 * @param name a property name. Must not be <code>null</code>
+	 * @return the property value. Property placeholders will not have
+	 *   been dereferenced. The value representing an non-existent property
+	 *   is implementation dependent.
+	 */
+	String getRawProperty(String name);
+	
 	/**
 	 * Access the list of tool ids in order for this category, to impose on the displays of many tools
 	 * 

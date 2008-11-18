@@ -23,9 +23,13 @@
 package org.sakaiproject.util;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -78,11 +82,57 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
 	}
 	
 	public Properties getProperties() {
+		Properties rawProperties = getRawProperties();
+		Properties parsedProperties = dereferenceProperties(rawProperties);
+		return parsedProperties; 
+	}
+	
+	public Properties getRawProperties() {
 		try {
 			return (Properties)propertiesFactoryBean.getObject();
 		} catch (IOException e) {
 			if (log.isWarnEnabled()) log.warn("Error collecting Sakai properties", e);
 			return new Properties();
+		}
+	}
+	
+	/**
+	 * Dereferences property placeholders in the given {@link Properties}
+	 * in exactly the same way the {@link BeanFactoryPostProcessor}s in this
+	 * object perform their placeholder dereferencing. Unfortunately, this
+	 * process is not readily decoupled from the act of processing a
+	 * bean factory in the Spring libraries. Hence the reflection.
+	 * 
+	 * @param srcProperties a collection of name-value pairs
+	 * @return a new collection of properties. If <code>srcProperties</code>
+	 *   is <code>null</code>, returns null. If <code>srcProperties</code>
+	 *   is empty, returns a reference to same object.
+	 * @throws RuntimeException if any aspect of processing fails
+	 */
+	private Properties dereferenceProperties(Properties srcProperties) 
+	throws RuntimeException {
+		if ( srcProperties == null ) {
+			return null;
+		}
+		if ( srcProperties.isEmpty() ) {
+			return srcProperties;
+		}
+		try {
+			Properties parsedProperties = new Properties();
+			PropertyPlaceholderConfigurer resolver = new PropertyPlaceholderConfigurer();
+			resolver.setIgnoreUnresolvablePlaceholders(true);
+			Method parseStringValue = 
+				resolver.getClass().getDeclaredMethod("parseStringValue", String.class, Properties.class, Set.class);
+			parseStringValue.setAccessible(true);
+			for ( Map.Entry<Object, Object> propEntry : srcProperties.entrySet() ) {
+				String parsedPropValue = (String)parseStringValue.invoke(resolver, (String)propEntry.getValue(), srcProperties, new HashSet());
+				parsedProperties.setProperty((String)propEntry.getKey(), parsedPropValue);
+			}
+			return parsedProperties;
+		} catch ( RuntimeException e ) {
+			throw e;
+		} catch ( Exception e ) {
+			throw new RuntimeException("Failed to dereference properties", e);
 		}
 	}
 	

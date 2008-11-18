@@ -40,6 +40,19 @@
 		</constructor-arg>
 	</bean>
 	
+	<bean id="org.sakaiproject.component.test.ITestComponent2" class="org.sakaiproject.component.test.TestComponent"
+		init-method="init">
+		<property name="overrideString1" value="default"/>
+		<property name="placeholderString1" value="${stringWithNestedPlaceholders}"/>
+		<property name="listOverride1">
+			<list>
+				<value>default1</value>
+				<value>default2</value>
+			</list>
+		</property>
+		<property name="stringArrayPlaceholder1" value="default1, default2"/>
+	</bean>
+	
 	<bean id="org.sakaiproject.component.test.ITestProvider" class="org.sakaiproject.component.test.TestProvider1"/>
 	
 	<bean id="org.sakaiproject.component.test.TestProvider2" class="org.sakaiproject.component.test.TestProvider2"/>
