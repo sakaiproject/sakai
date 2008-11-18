@@ -7921,6 +7921,14 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, new Integer(12));
 		state.setAttribute(NEW_ASSIGNMENT_OPENMIN, new Integer(0));
 		state.setAttribute(NEW_ASSIGNMENT_OPENAMPM, "PM");
+		
+		// set the all purpose item release time
+		state.setAttribute(ALLPURPOSE_RELEASE_MONTH, new Integer(month));
+		state.setAttribute(ALLPURPOSE_RELEASE_DAY, new Integer(day));
+		state.setAttribute(ALLPURPOSE_RELEASE_YEAR, new Integer(year));
+		state.setAttribute(ALLPURPOSE_RELEASE_HOUR, new Integer(12));
+		state.setAttribute(ALLPURPOSE_RELEASE_MIN, new Integer(0));
+		state.setAttribute(ALLPURPOSE_RELEASE_AMPM, "PM");
 
 		// due date is shifted forward by 7 days
 		t.setTime(t.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -7946,6 +7954,14 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, new Integer(5));
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, new Integer(0));
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEAMPM, "PM");
+		
+		// set the all purpose retract time
+		state.setAttribute(ALLPURPOSE_RETRACT_MONTH, new Integer(month));
+		state.setAttribute(ALLPURPOSE_RETRACT_DAY, new Integer(day));
+		state.setAttribute(ALLPURPOSE_RETRACT_YEAR, new Integer(year));
+		state.setAttribute(ALLPURPOSE_RETRACT_HOUR, new Integer(5));
+		state.setAttribute(ALLPURPOSE_RETRACT_MIN, new Integer(0));
+		state.setAttribute(ALLPURPOSE_RETRACT_AMPM, "PM");
 
 		state.setAttribute(NEW_ASSIGNMENT_SECTION, "001");
 		state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, new Integer(Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION));
@@ -8000,18 +8016,6 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(ALLPURPOSE_RETRACT_DATE);
 		state.removeAttribute(ALLPURPOSE_ACCESS);
 		state.removeAttribute(ALLPURPOSE_ATTACHMENTS);
-		state.removeAttribute(ALLPURPOSE_RELEASE_YEAR);
-		state.removeAttribute(ALLPURPOSE_RELEASE_MONTH);
-		state.removeAttribute(ALLPURPOSE_RELEASE_DAY);
-		state.removeAttribute(ALLPURPOSE_RELEASE_HOUR);
-		state.removeAttribute(ALLPURPOSE_RELEASE_MIN);
-		state.removeAttribute(ALLPURPOSE_RELEASE_AMPM);
-		state.removeAttribute(ALLPURPOSE_RETRACT_YEAR);
-		state.removeAttribute(ALLPURPOSE_RETRACT_MONTH);
-		state.removeAttribute(ALLPURPOSE_RETRACT_DAY);
-		state.removeAttribute(ALLPURPOSE_RETRACT_HOUR);
-		state.removeAttribute(ALLPURPOSE_RETRACT_MIN);
-		state.removeAttribute(ALLPURPOSE_RETRACT_AMPM);
 
 	} // resetNewAssignment
 
