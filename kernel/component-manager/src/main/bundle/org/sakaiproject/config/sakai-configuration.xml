@@ -9,10 +9,10 @@
 		<property name="properties">
 			<bean class="org.sakaiproject.component.impl.DynamicDefaultSakaiProperties" init-method="init"/>
 		</property>
-
 		<property name="locations">
 			<list>
-				<value>classpath:/org/sakaiproject/config/sakai.properties</value>
+				<value>classpath:/org/sakaiproject/config/kernel.properties</value>
+				<value>classpath:org/sakaiproject/config/bundle/default.sakai.properties</value>
 			</list>
 		</property>
 
