@@ -210,6 +210,9 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			}
 
 			M_log.info(this + ".init() - period: " + m_period / 1000 + " batch: " + m_batchWrite + " checkDb: " + m_checkDb);
+
+			this.post(this.newEvent("server.start", serverConfigurationService().getString("version.sakai", "unknown") + "/" + serverConfigurationService().getString("version.service", "unknown"), false));
+
 		}
 		catch (Throwable t)
 		{
