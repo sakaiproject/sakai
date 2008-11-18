@@ -280,7 +280,7 @@ function allowClick(object)
 					## all allow function results
 					#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignmentReference))
 					#if (!($!allowAddAssignment && $!view.equals('lisofass1')))
-						## get submission instance only if 1) not an intructor type user or 2) is an instructor type user but in student view
+						## get submission instance only if 1) not an instructor type user or 2) is an instructor type user but in student view
 						#set($submission=false)
 						#set($submission=$service.getSubmission($assignment.Reference, $user))
 						#set($submissionReturned=$!submission.returned)

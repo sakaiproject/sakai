@@ -2375,12 +2375,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn(this + ":build_intructor_preview_grade_submission_context " + e.getMessage());
+			M_log.warn(this + ":build_instructor_preview_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("cannotfin3"));
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn(this + ":build_intructor_preview_grade_submission_context " + e.getMessage());
+			M_log.warn(this + ":build_instructor_preview_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("youarenot14"));
 		}
 
@@ -2391,12 +2391,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn(this + ":build_intructor_preview_grade_submission_context " + e.getMessage());
+			M_log.warn(this + ":build_instructor_preview_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("cannotfin5"));
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn(this + ":build_intructor_preview_grade_submission_context " + e.getMessage());
+			M_log.warn(this + ":build_instructor_preview_grade_submission_context " + e.getMessage());
 			addAlert(state, rb.getString("not_allowed_to_view"));
 		}
 
@@ -2513,12 +2513,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn(this + ":build_intructor_grade_assignment_context " + e.getMessage());
+			M_log.warn(this + ":build_instructor_grade_assignment_context " + e.getMessage());
 			addAlert(state, rb.getString("cannotfin3"));
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn(this + ":build_intructor_grade_assignment_context " + e.getMessage());
+			M_log.warn(this + ":build_instructor_grade_assignment_context " + e.getMessage());
 			addAlert(state, rb.getString("youarenot14"));
 		}
 
