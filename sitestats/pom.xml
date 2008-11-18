@@ -31,7 +31,7 @@
   <properties>
     <entitybroker.version>[1.3.5-SNAPSHOT,1.4.0]</entitybroker.version>
     <commons-digester.version>1.6</commons-digester.version>
-    <fop.version>0.94</fop.version>
+    <fop.version>0.95</fop.version>
     <poi.version>2.0-final-20040126</poi.version>
     <jfreechart.version>1.0.5</jfreechart.version>
     <sst.wicket.version>1.3.5</sst.wicket.version>

@@ -2,6 +2,7 @@ package org.sakaiproject.sitestats.api.report;
 
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.sitestats.api.PrefsData;
+import org.sakaiproject.sitestats.api.StatsManager;
 
 public interface ReportManager {
 
@@ -23,18 +24,43 @@ public interface ReportManager {
 	public static final String	WHAT_EVENTS_BYTOOL			= "what-events-bytool";
 	public static final String	WHAT_EVENTS					= "what-events";
 	public static final String	WHAT_VISITS					= "what-visits";
+	public static final String	HOW_TOTALSBY				= "how-totalsby";
 
 
-	/** Produce a report based on the parameters passed. */
-	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params);
+	/** Produce a report based on supplied parameters. */
+	public Report getReport(String siteId, boolean restrictToToolsInSite, ReportParams params);
 	
-	/** Produce a report based on the parameters passed (page results). */
-	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition page, String groupBy, String sortBy, boolean sortAscending);
+	/**
+	 * Produce a report based on supplied parameters (paged results).
+	 * @param siteId The site ID
+	 * @param restrictToToolsInSite Whether to limit report to events from tools available in site
+	 * @param params Object containing specific report parameters (see {@link ReportParams})
+	 * @param page Paging information (see {@link PagingPosition})
+	 * @param sortBy Columns to sort by
+	 * @param sortAscending Sort ascending?
+	 * @return The report (see {@link Report})
+	 */
+	public Report getReport(String siteId, boolean restrictToToolsInSite, ReportParams params, PagingPosition page, String sortBy, boolean sortAscending);
 	
-	public int getReportRowCount(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition page, String groupBy, String sortBy, boolean sortAscending);
+	/**
+	 * Get row count for a report based on supplied parameters (paged results).
+	 * @param siteId The site ID
+	 * @param restrictToToolsInSite Whether to limit report to events from tools available in site
+	 * @param params Object containing specific report parameters (see {@link ReportParams})
+	 * @return The report row count
+	 */
+	public int getReportRowCount(String siteId, boolean restrictToToolsInSite, ReportParams params);
 	
 	/** Return utility class to retrieve formatted report parameters. */
 	public ReportFormattedParams getReportFormattedParams();
+	
+	/**
+	 * Check if a given column is displayable (has data) for the specified report parameters.
+	 * @param params Object containing specific report parameters (see {@link ReportParams})
+	 * @param column Column name (see {@link StatsManager#T_SITE}, {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL}) 
+	 * @return True if column has data and can be displayed; false otherwise
+	 */
+	public boolean isReportColumnAvailable(ReportParams params, String column);
 	
 	/**
 	 * Constructs an excel workbook document representing the table.

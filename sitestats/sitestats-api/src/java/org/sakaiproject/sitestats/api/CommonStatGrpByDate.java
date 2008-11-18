@@ -19,18 +19,62 @@
 package org.sakaiproject.sitestats.api;
 
 
-public interface CommonStatGrpByDate extends CommonStat{	
-	public String getRef();
-	public void setRef(String ref);
+/**
+ * This class is deprecated and will be removed in version 2.1.
+ * Please use {@link StatsRecord} instead.
+ */
+@Deprecated public interface CommonStatGrpByDate 
+	extends Stat {	
+	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * @see {@link StatsRecord#getEventId()} and {@link StatsRecord#getResourceRef()}
+	*/	
+	@Deprecated public String getRef();	
 	
-	public String getRefImg();
-	public void setRefImg(String ref);
+	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * @see {@link StatsRecord#setEventId(String)} and {@link StatsRecord#setResourceRef(String)}
+	*/	
+	@Deprecated public void setRef(String ref);
 	
-	public String getRefUrl();
-	public void setRefUrl(String ref);
+	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * @see {@link StatsManager#getResourceImage(String)}
+	*/	
+	@Deprecated public String getRefImg();
 	
-	public String getRefAction();
-	public void setRefAction(String ref);
+	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * @see {@link StatsManager#getResourceImage(String)}
+	*/	
+	@Deprecated public void setRefImg(String ref);
 	
-	public String getDateAsString();
+	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * @see {@link StatsManager#getResourceURL(String)}
+	*/	
+	@Deprecated public String getRefUrl();
+	
+	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * @see {@link StatsManager#getResourceURL(String)}
+	*/	
+	@Deprecated public void setRefUrl(String ref);
+	
+	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * @see {@link StatsRecord#getResourceAction()}
+	*/	
+	@Deprecated public String getRefAction();
+	
+	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * @see {@link StatsRecord#setResourceAction(String)}
+	*/	
+	@Deprecated public void setRefAction(String ref);
+	
+	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	*/	
+	@Deprecated public String getDateAsString();
 }

@@ -23,7 +23,9 @@ import java.io.StringBufferInputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,6 +62,7 @@ import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
 import org.sakaiproject.sitestats.api.SiteVisits;
+import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.SummaryActivityChartData;
 import org.sakaiproject.sitestats.api.SummaryActivityTotals;
@@ -713,14 +716,15 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStats(java.lang.String, java.util.List)
 	 */
-	public List<EventStat> getEventStats(String siteId, List<String> events) {
-		return getEventStats(siteId, events, null, getInitialActivityDate(siteId), null);
+	public List<Stat> getEventStats(String siteId, List<String> events) {
+		//return getEventStats(siteId, events, null, getInitialActivityDate(siteId), null);
+		return getEventStats(siteId, events, getInitialActivityDate(siteId), null, null, false, null, null, null, true);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStats(java.lang.String, java.util.List, java.lang.String, java.util.Date, java.util.Date)
 	 */
-	public List<EventStat> getEventStats(final String siteId, final List<String> events, 
+	@Deprecated public List<EventStat> getEventStats(final String siteId, final List<String> events, 
 			final String searchKey, final Date iDate, final Date fDate) {
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
@@ -756,80 +760,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 	}
 	
-	/*public List<CommonStatGrpByDate> getEventStatsGrpByDate(final String siteId, final List<String> events, 
-			final String searchKey, final Date iDate, final Date fDate, final PagingPosition page) {
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			final List<String> userIdList = searchUsers(searchKey, siteId);
-			if(userIdList != null && userIdList.size() == 0)				
-				return new ArrayList<CommonStatGrpByDate>();
-
-			String usersStr = "";
-			String iDateStr = "";
-			String fDateStr = "";
-			if(userIdList != null && userIdList.size() > 0)
-				usersStr = "and s.userId in (:users) ";
-			if(iDate != null)
-				iDateStr = "and s.date >= :idate ";
-			if(fDate != null)
-				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousAccessEvents)
-				usersStr += " and s.userId != '?' ";
-			final String hql = "select s.siteId, s.userId, s.eventId, sum(s.count), max(s.date) " + 
-					"from EventStatImpl as s " +
-					"where s.siteId = :siteid " +
-					"and s.eventId in (:events) " +
-					usersStr + iDateStr + fDateStr +
-					"group by s.siteId, s.userId, s.eventId";
-			
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
-					q.setString("siteid", siteId);
-					q.setParameterList("events", events);
-					if(userIdList != null && userIdList.size() > 0)
-						q.setParameterList("users", userIdList);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					if(page != null){
-						q.setFirstResult(page.getFirst() - 1);
-						q.setMaxResults(page.getLast() - page.getFirst());
-					}
-					List<Object> records = q.list();
-					List<CommonStatGrpByDate> results = new ArrayList<CommonStatGrpByDate>();
-					if(records.size() > 0){
-						for(Iterator<Object> iter = records.iterator(); iter.hasNext();) {
-							Object[] s = (Object[]) iter.next();
-							CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-							c.setSiteId((String)s[0]);
-							c.setUserId((String)s[1]);
-							c.setRef((String)s[2]);
-							c.setCount(((Long)s[3]).longValue());
-							c.setDate((Date)s[4]);
-							results.add(c);
-						}
-						return results;
-					}
-					else return results;	
-				}
-			};
-			return (List<CommonStatGrpByDate>) getHibernateTemplate().execute(hcb);
-		}
-	}*/
-	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStatsGrpByDate(java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition)
 	 */
-	public List<CommonStatGrpByDate> getEventStatsGrpByDate(
+	@Deprecated public List<CommonStatGrpByDate> getEventStatsGrpByDate(
 			final String siteId,
 			final List<String> events, 
 			final Date iDate, final Date fDate,
@@ -919,135 +853,168 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 	}
 	
-	public List<CommonStatGrpByDate> getEventStats(
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStats(java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition, java.lang.String, java.lang.String, boolean)
+	 */
+	public List<Stat> getEventStats(
 			final String siteId,
 			final List<String> events,
 			final Date iDate, final Date fDate,
 			final List<String> userIds,
 			final boolean inverseUserSelection,
-			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
-			final String hql = buildEventStatsHql(siteId, events, anonymousEvents, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
-			
-			// DO IT!
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
+			final PagingPosition page, 
+			final List<String> totalsBy, 
+			final String sortBy, 
+			boolean sortAscending) {
+		
+		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
+		//final String hql = buildEventStatsHql(siteId, events, anonymousEvents, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_EVENT, null, siteId, 
+				events, anonymousEvents, showAnonymousAccessEvents, null, null, 
+				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
+		final String hql = sqlBuilder.getHQL();
+		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
+		
+		// DO IT!
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(hql);
+				if(siteId != null) {
 					q.setString("siteid", siteId);
-					q.setParameterList("events", events);
-					if(userIds != null && !userIds.isEmpty())
-						q.setParameterList("users", userIds);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					if(anonymousEvents != null && anonymousEvents.size() > 0) {
-						q.setParameterList("anonymousEvents", anonymousEvents);
-					}
-					if(page != null){
-						q.setFirstResult(page.getFirst() - 1);
-						q.setMaxResults(page.getLast() - page.getFirst() + 1);
-					}
-					LOG.debug("getEventStats(): " + q.getQueryString());
-					List<Object[]> records = q.list();
-					List<CommonStatGrpByDate> results = new ArrayList<CommonStatGrpByDate>();
-					List<String> siteUserIds = null;
-					if(inverseUserSelection)
-						siteUserIds = getSiteUsers(siteId);
-					if(records.size() > 0){
-						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
-							if(!inverseUserSelection){
-								Object[] s = iter.next();
-								CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-								c.setSiteId((String)s[0]);
-								c.setUserId((String)s[1]);
-								c.setRef((String)s[2]);
-								c.setCount(((Long)s[3]).longValue());
-								c.setDate((Date)s[4]);
-								results.add(c);
-							}else{
-								//siteUserIds.remove((String)s[1]);
-								siteUserIds.remove((Object) iter.next());
-							}
-						}
-					}
-					if(inverseUserSelection){
-						long id = 0;
-						Iterator<String> iU = siteUserIds.iterator();
-						while(iU.hasNext()){
-							String userId = iU.next();
-							CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-							c.setId(id++);
-							c.setUserId(userId);
-							c.setSiteId(siteId);
-							c.setCount(0);
-							results.add(c);
-						}
-					}
-					return results;	
 				}
-			};
-			return (List<CommonStatGrpByDate>) getHibernateTemplate().execute(hcb);
-		}
+				if(events != null && !events.isEmpty()) {
+					q.setParameterList("events", events);
+				}
+				if(userIds != null && !userIds.isEmpty())
+					q.setParameterList("users", userIds);
+				if(iDate != null)
+					q.setDate("idate", iDate);
+				if(fDate != null){
+					// adjust final date
+					Calendar c = Calendar.getInstance();
+					c.setTime(fDate);
+					c.add(Calendar.DAY_OF_YEAR, 1);
+					Date fDate2 = c.getTime();
+					q.setDate("fdate", fDate2);
+				}
+				if(anonymousEvents != null && anonymousEvents.size() > 0) {
+					q.setParameterList("anonymousEvents", anonymousEvents);
+				}
+				if(page != null){
+					q.setFirstResult(page.getFirst() - 1);
+					q.setMaxResults(page.getLast() - page.getFirst() + 1);
+				}
+				LOG.debug("getEventStats(): " + q.getQueryString());
+				List<Object[]> records = q.list();
+				List<EventStat> results = new ArrayList<EventStat>();
+				List<String> siteUserIds = null;
+				if(inverseUserSelection)
+					siteUserIds = getSiteUsers(siteId);
+				if(records.size() > 0){
+					for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
+						if(!inverseUserSelection){
+							Object[] s = iter.next();
+							EventStat c = new EventStatImpl();
+							if(columnMap.containsKey(StatsSqlBuilder.C_SITE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_SITE);
+								c.setSiteId((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_USER)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_USER);
+								c.setUserId((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_EVENT)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_EVENT);
+								c.setEventId((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_DATE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_DATE);
+								c.setDate((Date)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_TOTAL)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_TOTAL);
+								c.setCount(((Long)s[ix]).longValue());
+							}
+							results.add(c);
+						}else{
+							siteUserIds.remove((Object) iter.next());
+						}
+					}
+				}
+				if(inverseUserSelection){
+					long id = 0;
+					Iterator<String> iU = siteUserIds.iterator();
+					while(iU.hasNext()){
+						String userId = iU.next();
+						EventStat c = new EventStatImpl();
+						c.setId(id++);
+						c.setUserId(userId);
+						c.setSiteId(siteId);
+						c.setCount(0);
+						results.add(c);
+					}
+				}
+				return results;	
+			}
+		};
+		return (List<Stat>) getHibernateTemplate().execute(hcb);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStatsRowCount(java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition, java.lang.String, java.lang.String, boolean)
+	 */
 	public int getEventStatsRowCount(
 			final String siteId,
 			final List<String> events,
 			final Date iDate, final Date fDate,
 			final List<String> userIds,
 			final boolean inverseUserSelection,
-			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
-			final String hql = buildEventStatsHql(siteId, events, anonymousEvents, iDate, fDate, userIds, inverseUserSelection, true, page, groupBy, sortBy, sortAscending);
-			
-			// DO IT!
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
+			final List<String> totalsBy) {
+		
+		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_EVENT, totalsBy,
+				siteId, events, anonymousEvents, showAnonymousAccessEvents, null, null, 
+				iDate, fDate, userIds, inverseUserSelection, null, true);
+		final String hql = sqlBuilder.getHQL();
+
+		// DO IT!
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(hql);
+				if(siteId != null){
 					q.setString("siteid", siteId);
-					q.setParameterList("events", events);
-					if(userIds != null && !userIds.isEmpty())
-						q.setParameterList("users", userIds);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					if(anonymousEvents != null && anonymousEvents.size() > 0) {
-						q.setParameterList("anonymousEvents", anonymousEvents);
-					}
-					LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
-					Integer rowCount = q.list().size();
-					if(!inverseUserSelection) {
-						return rowCount;
-					}else{
-						return getSiteUsers(siteId).size() - rowCount;
-					}	
 				}
-			};
-			return (Integer) getHibernateTemplate().execute(hcb);
-		}
+				if(events != null && !events.isEmpty()){
+					q.setParameterList("events", events);
+				}
+				if(userIds != null && !userIds.isEmpty())
+					q.setParameterList("users", userIds);
+				if(iDate != null)
+					q.setDate("idate", iDate);
+				if(fDate != null){
+					// adjust final date
+					Calendar c = Calendar.getInstance();
+					c.setTime(fDate);
+					c.add(Calendar.DAY_OF_YEAR, 1);
+					Date fDate2 = c.getTime();
+					q.setDate("fdate", fDate2);
+				}
+				if(anonymousEvents != null && anonymousEvents.size() > 0){
+					q.setParameterList("anonymousEvents", anonymousEvents);
+				}
+				LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
+				Integer rowCount = q.list().size();
+				if(!inverseUserSelection){
+					return rowCount;
+				}else{
+					return getSiteUsers(siteId).size() - rowCount;
+				}
+			}
+		};
+		return (Integer) getHibernateTemplate().execute(hcb);
 	}
 	
-	private String buildEventStatsHql(
+	@Deprecated private String buildEventStatsHql(
 			final String siteId,
 			final List<String> events, 
 			final List<String> anonymousEvents,
@@ -1110,268 +1077,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			_hql.append(' ');
 		}
 		
-		// get row count only
-		//if(countOnly) {
-		//	_hql.insert(0, "select count(*) as rowCount from (");
-		//	_hql.append(") as theQuery");
-		//}
-		
 		return _hql.toString();
 	}
-	
-	public List<CommonStatGrpByDate> getResourceStats(
-			final String siteId,
-			final String resourceAction, final List<String> resourceIds,
-			final Date iDate, final Date fDate,
-			final List<String> userIds,
-			final boolean inverseUserSelection,
-			final PagingPosition page, 
-			final String groupBy,
-			final String sortBy, 
-			final boolean sortAscending) {
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			final String hql = buildResourceStatsHql(siteId, resourceAction, resourceIds, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
-			
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
-					q.setString("siteid", siteId);
-					if(userIds != null && !userIds.isEmpty())
-						q.setParameterList("users", userIds);
-					if(resourceAction != null)
-						q.setString("action", resourceAction);
-					if(resourceIds != null && !resourceIds.isEmpty())
-						q.setParameterList("resources", resourceIds);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					if(page != null){
-						q.setFirstResult(page.getFirst() - 1);
-						q.setMaxResults(page.getLast() - page.getFirst() + 1);
-					}
-					LOG.debug("getResourceStats(): " + q.getQueryString());
-					List<Object[]> records = q.list();
-					List<CommonStatGrpByDate> results = new ArrayList<CommonStatGrpByDate>();
-					List<String> siteUserIds = null;
-					if(inverseUserSelection) {
-						siteUserIds = getSiteUsers(siteId);
-					}
-					if(records.size() > 0){
-						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
-							if(!inverseUserSelection){
-								Object[] s = iter.next();
-								CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-								c.setSiteId((String)s[0]);
-								c.setUserId((String)s[1]);
-								c.setRef((String)s[2]);
-								c.setRefImg(getResourceImage((String)s[2]));
-								c.setRefUrl(getResourceURL((String)s[2]));
-								c.setRefAction((String)s[3]);
-								c.setCount(((Long)s[4]).longValue());
-								c.setDate((Date)s[5]);
-								results.add(c);
-							}else{
-								//siteUserIds.remove((String)s[1]);
-								siteUserIds.remove((Object) iter.next());
-							}
-						}
-					}
-					if(inverseUserSelection){
-						long id = 0;
-						Iterator<String> iU = siteUserIds.iterator();
-						while(iU.hasNext()){
-							String userId = iU.next();
-							CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-							c.setId(id++);
-							c.setUserId(userId);
-							c.setSiteId(siteId);
-							c.setCount(0);
-							results.add(c);
-						}
-					}
-					return results;	
-				}
-			};
-			return (List<CommonStatGrpByDate>) getHibernateTemplate().execute(hcb);
-		}
-	}
-	
-	public int getResourceStatsRowCount(
-			final String siteId,
-			final String resourceAction, final List<String> resourceIds,
-			final Date iDate, final Date fDate,
-			final List<String> userIds,
-			final boolean inverseUserSelection,
-			final PagingPosition page, 
-			final String groupBy,
-			final String sortBy, 
-			final boolean sortAscending) {
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			final String hql = buildResourceStatsHql(siteId, resourceAction, resourceIds, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
-			
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
-					q.setString("siteid", siteId);
-					if(userIds != null && !userIds.isEmpty())
-						q.setParameterList("users", userIds);
-					if(resourceAction != null)
-						q.setString("action", resourceAction);
-					if(resourceIds != null && !resourceIds.isEmpty())
-						q.setParameterList("resources", resourceIds);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
-					Integer rowCount = q.list().size();
-					if(!inverseUserSelection) {
-						return rowCount;
-					}else{
-						return getSiteUsers(siteId).size() - rowCount;
-					}	
-				}
-			};
-			return (Integer) getHibernateTemplate().execute(hcb);
-		}
-	}
-	
-	private String buildResourceStatsHql(
-			final String siteId,
-			final String resourceAction, final List<String> resourceIds,
-			final Date iDate, final Date fDate,
-			final List<String> userIds,
-			final boolean inverseUserSelection,
-			final boolean countOnly,
-			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
-				
-		StringBuilder _hql = new StringBuilder();
-		
-		// SELECT 
-		if(!inverseUserSelection) {
-			_hql.append("select s.siteId as site, s.userId as user, ");
-			_hql.append("s.resourceRef, s.resourceAction, sum(s.count) as total, max(s.date) as date ");
-		}else{
-			_hql.append("select distinct s.userId as user ");
-		}
-		
-		// FROM
-		_hql.append("from ResourceStatImpl as s ");
-		
-		// WHERE
-		_hql.append("where s.siteId = :siteid ");
-		if(resourceAction != null) {
-			_hql.append("and s.resourceAction = :action ");
-		}
-		if(resourceIds != null && !resourceIds.isEmpty()) {
-			_hql.append("and s.resourceRef in (:resources) ");
-		}
-		if(userIds != null && !userIds.isEmpty()) {
-			_hql.append("and s.userId in (:users) ");
-		}
-		if(iDate != null) {
-			_hql.append("and s.date >= :idate ");
-		}
-		if(fDate != null) {
-			_hql.append("and s.date < :fdate ");
-		}
-		if(!showAnonymousAccessEvents) {
-			_hql.append(" and s.userId != '?' ");
-		}
-		
-		// GROUP BY
-		if(groupBy == null) {
-			_hql.append("group by s.siteId, s.userId, s.resourceRef, s.resourceAction ");
-		}else{
-			_hql.append("group by ");
-			_hql.append(groupBy);
-			_hql.append(' ');
-		}
-		
-		// ORDER BY
-		if(sortBy != null) {
-			_hql.append("order by ");
-			_hql.append(sortBy);
-			_hql.append(sortAscending? "ASC" : "DESC");
-			_hql.append(' ');
-		}
-		
-		// get row count only
-		//if(countOnly) {
-		//	_hql.insert(0, "select count(*) as rowCount from (");
-		//	_hql.append(") as theQuery");
-		//}
-		
-		return _hql.toString();
-	}
-	
-	/*public int countEventStatsGrpByDate(final String siteId, final List<String> events, 
-			final String searchKey, final Date iDate, final Date fDate) {
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			final List userIdList = searchUsers(searchKey, siteId);
-			if(userIdList != null && userIdList.size() == 0)				
-				return 0;
-
-			String usersStr = "";
-			String iDateStr = "";
-			String fDateStr = "";
-			if(userIdList != null && userIdList.size() > 0)
-				usersStr = "and s.userId in (:users) ";
-			if(iDate != null)
-				iDateStr = "and s.date >= :idate ";
-			if(fDate != null)
-				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousAccessEvents)
-				usersStr += " and s.userId != '?' ";
-			final String hql = "select count(*) " + 
-					"from EventStatImpl as s " +
-					"where s.siteId = :siteid " +
-					"and s.eventId in (:events) " +
-					usersStr + iDateStr + fDateStr +
-					"group by s.siteId, s.userId, s.eventId";
-			
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
-					q.setString("siteid", siteId);
-					q.setParameterList("events", events);
-					if(userIdList != null && userIdList.size() > 0)
-						q.setParameterList("users", userIdList);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					return new Integer(q.list().size());	
-				}
-			};
-			return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
-		}
-	}*/
 
 	
 	// ################################################################
@@ -1380,14 +1087,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStats(java.lang.String)
 	 */
-	public List<ResourceStat> getResourceStats(String siteId) {
-		return getResourceStats(siteId, null, getInitialActivityDate(siteId), null);
+	public List<Stat> getResourceStats(String siteId) {
+		return getResourceStats(siteId, null, null, getInitialActivityDate(siteId), null, null, false, null, null, null, true);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStats(java.lang.String, java.lang.String, java.util.Date, java.util.Date, boolean)
 	 */
-	public List<ResourceStat> getResourceStats(final String siteId, final String searchKey, 
+	@Deprecated public List<ResourceStat> getResourceStats(final String siteId, final String searchKey, 
 			final Date iDate, final Date fDate) {
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
@@ -1422,81 +1129,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 	}
 	
-	/*public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(final String siteId, final String searchKey, 
-			final Date iDate, final Date fDate, final PagingPosition page) {
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			final List<String> userIdList = searchUsers(searchKey, siteId);	
-			if(userIdList != null && userIdList.size() == 0)				
-				return new ArrayList();		
-			
-			String usersStr = "";
-			String iDateStr = "";
-			String fDateStr = "";
-			if(userIdList != null && userIdList.size() > 0)
-				usersStr = "and s.userId in (:users) ";
-			if(iDate != null)
-				iDateStr = "and s.date >= :idate ";
-			if(fDate != null)
-				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousAccessEvents)
-				usersStr += " and s.userId != '?' ";
-			final String hql = "select s.siteId, s.userId, s.resourceRef, s.resourceAction, sum(s.count), max(s.date) " + 
-					"from ResourceStatImpl as s " +
-					"where s.siteId = :siteid " +
-					usersStr + iDateStr + fDateStr +
-					"group by s.siteId, s.userId, s.resourceRef, s.resourceAction";
-			
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
-					q.setString("siteid", siteId);
-					if(userIdList != null && userIdList.size() > 0)
-						q.setParameterList("users", userIdList);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					if(page != null){
-						q.setFirstResult(page.getFirst() - 1);
-						q.setMaxResults(page.getLast() - page.getFirst());
-					}
-					List records = q.list();
-					List results = new ArrayList();
-					if(records.size() > 0){
-						for(Iterator iter = records.iterator(); iter.hasNext();) {
-							Object[] s = (Object[]) iter.next();
-							CommonStatGrpByDate c = new CommonStatGrpByDateImpl();
-							c.setSiteId((String)s[0]);
-							c.setUserId((String)s[1]);
-							c.setRef((String)s[2]);
-							c.setRefImg(getResourceImage((String)s[2]));
-							c.setRefUrl(getResourceURL((String)s[2]));
-							c.setRefAction((String)s[3]);
-							c.setCount(((Long)s[4]).longValue());
-							c.setDate((Date)s[5]);
-							results.add(c);
-						}
-						return results;
-					}
-					else return results;	
-				}
-			};
-			return (List) getHibernateTemplate().execute(hcb);
-		}
-	}*/
-	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStatsGrpByDateAndAction(java.lang.String, java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition)
 	 */
-	public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(
+	@Deprecated public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(
 			final String siteId,  
 			final String resourceAction,
 			final List<String> resourceIds,
@@ -1598,54 +1234,482 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 	}
 	
-	/*public int countResourceStatsGrpByDateAndAction(final String siteId, final String searchKey,
-			final Date iDate, final Date fDate){
-		if(siteId == null){
-			throw new IllegalArgumentException("Null siteId");
-		}else{
-			final List userIdList = searchUsers(searchKey, siteId);	
-			if(userIdList != null && userIdList.size() == 0)				
-				return 0;		
-			
-			String usersStr = "";
-			String iDateStr = "";
-			String fDateStr = "";
-			if(userIdList != null && userIdList.size() > 0)
-				usersStr = "and s.userId in (:users) ";
-			if(iDate != null)
-				iDateStr = "and s.date >= :idate ";
-			if(fDate != null)
-				fDateStr = "and s.date < :fdate ";
-			if(!showAnonymousAccessEvents)
-				usersStr += " and s.userId != '?' ";
-			final String hql = "select count(*) " + 
-					"from ResourceStatImpl as s " +
-					"where s.siteId = :siteid " +
-					usersStr + iDateStr + fDateStr +
-					"group by s.siteId, s.userId, s.resourceRef, s.resourceAction";
-			
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStats(java.lang.String, java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition, java.lang.String, java.lang.String, boolean)
+	 */
+	public List<Stat> getResourceStats(
+			final String siteId,
+			final String resourceAction, final List<String> resourceIds,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final List<String> totalsBy,
+			final String sortBy, 
+			final boolean sortAscending) {
+		
+		//final String hql = buildResourceStatsHql(siteId, resourceAction, resourceIds, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_RESOURCE, totalsBy, 
+				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
+				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
+		final String hql = sqlBuilder.getHQL();
+		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(hql);
+				if(siteId != null){
 					q.setString("siteid", siteId);
-					if(userIdList != null && userIdList.size() > 0)
-						q.setParameterList("users", userIdList);
-					if(iDate != null)
-						q.setDate("idate", iDate);
-					if(fDate != null){
-						// adjust final date
-						Calendar c = Calendar.getInstance();
-						c.setTime(fDate);
-						c.add(Calendar.DAY_OF_YEAR, 1);
-						Date fDate2 = c.getTime();
-						q.setDate("fdate", fDate2);
-					}
-					return new Integer(q.list().size());						
 				}
-			};
-			return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
+				if(userIds != null && !userIds.isEmpty())
+					q.setParameterList("users", userIds);
+				if(resourceAction != null)
+					q.setString("action", resourceAction);
+				if(resourceIds != null && !resourceIds.isEmpty())
+					q.setParameterList("resources", resourceIds);
+				if(iDate != null)
+					q.setDate("idate", iDate);
+				if(fDate != null){
+					// adjust final date
+					Calendar c = Calendar.getInstance();
+					c.setTime(fDate);
+					c.add(Calendar.DAY_OF_YEAR, 1);
+					Date fDate2 = c.getTime();
+					q.setDate("fdate", fDate2);
+				}
+				if(page != null){
+					q.setFirstResult(page.getFirst() - 1);
+					q.setMaxResults(page.getLast() - page.getFirst() + 1);
+				}
+				LOG.debug("getResourceStats(): " + q.getQueryString());
+				List<Object[]> records = q.list();
+				List<ResourceStat> results = new ArrayList<ResourceStat>();
+				List<String> siteUserIds = null;
+				if(inverseUserSelection){
+					siteUserIds = getSiteUsers(siteId);
+				}
+				if(records.size() > 0){
+					for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();){
+						if(!inverseUserSelection){
+							Object[] s = iter.next();
+							ResourceStat c = new ResourceStatImpl();
+							if(columnMap.containsKey(StatsSqlBuilder.C_SITE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_SITE);
+								c.setSiteId((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_USER)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_USER);
+								c.setUserId((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_RESOURCE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_RESOURCE);
+								c.setResourceRef((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_RESOURCE_ACTION)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_RESOURCE_ACTION);
+								c.setResourceAction((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_DATE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_DATE);
+								c.setDate((Date)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_TOTAL)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_TOTAL);
+								c.setCount(((Long)s[ix]).longValue());
+							}
+							results.add(c);
+						}else{
+							// siteUserIds.remove((String)s[1]);
+							siteUserIds.remove((Object) iter.next());
+						}
+					}
+				}
+				if(inverseUserSelection){
+					long id = 0;
+					Iterator<String> iU = siteUserIds.iterator();
+					while (iU.hasNext()){
+						String userId = iU.next();
+						ResourceStat c = new ResourceStatImpl();
+						c.setId(id++);
+						c.setUserId(userId);
+						c.setSiteId(siteId);
+						c.setCount(0);
+						results.add(c);
+					}
+				}
+				return results;
+			}
+		};
+		return (List<Stat>) getHibernateTemplate().execute(hcb);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStatsRowCount(java.lang.String, java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition, java.lang.String, java.lang.String, boolean)
+	 */
+	public int getResourceStatsRowCount(
+			final String siteId,
+			final String resourceAction, final List<String> resourceIds,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final List<String> totalsBy) {
+
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_RESOURCE, totalsBy, 
+				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
+				iDate, fDate, userIds, inverseUserSelection, null, true);
+		final String hql = sqlBuilder.getHQL();
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(hql);
+				if(siteId != null){
+					q.setString("siteid", siteId);
+				}
+				if(userIds != null && !userIds.isEmpty())
+					q.setParameterList("users", userIds);
+				if(resourceAction != null)
+					q.setString("action", resourceAction);
+				if(resourceIds != null && !resourceIds.isEmpty())
+					q.setParameterList("resources", resourceIds);
+				if(iDate != null)
+					q.setDate("idate", iDate);
+				if(fDate != null){
+					// adjust final date
+					Calendar c = Calendar.getInstance();
+					c.setTime(fDate);
+					c.add(Calendar.DAY_OF_YEAR, 1);
+					Date fDate2 = c.getTime();
+					q.setDate("fdate", fDate2);
+				}
+				LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
+				Integer rowCount = q.list().size();
+				if(!inverseUserSelection){
+					return rowCount;
+				}else{
+					return getSiteUsers(siteId).size() - rowCount;
+				}
+			}
+		};
+		return (Integer) getHibernateTemplate().execute(hcb);		
+	}
+	
+	@Deprecated private String buildResourceStatsHql(
+			final String siteId,
+			final String resourceAction, final List<String> resourceIds,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final boolean countOnly,
+			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
+				
+		StringBuilder _hql = new StringBuilder();
+		
+		// SELECT 
+		if(!inverseUserSelection) {
+			_hql.append("select s.siteId as site, s.userId as user, ");
+			_hql.append("s.resourceRef, s.resourceAction, sum(s.count) as total, max(s.date) as date ");
+		}else{
+			_hql.append("select distinct s.userId as user ");
 		}
-	}*/
+		
+		// FROM
+		_hql.append("from ResourceStatImpl as s ");
+		
+		// WHERE
+		_hql.append("where s.siteId = :siteid ");
+		if(resourceAction != null) {
+			_hql.append("and s.resourceAction = :action ");
+		}
+		if(resourceIds != null && !resourceIds.isEmpty()) {
+			_hql.append("and s.resourceRef in (:resources) ");
+		}
+		if(userIds != null && !userIds.isEmpty()) {
+			_hql.append("and s.userId in (:users) ");
+		}
+		if(iDate != null) {
+			_hql.append("and s.date >= :idate ");
+		}
+		if(fDate != null) {
+			_hql.append("and s.date < :fdate ");
+		}
+		if(!showAnonymousAccessEvents) {
+			_hql.append(" and s.userId != '?' ");
+		}
+		
+		// GROUP BY
+		if(groupBy == null) {
+			_hql.append("group by s.siteId, s.userId, s.resourceRef, s.resourceAction ");
+		}else{
+			_hql.append("group by ");
+			_hql.append(groupBy);
+			_hql.append(' ');
+		}
+		
+		// ORDER BY
+		if(sortBy != null) {
+			_hql.append("order by ");
+			_hql.append(sortBy);
+			_hql.append(sortAscending? "ASC" : "DESC");
+			_hql.append(' ');
+		}
+		
+		return _hql.toString();
+	}
+	
+	
+	// ################################################################
+	//  Statistics SQL builder class
+	// ################################################################
+	private static class StatsSqlBuilder {
+		public static final Integer		C_SITE				= 0;
+		public static final Integer		C_USER				= 1;
+		public static final Integer		C_EVENT				= 2;
+		public static final Integer		C_RESOURCE			= 3;
+		public static final Integer		C_RESOURCE_ACTION	= 4;
+		public static final Integer		C_DATE				= 5;
+		public static final Integer		C_TOTAL				= 6;
+
+		private Map<Integer, Integer>	columnMap;
+
+		private int						queryType;
+		private List<String>			totalsBy;
+		private String					siteId;
+		private List<String>			events;
+		private List<String>			anonymousEvents;
+		private boolean					showAnonymousAccessEvents;
+		private Date					iDate;
+		private Date					fDate;
+		private List<String>			userIds;
+		private String					resourceAction;
+		private List<String>			resourceIds;
+		private boolean					inverseUserSelection;
+		private String					sortBy;
+		private boolean					sortAscending;	
+		
+		public StatsSqlBuilder(
+				final int queryType,
+				final List<String> totalsBy,
+				final String siteId,
+				final List<String> events, 
+				final List<String> anonymousEvents,
+				final boolean showAnonymousAccessEvents,
+				final String resourceAction,
+				final List<String> resourceIds,
+				final Date iDate, final Date fDate,
+				final List<String> userIds,
+				final boolean inverseUserSelection,
+				final String sortBy, final boolean sortAscending) {
+			this.columnMap = new HashMap<Integer, Integer>();
+			this.queryType = queryType;
+			if(totalsBy == null) {
+				if(queryType == Q_TYPE_EVENT) {
+					this.totalsBy = TOTALSBY_EVENT_DEFAULT;
+				}else{
+					this.totalsBy = TOTALSBY_RESOURCE_DEFAULT;
+				}
+			}else{
+				this.totalsBy = totalsBy;
+			}
+			this.siteId = siteId;
+			this.events = events;
+			this.anonymousEvents = anonymousEvents;
+			this.showAnonymousAccessEvents = showAnonymousAccessEvents;
+			this.resourceAction = resourceAction;
+			this.resourceIds = resourceIds;
+			this.iDate = iDate;
+			this.fDate = fDate;
+			this.userIds = userIds;
+			this.inverseUserSelection = inverseUserSelection;
+			this.sortBy = sortBy;
+			this.sortAscending = sortAscending;
+		}
+		
+		public String getHQL() {
+			StringBuilder hql = new StringBuilder();
+			hql.append(getSelectClause());
+			hql.append(getFromClause());
+			hql.append(getWhereClause());
+			hql.append(getGroupByClause());
+			hql.append(getSortByClause());
+			return hql.toString();
+		}
+		
+		public Map<Integer, Integer> getHQLColumnMap() {
+			return columnMap;
+		}
+		
+		private String getSelectClause() {
+			StringBuilder _hql = new StringBuilder();
+			List<String> selectFields = new ArrayList<String>();
+			int columnIndex = 0;
+			
+			// normal query
+			if(!inverseUserSelection) {
+				// site
+				if(siteId != null) {
+					selectFields.add("s.siteId as site");
+					columnMap.put(C_SITE, columnIndex++);
+				}
+				// user
+				if(totalsBy.contains(T_USER)) {
+					if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
+						selectFields.add("case when s.eventId not in (:anonymousEvents) then s.userId else '-' end as user");
+					}else{
+						selectFields.add("s.userId as user");
+					}
+					columnMap.put(C_USER, columnIndex++);
+				}
+				// event
+				if(totalsBy.contains(T_EVENT)) {
+					selectFields.add("s.eventId as event");
+					columnMap.put(C_EVENT, columnIndex++);
+				}
+				// resource
+				if(totalsBy.contains(T_RESOURCE)) {
+					selectFields.add("s.resourceRef as resourceRef");
+					columnMap.put(C_RESOURCE, columnIndex++);
+				}
+				// resource action
+				if(totalsBy.contains(T_RESOURCE_ACTION)) {
+					selectFields.add("s.resourceAction as resourceAction");
+					columnMap.put(C_RESOURCE_ACTION, columnIndex++);
+				}
+				// date
+				if(totalsBy.contains(T_DATE)) {
+					selectFields.add("s.date as date");
+					columnMap.put(C_DATE, columnIndex++);
+				}else if(totalsBy.contains(T_LASTDATE)) {
+					selectFields.add("max(s.date) as date");
+					columnMap.put(C_DATE, columnIndex++);
+				}				
+				// total
+				selectFields.add("sum(s.count) as total");
+				columnMap.put(C_TOTAL, columnIndex++);
+				
+			// inverse query (users not matching conditions)
+			}else{
+				if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
+					selectFields.add("distinct(case when s.eventId not in (:anonymousEvents) then s.userId else '-' end) as user");
+				}else{
+					selectFields.add("distinct s.userId as user");
+				}
+				columnMap.put(C_USER, columnIndex++);
+			}
+			
+			// build 'select' clause
+			_hql.append("select ");
+			for(int i=0; i<selectFields.size() - 1; i++) {
+				_hql.append(selectFields.get(i));
+				_hql.append(", ");
+			}
+			_hql.append(selectFields.get(selectFields.size() - 1));
+			_hql.append(' ');
+			
+			return _hql.toString();
+		}
+		
+		private String getFromClause() {
+			if(queryType == Q_TYPE_EVENT) {
+				return "from EventStatImpl as s ";
+			}else{
+				return "from ResourceStatImpl as s ";
+			}
+		}
+		
+		private String getWhereClause() {
+			StringBuilder _hql = new StringBuilder();
+			List<String> whereFields = new ArrayList<String>();
+			
+			if(siteId != null) {
+				whereFields.add("s.siteId = :siteid");
+			}
+			if(queryType == Q_TYPE_EVENT && events != null && !events.isEmpty()) {
+				whereFields.add("s.eventId in (:events)");
+			}
+			if(queryType == Q_TYPE_RESOURCE && resourceAction != null) {
+				whereFields.add("s.resourceAction = :action");
+			}
+			if(queryType == Q_TYPE_RESOURCE && resourceIds != null && !resourceIds.isEmpty()) {
+				whereFields.add("s.resourceRef in (:resources)");
+			}
+			if(userIds != null && !userIds.isEmpty()) {
+				whereFields.add("s.userId in (:users)");
+			}
+			if(iDate != null) {
+				whereFields.add("s.date >= :idate");
+			}
+			if(fDate != null) {
+				whereFields.add("s.date < :fdate");
+			}
+			if(!showAnonymousAccessEvents) {
+				whereFields.add("s.userId != '?'");
+			}
+			
+			// build 'where' clause
+			_hql.append("where ");
+			for(int i=0; i<whereFields.size() - 1; i++) {
+				_hql.append(whereFields.get(i));
+				_hql.append(" and ");
+			}
+			_hql.append(whereFields.get(whereFields.size() - 1));
+			_hql.append(' ');
+			
+			return _hql.toString();
+			
+		}
+		
+		private String getGroupByClause() {
+			StringBuilder _hql = new StringBuilder();
+			List<String> groupFields = new ArrayList<String>();
+
+			if(siteId != null) {
+				groupFields.add("s.siteId");
+			}
+			if(totalsBy.contains(T_USER)) {
+				groupFields.add("s.userId");
+			}
+			if(queryType == Q_TYPE_EVENT && totalsBy.contains(T_EVENT)) {
+				groupFields.add("s.eventId");
+			}
+			if(queryType == Q_TYPE_RESOURCE && totalsBy.contains(T_RESOURCE)) {
+				groupFields.add("s.resourceRef");
+			}
+			if(queryType == Q_TYPE_RESOURCE && totalsBy.contains(T_RESOURCE_ACTION)) {
+				groupFields.add("s.resourceAction");
+			}
+			if(totalsBy.contains(T_DATE)) {
+				groupFields.add("s.date");
+			}
+			if(totalsBy.contains(T_LASTDATE) && groupFields.size() == 0) {
+				groupFields.add("s.date");
+			}
+			
+			// build 'group by' clause
+			if(groupFields.size() > 0) {
+				_hql.append("group by ");
+				for(int i=0; i<groupFields.size() - 1; i++) {
+					_hql.append(groupFields.get(i));
+					_hql.append(", ");
+				}
+				_hql.append(groupFields.get(groupFields.size() - 1));
+				_hql.append(' ');
+			}
+			
+			return _hql.toString();
+		}
+		
+		private String getSortByClause() {	
+			StringBuilder _hql = new StringBuilder();
+			if(sortBy != null) {
+				_hql.append("order by ");
+				_hql.append(sortBy);
+				_hql.append(sortAscending? "ASC" : "DESC");
+				_hql.append(' ');
+			}			
+			return _hql.toString();
+		}
+	}
+	
 
 	
 	// ################################################################
@@ -2453,67 +2517,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		};
 		return ((List<String>) getHibernateTemplate().execute(hcb));
 	}
-
-	/**
-	 * Checks if a given user has permissions access a tool in a site. This is
-	 * checked agains the following tags in tool xml file:<br>
-	 * <configuration name="roles.allow" value="maintain,Instructor" /><br>
-	 * <configuration name="roles.deny" value="access,guest" /> <br>
-	 * Both, one or none of this configuration tags can be specified. By
-	 * default, an user has permissions to see the tool in site.<br>
-	 * Permissions are checked in the order: Allow, Deny.
-	 * @param tool ToolInfo to check permissions on.
-	 * @param roleId Current user's role.
-	 * @return Whether user has permissions to this tool in this site.
-	 */
-	/*private boolean isToolAllowedForRole(org.sakaiproject.tool.api.Tool tool, String roleId) {
-		if(tool == null) return false;
-		String TOOL_CFG_ROLES_ALLOW = "roles.allow";
-		String TOOL_CFG_ROLES_DENY = "roles.deny";
-		Properties roleConfig = tool.getRegisteredConfig();
-		String toolTitle = tool.getTitle();
-		boolean allowRuleSpecified = roleConfig.containsKey(TOOL_CFG_ROLES_ALLOW);
-		boolean denyRuleSpecified = roleConfig.containsKey(TOOL_CFG_ROLES_DENY);
-		
-		// allow by default, when no config keys are present
-		if(!allowRuleSpecified && !allowRuleSpecified) return true;
-		
-		boolean allowed = true;
-		if(allowRuleSpecified){
-			allowed = false;
-			boolean found = false;
-			String[] result = roleConfig.getProperty(TOOL_CFG_ROLES_ALLOW).split("\\,");
-		    for (int x=0; x<result.length; x++){
-		    	if(result[x].trim().equals(roleId)){
-		        	 found = true;
-		        	 break;
-		         }
-		    }
-			if(found){
-				LOG.debug("ToolInfo config '"+TOOL_CFG_ROLES_ALLOW+"' allowed access to '"+roleId+"' in "+toolTitle);
-				allowed = true;
-			}
-		}
-		if(denyRuleSpecified){
-			if(!allowRuleSpecified)
-				allowed = true;
-			boolean found = false;
-			String[] result = roleConfig.getProperty(TOOL_CFG_ROLES_DENY).split("\\,");
-		    for (int x=0; x<result.length; x++){
-		    	if(result[x].trim().equals(roleId)){
-		        	 found = true;
-		        	 break;
-		         }
-		    }
-			if(found){
-				LOG.debug("ToolInfo config '"+TOOL_CFG_ROLES_DENY+"' denied access to '"+roleId+"' in "+toolTitle);
-				allowed = false;
-			}
-		}else if(!allowRuleSpecified)
-			allowed = true;
-		LOG.debug("Allowed access to '"+roleId+"' in "+toolTitle+"? "+allowed);
-		return allowed;
-	}*/
 
 	private static double round(double val, int places) {
 		long factor = (long) Math.pow(10, places);

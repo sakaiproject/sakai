@@ -30,38 +30,29 @@ import org.sakaiproject.sitestats.api.EventStat;
 public class EventStatImpl implements EventStat, Serializable {
 	private static final long	serialVersionUID	= 1L;
 	private long	id;
-	private String	userId;
 	private String	siteId;
+	private String	userId;
 	private String	eventId;
 	private long	count;
 	private Date	date;
-
-	public boolean equals(Object o) {
-		if(o == null) return false;
-		if(!(o instanceof EventStatImpl)) return false;
-		EventStatImpl other = (EventStatImpl) o;
-		return id == other.getId()
-				&& siteId.equals(other.getSiteId())
-				&& userId.equals(other.getUserId())
-				&& eventId.equals(other.getEventId())
-				&& count == other.getCount()
-				&& date.equals(other.getDate());
-	}
-
-	public int hashCode() {
-		if(siteId == null) return Integer.MIN_VALUE;
-		String hashStr = this.getClass().getName() + ":" 
-				+ id
-				+ this.getUserId().hashCode()
-				+ this.getSiteId().hashCode()
-				+ this.getEventId().hashCode()
-				+ count
-				+ this.getDate().hashCode();
-		return hashStr.hashCode();
+	
+	/** Minimal constructor. */
+	public EventStatImpl() {		
 	}
 	
-	public String toString(){
-		return siteId + " : " + userId + " : " + eventId + " : " + count + " : " + date;
+	/** Default constructor. */
+	public EventStatImpl(String siteId, long count) {
+		this(0, siteId, null, null, count, null);
+	}
+	
+	/** Full constructor. */
+	public EventStatImpl(long id, String siteId, String userId, String eventId, long count, Date date) {
+		setId(id);
+		setSiteId(siteId);
+		setUserId(userId);
+		setEventId(eventId);		
+		setCount(count);
+		setDate(date);
 	}
 
 	/*
@@ -160,4 +151,32 @@ public class EventStatImpl implements EventStat, Serializable {
 		this.date = date;
 	}
 
+
+	public boolean equals(Object o) {
+		if(o == null) return false;
+		if(!(o instanceof EventStatImpl)) return false;
+		EventStatImpl other = (EventStatImpl) o;
+		return id == other.getId()
+				&& siteId.equals(other.getSiteId())
+				&& userId.equals(other.getUserId())
+				&& eventId.equals(other.getEventId())
+				&& count == other.getCount()
+				&& date.equals(other.getDate());
+	}
+
+	public int hashCode() {
+		if(siteId == null) return Integer.MIN_VALUE;
+		String hashStr = this.getClass().getName() + ":" 
+				+ id
+				+ this.getUserId().hashCode()
+				+ this.getSiteId().hashCode()
+				+ this.getEventId().hashCode()
+				+ count
+				+ this.getDate().hashCode();
+		return hashStr.hashCode();
+	}
+	
+	public String toString(){
+		return siteId + " : " + userId + " : " + eventId + " : " + count + " : " + date;
+	}
 }

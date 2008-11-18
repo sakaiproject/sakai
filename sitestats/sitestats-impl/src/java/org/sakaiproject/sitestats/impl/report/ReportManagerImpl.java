@@ -41,8 +41,10 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
+import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
+import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
@@ -122,50 +124,55 @@ public class ReportManagerImpl implements ReportManager {
 	// ################################################################
 	// Interface implementation
 	// ################################################################
-	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params) {
-		return getReport(siteId, prefsdata, params, null, null, null, true);
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(java.lang.String, org.sakaiproject.sitestats.api.PrefsData, org.sakaiproject.sitestats.api.report.ReportParams)
+	 */
+	public Report getReport(String siteId, boolean restrictToToolsInSite, ReportParams params) {
+		return getReport(siteId, restrictToToolsInSite, params, null, null, true);
 	}
 	
-	public int getReportRowCount(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition pagingPosition, String groupBy, String sortBy, boolean sortAscending) {
-		ReportProcessedParams rpp = processReportParams(siteId, prefsdata, params, pagingPosition, groupBy, sortBy, sortAscending);
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportRowCount(java.lang.String, org.sakaiproject.sitestats.api.PrefsData, org.sakaiproject.sitestats.api.report.ReportParams)
+	 */
+	public int getReportRowCount(String siteId, boolean restrictToToolsInSite, ReportParams params) {
+		ReportProcessedParams rpp = processReportParams(siteId, restrictToToolsInSite, params, null, null, true);
 		if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
-			return M_sm.getResourceStatsRowCount(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, null, sortBy, sortAscending);
+			return M_sm.getResourceStatsRowCount(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
 		}else{
-			return M_sm.getEventStatsRowCount(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, null, sortBy, sortAscending);
+			return M_sm.getEventStatsRowCount(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
 		}
 	}
 	
-	public Report getReport(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition pagingPosition, String groupBy, String sortBy, boolean sortAscending) {
-		ReportProcessedParams rpp = processReportParams(siteId, prefsdata, params, pagingPosition, groupBy, sortBy, sortAscending);
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(java.lang.String, org.sakaiproject.sitestats.api.PrefsData, org.sakaiproject.sitestats.api.report.ReportParams, org.sakaiproject.javax.PagingPosition, java.lang.String, boolean)
+	 */
+	public Report getReport(String siteId, boolean restrictToToolsInSite, ReportParams params, PagingPosition pagingPosition, String sortBy, boolean sortAscending) {
+		ReportProcessedParams rpp = processReportParams(siteId, restrictToToolsInSite, params, pagingPosition, sortBy, sortAscending);
 
 		// generate report
 		Report report = new ReportImpl();
-		List<CommonStatGrpByDate> data = null;
+		List<Stat> data = null;
 		if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
-			//data = M_sm.getResourceStatsGrpByDateAndAction(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition);
-			data = M_sm.getResourceStats(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, null, sortBy, sortAscending);
+			data = M_sm.getResourceStats(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, sortBy, sortAscending);
 		}else{
-			//data = M_sm.getEventStatsGrpByDate(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition);
-			data = M_sm.getEventStats(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, null, sortBy, sortAscending);
+			data = M_sm.getEventStats(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, sortBy, sortAscending);
 		}
 		
 		// add missing info in report and its parameters
 		if(report != null) {
+			params.setWhenFrom(rpp.iDate);
+			params.setWhenTo(rpp.fDate);
+			params.setWhoUserIds(rpp.userIds);
+			params.setHowTotalsBy(rpp.totalsBy);
 			report.setReportData(data);
 			report.setReportParams(params);
 			report.setReportGenerationDate(M_ts.newTime());
 		}
-		params.setWhenFrom(rpp.iDate);
-		params.setWhenTo(rpp.fDate);
-		params.setWhoUserIds(rpp.userIds);
-
-		// consolidate anonymous events
-		//report = consolidateAnonymousEvents(report);
 
 		return report;
 	}
 	
-	private ReportProcessedParams processReportParams(String siteId, PrefsData prefsdata, ReportParams params, PagingPosition pagingPosition, String groupBy, String sortBy, boolean sortAscending) {
+	private ReportProcessedParams processReportParams(String siteId, boolean restrictToToolsInSite, ReportParams params, PagingPosition pagingPosition, String sortBy, boolean sortAscending) {
 		ReportProcessedParams rpp = new ReportProcessedParams();
 		
 		// what (visits, events, resources)
@@ -175,7 +182,7 @@ public class ReportManagerImpl implements ReportManager {
 
 		}else if(params.getWhat().equals(ReportManager.WHAT_EVENTS)){
 			if(params.getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
-				Iterator<ToolInfo> iT = M_ers.getEventRegistry(siteId, prefsdata.isListToolEventsOnlyAvailableInSite()).iterator();
+				Iterator<ToolInfo> iT = M_ers.getEventRegistry(siteId, restrictToToolsInSite).iterator();
 				while (iT.hasNext()){
 					ToolInfo t = iT.next();
 					if(params.getWhatToolIds().contains(t.getToolId())){
@@ -245,11 +252,13 @@ public class ReportManagerImpl implements ReportManager {
 			rpp.inverseUserSelection = true;
 		}
 		params.setWhoUserIds(rpp.userIds);
-
+		
+		// how (totals by)
+		rpp.totalsBy = params.getHowTotalsBy();
+		
 		// generate report
 		Report report = new ReportImpl();
 		report.setReportParams(params);
-		List<CommonStatGrpByDate> data = null;
 		if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
 			rpp.resourceIds = null;
 			if(params.getWhatResourceIds() != null){
@@ -271,82 +280,132 @@ public class ReportManagerImpl implements ReportManager {
 	public ReportFormattedParams getReportFormattedParams() {
 		return formattedParams;
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#isReportColumnAvailable(org.sakaiproject.sitestats.api.report.ReportParams, java.lang.String)
+	 */
+	public boolean isReportColumnAvailable(ReportParams params, String column) {
+		List<String> totalsBy = params.getHowTotalsBy();
+		if(column == null) {
+			return false;
+			
+		}else if(column.equals(StatsManager.T_SITE)) {
+			return params.getSiteId() == null;
+			
+		}else if(column.equals(StatsManager.T_USER)) {
+			return totalsBy.contains(StatsManager.T_USER);
+			
+		}else if(column.equals(StatsManager.T_EVENT)) {
+			return totalsBy.contains(StatsManager.T_EVENT) && !ReportManager.WHO_NONE.equals(params.getWho());
+			
+		}else if(column.equals(StatsManager.T_RESOURCE)) {
+			return totalsBy.contains(StatsManager.T_RESOURCE) && !ReportManager.WHO_NONE.equals(params.getWho());
+			
+		}else if(column.equals(StatsManager.T_RESOURCE_ACTION)) {
+			return totalsBy.contains(StatsManager.T_RESOURCE_ACTION) && !ReportManager.WHO_NONE.equals(params.getWho());
+			
+		}else if(column.equals(StatsManager.T_DATE)) {
+			return totalsBy.contains(StatsManager.T_DATE) && !ReportManager.WHO_NONE.equals(params.getWho());
+			
+		}else if(column.equals(StatsManager.T_LASTDATE)) {
+			return totalsBy.contains(StatsManager.T_LASTDATE) && !ReportManager.WHO_NONE.equals(params.getWho());
+			
+		}else if(column.equals(StatsManager.T_TOTAL)) {
+			return !ReportManager.WHO_NONE.equals(params.getWho());
+			
+		}else{
+			LOG.warn("isReportColumnAvailable(): invalid column: "+column);
+			return false;
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportAsExcel(org.sakaiproject.sitestats.api.report.Report, java.lang.String)
 	 */
 	public byte[] getReportAsExcel(Report report, String sheetName) {
-		List<CommonStatGrpByDate> statsObjects = report.getReportData();
+		List<Stat> statsObjects = report.getReportData();
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFSheet sheet = wb.createSheet(sheetName);
 		HSSFRow headerRow = sheet.createRow((short) 0);
 
 		// Add the column headers
-		headerRow.createCell((short) (0)).setCellValue(msgs.getString("th_id"));
-		headerRow.createCell((short) (1)).setCellValue(msgs.getString("th_user"));
-		if(!report.getReportParams().getWho().equals(ReportManager.WHO_NONE)) {
-			if(report.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
-				headerRow.createCell((short) (2)).setCellValue(msgs.getString("th_resource"));
-				headerRow.createCell((short) (3)).setCellValue(msgs.getString("th_action"));
-				headerRow.createCell((short) (4)).setCellValue(msgs.getString("th_date"));
-				headerRow.createCell((short) (5)).setCellValue(msgs.getString("th_total"));
-			}else{
-				headerRow.createCell((short) (2)).setCellValue(msgs.getString("th_event"));
-				headerRow.createCell((short) (3)).setCellValue(msgs.getString("th_date"));
-				headerRow.createCell((short) (4)).setCellValue(msgs.getString("th_total"));
-			}
+		int ix = 0;
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_USER)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_id"));
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_user"));
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_EVENT)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_event"));
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_resource"));
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_action"));
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_DATE)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_date"));
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_LASTDATE)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_lastdate"));
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_TOTAL)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_total"));
 		}
 
 		// Fill the spreadsheet cells
-		Iterator<CommonStatGrpByDate> i = statsObjects.iterator();
+		Iterator<Stat> i = statsObjects.iterator();
 		while (i.hasNext()){
 			HSSFRow row = sheet.createRow(sheet.getLastRowNum() + 1);
-			CommonStatGrpByDate se = i.next();
-			// user name
-			String userId = se.getUserId();
-			String userEid = null;
-			String userName = null;
-			if (userId != null) {
-    			if(("-").equals(userId)) {
-    				userEid = "-";
-    				userName = msgs.getString("user_anonymous");
-    			}else if(("?").equals(userId)) {
-    				userEid = "-";
-    				userName = msgs.getString("user_anonymous_access");
-    			}else{
-    				try{
-    					User user = M_uds.getUser(userId);
-    					userEid = user.getDisplayId();
-    					userName = user.getDisplayName();
-    				}catch(UserNotDefinedException e1){
-    					userEid = userId;
-    					userName = msgs.getString("user_unknown");
-    				}
-    			}
-    		}else{
-    			userName = msgs.getString("user_unknown");
-    		}
-			row.createCell((short) 0).setCellValue(userEid);
-			row.createCell((short) 1).setCellValue(userName);
-			if(!report.getReportParams().getWho().equals(ReportManager.WHO_NONE)) {
-				if(report.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
-					// resource name
-					row.createCell((short) 2).setCellValue(se.getRef());
-					// resource action
-					row.createCell((short) 3).setCellValue(se.getRefAction());
-					// most recent lastDate
-					row.createCell((short) 4).setCellValue(se.getDate().toString());
-					// total
-					row.createCell((short) 5).setCellValue(se.getCount());
-				}else{
-					// event name
-					row.createCell((short) 2).setCellValue(M_ers.getEventName(se.getRef()));
-					// most recent lastDate
-					row.createCell((short) 3).setCellValue(se.getDate().toString());
-					// total
-					row.createCell((short) 4).setCellValue(se.getCount());
-				}
+			Stat se = i.next();
+			ix = 0;
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_USER)) {
+				String userId = se.getUserId();
+				String userEid = null;
+				String userName = null;
+				if (userId != null) {
+	    			if(("-").equals(userId)) {
+	    				userEid = "-";
+	    				userName = msgs.getString("user_anonymous");
+	    			}else if(("?").equals(userId)) {
+	    				userEid = "-";
+	    				userName = msgs.getString("user_anonymous_access");
+	    			}else{
+	    				try{
+	    					User user = M_uds.getUser(userId);
+	    					userEid = user.getDisplayId();
+	    					userName = user.getDisplayName();
+	    				}catch(UserNotDefinedException e1){
+	    					userEid = userId;
+	    					userName = msgs.getString("user_unknown");
+	    				}
+	    			}
+	    		}else{
+	    			userName = msgs.getString("user_unknown");
+	    		}
+				row.createCell((short) ix++).setCellValue(userEid);
+				row.createCell((short) ix++).setCellValue(userName);
+			}
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_EVENT)) {
+				EventStat es = (EventStat) se;
+				row.createCell((short) ix++).setCellValue(M_ers.getEventName(es.getEventId()));
+			}
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE)) {
+				ResourceStat rs = (ResourceStat) se;
+				row.createCell((short) ix++).setCellValue(rs.getResourceRef());				
+			}
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
+				ResourceStat rs = (ResourceStat) se;
+				row.createCell((short) ix++).setCellValue(rs.getResourceAction());				
+			}
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_DATE)) {
+				row.createCell((short) ix++).setCellValue(se.getDate().toString());				
+			}
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_LASTDATE)) {
+				row.createCell((short) ix++).setCellValue(se.getDate().toString());				
+			}
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_TOTAL)) {
+				row.createCell((short) ix++).setCellValue(se.getCount());				
 			}
 		}
 		return wb.getBytes();
@@ -356,80 +415,146 @@ public class ReportManagerImpl implements ReportManager {
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportAsCsv(org.sakaiproject.sitestats.api.report.Report)
 	 */
 	public String getReportAsCsv(Report report) {
-		List<CommonStatGrpByDate> statsObjects = report.getReportData();
+		List<Stat> statsObjects = report.getReportData();
 		StringBuffer sb = new StringBuffer();
+		boolean isFirst = true;
 
 		// Add the headers
-		appendQuoted(sb, msgs.getString("th_id"));
-		sb.append(",");
-		appendQuoted(sb, msgs.getString("th_user"));
-		if(!report.getReportParams().getWho().equals(ReportManager.WHO_NONE)) {
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_USER)) {
+			appendQuoted(sb, msgs.getString("th_id"));
 			sb.append(",");
-			if(report.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
-				appendQuoted(sb, msgs.getString("th_resource"));
+			appendQuoted(sb, msgs.getString("th_user"));
+			isFirst = false;
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_EVENT)) {
+			if(!isFirst) {
 				sb.append(",");
-				appendQuoted(sb, msgs.getString("th_action"));
-			}else{
-				appendQuoted(sb, msgs.getString("th_event"));
 			}
-			sb.append(",");
+			appendQuoted(sb, msgs.getString("th_event"));
+			isFirst = false;
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE)) {
+			if(!isFirst) {
+				sb.append(",");
+			}
+			appendQuoted(sb, msgs.getString("th_resource"));
+			isFirst = false;
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
+			if(!isFirst) {
+				sb.append(",");
+			}
+			appendQuoted(sb, msgs.getString("th_action"));
+			isFirst = false;
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_DATE)) {
+			if(!isFirst) {
+				sb.append(",");
+			}
 			appendQuoted(sb, msgs.getString("th_date"));
-			sb.append(",");
+			isFirst = false;
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_LASTDATE)) {
+			if(!isFirst) {
+				sb.append(",");
+			}
+			appendQuoted(sb, msgs.getString("th_lastdate"));
+			isFirst = false;
+		}
+		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_TOTAL)) {
+			if(!isFirst) {
+				sb.append(",");
+			}
 			appendQuoted(sb, msgs.getString("th_total"));
+			isFirst = false;
 		}
 		sb.append("\n");
 
 		// Add the data
-		Iterator<CommonStatGrpByDate> i = statsObjects.iterator();
+		isFirst = true;
+		Iterator<Stat> i = statsObjects.iterator();
 		while (i.hasNext()){
-			CommonStatGrpByDate se = i.next();
-			// user id
-			String userId = se.getUserId();
-			String userEid = null;
-			String userName = null;			
-			if (userId != null) {
-    			if(("-").equals(userId)) {
-    				userEid = "-";
-    				userName = msgs.getString("user_anonymous");
-    			}else if(("?").equals(userId)) {
-    				userEid = "-";
-    				userName = msgs.getString("user_anonymous_access");
-    			}else{
-    				try{
-    					User user = M_uds.getUser(userId);
-    					userEid = user.getDisplayId();
-    					userName = user.getDisplayName();
-    				}catch(UserNotDefinedException e1){
-    					userEid = userId;
-    					userName = msgs.getString("user_unknown");
-    				}
-    			}
-    		}else{
-    			userName = msgs.getString("user_unknown");
-    		}
-			appendQuoted(sb, userEid);
-			sb.append(",");
-			// user name
-			appendQuoted(sb, userName);
-			if(!report.getReportParams().getWho().equals(ReportManager.WHO_NONE)) {
+			Stat se = i.next();
+			// user
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_USER)) {
+				String userId = se.getUserId();
+				String userEid = null;
+				String userName = null;			
+				if (userId != null) {
+	    			if(("-").equals(userId)) {
+	    				userEid = "-";
+	    				userName = msgs.getString("user_anonymous");
+	    			}else if(("?").equals(userId)) {
+	    				userEid = "-";
+	    				userName = msgs.getString("user_anonymous_access");
+	    			}else{
+	    				try{
+	    					User user = M_uds.getUser(userId);
+	    					userEid = user.getDisplayId();
+	    					userName = user.getDisplayName();
+	    				}catch(UserNotDefinedException e1){
+	    					userEid = userId;
+	    					userName = msgs.getString("user_unknown");
+	    				}
+	    			}
+	    		}else{
+	    			userName = msgs.getString("user_unknown");
+	    		}
+				appendQuoted(sb, userEid);
 				sb.append(",");
-				if(report.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
-					// resource name
-					appendQuoted(sb, se.getRef());
-					sb.append(",");
-					// resource action
-					appendQuoted(sb, se.getRefAction());
-					sb.append(",");
-				}else{
-					// event name
-					appendQuoted(sb, M_ers.getEventName(se.getRef()));
+				appendQuoted(sb, userName);
+				isFirst = false;
+			}
+			// event
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_EVENT)) {
+				if(!isFirst) {
 					sb.append(",");
 				}
-				// most recent lastDate
+				EventStat es = (EventStat) se;
+				appendQuoted(sb, M_ers.getEventName(es.getEventId()));
+				isFirst = false;
+			}
+			// resource
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
+				ResourceStat rs = (ResourceStat) se;
+				appendQuoted(sb, rs.getResourceRef());
+				isFirst = false;
+			}
+			// resource action
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
+				ResourceStat rs = (ResourceStat) se;
+				appendQuoted(sb, rs.getResourceAction());
+				isFirst = false;
+			}
+			// date
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_DATE)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
 				appendQuoted(sb, se.getDate().toString());
-				sb.append(",");
-				// total
+				isFirst = false;
+			}
+			// last date
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_LASTDATE)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
+				appendQuoted(sb, se.getDate().toString());
+				isFirst = false;
+			}
+			// total
+			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_TOTAL)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
 				appendQuoted(sb, Long.toString(se.getCount()));
+				isFirst = false;
 			}
 			sb.append("\n");
 		}
@@ -503,29 +628,32 @@ public class ReportManagerImpl implements ReportManager {
 	// ################################################################
 
 	private Report consolidateAnonymousEvents(Report report) {
-		List<CommonStatGrpByDate> consolidated = new ArrayList<CommonStatGrpByDate>();
-		List<CommonStatGrpByDate> list = report.getReportData();
-		Map<String, CommonStatGrpByDate> anonMap = new HashMap<String, CommonStatGrpByDate>();
+		List<Stat> consolidated = new ArrayList<Stat>();
+		List<Stat> list = report.getReportData();
+		Map<String, Stat> anonMap = new HashMap<String, Stat>();
 
-		for(CommonStatGrpByDate s : list){
-			String eventId = s.getRef();
-			if(!isAnonymousEvent(eventId)){
-				consolidated.add(s);
-			}else{
-				CommonStatGrpByDate sMapped = anonMap.get(eventId);
-				if(sMapped != null){
-					sMapped.setCount(sMapped.getCount() + s.getCount());
-					if(s.getDate().after(sMapped.getDate()))
-						sMapped.setDate(s.getDate());
-					anonMap.put(eventId, sMapped);
+		for(Stat s : list){
+			if(s instanceof EventStat) {
+				EventStat es = (EventStat) s;
+				String eventId = es.getEventId();
+				if(!isAnonymousEvent(eventId)){
+					consolidated.add(s);
 				}else{
-					s.setUserId(null);
-					anonMap.put(eventId, s);
+					Stat sMapped = anonMap.get(eventId);
+					if(sMapped != null){
+						sMapped.setCount(sMapped.getCount() + s.getCount());
+						if(s.getDate().after(sMapped.getDate()))
+							sMapped.setDate(s.getDate());
+						anonMap.put(eventId, sMapped);
+					}else{
+						s.setUserId(null);
+						anonMap.put(eventId, s);
+					}
 				}
 			}
 		}
 
-		for(CommonStatGrpByDate s : anonMap.values()){
+		for(Stat s : anonMap.values()){
 			consolidated.add(s);
 		}
 
@@ -613,6 +741,7 @@ public class ReportManagerImpl implements ReportManager {
 		public Date				iDate;
 		public Date				fDate;
 		public List<String>		userIds;
+		public List<String> 	totalsBy;
 		public boolean			inverseUserSelection;
 		
 		public PagingPosition	page;

@@ -2,7 +2,7 @@ package org.sakaiproject.sitestats.impl.report;
 
 import java.util.List;
 
-import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
+import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.time.api.Time;
@@ -14,7 +14,7 @@ import org.sakaiproject.time.api.Time;
 public class ReportImpl implements Report {
 	private ReportParams				reportParams;
 	private Time						reportGenerationDate = null;
-	private List<CommonStatGrpByDate>	reportData;
+	private List<Stat>					reportData;
 	
 	public ReportImpl(){
 	}
@@ -22,13 +22,13 @@ public class ReportImpl implements Report {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.Report#getReportData()
 	 */
-	public List<CommonStatGrpByDate> getReportData() {
+	public List<Stat> getReportData() {
 		return reportData;
 	}
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.Report#setReportData(java.util.List)
 	 */
-	public void setReportData(List<CommonStatGrpByDate> reportData) {
+	public void setReportData(List<Stat> reportData) {
 		this.reportData = reportData;
 	}
 	/* (non-Javadoc)

@@ -4,7 +4,6 @@
 package org.sakaiproject.sitestats.tool.wicket.models;
 
 import org.apache.wicket.model.IModel;
-import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 public class CHResourceModel implements IModel {

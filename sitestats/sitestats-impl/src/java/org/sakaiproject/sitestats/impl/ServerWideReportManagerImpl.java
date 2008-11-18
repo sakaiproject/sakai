@@ -58,8 +58,8 @@ import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.sitestats.api.ServerWideReportManager;
+import org.sakaiproject.sitestats.api.ServerWideStatsRecord;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.StatsRecord;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -118,7 +118,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	 * 
 	 * @see org.sakaiproject.sitestats.api.ServerWideReportManager#getMonthlyLogin()
 	 */
-	public List<StatsRecord> getMonthlyLogin ()
+	public List<ServerWideStatsRecord> getMonthlyLogin ()
 	{
 		String mySql = "select STR_TO_DATE(date_format(SESSION_START, '%Y-%m-01'),'%Y-%m-%d') as period, "
 				+ "count(*) as user_logins, "
@@ -128,7 +128,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
-				StatsRecord info = new StatsRecordImpl ();
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
 				try {
 					info.add (result.getDate (1));
 					info.add (result.getLong (2));
@@ -152,7 +152,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	 * 
 	 * @see org.sakaiproject.sitestats.api.ServerWideReportManager#getWeeklyLogin()
 	 */
-	public List<StatsRecord> getWeeklyLogin ()
+	public List<ServerWideStatsRecord> getWeeklyLogin ()
 	{
 		String mySql = "select STR_TO_DATE(concat(date_format(SESSION_START, '%x-%v'), ' Monday'),'%x-%v %W') as week_start,"
 				+ " count(*) as user_logins, count(distinct SESSION_USER) as unique_users"
@@ -161,7 +161,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
-				StatsRecord info = new StatsRecordImpl ();
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
 				try {
 					info.add (result.getDate (1));
 					info.add (result.getLong (2));
@@ -180,7 +180,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<StatsRecord> getDailyLogin ()
+	public List<ServerWideStatsRecord> getDailyLogin ()
 	{
 		String mySql = "select date(SESSION_START) as session_date,"
 				+ " count(*) as user_logins,"
@@ -192,7 +192,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
-				StatsRecord info = new StatsRecordImpl ();
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
 				try {
 					info.add (result.getDate (1));
 					info.add (result.getLong (2));
@@ -211,7 +211,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<StatsRecord> getSiteCreatedDeletedStats (String period)
+	public List<ServerWideStatsRecord> getSiteCreatedDeletedStats (String period)
 	{
 		String sqlPeriod = "";
 		if (period.equals ("daily")) {
@@ -236,7 +236,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
-				StatsRecord info = new StatsRecordImpl ();
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
 				try {
 					info.add (result.getDate (1));
 					info.add (result.getLong (2));
@@ -254,7 +254,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<StatsRecord> getNewUserStats (String period)
+	public List<ServerWideStatsRecord> getNewUserStats (String period)
 	{
 		String sqlPeriod = "";
 		if (period.equals ("daily")) {
@@ -277,7 +277,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
-				StatsRecord info = new StatsRecordImpl ();
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
 				try {
 					info.add (result.getDate (1));
 					info.add (result.getLong (2));
@@ -295,7 +295,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<StatsRecord> getTop20Activities ()
+	public List<ServerWideStatsRecord> getTop20Activities ()
 	{
 		String mySql = "SELECT event, "
 				+ "sum(if(event_date > DATE_SUB(CURDATE(), INTERVAL 7 DAY),1,0))/7 as last7, "
@@ -311,7 +311,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
-				StatsRecord info = new StatsRecordImpl ();
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
 				try {
 					info.add (result.getString (1));
 					info.add (result.getDouble (2));
@@ -328,7 +328,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<StatsRecord> getWeeklyRegularUsers ()
+	public List<ServerWideStatsRecord> getWeeklyRegularUsers ()
 	{
 		String mySql = "select s.week_start, sum(if(s.user_logins >= 5,1,0)) as five_plus, "
 				+ "sum(if(s.user_logins = 4,1,0)) as four, "
@@ -343,7 +343,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
-				StatsRecord info = new StatsRecordImpl ();
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
 				try {
 					info.add (result.getDate (1));
 					info.add (result.getLong (2));
@@ -365,7 +365,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<StatsRecord> getHourlyUsagePattern ()
+	public List<ServerWideStatsRecord> getHourlyUsagePattern ()
 	{
 		String mySql = "select date(SESSION_START) as session_date, "
 				+ "hour(session_start) as hour_start, "
@@ -377,7 +377,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
-				StatsRecord info = new StatsRecordImpl ();
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
 				try {
 					info.add (result.getDate (1));
 					info.add (result.getInt (2));
@@ -393,7 +393,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<StatsRecord> getToolCount ()
+	public List<ServerWideStatsRecord> getToolCount ()
 	{
 		String mySql = "SELECT registration, count(*) as site_count " +
 				"FROM SAKAI_SITE_TOOL " +
@@ -404,7 +404,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
-				StatsRecord info = new StatsRecordImpl ();
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
 				try {
 					info.add (result.getString (1));
 					info.add (result.getInt (2));
@@ -468,14 +468,14 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	
 	private IntervalXYDataset getMonthlyLoginsDataSet ()
 	{
-		List<StatsRecord> loginList = getMonthlyLogin ();
+		List<ServerWideStatsRecord> loginList = getMonthlyLogin ();
 		if (loginList == null) {
 			return null;
 		}
 
 		TimeSeries s1 = new TimeSeries (msgs.getString ("legend_logins"),
 				Month.class);
-		for (StatsRecord login : loginList) {
+		for (ServerWideStatsRecord login : loginList) {
 			Month month = new Month ((Date) login.get (0));
 			s1.add (month, (Long) login.get (1));
 		}
@@ -489,14 +489,14 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	
 	private IntervalXYDataset getMonthlyUniqueLoginsDataSet ()
 	{
-		List<StatsRecord> loginList = getMonthlyLogin ();
+		List<ServerWideStatsRecord> loginList = getMonthlyLogin ();
 		if (loginList == null) {
 			return null;
 		}
 
 		TimeSeries s2 = new TimeSeries (
 				msgs.getString ("legend_unique_logins"), Month.class);
-		for (StatsRecord login : loginList) {
+		for (ServerWideStatsRecord login : loginList) {
 			Month month = new Month ((Date) login.get (0));
 			s2.add (month, (Long) login.get (2));
 		}
@@ -510,7 +510,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	private IntervalXYDataset getWeeklyLoginsDataSet ()
 	{
 		// LOG.info("Generating activityWeekBarDataSet");
-		List<StatsRecord> loginList = getWeeklyLogin ();
+		List<ServerWideStatsRecord> loginList = getWeeklyLogin ();
 		if (loginList == null) {
 			return null;
 		}
@@ -519,7 +519,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				Week.class);
 		TimeSeries s2 = new TimeSeries (
 				msgs.getString ("legend_unique_logins"), Week.class);
-		for (StatsRecord login : loginList) {
+		for (ServerWideStatsRecord login : loginList) {
 			Week week = new Week ((Date) login.get (0));
 			s1.add (week, (Long) login.get (1));
 			s2.add (week, (Long) login.get (2));
@@ -535,7 +535,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	private IntervalXYDataset getDailyLoginsDataSet ()
 	{
 		// LOG.info("Generating activityWeekBarDataSet");
-		List<StatsRecord> loginList = getDailyLogin ();
+		List<ServerWideStatsRecord> loginList = getDailyLogin ();
 		if (loginList == null) {
 			return null;
 		}
@@ -544,7 +544,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				Day.class);
 		TimeSeries s2 = new TimeSeries (
 				msgs.getString ("legend_unique_logins"), Day.class);
-		for (StatsRecord login : loginList) {
+		for (ServerWideStatsRecord login : loginList) {
 			Day day = new Day ((Date) login.get (0));
 			s1.add (day, (Long) login.get (1));
 			s2.add (day, (Long) login.get (2));
@@ -567,7 +567,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 	private IntervalXYDataset getMonthlySiteUserDataSet ()
 	{
-		List<StatsRecord> siteCreatedDeletedList = getSiteCreatedDeletedStats ("monthly");
+		List<ServerWideStatsRecord> siteCreatedDeletedList = getSiteCreatedDeletedStats ("monthly");
 		TimeSeriesCollection dataset = new TimeSeriesCollection ();
 		if (siteCreatedDeletedList != null) {
 			TimeSeries s1 = new TimeSeries (msgs.getString ("legend_site_created"), 
@@ -575,7 +575,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			TimeSeries s2 = new TimeSeries (msgs.getString ("legend_site_deleted"), 
 					Month.class);
 			
-			for (StatsRecord login : siteCreatedDeletedList) {
+			for (ServerWideStatsRecord login : siteCreatedDeletedList) {
 				Month month = new Month ((Date) login.get (0));
 				s1.add (month, (Long) login.get (1));
 				s2.add (month, (Long) login.get (2));
@@ -585,12 +585,12 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			dataset.addSeries (s2);
 		}
 
-		List<StatsRecord> newUserList = getNewUserStats ("monthly");
+		List<ServerWideStatsRecord> newUserList = getNewUserStats ("monthly");
 		if (newUserList != null) {
 			TimeSeries s3 = new TimeSeries (msgs.getString ("legend_new_user"),
 					Month.class);
 			
-			for (StatsRecord login : newUserList) {
+			for (ServerWideStatsRecord login : newUserList) {
 				Month month = new Month ((Date) login.get (0));
 				s3.add (month, (Long) login.get (1));
 			}
@@ -604,7 +604,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 	private IntervalXYDataset getWeeklySiteUserDataSet ()
 	{
-		List<StatsRecord> siteCreatedDeletedList = getSiteCreatedDeletedStats ("weekly");
+		List<ServerWideStatsRecord> siteCreatedDeletedList = getSiteCreatedDeletedStats ("weekly");
 		TimeSeriesCollection dataset = new TimeSeriesCollection ();
 		if (siteCreatedDeletedList != null) {
 			TimeSeries s1 = new TimeSeries (msgs.getString ("legend_site_created"), 
@@ -612,7 +612,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			TimeSeries s2 = new TimeSeries (msgs.getString ("legend_site_deleted"), 
 					Week.class);
 			
-			for (StatsRecord login : siteCreatedDeletedList) {
+			for (ServerWideStatsRecord login : siteCreatedDeletedList) {
 				Week week = new Week ((Date) login.get (0));
 				s1.add (week, (Long) login.get (1));
 				s2.add (week, (Long) login.get (2));
@@ -622,12 +622,12 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			dataset.addSeries (s2);
 		}
 
-		List<StatsRecord> newUserList = getNewUserStats ("weekly");
+		List<ServerWideStatsRecord> newUserList = getNewUserStats ("weekly");
 		if (newUserList != null) {
 			TimeSeries s3 = new TimeSeries (msgs.getString ("legend_new_user"),
 					Week.class);
 			
-			for (StatsRecord login : newUserList) {
+			for (ServerWideStatsRecord login : newUserList) {
 				Week week = new Week ((Date) login.get (0));
 				s3.add (week, (Long) login.get (1));
 			}
@@ -640,7 +640,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 	private IntervalXYDataset getDailySiteUserDataSet ()
 	{
-		List<StatsRecord> siteCreatedDeletedList = getSiteCreatedDeletedStats ("daily");
+		List<ServerWideStatsRecord> siteCreatedDeletedList = getSiteCreatedDeletedStats ("daily");
 		TimeSeriesCollection dataset = new TimeSeriesCollection ();
 		if (siteCreatedDeletedList != null) {
 			TimeSeries s1 = new TimeSeries (msgs.getString ("legend_site_created"), 
@@ -648,7 +648,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			TimeSeries s2 = new TimeSeries (msgs.getString ("legend_site_deleted"), 
 					Day.class);
 			
-			for (StatsRecord login : siteCreatedDeletedList) {
+			for (ServerWideStatsRecord login : siteCreatedDeletedList) {
 				Day day = new Day ((Date) login.get (0));
 				s1.add (day, (Long) login.get (1));
 				s2.add (day, (Long) login.get (2));
@@ -658,12 +658,12 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 			dataset.addSeries (s2);
 		}
 
-		List<StatsRecord> newUserList = getNewUserStats ("daily");
+		List<ServerWideStatsRecord> newUserList = getNewUserStats ("daily");
 		if (newUserList != null) {
 			TimeSeries s3 = new TimeSeries (msgs.getString ("legend_new_user"),
 					Day.class);
 			
-			for (StatsRecord login : newUserList) {
+			for (ServerWideStatsRecord login : newUserList) {
 				Day day = new Day ((Date) login.get (0));
 				s3.add (day, (Long) login.get (1));
 			}
@@ -676,7 +676,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 	private CategoryDataset getRegularUsersDataSet ()
 	{
-		List<StatsRecord> regularUsersList = getWeeklyRegularUsers ();
+		List<ServerWideStatsRecord> regularUsersList = getWeeklyRegularUsers ();
 		if (regularUsersList == null) {
 			return null;
 		}
@@ -684,7 +684,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset ();
 		DateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd");
 
-		for (StatsRecord regularUsers : regularUsersList) {
+		for (ServerWideStatsRecord regularUsers : regularUsersList) {
 			Date weekStart = ((Date) regularUsers.get (0));
 			dataset.addValue ((Long) regularUsers.get (1), "5+", formatter
 					.format (weekStart));
@@ -704,7 +704,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	private BoxAndWhiskerCategoryDataset getHourlyUsageDataSet ()
 	{
 		// LOG.info("Generating activityWeekBarDataSet");
-		List<StatsRecord> hourlyUsagePattern = getHourlyUsagePattern ();
+		List<ServerWideStatsRecord> hourlyUsagePattern = getHourlyUsagePattern ();
 		if (hourlyUsagePattern == null) {
 			return null;
 		}
@@ -718,7 +718,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 		int totalDays = 0;
 		Date prevDate = null;
-		for (StatsRecord regularUsers : hourlyUsagePattern) {
+		for (ServerWideStatsRecord regularUsers : hourlyUsagePattern) {
 			Date currDate = (Date) regularUsers.get (0);
 			if (!currDate.equals (prevDate)) {
 				prevDate = currDate;
@@ -742,14 +742,14 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 	private CategoryDataset getTopActivitiesDataSet ()
 	{
-		List<StatsRecord> topActivitiesList = getTop20Activities ();
+		List<ServerWideStatsRecord> topActivitiesList = getTop20Activities ();
 		if (topActivitiesList == null) {
 			return null;
 		}
 
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset ();
 
-		for (StatsRecord regularUsers : topActivitiesList) {
+		for (ServerWideStatsRecord regularUsers : topActivitiesList) {
 			String event = (String) regularUsers.get (0);
 			dataset.addValue ((Double) regularUsers.get (1), "last 7 days",
 					event);
@@ -765,14 +765,14 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	
 	private CategoryDataset getToolAnalysisDataSet ()
 	{
-		List<StatsRecord> toolCountList = getToolCount ();
+		List<ServerWideStatsRecord> toolCountList = getToolCount ();
 		if (toolCountList == null) {
 			return null;
 		}
 
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset ();
 
-		for (StatsRecord regularUsers : toolCountList) {
+		for (ServerWideStatsRecord regularUsers : toolCountList) {
 			String toolId = (String) regularUsers.get (0);
 			dataset.addValue ((Integer) regularUsers.get (1), "",
 					toolId);

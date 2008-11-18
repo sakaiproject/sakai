@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.datetime.StyleDateConverter;
@@ -85,7 +86,7 @@ public class ReportsPage extends BasePage {
 	private FeedbackPanel			feedback		= null;
 
 	/** Report related */
-	private ReportParamsModel		reportParams	= null;
+	private ReportParams			reportParams	= null;
 	private PrefsData				prefsdata		= null;
 
 	/** Ajax update lock */
@@ -269,24 +270,25 @@ public class ReportsPage extends BasePage {
 		when.add(new DateTimeField("reportParams.whenFrom") {			
 			@Override
 			protected DateTextField newDateTextField(String id, PropertyModel dateFieldModel) {
-				//return new DateTextField(id, dateFieldModel, new PatternDateConverter("yyyy-MM-dd", true));
 				return new DateTextField(id, dateFieldModel, new StyleDateConverter("S-", true));
 			}
 		});
 		when.add(new DateTimeField("reportParams.whenTo") {			
 			@Override
 			protected DateTextField newDateTextField(String id, PropertyModel dateFieldModel) {
-				//return new DateTextField(id, dateFieldModel, new PatternDateConverter("yyyy-MM-dd", true));
 				return new DateTextField(id, dateFieldModel, new StyleDateConverter("S-", true));
 			}
 		});
 	}
 	
+	
 	@SuppressWarnings("serial")
 	private void renderWhoUI(Form form) {		
 		// users (part 1)
 		final RepeatingView selectOptionsRV = new RepeatingView("selectOptionsRV");
-		final Select whoUserIds = new Select("reportParams.whoUserIds");
+		selectOptionsRV.setRenderBodyOnly(true);
+		final Select whoUserIds = new Select("reportParams.whoUserIds", new PropertyModel(this, "whoUserIds"));
+		//final Select whoUserIds = new Select("reportParams.whoUserIds");
 		final Radio whoCustom = new Radio("who-custom", new Model("who-custom"));
 		
 		// left radio selectors
@@ -428,6 +430,7 @@ public class ReportsPage extends BasePage {
 		};
 		Collections.sort(tools, getOptionRendererComparator(collator, optionRenderer));
 		SelectOptions selectOptions = new SelectOptions("selectOptions", tools, optionRenderer);
+		selectOptions.setRenderBodyOnly(true);
 		optgroupItem.add(selectOptions);
 	}
 	
@@ -461,6 +464,7 @@ public class ReportsPage extends BasePage {
 						return new Model(((EventModel) opt.getModel()).getEventId());
 					}			
 				});
+				selectOptions.setRenderBodyOnly(true);				
 				group.add(selectOptions);
 			}
 		}
@@ -526,6 +530,7 @@ public class ReportsPage extends BasePage {
 			};
 			Collections.sort(users, getOptionRendererComparator(collator, optionRenderer));
 			SelectOptions selectOptions = new SelectOptions("selectOptions", users, optionRenderer);
+			selectOptions.setRenderBodyOnly(true);
 			optgroupItem.add(selectOptions);
 			usersLoaded = true;
 		}finally{
@@ -605,13 +610,6 @@ public class ReportsPage extends BasePage {
 		}catch(IdUnusedException e){
 			LOG.error("No site with id: "+siteId);
 		}
-		// fix model fields
-//		if(!reportParams.isWhatLimitedAction()) {
-//			reportParams.setWhatResourceAction(null);
-//		}
-//		if(!reportParams.isWhatLimitedResourceIds()) {
-//			reportParams.setWhatResourceIds(null);
-//		}
 		
 		// check WHAT
 		if(reportParams.getWhat().equals(ReportManager.WHAT_EVENTS)
@@ -653,12 +651,30 @@ public class ReportsPage extends BasePage {
 		return true;
 	}
 
-	public void setReportParams(ReportParamsModel reportParams) {
+	public void setReportParams(ReportParams reportParams) {
 		this.reportParams = reportParams;
 	}
 
 	public ReportParams getReportParams() {
 		return reportParams;
+	}
+	
+	public Collection<String> getWhoUserIds() {
+		return getReportParams().getWhoUserIds();
+	}
+	
+	public void setWhoUserIds(Collection<Object> os) {
+		if(os != null) {
+			List<String> users = new ArrayList<String>();
+			Iterator<Object> i = os.iterator();
+			while(i.hasNext()) {
+				Object o = i.next();
+				if(o instanceof String) {
+					users.add((String) o);
+				}				
+			}
+			getReportParams().setWhoUserIds(users);
+		}
 	}
 }
 

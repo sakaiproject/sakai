@@ -18,13 +18,22 @@
  **********************************************************************************/
 package org.sakaiproject.sitestats.api;
 
-public interface Prefs {	
+public interface Prefs {
+	/** Get the bd row id. */
 	public long getId();
+	
+	/** Set the bd row id. */
 	public void setId(long id);
 	
+	/** Get the preferences context (site id). */
 	public String getSiteId();
+	
+	/** Set the preferences context (site id). */
 	public void setSiteId(String siteId);
 
+	/** Get the preferences XML string. */
 	public String getPrefs();
+	
+	/** Set the preferences XML string. */
 	public void setPrefs(String prefs);
 }

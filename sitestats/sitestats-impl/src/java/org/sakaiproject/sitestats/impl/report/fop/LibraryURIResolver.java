@@ -3,7 +3,6 @@ package org.sakaiproject.sitestats.impl.report.fop;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;

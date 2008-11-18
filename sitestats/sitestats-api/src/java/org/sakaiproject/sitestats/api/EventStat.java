@@ -18,8 +18,13 @@
  **********************************************************************************/
 package org.sakaiproject.sitestats.api;
 
-
-public interface EventStat extends CommonStat{
+/**
+ * Represents a record from the SST_EVENTS table.
+ * @author Nuno Fernandes
+ */
+public interface EventStat extends Stat {
+	/** Get the the event Id (eg. 'content.read') this record refers to. */
 	public String getEventId();
+	/** Set the the event Id (eg. 'content.read') this record refers to. */
 	public void setEventId(String eventId);
 }

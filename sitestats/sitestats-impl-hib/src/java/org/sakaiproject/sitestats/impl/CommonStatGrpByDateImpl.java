@@ -25,9 +25,10 @@ import java.util.Date;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 
 /**
- * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
+ * This class is deprecated and wil be removed in version 2.1.
+ * Please use {@link StatsRecord} instead.
  */
-public class CommonStatGrpByDateImpl implements CommonStatGrpByDate, Serializable {
+@Deprecated public class CommonStatGrpByDateImpl implements CommonStatGrpByDate, Serializable {
 	private static final long	serialVersionUID	= 1L;
 	private long				id					= 0;
 	private long				count				= 0;
@@ -42,135 +43,135 @@ public class CommonStatGrpByDateImpl implements CommonStatGrpByDate, Serializabl
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#getRef()
 	 */
-	public String getRef() {
+	@Deprecated	public String getRef() {
 		return ref;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#setRef(java.lang.String)
 	 */
-	public void setRef(String ref) {
+	@Deprecated	public void setRef(String ref) {
 		this.ref = ref;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#setRefUrl(java.lang.String)
 	 */
-	public void setRefUrl(String refUrl) {
+	@Deprecated	public void setRefUrl(String refUrl) {
 		this.refUrl = refUrl;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#getRefUrl()
 	 */
-	public String getRefUrl() {
+	@Deprecated	public String getRefUrl() {
 		return refUrl;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#getRefImg()
 	 */
-	public String getRefImg() {
+	@Deprecated	public String getRefImg() {
 		return refImg;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#setRefImg(java.lang.String)
 	 */
-	public void setRefImg(String refImg) {
+	@Deprecated	public void setRefImg(String refImg) {
 		this.refImg = refImg;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#getRefAction()
 	 */
-	public String getRefAction() {
+	@Deprecated	public String getRefAction() {
 		return refAction;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#setRefAction(java.lang.String)
 	 */
-	public void setRefAction(String refAction) {
+	@Deprecated	public void setRefAction(String refAction) {
 		this.refAction = refAction;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#getDateAsString()
 	 */
-	public String getDateAsString() {
+	@Deprecated	public String getDateAsString() {
 		// STAT-6: changed to ISO while dates are not localized
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		return formatter.format(date);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#getId()
+	 * @see org.sakaiproject.sitestats.api.Stat#getId()
 	 */
-	public long getId() {
+	@Deprecated	public long getId() {
 		return id;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#setId(long)
+	 * @see org.sakaiproject.sitestats.api.Stat#setId(long)
 	 */
-	public void setId(long id) {
+	@Deprecated	public void setId(long id) {
 		this.id = id;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#getUserId()
+	 * @see org.sakaiproject.sitestats.api.Stat#getUserId()
 	 */
-	public String getUserId() {
+	@Deprecated	public String getUserId() {
 		return userId;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#setUserId(java.lang.String)
+	 * @see org.sakaiproject.sitestats.api.Stat#setUserId(java.lang.String)
 	 */
-	public void setUserId(String userId) {
+	@Deprecated	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#getSiteId()
+	 * @see org.sakaiproject.sitestats.api.Stat#getSiteId()
 	 */
-	public String getSiteId() {
+	@Deprecated	public String getSiteId() {
 		return siteId;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#setSiteId(java.lang.String)
+	 * @see org.sakaiproject.sitestats.api.Stat#setSiteId(java.lang.String)
 	 */
-	public void setSiteId(String siteId) {
+	@Deprecated	public void setSiteId(String siteId) {
 		this.siteId = siteId;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#getCount()
+	 * @see org.sakaiproject.sitestats.api.Stat#getCount()
 	 */
-	public long getCount() {
+	@Deprecated	public long getCount() {
 		return count;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#setCount(long)
+	 * @see org.sakaiproject.sitestats.api.Stat#setCount(long)
 	 */
-	public void setCount(long count) {
+	@Deprecated	public void setCount(long count) {
 		this.count = count;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#getDate()
+	 * @see org.sakaiproject.sitestats.api.Stat#getDate()
 	 */
-	public Date getDate() {
+	@Deprecated	public Date getDate() {
 		return date;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.CommonStat#setDate(java.util.Date)
+	 * @see org.sakaiproject.sitestats.api.Stat#setDate(java.util.Date)
 	 */
-	public void setDate(Date date) {
+	@Deprecated	public void setDate(Date date) {
 		this.date = date;
 	}
 

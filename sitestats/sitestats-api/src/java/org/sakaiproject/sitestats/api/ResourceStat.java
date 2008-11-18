@@ -19,10 +19,18 @@
 package org.sakaiproject.sitestats.api;
 
 
-public interface ResourceStat extends CommonStat{
+/**
+ * Represents a record from the SST_RESOURCES table.
+ * @author Nuno Fernandes
+ */
+public interface ResourceStat extends Stat{
+	/** Get the the resource reference (eg. '/content/group/site_id/filename.txt') this record refers to. */
 	public String getResourceRef();
+	/** Set the the resource reference (eg. '/content/group/site_id/filename.txt') this record refers to. */
 	public void setResourceRef(String resourceRef);
 
+	/** Get the the resource action (one of 'new','read','revise','delete') this record refers to. */
 	public String getResourceAction();
+	/** Set the the resource action (one of 'new','read','revise','delete') this record refers to. */
 	public void setResourceAction(String resourceAction);
 }

@@ -25,8 +25,11 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.request.target.basic.EmptyRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
+import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
+import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.Stat;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
@@ -35,7 +38,6 @@ import org.sakaiproject.sitestats.tool.wicket.components.ImageWithLink;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menu;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
-import org.sakaiproject.sitestats.tool.wicket.models.ReportParamsModel;
 import org.sakaiproject.sitestats.tool.wicket.providers.ReportsDataProvider;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
@@ -209,70 +211,73 @@ public class ReportDataPage extends BasePage {
 	@SuppressWarnings("serial")
 	private List<IColumn> getTableColumns() {
 		List<IColumn> columns = new ArrayList<IColumn>();
-		columns.add(new PropertyColumn(new ResourceModel("th_id"), ReportsDataProvider.COL_USERID, ReportsDataProvider.COL_USERID) {
-			@Override
-			public void populateItem(Item item, String componentId, IModel model) {
-				final String userId = ((CommonStatGrpByDate) model.getObject()).getUserId();
-				String name = null;
-				if (userId != null) {
-					if(("-").equals(userId) || ("?").equals(userId)) {
-						name = "-";
-					}else{
-						try{
-							name = facade.getUserDirectoryService().getUser(userId).getDisplayId();
-						}catch(UserNotDefinedException e1){
-							name = userId;
+		// user
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_USER)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_id"), ReportsDataProvider.COL_USERID, ReportsDataProvider.COL_USERID) {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					final String userId = ((Stat) model.getObject()).getUserId();
+					String name = null;
+					if (userId != null) {
+						if(("-").equals(userId) || ("?").equals(userId)) {
+							name = "-";
+						}else{
+							try{
+								name = facade.getUserDirectoryService().getUser(userId).getDisplayId();
+							}catch(UserNotDefinedException e1){
+								name = userId;
+							}
 						}
-					}
-				}else{
-					name = (String) new ResourceModel("user_unknown").getObject();
-				}
-				item.add(new Label(componentId, name));
-			}
-		});
-		columns.add(new PropertyColumn(new ResourceModel("th_user"), ReportsDataProvider.COL_USERNAME, ReportsDataProvider.COL_USERNAME) {
-			@Override
-			public void populateItem(Item item, String componentId, IModel model) {
-				final String userId = ((CommonStatGrpByDate) model.getObject()).getUserId();
-				String name = null;
-				if (userId != null) {
-					if(("-").equals(userId)) {
-						name = (String) new ResourceModel("user_anonymous").getObject();
-					}else if(("?").equals(userId)) {
-						name = (String) new ResourceModel("user_anonymous_access").getObject();
 					}else{
-						try{
-							name = facade.getUserDirectoryService().getUser(userId).getDisplayName();
-						}catch(UserNotDefinedException e1){
-							name = (String) new ResourceModel("user_unknown").getObject();
-						}
+						name = (String) new ResourceModel("user_unknown").getObject();
 					}
-				}else{
-					name = (String) new ResourceModel("user_unknown").getObject();
+					item.add(new Label(componentId, name));
 				}
-				item.add(new Label(componentId, name));
-			}
-		});
-		if(!ReportManager.WHAT_RESOURCES.equals(reportParams.getWhat())
-				&& !ReportManager.WHO_NONE.equals(reportParams.getWho()) ) {
+			});
+			columns.add(new PropertyColumn(new ResourceModel("th_user"), ReportsDataProvider.COL_USERNAME, ReportsDataProvider.COL_USERNAME) {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					final String userId = ((Stat) model.getObject()).getUserId();
+					String name = null;
+					if (userId != null) {
+						if(("-").equals(userId)) {
+							name = (String) new ResourceModel("user_anonymous").getObject();
+						}else if(("?").equals(userId)) {
+							name = (String) new ResourceModel("user_anonymous_access").getObject();
+						}else{
+							try{
+								name = facade.getUserDirectoryService().getUser(userId).getDisplayName();
+							}catch(UserNotDefinedException e1){
+								name = (String) new ResourceModel("user_unknown").getObject();
+							}
+						}
+					}else{
+						name = (String) new ResourceModel("user_unknown").getObject();
+					}
+					item.add(new Label(componentId, name));
+				}
+			});
+		}
+		// event
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_EVENT)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_event"), ReportsDataProvider.COL_EVENT, ReportsDataProvider.COL_EVENT) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
-					final String ref = ((CommonStatGrpByDate) model.getObject()).getRef();
+					final String eventId = ((EventStat) model.getObject()).getEventId();
 					String eventName = "";
-					if(!"".equals(ref)){
-						eventName = facade.getEventRegistryService().getEventName(ref);
+					if(!"".equals(eventId)){
+						eventName = facade.getEventRegistryService().getEventName(eventId);
 					}
 					item.add(new Label(componentId, eventName));
 				}
 			});
 		}
-		if(ReportManager.WHAT_RESOURCES.equals(reportParams.getWhat())
-				&& !ReportManager.WHO_NONE.equals(reportParams.getWho()) ) {
+		// resource
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_resource"), ReportsDataProvider.COL_RESOURCE, ReportsDataProvider.COL_RESOURCE) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
-					final String ref = ((CommonStatGrpByDate) model.getObject()).getRef();
+					final String ref = ((ResourceStat) model.getObject()).getResourceRef();
 					String imgUrl = "", lnkUrl = "", lnkLabel = "";
 					if(!"".equals(ref)){
 						imgUrl = facade.getStatsManager().getResourceImage(ref);
@@ -282,10 +287,13 @@ public class ReportDataPage extends BasePage {
 					item.add(new ImageWithLink(componentId, imgUrl, lnkUrl, lnkLabel, "_new"));
 				}
 			});
+		}
+		// resource action
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE_ACTION)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_action"), ReportsDataProvider.COL_ACTION, ReportsDataProvider.COL_ACTION) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
-					final String refAction = ((CommonStatGrpByDate) model.getObject()).getRefAction();
+					final String refAction = ((ResourceStat) model.getObject()).getResourceAction();
 					String action = "";
 					if(refAction == null){
 						action = "";
@@ -297,8 +305,13 @@ public class ReportDataPage extends BasePage {
 				}
 			});
 		}
-		if(!ReportManager.WHO_NONE.equals(reportParams.getWho()) ) {
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATE)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_date"), ReportsDataProvider.COL_DATE, ReportsDataProvider.COL_DATE));
+		}
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_LASTDATE)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_lastdate"), ReportsDataProvider.COL_DATE, ReportsDataProvider.COL_DATE));
+		}
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOTAL)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_total"), ReportsDataProvider.COL_TOTAL, ReportsDataProvider.COL_TOTAL));
 		}
 		return columns;

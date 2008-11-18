@@ -18,57 +18,81 @@
  **********************************************************************************/
 package org.sakaiproject.sitestats.api;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
 
 
 public interface StatsManager {
-	public final static int		PREFS_OVERVIEW_PAGE		= 0;
-	public final static int		PREFS_EVENTS_PAGE		= 1;
-	public final static int		PREFS_RESOURCES_PAGE	= 2;
-	public final static String	SEPARATOR				= "/";
-	public final static String	SITEVISIT_EVENTID		= "pres.begin";
-	public final static String	RESOURCE_EVENTID_PREFIX	= "content.";
-	public final static String	SITESTATS_TOOLID		= "sakai.sitestats";
-	public final static String	RESOURCES_TOOLID		= "sakai.resources";
-	public final static String	PARSERTIP_FOR_CONTEXTID	= "contextId";
-	public static final String	VIEW_WEEK				= "week";
-	public static final String	VIEW_MONTH				= "month";
-	public static final String	VIEW_YEAR				= "year";
-	public static final String	MONTHLY_LOGIN_REPORT	= "monthlyLogin";
-	public static final String	WEEKLY_LOGIN_REPORT		= "weeklyLogin";
-	public static final String	DAILY_LOGIN_REPORT		= "dailyLogin";
-	public static final String	REGULAR_USERS_REPORT	= "regularUsers";
-	public static final String	HOURLY_USAGE_REPORT		= "hourlyUsage";
-	public static final String	TOP_ACTIVITIES_REPORT	= "topActivities";
-	public static final String	TOOL_REPORT				= "toolReport";
-	public static final String	CHARTTYPE_LINE			= "line";
-	public static final String	CHARTTYPE_BAR			= "bar";
-	public static final String	CHARTTYPE_PIE			= "pie";
+	public final static int				PREFS_OVERVIEW_PAGE			= 0;
+	public final static int				PREFS_EVENTS_PAGE			= 1;
+	public final static int				PREFS_RESOURCES_PAGE		= 2;
+	public final static String			SEPARATOR					= "/";
+	public final static String			SITEVISIT_EVENTID			= "pres.begin";
+	public final static String			RESOURCE_EVENTID_PREFIX		= "content.";
+	public final static String			SITESTATS_TOOLID			= "sakai.sitestats";
+	public final static String			RESOURCES_TOOLID			= "sakai.resources";
+	public final static String			PARSERTIP_FOR_CONTEXTID		= "contextId";
+	public static final String			VIEW_WEEK					= "week";
+	public static final String			VIEW_MONTH					= "month";
+	public static final String			VIEW_YEAR					= "year";
+	public static final String			MONTHLY_LOGIN_REPORT		= "monthlyLogin";
+	public static final String			WEEKLY_LOGIN_REPORT			= "weeklyLogin";
+	public static final String			DAILY_LOGIN_REPORT			= "dailyLogin";
+	public static final String			REGULAR_USERS_REPORT		= "regularUsers";
+	public static final String			HOURLY_USAGE_REPORT			= "hourlyUsage";
+	public static final String			TOP_ACTIVITIES_REPORT		= "topActivities";
+	public static final String			TOOL_REPORT					= "toolReport";
+	public static final String			CHARTTYPE_LINE				= "line";
+	public static final String			CHARTTYPE_BAR				= "bar";
+	public static final String			CHARTTYPE_PIE				= "pie";
+	public static final int				Q_TYPE_EVENT				= 0;
+	public static final int				Q_TYPE_RESOURCE				= 1;
+	public static final String			T_SITE						= "site";
+	public static final String			T_USER						= "user";
+	public static final String			T_EVENT						= "event";
+	public static final String			T_RESOURCE					= "resource";
+	public static final String			T_RESOURCE_ACTION			= "resource-action";
+	public static final String			T_DATE						= "date";
+	public static final String			T_LASTDATE					= "last-date";
+	public static final String			T_TOTAL						= "total";
+	public static final List<String>	TOTALSBY_EVENT_DEFAULT		= Arrays.asList(T_USER, T_EVENT, T_LASTDATE);
+	public static final List<String>	TOTALSBY_RESOURCE_DEFAULT	= Arrays.asList(T_USER, T_RESOURCE, T_RESOURCE_ACTION, T_LASTDATE);
 	
 	// ################################################################
 	// Spring bean methods
-	// ################################################################		
+	// ################################################################	
+	/** Are site visits statistics enabled? */
 	public boolean isEnableSiteVisits();
 	
+	/** Are site activity statistics enabled? */
 	public boolean isEnableSiteActivity();
 	
+	/** Are site visits info available (displayable) in SiteStats tool? */
 	public boolean isVisitsInfoAvailable();
 	
+	/** Get chart background color used to draw charts on SiteStats tool. */
 	public String getChartBackgroundColor();
 	
+	/** Check if default is to draw charts in 3D on SiteStats tool. */
 	public boolean isChartIn3D();
 	
+	/** Get default chart transparency (alpha value 0.0 - 1-0) on SiteStats tool. */
 	public float getChartTransparency();
 	
+	/** Check if default is to draw item labels on charts on SiteStats tool. */
 	public boolean isItemLabelsVisible();
 	
+	/** Is last quartz job run date displayable on SiteStats tool? */
 	public boolean isLastJobRunDateVisible();
 
+	/** Are server wide statistics enabled on SiteStats tool (admin version)? */
 	public boolean isServerWideStatsEnabled();
 	
+	/** Are events triggered by anomymous access aggregated and displayable on SiteStats tool. */
 	public boolean isShowAnonymousAccessEvents();
 	
 	// ################################################################
@@ -115,75 +139,81 @@ public interface StatsManager {
 	
 	
 	// ################################################################
-	// EventInfo related methods
+	// Event statistics related methods
 	// ################################################################	
 	/**
-	 * Get events grouped by user, site, event and date
+	 * Get events statistics (totals by user/event/date).
 	 * @param siteId The site ID
-	 * @param events List of events to get statistics for
-	 * @return a list of EventStat objects (date member contains last date for the given event)
+	 * @param events List of events to get statistics for (see {@link #getPreferences(String, boolean)}, {@link EventRegistryService})
+	 * @return a list of {@link EventStat} objects
 	 */
-	public List<EventStat> getEventStats(String siteId, List<String> events);
+	public List<Stat> getEventStats(String siteId, List<String> events);
 	
 	/**
-	 * Get event statistics grouped by user, site and event
+	 * This method is deprecated and will be removed in version 2.1.
+	 * Use {@link #getEventStats(String, List, Date, Date, List, boolean, PagingPosition, String, String, boolean)} instead.<br/>
+	 * Get event statistics grouped by user, site and event.
 	 * @param siteId The site ID
-	 * @param events List of events to get statistics for
+	 * @param events List of events to get statistics for (see {@link #getPreferences(String, boolean)}, {@link EventRegistryService})
 	 * @param searchKey An user ID, first or last name
 	 * @param iDate The initial date
 	 * @param fDate The final date 
-	 * @return a list of EventStat objects
+	 * @return a list of {@link EventStat} objects
 	 */
-	public List<EventStat> getEventStats(String siteId, List<String> events, String searchKey, Date iDate, Date fDate);
+	@Deprecated public List<EventStat> getEventStats(String siteId, List<String> events, String searchKey, Date iDate, Date fDate);
 
 	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * Use {@link #getEventStats(String, List, Date, Date, List, boolean, PagingPosition, String, String, boolean)} instead.<br/>
 	 * Get event statistics grouped by user, site, event and date
 	 * @param siteId The site ID
-	 * @param events List of events to get statistics for
+	 * @param events List of events to get statistics for (see {@link #getPreferences(String, boolean)}, {@link EventRegistryService})
 	 * @param searchKey An user ID, first or last name
 	 * @param iDate The initial date
 	 * @param fDate The final date 
 	 * @param page The PagePosition subset of items to return
-	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
+	 * @return a list of {@link CommonStatGrpByDate} objects
 	 */
-	public List<CommonStatGrpByDate> getEventStatsGrpByDate(String siteId, List<String> events, Date iDate, Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page);
+	@Deprecated public List<CommonStatGrpByDate> getEventStatsGrpByDate(String siteId, List<String> events, Date iDate, Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page);
 
 	/**
-	 * Get event statistics grouped by user, site, event and date
-	 * @param siteId The site ID
-	 * @param events List of events to get statistics for
-	 * @param iDate The initial date
-	 * @param fDate The final date 
-	 * @param userIds The list of user Ids
+	 * Get event statistics (totals by user/event/date).
+	 * @param siteId The site ID (can be null)
+	 * @param events List of events to get statistics for (see {@link #getPreferences(String, boolean)}, {@link EventRegistryService}) (can be null)
+	 * @param iDate The initial date (can be null)
+	 * @param fDate The final date (can be null)
+	 * @param userIds The list of user Ids (can be null)
 	 * @param inverseUserSelection match users not in userIds list
-	 * @param page The PagePosition subset of items to return
-	 * @param sortBy Columns to sort by
+	 * @param page The PagePosition subset of items to return (can be null)
+	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_EVENT_DEFAULT}, {@link #T_USER}, {@link #T_EVENT}, {@link #T_DATE}, {@link #T_LASTDATE})
+	 * @param sortBy Columns to sort by (can be null)
 	 * @param sortAscending Sort ascending?
-	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
+	 * @return a list of {@link EventStat} objects
 	 */
-	public List<CommonStatGrpByDate> getEventStats(
+	public List<Stat> getEventStats(
 			final String siteId,
 			final List<String> events, 
 			final Date iDate, final Date fDate,
 			final List<String> userIds,
 			final boolean inverseUserSelection,
 			final PagingPosition page, 
-			final String groupBy,
+			final List<String> totalsBy,
 			final String sortBy, 
 			final boolean sortAscending);
 	
 	/**
-	 * Get row count for event statistics grouped by user, site, event and date
-	 * @param siteId The site ID
-	 * @param events List of events to get statistics for
-	 * @param iDate The initial date
-	 * @param fDate The final date 
-	 * @param userIds The list of user Ids
+	 * Get row count for event statistics (totals by user/event/date).
+	 * @param siteId The site ID (can be null)
+	 * @param events List of events to get statistics for (see {@link #getPreferences(String, boolean)}, {@link EventRegistryService}) (can be null)
+	 * @param iDate The initial date (can be null)
+	 * @param fDate The final date (can be null)
+	 * @param userIds The list of user Ids (can be null)
 	 * @param inverseUserSelection match users not in userIds list
-	 * @param page The PagePosition subset of items to return
-	 * @param sortBy Columns to sort by
+	 * @param page The PagePosition subset of items to return (can be null)
+	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_EVENT_DEFAULT}, {@link #T_USER}, {@link #T_EVENT}, {@link #T_DATE}, {@link #T_LASTDATE})
+	 * @param sortBy Columns to sort by (can be null)
 	 * @param sortAscending Sort ascending?
-	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
+	 * @return Row count.
 	 */
 	public int getEventStatsRowCount(
 			final String siteId,
@@ -191,92 +221,83 @@ public interface StatsManager {
 			final Date iDate, final Date fDate,
 			final List<String> userIds,
 			final boolean inverseUserSelection,
-			final PagingPosition page, 
-			final String groupBy,
-			final String sortBy, 
-			final boolean sortAscending);
+			final List<String> totalsBy);
 	
-	/**
-	 * Count event statistics grouped by user, site, event and date
-	 * @param siteId The site ID
-	 * @param events List of events to get statistics for
-	 * @param searchKey An user ID, first or last name
-	 * @param iDate The initial date
-	 * @param fDate The final date
-	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
-	 */
-	//public int countEventStatsGrpByDate(String siteId, List<String> events, String searchKey, Date iDate, Date fDate);
-
 	
 	// ################################################################
-	// Resource related methods
+	// Resource statistics related methods
 	// ################################################################
 	/**
-	 * Get resource statistics grouped by user, site, resource and date
+	 * Get resource statistics (totals by user/resource/date).
 	 * @param siteId The site ID
-	 * @return a list of ResourceStat objects (date member contains last date for the given resource access)
+	 * @return a list of {@link ResourceStat} objects
 	 */
-	public List<ResourceStat> getResourceStats(String siteId);
+	public List<Stat> getResourceStats(String siteId);
 	
 	/**
-	 * Get resource statistics grouped by user, site and resource
+	 * This method is deprecated and will be removed in version 2.1.
+	 * Use {@link #getResourceStats(String, String, List, Date, Date, List, boolean, PagingPosition, String, String, boolean)} instead.<br/>
+	 * Get resource statistics grouped by user, site and resource.
 	 * @param siteId The site ID
 	 * @param searchKey An user ID, first or last name
 	 * @param iDate The initial date
 	 * @param fDate The final date 
-	 * @return a list of ResourceStat objects
+	 * @return a list of {@link ResourceStat} objects
 	 */
-	public List<ResourceStat> getResourceStats(String siteId, String searchKey, Date iDate, Date fDate);
+	@Deprecated public List<ResourceStat> getResourceStats(String siteId, String searchKey, Date iDate, Date fDate);
 
 	/**
+	 * This method is deprecated and will be removed in version 2.1.
+	 * Use {@link #getResourceStats(String, String, List, Date, Date, List, boolean, PagingPosition, String, String, boolean)} instead.<br/>
 	 * Get resource statistics grouped by user, site, resource and date
 	 * @param siteId The site ID
 	 * @param searchKey An user ID, first or last name
 	 * @param iDate The initial date
 	 * @param fDate The final date
 	 * @param page The PagePosition subset of items to return
-	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given resource access)
+	 * @return a list of {@link CommonStatGrpByDate} objects
 	 */
-	public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(String siteId, String resourceAction, List<String> resourceIds, Date iDate, final Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page);
+	@Deprecated public List<CommonStatGrpByDate> getResourceStatsGrpByDateAndAction(String siteId, String resourceAction, List<String> resourceIds, Date iDate, final Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page);
 	
 	/**
-	 * Get event statistics grouped by user, site, event and date
-	 * @param siteId The site ID
-	 * @param resourceAction A specific resource action to limit to.
-	 * @param resourceIds A list of specific resources to limit to.
-	 * @param iDate The initial date
-	 * @param fDate The final date 
-	 * @param userIds The list of user Ids
+	 * Get resource statistics (totals by user/event/date).
+	 * @param siteId The site ID (can be null)
+	 * @param resourceAction A specific resource action to limit to (can be null)
+	 * @param resourceIds A list of specific resources to limit to (can be null)
+	 * @param iDate The initial date (can be null)
+	 * @param fDate The final date (can be null)
+	 * @param userIds The list of user Ids (can be null)
 	 * @param inverseUserSelection match users not in userIds list
-	 * @param page The PagePosition subset of items to return
-	 * @param sortBy Columns to sort by
+	 * @param page The PagePosition subset of items to return (can be null)
+	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_RESOURCE_DEFAULT}, {@link #T_USER}, {@link #T_RESOURCE}, {@link #T_RESOURCE_ACTION}, {@link #T_DATE}, {@link #T_LASTDATE})
+	 * @param sortBy Columns to sort by (can be null)
 	 * @param sortAscending Sort ascending?
-	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
+	 * @return a list of {@link ResourceStat} objects
 	 */
-	public List<CommonStatGrpByDate> getResourceStats(
+	public List<Stat> getResourceStats(
 			final String siteId,
 			final String resourceAction, final List<String> resourceIds,
 			final Date iDate, final Date fDate,
 			final List<String> userIds,
 			final boolean inverseUserSelection,
 			final PagingPosition page, 
-			final String groupBy,
+			final List<String> totalsBy,
 			final String sortBy, 
 			final boolean sortAscending);
 	
 	/**
-	 * Get row count for event statistics grouped by user, site, event and date
-	 * @param siteId The site ID
-	 * @param resourceAction A specific resource action to limit to.
-	 * @param resourceIds A list of specific resources to limit to.
-	 * @param iDate The initial date
-	 * @param fDate The final date 
-	 * @param userIds The list of user Ids
+	 * Get row count for resource statistics (totals by user/event/date).
+	 * @param siteId The site ID (can be null)
+	 * @param resourceAction A specific resource action to limit to (can be null)
+	 * @param resourceIds A list of specific resources to limit to (can be null)
+	 * @param iDate The initial date (can be null)
+	 * @param fDate The final date  (can be null)
+	 * @param userIds The list of user Ids (can be null)
 	 * @param inverseUserSelection match users not in userIds list
-	 * @param page The PagePosition subset of items to return
-	 * @param sortBy Columns to sort by
+	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_RESOURCE_DEFAULT}, {@link #T_USER}, {@link #T_RESOURCE}, {@link #T_RESOURCE_ACTION}, {@link #T_DATE}, {@link #T_LASTDATE})
+	 * @param sortBy Columns to sort by (can be null)
 	 * @param sortAscending Sort ascending?
-	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
+	 * @return Row count
 	 */
 	public int getResourceStatsRowCount(
 			final String siteId,
@@ -284,10 +305,7 @@ public interface StatsManager {
 			final Date iDate, final Date fDate,
 			final List<String> userIds,
 			final boolean inverseUserSelection,
-			final PagingPosition page, 
-			final String groupBy,
-			final String sortBy, 
-			final boolean sortAscending);
+			final List<String> totalsBy);
 
 
 	// ################################################################

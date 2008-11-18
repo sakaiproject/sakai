@@ -20,19 +20,33 @@ package org.sakaiproject.sitestats.api;
 
 import java.util.Date;
 
-public interface CommonStat {
+/**
+ * Represents common fields of records from the SST_EVENTS and SST_RESOURCES tables.
+ * @author Nuno Fernandes
+ */
+public interface Stat {
+	/** Get the db record id. */ 
 	public long getId();
+	/** Set the db record id. */	
 	public void setId(long id);
 	
+	/** Get the user Id this record refers to. */ 
 	public String getUserId();
+	/** Set the user Id this record refers to. */
 	public void setUserId(String userId);
 	
+	/** Get the context (site Id) this record refers to. */
 	public String getSiteId();
+	/** Set the context (site Id) this record refers to. */
 	public void setSiteId(String siteId);
 	
+	/** Get the total value. */
 	public long getCount();
+	/** Set the total value. */
 	public void setCount(long count);
 	
+	/** Get the date this record refers to. Only year,month and day are important. */
 	public Date getDate();
+	/** Set the date this record refers to. Only year,month and day are important. */
 	public void setDate(Date date);
 }

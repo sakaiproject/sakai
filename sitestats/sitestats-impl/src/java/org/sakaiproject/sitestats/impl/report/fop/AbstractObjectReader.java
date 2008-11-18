@@ -23,14 +23,13 @@ package org.sakaiproject.sitestats.impl.report.fop;
 import java.io.IOException;
 import java.util.Map;
 
-//SAX
-import org.xml.sax.SAXException;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
-import org.xml.sax.ErrorHandler;
 import org.xml.sax.EntityResolver;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  * This class can be used as base class for XMLReaders that generate SAX 

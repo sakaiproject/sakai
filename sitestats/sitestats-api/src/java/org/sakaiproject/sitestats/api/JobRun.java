@@ -21,21 +21,39 @@ package org.sakaiproject.sitestats.api;
 import java.util.Date;
 
 public interface JobRun {	
+	/** Get the db row id. */
 	public long getId();
+	
+	/** Set the db row id. */
 	public void setId(long id);
 	
+	/** Get the first event id processed by this job run. */
 	public long getStartEventId();
+	
+	/** Set the first event id processed by this job run. */
 	public void setStartEventId(long startEventId);
 	
+	/** Get the last event id processed by this job run. */
 	public long getEndEventId();
+	
+	/** Set the last event id processed by this job run. */
 	public void setEndEventId(long endEventId);
 	
+	/** Get the date this job run started. */
 	public Date getJobStartDate();
+	
+	/** Set the date this job run started. */
 	public void setJobStartDate(Date jobStartDate);
 	
+	/** Get the date this job run finished. */
 	public Date getJobEndDate();
+	
+	/** Set the date this job run finished. */
 	public void setJobEndDate(Date jobEndDate);
 	
+	/** Get the date of the last event processed by this job run. */
 	public Date getLastEventDate();
+	
+	/** Set the date of the last event processed by this job run. */
 	public void setLastEventDate(Date lastEventDate);
 }

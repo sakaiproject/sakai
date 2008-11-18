@@ -12,8 +12,10 @@ import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
+import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
+import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.Report;
@@ -28,9 +30,9 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	private static Log				LOG					= LogFactory.getLog(ReportsDataProvider.class);
 	public final static String		COL_USERID			= "userId";
 	public final static String		COL_USERNAME		= "userName";
-	public final static String		COL_EVENT			= "ref";
-	public final static String		COL_RESOURCE		= "ref";
-	public final static String		COL_ACTION			= "refAction";
+	public final static String		COL_EVENT			= "event";
+	public final static String		COL_RESOURCE		= "resourceRef";
+	public final static String		COL_ACTION			= "resourceAction";
 	public final static String		COL_DATE			= "date";
 	public final static String		COL_TOTAL			= "count";
 
@@ -66,8 +68,8 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	
 	public Report getReport() {
 		if(report == null) {
-			LOG.info("Generating a site statistics report: "+reportParams.toString());
-			report = facade.getReportManager().getReport(siteId, prefsData, reportParams, null, null, null, true);
+			report = facade.getReportManager().getReport(siteId, prefsData.isListToolEventsOnlyAvailableInSite(), reportParams, null, null, true);
+			LOG.info("Site statistics report generated: "+report.getReportParams().toString());			
 		}
 		sortReport();
 		return report;
@@ -88,11 +90,11 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 		Collections.sort(report.getReportData(), getReportDataComparator(getSort().getProperty(), getSort().isAscending(), collator, facade.getStatsManager(), facade.getEventRegistryService(), facade.getUserDirectoryService()));
 	}
 	
-	public static final Comparator<CommonStatGrpByDate> getReportDataComparator(final String fieldName, final boolean sortAscending, final Collator collator,
+	public static final Comparator<Stat> getReportDataComparator(final String fieldName, final boolean sortAscending, final Collator collator,
 			final StatsManager SST_sm, final EventRegistryService SST_ers, final UserDirectoryService M_uds) {
-		return new Comparator<CommonStatGrpByDate>() {
+		return new Comparator<Stat>() {
 
-			public int compare(CommonStatGrpByDate r1, CommonStatGrpByDate r2) {
+			public int compare(Stat r1, Stat r2) {
 				if(fieldName.equals(COL_USERID)){
 						String s1;
 						try{
@@ -126,20 +128,26 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 						if(sortAscending) return res;
 						else return -res;
 					}else if(fieldName.equals(COL_EVENT)){
-						String s1 = SST_ers.getEventName(r1.getRef()).toLowerCase();
-						String s2 = SST_ers.getEventName(r2.getRef()).toLowerCase();
+						EventStat es1 = (EventStat) r1;
+						EventStat es2 = (EventStat) r2;
+						String s1 = SST_ers.getEventName(es1.getEventId()).toLowerCase();
+						String s2 = SST_ers.getEventName(es2.getEventId()).toLowerCase();
 						int res = collator.compare(s1, s2);
 						if(sortAscending) return res;
 						else return -res;
 					}else if(fieldName.equals(COL_RESOURCE)){
-						String s1 = SST_sm.getResourceName(r1.getRef()).toLowerCase();
-						String s2 = SST_sm.getResourceName(r2.getRef()).toLowerCase();
+						ResourceStat rs1 = (ResourceStat) r1;
+						ResourceStat rs2 = (ResourceStat) r2;
+						String s1 = SST_sm.getResourceName(rs1.getResourceRef()).toLowerCase();
+						String s2 = SST_sm.getResourceName(rs2.getResourceRef()).toLowerCase();
 						int res = collator.compare(s1, s2);
 						if(sortAscending) return res;
 						else return -res;
 					}else if(fieldName.equals(COL_ACTION)){
-						String s1 = ((String) r1.getRefAction()).toLowerCase();
-						String s2 = ((String) r2.getRefAction()).toLowerCase();
+						ResourceStat rs1 = (ResourceStat) r1;
+						ResourceStat rs2 = (ResourceStat) r2;
+						String s1 = ((String) rs1.getResourceAction()).toLowerCase();
+						String s2 = ((String) rs2.getResourceAction()).toLowerCase();
 						int res = collator.compare(s1, s2);
 						if(sortAscending) return res;
 						else return -res;

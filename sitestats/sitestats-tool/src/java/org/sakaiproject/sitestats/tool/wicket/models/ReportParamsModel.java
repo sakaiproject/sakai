@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.wicket.model.Model;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 
@@ -28,6 +29,7 @@ public class ReportParamsModel extends Model implements ReportParams {
 	private String				whoRoleId;
 	private String				whoGroupId;
 	private List<String>		whoUserIds				= new ArrayList<String>();
+	private List<String>		howTotalsBy				= new ArrayList<String>();
 
 	
 	public ReportParamsModel(String siteId){
@@ -260,17 +262,49 @@ public class ReportParamsModel extends Model implements ReportParams {
 	public void setWhoUserIds(List<String> whoUserIds) {
 		this.whoUserIds = whoUserIds;
 	}
-	public void setWhoUserIds(Object o) {
-		System.out.println("setWhoUserIds(Object)");
-		this.whoUserIds = new ArrayList<String>();
-		if(o != null) {
-			System.out.println("o: "+o);
-			if(o instanceof String) {
-				this.whoUserIds.add((String) o);
+		
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportParams#setHowTotalsBy(java.util.List)
+	 */
+	public void setHowTotalsBy(List<String> totalsBy) {
+		//this.howTotalsBy = totalsBy;
+		this.howTotalsBy = howTotalsBy;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportParams#getHowTotalsBy()
+	 */
+	public List<String> getHowTotalsBy() {
+		//return howTotalsBy;
+		return fixedHowTotalsBy(howTotalsBy);
+	}
+	
+	private List<String> fixedHowTotalsBy(List<String> list) {
+		List<String> fixedList = new ArrayList<String>();
+		if(list == null || list.isEmpty()) {
+			// set defaults if none specified
+			if(getWhat().equals(ReportManager.WHAT_RESOURCES)){
+				fixedList = StatsManager.TOTALSBY_RESOURCE_DEFAULT;
 			}else{
-				System.out.println("o instance of: "+o.getClass());
+				fixedList = StatsManager.TOTALSBY_EVENT_DEFAULT;
+			}
+		}else{
+			// remove columns that shouldn't be selected
+			for(String t : list) {
+				if(t.equals(StatsManager.T_EVENT)) {
+					if(!getWhat().equals(ReportManager.WHAT_RESOURCES)){
+						fixedList.add(t);
+					}
+				}else if(t.equals(StatsManager.T_RESOURCE) || t.equals(StatsManager.T_RESOURCE_ACTION)) {
+					if(getWhat().equals(ReportManager.WHAT_RESOURCES)){
+						fixedList.add(t);
+					}
+				}else{
+					fixedList.add(t);
+				}
 			}
 		}
+		return fixedList;
 	}
 	
 	
@@ -304,19 +338,20 @@ public class ReportParamsModel extends Model implements ReportParams {
 			str.append(memberToString("whenTo", whenTo.toString(), true));
 		}
 		if(ReportManager.WHO_ALL.equals(who)) {
-			str.append(memberToString("who", who, false));
+			str.append(memberToString("who", who, true));
 		}else{
 			str.append(memberToString("who", who, true));
 		}
 		if(ReportManager.WHO_GROUPS.equals(who)) {
-			str.append(memberToString("whoGroupId", whoGroupId, false));
+			str.append(memberToString("whoGroupId", whoGroupId, true));
 		}
 		if(ReportManager.WHO_ROLE.equals(who)) {
-			str.append(memberToString("whoRoleId", whoRoleId, false));
+			str.append(memberToString("whoRoleId", whoRoleId, true));
 		}
 		if(ReportManager.WHO_CUSTOM.equals(who)) {
-			str.append(memberToString("whoUserIds", whoUserIds, false));
-		}		
+			str.append(memberToString("whoUserIds", whoUserIds, true));
+		}	
+		str.append(memberToString("howTotalsBy", getHowTotalsBy(), false));
 		str.append('}');
 		return str.toString();
 	}
