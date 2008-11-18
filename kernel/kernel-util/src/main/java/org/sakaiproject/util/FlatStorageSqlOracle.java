@@ -36,26 +36,26 @@ public class FlatStorageSqlOracle extends FlatStorageSqlDefault
 
 	public String getSelectFieldsSql1(String table, String fieldList, String idField, String sortField1, String sortField2, int begin, int end)
 	{
-		return "select * from (select " + fieldList + " , RANK() OVER (order by " + table + "." + sortField1
-				+ (sortField2 == null ? "" : "," + table + "." + sortField2) + "," + table + "." + idField + ") as rank from " + table + " order by "
+		return "select * from (select a.*, rownum rnum from (select " + fieldList + " from " + table + " order by "
 				+ table + "." + sortField1 + (sortField2 == null ? "" : "," + table + "." + sortField2) + "," + table + "." + idField
-				+ ") where rank between ? and ?";
+				+ ") a where rownum <= ? ) where rnum >= ?";
 	}
 
 	public String getSelectFieldsSql3(String table, String fieldList, String idField, String sortField1, String sortField2, int begin, int end,
 			String join, String where, String order)
 	{
-		return "select * from (select " + fieldList + " ,RANK() OVER (order by " + order + "," + table + "." + idField + ") as rank" + " from "
+		return  "select * from (select a.*, rownum rnum from (select " + fieldList + " from "
 				+ table + ((join == null) ? "" : ("," + join)) + (((where != null) && (where.length() > 0)) ? (" where " + where) : "")
-				+ " order by " + order + "," + table + "." + idField + " ) where rank between ? and ?";
+				+ " order by " + order + "," + table + "." + idField + " ) a where rownum <= ? ) where rnum >= ?";
 	}
 
 	public Object[] getSelectFieldsFields(int first, int last)
 	{
 		Object[] fields = new Object[2];
 
-		fields[0] = new Long(first);
-		fields[1] = new Long(last);
+		fields[0] = new Long(last);
+		fields[1] = new Long(first);
+		
 
 		return fields;
 	}

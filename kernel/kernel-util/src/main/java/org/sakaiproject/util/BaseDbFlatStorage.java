@@ -391,7 +391,7 @@ public class BaseDbFlatStorage
 		{
 			// use Oracle RANK function, adding the id to the sort fields to assure we have a unique ranking
 			sql = flatStorageSql.getSelectFieldsSql1(m_resourceTableName, fieldList(m_resourceTableReadFields, null), m_resourceTableIdField,
-					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1));
+					m_resourceTableSortField1, m_resourceTableSortField2,0,0);
 			fields = flatStorageSql.getSelectFieldsFields(first, last);
 		}
 		else if ("mssql".equals(m_sql.getVendor()) || "db2".equals(m_sql.getVendor()))
@@ -589,8 +589,8 @@ public class BaseDbFlatStorage
 			}
 			sql = flatStorageSql.getSelectFieldsSql3(m_resourceTableName, fieldList(m_resourceTableReadFields, null), m_resourceTableIdField,
 					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
-			fields[fields.length - 2] = new Long(first);
-			fields[fields.length - 1] = new Long(last);
+			fields[fields.length - 2] = new Long(last);
+			fields[fields.length - 1] = new Long(first);
 		}
 		else if ("mssql".equals(m_sql.getVendor()) || "db2".equals(m_sql.getVendor()))
 		{
