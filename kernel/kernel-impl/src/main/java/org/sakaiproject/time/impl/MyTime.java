@@ -44,7 +44,14 @@ public class MyTime implements Time
 	/** The milliseconds since... same as Date */
 	protected long m_millisecondsSince = 0;
 
-	private BasicTimeService timeService;
+	private transient BasicTimeService timeService;
+
+	public void resolveTransientFields()
+	{
+		org.sakaiproject.component.api.ComponentManager compMgr =
+			org.sakaiproject.component.cover.ComponentManager.getInstance();
+		timeService = (BasicTimeService)compMgr.get("org.sakaiproject.time.api.TimeService");
+	}
 
 	/**
 	 * construct from a string, in our format, GMT values

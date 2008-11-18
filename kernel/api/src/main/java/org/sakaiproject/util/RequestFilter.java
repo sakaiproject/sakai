@@ -54,6 +54,8 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -235,6 +237,9 @@ public class RequestFilter implements Filter
 
 	/** The servlet context for the filter. */
 	protected ServletContext m_servletContext = null;
+	
+	/** Is this a Terracotta clustered environment? */
+	protected boolean TERRACOTTA_CLUSTER = false;
 
 	/**
 	 * Wraps a request object so we can override some standard behavior.
@@ -588,11 +593,13 @@ public class RequestFilter implements Filter
 						ThreadLocalManager.set(ServerConfigurationService.CURRENT_PORTAL_PATH, "/" + m_contextId);
 					}
 
-					// Pass control on to the next filter or the servlet
-					chain.doFilter(req, resp);
+					synchronized(s) {
+						// Pass control on to the next filter or the servlet
+						chain.doFilter(req, resp);
 
-					// post-process response
-					postProcessResponse(s, req, resp);
+						// post-process response
+						postProcessResponse(s, req, resp);
+					}
 				}
 				catch (Throwable t)
 				{
@@ -771,6 +778,9 @@ public class RequestFilter implements Filter
 			M_log.warn("overridding " + CONFIG_MAX_PER_FILE + " setting: must be 'true' with " + CONFIG_CONTINUE + " ='true'");
 			m_uploadMaxPerFile = true;
 		}
+		
+		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
+		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 	}
 
 	/**
@@ -1073,7 +1083,9 @@ public class RequestFilter implements Filter
 		// if found and not automatic, mark it as active
 		if ((s != null) && (!auto))
 		{
-			s.setActive();
+			synchronized(s) {
+				s.setActive();
+			}
 		}
 
 		// if missing, make one
@@ -1093,6 +1105,25 @@ public class RequestFilter implements Filter
 
 		// set this as the current session
 		SessionManager.setCurrentSession(s);
+		
+		// Now that we know the session exists, regardless of whether it's new or not, lets see if there
+		// is a UsageSession.  If so, we want to check it's serverId
+		UsageSession us = null;
+		synchronized(s) {
+			us = (UsageSession)s.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
+			if (us != null) {
+				// check the server instance id
+				ServerConfigurationService configService = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
+				String serverInstanceId = configService.getServerIdInstance();
+				if ((serverInstanceId != null) && (!serverInstanceId.equals(us.getServer()))) {
+					// Log that the UsageSession server value is changing
+					M_log.info("UsageSession: Server change detected: Old Server=" + us.getServer() +
+							"    New Server=" + serverInstanceId);
+					// set the new UsageSession server value
+					us.setServer(serverInstanceId);
+				}
+			}
+		}
 
 		// if we had a cookie and we have no session, clear the cookie TODO: detect closed session in the request
 		if ((s == null) && (c != null))
@@ -1225,7 +1256,11 @@ public class RequestFilter implements Filter
 			{
 				if (cookies[i].getName().equals(name))
 				{
-					if ((suffix == null) || cookies[i].getValue().endsWith(suffix))
+					// If this is NOT a terracotta cluster environment
+					// and the suffix passed in to this method is not null
+					// then only match the cookie if the end of the cookie
+					// value is equal to the suffix passed in.
+					if (TERRACOTTA_CLUSTER || ((suffix == null) || cookies[i].getValue().endsWith(suffix)))
 					{
 						return cookies[i];
 					}

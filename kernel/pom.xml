@@ -687,6 +687,7 @@
     <module>kernel-common</module>
     <module>kernel-impl</module>
 <!-- <module>kernel-impl-experimental</module> -->
+    <module>kernel-tim</module>
     <module>kernel-util</module>
     <module>loader</module>
     <module>deploy</module>

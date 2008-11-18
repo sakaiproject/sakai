@@ -52,6 +52,11 @@ public interface UsageSessionServiceSql
 	 * returns the sql statement which updates a sakai session in the sakai_session table for a given session id.
 	 */
 	String getUpdateSakaiSessionSql();
+
+	/**
+	 * returns the sql statement which updates the SESSION_SERVER column in the sakai_session table for a given session id.
+	 */
+	String getUpdateServerSakaiSessionSql();
 	
 	/**
 	 * @return the SQL statement which retrieves all supposedly active sessions associated with inactive servers

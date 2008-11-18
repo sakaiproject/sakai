@@ -64,6 +64,13 @@ public interface UsageSession extends Comparable
 	 * @return the server id which is hosting this session.
 	 */
 	String getServer();
+	
+	/**
+	 * Set the server id which is hosting this session.
+	 * 
+	 * @param serverId the server id which is hosting this session.
+	 */
+	public void setServer(String serverId);
 
 	/**
 	 * Access the user id for this session.

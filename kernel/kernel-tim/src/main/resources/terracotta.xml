@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml-fragment>
+      <roots>
+        <root>
+          <field-name>org.sakaiproject.tool.impl.SessionComponent.m_sessions</field-name>
+        </root>
+        <root>
+          <field-name>org.sakaiproject.tool.impl.SessionComponent.expirationTimeSuggestionMap</field-name>
+        </root>
+      </roots>
+      <locks>
+        <autolock auto-synchronized="false">
+          <method-expression>* org.sakaiproject.util.RequestFilter.doFilter(..)</method-expression>
+          <lock-level>write</lock-level>
+        </autolock>
+        <autolock auto-synchronized="false">
+          <method-expression>* org.sakaiproject.util.RequestFilter.assureSession(..)</method-expression>
+          <lock-level>write</lock-level>
+        </autolock>
+        <autolock auto-synchronized="false">
+          <method-expression>* org.sakaiproject.tool.impl.SessionComponent$Maintenance.run(..)</method-expression>
+          <lock-level>write</lock-level>
+        </autolock>
+      </locks>
+      <instrumented-classes>
+        <include>
+			<class-expression>org.sakaiproject.util.RequestFilter</class-expression>
+		</include>
+        <include>
+			<class-expression>org.sakaiproject.tool.impl.SessionComponent</class-expression>
+		</include>
+        <include>
+			<class-expression>org.sakaiproject.tool.impl.SessionComponent$Maintenance</class-expression>
+		</include>
+        <include>
+			<class-expression>org.sakaiproject.tool.impl.MySession</class-expression>
+			<honor-transient>true</honor-transient>	
+			<on-load><method>resolveTransientFields</method></on-load>
+		</include>
+        <include>
+			<class-expression>org.sakaiproject.tool.impl.MyLittleSession</class-expression>
+			<honor-transient>true</honor-transient>	
+			<on-load><method>resolveTransientFields</method></on-load>
+		</include>
+		<include>
+            <class-expression>org.sakaiproject.cheftool.AlertImpl</class-expression>
+			<honor-transient>true</honor-transient>	
+		</include>
+		<include>
+            <class-expression>org.sakaiproject.cheftool.menu.MenuImpl</class-expression>
+			<honor-transient>true</honor-transient>	
+		</include>
+		<include>
+            <class-expression>java.util.Locale</class-expression>
+			<honor-transient>true</honor-transient>	
+		</include>
+		<include>
+            <class-expression>org.sakaiproject.util.BaseResourceProperties</class-expression>
+			<honor-transient>true</honor-transient>	
+		</include>
+		<include>
+            <class-expression>org.sakaiproject.util.BaseResourcePropertiesEdit</class-expression>
+			<honor-transient>true</honor-transient>	
+		</include>
+		<include>
+            <class-expression>org.sakaiproject.util.Placement</class-expression>
+			<honor-transient>true</honor-transient>	
+		</include>
+		<include>
+            <class-expression>org.sakaiproject.authz.impl.BaseMember</class-expression>
+			<honor-transient>true</honor-transient>	
+		</include>
+		<include>
+            <class-expression>org.sakaiproject.authz.impl.BaseRole</class-expression>
+			<honor-transient>true</honor-transient>	
+			<on-load>
+				<execute>
+<![CDATA[
+if (self.M_log == null)
+{
+	self.M_log = org.apache.commons.logging.LogFactory.getLog(org.sakaiproject.authz.impl.BaseRole.class);
+}
+]]>
+				</execute>
+			</on-load>
+		</include>
+		<include>
+            <class-expression>org.apache.commons.lang.mutable.MutableLong</class-expression>
+			<honor-transient>true</honor-transient>	
+		</include>
+        <include>
+			<class-expression>org.sakaiproject.event.impl.BaseUsageSession</class-expression>
+			<honor-transient>true</honor-transient>	
+			<on-load><method>resolveTransientFields</method></on-load>
+		</include>
+		<include>
+			<class-expression>org.sakaiproject.time.impl.MyTime</class-expression>
+			<honor-transient>true</honor-transient>	
+			<on-load><method>resolveTransientFields</method></on-load>
+		</include> 
+      </instrumented-classes>
+	  <transient-fields>
+	    <field-name>org.sakaiproject.util.Placement.m_tool</field-name>
+	    <field-name>org.sakaiproject.authz.impl.BaseRole.M_log</field-name>
+	  </transient-fields>	
+	  <additional-boot-jar-classes>
+        <include>java.util.Locale</include>
+	  </additional-boot-jar-classes>
+</xml-fragment>
+

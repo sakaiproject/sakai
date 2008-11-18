@@ -23,6 +23,7 @@ package org.sakaiproject.tool.impl;
 
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * <p>
@@ -34,6 +35,7 @@ public class SessionComponentTest extends SessionComponent
 	/**
 	 * @return the ThreadLocalManager collaborator.
 	 */
+	@Override
 	protected ThreadLocalManager threadLocalManager()
 	{
 		return null;
@@ -42,8 +44,18 @@ public class SessionComponentTest extends SessionComponent
 	/**
 	 * @return the IdManager collaborator.
 	 */
+	@Override
 	protected IdManager idManager()
 	{
+		return null;
+	}
+
+	/**
+	 * @return the ToolManager collaborator.
+	 */
+	@Override
+	protected ToolManager toolManager() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }

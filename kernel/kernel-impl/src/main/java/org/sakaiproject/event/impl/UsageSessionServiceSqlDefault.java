@@ -87,4 +87,11 @@ public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
 		
 		return sql.toString();
 	}
+
+	/**
+	 * @return the sql statement which updates the SESSION_SERVER column in the sakai_session table for a given session id.
+	 */
+	public String getUpdateServerSakaiSessionSql() {
+		return "update SAKAI_SESSION set SESSION_SERVER = ? where SESSION_ID = ?";
+	}
 }

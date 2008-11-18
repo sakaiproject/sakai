@@ -4,6 +4,7 @@
 <beans>
 
 	<bean id="org.sakaiproject.tool.api.SessionManager"
+			name="org.sakaiproject.tool.api.SessionStore"
 			class="org.sakaiproject.tool.impl.SessionComponent"
 			init-method="init"
 			destroy-method="destroy"
@@ -11,10 +12,42 @@
 
 		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager"/>
+
+		<property name="clusterableTools">
+			<!-- The tool id's should be used for any clusterable tool.  A clusterable tool, is any tool that can 
+				guarantee that everything that tool
+				puts in the session is itself clusterable, and in the case of Terracotta, is documented in the
+				tc-config.xml file.  This value is a String, instead of a Set of values, to allow for overriding
+                the contents in the sakai.properties file. -->
+			<value>sakai.login,sakai.membership</value>
+		</property>
 
 		<property name="inactiveInterval"><value>1800</value></property>
 		<property name="checkEvery"><value>60</value></property>
+		<!-- session journaler is null by default -->
+		<!--
+		<property name="sessionListener" ref="org.sakaiproject.tool.api.SessionAttributeListener.journaler" />
+		-->
 	</bean>
+
+    <!-- uncomment this if sessionListener property is enabled above -->
+    <!--
+    <bean id="org.sakaiproject.tool.api.SessionAttributeListener.journaler"
+        class="org.sakaiproject.tool.impl.attribs.SessionAttributeJournaler"
+        singleton="true">
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="enableJournal" value="true" />
+    </bean>
+    
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+        <property name="beans">
+            <map>
+                <entry key="Journaler:name=sessionJournaler" value-ref="org.sakaiproject.tool.api.SessionAttributeListener.journaler"/>
+            </map>
+        </property>
+    </bean>
+    -->
 
 	<!-- register one component to be both the ToolManager and the ActiveToolManager -->
 	<bean id="org.sakaiproject.tool.api.ActiveToolManager"

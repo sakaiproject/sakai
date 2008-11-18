@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>kernel</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>1.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Kernel Terracotta Integration Module</name>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>tim-kernel</artifactId>
+  <version>1.1-SNAPSHOT</version>
+  <organization>
+    <name>University of Cambridge</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</url>
+  </scm>
+
+  <packaging>jar</packaging>
+
+  <properties>
+    <tc.version>2.6.4</tc.version>
+    <tc.maven.version>1.2.0</tc.maven.version>
+    <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+  </properties>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.terracotta.maven.plugins</groupId>
+          <artifactId>tc-maven-plugin</artifactId>
+          <version>${tc.maven.version}</version>
+          <configuration>
+            <workingDirectory>${project.build.directory}</workingDirectory>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>generate-resources</phase>
+              <goals>
+                <goal>manifest</goal>
+              </goals>
+              <configuration>
+                <bundleRequiredExecutionEnvironment>${Bundle-RequiredExecutionEnvironment}</bundleRequiredExecutionEnvironment>
+                <bundleCategory>Terracotta Integration Module</bundleCategory>
+                <bundleCopyright>Copyright (c) 2008 The Sakai Foundation</bundleCopyright>
+                <importPackage>org.terracotta.modules.configuration</importPackage>
+              </configuration>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.terracotta</groupId>
+              <artifactId>terracotta</artifactId>
+              <version>${tc.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.terracotta</groupId>
+              <artifactId>tcconfig</artifactId>
+              <version>${tc.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+              <configuration>
+                <forceCreation>true</forceCreation>
+                <archive>
+                  <manifestFile>${project.build.directory}/MANIFEST.MF</manifestFile>
+                </archive>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.terracotta.maven.plugins</groupId>
+        <artifactId>tc-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+</project>

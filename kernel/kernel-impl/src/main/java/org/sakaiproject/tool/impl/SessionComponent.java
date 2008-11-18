@@ -38,14 +38,22 @@ import javax.servlet.http.HttpSessionContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.mutable.MutableLong;
+import org.springframework.util.StringUtils;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ContextSession;
+import org.sakaiproject.tool.api.NonPortableSession;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionAttributeListener;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.SessionStore;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.IteratorEnumeration;
 
@@ -54,13 +62,23 @@ import org.sakaiproject.util.IteratorEnumeration;
  * Standard implementation of the Sakai SessionManager.
  * </p>
  */
-public abstract class SessionComponent implements SessionManager
+public abstract class SessionComponent implements SessionManager, SessionStore
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SessionComponent.class);
 
 	/** The sessions - keyed by session id. */
 	protected Map m_sessions = new ConcurrentHashMap();
+	
+	/**
+	 * The expected time sessions may be ready for expiration.  This is only an optimization
+	 * for when Terracotta is in use, to prevent faulting Session objects into the local
+	 * JVM when it is not necessary. Session.isInactive() method remains the ultimate authority
+	 * to determine if a session is invalid or not.
+	 */
+	protected Map<String,MutableLong> expirationTimeSuggestionMap = new ConcurrentHashMap<String, MutableLong>();
+	
+	private SessionAttributeListener sessionListener;
 
 	/** The maintenance. */
 	protected Maintenance m_maintenance = null;
@@ -74,9 +92,15 @@ public abstract class SessionComponent implements SessionManager
 	/** Key in the ThreadLocalManager for access to the current servlet context (from tool-util/servlet/RequestFilter). */
 	protected final static String CURRENT_SERVLET_CONTEXT = "org.sakaiproject.util.RequestFilter.servlet_context";
 
+	/** The set of tool ids that represent tools that can be clustered */
+	protected Set<String> clusterableTools = new HashSet<String>();
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/** Will be used to get the current tool id when checking the whitelist */
+	protected abstract ToolManager toolManager();
 
 	/**
 	 * @return the ThreadLocalManager collaborator.
@@ -111,6 +135,27 @@ public abstract class SessionComponent implements SessionManager
 		{
 			System.out.println(t);
 		}
+	}
+
+	/**
+	 * Configuration - set the default inactive period for sessions.
+	 * 
+	 * @param value
+	 *        The default inactive period for sessions.
+	 */
+	public void setInactiveInterval(int value)
+	{
+		m_defaultInactiveInterval = value;
+	}
+	
+	/**
+	 * Configuration - set the default inactive period for sessions.
+	 * 
+	 * @return The default inactive period for sessions.
+	 */
+	public int getInactiveInterval()
+	{
+		return m_defaultInactiveInterval;
 	}
 
 	/** Configuration: how often to check for inactive sessions (seconds). */
@@ -180,17 +225,71 @@ public abstract class SessionComponent implements SessionManager
 
 		return s;
 	}
+	
+	public void remove(String sessionId) {
+		m_sessions.remove(sessionId);
+		expirationTimeSuggestionMap.remove(sessionId);
+	}
+
+	/**
+	 * Checks the current Tool ID to determine if this tool is marked for clustering.
+	 * 
+	 * @return true if the tool is marked for clustering, false otherwise.
+	 */
+	public boolean isCurrentToolClusterable() {
+		ToolManager toolManager = toolManager();
+		Tool tool = null;
+		// ToolManager should exist.  Protect against it being
+		// null and just log a message if it is.
+		if (toolManager != null) {
+			tool = toolManager.getCurrentTool();
+			// tool can be null, this is common during startup for example
+			if (tool != null) {
+				String toolId = tool.getId();
+				// if the tool exists, the toolid should.  But protect and only
+				// log a message if it is null
+				if (toolId != null) {
+					return clusterableTools.contains(toolId);
+				} else {
+					M_log.error("SessionComponent.isCurrentToolClusterable(): toolId was null.");
+				}
+			}
+		} else {
+			M_log.error("SessionComponent.isCurrentToolClusterable(): toolManager was null.");
+		}
+		return false;
+	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public Session startSession()
 	{
-		// create a new session
-		Session s = new MySession();
+		String id = idManager().createUuid();
+		
+		return startSession(id);
+	}
 
-		// remember it by id
+	/**
+	 * @inheritDoc
+	 */
+	public Session startSession(String id)
+	{				
+		// create a non portable session object if this is a clustered environment
+		NonPortableSession nPS = new MyNonPortableSession();
+		
+		// create a new MutableLong object representing the current time that both
+		// the Session and SessionManager can see.
+		MutableLong currentTime = currentTimeMutableLong();
+
+		// create a new session
+		Session s = new MySession(this,id,threadLocalManager(),idManager(),this,sessionListener,m_defaultInactiveInterval,nPS,currentTime);
+
+		// Place session into the main Session Storage, capture any old id
 		Session old = (Session) m_sessions.put(s.getId(), s);
+		
+		// Place an entry in the expirationTimeSuggestionMap that corresponds to the entry in m_sessions
+		expirationTimeSuggestionMap.put(id, currentTime);
 
 		// check for id conflict
 		if (old != null)
@@ -200,25 +299,10 @@ public abstract class SessionComponent implements SessionManager
 
 		return s;
 	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Session startSession(String id)
+	
+	protected MutableLong currentTimeMutableLong()
 	{
-		// create a new session
-		Session s = new MySession(id);
-
-		// remember it by id
-		Session old = (Session) m_sessions.put(s.getId(), s);
-
-		// check for id conflict
-		if (old != null)
-		{
-			M_log.warn("startSession(id): duplication id: " + s.getId());
-		}
-
-		return s;
+		return new MutableLong(System.currentTimeMillis());
 	}
 
 	/**
@@ -231,7 +315,12 @@ public abstract class SessionComponent implements SessionManager
 		// if we don't have one already current, make one and bind it as current, but don't save it in our by-id table - let it just go away after the thread
 		if (rv == null)
 		{
-			rv = new MySession();
+			String id = idManager().createUuid();
+			
+			// create a non portable session object if this is a clustered environment
+			NonPortableSession nPS = new MyNonPortableSession();
+
+			rv = new MySession(this,id,threadLocalManager(),idManager(),this,sessionListener,m_defaultInactiveInterval,nPS,currentTimeMutableLong());
 			setCurrentSession(rv);
 		}
 
@@ -276,6 +365,23 @@ public abstract class SessionComponent implements SessionManager
 		threadLocalManager().set(CURRENT_TOOL_SESSION, s);
 	}
 
+	public String getClusterableTools() {
+		return StringUtils.collectionToCommaDelimitedString(clusterableTools);
+		// return clusterableTools;
+	}
+
+	public void setClusterableTools(String clusterableToolList) {
+		Set<?> newTools = StringUtils.commaDelimitedListToSet(clusterableToolList);
+		this.clusterableTools.clear();
+		for (Object o: newTools) {
+			if (o instanceof java.lang.String) {
+				this.clusterableTools.add((String)o);
+			} else {
+				M_log.error("SessionManager.setClusterableTools(String) unable to set value: "+o);
+			}
+		}
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -301,882 +407,6 @@ public abstract class SessionComponent implements SessionManager
 		activeusers.remove(null);
 
 		return activeusers.size();
-	}
-
-	/*************************************************************************************************************************************************
-	 * Entity: Session Also is an HttpSession
-	 ************************************************************************************************************************************************/
-
-	public class MySession implements Session, HttpSession
-	{
-		/** Hold attributes in a Map. TODO: ConcurrentHashMap may be better for multiple writers */
-		protected Map m_attributes = new ConcurrentHashMap();
-
-		/** Hold toolSessions in a Map, by placement id. TODO: ConcurrentHashMap may be better for multiple writers */
-		protected Map m_toolSessions = new ConcurrentHashMap();
-
-		/** Hold context toolSessions in a Map, by context (webapp) id. TODO: ConcurrentHashMap may be better for multiple writers */
-		protected Map m_contextSessions = new ConcurrentHashMap();
-
-		/** The creation time of the session. */
-		protected long m_created = 0;
-
-		/** The session id. */
-		protected String m_id = null;
-
-		/** Time last accessed (via getSession()). */
-		protected long m_accessed = 0;
-
-		/** Seconds of inactive time before being automatically invalidated - 0 turns off this feature. */
-		protected int m_inactiveInterval = m_defaultInactiveInterval;
-
-		/** The user id for this session. */
-		protected String m_userId = null;
-
-		/** The user enterprise id for this session. */
-		protected String m_userEid = null;
-
-		/** True while the session is valid. */
-		protected boolean m_valid = true;
-
-		public MySession()
-		{
-			m_id = idManager().createUuid();
-			m_created = System.currentTimeMillis();
-			m_accessed = m_created;
-		}
-
-		public MySession(String id)
-		{
-			m_id = id;
-			m_created = System.currentTimeMillis();
-			m_accessed = m_created;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Object getAttribute(String name)
-		{
-			return m_attributes.get(name);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Enumeration getAttributeNames()
-		{
-			return new IteratorEnumeration(m_attributes.keySet().iterator());
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public long getCreationTime()
-		{
-			return m_created;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getId()
-		{
-			return m_id;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public long getLastAccessedTime()
-		{
-			return m_accessed;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public int getMaxInactiveInterval()
-		{
-			return m_inactiveInterval;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getUserEid()
-		{
-			return m_userEid;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getUserId()
-		{
-			return m_userId;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void invalidate()
-		{
-			m_valid = false;
-
-			// move the attributes and tool sessions to local maps in a synchronized block so the unbinding happens only on one thread
-			Map unbindMap = null;
-			Map toolMap = null;
-			Map contextMap = null;
-			synchronized (this)
-			{
-				unbindMap = new HashMap(m_attributes);
-				m_attributes.clear();
-
-				toolMap = new HashMap(m_toolSessions);
-				m_toolSessions.clear();
-
-				contextMap = new HashMap(m_contextSessions);
-				m_contextSessions.clear();
-
-				// let it not be found
-				m_sessions.remove(getId());
-			}
-
-			// clear each tool session
-			for (Iterator i = toolMap.entrySet().iterator(); i.hasNext();)
-			{
-				Map.Entry e = (Map.Entry) i.next();
-				ToolSession t = (ToolSession) e.getValue();
-				t.clearAttributes();
-			}
-
-			// clear each context session
-			for (Iterator i = contextMap.entrySet().iterator(); i.hasNext();)
-			{
-				Map.Entry e = (Map.Entry) i.next();
-				ToolSession t = (ToolSession) e.getValue();
-				t.clearAttributes();
-			}
-
-			// send unbind events
-			for (Iterator i = unbindMap.entrySet().iterator(); i.hasNext();)
-			{
-				Map.Entry e = (Map.Entry) i.next();
-				String name = (String) e.getKey();
-				Object value = e.getValue();
-				unBind(name, value);
-			}
-
-			// if this is the current session, remove it
-			if (this.equals(getCurrentSession()))
-			{
-				setCurrentSession(null);
-			}
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public void clear()
-		{
-			// move the attributes and tool sessions to local maps in a synchronized block so the unbinding happens only on one thread
-			Map unbindMap = null;
-			Map toolMap = null;
-			Map contextMap = null;
-			synchronized (this)
-			{
-				unbindMap = new HashMap(m_attributes);
-				m_attributes.clear();
-
-				toolMap = new HashMap(m_toolSessions);
-				m_toolSessions.clear();
-
-				contextMap = new HashMap(m_contextSessions);
-				m_contextSessions.clear();
-			}
-
-			// clear each tool session
-			for (Iterator i = toolMap.entrySet().iterator(); i.hasNext();)
-			{
-				Map.Entry e = (Map.Entry) i.next();
-				ToolSession t = (ToolSession) e.getValue();
-				t.clearAttributes();
-			}
-
-			// clear each context session
-			for (Iterator i = contextMap.entrySet().iterator(); i.hasNext();)
-			{
-				Map.Entry e = (Map.Entry) i.next();
-				ToolSession t = (ToolSession) e.getValue();
-				t.clearAttributes();
-			}
-
-			// send unbind events
-			for (Iterator i = unbindMap.entrySet().iterator(); i.hasNext();)
-			{
-				Map.Entry e = (Map.Entry) i.next();
-				String name = (String) e.getKey();
-				Object value = e.getValue();
-				unBind(name, value);
-			}
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public void clearExcept(Collection names)
-		{
-			// save any attributes in names
-			Map saveAttributes = new HashMap();
-			for (Iterator i = names.iterator(); i.hasNext();)
-			{
-				String name = (String) i.next();
-				Object value = m_attributes.get(name);
-				if (value != null)
-				{
-					// remvove, but do NOT unbind
-					m_attributes.remove(name);
-					saveAttributes.put(name, value);
-				}
-			}
-
-			// clear the remaining
-			clear();
-
-			// restore the saved attributes
-			for (Iterator i = saveAttributes.entrySet().iterator(); i.hasNext();)
-			{
-				Map.Entry e = (Map.Entry) i.next();
-				String name = (String) e.getKey();
-				Object value = e.getValue();
-				m_attributes.put(name, value);
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setActive()
-		{
-			m_accessed = System.currentTimeMillis();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void removeAttribute(String name)
-		{
-			// remove
-			Object value = m_attributes.remove(name);
-
-			// unbind event
-			unBind(name, value);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setAttribute(String name, Object value)
-		{
-			// treat a set to null as a remove
-			if (value == null)
-			{
-				removeAttribute(name);
-			}
-
-			else
-			{
-				// add
-				Object old = m_attributes.put(name, value);
-	
-				// bind event
-				bind(name, value);
-	
-				// unbind event if old exiss
-				if (old != null)
-				{
-					unBind(name, old);
-				}
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setMaxInactiveInterval(int interval)
-		{
-			m_inactiveInterval = interval;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setUserEid(String eid)
-		{
-			m_userEid = eid;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setUserId(String uid)
-		{
-			m_userId = uid;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public ToolSession getToolSession(String placementId)
-		{
-			ToolSession t = (ToolSession) m_toolSessions.get(placementId);
-			if (t == null)
-			{
-				t = new MyLittleSession(this, placementId);
-				m_toolSessions.put(placementId, t);
-			}
-
-			// mark it as accessed
-			((MyLittleSession) t).setAccessed();
-
-			return t;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public ContextSession getContextSession(String contextId)
-		{
-			ContextSession t = (ContextSession) m_contextSessions.get(contextId);
-			if (t == null)
-			{
-				t = new MyLittleSession(this, contextId);
-				m_contextSessions.put(contextId, t);
-			}
-
-			// mark it as accessed
-			((MyLittleSession) t).setAccessed();
-
-			return t;
-		}
-
-		/**
-		 * Check if the session has become inactive
-		 * 
-		 * @return true if the session is capable of becoming inactive and has done so, false if not.
-		 */
-		protected boolean isInactive()
-		{
-			return ((m_inactiveInterval > 0) && (System.currentTimeMillis() > (m_accessed + (m_inactiveInterval * 1000))));
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public boolean equals(Object obj)
-		{
-			if (!(obj instanceof Session))
-			{
-				return false;
-			}
-
-			return ((Session) obj).getId().equals(getId());
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public int hashCode()
-		{
-			return getId().hashCode();
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public ServletContext getServletContext()
-		{
-			return (ServletContext) threadLocalManager().get(CURRENT_SERVLET_CONTEXT);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public HttpSessionContext getSessionContext()
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public Object getValue(String arg0)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public String[] getValueNames()
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public void putValue(String arg0, Object arg1)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public void removeValue(String arg0)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public boolean isNew()
-		{
-			return false;
-		}
-
-		/**
-		 * Unbind the value if it's a SessionBindingListener. Also does the HTTP unbinding if it's a HttpSessionBindingListener.
-		 * 
-		 * @param name
-		 *        The attribute name bound.
-		 * @param value
-		 *        The bond value.
-		 */
-		protected void unBind(String name, Object value)
-		{
-			if (value instanceof SessionBindingListener)
-			{
-				SessionBindingEvent event = new MySessionBindingEvent(name, this, value);
-				((SessionBindingListener) value).valueUnbound(event);
-			}
-
-			// also unbind any objects that are regular HttpSessionBindingListeners
-			if (value instanceof HttpSessionBindingListener)
-			{
-				HttpSessionBindingEvent event = new HttpSessionBindingEvent(this, name, value);
-				((HttpSessionBindingListener) value).valueUnbound(event);
-			}
-		}
-
-		/**
-		 * Bind the value if it's a SessionBindingListener. Also does the HTTP binding if it's a HttpSessionBindingListener.
-		 * 
-		 * @param name
-		 *        The attribute name bound.
-		 * @param value
-		 *        The bond value.
-		 */
-		protected void bind(String name, Object value)
-		{
-			if (value instanceof SessionBindingListener)
-			{
-				SessionBindingEvent event = new MySessionBindingEvent(name, this, value);
-				((SessionBindingListener) value).valueBound(event);
-			}
-
-			// also bind any objects that are regular HttpSessionBindingListeners
-			if (value instanceof HttpSessionBindingListener)
-			{
-				HttpSessionBindingEvent event = new HttpSessionBindingEvent(this, name, value);
-				((HttpSessionBindingListener) value).valueBound(event);
-			}
-		}
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Entity: SessionBindingEvent
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	public class MySessionBindingEvent implements SessionBindingEvent
-	{
-		/** The attribute name. */
-		protected String m_name = null;
-
-		/** The session. */
-		protected Session m_session = null;
-
-		/** The value. */
-		protected Object m_value = null;
-
-		/**
-		 * Construct.
-		 * 
-		 * @param name
-		 *        The name.
-		 * @param session
-		 *        The session.
-		 * @param value
-		 *        The value.
-		 */
-		MySessionBindingEvent(String name, Session session, Object value)
-		{
-			m_name = name;
-			m_session = session;
-			m_value = value;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getName()
-		{
-			return m_name;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Session getSession()
-		{
-			return m_session;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Object getValue()
-		{
-			return m_value;
-		}
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Entity: ToolSession, ContextSession (and even HttpSession)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	public class MyLittleSession implements ToolSession, ContextSession, HttpSession
-	{
-		/** Hold attributes in a Map. TODO: ConcurrentHashMap may be better for multiple writers */
-		protected Map m_attributes = new ConcurrentHashMap();
-
-		/** The creation time of the session. */
-		protected long m_created = 0;
-
-		/** The session id. */
-		protected String m_id = null;
-
-		/** The tool placement / context id. */
-		protected String m_littleId = null;
-
-		/** The sakai session in which I live. */
-		protected Session m_session = null;
-
-		/** Time last accessed (via getSession()). */
-		protected long m_accessed = 0;
-
-		public MyLittleSession(Session s, String id)
-		{
-			m_id = idManager().createUuid();
-			m_created = System.currentTimeMillis();
-			m_accessed = m_created;
-			m_littleId = id;
-			m_session = s;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Object getAttribute(String name)
-		{
-			return m_attributes.get(name);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Enumeration getAttributeNames()
-		{
-			return new IteratorEnumeration(m_attributes.keySet().iterator());
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public long getCreationTime()
-		{
-			return m_created;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getId()
-		{
-			return m_id;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public long getLastAccessedTime()
-		{
-			return m_accessed;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getPlacementId()
-		{
-			return m_littleId;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getContextId()
-		{
-			return m_littleId;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void clearAttributes()
-		{
-			// move the attributes to a local map in a synchronized block so the unbinding happens only on one thread
-			Map unbindMap = null;
-			synchronized (this)
-			{
-				unbindMap = new HashMap(m_attributes);
-				m_attributes.clear();
-			}
-
-			// send unbind events
-			for (Iterator i = unbindMap.entrySet().iterator(); i.hasNext();)
-			{
-				Map.Entry e = (Map.Entry) i.next();
-				String name = (String) e.getKey();
-				Object value = e.getValue();
-				unBind(name, value);
-			}
-		}
-
-		/**
-		 * Mark the session as just accessed.
-		 */
-		protected void setAccessed()
-		{
-			m_accessed = System.currentTimeMillis();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void removeAttribute(String name)
-		{
-			// remove
-			Object value = m_attributes.remove(name);
-
-			// unbind event
-			unBind(name, value);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setAttribute(String name, Object value)
-		{
-			// treat a set to null as a remove
-			if (value == null)
-			{
-				removeAttribute(name);
-			}
-
-			else
-			{
-				// add
-				Object old = m_attributes.put(name, value);
-
-				// bind event
-				bind(name, value);
-
-				// unbind event if old exiss
-				if (old != null)
-				{
-					unBind(name, old);
-				}
-			}
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public boolean equals(Object obj)
-		{
-			if (!(obj instanceof ToolSession))
-			{
-				return false;
-			}
-
-			return ((ToolSession) obj).getId().equals(getId());
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public int hashCode()
-		{
-			return getId().hashCode();
-		}
-
-		/**
-		 * Unbind the value if it's a SessionBindingListener. Also does the HTTP unbinding if it's a HttpSessionBindingListener.
-		 * 
-		 * @param name
-		 *        The attribute name bound.
-		 * @param value
-		 *        The bond value.
-		 */
-		protected void unBind(String name, Object value)
-		{
-			if (value instanceof SessionBindingListener)
-			{
-				SessionBindingEvent event = new MySessionBindingEvent(name, null, value);
-				((SessionBindingListener) value).valueUnbound(event);
-			}
-
-			// also unbind any objects that are regular HttpSessionBindingListeners
-			if (value instanceof HttpSessionBindingListener)
-			{
-				HttpSessionBindingEvent event = new HttpSessionBindingEvent(this, name, value);
-				((HttpSessionBindingListener) value).valueUnbound(event);
-			}
-		}
-
-		/**
-		 * Bind the value if it's a SessionBindingListener. Also does the HTTP binding if it's a HttpSessionBindingListener.
-		 * 
-		 * @param name
-		 *        The attribute name bound.
-		 * @param value
-		 *        The bond value.
-		 */
-		protected void bind(String name, Object value)
-		{
-			if (value instanceof SessionBindingListener)
-			{
-				SessionBindingEvent event = new MySessionBindingEvent(name, m_session, value);
-				((SessionBindingListener) value).valueBound(event);
-			}
-
-			if (value instanceof HttpSessionBindingListener)
-			{
-				HttpSessionBindingEvent event = new HttpSessionBindingEvent(this, name, value);
-				((HttpSessionBindingListener) value).valueBound(event);
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getUserEid()
-		{
-			return m_session.getUserEid();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getUserId()
-		{
-			return m_session.getUserId();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public ServletContext getServletContext()
-		{
-			return (ServletContext) threadLocalManager().get(CURRENT_SERVLET_CONTEXT);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setMaxInactiveInterval(int arg0)
-		{
-			// TODO: just ignore this ?
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public int getMaxInactiveInterval()
-		{
-			return m_session.getMaxInactiveInterval();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public HttpSessionContext getSessionContext()
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Object getValue(String arg0)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String[] getValueNames()
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void putValue(String arg0, Object arg1)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void removeValue(String arg0)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void invalidate()
-		{
-			clearAttributes();
-			// TODO: cause to go away?
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public boolean isNew()
-		{
-			return false;
-		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -1245,23 +475,23 @@ public abstract class SessionComponent implements SessionManager
 			{
 				try
 				{
-					for (Iterator i = m_sessions.values().iterator(); i.hasNext();)
-					{
-						MySession s = (MySession) i.next();
-						if (M_log.isDebugEnabled()) M_log.debug("checking session " + s.getId());
-						if (s.isInactive())
-						{
-							if (M_log.isDebugEnabled()) M_log.debug("invalidating session " + s.getId());
-							s.invalidate();
+					for (Map.Entry<String, MutableLong> entry: expirationTimeSuggestionMap.entrySet()) {
+						if (entry.getValue().longValue() < System.currentTimeMillis()) {
+							MySession s = (MySession)m_sessions.get(entry.getKey());
+							if (M_log.isDebugEnabled()) M_log.debug("checking session " + s.getId());
+							if (s.isInactive())
+							{
+								if (M_log.isDebugEnabled()) M_log.debug("invalidating session " + s.getId());
+								synchronized(s) {
+									s.invalidate();
+								}
+							}
 						}
 					}
 				}
 				catch (Throwable e)
 				{
 					M_log.warn("run(): exception: " + e);
-				}
-				finally
-				{
 				}
 
 				// cycle every REFRESH seconds
@@ -1277,5 +507,13 @@ public abstract class SessionComponent implements SessionManager
 				}
 			}
 		}
+	}
+
+	public SessionAttributeListener getSessionListener() {
+		return sessionListener;
+	}
+
+	public void setSessionListener(SessionAttributeListener sessionListener) {
+		this.sessionListener = sessionListener;
 	}
 }
