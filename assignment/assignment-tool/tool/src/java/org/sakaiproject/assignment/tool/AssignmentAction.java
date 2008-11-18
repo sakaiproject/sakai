@@ -2818,7 +2818,7 @@ public class AssignmentAction extends PagedResourceActionII
 			GradebookService g = (GradebookService)  ComponentManager
 					.get("org.sakaiproject.service.gradebook.GradebookService");
 			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-			if (g.isGradebookDefined(gradebookUid))
+			if (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)))
 			{
 				rv = true;
 			}
