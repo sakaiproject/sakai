@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+<wicket:panel>	
+	
+
+	<div class="mainSection">
+		<div class="mainSectionHeading"><span wicket:id="heading">[Personal Information]</span></div>
+		
+		<div class="mainSectionContent">	
+
+			<form wicket:id="form" class="profileForm">
+				<!-- 
+				<div wicket:id="feedback"></div>
+				-->
+				
+				<table class="profileContent">
+					
+					<!-- favourite books -->
+					<tr wicket:id="booksContainer">
+						<td class="label" wicket:id="booksLabel">[booksLabel]</td>
+						<td class="content"><textarea wicket:id="favouriteBooks" class="formInputField" rows="4" cols="40">[favouriteBooks]</textarea></td>
+					</tr>
+					
+					<!-- favourite tv shows -->
+					<tr wicket:id="tvContainer">
+						<td class="label" wicket:id="tvLabel">[tvLabel]</td>
+						<td class="content"><textarea wicket:id="favouriteTvShows" class="formInputField" rows="4" cols="40">[favouriteTvShows]</textarea></td>
+					</tr>
+					
+					<!-- favourite movies -->
+					<tr wicket:id="moviesContainer">
+						<td class="label" wicket:id="moviesLabel">[moviesLabel]</td>
+						<td class="content"><textarea wicket:id="favouriteMovies" class="formInputField" rows="4" cols="40">[favouriteMovies]</textarea></td>
+					</tr>
+					
+					<!-- favourite quotes -->
+					<tr wicket:id="quotesContainer">
+						<td class="label" wicket:id="quotesLabel">[quotesLabel]</td>
+						<td class="content"><textarea wicket:id="favouriteQuotes" class="formInputField" rows="4" cols="40">[favouriteQuotes]</textarea></td>
+					</tr>
+					
+				</table>
+				
+				<input type="submit" wicket:id="submit" value="Save changes" />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type="button" wicket:id="cancel" value="Cancel"/>
+				
+			</form>	
+		</div>
+	</div>
+	
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

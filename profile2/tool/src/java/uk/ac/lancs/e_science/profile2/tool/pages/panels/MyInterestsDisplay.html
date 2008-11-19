@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+<wicket:panel>	
+	
+	
+	<div class="mainSection editable">
+		<div class="mainSectionHeading"><span wicket:id="heading">[Personal Information]</span></div>
+		
+		<a href="#" wicket:id="editButton" class="editButton">edit</a>
+		
+		<div class="mainSectionContent">
+				
+			<!--  message if no fields filled in -->	
+			<span wicket:id="noFieldsMessage" class="instruction">No fields</span>
+			
+			<table class="profileContent">
+		
+				<!-- favourite books -->
+				<tr wicket:id="booksContainer">
+					<td class="label" wicket:id="booksLabel">[booksLabel]</td>
+					<td class="content" wicket:id="favouriteBooks">[favouriteBooks]</td>
+				</tr>
+				
+				<!-- favourite tv shows -->
+				<tr wicket:id="tvContainer">
+					<td class="label" wicket:id="tvLabel">[tvLabel]</td>
+					<td class="content" wicket:id="favouriteTvShows">[favouriteTvShows]</td>
+				</tr>
+				
+				<!-- favourite movies -->
+				<tr wicket:id="moviesContainer">
+					<td class="label" wicket:id="moviesLabel">[moviesLabel]</td>
+					<td class="content" wicket:id="favouriteMovies">[favouriteMovies]</td>
+				</tr>
+				
+				<!-- favourite quotes -->
+				<tr wicket:id="quotesContainer">
+					<td class="label" wicket:id="quotesLabel">[quotesLabel]</td>
+					<td class="content" wicket:id="favouriteQuotes">[favouriteQuotes]</td>
+				</tr>
+				
+							
+			</table>
+		
+		</div>
+	</div>
+	
+	<!-- panel specific Javascript -->
+	<script type="text/javascript">
+		//show the edit button when hovering over an editable section
+		$(document).ready(function(){ 
+			$(".editable").hover(
+				function () {
+					$(this).children(".editButton").show();
+				}, 
+				function () {
+					$(this).children(".editButton").hide();
+				}
+			);
+		});
+	</script>
+	
+			
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+
