@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>Profile2 HBM</name>
+	<groupId>uk.ac.lancs.e_science</groupId>
+	<artifactId>sakai-profile2-hbm</artifactId>
+	<url></url>
+	<description></description>
+
+	<packaging>jar</packaging>
+	<version>${tool.version}</version>
+	<properties>
+    	<deploy.target>shared</deploy.target>
+  	</properties>
+	
+	<parent>
+		<groupId>uk.ac.lancs.e_science</groupId>
+		<artifactId>profile2-base</artifactId>
+	    <version>${tool.version}</version>
+	    <relativePath>../pom.xml</relativePath>
+	</parent>
+	
+	<dependencies>
+		
+		<!--  internal dependency -->
+		<dependency>
+			<groupId>uk.ac.lancs.e_science</groupId>
+			<artifactId>sakai-profile2-api</artifactId>
+			<version>${tool.version}</version>
+		</dependency>
+		
+		<!--  logging dependency -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		
+	</dependencies>
+	
+	
+  
+	<build>
+		<resources>
+			<resource>
+				<directory>src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+</project>
+
+
+

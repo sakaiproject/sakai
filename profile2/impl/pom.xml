@@ -28,6 +28,12 @@
 			<version>${tool.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>uk.ac.lancs.e_science</groupId>
+			<artifactId>sakai-profile2-hbm</artifactId>
+			<version>${tool.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<!--  Sakai dependencies -->
 		<dependency>
@@ -100,7 +106,18 @@
 			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-  	
+		
+		<dependency>
+      		<groupId>${sakai.hibernate.groupId}</groupId>
+      		<artifactId>${sakai.hibernate.artifactId}</artifactId>
+      		<version>${sakai.hibernate.version}</version>
+    	</dependency>
+    	<dependency>
+      		<groupId>${sakai.spring.groupId}</groupId>
+      		<artifactId>${sakai.spring.artifactId}</artifactId>
+      		<version>${sakai.spring.version}</version>
+    	</dependency>
+    	 	
     	
     	<!--  logging dependency -->
 		<dependency>
@@ -111,7 +128,7 @@
   	
   	</dependencies>
 
-	<build/>
+	
 	
 </project>
 

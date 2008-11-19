@@ -7,12 +7,20 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-
-import org.apache.log4j.Logger;
+import java.util.List;
 
 import javax.swing.ImageIcon;
+
+import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 
@@ -20,13 +28,11 @@ import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 
-
-public class ProfileImpl implements Profile {
+public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	private transient Logger log = Logger.getLogger(ProfileImpl.class);
-
-	public ProfileImpl() {
-	}
+	private static final String QUERY_GET_FRIENDS_FOR_USER = "getFriendsForUser";
+	
 
 	public String getUserStatus(String userId) {
 		return "this is my status";
@@ -35,7 +41,6 @@ public class ProfileImpl implements Profile {
 	public String getUserStatusLastUpdated(String userId) {
 		return "on Monday";
 	}
-	
 	
 	public boolean checkContentTypeForProfileImage(String contentType) {
 		
@@ -121,7 +126,34 @@ public class ProfileImpl implements Profile {
 		String dateStr = "";
 		return dateStr;
 	}
+	
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser()
+	 */
+	public List getFriendsForUser(final String userId, boolean confirmed) {
+		if(userId == null){
+	  		throw new IllegalArgumentException("Null Argument in getFriendsForUser");
+	  	}
+		List resultsList = new ArrayList(); 
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIENDS_FOR_USER);
+	  			q.setParameter("userUuid", userId, Hibernate.STRING);
+	  			//q.setParameter("friendUuid", userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	resultsList = (List) getHibernateTemplate().executeFind(hcb);
+	  	
+	  	return resultsList;
 
+	}
+
+	
+	
 	
 	/*	
 	

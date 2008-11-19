@@ -46,7 +46,10 @@ public class ChangeProfilePicture extends Panel{
 		
 		//get Profile API
 		profile = ProfileApplication.get().getProfile();
-        
+		
+		System.out.println("---" + profile.getFriendsForUser("1", false).toString());
+
+		        
         //setup form	
 		Form form = new Form("form", userProfileModel) {
 			public void onSubmit(){
