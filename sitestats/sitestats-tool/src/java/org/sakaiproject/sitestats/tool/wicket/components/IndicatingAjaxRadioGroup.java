@@ -1,8 +1,10 @@
 package org.sakaiproject.sitestats.tool.wicket.components;
 
+import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.WicketAjaxIndicatorAppender;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.model.IModel;
@@ -10,34 +12,37 @@ import org.apache.wicket.model.IModel;
 
 public abstract class IndicatingAjaxRadioGroup extends RadioGroup implements IAjaxIndicatorAware {
 	private static final long						serialVersionUID	= 1L;
-	private AjaxFormChoiceComponentUpdatingBehavior	ajaxUpdatingBehavior;
+	private AbstractAjaxBehavior					ajaxUpdatingBehavior;
 	private Object 									forModelObjectOnly;
 	private WicketAjaxIndicatorAppender				indicatorAppender  	= new WicketAjaxIndicatorAppender();;
 
 	public IndicatingAjaxRadioGroup(final String id) {
-		this(id, null, null);
+		this(id, null, null, false);
 	}
 
-	public IndicatingAjaxRadioGroup(final String id, final Object forModelObjectOnly) {
-		this(id, null, forModelObjectOnly);
+	public IndicatingAjaxRadioGroup(final String id, final Object forModelObjectOnly, final boolean lazyLoadData) {
+		this(id, null, forModelObjectOnly, lazyLoadData);
 	}
 	
-	public IndicatingAjaxRadioGroup(final String id, final IModel model, final Object forModelObjectOnly) {
+	public IndicatingAjaxRadioGroup(final String id, final IModel model, final Object forModelObjectOnly, final boolean lazyLoadData) {
 		super(id, model);
-		setOutputMarkupId(true);
-		this.forModelObjectOnly = forModelObjectOnly;
-		add(indicatorAppender);
-		ajaxUpdatingBehavior = new AjaxFormChoiceComponentUpdatingBehavior() {
-			private static final long	serialVersionUID	= 1L;
-
-			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				if(forModelObjectOnly != null && forModelObjectOnly.equals(getModelObject())) {
-					IndicatingAjaxRadioGroup.this.onUpdate(target);
+		setOutputMarkupId(true);	
+		
+		if(lazyLoadData) {
+			this.forModelObjectOnly = forModelObjectOnly;
+			add(indicatorAppender);	
+			ajaxUpdatingBehavior = new AjaxFormChoiceComponentUpdatingBehavior() {
+				private static final long	serialVersionUID	= 1L;
+	
+				@Override
+				protected void onUpdate(AjaxRequestTarget target) {
+					if(forModelObjectOnly != null && forModelObjectOnly.equals(getModelObject())) {
+						IndicatingAjaxRadioGroup.this.onUpdate(target);
+					}
 				}
-			}
-		};
-		add(ajaxUpdatingBehavior);
+			};
+			add(ajaxUpdatingBehavior);
+		}
 	}
 
 	public void removeAjaxUpdatingBehavior() {

@@ -14,9 +14,14 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.WicketRuntimeException;
+import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.datetime.StyleDateConverter;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.markup.html.form.select.IOptionRenderer;
@@ -43,6 +48,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.convert.ConversionException;
+import org.apache.wicket.util.string.Strings;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -84,7 +90,7 @@ public class ReportsPage extends BasePage {
 	private String					siteTitle;
 	private boolean					visitsEnabled	= true;
 	private FeedbackPanel			feedback		= null;
-
+	
 	/** Report related */
 	private ReportParams			reportParams	= null;
 	private PrefsData				prefsdata		= null;
@@ -287,30 +293,28 @@ public class ReportsPage extends BasePage {
 		// users (part 1)
 		final RepeatingView selectOptionsRV = new RepeatingView("selectOptionsRV");
 		selectOptionsRV.setRenderBodyOnly(true);
-		final Select whoUserIds = new Select("reportParams.whoUserIds", new PropertyModel(this, "whoUserIds"));
-		//final Select whoUserIds = new Select("reportParams.whoUserIds");
+		final Select whoUserIds = new MultipleSelect("reportParams.whoUserIds");
 		final Radio whoCustom = new Radio("who-custom", new Model("who-custom"));
 		
 		// left radio selectors
-		RadioGroup who = null;
-		if(!ReportManager.WHO_CUSTOM.equals(reportParams.getWho())) {
-			who = new IndicatingAjaxRadioGroup("reportParams.who", ReportManager.WHO_CUSTOM) {
-				@Override
-				protected void onUpdate(AjaxRequestTarget target) {
-					removeAjaxUpdatingBehavior();
-					addUsers(selectOptionsRV);
-					whoUserIds.setEnabled(true);
-					whoUserIds.setVisible(true);
-					target.addComponent(this);
-					target.addComponent(whoUserIds);
-				}
-			};
-			whoUserIds.setEnabled(false);			
-		}else{
-			who = new RadioGroup("reportParams.who");
+		boolean preloadData = ReportManager.WHO_CUSTOM.equals(reportParams.getWho());
+		final RadioGroup who = new IndicatingAjaxRadioGroup("reportParams.who", ReportManager.WHO_CUSTOM, !preloadData) {
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				removeAjaxUpdatingBehavior();
+				addUsers(selectOptionsRV);
+				whoUserIds.setEnabled(true);
+				whoUserIds.setVisible(true);
+				target.addComponent(this);
+				target.appendJavascript("setMainFrameHeightNoScroll(window.name);");
+			}
+		};
+		who.setOutputMarkupId(true);
+		whoUserIds.setEnabled(preloadData);
+		whoUserIds.setOutputMarkupPlaceholderTag(true);
+		whoUserIds.setVisible(preloadData);
+		if(preloadData) {
 			addUsers(selectOptionsRV);
-			whoUserIds.setEnabled(true);
-			whoUserIds.setVisible(true);
 		}
 		form.add(who);
 		who.add(new Radio("who-all", new Model("who-all")));
@@ -417,6 +421,7 @@ public class ReportsPage extends BasePage {
 			}
 		}		
 		WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
+		optgroupItem.setRenderBodyOnly(true);
 		rv.add(optgroupItem);
 		IOptionRenderer optionRenderer = new IOptionRenderer() {
 			public String getDisplayValue(Object object) {
@@ -451,6 +456,7 @@ public class ReportsPage extends BasePage {
 					events.add(opt);
 				}
 				WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
+				optgroupItem.setRenderBodyOnly(true);
 				rv.add(optgroupItem);
 				SelectOptionsGroup group = new SelectOptionsGroup("group", new Model(toolInfo.getToolName()));
 				optgroupItem.add(group);
@@ -501,6 +507,7 @@ public class ReportsPage extends BasePage {
 				}
 			}		
 			WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
+			optgroupItem.setRenderBodyOnly(true);
 			rv.add(optgroupItem);
 			IOptionRenderer optionRenderer = new IOptionRenderer() {
 				public String getDisplayValue(Object object) {
@@ -536,6 +543,16 @@ public class ReportsPage extends BasePage {
 		}finally{
 			ajaxUpdateLock.unlock();
 		}
+	}
+	
+	@SuppressWarnings("serial")
+	private void addNoUsers(final RepeatingView rv) {
+		WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
+		optgroupItem.setRenderBodyOnly(true);
+		rv.add(optgroupItem);
+		SelectOptions selectOptions = new SelectOptions("selectOptions", new ArrayList<SelectOption>(), null);
+		selectOptions.setRenderBodyOnly(true);
+		optgroupItem.add(selectOptions);
 	}
 	
 	private boolean isToolSuported(final ToolInfo toolInfo) {
@@ -659,21 +676,70 @@ public class ReportsPage extends BasePage {
 		return reportParams;
 	}
 	
-	public Collection<String> getWhoUserIds() {
-		return getReportParams().getWhoUserIds();
-	}
-	
-	public void setWhoUserIds(Collection<Object> os) {
-		if(os != null) {
-			List<String> users = new ArrayList<String>();
-			Iterator<Object> i = os.iterator();
-			while(i.hasNext()) {
-				Object o = i.next();
-				if(o instanceof String) {
-					users.add((String) o);
-				}				
+	/** Subclass of Select that fixes behavior when used with AjaxFormChoiceComponentUpdatingBehavior.*/
+	class MultipleSelect extends Select {
+		private static final long	serialVersionUID	= 1L;
+		
+		public MultipleSelect(String id) {
+			super(id);
+		}
+
+		@Override
+		public void updateModel() {
+			Object converted = getConvertedInput();
+			Collection modelCollection = new ArrayList();
+			modelChanging();
+			if(converted != null){
+				modelCollection.addAll((Collection) converted);
 			}
-			getReportParams().setWhoUserIds(users);
+			modelChanged();
+			getModel().setObject(modelCollection);
+			
+		}
+		
+		@Override
+		protected void convertInput() {
+			String[] paths = getInputAsArray();
+
+			// nothing selected
+			if(paths == null || paths.length == 0){
+				setConvertedInput(null);
+				return;
+			}
+
+			// convert
+			List converted = new ArrayList(paths.length);
+			for(int i = 0; i < paths.length; i++){
+				String path = paths[i];
+				if(!Strings.isEmpty(path)){
+					/*
+					 * option component path sans select component path =
+					 * relative path from group to option since we know the
+					 * option is child of select
+					 */
+					path = path.substring(getPath().length() + 1);
+
+					// retrieve the selected option component
+					SelectOption option = (SelectOption) get(path);
+
+					if(option == null){
+						throw new WicketRuntimeException(
+								"submitted http post value ["
+										+ paths.toString()
+										+ "] for SelectOption component ["
+										+ getPath()
+										+ "] contains an illegal relative path element ["
+										+ path
+										+ "] which does not point to an SelectOption component. Due to this the Select component cannot resolve the selected SelectOption component pointed to by the illegal value. A possible reason is that component hierarchy changed between rendering and form submission.");
+					}
+					converted.add(option.getModelObject());
+				}
+			}
+			if(converted.isEmpty()){
+				setConvertedInput(null);
+			}else{
+				setConvertedInput(converted);
+			}
 		}
 	}
 }
