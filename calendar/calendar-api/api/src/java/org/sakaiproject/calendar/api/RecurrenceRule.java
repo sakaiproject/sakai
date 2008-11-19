@@ -68,10 +68,16 @@ public interface RecurrenceRule
 
 
 	/**
-	 * Access a short text describing the rule's frequency.
+	 * Return localized short text describing the rule's frequency.
 	 * @return A frequency description.
 	 */
 	String getFrequencyDescription();
+
+	/**
+	 * Return string constant describe this rule's frequency
+	 * @return A frequency string constant
+	 */
+	String getFrequency();
 
 	/**
 	 * Access the end time for recurring events.

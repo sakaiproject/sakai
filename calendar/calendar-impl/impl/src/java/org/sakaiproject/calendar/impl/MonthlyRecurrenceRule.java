@@ -112,6 +112,14 @@ public class MonthlyRecurrenceRule extends RecurrenceRuleBase
 	{
 		return rb.getString("set.months");
 	}
+   
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getFrequency()
+	{
+		return FREQ;
+	}
 }
 
 

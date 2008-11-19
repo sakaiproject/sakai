@@ -115,7 +115,15 @@ public class DailyRecurrenceRule extends RecurrenceRuleBase
 		return rb.getString("set.days");
 	}
 
-}	// excludeInstances
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getFrequency()
+	{
+		return FREQ;
+	}
+
+}	
 
 
 

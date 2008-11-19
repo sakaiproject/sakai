@@ -112,6 +112,14 @@ public class YearlyRecurrenceRule extends RecurrenceRuleBase
 		return rb.getString("set.years");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getFrequency()
+	{
+		return FREQ;
+	}
+
 }
 
 

@@ -188,6 +188,14 @@ public class ExclusionSeqRecurrenceRule
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getFrequency()
+	{
+		return "xx";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Time getUntil()
 	{
 		return null;

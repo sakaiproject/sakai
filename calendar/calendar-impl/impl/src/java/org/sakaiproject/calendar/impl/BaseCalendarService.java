@@ -5152,7 +5152,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				if ( count == 0 ) {
 					rv[3] = Integer.MAX_VALUE-1; // hours since epoch, this represnts 9 Oct 246953 07:00:00
  				} else {
-					String frequency = rr.getFrequencyDescription();
+					String frequency = rr.getFrequency();
 					GregorianCalendar c = new GregorianCalendar();
 					c.setTimeInMillis(endevent);
 					c.add(rr.getRecurrenceType(), count*interval);

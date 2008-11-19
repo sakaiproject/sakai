@@ -153,8 +153,8 @@ extends VelocityPortletStateAction
 	private static final String STATE_SET_FREQUENCY = "setFrequency";
 	private static final String FREQUENCY_SELECT = "frequencySelect";
 	private static final String TEMP_FREQ_SELECT = "tempFrequencySelect";
-	private static final String DEFAULT_FREQ = "once";
 	private static final String FREQ_ONCE = "once";
+	private static final String DEFAULT_FREQ = FREQ_ONCE;
 	
 	private static final String SSTATE__RECURRING_RULE = "rule";
 	private static final String STATE_BEFORE_SET_RECURRENCE = "state_before_set_recurrence";
@@ -2657,7 +2657,7 @@ extends VelocityPortletStateAction
 		{
 			if (rule != null)
 			{
-				freq = rule.getFrequencyDescription();
+				freq = rule.getFrequency();
 				context.put("rule", rule);
 			}
 		}
