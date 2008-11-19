@@ -5,6 +5,7 @@ import org.sakaiproject.tool.gradebook.ui.helpers.producers.*;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookItemViewParams;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.GradeGradebookItemViewParams;
 
+import uk.org.ponder.rsf.builtin.UVBProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 public class LocalPermissionLogic {
@@ -29,6 +30,8 @@ public class LocalPermissionLogic {
 		} else if (FinishedHelperProducer.VIEW_ID.equals(incoming.viewID)) {
 			return Boolean.TRUE;
 			
+		} else if (UVBProducer.VIEW_ID.equals(incoming.viewID)) {
+		    return Boolean.TRUE;
 		}
 		
 		return Boolean.FALSE;
