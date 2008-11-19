@@ -3,6 +3,8 @@ package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -52,6 +54,11 @@ public class GradeGradebookItemProducer extends HelperAwareProducer implements V
         this.gradebookService = gradebookService;
     }
     
+    private HttpServletResponse httpServletResponse;
+    public void setHttpServletResponse(HttpServletResponse httpServletResponse) {
+        this.httpServletResponse = httpServletResponse;
+    }
+    
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
     	GradeGradebookItemViewParams params = (GradeGradebookItemViewParams) viewparams;
 
@@ -59,6 +66,12 @@ public class GradeGradebookItemProducer extends HelperAwareProducer implements V
     		//DO something
     		return;
     	}
+    	
+    	// Firefox absolutely completely refuses to not cache this page for some reason.
+    	// Even with the meta's in the HTML.  -SWG  ASNN-293
+    	httpServletResponse.setHeader("Pragma", "no-cache");
+    	httpServletResponse.setHeader("Cache-Control", "no-cache");
+    	httpServletResponse.setDateHeader("Expires", 0 );
     	
     	if (!gradebookService.isUserAbleToGradeItemForStudent(params.contextId, params.assignmentId, params.userId)) {
     	    UIMessage.make(tofill, "permissions_error", "gradebook.authorizationFailed.permissions_error");

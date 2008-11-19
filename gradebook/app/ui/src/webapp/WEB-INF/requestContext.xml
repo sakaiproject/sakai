@@ -16,6 +16,7 @@
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="httpServletResponse" ref="httpServletResponse" />
 	</bean>
 	
 	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.AuthorizationFailedProducer" />
