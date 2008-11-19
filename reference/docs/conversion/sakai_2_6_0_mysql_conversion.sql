@@ -344,3 +344,62 @@ from
 -- clean up the temp tables
 drop table PERMISSIONS_TEMP;
 drop table PERMISSIONS_SRC_TEMP;
+
+--- Tables added for SAK-12912:Add optional ability to prompt for questions during site creation
+
+    create table SSQ_ANSWER (
+        ID varchar(99) not null,
+        ANSWER varchar(255),
+        ANSWER_STRING varchar(255),
+        FILL_IN_BLANK bit,
+        ORDER_NUM integer,
+        QUESTION_ID bigint,
+        primary key (ID)
+    );
+
+    create table SSQ_QUESTION (
+        ID varchar(99) not null,
+        QUESTION varchar(255),
+        REQUIRED bit,
+        MULTIPLE_ANSWERS bit,
+        ORDER_NUM integer,
+        IS_CURRENT varchar(255),
+        SITETYPE_ID bigint,
+        primary key (ID)
+    ) comment='This table stores site setup questions';
+
+    create table SSQ_SITETYPE_QUESTIONS (
+        ID varchar(99) not null,
+        SITE_TYPE varchar(255),
+        INSTRUCTION varchar(255),
+        URL varchar(255),
+        URL_LABEL varchar(255),
+        URL_Target varchar(255),
+        primary key (ID)
+    );
+
+    create table SSQ_USER_ANSWER (
+        ID varchar(99) not null,
+        SITE_ID varchar(255),
+        USER_ID varchar(255),
+        ANSWER_STRING varchar(255),
+        ANSWER_ID varchar(255),
+        QUESTION_ID varchar(255),
+        primary key (ID)
+    );
+
+    create index SSQ_ANSWER_QUESTION_I on SSQ_ANSWER (QUESTION_ID);
+
+    alter table SSQ_ANSWER 
+        add index FK390C0DCC6B21AFB4 (QUESTION_ID), 
+        add constraint FK390C0DCC6B21AFB4 
+        foreign key (QUESTION_ID) 
+        references SSQ_QUESTION (ID);
+
+    create index SSQ_QUESTION_SITETYPE_I on SSQ_QUESTION (SITETYPE_ID);
+
+    alter table SSQ_QUESTION 
+        add index FKFE88BA7443AD4C69 (SITETYPE_ID), 
+        add constraint FKFE88BA7443AD4C69 
+        foreign key (SITETYPE_ID) 
+        references SSQ_SITETYPE_QUESTIONS (ID);
