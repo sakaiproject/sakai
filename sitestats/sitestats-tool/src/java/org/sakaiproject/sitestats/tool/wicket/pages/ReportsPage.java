@@ -33,7 +33,9 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.Check;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -179,6 +181,7 @@ public class ReportsPage extends BasePage {
 		renderWhatUI(form);
 		renderWhenUI(form);
 		renderWhoUI(form);
+		renderHowUI(form);
 		
 		// buttons
 		Button generateReport = new Button("generateReport") {
@@ -407,6 +410,19 @@ public class ReportsPage extends BasePage {
 		}
 		whoGroupTr.add(whoGroupId);
 	}
+
+	@SuppressWarnings("serial")
+	private void renderHowUI(Form form) {
+		CheckGroup howTotalsBy = new CheckGroup("reportParams.howTotalsBy");
+		form.add(howTotalsBy);
+		howTotalsBy.add(new Check("user", new Model(StatsManager.T_USER)));
+		howTotalsBy.add(new Check("event", new Model(StatsManager.T_EVENT)));
+		howTotalsBy.add(new Check("resource", new Model(StatsManager.T_RESOURCE)));
+		howTotalsBy.add(new Check("resource-action", new Model(StatsManager.T_RESOURCE_ACTION)));
+		howTotalsBy.add(new Check("date", new Model(StatsManager.T_DATE)));
+		howTotalsBy.add(new Check("last-date", new Model(StatsManager.T_LASTDATE)));
+	}
+	
 	
 	@SuppressWarnings("serial")
 	private void addTools(final RepeatingView rv) {

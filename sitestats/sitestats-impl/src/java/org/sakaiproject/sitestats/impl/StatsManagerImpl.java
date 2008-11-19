@@ -868,8 +868,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			boolean sortAscending) {
 		
 		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
-		//final String hql = buildEventStatsHql(siteId, events, anonymousEvents, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
-		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_EVENT, null, siteId, 
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_EVENT, totalsBy, siteId, 
 				events, anonymousEvents, showAnonymousAccessEvents, null, null, 
 				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
 		final String hql = sqlBuilder.getHQL();
@@ -1012,72 +1011,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 		};
 		return (Integer) getHibernateTemplate().execute(hcb);
-	}
-	
-	@Deprecated private String buildEventStatsHql(
-			final String siteId,
-			final List<String> events, 
-			final List<String> anonymousEvents,
-			final Date iDate, final Date fDate,
-			final List<String> userIds,
-			final boolean inverseUserSelection,
-			final boolean countOnly,
-			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
-		
-		StringBuilder _hql = new StringBuilder();
-		
-		// SELECT 
-		if(!inverseUserSelection) {
-			_hql.append("select s.siteId as site, ");
-			if(anonymousEvents != null && anonymousEvents.size() > 0) {
-				_hql.append("case when s.eventId not in (:anonymousEvents) then s.userId else '-' end as user, ");
-			}else{
-				_hql.append("s.userId as user, ");
-			}
-			_hql.append("s.eventId as ref, sum(s.count) as total, max(s.date) as date ");
-		}else{
-			if(anonymousEvents != null && anonymousEvents.size() > 0) {
-				_hql.append("select distinct(case when s.eventId not in (:anonymousEvents) then s.userId else '-' end) as user ");
-			}else{
-				_hql.append("select distinct s.userId as user ");
-			}
-		}
-		
-		// FROM
-		_hql.append("from EventStatImpl as s ");
-		
-		// WHERE
-		_hql.append("where s.siteId = :siteid and s.eventId in (:events) ");
-		if(userIds != null && !userIds.isEmpty()) {
-			_hql.append("and s.userId in (:users) ");
-		}
-		if(iDate != null) {
-			_hql.append("and s.date >= :idate ");
-		}
-		if(fDate != null) {
-			_hql.append("and s.date < :fdate ");
-		}
-		if(!showAnonymousAccessEvents) {
-			_hql.append(" and s.userId != '?' ");
-		}
-		
-		// GROUP BY
-		if(groupBy == null) {
-			_hql.append("group by s.siteId, s.userId, s.eventId ");
-		}else{
-			_hql.append(groupBy);
-			_hql.append(' ');
-		}
-		
-		// ORDER BY
-		if(sortBy != null) {
-			_hql.append("order by ");
-			_hql.append(sortBy);
-			_hql.append(sortAscending? "ASC" : "DESC");
-			_hql.append(' ');
-		}
-		
-		return _hql.toString();
 	}
 
 	
@@ -1248,7 +1181,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final String sortBy, 
 			final boolean sortAscending) {
 		
-		//final String hql = buildResourceStatsHql(siteId, resourceAction, resourceIds, iDate, fDate, userIds, inverseUserSelection, false, page, groupBy, sortBy, sortAscending);
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_RESOURCE, totalsBy, 
 				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
 				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
@@ -1391,69 +1323,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 		};
 		return (Integer) getHibernateTemplate().execute(hcb);		
-	}
-	
-	@Deprecated private String buildResourceStatsHql(
-			final String siteId,
-			final String resourceAction, final List<String> resourceIds,
-			final Date iDate, final Date fDate,
-			final List<String> userIds,
-			final boolean inverseUserSelection,
-			final boolean countOnly,
-			final PagingPosition page, final String groupBy, final String sortBy, boolean sortAscending) {
-				
-		StringBuilder _hql = new StringBuilder();
-		
-		// SELECT 
-		if(!inverseUserSelection) {
-			_hql.append("select s.siteId as site, s.userId as user, ");
-			_hql.append("s.resourceRef, s.resourceAction, sum(s.count) as total, max(s.date) as date ");
-		}else{
-			_hql.append("select distinct s.userId as user ");
-		}
-		
-		// FROM
-		_hql.append("from ResourceStatImpl as s ");
-		
-		// WHERE
-		_hql.append("where s.siteId = :siteid ");
-		if(resourceAction != null) {
-			_hql.append("and s.resourceAction = :action ");
-		}
-		if(resourceIds != null && !resourceIds.isEmpty()) {
-			_hql.append("and s.resourceRef in (:resources) ");
-		}
-		if(userIds != null && !userIds.isEmpty()) {
-			_hql.append("and s.userId in (:users) ");
-		}
-		if(iDate != null) {
-			_hql.append("and s.date >= :idate ");
-		}
-		if(fDate != null) {
-			_hql.append("and s.date < :fdate ");
-		}
-		if(!showAnonymousAccessEvents) {
-			_hql.append(" and s.userId != '?' ");
-		}
-		
-		// GROUP BY
-		if(groupBy == null) {
-			_hql.append("group by s.siteId, s.userId, s.resourceRef, s.resourceAction ");
-		}else{
-			_hql.append("group by ");
-			_hql.append(groupBy);
-			_hql.append(' ');
-		}
-		
-		// ORDER BY
-		if(sortBy != null) {
-			_hql.append("order by ");
-			_hql.append(sortBy);
-			_hql.append(sortAscending? "ASC" : "DESC");
-			_hql.append(' ');
-		}
-		
-		return _hql.toString();
 	}
 	
 	

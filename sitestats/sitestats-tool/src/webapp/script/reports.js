@@ -76,3 +76,23 @@ function checkWhoSelection() {
 	}
 	setMainFrameHeightNoScroll(window.name);
 }
+
+function checkHowSelection() {
+	var resourcesRadio = jQuery('.what-resources');
+	if(resourcesRadio.attr('checked')) {
+		// resources selected
+		jQuery('.howTotalsByEvent').removeAttr('checked');
+		
+		jQuery('.howTotalsByEvent').attr('disabled','disabled');
+		jQuery('.howTotalsByResource').removeAttr('disabled');
+		jQuery('.howTotalsByResourceAction').removeAttr('disabled');
+	}else{
+		// visits/tools/events selected
+		jQuery('.howTotalsByResource').removeAttr('checked');
+		jQuery('.howTotalsByResourceAction').removeAttr('checked');
+
+		jQuery('.howTotalsByEvent').removeAttr('disabled');
+		jQuery('.howTotalsByResource').attr('disabled','disabled');
+		jQuery('.howTotalsByResourceAction').attr('disabled','disabled');
+	}
+}

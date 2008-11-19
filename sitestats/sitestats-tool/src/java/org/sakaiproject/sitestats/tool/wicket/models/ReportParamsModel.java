@@ -267,16 +267,15 @@ public class ReportParamsModel extends Model implements ReportParams {
 	 * @see org.sakaiproject.sitestats.api.report.ReportParams#setHowTotalsBy(java.util.List)
 	 */
 	public void setHowTotalsBy(List<String> totalsBy) {
-		//this.howTotalsBy = totalsBy;
-		this.howTotalsBy = howTotalsBy;
+		this.howTotalsBy = totalsBy;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.report.ReportParams#getHowTotalsBy()
 	 */
 	public List<String> getHowTotalsBy() {
-		//return howTotalsBy;
-		return fixedHowTotalsBy(howTotalsBy);
+		howTotalsBy = fixedHowTotalsBy(howTotalsBy);
+		return howTotalsBy;
 	}
 	
 	private List<String> fixedHowTotalsBy(List<String> list) {
