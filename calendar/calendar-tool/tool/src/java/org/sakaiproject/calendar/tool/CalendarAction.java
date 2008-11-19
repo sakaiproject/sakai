@@ -4798,9 +4798,9 @@ extends VelocityPortletStateAction
 			String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 			Collection groupChoice = (Collection) sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS);
 			
-			
-			if ( (scheduleTo != null && scheduleTo.equals("site")) || 
-				  (scheduleTo.equals("groups") && ((groupChoice != null) || (groupChoice.size()>0))))
+			if ( scheduleTo != null && 
+				  ( scheduleTo.equals("site") || 
+					 (scheduleTo.equals("groups") && groupChoice!=null && groupChoice.size()>0) ) )
 			{
 				for ( int i =0; i < wizardCandidateEventList.size(); i++ )
 				{
@@ -6711,15 +6711,10 @@ extends VelocityPortletStateAction
 				index = i;
 		}
 		
-		CalendarEvent ce = null;
-		
-		if (direction.equals(STATE_PREV_ACT))
+		// navigate to the previous activity
+		if (direction.equals(STATE_PREV_ACT) && index > 0) 
 		{
-			// navigate to the previous activity
-			if (index > 0) 
-			{
-				 ce = (CalendarEvent) events.get(index-1);
-			}
+			CalendarEvent ce = (CalendarEvent) events.get(--index);
 			Reference ref = EntityManager.newReference(ce.getReference());
 			eventId = ref.getId();
 			String calId = null;
@@ -6730,15 +6725,11 @@ extends VelocityPortletStateAction
 			
 			state.setCalendarEventId(calId, eventId);
 			state.setAttachments(null);
-			index--;
 		}
-		else if (direction.equals(STATE_NEXT_ACT))
+		// navigate to the next activity
+		else if (direction.equals(STATE_NEXT_ACT) && index < size-1) 
 		{
-			// navigate to the next activity
-			if (index < size-1) 
-			{
-				ce = (CalendarEvent) events.get(index+1);
-			}
+			CalendarEvent ce = (CalendarEvent) events.get(++index);
 			Reference ref = EntityManager.newReference(ce.getReference());
 			eventId = ref.getId();
 			String calId = null;
@@ -6749,7 +6740,6 @@ extends VelocityPortletStateAction
 			
 			state.setCalendarEventId(calId, eventId);
 			state.setAttachments(null);
-			index++;
 		}
 		
 		if (index > 0)
@@ -7942,7 +7932,7 @@ extends VelocityPortletStateAction
 				rule = CalendarService.newRecurrence(freq, intInterval, intCount);
 			}
 			sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, rule);
-		} // if (freq.equals(FREQ_ONCE))
+		}
 		
 	}	 // doSavefrequency
 	

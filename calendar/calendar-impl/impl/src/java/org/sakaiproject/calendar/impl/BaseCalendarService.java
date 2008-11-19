@@ -3713,8 +3713,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 							{
 								Element ruleChildElement = (Element) ruleChildNode;
 
-								// look for a rule
-								if (ruleChildElement.getTagName().equals("rule"))
+								// look for a rule or exclusion rule
+								if (ruleChildElement.getTagName().equals("rule") || ruleChildElement.getTagName().equals("ex-rule"))
 								{
 									// get the rule name - modern style encoding
 									String ruleName = StringUtil.trimToNull(ruleChildElement.getAttribute("name"));
@@ -3722,70 +3722,39 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 									// deal with old data
 									if (ruleName == null)
 									{
+										// get the class - this is old CHEF 1.2.10 style encoding
+										String ruleClassOld = ruleChildElement.getAttribute("class");
+
+										// use the last class name minus the package
+										if ( ruleClassOld != null )
+											ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.') + 1);
+										if ( ruleName == null )
+											M_log.warn("trouble loading rule");
+									}
+
+									if (ruleName != null)
+									{
+										// put my package on the class name
+										String ruleClass = this.getClass().getPackage().getName() + "." + ruleName;
+
+										// construct
 										try
 										{
-											// get the class - this is old CHEF 1.2.10 style encoding
-											String ruleClassOld = ruleChildElement.getAttribute("class");
-
-											// use the last class name minus the package
-											ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.') + 1);
+											if (ruleChildElement.getTagName().equals("rule"))
+											{
+												m_singleRule = (RecurrenceRule) Class.forName(ruleClass).newInstance();
+												m_singleRule.set(ruleChildElement);
+											}
+											else //	ruleChildElement.getTagName().equals("ex-rule"))
+											{
+												m_exclusionRule = (RecurrenceRule) Class.forName(ruleClass).newInstance();
+												m_exclusionRule.set(ruleChildElement);
+											}
 										}
-										catch (Throwable t)
+										catch (Exception e)
 										{
-											M_log.warn(": trouble loading rule: " + t);
+											M_log.warn("trouble loading rule: " + ruleClass + " : " + e);
 										}
-									}
-
-									// put my package on the class name
-									String ruleClass = this.getClass().getPackage().getName() + "." + ruleName;
-
-									// construct
-									try
-									{
-										m_singleRule = (RecurrenceRule) Class.forName(ruleClass).newInstance();
-										m_singleRule.set(ruleChildElement);
-									}
-									catch (Throwable t)
-									{
-										M_log.warn(": trouble loading rule: " + ruleClass + " : " + t);
-									}
-								}
-
-								// look for an exclusion rule
-								else if (ruleChildElement.getTagName().equals("ex-rule"))
-								{
-									// get the rule name - modern style encoding
-									String ruleName = StringUtil.trimToNull(ruleChildElement.getAttribute("name"));
-
-									// deal with old data
-									if (ruleName == null)
-									{
-										try
-										{
-											// get the class - this is old CHEF 1.2.10 style encoding
-											String ruleClassOld = ruleChildElement.getAttribute("class");
-
-											// use the last class name minus the package
-											ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.') + 1);
-										}
-										catch (Throwable t)
-										{
-											M_log.warn(": trouble loading rule: " + ruleName + " : " + t);
-										}
-									}
-
-									// put my package on the class name
-									String ruleClass = this.getClass().getPackage().getName() + "." + ruleName;
-
-									// construct
-									try
-									{
-										m_exclusionRule = (RecurrenceRule) Class.forName(ruleClass).newInstance();
-										m_exclusionRule.set(ruleChildElement);
-									}
-									catch (Throwable t)
-									{
-										M_log.warn(": trouble loading rule: " + ruleClass + " : " + t);
 									}
 								}
 							}
@@ -4764,100 +4733,56 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 						{
 							// we can ignore this as its a contianer
 						}
-						else if ("rule".equals(qName))
+						else if ("rule".equals(qName) || "ex-rule".equals(qName))
 						{
 							// get the rule name - modern style encoding
-							String ruleName = StringUtil.trimToNull(attributes
-									.getValue("name"));
+							String ruleName = StringUtil.trimToNull(attributes.getValue("name"));
 
 							// deal with old data
 							if (ruleName == null)
 							{
+								// get the class - this is old CHEF 1.2.10 style encoding
+								String ruleClassOld = attributes.getValue("class");
+
+								// use the last class name minus the package
+								if ( ruleClassOld != null )
+									ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.') + 1);
+								if ( ruleName == null )
+									M_log.warn("trouble loading rule");
+							}
+
+							if (ruleName != null)
+							{
+								// put my package on the class name
+								String ruleClass = this.getClass().getPackage().getName() + "." + ruleName;
+
+								// construct
 								try
 								{
-									// get the class - this is old CHEF 1.2.10 style
-									// encoding
-									String ruleClassOld = attributes.getValue("class");
-
-									// use the last class name minus the package
-									ruleName = ruleClassOld.substring(ruleClassOld
-											.lastIndexOf('.') + 1);
+									if ("rule".equals(qName))
+									{
+										m_singleRule = (RecurrenceRule) Class.forName(ruleClass).newInstance();
+										setContentHandler(m_singleRule.getContentHandler(services), uri, localName, qName, attributes);
+									}
+									else // ("ex-rule".equals(qName))
+									{
+										m_exclusionRule = (RecurrenceRule) Class.forName(ruleClass).newInstance();
+										setContentHandler(m_exclusionRule.getContentHandler(services), uri, localName, qName, attributes);
+									}
 								}
-								catch (Throwable t)
+								catch (Exception e)
 								{
-									M_log.warn(": trouble loading rule: " + t);
+									M_log.warn("trouble loading rule: " + ruleClass + " : " + e);
 								}
-							}
-
-							// put my package on the class name
-							String ruleClass = this.getClass().getPackage().getName() + "."
-									+ ruleName;
-
-							// construct
-							try
-							{
-								m_singleRule = (RecurrenceRule) Class.forName(ruleClass)
-										.newInstance();
-								setContentHandler(m_singleRule.getContentHandler(services), uri, localName, qName, attributes);
-							}
-							catch (Throwable t)
-							{
-								M_log
-										.warn(": trouble loading rule: " + ruleClass + " : "
-												+ t);
 							}
 						}
-						else if ("ex-rule".equals(qName))
+						else 
 						{
-							// get the rule name - modern style encoding
-							String ruleName = StringUtil.trimToNull(attributes
-									.getValue("name"));
-
-							// deal with old data
-							if (ruleName == null)
-							{
-								try
-								{
-									// get the class - this is old CHEF 1.2.10 style
-									// encoding
-									String ruleClassOld = attributes.getValue("class");
-
-									// use the last class name minus the package
-									ruleName = ruleClassOld.substring(ruleClassOld
-											.lastIndexOf('.') + 1);
-								}
-								catch (Throwable t)
-								{
-									M_log.warn(": trouble loading rule: " + ruleName + " : "
-											+ t);
-								}
-							}
-
-							// put my package on the class name
-							String ruleClass = this.getClass().getPackage().getName() + "."
-									+ ruleName;
-
-							// construct
-							try
-							{
-								m_exclusionRule = (RecurrenceRule) Class.forName(
-										ruleClass).newInstance();
-								setContentHandler(m_exclusionRule.getContentHandler(services), uri, localName, qName, attributes);
-							}
-							catch (Throwable t)
-							{
-								M_log
-										.warn(": trouble loading rule: " + ruleClass + " : "
-												+ t);
-							}
-						} else {
 							M_log.warn("Unexpected Element "+qName);
 						}
 					} 
 				}
 			};
-			
-			
 
 		}
 
