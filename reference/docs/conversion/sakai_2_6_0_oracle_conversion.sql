@@ -1,3 +1,15 @@
+-- This is the Oracle Sakai 2.5.3 -> 2.6.0 conversion script
+----------------------------------------------------------------------------------------------------------------------------------------
+-- 
+-- use this to convert a Sakai database from 2.5.3 to 2.6.0.  Run this before you run your first app server.
+-- auto.ddl does not need to be enabled in your app server - this script takes care of all new TABLEs, changed TABLEs, and changed data.
+--
+-- The 2.5.0 - 2.5.2 script can be located at https://source.sakaiproject.org/svn/reference/tags/sakai_2-5-2/docs/conversion/sakai_2_5_0-2_5_2_oracle_conversion.sql
+-- * Note that there was not a 2.5.1 release due to critical issue identified just prior to release 
+-- The 2.5.2 - 2.5.3 script can be located at https://source.sakaiproject.org/svn/reference/tags/sakai_2-5-3/docs/conversion/sakai_2_5_2-2_5_3_oracle_conversion.sql
+--
+----------------------------------------------------------------------------------------------------------------------------------------
+
 --SAK-12527 Changes to Chat Room options do not work consistently
 
 -- add column timeParam and numberParam 
