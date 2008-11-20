@@ -22,6 +22,8 @@
 package org.sakaiproject.citation.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -73,7 +75,7 @@ public class CitationServlet extends VmServlet
 	 * 
 	 */
 	public static final String SERVLET_TEMPLATE = "/vm/servlet.vm";
-	private String collectionTitle = null;
+//	private String collectionTitle = null;
 	
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(CitationServlet.class);
@@ -175,19 +177,26 @@ public class CitationServlet extends VmServlet
 		else
 		{
 			// try to add the Citation
-			Citation citation = addCitation( ( ParameterParser )req.getAttribute( ATTR_PARAMS ),
+			
+			
+			List citationCollectionTitleList = addCitation( ( ParameterParser )req.getAttribute( ATTR_PARAMS ),
 					option, res );
+			
+			Citation citation = (Citation) citationCollectionTitleList.get(0);
+			String collectionTitle = (String) citationCollectionTitleList.get(1);
+			
+			
 			if( citation != null )
 			{
 				// return success
 				M_log.debug( "doGet() [addCitation()] added Citation '" + citation.getDisplayName() + "'" );
-				respond( Status.SUCCESS, citation, req, res );
+				respond( Status.SUCCESS, citation, collectionTitle, req, res );
 			}
 			else
 			{
 				// return failure
 				M_log.debug( "doGet() [addCitation()] failed to add citation" );
-				respond( Status.ERROR, null, req, res );
+				respond( Status.ERROR, null, collectionTitle, req, res );
 			}
 		}
 	}
@@ -231,7 +240,7 @@ public class CitationServlet extends VmServlet
 	 * @param req  HttpServletRequest object with the client request
 	 * @param res  HttpServletResponse object back to the client
 	 */
-	public Citation addCitation( ParameterParser params, String option, HttpServletResponse res )
+	public List addCitation( ParameterParser params, String option, HttpServletResponse res )
 	{
 		// get the path info
 		String path = params.getPath();
@@ -241,6 +250,8 @@ public class CitationServlet extends VmServlet
 //		{
 //			sendError( res, HttpServletResponse.SC_SERVICE_UNAVAILABLE );
 //		}
+
+		String collectionTitle = null;
 		
 		// parse the request path
 		String[] parts = option.split("/");
@@ -369,7 +380,8 @@ public class CitationServlet extends VmServlet
 			// get the citation list title
 			String refStr = contentService.getReference(resourceId);
 			Reference ref = EntityManager.newReference(refStr);
-			this.collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+
+			collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
         }
         catch (PermissionException e)
         {
@@ -396,10 +408,17 @@ public class CitationServlet extends VmServlet
         	return null;
         }
 
-		return citation;
+        List citationCollectionTitleList = new ArrayList();
+        
+        citationCollectionTitleList.add(citation);
+        citationCollectionTitleList.add(collectionTitle);
+        
+//		return citation;
+        
+        return citationCollectionTitleList;
 	}
 
-	protected void respond( Status status, Citation citation,
+	protected void respond( Status status, Citation citation, String collectionTitle,
 			HttpServletRequest req, HttpServletResponse res ) throws ServletException
 	{
 		// the context wraps our real vm attribute set
