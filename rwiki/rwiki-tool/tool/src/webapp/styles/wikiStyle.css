@@ -1352,3 +1352,11 @@ ul.tree li .over{
 .lastmodified {
   font-size:smaller;
 }
+
+/* SAK-8663 Right to left text */
+
+.rtl{
+  unicode-bidi: override;
+  direction:rtl;
+}
+
