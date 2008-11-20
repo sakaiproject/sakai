@@ -557,7 +557,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         	throw new SecurityException("Anonymous users may not view memberships in ("+site.getReference()+")");
         } else {
         	String siteId = site.getId();
-        	if (siteService.allowUpdateSite(siteId) || siteService.allowUpdateSiteMembership(siteId) || siteService.allowViewRoster(siteId)) {
+        	if (siteService.allowViewRoster(siteId)) {
         		return true;
         	} else {
         		throw new SecurityException("Memberships in this site ("+site.getReference()+") are not accessible for the current user: " + userReference);            	
