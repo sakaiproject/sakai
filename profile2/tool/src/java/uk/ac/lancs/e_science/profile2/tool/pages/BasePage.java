@@ -1,12 +1,12 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 import org.apache.log4j.Logger;
-
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
@@ -42,7 +42,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		
 		
-    	//my profile link
+    	//profile link
     	Link myProfileLink = new Link("myProfileLink") {
 			public void onClick() {
 				setResponsePage(new MyProfile());
@@ -51,18 +51,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my.profile")));
 		add(myProfileLink);
 		
-		
-		
-		//my photos link
-    	Link myPhotosLink = new Link("myPhotosLink") {
-			public void onClick() {
-				setResponsePage(new MyProfile());
-			}
-		};
-		myPhotosLink.add(new Label("myPhotosLabel",new ResourceModel("link.my.photos")));
-		add(myPhotosLink);
-		
-		
+
 		
 		//my friends link
     	Link myFriendsLink = new Link("myFriendsLink") {
@@ -72,10 +61,41 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myFriendsLink.add(new Label("myFriendsLabel",new ResourceModel("link.my.friends")));
 		add(myFriendsLink);
-    	
 		
 		
-		//my friends link
+		
+		
+		//messages link
+    	Link myMessagesLink = new Link("myMessagesLink") {
+			public void onClick() {
+				//setResponsePage(new MyFriends());
+			}
+		};
+		myMessagesLink.add(new Label("myMessagesLabel",new ResourceModel("link.my.messages")));
+		
+		//calculate new messages
+		int unreadMessages = profile.getUnreadMessagesCount(sakaiProxy.getCurrentUserId());
+		Label unreadMessagesLabel = new Label("unreadMessagesLabel", new Model(unreadMessages));
+		myMessagesLink.add(unreadMessagesLabel);
+
+		if(unreadMessages == 0) {
+			unreadMessagesLabel.setVisible(false);
+		}
+		
+		add(myMessagesLink);
+		
+		
+		//photos link
+    	Link myPhotosLink = new Link("myPhotosLink") {
+			public void onClick() {
+				setResponsePage(new MyProfile());
+			}
+		};
+		myPhotosLink.add(new Label("myPhotosLabel",new ResourceModel("link.my.photos")));
+		add(myPhotosLink);
+		
+	
+		//privacy link
     	Link myPrivacyLink = new Link("myPrivacyLink") {
 			public void onClick() {
 				//setResponsePage(new MyFriends());

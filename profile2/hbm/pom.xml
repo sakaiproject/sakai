@@ -25,11 +25,13 @@
 	<dependencies>
 		
 		<!--  internal dependency -->
+		<!-- 
 		<dependency>
 			<groupId>uk.ac.lancs.e_science</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
 			<version>${tool.version}</version>
 		</dependency>
+		-->
 		
 		<!--  logging dependency -->
 		<dependency>

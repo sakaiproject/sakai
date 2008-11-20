@@ -6,6 +6,7 @@ import java.util.Date;
 public class UserProfile implements Serializable {
 
 	//we need a var and getters/setters for every field thats in the profile.
+	private String userId;
 	private String nickname;
 	private String birthday;
 	private Date dateOfBirth;
@@ -27,6 +28,13 @@ public class UserProfile implements Serializable {
 	private String favouriteMovies;
 	private String favouriteQuotes;
 	
+	
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 		
 	public String getNickname() {
 		return nickname;

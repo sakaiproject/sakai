@@ -10,7 +10,14 @@
 <wicket:panel>	
 	
     <div id="profileHeading">
-    	<span id="profileHeadingName" wicket:id="profileHeadingName">[profileHeadingName]</span>&nbsp;<span id="profileHeadingStatus" wicket:id="profileHeadingStatus">[profileHeadingStatus]</span>&nbsp;<span id="profileHeadingStatusLastUpdated" wicket:id="profileHeadingStatusLastUpdated">[profileHeadingStatusLastUpdated]</span>&nbsp;<a wicket:id="statusUpdateLink" class="tiny"><span wicket:id="statusUpdateLabel">[statusUpdateLabel]</span></a>
+    	<span id="profileHeadingName" wicket:id="profileName">[profileName]</span>&nbsp;
+    	<span wicket:id="statusContainer">
+    		<span id="profileHeadingStatus" wicket:id="statusMessage">[statusMessage]</span>
+    		<span id="profileHeadingStatusLastUpdated" wicket:id="statusDate">[statusDate]</span>
+    		<a wicket:id="statusUpdateLink" class="tiny">
+    			<span wicket:id="statusUpdateLabel">[statusUpdateLabel]</span>
+    		</a>
+    	</span>
     </div>
 
 </wicket:panel>

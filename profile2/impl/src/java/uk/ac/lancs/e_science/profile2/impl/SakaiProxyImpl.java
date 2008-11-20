@@ -103,7 +103,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.create(userId, sakaiPersonManager.getUserMutableType());
 		} catch (Exception e) {
-			log.error("Coudln't create SakaiPerson:" + e.getClass() + ":" + e.getMessage());
+			log.error("Couldn't create SakaiPerson:" + e.getClass() + ":" + e.getMessage());
 		}
 		return sakaiPerson;
 	}

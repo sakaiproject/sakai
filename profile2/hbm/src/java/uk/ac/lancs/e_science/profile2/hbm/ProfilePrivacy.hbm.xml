@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="uk.ac.lancs.e_science.profile2.hbm">
+
+	<class name="ProfilePrivacy" table="PROFILE_PRIVACY_T">
+
+		<!--  use the userUuid as the primary key directly since there will only ever be one record per user -->
+	    <id name="userUuid" column="USER_UUID" length="36">
+	    	<generator class="assigned" />
+	    </id>
+
+	    <property name="profile" column="PROFILE" not-null="true" />
+	    <property name="basicInfo" column="BASIC_INFO" not-null="true" />
+	    <property name="contactInfo" column="CONTACT_INFO" not-null="true" />
+	    <property name="personalInfo" column="PERSONAL_INFO" not-null="true" />
+		<property name="search" column="SEARCH" not-null="true" />
+		
+  	</class>
+
+  	
+
+</hibernate-mapping>

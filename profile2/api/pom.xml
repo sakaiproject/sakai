@@ -25,6 +25,14 @@
 
   	<dependencies>
 
+		<!--  internal dependency on our classes defined by Hibernate -->
+		<dependency>
+			<groupId>uk.ac.lancs.e_science</groupId>
+			<artifactId>sakai-profile2-hbm</artifactId>
+			<version>${tool.version}</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>

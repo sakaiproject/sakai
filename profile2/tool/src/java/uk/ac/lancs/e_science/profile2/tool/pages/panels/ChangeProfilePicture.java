@@ -46,10 +46,7 @@ public class ChangeProfilePicture extends Panel{
 		
 		//get Profile API
 		profile = ProfileApplication.get().getProfile();
-		
-		System.out.println("---" + profile.getFriendsForUser("1", false).toString());
-
-		        
+		   
         //setup form	
 		Form form = new Form("form", userProfileModel) {
 			public void onSubmit(){
@@ -62,27 +59,8 @@ public class ChangeProfilePicture extends Panel{
 				//get userid and sakaiperson for this user
 				String userId = sakaiProxy.getCurrentUserId();
 				SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-				/*
-				//get uploaded file, get the bytes and set into sakaiPerson
-				if (uploadField != null) {
-					FileUpload upload = uploadField.getFileUpload();
-					if(upload != null) {
-						//get bytes, set into sakaiperson directly
-						byte[] photoBytes = upload.getBytes();
-						sakaiPerson.setJpegPhoto(photoBytes);
-					} else {
-						proceed=false;
-						log.error("upload was null.");
-						error(new ResourceModel("error.no.file.uploaded"));
-					}
-				}  else {
-					proceed=false;
-					//PRINT MESSAGE INTO A DIV
-					log.error("uploadField was null.");
-					error(new ResourceModel("error.no.file.uploaded"));
-				}
-				*/
 				
+				//get file that was uploaded
 				FileUpload upload = uploadField.getFileUpload();
 				
 				if (upload == null) {
@@ -93,25 +71,25 @@ public class ChangeProfilePicture extends Panel{
 				    log.error("upload was empty.");
 					error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
 					return;
-				 } else if (!profile.checkContentTypeForProfileImage(upload.getContentType())) {
-					 error(new StringResourceModel("error.invalid.image.type", this, null).getString());
-				     return;
-				 } else {
-					 //get bytes, set into sakaiperson directly
-					 byte[] photoBytes = upload.getBytes();
+				} else if (!profile.checkContentTypeForProfileImage(upload.getContentType())) {
+					error(new StringResourceModel("error.invalid.image.type", this, null).getString());
+				    return;
+				} else {
+					//get bytes, set into sakaiperson directly
+					byte[] photoBytes = upload.getBytes();
 					 
-					 photoBytes = profile.scaleImage(photoBytes, MAX_IMAGE_XY);
+					photoBytes = profile.scaleImage(photoBytes, MAX_IMAGE_XY);
 					 
-					 sakaiPerson.setJpegPhoto(photoBytes);
+					sakaiPerson.setJpegPhoto(photoBytes);
 					 
-					 //save
-					 if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
-						 log.info("SakaiPerson save ok");
-						 setResponsePage(new MyProfile()); //to refresh the image data
+					//save
+					if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
+						log.info("SakaiPerson save ok");
+						setResponsePage(new MyProfile()); //to refresh the image data
 					} else {
 						log.error("SakaiPerson save failed");
 					}
-				 }
+				}
 				
 				
 				

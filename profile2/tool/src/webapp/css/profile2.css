@@ -103,6 +103,11 @@
 	color: #5D5D5D;
 }
 
+.unreadMessagesCount {
+	padding-left: 4px;
+	font-weight: bold;
+}
+
 
 
 
@@ -235,6 +240,8 @@
 
 .profileContent .content {
 	padding-left: 2px;
+	padding-right: 40px;
+	
 }
 
 .profileForm {

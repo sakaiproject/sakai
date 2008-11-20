@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="uk.ac.lancs.e_science.profile2.hbm">
+
+	<class name="ProfileFriend" table="PROFILE_RELATIONSHIPS_T">
+
+	    <id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">PROFILE_RELATIONSHIPS_S</param>
+	      </generator>
+	    </id>
+
+	    <property name="userUuid" column="USER_UUID" length="36" not-null="true" />
+	    <property name="friendUuid" column="FRIEND_UUID" length="36" not-null="true" />
+		<property name="relationship" column="RELATIONSHIP" length="1" not-null="true" />
+		<property name="requestedDate" column="REQUESTED_DATE" not-null="true" />
+		<property name="confirmed" column="CONFIRMED" not-null="true"/>
+	    <property name="confirmedDate" column="CONFIRMED_DATE" not-null="false" />
+
+  	</class>
+
+  	<query name="getFriendsForUser">
+    	<![CDATA[SELECT friend.friendUuid FROM ProfileFriend friend WHERE friend.userUuid = :userUuid AND friend.confirmed = :confirmed]]>
+	</query>
+	<!-- AND friends.confirmed = :confirmed -->
+	
+	<query name="getFriendRequest">
+    	<![CDATA[from ProfileFriend friend WHERE friend.friendUuid = :friendUuid AND friend.userUuid = :userUuid AND friend.confirmed = :confirmed]]>
+	</query>
+	
+	<!--  UNION SELECT friend.userUuid FROM ProfileFriend friend WHERE friend.friendUuid = :friendUuid -->
+
+</hibernate-mapping>

@@ -62,7 +62,7 @@ public class MyInterestsEdit extends Panel {
 		WebMarkupContainer moviesContainer = new WebMarkupContainer("moviesContainer");
 		moviesContainer.add(new Label("moviesLabel", new ResourceModel("profile.favourite.movies")));
 		TextArea favouriteMovies = new TextArea("favouriteMovies", new PropertyModel(userProfile, "favouriteMovies"));
-		booksContainer.add(favouriteMovies);
+		moviesContainer.add(favouriteMovies);
 		form.add(moviesContainer);
 		
 		//favourite quotes
@@ -135,13 +135,14 @@ public class MyInterestsEdit extends Panel {
 		
 		String userId = sakaiProxy.getCurrentUserId();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-	
-		//set the attributes from userProfile that this form dealt with, into sakaiPerson
-		//this WILL fail if there is no sakaiPerson for the user however this should have been caught already
-		//as a new Sakaiperson for a user is created in MyProfile if they don't have one.
-		
-		sakaiPerson.setFavouriteBooks(userProfile.getFavouriteBooks());
 
+		//get values and set into SakaiPerson
+		sakaiPerson.setFavouriteBooks(userProfile.getFavouriteBooks());
+		sakaiPerson.setFavouriteTvShows(userProfile.getFavouriteTvShows());
+		sakaiPerson.setFavouriteMovies(userProfile.getFavouriteMovies());
+		sakaiPerson.setFavouriteQuotes(userProfile.getFavouriteQuotes());
+
+		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );
 			return true;

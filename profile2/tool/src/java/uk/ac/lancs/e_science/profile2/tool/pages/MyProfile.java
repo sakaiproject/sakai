@@ -15,10 +15,12 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileException;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInterestsDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
 
 
@@ -44,16 +46,19 @@ public class MyProfile extends BasePage {
 
 		//get SakaiPerson for this user
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-		//if null, create one.
+		//if null, create one (and a privacy record)
 		if(sakaiPerson == null) {
 			log.warn("No SakaiPerson for " + userId + ". Creating one.");
 			sakaiPerson = sakaiProxy.createSakaiPerson(userId);
-			//if its still null, log an error - ideally, don't proceed.
+			//if its still null, throw exception
 			if(sakaiPerson == null) {
-				log.error("Couldn't create a SakaiPerson for " + userId + ". Given up.");
+				throw new ProfileException("Couldn't create a SakaiPerson for " + userId);
+			}
+			//create a default privacy record for this user as well.
+			if(!profile.createDefaultPrivacyRecord(userId)) {
+				throw new ProfileException("Couldn't create default privacy record for " + userId);
 			}
 		} 
-		
 		
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
@@ -78,6 +83,7 @@ public class MyProfile extends BasePage {
 		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
 		
 		//get rest of values from SakaiPerson and set into UserProfile
+		userProfile.setUserId(userId);
 		userProfile.setNickname(sakaiPerson.getNickname());
 		userProfile.setDateOfBirth(sakaiPerson.getDateOfBirth());
 		userProfile.setDisplayName(userDisplayName);
@@ -86,12 +92,10 @@ public class MyProfile extends BasePage {
 		userProfile.setHomephone(sakaiPerson.getHomePhone());
 		userProfile.setWorkphone(sakaiPerson.getTelephoneNumber());
 		userProfile.setMobilephone(sakaiPerson.getMobile());
-		/*
 		userProfile.setFavouriteBooks(sakaiPerson.getFavouriteBooks());
 		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
-		*/
 
 		
 		//get photo and add to page, otherwise add default image
@@ -166,12 +170,10 @@ public class MyProfile extends BasePage {
 		myContactDisplay.setOutputMarkupId(true);
 		add(myContactDisplay);
 		
-		/*
 		//interests panel - load the display version by default
 		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
 		myInterestsDisplay.setOutputMarkupId(true);
 		add(myInterestsDisplay);
-		*/
 		
 
 		

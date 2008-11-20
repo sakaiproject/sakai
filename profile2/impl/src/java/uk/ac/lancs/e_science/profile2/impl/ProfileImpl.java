@@ -23,6 +23,9 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
+import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
+import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
@@ -31,16 +34,23 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
 public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	private transient Logger log = Logger.getLogger(ProfileImpl.class);
+	
+	
+	/*
+	 * Eventually may come from the database. For now, only FRIEND is used.
+	 */
+	private final int RELATIONSHIP_FRIEND = 1;
+	private final int RELATIONSHIP_COLLEAGUE = 2;
+	
 	private static final String QUERY_GET_FRIENDS_FOR_USER = "getFriendsForUser";
-	
+	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest";
+	private static final String QUERY_GET_USER_STATUS = "getUserStatus";
 
-	public String getUserStatus(String userId) {
-		return "this is my status";
-	}
-	
-	public String getUserStatusLastUpdated(String userId) {
-		return "on Monday";
-	}
+	//Hibernate object fields
+	private static final String USER_UUID = "userUuid";
+	private static final String FRIEND_UUID = "friendUuid";
+	private static final String CONFIRMED = "confirmed";
+
 	
 	public boolean checkContentTypeForProfileImage(String contentType) {
 		
@@ -131,7 +141,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser()
 	 */
-	public List getFriendsForUser(final String userId, boolean confirmed) {
+	public List getFriendsForUser(final String userId, final boolean confirmed) {
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null Argument in getFriendsForUser");
 	  	}
@@ -140,8 +150,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_FRIENDS_FOR_USER);
-	  			q.setParameter("userUuid", userId, Hibernate.STRING);
-	  			//q.setParameter("friendUuid", userId, Hibernate.STRING);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(CONFIRMED, confirmed, Hibernate.BOOLEAN);
 	  			return q.list();
 	  		}
 	  	};
@@ -151,7 +161,154 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  	return resultsList;
 
 	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#addFriend()
+	 */	
+	public boolean addFriend(String userId, String friendId) {
+		if(userId == null || friendId == null){
+	  		throw new IllegalArgumentException("Null Argument in getFriendsForUser");
+	  	}
+		
+		//check values are valid, ie userId, friendId etc
+		
+		try {
+			//make a ProfileFriend object with 'Friend Request' constructor
+			ProfileFriend profileFriend = new ProfileFriend(userId, friendId, RELATIONSHIP_FRIEND);
+			getHibernateTemplate().saveOrUpdate(profileFriend);
+			log.info("User: " + userId + " requested friend: " + friendId);
+			return true;
+		} catch (Exception e) {
+			log.error("addFriend() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	
+	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriend()
+	 */
+	public boolean confirmFriend(final String friendId, final String userId) {
+		if(friendId == null || userId == null){
+	  		throw new IllegalArgumentException("Null Argument in confirmFriend");
+	  	}
+		
+		//get pending ProfileFriend object request for the given details
+		ProfileFriend profileFriend = getPendingFriendRequest(friendId, userId);
+		
+	  	//make necessary changes to the ProfileFriend object.
+	  	profileFriend.setConfirmed(true);
+	  	profileFriend.setConfirmedDate(new Date()); //now
+		
+		//save
+		try {
+			getHibernateTemplate().update(profileFriend);
+			log.info("User: " + friendId + " confirmed friend request from: " + userId);
+			return true;
+		} catch (Exception e) {
+			log.error("confirmFriend() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	
+	}
+	
+	
+	
+	
+	private ProfileFriend getPendingFriendRequest(final String friendId, final String userId) {
+		
+		if(friendId == null || userId == null){
+	  		throw new IllegalArgumentException("Null Argument in getPendingFriendRequest");
+	  	}
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUEST);
+	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(CONFIRMED, false, Hibernate.BOOLEAN);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileFriend) getHibernateTemplate().execute(hcb);
+	
+	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUnreadMessagesCount()
+	 */
+	public int getUnreadMessagesCount(String userId) {
+		int unreadMessages = 0;
+		return unreadMessages;
+		
+	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPrivacyRecord()
+	 */
+	public boolean createDefaultPrivacyRecord(String userId) {
+		ProfilePrivacy profilePrivacy = new ProfilePrivacy(userId,0,0,0,0,0);
+		
+		//save
+		try {
+			getHibernateTemplate().update(profilePrivacy);
+			log.info("Created default privacy record for user: " + userId);
+			return true;
+		} catch (Exception e) {
+			log.error("createDefaultPrivacyRecord() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getLatestUserStatus()
+	 */
+	public ProfileStatus getLatestUserStatus(final String userId) {
+		
+		if(userId == null){
+	  		throw new IllegalArgumentException("Null Argument in getUserStatus");
+	  	}
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_USER_STATUS);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileStatus) getHibernateTemplate().execute(hcb);
+		
+		
+	}
 
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertDateForStatus()
+	 */
+	public String convertDateForStatus(Date date) {
+		
+		/*convert the date out into a better format:
+		 * if today = 'today'
+		 * if yesterday = 'yesterday'
+		 * if this week = 'on Weekday'
+		 * if last week = 'last week'
+		 * past a week ago we don't display the status last updated
+		*/
+		
+		return "today";
+	}
+
+
+
+		
+	/*
+	private void saveFriendRecord(ProfileFriends profileFriends)
+	  {
+	  	getHibernateTemplate().saveOrUpdate(profileFriends);
+	  }
+	*/
 	
 	
 	

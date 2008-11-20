@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="uk.ac.lancs.e_science.profile2.hbm">
+
+	<class name="ProfileStatus" table="PROFILE_STATUS_T">
+
+		<id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">PROFILE_STATUS_S</param>
+	      </generator>
+	    </id>
+
+	    <property name="userUuid" column="USER_UUID" length="36" not-null="true" />
+		<property name="message" column="MESSAGE" length="255" not-null="true" />
+		<property name="dateAdded" column="DATE_ADDED" not-null="true" />
+  	</class>
+
+  	<query name="getUserStatus">
+    	<![CDATA[from ProfileStatus status WHERE status.userUuid = :userUuid order by dateAdded asc]]>
+	</query>
+
+</hibernate-mapping>
