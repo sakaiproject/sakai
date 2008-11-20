@@ -383,9 +383,12 @@ a.anchorpoint {
 
 .nosidebar#rwiki_content {
   float: none;
-  width:97%;
+  /*width:97%;
   padding: 5px 5px 2px 2px;
-  overflow: hidden;  
+  overflow: hidden;*/
+  padding: 5px 0px 2px 0px;
+  overflow-y: hidden;
+  overflow-x: auto;
 }
 
 
