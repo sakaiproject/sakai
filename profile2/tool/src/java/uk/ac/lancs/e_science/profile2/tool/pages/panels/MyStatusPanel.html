@@ -14,11 +14,44 @@
     	<span wicket:id="statusContainer">
     		<span id="profileHeadingStatus" wicket:id="statusMessage">[statusMessage]</span>
     		<span id="profileHeadingStatusLastUpdated" wicket:id="statusDate">[statusDate]</span>
-    		<a wicket:id="statusUpdateLink" class="tiny">
-    			<span wicket:id="statusUpdateLabel">[statusUpdateLabel]</span>
+    		<a wicket:id="statusClearLink" class="tiny">
+    			<span wicket:id="statusClearLabel">[statusClearLabel]</span>
     		</a>
     	</span>
     </div>
+    <div>
+    	<form wicket:id="form" class="statusForm">
+		
+			<input type="text" wicket:id="statusField" size="40" class="statusField" />
+			<input type="submit" wicket:id="submit" value="Say it" />
+		
+		</form>
+    </div>
+    
+	<script type="text/javascript">
+
+		//init
+		$(document).ready(function(){ 
+
+
+			function autoFill(id, v){
+				alert('hello');
+				$(id).css({ color: "#5D5D5D" }).attr({ value: v }).focus(function(){
+					if($(this).val()==v){
+						$(this).val("").css({ color: "#000000" });
+					}
+				}).blur(function(){
+					if($(this).val()==""){
+						$(this).css({ color: "#5D5D5D" }).val(v);
+					}
+				});
+
+			}
+			
+		});
+
+	</script>
+	
 
 </wicket:panel>
 	

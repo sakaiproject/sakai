@@ -14,6 +14,7 @@ public class ProfileStatus {
 	private String userUuid;
 	private String message;
 	private Date dateAdded;
+	//private int cleared; //maybe to hold value if the status has been cleared
 	
 
 	public ProfileStatus(){

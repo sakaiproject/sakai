@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String USER_UUID = "userUuid";
 	private static final String FRIEND_UUID = "friendUuid";
 	private static final String CONFIRMED = "confirmed";
-
+	
 	
 	public boolean checkContentTypeForProfileImage(String contentType) {
 		
@@ -248,6 +249,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPrivacyRecord()
 	 */
 	public boolean createDefaultPrivacyRecord(String userId) {
+		
 		ProfilePrivacy profilePrivacy = new ProfilePrivacy(userId,0,0,0,0,0);
 		
 		//save
@@ -280,25 +282,92 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		};
 	
 		return (ProfileStatus) getHibernateTemplate().execute(hcb);
+	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#setUserStatus()
+	 */
+	public boolean setUserStatus(String userId, String status) {
 		
+		//validate userId here - TODO
+		
+		ProfileStatus profileStatus = new ProfileStatus(userId,status,new Date());
+		
+		//save (always inserting, never updating, unless its being cleared which is a different process)
+		try {
+			getHibernateTemplate().save(profileStatus);
+			log.info("Updated status for user: " + userId);
+			return true;
+		} catch (Exception e) {
+			log.error("setUserStatus() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
 		
 	}
+
+	
+	
 
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertDateForStatus()
 	 */
 	public String convertDateForStatus(Date date) {
 		
-		/*convert the date out into a better format:
-		 * if today = 'today'
-		 * if yesterday = 'yesterday'
-		 * if this week = 'on Weekday'
-		 * if last week = 'last week'
-		 * past a week ago we don't display the status last updated
-		*/
+		//current time (cal also specify timezome and local here, see API)
+		long currentTimeMillis = Calendar.getInstance().getTimeInMillis();
 		
-		return "today";
+		//posting time (set calendar time to be this)
+		//Calendar postingDate = Calendar.getInstance();
+		//postingDate.setTimeInMillis(date.getTime());
+		long postingTimeMillis = date.getTime();
+		
+		//difference
+		int diff = (int)(currentTimeMillis - postingTimeMillis);
+		
+		System.out.println("currentDate:" + currentTimeMillis);
+		System.out.println("postingDate:" + postingTimeMillis);
+		System.out.println("diff:" + diff);
+		
+		int MILLIS_IN_SECOND = 1000;
+		int MILLIS_IN_MINUTE = 1000 * 60;
+		int MILLIS_IN_HOUR = 1000 * 60 * 60;
+		int MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
+		int MILLIS_IN_WEEK = 1000 * 60 * 60 * 24 * 7;
+
+		String message="";
+		
+		if(diff < MILLIS_IN_SECOND) {
+			//less than a second
+			message = "just then";
+		} else if (diff < MILLIS_IN_MINUTE) {
+			//less than a minute, calc seconds
+			int numSeconds = diff/MILLIS_IN_SECOND;
+			message = numSeconds + " seconds ago";
+		} else if (diff < MILLIS_IN_HOUR) {
+			//less than an hour, calc minutes
+			int numMinutes = diff/MILLIS_IN_MINUTE;
+			message = numMinutes + " minutes ago";
+		} else if (diff < MILLIS_IN_DAY) {
+			//less than a day, calc hours
+			int numHours = diff/MILLIS_IN_HOUR;
+			message = numHours + " hours ago";
+		} else if (diff < MILLIS_IN_WEEK) {
+			//less than a week, calculate days
+			int numDays = diff/MILLIS_IN_DAY;
+			
+			//now calculate which day it was
+			if(numDays == 1) {
+				message = "yesterday";
+			} else {
+				//use calendar aAPI to get name of day here
+				message = numDays + " days ago";
+			}
+			
+		}
+
+		return message;
 	}
+	
 
 
 
@@ -319,5 +388,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		return true;
 	}
 	*/
+	
+	/*
+	private Date getYesterday() {
+        return getDayBefore(new Date());
+    }
+ 
+    private  Date getDayBefore(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        return cal.getTime();
+    }
+    */
 	
 }

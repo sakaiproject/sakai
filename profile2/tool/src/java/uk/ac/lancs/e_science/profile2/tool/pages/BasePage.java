@@ -114,6 +114,15 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		testDataLink.add(new Label("testDataLabel",new ResourceModel("link.test")));
 		add(testDataLink);
 		
+		
+		//rss link
+		Link rssLink = new Link("rssLink") {
+			public void onClick() {
+				//setResponsePage(new TestData());
+			}
+		};
+		add(rssLink);
+		
     }
 	
 	

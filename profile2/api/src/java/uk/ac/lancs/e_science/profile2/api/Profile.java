@@ -67,6 +67,14 @@ public interface Profile {
 	 */
 	public ProfileStatus getLatestUserStatus(String userId);
 	
+	/**
+	 * Set user status
+	 *
+	 * @param userId		uuid of the user 
+	 * @param status		status to be set
+	 */
+	public boolean setUserStatus(String userId, String status);
+	
 	
 	/**
 	 * Convert a date into a field like (today, yesterday, last week, etc)
@@ -84,5 +92,8 @@ public interface Profile {
 	 * 
 	 */
 	public String convertDateForStatus(Date date);
+	
+	
+	
 	
 }

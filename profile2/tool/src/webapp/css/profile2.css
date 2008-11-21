@@ -36,6 +36,16 @@
 	max-width: 200px;
 }
 
+#rssLink {
+	background-color: transparent;
+	background-image: url(/library/image/feed.png);
+	background-repeat:no-repeat;
+	background-attachment: scroll;
+	background-position: center center;
+	float:right;
+	width: 16px;
+}
+
 .editImageButton {
 	position:absolute;
 	right:0;
@@ -244,10 +254,20 @@
 	
 }
 
-.profileForm {
+.profileForm, .statusForm {
 	background-color: #e9edff;
 	border: 1px solid #d0d0df;
 }
+
+.statusForm {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+.statusField {
+	color: #5D5D5D;
+}
+	
 
 .formInputField {
 	padding-left: 2px;
