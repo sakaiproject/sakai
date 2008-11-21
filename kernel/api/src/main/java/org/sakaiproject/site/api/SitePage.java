@@ -107,6 +107,11 @@ public interface SitePage extends Edit, Serializable
 	public void setTitle(String title);
 
 	/**
+	 * Replace page title with its localized value and localize page's tools
+	 */
+	public void localizePage();
+
+	/**
 	 * Set the layout for this page.
 	 * 
 	 * @param layout

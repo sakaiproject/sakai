@@ -686,6 +686,13 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 					// copy in the template
 					site.set(template, false);
+					
+					// Localize the page & tool titles
+					for ( Iterator it=site.getPages().iterator(); it.hasNext(); )
+					{
+						SitePage page = (SitePage)it.next();
+						page.localizePage();
+					}
 
 					doSave(site, true);
 
@@ -706,7 +713,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			}
 		}
 	}
-
+   
 	/**
 	 * @inheritDoc
 	 */

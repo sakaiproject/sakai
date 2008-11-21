@@ -34,7 +34,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -99,7 +99,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	protected BaseToolConfiguration(BaseSiteService siteService, SitePage page, String id, String toolId,
 			String title, String layoutHints, int pageOrder)
 	{
-		super( id, toolId, ToolManager.getTool(toolId), null, null, title);
+		super( id, toolId, ActiveToolManager.getTool(toolId), null, null, title);
 		this.siteService = siteService;
 
 		m_page = page;
@@ -134,7 +134,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	protected BaseToolConfiguration(BaseSiteService siteService, String id, String toolId, String title,
 			String layoutHints, String pageId, String siteId, String skin, int pageOrder)
 	{
-		super(id, toolId, ToolManager.getTool(toolId), null, null, title);
+		super(id, toolId, ActiveToolManager.getTool(toolId), null, null, title);
 		this.siteService = siteService;
 		
 		m_page = null;
@@ -274,7 +274,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_toolId = StringUtil.trimToNull(el.getAttribute("toolId"));
 		if (m_toolId != null)
 		{
-			m_tool = ToolManager.getTool(m_toolId);
+			m_tool = ActiveToolManager.getTool(m_toolId);
 		}
 		m_title = StringUtil.trimToNull(el.getAttribute("title"));
 		m_layoutHints = StringUtil.trimToNull(el.getAttribute("layoutHints"));
@@ -523,4 +523,21 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		super.setTool(toolId, tool);
 		setPageCategory();
 	}
+   
+	/**
+	 * Replace tool title with its localized value
+	 * 
+	 * @return localized tool title
+	 */
+	protected String localizeTool()
+	{
+		String localizedTitle = ActiveToolManager.getLocalizedToolProperty(getTool().getId(), "title");
+			
+		// Use localized title if present
+		if(localizedTitle != null && localizedTitle.length()>0)
+			setTitle(localizedTitle);
+		
+		return localizedTitle;
+	}
+	
 }

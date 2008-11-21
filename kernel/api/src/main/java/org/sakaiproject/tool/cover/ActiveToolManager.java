@@ -172,4 +172,12 @@ public class ActiveToolManager
 
 		return manager.getActiveTool(param0);
 	}
+   
+	public static java.lang.String getLocalizedToolProperty(java.lang.String param0, java.lang.String param1)
+	{
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
+		if (manager == null) return null;
+
+		return manager.getLocalizedToolProperty(param0, param1);
+	}
 }
