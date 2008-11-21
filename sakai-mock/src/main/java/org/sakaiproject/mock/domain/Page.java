@@ -216,6 +216,9 @@ public class Page implements SitePage {
 		this.title = title;
 	}
 
+	public void localizePage() {
+	}
+	
 	public void setTools(List<ToolConfiguration> tools) {
 		this.tools = tools;
 	}
