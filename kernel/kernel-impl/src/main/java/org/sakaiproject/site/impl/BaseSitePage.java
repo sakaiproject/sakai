@@ -520,7 +520,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		}
 		
 		// if one and only one tool title exists (and it's valid) replace page title with localized tool title
-		if ( getTools().size() == 1 && localizedTitle != null && !localizedTitle.trim().equals("") );
+		if ( getTools().size() == 1 && localizedTitle != null && !localizedTitle.trim().equals("") )
 			setTitle(localizedTitle);
 	}
 	
