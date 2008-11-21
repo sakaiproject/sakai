@@ -111,6 +111,11 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 		{
 			_log.error("CQL parse exception: " + e);
 		}
+		
+		if (root == null)
+		{
+			return null;
+		}
 
 		String cqlXml = root.toXCQL( 0 );
 
@@ -127,6 +132,11 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 		catch( java.io.UnsupportedEncodingException uee )
 		{
 			_log.error("Encoding exception: " + uee);
+		}
+
+		if (byteInputStream == null)
+		{
+			return null;
 		}
 
 		// clear the stack
