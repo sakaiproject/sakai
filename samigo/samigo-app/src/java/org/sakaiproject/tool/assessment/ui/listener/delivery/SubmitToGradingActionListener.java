@@ -770,7 +770,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 		log.debug("Adding one ItemGradingData...");
 		ItemGradingData itemGradingData = new ItemGradingData();
 		itemGradingData.setAssessmentGradingId(assessmentGradingData.getAssessmentGradingId());
-		itemGradingData.setAgentId(AgentFacade.getAgentString());
+		if (AgentFacade.getAgentString() == null || AgentFacade.getAgentString().equals("")) {
+			itemGradingData.setAgentId(assessmentGradingData.getAgentId());
+		}
+		else {
+			itemGradingData.setAgentId(AgentFacade.getAgentString());
+		}
 		itemGradingData.setPublishedItemId(publishedItemId);
 		ItemService itemService = new ItemService();
 		Long itemTextId = itemService.getItemTextId(publishedItemId);
