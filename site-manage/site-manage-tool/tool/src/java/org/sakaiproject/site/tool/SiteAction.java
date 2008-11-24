@@ -1070,6 +1070,8 @@ public class SiteAction extends PagedResourceActionII {
 		
 		// get alias base path
 		String aliasBaseUrl = ServerConfigurationService.getPortalUrl() + Entity.SEPARATOR + "site" + Entity.SEPARATOR;
+		
+		List unJoinableSiteTypes = (List) state.getAttribute(STATE_DISABLE_JOINABLE_SITE_TYPE);
 
 		switch (index) {
 		case 0:
@@ -1705,7 +1707,10 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("siteIcon", site.getIconUrl());
 				context.put("siteTitle", site.getTitle());
 				context.put("siteDescription", site.getDescription());
-				context.put("siteJoinable", new Boolean(site.isJoinable()));
+				if (unJoinableSiteTypes != null && !unJoinableSiteTypes.contains(siteType))
+				{
+					context.put("siteJoinable", new Boolean(site.isJoinable()));
+				}
 
 				if (site.isPublished()) {
 					context.put("published", Boolean.TRUE);
@@ -2105,8 +2110,6 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			List publicChangeableSiteTypes = (List) state
 					.getAttribute(STATE_PUBLIC_CHANGEABLE_SITE_TYPES);
-			List unJoinableSiteTypes = (List) state
-					.getAttribute(STATE_DISABLE_JOINABLE_SITE_TYPE);
 
 			if (site != null) {
 				// editing existing site
