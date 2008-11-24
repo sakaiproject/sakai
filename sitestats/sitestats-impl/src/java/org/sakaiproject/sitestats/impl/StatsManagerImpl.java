@@ -896,7 +896,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					Date fDate2 = c.getTime();
 					q.setDate("fdate", fDate2);
 				}
-				if(anonymousEvents != null && anonymousEvents.size() > 0) {
+				if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
 					q.setParameterList("anonymousEvents", anonymousEvents);
 				}
 				if(page != null){
