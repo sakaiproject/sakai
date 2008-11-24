@@ -9600,7 +9600,15 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		if ((returnResources.size() > 1) && !mode.equalsIgnoreCase(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
 		{
-			Collections.sort(returnResources, new AssignmentComparator(state, sort, ascending));
+			try
+			{
+				Collections.sort(returnResources, new AssignmentComparator(state, sort, ascending));
+			}
+			catch (Exception e)
+			{
+				// log exception during sorting for helping debugging
+				M_log.warn(this + ":sizeResources mode=" + mode + " sort=" + sort + " ascending=" + ascending + " " + e.getStackTrace());
+			}
 		}
 
 		// record the total item number
