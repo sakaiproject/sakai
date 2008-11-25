@@ -263,7 +263,8 @@ public class SiteAction extends PagedResourceActionII {
 			"",// 57
 			"-siteInfo-importSelection",   //58
 			"-siteInfo-importMigrate",    //59
-			"-importSitesMigrate"  //60
+			"-importSitesMigrate",  //60
+			"-siteInfo-importUser"
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -2374,36 +2375,21 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteinfo-import.vm
 			 * 
 			 */
-			context.put("currentSite", site);
-			context.put("importSiteList", state
-					.getAttribute(STATE_IMPORT_SITES));
-			context.put("sites", SiteService.getSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
-					null, null, null, SortType.TITLE_ASC, null));
+			putImportSitesInfoIntoContext(context, site, state, false);
 			return (String) getContext(data).get("template") + TEMPLATE[28];
 		case 58:
 			/*
 			 * buildContextForTemplate chef_siteinfo-importSelection.vm
 			 * 
 			 */
-			context.put("currentSite", site);
-			context.put("importSiteList", state
-					.getAttribute(STATE_IMPORT_SITES));
-			context.put("sites", SiteService.getSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
-					null, null, null, SortType.TITLE_ASC, null));
+			putImportSitesInfoIntoContext(context, site, state, false);
 			return (String) getContext(data).get("template") + TEMPLATE[58];
 		case 59:
 			/*
 			 * buildContextForTemplate chef_siteinfo-importMigrate.vm
 			 * 
 			 */
-			context.put("currentSite", site);
-			context.put("importSiteList", state
-					.getAttribute(STATE_IMPORT_SITES));
-			context.put("sites", SiteService.getSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
-					null, null, null, SortType.TITLE_ASC, null));
+			putImportSitesInfoIntoContext(context, site, state, false);
 			return (String) getContext(data).get("template") + TEMPLATE[59];
 
 		case 29:
@@ -2840,11 +2826,32 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("continueIndex", state.getAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE));
 			return (String) getContext(data).get("template") + TEMPLATE[54];
-
+		case 61:
+			/*
+			 * build context for chef_site-importUser.vm
+			 */
+			context.put("toIndex", "12");
+			// only show those sites with same site type
+			putImportSitesInfoIntoContext(context, site, state, true);
+			return (String) getContext(data).get("template") + TEMPLATE[61];
 		}
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 
+	}
+
+	/**
+	 * put all info necessary for importing site into context
+	 * @param context
+	 * @param site
+	 */
+	private void putImportSitesInfoIntoContext(Context context, Site site, SessionState state, boolean ownTypeOnly) {
+		context.put("currentSite", site);
+		context.put("importSiteList", state
+				.getAttribute(STATE_IMPORT_SITES));
+		context.put("sites", SiteService.getSites(
+				org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
+				ownTypeOnly?site.getType():null, null, null, SortType.TITLE_ASC, null));
 	}
 
 	/**
@@ -5820,6 +5827,19 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // doMenu_siteInfo_import
 	
+	/**
+	 * doMenu_siteInfo_import_user
+	 */
+	public void doMenu_siteInfo_import_user(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		if (state.getAttribute(STATE_MESSAGE) == null) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "61");	// import users
+		}
+
+	} // doMenu_siteInfo_import_user
+	
 	public void doMenu_siteInfo_importMigrate(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
@@ -7162,9 +7182,75 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			break;
+		case 61:
+			// import users
+			if (forward) {
+				if (params.getStrings("importSites") == null) {
+					addAlert(state, rb.getString("java.toimport") + " ");
+				} else {
+					importSitesUsers(params, state);
+				}
+			}
+			break;
 		}
 
 	}// actionFor Template
+
+	/**
+	 * import not-provided users from selected sites
+	 * @param params
+	 */
+	private void importSitesUsers(ParameterParser params, SessionState state) {
+		// the target site
+		Site site = getStateSite(state);
+		try {
+			// the target realm
+			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(site.getId()));
+			
+			List importSites = new ArrayList(Arrays.asList(params.getStrings("importSites")));
+			for (int i = 0; i < importSites.size(); i++) {
+				String fromSiteId = (String) importSites.get(i);
+				try {
+					Site fromSite = SiteService.getSite(fromSiteId);
+					
+					// get realm information
+					String fromRealmId = SiteService.siteReference(fromSite.getId());
+					AuthzGroup fromRealm = AuthzGroupService.getAuthzGroup(fromRealmId);
+					// get all users in the from site
+					Set fromUsers = fromRealm.getUsers();
+					for (Iterator iFromUsers = fromUsers.iterator(); iFromUsers.hasNext();)
+					{
+						String fromUserId = (String) iFromUsers.next();
+						Member fromMember = fromRealm.getMember(fromUserId);
+						if (!fromMember.isProvided())
+						{
+							// add user
+							realm.addMember(fromUserId, fromMember.getRole().getId(), fromMember.isActive(), false);
+						}
+					}
+				} catch (GroupNotDefinedException e) {
+					M_log.warn(this + ".importSitesUsers: GroupNotDefinedException, " + fromSiteId + " not found, or not an AuthzGroup object", e);
+					addAlert(state, rb.getString("java.cannotedit"));
+				} catch (IdUnusedException e) {
+					M_log.warn(this + ".importSitesUsers: IdUnusedException, " + fromSiteId + " not found, or not an AuthzGroup object", e);
+				
+				}
+			}
+			
+			// post event about the realm participant update
+			EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realm.getId(), false));
+			
+			// save realm
+			AuthzGroupService.save(realm);
+			
+		} catch (GroupNotDefinedException e) {
+			M_log.warn(this + ".importSitesUsers: IdUnusedException, " + site.getTitle() + "(" + site.getId() + ") not found, or not an AuthzGroup object", e);
+			addAlert(state, rb.getString("java.cannotedit"));
+		} catch (AuthzPermissionException e) {
+			M_log.warn(this + ".importSitesUsers: PermissionException, user does not have permission to edit AuthzGroup object " + site.getTitle() + "(" + site.getId() + "). ", e);
+			addAlert(state, rb.getString("java.notaccess"));
+		}
+	}
 
 	/**
 	 * This is used to update exsiting site attributes with encoded site id in it. A new resource item is added to new site when needed
