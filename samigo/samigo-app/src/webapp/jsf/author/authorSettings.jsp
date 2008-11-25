@@ -493,7 +493,7 @@ function setBlockDivs()
 </h:panelGroup>
 
   <!-- *** ASSESSMENT ORGANIZATION *** -->
-<h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true or assessmentSettings.valueMap.displayChucking_isInstructorEditable==true or assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true }" >
+<h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true or assessmentSettings.valueMap.displayChunking_isInstructorEditable==true or assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true }" >
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_assessment_organization}" >
   <f:verbatim> <div class="tier2"></f:verbatim>
     <!-- NAVIGATION -->

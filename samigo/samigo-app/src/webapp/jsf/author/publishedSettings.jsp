@@ -365,7 +365,7 @@ function checkUncheckTimeBox(){
   </h:panelGroup>
 
   <!-- *** ASSESSMENT ORGANIZATION *** -->
-  <h:panelGroup rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true or publishedSettings.valueMap.displayChucking_isInstructorEditable==true or publishedSettings.valueMap.displayNumbering_isInstructorEditable==true }" >
+  <h:panelGroup rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true or publishedSettings.valueMap.displayChunking_isInstructorEditable==true or publishedSettings.valueMap.displayNumbering_isInstructorEditable==true }" >
 
   <samigo:hideDivision id="div6" title="#{assessmentSettingsMessages.t_assessmentOrganization}" >
   <f:verbatim><div class="tier2"></f:verbatim>
@@ -389,7 +389,7 @@ function checkUncheckTimeBox(){
   </h:panelGroup>
     
     <!-- QUESTION LAYOUT -->
-  <h:panelGroup rendered="#{publishedSettings.valueMap.displayChucking_isInstructorEditable==true}">
+  <h:panelGroup rendered="#{publishedSettings.valueMap.displayChunking_isInstructorEditable==true}">
     <f:verbatim><div class="longtext"></f:verbatim>
 	<h:outputLabel value="#{assessmentSettingsMessages.question_layout}" />
 	<f:verbatim></div><div class="tier3"></f:verbatim>
