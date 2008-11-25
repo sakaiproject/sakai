@@ -683,7 +683,14 @@ public abstract class BaseCitationService implements CitationService
 			rislabel = rislabel.trim();
 
 			// Adjust the prefix to have a colon-space afterwards, if there *is* a prefix
-			if (prefix != null && !prefix.trim().equals(""))
+      if (prefix == null)
+      {
+        prefix = "";
+      }
+
+      prefix = prefix.trim();
+      
+			if (!prefix.equals(""))
 			{
 				prefix = prefix + ": ";
 			}
