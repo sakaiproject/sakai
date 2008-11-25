@@ -307,7 +307,9 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             if (roleId == null || "".equals(roleId)) {
                 roleId = sg.site.getJoinerRole();
             }
-            userId = userEntityProvider.findAndCheckUserId(em.getUserId(), em.getUserEid());
+            if ((em.getUserId() != null) || (em.getUserEid() != null)) {
+                userId = userEntityProvider.findAndCheckUserId(em.getUserId(), em.getUserEid());
+			}
             active = em.isActive();
         } else {
             throw new IllegalArgumentException("Invalid entity for create/update, must be Member or EntityMember object");
@@ -476,28 +478,41 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             userIds.add(userId);
         }
         if (params != null) {
-            Object uids = params.get("userIds");
-            if (uids != null) {
-            	String[] batchUserIds;
-            	if (uids.getClass().isArray()) {
-            		batchUserIds = (String[]) uids;
-            	} else if (uids instanceof String) {
-            		batchUserIds = new String[] {(String)uids};
-            	} else {
-            		batchUserIds = null;
-            	}
-                if (batchUserIds != null) {
-                    for (int i = 0; i < batchUserIds.length; i++) {
-                        String uid = userEntityProvider.findAndCheckUserId(batchUserIds[i], null);
-                        if (uid != null) {
-                            userIds.add(uid);
-                        }
-                    }
-                }
-            }
+        	String[] batchUserIds = getArrayFromValue(params.get("userIds"));
+        	if (batchUserIds != null) {
+        		for (int i = 0; i < batchUserIds.length; i++) {
+        			String uid = userEntityProvider.findAndCheckUserId(batchUserIds[i], null);
+        			if (uid != null) {
+        				userIds.add(uid);
+        			}
+        		}
+        	}
+        	String[] userSearchValues = getArrayFromValue(params.get("userSearchValues"));
+        	if (userSearchValues != null) {
+        		for (int i = 0; i < userSearchValues.length; i++) {
+        			String uid = userEntityProvider.findUserIdFromSearchValue(userSearchValues[i]);
+        			if (uid != null) {
+        				userIds.add(uid);
+        			}
+        		}
+        	}      	
         }
         if (log.isDebugEnabled()) log.debug("Received userIds=" + userIds);
         return userIds.toArray(new String[userIds.size()]);
+    }
+    
+    protected String[] getArrayFromValue(Object paramValue) {
+    	String[] stringArray;
+    	if (paramValue == null) {
+    		stringArray = null; 
+    	} else if (paramValue.getClass().isArray()) {
+    		stringArray = (String[])paramValue;
+    	} else if (paramValue instanceof String) {
+    		stringArray = new String[] {(String)paramValue};
+    	} else {
+    		stringArray = null;
+    	}
+    	return stringArray;
     }
 
     protected String makeRoleId(String currentRoleId, Site site) {

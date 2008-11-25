@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.FieldUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -54,6 +56,7 @@ import org.sakaiproject.user.api.UserPermissionException;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class UserEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, Describeable {
+    private static Log log = LogFactory.getLog(UserEntityProvider.class);
 
     private UserDirectoryService userDirectoryService;
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -260,7 +263,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         return eu;         
     }
 
-    @SuppressWarnings("unchecked")
     public List<?> getEntities(EntityReference ref, Search search) {
         Collection<User> users = new ArrayList<User>();
         if (developerHelperService.getConfigurationSetting("entity.users.viewall", false)) {
@@ -440,6 +442,20 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                     } catch (UserNotDefinedException e2) {
                         userId = null;
                     }
+                }
+            }
+        }
+        return userId;
+    }
+    
+    public String findUserIdFromSearchValue(String userSearchValue) {
+        String userId = findAndCheckUserId(userSearchValue, null);
+        if (userId == null) {
+            Collection<User> users = userDirectoryService.findUsersByEmail(userSearchValue);
+            if ((users != null) && (users.size() > 0)) {
+                userId = users.iterator().next().getId();
+                if (users.size() > 1) {
+                    if (log.isWarnEnabled()) log.warn("Found multiple users with email " + userSearchValue);
                 }
             }
         }
