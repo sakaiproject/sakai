@@ -94,7 +94,7 @@ public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporte
 		UIOutput.make(tofill,"confirm-msg",messageLocator.getMessage("thanks_msg"));
 		UIOutput.make(tofill,"confirm-ref-msg",messageLocator.getMessage("thanks_ref"));
 		UIOutput.make(tofill,"ref-number",voteId);
-		UIForm form = UIForm.make(tofill,"back","");
+		UIForm form = UIForm.make(tofill,"back", new SimpleViewParameters(PollToolProducer.VIEW_ID));
 		UICommand.make(form,"cancel",messageLocator.getMessage("thanks_done"),"#{pollToolBean.cancel}");
 	}
 
