@@ -2133,6 +2133,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	String urlid = params.getString("urlid_" + i);
         	
         	String preferred = params.getString( "pref_" + i );
+        	
+        	String addPrefix = params.getString( "addprefix_" + i );
 
          	if(url == null)
         	{
@@ -2158,7 +2160,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	}
         	else if(urlid == null || urlid.trim().equals(""))
         	{
-        		id = citation.addCustomUrl(label, url);
+        		id = citation.addCustomUrl(label, url, addPrefix);
         		
         		if( preferred != null && !preferred.trim().equals( "" ) )
         		{
@@ -2169,7 +2171,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	else
         	{
         		// update an existing customUrl
-        		citation.updateCustomUrl(urlid, label, url);
+        		citation.updateCustomUrl(urlid, label, url, addPrefix);
         		
             	if( preferred != null && !preferred.trim().equals( "" ) )
         		{
@@ -3368,7 +3370,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 		url = url.trim();
-
+		
+		// does this URL start with a transport?
 		if (url.indexOf ("://") == -1)
 		{
 			// if it's missing the transport, add http://

@@ -401,10 +401,11 @@ public abstract class BaseCitationService implements CitationService
 			  String id;
         /*
          * Save the URL without a label (it'll get the default label at
-         * render-time) and [optionally] set it as the preferred (title) link
+         * render-time).  This URL needs to have the prefix text added at 
+         * render time, and we'll [optionally] set it as the preferred 
+         * (or title) link.
          */
-			  id = addCustomUrl("", preferredUrl);
-			  
+			  id = addCustomUrl("",  preferredUrl, Citation.ADD_PREFIX_TEXT);
 			  if (usePreferredUrlAsTitle)
 			  {
 			    setPreferredUrl(id);
@@ -542,7 +543,7 @@ public abstract class BaseCitationService implements CitationService
 		/*
 		 * (non-Javadoc)
 		 *
-		 * @see org.sakaiproject.citation.api.Citation#addUrl(java.lang.String,
+		 * @see org.sakaiproject.citation.api.Citation#addCustomUrl(java.lang.String,
 		 *      java.net.URL)
 		 */
 		public String addCustomUrl(String label, String url)
@@ -552,6 +553,55 @@ public abstract class BaseCitationService implements CitationService
 			m_urls.put(id, wrapper);
 			return id;
 		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.sakaiproject.citation.api.Citation#addCustomUrl(java.lang.String,
+		 *                                                          java.net.URL,
+		 *                                                          jave.lang.String)
+		 */
+		public String addCustomUrl(String label, String url, String prefixRequest)
+		{
+			UrlWrapper wrapper = new UrlWrapper(label, url, 
+			                                    getPrefixBoolean(prefixRequest));
+			String id = IdManager.createUuid();
+			m_urls.put(id, wrapper);
+			return id;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.sakaiproject.citation.api.Citation#updateCustomUrl(java.lang.String,
+		 *                                                             java.lang.String,
+		 *                                                             java.lang.String,
+		 *                                                             java.lang.String)
+		 */
+		public void updateCustomUrl(String urlid, String label, 
+		                            String url, String prefixRequest)
+		{
+			UrlWrapper wrapper = new UrlWrapper(label, url, 
+			                                    getPrefixBoolean(prefixRequest));
+			m_urls.put(urlid, wrapper);
+		}
+
+    /*
+     * addCustomUrl()/updateCustomUrl() helper: Convert the "prefix request 
+     *                                          string" to a boolean value
+     *
+     * @param prefixRequest Prefix request text
+     * @return true if the request is to add URL prefix
+     */
+    private boolean getPrefixBoolean(String prefixRequest)
+    {
+      if (!Citation.ADD_PREFIX_TEXT.equals(prefixRequest)
+      &&  !Citation.OMIT_PREFIX_TEXT.equals(prefixRequest))
+      {
+        M_log.debug("Unexpected \"add prefix\" request: " + prefixRequest);
+      }
+      return Citation.ADD_PREFIX_TEXT.equals(prefixRequest);
+    }
 
 		/*
 		 * (non-Javadoc)
@@ -830,6 +880,7 @@ public abstract class BaseCitationService implements CitationService
 				{
 					String url = this.getCustomUrl(id);
 					String urlLabel = this.getCustomUrlLabel(id);
+
 					exportRisField("UR", url, buffer); // URL
 					exportRisField("NT",  url, buffer, urlLabel); // Note
 
@@ -949,20 +1000,75 @@ public abstract class BaseCitationService implements CitationService
 			return creators;
 		}
 
-		/*
-		 * (non-Javadoc)
+		/**
+		 * Fetch a custom (direct) URL by ID.  
 		 *
-		 * @see org.sakaiproject.citation.api.Citation#getUrl(java.lang.String)
+		 * @see org.sakaiproject.citation.api.Citation#getCustomUrl(java.lang.String)
 		 */
 		public String getCustomUrl(String id) throws IdUnusedException
 		{
+			UrlWrapper wrapper;
+	    StringBuilder urlBuffer;
+	    String prefix;
+	   
+	    if ((wrapper = (UrlWrapper) m_urls.get(id)) == null)
+			{
+				throw new IdUnusedException(id);
+			}
+  	  
+  	  urlBuffer = new StringBuilder(wrapper.getUrl());
+  	  
+  	  if (wrapper.addPrefix())
+  	  {
+    	  if ((prefix = getUrlPrefix()) != null)
+  			{
+  			  urlBuffer.insert(0, prefix);
+        }
+      }
+			return urlBuffer.toString();
+		}
+
+		/**
+		 * Fetch a custom (direct) URL by ID.  The URL prefix (if applicable)
+		 * is not added.
+		 *
+		 * @see org.sakaiproject.citation.api.Citation#getUnprefixedCustomUrl(java.lang.String)
+		 */
+		public String getUnprefixedCustomUrl(String id) throws IdUnusedException
+		{
 			UrlWrapper wrapper = (UrlWrapper) m_urls.get(id);
+			
 			if (wrapper == null)
 			{
 				throw new IdUnusedException(id);
 			}
-
 			return wrapper.getUrl();
+		}
+
+		/**
+		 * Fetch the configured URL prefix string.
+		 * @return The prefix (null if none)
+		 *
+		 * @see org.sakaiproject.citation.api.Citation#getUnprefixedCustomUrl(java.lang.String)
+		 */
+		public String getUrlPrefix()
+		{
+      return m_configService.getSiteConfigPreferredUrlPrefix();
+		}
+
+		/**
+		 * Add prefix text to this URL?
+		 * @return true If the URL should get the prefix
+		 */
+		public boolean addPrefixToUrl(String id) throws IdUnusedException
+		{
+			UrlWrapper wrapper = (UrlWrapper) m_urls.get(id);
+			
+			if (wrapper == null)
+			{
+				throw new IdUnusedException(id);
+			}
+			return wrapper.addPrefix();
 		}
 
 		/*
@@ -2053,18 +2159,6 @@ public abstract class BaseCitationService implements CitationService
 				}
 			}
 
-		}
-
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.sakaiproject.citation.api.Citation#updateUrl(java.lang.String,
-		 *      java.lang.String, java.net.URL)
-		 */
-		public void updateCustomUrl(String urlid, String label, String url)
-		{
-			UrlWrapper wrapper = new UrlWrapper(label, url);
-			m_urls.put(urlid, wrapper);
 		}
 
 		/* (non-Javadoc)
@@ -3749,18 +3843,30 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	public class UrlWrapper
 	{
-		protected String m_label;
-
-		protected String m_url;
+		protected String  m_label;
+		protected String  m_url;
+    protected boolean m_addPrefix;
+		/**
+		 * @param label Link label
+		 * @param url URL
+		 * @param addPrefix Add the configured prefix text?
+		 */
+		public UrlWrapper(String label, String url, boolean addPrefix)
+		{
+			m_label = label;
+			m_url = url;
+			m_addPrefix = addPrefix;
+		}
 
 		/**
-		 * @param label
-		 * @param url
+		 * @param label Link label
+		 * @param url URL
 		 */
 		public UrlWrapper(String label, String url)
 		{
 			m_label = label;
 			m_url = url;
+			m_addPrefix = false;
 		}
 
 		/**
@@ -3777,6 +3883,13 @@ public abstract class BaseCitationService implements CitationService
 		public String getUrl()
 		{
 			return m_url;
+		}
+		/**
+		 * @return the "add prefix" setting
+		 */
+		public boolean addPrefix()
+		{
+			return m_addPrefix;
 		}
 
 		/**
@@ -3795,6 +3908,15 @@ public abstract class BaseCitationService implements CitationService
 		public void setUrl(String url)
 		{
 			m_url = url;
+		}
+	
+		/**
+		 * @param addPrefix
+		 *            the "add prefix" setting
+		 */
+		public void setAddPrefix(boolean addPrefix)
+		{
+			m_addPrefix = addPrefix;
 		}
 	}
 
@@ -3952,6 +4074,7 @@ public abstract class BaseCitationService implements CitationService
 	protected Storage m_storage = null;
 
 	protected String m_relativeAccessPoint;
+
 
 	/**
 	 * Dependency: the ResourceTypeRegistry

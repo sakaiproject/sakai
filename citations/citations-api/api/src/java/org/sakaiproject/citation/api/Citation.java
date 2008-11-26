@@ -38,12 +38,31 @@ import org.sakaiproject.exception.IdUnusedException;
  */
 public interface Citation 	// extends Entity
 {
+  /**
+     * When rendering custom (direct) URLs: add or omit the configured URL prefix
+     */
+    public static final String ADD_PREFIX_TEXT    = "y";
+    public static final String OMIT_PREFIX_TEXT   = "n";
+    
 	/**
-     * @param label
-     * @param url
+	   * Add a new custom (direct) URL
+     * @param label Link label
+     * @param url The URL to add
      * @return A unique identifier for the URL and its label.
      */
     public String addCustomUrl(String label, String url);
+
+	/**
+	   * Add a new custom (direct) URL and determine if the prefix text will
+	   * be added to the URL at render-time.
+     * @param label Link label
+     * @param url The URL to add
+     * @param prefixRequest Use Citation.ADD_PREFIX_TEXT to add the prefix,
+     *                          Citation.OMIT_PREFIX_TEXT to skip the prefix
+     *
+     * @return A unique identifier for the URL and its label.
+     */
+    public String addCustomUrl(String label, String url, String prefixRequest);
 
     /**
      * @param name
@@ -86,10 +105,36 @@ public interface Citation 	// extends Entity
 	public String getCreator();
 
 	/**
-     * @param id
-     * @return
+	   * Fetch a custom (direct) URL by ID.  The URL prefix text (if any) 
+	   * is added.
+	   *
+     * @param id The internal URL ID
+     * @return The URL (with prefix text if applicable)
      */
     public String getCustomUrl(String id) throws IdUnusedException;
+
+		/**
+		 * Fetch a custom (direct) URL by ID.  The URL prefix (if applicable)
+		 * is not added.
+     *
+     * @param id The internal URL ID
+     * @return The URL
+		 */
+		public String getUnprefixedCustomUrl(String id) throws IdUnusedException;
+
+		/**
+		 * Fetch the URL prefix text
+		 *
+		 * @return The URL prefix text (null if none) 
+		 */
+		public String getUrlPrefix();
+
+		/**
+		 * Add prefix text to this URL at render-time?
+     * @param id The internal URL ID
+     * @return true If the prefix should be added to the URL
+		 */
+		public boolean addPrefixToUrl(String id) throws IdUnusedException;
 
 	/**
      * @return
@@ -235,11 +280,13 @@ public interface Citation 	// extends Entity
 	public void updateCitationProperty(String name, List values);
 
 	/**
-     * @param urlid
-     * @param label
-     * @param url
+     * @param urlid Unique ID for this URL
+     * @param label Link label
+     * @param url The URL
+     * @param prefixRequest Use Citation.ADD_PREFIX_TEXT to add the URL prefix,
+     *                          Citation.OMIT_PREFIX_TEXT to skip the prefix
      */
-    public void updateCustomUrl(String urlid, String label, String url);
+    public void updateCustomUrl(String urlid, String label, String url, String prefixRequest);
 
     /**
      * Designate that a previously defined custom-url should be used in place of the open-url as the primary

@@ -244,7 +244,7 @@ public class ConfigurationService
 	}
 
   /**
-   * How should we use "preferred" URLs found by Library Search as the title link?
+   * How should we use "preferred" URLs found by Library Search?
    * @return "false", "related-link", or "title-link"
    */
 	public static String getSiteConfigUsePreferredUrls()
@@ -256,6 +256,25 @@ public class ConfigurationService
 		}
 		return instance.getSiteConfigUsePreferredUrls();
 	}
+
+  /**
+   * Prefix string for "preferred" URLs (when used as title or related links).  
+   *
+   * This is likely to be the proxy information for the direct URL.
+   *
+   * @return The prefix String (null if none)
+   */
+  public String getSiteConfigPreferredUrlPrefix()
+  {
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return null;
+		}
+		return instance.getSiteConfigPreferredUrlPrefix();
+	}
+
+
 
   /**
    * Get the maximum number of databases we can search at one time

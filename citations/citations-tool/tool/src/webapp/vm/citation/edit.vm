@@ -96,7 +96,21 @@
 								<label for="url_${count}">
 									$tlang.getString("url.link")
 								</label>
-								<input name="url_$count" id="url_$count" value="$!{citation.getCustomUrl("$urlId")}" type="text" size="50" />
+      					#if($citation.addPrefixToUrl("$urlId"))
+                <!-- Prefixed URLs -->
+      					<!-- Display (but not edit) the prefixed URL, always return the unprefixed URL -->
+								<input name="displayed_url_$count" id="displayed_url_$count" disabled="disabled"
+       								 value="$!{citation.getCustomUrl("$urlId")}" type="text" size="50" />
+								<input name="url_$count" id="url_$count"
+       								 value="$!{citation.getUnprefixedCustomUrl("$urlId")}" type="hidden" />
+                <!-- Inddicate this URL requires the prefix (value is Citation.ADD_PREFIX_TEXT) -->
+								<input name="addprefix_$count" id="addprefix_$count"
+       								 value="y" type="hidden" />
+								#else
+								<!-- Non-prefixed URL -->
+								<input name="url_$count" id="url_$count" 
+       								 value="$!{citation.getCustomUrl("$urlId")}" type="text" size="50" />
+       				  #end
 							</td>
 						</tr>
 						<tr>

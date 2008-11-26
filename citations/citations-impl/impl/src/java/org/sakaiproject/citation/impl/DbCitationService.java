@@ -309,7 +309,7 @@ public class DbCitationService extends BaseCitationService
 					fields[1] = PROP_HAS_URL + PROPERTY_NAME_DELIMITOR + urlCount;
 					fields[2] = id;
 					ok = m_sqlService.dbWrite(statement, fields);
-					commitUrl(id, wrapper.getLabel(), wrapper.getUrl());
+					commitUrl(id, wrapper.getLabel(), wrapper.getUrl(), wrapper.addPrefix());
 					urlCount++;
 				}
 			}
@@ -369,7 +369,7 @@ public class DbCitationService extends BaseCitationService
  		 * @param label
  		 * @param url
          */
-        protected void commitUrl(String id, String label, String url)
+        protected void commitUrl(String id, String label, String url, boolean addPrefix)
         {
 	        deleteUrl(id);
 
@@ -384,6 +384,11 @@ public class DbCitationService extends BaseCitationService
 
 			fields[1] = PROP_URL_STRING;
 			fields[2] = url;
+			ok = m_sqlService.dbWrite(statement, fields);
+
+			fields[1] = PROP_URL_ADD_PREFIX;
+			fields[2] = addPrefix ? Citation.ADD_PREFIX_TEXT 
+			                      : Citation.OMIT_PREFIX_TEXT;
 			ok = m_sqlService.dbWrite(statement, fields);
 
 		}
@@ -794,6 +799,7 @@ public class DbCitationService extends BaseCitationService
 						List urlfields = m_sqlService.dbRead(statement, fields, new TripleReader());
 						String label = null;
 						String url = null;
+						boolean addPrefix = false;
 						Iterator urlFieldIt = urlfields.iterator();
 						while(urlFieldIt.hasNext())
 						{
@@ -806,8 +812,14 @@ public class DbCitationService extends BaseCitationService
 							{
 								url = (String) urlField.getValue();
 							}
+							else if(PROP_URL_ADD_PREFIX.equals(urlField.getName()))
+							{
+							  String enabled = (String) urlField.getValue();
+							  
+								addPrefix = Citation.ADD_PREFIX_TEXT.equals(enabled);
+							}
 						}
-						edit.m_urls.put(id, new UrlWrapper(label, url));
+						edit.m_urls.put(id, new UrlWrapper(label, url, addPrefix));
 					}
 					else if(PROP_HAS_PREFERRED_URL.equals(name))
 					{
@@ -1357,6 +1369,8 @@ public class DbCitationService extends BaseCitationService
 	protected static final String PROP_URL_LABEL = "sakai:url_label";
 
 	protected static final String PROP_URL_STRING = "sakai:url_string";
+
+	protected static final String PROP_URL_ADD_PREFIX = "sakai:url_add_prefix";
 
 	protected static final String PROPERTY_NAME_DELIMITOR = "\t";
 

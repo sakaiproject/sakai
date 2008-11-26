@@ -461,6 +461,18 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   }
 
   /**
+   * Prefix string for "preferred" URLs (when used as title or related links).  
+   *
+   * This is likely to be the proxy information for the direct URL.
+   *
+   * @return The prefix String (null if none)
+   */
+  public synchronized String getSiteConfigPreferredUrlPrefix()
+  {
+    return getConfigurationParameter("direct-url-prefix");
+  }
+
+  /**
    * Enable/disable Citations Helper by default
    * @param state true to set default 'On'
    */
@@ -709,6 +721,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       saveParameter(document, parameterMap, "openurl-resolveraddress");
       
       saveParameter(document, parameterMap, "provide-direct-url");
+      saveParameter(document, parameterMap, "direct-url-prefix");
       
       saveParameter(document, parameterMap, "google-baseurl");
       saveParameter(document, parameterMap, "sakai-serverkey");

@@ -144,10 +144,19 @@ public interface ConfigurationService
   public String getSiteConfigSakaiServerKey();
 
   /**
-   * How should we use "preferred" URLs found by Library Search as the title link?
+   * How should we use "preferred" URLs found by Library Search?
    * @return "false", "related-link", or "title-link"
    */
   public String getSiteConfigUsePreferredUrls();
+  
+  /**
+   * Prefix string for "preferred" URLs (when used as title or related links).  
+   *
+   * This is likely to be the proxy information for the direct URL.
+   *
+   * @return The prefix String (null if none)
+   */
+  public String getSiteConfigPreferredUrlPrefix();
 
   /**
    * Get the maximum number of databases we can search at one time
