@@ -21,10 +21,13 @@
 package org.sakaiproject.entitybroker.providers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +42,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomActi
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Order;
@@ -79,9 +83,19 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
     public String getEntityPrefix() {
         return PREFIX;
     }
-
-    @EntityCustomAction(action="site",viewKey=EntityView.VIEW_LIST)
-    public List<?> getSiteMemberships(EntityView view, Map<String, Object> params) {
+    
+    /**
+     * Handle the special needs of UX site membership settings, either getting the current
+     * list of site memberships via a GET request, or creating a new batch of site memberships
+     * via a POST request. In the case of a POST, special HTTP response headers will be
+     * used to communicate success or warning conditions to the client.
+     * @param view
+     * @param params
+     * @return
+     */
+    @EntityCustomAction(action="site",viewKey="")
+    public ActionReturn handleSiteMemberships(EntityView view, Map<String, Object> params) {
+        if (log.isDebugEnabled()) log.debug("handleSiteMemberships method=" + view.getMethod() + ", params=" + params);
         String siteId = view.getPathSegment(2);
         if (siteId == null) {
             siteId = (String) params.get("siteId");
@@ -89,9 +103,76 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                 throw new IllegalArgumentException("siteId must be set in order to get site memberships, set in params or in the URL /membership/site/siteId");
             }
         }
-        List<?> l = getEntities(new EntityReference(PREFIX,""), 
-                new Search(CollectionResolvable.SEARCH_LOCATION_REFERENCE,"/site/" + siteId));
-        return l;
+        String locationReference = "/site/" + siteId;
+        
+        Map<String, String> extraResponseHeaders = null;
+        if (EntityView.Method.POST.name().equals(view.getMethod())) {
+            extraResponseHeaders = createBatchMemberships(view, params, locationReference);
+        }
+        
+        List<EntityData> l = getEntities(new EntityReference(PREFIX,""), 
+                new Search(CollectionResolvable.SEARCH_LOCATION_REFERENCE, locationReference));
+        ActionReturn actionReturn = new ActionReturn(l, Formats.JSON);
+        if ((extraResponseHeaders != null) && !extraResponseHeaders.isEmpty()) {
+            actionReturn.setHeaders(extraResponseHeaders);
+        }
+        return actionReturn;
+    }
+
+    /**
+     * Add members to a site.
+     * @param view
+     * @param params request parameters including a list of userSearchValues
+     * @param locationReference
+     * @return headers containing success or warning messages for the client
+     */
+    public Map<String, String> createBatchMemberships(EntityView view, Map<String, Object> params, String locationReference) {
+        SiteGroup sg = findLocationByReference(locationReference);
+        String roleId = (String)params.get("memberRole");
+        boolean active = true;
+        
+        Map<String, String> responseHeaders = new HashMap<String, String>();
+        Set<String> userIds = new HashSet<String>();
+        Set<String> valuesNotFound = new HashSet<String>();
+        Set<String> valuesAlreadyMembers = new HashSet<String>();
+        List<String> userSearchValues = getListFromValue(params.get("userSearchValues"));
+        for (String userSearchValue : userSearchValues) {
+            String userId = userEntityProvider.findUserIdFromSearchValue(userSearchValue);
+            if (userId != null) {
+                if (sg.site.getUserRole(userId) != null) {
+                    valuesAlreadyMembers.add(userSearchValue);
+                } else {
+                    userIds.add(userId);
+                }
+            } else {
+                valuesNotFound.add(userSearchValue);
+            }
+        }
+        
+        if (!userIds.isEmpty()) {
+            for (String userId : userIds) {
+                sg.site.addMember(userId, roleId, active, false);
+            }
+            saveSiteMembership(sg.site);
+            responseHeaders.put("x-success-count", String.valueOf(userIds.size()));
+        }        
+        if (!valuesNotFound.isEmpty()) {
+            Iterator<String> listIter = valuesNotFound.iterator();
+            StringBuilder listString = new StringBuilder(listIter.next());
+            while (listIter.hasNext()) {
+                listString.append(", ").append(listIter.next());
+            }
+            responseHeaders.put("x-warning-not-found", listString.toString());
+        }
+        if (!valuesAlreadyMembers.isEmpty()) {
+            Iterator<String> listIter = valuesAlreadyMembers.iterator();
+            StringBuilder listString = new StringBuilder(listIter.next());
+            while (listIter.hasNext()) {
+                listString.append(", ").append(listIter.next());
+            }
+            responseHeaders.put("x-warning-already-members", listString.toString());
+        }
+        return responseHeaders;
     }
 
     @EntityCustomAction(action="group",viewKey=EntityView.VIEW_LIST)
@@ -143,7 +224,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
      * Gets the list of all memberships for the current user if no params provided,
      * otherwise gets memberships in a specified location or for a specified user
      */
-    public List<?> getEntities(EntityReference ref, Search search) {
+    public List<EntityData> getEntities(EntityReference ref, Search search) {
         String currentUserId = developerHelperService.getCurrentUserId();
         String userId = null;
         String locationReference = null;
@@ -294,9 +375,6 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             }
             sg = findLocationByReference(locationReference);
             roleId = member.getRole().getId();
-            if (roleId == null || "".equals(roleId)) {
-                roleId = sg.site.getJoinerRole();
-            }
             userId = userEntityProvider.findAndCheckUserId(member.getUserId(), member.getUserEid());
             active = member.isActive();
         } else if (entity.getClass().isAssignableFrom(EntityMember.class)) {
@@ -304,9 +382,6 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             EntityMember em = (EntityMember) entity;
             sg = findLocationByReference(em.getLocationReference());
             roleId = em.getMemberRole();
-            if (roleId == null || "".equals(roleId)) {
-                roleId = sg.site.getJoinerRole();
-            }
             if ((em.getUserId() != null) || (em.getUserEid() != null)) {
                 userId = userEntityProvider.findAndCheckUserId(em.getUserId(), em.getUserEid());
 			}
@@ -314,6 +389,10 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         } else {
             throw new IllegalArgumentException("Invalid entity for create/update, must be Member or EntityMember object");
         }
+        if (roleId == null || "".equals(roleId)) {
+            roleId = sg.site.getJoinerRole();
+        }
+
         // check for a batch add
         String[] userIds = checkForBatch(params, userId);
         // now add all the memberships
@@ -478,41 +557,29 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             userIds.add(userId);
         }
         if (params != null) {
-        	String[] batchUserIds = getArrayFromValue(params.get("userIds"));
-        	if (batchUserIds != null) {
-        		for (int i = 0; i < batchUserIds.length; i++) {
-        			String uid = userEntityProvider.findAndCheckUserId(batchUserIds[i], null);
-        			if (uid != null) {
-        				userIds.add(uid);
-        			}
-        		}
-        	}
-        	String[] userSearchValues = getArrayFromValue(params.get("userSearchValues"));
-        	if (userSearchValues != null) {
-        		for (int i = 0; i < userSearchValues.length; i++) {
-        			String uid = userEntityProvider.findUserIdFromSearchValue(userSearchValues[i]);
-        			if (uid != null) {
-        				userIds.add(uid);
-        			}
-        		}
-        	}      	
+            List<String> batchUserIds = getListFromValue(params.get("userIds"));
+            for (String batchUserId : batchUserIds) {
+                String uid = userEntityProvider.findAndCheckUserId(batchUserId, null);
+                if (uid != null) {
+                    userIds.add(uid);
+                }
+            }
+
         }
         if (log.isDebugEnabled()) log.debug("Received userIds=" + userIds);
         return userIds.toArray(new String[userIds.size()]);
     }
     
-    protected String[] getArrayFromValue(Object paramValue) {
-    	String[] stringArray;
-    	if (paramValue == null) {
-    		stringArray = null; 
-    	} else if (paramValue.getClass().isArray()) {
-    		stringArray = (String[])paramValue;
-    	} else if (paramValue instanceof String) {
-    		stringArray = new String[] {(String)paramValue};
-    	} else {
-    		stringArray = null;
+    protected List<String> getListFromValue(Object paramValue) {
+        List<String> stringList = new ArrayList<String>();
+    	if (paramValue != null) {
+    	    if (paramValue.getClass().isArray()) {
+    	        stringList = Arrays.asList((String[])paramValue);
+    	    } else if (paramValue instanceof String) {
+    	        stringList.add((String)paramValue);
+    	    }
     	}
-    	return stringArray;
+    	return stringList;
     }
 
     protected String makeRoleId(String currentRoleId, Site site) {

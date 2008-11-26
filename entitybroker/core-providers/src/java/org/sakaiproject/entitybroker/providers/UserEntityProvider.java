@@ -387,6 +387,8 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         String userId = null;
         // can use the efficient methods to check if the user Id is valid
         if (currentUserId == null) {
+            if (log.isDebugEnabled()) log.debug("currentUserId is null, currentUserEid=" + currentUserEid, new Exception());
+
             // try to get userId from eid
             if (currentUserEid.startsWith("/user/")) {
                 // assume the form of "/user/userId" (the UDS method is protected)
@@ -448,6 +450,10 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         return userId;
     }
     
+    /**
+     * @param userSearchValue either a user ID, a user EID, or a user email address
+     * @return user ID of the first matching user, or null if no search method worked
+     */
     public String findUserIdFromSearchValue(String userSearchValue) {
         String userId = findAndCheckUserId(userSearchValue, null);
         if (userId == null) {
