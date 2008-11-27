@@ -75,18 +75,6 @@ limitations under the License.
                 <artifactId>emailtemplateservice-impl</artifactId>
                 <version>0.3-SNAPSHOT</version><!--emailtemplateservice.version-->
             </dependency>
-            <!-- needed until EB is in the Sakai master dependency management -->
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-api</artifactId>
-                <version>1.3.3</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-utils</artifactId>
-                <version>[1.3.3,1.4.0)</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <!-- define source code repository location -->
