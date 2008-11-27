@@ -504,6 +504,7 @@ public class RequestFilter implements Filter
 	public void doFilter(ServletRequest requestObj, ServletResponse responseObj, FilterChain chain) throws IOException,
 			ServletException
 	{
+		StringBuffer sb = null;
 		long startTime = System.currentTimeMillis();
 
 		// bind some preferences as "current"
@@ -563,6 +564,20 @@ public class RequestFilter implements Filter
 			// filter the request
 			else
 			{
+				if (M_log.isDebugEnabled())
+				{
+					sb = new StringBuffer("http-request: ");
+					sb.append(req.getMethod());
+					sb.append(" ");
+					sb.append(req.getRequestURL());
+					if (req.getQueryString() != null)
+					{
+						sb.append("?");
+						sb.append(req.getQueryString());
+					}
+					M_log.debug(sb);
+				}
+								
 				try
 				{
 					// mark the request as filtered to avoid re-filtering it later in the request processing
@@ -628,10 +643,10 @@ public class RequestFilter implements Filter
 			// delete any temp files
 			deleteTempFiles(tempFiles);
 
-			if (M_log.isDebugEnabled())
+			if (M_log.isDebugEnabled() && sb != null)
 			{
 				long elapsedTime = System.currentTimeMillis() - startTime;
-				M_log.debug("request timing (ms): " + elapsedTime);
+				M_log.debug("request timing (ms): " + elapsedTime + " for " + sb);
 			}
 		}
 	}
