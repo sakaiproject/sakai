@@ -3,10 +3,12 @@ package org.sakaiproject.sitestats.tool.wicket.components;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.pages.AdminPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
@@ -62,29 +64,38 @@ public class Menu extends Panel {
 		if(siteId != null) {
 			pageParameters.put("siteId", siteId);
 		}
+		String realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
+		boolean isSiteStatsAdminPage = facade.getStatsAuthz().isSiteStatsAdminPage();
+		boolean isBrowsingThisSite = siteId.equals(realSiteId);
+		
+		// Site display
+		String siteTitle = null;
+		try{
+			siteTitle = facade.getSiteService().getSite(siteId).getTitle();
+		}catch(IdUnusedException e){
+			siteTitle = siteId;
+		}
+		Label siteDisplay = new Label("siteDisplay", siteTitle);
+		boolean siteDisplayVisible = isSiteStatsAdminPage && !isBrowsingThisSite; 
+		siteDisplay.setVisible(siteDisplayVisible);
+		add(siteDisplay);
 		
 		// Admin page
-		boolean adminPageVisible = 
-			facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId)
-			&& facade.getToolManager().getCurrentTool().getId().equals("sakai.sitestats.admin");
+		/*boolean adminPageVisible = 
+			facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(realSiteId)
+			&& facade.getStatsAuthz().isSiteStatsAdminPage();
 		MenuItem adminPage = new MenuItem("adminPage", new ResourceModel("menu_sitelist"), AdminPage.class, pageParameters, adminPageVisible);
-		/*if(adminPageVisible) {
-			adminPage.add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
-		}*/
 		adminPage.setVisible(adminPageVisible);
 		adminPage.add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
-		add(adminPage);
+		add(adminPage);*/
 
 		// Overview
 		boolean overviewVisible = 
 			!AdminPage.class.equals(currentPageClass)		
 			&&
 			(facade.getStatsManager().isEnableSiteVisits() || facade.getStatsManager().isEnableSiteActivity());
-		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage.class, pageParameters, overviewVisible && !adminPageVisible);
+		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage.class, pageParameters, !siteDisplayVisible /*overviewVisible && !adminPageVisible*/);
 		overview.setVisible(overviewVisible);
-		/*if(overviewVisible && !adminPageVisible) {
-			overview.add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
-		}*/
 		add(overview);
 
 		// Reports

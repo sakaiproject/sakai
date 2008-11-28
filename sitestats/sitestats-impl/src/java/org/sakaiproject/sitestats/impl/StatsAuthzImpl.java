@@ -6,7 +6,9 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitestats.api.StatsAuthz;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 
@@ -17,6 +19,7 @@ public class StatsAuthzImpl implements StatsAuthz {
 	private UserDirectoryService	M_uds;
 	private SecurityService			M_secs;
 	private SessionManager			M_sess;
+	private ToolManager				M_tm;
 
 	// ################################################################
 	// Spring bean methods
@@ -31,6 +34,10 @@ public class StatsAuthzImpl implements StatsAuthz {
 
 	public void setSessionManager(SessionManager sessionManager) {
 		this.M_sess = sessionManager;
+	}
+	
+	public void setToolManager(ToolManager toolManager) {
+		this.M_tm = toolManager;
 	}
 
 	public void init() {
@@ -55,6 +62,20 @@ public class StatsAuthzImpl implements StatsAuthz {
 	 */
 	public boolean isUserAbleToViewSiteStatsAdmin(String siteId) {
 		return isSuperUser() || hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_ADMIN_VIEW);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsAuthz#isSiteStatsPage()
+	 */
+	public boolean isSiteStatsPage() {
+		return StatsManager.SITESTATS_TOOLID.equals(M_tm.getCurrentTool().getId());
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsAuthz#isSiteStatsAdminPage()
+	 */
+	public boolean isSiteStatsAdminPage() {
+		return StatsManager.SITESTATS_ADMIN_TOOLID.equals(M_tm.getCurrentTool().getId());
 	}
 
 	// ################################################################

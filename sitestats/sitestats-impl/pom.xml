@@ -141,6 +141,10 @@
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>
     </dependency>
+    <dependency>
+      <groupId>commons-betwixt</groupId>
+      <artifactId>commons-betwixt</artifactId>
+    </dependency>
     
     <!-- Apache others -->
     <dependency>

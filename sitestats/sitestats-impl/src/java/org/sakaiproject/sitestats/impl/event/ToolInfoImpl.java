@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.impl.event;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,16 +16,17 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 
-public class ToolInfoImpl implements ToolInfo {
-	private String			toolId;
-	private List<String>	additionalToolIds;
-	private String			toolName;
-	private List<EventInfo>	eventInfos;
-	private boolean			selected;
-	private EventParserTip	eventParserTip;
-	private ResourceLoader	msgs		= new ResourceLoader("Events");
-	private Log				LOG			= LogFactory.getLog(ToolFactoryImpl.class);
-	private ToolManager		M_tm		= (ToolManager) ComponentManager.get(ToolManager.class.getName());
+public class ToolInfoImpl implements ToolInfo, Serializable {
+	private static final long			serialVersionUID	= 1L;
+	private String						toolId;
+	private List<String>				additionalToolIds;
+	private String						toolName;
+	private List<EventInfo>				eventInfos;
+	private boolean						selected;
+	private EventParserTip				eventParserTip;
+	private transient ResourceLoader	msgs				= new ResourceLoader("Events");
+	private transient Log				LOG					= LogFactory.getLog(ToolFactoryImpl.class);
+	private transient ToolManager		M_tm				= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	
 	public ToolInfoImpl(String toolId) {
 		this.toolId = toolId;

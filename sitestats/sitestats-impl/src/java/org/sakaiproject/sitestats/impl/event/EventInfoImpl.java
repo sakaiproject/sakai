@@ -1,5 +1,7 @@
 package org.sakaiproject.sitestats.impl.event;
 
+import java.io.Serializable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -7,12 +9,13 @@ import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 
 
-public class EventInfoImpl implements EventInfo {
-	private Log				LOG			= LogFactory.getLog(EventInfoImpl.class);
-	private String			eventId;
-	private String			eventName;
-	private boolean			selected;
-	private boolean			anonymous;
+public class EventInfoImpl implements EventInfo, Serializable {
+	private static final long	serialVersionUID	= 1L;
+	private Log					LOG					= LogFactory.getLog(EventInfoImpl.class);
+	private String				eventId;
+	private String				eventName;
+	private boolean				selected;
+	private boolean				anonymous;
 	
 	public EventInfoImpl(String eventId) {
 		this.eventId = eventId.trim();

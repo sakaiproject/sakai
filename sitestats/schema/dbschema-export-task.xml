@@ -2,6 +2,7 @@
 
 	<!-- PROPERTIES -->	
 		<!-- == ADJUST ME! =============================== -->
+	    <!-- <property name="hib-plugin" location="D:/DevApps/eclipse-ganymede/plugins/org.hibernate.eclipse_3.2.4.200810080310-nightly" /> -->
 		<property name="hib-plugin" location="D:/DevApps/eclipse-3.2/plugins/org.hibernate.eclipse_3.2.0.beta6" />
 		<!-- == ADJUST ME!: END ========================== -->
 	
@@ -29,7 +30,7 @@
 	<target name="schema-export-mysql">	
 		<schemaexport
 	    	config="${hib-mysql-cfg}"
-	        quiet="no" text="yes" drop="no" delimiter=";" 
+	        quiet="false" text="true" drop="false" delimiter=";" 
 	        output="schema/mysql_schema-export.sql">
 	        <fileset dir=".">
 	            <include name="**/*.hbm.xml"/>
@@ -42,7 +43,7 @@
 	<target name="schema-export-oracle">	
 		<schemaexport
 	    	config="${hib-oracle-cfg}"
-	        quiet="no" text="yes" drop="no" delimiter=";" 
+	        quiet="false" text="true" drop="false" delimiter=";" 
 	        output="schema/oracle_schema-export.sql">
 	        <fileset dir=".">
 	            <include name="**/*.hbm.xml"/>

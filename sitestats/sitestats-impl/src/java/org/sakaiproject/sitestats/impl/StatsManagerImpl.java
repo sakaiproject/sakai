@@ -718,7 +718,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 */
 	public List<Stat> getEventStats(String siteId, List<String> events) {
 		//return getEventStats(siteId, events, null, getInitialActivityDate(siteId), null);
-		return getEventStats(siteId, events, getInitialActivityDate(siteId), null, null, false, null, null, null, true);
+		return getEventStats(siteId, events, getInitialActivityDate(siteId), null, null, false, null, null, null, true, 0);
 	}
 	
 	/* (non-Javadoc)
@@ -865,7 +865,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final PagingPosition page, 
 			final List<String> totalsBy, 
 			final String sortBy, 
-			boolean sortAscending) {
+			boolean sortAscending,
+			final int maxResults) {
 		
 		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_EVENT, totalsBy, siteId, 
@@ -902,6 +903,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(page != null){
 					q.setFirstResult(page.getFirst() - 1);
 					q.setMaxResults(page.getLast() - page.getFirst() + 1);
+				}
+				if(maxResults > 0) {
+					q.setMaxResults(maxResults);
 				}
 				LOG.debug("getEventStats(): " + q.getQueryString());
 				List<Object[]> records = q.list();
@@ -1021,7 +1025,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStats(java.lang.String)
 	 */
 	public List<Stat> getResourceStats(String siteId) {
-		return getResourceStats(siteId, null, null, getInitialActivityDate(siteId), null, null, false, null, null, null, true);
+		return getResourceStats(siteId, null, null, getInitialActivityDate(siteId), null, null, false, null, null, null, true, 0);
 	}
 
 	/* (non-Javadoc)
@@ -1179,7 +1183,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final PagingPosition page, 
 			final List<String> totalsBy,
 			final String sortBy, 
-			final boolean sortAscending) {
+			final boolean sortAscending,
+			final int maxResults) {
 		
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_RESOURCE, totalsBy, 
 				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
@@ -1212,6 +1217,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(page != null){
 					q.setFirstResult(page.getFirst() - 1);
 					q.setMaxResults(page.getLast() - page.getFirst() + 1);
+				}
+				if(maxResults > 0) {
+					q.setMaxResults(maxResults);
 				}
 				LOG.debug("getResourceStats(): " + q.getQueryString());
 				List<Object[]> records = q.list();
@@ -1567,15 +1575,44 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			return _hql.toString();
 		}
 		
-		private String getSortByClause() {	
-			StringBuilder _hql = new StringBuilder();
-			if(sortBy != null) {
+		private String getSortByClause() {
+			if(sortBy != null){
+				StringBuilder _hql = new StringBuilder();
+				String sortField = null;
+	
+				if(siteId != null && sortBy.equals(T_SITE) && totalsBy.contains(T_SITE)) {
+					sortField = "s.siteId";
+				}
+				if(sortBy.equals(T_USER) && totalsBy.contains(T_USER)) {
+					sortField = "s.userId";
+				}
+				if(queryType == Q_TYPE_EVENT && sortBy.equals(T_EVENT) && totalsBy.contains(T_EVENT)) {
+					sortField = "s.eventId";
+				}
+				if(queryType == Q_TYPE_RESOURCE && sortBy.equals(T_RESOURCE) && totalsBy.contains(T_RESOURCE)) {
+					sortField = "s.resourceRef";
+				}
+				if(queryType == Q_TYPE_RESOURCE && sortBy.equals(T_RESOURCE_ACTION) && totalsBy.contains(T_RESOURCE_ACTION)) {
+					sortField = "s.resourceAction";
+				}
+				if((sortBy.equals(T_DATE) || sortBy.equals(T_LASTDATE)) 
+						&& 
+						(totalsBy.contains(T_DATE) || totalsBy.contains(T_LASTDATE) )) {
+					sortField = "s.date";
+				}
+				if(sortBy.equals(T_TOTAL)) {
+					sortField = "s.count";
+				}
+			
+				// build 'sort by' clause
 				_hql.append("order by ");
-				_hql.append(sortBy);
-				_hql.append(sortAscending? "ASC" : "DESC");
+				_hql.append(sortField);
 				_hql.append(' ');
-			}			
-			return _hql.toString();
+				_hql.append(sortAscending ? "ASC" : "DESC");
+				_hql.append(' ');
+				return _hql.toString();
+			}
+			return "";
 		}
 	}
 	

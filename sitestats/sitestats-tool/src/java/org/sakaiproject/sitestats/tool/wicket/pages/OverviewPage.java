@@ -16,6 +16,7 @@ import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menu;
+import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.panels.ActivityPanel;
 import org.sakaiproject.sitestats.tool.wicket.panels.VisitsPanel;
 
@@ -72,14 +73,7 @@ public class OverviewPage extends BasePage {
 	}
 	
 	private void renderBody() {
-		add(new Menu("menu", siteId));
-		
-		// display site title/id?
-		WebMarkupContainer site = new WebMarkupContainer("site");
-		site.setVisible(siteId != null && !realSiteId.equals(siteId));
-		add(site);
-		String siteTitle = facade.getSiteService().getSiteDisplay(siteId);
-		site.add(new Label("siteTitle", siteTitle));
+		add(new Menus("menu", siteId));
 		
 		// SiteStats services
 		StatsManager statsManager = facade.getStatsManager();

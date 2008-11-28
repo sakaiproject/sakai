@@ -1,18 +1,20 @@
 package org.sakaiproject.sitestats.impl.report;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.report.Report;
-import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.time.api.Time;
 
 /**
- * @author mgrilo
+ * @author Nuno Fernandes
  *
  */
-public class ReportImpl implements Report {
-	private ReportParams				reportParams;
+public class ReportImpl implements Report, Serializable {
+	private static final long	serialVersionUID	= 1L;
+	private ReportDef					reportDef;
 	private Time						reportGenerationDate = null;
 	private List<Stat>					reportData;
 	
@@ -32,16 +34,16 @@ public class ReportImpl implements Report {
 		this.reportData = reportData;
 	}
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.impl.Report#getReportParams()
+	 * @see org.sakaiproject.sitestats.api.report.Report#getReportDefinition()
 	 */
-	public ReportParams getReportParams() {
-		return reportParams;
+	public ReportDef getReportDefinition() {
+		return reportDef;
 	}
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.impl.Report#setReportParams(org.sakaiproject.sitestats.api.ReportParams)
+	 * @see org.sakaiproject.sitestats.api.report.Report#setReportDefinition(org.sakaiproject.sitestats.api.report.ReportDef)
 	 */
-	public void setReportParams(ReportParams reportParams) {
-		this.reportParams = reportParams;
+	public void setReportDefinition(ReportDef reportDef) {
+		this.reportDef = reportDef;
 	}
 
 	/* (non-Javadoc)

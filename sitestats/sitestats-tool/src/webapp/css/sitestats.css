@@ -60,6 +60,14 @@
 	width: 70%;
 }
 
+/* Hidden report */
+.hiddenReport {
+    background-color: #F8F8F8;	
+}
+.hiddenReport a, .hiddenReport a:link{
+    color: #777;  
+}
+
 /* Summary Header separator */
 .summaryHeader {
 	border-bottom: 1px solid silver;
@@ -75,22 +83,23 @@
 	/*margin-top: 20px;*/
 	width: 100%;
 }
-
+.summaryTable .labelColumn {
+    min-width: 150px;
+    /* IE Dynamic Expression to set the width, ignored by other browsers */
+    width: expression(document.body.clientWidth < 300 ? "150px" : "auto" );	
+}
 label.indnt0 {
 	font-weight: bold;
 }
-
 label.indnt1 {
 	font-weight: normal;
 }
-
 .selector {
 	color: #555555;
 	font-size: 85%;
 	font-weight: normal;
 	margin: 0pt;
 }
-
 .additionalInfo {
 	color: #555555;
 	font-size: 85%;
@@ -99,21 +108,20 @@ label.indnt1 {
 	margin-top: 3px;
 	float: right;
 }
-
 .description {
 	color: #333333;
 	font-size: 100%;
 	font-weight: normal;
 	margin: 0pt;
 }
-
 .notes {
 	color: #333333;
 	font-size: 90%;
 	font-weight: normal;
 	margin: 0pt;
 }
-
+ 
+ 
 /* Ajax loading */
 .ajaxLoading {
 	background: #ffffff url(../images/ajaxload.gif) no-repeat;

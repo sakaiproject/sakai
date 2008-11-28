@@ -19,7 +19,7 @@ import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.Report;
-import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -28,34 +28,37 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class ReportsDataProvider extends SortableSearchableDataProvider {
 	private static final long		serialVersionUID	= 1L;
 	private static Log				LOG					= LogFactory.getLog(ReportsDataProvider.class);
-	public final static String		COL_USERID			= "userId";
+	public final static String		COL_SITE			= StatsManager.T_SITE;
+	public final static String		COL_USERID			= StatsManager.T_USER;
 	public final static String		COL_USERNAME		= "userName";
-	public final static String		COL_EVENT			= "event";
-	public final static String		COL_RESOURCE		= "resourceRef";
-	public final static String		COL_ACTION			= "resourceAction";
-	public final static String		COL_DATE			= "date";
-	public final static String		COL_TOTAL			= "count";
+	public final static String		COL_EVENT			= StatsManager.T_EVENT;
+	public final static String		COL_RESOURCE		= StatsManager.T_RESOURCE;
+	public final static String		COL_ACTION			= StatsManager.T_RESOURCE_ACTION;
+	public final static String		COL_DATE			= StatsManager.T_DATE;
+	public final static String		COL_TOTAL			= StatsManager.T_TOTAL;
 
 	@SpringBean
 	private transient SakaiFacade	facade;
 	
 	private transient Collator		collator			= Collator.getInstance();
 
-	private String					siteId;
 	private PrefsData				prefsData;
-	private ReportParams			reportParams;
+	private ReportDef				reportDef;
 	private Report					report;
 	private int 					reportRowCount		= -1;
 
-	public ReportsDataProvider(String siteId, PrefsData prefsData, ReportParams reportParams) {
+	public ReportsDataProvider(PrefsData prefsData, ReportDef reportDef) {
 		InjectorHolder.getInjector().inject(this);
 		
-		this.siteId = siteId;
 		this.prefsData = prefsData;
-		this.reportParams = reportParams;
+		this.reportDef = reportDef;
 		
         // set default sort
-        setSort(COL_USERNAME, true);
+		if(reportDef.getReportParams().getHowSortBy() == null) {
+			setSort(COL_USERNAME, true);
+		}else{
+			setSort(reportDef.getReportParams().getHowSortBy(), reportDef.getReportParams().getHowSortAscending());
+		}
 	}
 
 	public Iterator iterator(int first, int count) {
@@ -68,8 +71,10 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	
 	public Report getReport() {
 		if(report == null) {
-			report = facade.getReportManager().getReport(siteId, prefsData.isListToolEventsOnlyAvailableInSite(), reportParams, null, null, true);
-			LOG.info("Site statistics report generated: "+report.getReportParams().toString());			
+			report = facade.getReportManager().getReport(reportDef, prefsData.isListToolEventsOnlyAvailableInSite(), null);
+			if(report != null) {
+				LOG.info("Site statistics report generated: "+report.getReportDefinition().toString(false));
+			}
 		}
 		sortReport();
 		return report;
@@ -90,77 +95,91 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 		Collections.sort(report.getReportData(), getReportDataComparator(getSort().getProperty(), getSort().isAscending(), collator, facade.getStatsManager(), facade.getEventRegistryService(), facade.getUserDirectoryService()));
 	}
 	
-	public static final Comparator<Stat> getReportDataComparator(final String fieldName, final boolean sortAscending, final Collator collator,
+	public final Comparator<Stat> getReportDataComparator(final String fieldName, final boolean sortAscending, final Collator collator,
 			final StatsManager SST_sm, final EventRegistryService SST_ers, final UserDirectoryService M_uds) {
 		return new Comparator<Stat>() {
 
 			public int compare(Stat r1, Stat r2) {
-				if(fieldName.equals(COL_USERID)){
-						String s1;
-						try{
-							s1 = M_uds.getUser(r1.getUserId()).getDisplayId();
-						}catch(UserNotDefinedException e){
-							s1 = "-";
-						}
-						String s2;
-						try{
-							s2 = M_uds.getUser(r2.getUserId()).getDisplayId();
-						}catch(UserNotDefinedException e){
-							s2 = "-";
-						}
-						int res = collator.compare(s1, s2);
-						if(sortAscending) return res;
-						else return -res;
-					}else if(fieldName.equals(COL_USERNAME)){
-						String s1;
-						try{
-							s1 = M_uds.getUser(r1.getUserId()).getDisplayName().toLowerCase();
-						}catch(UserNotDefinedException e){
-							s1 = "-";
-						}
-						String s2;
-						try{
-							s2 = M_uds.getUser(r2.getUserId()).getDisplayName().toLowerCase();
-						}catch(UserNotDefinedException e){
-							s2 = "-";
-						}
-						int res = collator.compare(s1, s2);
-						if(sortAscending) return res;
-						else return -res;
-					}else if(fieldName.equals(COL_EVENT)){
-						EventStat es1 = (EventStat) r1;
-						EventStat es2 = (EventStat) r2;
-						String s1 = SST_ers.getEventName(es1.getEventId()).toLowerCase();
-						String s2 = SST_ers.getEventName(es2.getEventId()).toLowerCase();
-						int res = collator.compare(s1, s2);
-						if(sortAscending) return res;
-						else return -res;
-					}else if(fieldName.equals(COL_RESOURCE)){
-						ResourceStat rs1 = (ResourceStat) r1;
-						ResourceStat rs2 = (ResourceStat) r2;
-						String s1 = SST_sm.getResourceName(rs1.getResourceRef()).toLowerCase();
-						String s2 = SST_sm.getResourceName(rs2.getResourceRef()).toLowerCase();
-						int res = collator.compare(s1, s2);
-						if(sortAscending) return res;
-						else return -res;
-					}else if(fieldName.equals(COL_ACTION)){
-						ResourceStat rs1 = (ResourceStat) r1;
-						ResourceStat rs2 = (ResourceStat) r2;
-						String s1 = ((String) rs1.getResourceAction()).toLowerCase();
-						String s2 = ((String) rs2.getResourceAction()).toLowerCase();
-						int res = collator.compare(s1, s2);
-						if(sortAscending) return res;
-						else return -res;
-					}else if(fieldName.equals(COL_DATE)){
-						int res = r1.getDate().compareTo(r2.getDate());
-						if(sortAscending) return res;
-						else return -res;
-					}else if(fieldName.equals(COL_TOTAL)){
-						int res = Long.valueOf(r1.getCount()).compareTo(Long.valueOf(r2.getCount()));
-						if(sortAscending) return res;
-						else return -res;
+				if(fieldName.equals(COL_SITE)){
+					String s1 = facade.getSiteService().getSiteDisplay(r1.getSiteId()).toLowerCase();
+					String s2 = facade.getSiteService().getSiteDisplay(r2.getSiteId()).toLowerCase();
+					int res = collator.compare(s1, s2);
+					if(sortAscending)
+						return res;
+					else return -res;
+				}else if(fieldName.equals(COL_USERID)){
+					String s1;
+					try{
+						s1 = M_uds.getUser(r1.getUserId()).getDisplayId();
+					}catch(UserNotDefinedException e){
+						s1 = "-";
 					}
-					return 0;
+					String s2;
+					try{
+						s2 = M_uds.getUser(r2.getUserId()).getDisplayId();
+					}catch(UserNotDefinedException e){
+						s2 = "-";
+					}
+					int res = collator.compare(s1, s2);
+					if(sortAscending)
+						return res;
+					else return -res;
+				}else if(fieldName.equals(COL_USERNAME)){
+					String s1;
+					try{
+						s1 = M_uds.getUser(r1.getUserId()).getDisplayName().toLowerCase();
+					}catch(UserNotDefinedException e){
+						s1 = "-";
+					}
+					String s2;
+					try{
+						s2 = M_uds.getUser(r2.getUserId()).getDisplayName().toLowerCase();
+					}catch(UserNotDefinedException e){
+						s2 = "-";
+					}
+					int res = collator.compare(s1, s2);
+					if(sortAscending)
+						return res;
+					else return -res;
+				}else if(fieldName.equals(COL_EVENT)){
+					EventStat es1 = (EventStat) r1;
+					EventStat es2 = (EventStat) r2;
+					String s1 = SST_ers.getEventName(es1.getEventId()).toLowerCase();
+					String s2 = SST_ers.getEventName(es2.getEventId()).toLowerCase();
+					int res = collator.compare(s1, s2);
+					if(sortAscending)
+						return res;
+					else return -res;
+				}else if(fieldName.equals(COL_RESOURCE)){
+					ResourceStat rs1 = (ResourceStat) r1;
+					ResourceStat rs2 = (ResourceStat) r2;
+					String s1 = SST_sm.getResourceName(rs1.getResourceRef()).toLowerCase();
+					String s2 = SST_sm.getResourceName(rs2.getResourceRef()).toLowerCase();
+					int res = collator.compare(s1, s2);
+					if(sortAscending)
+						return res;
+					else return -res;
+				}else if(fieldName.equals(COL_ACTION)){
+					ResourceStat rs1 = (ResourceStat) r1;
+					ResourceStat rs2 = (ResourceStat) r2;
+					String s1 = ((String) rs1.getResourceAction()).toLowerCase();
+					String s2 = ((String) rs2.getResourceAction()).toLowerCase();
+					int res = collator.compare(s1, s2);
+					if(sortAscending)
+						return res;
+					else return -res;
+				}else if(fieldName.equals(COL_DATE)){
+					int res = r1.getDate().compareTo(r2.getDate());
+					if(sortAscending)
+						return res;
+					else return -res;
+				}else if(fieldName.equals(COL_TOTAL)){
+					int res = Long.valueOf(r1.getCount()).compareTo(Long.valueOf(r2.getCount()));
+					if(sortAscending)
+						return res;
+					else return -res;
+				}
+				return 0;
 			}
 		};
 	}

@@ -82,6 +82,11 @@ function checkHowSelection() {
 	if(resourcesRadio.attr('checked')) {
 		// resources selected
 		jQuery('.howTotalsByEvent').removeAttr('checked');
+		//jQuery('.howTotalsByResource').attr('checked','checked');
+		//jQuery('.howTotalsByResourceAction').attr('checked','checked');
+		if(jQuery('.howSortBy').val == 'event') {
+			jQuery('.howSortBy').val('resource');
+		}
 		
 		jQuery('.howTotalsByEvent').attr('disabled','disabled');
 		jQuery('.howTotalsByResource').removeAttr('disabled');
@@ -90,9 +95,59 @@ function checkHowSelection() {
 		// visits/tools/events selected
 		jQuery('.howTotalsByResource').removeAttr('checked');
 		jQuery('.howTotalsByResourceAction').removeAttr('checked');
+		//jQuery('.howTotalsByEvent').attr('checked','checked');
+		if(jQuery('.howSortBy').val == 'resource' || jQuery('.howSortBy').val == 'resource-action') {
+			jQuery('.howSortBy').val('event');
+		}
 
 		jQuery('.howTotalsByEvent').removeAttr('disabled');
 		jQuery('.howTotalsByResource').attr('disabled','disabled');
 		jQuery('.howTotalsByResourceAction').attr('disabled','disabled');
 	}
+	// sorting
+	if(jQuery('.howSortCheck').attr('checked')){
+		jQuery('.howSortBy').show();
+		jQuery('.howSortAscending').show();
+		jQuery('.howSortAscendingTxt').show();
+		
+		if(jQuery('.howSortBy').val() == 'user' && !jQuery('.howTotalsByUser').attr('checked')) {
+			jQuery('.howSortBy').val('total');
+		}
+		if(jQuery('.howSortBy').val() == 'event' && !jQuery('.howTotalsByEvent').attr('checked')) {
+			jQuery('.howSortBy').val('total');
+		}
+		if(jQuery('.howSortBy').val() == 'resource' && !jQuery('.howTotalsByResource').attr('checked')) {
+			jQuery('.howSortBy').val('total');
+		}
+		if(jQuery('.howSortBy').val() == 'resource-action' && !jQuery('.howTotalsByResourceAction').attr('checked')) {
+			jQuery('.howSortBy').val('total');
+		}
+		if(jQuery('.howSortBy').val() == 'date' && 
+				(!jQuery('.howTotalsByDate').attr('checked') && !jQuery('.howTotalsByLastDate').attr('checked'))
+				) {
+			jQuery('.howSortBy').val('total');
+		}
+		
+	}else{
+		jQuery('.howSortBy').hide();
+		jQuery('.howSortAscending').hide();
+		jQuery('.howSortAscendingTxt').hide();
+	}
+	// max results
+	if(jQuery('.howMaxResultsCheck').attr('checked')){
+		jQuery('.howMaxResults').show();
+	}else{
+		jQuery('.howMaxResults').hide();
+		jQuery('.howMaxResults').val('0');
+	}
+}
+
+function checkReportDetails() {
+	if(jQuery('.reportSite').val() == 'all') {
+		jQuery('.who-all').attr('checked','checked');
+		jQuery('.who').hide();
+	}else{
+		jQuery('.who').show();
+	}
+	setMainFrameHeightNoScroll(window.name);
 }

@@ -15,11 +15,11 @@ public interface Report {
 	/** Set the reports data (List of {@link EventStat} or {@link ResourceStat}). */
 	public void setReportData(List<Stat> reportData);
 
-	/** Get the report parameters (see {@link ReportParams}). */
-	public ReportParams getReportParams();
+	/** Get the report definition (see {@link ReportDef}). */
+	public ReportDef getReportDefinition();
 
-	/** Set the report parameters (see {@link ReportParams}). */
-	public void setReportParams(ReportParams reportParams);
+	/** Set the report definition (see {@link ReportDef}). */
+	public void setReportDefinition(ReportDef reportDef);
 	
 	/** Get the time the report was generated. */
 	public Time getReportGenerationDate();

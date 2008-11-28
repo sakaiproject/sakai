@@ -3,6 +3,7 @@ package org.sakaiproject.sitestats.impl.report;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,6 +33,10 @@ import org.apache.fop.apps.MimeConstants;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -42,17 +47,19 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
-import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.Stat;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.Report;
+import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportFormattedParams;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.sitestats.impl.report.fop.LibraryURIResolver;
 import org.sakaiproject.sitestats.impl.report.fop.ReportInputSource;
 import org.sakaiproject.sitestats.impl.report.fop.ReportXMLReader;
@@ -65,9 +72,15 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 
-public class ReportManagerImpl implements ReportManager {
+/**
+ * @author Nuno Fernandes
+ *
+ */
+public class ReportManagerImpl extends HibernateDaoSupport implements ReportManager {
 	private Log						LOG				= LogFactory.getLog(ReportManagerImpl.class);
 	private static ResourceLoader	msgs			= new ResourceLoader("Messages");
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
@@ -81,6 +94,7 @@ public class ReportManagerImpl implements ReportManager {
 
 	/** Sakai services */
 	private StatsManager			M_sm;
+	private StatsAuthz				M_sa;
 	private EventRegistryService	M_ers;
 	private SiteService				M_ss;
 	private UserDirectoryService	M_uds;
@@ -96,6 +110,10 @@ public class ReportManagerImpl implements ReportManager {
 		this.M_sm = statsManager;
 	}
 
+	public void setStatsAuthz(StatsAuthz statsAuthz) {
+		this.M_sa = statsAuthz;
+	}
+	
 	public void setEventRegistryService(EventRegistryService eventRegistryService) {
 		this.M_ers = eventRegistryService;
 	}
@@ -125,55 +143,58 @@ public class ReportManagerImpl implements ReportManager {
 	// Interface implementation
 	// ################################################################
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(java.lang.String, org.sakaiproject.sitestats.api.PrefsData, org.sakaiproject.sitestats.api.report.ReportParams)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(org.sakaiproject.sitestats.api.report.ReportDef, boolean)
 	 */
-	public Report getReport(String siteId, boolean restrictToToolsInSite, ReportParams params) {
-		return getReport(siteId, restrictToToolsInSite, params, null, null, true);
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite) {
+		return getReport(reportDef, restrictToToolsInSite, null);
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportRowCount(java.lang.String, org.sakaiproject.sitestats.api.PrefsData, org.sakaiproject.sitestats.api.report.ReportParams)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportRowCount(org.sakaiproject.sitestats.api.report.ReportDef, boolean)
 	 */
-	public int getReportRowCount(String siteId, boolean restrictToToolsInSite, ReportParams params) {
-		ReportProcessedParams rpp = processReportParams(siteId, restrictToToolsInSite, params, null, null, true);
-		if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
-			return M_sm.getResourceStatsRowCount(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
+	public int getReportRowCount(ReportDef reportDef, boolean restrictToToolsInSite) {
+		ReportProcessedParams rpp = processReportParams(reportDef.getReportParams(), restrictToToolsInSite, null);
+		if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
+			return M_sm.getResourceStatsRowCount(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
 		}else{
-			return M_sm.getEventStatsRowCount(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
+			return M_sm.getEventStatsRowCount(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
 		}
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(java.lang.String, org.sakaiproject.sitestats.api.PrefsData, org.sakaiproject.sitestats.api.report.ReportParams, org.sakaiproject.javax.PagingPosition, java.lang.String, boolean)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(org.sakaiproject.sitestats.api.report.ReportDef, boolean, org.sakaiproject.javax.PagingPosition)
 	 */
-	public Report getReport(String siteId, boolean restrictToToolsInSite, ReportParams params, PagingPosition pagingPosition, String sortBy, boolean sortAscending) {
-		ReportProcessedParams rpp = processReportParams(siteId, restrictToToolsInSite, params, pagingPosition, sortBy, sortAscending);
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition pagingPosition) {
+		ReportProcessedParams rpp = processReportParams(reportDef.getReportParams(), restrictToToolsInSite, pagingPosition);
 
 		// generate report
 		Report report = new ReportImpl();
 		List<Stat> data = null;
-		if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
-			data = M_sm.getResourceStats(siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, sortBy, sortAscending);
+		if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
+			data = M_sm.getResourceStats(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		}else{
-			data = M_sm.getEventStats(siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, sortBy, sortAscending);
+			data = M_sm.getEventStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		}
 		
 		// add missing info in report and its parameters
 		if(report != null) {
-			params.setWhenFrom(rpp.iDate);
-			params.setWhenTo(rpp.fDate);
-			params.setWhoUserIds(rpp.userIds);
-			params.setHowTotalsBy(rpp.totalsBy);
+			reportDef.getReportParams().setWhenFrom(rpp.iDate);
+			reportDef.getReportParams().setWhenTo(rpp.fDate);
+			reportDef.getReportParams().setWhoUserIds(rpp.userIds);
+			reportDef.getReportParams().setHowTotalsBy(rpp.totalsBy);
 			report.setReportData(data);
-			report.setReportParams(params);
+			report.setReportDefinition(reportDef);
 			report.setReportGenerationDate(M_ts.newTime());
 		}
 
 		return report;
 	}
 	
-	private ReportProcessedParams processReportParams(String siteId, boolean restrictToToolsInSite, ReportParams params, PagingPosition pagingPosition, String sortBy, boolean sortAscending) {
+	private ReportProcessedParams processReportParams(ReportParams params, boolean restrictToToolsInSite, PagingPosition pagingPosition) {
 		ReportProcessedParams rpp = new ReportProcessedParams();
+		
+		// site
+		rpp.siteId = params.getSiteId();
 		
 		// what (visits, events, resources)
 		rpp.events = new ArrayList<String>();
@@ -182,10 +203,16 @@ public class ReportManagerImpl implements ReportManager {
 
 		}else if(params.getWhat().equals(ReportManager.WHAT_EVENTS)){
 			if(params.getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
-				Iterator<ToolInfo> iT = M_ers.getEventRegistry(siteId, restrictToToolsInSite).iterator();
+				Iterator<ToolInfo> iT = null;
+				if(rpp.siteId != null) {
+					iT = M_ers.getEventRegistry(rpp.siteId, restrictToToolsInSite).iterator();
+				}else{
+					iT = M_ers.getEventRegistry().iterator();
+				}
 				while (iT.hasNext()){
 					ToolInfo t = iT.next();
-					if(params.getWhatToolIds().contains(t.getToolId())){
+					if(params.getWhatToolIds().contains(t.getToolId())
+							|| params.getWhatToolIds().contains(WHAT_EVENTS_ALLTOOLS)){
 						Iterator<EventInfo> iE = t.getEvents().iterator();
 						while (iE.hasNext())
 							rpp.events.add(iE.next().getEventId());
@@ -193,6 +220,18 @@ public class ReportManagerImpl implements ReportManager {
 				}
 			}else rpp.events.addAll(params.getWhatEventIds());
 
+		}else if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
+			rpp.resourceIds = null;
+			rpp.resourceAction = null;
+			if(params.isWhatLimitedResourceIds() && params.getWhatResourceIds() != null){
+				rpp.resourceIds = new ArrayList<String>();
+				Iterator<String> iR = params.getWhatResourceIds().iterator();
+				while (iR.hasNext())
+					rpp.resourceIds.add("/content" + iR.next());
+			}
+			if(params.isWhatLimitedAction() && params.getWhatResourceAction() != null) {
+				rpp.resourceAction = params.getWhatResourceAction();			
+			}
 		}
 
 		// when (dates)
@@ -203,7 +242,11 @@ public class ReportManagerImpl implements ReportManager {
 			rpp.fDate = params.getWhenTo();
 		}else rpp.fDate = new Date();
 		if(params.getWhen().equals(ReportManager.WHEN_ALL)){
-			rpp.iDate = M_sm.getInitialActivityDate(siteId);
+			if(rpp.siteId != null) {
+				rpp.iDate = M_sm.getInitialActivityDate(rpp.siteId);
+			}else{
+				rpp.iDate = null;
+			}
 		}else if(params.getWhen().equals(ReportManager.WHEN_LAST7DAYS)){
 			Calendar c = Calendar.getInstance();
 			c.set(Calendar.HOUR_OF_DAY, 00);
@@ -227,19 +270,19 @@ public class ReportManagerImpl implements ReportManager {
 		rpp.inverseUserSelection = false;
 		if(params.getWho().equals(ReportManager.WHO_ALL)){
 			;
-		}else if(params.getWho().equals(ReportManager.WHO_ROLE)){
+		}else if(params.getWho().equals(ReportManager.WHO_ROLE) && rpp.siteId != null){
 			rpp.userIds = new ArrayList<String>();
 			try{
-				Site site = M_ss.getSite(siteId);
+				Site site = M_ss.getSite(rpp.siteId);
 				rpp.userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
 			}catch(IdUnusedException e){
 				LOG.error("No site with specified siteId.");
 			}
 
-		}else if(params.getWho().equals(ReportManager.WHO_GROUPS)){
+		}else if(params.getWho().equals(ReportManager.WHO_GROUPS) && rpp.siteId != null){
 			rpp.userIds = new ArrayList<String>();
 			try{
-				Site site = M_ss.getSite(siteId);
+				Site site = M_ss.getSite(rpp.siteId);
 				rpp.userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
 			}catch(IdUnusedException e){
 				LOG.error("No site with specified siteId.");
@@ -253,21 +296,18 @@ public class ReportManagerImpl implements ReportManager {
 		}
 		params.setWhoUserIds(rpp.userIds);
 		
-		// how (totals by)
+		// how
 		rpp.totalsBy = params.getHowTotalsBy();
-		
-		// generate report
-		Report report = new ReportImpl();
-		report.setReportParams(params);
-		if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
-			rpp.resourceIds = null;
-			if(params.getWhatResourceIds() != null){
-				rpp.resourceIds = new ArrayList<String>();
-				Iterator<String> iR = params.getWhatResourceIds().iterator();
-				while (iR.hasNext())
-					rpp.resourceIds.add("/content" + iR.next());
-			}
-			rpp.resourceAction = params.getWhatResourceAction();			
+		if(HOW_SORT_DEFAULT.equals(params.getHowSortBy())) {
+			rpp.sortBy = null;
+		}else{
+			rpp.sortBy = params.getHowSortBy();
+		}
+		rpp.sortAscending = params.getHowSortAscending();
+		if(params.isHowLimitedMaxResults() && params.getHowMaxResults() > 0) {
+			rpp.maxResults = params.getHowMaxResults();			
+		}else{
+			rpp.maxResults = 0;
 		}
 
 		return rpp;		
@@ -318,6 +358,117 @@ public class ReportManagerImpl implements ReportManager {
 			return false;
 		}
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportDefinition(long)
+	 */
+	public ReportDef getReportDefinition(final long id) {
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				return session.load(ReportDef.class, Long.valueOf(id));
+			}
+		};
+		Object o = getHibernateTemplate().execute(hcb);
+		if(o != null) {
+			ReportDef reportDef = (ReportDef) o;
+			try{
+				reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
+			}catch(Exception e){
+				LOG.warn("getReportDefinition(): unable to parse report parameters.");
+			}
+			return reportDef;
+		}
+		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#saveReportDefinition(org.sakaiproject.sitestats.api.report.ReportDef)
+	 */
+	public boolean saveReportDefinition(final ReportDef reportDef) {
+		if(reportDef.getSiteId() == null && !M_sa.isSiteStatsAdminPage()) {
+			return false;
+		}
+		try{
+			if(reportDef.getCreatedBy() == null) {
+				reportDef.setCreatedBy(M_uds.getCurrentUser().getId());
+			}
+			if(reportDef.getCreatedOn() == null) {
+				reportDef.setCreatedOn(new Date());
+			}
+			if(reportDef.getModifiedBy() == null) {
+				reportDef.setModifiedBy(M_uds.getCurrentUser().getId());
+			}
+			if(reportDef.getModifiedOn() == null) {
+				reportDef.setModifiedOn(new Date());
+			}
+			reportDef.setReportDefinitionXml(DigesterUtil.convertReportParamsToXml(reportDef.getReportParams()));			
+		}catch(Exception e) {
+			LOG.warn("saveReportDefinition(): unable to generate xml string from report parameters.");
+			return false;
+		}
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				try{
+					session.saveOrUpdate(reportDef);
+				}catch(Exception e) {
+					return false;
+				}
+				return true;
+			}
+		};
+		return (Boolean) getHibernateTemplate().execute(hcb);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#removeReportDefinition(org.sakaiproject.sitestats.api.report.ReportDef)
+	 */
+	public void removeReportDefinition(final ReportDef reportDef) {
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				session.delete(reportDef);
+				return null;
+			}
+		};
+		getHibernateTemplate().execute(hcb);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportDefinitions(java.lang.String, boolean, boolean)
+	 */
+	public List<ReportDef> getReportDefinitions(final String siteId, final boolean includedPredefined, final boolean includeHidden) {
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Criteria c = session.createCriteria(ReportDef.class);
+				if(siteId != null) {
+					if(includedPredefined) {
+						c.add(Expression.or(Expression.eq("siteId", siteId), Expression.isNull("siteId")));
+					}else{
+						c.add(Expression.eq("siteId", siteId));
+					}
+				}else{
+					c.add(Expression.isNull("siteId"));
+				}
+				if(!includeHidden) {
+					c.add(Expression.eq("hidden", false));
+				}
+				return c.list();
+			}
+		};
+		Object o = getHibernateTemplate().execute(hcb);
+		if(o != null) {
+			List<ReportDef> reportDefs = (List<ReportDef>) o;
+			for(ReportDef reportDef : reportDefs) {
+				try{
+					reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
+				}catch(Exception e){
+					LOG.warn("getReportDefinition(): unable to parse report parameters.");
+					reportDef.setReportParams(null);
+				}
+			}
+			return reportDefs;
+		}
+		return null;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportAsExcel(org.sakaiproject.sitestats.api.report.Report, java.lang.String)
@@ -330,26 +481,26 @@ public class ReportManagerImpl implements ReportManager {
 
 		// Add the column headers
 		int ix = 0;
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_USER)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_USER)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_id"));
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_user"));
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_EVENT)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_event"));
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_resource"));
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_action"));
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_DATE)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_date"));
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_LASTDATE)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_lastdate"));
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_TOTAL)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_total"));
 		}
 
@@ -359,7 +510,7 @@ public class ReportManagerImpl implements ReportManager {
 			HSSFRow row = sheet.createRow(sheet.getLastRowNum() + 1);
 			Stat se = i.next();
 			ix = 0;
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_USER)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_USER)) {
 				String userId = se.getUserId();
 				String userEid = null;
 				String userName = null;
@@ -386,25 +537,25 @@ public class ReportManagerImpl implements ReportManager {
 				row.createCell((short) ix++).setCellValue(userEid);
 				row.createCell((short) ix++).setCellValue(userName);
 			}
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_EVENT)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
 				EventStat es = (EventStat) se;
 				row.createCell((short) ix++).setCellValue(M_ers.getEventName(es.getEventId()));
 			}
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE)) {
 				ResourceStat rs = (ResourceStat) se;
 				row.createCell((short) ix++).setCellValue(rs.getResourceRef());				
 			}
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
 				ResourceStat rs = (ResourceStat) se;
 				row.createCell((short) ix++).setCellValue(rs.getResourceAction());				
 			}
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_DATE)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
 				row.createCell((short) ix++).setCellValue(se.getDate().toString());				
 			}
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_LASTDATE)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
 				row.createCell((short) ix++).setCellValue(se.getDate().toString());				
 			}
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_TOTAL)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
 				row.createCell((short) ix++).setCellValue(se.getCount());				
 			}
 		}
@@ -416,52 +567,52 @@ public class ReportManagerImpl implements ReportManager {
 	 */
 	public String getReportAsCsv(Report report) {
 		List<Stat> statsObjects = report.getReportData();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		boolean isFirst = true;
 
 		// Add the headers
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_USER)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_USER)) {
 			appendQuoted(sb, msgs.getString("th_id"));
 			sb.append(",");
 			appendQuoted(sb, msgs.getString("th_user"));
 			isFirst = false;
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_EVENT)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
 			appendQuoted(sb, msgs.getString("th_event"));
 			isFirst = false;
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
 			appendQuoted(sb, msgs.getString("th_resource"));
 			isFirst = false;
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
 			appendQuoted(sb, msgs.getString("th_action"));
 			isFirst = false;
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_DATE)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
 			appendQuoted(sb, msgs.getString("th_date"));
 			isFirst = false;
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_LASTDATE)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
 			appendQuoted(sb, msgs.getString("th_lastdate"));
 			isFirst = false;
 		}
-		if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_TOTAL)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
@@ -476,7 +627,7 @@ public class ReportManagerImpl implements ReportManager {
 		while (i.hasNext()){
 			Stat se = i.next();
 			// user
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_USER)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_USER)) {
 				String userId = se.getUserId();
 				String userEid = null;
 				String userName = null;			
@@ -506,7 +657,7 @@ public class ReportManagerImpl implements ReportManager {
 				isFirst = false;
 			}
 			// event
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_EVENT)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
 				if(!isFirst) {
 					sb.append(",");
 				}
@@ -515,7 +666,7 @@ public class ReportManagerImpl implements ReportManager {
 				isFirst = false;
 			}
 			// resource
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE)) {
 				if(!isFirst) {
 					sb.append(",");
 				}
@@ -524,7 +675,7 @@ public class ReportManagerImpl implements ReportManager {
 				isFirst = false;
 			}
 			// resource action
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
 				if(!isFirst) {
 					sb.append(",");
 				}
@@ -533,7 +684,7 @@ public class ReportManagerImpl implements ReportManager {
 				isFirst = false;
 			}
 			// date
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_DATE)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
 				if(!isFirst) {
 					sb.append(",");
 				}
@@ -541,7 +692,7 @@ public class ReportManagerImpl implements ReportManager {
 				isFirst = false;
 			}
 			// last date
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_LASTDATE)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
 				if(!isFirst) {
 					sb.append(",");
 				}
@@ -549,7 +700,7 @@ public class ReportManagerImpl implements ReportManager {
 				isFirst = false;
 			}
 			// total
-			if(isReportColumnAvailable(report.getReportParams(), StatsManager.T_TOTAL)) {
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
 				if(!isFirst) {
 					sb.append(",");
 				}
@@ -568,17 +719,9 @@ public class ReportManagerImpl implements ReportManager {
 		ByteArrayOutputStream out = null;
 		try{
 			// Setup a buffer to obtain the content length
-		    out = new ByteArrayOutputStream();
-		    
-		    //ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();		    		    
-		    //fopFactory.setURIResolver(new ServletContextURIResolver(servletContext));
-		    fopFactory.setURIResolver(new LibraryURIResolver());
-			
-		    FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-	        // configure foUserAgent as desired
-			//File burl = new File(servletContext.getRealPath("/"));
-			//foUserAgent.setBaseURL("file://"+ burl.getParent()+"/library/");
-			
+		    out = new ByteArrayOutputStream();		    
+		    fopFactory.setURIResolver(new LibraryURIResolver());			
+		    FOUserAgent foUserAgent = fopFactory.newFOUserAgent();			
 			
             // Construct fop with desired output format
             Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);
@@ -672,7 +815,7 @@ public class ReportManagerImpl implements ReportManager {
 		return false;
 	}
 
-	private StringBuffer appendQuoted(StringBuffer sb, String toQuote) {
+	private StringBuilder appendQuoted(StringBuilder sb, String toQuote) {
 		if((toQuote.indexOf(',') >= 0) || (toQuote.indexOf('"') >= 0)){
 			String out = toQuote.replaceAll("\"", "\"\"");
 			if(LOG.isDebugEnabled()) LOG.debug("Turning '" + toQuote + "' to '" + out + "'");
@@ -747,10 +890,66 @@ public class ReportManagerImpl implements ReportManager {
 		public PagingPosition	page;
 		public String			sortBy;
 		public boolean			sortAscending;
+		public int				maxResults;
 	}
 
 	
 	class ReportFormattedParamsImpl implements ReportFormattedParams {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportSite(org.sakaiproject.sitestats.api.report.Report)
+		 */
+		public String getReportSite(Report report) {
+			String site = report.getReportDefinition().getReportParams().getSiteId();
+			if(site != null) {
+				return M_ss.getSiteDisplay(site);
+			}else{
+				return msgs.getString("report_reportsite_all");
+			}
+		}
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportTitle(org.sakaiproject.sitestats.api.report.Report)
+		 */
+		public String getReportTitle(Report report) {
+			String title = report.getReportDefinition().getTitle(); 
+			if(title != null && title.length() != 0) {
+				if(isStringLocalized(title)) {
+					return msgs.getString(report.getReportDefinition().getTitleBundleKey());
+				}else{
+					return title;
+				}
+			}else{
+				return null;
+			}	
+		}
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportDescription(org.sakaiproject.sitestats.api.report.ReportDef)
+		 */
+		public String getReportDescription(Report report) {
+			String description = report.getReportDefinition().getDescription(); 
+			if(description != null && description.length() != 0) {
+				if(isStringLocalized(description)) {
+					return msgs.getString(report.getReportDefinition().getDescriptionBundleKey());
+				}else{
+					return description;
+				}
+			}else{
+				return null;
+			}			
+		}
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#isStringLocalized(java.lang.String)
+		 */
+		public boolean isStringLocalized(String string) {
+			if(string.startsWith("${") && string.endsWith("}")) {
+				return true;
+			}else{
+				return false;
+			}
+		}
 
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportGenerationDate(org.sakaiproject.sitestats.api.report.Report)
@@ -765,12 +964,12 @@ public class ReportManagerImpl implements ReportManager {
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportActivityBasedOn(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportActivityBasedOn(Report report) {
-			if(report.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
+			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
 				return msgs.getString("report_what_visits");
-			else if(report.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
-				StringBuffer buff = new StringBuffer();
+			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
+				StringBuilder buff = new StringBuilder();
 				buff.append(msgs.getString("report_what_events"));
-				if(report.getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
+				if(report.getReportDefinition().getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
 					buff.append(" (");
 					buff.append(msgs.getString("report_what_events_bytool"));
 					buff.append(")");
@@ -788,10 +987,10 @@ public class ReportManagerImpl implements ReportManager {
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportActivitySelectionTitle(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportActivitySelectionTitle(Report report) {
-			if(report.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
+			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
 				return msgs.getString("report_what_visits");
-			else if(report.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
-				if(report.getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL))
+			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
+				if(report.getReportDefinition().getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL))
 					return msgs.getString("reportres_summ_act_tools_selected");
 				else 
 					return msgs.getString("reportres_summ_act_events_selected");
@@ -803,44 +1002,50 @@ public class ReportManagerImpl implements ReportManager {
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportActivitySelection(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportActivitySelection(Report report) {
-			if(report.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)){
+			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)){
 				// visits
 				return null;
-			}else if(report.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
-				if(report.getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
+			}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
+				if(report.getReportDefinition().getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
 					// tools
-					List<String> list = report.getReportParams().getWhatToolIds();
-					StringBuffer buff = new StringBuffer();
-					for(int i=0; i<list.size() - 1; i++){
-						String toolId = list.get(i);
+					List<String> list = report.getReportDefinition().getReportParams().getWhatToolIds();
+					int listSize = list.size();
+					StringBuilder buff = new StringBuilder();
+					if(listSize > 0) {
+						for(int i=0; i<listSize - 1; i++){
+							String toolId = list.get(i);
+							buff.append(M_ers.getToolName(toolId));
+							buff.append(", ");
+						}
+						String toolId = list.get(listSize - 1);
 						buff.append(M_ers.getToolName(toolId));
-						buff.append(", ");
 					}
-					String toolId = list.get(list.size() - 1);
-					buff.append(M_ers.getToolName(toolId));
 					return buff.toString();
 				}else{
 					// events
-					List<String> list = report.getReportParams().getWhatEventIds();
-					StringBuffer buff = new StringBuffer();
-					for(int i=0; i<list.size() - 1; i++){
-						String eventId = list.get(i);
+					List<String> list = report.getReportDefinition().getReportParams().getWhatEventIds();
+					int listSize = list.size();
+					StringBuilder buff = new StringBuilder();
+					if(listSize > 0) {
+						for(int i=0; i<listSize - 1; i++){
+							String eventId = list.get(i);
+							buff.append(M_ers.getEventName(eventId));
+							buff.append(", ");
+						}
+						String eventId = list.get(listSize - 1);
 						buff.append(M_ers.getEventName(eventId));
-						buff.append(", ");
 					}
-					String eventId = list.get(list.size() - 1);
-					buff.append(M_ers.getEventName(eventId));
 					return buff.toString();
 				}
 			}else{
 				// resources
-				List<String> list = report.getReportParams().getWhatResourceIds();
-				if(report.getReportParams().getWhatResourceIds() == null
-						|| report.getReportParams().getWhatResourceIds().size() == 0 )
+				List<String> list = report.getReportDefinition().getReportParams().getWhatResourceIds();
+				if(report.getReportDefinition().getReportParams().getWhatResourceIds() == null
+						|| report.getReportDefinition().getReportParams().getWhatResourceIds().size() == 0 )
 					return null;
 				if(list.contains("all"))
 					return msgs.getString("report_what_all");
-				StringBuffer buff = new StringBuffer();
+				StringBuilder buff = new StringBuilder();
 				for(int i=0; i<list.size() - 1; i++){
 					String resourceId = list.get(i);
 					try{
@@ -876,8 +1081,8 @@ public class ReportManagerImpl implements ReportManager {
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportResourceActionTitle(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportResourceActionTitle(Report report) {
-			if(report.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)
-					&& report.getReportParams().getWhatResourceAction() != null)
+			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)
+					&& report.getReportDefinition().getReportParams().getWhatResourceAction() != null)
 					return msgs.getString("reportres_summ_act_rsrc_action");
 			return null;
 		}
@@ -886,9 +1091,9 @@ public class ReportManagerImpl implements ReportManager {
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportResourceAction(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportResourceAction(Report report) {
-			if(report.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)
-					&& report.getReportParams().getWhatResourceAction() != null){
-				return msgs.getString("action_" + report.getReportParams().getWhatResourceAction());
+			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)
+					&& report.getReportDefinition().getReportParams().getWhatResourceAction() != null){
+				return msgs.getString("action_" + report.getReportDefinition().getReportParams().getWhatResourceAction());
 			}else
 				return null;
 		}
@@ -897,11 +1102,11 @@ public class ReportManagerImpl implements ReportManager {
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportTimePeriod(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportTimePeriod(Report report) {
-			if(report.getReportParams().getWhen().equals(ReportManager.WHEN_ALL)){
+			if(report.getReportDefinition().getReportParams().getWhen().equals(ReportManager.WHEN_ALL)){
 				return msgs.getString("report_when_all");
 			}else{
-				Time from = M_ts.newTime(report.getReportParams().getWhenFrom().getTime());
-				Time to = M_ts.newTime(report.getReportParams().getWhenTo().getTime());
+				Time from = M_ts.newTime(report.getReportDefinition().getReportParams().getWhenFrom().getTime());
+				Time to = M_ts.newTime(report.getReportDefinition().getReportParams().getWhenTo().getTime());
 				return from.toStringLocalFull() + " - " + to.toStringLocalFull();
 			}
 		}
@@ -910,13 +1115,13 @@ public class ReportManagerImpl implements ReportManager {
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportUserSelectionType(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportUserSelectionType(Report report) {
-			if(report.getReportParams().getWho().equals(ReportManager.WHO_ALL))
+			if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_ALL))
 				return msgs.getString("report_who_all");
-			else if(report.getReportParams().getWho().equals(ReportManager.WHO_GROUPS))
+			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_GROUPS))
 				return msgs.getString("report_who_group");
-			else if(report.getReportParams().getWho().equals(ReportManager.WHO_ROLE))
+			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_ROLE))
 				return msgs.getString("report_who_role");
-			else if(report.getReportParams().getWho().equals(ReportManager.WHO_CUSTOM))
+			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_CUSTOM))
 				return msgs.getString("report_who_custom");
 			else 
 				return msgs.getString("report_who_not_match");
@@ -926,13 +1131,13 @@ public class ReportManagerImpl implements ReportManager {
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportUserSelectionTitle(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportUserSelectionTitle(Report report) {
-			if(report.getReportParams().getWho().equals(ReportManager.WHO_ALL))
+			if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_ALL))
 				return null;
-			else if(report.getReportParams().getWho().equals(ReportManager.WHO_GROUPS))
+			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_GROUPS))
 				return msgs.getString("reportres_summ_usr_group_selected");
-			else if(report.getReportParams().getWho().equals(ReportManager.WHO_ROLE))
+			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_ROLE))
 				return msgs.getString("reportres_summ_usr_role_selected");
-			else if(report.getReportParams().getWho().equals(ReportManager.WHO_CUSTOM))
+			else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_CUSTOM))
 				return msgs.getString("reportres_summ_usr_users_selected");
 			else 
 				return null;		
@@ -942,14 +1147,14 @@ public class ReportManagerImpl implements ReportManager {
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportUserSelection(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportUserSelection(Report report) {
-			if(report.getReportParams().getWho().equals(ReportManager.WHO_GROUPS)){
-				return getSiteGroupTitle(report.getReportParams().getWhoGroupId());
-			}else if(report.getReportParams().getWho().equals(ReportManager.WHO_ROLE)){
-				return report.getReportParams().getWhoRoleId();
-			}else if(report.getReportParams().getWho().equals(ReportManager.WHO_CUSTOM)){
+			if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_GROUPS)){
+				return getSiteGroupTitle(report.getReportDefinition().getReportParams().getWhoGroupId());
+			}else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_ROLE)){
+				return report.getReportDefinition().getReportParams().getWhoRoleId();
+			}else if(report.getReportDefinition().getReportParams().getWho().equals(ReportManager.WHO_CUSTOM)){
 				// users
-				List<String> list = report.getReportParams().getWhoUserIds();
-				StringBuffer buff = new StringBuffer();
+				List<String> list = report.getReportDefinition().getReportParams().getWhoUserIds();
+				StringBuilder buff = new StringBuilder();
 				for(int i=0; i<list.size() - 1; i++){
 					String userId = list.get(i);
 					buff.append(getUserDisplayId(userId));

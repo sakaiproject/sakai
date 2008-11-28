@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -75,16 +74,26 @@ public class ReportXMLReader extends AbstractObjectReader {
             throw new IllegalStateException("ContentHandler not set");
         }
         
-        handler.startElement("report");        
-        String reportTitle = msgs.getString("reportres_title");
-		try{
-			String siteTitle = M_ss.getSite(report.getReportParams().getSiteId()).getTitle();
-			reportTitle += " (" + siteTitle + ")";
-		}catch(IdUnusedException e){
-			// ignore
-		}
-        handler.element("title", reportTitle);
+        handler.startElement("report");
         
+        String reportTitle = M_rm.getReportFormattedParams().getReportTitle(report);
+        if(reportTitle != null && reportTitle.trim().length() != 0) {
+        	reportTitle = msgs.getString("reportres_title_detailed").replaceAll("\\$\\{title\\}", reportTitle);    		
+        }else{
+        	reportTitle = msgs.getString("reportres_title");
+        }
+        handler.element("title", reportTitle);
+
+		// description
+        String reportDescription = M_rm.getReportFormattedParams().getReportDescription(report);
+		if(reportDescription != null) {
+			generateReportSummaryHeaderRow(msgs.getString("reportres_summ_description") ,reportDescription);
+		}
+		// site
+        String reportSite = M_rm.getReportFormattedParams().getReportSite(report);
+		if(reportSite != null) {
+			generateReportSummaryHeaderRow(msgs.getString("reportres_summ_site") ,reportSite);
+		}
         // activity based on
 		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_act_basedon") ,M_rm.getReportFormattedParams().getReportActivityBasedOn(report));
 		String reportResourceAction = M_rm.getReportFormattedParams().getReportResourceAction(report);
@@ -107,13 +116,13 @@ public class ReportXMLReader extends AbstractObjectReader {
         generateReportSummaryHeaderRow(msgs.getString("reportres_summ_generatedon") ,M_rm.getReportFormattedParams().getReportGenerationDate(report));
         
         // set column display info
-        setColumnDisplayInfo(report.getReportParams());
+        setColumnDisplayInfo(report.getReportDefinition().getReportParams());
         
         // report header
-        generateReportDataHeader(report.getReportParams());
+        generateReportDataHeader(report.getReportDefinition().getReportParams());
         
         // report data
-        generateReportData(report.getReportData(), report.getReportParams());
+        generateReportData(report.getReportData(), report.getReportDefinition().getReportParams());
         
         handler.endElement("report");
     }

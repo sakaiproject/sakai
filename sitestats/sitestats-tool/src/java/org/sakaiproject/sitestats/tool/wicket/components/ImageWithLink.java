@@ -19,13 +19,12 @@ public class ImageWithLink extends Panel {
 	public ImageWithLink(String id, String imgUrl, String lnkUrl, String lnkLabel, String lnkTarget) {
 		super(id);
 		setRenderBodyOnly(false);
-		add( new ExternalImage("image", imgUrl) );
-		if(lnkUrl == null) {
-			lnkUrl = "#";
-		}
+		add( new ExternalImage("image", imgUrl).setVisible(imgUrl != null) );
 		ExternalLink lnk = new ExternalLink("link", lnkUrl, lnkLabel);
-		if(lnkTarget != null) {
+		if(lnkTarget != null && lnkLabel != null && lnkUrl != null) {
 			lnk.add(new AttributeModifier("target", true, new Model(lnkTarget)));
+		}else{
+			lnk.setEnabled(false);
 		}
 		add(lnk);
 	}

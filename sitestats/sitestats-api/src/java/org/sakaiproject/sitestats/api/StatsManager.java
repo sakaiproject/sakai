@@ -34,6 +34,7 @@ public interface StatsManager {
 	public final static String			SITEVISIT_EVENTID			= "pres.begin";
 	public final static String			RESOURCE_EVENTID_PREFIX		= "content.";
 	public final static String			SITESTATS_TOOLID			= "sakai.sitestats";
+	public final static String			SITESTATS_ADMIN_TOOLID		= "sakai.sitestats.admin";
 	public final static String			RESOURCES_TOOLID			= "sakai.resources";
 	public final static String			PARSERTIP_FOR_CONTEXTID		= "contextId";
 	public static final String			VIEW_WEEK					= "week";
@@ -186,8 +187,9 @@ public interface StatsManager {
 	 * @param inverseUserSelection match users not in userIds list
 	 * @param page The PagePosition subset of items to return (can be null)
 	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_EVENT_DEFAULT}, {@link #T_USER}, {@link #T_EVENT}, {@link #T_DATE}, {@link #T_LASTDATE})
-	 * @param sortBy Columns to sort by (can be null)
+	 * @param sortBy Column to sort by (can be null) (see {@link #T_USER}, {@link #T_EVENT}, {@link #T_DATE}, {@link #T_LASTDATE})
 	 * @param sortAscending Sort ascending?
+	 * @param maxResults Maximum number of results (specify 0 (zero) for no limitation)
 	 * @return a list of {@link EventStat} objects
 	 */
 	public List<Stat> getEventStats(
@@ -198,8 +200,9 @@ public interface StatsManager {
 			final boolean inverseUserSelection,
 			final PagingPosition page, 
 			final List<String> totalsBy,
-			final String sortBy, 
-			final boolean sortAscending);
+			final String sortBy,
+			final boolean sortAscending,
+			final int maxResults);
 	
 	/**
 	 * Get row count for event statistics (totals by user/event/date).
@@ -270,8 +273,9 @@ public interface StatsManager {
 	 * @param inverseUserSelection match users not in userIds list
 	 * @param page The PagePosition subset of items to return (can be null)
 	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_RESOURCE_DEFAULT}, {@link #T_USER}, {@link #T_RESOURCE}, {@link #T_RESOURCE_ACTION}, {@link #T_DATE}, {@link #T_LASTDATE})
-	 * @param sortBy Columns to sort by (can be null)
+	 * @param sortBy Column to sort by (can be null) (see {@link #T_USER}, {@link #T_EVENT}, {@link #T_DATE}, {@link #T_LASTDATE})
 	 * @param sortAscending Sort ascending?
+	 * @param maxResults Maximum number of results (specify 0 (zero) for no limitation)
 	 * @return a list of {@link ResourceStat} objects
 	 */
 	public List<Stat> getResourceStats(
@@ -283,7 +287,8 @@ public interface StatsManager {
 			final PagingPosition page, 
 			final List<String> totalsBy,
 			final String sortBy, 
-			final boolean sortAscending);
+			final boolean sortAscending,
+			final int maxResults);
 	
 	/**
 	 * Get row count for resource statistics (totals by user/event/date).

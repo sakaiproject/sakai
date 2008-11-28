@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xalan.transformer.MsgMgr;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
@@ -17,9 +18,11 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventFactory;
 import org.sakaiproject.sitestats.api.parser.ToolFactory;
+import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.impl.parser.EventFactoryImpl;
 import org.sakaiproject.sitestats.impl.parser.ToolFactoryImpl;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 
 
 public class EventRegistryServiceImpl implements EventRegistry, EventRegistryService {
@@ -27,6 +30,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private static Log					LOG							= LogFactory.getLog(EventRegistryServiceImpl.class);
 	private static final String			CACHENAME					= "org.sakaiproject.sitestats.api.event.EventRegistryService";
 	private static final String			CACHENAME_EVENTREGISTRY		= "eventRegistry";
+	private static ResourceLoader		msgs						= new ResourceLoader("Messages");
 
 	/** Event Registry members */
 	private List<String>				toolEventIds				= null;
@@ -176,10 +180,14 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	 * @see org.sakaiproject.sitestats.impl.event.EventRegistryService#getToolName(java.lang.String)
 	 */
 	public String getToolName(String toolId) {
-		try{
-			return M_tm.getTool(toolId).getTitle();
-		}catch(Exception e){
-			return toolId;
+		if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolId)) {
+			return msgs.getString("all");
+		}else{
+			try{
+				return M_tm.getTool(toolId).getTitle();
+			}catch(Exception e){
+				return toolId;
+			}
 		}
 	}
 

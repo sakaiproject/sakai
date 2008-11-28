@@ -40,15 +40,34 @@
 	        
 	            <!-- Page title -->
 	            <h2>
-	                <wicket:message key="reportres_title">[reportres_title]</wicket:message>
-	                <span wicket:id="site">:&nbsp;<span wicket:id="siteTitle">[siteTitle]</span></span>
+	                <span wicket:id="reportAction"></span>
 	            </h2>
 	            
 	            <!-- Header: data information -->
 	            <table class="summaryTable">
                     <tbody>
-                        <tr>
+                        <tr wicket:id="trDescription">
+                            <td class="autoSize labelColumn">
+                                <label class="indnt0">
+                                    <wicket:message key="reportres_summ_description">[reportres_summ_description]</wicket:message>
+                                </label>
+                            </td>
                             <td class="autoSize">
+                                <span wicket:id="reportDescription"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="autoSize labelColumn">
+                                <label class="indnt0">
+                                    <wicket:message key="reportres_summ_site">[reportres_summ_site]</wicket:message>
+                                </label>
+                            </td>
+                            <td class="autoSize">
+                                <span wicket:id="reportSite"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="autoSize labelColumn">
                                 <label class="indnt0">
                                     <wicket:message key="reportres_summ_act_basedon">[reportres_summ_act_basedon]</wicket:message>
                                 </label>
@@ -58,7 +77,7 @@
                             </td>
                         </tr>
                         <tr wicket:id="trResourceAction">
-                            <td class="autoSize">
+                            <td class="autoSize labelColumn">
                                 <label class="indnt0">
                                     <span wicket:id="reportResourceActionTitle">[reportResourceActionTitle]</span>
                                 </label>
@@ -68,7 +87,7 @@
                             </td>
                         </tr>
                         <tr wicket:id="trActivitySelection">
-                            <td class="autoSize">
+                            <td class="autoSize labelColumn">
                                 <label class="indnt0">
                                     <span wicket:id="reportActivitySelectionTitle">[reportActivitySelectionTitle]</span>
                                 </label>
@@ -78,7 +97,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="autoSize">
+                            <td class="autoSize labelColumn">
                                 <label class="indnt0">
                                     <wicket:message key="reportres_summ_timeperiod">[reportres_summ_timeperiod]</wicket:message>
                                 </label>
@@ -88,7 +107,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="autoSize">
+                            <td class="autoSize labelColumn">
                                 <label class="indnt0">
                                     <wicket:message key="reportres_summ_usr_selectiontype">[reportres_summ_usr_selectiontype]</wicket:message>
                                 </label>
@@ -98,7 +117,7 @@
                             </td>
                         </tr>
                         <tr wicket:id="trReportUserSelection">
-                            <td class="autoSize">
+                            <td class="autoSize labelColumn">
                                 <label class="indnt0">
                                     <span wicket:id="reportUserSelectionTitle">[reportUserSelectionTitle]</span>
                                 </label>
@@ -108,7 +127,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="autoSize">
+                            <td class="autoSize labelColumn">
                                 <label class="indnt0">
                                     <wicket:message key="reportres_summ_generatedon">[reportres_summ_generatedon]</wicket:message>
                                 </label>

@@ -45,8 +45,37 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderCSSReference("/sakai-sitestats-tool/css/sitestats.css");
 	}
 
+	public String getPortalSkinCSS() {
+		return getPortalSkinCSS(null);
+	}
+	
+	private String getPortalSkinCSS(String skinRepo) {
+		String skin = null;
+		if(skinRepo == null) {
+			skinRepo = ServerConfigurationService.getString("skin.repo");
+		}
+		try{
+			skin = SiteService.findTool(SessionManager.getCurrentToolSession().getPlacementId()).getSkin();
+		}catch(Exception e){
+			skin = ServerConfigurationService.getString("skin.default");
+		}
+
+		if(skin == null){
+			skin = ServerConfigurationService.getString("skin.default");
+		}
+
+		return skinRepo + "/" + skin + "/portal.css";
+	}
+
+	public String getToolSkinCSS() {
+		return getToolSkinCSS(null);
+	}
+
 	protected String getToolSkinCSS(String skinRepo) {
 		String skin = null;
+		if(skinRepo == null) {
+			skinRepo = ServerConfigurationService.getString("skin.repo");
+		}
 		try{
 			skin = SiteService.findTool(SessionManager.getCurrentToolSession().getPlacementId()).getSkin();
 		}catch(Exception e){

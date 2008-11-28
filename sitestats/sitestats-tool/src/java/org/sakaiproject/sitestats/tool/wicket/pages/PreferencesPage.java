@@ -25,6 +25,7 @@ import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.components.CSSFeedbackPanel;
 import org.sakaiproject.sitestats.tool.wicket.components.EventRegistryTree;
 import org.sakaiproject.sitestats.tool.wicket.components.Menu;
+import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 
 /**
  * @author Nuno Fernandes
@@ -78,14 +79,7 @@ public class PreferencesPage extends BasePage {
 	
 	@SuppressWarnings("serial")
 	private void renderBody() {
-		add(new Menu("menu", siteId));
-		
-		// display site title/id?
-		WebMarkupContainer site = new WebMarkupContainer("site");
-		site.setVisible(siteId != null && !realSiteId.equals(siteId));
-		add(site);
-		String siteTitle = facade.getSiteService().getSiteDisplay(siteId);
-		site.add(new Label("siteTitle", siteTitle));
+		add(new Menus("menu", siteId));
 		
 		Form form = new Form("preferencesForm");
 		add(form);

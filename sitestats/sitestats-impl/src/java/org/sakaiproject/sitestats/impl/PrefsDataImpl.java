@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -10,36 +11,25 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 
-public class PrefsDataImpl implements PrefsData {
+
+public class PrefsDataImpl implements PrefsData, Serializable {
+	private static final long		serialVersionUID					= 1L;
+
 	/** Stats Manager object */
-	private StatsManager	sm	= (StatsManager) ComponentManager.get(StatsManager.class.getName());
-	
-	private List<ToolInfo> toolEventsDef 			= new ArrayList<ToolInfo>();
-	//private List<String> rolesForActivity 	= new ArrayList<String>();
-	private boolean	listToolEventsOnlyAvailableInSite = true;
-	private boolean	chartIn3D					= sm.isChartIn3D();
-	private float	chartTransparency			= sm.getChartTransparency();
-	private boolean	itemLabelsVisible			= sm.isItemLabelsVisible();
+	private transient StatsManager	sm									= (StatsManager) ComponentManager.get(StatsManager.class.getName());
+
+	private List<ToolInfo>			toolEventsDef						= new ArrayList<ToolInfo>();
+	private boolean					listToolEventsOnlyAvailableInSite	= true;
+	private boolean					chartIn3D							= sm.isChartIn3D();
+	private float					chartTransparency					= sm.getChartTransparency();
+	private boolean					itemLabelsVisible					= sm.isItemLabelsVisible();
 	
 	
 	public PrefsDataImpl(){
 		toolEventsDef = new ArrayList<ToolInfo>();
-		//rolesForActivity = new ArrayList<String>();
 		listToolEventsOnlyAvailableInSite = true;
 		
 	}
-	
-//	public void addRoleForActivity(String role){
-//		rolesForActivity.add(role);
-//	}
-//
-//	public List<String> getRolesForActivity() {
-//		return rolesForActivity;
-//	}
-//
-//	public void setRolesForActivity(List<String> rolesForActivity) {
-//		this.rolesForActivity = rolesForActivity;
-//	}
 
 	public List<ToolInfo> getToolEventsDef() {
 		return toolEventsDef;
@@ -111,15 +101,7 @@ public class PrefsDataImpl implements PrefsData {
 		buff.append(" chartIn3D=\""+ isChartIn3D() +"\" ");
 		buff.append(" chartTransparency=\""+ getChartTransparency() +"\" ");
 		buff.append(" itemLabelsVisible=\""+ isItemLabelsVisible() +"\" ");
-		buff.append(">");
-		
-//		buff.append("	<rolesForActivity>");
-//		Iterator<String> r = getRolesForActivity().iterator();
-//		while(r.hasNext()){
-//			buff.append("		<role id=\""+ r.next() +"\" />");
-//		}		
-//		buff.append("	</rolesForActivity>");
-		
+		buff.append(">");		
 
 		buff.append("	<toolEventsDef>");
 		Iterator<ToolInfo> iT = getToolEventsDef().iterator();

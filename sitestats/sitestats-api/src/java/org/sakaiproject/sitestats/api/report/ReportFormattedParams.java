@@ -2,6 +2,12 @@ package org.sakaiproject.sitestats.api.report;
 
 public interface ReportFormattedParams {
 
+	public abstract String getReportSite(Report report);
+	
+	public abstract String getReportTitle(Report report);
+	
+	public abstract String getReportDescription(Report report);
+
 	public abstract String getReportGenerationDate(Report report);
 
 	public abstract String getReportActivityBasedOn(Report report);
@@ -22,4 +28,5 @@ public interface ReportFormattedParams {
 
 	public abstract String getReportUserSelection(Report report);
 
+	public abstract boolean isStringLocalized(String string);
 }

@@ -47,7 +47,8 @@
                                 <fo:table-column column-width="auto" />
 							</xsl:if>
                             <xsl:if test="showResource = 'true'">
-                                <fo:table-column column-width="55mm" />
+                                <!-- <fo:table-column column-width="55mm" /> -->
+                                <fo:table-column column-width="auto" />
                             </xsl:if>
                             <xsl:if test="showResourceAction = 'true'">
                                 <fo:table-column column-width="12.5mm" />

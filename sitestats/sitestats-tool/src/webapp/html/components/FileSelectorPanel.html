@@ -9,7 +9,6 @@
 			         border-right: 1px solid rgb(255, 255, 255);
 			         border-top: 1px solid rgb(187, 187, 187);
 			         width: 304px;
-			         /*height: 147px;*/
 			         height: 220px;
 			         overflow: scroll;
 			         padding: 5px;			        
@@ -17,7 +16,6 @@
 			      }
 			      .containerHover{
 			         background-color:#EEEEEE;
-					 /*height:141px;*/
 					 height:214px;
 					 margin:1px;
 					 position:absolute;
@@ -39,11 +37,6 @@
 			        }
 			        jQuery(fieldId).val(selection);
 			      }
-			      
-			      function saveBrowsingState(fieldId) {
-			    	var state = jQuery('#container ul.jqueryFileTree');
-			        jQuery(fieldId).val(state.html());
-			      }
              </script>
         </wicket:link>
     </wicket:head>
@@ -53,7 +46,6 @@
 		      <div wicket:id="containerHover" class="containerHover"></div>
 		      <div id="container"></div>
 		      <input class="selectedFiles" wicket:id="selectedFiles" type="hidden"/>
-              <input class="browsingState" wicket:id="browsingState" type="hidden"/>
 		</wicket:panel>
     </wicket:body>
 </html>

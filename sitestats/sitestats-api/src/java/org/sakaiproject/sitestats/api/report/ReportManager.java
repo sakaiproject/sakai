@@ -1,7 +1,8 @@
 package org.sakaiproject.sitestats.api.report;
 
+import java.util.List;
+
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
 
 public interface ReportManager {
@@ -22,34 +23,33 @@ public interface ReportManager {
 	public static final String	WHAT_RESOURCES_ACTION_DEL	= "delete";
 	public static final String	WHAT_EVENTS_BYEVENTS		= "what-events-byevent";
 	public static final String	WHAT_EVENTS_BYTOOL			= "what-events-bytool";
+	public static final String	WHAT_EVENTS_ALLEVENTS		= "all";
+	public static final String	WHAT_EVENTS_ALLTOOLS		= "all";
 	public static final String	WHAT_EVENTS					= "what-events";
 	public static final String	WHAT_VISITS					= "what-visits";
 	public static final String	HOW_TOTALSBY				= "how-totalsby";
+	public static final String	HOW_SORT_DEFAULT			= "default";
 
 
 	/** Produce a report based on supplied parameters. */
-	public Report getReport(String siteId, boolean restrictToToolsInSite, ReportParams params);
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite);
 	
 	/**
 	 * Produce a report based on supplied parameters (paged results).
-	 * @param siteId The site ID
+	 * @param params Object containing specific report parameters (see {@link ReportDef})
 	 * @param restrictToToolsInSite Whether to limit report to events from tools available in site
-	 * @param params Object containing specific report parameters (see {@link ReportParams})
 	 * @param page Paging information (see {@link PagingPosition})
-	 * @param sortBy Columns to sort by
-	 * @param sortAscending Sort ascending?
 	 * @return The report (see {@link Report})
 	 */
-	public Report getReport(String siteId, boolean restrictToToolsInSite, ReportParams params, PagingPosition page, String sortBy, boolean sortAscending);
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition page);
 	
 	/**
 	 * Get row count for a report based on supplied parameters (paged results).
-	 * @param siteId The site ID
+	 * @param params Object containing specific report parameters (see {@link ReportDef})
 	 * @param restrictToToolsInSite Whether to limit report to events from tools available in site
-	 * @param params Object containing specific report parameters (see {@link ReportParams})
 	 * @return The report row count
 	 */
-	public int getReportRowCount(String siteId, boolean restrictToToolsInSite, ReportParams params);
+	public int getReportRowCount(ReportDef reportDef, boolean restrictToToolsInSite);
 	
 	/** Return utility class to retrieve formatted report parameters. */
 	public ReportFormattedParams getReportFormattedParams();
@@ -61,6 +61,24 @@ public interface ReportManager {
 	 * @return True if column has data and can be displayed; false otherwise
 	 */
 	public boolean isReportColumnAvailable(ReportParams params, String column);
+	
+	/** Load a report definition from DB. */
+	public ReportDef getReportDefinition(long id);
+	
+	/** Save (add or update) a report definition to DB. */
+	public boolean saveReportDefinition(ReportDef reportDef);
+	
+	/** Remove a report definition from DB. */
+	public void removeReportDefinition(ReportDef reportDef);
+	
+	/**
+	 * Load report definitions for a specific site from DB.
+	 * @param siteId The site id or null to load default (global) report definitions.
+	 * @param includedPredefined If true, predefined report definitions will also be included
+	 * @param includeHidden If true, hidden report definitions will also be included
+	 * @return A list of report definitions.
+	 */
+	public List<ReportDef> getReportDefinitions(String siteId, boolean includedPredefined, boolean includeHidden);
 	
 	/**
 	 * Constructs an excel workbook document representing the table.

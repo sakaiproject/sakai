@@ -4,21 +4,28 @@
 package org.sakaiproject.sitestats.tool.wicket.models;
 
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.report.ReportManager;
 
 
 public class EventModel implements IModel {
 	private static final long	serialVersionUID	= 1L;
-	String						eventId				= "";
-	String						eventName			= "";
+	private String				eventId				= "";
+	private String				eventName			= "";
+
+	public EventModel(String eventId, String eventName) {
+		this.eventId = eventId;
+		this.eventName = eventName;
+	}
 
 	public EventModel(EventInfo e) {
-		eventId = e.getEventId();
-		eventName = e.getEventName();
+		this.eventId = e.getEventId();
+		this.eventName = e.getEventName();
 	}
 
 	public Object getObject() {
-		return eventId + " + " + eventName;
+		return getEventId() + " + " + getEventName();
 	}
 
 	public void setObject(Object object) {
@@ -34,7 +41,11 @@ public class EventModel implements IModel {
 	}
 
 	public String getEventName() {
-		return eventName;
+		if(ReportManager.WHAT_EVENTS_ALLEVENTS.equals(eventName)){
+			return (String) new ResourceModel("all").getObject();
+		}else{
+			return eventName;
+		}
 	}
 
 	public void detach() {

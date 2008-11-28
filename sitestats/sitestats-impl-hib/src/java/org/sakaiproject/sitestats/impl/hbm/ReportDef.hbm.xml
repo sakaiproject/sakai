@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.sakaiproject.sitestats.api.report.ReportDef"
+		table="SST_REPORTS"
+		lazy="true">
+		<id name="id" type="long" column="ID" unsaved-value="0">
+			<generator class="native">
+				<param name="sequence">SST_REPORTS_ID</param>
+			</generator>
+		</id>
+		<property name="siteId" column="SITE_ID" type="string" length="99" not-null="false" index="SST_REPORTS_SITE_ID_IX" />
+		<property name="title" column="TITLE" type="string" length="255" not-null="true" />
+		<property name="description" column="DESCRIPTION" type="text" length="2147483647" not-null="false" />
+		<property name="hidden" column="HIDDEN" type="java.lang.Boolean" not-null="false" />
+        <property name="reportDefinitionXml" column="REPORT_DEF" type="text" not-null="true"/>
+        <property name="createdBy" column="CREATED_BY" type="string" length="99" not-null="true"/>
+        <property name="createdOn" column="CREATED_ON" type="java.util.Date" not-null="true"/>
+        <property name="modifiedBy" column="MODIFIED_BY" type="string" length="99" not-null="false"/>
+        <property name="modifiedOn" column="MODIFIED_ON" type="java.util.Date" not-null="false"/>
+	</class>
+</hibernate-mapping>

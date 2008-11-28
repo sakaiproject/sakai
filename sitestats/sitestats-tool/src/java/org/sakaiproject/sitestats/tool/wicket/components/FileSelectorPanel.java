@@ -1,6 +1,8 @@
 package org.sakaiproject.sitestats.tool.wicket.components;
 
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,8 +45,6 @@ public class FileSelectorPanel extends Panel {
 
 	private String						siteId;
 	private String						siteTitle;
-	private String						selectedFiles		= "";
-	private String						browsingState		= null;
 	private String						currentDir			= BASE_DIR;
 
 	private final AjaxResourcesLoader	ajaxResourcesLoader		= new AjaxResourcesLoader();
@@ -66,10 +66,6 @@ public class FileSelectorPanel extends Panel {
 		HiddenField selectedFiles = new HiddenField("selectedFiles", new PropertyModel(this, "selectedFiles"));
 		add(selectedFiles);
 		
-		// (previous) browsing state
-		HiddenField browsingState = new HiddenField("browsingState", new PropertyModel(this, "browsingState"));
-		add(browsingState);
-		
 		// hover div (for disabling control)
 		WebMarkupContainer containerHover = new WebMarkupContainer("containerHover");
 		if(isEnabled()) {
@@ -83,53 +79,50 @@ public class FileSelectorPanel extends Panel {
 	}
 	
 	public List<String> getSelectedFilesId() {
-		List<String> filesId = new ArrayList<String>();
-		if(selectedFiles != null) {
-			String[] t = selectedFiles.split("\\|\\|\\|");
-			for(int i=0; i<t.length; i++) {
-				filesId.add(t[i]);
-			}
-		}
-		return filesId;
+		List<String> files = (List<String>) getModelObject();
+		return files;
+	}
+	
+	public void setSelectedFilesId(List<String> files) {
+		setModelObject(files);
 	}
 	
 	public String getSelectedFiles() {
-		return selectedFiles;
-	}
-	
-	public void setSelectedFiles(String selectedFiles) {
-		this.selectedFiles = selectedFiles;
-		setModelObject(getSelectedFilesId());
-	}
-	
-	public String getBrowsingState() {
-		if(browsingState != null) {
-			List<String> selectedIds = getSelectedFilesId();
-			for(String id : selectedIds) {
-				browsingState = browsingState.replaceAll(id, id + "\" checked=\"true\"");
-			}
-		}
-		return browsingState;
-	}
-	
-	public void setBrowsingState(String browsingState) {
-		this.browsingState = browsingState;
-	}
-	
-	public void setSelectedFilesId(List<String> selectedFiles) {
-		this.selectedFiles = null;
-		for(String s : selectedFiles) {
-			if(this.selectedFiles == null) {
-				this.selectedFiles = s;
+		List<String> files = (List<String>) getModelObject();
+		StringBuilder filesEncoded = new StringBuilder();
+		for(String s : files) {
+			if(filesEncoded.length() == 0) {
+				filesEncoded.append(s);
 			}else{
-				this.selectedFiles += "|||" + s;
+				filesEncoded.append("|||");
+				filesEncoded.append(s);
 			}
 		}
-		setModelObject(getSelectedFilesId());
+		return filesEncoded.toString();
+	}
+	
+	public void setSelectedFiles(String filesEncoded) {
+		List<String> files = new ArrayList<String>();
+		if(filesEncoded != null) {
+			String[] t = filesEncoded.split("\\|\\|\\|");
+			for(int i=0; i<t.length; i++) {
+				files.add(t[i]);
+			}
+		}
+		setModelObject(files);
 	}
 	
 	private boolean isSelected(String resourceId) {
 		return getSelectedFilesId().contains(resourceId);
+	}
+	
+	private boolean isFolderPartOfSelectedFiles(String collectionId) {
+		for(String id : getSelectedFilesId()) {
+			if(id.startsWith(collectionId)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -146,7 +139,6 @@ public class FileSelectorPanel extends Panel {
 		onDomReady.append("', duration: 100},");
 		onDomReady.append("  function(file) {return false;}");
 		onDomReady.append(");");
-		onDomReady.append("jQuery('.generateReport').click( function(){saveBrowsingState('.browsingState');return true;} );");
 		container.getHeaderResponse().renderOnDomReadyJavascript(onDomReady.toString());
 		super.renderHead(container);
 	}
@@ -154,7 +146,7 @@ public class FileSelectorPanel extends Panel {
 	private List<CHResourceModel> getResources(String dir) throws IdUnusedException, TypeException, PermissionException {
 		List<CHResourceModel> resourcesList = new ArrayList<CHResourceModel>();
 		String siteCollectionId = facade.getContentHostingService().getSiteCollection(siteId);
-		if(dir.equals("/group/")) {
+		if(dir.equals(BASE_DIR)) {
 			dir = siteCollectionId; 
 			resourcesList.add(new CHResourceModel(siteCollectionId, siteTitle, true));
 		}else{
@@ -190,36 +182,51 @@ public class FileSelectorPanel extends Panel {
 				OutputStream out = getResponse().getOutputStream();
 				try{
 					out.write("<ul class=\"jqueryFileTree\" style=\"display: none;\">".getBytes(enc));
-					String brsState = getBrowsingState();
-					if(currentDir.equals("/group/") && brsState != null) {
-						out.write(getBrowsingState().getBytes(enc));
-						setBrowsingState(null);
-					}else{
-						List<CHResourceModel> list = getResources(currentDir);
-						if(list !=  null) {
-							for(CHResourceModel rm : list) {
-								if(rm.isCollection()) {
-									String collectionMarkup = "  <li class=\"directory collapsed\"><a href=\"#\" rel=\""+rm.getResourceId()+"\">"+rm.getResourceNameEscaped()+"</a></li>";
-									out.write(collectionMarkup.getBytes(enc));
-								}else{
-									String markup1 = "  <li class=\"file ext_"+rm.getResourceExtension()+"\">";
-									String markup2 = "    <input type=\"checkbox\" value=\""+rm.getResourceId()+"\" "+ (isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "") +"onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>";
-									String markup3 = "    <span>"+rm.getResourceNameEscaped()+"</span>";
-									String markup4 = "  </li>";
-									out.write(markup1.getBytes(enc));
-									out.write(markup2.getBytes(enc));
-									out.write(markup3.getBytes(enc));
-									out.write(markup4.getBytes(enc));
-								}
-							}
-						}
-					}
+					boolean expandToSelection = currentDir.equals(BASE_DIR) && getSelectedFilesId() != null && getSelectedFilesId().size() > 0;
+					getResourcesMarkup(currentDir, out, expandToSelection, enc);					
 					out.write("</ul>".getBytes(enc));
 				}finally{
 					out.close();
 				}
 			}catch(Exception e){
 				// ignore - do nothing
+			}
+		}
+
+		private void getResourcesMarkup(String folder, OutputStream out, boolean expandToSelection, String encoding) throws IdUnusedException, TypeException, PermissionException, IOException, UnsupportedEncodingException {
+			List<CHResourceModel> list = getResources(folder);
+			if(list !=  null) {
+				for(CHResourceModel rm : list) {
+					if(rm.isCollection()) {
+						if(!expandToSelection 
+							|| (expandToSelection && !isFolderPartOfSelectedFiles(rm.getResourceId()))								
+						) {
+							String collectionMarkup = "  <li class=\"directory collapsed\"><a href=\"#\" rel=\""+rm.getResourceId()+"\">"+rm.getResourceNameEscaped()+"</a></li>";
+							out.write(collectionMarkup.getBytes(encoding));
+						}else{
+							StringBuilder collectionMarkup = new StringBuilder();
+							collectionMarkup.append("  <li class=\"directory expanded\"  style=\"position: static;\">");
+							collectionMarkup.append("    <a href=\"#\" rel=\""+rm.getResourceId()+"\">"+rm.getResourceNameEscaped()+"</a>");
+							collectionMarkup.append("    <ul style=\"display: block;\" class=\"jqueryFileTree\">");
+							out.write(collectionMarkup.toString().getBytes(encoding));
+							
+							// get contents recursively
+							collectionMarkup = new StringBuilder();
+							
+							getResourcesMarkup(rm.getResourceId(), out, expandToSelection, encoding);
+							collectionMarkup.append("    </ul>");
+							collectionMarkup.append("  </li>");
+							out.write(collectionMarkup.toString().getBytes(encoding));
+						}
+					}else{
+						StringBuilder markup = new StringBuilder();
+						markup.append("  <li class=\"file ext_"+rm.getResourceExtension()+"\">");
+						markup.append("    <input type=\"checkbox\" value=\""+rm.getResourceId()+"\" "+ (isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "") +"onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>");
+						markup.append("    <span>"+rm.getResourceNameEscaped()+"</span>");
+						markup.append("  </li>");
+						out.write(markup.toString().getBytes(encoding));
+					}
+				}
 			}
 		}
 	}

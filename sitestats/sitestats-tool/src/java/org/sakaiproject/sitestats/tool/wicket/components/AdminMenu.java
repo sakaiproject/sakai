@@ -7,6 +7,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.pages.AdminPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.AdminReportsPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ServerWidePage;
 
 
@@ -48,6 +49,13 @@ public class AdminMenu extends Panel {
 		adminPage.setVisible(adminPageVisible);
 		//adminPage.add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
 		add(adminPage);
+		
+		// Admin reports
+		boolean reportsPageVisible = 
+			facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
+		MenuItem reportsPage = new MenuItem("reportsPage", new ResourceModel("menu_adminreports"), AdminReportsPage.class, pageParameters, false);
+		reportsPage.setVisible(reportsPageVisible);
+		add(reportsPage);
 		
 		// Admin ServerWide page
 		boolean serverWidePageVisible = 

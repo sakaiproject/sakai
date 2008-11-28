@@ -4,22 +4,29 @@
 package org.sakaiproject.sitestats.tool.wicket.models;
 
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
+import org.sakaiproject.sitestats.api.report.ReportManager;
 
 
 public class ToolModel implements IModel {
 	private static final long	serialVersionUID	= 1L;
 
-	String						toolId				= "";
-	String						toolName			= "";
+	private String				toolId				= "";
+	private String				toolName			= "";
 
+	public ToolModel(String toolId, String toolName) {
+		this.toolId = toolId;
+		this.toolName = toolName;
+	}
+	
 	public ToolModel(ToolInfo e) {
-		toolId = e.getToolId();
-		toolName = e.getToolName();
+		this.toolId = e.getToolId();
+		this.toolName = e.getToolName();
 	}
 
 	public Object getObject() {
-		return toolId + " + " + toolName;
+		return getToolId() + " + " + getToolName();
 	}
 
 	public void setObject(Object object) {
@@ -35,7 +42,11 @@ public class ToolModel implements IModel {
 	}
 
 	public String getToolName() {
-		return toolName;
+		if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolName)) {
+			return (String) new ResourceModel("all").getObject();
+		}else{
+			return toolName;
+		}
 	}
 
 	public void detach() {

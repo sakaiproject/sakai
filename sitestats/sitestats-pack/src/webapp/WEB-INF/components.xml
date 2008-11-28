@@ -132,13 +132,35 @@
 		
 		<!-- Sakai services -->
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+        <property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz" />
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+        <!-- Hibernate related -->
+        <property name="sessionFactory" ref="#{sitestats.db}SitestatsSessionFactory" />
 	</bean>
+    <!-- Transaction proxy: ReportManager -->
+    <bean id="org.sakaiproject.sitestats.api.report.ReportManagerTransactionProxyFactoryBean"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">        
+        <property name="transactionManager" ref="#{sitestats.db}SitestatsTransactionManager" />
+        <property name="target" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
+        <property name="transactionAttributes">
+            <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
+        </property>
+    </bean>
+    
+    
+    <!-- ReportDefEntityProvider ______________________________________________________________________________ -->
+    <bean id="org.sakaiproject.sitestats.api.report.ReportDefEntityProvider"
+        class="org.sakaiproject.sitestats.impl.report.ReportDefEntityProvider">
+        
+        <!-- Sakai services -->
+        <property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager" />
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+    </bean>
 	
 	
 	<!-- ChartService ______________________________________________________________________________ -->
@@ -220,6 +242,7 @@
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>        
 	</bean>
 
 
@@ -283,6 +306,6 @@
 	</bean>
 	<bean id="org.sakaiproject.sitestats.api.SiteActivity"
 		class="org.sakaiproject.sitestats.impl.SiteActivityImpl">
-	</bean>
+    </bean>
 
 </beans>
