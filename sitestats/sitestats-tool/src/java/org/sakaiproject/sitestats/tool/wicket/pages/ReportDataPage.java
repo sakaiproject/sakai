@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +36,7 @@ import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
@@ -107,6 +109,7 @@ public class ReportDataPage extends BasePage {
 	public void renderHead(IHeaderResponse response) {
 		response.renderJavascriptReference("/library/js/jquery.js");
 		response.renderJavascriptReference("/sakai-sitestats-tool/script/common.js");
+		response.renderCSSReference("/sakai-sitestats-tool/css/tool-icons.css");
 		super.renderHead(response);
 	}
 	
@@ -234,6 +237,8 @@ public class ReportDataPage extends BasePage {
 	@SuppressWarnings("serial")
 	private List<IColumn> getTableColumns() {
 		List<IColumn> columns = new ArrayList<IColumn>();
+		final Map<String,ToolInfo> eventIdToolMap = facade.getEventRegistryService().getEventIdToolMap();
+		
 		// user
 		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_USER)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_id"), ReportsDataProvider.COL_USERID, ReportsDataProvider.COL_USERID) {
@@ -291,7 +296,10 @@ public class ReportDataPage extends BasePage {
 					if(!"".equals(eventId)){
 						eventName = facade.getEventRegistryService().getEventName(eventId);
 					}
-					Label eventLabel = new Label(componentId, eventName);					
+					Label eventLabel = new Label(componentId, eventName);
+					String toolId = eventIdToolMap.get(eventId).getToolId();
+					String toolIconClasses = "toolIcon icon-" + toolId.replaceAll("\\.", "-");
+					eventLabel.add(new AttributeModifier("class", true, new Model(toolIconClasses)));	
 					item.add(eventLabel);
 				}
 			});
