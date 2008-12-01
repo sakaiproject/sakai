@@ -221,7 +221,7 @@ implements org.osid.repository.AssetIterator {
 				LOG.warn( "nextAsset() failed getting status property", se );
 			}
 
-			if( !status.equals( "ready" ) ) {
+			if( status == null || !status.equals( "ready" ) ) {
 				// the X-Server is still searching/fetching - try again later
 				throw new org.osid.repository.RepositoryException(
 						org.sakaibrary.osid.repository.xserver.
