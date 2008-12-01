@@ -691,6 +691,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(collection == null)
 		{
 			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
+			return TEMPLATE_ERROR;
 		}
 		else
 		{
