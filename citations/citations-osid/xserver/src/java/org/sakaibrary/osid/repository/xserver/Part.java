@@ -119,7 +119,10 @@ implements org.osid.repository.Part
 				this.partStructure = EndPagePartStructure.getInstance();
 			}
 			
-			this.displayName = this.partStructure.getDisplayName();
+			if (this.partStructure != null)
+			{
+				this.displayName = this.partStructure.getDisplayName();
+			}
         }
         catch (Throwable t)
         {
