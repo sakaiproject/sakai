@@ -106,6 +106,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+
 /**
  * BaseMessageService is...
  */
@@ -2696,6 +2697,27 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			((BaseMessageEdit) edit).closeEdit();
 
 		} // commitMessage
+		
+		/**
+		 * Commit the draft changes made to a MessageEdit object. The MessageEdit is disabled, and not to be used after this call.
+		 * This is mainly used to commit draft changes for announcements, which are associated with non-existing groups.	
+		 * 
+		 * @param user
+		 *        The UserEdit object to commit.
+		 */
+		public void commitDraftChanges(MessageEdit edit)
+		{
+			
+			// complete the edit
+			m_storage.commitMessage(this, edit);
+
+			// clear out any thread local caching of this message, since it has just changed
+			m_threadLocalManager.set(edit.getReference(), null);
+
+			// close the edit object
+			((BaseMessageEdit) edit).closeEdit();
+
+		} // commitMessage
 
 		/**
 		 * Cancel the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call.
@@ -3204,7 +3226,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		{
 			List msgs = findMessages();
 			if (msgs.size() == 0) return msgs;
-
+			
 			// sort - natural order is date ascending
 			Collections.sort(msgs);
 
@@ -3237,7 +3259,21 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					}
 
 					// reject if there is no intersection
-					if (!isIntersectionGroupRefsToGroups(msgGroups, allowedGroups)) continue;
+					if (!isIntersectionGroupRefsToGroups(msgGroups, allowedGroups)){ //continue;
+						//MessageChannel channel=null;
+						MessageEdit msg1=(MessageEdit) msg;
+						MessageHeaderEdit header = msg1.getHeaderEdit();
+						header.setDraft(true);
+						try {
+							header.clearGroupAccess();
+						} catch (PermissionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						this.commitDraftChanges(msg1);
+						msg=(Message) msg1;
+						
+					}
 				}
 
 				// reject if the filter rejects
