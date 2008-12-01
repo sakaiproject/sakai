@@ -1337,6 +1337,7 @@ public class DbCitationService extends BaseCitationService
             catch (SQLException e)
             {
 	            M_log.debug("TripleReader: problem reading triple from result: citationId(" + citationId + ") name(" + name + ") value(" + value + ")");
+	            return null;
             }
 	        return triple;
         }
