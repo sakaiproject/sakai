@@ -94,6 +94,12 @@ implements org.sakaiproject.citation.util.api.CQL2MetasearchCommand {
 			LOG.warn( "CQL2XServerFindCommand.doCQL2MetasearchCommand() CQL " +
 					"parsing exception while parsing: " + e.getMessage() ); 
 		}
+		
+		if (root == null)
+		{
+			return null;
+		}
+		
 		String cqlXml = root.toXCQL( 0 );
 
 		// get cqlXml as a stream
@@ -104,6 +110,11 @@ implements org.sakaiproject.citation.util.api.CQL2MetasearchCommand {
 		} catch( java.io.UnsupportedEncodingException uee ) {
 			LOG.warn( "CQL2XServerFindCommand.doCQL2MetasearchCommand() " +
 					"unsupported encoding: " + uee.getMessage() ); 
+		}
+		
+		if (byteInputStream == null)
+		{
+			return null;
 		}
 		
 		// clear the stack
