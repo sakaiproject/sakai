@@ -967,6 +967,12 @@ public abstract class BaseCitationService implements CitationService
 
 			String creators = "";
 			int count = 0;
+			
+			if (creatorList == null)
+			{
+				return creators;
+			}
+			
 			Iterator it = creatorList.iterator();
 			while (it.hasNext())
 			{
