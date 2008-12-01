@@ -749,70 +749,58 @@ public class SiteManageGroupSectionRoleHandler {
     	else
     	{
     		// go and create the new group
-        	try
+    		if (!rosterList.isEmpty())
+    		{
+	    		for (String roster:rosterList)
+	    		{
+	    			Group group = site.addGroup();
+        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+		        		
+		        	// roster provider string
+		        	group.setProviderGroupId(roster);
+		        		
+		        	// set title
+		        	group.setTitle(roster);
+	    		}
+    		}
+	        	
+        	// role based
+        	if (!roleList.isEmpty())
         	{
-        		Group group = site.addGroup();
-        		group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
-        		
-        		// roster provider string
-        		String rosterProviderId = "";
-        		// roster based
-        		if (!rosterList.isEmpty())
+        		for(String role:roleList)
         		{
-        			// pack the roster provider id
-        			rosterProviderId =  getProviderString(rosterList);
-            		// set provider id
-        			group.setProviderGroupId(rosterProviderId);
-        			
-        			// set title
-        			group.setTitle(rosterProviderId);
-        		}
-        		
-        		// role based
-        		String roleProviderId = "";
-        		if (!roleList.isEmpty())
-        		{
-        			// pack the role provider id
-        			roleProviderId =  getProviderString(roleList);
-        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, roleProviderId);
+        			Group group = site.addGroup();
+        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, role);
         			
         			// add users with role selected into group
-        			for(String roleId:roleList)
-        			{
-        				Set roleUsers = site.getUsersHasRole(roleId);
-        				for (Iterator iRoleUsers = roleUsers.iterator(); iRoleUsers.hasNext();)
-        				{
-        					String roleUserId = (String) iRoleUsers.next();
-            				Member member = site.getMember(roleUserId);
-        					group.addMember(roleUserId, roleId, member.isActive(), false);
-        				}
-        			}
+        			Set roleUsers = site.getUsersHasRole(role);
+    				for (Iterator iRoleUsers = roleUsers.iterator(); iRoleUsers.hasNext();)
+    				{
+    					String roleUserId = (String) iRoleUsers.next();
+        				Member member = site.getMember(roleUserId);
+    					group.addMember(roleUserId, role, member.isActive(), false);
+    				}
         			
-        			group.setTitle((group.getTitle()==null || group.getTitle().length()==0)?roleProviderId:group.getTitle().concat("+").concat(roleProviderId));
+        			group.setTitle(role);
         		}
+        	}
         		
-        		// save the changes
-        		try
-        		{
-        			siteService.save(site);
-        			// reset the form params
-        			resetParams();
-    	        } 
-    	        catch (IdUnusedException e) {
-    	        	M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
-    	            return null;
-    	        } 
-    	        catch (PermissionException e) {
-    	        	M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
-    	            return null;
-    	        }
-        	}
-        	catch (Exception ee)
-        	{
-        		M_log.warn(this + ".processAutoCreateGroup: cannot create group in site " + site.getId() + ee.toString());
-        	}
-        	
-        	
+    		// save the changes
+    		try
+    		{
+    			siteService.save(site);
+    			// reset the form params
+    			resetParams();
+	        } 
+	        catch (IdUnusedException e) {
+	        	M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
+	            return null;
+	        } 
+	        catch (PermissionException e) {
+	        	M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
+	            return null;
+	        }
         	
     	}
         return "done";
