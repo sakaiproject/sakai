@@ -2700,7 +2700,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		
 		/**
 		 * Commit the draft changes made to a MessageEdit object. The MessageEdit is disabled, and not to be used after this call.
-		 * This is mainly used to commit draft changes for announcements, which are associated with non-existing groups.	
+		 * This is mainly used to commit draft changes for messages, which are associated with non-existing groups.	
 		 * 
 		 * @param user
 		 *        The UserEdit object to commit.
