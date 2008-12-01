@@ -1718,6 +1718,7 @@ public class BaseSearchManager implements SearchManager, Observer
 				if( rit == null )
 				{
 					m_log.warn( "getRepository() failed getting RepositoryIterator of type sakaibrary/repository/metasearch from RepositoryManager" );
+					return null;
 				}
 				else
 				{
