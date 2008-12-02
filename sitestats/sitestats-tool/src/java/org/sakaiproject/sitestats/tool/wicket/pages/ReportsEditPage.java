@@ -9,12 +9,14 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -27,6 +29,7 @@ import org.apache.wicket.extensions.markup.html.form.select.Select;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOptions;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -336,13 +339,13 @@ public class ReportsEditPage extends BasePage {
 			}
 		}else{
 			reportDetailsTop.setVisible(true);
-			if(!reportDefModel.isNew()) {
+			//if(!reportDefModel.isNew()) {
 				reportDetailsShow.setVisible(true);
 				reportDetails.add(new AttributeModifier("style", true, new Model("display: none")));
-			}else{
-				reportDetailsShow.setVisible(false);
-				reportDetails.setVisible(true);						
-			}
+			//}else{
+			//	reportDetailsShow.setVisible(false);
+			//	reportDetails.setVisible(true);						
+			//}
 		}
 				
 		// site to report
@@ -666,9 +669,12 @@ public class ReportsEditPage extends BasePage {
 		tools.add(new SelectOption("option", new ToolModel(ReportManager.WHAT_EVENTS_ALLTOOLS, ReportManager.WHAT_EVENTS_ALLTOOLS)));
 		// add tools
 		while(i.hasNext()){
-			ToolInfo toolInfo = i.next();
+			final ToolInfo toolInfo = i.next();
 			if(isToolSuported(toolInfo)) {
 				SelectOption opt = new SelectOption("option", new ToolModel(toolInfo));
+				//String toolId = toolInfo.getToolId();
+				//String toolIconPath = "background-image: url(" + facade.getEventRegistryService().getToolIcon(toolId) + ")";
+				//opt.add(new AttributeModifier("style", true, new Model("background-position:left center; background-repeat:no-repeat; margin-left:3px; padding-left:20px; "+toolIconPath)));
 				tools.add(opt);
 			}
 		}		
@@ -678,12 +684,12 @@ public class ReportsEditPage extends BasePage {
 		IOptionRenderer optionRenderer = new IOptionRenderer() {
 			public String getDisplayValue(Object object) {
 				SelectOption opt = (SelectOption) object;
-				return ((ToolModel) opt.getModel()).getToolName();
+				return ((ToolModel) opt.getModel()).getToolName();				
 			}
 			public IModel getModel(Object value) {
 				SelectOption opt = (SelectOption) value;
 				return new Model(((ToolModel) opt.getModel()).getToolId());
-			}			
+			}		
 		};
 		Collections.sort(tools, getOptionRendererComparator(collator, optionRenderer));
 		SelectOptions selectOptions = new SelectOptions("selectOptions", tools, optionRenderer);

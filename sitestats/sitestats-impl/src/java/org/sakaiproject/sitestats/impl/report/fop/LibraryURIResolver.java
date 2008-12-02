@@ -14,35 +14,47 @@ import org.apache.commons.logging.LogFactory;
 
 
 public class LibraryURIResolver implements URIResolver {
-	private Log					LOG				= LogFactory.getLog(LibraryURIResolver.class);
-	private final static String	LIBRARY_HANDLER	= "library://";
-	private String libraryRoot = null;
+	private Log					LOG					= LogFactory.getLog(LibraryURIResolver.class);
+	private final static String	LIBRARY_HANDLER		= "library://";
+	private final static String	SITESTATS_HANDLER	= "sitestats://";
+	private String				libraryRoot			= null;
+	private String				sitestatsRoot		= null;
 	
 	public LibraryURIResolver() {
-		libraryRoot = getLibraryRoot();
+		this.libraryRoot = getLibraryRoot();
+		this.sitestatsRoot = getSitestatsRoot();
 	}
 
 	public Source resolve(String href, String base) throws TransformerException {
-		if(!href.startsWith(LIBRARY_HANDLER) || libraryRoot == null)
+		if( (href.startsWith(LIBRARY_HANDLER) && libraryRoot != null) 
+				|| (href.startsWith(SITESTATS_HANDLER) && sitestatsRoot != null) ) {
+			String resource = null;
+			String fullResource = null;
+			if(href.startsWith(LIBRARY_HANDLER)) {
+				resource = href.substring(LIBRARY_HANDLER.length()); // chop off the library://
+				fullResource = libraryRoot + resource;
+			}
+			if(href.startsWith(SITESTATS_HANDLER)){
+				resource = href.substring(SITESTATS_HANDLER.length()); // chop off the sitestats://
+				fullResource = sitestatsRoot + resource;
+			}
+			FileInputStream fis = null;
+			StreamSource ss = null;
+			try{
+				fis = new FileInputStream(fullResource);
+				ss = new StreamSource(fis, resource);
+				return ss;
+			}catch(FileNotFoundException e){
+				throw new TransformerException(e);
+			}finally{
+				// If FileInputStream is closed as suggested by FindBugs, code doesn't work!
+				/*
+				 * if(fis != null) { try{ fis.close(); }catch(IOException e){
+				 * LOG.debug("Unable to read library image: "+href); } }
+				 */
+			}
+		}else{
 			return null;
-		FileInputStream fis = null;
-		StreamSource ss = null;
-		try{
-			String resource = href.substring(LIBRARY_HANDLER.length()); // chop off the library://
-			fis = new FileInputStream(libraryRoot + resource);
-			ss = new StreamSource(fis, resource);
-			return ss;
-		}catch(FileNotFoundException e){
-			throw new TransformerException(e);
-		}finally{
-			// If FileInputStream is closed as suggested by FindBugs, code doesn't work!
-			/*if(fis != null) {
-				try{
-					fis.close();
-				}catch(IOException e){
-					LOG.debug("Unable to read library image: "+href);
-				}
-			}*/
 		}
 	}
 
@@ -59,6 +71,27 @@ public class LibraryURIResolver implements URIResolver {
 	        buff.append("webapps");
 	        buff.append(File.separatorChar);
 	        buff.append("library");
+	        buff.append(File.separatorChar);
+	        path = buff.toString();
+		}catch(Exception e) {
+			path = null;
+		}
+		return path;
+	}
+
+	private String getSitestatsRoot() {
+		String path = null;
+		try{
+			// get library folder
+			String catalina = System.getProperty("catalina.base");
+	        if (catalina == null) {
+	        	catalina = System.getProperty("catalina.home");
+	        }
+	        StringBuilder buff = new StringBuilder(catalina);
+	        buff.append(File.separatorChar);
+	        buff.append("webapps");
+	        buff.append(File.separatorChar);
+	        buff.append("sakai-sitestats-tool");
 	        buff.append(File.separatorChar);
 	        path = buff.toString();
 		}catch(Exception e) {

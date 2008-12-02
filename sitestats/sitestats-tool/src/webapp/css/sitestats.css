@@ -68,6 +68,15 @@
     color: #777;  
 }
 
+
+/** Tool icon */
+.toolIcon {
+    padding-left: 23px;
+    background-repeat: no-repeat;
+    background-position: left center;  
+}
+
+
 /* Summary Header separator */
 .summaryHeader {
 	border-bottom: 1px solid silver;

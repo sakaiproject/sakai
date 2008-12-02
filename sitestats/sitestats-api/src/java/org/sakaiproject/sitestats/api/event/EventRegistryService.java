@@ -47,11 +47,18 @@ public interface EventRegistryService {
 	public String getEventName(String eventId);
 
 	/**
-	 * Get the tool name for the specific event id.
-	 * @param eventId The id of the event.
+	 * Get the tool name for the specific tool id.
+	 * @param toolId The id of the tool.
 	 * @return The tool name.
 	 */
 	public String getToolName(String toolId);
+
+	/**
+	 * Get the tool icon for the specific tool id.
+	 * @param toolId The id of the tool.
+	 * @return The tool icon.
+	 */
+	public String getToolIcon(String toolId);
 
 	/**
 	 * Get the event id to tool map such as: {event id} --> {tool mapping}.

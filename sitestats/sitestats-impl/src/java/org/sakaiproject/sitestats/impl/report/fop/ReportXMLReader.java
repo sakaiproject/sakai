@@ -3,6 +3,7 @@ package org.sakaiproject.sitestats.impl.report.fop;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.SiteService;
@@ -11,6 +12,7 @@ import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
+import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
@@ -189,6 +191,8 @@ public class ReportXMLReader extends AbstractObjectReader {
             throw new IllegalStateException("ContentHandler not set");
         }
         
+        final Map<String,ToolInfo> eventIdToolMap = M_ers.getEventIdToolMap();
+		
         boolean showUser = M_rm.isReportColumnAvailable(params, StatsManager.T_USER);
         boolean showEvent = M_rm.isReportColumnAvailable(params, StatsManager.T_EVENT);
         boolean showResource = M_rm.isReportColumnAvailable(params, StatsManager.T_RESOURCE);
@@ -236,6 +240,14 @@ public class ReportXMLReader extends AbstractObjectReader {
             	EventStat es = (EventStat) cs;
             	String eventRef = es.getEventId();
             	handler.element("event", M_ers.getEventName(eventRef == null? "" : eventRef));
+            	ToolInfo toolInfo = eventIdToolMap.get(eventRef);
+            	if(toolInfo != null) {
+            		handler.element("showToolIcon", "true");
+            		String toolId = toolInfo.getToolId();
+            		handler.element("toolicon", "sitestats://" + M_ers.getToolIcon(toolId));
+            	}else{
+            		handler.element("showToolIcon", "false");
+            	}
             }
             if(showResource) {
             	ResourceStat rs = (ResourceStat) cs;

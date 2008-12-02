@@ -179,6 +179,13 @@
             <xsl:if test="showEvent = 'true'">
                 <fo:table-cell padding-left="1pt" padding-right="1pt">
                     <fo:block wrap-option="wrap">
+                        <xsl:if test="showToolIcon = 'true'">
+	                        <fo:external-graphic >
+	                            <xsl:attribute name="src">url('<xsl:value-of select="toolicon"/>')</xsl:attribute>
+	                            <xsl:attribute name="content-height">8pt</xsl:attribute>
+	                        </fo:external-graphic>
+                        </xsl:if>
+                        <fo:inline>&#160;</fo:inline>
                         <xsl:value-of select="event" />
                     </fo:block>
                 </fo:table-cell>

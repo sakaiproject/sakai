@@ -109,7 +109,6 @@ public class ReportDataPage extends BasePage {
 	public void renderHead(IHeaderResponse response) {
 		response.renderJavascriptReference("/library/js/jquery.js");
 		response.renderJavascriptReference("/sakai-sitestats-tool/script/common.js");
-		response.renderCSSReference("/sakai-sitestats-tool/css/tool-icons.css");
 		super.renderHead(response);
 	}
 	
@@ -297,9 +296,16 @@ public class ReportDataPage extends BasePage {
 						eventName = facade.getEventRegistryService().getEventName(eventId);
 					}
 					Label eventLabel = new Label(componentId, eventName);
-					String toolId = eventIdToolMap.get(eventId).getToolId();
-					String toolIconClasses = "toolIcon icon-" + toolId.replaceAll("\\.", "-");
-					eventLabel.add(new AttributeModifier("class", true, new Model(toolIconClasses)));	
+					ToolInfo toolInfo = eventIdToolMap.get(eventId);
+					if(toolInfo != null) {
+						String toolId = toolInfo.getToolId();
+						String toolName = facade.getEventRegistryService().getToolName(toolId);
+						String toolIconClass = "toolIcon";
+						String toolIconPath = "url(" + facade.getEventRegistryService().getToolIcon(toolId) + ")";
+						eventLabel.add(new AttributeModifier("class", true, new Model(toolIconClass)));
+						eventLabel.add(new AttributeModifier("style", true, new Model("background-image: "+toolIconPath)));
+						eventLabel.add(new AttributeModifier("title", true, new Model(toolName)));
+					}
 					item.add(eventLabel);
 				}
 			});
