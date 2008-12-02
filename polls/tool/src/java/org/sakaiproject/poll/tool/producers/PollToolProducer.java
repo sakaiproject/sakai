@@ -166,8 +166,7 @@ DefaultView,NavigationCaseReporter {
 		voteBean.setPoll(null);
 		voteBean.voteCollection = null;
 
-		UIOutput.make(tofill, "poll-list-title", messageLocator.getMessage("poll_list_title"));
-
+		
 		boolean renderDelete = false;
 		//populte the action links
 		if (this.isAllowedPollAdd() || this.isSiteOwner() ) {
@@ -205,7 +204,17 @@ DefaultView,NavigationCaseReporter {
 
 		}
 
-
+		if(polls.isEmpty()){
+			UIOutput.make(tofill, "no-polls", messageLocator.getMessage("poll_list_empty"));
+			UIOutput.make(tofill, "add-poll-icon");
+			if (this.isAllowedPollAdd()) {
+				UIInternalLink.make(tofill,"add-poll",UIMessage.make("new_poll_title"),
+						new PollViewParameters(AddPollProducer.VIEW_ID, "New 0"));
+			} 
+		}
+		else{
+			
+			UIOutput.make(tofill, "poll-list-title", messageLocator.getMessage("poll_list_title"));
 
 		// fix for broken en_ZA locale in JRE http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6488119
 		Locale M_locale = null;
@@ -245,6 +254,8 @@ DefaultView,NavigationCaseReporter {
 
 
 		StringList deletable = new StringList();
+		
+		
 		
 		for (int i = 0 ; i < polls.size(); i++) {
 			Poll poll = (Poll)polls.get(i);
@@ -313,9 +324,8 @@ DefaultView,NavigationCaseReporter {
 		if (renderDelete) 
 			UICommand.make(deleteForm, "delete-polls",  UIMessage.make("poll_list_update"),
 			"#{pollToolBean.processActionDelete}");
+		}
 	}
-
-
 
 
 	private boolean isAllowedPollAdd() {

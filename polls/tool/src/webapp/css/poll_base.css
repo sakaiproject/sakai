@@ -34,3 +34,7 @@ thead tr .headerSortDown a {
 .portletBody #sortableTable .reset-order #reset-order-link span {
 	display: none;
 }
+.addItem {
+background:transparent url(/library/image/silk/add.png) no-repeat scroll left center;
+padding-left:2em;
+}
