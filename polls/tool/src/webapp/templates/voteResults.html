@@ -7,24 +7,36 @@
 <link href="../css/poll_base.css" type="text/css" rel="stylesheet" media="all"/>
 <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 <script language="javascript" type="text/javascript" src="../js/jquery-1.2.6.js"></script>
-<script language="javascript" type="text/javascript" src="../js/jquery.tablesorter.js"></script>
+<script language="javascript" type="text/javascript" src="../js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
-$(document).ready(function() {$("#sortableTable").tablesorter({ 
+$(document).ready(function() { 
+	$("#sortableTable").tablesorter({ 
+		// sort on the first column
+		sortList: [[0,0]]
+	}); 
+    $("#reset-order-link").click(function() { 
+        // set sorting column and direction, this will sort on the first column index starts at zero
+  			//Highlight effect to notify user of that action has been performed
+			//$("#reset-order-link").parent().parent().effect("highlight", {}, 1000);
+        var sorting = [[0,0]]; 
         // sort on the first column 
-        sortList: [[0,0]] 
-    });} ); 
+        $("#sortableTable").trigger("sorton",[sorting]); 
+       // return false to stop default link action 
+        return false; 
+    }); 
+});
 </script>
 </head>
-
 <body rsf:id="scr=sakai-body">
 <div class="portletBody">
 <h3 rsf:id="msg=results_title">Results</h3>
 <p rsf:id="question">poll question</p>
 <p rsf:id="poll-size">Num votes</p>
-  <table id="sortableTable" class="listHier" border="0" cellspacing="0">
+  <table id="sortableTable" class="listHier lines nolines" border="0" cellspacing="0">
     <thead>
   <tr>
-    <th><a title="Sort by Option number" href="#" rsf:id="answers-count">Number</a></th>
+    <th style="display:none"><a title="Sort by Option number" href="#" rsf:id="answers-count">Number</a></th>
+    <th width="15px"><div title="Sort by default order" class="reset-order"><a href="#" id="reset-order-link"><span rsf:id="msg=results_answers_reset_ordering">Reset Order</span></a></div></th>
     <th><a title="Sort by Answers" href="#" rsf:id="answers-title">Answers</a></th>
     <th><a title="Sort by the number of Votes" href="#" rsf:id="msg=results_answers_votes">Votes</a></th>
     <th><a href="#" title="Sort by the Percentage value">%</a></th>
@@ -32,13 +44,16 @@ $(document).ready(function() {$("#sortableTable").tablesorter({
 </thead>
 <tbody>
   <tr rsf:id="answer-row:">
-    <td rsf:id="answer-count">1</td>
+    <td style="display:none" rsf:id="answer-count">1</td>
+    <td></td>
     <td rsf:id="answer-option">Option 1</td>
     <td valign="middle" rsf:id="answer-numVotes">10</td>
     <td valign="middle" rsf:id="answer-percVotes">100%</td>
   </tr>
   <tfoot>
   <tr>
+  	<td style="display:none"></td>
+  	<td></td>
     <td><strong rsf:id="msg=results_answers_total">Total</strong></td>
     <td><strong rsf:id="votes-total">10</strong></td>
     <td><strong rsf:id="total-percent">100%</strong></td>
