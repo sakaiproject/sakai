@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.GregorianCalendar;
 
 import java.nio.channels.*;
 import java.nio.*;
@@ -1779,10 +1780,11 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute(ALLPURPOSE_ACCESS, aList);
 			}
 			// put release date information into context
-			java.util.Calendar cal = java.util.Calendar.getInstance();
+			GregorianCalendar cal = new GregorianCalendar();
 			Date releaseDate = aItem.getReleaseDate();
 			if (releaseDate != null)
 			{
+				state.setAttribute(ALLPURPOSE_SHOW_FROM, Boolean.TRUE);
 				cal.setTime(aItem.getReleaseDate());
 				dateIntoState(state, context, cal, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM);
 			}
@@ -1790,6 +1792,7 @@ public class AssignmentAction extends PagedResourceActionII
 			Date retractDate = aItem.getRetractDate();
 			if (retractDate != null)
 			{
+				state.setAttribute(ALLPURPOSE_SHOW_TO, Boolean.TRUE);
 				cal.setTime(aItem.getRetractDate());
 				dateIntoState(state, context, cal, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM);
 			}
@@ -1803,7 +1806,6 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_allPurposeAccessList", state.getAttribute(ALLPURPOSE_ACCESS));
 		dateIntoContext(state, context, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM, "value_allPurposeReleaseYear", "value_allPurposeReleaseMonth", "value_allPurposeReleaseDay", "value_allPurposeReleaseHour", "value_allPurposeReleaseMin", "value_allPurposeReleaseAMPM");
 		dateIntoContext(state, context, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM, "value_allPurposeRetractYear", "value_allPurposeRetractMonth", "value_allPurposeRetractDay", "value_allPurposeRetractHour", "value_allPurposeRetractMin", "value_allPurposeRetractAMPM");
-	
 		
 		// get attachment for all purpose object
 		getSupplementItemAttachments(state, context, aItem, ALLPURPOSE_ATTACHMENTS);
@@ -1847,42 +1849,29 @@ public class AssignmentAction extends PagedResourceActionII
 	} // setAssignmentFormContext
 
 
-	private void dateIntoState(SessionState state, Context context, java.util.Calendar cal, 
+	private void dateIntoState(SessionState state, Context context, GregorianCalendar cal, 
 									String yearAttribute, String monthAttribute, String dayAttribute, String hourAttribute, String minAttribute, String ampmAttribute) {
 		if (cal != null)
 		{
 			// year
-			if (state.getAttribute(yearAttribute) == null)
-			{
-				state.setAttribute(yearAttribute, Integer.valueOf(cal.get(java.util.Calendar.YEAR)));
-			}
+			state.setAttribute(yearAttribute, Integer.valueOf(cal.get(java.util.Calendar.YEAR)));
+			
 			// month
-			if (state.getAttribute(monthAttribute) == null)
-			{
-				state.setAttribute(monthAttribute, Integer.valueOf(cal.get(java.util.Calendar.MONTH)));
-			}
+			state.setAttribute(monthAttribute, Integer.valueOf(cal.get(java.util.Calendar.MONTH)));
+
 			// day
-			if (state.getAttribute(dayAttribute) == null)
-			{
-				state.setAttribute(dayAttribute, Integer.valueOf(cal.get(java.util.Calendar.DAY_OF_MONTH)));
-			}
+			state.setAttribute(dayAttribute, Integer.valueOf(cal.get(java.util.Calendar.DAY_OF_MONTH)));
+			
 			// hour
-			if (state.getAttribute(hourAttribute) == null)
-			{
-				int hour = cal.get(java.util.Calendar.HOUR_OF_DAY);
-				hour = hour > 12?hour-12:hour;
-				state.setAttribute(hourAttribute,Integer.valueOf(hour));
-			}
+			int hour = cal.get(java.util.Calendar.HOUR_OF_DAY);
+			hour = hour > 12?hour-12:hour;
+			state.setAttribute(hourAttribute,Integer.valueOf(hour));
+			
 			// min
-			if (state.getAttribute(minAttribute) == null)
-			{
-				state.setAttribute(minAttribute, Integer.valueOf(cal.get(java.util.Calendar.MINUTE)));
-			}
+			state.setAttribute(minAttribute, Integer.valueOf(cal.get(java.util.Calendar.MINUTE)));
+
 			// ampm
-			if (state.getAttribute(ampmAttribute) == null)
-			{
-				state.setAttribute(ampmAttribute, Integer.valueOf(cal.get(java.util.Calendar.AM_PM)));
-			}
+			state.setAttribute(ampmAttribute, Integer.valueOf(cal.get(java.util.Calendar.AM_PM)));
 		}
 	}
 	
@@ -1892,7 +1881,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// to context
 		context.put(yearValue, state.getAttribute(yearAttribute));
-		context.put(monthValue, state.getAttribute(monthAttribute));
+		Integer month = (Integer) state.getAttribute(monthAttribute);
+		context.put(monthValue, month.intValue() + 1);/*GregorianCalendar's month starts with "0". Need to + 1 here in order to match the date widget*/
 		context.put(dayValue, state.getAttribute(dayAttribute));
 		context.put(hourValue, state.getAttribute(hourAttribute));
 		context.put(minValue, state.getAttribute(minAttribute));
@@ -5163,13 +5153,14 @@ public class AssignmentAction extends PagedResourceActionII
 					nAllPurpose.setHide(params.getBoolean("allPurposeHide"));
 					
 					// save the release and retract dates
-					java.util.Calendar cal = java.util.Calendar.getInstance();
+					GregorianCalendar cal = new GregorianCalendar();
+					Date current = cal.getTime();
 					if (params.getBoolean("allPurposeShowFrom") && !params.getBoolean("allPurposeHide"))
 					{
 						// save release date
 						int hour = params.getInt("allPurposeReleaseAMPM")==0?0:12;
-						hour +=params.getInt("allPurposeReleaseHour");
-						cal.set(params.getInt("allPurposeReleaseYear"), params.getInt("allPurposeReleaseMonth"), params.getInt("allPurposeReleaseDay"), hour, params.getInt("allPurposeReleaseMin"));
+						hour += params.getInt("allPurposeReleaseHour");
+						cal.set(params.getInt("allPurposeReleaseYear"), params.getInt("allPurposeReleaseMonth")-1/*month values are 0-based in GregorianCalendar object*/, params.getInt("allPurposeReleaseDay"), hour, params.getInt("allPurposeReleaseMin"), 0);
 						nAllPurpose.setReleaseDate(cal.getTime());
 					}
 					else
@@ -5181,7 +5172,7 @@ public class AssignmentAction extends PagedResourceActionII
 						// save retract date
 						int hour = params.getInt("allPurposeRetractAMPM")==0?0:12;
 						hour += params.getInt("allPurposeRetractHour");
-						cal.set(params.getInt("allPurposeRetractYear"), params.getInt("allPurposeRetractMonth"), params.getInt("allPurposeRetractDay"), hour, params.getInt("allPurposeRetractMin"));
+						cal.set(params.getInt("allPurposeRetractYear"), params.getInt("allPurposeRetractMonth")-1/*month values are 0-based in GregorianCalendar object*/, params.getInt("allPurposeRetractDay"), hour, params.getInt("allPurposeRetractMin"), 0);
 						nAllPurpose.setRetractDate(cal.getTime());
 					}
 					else
