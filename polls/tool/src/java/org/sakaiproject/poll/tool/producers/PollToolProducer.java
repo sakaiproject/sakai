@@ -165,7 +165,8 @@ DefaultView,NavigationCaseReporter {
 		
 		voteBean.setPoll(null);
 		voteBean.voteCollection = null;
-
+			
+		UIOutput.make(tofill, "poll-list-title", messageLocator.getMessage("poll_list_title"));	
 		
 		boolean renderDelete = false;
 		//populte the action links
@@ -213,9 +214,6 @@ DefaultView,NavigationCaseReporter {
 			} 
 		}
 		else{
-			
-			UIOutput.make(tofill, "poll-list-title", messageLocator.getMessage("poll_list_title"));
-
 		// fix for broken en_ZA locale in JRE http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6488119
 		Locale M_locale = null;
 		String langLoc[] = localegetter.get().toString().split("_");
