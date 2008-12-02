@@ -8,10 +8,20 @@
 			
 			
 	<!-- Session Factory -->
-	<bean id="internalSitestatsSessionFactory"
-		parent="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
-		lazy-init="true">
-		<property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings"/>
-	</bean>
+	<alias alias="internalSitestatsSessionFactory" name="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+	
+	<!-- Apply Hibernate Mappings -->
+	<bean class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings"/>
+    </bean>        
 
+    <!-- Old method -->
+    <!--
+    <bean id="internalSitestatsSessionFactory"
+        parent="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
+        lazy-init="true">
+        <property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings"/>
+    </bean>
+    -->
+    
 </beans>
