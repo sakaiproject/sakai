@@ -200,6 +200,7 @@ public class QuestionPoolFacadeQueries
 	  }
 	  catch (Exception e) {
 		  log.warn(e.getMessage());
+		  log.warn(e.getStackTrace());
 	  }
 	  return new QuestionPoolIteratorFacade(qpList);
   }
@@ -961,13 +962,14 @@ public class QuestionPoolFacadeQueries
   public int getSubPoolSize(final Long poolId) {
 	  final HibernateCallback hcb = new HibernateCallback(){
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  SQLQuery q = session.createSQLQuery("select count(*) from SAM_QUESTIONPOOL_T as qpp where qpp.PARENTPOOLID=?");
+			  Query q = session.createQuery("select count(qpp) from QuestionPoolData qpp where qpp.parentPoolId=?");
 			  q.setLong(0, poolId.longValue());
 			  return q.uniqueResult();
 		  };
 	  };
-	  Object o = getHibernateTemplate().execute(hcb);
-	  return ((BigInteger)o).intValue();
+	  
+	  Integer count = (Integer)getHibernateTemplate().execute(hcb);	    
+	  return count.intValue();
   }
 
   /**
