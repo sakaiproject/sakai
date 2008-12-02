@@ -34,7 +34,7 @@
 			#if (${allow-search})
 			<div class="searchNav"> 
 				<label for="search" class="skip">$tlang.getString('lis.search')</label>
-				<input size="15" value="$!search" name="search" id="search" type="text" class="searchField"  />
+				<input size="15" value="$validator.escapeHtml($!search)" name="search" id="search" type="text" class="searchField"  />
 				<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="Search for emails" />
 				<a href="#" title="$tlang.getString('lis.search')" onclick="location = '#toolLink("$action" "doSearch")'+buildQueryString('toolbar');document.getElementById('submitnotifwrap').style.visibility='visible';return false;" style="text-decoration:none !important"><input type="button" value="$tlang.getString('lis.search')" /></a>
 				#if (($!search) && (!$search.equals("")))
