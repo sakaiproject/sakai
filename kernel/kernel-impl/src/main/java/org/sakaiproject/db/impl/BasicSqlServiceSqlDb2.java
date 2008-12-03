@@ -22,10 +22,7 @@
 package org.sakaiproject.db.impl;
 
 import javax.sql.rowset.serial.SerialBlob;
-import java.sql.ParameterMetaData;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Blob;
+import java.sql.*;
 
 /**
  * methods for accessing sql service methods in a db2 database.
@@ -39,8 +36,15 @@ public class BasicSqlServiceSqlDb2 extends BasicSqlServiceSqlDefault
 
    public PreparedStatement setNull(PreparedStatement pstmt, int pos) throws SQLException
    {
-      ParameterMetaData pmd = pstmt.getParameterMetaData() ;
-      pstmt.setNull(pos,  pmd.getParameterType(pos), null);
+      // sometimes the type is not detectable, fall back on VARCHAR
+      // see http://jira.springframework.org/browse/SPR-4465
+      // db2 will accept type of VARCHAR in most cases
+      try {
+         ParameterMetaData pmd = pstmt.getParameterMetaData() ;
+         pstmt.setNull(pos,  pmd.getParameterType(pos), null);
+      } catch (SQLException e) {
+         pstmt.setNull(pos,  Types.VARCHAR, null);
+      }
       return pstmt;
    }
 
