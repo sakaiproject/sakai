@@ -1541,7 +1541,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			portalContext = DEFAULT_PORTAL_CONTEXT;
 		}
-		siteHelper = new PortalSiteHelperImpl(this);
+		
+		boolean findPageAliases = ServerConfigurationService.getBoolean("portal.use.page.aliases", false);
+		
+		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 		
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		M_log.info("init()");

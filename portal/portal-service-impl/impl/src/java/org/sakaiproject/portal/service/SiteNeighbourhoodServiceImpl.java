@@ -71,10 +71,12 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	
 	/** Should all site aliases have a prefix */
 	private boolean useAliasPrefix = false;
+	
+	private boolean useSiteAliases = false; 
 
 	public void init()
 	{
-
+		useSiteAliases = serverConfigurationService.getBoolean("portal.use.site.aliases", false);
 	}
 
 	public void destroy()
@@ -523,6 +525,10 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 
 	public String lookupSiteAlias(String id, String context)
 	{
+		if (!useSiteAliases)
+		{
+			return null;
+		}
 		List<Alias> aliases = aliasService.getAliases(id);
 		if (aliases.size() > 0) 
 		{
