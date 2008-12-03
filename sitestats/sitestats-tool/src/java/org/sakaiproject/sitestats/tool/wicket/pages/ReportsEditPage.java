@@ -616,7 +616,12 @@ public class ReportsEditPage extends BasePage {
 		form.add(sorting);
 		sorting.add(new CheckBox("reportParams.howSort"));
 		// sort options
-		List<String> sortOptions = Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL);
+		List<String> sortOptions = null;
+		if(renderAdminOptions) {
+			sortOptions = Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL);
+		}else{
+			sortOptions = Arrays.asList(StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL);
+		}
 		IChoiceRenderer howSortByRenderer = new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
 				if(object != null) {
