@@ -874,7 +874,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final int maxResults) {
 		
 		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
-		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(M_sql.getVendor(),
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_EVENT, totalsBy, siteId, 
 				events, anonymousEvents, showAnonymousAccessEvents, null, null, 
 				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
@@ -981,7 +981,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final List<String> totalsBy) {
 		
 		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
-		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(M_sql.getVendor(),
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_EVENT, totalsBy,
 				siteId, events, anonymousEvents, showAnonymousAccessEvents, null, null, 
 				iDate, fDate, userIds, inverseUserSelection, null, true);
@@ -1193,7 +1193,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final boolean sortAscending,
 			final int maxResults) {
 		
-		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(M_sql.getVendor(),
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_RESOURCE, totalsBy, 
 				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
 				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
@@ -1302,7 +1302,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final boolean inverseUserSelection,
 			final List<String> totalsBy) {
 
-		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(M_sql.getVendor(),
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_RESOURCE, totalsBy, 
 				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
 				iDate, fDate, userIds, inverseUserSelection, null, true);
@@ -1693,7 +1693,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			String iDateStr = "";
 			String fDateStr = "";
 			String usersStr = "";
-			if(M_sql.getVendor().equals("oracle")){
+			if(getDbVendor().equals("oracle")){
 				if(iDate != null)
 					iDateStr = "and es.EVENT_DATE >= :idate ";
 				if(fDate != null)
@@ -1727,7 +1727,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = null;
-					if(M_sql.getVendor().equals("oracle")){
+					if(getDbVendor().equals("oracle")){
 						q = session.createSQLQuery(oracleSql)
 							.addScalar("actSiteId")
 							.addScalar("actVisits")
@@ -1756,7 +1756,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
 							Object[] s = iter.next();
 							SiteVisits c = new SiteVisitsImpl();
-							if(M_sql.getVendor().equals("oracle")){
+							if(getDbVendor().equals("oracle")){
 								c.setSiteId((String)s[0]);
 								c.setTotalVisits(((BigDecimal)s[1]).longValue());
 								c.setTotalUnique(((BigDecimal)s[2]).longValue());
@@ -1970,7 +1970,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}else{
 			String iDateStr = "";
 			String fDateStr = "";
-			if(M_sql.getVendor().equals("oracle")){
+			if(getDbVendor().equals("oracle")){
 				if(iDate != null)
 					iDateStr = "and s.ACTIVITY_DATE >= :idate ";
 				if(fDate != null)
@@ -1998,7 +1998,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = null;
-					if(M_sql.getVendor().equals("oracle")){
+					if(getDbVendor().equals("oracle")){
 						q = session.createSQLQuery(oracleSql)
 							.addScalar("actSiteId")
 							.addScalar("actCount")
@@ -2031,7 +2031,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
 							Object[] s = iter.next();
 							SiteActivity c = new SiteActivityImpl();
-							if(M_sql.getVendor().equals("oracle")){
+							if(getDbVendor().equals("oracle")){
 								c.setSiteId((String)s[0]);
 								c.setCount(((BigDecimal)s[1]).longValue());
 								cal.set(Calendar.YEAR, Integer.parseInt((String)s[2]));
@@ -2067,7 +2067,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}else{
 			String iDateStr = "";
 			String fDateStr = "";
-			if(M_sql.getVendor().equals("oracle")){
+			if(getDbVendor().equals("oracle")){
 				if(iDate != null)
 					iDateStr = "and s.ACTIVITY_DATE >= :idate ";
 				if(fDate != null)
@@ -2094,7 +2094,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = null;
-					if(M_sql.getVendor().equals("oracle")){
+					if(getDbVendor().equals("oracle")){
 						q = session.createSQLQuery(oracleSql)
 							.addScalar("actSiteId")
 							.addScalar("actCount")
@@ -2126,7 +2126,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
 							Object[] s = iter.next();
 							SiteActivity c = new SiteActivityImpl();
-							if(M_sql.getVendor().equals("oracle")){
+							if(getDbVendor().equals("oracle")){
 								c.setSiteId((String)s[0]);
 								c.setCount(((BigDecimal)s[1]).longValue());
 								cal.set(Calendar.YEAR, Integer.parseInt((String)s[2]));
@@ -2159,7 +2159,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}else{
 			String iDateStr = "";
 			String fDateStr = "";
-			if(M_sql.getVendor().equals("oracle")){
+			if(getDbVendor().equals("oracle")){
 				if(iDate != null)
 					iDateStr = "and s.ACTIVITY_DATE >= :idate ";
 				if(fDate != null)
@@ -2187,7 +2187,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = null;
-					if(M_sql.getVendor().equals("oracle")){
+					if(getDbVendor().equals("oracle")){
 						q = session.createSQLQuery(oracleSql)
 							.addScalar("actSiteId")
 							.addScalar("actCount")
@@ -2220,7 +2220,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
 							Object[] s = iter.next();
 							SiteActivityByTool c = new SiteActivityByToolImpl();
-							if(M_sql.getVendor().equals("oracle")){
+							if(getDbVendor().equals("oracle")){
 								c.setSiteId((String)s[0]);
 								c.setCount(((BigDecimal)s[1]).longValue());								
 							}else{
@@ -2459,5 +2459,21 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		long tmp = Math.round(val);
 		// Shift the decimal the correct number of places back to the left.
 		return (double) tmp / factor;
+	}
+	
+	private String getDbVendor() {
+		String dialectStr = null;
+		if(M_scs.getString("sitestats.db", "internal").equals("internal")) {
+			dialectStr = M_scs.getString("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+		}else{
+			dialectStr = M_scs.getString("sitestats.externalDb.hibernate.dialect","org.hibernate.dialect.HSQLDialect");
+		}
+		if(dialectStr.toLowerCase().contains("mysql")) {
+			return "mysql";
+		}else if(dialectStr.toLowerCase().contains("oracle")) {
+			return "oracle";
+		}else{
+			return "hsql";
+		}
 	}
 }
