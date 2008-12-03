@@ -10826,7 +10826,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			rv[0] = ((AssignmentSubmission) r).getAssignmentId();
 			
 			User[] submitters = ((AssignmentSubmission) r).getSubmitters();
-			if(submitters != null && submitters[0] != null) 
+			if(submitters != null && submitters.length > 0 && submitters[0] != null) 
 			{
  				rv[1] = submitters[0].getId();
 			} else {
