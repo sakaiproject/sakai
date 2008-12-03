@@ -53,7 +53,7 @@
 #if ($source)
 		<p class="shorttext indnt1">
 			<label for="source">$tlang.getString("gen.url")</label>
-			<input type="text" name="source" id="source" value="$!source" size="40" />
+			<input type="text" name="source" id="source" value="$!validator.escapeHtml($source)" size="40" />
 		</p>
 #end
 

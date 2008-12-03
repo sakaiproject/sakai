@@ -21,7 +21,7 @@
 			marginwidth="0"
 			marginheight="0"
 			scrolling="auto"
-			src="$!url">
+			src="$!validator.escapeHtml($url)">
 		</iframe>
 	</div>
 </div>

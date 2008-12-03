@@ -44,7 +44,7 @@
 
 		<p class="shorttext indnt1">
 			<label for="infourl">$tlang.getString("gen.info.url")</label>
-			<input type="text" name="infourl" id="infourl" value="$!info_url" size="40" />
+			<input type="text" name="infourl" id="infourl" value="$!validator.escapeHtml($info_url)" size="40" />
 		</p>
 		<p class="instruction">$tlang.getString("gen.info.url.msg")</p>
 
