@@ -516,7 +516,8 @@ public class BaseSitePage implements SitePage, Identifiable
 		for (Iterator iTools = getTools().iterator(); iTools.hasNext();)
 		{
 			BaseToolConfiguration tool = (BaseToolConfiguration)iTools.next();
-			localizedTitle = tool.localizeTool();
+			if ( tool.getTool() != null ) // this could happen in cafe build
+				localizedTitle = tool.localizeTool();
 		}
 		
 		// if one and only one tool title exists (and it's valid) replace page title with localized tool title
