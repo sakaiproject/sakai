@@ -1626,8 +1626,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						sortField = "col_" + (columnMap.size() - 1) + "_0_";
 					}
 				}
-				
-				System.out.println("DB Vendor: "+dbVendor);
 			
 				// build 'sort by' clause
 				if(sortField != null) {

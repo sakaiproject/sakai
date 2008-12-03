@@ -153,15 +153,21 @@
     </bean>
     
     
-    <!-- ReportDefEntityProvider ______________________________________________________________________________ -->
+    <!-- ReportDefEntityProvider ___________________________________________________________________ -->
     <bean id="org.sakaiproject.sitestats.api.report.ReportDefEntityProvider"
-        class="org.sakaiproject.sitestats.impl.report.ReportDefEntityProvider">
-        
+        class="org.sakaiproject.sitestats.impl.report.ReportDefEntityProvider">        
         <!-- Sakai services -->
         <property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager" />
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
     </bean>
-	
+    <!-- ReportDefEntityProducerer _________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.report.ReportDefEntityProducer"
+        class="org.sakaiproject.sitestats.impl.report.ReportDefEntityProducer"
+        init-method="init">        
+        <!-- Sakai services -->
+        <property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager" />
+    </bean>
+    
 	
 	<!-- ChartService ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.chart.ChartService"

@@ -2,30 +2,33 @@ package org.sakaiproject.sitestats.impl.report;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Exportable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Importable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 
 
-public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Importable, Exportable {
+public class ReportDefEntityProvider implements AutoRegisterEntityProvider, CoreEntityProvider, Resolvable /*, Importable, Exportable*/ {
 	private Log						LOG								= LogFactory.getLog(ReportDefEntityProvider.class);
 	public static String			PREFIX							= "sitestats-report";
+	public static String			LABEL							= "SiteStatsReport";
+	public static String 			REFERENCE_ROOT 					= "/" + PREFIX;
 	public static String			IMPORTEXPORT_CURRENT_VERSION	= "1.0";
 	public static String			IMPORTEXPORT_DEFAULT_ENCODING	= "UTF-8";
 	private ReportManager			M_rm;
-	private DeveloperHelperService	M_dhs;
+	private DeveloperHelperService	M_dhs;	
 	
+	// --- Sakai services --------------------------------
 	
 	public void setReportManager(ReportManager reportManager) {
 		this.M_rm = reportManager;
@@ -46,6 +49,31 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Impo
 	}
 	
 	
+	// --- CoreEntityProvider --------------------------------
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider#entityExists(java.lang.String)
+	 */
+	public boolean entityExists(String id) {
+		return M_rm.getReportDefinition(Long.valueOf(id)) != null;
+	}
+	
+	
+	// --- Resolvable ----------------------------------------
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable#getEntity(org.sakaiproject.entitybroker.EntityReference)
+	 */
+	public Object getEntity(EntityReference ref) {
+		return M_rm.getReportDefinition(Long.valueOf(ref.getId()));
+	}
+	
+	
+	// -------------------------------------------------------------------------------
+	// --- THE CAPABILITIES BELOW ARE NOT IMPLEMENTED YET BY ENTITYBROKER/SITEINFO ---
+	// --- See SAK-14257 for progress on this issue ----------------------------------
+	// -------------------------------------------------------------------------------
+	
 	// --- Importable, Exportable ----------------------------
 
 	/* (non-Javadoc)
@@ -63,7 +91,9 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Impo
 				List<ReportDef> list = DigesterUtil.convertXmlToReportDefs(new String(bytes, importInfo[0]));
 				String thisSiteId = M_dhs.getCurrentLocationId();
 				for(ReportDef rf : list) {
+					rf.setId(0);
 					rf.setSiteId(thisSiteId);
+					rf.getReportParams().setSiteId(thisSiteId);
 					M_rm.saveReportDefinition(rf);
 				}
 			}catch(Exception e){
