@@ -31,6 +31,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.request.target.basic.EmptyRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -238,6 +239,24 @@ public class ReportDataPage extends BasePage {
 		List<IColumn> columns = new ArrayList<IColumn>();
 		final Map<String,ToolInfo> eventIdToolMap = facade.getEventRegistryService().getEventIdToolMap();
 		
+		// site
+		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_SITE)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_site"), ReportsDataProvider.COL_SITE, ReportsDataProvider.COL_SITE) {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					final String site = ((Stat) model.getObject()).getSiteId();
+					String lbl = "";
+					Site s = null;
+					try{
+						s = facade.getSiteService().getSite(site);
+						lbl = s.getTitle();
+					}catch(IdUnusedException e){
+						lbl = (String) new ResourceModel("site_unknown").getObject();
+					}
+					item.add(new Label(componentId, lbl));
+				}
+			});
+		}
 		// user
 		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_USER)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_id"), ReportsDataProvider.COL_USERID, ReportsDataProvider.COL_USERID) {

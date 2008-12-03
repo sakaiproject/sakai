@@ -592,10 +592,18 @@ public class ReportsEditPage extends BasePage {
 	}
 
 	@SuppressWarnings("serial")
-	private void renderHowUI(Form form) {
+	private void renderHowUI(Form form) {		
+		boolean isSiteStatsAdminTool = facade.getStatsAuthz().isSiteStatsAdminPage();
+		boolean renderAdminOptions = isSiteStatsAdminTool && !predefined && realSiteId.equals(siteId);
+		
 		// totals by
 		CheckGroup howTotalsBy = new CheckGroup("reportParams.howTotalsBy");
 		form.add(howTotalsBy);
+		WebMarkupContainer howTotalsByAdmin =  new WebMarkupContainer("howTotalsByAdmin");
+		Check siteCheck = new Check("site", new Model(StatsManager.T_SITE));
+		howTotalsByAdmin.add(siteCheck);
+		howTotalsByAdmin.setVisible(renderAdminOptions);
+		howTotalsBy.add(howTotalsByAdmin);
 		howTotalsBy.add(new Check("user", new Model(StatsManager.T_USER)));
 		howTotalsBy.add(new Check("event", new Model(StatsManager.T_EVENT)));
 		howTotalsBy.add(new Check("resource", new Model(StatsManager.T_RESOURCE)));
@@ -603,11 +611,8 @@ public class ReportsEditPage extends BasePage {
 		howTotalsBy.add(new Check("date", new Model(StatsManager.T_DATE)));
 		howTotalsBy.add(new Check("last-date", new Model(StatsManager.T_LASTDATE)));
 		
-		boolean isSiteStatsAdminTool = facade.getStatsAuthz().isSiteStatsAdminPage();
-		
 		// sorting
 		WebMarkupContainer sorting = new WebMarkupContainer("sorting");
-		sorting.setVisible(isSiteStatsAdminTool);
 		form.add(sorting);
 		sorting.add(new CheckBox("reportParams.howSort"));
 		// sort options
@@ -653,7 +658,6 @@ public class ReportsEditPage extends BasePage {
 		
 		// max results
 		WebMarkupContainer maxResults = new WebMarkupContainer("maxResults");
-		maxResults.setVisible(isSiteStatsAdminTool);
 		form.add(maxResults);
 		maxResults.add(new CheckBox("reportParams.howLimitedMaxResults"));
 		maxResults.add(new TextField("reportParams.howMaxResults",int.class));

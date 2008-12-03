@@ -40,7 +40,12 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.SettingsFactory;
 import org.hibernate.criterion.Expression;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.DialectFactory;
+import org.hibernate.transform.ResultTransformer;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -246,7 +251,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		checkForEventContextSupport();
 		
 		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
-							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);		
+							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
 	}
 	
 	private PrefsData parseSitePrefs(InputStream input) throws Exception{
@@ -869,7 +874,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final int maxResults) {
 		
 		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
-		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_EVENT, totalsBy, siteId, 
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(M_sql.getVendor(),
+				Q_TYPE_EVENT, totalsBy, siteId, 
 				events, anonymousEvents, showAnonymousAccessEvents, null, null, 
 				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
 		final String hql = sqlBuilder.getHQL();
@@ -975,7 +981,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final List<String> totalsBy) {
 		
 		final List<String> anonymousEvents = M_ers.getAnonymousEventIds();
-		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_EVENT, totalsBy,
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(M_sql.getVendor(),
+				Q_TYPE_EVENT, totalsBy,
 				siteId, events, anonymousEvents, showAnonymousAccessEvents, null, null, 
 				iDate, fDate, userIds, inverseUserSelection, null, true);
 		final String hql = sqlBuilder.getHQL();
@@ -1186,7 +1193,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final boolean sortAscending,
 			final int maxResults) {
 		
-		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_RESOURCE, totalsBy, 
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(M_sql.getVendor(),
+				Q_TYPE_RESOURCE, totalsBy, 
 				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
 				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
 		final String hql = sqlBuilder.getHQL();
@@ -1294,7 +1302,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final boolean inverseUserSelection,
 			final List<String> totalsBy) {
 
-		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(Q_TYPE_RESOURCE, totalsBy, 
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(M_sql.getVendor(),
+				Q_TYPE_RESOURCE, totalsBy, 
 				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
 				iDate, fDate, userIds, inverseUserSelection, null, true);
 		final String hql = sqlBuilder.getHQL();
@@ -1347,6 +1356,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		public static final Integer		C_TOTAL				= 6;
 
 		private Map<Integer, Integer>	columnMap;
+		
+		private String					dbVendor;
 
 		private int						queryType;
 		private List<String>			totalsBy;
@@ -1364,6 +1375,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		private boolean					sortAscending;	
 		
 		public StatsSqlBuilder(
+				final String dbVendor,
 				final int queryType,
 				final List<String> totalsBy,
 				final String siteId,
@@ -1377,6 +1389,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				final boolean inverseUserSelection,
 				final String sortBy, final boolean sortAscending) {
 			this.columnMap = new HashMap<Integer, Integer>();
+			this.dbVendor = dbVendor;
 			this.queryType = queryType;
 			if(totalsBy == null) {
 				if(queryType == Q_TYPE_EVENT) {
@@ -1423,7 +1436,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			// normal query
 			if(!inverseUserSelection) {
 				// site
-				if(siteId != null) {
+				if(siteId != null || totalsBy.contains(T_SITE)) {
 					selectFields.add("s.siteId as site");
 					columnMap.put(C_SITE, columnIndex++);
 				}
@@ -1539,7 +1552,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			StringBuilder _hql = new StringBuilder();
 			List<String> groupFields = new ArrayList<String>();
 
-			if(siteId != null) {
+			if(siteId != null || totalsBy.contains(T_SITE)) {
 				groupFields.add("s.siteId");
 			}
 			if(totalsBy.contains(T_USER)) {
@@ -1580,7 +1593,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				StringBuilder _hql = new StringBuilder();
 				String sortField = null;
 	
-				if(siteId != null && sortBy.equals(T_SITE) && totalsBy.contains(T_SITE)) {
+				if(sortBy.equals(T_SITE) && totalsBy.contains(T_SITE)) {
 					sortField = "s.siteId";
 				}
 				if(sortBy.equals(T_USER) && totalsBy.contains(T_USER)) {
@@ -1601,15 +1614,29 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					sortField = "s.date";
 				}
 				if(sortBy.equals(T_TOTAL)) {
-					sortField = "s.count";
+					if(!dbVendor.equals("mysql")) {
+						sortField = "sum(s.count)";					
+					}else{
+						// Big, dangerous & ugly hack to get aggregate
+						// functions in 'order by' clauses for MySQL.
+						//
+						// Notes: * by default, hibernate columns have the form:
+						//             col_X_0_ , where X is the column number
+						//        * total is the last column
+						sortField = "col_" + (columnMap.size() - 1) + "_0_";
+					}
 				}
+				
+				System.out.println("DB Vendor: "+dbVendor);
 			
 				// build 'sort by' clause
-				_hql.append("order by ");
-				_hql.append(sortField);
-				_hql.append(' ');
-				_hql.append(sortAscending ? "ASC" : "DESC");
-				_hql.append(' ');
+				if(sortField != null) {
+					_hql.append("order by ");
+					_hql.append(sortField);
+					_hql.append(' ');
+					_hql.append(sortAscending ? "ASC" : "DESC");
+					_hql.append(' ');
+				}
 				return _hql.toString();
 			}
 			return "";
@@ -2433,5 +2460,4 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		// Shift the decimal the correct number of places back to the left.
 		return (double) tmp / factor;
 	}
-	
 }

@@ -330,7 +330,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			return false;
 			
 		}else if(column.equals(StatsManager.T_SITE)) {
-			return params.getSiteId() == null;
+			return totalsBy.contains(StatsManager.T_SITE);
 			
 		}else if(column.equals(StatsManager.T_USER)) {
 			return totalsBy.contains(StatsManager.T_USER);

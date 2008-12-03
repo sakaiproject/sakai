@@ -339,29 +339,54 @@
                                         <wicket:message key="report_howtotalsby_lastdate">[report_howtotalsby_lastdate]</wicket:message>
                                      </td>
                                  </tr>
+                                 <tr wicket:id="howTotalsByAdmin">
+                                     <td class="halfSize">
+                                        <input wicket:id="site" type="checkbox" class="howTotalsBySite indnt2"/>
+                                        <wicket:message key="report_howtotalsby_site">[report_howtotalsby_site]</wicket:message>
+                                     </td>
+                                     <td class="halfSize"></td>
+                                 </tr>
                             </tbody>
                         </table>
                     </span>
                     
-                    <!-- Sorting -->
-                    <span wicket:id="sorting">
-                        <p class="shorttext indnt1">
-                            <wicket:message key="report_howsorting">[report_howsorting]</wicket:message>
-                            <input type="checkbox" wicket:id="reportParams.howSort" class="indnt1 howSortCheck" onclick="checkHowSelection()"/>
-                            <select wicket:id="reportParams.howSortBy" class="howSortBy" style="display:none;" onchange="checkHowSelection()"/>
-                            <input type="checkbox" wicket:id="reportParams.howSortAscending" class="indnt1 howSortAscending" style="display:none;"/>
-                            <span class="howSortAscendingTxt"><wicket:message key="report_howsorting_asc">[report_howsorting_asc]</wicket:message></span>
-                        </p>
+                    <!-- MORE OPTIONS: -->
+                    <span id="moreHowOptionsLink" class="itemAction moreHowOptionsLink">
+                        <a href="#" onclick="
+                            jQuery('#moreHowOptions').slideToggle(function(){
+                                jQuery('#moreOptionsLbl').toggle();
+                                jQuery('#lessOptionsLbl').toggle();
+                                setMainFrameHeightNoScroll(window.name);
+                            }); return false" class="itemAction">
+                            <span id="moreOptionsLbl">
+                                <wicket:message key="report_howtotalsby_moreoptions">[more options]</wicket:message>
+                            </span>
+                            <span id="lessOptionsLbl" style="display:none">
+                                <wicket:message key="report_howtotalsby_lessoptions">[less options]</wicket:message>
+                            </span>
+                        </a>
                     </span>
-                    
-                    <!-- Max results -->
-                    <span wicket:id="maxResults">
-	                    <p class="shorttext indnt1">
-	                        <wicket:message key="report_howmaxresults">[report_howmaxresults]</wicket:message>
-	                        <input type="checkbox" wicket:id="reportParams.howLimitedMaxResults" class="indnt1 howMaxResultsCheck" onclick="checkHowSelection()"/>
-	                        <input type="text" wicket:id="reportParams.howMaxResults" style="width: 30px" class="howMaxResults"/>
-	                    </p>
-                    </span>
+                    <div id="moreHowOptions" style="display: none">
+	                    <!-- Sorting -->
+	                    <span wicket:id="sorting">
+	                        <p class="shorttext indnt1">
+	                            <wicket:message key="report_howsorting">[report_howsorting]</wicket:message>
+	                            <input type="checkbox" wicket:id="reportParams.howSort" class="indnt1 howSortCheck" onclick="checkHowSelection()"/>
+	                            <select wicket:id="reportParams.howSortBy" class="howSortBy" style="display:none;" onchange="checkHowSelection()"/>
+	                            <input type="checkbox" wicket:id="reportParams.howSortAscending" class="indnt1 howSortAscending" style="display:none;"/>
+	                            <span class="howSortAscendingTxt"><wicket:message key="report_howsorting_asc">[report_howsorting_asc]</wicket:message></span>
+	                        </p>
+	                    </span>
+	                    
+	                    <!-- Max results -->
+	                    <span wicket:id="maxResults">
+		                    <p class="shorttext indnt1">
+		                        <wicket:message key="report_howmaxresults">[report_howmaxresults]</wicket:message>
+		                        <input type="checkbox" wicket:id="reportParams.howLimitedMaxResults" class="indnt1 howMaxResultsCheck" onclick="checkHowSelection()"/>
+		                        <input type="text" wicket:id="reportParams.howMaxResults" style="width: 30px" class="howMaxResults"/>
+		                    </p>
+	                    </span>
+                    </div>
                     
                 </div>
                 
