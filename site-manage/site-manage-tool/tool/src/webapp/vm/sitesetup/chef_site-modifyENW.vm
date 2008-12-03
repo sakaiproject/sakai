@@ -75,6 +75,9 @@
 							#if ($!tool)
 								<h4>
 									$tool.Title
+									<a href="#" onclick="document.toolForm.option.value='remove_$toolId';javascript:document.toolForm.submit();" title ="$tlang.getString('multipleTools.remove')"> 
+										<img src="/library/image/silk/cross.png" alt="$tlang.getString('multipleTools.remove')" style="vertical-align:text-bottom"/>
+									</a>
 								</h4>
 								<p class="shorttext">
 									<label for="title_$toolId">
@@ -93,7 +96,8 @@
 										<input type="text" name="$attributeInputName" id="$attributeInputName" value="$!attributeHashtable.get($attribute)" size="50" />
 								</p>
 								#end	
-								<div class="labelindnt" style="text-indent:.5em"><label for="num_$originToolId" class="skip">$tlang.getString("multipleTools.more")</label><img src="/library/image/silk/add.png" alt="$tlang.getString("multipleTools.more")" style="vertical-align:text-bottom"/>
+								<div class="labelindnt" style="text-indent:.5em"><label for="num_$originToolId" class="skip">$tlang.getString("multipleTools.more")</label>
+								<img src="/library/image/silk/add.png" alt="$tlang.getString("multipleTools.more")" style="vertical-align:text-bottom"/>
 									<select name="num_$toolId" id="num_$toolId" onchange="document.toolForm.option.value='add_$toolId';javascript:document.toolForm.submit();">
 										<option value="" selected="selected">$tlang.getString("multipleTools.moreTools.1") $tool.Title $tlang.getString("multipleTools.moreTools.2")</option>
 										#foreach ($j in [1 .. 3])

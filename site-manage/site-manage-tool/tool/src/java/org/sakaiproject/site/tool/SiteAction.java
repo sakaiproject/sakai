@@ -9383,6 +9383,22 @@ public class SiteAction extends PagedResourceActionII {
 					state.setAttribute(STATE_TEMPLATE_INDEX, "26");
 				}
 			}
+		}else if (option.startsWith("remove_")) {
+			// this could be format of originalToolId plus number of multiplication
+			String removeToolId = option.substring("remove_".length(), option.length());
+
+			// find the original tool id
+			String originToolId = findOriginalToolId(state, removeToolId);
+			if (originToolId != null)
+			{
+				Tool tool = ToolManager.getTool(originToolId);
+				if (tool != null)
+				{
+					removeTool(state, removeToolId);
+					updateSelectedToolList(state, params, false);
+					state.setAttribute(STATE_TEMPLATE_INDEX, "26");
+				}
+			}
 		} else if (option.equalsIgnoreCase("import")) {
 			// import or not
 			updateSelectedToolList(state, params, false);
@@ -9601,6 +9617,30 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, toolSelected);
 
 	} // insertTool
+	
+	/**
+	 * find the tool in the tool list and remove the tool instance
+	 * @param state
+	 * @param toolId
+	 */
+	private void removeTool(SessionState state, String toolId) {
+		// get the map of titles of multiple tool instances
+		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
+		// get the attributes of multiple tool instances
+		Hashtable<String, Hashtable<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(Hashtable<String, Hashtable<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new Hashtable<String, Hashtable<String, String>>();
+		// the selected tool list
+		List toolSelected = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+
+		// remove the tool from related state variables
+		toolSelected.remove(toolId);
+		multipleToolIdTitleMap.remove(toolId);
+		multipleToolConfiguration.remove(toolId);
+
+		state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
+		state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
+		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, toolSelected);
+
+	} // removeTool
 
 	/**
 	 * 
