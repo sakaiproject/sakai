@@ -112,8 +112,8 @@ public class CommandServiceImpl implements CommandService
 					RequestScopeSuperBean rssb = RequestScopeSuperBean.getInstance();
 					String ref = rssb.getCurrentRWikiObjectReference();
 					eventTrackingService.post(eventTrackingService.newEvent(
-                                        	RWikiObjectService.EVENT_RESOURCE_READ, ref, true,
-                                        	NotificationService.PREF_IMMEDIATE));
+                                        	RWikiObjectService.EVENT_RESOURCE_READ, ref, false,
+                                        	NotificationService.NOTI_NONE));
 
 				}
 			}
