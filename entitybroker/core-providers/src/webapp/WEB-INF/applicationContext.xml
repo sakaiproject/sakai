@@ -33,6 +33,7 @@
             class="org.sakaiproject.entitybroker.providers.MembershipEntityProvider">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider" />
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
     </bean>
     
 </beans>

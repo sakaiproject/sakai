@@ -35,6 +35,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -77,7 +78,11 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
     public void setUserEntityProvider(UserEntityProvider userEntityProvider) {
         this.userEntityProvider = userEntityProvider;
     }
-
+    
+    private EmailService emailService;
+    public void setEmailService(EmailService emailService) {
+        this.emailService = emailService;
+    }
 
     public static String PREFIX = "membership";
     public String getEntityPrefix() {
@@ -129,32 +134,46 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
     public Map<String, String> createBatchMemberships(EntityView view, Map<String, Object> params, String locationReference) {
         SiteGroup sg = findLocationByReference(locationReference);
         String roleId = (String)params.get("memberRole");
+        String notificationMessage = (String)params.get("notificationMessage");
+        if ((notificationMessage != null) && (notificationMessage.trim().length() == 0)) {
+            notificationMessage = null;
+        }
         boolean active = true;
         
         Map<String, String> responseHeaders = new HashMap<String, String>();
-        Set<String> userIds = new HashSet<String>();
+        Set<EntityUser> users = new HashSet<EntityUser>();
         Set<String> valuesNotFound = new HashSet<String>();
         Set<String> valuesAlreadyMembers = new HashSet<String>();
         List<String> userSearchValues = getListFromValue(params.get("userSearchValues"));
         for (String userSearchValue : userSearchValues) {
-            String userId = userEntityProvider.findUserIdFromSearchValue(userSearchValue);
-            if (userId != null) {
-                if (sg.site.getUserRole(userId) != null) {
+            EntityUser user = userEntityProvider.findUserFromSearchValue(userSearchValue);
+            if (user != null) {
+                if (sg.site.getUserRole(user.getId()) != null) {
                     valuesAlreadyMembers.add(userSearchValue);
                 } else {
-                    userIds.add(userId);
+                    users.add(user);
                 }
             } else {
                 valuesNotFound.add(userSearchValue);
             }
         }
         
-        if (!userIds.isEmpty()) {
-            for (String userId : userIds) {
-                sg.site.addMember(userId, roleId, active, false);
+        if (!users.isEmpty()) {
+            for (EntityUser user : users) {
+                sg.site.addMember(user.getId(), roleId, active, false);
+                if (notificationMessage != null) {
+                    /**
+                     * TODO Should the From address be the site contact or the "setup.request" Sakai property?
+                     * TODO We need to retrieve a localized message title and additional body (if any) instead of hard-coding it.
+                     * TODO Any special boilerplate to include site URL or title or description?
+                     */
+                    
+                    emailService.send("setup.request@example.org", user.getEmail(), 
+                        "New Site Membership Notification", notificationMessage, null, null, null);
+                }
             }
             saveSiteMembership(sg.site);
-            responseHeaders.put("x-success-count", String.valueOf(userIds.size()));
+            responseHeaders.put("x-success-count", String.valueOf(users.size()));
         }        
         if (!valuesNotFound.isEmpty()) {
             Iterator<String> listIter = valuesNotFound.iterator();

@@ -263,6 +263,12 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         return eu;         
     }
 
+    /**
+     * WARNING: The search results may be drawn from different populations depending on the
+     * search parameters specified. A straight listing with no filtering, or a search on "search"
+     * or "criteria", will only retrieve matches from the Sakai-maintained user records. A search
+     * on "email" may also check the records maintained by the user directory provider.
+     */
     public List<?> getEntities(EntityReference ref, Search search) {
         Collection<User> users = new ArrayList<User>();
         if (developerHelperService.getConfigurationSetting("entity.users.viewall", false)) {
@@ -452,20 +458,35 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     
     /**
      * @param userSearchValue either a user ID, a user EID, or a user email address
-     * @return user ID of the first matching user, or null if no search method worked
+     * @return the first matching user, or null if no search method worked
      */
-    public String findUserIdFromSearchValue(String userSearchValue) {
-        String userId = findAndCheckUserId(userSearchValue, null);
-        if (userId == null) {
+    public EntityUser findUserFromSearchValue(String userSearchValue) {
+        EntityUser entityUser;
+        User user;
+        try {
+            user = userDirectoryService.getUser(userSearchValue);
+        } catch (UserNotDefinedException e) {
+            try {
+                user = userDirectoryService.getUserByEid(userSearchValue);
+            } catch (UserNotDefinedException e1) {
+                user = null;
+            }
+        }
+        if (user == null) {
             Collection<User> users = userDirectoryService.findUsersByEmail(userSearchValue);
             if ((users != null) && (users.size() > 0)) {
-                userId = users.iterator().next().getId();
+                user = users.iterator().next();
                 if (users.size() > 1) {
                     if (log.isWarnEnabled()) log.warn("Found multiple users with email " + userSearchValue);
                 }
             }
         }
-        return userId;
+        if (user != null) {
+            entityUser = convertUser(user);
+        } else {
+            entityUser = null;
+        }
+        return entityUser;
     }
 
     public EntityUser convertUser(User user) {
