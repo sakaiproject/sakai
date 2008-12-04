@@ -138,7 +138,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 Iterator<Participant> sIterator = new SortedIterator(siteMembers.iterator(), new SiteComparator(SiteConstants.SORTED_BY_PARTICIPANT_NAME, Boolean.TRUE.toString()));
 	     for (; sIterator.hasNext();i++){
 	        	Participant p = (Participant) sIterator.next();
-				siteMemberLabels[i] = p.getName();
+				siteMemberLabels[i] = p.getName() + "(" + p.getDisplayId() + ")";
 				siteMemberValues[i] = p.getUniqname();
 	        }
 	     
@@ -154,7 +154,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	        	try
 	        	{
 	        		User u = userDirectoryService.getUser(userId);
-	        		groupMemberLabels[i] = u.getSortName();
+	        		groupMemberLabels[i] = u.getSortName() + "(" + u.getDisplayId() + ")";
 	        	}
 	        	catch (Exception e)
 	        	{

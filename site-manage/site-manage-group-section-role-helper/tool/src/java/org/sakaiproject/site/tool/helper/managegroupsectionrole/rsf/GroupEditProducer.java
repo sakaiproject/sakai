@@ -188,7 +188,7 @@ public class GroupEditProducer implements ViewComponentProducer, DynamicNavigati
 	        	// not in the group yet
 	        	if (g == null || g.getMember(p.getUniqname()) == null)
 	        	{
-					siteMemberLabels[i] = p.getName();
+					siteMemberLabels[i] = p.getName() + "(" + p.getDisplayId() + ")";
 					siteMemberValues[i] = p.getUniqname();
 	        	}
 	        }
@@ -265,7 +265,7 @@ public class GroupEditProducer implements ViewComponentProducer, DynamicNavigati
         	try
         	{
         		User u = userDirectoryService.getUser(userId);
-        		groupMemberLabels[i] = u.getSortName();
+        		groupMemberLabels[i] = u.getSortName() + "(" + u.getDisplayId() + ")";
         	}
         	catch (Exception e)
         	{
