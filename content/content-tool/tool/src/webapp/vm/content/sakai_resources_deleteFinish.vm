@@ -33,7 +33,7 @@
 									<img src = "#imageLink($member.iconLocation)" alt="$member.label" />
 								#end
 								<a href="$member.accessUrl" target="_blank">
-									$member.name
+									$validator.escapeHtml($member.name)
 								</a>
 							</h4>
 						</td>
