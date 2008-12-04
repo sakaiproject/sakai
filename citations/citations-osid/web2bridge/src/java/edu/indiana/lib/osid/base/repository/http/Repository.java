@@ -77,6 +77,13 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 		{
 			_log.error(t.getMessage());
 		}
+		
+		if (this.id == null)
+		{
+			_log.debug("Could not set HTTP Repository() " + displayName);
+			return;
+		}
+		
 		_log.debug("new HTTP Repository(): " + displayName + ", id: " + this.id);
 
 		try
