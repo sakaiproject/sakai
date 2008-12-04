@@ -40,6 +40,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
+import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -99,6 +100,11 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
     private EntityEncodingManager entityEncodingManager;
     public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
         this.entityEncodingManager = entityEncodingManager;
+    }
+
+    private EntityPropertiesService entityProperties;
+    public void setEntityProperties(EntityPropertiesService entityProperties) {
+        this.entityProperties = entityProperties;
     }
 
     // SAKAI
@@ -676,6 +682,14 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
 
     public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
         return entityEncodingManager.encodeData(data, format, name, properties);
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.DeveloperHelperService#getMessage(java.lang.String, java.lang.String)
+     */
+    public String getMessage(String prefix, String messageKey) {
+        return entityProperties.getProperty(prefix, messageKey);
     }
 
 }

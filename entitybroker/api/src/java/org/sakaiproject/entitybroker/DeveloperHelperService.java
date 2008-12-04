@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -104,6 +105,15 @@ public interface DeveloperHelperService {
      */
     public Object fetchEntity(String reference);
 
+
+    /**
+     * Gets messages from the entity message bundles (the entities which implement {@link Describeable} or a sub interface),
+     * 
+     * @param prefix the string which represents a type of entity handled by an entity provider
+     * @param messageKey the message bundle property key
+     * @return the property value string OR null if none found
+     */
+    String getMessage(String prefix, String messageKey);
 
     // CONFIG
 
