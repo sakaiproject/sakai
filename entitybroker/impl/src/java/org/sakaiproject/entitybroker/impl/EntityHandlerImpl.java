@@ -88,6 +88,8 @@ import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 
@@ -100,6 +102,12 @@ import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
  */
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
+
+    /**
+     * If this param is set then the sakai session for the current request is set to this rather than establishing one,
+     * will allow changing the session as well
+     */
+    public static String SAKAI_SESSION = "sakai.session";
 
     protected static final String DIRECT = TemplateParseUtil.DIRECT_PREFIX;
 
@@ -159,21 +167,26 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.requestStorage = requestStorage;
     }
 
-    ServerConfigurationService serverConfigurationService;
+    private ServerConfigurationService serverConfigurationService;
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
     }
 
-    EmailService emailService;
+    private EmailService emailService;
     public void setEmailService(EmailService emailService) {
         this.emailService = emailService;
     }
 
-    UsageSessionService usageSessionService;
+    private UsageSessionService usageSessionService;
     public void setUsageSessionService(UsageSessionService usageSessionService) {
         this.usageSessionService = usageSessionService;
     }
-    
+
+    private SessionManager sessionManager;
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
@@ -185,6 +198,23 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
         String handledReference = null;
 
+        // http://jira.sakaiproject.org/jira/browse/SAK-14899 - added support for setting the sakai session id
+        if (req.getParameter(SAKAI_SESSION) != null) {
+            // set the session to the given id if possible or die
+            String sessionId = req.getParameter(SAKAI_SESSION);
+            try {
+                // this also protects us from null pointer where session service is not set or working
+                Session s = sessionManager.getSession(sessionId);
+                if (s != null) {
+                    sessionManager.setCurrentSession(s);
+                } else {
+                    throw new IllegalArgumentException("Invalid sakai session id ("+sessionId+") supplied, could not find a valid session with that id to set");
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failure attempting to set sakai session id ("+sessionId+"): " + e.getMessage());
+            }
+        }
+        
         if (path == null || "".equals(path) || "/".equals(path)) {
             // SPECIAL handling for empty path
             res.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
