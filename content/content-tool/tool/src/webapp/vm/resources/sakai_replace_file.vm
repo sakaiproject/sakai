@@ -27,7 +27,7 @@
 					<label>$tlang.getString("label.name")</label>
 				</td>
 				<td style="width:180px;padding-left:0"> 
-					$item.name
+					$validator.escapeHtml($item.name)
 				</td>
 			</tr>
 			<tr> 
