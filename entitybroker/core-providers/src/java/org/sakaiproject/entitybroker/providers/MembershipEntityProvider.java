@@ -493,7 +493,10 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         EntityMember em = null;
         Member member = null;
         SiteGroup sg = findLocationByReference(locationReference);
-        isAllowedAccessMembers(sg.site);
+        String currentUserId = developerHelperService.getCurrentUserId();
+        if (!userId.equals(currentUserId)) {
+            isAllowedAccessMembers(sg.site);
+        }
         if (sg.group == null) {
             // site only
             member = sg.site.getMember(userId);
