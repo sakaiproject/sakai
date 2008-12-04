@@ -230,16 +230,30 @@ public class SiteManageGroupHandler {
         siteService.save(site);
     }
     
-    public Collection<Participant> getSiteParticipant()
+    public List<Participant> getSiteParticipant(Group group)
     {
-    	Collection<Participant> rv = new Vector<Participant>();
+    	List<Participant> rv = new Vector<Participant>();
     	if (site != null)
     	{
     		String siteId = site.getId();
     		String realmId = siteService.siteReference(siteId);
 
     		List<String> providerCourseList = SiteParticipantHelper.getProviderCourseList(siteId);
-    		rv = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList);
+    		Collection<Participant> rvCopy = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList);
+    		rv.addAll(rvCopy);
+    		
+    		// check with group attendents
+    		if (group != null)
+    		{
+    			// need to remove those inside group already
+	    		for(Participant p:rvCopy)
+	    		{
+	    			if (group.getUserRole(p.getUniqname()) != null)
+	    			{
+	    				rv.remove(p);
+	    			}
+	    		}
+    		}
     	}
     	
     	return rv;
