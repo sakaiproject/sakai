@@ -259,7 +259,7 @@ function saveTime()
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.confirmSubmit}"  id="submitForm1" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.continue}"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
     onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false'"/>
 
   <%-- PREVIOUS --%>
@@ -288,12 +288,6 @@ function saveTime()
               && delivery.navigation ne '1' && !delivery.hasTimeLimit}"  
     onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
-
-  <%-- SUBMIT FOR GRADE DURING PAU --%>
-  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
-    action="#{delivery.confirmSubmit}"  id="submitForm2" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue}"
-    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'"/>
 
   <%-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN--%>
   <h:commandButton  type="submit" value="#{deliveryMessages.button_quit}"

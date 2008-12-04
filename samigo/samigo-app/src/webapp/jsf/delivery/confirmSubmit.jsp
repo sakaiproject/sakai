@@ -145,27 +145,20 @@ function saveTime()
 	disabled="#{delivery.actionString=='previewAssessment'}" 
     onclick="disableSubmitForGrade()" onkeypress="" />
 
-  <%-- SUBMIT FOR GRADE DURING PAU --%>
-  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
-    action="#{delivery.submitForGrade}"  id="submitForm1" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.continue}"
-    onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false'"/>
-
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
   <h:commandButton accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
       rendered="#{(delivery.actionString=='takeAssessment'
-                   || delivery.actionString=='takeAssessmentViaUrl'
 				   || delivery.actionString=='previewAssessment')
 				   && delivery.navigation eq '1' && !delivery.continue}" 
       disabled="#{delivery.actionString=='previewAssessment'}"
       onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
-  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
-    action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue}"
-    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'"/>
+  <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
+    action="#{delivery.submitForGrade}"  id="submitForm1" styleClass="active"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
+    onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false'"/>
 
   <!-- Previous button for non-linear assessments -->
   <h:commandButton id="previous" type="submit" value="#{deliveryMessages.previous}"

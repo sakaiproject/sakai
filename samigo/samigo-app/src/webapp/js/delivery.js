@@ -36,8 +36,6 @@ function disableFeedback(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
@@ -71,8 +69,6 @@ function disableTOC(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
@@ -112,8 +108,6 @@ function disableNext(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
       document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
   }
@@ -140,8 +134,6 @@ function disablePrevious(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
       document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
   }
@@ -168,8 +160,6 @@ function disableSubmit(){
       document.forms[0].elements['takeAssessmentForm:saveAndExit2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
       document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
   }
@@ -196,42 +186,12 @@ function disableSubmit1(){
       document.forms[0].elements['takeAssessmentForm:saveAndExit2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm'])
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
       document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
   }
   else{ // any subsequent click disable button & action
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-  }
-}
-
-var submit2Disabled = 'false';
-function disableSubmit2(){
-  if (submit2Disabled == 'false'){
-    submit2Disabled = 'true'
-    disableTOCFeedback();
-    if (document.forms[0].elements['takeAssessmentForm:next'])
-      document.forms[0].elements['takeAssessmentForm:next'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:previous'])
-      document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:quit'])
-      document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
-      document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
-      document.forms[0].elements['takeAssessmentForm:saveAndExit2'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm'])
-      document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
-      document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
-      document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
-  }
-  else{ // any subsequent click disable button & action
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
   }
 }
 
@@ -252,8 +212,6 @@ function disableSave(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
       document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
   }
@@ -280,8 +238,6 @@ function disableSave2(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
       document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
   }
@@ -308,8 +264,6 @@ function disableQuit(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
       document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
   }
@@ -337,8 +291,6 @@ function disableSubmitForGrade(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
   }
@@ -363,8 +315,6 @@ function enableSubmitForGrade(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=false;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=false;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=false;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=false;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
@@ -388,8 +338,6 @@ function enableSave(){
       document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=false;
     if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
       document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=false;
-    if (document.forms[0].elements['takeAssessmentForm:submitForm2'])
-      document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=false;
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
       document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=false;
   }
