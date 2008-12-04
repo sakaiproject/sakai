@@ -610,12 +610,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				try{
 					eExisting = (EventStat) c.uniqueResult();
 				}catch(HibernateException ex){
-					List events = c.list();
-					if ((events!=null) && (events.size()>0)){
-						LOG.debug("More than 1 result when unique result expected.", ex);
-						eExisting = (EventStat) c.list().get(0);
-					}else{
-						LOG.debug("No result found", ex);
+					try{
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (EventStat) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
+							eExisting = null;
+						}
+					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
@@ -655,12 +659,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				try{
 					eExisting = (ResourceStat) c.uniqueResult();
 				}catch(HibernateException ex){
-					List events = c.list();
-					if ((events!=null) && (events.size()>0)){
-						LOG.debug("More than 1 result when unique result expected.", ex);
-						eExisting = (ResourceStat) c.list().get(0);
-					}else{
-						LOG.debug("No result found", ex);
+					try{
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (ResourceStat) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
+							eExisting = null;
+						}
+					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
@@ -697,12 +705,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				try{
 					eExisting = (SiteActivity) c.uniqueResult();
 				}catch(HibernateException ex){
-					List events = c.list();
-					if ((events!=null) && (events.size()>0)){
-						LOG.debug("More than 1 result when unique result expected.", ex);
-						eExisting = (SiteActivity) c.list().get(0);
-					}else{
-						LOG.debug("No result found", ex);
+					try{
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (SiteActivity) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
+							eExisting = null;
+						}
+					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
@@ -739,12 +751,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				try{
 					eExisting = (SiteVisits) c.uniqueResult();
 				}catch(HibernateException ex){
-					List events = c.list();
-					if ((events!=null) && (events.size()>0)){
-						LOG.debug("More than 1 result when unique result expected.", ex);
-						eExisting = (SiteVisits) c.list().get(0);
-					}else{
-						LOG.debug("No result found", ex);
+					try{
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (SiteVisits) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
+							eExisting = null;
+						}
+					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
@@ -783,9 +799,22 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			Integer uv = 1;
 			try{
 				uv = (Integer) q.uniqueResult();
-			}catch(Exception ex){
-				LOG.debug("More than 1 result when unique result expected.", ex);
-				uv = (Integer) q.list().get(0);
+			}catch(HibernateException ex){
+				try{
+					List visits = q.list();
+					if ((visits!=null) && (visits.size()>0)){
+						LOG.debug("More than 1 result when unique result expected.", ex);
+						uv = (Integer) q.list().get(0);
+					}else{
+						LOG.debug("No result found", ex);
+						uv = 1;
+					}
+				}catch (Exception e3){
+					uv = 1;
+				}
+				
+			}catch(Exception ex2){
+				LOG.debug("Probably ddbb error when loading data at java object", ex2);
 			}
 			int uniqueVisits = uv == null? 1 : uv.intValue();
 			map.put(key, Integer.valueOf((int)uniqueVisits));			
