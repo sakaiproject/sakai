@@ -70,12 +70,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
 
     @EntityCustomAction(action="current",viewKey=EntityView.VIEW_LIST)
     public EntityUser getCurrentUser(EntityView view) {
-        String currentUserId = developerHelperService.getCurrentUserId();
-        if (currentUserId == null) {
-            throw new IllegalArgumentException("There is no current user to get user info about");
-        }
-        User user = getUserByIdEid(currentUserId);
-        EntityUser eu = new EntityUser(user);
+        EntityUser eu = new EntityUser(userDirectoryService.getCurrentUser());
         return eu;
     }
 

@@ -132,6 +132,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
      * @return headers containing success or warning messages for the client
      */
     public Map<String, String> createBatchMemberships(EntityView view, Map<String, Object> params, String locationReference) {
+        
         SiteGroup sg = findLocationByReference(locationReference);
         String roleId = (String)params.get("memberRole");
         String notificationMessage = (String)params.get("notificationMessage");
@@ -159,16 +160,16 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         }
         
         if (!users.isEmpty()) {
+            String currentUserEmail = userEntityProvider.getCurrentUser(null).getEmail();
             for (EntityUser user : users) {
                 sg.site.addMember(user.getId(), roleId, active, false);
                 if (notificationMessage != null) {
                     /**
                      * TODO Should the From address be the site contact or the "setup.request" Sakai property?
                      * TODO We need to retrieve a localized message title and additional body (if any) instead of hard-coding it.
-                     * TODO Any special boilerplate to include site URL or title or description?
+                     * See the new Email Template Service for a likely approach.
                      */
-                    
-                    emailService.send("setup.request@example.org", user.getEmail(), 
+                    emailService.send(currentUserEmail, user.getEmail(), 
                         "New Site Membership Notification", notificationMessage, null, null, null);
                 }
             }
