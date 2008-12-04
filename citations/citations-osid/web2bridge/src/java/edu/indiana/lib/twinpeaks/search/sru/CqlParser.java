@@ -130,6 +130,11 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 			_log.error("Exception opening input stream: " + exception);
 		}
 
+		if (byteInputStream == null)
+		{
+			return null;
+		}
+
 		// clear the stack
 		cqlStack.removeAllElements();
 
