@@ -80,6 +80,7 @@ import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.cover.NotificationService;
 
 /**
  *
@@ -1291,26 +1292,30 @@ public class DeliveryBean
 
     setForGrade(true);
     SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
-
-    // submission remaining and totalSubmissionPerAssessmentHash is updated inside 
-    // SubmitToGradingListener
-    SubmitToGradingActionListener listener =
-      new SubmitToGradingActionListener();
-    listener.processAction(null);
     
-    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit", "submissionId=" + adata.getAssessmentGradingId(), true));
-    
+    SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
     // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
     // because each ItemGradingData is created when it is viewed/answered 
     if (!navigation.equals("1")) {
     	listener.completeItemGradingData();
     }
+
+    // submission remaining and totalSubmissionPerAssessmentHash is updated inside 
+    // SubmitToGradingListener
+    listener.processAction(null);
+    
     syncTimeElapsedWithServer();
 
     String returnValue="submitAssessment";
     if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
     {
       returnValue="anonymousThankYou";
+      PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+      String siteId = publishedAssessmentService.getPublishedAssessmentOwner(adata.getPublishedAssessmentId());
+      EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.via_url", "submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));      
+    }
+    else {
+        EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit", "submissionId=" + adata.getAssessmentGradingId(), true));
     }
     forGrade = false;
     SelectActionListener l2 = new SelectActionListener();

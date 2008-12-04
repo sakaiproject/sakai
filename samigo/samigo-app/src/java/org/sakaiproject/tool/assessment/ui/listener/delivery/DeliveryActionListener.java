@@ -40,6 +40,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -145,8 +146,13 @@ public class DeliveryActionListener
     	  log.debug("From Begin Assessment button clicks");
     	  delivery.setPartIndex(0);
     	  delivery.setQuestionIndex(0);
-    	  if (action == 1 || action == 5) {
-    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", "publishedAssessmentId=" + delivery.getAssessmentId(), true));
+    	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
+    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), true));
+    	  }
+    	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
+    		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+    		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
+    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take.via_url", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), siteId, true, NotificationService.NOTI_REQUIRED));
     	  }
       }
       else {

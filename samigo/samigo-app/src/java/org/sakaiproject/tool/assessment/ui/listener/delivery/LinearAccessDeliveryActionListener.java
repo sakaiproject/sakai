@@ -34,11 +34,14 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 
@@ -107,6 +110,15 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
     	  setTimer(delivery, publishedAssessment, true);
     	  setStatus(delivery, pubService, Long.valueOf(id));
+    	  int action = delivery.getActionMode();
+    	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
+    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), true));
+    	  }
+    	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
+    		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+    		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
+    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take.via_url", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), siteId, true, NotificationService.NOTI_REQUIRED));
+    	  }    	  
       }
       else {
     	  setTimer(delivery, publishedAssessment, false);

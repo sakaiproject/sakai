@@ -23,6 +23,8 @@
 
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -103,6 +105,9 @@ public class SubmitTimedAssessmentThread extends TimerTask
     	  SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
     	  listener.completeItemGradingData(ag);
           service.saveOrUpdateAssessmentGrading(ag);
+          PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+          String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
+          EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.thread_submit", "submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
           notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
           log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
         }
