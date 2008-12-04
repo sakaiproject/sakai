@@ -41,6 +41,7 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.net.URLEncoder;
 
 import org.apache.commons.logging.Log;
@@ -3961,8 +3962,7 @@ public abstract class BaseCitationService implements CitationService
 
 	public static final String SCHEMA_PREFIX = "schema.";
 
-	protected static Integer m_nextSerialNumber;
-
+	protected static AtomicInteger m_nextSerialNumber;
 	/*
 	 * RIS MAPPINGS below
 	 */
@@ -4634,7 +4634,7 @@ public abstract class BaseCitationService implements CitationService
 	public void init()
 	{
 		m_storage = newStorage();
-		m_nextSerialNumber = new Integer(0);
+		m_nextSerialNumber = new AtomicInteger(0);
 
 		m_relativeAccessPoint = CitationService.REFERENCE_ROOT;
 
@@ -5337,14 +5337,7 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	protected Integer nextSerialNumber()
 	{
-		Integer number;
-		synchronized (m_nextSerialNumber)
-		{
-			number = m_nextSerialNumber;
-			m_nextSerialNumber = new Integer(number.intValue() + 1);
-		}
-
-		return number;
+		return m_nextSerialNumber.getAndIncrement();
 	}
 
 	/*
