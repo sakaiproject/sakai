@@ -109,6 +109,11 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler
 			_log.error("Exception in CQL parse: " + exception);
 		}
 
+		if (root == null)
+		{
+			return null;
+		}
+
 		String cqlXml = root.toXCQL( 0 );
 
 		_log.debug("CQL XML:");
