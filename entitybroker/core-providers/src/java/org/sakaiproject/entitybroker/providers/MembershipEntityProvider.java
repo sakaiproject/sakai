@@ -300,6 +300,10 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             // find memberships by userId
             userId = userEntityProvider.findAndCheckUserId(userId, null);
             boolean userCurrent = userId.equals(currentUserId);
+            if (!userCurrent && !developerHelperService.isUserAdmin(currentUserId)) {
+                throw new SecurityException("Only admin can access other user memberships, current user ("+currentUserId+") cannot access ref: " + userId);
+            }
+            
             // Is there a faster way to do this? I really truly hope so -AZ
             try {
                 if (!userCurrent) {
