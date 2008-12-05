@@ -20,6 +20,7 @@
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>2.6.0RC1-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
   </parent>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</connection>
