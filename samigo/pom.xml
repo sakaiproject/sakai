@@ -4,7 +4,7 @@
   <parent>
     <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>2.6.0RC1-SNAPSHOT</version>
+    <version>2.7.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Samigo Project</name>
@@ -35,69 +35,69 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-samigo-hibernate</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-samigo-cp</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-samigo-qti</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-samigo-audio</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
 <!-- Samigo Lite -->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-samlite-impl</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-sections-impl-standalone</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
 <!-- Sakai-embedded version -->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-sections-impl</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-import-impl</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-jsf-tool</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
 <!-- these (jsf-app and util-web) are options to get full Sakai JSF integration -->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-jsf-app</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
         <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-jsf-spreadsheet</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
