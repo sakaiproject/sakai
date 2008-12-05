@@ -182,8 +182,8 @@ public class HistogramListener
 
 		  GradingService delegate = new GradingService();
 		  PublishedAssessmentService pubService = new PublishedAssessmentService();
-		  ArrayList scores = delegate.getTotalScores(publishedId, which);
-          if (scores.size() == 0) {
+		  ArrayList allscores = delegate.getTotalScores(publishedId, which);
+          if (allscores.size() == 0) {
 			// Similar case in Bug 1537, but clicking Statistics link instead of assignment title.
 			// Therefore, redirect the the same page.
 			DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
@@ -192,10 +192,27 @@ public class HistogramListener
 			return true;
 		  }
 		  
-		  HashMap itemScores = delegate.getItemScores(new Long(publishedId), new Long(0), which);
-		  //log.info("ItemScores size = " + itemscores.keySet().size());
 		  histogramScores.setPublishedId(publishedId);
-
+ 		  // get the Map of all users(keyed on userid) belong to the selected sections 
+		  // now we only include scores of users belong to the selected sections
+		  Map useridMap = null; 
+		  ArrayList scores = new ArrayList();
+		  // only do section filter if it's published to authenticated users
+		  if (totalScores.getReleaseToAnonymous()) {
+			  scores.addAll(allscores);
+		  }
+		  else {
+			  Iterator allscores_iter = allscores.iterator();
+			  while (allscores_iter.hasNext())
+			  {
+				  AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
+				  String agentid =  data.getAgentId();
+				  useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER); 
+				  if (useridMap.containsKey(agentid)) {
+					  scores.add(data);
+				  }
+			  }
+		  }
 		  Iterator iter = scores.iterator();
 		  //log.info("Has this many agents: " + scores.size());
 		  if (!iter.hasNext())
@@ -230,22 +247,6 @@ public class HistogramListener
 					  submissionsSortedForDiscrim.get(numSubmissions-1-i)).getAgentId());
 		  }
 		  
-/*		  
-		  Iterator totalScoresIter = scores.iterator();
-		  while (totalScoresIter.hasNext()) {
-			  AssessmentGradingData assessmentGradingData = (AssessmentGradingData) totalScoresIter.next();
-			  if (assessmentGradingData.getTotalAutoScore()==null 
-					  || assessmentGradingData.getTotalAutoScore().doubleValue() <= q1) {
-				  histogramScores.addToLowerQuartileStudents(assessmentGradingData.getAgentId());
-			  }
-			  if (assessmentGradingData.getTotalAutoScore()!=null 
-					  && assessmentGradingData.getTotalAutoScore().doubleValue() >= q3) {
-				  histogramScores.addToUpperQuartileStudents(assessmentGradingData.getAgentId());
-			  }
-		  }
-*/
-
-
 		  PublishedAssessmentIfc pub = (PublishedAssessmentIfc) pubService
 		  .getPublishedAssessment(data.getPublishedAssessmentId()
 				  .toString());
@@ -283,6 +284,36 @@ public class HistogramListener
 			  boolean hasRandompart = false;
 			  boolean isRandompart = false;
 
+			  HashMap itemScoresMap = delegate.getItemScores(new Long(publishedId), new Long(0), which);
+			  HashMap itemScores = new HashMap();
+
+			  if (totalScores.getReleaseToAnonymous()) {
+				  // skip section filter if it's published to anonymous users
+				  itemScores.putAll(itemScoresMap);
+			  }
+			  else {
+				  Iterator keyiter = itemScoresMap.keySet().iterator();
+				  while (keyiter.hasNext()) {
+					  Long itemId = (Long) keyiter.next();
+					  ArrayList itemScoresList = (ArrayList) itemScoresMap.get(itemId);
+					  ArrayList filteredItemScoresList = new ArrayList();
+					  Iterator itemScoresIter = itemScoresList.iterator();
+					  // get the Map of all users(keyed on userid) belong to the
+					  // selected sections
+					  while (itemScoresIter.hasNext()) {
+						  ItemGradingData idata = (ItemGradingData) itemScoresIter.next();
+						  String agentid = idata.getAgentId();
+						  if (useridMap == null) {
+							  useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER); 
+						  }
+						  if (useridMap.containsKey(agentid)) {
+							  filteredItemScoresList.add(idata);
+						  }
+					  }
+					  itemScores.put(itemId, filteredItemScoresList);
+				  }
+			  }
+
 			  // Iterate through the assessment parts
 			  while (partsIter.hasNext()) {
 				  SectionDataIfc section = (SectionDataIfc) partsIter.next();
@@ -303,7 +334,6 @@ public class HistogramListener
 				  ArrayList itemset = section.getItemArraySortedForGrading();
 				  int seq = 1;
 				  Iterator itemsIter = itemset.iterator();
-
 
 				  // Iterate through the assessment questions (items)
 				  while (itemsIter.hasNext()) {
@@ -326,6 +356,7 @@ public class HistogramListener
 					  questionScores.setQuestionType(item.getTypeId().toString());
 					  //totalpossible = totalpossible + item.getScore().doubleValue();
 					  //ArrayList responses = null;
+					  
 					  determineResults(pub, questionScores, (ArrayList) itemScores
 							  .get(item.getItemId()));
 					  questionScores.setTotalScore(item.getScore().toString());
@@ -367,27 +398,6 @@ public class HistogramListener
 								  numStudentsRespondedFromLowerQuartile++;
 							  }
 						  }
-						 
-						  
-						 /*
-						  float percentCorrectFromUpperQuartileStudents = 
-							  ((float) numStudentsWithAllCorrectFromUpperQuartile / 
-									  (float) numStudentsRespondedFromUpperQuartile) * 100f;
-
-						  float percentCorrectFromLowerQuartileStudents = 
-							  ((float) numStudentsWithAllCorrectFromLowerQuartile / 
-									  (float) numStudentsRespondedFromLowerQuartile) * 100f;
- 						 */
-
-						  /*
-						  float percentCorrectFromUpperQuartileStudents = 
-							  ((float) numStudentsWithAllCorrectFromUpperQuartile / 
-									  (float) histogramScores.getNumberOfUpperQuartileStudents()) * 100f;
-
-						  float percentCorrectFromLowerQuartileStudents = 
-							  ((float) numStudentsWithAllCorrectFromLowerQuartile / 
-									  (float) histogramScores.getNumberOfLowerQuartileStudents()) * 100f;
-						  */
 						  
 						  float percentCorrectFromUpperQuartileStudents = 
 							  ((float) numStudentsWithAllCorrectFromUpperQuartile / 
@@ -404,17 +414,6 @@ public class HistogramListener
 
 						  float numResponses = (float)questionScores.getNumResponses();
 
-						  
-						  //float discrimination = 2.00f*(numStudentsWithAllCorrectFromUpperQuartile-
-						  //		  numStudentsWithAllCorrectFromLowerQuartile )/numResponses ; 
-
-						  // new discrimination formula from Stephen
-						  /*
-						  float discrimination = ((float) numStudentsWithAllCorrectFromUpperQuartile / 
-								  (float) numStudentsRespondedFromUpperQuartile) -
-								  ((float) numStudentsWithAllCorrectFromLowerQuartile / 
-										  (float) numStudentsRespondedFromLowerQuartile);
-						  */
 						  float discrimination = ((float)numStudentsWithAllCorrectFromUpperQuartile -								  
 								  (float)numStudentsWithAllCorrectFromLowerQuartile)/(float)percent27 ;
 						  

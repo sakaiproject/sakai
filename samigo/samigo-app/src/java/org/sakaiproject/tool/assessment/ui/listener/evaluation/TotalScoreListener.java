@@ -319,7 +319,7 @@ public class TotalScoreListener
       
     }
 
-      Map useridMap= bean.getUserIdMap(TotalScoresBean.CALLED_FROM_TOTAL_SCORE_LISTENER); 
+      Map useridMap= bean.getUserIdMap(TotalScoresBean.CALLED_FROM_TOTAL_SCORE_LISTENER);
       ArrayList agents = new ArrayList();
       prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);
       if ((scores.size()==0) && (students_not_submitted.size()==0)) 

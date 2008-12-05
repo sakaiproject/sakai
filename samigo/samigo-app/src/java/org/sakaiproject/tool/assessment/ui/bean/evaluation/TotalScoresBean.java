@@ -79,7 +79,7 @@ public class TotalScoresBean
   public static final int CALLED_FROM_SUBMISSION_STATUS_LISTENER = 1;  
   public static final int CALLED_FROM_QUESTION_SCORE_LISTENER = 2;  
   public static final int CALLED_FROM_TOTAL_SCORE_LISTENER = 3;  
-
+  public static final int CALLED_FROM_HISTOGRAM_LISTENER = 3;  
   
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
@@ -134,6 +134,7 @@ public class TotalScoresBean
   private boolean acceptLateSubmission = false;
 
   private Boolean releasedToGroups = null; // added by gopalrc - Jan 2008
+  private Map userIdMap;
   
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
@@ -788,6 +789,8 @@ public class TotalScoresBean
     		|| (calledFrom==CALLED_FROM_TOTAL_SCORE_LISTENER 
     				&& "true".equalsIgnoreCase(anonymous)) 
 	    	|| (calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER 
+    	    		&& "true".equalsIgnoreCase(anonymous))
+    		|| (calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous)) 
     ) {
         enrollments = getAvailableEnrollments();
@@ -832,6 +835,10 @@ public class TotalScoresBean
     }
   }
 
+  public void setUserIdMap(Map userIdMap) {
+	  this.userIdMap = userIdMap;
+  }
+  
   /**
    * calledFrom param added by gopalrc 
    * @param calledFrom - where this method is called from
