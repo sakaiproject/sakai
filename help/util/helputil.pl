@@ -1,5 +1,6 @@
 use strict;
 use XML::Parser::PerlSAX;
+use LWP::Simple qw ($ua get);
 
 my %imglist;
 my %doclist;
