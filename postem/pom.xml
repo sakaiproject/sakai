@@ -4,7 +4,7 @@
   <parent>
     <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>2.6.0RC1-SNAPSHOT</version>
+    <version>2.7.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Postem Project</name>
@@ -30,17 +30,17 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-postem-impl</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-jsf-myfaces-tool</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-postem-hbm</artifactId>
-        <version>2.6.0RC1-SNAPSHOT</version>
+        <version>2.7.0-SNAPSHOT</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

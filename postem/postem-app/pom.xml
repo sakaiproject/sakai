@@ -4,7 +4,7 @@
   <parent>
     <artifactId>postem-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>2.6.0RC1-SNAPSHOT</version>
+    <version>2.7.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Postem Tool</name>
@@ -28,7 +28,7 @@
                 <dependency>
                   <groupId>org.sakaiproject</groupId>
                   <artifactId>sakai-jsf-myfaces-tool</artifactId>
-                  <version>2.6.0RC1-SNAPSHOT</version>
+                  <version>2.7.0-SNAPSHOT</version>
                   <exclusions>
                     <!-- since postem doesnt work with the latest myfaces we have to replace the library -->
                     <exclusion>
@@ -51,7 +51,7 @@
                 <dependency>
                   <groupId>org.sakaiproject</groupId>
                   <artifactId>sakai-jsf-myfaces-tool</artifactId>
-                  <version>2.6.0RC1-SNAPSHOT</version>
+                  <version>2.7.0-SNAPSHOT</version>
                   <exclusions>
                     <exclusion>
                         <groupId>jsf</groupId>
