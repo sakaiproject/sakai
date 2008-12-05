@@ -65,19 +65,29 @@ public class SubstituteProperties
    */
   private static void makeProp()
   {
-    properties = new Properties();
-    try {
-      properties.load(new FileInputStream(propFileName));
-    }
-    catch (FileNotFoundException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-		log.warn("oops " + propFileName);
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-		log.warn("oops " + propFileName);
-	}
+	  properties = new Properties();
+	  FileInputStream fileInputStream = null;
+	  try {
+		  fileInputStream = new FileInputStream(propFileName);
+		  properties.load(fileInputStream);
+	  }
+	  catch (FileNotFoundException e) {
+		  // TODO Auto-generated catch block
+		  e.printStackTrace();
+		  log.warn("oops " + propFileName);
+	  } catch (IOException e) {
+		  // TODO Auto-generated catch block
+		  e.printStackTrace();
+		  log.warn("oops " + propFileName);
+	  } finally {
+		  try {
+			  if (fileInputStream != null) {
+				  fileInputStream.close();
+			  }
+		  } catch (IOException e) {
+              // tried
+          }
+	  }
   }
 
   /**
@@ -94,47 +104,4 @@ public class SubstituteProperties
       map.put(FLAG + properties.get(key), key);
     }
   }
-  /**
-   * return a String containing the modified file
-   * @return String
-   */
-  /*
-  private static String getReplaced()
-  {
-    String contents = "";
-    String line = "";
-    try {
-      BufferedReader br = new BufferedReader(new FileReader(fileName));
-      while (line != null)
-      {
-        line = br.readLine() ;
-        contents += line + "\n";
-      }
-    }
-    catch (Exception ex) {
-      log.warn("oops " + fileName);
-    }
-
-    Iterator iter = map.keySet().iterator();
-
-    while (iter.hasNext())
-    {
-      Object key = iter.next();
-      Object value = map.get(key);
-      String toReplace = (String) key;
-      String replaceWith = makeTag((String) value);
-      try
-      {
-        contents = contents.replaceAll(toReplace, replaceWith);
-      }
-      catch (Exception ex) {
-        log.warn("**** UNABLE TO REPLACE ****: '" +toReplace+"'");
-      }
-    }
-
-
-    return contents;
-
-  }	
-  */
 }

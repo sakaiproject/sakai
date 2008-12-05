@@ -293,11 +293,9 @@ public final class XmlUtil
     }
 
     Document document = null;
-
+    InputStream inputStream = null;
     try
     {
-      InputStream inputStream;
-
       if (trim)
       {
         BufferedReader in = new BufferedReader(new FileReader(path));
@@ -338,6 +336,15 @@ public final class XmlUtil
     catch(IOException e)
     {
       log.error(e.getMessage(), e);
+    }
+    finally {
+    	try {
+    		if (inputStream != null) {
+    			inputStream.close();
+    		}
+    	} catch (IOException e) {
+    		// tried
+    	}
     }
 
     return document;

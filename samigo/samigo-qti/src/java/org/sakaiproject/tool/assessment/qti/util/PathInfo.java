@@ -87,8 +87,13 @@ public class PathInfo
 
     Properties props = null;
     props = new Properties();
-    props.load(new FileInputStream(pathToSecurity + "/" + fileName));
-
+    FileInputStream fileInputStream = new FileInputStream(pathToSecurity + "/" + fileName);
+    try {
+    	props.load(fileInputStream);
+    }
+    finally {
+    	fileInputStream.close();
+    }
     return props;
   }
 
@@ -111,8 +116,13 @@ public class PathInfo
 
     Properties props = null;
     props = new Properties();
-    props.load(new FileInputStream(pathToSettings + "/" + fileName));
-
+    FileInputStream fileInputStream = new FileInputStream(pathToSettings + "/" + fileName);
+    try {
+    	props.load(fileInputStream);
+    }
+    finally {
+    	fileInputStream.close();
+    }
     return props;
   }
 
