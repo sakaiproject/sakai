@@ -144,7 +144,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	        	// not in the group yet
 	        	if (g == null || g.getMember(p.getUniqname()) == null)
 	        	{
-					siteMemberLabels[i] = p.getName() + "(" + p.getDisplayId() + ")";
+					siteMemberLabels[i] = p.getName() + " (" + p.getDisplayId() + ")";
 					siteMemberValues[i] = p.getUniqname();
 	        	}
 	        }
@@ -161,7 +161,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	        	try
 	        	{
 	        		User u = userDirectoryService.getUser(userId);
-	        		groupMemberLabels[i] = u.getSortName() + "(" + u.getDisplayId() + ")";
+	        		groupMemberLabels[i] = u.getSortName() + " (" + u.getDisplayId() + ")";
 	        	}
 	        	catch (Exception e)
 	        	{
