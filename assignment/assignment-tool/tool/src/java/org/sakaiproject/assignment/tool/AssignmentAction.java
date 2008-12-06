@@ -2253,11 +2253,12 @@ public class AssignmentAction extends PagedResourceActionII
 	private void navigateToSubmission(RunData rundata, String paramString) {
 		ParameterParser params = rundata.getParameters();
 		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
-
+		String assignmentId = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
 		String submissionId = StringUtil.trimToNull(params.getString(paramString));
 		if (submissionId != null)
 		{
-			state.setAttribute(GRADE_SUBMISSION_SUBMISSION_ID, submissionId);
+			// put submission information into state
+			putSubmissionInfoIntoState(state, assignmentId, submissionId);
 		}
 	}
 
@@ -6816,10 +6817,30 @@ public class AssignmentAction extends PagedResourceActionII
 		resetViewSubmission(state);
 		
 		ParameterParser params = data.getParameters();
+		String assignmentId = params.getString("assignmentId");
+		String submissionId = params.getString("submissionId");
+		// put submission information into state
+		putSubmissionInfoIntoState(state, assignmentId, submissionId);
 
-		// reset the grade assignment id
-		state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID, params.getString("assignmentId"));
-		state.setAttribute(GRADE_SUBMISSION_SUBMISSION_ID, params.getString("submissionId"));
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, new Boolean(false));
+			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
+		}
+
+	} // doGrade_submission
+
+	/**
+	 * put all the submission information into state variables
+	 * @param state
+	 * @param assignmentId
+	 * @param submissionId
+	 */
+	private void putSubmissionInfoIntoState(SessionState state, String assignmentId, String submissionId)
+	{
+		// reset the grade assignment id and submission id
+		state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID, assignmentId);
+		state.setAttribute(GRADE_SUBMISSION_SUBMISSION_ID, submissionId);
 		
 		// allow resubmit number
 		String allowResubmitNumber = "0";
@@ -6835,12 +6856,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin5"));
-			M_log.warn(this + ":doGrade_submission " + e.getMessage());
+			M_log.warn(this + ":putSubmissionInfoIntoState " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("not_allowed_to_view"));
-			M_log.warn(this + ":doGrade_submission " + e.getMessage());
+			M_log.warn(this + ":putSubmissionInfoIntoState " + e.getMessage());
 		}
 
 		try
@@ -6883,21 +6904,14 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin5"));
-			M_log.warn(this + ":doGrade_submission " + e.getMessage());
+			M_log.warn(this + ":putSubmissionInfoIntoState " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("not_allowed_to_view"));
-			M_log.warn(this + ":doGrade_submission " + e.getMessage());
+			M_log.warn(this + ":putSubmissionInfoIntoState " + e.getMessage());
 		}
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, new Boolean(false));
-			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
-		}
-
-	} // doGrade_submission
+	}
 
 	/**
 	 * Action is to release all the grades of the submission
