@@ -44,6 +44,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>
@@ -89,10 +90,12 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	String mimeType = req.getParameter("mimeType");
 	String filename = req.getParameter("filename");
 
-    res.setHeader("Content-Disposition", "inline;filename=\"" + filename +"\";");
+	String cleanedFilename = FormattedText.processFormattedText(filename, new StringBuffer());
+	
+    res.setHeader("Content-Disposition", "inline;filename=\"" + cleanedFilename +"\";");
     log.debug("resourceId = " + resourceId);
     log.debug("mimeType = " + mimeType);
-    log.debug("filename = " + filename);
+    log.debug("cleanedFilename = " + cleanedFilename);
     
     // ** note that res.setContentType() must be called before
 	// res.getOutputStream(). see javadoc on this
