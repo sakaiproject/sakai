@@ -184,7 +184,7 @@
      <h:panelGroup>
        <h:outputText rendered="#{publishedSettings.valueMap.hasTimeAssessment eq 'true'}"
           value="#{publishedSettings.timedHours} hour,
-          #{assessmentSettings.timedMinutes} minutes, #{publishedSettings.timedSeconds} seconds. " />
+          #{publishedSettings.timedMinutes} minutes, #{publishedSettings.timedSeconds} seconds. " />
        <h:outputText rendered="#{publishedSettings.valueMap.hasTimeAssessment eq 'true'}"
           value="#{assessmentSettingsMessages.auto_submit_description}" />
        <h:outputText rendered="#{publishedSettings.valueMap.hasTimeAssessment ne 'true'}"
