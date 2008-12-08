@@ -27,8 +27,8 @@ public class ConfirmCopyAssessmentListener implements ActionListener {
 		// #3 - permission checking before proceeding - daisyf
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		author.setOutcome("confirmCopyAssessment");
-		ConfirmRemoveAssessmentListener confirmRemoveAssessmentListener = new ConfirmRemoveAssessmentListener(); 
-		if (!confirmRemoveAssessmentListener.passAuthz(context, assessment.getCreatedBy())) {
+		EditAssessmentListener editAssessmentListener = new EditAssessmentListener(); 
+		if (!editAssessmentListener.passAuthz(context, assessment.getCreatedBy())) {
 			author.setOutcome("author");
 			return;
 		}

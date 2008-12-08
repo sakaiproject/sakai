@@ -1924,8 +1924,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				.getTitle(), a.getDescription(), a.getComments(), null,
 				TypeFacade.HOMEWORK, a.getInstructorNotification(), a
 						.getTesteeNotification(), a.getMultipartAllowed(), a
-						.getStatus(), a.getCreatedBy(), new Date(), a
-						.getLastModifiedBy(), new Date());
+						.getStatus(), AgentFacade.getAgentString(), new Date(), 
+						AgentFacade.getAgentString(), new Date());
 		// section set
 		Set newSectionSet = prepareSectionSet(newAssessment, a.getSectionSet(),
 				protocol);

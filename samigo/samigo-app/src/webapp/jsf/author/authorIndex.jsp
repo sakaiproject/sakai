@@ -149,7 +149,7 @@
       <span class="itemAction">
 
       <h:commandLink title="#{authorFrontDoorMessages.t_copyAssessment}" id="copyAssessment" immediate="true" 
-        rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}"
+        rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}"
         action="confirmCopyAssessment">
         <h:outputText id="linkCopy" value="#{authorFrontDoorMessages.link_copy}"/>
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
