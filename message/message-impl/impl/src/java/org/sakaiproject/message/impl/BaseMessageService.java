@@ -3260,19 +3260,31 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 					// reject if there is no intersection
 					if (!isIntersectionGroupRefsToGroups(msgGroups, allowedGroups)){ //continue;
-						//MessageChannel channel=null;
+
 						MessageEdit msg1=(MessageEdit) msg;
 						MessageHeaderEdit header = msg1.getHeaderEdit();
-						header.setDraft(true);
+						User currentUsr=null;
 						try {
-							header.clearGroupAccess();
-						} catch (PermissionException e) {
+							currentUsr = m_userDirectoryService.getUser(m_sessionManager.getCurrentSessionUserId());
+							
+						} catch (UserNotDefinedException e1) {
 							// TODO Auto-generated catch block
-							e.printStackTrace();
+							e1.printStackTrace();
 						}
-						this.commitDraftChanges(msg1);
-						msg=(Message) msg1;
 						
+					if (currentUsr.getId().equals(header.getFrom().getId())){						
+							header.setDraft(true);
+							try {
+								header.clearGroupAccess();
+							} catch (PermissionException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							this.commitDraftChanges(msg1);
+							msg=(Message) msg1;
+
+						}
+						else continue;						
 					}
 				}
 
