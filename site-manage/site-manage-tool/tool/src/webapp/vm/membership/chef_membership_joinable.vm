@@ -17,7 +17,7 @@
 		<div class="searchNav">
 			<form name="searchform" method="post" class="inlineForm" action="#toolForm("$action")">
 			<label for="search" class="skip">$tlang.getString("mb.list.search")</label>
-			<input type="text" size="15" id="search" name="search" value="$search" /> 
+			<input type="text" size="15" id="search" name="search" value="$validator.escapeHtml($search)" /> 
 			<input type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" />
 			<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString("mb.list.clear")" />
 			</form> 
@@ -129,7 +129,7 @@
 			</table>
 		</form>
 	#elseif ($search.length() > 0)
-		<p class="instruction">$tlang.getString('mb.list.nosearchsites')${search}$tlang.getString('mb.list.nosearchsites2')</p>
+		<p class="instruction">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</p>
 	#else
 		<p class="instruction">$tlang.getString('mb.list.nosites')</p>
 	#end

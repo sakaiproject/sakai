@@ -23,7 +23,7 @@
 				<form name="searchForm" class="inlineForm" action="#toolForm("SiteAction")" method="post">
 					<input type="hidden" name="eventSubmit_doSite_search" value="null" />
 					<label for="$form_search" class="skip">$tlang.getString('list.search')</label>
-					<input size="20" value="$!searchString" name="$form_search" id="$form_search" type="text" class="searchField"  />
+					<input size="20" value="$validator.escapeHtml($!searchString)" name="$form_search" id="$form_search" type="text" class="searchField"  />
 					<a href="#" title="$tlang.getString('list.search')" onclick="location = '#toolLink($action "doSite_search")'+buildQueryString('searchForm');return false;">
 						<input type="button" value="$tlang.getString('list.search')" />
 					</a>
@@ -223,7 +223,7 @@
 		<br />
 			$tlang.getString("list.nosites") 
 			#if ($!searchString && !$searchString.equals(""))
-				$tlang.getString("list.thatmatch") "$!searchString"
+				$tlang.getString("list.thatmatch") "$validator.escapeHtml($!searchString)"
 			#end
 			$tlang.getString("list.inthe") "$!viewSelected".
 		</div>	
