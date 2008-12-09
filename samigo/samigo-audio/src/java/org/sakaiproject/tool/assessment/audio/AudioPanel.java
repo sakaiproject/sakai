@@ -261,7 +261,7 @@ public class AudioPanel
     if (args.length > 0)
     {
       File file = new File(args[0]);
-      if (file == null && !file.isDirectory())
+      if (file == null || !file.isDirectory())
       {
         System.out.println(res.getString("usage_java_JavaSound"));
       }
