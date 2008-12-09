@@ -113,6 +113,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 /**
@@ -1436,8 +1437,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				if (displayUserloginInfo)
 				{
 					User thisUser = UserDirectoryService.getCurrentUser();
-					loginUserDispId = thisUser.getDisplayId();
-					loginUserDispName = thisUser.getDisplayName();
+					loginUserDispId = Validator.escapeHtml(thisUser.getDisplayId());
+					loginUserDispName = Validator.escapeHtml(thisUser.getDisplayName());
 				}
 
 				// check for a logout text override
