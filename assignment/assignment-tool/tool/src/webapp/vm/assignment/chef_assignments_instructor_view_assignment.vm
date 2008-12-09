@@ -127,7 +127,7 @@
 					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
 					$gradeScale
 					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-						(($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+						($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
 					#end
 				</td>
 			</tr>
@@ -309,7 +309,7 @@
 							#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
 							$gradeScale
 							#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-								(($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+								($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
 							#end
 						</td>
 					</tr>
