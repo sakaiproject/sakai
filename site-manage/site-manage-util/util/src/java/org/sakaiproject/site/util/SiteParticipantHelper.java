@@ -64,7 +64,7 @@ public class SiteParticipantHelper {
 			Set enrollments = cms.getEnrollments(enrollmentSet.getEid());
 			if (enrollments != null)
 			{
-				Map<String, User> eidToUserMap = getEidUserMapFromEnrollments(enrollments);
+				Map<String, User> eidToUserMap = getEidUserMapFromCollection(enrollments);
 				for (Iterator eIterator = enrollments.iterator();eIterator.hasNext();)
 				{
 					Enrollment e = (Enrollment) eIterator.next();
@@ -146,21 +146,31 @@ public class SiteParticipantHelper {
 			}
 		}
 	}
-
+	
 	/**
-	 * Collect all student user data in one call.
+	 * Collect all member users data in one call
 	 * 
-	 * @param enrollments
+	 * @param memberships
 	 * @return
 	 */
-	public static Map<String, User> getEidUserMapFromEnrollments(Collection<Enrollment> enrollments) {
-		Set<String> enrollmentEids = new HashSet<String>();
-		for (Enrollment enrollment : enrollments) {
-			enrollmentEids.add(enrollment.getUserId());
+	public static Map<String, User> getEidUserMapFromCollection(Collection<Object> cObjects) {
+		Set<String> rvEids = new HashSet<String>();
+		for (Object cObject : cObjects) {
+			
+			if (cObject instanceof Enrollment)
+			{
+				rvEids.add(((Enrollment) cObject).getUserId());
+			} else if (cObject instanceof Membership)
+			{
+				rvEids.add(((Membership) cObject).getUserId());
+			} else if (cObject instanceof Member)
+			{
+				rvEids.add(((Member) cObject).getUserEid());
+			} 
 		}
 		Map<String, User> eidToUserMap = new HashMap<String, User>();
-		List<User> enrollmentUsers = UserDirectoryService.getUsersByEids(enrollmentEids);
-		for (User user : enrollmentUsers) {
+		List<User> rvUsers = UserDirectoryService.getUsersByEids(rvEids);
+		for (User user : rvUsers) {
 			eidToUserMap.put(user.getEid(), user);
 		}
 		return eidToUserMap;
@@ -178,12 +188,16 @@ public class SiteParticipantHelper {
 		
 		if (memberships != null)
 		{
-			for (Iterator mIterator = memberships.iterator();mIterator.hasNext();)
+			Map<String, User> eidToUserMap = getEidUserMapFromCollection(memberships);
+			for (Iterator<Membership> mIterator = memberships.iterator();mIterator.hasNext();)
 			{
 				Membership m = (Membership) mIterator.next();
 				try 
 				{
-					User user = UserDirectoryService.getUserByEid(m.getUserId());
+					User user = eidToUserMap.get(m.getUserId());
+					if (user == null) {
+						throw new UserNotDefinedException(m.getUserId());
+					}
 					String userId = user.getId();
 					Member member = realm.getMember(userId);
 					
@@ -235,6 +249,49 @@ public class SiteParticipantHelper {
 					// warning message
 					M_log.warn("SiteParticipantHelper.addParticipantsFromMemberships: user not defined id = " + m.getUserId());
 				}
+			}
+		}
+	}
+	
+	/**
+	 * add participant from member list defined in realm
+	 * @param participantsMap
+	 * @param grants
+	 */
+	private static void addParticipantsFromMembers(Map<String, Participant> participantsMap, Set grants) {
+		// get all user info once
+		Map<String, User> eidToUserMap = getEidUserMapFromCollection(grants);
+		
+		for (Iterator<Member> i = grants.iterator(); i.hasNext();) {
+			Member g = (Member) i.next();
+			try {
+				User user = eidToUserMap.get(g.getUserEid());
+				if (user == null) {
+					throw new UserNotDefinedException(g.getUserEid());
+				}
+				String userId = user.getId();
+				if (!participantsMap.containsKey(userId))
+				{
+					Participant participant;
+					if (participantsMap.containsKey(userId))
+					{
+						participant = (Participant) participantsMap.get(userId);
+					}
+					else
+					{
+						participant = new Participant();
+					}
+					participant.name = user.getSortName();
+					participant.uniqname = userId;
+					participant.role = g.getRole()!=null?g.getRole().getId():"";
+					participant.removeable = true;
+					participant.active = g.isActive();
+					participantsMap.put(userId, participant);
+				}
+			} catch (UserNotDefinedException e) {
+				// deal with missing user quietly without throwing a
+				// warning message
+				M_log.warn("SiteParticipantHelper.prepareParticipants: user not defined "+ g.getUserEid());
 			}
 		}
 	}
@@ -304,12 +361,12 @@ public class SiteParticipantHelper {
 					{
 						// in case of Section eid
 						EnrollmentSet enrollmentSet = section.getEnrollmentSet();
-						SiteParticipantHelper.addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet, section.getTitle());
+						addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet, section.getTitle());
 						// add memberships
 						Set memberships = cms.getSectionMemberships(providerCourseEid);
 						if (memberships != null && memberships.size() > 0)
 						{
-							SiteParticipantHelper.addParticipantsFromMemberships(participantsMap, realm, memberships, section.getTitle());
+							addParticipantsFromMemberships(participantsMap, realm, memberships, section.getTitle());
 						}
 						
 						// now look or the not-included member from CourseOffering object
@@ -320,7 +377,7 @@ public class SiteParticipantHelper {
 							Set<Membership> coMemberships = cms.getCourseOfferingMemberships(section.getCourseOfferingEid());
 							if (coMemberships != null && coMemberships.size() > 0)
 							{
-								SiteParticipantHelper.addParticipantsFromMemberships(participantsMap, realm, coMemberships, co.getTitle());
+								addParticipantsFromMemberships(participantsMap, realm, coMemberships, co.getTitle());
 							}
 							
 							// now look or the not-included member from CourseSet object
@@ -336,7 +393,7 @@ public class SiteParticipantHelper {
 										Set<Membership> cSetMemberships = cms.getCourseSetMemberships(cSetEid);
 										if (cSetMemberships != null && cSetMemberships.size() > 0)
 										{
-											SiteParticipantHelper.addParticipantsFromMemberships(participantsMap, realm, cSetMemberships, cSet.getTitle());
+											addParticipantsFromMemberships(participantsMap, realm, cSetMemberships, cSet.getTitle());
 										}
 									}
 								}
@@ -353,34 +410,10 @@ public class SiteParticipantHelper {
 			
 			// now for those not provided users
 			Set<Member> grants = realm.getMembers();
-			for (Iterator<Member> i = grants.iterator(); i.hasNext();) {
-				Member g = (Member) i.next();
-				try {
-					User user = UserDirectoryService.getUserByEid(g.getUserEid());
-					String userId = user.getId();
-					if (!participantsMap.containsKey(userId))
-					{
-						Participant participant;
-						if (participantsMap.containsKey(userId))
-						{
-							participant = (Participant) participantsMap.get(userId);
-						}
-						else
-						{
-							participant = new Participant();
-						}
-						participant.name = user.getSortName();
-						participant.uniqname = userId;
-						participant.role = g.getRole()!=null?g.getRole().getId():"";
-						participant.removeable = true;
-						participant.active = g.isActive();
-						participantsMap.put(userId, participant);
-					}
-				} catch (UserNotDefinedException e) {
-					// deal with missing user quietly without throwing a
-					// warning message
-					M_log.warn("SiteParticipantHelper.prepareParticipants: user not defined "+ g.getUserEid());
-				}
+			if (grants != null && !grants.isEmpty())
+			{
+				// add participant from member defined in realm
+				addParticipantsFromMembers(participantsMap, grants);
 			}
 
 		} catch (GroupNotDefinedException ee) {
