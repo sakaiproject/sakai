@@ -40,6 +40,10 @@ import org.xml.sax.*;
 public class Query extends HttpTransactionQueryBase
 {
 	private static org.apache.commons.logging.Log	_log = LogUtils.getLog(Query.class);
+  /**
+   * DEBUG only: Display server response data?
+   */
+  public static final boolean DISPLAY_XML = true;
 	/**
 	 * Records displayed "per page"
 	 */
@@ -102,7 +106,7 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	public void parseRequest(Map parameterMap)
 	{
-		String action;
+		String action, searchCriteria;
 
 		super.parseRequest(parameterMap);
 		/*
@@ -125,12 +129,13 @@ public class Query extends HttpTransactionQueryBase
 			{
 				throw new IllegalArgumentException("Missing target list, username, or password");
 			}
-		}
-		/*
-		 * Now deal with the search criteria (CQL syntax)
-		 */
-		_museSearchString = parseCql(getRequestParameter("searchString"));
-	}
+  		/*
+  		 * Now deal with the search criteria (CQL syntax)
+  		 */
+      searchCriteria = parseCql(getRequestParameter("searchString"));
+  		getSessionContext().put("SEARCH_QUERY", searchCriteria);
+    }
+  }
 
 	/**
 	 * Search
@@ -154,29 +159,18 @@ public class Query extends HttpTransactionQueryBase
 		 */
 		setUrl(getRequestParameter("url"));
 		setSearchString(getSearchString());
-		
-		/*
-		 * Request additional results (pagination)?  Save the requested
-		 * pagesize and starting record
-		 */
-		action = getRequestParameter("action");
-		if (action.equalsIgnoreCase("requestRange"))
-		{
-			getSessionContext().putInt("startRecord", getIntegerRequestParameter("startRecord").intValue());
-			getSessionContext().putInt("pageSize", getIntegerRequestParameter("pageSize").intValue());
-		}
 		/*
 		 * New search?
 		 */
+		action = getRequestParameter("action");
 		if (action.equalsIgnoreCase("startSearch"))
 		{	/*
-		 * Initialize a new search context block
-		 */
+		   * Initialize a new search context block
+		   */
 			StatusUtils.initialize(getSessionContext(), getRequestParameter("targets"));
 			/*
 			 * LOGOFF any previous session
 			 */
-
 			doLogoffCommand();
 			submit();
 
@@ -205,7 +199,7 @@ public class Query extends HttpTransactionQueryBase
 
 			doSearchCommand();
 			submit();
-//			LogUtils.displayXml(_log, "Search Results", getResponseDocument());
+			LogUtils.displayXml(_log, "Search", getResponseDocument());
 			validateResponse("SEARCH");
 			/*
 			 * Pick up the current status
@@ -214,27 +208,33 @@ public class Query extends HttpTransactionQueryBase
 
 			doStatusCommand();
 			submit();
-			
+
 //			isStatusReadyToBeRead(getResponseDocument());
 
-			int sleepCount = 1;
-			
-			while (! isStatusReadyToBeRead(getResponseDocument()) && sleepCount < 7)
+			int sleepCount;
+		  boolean done;
+
+		  sleepCount = 0;
+		  done = setStatus(getResponseDocument(), getResponseDocument().getDocumentElement());
+
+//  	while (! isStatusReadyToBeRead(getResponseDocument()) && sleepCount < 5)
+      while (!done && (sleepCount < 5))
 			{
 				_log.info("Status is not ready to be read");
 				LogUtils.displayXml(_log, "Progress", getResponseDocument());
 
 				try
 				{
-					Thread.sleep(5000);
-					_log.info("sleeping for 5 seconds");
+					Thread.sleep(1000);
+					_log.debug("sleeping ...");
 				}
 				catch (InterruptedException ignore) { }
 
 				doStatusCommand();
 				submit();
-				
-				sleepCount++;				
+
+				sleepCount++;
+  		  done = setStatus(getResponseDocument(), getResponseDocument().getDocumentElement());
 			}
 
 			LogUtils.displayXml(_log, "Status", getResponseDocument());
@@ -243,7 +243,7 @@ public class Query extends HttpTransactionQueryBase
 			return;
 		}
 		/*
-		 * Request additional SEARCH results
+		 * Request additional results
 		 */
 		doResultsCommand();
 		LogUtils.displayXml(_log, "Results", getResponseDocument());
@@ -299,9 +299,7 @@ public class Query extends HttpTransactionQueryBase
 		/*
 		 * Set search criteria (use the search filter, if any is configured)
 		 */
-		searchFilter 		= SearchSource.getConfiguredParameter(_database, "searchFilter");
-		searchCriteria 	= (searchFilter == null) ? "" : (searchFilter + " ");
-		searchCriteria += getSearchString();
+		searchCriteria = getSearchString();
 		_log.debug("Search criteria: " + searchCriteria);
 
 		getSessionContext().put("SEARCH_QUERY", searchCriteria);
@@ -311,26 +309,34 @@ public class Query extends HttpTransactionQueryBase
 		targets       = getRequestParameter("targets");
 		targetParser  = new StringTokenizer(targets);
 		targetCount   = targetParser.countTokens();
-		_log.debug("Targets for " + _database + ", " + targetCount + " targets: " + targets);
 
 		pageSize = getIntegerRequestParameter("pageSize").toString();
 		_log.debug("Page size: " + pageSize);
 		/*
 		 * Generate the search command
 		 */
-		setParameter("action", "search");
-		setParameter("xml", "true");
+		setParameter("action",    "search");
+		setParameter("xml",       "true");
 		setParameter("sessionID", getSessionId());
 
 		setParameter("queryStatement", searchCriteria);
+
 		while (targetParser.hasMoreTokens())
 		{
-			setParameter("dbList", targetParser.nextToken());
-		}
+      String target  = targetParser.nextToken();
 
+		  setParameter("dbList", target);
+
+ 			_log.debug("SEARCH: added DB " + target);
+		}
+    /*
+     * Start an asynchronous query (no results are returned) to set things up
+     * for a subsequent PROGRESS (status) command
+     */
 		setParameter("start", "1");
-		setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
-		setParameter("limitsMaxPerPage", pageSize);
+		setParameter("firstRetrievedRecord", "0");
+		setParameter("limitsMaxPerSource", "100");
+		setParameter("limitsMaxPerPage", "0");
 
 		setParameter("recordFormat",    "raw.xsl");
 		setParameter("headerTemplate",  "xml/list-header.xml");
@@ -340,14 +346,12 @@ public class Query extends HttpTransactionQueryBase
 	}
 
 	/**
-	 * Generate a "get status" command
+	 * Generate a PROGRESS (status) command
 	 */
 	private void doStatusCommand() throws SearchException
 	{
-		String pageSize = getIntegerRequestParameter("pageSize").toString();
-
-		setParameter("action", "progress");
-		setParameter("xml", "true");
+		setParameter("action",  "progress");
+		setParameter("xml",     "true");
 
 		setParameter("sessionID", getSessionId());
 		setParameter("searchReferenceID", getReferenceId());
@@ -365,8 +369,10 @@ public class Query extends HttpTransactionQueryBase
 	{
 		Iterator	targetIterator;
 
+		_log.debug("Using result set name \"" + getResultSetName() + "\"");
+
 		setParameter("action", page);
-		setParameter("xml", "true");
+		setParameter("xml",   "true");
 
 		setParameter("sessionID", getSessionId());
 		setParameter("searchReferenceID", getReferenceId());
@@ -375,17 +381,27 @@ public class Query extends HttpTransactionQueryBase
 		targetIterator = StatusUtils.getStatusMapEntrySetIterator(getSessionContext());
 		while (targetIterator.hasNext())
 		{
-			Map.Entry entry = (Map.Entry) targetIterator.next();
+			Map.Entry entry   = (Map.Entry) targetIterator.next();
+      String    target  = (String) entry.getKey();
 
-			setParameter("dbList", (String) entry.getKey());
+		  Map       map     = StatusUtils.getStatusMapForTarget(getSessionContext(), target);
+		  String    status  = (String) map.get("STATUS");
+
+      if ("ACTIVE".equals(status))
+      {
+			  setParameter("dbList", target);
+
+				_log.debug("PAGE: added DB " + target);
+      }
 		}
 
+    _log.debug("PAGE: " + page + " page, first record: " + firstRecord);
+
+		setParameter("start", Integer.toString(firstRecord));
 		setParameter("firstRetrievedRecord", Integer.toString(firstRecord));
-		setParameter("totalRecords", RECORDS_PER_TARGET);
+		setParameter("totalRecords", Integer.toString(firstRecord - 1));
 		setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
 		setParameter("limitsMaxPerPage", (String) getSessionContext().get("pageSize"));
-
-		_log.debug(page + ": first=" + firstRecord + ", page=" + getSessionContext().get("pageSize"));
 
 		setParameter("recordFormat",    "raw.xsl");
 		setParameter("headerTemplate",  "xml/list-header.xml");
@@ -402,27 +418,44 @@ public class Query extends HttpTransactionQueryBase
 	{
 		Iterator targetIterator;
 
+		_log.debug("MORE: using result set name \"" + getResultSetName() + "\"");
+		_log.debug("MORE: queryStatement = " + getSearchString());
+
 		setParameter("action", "more");
+		setParameter("actionType", "SEARCH");
 		setParameter("xml", "true");
 
 		setParameter("sessionID", getSessionId());
 		setParameter("searchReferenceID", getReferenceId());
 		setParameter("resultSet", getResultSetName());
-		setParameter("append", "true");
 
 		setParameter("queryStatement", getSearchString());
-		_log.debug("MORE: queryStatement = " + getSearchString());
 
 		targetIterator = StatusUtils.getStatusMapEntrySetIterator(getSessionContext());
 		while (targetIterator.hasNext())
 		{
-			Map.Entry entry = (Map.Entry) targetIterator.next();
+			Map.Entry entry   = (Map.Entry) targetIterator.next();
+      String    target  = (String) entry.getKey();
 
-			setParameter("dbList", (String) entry.getKey());
-			_log.debug("MORE: added DB " + (String) entry.getKey());
+		  Map       map     = StatusUtils.getStatusMapForTarget(getSessionContext(), target);
+		  String    status  = (String) map.get("STATUS");
+
+      if ("ACTIVE".equals(status))
+      {
+			  setParameter("dbList", target);
+
+				_log.debug("MORE: added DB " + target);
+      }
 		}
 
-		setParameter("start", Integer.toString(firstRecord));
+    _log.debug("MORE: firstRetrievedRecord = " + firstRecord
+            +  ", totalRecords: " + (firstRecord - 1));
+
+/*
+ * Not necessary(?)
+ *		setParameter("start", Integer.toString(firstRecord));
+ */
+		setParameter("firstRetrievedRecord", Integer.toString(firstRecord));
 		setParameter("totalRecords", Integer.toString(firstRecord - 1));
 		setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
 		setParameter("limitsMaxPerPage", (String) getSessionContext().get("pageSize"));
@@ -439,28 +472,13 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	private void doResultsCommand() throws SearchException
 	{
-		String  page;
-		int			active, start, pageSize, perTarget;
-
-		active 		= getSessionContext().getInt("active");
-		start 		= getSessionContext().getInt("startRecord");
-		pageSize	= getSessionContext().getInt("pageSize");
-		perTarget = pageSize;
-		page      = "next"; // XXX (start == 1) ? "previous" : "next";
-
-		_museSearchString = (String) getSessionContext().get("SEARCH_QUERY");
-
-		_log.debug("doResults: start = " + start);
+		int start = getSessionContext().getInt("startRecord");
 
 		clearParameters();
 		doMoreCommand(start);
+
 		submit();
 		validateResponse("MORE");
-
-		clearParameters();
-		doPaginationCommand(page, start);
-		submit();
-		validateResponse(page.toUpperCase());
 	}
 
 	/**
@@ -514,12 +532,14 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	private void setResultSetName(String referenceId)
 	{
-		StringBuilder resultSetName = new StringBuilder("default");
+
+		StringBuilder resultSetName = new StringBuilder("sakaibrary-");
 
 		resultSetName.append(referenceId);
 		resultSetName.append(".xml");
 
 		getSessionContext().put("RESULT_SET_NAME", resultSetName.toString());
+		getSessionContext().put("RESULT_SET_NAME", referenceId);
 	}
 
 	/**
@@ -528,7 +548,11 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	public String getSearchString()
 	{
-		return _museSearchString;
+	  String searchCriteria = (String) getSessionContext().get("SEARCH_QUERY");
+
+    _log.debug("getSearchString(): criteria = " + searchCriteria);
+
+		return searchCriteria;
 	}
 
 	/**
@@ -549,6 +573,20 @@ public class Query extends HttpTransactionQueryBase
 		_log.debug("Processed Result: " + result);
 		return result;
 	}
+
+	/**
+	 * Display XML (write a Document or Element to the log)
+	 *
+	 * @param text Label text for this document
+	 * @param xmlObject XML Document or Element to display
+	 */
+	private void displayXml(String text, Object xmlObject)
+	{
+	  if (DISPLAY_XML)
+	  {
+	    LogUtils.displayXml(_log, text, xmlObject);
+    }
+  }
 
 	/**
 	 * Format the current reference id
@@ -794,51 +832,35 @@ public class Query extends HttpTransactionQueryBase
 
 			if (action.equals("SEARCH") || action.equals("MORE"))
 			{
-				String referenceId;
+			  Element searchElement;
+				String  id;
 
-				element     = DomUtils.getElement(element, "REFERENCE_ID");
-				referenceId = DomUtils.getText(element);
+        searchElement = element;
+				element = DomUtils.getElement(element, "REFERENCE_ID");
+				id = DomUtils.getText(element);
 
-				setReferenceId(referenceId);
-				_log.debug("Saved search reference ID \"" + referenceId + "\"");
+				setReferenceId(id);
+				_log.debug("Saved search reference ID \"" + getReferenceId() + "\"");
 
 				if (action.equals("SEARCH"))
 				{
-					setResultSetName(referenceId);
+  				element = DomUtils.getElement(searchElement, "RESULT_SET_NAME");
+	  			id = DomUtils.getText(element);
+
+					setResultSetName(id);
 					_log.debug("Saved result set name \"" + getResultSetName() + "\"");
 				}
-
 				return;
 			}
 
 			if (action.equals("PROGRESS"))
 			{
-				boolean complete = false;
-				int     count    = 0;
+//        setStatus(document, element);
 
-				complete = setStatus(document, element);
-
-				_log.debug("PROGRESS - Status = " + complete);
-
-/*				while (!complete)
-				{
-					try
-					{
-						Thread.sleep(count * 250);
-					}
-					catch (InterruptedException ignore) { }
-
-					complete = setStatus(document, element);
-
-					if (!complete)
-					{
-						complete = (++count == 10);
-					}
-
-				}
-*/
+        return;
 			}
 
+      _log.debug("Not implemented: " + action);
 			return;
 		}
 		/*
@@ -885,7 +907,6 @@ public class Query extends HttpTransactionQueryBase
 		/*
 		 * Set final status, abort
 		 */
-
 		StatusUtils.setGlobalError(getSessionContext(), errorText);
 		throw new SearchException(errorText);
 	}
@@ -949,7 +970,7 @@ public class Query extends HttpTransactionQueryBase
 		getSessionContext().putInt("active", active);
 	}
 
-	
+
 	private boolean isStatusReadyToBeRead(Document document)
 	{
 		NodeList	nodeList;
@@ -957,14 +978,14 @@ public class Query extends HttpTransactionQueryBase
 
 		Element rootElement;
 		Element	recordElement;
-		
+
 		String attributeResult;
-		
+
 		boolean status = false;
-		
-		
+
+
 		/* Response will look like:
-			
+
 		<PROGRESS>
 			<TOTAL_HITS>100</TOTAL_HITS>
 		  	<TOTAL_ESTIMATE>4449</TOTAL_ESTIMATE>
@@ -989,44 +1010,44 @@ public class Query extends HttpTransactionQueryBase
 			</ITEMS>
 		</PROGRESS>
 		*/
-		
+
 		rootElement = document.getDocumentElement();
-		
+
 		node = DomUtils.getElement(rootElement, "TOTAL_ESTIMATE");
-		
+
 		if (node == null)
 		{
 			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ total estimate = null");
 			return false;
 		}
-		
+/*
 		int total_estimate = Integer.parseInt(node.getTextContent());
-		
+
 		if (total_estimate > 0)
 		{
 			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ total estimate > 0");
 			return true;
 		}
+*/
 
-		
 		nodeList = DomUtils.getElementList(rootElement, "ENTRY");
-		
+
 		if (nodeList == null)
 		{
 			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ no items");
 			return false;
 		}
-		
+
 		for (int i = 0; i < nodeList.getLength(); i++)
 		{
 			recordElement	= (Element) nodeList.item(i);
-			
+
 			attributeResult = recordElement.getAttribute("key");
-			
+
 			if (attributeResult != null)
 			{
 				attributeResult = attributeResult.trim();
-				
+
 				if (attributeResult.equalsIgnoreCase("status"))
 				{
 					if (recordElement.getTextContent().trim().equals("100"))
@@ -1038,18 +1059,18 @@ public class Query extends HttpTransactionQueryBase
 					{
 						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ status != 100. status = " + recordElement.getTextContent());
 						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ key = " + attributeResult);
-						
+
 						return false;
 					}
 				} // end if attributeResult.length > 0
 			} // end if attributeResult != null
-			
-			
+
+
 		} // end for i
-		
+
 		return status;
 	}
-	
+
 	/**
 	 * Save the initial search status (estimated hits, etc.) as session context information
 	 * @param document Server response
@@ -1058,7 +1079,6 @@ public class Query extends HttpTransactionQueryBase
 	private boolean setStatus(Document document, Element rootElement) throws SearchException
 	{
 		NodeList	nodeList;
-		
 		int				active, total;
 		boolean   complete;
 
@@ -1070,7 +1090,7 @@ public class Query extends HttpTransactionQueryBase
 		/*
 		 * Update the status map for each target
 		 */
-		
+
 		for (int i = 0; i < nodeList.getLength(); i++)
 		{
 			Element		recordElement	= (Element) nodeList.item(i);
@@ -1078,65 +1098,61 @@ public class Query extends HttpTransactionQueryBase
 
 			String		text, target;
 			Element		element;
-			int			estimate;
-			
+			int			  estimate;
+
 			/*
 			 * Target (database)
 			 */
-			
 			element = DomUtils.selectFirstElementByAttributeValue (recordElement, "ENTRY", "key", "targetID");
 			target	= DomUtils.getText(element);
-			map 	= StatusUtils.getStatusMapForTarget(getSessionContext(), target);
-
+			map 	  = StatusUtils.getStatusMapForTarget(getSessionContext(), target);
 			/*
 			 * Percent complete
 			 */
-			
 			element = DomUtils.selectFirstElementByAttributeValue (recordElement, "ENTRY", "key", "status");
-			
+
 			if ((text	= DomUtils.getText(element)) == null)
 			{
 				text = "0";
 			}
-			
 			map.put("PERCENT_COMPLETE", text);
 			/*
 			 * Estimated match count
 			 */
-			
 			element = DomUtils.selectFirstElementByAttributeValue (recordElement, "ENTRY", "key", "estimate");
-			
+
 			if ((text	= DomUtils.getText(element)) == null)
 			{
 				text = "0";
 				complete = false;
 			}
-			
 			map.put("ESTIMATE", text);
 
 			estimate = Integer.parseInt(text);
 			total		+= estimate;
-			
 			/*
 			 * This search target is active only if there are records available
 			 */
-			
 			map.put("STATUS", "DONE");
-			
+
 			if (estimate > 0)
 			{
 				map.put("STATUS", "ACTIVE");
 				active++;
 			}
+			_log.debug("****** Target: "
+			        +  target
+			        +  ", status = "
+			        +  map.get("STATUS"));
 		}
-		
+
 		/*
 		 * Save in session context:
 		 *
 		 * -- The largest number of records we could possibly return
 		 * -- The count of "in progress" searches
 		 */
-		
+
 		getSessionContext().put("maxRecords", String.valueOf(total));
 		getSessionContext().putInt("active", active);
 
