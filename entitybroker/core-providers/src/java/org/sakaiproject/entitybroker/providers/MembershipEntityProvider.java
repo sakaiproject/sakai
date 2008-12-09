@@ -42,7 +42,6 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
@@ -53,8 +52,6 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.providers.model.EntityMember;
 import org.sakaiproject.entitybroker.providers.model.EntityUser;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-import org.sakaiproject.entitybroker.util.TemplateParseUtil;
-import org.sakaiproject.entitybroker.util.TemplateParseUtil.Template;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
@@ -62,12 +59,13 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 
+
 /**
  * This provides access to memberships as entities
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class MembershipEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, ActionsExecutable, EntityViewUrlCustomizable {
+public class MembershipEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, ActionsExecutable {
 
     private static Log log = LogFactory.getLog(MembershipEntityProvider.class);
 
@@ -688,18 +686,6 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         public SiteGroup(String locationReference) {
             this.locationReference = locationReference;
         }
-    }
-
-    public List<Template> getParseTemplates() {
-        // SHOW and LIST use the standard GET URL, albeit with special query strings.
-        // For EDIT, DELETE, and NEW, we insist on the HTTP methods rather than the workaround
-        // URL suffixes.
-        String defaultShowTemplateString = TemplateParseUtil.getDefaultTemplate(TemplateParseUtil.TEMPLATE_SHOW);
-        List<Template> templates = new ArrayList<Template>();
-        templates.add(new Template(TemplateParseUtil.TEMPLATE_EDIT, defaultShowTemplateString));
-        templates.add(new Template(TemplateParseUtil.TEMPLATE_DELETE, defaultShowTemplateString));
-        templates.add(new Template(TemplateParseUtil.TEMPLATE_NEW, defaultShowTemplateString));
-        return templates;
     }
 
 }
