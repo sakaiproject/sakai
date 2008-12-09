@@ -34,6 +34,7 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -42,6 +43,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.providers.model.EntitySite;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil.Template;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -58,7 +60,7 @@ import org.sakaiproject.site.api.SiteService.SortType;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class SiteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, 
-        RESTful, ActionsExecutable, Redirectable {
+        RESTful, ActionsExecutable, Redirectable, EntityViewUrlCustomizable {
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {
@@ -444,6 +446,13 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             throw new IllegalArgumentException("Cannot find site by siteId: " + siteId, e);
         }
         return site;
+    }
+
+    public List<Template> getParseTemplates() {
+        // SHOW and LIST use the standard GET URL, albeit with special query strings.
+        // For EDIT, DELETE, and NEW, we insist on the HTTP methods rather than the workaround
+        // URL suffixes.
+        return TemplateParseUtil.httpMethodOnlyTemplates;
     }
 
 }

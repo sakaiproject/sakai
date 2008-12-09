@@ -694,12 +694,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         // SHOW and LIST use the standard GET URL, albeit with special query strings.
         // For EDIT, DELETE, and NEW, we insist on the HTTP methods rather than the workaround
         // URL suffixes.
-        String defaultShowTemplateString = TemplateParseUtil.getDefaultTemplate(TemplateParseUtil.TEMPLATE_SHOW);
-        List<Template> templates = new ArrayList<Template>();
-        templates.add(new Template(TemplateParseUtil.TEMPLATE_EDIT, defaultShowTemplateString));
-        templates.add(new Template(TemplateParseUtil.TEMPLATE_DELETE, defaultShowTemplateString));
-        templates.add(new Template(TemplateParseUtil.TEMPLATE_NEW, defaultShowTemplateString));
-        return templates;
+        return TemplateParseUtil.httpMethodOnlyTemplates;
     }
 
 }

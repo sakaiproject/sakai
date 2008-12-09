@@ -154,6 +154,22 @@ public class TemplateParseUtil {
 
       defaultPreprocessedTemplates = preprocessTemplates(defaultTemplates);
    }
+   
+   /**
+    * Store default template set for entity processors which rely only on the HTTP
+    * method (or the equivalent "_method=METHOD_NAME" POST parameter) to decide which
+    * action to take, rather than also supporting URL-embedded keys.
+    */
+   public static List<Template> httpMethodOnlyTemplates;
+   static {
+       httpMethodOnlyTemplates = new ArrayList<Template>();
+       // this load order should match the array above
+       httpMethodOnlyTemplates.add( new Template(TEMPLATE_EDIT, TEMPLATE_PREFIX + SEPARATOR + "{"+ID+"}") );
+       httpMethodOnlyTemplates.add( new Template(TEMPLATE_DELETE, TEMPLATE_PREFIX + SEPARATOR + "{"+ID+"}") );
+       httpMethodOnlyTemplates.add( new Template(TEMPLATE_NEW,  TEMPLATE_PREFIX) );
+       httpMethodOnlyTemplates.add( new Template(TEMPLATE_SHOW, TEMPLATE_PREFIX + SEPARATOR + "{"+ID+"}") );
+       httpMethodOnlyTemplates.add( new Template(TEMPLATE_LIST, TEMPLATE_PREFIX) );
+   }
 
    /**
     * Check if a templateKey is valid, if not then throws {@link IllegalArgumentException}
