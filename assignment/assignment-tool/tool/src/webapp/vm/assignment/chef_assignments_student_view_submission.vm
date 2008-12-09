@@ -127,6 +127,28 @@
 						$!assignment.getDueTime().toStringLocalFull()
 					</td>
 				</tr>
+				##resubmit number
+				#if($!resubmitNumber)
+					<tr>
+						<th>
+							$tlang.getString("allow.resubmit.number")
+						</th>
+						<td>
+							$resubmitNumber
+						</td>
+					</tr>
+				#end
+				## resubmit close time
+				#if ($!resubmitCloseTime)
+					<tr>
+						<th>
+							$tlang.getString("allow.resubmit.closeTime")
+						</th>
+						<td>
+							$resubmitCloseTime
+						</td>
+					</tr>
+				#end
 				## no need to show status if this is for an non-electronic submission type of assignment
 					#if (!$!nonElectronicType)
 				<tr>
@@ -440,11 +462,7 @@
 						</ul>
 					#end	 
 					<p class="act">
-							##if the submission has not been submitted or has been returned and not yet resubmitted
-							#if (!$submitted || ($submitted && !$timeSubmitted) || ($returned && $!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted)))
-								#if ($!closeTime)
-									## there is close date. Can only submit before the close date
-									#if ($currentTime.before($!closeTime))
+							#if ($!canSubmit)
 										<input
 											class="disableme" 
 											type="button" 
@@ -459,23 +477,6 @@
 											onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
 										/>
 									#end
-								#else
-									## there is no close date. Still can submit after due date
-									<input
-										class="disableme" 
-										type="button" 
-										name="attach" 
-										id="attach"
-										#if ($size==0) 
-											value="$tlang.getString("gen.addatt")"
-										#else
-											value="$tlang.getString("gen.adddroatt2")"
-										#end
-										accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
-										onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-									/>										
-								#end
-							#end
 					</p>
 				#end
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))

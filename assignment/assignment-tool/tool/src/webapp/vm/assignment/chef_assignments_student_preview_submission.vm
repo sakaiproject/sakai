@@ -22,6 +22,28 @@
 				$!assignment.getDueTime().toStringLocalFull()
 			</td>
 		</tr>
+		##resubmit number
+		#if($!resubmitNumber)
+			<tr>
+				<th>
+					$tlang.getString("allow.resubmit.number")
+				</th>
+				<td>
+					$resubmitNumber
+				</td>
+			</tr>
+		#end
+		## resubmit close time
+		#if ($!resubmitCloseTime)
+			<tr>
+				<th>
+					$tlang.getString("allow.resubmit.closeTime")
+				</th>
+				<td>
+					$resubmitCloseTime
+				</td>
+			</tr>
+		#end
 		#if ($withGrade)	
 			<tr>
 				<th>

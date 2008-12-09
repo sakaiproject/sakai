@@ -981,6 +981,9 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					context.put("prevFeedbackAttachments", getPrevFeedbackAttachments(p));
 				}
+				
+				// put the resubmit information into context
+				putResubmitInfoInContext(context, assignment, s);
 			}
 			
 			// can the student view model answer or not
@@ -1030,6 +1033,62 @@ public class AssignmentAction extends PagedResourceActionII
 		return template + TEMPLATE_STUDENT_VIEW_SUBMISSION;
 
 	} // build_student_view_submission_context
+
+	/**
+	 * put the related resubmit information into context
+	 * @param context
+	 * @param s
+	 */
+	private void putResubmitInfoInContext(Context context, Assignment a, AssignmentSubmission s) {
+		// number of times for resubmitting
+		// default to assignment level setting first
+		String dResubmitNumberString = a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+		if (dResubmitNumberString == null)
+		{
+			dResubmitNumberString = "0";
+		}
+		if (s != null)
+		{
+			String resubmitNumberString = s.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+			if ( resubmitNumberString != null && !resubmitNumberString.equals(dResubmitNumberString))
+			{
+				// override by submission level setting
+				dResubmitNumberString = resubmitNumberString;
+			}
+		}
+		// convert and put into context
+		if (dResubmitNumberString.equals("-1"))
+		{
+			dResubmitNumberString = rb.getString("allow.resubmit.number.unlimited");
+		}
+		context.put("resubmitNumber", dResubmitNumberString);
+		
+		// resubmit close time
+		// default to assignment level setting first
+		Time dCloseTime = a.getCloseTime();
+		if (s != null)
+		{
+			String resubmitCloseTime = s.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+			if ( resubmitCloseTime != null)
+			{
+				try
+				{
+					Time closeTime = TimeService.newTime(Long.parseLong(resubmitCloseTime));
+					if (!closeTime.equals(dCloseTime))
+					{
+						// override by submission level setting
+						dCloseTime = closeTime;
+					}
+				}
+				catch (Exception parseException)
+				{
+					M_log.warn(this + ":putResubmitInoInContext exception in parsing close time" + resubmitCloseTime + parseException.getMessage());
+				}
+			}
+		}
+		// put into context
+		context.put("resubmitCloseTime", dCloseTime.toStringLocalFull());
+	}
 
 	/**
 	 * build the student view of showing an assignment submission confirmation
@@ -1123,6 +1182,9 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, submission);
+			
+			// put resubmit information into context
+			putResubmitInfoInContext(context, assignment, submission);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1174,6 +1236,9 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, submission);
+			
+			// put the resubmit information into context
+			putResubmitInfoInContext(context, assignment, submission);
 		}
 		catch (IdUnusedException e)
 		{
@@ -2598,6 +2663,9 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			assignment = AssignmentService.getAssignment((String) state.getAttribute(VIEW_ASSIGNMENT_ID));
 			context.put("assignment", assignment);
+			
+			// put the resubmit information into context
+			putResubmitInfoInContext(context, assignment, null);
 			
 			// the creator 
 			String creatorId = assignment.getCreator();
