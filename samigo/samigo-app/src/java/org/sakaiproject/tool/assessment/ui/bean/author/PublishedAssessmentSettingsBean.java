@@ -194,6 +194,8 @@ public class PublishedAssessmentSettingsBean
   
   private boolean isMarkForReview;
   private List attachmentList;
+  private boolean editPubAnonyGradingRestricted = false;
+  
   /*
    * Creates a new AssessmentBean object.
    */
@@ -1491,6 +1493,14 @@ public class PublishedAssessmentSettingsBean
 			}
 		}
 		return list;
+	}
+	
+	public void setEditPubAnonyGradingRestricted(boolean editPubAnonyGradingRestricted) {
+		this.editPubAnonyGradingRestricted = editPubAnonyGradingRestricted;
+	}
+
+	public boolean getEditPubAnonyGradingRestricted(){
+	    return this.editPubAnonyGradingRestricted;
 	}
 }
 

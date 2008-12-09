@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * <p>Title: Samigo</p>
@@ -120,6 +121,14 @@ public class EditPublishedSettingsListener
 	boolean isRetractedForEdit = isRetractedForEdit(assessment);
 	log.debug("isRetractedForEdit = " + isRetractedForEdit);
 	author.setIsRetractedForEdit(isRetractedForEdit);
+	
+	String editPubAnonyGradingRestricted = ServerConfigurationService.getString("samigo.editPubAnonyGrading.restricted");
+    if (editPubAnonyGradingRestricted != null && editPubAnonyGradingRestricted.equals("true")) {
+    	assessmentSettings.setEditPubAnonyGradingRestricted(true);
+    }
+    else {
+    	assessmentSettings.setEditPubAnonyGradingRestricted(false);
+    }
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){

@@ -758,7 +758,7 @@ function checkUncheckTimeBox(){
   <h:panelGroup rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true}"> <f:verbatim> <div class="longtext"></f:verbatim>  <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" />
   <f:verbatim></div><div class="tier3"> </f:verbatim>
         <h:panelGrid columns="2"  >
-          <h:selectOneRadio id="anonymousGrading" value="#{publishedSettings.anonymousGrading}"  layout="pageDirection">
+          <h:selectOneRadio id="anonymousGrading" value="#{publishedSettings.anonymousGrading}"  layout="pageDirection" disabled="#{publishedSettings.editPubAnonyGradingRestricted}">
             <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.not_anonymous}"/>
             <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.anonymous}"/>
           </h:selectOneRadio>
