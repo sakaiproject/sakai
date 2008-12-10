@@ -27,18 +27,22 @@ import org.sakaiproject.util.ResourceLoader;
 public class SiteStatsApplication extends WebApplication {
 	
 	private SakaiFacade	facade;
+	private boolean		debug	= false;
 
 	protected void init() {
 		super.init();
+		
+		// Application debug
+		debug = ServerConfigurationService.getBoolean("sitestats.debug", false);
 
 		// Configure general wicket application settings
 		addComponentInstantiationListener(new SpringComponentInjector(this));
 		getResourceSettings().setThrowExceptionOnMissingResource(true);
 		getMarkupSettings().setStripWicketTags(true);
-		getDebugSettings().setAjaxDebugModeEnabled(ServerConfigurationService.getBoolean("sitestats.ajaxDebugEnabled", false));
 		getResourceSettings().addStringResourceLoader(new SiteStatsStringResourceLoader());
 		getResourceSettings().addResourceFolder("html");
 		getResourceSettings().setResourceStreamLocator(new SiteStatsResourceStreamLocator());
+		getDebugSettings().setAjaxDebugModeEnabled(debug);
 
 		// Home page
 		mountBookmarkablePage("/home", OverviewPage.class);
@@ -74,13 +78,17 @@ public class SiteStatsApplication extends WebApplication {
 	}
 	@Override
 	public RequestCycle newRequestCycle(Request request, Response response) {
-		return new WebRequestCycle(this, (WebRequest)request, (WebResponse)response) {
-			@Override
-			public Page onRuntimeException(Page page, RuntimeException e) {
-				// Let Sakai ErrorReportHandler (BugReport) handle errors
-				throw e;
-			}
-		};
+		if(!debug) {
+			return new WebRequestCycle(this, (WebRequest)request, (WebResponse)response) {
+				@Override
+				public Page onRuntimeException(Page page, RuntimeException e) {
+					// Let Sakai ErrorReportHandler (BugReport) handle errors
+					throw e;
+				}
+			};
+		}else{
+			return super.newRequestCycle(request, response);
+		}
 	}
 
 	/**
