@@ -106,7 +106,11 @@ public class EventSummary implements Serializable {
 	}
 
 	public void setDescription(String description) {
-		this.description = description;
+		if(description != null) {
+			this.description = description.trim();
+		}else{
+			this.description = null;
+		}
 	}
 
 	public boolean getHasLocation() {
