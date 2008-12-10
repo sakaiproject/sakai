@@ -99,7 +99,8 @@ public class Response extends SearchResultBase
 	/**
 	 * Parse the response
 	 */
-	public void doParse() {
+	public void doParse()
+	{
 		Document responseDocument = getSearchResponseDocument();
 		Element resultElement;
 		NodeList recordList;
@@ -109,6 +110,16 @@ public class Response extends SearchResultBase
 		 */
 		resultElement = responseDocument.getDocumentElement();
 		recordList = DomUtils.getElementList(resultElement, "RECORD");
+
+    if (recordList.getLength() == 0)
+    {
+      String errorText = "Unexpected response document format";
+
+			LogUtils.displayXml(_log, errorText, responseDocument);
+
+			StatusUtils.setGlobalError(sessionContext, errorText);
+			throw new SearchException(errorText);
+    }
 
 		for (int i = 0; i < recordList.getLength(); i++)
 		{
@@ -121,49 +132,10 @@ public class Response extends SearchResultBase
 			String content;
 
 			/*
-			 * Skip status RECORD elements (these don't exisit with MusePeer???)
-			 */
-			recordElement = (Element) recordList.item(i);// gets the record
-			// number(1-10)
-			recordType = recordElement.getAttribute("type");
-
-			if (!StringUtils.isNull(recordType)) {
-				/*
-				 * Error?
-				 */
-				if (recordType.equalsIgnoreCase("error")) {
-					Element element;
-					String status, text;
-
-					status = recordElement.getAttribute("status");
-					element = DomUtils.getElement(recordElement, "DATA");
-					text = DomUtils.getText(element);
-
-					if (StringUtils.isNull(status)) {
-						status = "<unknown>";
-					}
-
-					if (text == null) {
-						text = "";
-					}
-
-					StatusUtils.setGlobalError(sessionContext, status, text);
-
-					_log.error("Error RECORD found");
-					displayXml(recordElement);
-
-					throw new SearchException(status);
-				}
-				/*
-				 * Not an error, just note it and ignore
-				 */
-				_log.debug("Skipping RECORD with non-null TYPE \"" + recordType
-						+ "\"");
-				continue;
-			}
-			/*
 			 * Pick up the database name & related information
 			 */
+			recordElement = (Element) recordList.item(i);
+
 			hit = recordElement.getAttribute("hit");
 			target = recordElement.getAttribute("sourceID");
 			database = recordElement.getAttribute("source");
