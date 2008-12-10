@@ -15,6 +15,8 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
 import org.apache.wicket.session.ISessionStore;
+import org.apache.wicket.settings.IExceptionSettings;
+import org.apache.wicket.settings.IExceptionSettings.UnexpectedExceptionDisplay;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.locator.ResourceStreamLocator;
@@ -31,9 +33,6 @@ public class SiteStatsApplication extends WebApplication {
 
 	protected void init() {
 		super.init();
-		
-		// Application debug
-		debug = ServerConfigurationService.getBoolean("sitestats.debug", false);
 
 		// Configure general wicket application settings
 		addComponentInstantiationListener(new SpringComponentInjector(this));
@@ -50,6 +49,20 @@ public class SiteStatsApplication extends WebApplication {
 		// On wicket session timeout, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(OverviewPage.class);
 		getApplicationSettings().setAccessDeniedPage(OverviewPage.class);
+
+		// Debugging
+		debug = ServerConfigurationService.getBoolean("sitestats.debug", false);
+		if(debug) {
+			getDebugSettings().setComponentUseCheck(true);
+			getDebugSettings().setAjaxDebugModeEnabled(true);
+		    getDebugSettings().setLinePreciseReportingOnAddComponentEnabled(true);
+		    getDebugSettings().setLinePreciseReportingOnNewComponentEnabled(true);
+		    getDebugSettings().setOutputComponentPath(true);
+		    getDebugSettings().setOutputMarkupContainerClassName(true);
+		    getMarkupSettings().setStripWicketTags(false);
+			getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_EXCEPTION_PAGE);
+
+		}
 	}
 
 	@SuppressWarnings("unchecked")
