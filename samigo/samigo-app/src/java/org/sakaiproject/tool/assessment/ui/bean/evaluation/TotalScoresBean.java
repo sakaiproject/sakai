@@ -790,7 +790,7 @@ public class TotalScoresBean
     				&& "true".equalsIgnoreCase(anonymous)) 
 	    	|| (calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous))
-    		|| (calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER 
+    		|| (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous)) 
     ) {
         enrollments = getAvailableEnrollments();
