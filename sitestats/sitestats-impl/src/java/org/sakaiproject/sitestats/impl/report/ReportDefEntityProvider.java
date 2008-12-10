@@ -20,11 +20,11 @@ import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 
 public class ReportDefEntityProvider implements AutoRegisterEntityProvider, CoreEntityProvider, Resolvable /*, Importable, Exportable*/ {
 	private Log						LOG								= LogFactory.getLog(ReportDefEntityProvider.class);
-	public static String			PREFIX							= "sitestats-report";
-	public static String			LABEL							= "SiteStatsReport";
-	public static String 			REFERENCE_ROOT 					= "/" + PREFIX;
-	public static String			IMPORTEXPORT_CURRENT_VERSION	= "1.0";
-	public static String			IMPORTEXPORT_DEFAULT_ENCODING	= "UTF-8";
+	public static final String		PREFIX							= "sitestats-report";
+	public static final String		LABEL							= "SiteStatsReport";
+	public static final String 		REFERENCE_ROOT 					= "/" + PREFIX;
+	public static final String		IMPORTEXPORT_CURRENT_VERSION	= "1.0";
+	public static final String		IMPORTEXPORT_DEFAULT_ENCODING	= "UTF-8";
 	private ReportManager			M_rm;
 	private DeveloperHelperService	M_dhs;	
 	
@@ -83,7 +83,7 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Core
 		LOG.info("importData(): reference="+reference+", encodingKey="+encodingKey+", params="+params);
 		String[] imported = new String[0];
 		if(M_dhs.entityExists(reference)) {
-			String srcSiteId = M_dhs.getLocationIdFromRef(reference);
+			//String srcSiteId = M_dhs.getLocationIdFromRef(reference);
 			String[] importInfo = encodingKey.split("\\|");
 			try{
 				byte[] bytes = new byte[data.available()];
@@ -109,7 +109,7 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Core
 	public String exportData(String reference, Search search, OutputStream data, boolean destructive, Map<String, Object> params) {
 		LOG.info("exportData(): reference="+reference+", destructive="+destructive);
 		if(M_dhs.entityExists(reference)) {
-			String destSiteId = M_dhs.getLocationIdFromRef(reference);
+			//String destSiteId = M_dhs.getLocationIdFromRef(reference);
 			String exportInfo = IMPORTEXPORT_DEFAULT_ENCODING + "|" + IMPORTEXPORT_CURRENT_VERSION;
 			List<ReportDef> list = M_rm.getReportDefinitions(M_dhs.getCurrentLocationId(), false, true);
 			if(list != null && !list.isEmpty()) {

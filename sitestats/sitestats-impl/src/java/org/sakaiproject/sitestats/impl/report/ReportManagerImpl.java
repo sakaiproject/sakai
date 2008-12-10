@@ -36,6 +36,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -408,12 +409,17 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		}
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Transaction tx = null;
 				try{
+					tx = session.beginTransaction();
 					session.saveOrUpdate(reportDef);
-				}catch(Exception e) {
-					return false;
+					tx.commit();
+				}catch(Exception e){
+					if(tx != null) tx.rollback();
+					LOG.warn("Unable to commit transaction: ", e);
+					return Boolean.FALSE;
 				}
-				return true;
+				return Boolean.TRUE;
 			}
 		};
 		return (Boolean) getHibernateTemplate().execute(hcb);
@@ -422,14 +428,23 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#removeReportDefinition(org.sakaiproject.sitestats.api.report.ReportDef)
 	 */
-	public void removeReportDefinition(final ReportDef reportDef) {
+	public boolean removeReportDefinition(final ReportDef reportDef) {
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				session.delete(reportDef);
-				return null;
+				Transaction tx = null;
+				try{
+					tx = session.beginTransaction();
+					session.delete(reportDef);
+					tx.commit();
+				}catch(Exception e){
+					if(tx != null) tx.rollback();
+					LOG.warn("Unable to commit transaction: ", e);
+					return Boolean.FALSE;
+				}
+				return Boolean.TRUE;
 			}
 		};
-		getHibernateTemplate().execute(hcb);
+		return (Boolean) getHibernateTemplate().execute(hcb);
 	}
 	
 	/* (non-Javadoc)
@@ -649,6 +664,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	    				}
 	    			}
 	    		}else{
+    				userEid = "-";
 	    			userName = msgs.getString("user_unknown");
 	    		}
 				appendQuoted(sb, userEid);
@@ -875,7 +891,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		return null;
 	}
 	
-	private class ReportProcessedParams {
+	private static class ReportProcessedParams {
 		public String			siteId;
 		public List<String>		events;
 		public List<String>		anonymousEvents;
