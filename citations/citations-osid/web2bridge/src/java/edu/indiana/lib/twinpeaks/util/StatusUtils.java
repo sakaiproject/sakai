@@ -49,6 +49,9 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 
 		sessionContext.put("STATUS", "INACTIVE");
 		sessionContext.put("STATUS_MESSAGE", "<none>");
+
+		sessionContext.putInt("TOTAL_ESTIMATE", 0);
+		sessionContext.putInt("TOTAL_HITS", 0);
 	}
 
 	/**
@@ -179,7 +182,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 	{
 		Map				targetMap;
 		String		hits;
-		int				total, estimate;
+		int				total, totalHits, estimate;
 
 		if (StringUtils.isNull(target))
 		{
@@ -197,6 +200,9 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 		hits 	= (String) targetMap.get("HITS");
 		total = Integer.parseInt(hits) + 1;
 		targetMap.put("HITS", String.valueOf(total));
+
+    totalHits = sessionContext.getInt("TOTAL_HITS") + 1;
+		sessionContext.putInt("TOTAL_HITS", totalHits);
 		/*
 		 * Have we collected all available results?
 		 */
@@ -243,5 +249,29 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 
 		estimate = (String) targetMap.get("ESTIMATE");
 		return Integer.parseInt(estimate);
+	}
+
+	/**
+	 * Fetch the number of remaining hits (all targets)
+	 * @param sessionContext Active SessionContext
+	 * @return Remaining hits
+	 */
+	public static int getAllRemainingHits(SessionContext sessionContext)
+	{
+		int estimate  = sessionContext.getInt("TOTAL_ESTIMATE");
+		int hits      = sessionContext.getInt("TOTAL_HITS");
+		int remaining = estimate - hits;
+
+		return (remaining > 0) ? remaining : 0;
+	}
+
+	/**
+	 * Fetch the number of active (searching) targets
+	 * @param sessionContext Active SessionContext
+	 * @return Count of active targets
+	 */
+	public static int getActiveTargetCount(SessionContext sessionContext)
+	{
+		return sessionContext.getInt("active");
 	}
 }
