@@ -421,11 +421,22 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         String[] userIds = checkForBatch(params, userId);
         // now add all the memberships
         String memberId = "";
+        String currentUserId = developerHelperService.getCurrentUserId();
         for (int i = 0; i < userIds.length; i++) {
             if (sg.group == null) {
                 // site only
-                sg.site.addMember(userIds[i], roleId, active, false);
-                saveSiteMembership(sg.site);
+                if (userIds[i].equals(currentUserId) && sg.site.isJoinable()) {
+                    try {
+                        siteService.join(sg.site.getId());
+                    } catch (IdUnusedException e) {
+                        throw new IllegalArgumentException("Invalid site: " + sg.site.getId() + ":" + e.getMessage(), e);
+                    } catch (PermissionException e) {
+                        throw new SecurityException("Current user not allowed to join site: " + sg.site.getId() + ":" + e.getMessage(), e);
+                    }
+                } else {
+                    sg.site.addMember(userIds[i], roleId, active, false);
+                    saveSiteMembership(sg.site);
+                }
             } else {
                 // group and site
                 sg.group.addMember(userIds[i], roleId, active, false);
