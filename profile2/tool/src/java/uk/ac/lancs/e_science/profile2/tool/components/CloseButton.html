@@ -8,19 +8,19 @@
 <body>
 <wicket:panel>
 
-<script type="text/css">
-.closeButton {
-	float:right;
-	clear: none;
-	text-align: right;
-}
-.closeButton:hover {
-	background-color: #ffcccc;
-}
-</script>
+<style type="text/css">
+	.sakai-wicket-closebutton {
+		float: right;
+		clear: none;
+		text-align: right;
+	}
+	.sakai-wicket-closebutton:hover {
+		background-color: #ffcccc;
+	}
+</style>
 	
-<div class="closeButton" wicket:id="closeButton">
-	<img class="closeButton" src="" wicket:id="img"/>
+<div class="sakai-wicket-closebutton" wicket:id="closeButton">
+	<a href="" wicket:id="link"><img wicket:id="img"/></a>
 </div>
 
 </wicket:panel>

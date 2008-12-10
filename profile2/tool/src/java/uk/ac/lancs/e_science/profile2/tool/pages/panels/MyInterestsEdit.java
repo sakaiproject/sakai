@@ -82,6 +82,8 @@ public class MyInterestsEdit extends Panel {
 					thisPanel.replaceWith(newPanel);
 					if(target != null) {
 						target.addComponent(newPanel);
+						//resize iframe
+						target.appendJavascript("setMainFrameHeight(window.name);");
 					}
 				
 				} else {
@@ -102,6 +104,9 @@ public class MyInterestsEdit extends Panel {
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
 					target.addComponent(newPanel);
+					//resize iframe
+					target.appendJavascript("setMainFrameHeight(window.name);");
+					//need a scrollTo action here, to scroll down the page to the section
 				}
             	
             }

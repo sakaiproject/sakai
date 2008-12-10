@@ -5,6 +5,7 @@ import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -26,6 +27,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	protected transient SakaiProxy sakaiProxy;
 	protected transient Profile profile;
+	
+	private static final String RSS_IMG = "/library/image/feed.png";
 
 	
 	public BasePage() {
@@ -64,7 +67,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		
 		
-		
 		//messages link
     	Link myMessagesLink = new Link("myMessagesLink") {
 			public void onClick() {
@@ -83,7 +85,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		}
 		
 		add(myMessagesLink);
-		
+		myMessagesLink.setVisible(false);
+
 		
 		//photos link
     	Link myPhotosLink = new Link("myPhotosLink") {
@@ -93,7 +96,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myPhotosLink.add(new Label("myPhotosLabel",new ResourceModel("link.my.photos")));
 		add(myPhotosLink);
-		
+		myPhotosLink.setVisible(false);
+
 	
 		//privacy link
     	Link myPrivacyLink = new Link("myPrivacyLink") {
@@ -105,22 +109,17 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(myPrivacyLink);
 		
 	
-		//test data link
-		Link testDataLink = new Link("testDataLink") {
-			public void onClick() {
-				setResponsePage(new TestData());
-			}
-		};
-		testDataLink.add(new Label("testDataLabel",new ResourceModel("link.test")));
-		add(testDataLink);
-		
-		
+				
 		//rss link
+		ContextImage icon = new ContextImage("icon",new Model(RSS_IMG));
+	
 		Link rssLink = new Link("rssLink") {
 			public void onClick() {
 				//setResponsePage(new TestData());
 			}
 		};
+		rssLink.add(icon);
+		icon.setVisible(false);
 		add(rssLink);
 		
     }

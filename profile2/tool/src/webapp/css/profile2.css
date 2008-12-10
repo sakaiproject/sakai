@@ -10,6 +10,7 @@
 	margin-left:215px;
 	margin-right:215px;
 	padding:8px;
+	width: 500px;
 }
 
 #rightPanel {
@@ -42,16 +43,8 @@
 	max-width: 200px;
 }
 
-#rssLink {
-	background-color: transparent;
-	background-image: url(/library/image/feed.png);
-	background-repeat:no-repeat;
-	background-attachment: scroll;
-	background-position: center center;
-	float:right;
-	width: 16px;
-	height: 16px;
-}
+
+
 
 .editImageButton {
 	position:absolute;
@@ -218,6 +211,7 @@
 /* mainSection styles */
 .mainSection {
 	margin-top: 10px;
+	display: block;
 }
 
 
@@ -233,8 +227,14 @@
 
 .mainSectionContent {
 	padding-top: 5px;
+	width: 420px;
+	
 }
 
+.mainSectionContentForm {
+	padding-top: 5px;
+	width: 500px;
+}
 
 
 
@@ -256,7 +256,7 @@
 
 .profileContent .content {
 	padding-left: 2px;
-	padding-right: 40px;
+	/*padding-right: 40px;*/
 	
 }
 
@@ -309,22 +309,22 @@
 }
 
 
-/* friends quicklist panel */
-#friendsQuickList {
+/* friends feed styles */
+#friendsFeed {
 	}
 	
-.friendsQuickListItem {
+.friendsFeedItem {
 	vertical-align: top;
 	width: 60px;
 	max-width: 60px;
 	overflow: hidden;
 	}
 	
-.friendsQuickListItem img {
+.friendsFeedItem img {
 	max-width: 50px;
 }
 
-.friendsQuickListItemCaption {
+.friendsFeedItemCaption {
 	margin-top: 0;
 	font-size: 60%;
 	text-align: left;

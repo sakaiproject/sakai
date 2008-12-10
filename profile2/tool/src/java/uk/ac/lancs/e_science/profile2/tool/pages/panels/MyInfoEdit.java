@@ -73,6 +73,8 @@ public class MyInfoEdit extends Panel {
 					thisPanel.replaceWith(newPanel);
 					if(target != null) {
 						target.addComponent(newPanel);
+						//resize iframe
+						target.appendJavascript("setMainFrameHeight(window.name);");
 					}
 				
 				} else {
@@ -95,6 +97,8 @@ public class MyInfoEdit extends Panel {
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
 					target.addComponent(newPanel);
+					//resize iframe
+					target.appendJavascript("setMainFrameHeight(window.name);");
 				}
             	
             }

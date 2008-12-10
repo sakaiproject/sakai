@@ -18,12 +18,11 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import uk.ac.lancs.e_science.profile2.api.ProfileException;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsQuickList;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInterestsDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.SitesQuickList;
 
 
 public class MyProfile extends BasePage {
@@ -130,10 +129,12 @@ public class MyProfile extends BasePage {
 				
 				//add the full changePicture component to the page dynamically
 				target.addComponent(changePicture);
-				String js2 = "$('#" + changePicture.getMarkupId() + "').fadeIn();"; //this isn't firing in the right order
-				target.appendJavascript(js2);
+				String js1 = "$('#" + changePicture.getMarkupId() + "').fadeIn();"; //this isn't firing in the right order
+				target.appendJavascript(js1);
 				changePicture.setVisible(true);
-
+				
+				//resize iframe
+				target.appendJavascript("setMainFrameHeight(window.name);");
 				
 				//when the editImageButton is clicked, show the panel
 				//its possible this will push the content lower than the iframe, so make sure the iframe size is good.
@@ -166,14 +167,11 @@ public class MyProfile extends BasePage {
 		add(myInterestsDisplay);
 		
 		//friends quick panel
-		Panel friendsQuickList = new FriendsQuickList("friendsQuickList", userId);
-		friendsQuickList.setOutputMarkupId(true);
-		add(friendsQuickList);
+		Panel friendsFeed = new FriendsFeed("friendsFeed", userId);
+		friendsFeed.setOutputMarkupId(true);
+		add(friendsFeed);
 		
-		//sites quick panel
-		Panel sitesQuickList = new SitesQuickList("sitesQuickList", userId);
-		sitesQuickList.setOutputMarkupId(true);
-		add(sitesQuickList);
+		
 		
 	}
 	
