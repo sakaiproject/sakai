@@ -1,0 +1,176 @@
+@import "tool.css";
+/* access.css : Styles for access servlet (/access/) directory listings */
+
+.directoryIndex a{
+text-decoration: none !important;
+
+}
+.directoryIndex { margin-top:2em;padding:1em}
+.directoryIndex .textPanel{
+	font-size: .95em;
+	line-height: 150%;
+}
+.directoryIndex ul{
+	list-style: none;
+	margin:.5em 0 0 0;
+	padding:0;
+}
+
+.directoryIndex ul li{
+	list-style: none;
+	vertical-align: middle;
+	padding:.3em 0;
+	margin:0;
+}
+
+.directoryIndex ul li img{
+	margin:0 5px 0  0;
+	vertical-align: top;
+	border:none;
+}
+.directoryIndex ul li a{
+	font-weight:bold;
+}
+
+.directoryIndex ul li  .textPanel{
+	padding-left:21px;
+}
+.directoryIndex ul li.folder{
+	padding:3px;
+}
+.directoryIndex ul li.folder a{
+	padding-left:21px;
+	background: url(../../image/silk/folder.png) center left no-repeat !important
+}	
+
+.directoryIndex ul li.folder a:hover{
+	padding-left:21px;
+	background: url(../../image/silk/folder_go.png) center left no-repeat !important
+}	
+
+.directoryIndex ul li.upfolder{
+	position:absolute;
+	top:2px;
+	left:2px;
+	margin-bottom:2em;
+}
+.directoryIndex ul li.upfolder a{
+	border:1px solid #ccc;
+	padding:3px;
+	display: inline-block;
+}
+.directoryIndex ul li.upfolder a:hover{
+	border:1px solid #aaa;
+	background: #ffe;
+	
+}
+.directoryIndex ul li.file{
+	padding:3px;
+}
+
+/*file listings*/
+
+@import "tool.css";
+/* access.css : Styles for access servlet (/access/) directory listings */
+
+.directoryIndex a{
+text-decoration: none !important;
+
+}
+.directoryIndex { padding:8px; border:}
+.directoryIndex .textPanel{
+	font-size: .95em;
+	line-height: 150%;
+}
+.directoryIndex ul{
+	list-style: none;
+	margin:.5em 0 0 0;
+	padding:0;
+}
+
+.directoryIndex ul li{
+	list-style: none;
+	vertical-align: middle;
+	padding:.3em 0;
+	margin:0;
+}
+
+.directoryIndex ul li img{
+	margin:0 5px 0  0;
+	vertical-align: top;
+	border:none;
+}
+.directoryIndex ul li a{
+	font-weight:bold;
+}
+
+.directoryIndex ul li  .textPanel{
+	padding-left:21px;
+}
+.directoryIndex ul li.folder{
+	padding:3px;
+}
+.directoryIndex ul li.upfolder{
+	margin-bottom:1em;
+}
+.directoryIndex ul li.upfolder a{
+	border:1px solid #aaa;
+	background: #ffe;
+	display: inline-block;
+}
+.directoryIndex ul li.upfolder a:hover{
+	border:1px solid #000;
+	background: #ffd
+}
+.directoryIndex ul li.file{
+	padding:3px;
+}
+p#toggle{text-align: right;margin:0 0 1em 0;font-weight:bold}
+/*file listings*/
+.directoryIndex ul li.file a{
+	padding:6px;
+	padding-left:21px;
+	background: url(../../image/sakai/generic.gif) center left no-repeat;
+	}
+a[href*='.doc'], a[href*='.rtf']{
+	background: url(../../image/sakai/word.gif) center left no-repeat !important
+	}
+a[href*='.ppt'], a[href*='.pps']{
+	background: url(../../image/sakai/ppt.gif) center left no-repeat !important
+	}
+a[href*='.xls'], a[href*='.csv']{
+	background: url(../../image/sakai/excel.gif) center left no-repeat !important
+	}	
+a[href*='.mdb']{
+	background: url(../../image/sakai/access.gif) center left no-repeat !important
+	}	
+a[href*='.gif'], a[href*='.jpg'], a[href*='.png']{
+	background: url(../../image/sakai/image.gif) center left no-repeat !important
+	}
+a[href*='.html']{
+	background: url(../../image/sakai/html.gif) center left no-repeat !important
+	}
+a[href*='.txt'], a[href*='.java']{
+	background: url(../../image/sakai/text.gif) center left no-repeat !important
+	}
+a[href*='.zip'], a[href*='.tar'], a[href*='.sit'], a[href*='.hqx'] {
+	background: url(../../image/sakai/compressed.gif) center left no-repeat !important
+	}
+a[href*='.mov'], a[href*='.mpeg'], a[href*='.sit'] {
+	background: url(../../image/sakai/movie.gif) center left no-repeat !important
+	}
+a[href*='.mp3'], a[href*='.wav']{
+	background: url(../../image/sakai/audio.gif) center left no-repeat !important
+	}
+a[href*='.pdf']{
+	background: url(../../image/sakai/pdf.gif) center left no-repeat !important
+	}
+a[href*='.ai'], a[href*='.ps'], a[href*='.psd']{
+	background: url(../../image/sakai/postscript.gif) center left no-repeat !important
+	}
+a[href*='.ram'], a[href*='.rm']{
+	background: url(../../image/sakai/real.gif) center left no-repeat !important
+	}
+a[href*='.swf']{
+	background: url(../../image/sakai/shockwave.gif) center left no-repeat !important
+	}

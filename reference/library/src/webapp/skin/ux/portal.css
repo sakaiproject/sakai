@@ -1,0 +1,1121 @@
+/*general body - used by main portal document */ 
+body{
+	width: 100%;
+	padding: 0;
+	font-family: 'Trebuchet MS',Verdana,sans-serif;
+	font-size:.8em;
+	margin: 0;
+	background: #fff;
+}
+
+/*PART 1 - MAIN LAYOUT BLOCKS*/
+/*outer wrapper for portal content (decorative - child is #portalContainer )*/
+#portalOuterContainer{
+}
+
+/*inner wrapper for portal content (decorative - children are #header #container and #footer )*/
+#portalContainer{
+}
+
+/*wrapper masthead  and site navigation 
+ two possible states - logged in headerMax, not logged in - headerMin*/
+#headerMax,#headerMin{
+	width: 100%;
+	margin: 1em auto 0 auto;
+	height:100%;
+}
+#headerMin{
+	border-bottom:2px solid #09C
+	overflow:hidden;
+}
+
+/*accessibility links wrapper */
+#skipNav{
+}
+
+/*site hierarchy breadcrumb*/
+#siteHierarchy{
+        clear:both;
+        float:none;
+        margin:0;
+        list-style: none;
+        padding:.5em 0;
+}
+/*style the standard breadcrumbseparator
+can set display:none if needed because the list-style is taking care of it*/
+.breadSeparator{
+}
+#siteHierarchy li{
+        display:inline;
+}
+#siteHierarchy li a, #siteHierarchy li a:visited{
+        color:#09c;
+}
+
+/*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
+#container{
+	width: 98%;
+	clear:both;
+	margin: 0 auto;
+	padding-top: 10px;
+}
+
+/*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
+#toolMenuWrap{
+	float: left;
+	width: 11em;
+	color: #000;
+	text-align: right;
+	padding:0 .5em 0 0;
+	border-right:2px solid #fff
+}
+
+#toolMenuWrap:hover{
+	border-right:2px solid #09c;
+	}
+/*depending on site type - different hover effects for the tool menu parent block
+site types are a local setting - adjust */
+.workspace #toolMenuWrap:hover{
+	border-right:2px solid #aaa;
+}
+.course #toolMenuWrap:hover{
+	border-right:2px solid #FC6;
+}
+.project #toolMenuWrap:hover{
+	border-right:2px solid #9CF;
+}
+
+
+/*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
+#content{
+	padding: 0;
+	margin-top: .5em;
+	margin-left: 12.3em;
+}
+/*margin tweak for IE to avoid float drop*/
+* html #content{margin-left:12.3em}
+/*wrapper for footer blocks*/
+#footer{
+	color: #000;
+	font-size: x-small;
+	margin: 0px;
+	padding: 0;
+	width: auto;
+	clear: both;
+	top: 0;
+	border-top: 1px solid #09c;
+	text-align: center;
+}
+
+/*PART 2 - HEADER IFRAME SETTINGS*/	
+/*iframe sizes for different states*/
+/*gone for 2.3
+.sitenav-log{
+	user not logged in
+	height: 90px;
+	width: 100%;
+	border-bottom:1px solid #09c
+}
+
+.sitenav-max{
+	user logged in 
+	height: 7.8em;
+	max-height:140px;
+	min-height:100px;
+	width: 100%;
+}
+
+* html .sitenav-max{
+	user logged in - iframe height tweak for IE
+	height: 8em;
+	}
+.sitenav-min{
+	no logos or banners
+	height: 2em;
+	width: 100%;
+}*/
+
+/*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
+/*depending on site type - different border-bottoms for the site menu parent block
+site types are a local setting - adjust */
+.workspace .siteNavWrap{
+	border-bottom:3px solid #aaa;
+}
+.course .siteNavWrap{
+	border-bottom:3px solid #fc6;
+}
+.project .siteNavWrap{
+	border-bottom:3px solid #9cf;
+}
+#siteNavWrapper{
+	margin: 0;
+}
+
+
+
+/*wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin*/
+#mastHead{
+	clear: both;
+}
+
+/*container wrapping branding images - portal outputs one /library/skin/<skin name>/images/logo_inst.gif
+that can be used or hidden,can also use a background:url(images/<image name>.<ext>) in this block,or both superimposing them*/
+#mastLogo{
+	float: left;
+	margin-left: 0.2em;
+	width: auto;
+}
+
+/*the portal outputs an image that can be treated here or hidden with display:none*/
+#mastLogo img{
+	margin: 1em .5em;
+}
+
+/*another container wrapping branding images - portal outputs one /library/skin/<skin name>/images/banner_inst.gif
+that can be used or hidden,can also use a background:url(images/<image name>.<ext>) in this block,or both superimposing them*/
+#mastBanner{
+	width: auto;
+	vertical-align: top;
+	float: left;
+}
+
+/*the portal outputs an image that can be treated here or hidden with display:none*/
+#mastBanner img{
+	margin: 1em .5em;
+}
+
+/*container wrapping,depending on Sakai settings:1) a login form,2) a login link for CAS,3) a logout link*/
+#mastLogin{
+	float: right;
+	text-align: right;
+	padding-right: 15px;
+	vertical-align: top;
+}
+
+/*the anchor for the login link for CAS above can be an image - treated here*/
+#mastLogin img{
+	margin-top: 0;
+	border: 0;
+}
+
+/*login links for CAS,logout link*/
+#mastLogin a,#mastLogin a:visited{
+	color: #09c;
+	margin-top: 0;
+}
+
+#mastLogin a:hover{
+	color: #09c;
+	text-decoration: none;
+}
+
+/*login form elements - in order,form,userid field,password field,login button - first 2 have labels associated with them,gettable as #loginForm label{
+}
+
+#loginForm is the form for login - contains children #eid #pw #submit*/
+#loginForm{
+	margin: 1em 0;
+}
+
+#eid{
+	border: 1px solid #aaa;
+	padding: 3px;
+	margin-left: .5em;
+	width: 7em;
+}
+
+#pw{
+	border: 1px solid #aaa;
+	padding: 3px;
+	margin-left: .5em;
+	width: 7em;
+}
+
+#loginForm label{
+	color: #000;
+	padding: 0 .5em
+}
+
+#submit{
+}
+
+#submit:hover{
+	color: #09c;
+}
+
+/*block for login/logout links */
+#loginLinks{
+	margin: 1em 0 2em 0;
+}
+
+/*main CAS link*/
+#loginLink1{
+}
+
+/*secondary CAS link*/
+#loginLink2{
+}
+
+/*PART 4 - SITE NAVIGATION - children of #siteNavBlock*/
+/*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
+so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
+
+.siteNavWrap {
+	position: relative;
+	width: 100%;
+	background: #88D0E8 url(images/blue-border.gif) repeat-x center bottom;
+	float: left;
+	clear: both;
+	font-size: 100%;
+	line-height: normal;
+	z-index: 2000;
+}
+
+/*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
+#siteNav{
+	width:100%;
+}
+
+/*wrapper for the site link list   - the #siteLinkList child)*/
+#linkNav{
+	position: relative;
+	display: block;
+	float:left;
+}
+
+/*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
+#selectNav{
+	padding: 0;
+	text-align: right;
+	vertical-align: middle;
+	margin: 0.2em 0 0 0.6em;
+	float: left;
+}
+
+/*the <select> contextually defined*/
+#selectNav select{
+	display:inline;
+	font-size: .9em;
+	margin: 7px 0 0 ;
+	padding: 0;
+	border: 2px solid #0077B5;
+}
+
+#selectNav select option{
+	background: #fff;
+}
+
+#roleSwitch{
+	float:right;
+}
+#roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
+	color:#fff;
+	font-weight:bold;
+}
+#roleSwitch a#roleSwitchAnchor{
+	margin:10px 5px 0 0;
+	display:block;
+}	
+#roleSwitch select{
+	border:2px solid #0077B5;
+	display:inline;
+	font-size:0.9em;
+	margin:10px 2px 0 0;
+	padding:0;
+}	
+/*a ul - the li below are outer wrappers for the links to sites */
+#siteLinkList{
+	white-space: nowrap;
+	list-style-image:none;
+	list-style-position:outside;
+	list-style-type:none;
+	margin: 0;	
+	padding: 6px 0 0 6px;
+	float: left;
+}
+
+/*list elements - children are <span> and <a>*/
+#siteLinkList li {
+	position: relative;
+	display:block;
+	float:left;
+}
+
+/*links to other sites*/
+#siteLinkList li a, #siteLinkList li a:link, #siteLinkList li a:visited {
+	color: #FFF;
+	text-decoration: none;
+	display: block;
+	float: left;
+	background: transparent url(images/tab-left.gif) no-repeat scroll left top;
+	margin: 0 2px 0 0;
+	padding: 0 0 0 11px;
+	border-bottom: 2px solid #013F68;
+}
+
+#siteLinkList li a:hover {
+	text-decoration: underline;
+}
+
+#siteLinkList li span {
+	display: block;
+	background: transparent url(images/tab-right.gif) no-repeat right top;
+	padding: 8px 13px 3px 2px;
+	margin: 0pt;
+}
+
+/*the current sites' link - consists of the li and a*/
+
+#siteLinkList li.selectedTab a,
+	#siteLinkList li.selectedTab a:link,
+	#siteLinkList li.selectedTab a:visited,
+	#siteLinkList li.selectedTab a:hover {
+	color: #000;
+	font-weight: bolder;
+	text-decoration: none;
+	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;
+	border-width: 0;
+}
+
+#siteLinkList li.selectedTab a span{
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
+	padding: 8px 11px 5px 0;
+}
+
+#siteLinkList li.tab-dim a,
+	#siteLinkList li.tab-dim a:link,
+	#siteLinkList li.tab-dim a:visited,
+	#siteLinkList li.tab-dim a:hover {
+	color: #666;
+	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;
+}
+
+#siteLinkList li.tab-dim a span {
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
+	padding-bottom: 3px;
+}
+
+/* more tab */
+#siteLinkList li.more-tab a span.inner {
+	background-image:  url(images/tab-arrow-down.gif);
+	background-repeat: no-repeat;
+	background-position: 100% 36%;
+	padding: 0 20px 0 0;
+	margin: 0;
+}
+
+#siteLinkList li.more-active a,
+	#siteLinkList li.more-active a:link,
+	#siteLinkList li.more-active a:visited {
+	color:#000000;
+	font-weight: bolder;
+	text-decoration: none;
+	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;	
+	border-width: 0;
+}
+
+#siteLinkList li.more-active a:hover {
+	text-decoration: underline;
+}
+
+#siteLinkList li.more-active a span {
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
+	padding-bottom: 5px;
+}
+
+#siteLinkList li.more-active a span.inner {
+	background-image: url(images/tab-arrow-down-active.gif);
+}
+
+.fixTabsIE{
+	visibility: hidden;
+	display: none;
+	border-width: 0;
+}
+
+/*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
+.dhtml_more_tabs {
+	position: absolute;
+	top: 2.5em;
+	right: 4px;
+	line-height: 1.5em;
+	background-color: #FFFFFF; 
+	border: 2px solid #013F68;
+	border-top-width: 0;
+	width: 75%;
+	z-index: 9999;
+}
+
+html>body .dhtml_more_tabs {
+	right: 2px;
+}
+
+.dhtml_more_tabs div.termContainer {
+	float: left;
+	padding: 0.8em;
+	text-align: left;
+	width: 28%;
+}
+	
+.dhtml_more_tabs h4 {
+	font-size: 1.06em;
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
+}
+
+.dhtml_more_tabs  ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;	
+}
+
+.dhtml_more_tabs  li {
+	margin-bottom: 0.4em; 
+	line-height: 1.1em;
+}
+
+.dhtml_more_tabs div:first-child {
+	border-left: none;
+}
+
+.dhtml_more_tabs a:link, .dhtml_more_tabs a:visited, .dhtml_more_tabs active{
+	color: #35b;
+	text-decoration: underline !important;
+}
+
+.dhtml_more_tabs a:hover {
+	color: #53b;
+	text-decoration: underline !important;
+}
+
+#more_tabs_instr  {
+	color: #333;
+	font-size: 1em;
+	margin: 0.4em 0.8em 0.8em;
+	padding-top: 0.4em;
+	clear: both;
+	border-top: 1px solid #CCC;
+	text-align: left;
+	line-height: 1.1em;
+}
+
+#portalMask {
+	background-color: #EEEEEE; 
+	position: absolute;
+	z-index: 9000;
+	top:0;
+	left:0;
+	filter:alpha(opacity=50);
+	opacity: 0.50;
+	-moz-opacity: 0.50;
+}
+
+/*block in case need to display any decorative element above or below the .tabHolder block*/
+#navBottom{
+	display: none;
+}
+
+/*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
+/*wrapper for ul that lists the links to tools*/
+#toolMenu{
+	width: 11em;
+	padding: 0;
+	margin: 1em 0 0 0;
+	color: #000;
+	background: inherit;
+}
+
+#toolMenu ul{
+	width:auto;
+	list-style: none;
+	margin: 0;
+	padding-right: 0;
+	padding-left: 0;
+}
+
+#toolMenu li{
+
+	margin: 0;
+	width: auto;
+	padding: 0;
+	border: 1px solid #fff;
+	text-align: right;
+}
+
+/*span shim for fine grained manipulation of link display (decorative)
+also hide if are going to be using icon links (as background of <a> nad <li>
+*/
+
+#toolMenu li.selectedTool span{
+	display: block;
+	padding-bottom : 2px;
+    padding-right : 23px !important;
+    padding-top : 2px;
+    margin-bottom : 0px;
+    margin-left : 0px;
+    margin-right : 0px;
+    margin-top : 0px;
+    background-position : center right !important;
+    background-repeat : no-repeat !important;
+	filter:alpha(opacity=50);
+	opacity: 0.50;
+	-moz-opacity: 0.50;
+	 
+}
+
+#toolMenu li span{
+
+}
+
+
+#toolMenu li a:link,#toolMenu li a{
+	display: block;
+	text-decoration: underline;
+	color: #09c;
+	padding-bottom : 2px;
+    padding-right : 23px !important;
+    padding-top : 2px;
+    margin-bottom : 0px;
+    margin-left : 0px;
+    margin-right : 0px;
+    margin-top : 0px;
+    background-position : center right !important;
+    background-repeat : no-repeat !important;
+    
+
+}
+#toolMenu li a:hover{
+	text-decoration: none;
+	color: #09c;
+}
+
+#toolMenu li a.selected{
+	text-decoration: none;
+	color: #000;
+	cursor: text;
+}
+
+#toolMenu li a.selected:hover{
+	text-decoration: none;
+	color: #000;
+	cursor: text;
+}
+
+/** Portal Timeout **/
+#timeout_alert_body {
+    position: absolute;
+    background: #fff;
+    color: #000;
+    border: 4px solid #0198CD;
+    width: 450px;
+    top: 20%;
+    left: 50%;
+    margin-left: -225px;
+    z-index: 10000;
+    padding: 5px 5px 5px 10px;
+}
+
+
+/*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
+/*site logo wrapper*/
+#worksiteLogo{
+	width: 9.7em;
+	height: auto;
+	overflow: hidden;
+	display: block;
+}
+
+/*site logo image - Sakai may output,depending on installation,an image here based in site affiliation. Site owner may also point to a url - overriding the Sakai provided image*/
+#worksiteLogo img{
+	display: block;
+	margin: .5em auto;
+}
+
+/*wrapper for the string that Sakai will output based on site type (ie. project,course) this is open ended and institution specific*/
+#siteType{
+	display: none;
+}
+
+/*wrapper for the string that Sakai will output based on site status when status is "Unpublished"*/
+#siteStatus{
+	text-transform: capitalize;
+	text-align: left;
+	background: url(images/warn.gif) .2em center no-repeat #fff;
+	border: 1px solid  #aaa;
+	clear: both;
+	color: #aaa;	
+	font-size: 	small;
+	margin: 5px 2px 15px 2px;
+	padding: 3px 3px 3px 2em;
+}
+
+/*wrapper for all elements of presence display */
+#presenceWrapper{
+	width: 9.65em;
+	margin-top: .5em;
+}
+
+/*wrapper for title of iframe ("Users present")*/
+#presenceTitle{
+	font-size: .7em;
+	text-align: right;
+	margin-right: .5em;
+}
+
+/*of presence iframe*/
+#presenceIframe{
+	height: 100px;
+	margin: .3em;
+	width: 8.8em;
+}
+
+/*PART 7 - PORTLETS - children of #content*/
+/*a page may display portlets in one column or two columns - the next three id selectors address the three possiblities - sole child of column is the .portlet */
+#col1{
+	padding-right: .5em;
+}
+
+#col1of2{
+	width: 49%;
+	float: left;
+	margin: 0;
+}
+
+#col2of2{
+	width: 50%;
+	float: right;
+}
+
+/*wrapper class for portlets - decorative -  contains two wrapper block children:.portletTitleWrap and  .portletMainWrap*/
+.portlet{
+}
+
+/*.portletTitleWrap are wrappers for the tool title documents,
+below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
+#col1 .portletTitleWrap{
+	width: 99%;
+	border-bottom: 2px solid #09c;
+}
+
+#col1 .portletMainWrap{
+	width: 99%;
+}
+
+#col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
+	width: 98.5%;
+	border-bottom: 2px solid #09c;
+}
+
+#col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
+	width: 98.5%;
+	margin-bottom: .5em;
+}
+
+.portletTitle{
+	width: 100%;
+	height:100%;
+	overflow:hidden;
+}
+
+.portletTitle .title img{
+	margin: 0;
+	vertical-align: text-bottom;
+	width: 18px;
+	border:none;
+	height: 16px;
+}
+
+.portletTitle .title{
+	padding: 2px 4px 6px 0;
+	height: 1em;
+	float: left;
+	color: #000;
+}
+
+.portletTitle .title h2{
+	display: inline;
+	margin: 0 0 0 .2em;
+	padding: 0;
+	color: #555;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.portletTitle .title a{
+	background: url(images/reload.gif) center left no-repeat;
+	text-decoration: none !important;
+}
+
+.portletTitle .title a:hover{
+	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .action{
+	padding: 2px 4px 6px 2px;
+	text-align: right;
+	vertical-align: middle;
+}
+
+.portletTitle .action img{
+	margin: 0;
+	border:none;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+.portletTitle .action a{
+	background: url(images/help.gif) center right no-repeat;
+	text-decoration: none !important;
+}
+
+.portletTitle .action a:hover{
+	background: url(images/help_h.gif) center right no-repeat;
+}
+
+.portletTitle .action a#jsr-edit{
+        padding:2px;
+        background: url(images/page_edit.gif) center right no-repeat;
+}
+        
+.portletTitle .action a#jsr-edit:hover{
+        background: url(images/page_edit.gif) center right no-repeat;
+}       
+
+/*iframes for portlet title and portlet content*/
+/*gone for 2.3
+.portletTitleIframe{
+	margin: 0;
+	height: 1.8em;
+	width: 100%;
+}
+*/
+.portletMainIframe{
+	text-align: left;
+	margin-bottom: .5em;
+	height: auto;
+	border: none;
+}
+
+/*PART 8 - FOOTER BLOCKS - descendants of #footer TODO - unpack the 3 descendants and make them all children*/
+/*wrapper for links going to external sites - links are output as a series  separated via pipes (TODO:make a list already)*/
+.footerExtNav{
+	padding-top: .5em;
+	padding-bottom: .5em;
+}
+
+/*the links displayed inside the wrapper above*/
+.footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{
+	color: #000;
+	text-decoration: none;
+	margin: 1em;
+}
+
+.footerExtNav a:hover{
+	color: #aaa;
+	text-decoration: underline;
+	margin: 1em;
+}
+
+/*a second wrapper - server info,build,etc*/
+#footerInfo{
+	font-size: xx-small;
+	text-align: center;
+	clear: both;
+	padding-bottom: 1em;
+}
+
+#footerInfo img{
+	margin-top: .5em;
+	margin-bottom: .5em;
+}
+
+/*a third wrapper - reserved for copyright blurbs*/
+.sakaiCopyrightInfo{
+	color: #09c;
+}
+
+/*PART 8 - CONVENIENCE*/
+/*used to hide various blocks from sighted users that are in the source to help with accessibility*/
+.skip{
+	display: inline;
+	position: absolute;
+	top: -999px;
+	left: -999px;
+	height: 0;
+
+}
+
+/* PART 9 - Tool Icons */
+
+.icon-osp-evaluation {
+	background-image: url(../../image/silk/thumb_up.png);
+}
+
+.icon-osp-glossary {
+	background-image: url(../../image/silk/text_list_bullets.png);
+}
+
+.icon-osp-matrix {
+	background-image: url(../../image/silk/table.png);
+}
+
+.icon-osp-presentation {
+	background-image: url(../../image/silk/briefcase.png);
+}
+
+.icon-osp-presLayout {
+	background-image: url(../../image/silk/layout_content.png);
+}
+
+.icon-osp-presTemplate {
+	background-image: url(../../image/silk/application_view_tile.png);
+}
+
+.icon-osp-style {
+	background-image: url(../../image/silk/style.png);
+}
+
+.icon-osp-wizard {
+	background-image: url(../../image/silk/wand.png);
+}
+
+.icon-sakai-announcements {
+	background-image: url(../../image/silk/flag_blue.png);
+}
+
+.icon-sakai-chat {
+	background-image: url(../../image/silk/user_comment.png);
+}
+
+.icon-sakai-datapoint {
+	background-image: url(../../image/silk/chart_line.png);
+}
+
+.icon-sakai-discussion {
+	background-image: url(../../image/silk/comments.png);
+}
+
+.icon-sakai-dropbox {
+	background-image: url(../../image/silk/folder_page.png);
+}
+
+.icon-sakai-gmt {
+	background-image: url(../../image/silk/award_star_gold_3.png);
+}
+
+.icon-sakai-help {
+	background-image: url(../../image/silk/help.png);
+}
+
+.icon-sakai-iframe {
+	background-image: url(../../image/silk/page_world.png);
+}
+
+.icon-sakai-iframe-site {
+	background-image: url(../../image/silk/house.png);
+}
+
+.icon-sakai-mailbox {
+	background-image: url(../../image/silk/email.png);
+}
+
+.icon-sakai-messages {
+	background-image: url(../../image/silk/comment.png );
+}
+
+.icon-sakai-metaobj {
+	background-image: url(../../image/silk/application_form.png);
+}
+
+.icon-sakai-membership {
+	background-image: url(../../image/silk/group.png);
+}
+
+.icon-sakai-news {
+	background-image: url(../../image/silk/rss.png);
+}
+
+.icon-sakai-podcasts{
+	background-image: url(../../image/silk/ipod_cast.png );
+}
+
+.icon-sakai-postem{
+	background-image: url(../../image/silk/database_table.png );
+}
+
+.icon-sakai-preferences{
+	background-image: url(../../image/silk/cog.png );
+}
+
+.icon-sakai-rutgers-linktool{
+	background-image: url(../../image/silk/application.png);
+}
+
+.icon-sakai-sections{
+	background-image: url(../../image/silk/group_gear.png );
+}
+
+.icon-sakai-singleuser{
+	background-image: url(../../image/silk/user.png );
+}
+
+.icon-sakai-syllabus{
+	background-image: url(../../image/silk/script.png );
+}
+
+.icon-blogger{
+	background-image: url(../../image/silk/book_edit.png );
+}
+
+.icon-sakai-assignment-grades{
+	background-image: url(../../image/silk/page_edit.png );
+}
+
+.icon-sakai-forums{
+	background-image: url(../../image/silk/comments.png );
+}
+
+.icon-sakai-gradebook-tool{
+	background-image: url(../../image/silk/report.png);
+}
+
+.icon-sakai-mailtool {
+	background-image: url(../../image/silk/email_go.png );
+}
+
+.icon-sakai-poll{
+	background-image: url(../../image/silk/chart_bar.png);
+}
+
+.icon-sakai-sitestats {
+	background-image: url(../../image/silk/chart_bar.png);
+}
+
+.icon-sakai-presentation {
+	background-image: url(../../image/silk/monitor.png);
+}
+
+.icon-sakai-profile {
+	background-image: url(../../image/silk/vcard_edit.png);
+}
+
+.icon-sakai-reports {
+	background-image: url(../../image/silk/report_magnify.png);
+}
+
+.icon-sakai-resetpass {
+	background-image: url(../../image/silk/key.png);
+}
+
+.icon-sakai-resources {
+	background-image: url(../../image/silk/folder.png);
+}
+
+.icon-sakai-rwiki {
+	background-image: url(../../image/silk/page_white_edit.png);
+}
+
+.icon-sakai-samigo {
+	background-image: url(../../image/silk/pencil.png);
+}
+
+.icon-sakai-schedule {
+	background-image: url(../../image/silk/calendar.png);
+}
+
+.icon-sakai-search {
+	background-image: url(../../image/silk/find.png);
+}
+
+.icon-sakai-siteinfo {
+	background-image: url(../../image/silk/application_lightning.png );
+}
+
+.icon-sakai-sitesetup{
+	background-image: url(../../image/silk/application_lightning.png );
+}
+
+.icon-sakai-site-roster {
+	background-image: url(../../image/silk/vcard.png);
+}
+
+.icon-sakai-synoptic-messagecenter{
+background-image: url(../../image/silk/comment.png);
+}
+
+.icon-sakai-conferencing {
+    background-image : url(../../image/silk/webcam.png);
+}
+
+/*admin tools*/
+.icon-sakai-users{
+	background-image: url(../../image/silk/folder_user.png);
+}
+.icon-sakai-aliases{
+	background-image: url(../../image/silk/tag_blue.png);
+}
+.icon-sakai-sites{
+	background-image: url(../../image/silk/application_cascade.png);
+}
+.icon-sakai-realms{
+	background-image: url(../../image/silk/sitemap_color.png);
+}
+.icon-sakai-online{
+	background-image: url(../../image/silk/report_user.png);
+}
+.icon-sakai-memory{
+	background-image: url(../../image/silk/server_chart.png);
+}
+.icon-sakai-archive{
+	background-image: url(../../image/silk/page_white_compressed.png);
+}
+.icon-sakai-scheduler{
+	background-image: url(../../image/silk/clock.png);
+}
+.icon-sakai-su{
+	background-image: url(../../image/silk/user_go.png);
+}
+.icon-sakai-usermembership{
+	background-image: url(../../image/silk/drive_user.png);
+}
+
+.icon-sakai-motd { 
+	background-image: url(../../image/silk/house.png); 
+} 
+.icon-sakai-sitebrowser { 
+	background-image: url(../../image/silk/world.png); 
+} 
+.icon-sakai-createuser { 
+	background-image: url(../../image/silk/user_add.png); 
+} 
+
+
+
+
+/** Privacy Popup Styles **/
+div#privacy_tool_popup {
+    position: absolute;
+    background: #fff;
+    color: #000;
+    border: 4px solid #0198CD;
+    width: 450px;
+    top: 20%;
+    left: 50%;
+    margin-left: -225px;
+    z-index: 1000;
+    padding: 5px 5px 5px 10px;
+}
+
+div#privacy_overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	filter:alpha(opacity=70);
+	-moz-opacity: 0.7;
+	opacity: 0.7;
+   z-index: 0;
+}
