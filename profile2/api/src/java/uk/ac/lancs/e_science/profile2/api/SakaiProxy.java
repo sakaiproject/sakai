@@ -1,5 +1,7 @@
 package uk.ac.lancs.e_science.profile2.api;
 
+import java.util.LinkedHashMap;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 public interface SakaiProxy {
@@ -25,5 +27,7 @@ public interface SakaiProxy {
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson);
 			
 	public int getMaxProfilePictureSize();
+	
+	public LinkedHashMap<String,String> getSiteListForUser(int limitSites);
 	
 }

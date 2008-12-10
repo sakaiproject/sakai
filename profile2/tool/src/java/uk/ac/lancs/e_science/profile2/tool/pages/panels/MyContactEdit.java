@@ -48,9 +48,8 @@ public class MyContactEdit extends Panel {
 		add(new Label("heading", new ResourceModel("heading.contact.edit")));
 		
 		//setup form		
-		Form form = new Form("form");
+		Form form = new Form("form", userProfileModel);
 		form.setOutputMarkupId(true);
-	    form.setModel(new CompoundPropertyModel(userProfileModel));
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model

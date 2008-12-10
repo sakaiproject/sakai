@@ -12,8 +12,8 @@
     <div id="profileHeading">
     	<span id="profileHeadingName" wicket:id="profileName">[profileName]</span>&nbsp;
     	<span wicket:id="statusContainer">
-    		<span id="profileHeadingStatus" wicket:id="statusMessage">[statusMessage]</span>
-    		<span id="profileHeadingStatusLastUpdated" wicket:id="statusDate">[statusDate]</span>
+    		<span wicket:id="statusMessage">[statusMessage]</span>
+    		<span class="tiny" wicket:id="statusDate">[statusDate]</span>
     		<a wicket:id="statusClearLink" class="tiny">
     			<span wicket:id="statusClearLabel">[statusClearLabel]</span>
     		</a>
@@ -31,11 +31,15 @@
 	<script type="text/javascript">
 
 		//init
-		$(document).ready(function(){ 
-
-
+		//$(document).ready(function(){ 
+			function test() {
+				alert('test');
+			}
+			
+			
 			function autoFill(id, v){
-				alert('hello');
+				alert(id);
+				alert(v);
 				$(id).css({ color: "#5D5D5D" }).attr({ value: v }).focus(function(){
 					if($(this).val()==v){
 						$(this).val("").css({ color: "#000000" });
@@ -48,7 +52,7 @@
 
 			}
 			
-		});
+		//});
 
 	</script>
 	

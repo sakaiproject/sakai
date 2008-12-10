@@ -1,11 +1,18 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -141,6 +148,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public int getMaxProfilePictureSize() {
 		return getSakaiConfigurationParameterAsInt("profile.picture.max", MAX_PROFILE_IMAGE_SIZE);
 	}
+	
+	public LinkedHashMap<String, String> getSiteListForUser(int limitSites) {
+		LinkedHashMap sites = new LinkedHashMap();
+		//we need a good method to get a site for a specific user. screw the session
+		sites.put("site1", "test site 1");
+		sites.put("site2", "test site 2");
+		
+		return sites;
+	}
+
 	
 	
 	

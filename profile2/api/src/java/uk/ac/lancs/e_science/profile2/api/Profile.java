@@ -3,6 +3,7 @@ package uk.ac.lancs.e_science.profile2.api;
 import java.util.Date;
 import java.util.List;
 
+import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 
 
@@ -93,7 +94,19 @@ public interface Profile {
 	 */
 	public String convertDateForStatus(Date date);
 	
+	/**
+	 * Truncate a string and pad it with ... at the end
+	 *
+	 * @param string	the string to be manipulated
+	 * @param size		size the string should be truncated to (not including the ...)
+	 */
+	public String truncateAndPadStringToSize(String string, int size);
 	
-	
+	/**
+	 * Retrieve the profile privacy record from the database for this user
+	 *
+	 * @param userId	uuid of the user to retrieve the record for
+	 */
+	public ProfilePrivacy getPrivacyRecordForUser(String userId);
 	
 }

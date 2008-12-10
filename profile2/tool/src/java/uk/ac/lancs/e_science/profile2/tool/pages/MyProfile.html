@@ -24,21 +24,12 @@
 	    		<li>another link</li>
 	    	</ul>
 	    	
-	    	<div class="sideBox">
-	    		<div class="sideBoxHeading">Side box</div>
-	    		<div class="sideBoxContent">
-	    			<p>item 1</p>
-	    			<p>item 2</p>
-	    		</div>
-	    	</div>
+	    	<!--  friends panel -->
+	    	<div class="sideBox" wicket:id="friendsQuickList" />
 	    	
-	    	<div class="sideBox">
-	    		<div class="sideBoxHeading">Another box</div>
-	    		<div class="sideBoxContent">
-	    			<p>item 1</p>
-	    			<p>item 2</p>
-	    		</div>
-	    	</div>
+	    	<!--  sites panel -->
+	    	<div class="sideBox" wicket:id="sitesQuickList" />
+	    	
 	    	
 	    </div>
 		
@@ -66,9 +57,6 @@
 	
 	
 	</div>
-	
-	<!--  dynamic javascript, rendered from the page, if required (ie to use dynamic ID's etc) -->
-	<span wicket:id="dynamicJavascript">dynamically generated javascript goes here</span>
 	
 	<!--  general MyProfile scripting - for individual panel stuff, see the panels themselves -->
 	<script type="text/javascript">

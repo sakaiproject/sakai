@@ -12,8 +12,6 @@ public class UserProfile implements Serializable {
 	private Date dateOfBirth;
 	private String displayName;
 	private String email;
-	private String status;
-	private Date statusLastUpdated;
 	private String position;
 	private String department;
 	private String school;
@@ -71,19 +69,6 @@ public class UserProfile implements Serializable {
 		this.email = email;
 	}
 	
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	
-	public Date getStatusLastUpdated() {
-		return statusLastUpdated;
-	}
-	public void setStatusLastUpdated(Date statusLastUpdated) {
-		this.statusLastUpdated = statusLastUpdated;
-	}
 	public String getPosition() {
 		return position;
 	}

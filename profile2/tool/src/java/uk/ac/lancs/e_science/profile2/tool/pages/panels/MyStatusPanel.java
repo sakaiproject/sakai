@@ -12,6 +12,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -21,6 +23,7 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
+import uk.ac.lancs.e_science.profile2.tool.models.UserStatus;
 
 public class MyStatusPanel extends Panel {
 	
@@ -28,6 +31,9 @@ public class MyStatusPanel extends Panel {
 	
     private transient SakaiProxy sakaiProxy;
     private transient Profile profile;
+    
+	//a number of factors can disable the status
+    private boolean displayStatus = true;
 
 
 	public MyStatusPanel(String id, UserProfile userProfile) {
@@ -35,67 +41,55 @@ public class MyStatusPanel extends Panel {
 		
 		//create model
 		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
-		
-		 //get the list of items to display from provider (database, etc)
-        //in the form of a LoadableDetachableModel
-		/*
-        IModel userStatusModel =  new LoadableDetachableModel() {
-            protected Object load() {
-                return getHateList();
-            }
-        };
-		*/
-		
-		
+			
+
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
 		//get Profile API
 		profile = ProfileApplication.get().getProfile();
-		
-		//a number of factors can disable the status
-		boolean displayStatus = true;
-		
+				
 		//get info
 		String displayName = userProfile.getDisplayName();
-		String userId = sakaiProxy.getCurrentUserId();
+		final String userId = sakaiProxy.getCurrentUserId();
+	
 		
-		//get this from a local method so we can recall this method each time.
-		ProfileStatus profileStatus = profile.getLatestUserStatus(userId);
+		//setup LoadableDetachableModel that can be reloaded on each component reload via AJAX
+        IModel userStatusModel = new LoadableDetachableModel() {
+            protected Object load() {
+                return getUserStatus(userId);
+            }
+        };
 		
-		String statusMessage = "";
-		String statusDateStr = "";
 		
-		if(profileStatus == null) {
-			displayStatus = false;
-		} else {
-			statusMessage = profileStatus.getMessage();
-			statusDateStr = profile.convertDateForStatus(profileStatus.getDateAdded());
-			userProfile.setStatus(statusMessage);
-		}
-		
-					
+	
 		//name
 		Label profileName = new Label("profileName", displayName);
 		add(profileName);
 		
 		
-		//status container
-		final WebMarkupContainer statusContainer = new WebMarkupContainer("statusContainer");
+		//status container - this needs to reget the model when its added but not sure how.
+		final WebMarkupContainer statusContainer = new WebMarkupContainer("statusContainer", userStatusModel);
 		statusContainer.setOutputMarkupId(true);
+		//statusContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(5)));
+
+		
+		UserStatus userStatus = (UserStatus) statusContainer.getModelObject();
 		
 		//status
-		Label statusMessageLabel = new Label("statusMessage", statusMessage);
+		final Label statusMessageLabel = new Label("statusMessage", userStatus.getMessage());
+		statusMessageLabel.setOutputMarkupId(true);
 		statusContainer.add(statusMessageLabel);
 		
 		//status last updated
-		Label statusDateLabel = new Label("statusDate", statusDateStr);
+		Label statusDateLabel = new Label("statusDate", userStatus.getDateStr());
+		statusDateLabel.setOutputMarkupId(true);
 		statusContainer.add(statusDateLabel);
 		
 		//status update link
 		AjaxFallbackLink statusClearLink = new AjaxFallbackLink("statusClearLink") {
 			public void onClick(AjaxRequestTarget target) {
-				
+				System.out.println("clear clicked");
 			}
 						
 		};
@@ -113,14 +107,15 @@ public class MyStatusPanel extends Panel {
 		
 		
 		//status form
-		Form form = new Form("form", userProfileModel);
+		Form form = new Form("form", userStatusModel);
 		form.setOutputMarkupId(true);
         
 		//status field (with customised onclick)
-        TextField statusField = new TextField("statusField", new PropertyModel(userProfile, "status"));
+        TextField statusField = new TextField("statusField", new PropertyModel(userStatus, "message"));
         statusField.setOutputMarkupId(true);
         statusField.add(new AttributeAppender("onfocus", new Model("autoFill('" + statusField.getMarkupId() + "', '" + displayName + "');"), " "));
-        
+        //statusField.add(new AttributeAppender("onfocus", new Model("test()"), " "));
+
         form.add(statusField);
         
         //submit button
@@ -129,10 +124,11 @@ public class MyStatusPanel extends Panel {
 				//save() form, show message, then load display panel
 				
 				if(save(form)) {
+					// tell wicket to repaint the statusContainer only 
 					String js = "alert('ok!');";
 					target.prependJavascript(js);
-					// tell wicket to repaint the statusContainer only 
 				     target.addComponent(statusContainer);
+				     System.out.println("should have been updated");
 				     //this isn't refreshing. we will need to get the latest status from the db each time so we need to reorder where
 				     //we get the info. perhaps to an anonymous inner calss.
 				
@@ -156,7 +152,7 @@ public class MyStatusPanel extends Panel {
 		//System.out.println("model-" + form.getModelObject());
 
 		//get the backing model
-		UserProfile userProfile = (UserProfile) form.getModelObject();
+		UserStatus userStatus = (UserStatus) form.getModelObject();
 		
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
@@ -164,12 +160,12 @@ public class MyStatusPanel extends Panel {
 		//get Profile API
 		profile = ProfileApplication.get().getProfile();
 		
-		//get userId from Sakaiproxy
+		//get userId from sakaiProxy
 		String userId = sakaiProxy.getCurrentUserId();
 
 		//save status from userProfile
 		//need to do some checking in here if its null etc, ie if they want to clear it.
-		if(profile.setUserStatus(userId, userProfile.getStatus())) {
+		if(profile.setUserStatus(userId, userStatus.getMessage())) {
 			log.info("Saved status for: " + userId );
 			return true;
 		} else {
@@ -179,10 +175,32 @@ public class MyStatusPanel extends Panel {
 		
 	}
 	
-	
-	private ProfileStatus getLatestUserStatus(String userId) {
-		return (profile.getLatestUserStatus(userId));
+	//method to get the status info when its requested
+	private UserStatus getUserStatus(String userId) {
+		
+		//form model
+		UserStatus userStatus = new UserStatus();
+
+		//hibernate model		
+		ProfileStatus profileStatus = profile.getLatestUserStatus(userId);
+		if(profileStatus == null) {
+			//setup blank values
+			userStatus.setMessage("");
+			userStatus.setDateStr("");
+			displayStatus = false;
+		} else {
+			//setup real values
+			userStatus.setMessage(profileStatus.getMessage());
+			userStatus.setDateStr(profile.convertDateForStatus(profileStatus.getDateAdded()));
+		}
+		
+        return userStatus;
+    	
 	}
+	
+	
+
+	
 	
 	
 	/*

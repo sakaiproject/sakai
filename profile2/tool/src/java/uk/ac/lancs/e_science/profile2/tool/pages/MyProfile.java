@@ -18,10 +18,12 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import uk.ac.lancs.e_science.profile2.api.ProfileException;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsQuickList;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInterestsDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.SitesQuickList;
 
 
 public class MyProfile extends BasePage {
@@ -144,18 +146,6 @@ public class MyProfile extends BasePage {
 		};
 		add(changePictureLink);
 		
-		//dynamic javascript
-		StringBuilder js = new StringBuilder();
-		//js.append("<script type=\"text/javascript\">");
-		//js.append("$(document).ready(function(){");
-		//js.append("$('#" + changePicture.getMarkupId() +"').hide();");
-		//js.append("});");
-		//js.append("</script>");	
-					
-		Label dynamicJavascript = new Label("dynamicJavascript", js.toString());
-		dynamicJavascript.setEscapeModelStrings(false);
-		add(dynamicJavascript);
-		
 		//status panel
 		Panel myStatusPanel = new MyStatusPanel("myStatusPanel", userProfile);
 		add(myStatusPanel);
@@ -175,7 +165,15 @@ public class MyProfile extends BasePage {
 		myInterestsDisplay.setOutputMarkupId(true);
 		add(myInterestsDisplay);
 		
-
+		//friends quick panel
+		Panel friendsQuickList = new FriendsQuickList("friendsQuickList", userId);
+		friendsQuickList.setOutputMarkupId(true);
+		add(friendsQuickList);
+		
+		//sites quick panel
+		Panel sitesQuickList = new SitesQuickList("sitesQuickList", userId);
+		sitesQuickList.setOutputMarkupId(true);
+		add(sitesQuickList);
 		
 	}
 	

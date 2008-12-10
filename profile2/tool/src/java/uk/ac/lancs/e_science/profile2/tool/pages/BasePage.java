@@ -98,7 +98,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//privacy link
     	Link myPrivacyLink = new Link("myPrivacyLink") {
 			public void onClick() {
-				//setResponsePage(new MyFriends());
+				setResponsePage(new MyPrivacy());
 			}
 		};
 		myPrivacyLink.add(new Label("myPrivacyLabel",new ResourceModel("link.my.privacy")));

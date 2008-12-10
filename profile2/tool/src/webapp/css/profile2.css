@@ -17,8 +17,14 @@
 	width:200px;
 	padding:8px;
 }
+#fullWidth {
+	float:left;
+	margin-left: 5px;
+	margin-right: 215px;
+	padding: 8px;
+}
 
-#leftPanel, #rightPanel, #mainPanel { 
+#leftPanel, #rightPanel, #mainPanel, #fullWidth { 
 	padding-bottom: 32767px;
 	margin-bottom: -32767px;
 }
@@ -44,6 +50,7 @@
 	background-position: center center;
 	float:right;
 	width: 16px;
+	height: 16px;
 }
 
 .editImageButton {
@@ -132,25 +139,21 @@
 	font-weight: bold;
 }
 
-#profileHeadingStatus {
-	font-size: normal;
-}
 
-#profileHeadingStatusLastUpdated {
-	font-size: xx-small;
-}
 
 
 /* generic styles */
 .tiny {
-	font-size: xx-small;
+	font-size: 70%;
 }
 
 .small {
 	font-size: 90%;
 }
 
-
+.right {
+	float:right;
+}
 
 
 
@@ -196,13 +199,16 @@
 }
 
 .sideBoxHeading {
-	padding: 0px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	padding-left: 2px;
 	display:block;
 	background-color: #B8D5F8;
 }
 	
 .sideBoxContent {
-		
+	display:block;	
+	margin-bottom: 4px;
 }
 
 
@@ -301,6 +307,31 @@
 	margin-bottom: 0px;
 	margin-top: 0px;
 }
+
+
+/* friends quicklist panel */
+#friendsQuickList {
+	}
+	
+.friendsQuickListItem {
+	vertical-align: top;
+	width: 60px;
+	max-width: 60px;
+	overflow: hidden;
+	}
+	
+.friendsQuickListItem img {
+	max-width: 50px;
+}
+
+.friendsQuickListItemCaption {
+	margin-top: 0;
+	font-size: 60%;
+	text-align: left;
+	overflow: hidden;
+}
+
+
 
 
 

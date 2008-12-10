@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -36,6 +37,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	private transient Logger log = Logger.getLogger(ProfileImpl.class);
 	
+	//surely this is in a calendar API somewhere
+	private static final String[] DAY_OF_WEEK_MAPPINGS = { "Sunday", "Monday",
+		"Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+	
 	
 	/*
 	 * Eventually may come from the database. For now, only FRIEND is used.
@@ -46,6 +51,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String QUERY_GET_FRIENDS_FOR_USER = "getFriendsForUser";
 	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest";
 	private static final String QUERY_GET_USER_STATUS = "getUserStatus";
+	private static final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord";
+
 
 	//Hibernate object fields
 	private static final String USER_UUID = "userUuid";
@@ -254,7 +261,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//save
 		try {
-			getHibernateTemplate().update(profilePrivacy);
+			getHibernateTemplate().save(profilePrivacy);
 			log.info("Created default privacy record for user: " + userId);
 			return true;
 		} catch (Exception e) {
@@ -296,6 +303,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//save (always inserting, never updating, unless its being cleared which is a different process)
 		try {
 			getHibernateTemplate().save(profileStatus);
+			getHibernateTemplate().flush();
 			log.info("Updated status for user: " + userId);
 			return true;
 		} catch (Exception e) {
@@ -314,7 +322,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public String convertDateForStatus(Date date) {
 		
 		//current time (cal also specify timezome and local here, see API)
-		long currentTimeMillis = Calendar.getInstance().getTimeInMillis();
+		Calendar currentCal = Calendar.getInstance();
+		long currentTimeMillis = currentCal.getTimeInMillis();
 		
 		//posting time (set calendar time to be this)
 		//Calendar postingDate = Calendar.getInstance();
@@ -359,8 +368,15 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			if(numDays == 1) {
 				message = "yesterday";
 			} else {
-				//use calendar aAPI to get name of day here
-				message = numDays + " days ago";
+				//copy calendar, then subtract number of days to find posting day
+				Calendar postingCal = currentCal;
+				postingCal.add(Calendar.DAY_OF_WEEK, numDays);
+				int postingDay = postingCal.get(Calendar.DAY_OF_WEEK);
+					System.out.println("day of week of post = " + postingDay);
+					System.out.println("day of week of post = " + DAY_OF_WEEK_MAPPINGS[postingDay]);
+
+				//use calendar API to get name of day here, for now using array at top
+				message = "on " + DAY_OF_WEEK_MAPPINGS[postingDay];
 			}
 			
 		}
@@ -368,6 +384,36 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		return message;
 	}
 	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#truncateAndPadStringToSize()
+	 */
+	public String truncateAndPadStringToSize(String string, int size) {
+		
+		String returnStr = string.substring(0, size);
+		return (returnStr.concat("..."));
+		
+	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getPrivacyRecordForUser()
+	 */
+	public ProfilePrivacy getPrivacyRecordForUser(final String userId) {
+		
+		if(userId == null){
+	  		throw new IllegalArgumentException("Null Argument in getPrivacyRecordForUser");
+	  	}
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_PRIVACY_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfilePrivacy) getHibernateTemplate().execute(hcb);
+
+	}
 
 
 
@@ -381,24 +427,5 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	/*	
-	
-	
-	public boolean setUserStatus(String userId, String status) {
-		return true;
-	}
-	*/
-	
-	/*
-	private Date getYesterday() {
-        return getDayBefore(new Date());
-    }
- 
-    private  Date getDayBefore(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -1);
-        return cal.getTime();
-    }
-    */
 	
 }

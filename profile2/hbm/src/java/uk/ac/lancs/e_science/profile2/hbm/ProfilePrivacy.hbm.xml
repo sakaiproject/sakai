@@ -20,6 +20,9 @@
 		
   	</class>
 
+	<query name="getPrivacyRecord">
+    	<![CDATA[from ProfilePrivacy privacy WHERE privacy.userUuid = :userUuid]]>
+	</query>
   	
 
 </hibernate-mapping>

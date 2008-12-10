@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+<wicket:extend>
+	
+	<div id="pageWrapper">
+	
+		<!-- 
+		<div id="leftPanel">
+	    
+	    </div>
+		-->
+		
+		<div id="fullWidth">
+			 <!-- feedback panel -->
+            <span class="alertMessage" wicket:id="feedbackPanel" style="clear:none;">[feedback panel]</span>
+            
+            <div wicket:id="heading">[Privacy settings]</div>
+            
+            <form wicket:id="form" class="profileForm">
+				<table class="profileContent">
+					
+					<!-- profile -->
+					<tr wicket:id="profileContainer">
+						<td class="label" wicket:id="profileLabel">[profileLabel]</td>
+						<td class="content"><select wicket:id="profile"></select>
+   						</td>
+					</tr>
+					
+					<!-- basicInfo -->
+					<tr wicket:id="basicInfoContainer">
+						<td class="label" wicket:id="basicInfoLabel">[basicInfoLabel]</td>
+						<td class="content"><select wicket:id="basicInfo"></select>
+   						</td>
+					</tr>
+					
+					
+				</table>
+				
+				<input type="submit" wicket:id="submit" value="Save setting" />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type="button" wicket:id="cancel" value="Cancel"/>
+				
+			</form>	
+		
+		</div>
+		
+		<!-- <div id="rightPanel"></div> -->
+	
+	
+	</div>
+	
+	<!--  general MyPrivacy scripting -->
+	<script type="text/javascript">
+
+		//init
+		$(document).ready(function(){ 
+			//resize iframe
+			setMainFrameHeight(window.name);
+
+		});
+
+	</script>
+	
+</wicket:extend>
+</body>
+</html>
+
