@@ -17,11 +17,13 @@ import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
  * @author Nuno Fernandes
  */
 public class MaximizedImagePage extends BasePage {
+	private static final long		serialVersionUID	= 1L;
+	
 	/** Inject Sakai facade */
 	@SpringBean
 	private transient SakaiFacade 	facade;
 	
-	private BufferedImage 			bufferedImage;
+	private transient BufferedImage	bufferedImage;
 	private Class					returnPage;
 	private IModel					backButtonMessageModel;
 	

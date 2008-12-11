@@ -8,7 +8,7 @@
             <script type="text/javascript">
 	            function showExportButtons(){
 	                jQuery('.export').hide();
-	                jQuery('#exportButtons').fadeIn();	                
+	                jQuery('.exportButtons').fadeIn();
 	            }
             </script>
         </wicket:head>
@@ -150,11 +150,10 @@
 		            <p class="act">
 		                <input type="submit" wicket:id="back" wicket:message="value:report_back" class="active"/>
 		                <input type="submit" wicket:id="export" wicket:message="value:bt_export" onclick="showExportButtons();return false;" class="export"/>
-		                <span id="exportButtons" style="display:none">
-		                   <input type="submit" wicket:id="exportXls" wicket:message="value:bt_export_excel"/>
-		                   <input type="submit" wicket:id="exportCsv" wicket:message="value:bt_export_csv"/>
-		                   <input type="submit" wicket:id="exportPdf" wicket:message="value:bt_export_pdf"/>
-		                </span>
+		                
+		                <input type="submit" wicket:id="exportXls" wicket:message="value:bt_export_excel" class="exportButtons" style="display:none;"/>
+		                <input type="submit" wicket:id="exportCsv" wicket:message="value:bt_export_csv" class="exportButtons" style="display:none;"/>
+		                <input type="submit" wicket:id="exportPdf" wicket:message="value:bt_export_pdf" class="exportButtons" style="display:none;"/>
 		            </p>
 	            </form>            
             </div>

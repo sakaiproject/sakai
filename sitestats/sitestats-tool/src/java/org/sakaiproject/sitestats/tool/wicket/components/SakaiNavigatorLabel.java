@@ -107,7 +107,7 @@ public class SakaiNavigatorLabel extends Label {
 		);
 	}
 
-	private class LabelModelObject implements IClusterable {
+	private static class LabelModelObject implements IClusterable {
 		private static final long		serialVersionUID	= 1L;
 		private final PageableComponent	table;
 

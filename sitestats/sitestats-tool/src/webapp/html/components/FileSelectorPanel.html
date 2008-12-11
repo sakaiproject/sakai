@@ -4,24 +4,30 @@
             <style type="text/css">
 			      #container {
 			         background-color: white;
-			         border-bottom: 1px solid rgb(255, 255, 255);
-			         border-left: 1px solid rgb(187, 187, 187);
-			         border-right: 1px solid rgb(255, 255, 255);
-			         border-top: 1px solid rgb(187, 187, 187);
-			         width: 304px;
+			         border: 1px solid #888888;
+			         width: 240px;
 			         height: 220px;
 			         overflow: scroll;
 			         padding: 5px;			        
 			         display: block;
+			         margin: 0.1em 0.3em;
 			      }
 			      .containerHover{
-			         background-color:#EEEEEE;
+			         background-color:#D4D0C8;
 					 height:214px;
 					 margin:1px;
 					 position:absolute;
-					 width:298px;
+					 width:234px;
+                     margin: 0.2em 0.4em;
 			      }
 			 </style>
+			 <!--[if gte IE 6]>
+			 <style type="text/css">
+                  .containerHover {
+                     margin: 1px 0 0 1px;
+                  }
+			 </style>
+			 <![endif]-->
 			 <script type="text/javascript">			      
 			      function updateFieldWithSelectedFiles(fieldId) {
 			        var files = jQuery('#container input[@type=checkbox][@checked]');
@@ -43,7 +49,7 @@
      
     <wicket:body>
 		<wicket:panel>
-		      <div wicket:id="containerHover" class="containerHover"></div>
+		      <div wicket:id="containerHover" class="containerHover" style="display:none"></div>
 		      <div id="container"></div>
 		      <input class="selectedFiles" wicket:id="selectedFiles" type="hidden"/>
 		</wicket:panel>

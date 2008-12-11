@@ -29,7 +29,7 @@ public class CHResourceModel implements IModel {
 	}
 
 	public void setObject(Object object) {
-		resourceId = resourceId;
+		this.resourceId = (String) object;
 	}
 	
 	public String getResourceId() {

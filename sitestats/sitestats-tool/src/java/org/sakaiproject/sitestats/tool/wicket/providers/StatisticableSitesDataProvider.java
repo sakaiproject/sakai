@@ -15,10 +15,11 @@ import org.sakaiproject.sitestats.tool.wicket.models.SiteModel;
 
 
 public class StatisticableSitesDataProvider extends SortableSearchableDataProvider {
-	public final static String		COL_TITLE		= "title";
-	public final static String		COL_TYPE		= "type";
-	public final static String		COL_STATUS		= "published";
-	public final static String		SITE_TYPE_ALL	= "all";
+	private static final long		serialVersionUID	= 1L;
+	public final static String		COL_TITLE			= "title";
+	public final static String		COL_TYPE			= "type";
+	public final static String		COL_STATUS			= "published";
+	public final static String		SITE_TYPE_ALL		= "all";
 	
 	@SpringBean
 	private transient SakaiFacade facade;

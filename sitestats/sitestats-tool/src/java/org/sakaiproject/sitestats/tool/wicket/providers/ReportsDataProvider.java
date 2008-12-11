@@ -54,7 +54,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 		this.reportDef = reportDef;
 		
         // set default sort
-		if(reportDef.getReportParams().getHowSortBy() == null) {
+		if(!reportDef.getReportParams().isHowSort() || reportDef.getReportParams().getHowSortBy() == null) {
 			setSort(COL_USERNAME, true);
 		}else{
 			setSort(reportDef.getReportParams().getHowSortBy(), reportDef.getReportParams().getHowSortAscending());

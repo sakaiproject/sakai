@@ -9,19 +9,17 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.WicketRuntimeException;
-import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.datetime.StyleDateConverter;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.markup.html.form.select.IOptionRenderer;
@@ -35,14 +33,10 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.Check;
 import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.markup.html.form.Radio;
-import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -68,13 +62,15 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.wicket.components.AjaxIndicator;
 import org.sakaiproject.sitestats.tool.wicket.components.CSSFeedbackPanel;
 import org.sakaiproject.sitestats.tool.wicket.components.FileSelectorPanel;
-import org.sakaiproject.sitestats.tool.wicket.components.IndicatingAjaxRadioGroup;
+import org.sakaiproject.sitestats.tool.wicket.components.IStylableOptionRenderer;
+import org.sakaiproject.sitestats.tool.wicket.components.IndicatingAjaxDropDownChoice;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
-import org.sakaiproject.sitestats.tool.wicket.components.Menu;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
-import org.sakaiproject.sitestats.tool.wicket.components.SelectOptionsGroup;
+import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptions;
+import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptionsGroup;
 import org.sakaiproject.sitestats.tool.wicket.models.EventModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ToolModel;
@@ -86,9 +82,10 @@ import org.sakaiproject.util.Web;
  * @author Nuno Fernandes
  */
 public class ReportsEditPage extends BasePage {
-	private static Log				LOG				= LogFactory.getLog(ReportsEditPage.class);
-	private static final String		REPORT_THISSITE	= "this";
-	private static final String		REPORT_ALLSITES	= "all";
+	private static final long		serialVersionUID	= 1L;
+	private static Log				LOG					= LogFactory.getLog(ReportsEditPage.class);
+	private static final String		REPORT_THISSITE		= "this";
+	private static final String		REPORT_ALLSITES		= "all";
 
 	/** Inject Sakai facade */
 	@SpringBean
@@ -214,7 +211,7 @@ public class ReportsEditPage extends BasePage {
 		renderHowUI(form);
 		
 		// buttons
-		Button generateReport = new Button("generateReport") {
+		final Button generateReport = new Button("generateReport") {
 			@Override
 			public void onSubmit() {
 				if(validReportParameters()) {
@@ -227,7 +224,7 @@ public class ReportsEditPage extends BasePage {
 			}
 		};
 		form.add(generateReport);
-		Button saveReport = new Button("saveReport") {
+		final Button saveReport = new Button("saveReport") {
 			@Override
 			public void onSubmit() {
 				if(validReportParameters()) {
@@ -264,13 +261,14 @@ public class ReportsEditPage extends BasePage {
 		};
 		saveReport.setVisible(!predefined || (predefined && facade.getStatsAuthz().isSiteStatsAdminPage() && realSiteId.equals(siteId)));
 		form.add(saveReport);
-		form.add(new Button("back") {
+		final Button back = new Button("back") {
 			@Override
 			public void onSubmit() {
 				setResponsePage(returnPage);
 				super.onSubmit();
 			}
-		});
+		};
+		form.add(back);
 	}
 
 	@SuppressWarnings("serial")
@@ -325,13 +323,8 @@ public class ReportsEditPage extends BasePage {
 		if(predefined) {
 			if(facade.getStatsAuthz().isSiteStatsAdminPage() && realSiteId.equals(siteId)) {
 				reportDetailsTop.setVisible(true);
-				if(!reportDefModel.isNew()) {
-					reportDetailsShow.setVisible(true);
-					reportDetails.add(new AttributeModifier("style", true, new Model("display: none")));
-				}else{
-					reportDetailsShow.setVisible(false);
-					reportDetails.setVisible(true);						
-				}
+				reportDetailsShow.setVisible(false);
+				reportDetails.setVisible(true);
 			}else{
 				reportDetailsTop.setVisible(false);
 				reportDetailsShow.setVisible(false);
@@ -339,41 +332,8 @@ public class ReportsEditPage extends BasePage {
 			}
 		}else{
 			reportDetailsTop.setVisible(true);
-			//if(!reportDefModel.isNew()) {
-				reportDetailsShow.setVisible(true);
-				reportDetails.add(new AttributeModifier("style", true, new Model("display: none")));
-			//}else{
-			//	reportDetailsShow.setVisible(false);
-			//	reportDetails.setVisible(true);						
-			//}
-		}
-				
-		// site to report
-		// visible when, on sitestats admin page, non-predefined report
-		WebMarkupContainer siteContainer = new WebMarkupContainer("siteContainer");		
-		siteContainer.setVisible(facade.getStatsAuthz().isSiteStatsAdminPage() && !predefined && realSiteId.equals(siteId));
-		reportDetails.add(siteContainer);
-		//reportSite
-		List<String> reportSiteOptions = Arrays.asList(REPORT_THISSITE, REPORT_ALLSITES);
-		IChoiceRenderer reportSiteRenderer = new IChoiceRenderer() {
-			public Object getDisplayValue(Object object) {
-				if(REPORT_THISSITE.equals(object)) {
-					return (String) new ResourceModel("report_reportsite_this").getObject();
-				}
-				if(REPORT_ALLSITES.equals(object)) {
-					return (String) new ResourceModel("report_reportsite_all").getObject();
-				}
-				return (String) new ResourceModel("report_reportsite_this").getObject();
-			}
-			public String getIdValue(Object object, int index) {
-				return (String) object;
-			}		
-		};
-		siteContainer.add(new DropDownChoice("reportSite",new PropertyModel(this, "reportSite") , reportSiteOptions, reportSiteRenderer));
-		if(getReportParams().getSiteId() == null) {
-			this.reportSiteOpt = REPORT_ALLSITES;
-		}else {
-			this.reportSiteOpt = REPORT_THISSITE;
+			reportDetailsShow.setVisible(true);
+			reportDetails.add(new AttributeModifier("style", true, new Model("display: none")));
 		}
 	}
 
@@ -382,44 +342,67 @@ public class ReportsEditPage extends BasePage {
 		// -------------------------------------------------------
 		// left panel
 		// -------------------------------------------------------
-		RadioGroup what = new RadioGroup("reportParams.what");
-		form.add(what);
-		what.add(new Radio("what-visits", new Model("what-visits")).setVisible(visitsEnabled));
-		what.add(new Radio("what-events", new Model("what-events")));
-		what.add(new Radio("what-resources", new Model("what-resources")));
-
-		RadioGroup whatEventSelType = new RadioGroup("reportParams.whatEventSelType");
-		what.add(whatEventSelType);
-		whatEventSelType.add(new Radio("what-events-bytool", new Model("what-events-bytool")));
-		whatEventSelType.add(new Radio("what-events-byevent", new Model("what-events-byevent")));
-
-		what.add(new CheckBox("reportParams.whatLimitedAction"));
-
-
-		// -------------------------------------------------------
-		// right panel
-		// -------------------------------------------------------
-		// resources
-		final FileSelectorPanel whatResourceIds = new FileSelectorPanel("reportParams.whatResourceIds", siteId);
-		what.add(whatResourceIds);
-		what.add(new CheckBox("reportParams.whatLimitedResourceIds"));
-		whatResourceIds.setEnabled(true);
+		// activity
+		List<String> whatOptions = Arrays.asList(ReportManager.WHAT_VISITS, ReportManager.WHAT_EVENTS, ReportManager.WHAT_RESOURCES);
+		IChoiceRenderer whatChoiceRenderer = new IChoiceRenderer() {
+			public Object getDisplayValue(Object object) {
+				if(ReportManager.WHAT_VISITS.equals(object)) {
+					return new ResourceModel("report_what_visits").getObject();
+				}
+				if(ReportManager.WHAT_EVENTS.equals(object)) {
+					return new ResourceModel("report_what_events").getObject();
+				}
+				if(ReportManager.WHAT_RESOURCES.equals(object)) {
+					return new ResourceModel("report_what_resources").getObject();
+				}
+				return object;
+			}
+			public String getIdValue(Object object, int index) {
+				return (String) object;
+			}		
+		};
+		form.add(new DropDownChoice("reportParams.what", whatOptions, whatChoiceRenderer));
 		
-		// tools
+		// event selection type
+		List<String> whatEventSelTypeOptions = Arrays.asList(ReportManager.WHAT_EVENTS_BYTOOL, ReportManager.WHAT_EVENTS_BYEVENTS);
+		IChoiceRenderer whatEventSelTypeChoiceRenderer = new IChoiceRenderer() {
+			public Object getDisplayValue(Object object) {
+				if(ReportManager.WHAT_EVENTS_BYTOOL.equals(object)) {
+					return new ResourceModel("report_what_events_bytool").getObject();
+				}
+				if(ReportManager.WHAT_EVENTS_BYEVENTS.equals(object)) {
+					return new ResourceModel("report_what_events_byevent").getObject();
+				}
+				return object;
+			}
+			public String getIdValue(Object object, int index) {
+				return (String) object;
+			}		
+		};
+		form.add(new DropDownChoice("reportParams.whatEventSelType", whatEventSelTypeOptions, whatEventSelTypeChoiceRenderer).setEscapeModelStrings(false));
+		
+		// tool selection
 		Select whatToolIds = new Select("reportParams.whatToolIds");
 		RepeatingView selectOptionsRV1 = new RepeatingView("selectOptionsRV1");
 		whatToolIds.add(selectOptionsRV1);
 		whatToolIds.add(new AttributeModifier("title", true, new ResourceModel("report_multiple_sel_instruction")));
 		addTools(selectOptionsRV1);
-		what.add(whatToolIds);		
+		form.add(whatToolIds);
 		
-		// events
+		// event selection
 		Select whatEventIds = new Select("reportParams.whatEventIds");
 		RepeatingView selectOptionsRV2 = new RepeatingView("selectOptionsRV2");
 		whatEventIds.add(selectOptionsRV2);
 		whatEventIds.add(new AttributeModifier("title", true, new ResourceModel("report_multiple_sel_instruction")));
 		addEvents(selectOptionsRV2);
-		what.add(whatEventIds);
+		form.add(whatEventIds);
+		
+		// resources selection
+		form.add(new CheckBox("reportParams.whatLimitedAction"));
+		form.add(new CheckBox("reportParams.whatLimitedResourceIds"));
+		final FileSelectorPanel whatResourceIds = new FileSelectorPanel("reportParams.whatResourceIds", siteId);
+		form.add(whatResourceIds);
+		whatResourceIds.setEnabled(true);
 		
 		// resource actions
 		List<String> resourceActions = new ArrayList<String>();
@@ -445,24 +428,45 @@ public class ReportsEditPage extends BasePage {
 			}
 			
 		};
-		what.add(whatResourceAction);
+		form.add(whatResourceAction);
 	}
 
 	@SuppressWarnings("serial")
 	private void renderWhenUI(Form form) {
-		RadioGroup when = new RadioGroup("reportParams.when");
-		form.add(when);
-		when.add(new Radio("when-all", new Model("when-all")));
-		when.add(new Radio("when-last7days", new Model("when-last7days")));
-		when.add(new Radio("when-custom", new Model("when-custom")));
-		when.add(new Radio("when-last30days", new Model("when-last30days")));		
-		when.add(new DateTimeField("reportParams.whenFrom") {			
+		List<String> whenOptions = Arrays.asList(
+				ReportManager.WHEN_ALL, ReportManager.WHEN_LAST7DAYS,
+				ReportManager.WHEN_LAST30DAYS, ReportManager.WHEN_CUSTOM
+				);
+		IChoiceRenderer whenChoiceRenderer = new IChoiceRenderer() {
+			public Object getDisplayValue(Object object) {
+				if(ReportManager.WHEN_ALL.equals(object)) {
+					return new ResourceModel("report_when_all").getObject();
+				}
+				if(ReportManager.WHEN_LAST7DAYS.equals(object)) {
+					return new ResourceModel("report_when_last7days").getObject();
+				}
+				if(ReportManager.WHEN_LAST30DAYS.equals(object)) {
+					return new ResourceModel("report_when_last30days").getObject();
+				}
+				if(ReportManager.WHEN_CUSTOM.equals(object)) {
+					return new ResourceModel("report_when_custom").getObject();
+				}
+				return object;
+			}
+			public String getIdValue(Object object, int index) {
+				return (String) object;
+			}		
+		};
+		form.add(new DropDownChoice("reportParams.when", whenOptions, whenChoiceRenderer));
+		
+		// custom dates
+		form.add(new DateTimeField("reportParams.whenFrom") {			
 			@Override
 			protected DateTextField newDateTextField(String id, PropertyModel dateFieldModel) {
 				return new DateTextField(id, dateFieldModel, new StyleDateConverter("S-", true));
 			}
 		});
-		when.add(new DateTimeField("reportParams.whenTo") {			
+		form.add(new DateTimeField("reportParams.whenTo") {			
 			@Override
 			protected DateTextField newDateTextField(String id, PropertyModel dateFieldModel) {
 				return new DateTextField(id, dateFieldModel, new StyleDateConverter("S-", true));
@@ -473,63 +477,85 @@ public class ReportsEditPage extends BasePage {
 	
 	@SuppressWarnings("serial")
 	private void renderWhoUI(Form form) {		
-		// users (part 1)
+		List<String> groups = getGroups();
 		final RepeatingView selectOptionsRV = new RepeatingView("selectOptionsRV");
-		selectOptionsRV.setRenderBodyOnly(true);
 		final Select whoUserIds = new MultipleSelect("reportParams.whoUserIds");
-		final Radio whoCustom = new Radio("who-custom", new Model("who-custom"));
 		
-		// left radio selectors
-		boolean preloadData = ReportManager.WHO_CUSTOM.equals(getReportParams().getWho());
-		final RadioGroup who = new IndicatingAjaxRadioGroup("reportParams.who", ReportManager.WHO_CUSTOM, !preloadData) {
+		// who		
+		List<String> whoOptions = new ArrayList<String>();
+		whoOptions.add(ReportManager.WHO_ALL);
+		whoOptions.add(ReportManager.WHO_ROLE);
+		whoOptions.add(ReportManager.WHO_CUSTOM);
+		whoOptions.add(ReportManager.WHO_NONE);
+		if(groups.size() > 0) {
+			whoOptions.add(2, ReportManager.WHO_GROUPS);
+		}
+		IChoiceRenderer whoChoiceRenderer = new IChoiceRenderer() {
+			public Object getDisplayValue(Object object) {
+				if(ReportManager.WHO_ALL.equals(object)) {
+					return new ResourceModel("report_who_all").getObject();
+				}
+				if(ReportManager.WHO_ROLE.equals(object)) {
+					return new ResourceModel("report_who_role").getObject();
+				}
+				if(ReportManager.WHO_GROUPS.equals(object)) {
+					return new ResourceModel("report_who_group").getObject();
+				}
+				if(ReportManager.WHO_CUSTOM.equals(object)) {
+					return new ResourceModel("report_who_custom").getObject();
+				}
+				if(ReportManager.WHO_NONE.equals(object)) {
+					return new ResourceModel("report_who_none").getObject();
+				}
+				return object;
+			}
+			public String getIdValue(Object object, int index) {
+				return (String) object;
+			}		
+		};
+		final IndicatingAjaxDropDownChoice who = new IndicatingAjaxDropDownChoice("reportParams.who", whoOptions, whoChoiceRenderer);
+		who.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				removeAjaxUpdatingBehavior();
-				addUsers(selectOptionsRV);
-				whoUserIds.setEnabled(true);
-				whoUserIds.setVisible(true);
-				target.addComponent(this);
-				target.appendJavascript("setMainFrameHeightNoScroll(window.name);");
+				if(ReportManager.WHO_CUSTOM.equals(getReportParams().getWho())) {
+					addUsers(selectOptionsRV);
+					whoUserIds.add(new AttributeModifier("style", true, new Model("width: 250px")));
+					who.remove(this);
+					whoUserIds.add(new AttributeModifier("onchange", true, new Model("checkWhoSelection();")));
+					target.addComponent(who);
+					target.addComponent(whoUserIds);
+				}
+				target.appendJavascript("checkWhoSelection();");
 			}
-		};
-		who.setOutputMarkupId(true);
-		whoUserIds.setEnabled(preloadData);
-		whoUserIds.setOutputMarkupPlaceholderTag(true);
-		whoUserIds.setVisible(preloadData);
-		if(preloadData) {
-			addUsers(selectOptionsRV);
-		}
+			@Override
+			protected CharSequence generateCallbackScript(CharSequence partialCall) {
+				CharSequence ajaxScript =  super.generateCallbackScript(partialCall);
+				StringBuilder b = new StringBuilder();
+				b.append("checkWhoSelection();");
+				b.append("if(jQuery('.who').val() == 'who-custom') {;");
+				b.append(ajaxScript);
+				b.append("}");
+				return b.toString();
+			}
+		});
 		form.add(who);
-		who.add(new Radio("who-all", new Model("who-all")));
-		who.add(new Radio("who-role", new Model("who-role")));
-		WebMarkupContainer whoGroupTr = new WebMarkupContainer("who-groups-tr");
-		who.add(whoGroupTr);
-		whoGroupTr.add(new Radio("who-groups", new Model("who-groups")));
-		who.add(whoCustom);
-		who.add(new Radio("who-none", new Model("who-none")));	
 		
-		// users (part 2)
-		selectOptionsRV.setEscapeModelStrings(true);
+		// users
+		selectOptionsRV.setRenderBodyOnly(true);
+		selectOptionsRV.setEscapeModelStrings(true);		
 		whoUserIds.add(selectOptionsRV);
 		whoUserIds.add(new AttributeModifier("title", true, new ResourceModel("report_multiple_sel_instruction")));
 		whoUserIds.setOutputMarkupId(true);
 		whoUserIds.setOutputMarkupPlaceholderTag(true);
 		whoUserIds.setEscapeModelStrings(true);
-		who.add(whoUserIds);
+		form.add(whoUserIds);
+		boolean preloadData = ReportManager.WHO_CUSTOM.equals(getReportParams().getWho());
+		if(preloadData) {
+			addUsers(selectOptionsRV);
+		}
 		
 		// roles
-		List<String> roles = new ArrayList<String>();
-		try{
-			Set<Role> roleSet = facade.getSiteService().getSite(siteId).getRoles();
-			Iterator<Role> i = roleSet.iterator();
-			while(i.hasNext()){
-				Role r = i.next();
-				roles.add(r.getId());
-			}
-		}catch(IdUnusedException e){
-			LOG.warn("Site does not exist: " + siteId);
-			
-		}
+		List<String> roles = getRoles();
 		IChoiceRenderer rolesRenderer = new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
 				return (String) object;
@@ -548,21 +574,11 @@ public class ReportsEditPage extends BasePage {
 				getReportParams().setWhoRoleId("");
 			}
 		}
-		who.add(whoRoleId);
+		form.add(whoRoleId);
 		
 		// groups
-		List<String> groups = new ArrayList<String>();
-		try{
-			Collection<Group> groupCollection = facade.getSiteService().getSite(siteId).getGroups();
-			Iterator<Group> i = groupCollection.iterator();
-			while(i.hasNext()){
-				Group g = i.next();
-				groups.add(g.getId());
-			}
-		}catch(IdUnusedException e){
-			LOG.warn("Site does not exist: " + siteId);
-			
-		}
+		WebMarkupContainer whoGroupTr = new WebMarkupContainer("who-groups-tr");
+		form.add(whoGroupTr);
 		IChoiceRenderer groupsRenderer = new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
 				try{
@@ -594,33 +610,54 @@ public class ReportsEditPage extends BasePage {
 	@SuppressWarnings("serial")
 	private void renderHowUI(Form form) {		
 		boolean isSiteStatsAdminTool = facade.getStatsAuthz().isSiteStatsAdminPage();
-		boolean renderAdminOptions = isSiteStatsAdminTool && !predefined && realSiteId.equals(siteId);
+		boolean renderSiteSelectOption = facade.getStatsAuthz().isSiteStatsAdminPage() && !predefined && realSiteId.equals(siteId);
+		boolean renderSiteSortOption = isSiteStatsAdminTool && !predefined && realSiteId.equals(siteId);
+		boolean renderSortAscendingOption = isSiteStatsAdminTool && predefined && realSiteId.equals(siteId);
+
+		// site to report
+		WebMarkupContainer siteContainer = new WebMarkupContainer("siteContainer");		
+		siteContainer.setVisible(renderSiteSelectOption);
+		form.add(siteContainer);
+		List<String> reportSiteOptions = Arrays.asList(REPORT_THISSITE, REPORT_ALLSITES);
+		IChoiceRenderer reportSiteRenderer = new IChoiceRenderer() {
+			public Object getDisplayValue(Object object) {
+				if(REPORT_THISSITE.equals(object)) {
+					return (String) new ResourceModel("report_reportsite_this").getObject();
+				}
+				if(REPORT_ALLSITES.equals(object)) {
+					return (String) new ResourceModel("report_reportsite_all").getObject();
+				}
+				return (String) new ResourceModel("report_reportsite_this").getObject();
+			}
+			public String getIdValue(Object object, int index) {
+				return (String) object;
+			}		
+		};
+		siteContainer.add(new DropDownChoice("reportSite",new PropertyModel(this, "reportSite") , reportSiteOptions, reportSiteRenderer));
+		if(getReportParams().getSiteId() == null) {
+			this.reportSiteOpt = REPORT_ALLSITES;
+		}else {
+			this.reportSiteOpt = REPORT_THISSITE;
+		}
 		
 		// totals by
-		CheckGroup howTotalsBy = new CheckGroup("reportParams.howTotalsBy");
+		Select howTotalsBy = new Select("reportParams.howTotalsBy");
 		form.add(howTotalsBy);
-		WebMarkupContainer howTotalsByAdmin =  new WebMarkupContainer("howTotalsByAdmin");
-		Check siteCheck = new Check("site", new Model(StatsManager.T_SITE));
-		howTotalsByAdmin.add(siteCheck);
-		howTotalsByAdmin.setVisible(renderAdminOptions);
-		howTotalsBy.add(howTotalsByAdmin);
-		howTotalsBy.add(new Check("user", new Model(StatsManager.T_USER)));
-		howTotalsBy.add(new Check("event", new Model(StatsManager.T_EVENT)));
-		howTotalsBy.add(new Check("resource", new Model(StatsManager.T_RESOURCE)));
-		howTotalsBy.add(new Check("resource-action", new Model(StatsManager.T_RESOURCE_ACTION)));
-		howTotalsBy.add(new Check("date", new Model(StatsManager.T_DATE)));
-		howTotalsBy.add(new Check("last-date", new Model(StatsManager.T_LASTDATE)));
+		RepeatingView howTotalsByOptions = new RepeatingView("howTotalsByOptions");
+		howTotalsBy.add(howTotalsByOptions);
+		addGroupOptions(howTotalsByOptions);
 		
 		// sorting
-		WebMarkupContainer sorting = new WebMarkupContainer("sorting");
-		form.add(sorting);
-		sorting.add(new CheckBox("reportParams.howSort"));
+		WebMarkupContainer trSortBy = new WebMarkupContainer("trSortBy");
+		trSortBy.setVisible(renderSortAscendingOption);
+		form.add(trSortBy);
+		trSortBy.add(new CheckBox("reportParams.howSort"));
 		// sort options
 		List<String> sortOptions = null;
-		if(renderAdminOptions) {
-			sortOptions = Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL);
+		if(renderSiteSortOption) {
+			sortOptions = Arrays.asList(StatsManager.T_SITE, /*StatsManager.T_USER,*/ StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL);
 		}else{
-			sortOptions = Arrays.asList(StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL);
+			sortOptions = Arrays.asList(/*StatsManager.T_USER,*/ StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL);
 		}
 		IChoiceRenderer howSortByRenderer = new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
@@ -657,15 +694,22 @@ public class ReportsEditPage extends BasePage {
 				return (String) object;
 			}		
 		};
-		DropDownChoice howSortBy = new DropDownChoice("reportParams.howSortBy", sortOptions, howSortByRenderer);
-		sorting.add(howSortBy);
-		sorting.add(new CheckBox("reportParams.howSortAscending"));
+		trSortBy.add(new DropDownChoice("reportParams.howSortBy", sortOptions, howSortByRenderer));
+		trSortBy.add(new CheckBox("reportParams.howSortAscending"));
 		
 		// max results
-		WebMarkupContainer maxResults = new WebMarkupContainer("maxResults");
-		form.add(maxResults);
-		maxResults.add(new CheckBox("reportParams.howLimitedMaxResults"));
-		maxResults.add(new TextField("reportParams.howMaxResults",int.class));
+		form.add(new CheckBox("reportParams.howLimitedMaxResults"));
+		form.add(new TextField("reportParams.howMaxResults",int.class) {
+			@Override
+			public String getInput() {
+				String[] input = getInputAsArray();
+				if(input == null || input.length == 0){
+					return "0";
+				}else{
+					return trim(input[0]);
+				}
+			}
+		});
 	}
 	
 	
@@ -680,17 +724,13 @@ public class ReportsEditPage extends BasePage {
 		while(i.hasNext()){
 			final ToolInfo toolInfo = i.next();
 			if(isToolSuported(toolInfo)) {
-				SelectOption opt = new SelectOption("option", new ToolModel(toolInfo));
-				//String toolId = toolInfo.getToolId();
-				//String toolIconPath = "background-image: url(" + facade.getEventRegistryService().getToolIcon(toolId) + ")";
-				//opt.add(new AttributeModifier("style", true, new Model("background-position:left center; background-repeat:no-repeat; margin-left:3px; padding-left:20px; "+toolIconPath)));
-				tools.add(opt);
+				tools.add(new SelectOption("option", new ToolModel(toolInfo)));
 			}
 		}		
 		WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
 		optgroupItem.setRenderBodyOnly(true);
 		rv.add(optgroupItem);
-		IOptionRenderer optionRenderer = new IOptionRenderer() {
+		IStylableOptionRenderer optionRenderer = new IStylableOptionRenderer() {
 			public String getDisplayValue(Object object) {
 				SelectOption opt = (SelectOption) object;
 				return ((ToolModel) opt.getModel()).getToolName();				
@@ -698,10 +738,21 @@ public class ReportsEditPage extends BasePage {
 			public IModel getModel(Object value) {
 				SelectOption opt = (SelectOption) value;
 				return new Model(((ToolModel) opt.getModel()).getToolId());
+			}
+			public String getStyle(Object object) {
+				SelectOption opt = (SelectOption) object;
+				ToolModel toolModel = (ToolModel) opt.getModel();
+				String toolId = toolModel.getToolId();
+				if(!ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolId)) {
+					String toolIconPath = "background-image: url(" + facade.getEventRegistryService().getToolIcon(toolId) + ");";
+					String style = "background-position:left center; background-repeat:no-repeat; margin-left:3px; padding-left:20px; "+toolIconPath;
+					return style;
+				}
+				return null;
 			}		
 		};
 		Collections.sort(tools, getOptionRendererComparator(collator, optionRenderer));
-		SelectOptions selectOptions = new SelectOptions("selectOptions", tools, optionRenderer);
+		StylableSelectOptions selectOptions = new StylableSelectOptions("selectOptions", tools, optionRenderer);
 		selectOptions.setRenderBodyOnly(true);
 		optgroupItem.add(selectOptions);
 	}
@@ -726,7 +777,9 @@ public class ReportsEditPage extends BasePage {
 				WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
 				optgroupItem.setRenderBodyOnly(true);
 				rv.add(optgroupItem);
-				SelectOptionsGroup group = new SelectOptionsGroup("group", new Model(toolInfo.getToolName()));
+				String toolIconPath = "background-image: url(" + facade.getEventRegistryService().getToolIcon(toolInfo.getToolId()) + ");";
+				String style = "background-position:left top; background-repeat:no-repeat; margin-left:3px; padding-left:20px; "+toolIconPath;
+				StylableSelectOptionsGroup group = new StylableSelectOptionsGroup("group", new Model(toolInfo.getToolName()), new Model(style));
 				optgroupItem.add(group);
 				SelectOptions selectOptions = new SelectOptions("selectOptions", events, new IOptionRenderer() {
 					public String getDisplayValue(Object object) {
@@ -814,13 +867,103 @@ public class ReportsEditPage extends BasePage {
 	}
 	
 	@SuppressWarnings("serial")
-	private void addNoUsers(final RepeatingView rv) {
+	private void addGroupOptions(final RepeatingView rv) {
+		boolean isSiteStatsAdminTool = facade.getStatsAuthz().isSiteStatsAdminPage();
+		boolean renderAdminOptions = isSiteStatsAdminTool && !predefined && realSiteId.equals(siteId);
+		
+		List<String> totalsOptions = new ArrayList<String>();
+		totalsOptions.add(StatsManager.T_USER);
+		totalsOptions.add(StatsManager.T_EVENT);
+		totalsOptions.add(StatsManager.T_RESOURCE);
+		totalsOptions.add(StatsManager.T_RESOURCE_ACTION);
+		totalsOptions.add(StatsManager.T_DATE);
+		totalsOptions.add(StatsManager.T_LASTDATE);
+		if(renderAdminOptions) {
+			totalsOptions.add(StatsManager.T_SITE);
+		}
+		
+		// add grouping options
+		List<SelectOption> selectOptionList = new ArrayList<SelectOption>();
+		Iterator<String> i = totalsOptions.iterator();
+		while(i.hasNext()){
+			String totalOpt = i.next();
+			SelectOption so = new SelectOption("option", new Model(totalOpt));
+			so.setEscapeModelStrings(false);
+			selectOptionList.add(so);
+		}		
+		
 		WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
 		optgroupItem.setRenderBodyOnly(true);
 		rv.add(optgroupItem);
-		SelectOptions selectOptions = new SelectOptions("selectOptions", new ArrayList<SelectOption>(), null);
+		IOptionRenderer optionRenderer = new IOptionRenderer() {
+			public String getDisplayValue(Object o) {
+				SelectOption opt = (SelectOption) o;
+				Object object = opt.getModel().getObject();
+				if(StatsManager.T_USER.equals(object)) {
+					return (String) new ResourceModel("report_howtotalsby_user").getObject();					
+				}
+				if(StatsManager.T_EVENT.equals(object)) {
+					return (String) new ResourceModel("report_howtotalsby_event").getObject();
+				}
+				if(StatsManager.T_RESOURCE.equals(object)) {
+					return (String) new ResourceModel("report_howtotalsby_resource").getObject();
+				}
+				if(StatsManager.T_RESOURCE_ACTION.equals(object)) {
+					return (String) new ResourceModel("report_howtotalsby_resourceaction").getObject();
+				}
+				if(StatsManager.T_DATE.equals(object)) {
+					return (String) new ResourceModel("report_howtotalsby_date").getObject();
+				}
+				if(StatsManager.T_LASTDATE.equals(object)) {
+					return (String) new ResourceModel("report_howtotalsby_lastdate").getObject();
+				}
+				if(StatsManager.T_SITE.equals(object)) {
+					return (String) new ResourceModel("report_howtotalsby_site").getObject();
+				}
+				return (String) object;			
+			}
+			
+			public IModel getModel(Object value) {
+				SelectOption opt = (SelectOption) value;
+				return opt.getModel();
+			}
+		};
+		SelectOptions selectOptions = new SelectOptions("selectOptions", selectOptionList, optionRenderer);
 		selectOptions.setRenderBodyOnly(true);
+		selectOptions.setEscapeModelStrings(false);
 		optgroupItem.add(selectOptions);
+	}
+	
+	private List<String> getGroups() {
+		List<String> groups = new ArrayList<String>();
+		try{
+			Collection<Group> groupCollection = facade.getSiteService().getSite(siteId).getGroups();
+			Iterator<Group> i = groupCollection.iterator();
+			while(i.hasNext()){
+				Group g = i.next();
+				groups.add(g.getId());
+			}
+		}catch(IdUnusedException e){
+			LOG.warn("Site does not exist: " + siteId);
+			
+		}
+		return groups;
+	}
+	
+	private List<String> getRoles() {
+		List<String> roles = new ArrayList<String>();
+		try{
+			Set<Role> roleSet = facade.getSiteService().getSite(siteId).getRoles();
+			Iterator<Role> i = roleSet.iterator();
+			while(i.hasNext()){
+				Role r = i.next();
+				roles.add(r.getId());
+			}
+		}catch(IdUnusedException e){
+			LOG.warn("Site does not exist: " + siteId);
+			
+		}
+		return roles;
 	}
 	
 	private boolean isToolSuported(final ToolInfo toolInfo) {
@@ -888,7 +1031,6 @@ public class ReportsEditPage extends BasePage {
 	}
 
 	private boolean validReportParameters() {
-		ResourceModel msg = null;
 		Site site = null;
 		try{
 			site = facade.getSiteService().getSite(siteId);
@@ -900,40 +1042,61 @@ public class ReportsEditPage extends BasePage {
 		if(getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)
 				&& getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL) 
 				&& (getReportParams().getWhatToolIds() == null || getReportParams().getWhatToolIds().size() == 0)){
-			msg = new ResourceModel("report_err_notools");
-		}else if(getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS) 
+			error((String) new ResourceModel("report_err_notools").getObject());
+		}
+		if(getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS) 
 				&& getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYEVENTS) 
 				&& (getReportParams().getWhatEventIds() == null || getReportParams().getWhatEventIds().size() == 0)) {
-			msg = new ResourceModel("report_err_noevents");
-		}else if(getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES) 
+			error((String) new ResourceModel("report_err_noevents").getObject());
+		}
+		if(getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES) 
 				&& getReportParams().isWhatLimitedResourceIds() 
 				&& (getReportParams().getWhatResourceIds() == null || getReportParams().getWhatResourceIds().size() == 0)){
-			msg = new ResourceModel("report_err_noresources");
-			
-		// check WHEN
-		}else if(getReportParams().getWhen().equals(ReportManager.WHEN_CUSTOM)
-				&& (getReportParams().getWhenFrom() == null || getReportParams().getWhenTo() == null)) {
-			msg = new ResourceModel("report_err_nocustomdates");
-			
-		// check WHO
-		}else if(getReportParams().getWho().equals(ReportManager.WHO_ROLE)){
-			if(site.getUsersHasRole(getReportParams().getWhoRoleId()).isEmpty())
-				msg = new ResourceModel("report_err_emptyrole");	
-		}else if(getReportParams().getWho().equals(ReportManager.WHO_GROUPS)){
-			if(getReportParams().getWhoGroupId() == null || getReportParams().getWhoGroupId().equals(""))
-				msg = new ResourceModel("report_err_nogroup");
-			else if(site.getGroup(getReportParams().getWhoGroupId()).getUsers().isEmpty())
-				msg = new ResourceModel("report_err_emptygroup");	
-		}else if(getReportParams().getWho().equals(ReportManager.WHO_CUSTOM) 
-				&& (getReportParams().getWhoUserIds() == null || getReportParams().getWhoUserIds().size() == 0)){
-			msg = new ResourceModel("report_err_nousers");
+			error((String) new ResourceModel("report_err_noresources").getObject());	
 		}
 		
-		if(msg != null){
-			error((String) msg.getObject());
-			return false;
+		// check WHEN
+		if(getReportParams().getWhen().equals(ReportManager.WHEN_CUSTOM)
+				&& (getReportParams().getWhenFrom() == null || getReportParams().getWhenTo() == null)) {
+			error((String) new ResourceModel("report_err_nocustomdates").getObject());
 		}
-		return true;
+			
+		// check WHO
+		if(getReportParams().getWho().equals(ReportManager.WHO_ROLE)){
+			if(site.getUsersHasRole(getReportParams().getWhoRoleId()).isEmpty())
+				error((String) new ResourceModel("report_err_emptyrole").getObject());	
+		}else if(getReportParams().getWho().equals(ReportManager.WHO_GROUPS)){
+			if(getReportParams().getWhoGroupId() == null || getReportParams().getWhoGroupId().equals(""))
+				error((String) new ResourceModel("report_err_nogroup").getObject());
+			else if(site.getGroup(getReportParams().getWhoGroupId()).getUsers().isEmpty())
+				error((String) new ResourceModel("report_err_emptygroup").getObject());	
+		}else if(getReportParams().getWho().equals(ReportManager.WHO_CUSTOM) 
+				&& (getReportParams().getWhoUserIds() == null || getReportParams().getWhoUserIds().size() == 0)){
+			error((String) new ResourceModel("report_err_nousers").getObject());
+		}
+		
+		// check HOW
+		if(getReportParams().getHowTotalsBy() != null){				
+			if(getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)
+					&& (getReportParams().getHowTotalsBy().contains(StatsManager.T_RESOURCE) || getReportParams().getHowTotalsBy().contains(StatsManager.T_RESOURCE_ACTION) )) {
+				error((String) new ResourceModel("report_err_totalsbyevent").getObject());	
+			}else if(getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)
+					&& getReportParams().getHowTotalsBy().contains(StatsManager.T_EVENT)) {
+				error((String) new ResourceModel("report_err_totalsbyresource").getObject());	
+			}
+
+		}
+		if(getReportParams().isHowSort() && getReportParams().getHowSortBy() != null && !getReportParams().getHowSortBy().equals(ReportManager.HOW_SORT_DEFAULT)){
+			if(!StatsManager.T_TOTAL.equals(getReportParams().getHowSortBy()) 
+					&& !getReportParams().getHowTotalsBy().contains(getReportParams().getHowSortBy())
+					){
+				getReportParams().setHowSort(false);
+				getReportParams().setHowSortBy(null);
+			}
+		}
+		
+		
+		return !hasErrorMessage();
 	}
 	
 	public String getReportSite() {
@@ -970,7 +1133,7 @@ public class ReportsEditPage extends BasePage {
 	}
 	
 	/** Subclass of Select that fixes behavior when used with AjaxFormChoiceComponentUpdatingBehavior.*/
-	class MultipleSelect extends Select {
+	static class MultipleSelect extends Select {
 		private static final long	serialVersionUID	= 1L;
 		
 		public MultipleSelect(String id) {

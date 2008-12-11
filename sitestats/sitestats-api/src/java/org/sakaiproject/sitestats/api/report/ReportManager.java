@@ -69,7 +69,7 @@ public interface ReportManager {
 	public boolean saveReportDefinition(ReportDef reportDef);
 	
 	/** Remove a report definition from DB. */
-	public void removeReportDefinition(ReportDef reportDef);
+	public boolean removeReportDefinition(ReportDef reportDef);
 	
 	/**
 	 * Load report definitions for a specific site from DB.

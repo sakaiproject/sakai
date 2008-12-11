@@ -60,8 +60,8 @@ public interface StatsManager {
 	public static final String			T_DATE						= "date";
 	public static final String			T_LASTDATE					= "last-date";
 	public static final String			T_TOTAL						= "total";
-	public static final List<String>	TOTALSBY_EVENT_DEFAULT		= Arrays.asList(T_USER, T_EVENT, T_LASTDATE);
-	public static final List<String>	TOTALSBY_RESOURCE_DEFAULT	= Arrays.asList(T_USER, T_RESOURCE, T_RESOURCE_ACTION, T_LASTDATE);
+	public static final List<String>	TOTALSBY_EVENT_DEFAULT		= Arrays.asList(T_USER, T_EVENT, T_DATE);
+	public static final List<String>	TOTALSBY_RESOURCE_DEFAULT	= Arrays.asList(T_USER, T_RESOURCE, T_RESOURCE_ACTION, T_DATE);
 	
 	// ################################################################
 	// Spring bean methods

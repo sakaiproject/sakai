@@ -31,6 +31,7 @@ import org.sakaiproject.sitestats.tool.wicket.components.Menus;
  * @author Nuno Fernandes
  */
 public class PreferencesPage extends BasePage {
+	private static final long		serialVersionUID			= 1L;
 
 	/** Inject Sakai facade */
 	@SpringBean

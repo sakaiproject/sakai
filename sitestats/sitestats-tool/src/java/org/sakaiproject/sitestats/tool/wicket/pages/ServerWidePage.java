@@ -34,6 +34,7 @@ import org.sakaiproject.sitestats.tool.wicket.models.ServerWideModel;
  * @author Nuno Fernandes
  */
 public class ServerWidePage extends BasePage {
+	private static final long			serialVersionUID		= 1L;
 
 	@SpringBean
 	private transient SakaiFacade		facade;

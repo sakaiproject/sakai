@@ -147,7 +147,6 @@ public class FileSelectorPanel extends Panel {
 		List<CHResourceModel> resourcesList = new ArrayList<CHResourceModel>();
 		String siteCollectionId = facade.getContentHostingService().getSiteCollection(siteId);
 		if(dir.equals(BASE_DIR)) {
-			dir = siteCollectionId; 
 			resourcesList.add(new CHResourceModel(siteCollectionId, siteTitle, true));
 		}else{
 			ContentCollection collection = facade.getContentHostingService().getCollection(dir);
@@ -188,6 +187,8 @@ public class FileSelectorPanel extends Panel {
 				}finally{
 					out.close();
 				}
+			}catch(RuntimeException e){
+				// ignore - do nothing
 			}catch(Exception e){
 				// ignore - do nothing
 			}

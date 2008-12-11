@@ -2,6 +2,7 @@ package org.sakaiproject.sitestats.api.report;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,7 @@ public class ReportParams implements Serializable {
 	
 	public ReportParams(String siteId){
 		this.siteId = siteId;
+		whatToolIds.add(ReportManager.WHAT_EVENTS_ALLTOOLS);
 		whenFrom = new Date();
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DAY_OF_MONTH, -1);
@@ -360,7 +362,6 @@ public class ReportParams implements Serializable {
 	
 	private String fixedHowSortBy(String sort) {
 		if(sort != null) {
-			// remove columns that shouldn't be selected
 			if(sort.equals(StatsManager.T_EVENT)) {
 				if(!getWhat().equals(ReportManager.WHAT_RESOURCES)){
 					return sort;
@@ -369,6 +370,8 @@ public class ReportParams implements Serializable {
 				if(getWhat().equals(ReportManager.WHAT_RESOURCES)){
 					return sort;
 				}
+			}else if(!StatsManager.T_TOTAL.equals(sort) && !getHowTotalsBy().contains(sort)) {
+				return ReportManager.HOW_SORT_DEFAULT;
 			}else{
 				return sort;
 			}
@@ -408,11 +411,7 @@ public class ReportParams implements Serializable {
 			str.append(memberToString("whenFrom", whenFrom.toString(), true));
 			str.append(memberToString("whenTo", whenTo.toString(), true));
 		}
-		if(ReportManager.WHO_ALL.equals(who)) {
-			str.append(memberToString("who", who, true));
-		}else{
-			str.append(memberToString("who", who, true));
-		}
+		str.append(memberToString("who", who, true));
 		if(ReportManager.WHO_GROUPS.equals(who)) {
 			str.append(memberToString("whoGroupId", whoGroupId, true));
 		}

@@ -28,6 +28,7 @@ import org.sakaiproject.sitestats.tool.wicket.providers.StatisticableSitesDataPr
  * @author Nuno Fernandes
  */
 public class AdminPage extends BasePage {
+	private static final long		serialVersionUID	= 1L;
 
 	/** Inject Sakai facade */
 	@SpringBean

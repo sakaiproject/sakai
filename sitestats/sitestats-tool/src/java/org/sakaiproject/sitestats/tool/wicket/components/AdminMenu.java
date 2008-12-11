@@ -37,7 +37,6 @@ public class AdminMenu extends Panel {
 	private void renderBody() {
 		// site id
 		String siteId = facade.getToolManager().getCurrentPlacement().getContext();
-		Class currentPageClass = getRequestCycle().getResponsePageClass();
 		PageParameters pageParameters = new PageParameters("siteId="+siteId);
 				
 		// --------- ADMIN SECTION ---------
@@ -47,7 +46,6 @@ public class AdminMenu extends Panel {
 			facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
 		MenuItem adminPage = new MenuItem("adminPage", new ResourceModel("menu_sitelist"), AdminPage.class, pageParameters, true);
 		adminPage.setVisible(adminPageVisible);
-		//adminPage.add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
 		add(adminPage);
 		
 		// Admin reports

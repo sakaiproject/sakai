@@ -66,7 +66,7 @@ public class Menu extends Panel {
 		}
 		String realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
 		boolean isSiteStatsAdminPage = facade.getStatsAuthz().isSiteStatsAdminPage();
-		boolean isBrowsingThisSite = siteId.equals(realSiteId);
+		boolean isBrowsingThisSite = siteId != null && siteId.equals(realSiteId);
 		
 		// Site display
 		String siteTitle = null;

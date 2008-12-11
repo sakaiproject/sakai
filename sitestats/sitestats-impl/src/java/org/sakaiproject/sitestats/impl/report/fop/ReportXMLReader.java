@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -17,7 +18,6 @@ import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -32,7 +32,6 @@ public class ReportXMLReader extends AbstractObjectReader {
 	/** Sakai services */
 	private TimeService				M_ts		= (TimeService) ComponentManager.get(TimeService.class.getName());
 	private SiteService				M_ss		= (SiteService) ComponentManager.get(SiteService.class.getName());
-	private ToolManager				M_tm		= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private UserDirectoryService	M_uds		= (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
 	private StatsManager			M_sm		= (StatsManager) ComponentManager.get(StatsManager.class.getName());
 	private EventRegistryService	M_ers		= (EventRegistryService) ComponentManager.get(EventRegistryService.class.getName());
@@ -155,7 +154,8 @@ public class ReportXMLReader extends AbstractObjectReader {
         
         // set column display info
         setColumnDisplayInfo(params);
-        
+
+        handler.element("th_site", msgs.getString("th_site"));
         handler.element("th_id", msgs.getString("th_id"));
         handler.element("th_user", msgs.getString("th_user"));
         handler.element("th_resource", msgs.getString("th_resource"));
@@ -174,6 +174,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         }
         handler.element("what", params.getWhat());
         handler.element("who", params.getWho());
+		handler.element("showSite", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_SITE)));
 		handler.element("showUser", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_USER)));
         handler.element("showEvent", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_EVENT)));
         handler.element("showResource", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_RESOURCE)));
@@ -193,6 +194,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         
         final Map<String,ToolInfo> eventIdToolMap = M_ers.getEventIdToolMap();
 		
+        boolean showSite = M_rm.isReportColumnAvailable(params, StatsManager.T_SITE);
         boolean showUser = M_rm.isReportColumnAvailable(params, StatsManager.T_USER);
         boolean showEvent = M_rm.isReportColumnAvailable(params, StatsManager.T_EVENT);
         boolean showResource = M_rm.isReportColumnAvailable(params, StatsManager.T_RESOURCE);
@@ -209,6 +211,16 @@ public class ReportXMLReader extends AbstractObjectReader {
             // set column display info
             setColumnDisplayInfo(params);
             
+            if(showSite) {
+            	String siteId = cs.getSiteId();
+            	String site = null;
+				try{
+					site = M_ss.getSite(siteId).getTitle();
+				}catch(IdUnusedException e){
+					site = msgs.getString("site_unknown");
+				}
+            	handler.element("site", site);
+            }
             if(showUser) {
 	        	String userId = null;
 	        	String userName = null;

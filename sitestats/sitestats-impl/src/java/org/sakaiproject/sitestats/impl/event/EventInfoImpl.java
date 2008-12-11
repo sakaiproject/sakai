@@ -11,7 +11,7 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 
 public class EventInfoImpl implements EventInfo, Serializable {
 	private static final long	serialVersionUID	= 1L;
-	private Log					LOG					= LogFactory.getLog(EventInfoImpl.class);
+	private transient Log		LOG					= LogFactory.getLog(EventInfoImpl.class);
 	private String				eventId;
 	private String				eventName;
 	private boolean				selected;

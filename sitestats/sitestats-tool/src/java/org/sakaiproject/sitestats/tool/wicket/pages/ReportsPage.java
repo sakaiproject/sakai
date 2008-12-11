@@ -1,10 +1,5 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
@@ -22,9 +17,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.sitestats.api.EventStat;
-import org.sakaiproject.sitestats.api.Stat;
-import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.components.CSSFeedbackPanel;
@@ -34,7 +26,8 @@ import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.providers.ReportDefsProvider;
 
 public class ReportsPage extends BasePage {
-	private static Log				LOG				= LogFactory.getLog(ReportsPage.class);
+	private static final long		serialVersionUID	= 1L;
+	private static Log				LOG					= LogFactory.getLog(ReportsPage.class);
 
 	/** Inject Sakai facade */
 	@SpringBean

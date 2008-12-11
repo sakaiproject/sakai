@@ -20,6 +20,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -56,7 +57,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * @author Nuno Fernandes
  */
 public class ReportDataPage extends BasePage {
-	private static Log				LOG				= LogFactory.getLog(ReportDataPage.class);
+	private static final long		serialVersionUID	= 1L;
+	private static Log				LOG					= LogFactory.getLog(ReportDataPage.class);
 
 	/** Inject Sakai facade */
 	@SpringBean
@@ -245,15 +247,17 @@ public class ReportDataPage extends BasePage {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
 					final String site = ((Stat) model.getObject()).getSiteId();
-					String lbl = "";
+					String lbl = "", href = "";
 					Site s = null;
 					try{
 						s = facade.getSiteService().getSite(site);
 						lbl = s.getTitle();
+						href = s.getUrl();
 					}catch(IdUnusedException e){
 						lbl = (String) new ResourceModel("site_unknown").getObject();
+						href = null;
 					}
-					item.add(new Label(componentId, lbl));
+					item.add(new ImageWithLink(componentId, null, href, lbl, "_parent"));
 				}
 			});
 		}

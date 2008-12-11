@@ -23,7 +23,7 @@ public class ToolInfoImpl implements ToolInfo, Serializable {
 	private String						toolName;
 	private List<EventInfo>				eventInfos;
 	private boolean						selected;
-	private EventParserTip				eventParserTip;
+	private transient EventParserTip	eventParserTip;
 	private transient ResourceLoader	msgs				= new ResourceLoader("Events");
 	private transient Log				LOG					= LogFactory.getLog(ToolFactoryImpl.class);
 	private transient ToolManager		M_tm				= (ToolManager) ComponentManager.get(ToolManager.class.getName());

@@ -14,8 +14,9 @@ import org.apache.wicket.protocol.http.WebResponse;
  */
 @SuppressWarnings("serial")
 public class ChartImage extends Panel {
-	private BufferedImage bufferedImage = null;
-	private Image chartImage = null;
+	private static final long 		serialVersionUID = 1L;
+	private transient BufferedImage	bufferedImage = null;
+	private Image 					chartImage = null;
 
 	public ChartImage(String id, final BufferedImage image) {
 		super(id);

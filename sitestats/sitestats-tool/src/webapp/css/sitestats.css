@@ -79,11 +79,60 @@
 
 /* Summary Header separator */
 .summaryHeader {
-	border-bottom: 1px solid silver;
-	color: #000000;
-	/*margin-top: 25px;*/
-	margin-bottom: 0px;
+	border-bottom: 2px solid rgb(221,223,225);
+	color: #333;
+	margin: 5px 0 0 0;
+	padding: 5px 0 1px 2px;
+	font-size: 15px;
+	font-weight: bold;
 }
+.summaryInstruction {
+    padding: 4px;
+    color: #555;
+    font-size: 11px;
+    font-weight: normal;	
+}
+.summaryHeader span.itemAction {
+    font-size: 11px;	
+}
+
+
+/* Form */
+.formContainer {
+    padding-left: 2px;
+    margin: 0;
+}
+table.formContainer  {
+    margin: 12px 0 12px 0;
+    padding-left: 0px;
+}
+.formContainer td {
+    display: table-cell;
+    line-height: 24px;
+    margin: 0;
+    padding: 2px 0px 2px 0px;
+}
+.formContainer td.lbl {
+    padding: 0px 16px 0px 0px;
+    font-weight: bold;
+    text-align: right;
+    width: 150px;
+    vertical-align:top;
+}
+.formContainer select{
+    margin: 0.1em 0.3em;
+    border:1px solid #888888;
+}
+.formContainer input[type="text"], .formContainer textarea {
+    padding:0.1em 0.3em;
+    margin: 0.1em 0.3em;
+    border:1px solid #888888;
+}
+input[name='reportParams.whenFrom:hours'], input[name='reportParams.whenFrom:minutes'],
+input[name='reportParams.whenTo:hours'], input[name='reportParams.whenTo:minutes'] {
+   width: 22px;
+}
+
 
 /* Summary Table */
 .summaryTable {
@@ -137,43 +186,39 @@ label.indnt1 {
 	color: window;
 }
 
+
 /* Tool/Event tree nodes in preferences (for Tomahawk tree2) */
 .nodeToolSelected,.nodeEventSelected  {
 	/*font-weight: bold;*/
 }
-
 .nodeToolUnselected,.nodeEventUnselected {
 	font-weight: normal;
 	font-style: italic;
 	text-decoration: line-through;
 	color: #888888;
 }
-
 .nodeToolPartialSelected{
 	font-weight: normal;
 	font-style: italic;
 	color: #555555;
 }
-
 .eventTree li {
     list-style: none;	
 }
-
 .navIcon {
     cursor: pointer;
     float: left;
 }
-
 .nodeIcon {
 	vertical-align: bottom;
 }
-
 .childCount {
 	display: none;
 	color: #555555;
 	/*font-size:85%;*/
 	font-weight: normal;
 }
+
 
 /* Wicket table sorting indicator */
 .wicket_orderUp a span {
@@ -188,3 +233,4 @@ label.indnt1 {
     background-position: right center;
     padding-right: 16px;
 }
+

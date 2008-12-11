@@ -39,7 +39,10 @@
 					<!-- Report data -->
 					<fo:block font-size="8pt" space-before="10mm">
 						<fo:table table-layout="fixed" width="100%" border-collapse="collapse" >
-							<xsl:if test="showUser = 'true'">
+							<xsl:if test="showSite = 'true'">
+                                <fo:table-column column-width="auto" />
+                            </xsl:if>
+                            <xsl:if test="showUser = 'true'">
 							    <fo:table-column column-width="auto" />						
 								<fo:table-column column-width="auto" />
 							</xsl:if>
@@ -101,6 +104,13 @@
 	<!-- ========================= -->
 	<xsl:template match="datarowheader">
 		<fo:table-row text-decoration="underline" color="blue">
+            <xsl:if test="showSite = 'true'">
+                <fo:table-cell border-bottom-width="0.75pt" border-bottom-style="dashed" border-bottom-color="#cccccc" padding-bottom="1pt" padding-left="1pt" padding-right="1pt">
+                    <fo:block>
+                        <xsl:value-of select="th_site" />
+                    </fo:block>
+                </fo:table-cell>
+            </xsl:if>
 		    <xsl:if test="showUser = 'true'">
 	            <fo:table-cell border-bottom-width="0.75pt" border-bottom-style="dashed" border-bottom-color="#cccccc" padding-bottom="1pt" padding-left="1pt" padding-right="1pt">
 	                <fo:block>
@@ -164,6 +174,13 @@
 	<!-- ========================= -->
 	<xsl:template match="datarow">
 		<fo:table-row>
+            <xsl:if test="showSite = 'true'">
+                <fo:table-cell padding-left="1pt" padding-right="1pt">
+                    <fo:block wrap-option="no-wrap">
+                        <xsl:value-of select="site" />
+                    </fo:block>
+                </fo:table-cell>
+            </xsl:if>
 		    <xsl:if test="showUser = 'true'">
                 <fo:table-cell padding-left="1pt" padding-right="1pt">
 	                <fo:block wrap-option="wrap">

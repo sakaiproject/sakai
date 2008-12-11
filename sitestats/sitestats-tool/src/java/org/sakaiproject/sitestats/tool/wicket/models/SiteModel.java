@@ -50,7 +50,7 @@ public class SiteModel extends LoadableDetachableModel {
 			return false;
 		}else if(obj instanceof SiteModel){
 			SiteModel other = (SiteModel) obj;
-			return other.id == this.id;
+			return this.id != null && this.id.equals(other.id);
 		}
 		return false;
 	}

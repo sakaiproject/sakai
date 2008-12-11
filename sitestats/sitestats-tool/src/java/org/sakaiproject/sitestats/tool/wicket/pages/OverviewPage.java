@@ -24,6 +24,7 @@ import org.sakaiproject.sitestats.tool.wicket.panels.VisitsPanel;
  * @author Nuno Fernandes
  */
 public class OverviewPage extends BasePage {
+	private static final long			serialVersionUID	= 1L;
 
 	/** Inject Sakai facade */
 	@SpringBean
@@ -77,7 +78,6 @@ public class OverviewPage extends BasePage {
 		
 		// SiteStats services
 		StatsManager statsManager = facade.getStatsManager();
-		StatsUpdateManager statsUpdateManager = facade.getStatsUpdateManager();
 		
 		// Last job run
 		add(new LastJobRun("lastJobRun", siteId));
