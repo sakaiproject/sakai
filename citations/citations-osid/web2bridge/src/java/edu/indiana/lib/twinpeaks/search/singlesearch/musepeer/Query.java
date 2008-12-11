@@ -465,28 +465,30 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	private void doResultsCommand() throws SearchException
 	{
-		int start = getSessionContext().getInt("startRecord");
+ 		int start = getSessionContext().getInt("startRecord");
     /*
-     * Only for the first result page: handle sparse results specially
+     * Less than one page of results?
      */
-    if (start == 1)
+    if (start ==  1)
     {
-      int activeTargets   = StatusUtils.getActiveTargetCount(getSessionContext());
       int pageSize        = Integer.parseInt((String) getSessionContext().get("pageSize"));
       int totalRemaining  = StatusUtils.getAllRemainingHits(getSessionContext());
-      /*
-       * If we have less than a full page of results, use "PREVIOUS"
-       */
+
       if (pageSize > totalRemaining)
       {
-        getSessionContext().put("pageSize", String.valueOf(pageSize));
-
+        /*
+         * Reduce requested page size to match the remaining result count
+         */
+        getSessionContext().put("pageSize", String.valueOf(totalRemaining));
+        /*
+         * And pick up the resutls
+         */
      	  clearParameters();
      		doPaginationCommand("previous", start);
 
      		submit();
      		validateResponse("PREVIOUS");
-     		return;
+        return;
       }
     }
     /*
