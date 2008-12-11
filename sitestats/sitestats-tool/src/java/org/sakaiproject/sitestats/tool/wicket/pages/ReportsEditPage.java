@@ -278,6 +278,8 @@ public class ReportsEditPage extends BasePage {
 		WebMarkupContainer reportDetailsShow = new WebMarkupContainer("reportDetailsShow");
 		reportDetailsTop.add(reportDetailsShow);
 		form.add(reportDetailsTop);
+		WebMarkupContainer fakeReportDetails = new WebMarkupContainer("fakeReportDetails");
+		reportDetailsTop.add(fakeReportDetails);
 		
 		// details
 		WebMarkupContainer reportDetails = new WebMarkupContainer("reportDetails");
@@ -325,6 +327,7 @@ public class ReportsEditPage extends BasePage {
 				reportDetailsTop.setVisible(true);
 				reportDetailsShow.setVisible(false);
 				reportDetails.setVisible(true);
+				fakeReportDetails.setVisible(false);
 			}else{
 				reportDetailsTop.setVisible(false);
 				reportDetailsShow.setVisible(false);
@@ -519,7 +522,7 @@ public class ReportsEditPage extends BasePage {
 			protected void onUpdate(AjaxRequestTarget target) {
 				if(ReportManager.WHO_CUSTOM.equals(getReportParams().getWho())) {
 					addUsers(selectOptionsRV);
-					whoUserIds.add(new AttributeModifier("style", true, new Model("width: 250px")));
+					whoUserIds.add(new AttributeModifier("style", true, new Model("width: 300px")));
 					who.remove(this);
 					whoUserIds.add(new AttributeModifier("onchange", true, new Model("checkWhoSelection();")));
 					target.addComponent(who);
@@ -718,8 +721,6 @@ public class ReportsEditPage extends BasePage {
 		List<SelectOption> tools = new ArrayList<SelectOption>();
 		List<ToolInfo> siteTools = facade.getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
 		Iterator<ToolInfo> i = siteTools.iterator();
-		// "all" tools
-		tools.add(new SelectOption("option", new ToolModel(ReportManager.WHAT_EVENTS_ALLTOOLS, ReportManager.WHAT_EVENTS_ALLTOOLS)));
 		// add tools
 		while(i.hasNext()){
 			final ToolInfo toolInfo = i.next();
@@ -752,6 +753,8 @@ public class ReportsEditPage extends BasePage {
 			}		
 		};
 		Collections.sort(tools, getOptionRendererComparator(collator, optionRenderer));
+		// "all" tools (insert in position 0
+		tools.add(0, new SelectOption("option", new ToolModel(ReportManager.WHAT_EVENTS_ALLTOOLS, ReportManager.WHAT_EVENTS_ALLTOOLS)));
 		StylableSelectOptions selectOptions = new StylableSelectOptions("selectOptions", tools, optionRenderer);
 		selectOptions.setRenderBodyOnly(true);
 		optgroupItem.add(selectOptions);

@@ -45,10 +45,10 @@
                                 <wicket:message key="report_details_instructions">[report_details_instructions]</wicket:message>
                             </span>
                             <span wicket:id="reportDetailsShow" class="itemAction reportDetailsShow">
-                                <a href="#" onclick="jQuery('#fakeReportDetails').hide();jQuery('.reportDetails').slideDown(function(){jQuery('.reportDetailsShow').hide(); setMainFrameHeightNoScroll(window.name);}); return false" class="itemAction" style="margin:0; padding:0;"><wicket:message key="report_details_show">[report_details_show]</wicket:message></a>
+                                <a href="#" onclick="jQuery('.fakeReportDetails').hide();jQuery('.reportDetails').slideDown(function(){jQuery('.reportDetailsShow').hide(); setMainFrameHeightNoScroll(window.name);}); return false" class="itemAction" style="margin:0; padding:0;"><wicket:message key="report_details_show">[report_details_show]</wicket:message></a>
                             </span>
                     </div>
-                <div id="fakeReportDetails" style="margin-bottom: 20px;"></div>
+                <div wicket:id="fakeReportDetails" class="fakeReportDetails" style="margin-bottom: 20px;"></div>
                 </span>
                 <span wicket:id="reportDetails" class="reportDetails">
                     <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
@@ -57,7 +57,7 @@
                                 <wicket:message key="report_reporttitle">[title]</wicket:message>
                             </td>
                             <td>
-                                <input type="text" wicket:id="reportDef.title" style="width: 250px;"/>
+                                <input type="text" wicket:id="reportDef.title" style="width: 300px;"/>
                             </td>
                         </tr>
                         <tr wicket:id="titleLocalizedContainer">
@@ -65,7 +65,7 @@
                                 <wicket:message key="report_reporttitle_localized">[localized_title]</wicket:message>
                             </td>
                             <td>
-                                <span wicket:id="titleLocalized" style="width: 250px;"></span>
+                                <span wicket:id="titleLocalized" style="width: 300px;"></span>
                             </td>
                         </tr>
                         <tr>
@@ -73,7 +73,7 @@
                                 <wicket:message key="report_reportdescription">[description]</wicket:message>
                             </td>
                             <td>
-                                <textarea wicket:id="reportDef.description" cols="30" rows="4" style="width: 250px;"></textarea>
+                                <textarea wicket:id="reportDef.description" cols="30" rows="4" style="width: 300px;"></textarea>
                             </td>
                         </tr>
                         <tr wicket:id="descriptionLocalizedContainer">
@@ -81,7 +81,7 @@
                                 <wicket:message key="report_reportdescription_localized">[localized_description]</wicket:message>
                             </td>
                             <td>
-                                <textarea wicket:id="descriptionLocalized" disabled="disabled" cols="30" rows="4" style="width: 250px;"></textarea>
+                                <textarea wicket:id="descriptionLocalized" disabled="disabled" cols="30" rows="4" style="width: 300px;"></textarea>
                             </td>                            
                         </tr>
                     </table>
@@ -103,9 +103,9 @@
 				                <wicket:message key="report_what_activity">[Activity:]</wicket:message>
 				            </td>
 				            <td>
-				                <select wicket:id="reportParams.what" class="what" style="width: 250px; margin-right: 0; " onchange="checkWhatSelection();"/>
+				                <select wicket:id="reportParams.what" class="what" style="width: 300px; margin-right: 0; " onchange="checkWhatSelection();"/>
 				                <!-- Event selection type -->
-                                <select wicket:id="reportParams.whatEventSelType" class="what-events-selection-type" style="width: 123px; margin-left: 0; display:none" onchange="checkWhatSelection();"/>
+                                <select wicket:id="reportParams.whatEventSelType" class="what-events-selection-type" style="width: 173px; margin-left: 0; display:none" onchange="checkWhatSelection();"/>
 				            </td>
 				        </tr>
                         <tr>
@@ -118,7 +118,7 @@
                             <td>
                                 <!-- Tool selection -->
                                 <div id="what-tools-select" style="display:none">
-	                               <select wicket:id="reportParams.whatToolIds" style="width: 250px; overflow: auto;" size="7" multiple="multiple" class="what-tools-select-component">
+	                               <select wicket:id="reportParams.whatToolIds" style="width: 300px; overflow: auto;" size="7" multiple="multiple" class="what-tools-select-component">
 	                                   <span wicket:id="selectOptionsRV1">
 	                                       <span wicket:id="selectOptions">
 	                                           <option wicket:id="option"></option>
@@ -128,7 +128,7 @@
                                 </div>
                                 <!-- Event selection -->
                                 <div id="what-events-select" style="display:none">
-	                               <select wicket:id="reportParams.whatEventIds" style="width: 250px; overflow: auto;" size="7" multiple="multiple">
+	                               <select wicket:id="reportParams.whatEventIds" style="width: 300px; overflow: auto;" size="7" multiple="multiple">
 	                                   <span wicket:id="selectOptionsRV2">
 	                                       <span wicket:id="group">
 			                                   <span wicket:id="selectOptions">
@@ -145,7 +145,7 @@
                                         <wicket:message key="report_what_resource_action">[report_what_resource_action]</wicket:message>
                                     </span>
                                     <select wicket:id="reportParams.whatResourceAction" class="whatResourceAction" style="margin-top: 5px" onclick="checkWhatSelection();"/>
-                                    <div style="width: 250px;">
+                                    <div style="width: 300px;">
                                         <input type="checkbox" wicket:id="reportParams.whatLimitedResourceIds" class="whatLimitedResourceIds" onclick="checkWhatSelection();"/>
                                         <wicket:message key="report_what_sel_resources">[report_what_sel_resources]</wicket:message>
                                     </div>
@@ -170,7 +170,7 @@
                             <wicket:message key="report_when_period">[report_when_period]</wicket:message>
                         </td>
                         <td>
-                            <select wicket:id="reportParams.when" class="when" style="width: 250px;" onchange="checkWhenSelection();"/>
+                            <select wicket:id="reportParams.when" class="when" style="width: 300px;" onchange="checkWhenSelection();"/>
                         </td>
                     </tr>
                     <tr id="when-custom-from" style="display: none">
@@ -207,7 +207,7 @@
                             <wicket:message key="report_who_users">[report_who_users]</wicket:message>
                         </td>
                         <td>
-                            <select wicket:id="reportParams.who" class="who" style="width: 250px;" onchange="checkWhoSelection();"/>
+                            <select wicket:id="reportParams.who" class="who" style="width: 300px;" onchange="checkWhoSelection();"/>
                         </td>
                     </tr>
                     <tr class="whoRole" style="display: none">
@@ -215,7 +215,7 @@
                             <wicket:message key="report_who_role_sel">[report_who_role]</wicket:message>
                         </td>
                         <td>
-                            <select wicket:id="reportParams.whoRoleId" class="who-role-select" style="width: 250px;"/>
+                            <select wicket:id="reportParams.whoRoleId" class="who-role-select" style="width: 300px;"/>
                         </td>
                     </tr>
                     <tr class="whoGroup" wicket:id="who-groups-tr" style="display: none">
@@ -223,7 +223,7 @@
                             <wicket:message key="report_who_group_sel">[report_who_group]</wicket:message>
                         </td>
                         <td>
-                            <select wicket:id="reportParams.whoGroupId" class="who-group-select" style="width: 250px;"/>
+                            <select wicket:id="reportParams.whoGroupId" class="who-group-select" style="width: 300px;"/>
                         </td>
                     </tr>
                     <tr class="whoCustom" style="display: none">
@@ -231,7 +231,7 @@
                             <wicket:message key="report_who_custom_sel">[report_who_custom]</wicket:message>
                         </td>
                         <td>
-                            <select wicket:id="reportParams.whoUserIds" style="width: 250x;" size="7" multiple="multiple">
+                            <select wicket:id="reportParams.whoUserIds" style="width: 300x;" size="7" multiple="multiple">
                                 <span wicket:id="selectOptionsRV">
                                     <span wicket:id="selectOptions">
                                         <option wicket:id="option"></option>
@@ -258,7 +258,7 @@
                             <wicket:message key="report_reportsite">[site_to_report]</wicket:message>
                         </td>
                         <td>
-                            <select wicket:id="reportSite" class="reportSite" style="width: 250px;" onchange="checkReportDetails()"/>
+                            <select wicket:id="reportSite" class="reportSite" style="width: 300px;" onchange="checkReportDetails()"/>
                         </td>
                     </tr>
                     <tr>
@@ -266,7 +266,7 @@
                            <wicket:message key="report_howtotalsby">[report_howtotalsby]</wicket:message>
                         </td>
                         <td>
-                            <select wicket:id="reportParams.howTotalsBy" class="howTotalsBy" style="width: 250px;" multiple="multiple" size="6" onchange="checkHowTotalsBySelection()">
+                            <select wicket:id="reportParams.howTotalsBy" class="howTotalsBy" style="width: 300px;" multiple="multiple" size="6" onchange="checkHowTotalsBySelection()">
                                 <span wicket:id="howTotalsByOptions">
                                     <span wicket:id="selectOptions">
                                         <option wicket:id="option"></option>
