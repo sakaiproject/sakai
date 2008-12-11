@@ -744,7 +744,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public AssignmentEdit addAssignment(String context) throws PermissionException
 	{
-		M_log.warn(this + " ENTERING ADD ASSIGNMENT : CONTEXT : " + context);
+		M_log.debug(this + " ENTERING ADD ASSIGNMENT : CONTEXT : " + context);
 
 		String assignmentId = null;
 		boolean badId = false;
@@ -773,7 +773,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		((BaseAssignmentEdit) assignment).setEvent(EVENT_ADD_ASSIGNMENT);
 
 		
-			M_log.warn(this + " LEAVING ADD ASSIGNMENT WITH : ID : " + assignment.getId());
+			M_log.debug(this + " LEAVING ADD ASSIGNMENT WITH : ID : " + assignment.getId());
 
 		return assignment;
 
@@ -846,7 +846,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			IdInvalidException, IdUsedException, IdUnusedException
 	{
 		
-			M_log.warn(this + " ENTERING ADD DUPLICATE ASSIGNMENT WITH ID : " + assignmentReference);
+			M_log.debug(this + " ENTERING ADD DUPLICATE ASSIGNMENT WITH ID : " + assignmentReference);
 
 		AssignmentEdit retVal = null;
 		AssignmentContentEdit newContent = null;
@@ -859,7 +859,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else
 			{
 				
-					M_log.warn(this + " addDuplicateAssignment : assignment exists - will copy");
+					M_log.debug(this + " addDuplicateAssignment : assignment exists - will copy");
 
 				Assignment existingAssignment = getAssignment(assignmentReference);
 				newContent = addDuplicateAssignmentContent(context, existingAssignment.getContentReference());
@@ -881,7 +881,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		
-			M_log.warn(this + " ADD DUPLICATE ASSIGNMENT : LEAVING ADD DUPLICATE ASSIGNMENT WITH ID : "
+			M_log.debug(this + " ADD DUPLICATE ASSIGNMENT : LEAVING ADD DUPLICATE ASSIGNMENT WITH ID : "
 					+ retVal.getId());
 
 		return retVal;
@@ -900,7 +900,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Assignment getAssignment(String assignmentReference) throws IdUnusedException, PermissionException
 	{
-		M_log.warn(this + " GET ASSIGNMENT : REF : " + assignmentReference);
+		M_log.debug(this + " GET ASSIGNMENT : REF : " + assignmentReference);
 
 		// check security on the assignment
 		unlockCheck(SECURE_ACCESS_ASSIGNMENT, assignmentReference);
@@ -1263,7 +1263,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 		if (assignment != null)
 		{
-			M_log.warn(this + " removeAssignment with id : " + assignment.getId());
+			M_log.debug(this + " removeAssignment with id : " + assignment.getId());
 
 			if (!assignment.isActiveEdit())
 			{
