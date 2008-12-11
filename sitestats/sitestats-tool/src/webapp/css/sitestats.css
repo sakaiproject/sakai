@@ -130,7 +130,7 @@ table.formContainer  {
 }
 input[name='reportParams.whenFrom:hours'], input[name='reportParams.whenFrom:minutes'],
 input[name='reportParams.whenTo:hours'], input[name='reportParams.whenTo:minutes'] {
-   width: 22px;
+   width: 26px;
 }
 
 
