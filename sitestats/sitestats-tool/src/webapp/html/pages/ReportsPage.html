@@ -29,11 +29,13 @@
 		        
                 <!--  My reports -->
                 <span wicket:id="myReportsContainer">
-	                <h4 class="summaryHeader">
-	                    <img src="images/silk/icons/user_gray.png" border="0" alt="Report details"/>
+	                <div class="summaryHeader">
+	                    <!-- <img src="images/silk/icons/user_gray.png" border="0" alt="Report details"/> -->
 	                    <wicket:message key="report_myreports">[report_myreports]</wicket:message>
-	                    <small class="instruction" style="padding-left: 5px; font-weight: normal;">-&nbsp;&nbsp;<wicket:message key="report_my_instr">[report_my_instr]</wicket:message></small>
-	                </h4>
+		                <span class="summaryInstruction">
+		                    <wicket:message key="report_my_instr">[report_my_instr]</wicket:message>
+		                </span>	                    
+	                </div>
 	                <ul class="navIntraTool actionToolbar" style="margin: 1px 0 0 0; padding: 0 0 2px 5px;">
 	                    <li>
 		                    <!-- Add -->
@@ -52,7 +54,7 @@
 		            </table>
 		            <p wicket:id="noReports" class="instruction">
 		               <wicket:message key="report_noreports">[report_noreports]</wicket:message>
-		            </p>	            
+		            </p>
 	                
 	                <br/>
                 </span>
@@ -60,11 +62,13 @@
                 
                 <!--  Predefined reports -->
                 <span wicket:id="predefinedReportsContainer">
-	                <h4 class="summaryHeader">
-	                    <img src="images/silk/icons/world.png" border="0" alt="Report details"/>
+	                <div class="summaryHeader">
+	                    <!-- <img src="images/silk/icons/world.png" border="0" alt="Report details"/> -->
                         <wicket:message key="report_predefinedreports">[report_predefinedreports]</wicket:message>
-                        <small class="instruction" style="padding-left: 5px; font-weight: normal;">-&nbsp;&nbsp;<wicket:message key="report_predefined_instr">[report_predefined_instr]</wicket:message></small>
-	                </h4>
+                        <span class="summaryInstruction">
+                            <wicket:message key="report_predefined_instr">[report_predefined_instr]</wicket:message>
+                        </span>
+	                </div>
                     <ul wicket:id="adminAddContainer" class="navIntraTool actionToolbar" style="margin: 1px 0 0 0; padding: 0 0 2px 5px;">
                         <li>
                             <!-- Add -->
@@ -81,6 +85,9 @@
 	                       </tr>
 	                    </tbody>
 	                </table>
+                    <p wicket:id="noReports" class="instruction">
+                       <wicket:message key="report_noreports">[report_noreports]</wicket:message>
+                    </p>
                 </span>
                 
                 

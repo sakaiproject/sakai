@@ -102,7 +102,7 @@ public class ReportsPage extends BasePage {
 		myReportsContainer.add(lnkNewReport);
 		// table
 		final WebMarkupContainer noReports = new WebMarkupContainer("noReports");
-		myReportsContainer.add(noReports);		
+		myReportsContainer.add(noReports);
 		final ReportDefsProvider myReportsProvider = new ReportDefsProvider(siteId, ReportDefsProvider.MODE_MYREPORTS, true, false);
 		DataView myReports = new DataView("myReports", myReportsProvider) {
 			private static final long	serialVersionUID	= 1L;
@@ -127,6 +127,8 @@ public class ReportsPage extends BasePage {
 		
 		// predefined reports
 		WebMarkupContainer predefinedReportsContainer = new WebMarkupContainer("predefinedReportsContainer");
+		final WebMarkupContainer noPredefReports = new WebMarkupContainer("noReports");
+		predefinedReportsContainer.add(noPredefReports);
 		WebMarkupContainer adminAddContainer = new WebMarkupContainer("adminAddContainer");
 		adminAddContainer.setVisible(isAdministering);
 		predefinedReportsContainer.add(adminAddContainer);
@@ -151,6 +153,11 @@ public class ReportsPage extends BasePage {
 				if(((ReportDef) model.getObject()).isHidden()) {
 					item.add(new AttributeModifier("class", true, new Model("hiddenReport")));
 				}
+			}
+			@Override
+			protected void onBeforeRender() {
+				noPredefReports.setVisible(getRowCount() == 0);
+				super.onBeforeRender();
 			}
 		};
 		predefinedReportsContainer.add(predefinedReports);

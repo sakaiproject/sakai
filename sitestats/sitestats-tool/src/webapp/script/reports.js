@@ -1,7 +1,7 @@
 function checkWhatSelection() {
 	var what = jQuery('.what').val();
 	if(what == 'what-visits') {
-		jQuery('.what').css('width','250px');
+		jQuery('.what').css('width','300px');
 		jQuery('#what-selection-label').hide();
 		jQuery('.what-events-selection-type').hide();
 		jQuery('#what-tools-select').hide();
@@ -23,7 +23,7 @@ function checkWhatSelection() {
 		jQuery('#what-resources-options').hide();
 		jQuery('#what-resources-select').hide();
 	}else if(what == 'what-resources') {
-		jQuery('.what').css('width','250px');
+		jQuery('.what').css('width','300px');
 		jQuery('#what-selection-label').show();
 		jQuery('.what-events-selection-type').hide();
 		jQuery('#what-tools-select').hide();

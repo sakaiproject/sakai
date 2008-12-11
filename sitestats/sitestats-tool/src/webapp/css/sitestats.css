@@ -128,10 +128,6 @@ table.formContainer  {
     margin: 0.1em 0.3em;
     border:1px solid #888888;
 }
-input[name='reportParams.whenFrom:hours'], input[name='reportParams.whenFrom:minutes'],
-input[name='reportParams.whenTo:hours'], input[name='reportParams.whenTo:minutes'] {
-   width: 26px;
-}
 
 
 /* Summary Table */
