@@ -19,8 +19,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -103,11 +103,7 @@ public class SiteManageGroupSectionRoleHandler {
 		this.messages = messages;
 	}
 	
-	private GroupProvider groupProvider;
-	public void setGroupProvider(GroupProvider groupProvider)
-	{
-		this.groupProvider = groupProvider;
-	}
+	private org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager.get(org.sakaiproject.authz.api.GroupProvider.class);
 	
 	// the group title
 	private String id;
@@ -267,10 +263,13 @@ public class SiteManageGroupSectionRoleHandler {
             		String roleProviderId = group.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
             		if (roleProviderId != null)
             		{
-            			String[] groupProvidedRoles = groupProvider.unpackId(roleProviderId);
-            			for(int i=0; i<groupProvidedRoles.length;i++)
+            			if (groupProvider != null)
             			{
-            				roles.remove(group.getRole(groupProvidedRoles[i]));
+	            			String[] groupProvidedRoles = groupProvider.unpackId(roleProviderId);
+	            			for(int i=0; i<groupProvidedRoles.length;i++)
+	            			{
+	            				roles.remove(group.getRole(groupProvidedRoles[i]));
+	            			}
             			}
             		}
             	}
@@ -305,12 +304,15 @@ public class SiteManageGroupSectionRoleHandler {
     	{
 	    	for (int i = 0; !rv && i < rosterIds.size(); i++)
 	    	{
-	    		String providerId = rosterIds.get(i);
-		    	Map userRole = groupProvider.getUserRolesForGroup(providerId);
-		    	if (userRole.containsKey(userEId))
-		    	{
-		    		rv =  true;
-		    	}
+	    		if (groupProvider != null)
+	    		{
+		    		String providerId = rosterIds.get(i);
+			    	Map userRole = groupProvider.getUserRolesForGroup(providerId);
+			    	if (userRole.containsKey(userEId))
+			    	{
+			    		rv =  true;
+			    	}
+	    		}
 	    	}
     	}
     	
@@ -345,10 +347,13 @@ public class SiteManageGroupSectionRoleHandler {
             	String roleProviderId = g.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
             	if (roleProviderId != null)
             	{
-            		String[] roleStrings = groupProvider.unpackId(roleProviderId);
-            		for(String roleString:roleStrings)
+            		if (groupProvider != null)
             		{
-            			rv.add(roleString);
+	            		String[] roleStrings = groupProvider.unpackId(roleProviderId);
+	            		for(String roleString:roleStrings)
+	            		{
+	            			rv.add(roleString);
+	            		}
             		}
             	}
             }
@@ -814,7 +819,20 @@ public class SiteManageGroupSectionRoleHandler {
     {
     	String[] sArray = new String[idsList.size()];
 		sArray = (String[]) idsList.toArray(sArray);
-		return groupProvider.packId(sArray);
+		if (groupProvider != null)
+		{
+			return groupProvider.packId(sArray);
+		}
+		else
+		{
+			// simply concat strings
+			String rv = "";
+			for(String sArrayString:sArray)
+			{
+				rv = rv + " " + sArrayString;
+			}
+			return rv;
+		}
     }
     /**
      * Removes a group from the site

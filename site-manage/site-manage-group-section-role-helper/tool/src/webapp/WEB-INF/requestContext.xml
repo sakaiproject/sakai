@@ -51,7 +51,6 @@
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
-    <property name="groupProvider" ref="org.sakaiproject.authz.api.GroupProvider" />
     <property name="messages" ref="targettedMessageList" />
   </bean>
   
