@@ -178,7 +178,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		}
 		catch (Exception e)
 		{
-			M_log.warn("Cannot locate org.sakaiproject.localization.tool.bundle in order to load tool properties: " + e.toString() );
+			M_log.warn("Cannot locate org.sakaiproject.localization.util.ToolProperties in order to load localized tool properties: " + e.toString() );
 		}
 		
 		return toolProps;
