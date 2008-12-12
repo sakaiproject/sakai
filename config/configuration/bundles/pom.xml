@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>config</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>2.7.0-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
+	<name>configuration-bundles</name>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>configuration-bundles</artifactId>
+	<organization>
+		<name>Sakai Foundation</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+	<packaging>jar</packaging>
+	<properties>
+		<deploy.target>shared</deploy.target>
+	</properties>
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/default.sakai.properties</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+</project>
