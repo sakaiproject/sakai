@@ -19,10 +19,6 @@
        <property name="activeToolManager" ><ref bean="org.sakaiproject.tool.api.ActiveToolManager" /></property>
     </bean>
     
-    <bean id="localizedToolPropertiesBean"
-			 class="org.sakaiproject.portal.service.LocalizedPageToolProperties"
-			 singleton="true"/>
-    
     <bean id="org.sakaiproject.portal.api.SiteNeighbourhoodService"
           class="org.sakaiproject.portal.service.SiteNeighbourhoodServiceImpl"
           singleton="true"
