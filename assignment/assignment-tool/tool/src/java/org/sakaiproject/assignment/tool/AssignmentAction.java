@@ -1743,13 +1743,22 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("allowGroupAssignmentsInGradebook", new Boolean(AssignmentService.getAllowGroupAssignmentsInGradebook()));
 
 		// the notification email choices
-		if (state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS) != null && ((Boolean) state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS)).booleanValue())
+		// whether the choice of emails instructor submission notification is available in the installation
+		// system installation allowed assignment submission notification
+		boolean allowNotification = ServerConfigurationService.getBoolean(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS, true);
+		if (allowNotification)
+		{
+			// whether current user can receive notification. If not, don't show the notification choices in the create/edit assignment page
+			allowNotification = AssignmentService.allowReceiveSubmissionNotification(contextString);
+		}
+		if (allowNotification)
 		{
 			context.put("name_assignment_instructor_notifications", ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS);
 			if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) == null)
 			{
 				// set the notification value using site default
-				state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT));
+				// whether or how the instructor receive submission notification emails, none(default)|each|digest
+				state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, ServerConfigurationService.getString(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT, Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE));
 			}
 			context.put("value_assignment_instructor_notifications", state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
 			// the option values
@@ -7925,18 +7934,6 @@ public class AssignmentAction extends PagedResourceActionII
 				value = Boolean.TRUE.toString();
 			}
 			state.setAttribute(SHOW_NUMBER_SUBMISSION_COLUMN, new Boolean(value));
-		}
-		
-		// whether the choice of emails instructor submission notification is available in the installation
-		if (state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS) == null)
-		{
-			state.setAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS, Boolean.valueOf(ServerConfigurationService.getBoolean(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS, true)));
-		}
-		
-		// whether or how the instructor receive submission notification emails, none(default)|each|digest
-		if (state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT) == null)
-		{
-			state.setAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT, ServerConfigurationService.getString(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT, Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE));
 		}
 		
 		if (state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM) == null)

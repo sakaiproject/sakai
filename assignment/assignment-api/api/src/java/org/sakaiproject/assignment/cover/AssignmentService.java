@@ -119,7 +119,7 @@ public class AssignmentService {
 	
 	public static java.lang.String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = org.sakaiproject.assignment.api.AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
 	 
-	public static boolean allowReceiveSubnissionNotification(java.lang.String param0) {
+	public static boolean allowReceiveSubmissionNotification(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
 			return false;
