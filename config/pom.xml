@@ -11,7 +11,7 @@
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>config</artifactId>
 	<packaging>pom</packaging>
-	<description>The Config project is home to Sakai configuration files, including 
+	<description>The Config project is home to Sakai configuration and localization files.  Config includes 
 	several versions of sakai.properties, a text file containing a series of key/value pairs 
 	that provide a convenient mechanism for defining a variety of configuration options for 
 	Sakai tools, services, supporting database and UI-related text such as copyright statement, 
@@ -39,5 +39,7 @@
 	</scm>
 	<modules>
 		<module>config-bundles</module>
+		<module>localization/bundles</module>
+		<module>localization/pack</module>
 	</modules>
 </project>
