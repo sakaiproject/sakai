@@ -911,12 +911,33 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					ToolInfo toolInfo = eventIdToolMap.get(eventId);
 					EventParserTip parserTip = toolInfo.getEventParserTip();
 					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)) {
-						int index = Integer.parseInt(parserTip.getIndex());
-						return eventRef.split(parserTip.getSeparator())[index];
+						if (eventRef!=null){
+							String[] parts = eventRef.split("/");
+							if ((parts.length >= 3) && (parts[2].equals("private"))) {
+							  // discard
+								return null;
+							}else{													
+								int index = Integer.parseInt(parserTip.getIndex());
+								return eventRef.split(parserTip.getSeparator())[index];
+							}
+						}else{
+							return null;
+						}
+						
 					}else {
-						LOG.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
 						// try with most common syntax (/abc/cde/SITE_ID/...)
-						//return eventRef.split("/")[3];
+						if (eventRef!=null){
+							String[] parts = eventRef.split("/");
+							if ((parts.length >= 3) && (parts[2].equals("private"))) {
+							  // discard
+								return null;
+							}else{													
+								int index = Integer.parseInt(parserTip.getIndex());
+								return eventRef.split("/")[3];
+							}
+						}else{
+							return null;
+						}
 					}
 				}
 			}catch(Exception ex){
