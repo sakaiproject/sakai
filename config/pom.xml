@@ -38,7 +38,7 @@
 		<url>https://source.sakaiproject.org/svn/config/trunk</url>
 	</scm>
 	<modules>
-		<module>config-bundles</module>
+		<module>configuration/bundles</module>
 		<module>localization/bundles</module>
 		<module>localization/pack</module>
 	</modules>
