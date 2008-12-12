@@ -203,7 +203,7 @@
 										$tlang.getString("gen.nograd")
 									#end
 									#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-										(($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+										($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
 									#end
 								</strong>
 							</td>
@@ -216,7 +216,7 @@
 							<td>
 								$gradeScale
 								#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-									(($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+									($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
 								#end
 							</td>
 						</tr>
