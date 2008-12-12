@@ -33,12 +33,9 @@
 		 </div>
 	 </div>	
 	<div class="clear"></div>
-	##does not look like $menu_PDF return anything for year...so comment out
-	#*
 		<div class="navIntraTool" style="margin:.5em 1.5em 1em 1.5em;padding:0">
 			#toolbar($menu_PDF)
 		</div>	
-	*#
 <!-- how to draw a year-->
 <table width="100%" cellspacing="5" summary="$tlang.getString('viewm.list.summary')">
    #foreach ($xn in [0..3])
