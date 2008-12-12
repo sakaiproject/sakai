@@ -384,7 +384,7 @@ public class CalendarActionState
 	 */
 	protected void init()
 	{
-		m_state = "week";
+		m_state = null;
 		m_scalObj = new CalendarUtil();
 		m_currentday = m_scalObj.getDayOfMonth();
 		m_currentyear = m_scalObj.getYear();

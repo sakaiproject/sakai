@@ -2307,6 +2307,9 @@ extends VelocityPortletStateAction
 	// This is the property name in the portlet config for the list of calendars
 	// that are not merged.
 	private final static String PORTLET_CONFIG_PARM_MERGED_CALENDARS = "mergedCalendarReferences";
+   
+	// default calendar view property
+	private final static String PORTLET_CONFIG_DEFAULT_VIEW = "defaultCalendarView";
 	
 	private final static String PAGE_MAIN = "main";
 	private final static String PAGE_ADDFIELDS = "addFields";
@@ -2426,8 +2429,16 @@ extends VelocityPortletStateAction
 		
 		String template = (String)getContext(runData).get("template");
 		
+		// get current state (view); if not set use tool default or default to week view
 		String stateName = state.getState();
-		if (stateName == null) stateName = "";		
+		if (stateName == null) 
+		{
+			stateName = portlet.getPortletConfig().getInitParameter(PORTLET_CONFIG_DEFAULT_VIEW);
+			if (stateName == null) 
+				stateName = "week";
+			state.setState(stateName);
+		}
+		
 		if ( stateName.equals(STATE_SCHEDULE_IMPORT) )
 		{
 			buildImportContext(portlet, context, runData, state, getSessionState(runData));			
@@ -7618,6 +7629,11 @@ extends VelocityPortletStateAction
 		//2nd menu bar for the PDF print only
 		Menu bar_print = new MenuImpl(portlet, runData, "CalendarAction");
 		buildPrintMenu( portlet, runData, state, bar_print );	
+      
+		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+		{
+			bar_print.add( new MenuEntry(rb.getString("java.default_view"), "doDefaultview") );
+		}
 					
 		bar.add( new MenuEntry(customizeCalendarPage.getButtonText(), null, allow_modify_calendar_properties, MenuItem.CHECKED_NA, customizeCalendarPage.getButtonHandlerID()) );
 		
@@ -7654,6 +7670,21 @@ extends VelocityPortletStateAction
 		}
 		
 	}	 // setFields
+	
+   
+	/** Set current calendar view as tool default
+	 **/
+	public void doDefaultview( RunData rundata, Context context )
+	{
+		CalendarActionState state = (CalendarActionState)getState(context, rundata, CalendarActionState.class);
+		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
+		String view = state.getState();
+		Placement placement = ToolManager.getCurrentPlacement();
+		placement.getPlacementConfig().setProperty(
+																 PORTLET_CONFIG_DEFAULT_VIEW, view );
+		saveOptions();
+		addAlert(sstate, rb.getString("java.alert.default_view"));
+	}
 	
 	/**
 	 * Fire up the permissions editor
