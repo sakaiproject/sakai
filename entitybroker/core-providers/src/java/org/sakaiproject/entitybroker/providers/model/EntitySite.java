@@ -83,9 +83,6 @@ public class EntitySite implements Site {
     private long lastModified;
     private String[] userRoles;
 
-    // special use
-    protected String maintainerUserId;
-
     public Map<String, String> props;
 
     public Map<String, String> getProps() {
@@ -207,18 +204,6 @@ public class EntitySite implements Site {
             owner = new Owner(this.owner, this.owner);
         }
         return owner;
-    }
-
-    public void setMaintainerId(String userId) {
-        this.maintainerUserId = userId;
-    }
-    
-    /**
-     * INTERNAL USE
-     * @return the userId to set the initial maintainer to if there is one
-     */
-    public String getMaintainerUserId() {
-        return maintainerUserId;
     }
 
     @EntityLastModified

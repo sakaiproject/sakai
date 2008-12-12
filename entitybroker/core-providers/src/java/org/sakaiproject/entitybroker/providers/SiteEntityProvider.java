@@ -213,15 +213,6 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                     }
                     ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerUserId);
                 }
-                // attempt to set the maintainer as requested
-                String maintUserId = site.getMaintainerUserId();
-                if (maintUserId != null) {
-                    maintUserId = userEntityProvider.findAndCheckUserId(maintUserId, null);
-                    if (maintUserId == null) {
-                        throw new IllegalArgumentException("Invalid userId supplied for initial maintainer of site: " + site.getMaintainerUserId());
-                    }
-                    s.addMember(maintUserId, s.getMaintainRole(), true, false);
-                }
                 // save the site
                 siteService.save(s);
                 siteId = s.getId();
