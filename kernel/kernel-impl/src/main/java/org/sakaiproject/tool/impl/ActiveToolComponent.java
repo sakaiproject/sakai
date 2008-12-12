@@ -173,7 +173,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		try
 		{
 			if ( toolProps == null ) {
-				toolProps = new ResourceLoader("tools", ComponentManager.get("org.sakaiproject.localization.util.ToolProperties").getClass().getClassLoader());
+				toolProps = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools", ComponentManager.get("org.sakaiproject.localization.util.ToolProperties").getClass().getClassLoader());
 			}
 		}
 		catch (Exception e)
