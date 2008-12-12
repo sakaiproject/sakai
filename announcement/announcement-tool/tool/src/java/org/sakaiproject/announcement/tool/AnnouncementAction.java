@@ -387,8 +387,17 @@ public class AnnouncementAction extends PagedResourceActionII
 		public AnnouncementWrapper(AnnouncementMessage message, AnnouncementChannel currentChannel,
 				AnnouncementChannel hostingChannel, AnnouncementActionState.DisplayOptions options, String range)
 		{
-			this.maxNumberOfChars = options.getNumberOfCharsPerAnnouncement();
-			this.enforceMaxNumberOfChars = options.isEnforceNumberOfCharsPerAnnouncement();
+			if (options != null)
+			{
+				this.maxNumberOfChars = options.getNumberOfCharsPerAnnouncement();
+				this.enforceMaxNumberOfChars = options.isEnforceNumberOfCharsPerAnnouncement();
+			}
+			else
+			{
+				// default settings from DisplayOptions class
+				this.maxNumberOfChars = Integer.MAX_VALUE;
+				this.enforceMaxNumberOfChars = false;
+			}
 			this.announcementMesssage = message;
 
 			// This message is editable only if the site matches.
@@ -656,7 +665,9 @@ public class AnnouncementAction extends PagedResourceActionII
 		static private List wrapList(List messages, AnnouncementChannel currentChannel, AnnouncementChannel hostingChannel,
 				AnnouncementActionState.DisplayOptions options)
 		{
-			int maxNumberOfDaysInThePast = options.getNumberOfDaysInThePast();
+			// 365 is the default in DisplayOptions
+			int maxNumberOfDaysInThePast = (options != null) ? options.getNumberOfDaysInThePast() : 365;
+			 
 
 			List messageList = new ArrayList();
 
@@ -667,7 +678,8 @@ public class AnnouncementAction extends PagedResourceActionII
 				AnnouncementMessage message = (AnnouncementMessage) it.next();
 
 				// See if the message falls within the filter window.
-				if (options.isEnforceNumberOfDaysInThePastLimit() && !isMessageWithinLastNDays(message, maxNumberOfDaysInThePast))
+				// note: the default of enforceNumberOfDaysInThePastLimit is false
+				if (options != null && options.isEnforceNumberOfDaysInThePastLimit() && !isMessageWithinLastNDays(message, maxNumberOfDaysInThePast))
 				{
 					continue;
 				}
