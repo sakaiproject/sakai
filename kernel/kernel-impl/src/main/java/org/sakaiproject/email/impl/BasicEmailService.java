@@ -91,6 +91,12 @@ public class BasicEmailService implements EmailService
 	 * an invalid recipient address.
 	 */
 	protected static final String SMTP_SENDPARTIAL = "mail.smtp.sendpartial";
+
+	/** Socket connection timeout value in milliseconds. Default is infinite timeout. */
+	protected static final String SMTP_CONNECTIONTIMEOUT = "mail.smtp.connectiontimeout";
+	
+	/** Socket I/O timeout value in milliseconds. Default is infinite timeout. */
+	protected static final String SMTP_TIMEOUT = "mail.smtp.timeout";
 	
 	/**
 	 * Hostname used in outgoing SMTP HELO commands.
@@ -214,6 +220,12 @@ public class BasicEmailService implements EmailService
 	{
 		m_smtpLocalhost = value;
 	}
+  
+	/** Configuration: Socket connection timeout value in milliseconds. Default is infinite timeout. */
+	protected String m_smtpConnectionTimeout = null;
+	
+	/** Configuration: Socket I/O timeout value in milliseconds. Default is infinite timeout. */
+	protected String m_smtpTimeout = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -229,14 +241,21 @@ public class BasicEmailService implements EmailService
 		{
 			m_smtpFrom = POSTMASTER + "@" + serverConfigurationService.getServerName();
 		}
+		// initialize smtp timeout values
+		m_smtpConnectionTimeout = serverConfigurationService.getString(SMTP_CONNECTIONTIMEOUT, null);
+		m_smtpTimeout = serverConfigurationService.getString(SMTP_TIMEOUT, null);
 
 		// promote these to the system properties, to keep others (James) from messing with them
 		if (m_smtp != null) System.setProperty(SMTP_HOST, m_smtp);
 		if (m_smtpPort != null) System.setProperty(SMTP_PORT, m_smtpPort);
 		System.setProperty(SMTP_FROM, m_smtpFrom);
+		if (m_smtpConnectionTimeout != null) System.setProperty(SMTP_CONNECTIONTIMEOUT, m_smtpConnectionTimeout);
+		if (m_smtpTimeout != null) System.setProperty(SMTP_TIMEOUT, m_smtpTimeout);
 
 		M_log.info("init(): smtp: " + m_smtp + ((m_smtpPort != null) ? (":" + m_smtpPort) : "") + " bounces to: " + m_smtpFrom
-				+ " maxRecipients: " + m_maxRecipients + " testMode: " + m_testMode);
+				+ " maxRecipients: " + m_maxRecipients + " testMode: " + m_testMode
+				+ ((m_smtpConnectionTimeout != null) ? (" smtpConnectionTimeout: " + m_smtpConnectionTimeout) : "")
+				+ ((m_smtpTimeout != null) ? (" smtpTimeout: " + m_smtpTimeout) : ""));
 	}
 
 	/**
@@ -316,6 +335,18 @@ public class BasicEmailService implements EmailService
 		// set the port, if specified
 		if (m_smtpPort != null)
 			props.put(SMTP_PORT, m_smtpPort);
+		
+		// set smtp connection timeout, if specified
+		if (m_smtpConnectionTimeout != null)
+		{
+			props.put(SMTP_CONNECTIONTIMEOUT, m_smtpConnectionTimeout);
+		}
+		
+		// set smtp socket I/O timeout, if specified
+		if (m_smtpTimeout != null)
+		{
+			props.put(SMTP_TIMEOUT, m_smtpTimeout);
+		}
 		
 		// Set localhost name
 		if (m_smtpLocalhost != null)
@@ -613,6 +644,8 @@ public class BasicEmailService implements EmailService
 		if (m_smtpPort != null) props.put(SMTP_PORT, m_smtpPort);
 		props.put(SMTP_FROM, m_smtpFrom);
 		props.put(SMTP_SENDPARTIAL, "true");
+		if (m_smtpConnectionTimeout != null) props.put(SMTP_CONNECTIONTIMEOUT, m_smtpConnectionTimeout);
+		if (m_smtpTimeout != null) props.put(SMTP_TIMEOUT, m_smtpTimeout);
 		Session session = Session.getInstance(props);
 
 		// form our Message
