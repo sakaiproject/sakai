@@ -172,13 +172,13 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	{
 		try
 		{
-			if ( toolProps == null )
-				toolProps = new ResourceLoader("tools",
-									   ComponentManager.get("localizedToolPropertiesBean").getClass().getClassLoader());
+			if ( toolProps == null ) {
+				toolProps = new ResourceLoader("tools", ComponentManager.get("org.sakaiproject.localization.util.ToolProperties").getClass().getClassLoader());
+			}
 		}
 		catch (Exception e)
 		{
-			M_log.warn("Missing optional localizedToolPropertiesBean: " + e.toString() );
+			M_log.warn("Cannot locate org.sakaiproject.localization.tool.bundle in order to load tool properties: " + e.toString() );
 		}
 		
 		return toolProps;
