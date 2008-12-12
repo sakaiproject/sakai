@@ -68,6 +68,10 @@ public class Query extends HttpTransactionQueryBase
 	 * Muse syntax search criteria for this request (see parseRequest())
 	 */
 	private String _museSearchString;
+  /**
+   * Total number of target databases
+   */
+  private int _targetCount;
 	/**
 	 * Web2 input
 	 */
@@ -164,7 +168,7 @@ public class Query extends HttpTransactionQueryBase
 		action = getRequestParameter("action");
 		if (action.equalsIgnoreCase("startSearch"))
 		{
-  		int sleepCount;
+  		int sleepCount, sleepLimit;
   		boolean done;
 		  /*
 		   * Initialize a new search context block
@@ -208,13 +212,12 @@ public class Query extends HttpTransactionQueryBase
 			doProgressCommand();
 			submit();
 
-//			isStatusReadyToBeRead(getResponseDocument());
-
 		  sleepCount = 0;
+		  sleepLimit = 5 + getTargetCount();
+
 		  done = setStatus(getResponseDocument());
 
-//  	while (! isStatusReadyToBeRead(getResponseDocument()) && sleepCount < 5)
-      while (!done && (sleepCount < 5))
+      while (!done && (sleepCount++ < sleepLimit))
 			{
 				_log.debug("Status is not finished");
 				displayXml("Progress", getResponseDocument());
@@ -222,14 +225,13 @@ public class Query extends HttpTransactionQueryBase
 				try
 				{
 					Thread.sleep(1000);
-					_log.debug("Sleeping ...");
+					_log.debug("Sleeping (" + sleepCount + " of " + sleepLimit + ")");
 				}
 				catch (InterruptedException ignore) { }
 
 				doProgressCommand();
 				submit();
 
-				sleepCount++;
   		  done = setStatus(getResponseDocument());
 			}
 
@@ -246,7 +248,7 @@ public class Query extends HttpTransactionQueryBase
 	}
 
 	/*
-	 * Helpers
+	 * MusePeer API Helpers
 	 */
 
 	/**
@@ -311,6 +313,7 @@ public class Query extends HttpTransactionQueryBase
 
 		targets       = getRequestParameter("targets");
 		targetParser  = new StringTokenizer(targets);
+		_targetCount  = targetParser.countTokens();
 
 		while (targetParser.hasMoreTokens())
 		{
@@ -325,15 +328,13 @@ public class Query extends HttpTransactionQueryBase
      * for a subsequent PROGRESS (status) command
      */
 		setParameter("start", "1");
-//		setParameter("firstRetrievedRecord", "1");
+   	setParameter("firstRetrievedRecord", "1");
 		setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
-		setParameter("limitsMaxPerPage", "0");
-
-		setParameter("recordFormat",    "raw.xsl");
-		setParameter("headerTemplate",  "xml/list-header.xml");
-		setParameter("footerTemplate",  "xml/list-footer.xml");
-		setParameter("errorTemplate",   "xml/error.xml");
-		setParameter("errorFormat",     "error2XML.xsl");
+		setParameter("limitsMaxPerPage",   "0");
+    /*
+     * Formatting
+     */
+		setFormattingFiles();
 	}
 
 	/**
@@ -358,47 +359,37 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	private void doPaginationCommand(String page, int firstRecord)
 	{
-		Iterator	targetIterator;
+    String    start = Integer.toString(firstRecord);
+    String    total = Integer.toString(firstRecord - 1);
 
 		_log.debug("Using result set name \"" + getResultSetName() + "\"");
-
+    /*
+     * Action, identification
+     */
 		setParameter("action", page);
 		setParameter("xml",   "true");
 
 		setParameter("sessionID", getSessionId());
 		setParameter("searchReferenceID", getReferenceId());
 		setParameter("resultSet", getResultSetName());
+    /*
+     * Active database(s)
+     */
+    setDbList();
+    /*
+     * Record, page, host requirements
+     */
+    _log.debug("PAGE: " + page + " page, first record: " + start);
 
-		targetIterator = StatusUtils.getStatusMapEntrySetIterator(getSessionContext());
-		while (targetIterator.hasNext())
-		{
-			Map.Entry entry   = (Map.Entry) targetIterator.next();
-      String    target  = (String) entry.getKey();
-
-		  Map       map     = StatusUtils.getStatusMapForTarget(getSessionContext(), target);
-		  String    status  = (String) map.get("STATUS");
-
-      if ("ACTIVE".equals(status))
-      {
-			  setParameter("dbList", target);
-
-				_log.debug("PAGE: added DB " + target);
-      }
-		}
-
-    _log.debug("PAGE: " + page + " page, first record: " + firstRecord);
-
-		setParameter("start", Integer.toString(firstRecord));
-		setParameter("firstRetrievedRecord", Integer.toString(firstRecord));
-		setParameter("totalRecords", Integer.toString(firstRecord - 1));
+		setParameter("start", start);
+		setParameter("firstRetrievedRecord", start);
+		setParameter("totalRecords", total);
 		setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
 		setParameter("limitsMaxPerPage", (String) getSessionContext().get("pageSize"));
-
-		setParameter("recordFormat",    "raw.xsl");
-		setParameter("headerTemplate",  "xml/list-header.xml");
-		setParameter("footerTemplate",  "xml/list-footer.xml");
-		setParameter("errorTemplate",   "xml/error.xml");
-		setParameter("errorFormat",     "error2XML.xsl");
+    /*
+     * Formatting
+     */
+		setFormattingFiles();
 	}
 
 	/**
@@ -407,11 +398,15 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	private void doMoreCommand(int firstRecord)
 	{
-		Iterator targetIterator;
+    String    start = Integer.toString(firstRecord);
+    String    total = Integer.toString(firstRecord - 1);
 
 		_log.debug("MORE: using result set name \"" + getResultSetName() + "\"");
 		_log.debug("MORE: queryStatement = " + getSearchString());
 
+    /*
+     * Action, identification
+     */
 		setParameter("action", "more");
 		setParameter("actionType", "SEARCH");
 		setParameter("xml", "true");
@@ -421,30 +416,13 @@ public class Query extends HttpTransactionQueryBase
 		setParameter("resultSet", getResultSetName());
 
 		setParameter("queryStatement", getSearchString());
-
-		targetIterator = StatusUtils.getStatusMapEntrySetIterator(getSessionContext());
-		while (targetIterator.hasNext())
-		{
-			Map.Entry entry   = (Map.Entry) targetIterator.next();
-      String    target  = (String) entry.getKey();
-
-		  Map       map     = StatusUtils.getStatusMapForTarget(getSessionContext(), target);
-		  String    status  = (String) map.get("STATUS");
-
-      if ("ACTIVE".equals(status))
-      {
-			  setParameter("dbList", target);
-
-				_log.debug("MORE: added DB " + target);
-      }
-		}
-
-    _log.debug("MORE: firstRetrievedRecord = " + firstRecord
-            +  ", totalRecords: " + (firstRecord - 1));
-
-    String start = Integer.toString(firstRecord);
-    String total = Integer.toString(firstRecord - 1);
-
+    /*
+     * Active database(s)
+     */
+    setDbList();
+    /*
+     * Record, page, host requirements
+     */
     _log.debug("MORE: start = " + start +  ", total = " + total);
 
 		setParameter("start", start);
@@ -452,12 +430,10 @@ public class Query extends HttpTransactionQueryBase
   	setParameter("totalRecords", total);
     setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
   	setParameter("limitsMaxPerPage", (String) getSessionContext().get("pageSize"));
-
-		setParameter("recordFormat",    "raw.xsl");
-		setParameter("headerTemplate",  "xml/list-header.xml");
-		setParameter("footerTemplate",  "xml/list-footer.xml");
-		setParameter("errorTemplate",   "xml/error.xml");
-	  setParameter("errorFormat",     "error2XML.xsl");
+    /*
+     * Formatting
+     */
+		setFormattingFiles();
   }
 
 	/**
@@ -500,6 +476,59 @@ public class Query extends HttpTransactionQueryBase
 	  submit();
 	  validateResponse("MORE");
 	}
+
+  /*
+   * Helpers
+   */
+
+  /**
+   * Common formatting files
+   */
+  private void setFormattingFiles()
+  {
+		setParameter("recordFormat",    "raw.xsl");
+		setParameter("headerTemplate",  "xml/list-header.xml");
+		setParameter("footerTemplate",  "xml/list-footer.xml");
+		setParameter("errorTemplate",   "xml/error.xml");
+		setParameter("errorFormat",     "error2XML.xsl");
+  }
+
+  /**
+   * Set up the active database parameter(s) for MORE, NEXT, PREVIOUS
+   */
+  private void setDbList()
+  {
+    Iterator targetIterator;
+    int count;
+
+		targetIterator = StatusUtils.getStatusMapEntrySetIterator(getSessionContext());
+		count = 0;
+
+		while (targetIterator.hasNext())
+		{
+			Map.Entry entry   = (Map.Entry) targetIterator.next();
+      String    target  = (String) entry.getKey();
+
+		  Map       map     = StatusUtils.getStatusMapForTarget(getSessionContext(), target);
+		  String    status  = (String) map.get("STATUS");
+
+      if ("ACTIVE".equals(status))
+      {
+			  setParameter("dbList", target);
+        count++;
+      }
+		}
+		_log.debug(count + " active database(s)");
+  }
+
+  /**
+   * Get the number of requested search targets (databaes)
+   * @return The count of target DBs
+   */
+  private int getTargetCount()
+  {
+    return _targetCount;
+  }
 
 	/**
 	 * Fetch the Muse session ID
@@ -1094,7 +1123,7 @@ public class Query extends HttpTransactionQueryBase
 
 			String		text, target;
 			Element		element;
-			int			  estimate;
+			int			  estimate, hits;
 
 			/*
 			 * Target (database)
@@ -1115,7 +1144,9 @@ public class Query extends HttpTransactionQueryBase
 			/*
 			 * Estimated match count
 			 */
-			element = DomUtils.selectFirstElementByAttributeValue (recordElement, "ENTRY", "key", "estimate");
+			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
+			                                                      "ENTRY",
+			                                                      "key", "estimate");
 
 			if ((text	= DomUtils.getText(element)) == null)
 			{
@@ -1125,13 +1156,28 @@ public class Query extends HttpTransactionQueryBase
 			map.put("ESTIMATE", text);
 
 			estimate = Integer.parseInt(text);
-			total		+= estimate;
+      /*
+       * Any hits?
+       */
+			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
+			                                                      "ENTRY",
+			                                                      "key", "hits");
+			if ((text	= DomUtils.getText(element)) == null)
+			{
+				text = "0";
+			}
+			hits = Integer.parseInt(text);
+
+      if (hits > 0)
+      {
+   			total	+= estimate;
+      }
 			/*
 			 * This search target is active only if there are records available
 			 */
 			map.put("STATUS", "DONE");
 
-			if (estimate > 0)
+			if ((estimate > 0) && (hits > 0))
 			{
 				map.put("STATUS", "ACTIVE");
 				active++;

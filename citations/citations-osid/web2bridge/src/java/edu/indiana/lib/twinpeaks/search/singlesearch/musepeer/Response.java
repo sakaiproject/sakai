@@ -113,7 +113,7 @@ public class Response extends SearchResultBase
 
     if (recordList.getLength() == 0)
     {
-      String errorText = "Unexpected response document format";
+      String errorText = "Unexpected server response (no search result records provided)";
 
 			LogUtils.displayXml(_log, errorText, responseDocument);
 
