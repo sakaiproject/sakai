@@ -183,7 +183,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		try {
 			//make a ProfileFriend object with 'Friend Request' constructor
 			ProfileFriend profileFriend = new ProfileFriend(userId, friendId, RELATIONSHIP_FRIEND);
-			getHibernateTemplate().saveOrUpdate(profileFriend);
+			getHibernateTemplate().save(profileFriend);
 			log.info("User: " + userId + " requested friend: " + friendId);
 			return true;
 		} catch (Exception e) {
@@ -303,7 +303,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//save (always inserting, never updating, unless its being cleared which is a different process)
 		try {
 			getHibernateTemplate().save(profileStatus);
-			getHibernateTemplate().flush();
 			log.info("Updated status for user: " + userId);
 			return true;
 		} catch (Exception e) {

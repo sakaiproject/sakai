@@ -18,39 +18,33 @@ public class CloseButton extends Panel{
 	private static final String CLOSE_IMAGE = "/library/image/silk/cross.png";
 	
 	
-	public CloseButton(String id) {
+	public CloseButton(String id, final String parentId) {
 		super(id);
-		
-		final String thisComponent = id;
-	
+			
 		//container
 		WebMarkupContainer closeButton = new WebMarkupContainer("closeButton");
 		closeButton.setOutputMarkupId(true);
 		
 		//image
 		ContextImage image = new ContextImage("img",new Model(CLOSE_IMAGE));
-		/*
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
+		
+		AjaxFallbackLink link = new AjaxFallbackLink("link") {
 			public void onClick(AjaxRequestTarget target) {
-				Component newPanel = new MyInfoEdit(id, userProfile);
-				newPanel.setOutputMarkupId(true);
-				thisPanel.replaceWith(newPanel);
 				if(target != null) {
-					target.addComponent(newPanel);
-					//resize iframe
+					
+					target.appendJavascript("$('#" + parentId + "').slideUp();");
 					target.appendJavascript("setMainFrameHeight(window.name);");
+
+					//do we also need to remove the component as well?
+					
+					//resize iframe
+					//target.appendJavascript("setMainFrameHeight(window.name);");
 				}
 			}
 						
 		};
-		*/
 		
 		
-		Link link = new Link("link") {
-			public void onClick() {
-				//setResponsePage(new TestData());
-			}
-		};
 		link.add(image);
 		
 		closeButton.add(link);

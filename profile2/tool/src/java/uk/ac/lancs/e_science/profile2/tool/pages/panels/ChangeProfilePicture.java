@@ -103,7 +103,9 @@ public class ChangeProfilePicture extends Panel{
        
         
         //close button - this needs to be a component -TODO
-        form.add(new CloseButton("closeButton"));
+        CloseButton closeButton = new CloseButton("closeButton", this.getMarkupId());
+        closeButton.setOutputMarkupId(true);
+		form.add(closeButton);
       
         //text
 		Label textSelectImage = new Label("textSelectImage", new ResourceModel("text.upload.image.file"));
