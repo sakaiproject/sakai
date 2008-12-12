@@ -255,7 +255,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPrivacyRecord()
 	 */
-	public boolean createDefaultPrivacyRecord(String userId) {
+	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
 		
 		ProfilePrivacy profilePrivacy = new ProfilePrivacy(userId,0,0,0,0,0);
 		
@@ -263,10 +263,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		try {
 			getHibernateTemplate().save(profilePrivacy);
 			log.info("Created default privacy record for user: " + userId);
-			return true;
+			return profilePrivacy;
 		} catch (Exception e) {
 			log.error("createDefaultPrivacyRecord() failed. " + e.getClass() + ": " + e.getMessage());
-			return false;
+			return null;
 		}
 	}
 	

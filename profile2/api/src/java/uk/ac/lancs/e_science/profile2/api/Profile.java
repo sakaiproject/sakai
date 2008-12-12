@@ -59,7 +59,7 @@ public interface Profile {
 	 *
 	 * @param userId		uuid of the user to create the record for
 	 */
-	public boolean createDefaultPrivacyRecord(String userId);
+	public ProfilePrivacy createDefaultPrivacyRecord(String userId);
 	
 	/**
 	 * Get the latest status of a user

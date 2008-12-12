@@ -21,7 +21,7 @@
   	
   	<dependencies>
 
-		<!--  internal dependency -->
+		<!--  internal dependencies -->
 		<dependency>
 			<groupId>uk.ac.lancs.e_science</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
@@ -33,6 +33,31 @@
 			<artifactId>sakai-profile2-hbm</artifactId>
 			<version>${tool.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		
+		 <!-- generic DAO -->
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>generic-dao</artifactId>
+            <version>0.9.8</version>
+        </dependency>
+		
+		<!-- shared external dependencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+        </dependency>
+    	
+    	<!--  logging dependency -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 
 		<!--  Sakai dependencies -->
@@ -107,24 +132,6 @@
 			<version>${sakai.version}</version>
 		</dependency>
 		
-		<dependency>
-      		<groupId>${sakai.hibernate.groupId}</groupId>
-      		<artifactId>${sakai.hibernate.artifactId}</artifactId>
-      		<version>${sakai.hibernate.version}</version>
-    	</dependency>
-    	<dependency>
-      		<groupId>${sakai.spring.groupId}</groupId>
-      		<artifactId>${sakai.spring.artifactId}</artifactId>
-      		<version>${sakai.spring.version}</version>
-    	</dependency>
-    	 	
-    	
-    	<!--  logging dependency -->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
   	
   	</dependencies>
 

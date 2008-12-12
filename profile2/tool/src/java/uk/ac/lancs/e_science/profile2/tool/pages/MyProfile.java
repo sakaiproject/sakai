@@ -55,10 +55,6 @@ public class MyProfile extends BasePage {
 			if(sakaiPerson == null) {
 				throw new ProfileException("Couldn't create a SakaiPerson for " + userId);
 			}
-			//create a default privacy record for this user as well.
-			if(!profile.createDefaultPrivacyRecord(userId)) {
-				throw new ProfileException("Couldn't create default privacy record for " + userId);
-			}
 		} 
 		
 		//get some values from SakaiPerson or SakaiProxy if empty

@@ -1,12 +1,12 @@
 package uk.ac.lancs.e_science.profile2.hbm;
 
-import java.util.Date;
+import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 
 
 
-public class ProfilePrivacy {
+public class ProfilePrivacy implements Serializable {
 
 	private transient Logger log = Logger.getLogger(ProfilePrivacy.class);
 

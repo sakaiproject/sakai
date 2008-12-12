@@ -2,6 +2,8 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+
+
 	<!--  SakaiProxy -->
  	<bean id="uk.ac.lancs.e_science.profile2.api.SakaiProxy"
     	class="uk.ac.lancs.e_science.profile2.impl.SakaiProxyImpl">
@@ -11,28 +13,21 @@
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
-        
 	</bean>
 	
-	<!--  Profile plus Hibernate GlobalSessionFactory -->
+	<!--  Setup the Profile IMPL with the hibernate implementation -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.Profile"
     	class="uk.ac.lancs.e_science.profile2.impl.ProfileImpl"
     	singleton="true">
-		<property name="sessionFactory">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		</property>
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
 	
 	
-	<!-- Profile plus declarative transaction interceptor using the GlobalTransactionManager and mapped onto the bean above -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileDao"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-		</property>
-		<property name="target">
-		  <ref bean="uk.ac.lancs.e_science.profile2.api.Profile" />
-		</property>
+	<!-- This wraps Profile IMPL so that the transactions are managed -->
+	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileTransactionProxyFactoryBean"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>
@@ -40,23 +35,17 @@
 		</property>
 	</bean>	
 	
+	
 
-
-	<!-- Hibernate mappings -->
-	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.profile2"
+	<!-- Add our HBM files to the Sakai global session factory -->
+	<bean id="uk.ac.lancs.e_science.profile2.hbm.HBMMappingList"
     	class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 
 	    <property name="mappingResources">
 	      <list>
-	        <value>
-	          uk/ac/lancs/e_science/profile2/hbm/ProfileFriend.hbm.xml
-	        </value>
-	        <value>
-	          uk/ac/lancs/e_science/profile2/hbm/ProfilePrivacy.hbm.xml
-	        </value>
-	        <value>
-	          uk/ac/lancs/e_science/profile2/hbm/ProfileStatus.hbm.xml
-	        </value>
+	        <value>uk/ac/lancs/e_science/profile2/hbm/ProfileFriend.hbm.xml</value>
+	        <value>uk/ac/lancs/e_science/profile2/hbm/ProfilePrivacy.hbm.xml</value>
+	        <value>uk/ac/lancs/e_science/profile2/hbm/ProfileStatus.hbm.xml</value>
 	      </list>
 	    </property>
 
