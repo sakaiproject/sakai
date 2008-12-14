@@ -252,6 +252,24 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	background: #fff;
 }
 
+#roleSwitch{
+	float:right;
+}
+#roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
+	color:#fff;
+	font-weight:bold;
+}
+#roleSwitch a#roleSwitchAnchor{
+	margin:10px 5px 0 0;
+	display:block;
+}	
+#roleSwitch select{
+	border:2px solid #0077B5;
+	display:inline;
+	font-size:0.9em;
+	margin:10px 2px 0 0;
+	padding:0;
+}	
 /*a ul - the li below are outer wrappers for the links to sites */
 #siteLinkList{
 /*	white-space: nowrap;*/
