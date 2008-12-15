@@ -12,6 +12,11 @@
 					<img src="$sitePages.pageNavIconUrl" border="0" alt="Worksite Logo" />
 			#end
 				</div>
+                        #if ($sitePages.siteHTMLInclude)
+                                <div id="siteHTMLInclude">
+                                   $sitePages.siteHTMLInclude
+                                </div>
+                        #end
 				<a id="totoolmenu" class="skip" name="totoolmenu"></a>
 				<h1 class="skip">${rloader.sit_toolshead}</h1>
 				<div id="toolMenu">

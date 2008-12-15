@@ -88,6 +88,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
+	private final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
+
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
 	private Portal portal;
@@ -473,6 +475,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		theMap.put("pageNavPublished", Boolean.valueOf(published));
 		theMap.put("pageNavType", type);
 		theMap.put("pageNavIconUrl", iconUrl);
+		String htmlInclude = site.getProperties().getProperty(PROP_HTML_INCLUDE);
+		if (htmlInclude != null) theMap.put("siteHTMLInclude", htmlInclude);
+
 		// theMap.put("pageNavSitToolsHead",
 		// Web.escapeHtml(rb.getString("sit_toolshead")));
 
