@@ -70,7 +70,8 @@ public class ContentHostingService
 	public static java.lang.String EVENT_RESOURCE_WRITE = org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_WRITE;
 
 	public static java.lang.String EVENT_RESOURCE_REMOVE = org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_REMOVE;
-	String EVENT_RESOURCE_AVAILABLE = org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_AVAILABLE;
+
+	public static java.lang.String EVENT_RESOURCE_AVAILABLE = org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_AVAILABLE;
 
 	public static java.lang.String AUTH_RESOURCE_ADD = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_ADD;
 	public static java.lang.String AUTH_RESOURCE_READ = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_READ;

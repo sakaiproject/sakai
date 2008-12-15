@@ -153,7 +153,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		if (doHtml) {
 			buf.append("<p>");
 		}
-		if (ContentHostingService.EVENT_RESOURCE_ADD.equals(function))
+		if (ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))
 		{
 			buf.append(rb.getString("anewres"));
 		}
@@ -348,7 +348,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		// use the message's subject
 		String resourceName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 		return "[ " + title + " - "
-				+ (ContentHostingService.EVENT_RESOURCE_ADD.equals(function) ? rb.getString("new") : rb.getString("chan")) + " "
+				+ (ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? rb.getString("new") : rb.getString("chan")) + " "
 				+ rb.getString("reso2") + " ] " + resourceName;
 	}
 

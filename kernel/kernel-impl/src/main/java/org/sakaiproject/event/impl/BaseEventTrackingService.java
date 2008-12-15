@@ -337,7 +337,21 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		{
 			if (delayHandler != null)
 			{
-				delayHandler.createDelay(event, fireTime);
+				// Make sure there is a userid associated with the event
+				
+				String id = event.getUserId();
+				
+				if (id == null) 
+				{
+					id = sessionManager().getCurrentSessionUserId();
+				}
+				
+				if (id == null)
+				{
+					id = "?";
+				}
+
+				delayHandler.createDelay(event, id, fireTime);
 			}
 			else
 			{
