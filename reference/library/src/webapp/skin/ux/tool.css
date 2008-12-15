@@ -150,7 +150,7 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
 .navIntraTool a, .navIntraTool a:link{
 	margin-right:1em;
-	color:#666;
+	color:#222;
 	text-decoration: none !important;
 	white-space: nowrap;
 	display:inline-block
@@ -586,10 +586,11 @@ label{
 	font-family: Arial,Helvetica,sans-serif;
 	font-weight: bold !important;
 	margin-top: .3em;
-
 	text-align:right
 }
-
+label.block{
+	text-align:left
+}
 /*a required marker for a shorttext label/input pair*/
 .shorttext .reqStar{
 	color: #b11;
@@ -598,6 +599,11 @@ label{
 	font-weight: bold;
 	font-size: 1em;
 	padding: 0;
+	text-align:right;
+}
+
+.reqStar + label{
+
 }
 
 
@@ -821,12 +827,15 @@ you loose the native buttonishness affordance of the os/browser */
 }
 .act input{
 	border:1px solid #BABEC2;
-	color:#999999;
+	color:#333;
 	line-height:23px;
 	margin:0 auto;
 	padding:4px 10px;
 	background: #eee url(images/act-inp-back.png) top left repeat-x;
 }
+.act input:hover{
+	border:1px solid #AAAABB;
+	}
 .act .active {
 	border:2px solid #00A5E3;
 	color:#000;
@@ -835,6 +844,7 @@ you loose the native buttonishness affordance of the os/browser */
 .act .active:hover {
 	border-color:#00A5E3 #90DCF9 #90DCF9 #00A5E3;
 	border-style:solid;
+	color:#000;
 	border-width:2px;
 }
 .act .active[disabled="disabled"] {
