@@ -9,6 +9,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -261,18 +264,34 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 	{
 		// need to instantiate components locally because this class is instantiated by the
 		// scheduled invocation manager and not pulled from spring context.
-		LOG.info("Refiring event that was delayed until resource is available.");
-		Event event = popEventDelay(opaqueContext);
+		LOG.info("Refiring event that was delayed until resource is available: delay id " + opaqueContext);
+		final Event event = popEventDelay(opaqueContext);
+		
+		// Set up security advisor
 		try
 		{
 			User user = userDirectoryService.getUser(event.getUserId());
+
+			SecurityService.pushAdvisor(new SecurityAdvisor() {
+			    public SecurityAdvice isAllowed(String userId, String function, String reference) {
+			            if (SecurityService.unlock(event.getUserId(), function, reference)) {
+			                return SecurityAdvice.ALLOWED;
+			             }
+			            return SecurityAdvice.PASS;
+			         }
+			    });
+
 			eventService.post(event, user);
 		}
 		catch (UserNotDefinedException unde)
 		{
 			// can't find the user so refire the event without user impersonation
 			eventService.post(event);
+		} finally {
+			// Clear security advisor
+			SecurityService.clearAdvisors();
 		}
+		
 	}
 
 	/**
