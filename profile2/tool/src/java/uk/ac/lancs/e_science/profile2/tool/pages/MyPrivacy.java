@@ -1,7 +1,8 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -17,9 +18,15 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileException;
+import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
+import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
+import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 
 public class MyPrivacy extends BasePage {
@@ -33,7 +40,6 @@ public class MyPrivacy extends BasePage {
 		
 		if(log.isDebugEnabled()) log.debug("MyPrivacy()");
 		
-			
 		//add the feedback panel for any error messages
 		FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
 		add(feedbackPanel);
@@ -55,9 +61,6 @@ public class MyPrivacy extends BasePage {
 			
 		}
 		
-		System.out.println(profilePrivacy.toString());
-
-		
 		Label heading = new Label("heading", new ResourceModel("heading.privacy"));
 		add(heading);
 		
@@ -68,15 +71,19 @@ public class MyPrivacy extends BasePage {
 		Form form = new Form("form", privacyModel);
 		form.setOutputMarkupId(true);
 		
+		//setup LinkedHashMap of privacy options
+		final LinkedHashMap<String, String> privacySettings = new LinkedHashMap<String, String>();
+		privacySettings.put("0", new StringResourceModel("privacy.option.everyone", this,null).getString());
+		privacySettings.put("1", new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
+		privacySettings.put("2", new StringResourceModel("privacy.option.onlyme", this,null).getString());
 		
-		//default DDC constructor will use this list with the key/value in the right order
-		//List TEMP = Arrays.asList(new String[] { "Everyone", "Only friends", "Only Me" });
-		//List TEMP = Arrays.asList(new Integer[] { 0,1,2 });
-
-		//SelectOption[] TEMP = new SelectOption[] {new SelectOption("0", "Everyone"), new SelectOption("1", "Only friends"), new SelectOption("2", "Only Me")};
-		//ChoiceRenderer choiceRenderer = new ChoiceRenderer("value", "key");
-
-		//profilePrivacy.setProfile(1);
+		//model that wraps our options
+		IModel dropDownModel = new Model() {
+			public Object getObject() {
+				 return new ArrayList(privacySettings.keySet()); //via proxy
+			} 
+		};
+		
 		
 		//when using DDC with a compoundPropertyModel we use this constructor: DDC<T>(String,IModel<List<T>>,IChoiceRenderer<T>)
 		//and the ID of the DDC field maps to the field in the CompoundPropertyModel
@@ -84,53 +91,39 @@ public class MyPrivacy extends BasePage {
 		//profile privacy
 		WebMarkupContainer profileContainer = new WebMarkupContainer("profileContainer");
 		profileContainer.add(new Label("profileLabel", new ResourceModel("privacy.profile")));
-		//DropDownChoice profileChoice = new DropDownChoice("profile", privacyModel, Arrays.asList(options), choiceRenderer);
-		//DropDownChoice profileChoice = new DropDownChoice("profile", new PropertyModel(privacyModel, "profile"), Arrays.asList(TEMP), choiceRenderer);
-		/*
-		DropDownChoice profileChoice = new DropDownChoice("profile", new PropertyModel(privacyModel,"profile"),Arrays.asList(TEMP), new ChoiceRenderer("value", "key"))
-		{
-			protected boolean wantOnSelectionChangedNotifications()
-			{
-				return true;
-			}
-			
-			protected void onSelectionChanged(Object newSelection)
-			{
-				//setResponsePage(new Faces((String) newSelection));
-			}
-		};
-		*/
-		final Map<String, String> privacySettings = new HashMap<String, String>();
-
+		DropDownChoice profileChoice = new DropDownChoice("profile", dropDownModel, new HashMapChoiceRenderer(privacySettings));             
+		profileContainer.add(profileChoice);
+		form.add(profileContainer);
 		
-		IModel dropDownModel = new Model() {
-			
-			public Object getObject() {
-				
-				privacySettings.put("0", "some choice");
-				privacySettings.put("1", "some other choice");
-				privacySettings.put("2", "and another choice");
-				
-				return privacySettings; //get the HashMap
-			} 
-		};
+		//basicInfo privacy
+		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("basicInfoContainer");
+		basicInfoContainer.add(new Label("basicInfoLabel", new ResourceModel("privacy.basicinfo")));
+		DropDownChoice basicInfoChoice = new DropDownChoice("basicInfo", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		basicInfoContainer.add(basicInfoChoice);
+		form.add(basicInfoContainer);
 		
+		//basicInfo privacy
+		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("contactInfoContainer");
+		contactInfoContainer.add(new Label("contactInfoLabel", new ResourceModel("privacy.contactinfo")));
+		DropDownChoice contactInfoChoice = new DropDownChoice("contactInfo", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		contactInfoContainer.add(contactInfoChoice);
+		form.add(contactInfoContainer);
 		
+		//personalInfo privacy
+		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
+		personalInfoContainer.add(new Label("personalInfoLabel", new ResourceModel("privacy.personalinfo")));
+		DropDownChoice personalInfoChoice = new DropDownChoice("personalInfo", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		personalInfoContainer.add(personalInfoChoice);
+		form.add(personalInfoContainer);
 		
+		//search privacy
+		WebMarkupContainer searchContainer = new WebMarkupContainer("searchContainer");
+		searchContainer.add(new Label("searchLabel", new ResourceModel("privacy.search")));
+		DropDownChoice searchChoice = new DropDownChoice("search", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		searchContainer.add(searchChoice);
+		form.add(searchContainer);
 		
-		
-		DropDownChoice profileChoice = new DropDownChoice("profile", dropDownModel, new IChoiceRenderer() {
-               
-			public String getDisplayValue(Object object) {
-				return privacySettings.get(object);
-			}
-
-			public String getIdValue(Object object, int index) {
-				return object.toString();
-			}
-        });
-		
-		/*
+		/* 
 		phoneVendorDDC.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
                 // Reset the phone model dropdown when the vendor changes
@@ -142,8 +135,8 @@ public class MyPrivacy extends BasePage {
 		*/
 		
 		
-		profileContainer.add(profileChoice);
-		form.add(profileContainer);
+		basicInfoContainer.add(basicInfoChoice);
+		form.add(basicInfoContainer);
 		
 		
 		
@@ -188,44 +181,20 @@ public class MyPrivacy extends BasePage {
 	//called when the form is to be saved
 	private boolean save(Form form) {
 		
-		//get the backing model
+		//get the backing model - its elems have been updated with the form params
 		ProfilePrivacy profilePrivacy = (ProfilePrivacy) form.getModelObject();
-		
-		System.out.println(profilePrivacy.getProfile());
-	 	
 
+		if(profile.savePrivacyRecordForUser(profilePrivacy)) {
+			log.info("Saved ProfilePrivacy for: " + profilePrivacy.getUserUuid());
+			return true;
+		} else {
+			log.info("Couldn't save ProfilePrivacy for: " + profilePrivacy.getUserUuid());
+			return false;
+		}
 	
-        return false;
 	}
 	
 }
 
-
-class SelectOption {
-	private String key;
-	private String value;
-
-	public SelectOption(String key, String value) {
-		this.setKey(key);
-		this.setValue(value);
-	}
-
-	public void setKey(String key) {
-		this.key = key;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-}
 
 

@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -413,7 +412,19 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		return (ProfilePrivacy) getHibernateTemplate().execute(hcb);
 
 	}
+	
+	public boolean savePrivacyRecordForUser(ProfilePrivacy profilePrivacy) {
 
+		try {
+			getHibernateTemplate().update(profilePrivacy);
+			log.info("Updated privacy record for user: " + profilePrivacy.getUserUuid());
+			return true;
+		} catch (Exception e) {
+			log.error("savePrivacyRecordForUser() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+		
+	}
 
 
 		

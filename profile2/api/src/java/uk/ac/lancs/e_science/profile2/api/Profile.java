@@ -54,13 +54,7 @@ public interface Profile {
 	public int getUnreadMessagesCount(String userId);
 	
 	
-	/**
-	 * Create a default privacy record where everything is public
-	 *
-	 * @param userId		uuid of the user to create the record for
-	 */
-	public ProfilePrivacy createDefaultPrivacyRecord(String userId);
-	
+		
 	/**
 	 * Get the latest status of a user
 	 *
@@ -102,11 +96,27 @@ public interface Profile {
 	 */
 	public String truncateAndPadStringToSize(String string, int size);
 	
+	
+	
+	/**
+	 * Create a default privacy record where everything is public
+	 *
+	 * @param userId		uuid of the user to create the record for
+	 */
+	public ProfilePrivacy createDefaultPrivacyRecord(String userId);
+	
 	/**
 	 * Retrieve the profile privacy record from the database for this user
 	 *
 	 * @param userId	uuid of the user to retrieve the record for
 	 */
 	public ProfilePrivacy getPrivacyRecordForUser(String userId);
+	
+	/**
+	 * Save the profile privacy record to the database for this user
+	 *
+	 * @param profilePrivacy	the record for the user
+	 */
+	public boolean savePrivacyRecordForUser(ProfilePrivacy profilePrivacy);
 	
 }
