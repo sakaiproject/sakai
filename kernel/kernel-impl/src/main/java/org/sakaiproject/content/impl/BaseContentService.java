@@ -170,6 +170,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	
 	protected static final Pattern contextPattern = Pattern.compile("\\A/(group/|user/|~)(.+?)/");
 
+	private static final String PROP_AVAIL_NOTI = "availableNotified";
 	
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
@@ -186,7 +187,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	protected long m_siteQuota = 0;
 
 	private boolean m_useSmartSort = true;
-	
+
 	static
 	{
 		ROOT_COLLECTIONS.add(COLLECTION_SITE);
@@ -674,7 +675,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			NotificationEdit edit = m_notificationService.addTransientNotification();
 
 			// set functions
-			edit.setFunction(EVENT_RESOURCE_ADD);
+			edit.setFunction(EVENT_RESOURCE_AVAILABLE);
 			edit.addFunction(EVENT_RESOURCE_WRITE);
 
 			// set the filter to any site related resource
@@ -2707,10 +2708,23 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		EventTrackingService.cancelDelays(ref, EVENT_RESOURCE_AVAILABLE);
 
 		// if resource isn't available yet, schedule an event to tell when it becomes available
-		if (entity.isAvailable())
+		if (!entity.isAvailable())
 		{
 			EventTrackingService.delay(EventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE, ref,
 					false), entity.getReleaseDate());
+			entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.FALSE.toString());
+		}
+		else
+		{
+			// for available resources, make sure this event hasn't been fired before. this check is
+			// to ensure an available event isn't sent multiple times for the same resource.
+			String notified = entity.getProperties().getProperty(PROP_AVAIL_NOTI);
+			if (!Boolean.TRUE.toString().equalsIgnoreCase(notified))
+			{
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE,
+						ref, false));
+				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.TRUE.toString());
+			}
 		}
 	}
 
@@ -5539,6 +5553,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		ThreadLocalManager.set("members@" + containerId, null);
 		//ThreadLocalManager.set("getCollections@" + containerId, null);
 		ThreadLocalManager.set("getResources@" + containerId, null);
+
+		// only send notifications if the resource is available
+		// an 'available' event w/ notification will be sent when the resource becomes available
+		if (!edit.isAvailable())
+			priority = NotificationService.NOTI_NONE;
 
 		// track it
 		// edit.getReference() returns the
