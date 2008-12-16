@@ -4,13 +4,14 @@
 		<subject>${localSakaiName} Site Notification
 			java.newusernoti</subject>
 		<message>${currentUserDisplayName}:
-			${localSakaiName} ${siteName} ${currentUserDisplayName}. &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+			${localSakaiName} ${currentUserDisplayName}. &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
 
  ${localSakaiName} : 
  ${localSakaiName} : ${localSakaiURL}
 
 
-&lt;#elseif &gt;
+&lt;#else&gt;
+	
  ${localSakaiName} : ${localSakaiURL}
 
 
@@ -22,14 +23,14 @@
 		<subject>${localSakaiName} Notificació de lloc
 		</subject>
 		<message>${currentUserDisplayName}: Se us ha
-			afegit al/s següent/s ${localSakaiName} lloc: ${siteName} per
+			afegit al/s següent/s ${localSakaiName} lloc: per
 			${currentUserDisplayName}. &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
 
 Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName} : 
 1. Obriu ${localSakaiName} : ${localSakaiURL}
 2. Feu clic al botó Entrar.
 3. Escriviu el vostre compte d'amic d'inici de sessió i contrasenya, i feu clic a Entrar.
-&lt;#elseif &gt;Per entrar:
+&lt;#else &gt;Per entrar:
 1. Obriu ${localSakaiName} : ${localSakaiURL}
 2. Feu clic al botó Entrar.
 3. Escriviu el vostre nom d'usuari i contrasenya i feu clic a Entrar.
@@ -40,8 +41,7 @@ Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName
  <subject>${localSakaiName} </subject>
  <message>${currentUserDisplayName}:
 
- ${localSakaiName}  
-${siteName}
+ ${localSakaiName}
  ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -50,7 +50,7 @@ ${siteName}
  ${localSakaiName} : ${localSakaiURL}
 
 
-&lt;#elseif &gt;
+&lt;#else &gt;
  ${localSakaiName} : ${localSakaiURL}
 
 
@@ -62,7 +62,6 @@ ${siteName}
  <message>${currentUserDisplayName}:
 
 U bent toegevoegd aan de volgende ${localSakaiName}  site:
-${siteName}
 door ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -71,7 +70,7 @@ Zodra u uw gastaccount heeft, kunt u inloggen voor ${localSakaiName} :
 1. Open ${localSakaiName} : ${localSakaiURL}
 2. Klik op de inlog knop.
 3. Vul uw inloggegevens als gast in en klik op Inloggen.
-&lt;#elseif &gt;Voor inlog:
+&lt;#else &gt;Voor inlog:
 1. Open ${localSakaiName} : ${localSakaiURL}
 2. Klik op de inlog knop.
 3. Vul uw gebruikersnaam en wachtwoord in en klik op Inloggen.
@@ -84,7 +83,6 @@ Zodra u uw gastaccount heeft, kunt u inloggen voor ${localSakaiName} :
  <message>${currentUserDisplayName}:
 
 \ub2e4\uc74c\uacfc \uac19\uc774 \ub4f1\ub85d\ub418\uc5c8\uc2b5\ub2c8\ub2e4. ${localSakaiName}  \uc0ac\uc774\ud2b8:
-${siteName}
  ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -93,7 +91,7 @@ ${siteName}
 1. \uc5f4\uae30\ub97c \ud569\ub2c8\ub2e4. ${localSakaiName} : ${localSakaiURL}
 2. \ub85c\uadf8\uc778 \ubc84\ud2bc\uc744 \ud074\ub9ad\ud569\ub2c8\ub2e4.
 3. \uce5c\uad6c \uacc4\uc815 \ud68c\uc6d0\uba85\uacfc \ube44\ubc00\ubc88\ud638\ub97c \uc785\ub825\ud55c\ud6c4 \ub85c\uadf8\uc778\uc744 \ud074\ub9ad\ud569\ub2c8\ub2e4.
-&lt;#elseif &gt;\ub85c\uadf8\uc778 \ud558\uc2dc\ub824\uba74:
+&lt;#else &gt;\ub85c\uadf8\uc778 \ud558\uc2dc\ub824\uba74:
 1. \uc5f4\uae30\ub97c \ud569\ub2c8\ub2e4. ${localSakaiName} : ${localSakaiURL}
 2. \ub85c\uadf8\uc778 \ubc84\ud2bc\uc744 \ud074\ub9ad\ud569\ub2c8\ub2e4.
 3. \ud68c\uc6d0\uba85\uacfc \ube44\ubc00\ubc88\ud638\ub97c \uc785\ub825\ud55c\ud6c4 \ub85c\uadf8\uc778\uc744 \ud074\ub9ad\ud569\ub2c8\ub2e4.
@@ -105,7 +103,6 @@ ${siteName}
  <message>${currentUserDisplayName}:
 
 Foi adicionado a ${localSakaiName}  \u00E1rea\:
-${siteName}
 por ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -114,7 +111,7 @@ Quando tiver a conta de convidado, pode aceder \u00E0 plataforma ${localSakaiNam
 1. Abrir ${localSakaiName} : ${localSakaiURL}
 2. Clicar em &quot;Entrar&quot;.
 3. Escreva as credenciais da sua conta de convidado , e clique &quot;Entrar&quot;.
-&lt;#elseif &gt;Para entrar\:
+&lt;#else &gt;Para entrar\:
 1. Abrir ${localSakaiName} : ${localSakaiURL}
 2. Clicar em &quot;Entrar&quot;.
 3.  Escreva as sua credenciais , e clique &quot;Entrar&quot;.
@@ -129,7 +126,6 @@ Quando tiver a conta de convidado, pode aceder \u00E0 plataforma ${localSakaiNam
  <message>${currentUserDisplayName}:
 
 Du har lagts till p\u00E5 f\u00F6ljande ${localSakaiName}  sajt\:
-${siteName}
 av ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -138,7 +134,7 @@ S\u00E5 snart som du har f\u00E5tt ditt g\u00E4stkonto kan du logga in p\u00E5 $
 1. \u00D6ppna ${localSakaiName} : ${localSakaiURL}
 2. V\u00E4lj s\u00E4tt att logga in \u00F6verst till v\u00E4nster
 3. Ange ditt g\u00E4stkonto och l\u00F6senord, v\u00E4lj d\u00E4refter Logga in.
-&lt;#elseif &gt;F\u00F6r att logga in\:
+&lt;#else &gt;F\u00F6r att logga in\:
 1. \u00D6ppna ${localSakaiName} : ${localSakaiURL}
 2. V\u00E4lj s\u00E4tt att logga in \u00F6verst till v\u00E4nster
 3. Ange ditt anv\u00E4ndarnamn och l\u00F6senord.
@@ -150,7 +146,6 @@ S\u00E5 snart som du har f\u00E5tt ditt g\u00E4stkonto kan du logga in p\u00E5 $
  <message>${currentUserDisplayName}:
 
 Ha sido añadido a los siguientes ${localSakaiName}  sitio:
-${siteName}
 por ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -159,7 +154,7 @@ Después de tener su cuenta de invitado, ya puede entrar. ${localSakaiName} :
 1. Abrir ${localSakaiName} : ${localSakaiURL}
 2. Pulse el botón de Login.
 3. Teclee el login de su cuenta de invitado y el password, luego pulse Login.
-&lt;#elseif &gt;Para acceder:
+&lt;#else &gt;Para acceder:
 1. Abrir ${localSakaiName} : ${localSakaiURL}
 2. Pulse el botón de Login.
 3. Teclee el usuario y password, luego pulse Login.
@@ -171,7 +166,6 @@ Después de tener su cuenta de invitado, ya puede entrar. ${localSakaiName} :
  <message>${currentUserDisplayName}:
 
 \u60A8\u5DF2\u88AB\u6DFB\u52A0\u5230\u4EE5\u4E0B ${localSakaiName}  \u7AD9\u70B9\uFF1A
-${siteName}
 \u88AB ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -180,7 +174,7 @@ ${siteName}
 1. \u6253\u5F00 ${localSakaiName} : ${localSakaiURL}
 2. \u70B9\u51FB\u201C\u767B\u5F55\u201D\u6309\u94AE\u3002
 3. \u8F93\u5165\u60A8\u7684\u670B\u53CB\u8D26\u6237\u767B\u5F55\u540D\u548C\u5BC6\u7801\uFF0C\u5E76\u70B9\u51FB\u201C\u767B\u5F55\u201D\u3002
-&lt;#elseif &gt;\u82E5\u8981\u767B\u5F55\uFF1A
+&lt;#else &gt;\u82E5\u8981\u767B\u5F55\uFF1A
 1. \u6253\u5F00 ${localSakaiName} : ${localSakaiURL}
 2. \u70B9\u51FB\u201C\u767B\u5F55\u201D\u6309\u94AE\u3002
 3. \u8F93\u5165\u60A8\u7684\u7528\u6237\u540D\u548C\u5BC6\u7801\uFF0C\u5E76\u70B9\u51FB\u201C\u767B\u5F55\u201D\u3002
@@ -192,7 +186,6 @@ ${siteName}
  <message>${currentUserDisplayName}:
 
 Vous avez \u00E9t\u00E9 ajout\u00E9 \u00E0 ce qui suit ${localSakaiName}  site:
-${siteName}
 par ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -201,7 +194,7 @@ Lorsque vous avez votre compte Invit\u00E9, vous pouvez ouvrir une session dans 
 1. Ouvrez ${localSakaiName} : ${localSakaiURL}
 2. Cliquez le bouton Ouverture de session
 3. Inscrivez votre nom d'utilisateur Invit\u00E9 et votre mot de passe, et cliquez Ouvrir une session.
-&lt;#elseif &gt;Pour ouvrir une session:
+&lt;#else &gt;Pour ouvrir une session:
 1. Ouvrez ${localSakaiName} : ${localSakaiURL}
 2. Cliquez le bouton Ouverture de session
 3. Inscrivez votre nom d'utilisateur et votre mot de passe, et cliquez Ouvrir une session.
@@ -213,7 +206,6 @@ Lorsque vous avez votre compte Invit\u00E9, vous pouvez ouvrir une session dans 
  <message>${currentUserDisplayName}:
 
 \u6b21\u306b\u8ffd\u52a0\u3055\u308c\u307e\u3057\u305f\uff1a ${localSakaiName}  \u30b5\u30a4\u30c8:
-${siteName}
 by ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -222,7 +214,7 @@ by ${currentUserDisplayName}.
 1. \u958b\u304d\u307e\u3059\uff0e ${localSakaiName} : ${localSakaiURL}
 2. \u300c\u30ed\u30b0\u30a4\u30f3\u300d\u30dc\u30bf\u30f3\u3092\u30af\u30ea\u30c3\u30af\u3057\u307e\u3059\uff0e
 3. \u30d5\u30ec\u30f3\u30c9\u30ed\u30b0\u30a4\u30f3\u30a2\u30ab\u30a6\u30f3\u30c8\u3068\u30d1\u30b9\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\uff0c\u300c\u30ed\u30b0\u30a4\u30f3\u300d\u3092\u30af\u30ea\u30c3\u30af\u3057\u307e\u3059\uff0e
-&lt;#elseif &gt;\u30ed\u30b0\u30a4\u30f3\u3059\u308b\u5834\u5408:
+&lt;#else &gt;\u30ed\u30b0\u30a4\u30f3\u3059\u308b\u5834\u5408:
 1. \u958b\u304d\u307e\u3059\uff0e ${localSakaiName} : ${localSakaiURL}
 2. \u300c\u30ed\u30b0\u30a4\u30f3\u300d\u30dc\u30bf\u30f3\u3092\u30af\u30ea\u30c3\u30af\u3057\u307e\u3059\uff0e
 3. \u30e6\u30fc\u30b6\u540d\u3068\u30d1\u30b9\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\uff0c\u300c\u30ed\u30b0\u30a4\u30f3\u300d\u3092\u30af\u30ea\u30c3\u30af\u3057\u307e\u3059\uff0e
@@ -234,7 +226,6 @@ by ${currentUserDisplayName}.
  <message>${currentUserDisplayName}:
 
 Voc\u00ea foi adicionado ao seguinte ${localSakaiName}  site:
-${siteName}
 por ${currentUserDisplayName}. 
 
 &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
@@ -243,7 +234,7 @@ Uma vez que voc\u00ea possua sua conta de convidado, voc\u00ea pode acessar o si
 1. Abrir ${localSakaiName} : ${localSakaiURL}
 2. Clique no bot\u00e3o de login
 3. Digite seu login de convidado e sua senha e clique em Login
-&lt;#elseif &gt;Para logar em:
+&lt;#else &gt;Para logar em:
 1. Abrir ${localSakaiName} : ${localSakaiURL}
 2. Clique no bot\u00e3o de login
 3. Digite seu nome de usu\u00e1rio e senha e clique em Login.
