@@ -96,7 +96,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
      * used to communicate success or warning conditions to the client.
      * @param view
      * @param params
-     * @return
+     * @return the action return
      */
     @EntityCustomAction(action="site",viewKey="")
     public ActionReturn handleSiteMemberships(EntityView view, Map<String, Object> params) {
