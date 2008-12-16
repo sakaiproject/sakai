@@ -251,28 +251,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 	}
 	
-	/*
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPrivacyRecord()
-	 */
-	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
-		
-		ProfilePrivacy profilePrivacy = new ProfilePrivacy(userId,0,0,0,0,0);
-		
-		//save
-		try {
-			getHibernateTemplate().save(profilePrivacy);
-			log.info("Created default privacy record for user: " + userId);
-			return profilePrivacy;
-		} catch (Exception e) {
-			log.error("createDefaultPrivacyRecord() failed. " + e.getClass() + ": " + e.getMessage());
-			return null;
-		}
-	}
+	
 	
 	/*
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getLatestUserStatus()
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatus()
 	 */
-	public ProfileStatus getLatestUserStatus(final String userId) {
+	public ProfileStatus getUserStatus(final String userId) {
 		
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null Argument in getUserStatus");
@@ -289,6 +273,37 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 		return (ProfileStatus) getHibernateTemplate().execute(hcb);
 	}
+	
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatusMessage()
+	 */
+	public String getUserStatusMessage(String userId) {
+		if(userId == null){
+	  		throw new IllegalArgumentException("Null Argument in getUserStatusMessage");
+	  	}
+		
+		ProfileStatus profileStatus = getUserStatus(userId);
+		return profileStatus.getMessage();
+	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatusDate()
+	 */
+	public Date getUserStatusDate(String userId) {
+		if(userId == null){
+	  		throw new IllegalArgumentException("Null Argument in getUserStatusDate");
+	  	}
+		
+		ProfileStatus profileStatus = getUserStatus(userId);
+		return profileStatus.getDateAdded();
+	}
+	
+	
+	
+	
+	
+	
 	
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#setUserStatus()
@@ -392,6 +407,26 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 	}
 	
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPrivacyRecord()
+	 */
+	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
+		
+		ProfilePrivacy profilePrivacy = new ProfilePrivacy(userId,0,0,0,0,0);
+		
+		//save
+		try {
+			getHibernateTemplate().save(profilePrivacy);
+			log.info("Created default privacy record for user: " + userId);
+			return profilePrivacy;
+		} catch (Exception e) {
+			log.error("createDefaultPrivacyRecord() failed. " + e.getClass() + ": " + e.getMessage());
+			return null;
+		}
+	}
+	
+	
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getPrivacyRecordForUser()
 	 */
@@ -413,6 +448,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	}
 	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#savePrivacyRecordForUser()
+	 */
 	public boolean savePrivacyRecordForUser(ProfilePrivacy profilePrivacy) {
 
 		try {

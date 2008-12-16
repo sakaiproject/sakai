@@ -56,11 +56,26 @@ public interface Profile {
 	
 		
 	/**
-	 * Get the latest status of a user
+	 * Get the status (message and date) of a user
+	 * (this could be private as the other methods call it)
 	 *
 	 * @param userId		uuid of the user to get their status for
 	 */
-	public ProfileStatus getLatestUserStatus(String userId);
+	public ProfileStatus getUserStatus(String userId);
+	
+	/**
+	 * Get the status message of a user
+	 *
+	 * @param userId		uuid of the user to get their status message for
+	 */
+	public String getUserStatusMessage(String userId);
+	
+	/**
+	 * Get the status date of a user
+	 *
+	 * @param userId		uuid of the user to get their status date for
+	 */
+	public Date getUserStatusDate(String userId);
 	
 	/**
 	 * Set user status

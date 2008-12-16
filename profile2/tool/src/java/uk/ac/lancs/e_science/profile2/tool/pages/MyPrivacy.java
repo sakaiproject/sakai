@@ -32,7 +32,6 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 public class MyPrivacy extends BasePage {
 
 	private transient Logger log = Logger.getLogger(MyPrivacy.class);
-	
 
 	private transient ProfilePrivacy profilePrivacy;
 		

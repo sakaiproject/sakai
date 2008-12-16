@@ -1,11 +1,13 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.behavior.StringHeaderContributor;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -13,17 +15,16 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
-import uk.ac.lancs.e_science.profile2.tool.models.UserStatus;
 
 public class MyStatusPanel extends Panel {
 	
@@ -31,6 +32,11 @@ public class MyStatusPanel extends Panel {
 	
     private transient SakaiProxy sakaiProxy;
     private transient Profile profile;
+    private transient ProfileStatus profileStatus;
+    
+    //get default text that files the textField
+	String defaultStatus = new StringResourceModel("text.no.status", this,null).getString();
+	
     
 	//a number of factors can disable the status
     private boolean displayStatus = true;
@@ -39,10 +45,6 @@ public class MyStatusPanel extends Panel {
 	public MyStatusPanel(String id, UserProfile userProfile) {
 		super(id);
 		
-		//create model
-		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
-			
-
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
@@ -54,14 +56,50 @@ public class MyStatusPanel extends Panel {
 		final String userId = sakaiProxy.getCurrentUserId();
 	
 		
-		//setup LoadableDetachableModel that can be reloaded on each component reload via AJAX
-        IModel userStatusModel = new LoadableDetachableModel() {
-            protected Object load() {
-                return getUserStatus(userId);
-            }
-        };
+		//setup ProfileStatus object and load with the current values from the DB/Hivernate's session for the page to use initially.
+		//we need to look at why its getting dropped on a page refresh, new objects not being backed by hibernate's session for some reason.
+		profileStatus = new ProfileStatus();
+		profileStatus = profile.getUserStatus(userId);
 		
+		//the message and date fields get their values from the ProfileStatus object
+		//when the status form is submitted, Hibernate persists the data in teh background
+		//and the message and date fields get their values again, via these models from teh ProfileStatus object.
 		
+		//setup model for status message
+		IModel statusMessageModel = new Model() {
+			private String message = "";
+			
+			public Object getObject(){
+				message = profileStatus.getMessage(); //get from backing object - USE THIS ALWAYS
+				if("".equals(message)){
+					displayStatus = false;
+					return "default message";
+				}
+				System.out.println("update requested - " + message);
+
+				return message;
+			}
+			
+			
+		};
+		
+		//setup model for status date
+		Model statusDateModel = new Model() {
+			
+			private Date date;
+			private String dateStr = "";
+			
+			public Object getObject(){
+				date = profile.getUserStatusDate(userId);
+				//need to transform the date here
+				return date;
+			}
+			
+		};
+	
+				
+		//create model
+		CompoundPropertyModel profileStatusModel = new CompoundPropertyModel(profileStatus);
 	
 		//name
 		Label profileName = new Label("profileName", displayName);
@@ -69,20 +107,18 @@ public class MyStatusPanel extends Panel {
 		
 		
 		//status container - this needs to reget the model when its added but not sure how.
-		final WebMarkupContainer statusContainer = new WebMarkupContainer("statusContainer", userStatusModel);
+		final WebMarkupContainer statusContainer = new WebMarkupContainer("statusContainer");
 		statusContainer.setOutputMarkupId(true);
-		//statusContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(5)));
-
 		
-		UserStatus userStatus = (UserStatus) statusContainer.getModelObject();
 		
 		//status
-		final Label statusMessageLabel = new Label("statusMessage", userStatus.getMessage());
+		final Label statusMessageLabel = new Label("statusMessage", statusMessageModel);
 		statusMessageLabel.setOutputMarkupId(true);
 		statusContainer.add(statusMessageLabel);
 		
 		//status last updated
-		Label statusDateLabel = new Label("statusDate", userStatus.getDateStr());
+		//Label statusDateLabel = new Label("statusDate", userStatus.getDateStr());
+		final Label statusDateLabel = new Label("statusDate", "some date");
 		statusDateLabel.setOutputMarkupId(true);
 		statusContainer.add(statusDateLabel);
 		
@@ -107,16 +143,23 @@ public class MyStatusPanel extends Panel {
 		
 		
 		//status form
-		Form form = new Form("form", userStatusModel);
+		Form form = new Form("form", profileStatusModel);
 		form.setOutputMarkupId(true);
-        
-		//status field (with customised onclick)
-        TextField statusField = new TextField("statusField", new PropertyModel(userStatus, "message"));
+        		
+		//status field
+        TextField statusField = new TextField("message", new PropertyModel(profileStatus, "message"));
         statusField.setOutputMarkupId(true);
-        statusField.add(new AttributeAppender("onfocus", new Model("autoFill('" + statusField.getMarkupId() + "', '" + displayName + "');"), " "));
-        //statusField.add(new AttributeAppender("onfocus", new Model("test()"), " "));
-
         form.add(statusField);
+        
+        //link this field with the focus/blur function via this dynamic js 
+		StringHeaderContributor statusJavascript = new StringHeaderContributor(
+				"<script type=\"text/javascript\">" +
+					"$(document).ready( function(){" +
+					"autoFill($('.statusField'), '" + defaultStatus + "');" +
+					"});" +
+				"</script>");
+		add(statusJavascript);
+        
         
         //submit button
 		AjaxButton submitButton = new AjaxButton("submit") {
@@ -124,13 +167,10 @@ public class MyStatusPanel extends Panel {
 				//save() form, show message, then load display panel
 				
 				if(save(form)) {
-					// tell wicket to repaint the statusContainer only 
 					String js = "alert('ok!');";
-					target.prependJavascript(js);
-				     target.addComponent(statusContainer);
-				     System.out.println("should have been updated");
-				     //this isn't refreshing. we will need to get the latest status from the db each time so we need to reorder where
-				     //we get the info. perhaps to an anonymous inner calss.
+					target.appendJavascript(js);
+					// tell wicket to repaint the statusContainer only (or the components inside it, either way is fine)
+				     target.addComponent(statusMessageLabel);
 				
 				} else {
 					String js = "alert('crap!');";
@@ -143,6 +183,8 @@ public class MyStatusPanel extends Panel {
 		
         //add form
 		add(form);
+		
+		
         
 	}
 	
@@ -152,7 +194,7 @@ public class MyStatusPanel extends Panel {
 		//System.out.println("model-" + form.getModelObject());
 
 		//get the backing model
-		UserStatus userStatus = (UserStatus) form.getModelObject();
+		ProfileStatus profileStatus = (ProfileStatus) form.getModelObject();
 		
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
@@ -162,10 +204,18 @@ public class MyStatusPanel extends Panel {
 		
 		//get userId from sakaiProxy
 		String userId = sakaiProxy.getCurrentUserId();
+		
+		//get the status. if its the default text, do not update
+		String statusMessage = profileStatus.getMessage();
+		if(statusMessage.equals(defaultStatus)) {
+			System.out.println("default message, not updating");
+		}
+		
+		System.out.println("user status on form submit: " + profileStatus.getMessage());
 
 		//save status from userProfile
 		//need to do some checking in here if its null etc, ie if they want to clear it.
-		if(profile.setUserStatus(userId, userStatus.getMessage())) {
+		if(profile.setUserStatus(userId, profileStatus.getMessage())) {
 			log.info("Saved status for: " + userId );
 			return true;
 		} else {
@@ -176,6 +226,7 @@ public class MyStatusPanel extends Panel {
 	}
 	
 	//method to get the status info when its requested
+	/*
 	private UserStatus getUserStatus(String userId) {
 		
 		//form model
@@ -183,21 +234,17 @@ public class MyStatusPanel extends Panel {
 
 		//hibernate model		
 		ProfileStatus profileStatus = profile.getLatestUserStatus(userId);
-		if(profileStatus == null) {
-			//setup blank values
-			userStatus.setMessage("");
-			userStatus.setDateStr("");
-			displayStatus = false;
-		} else {
-			//setup real values
+		if(profileStatus != null) {
+			//setup values
 			userStatus.setMessage(profileStatus.getMessage());
 			userStatus.setDateStr(profile.convertDateForStatus(profileStatus.getDateAdded()));
-		}
-		
-        return userStatus;
-    	
+			
+			return userStatus;
+		} 
+		return null;
+
 	}
-	
+	*/
 	
 
 	

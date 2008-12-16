@@ -21,38 +21,29 @@
     </div>
     <div>
     	<form wicket:id="form" class="statusForm">
-		
-			<input type="text" wicket:id="statusField" size="40" class="statusField" />
+			<input type="text" wicket:id="message" size="40" class="statusField" />
 			<input type="submit" wicket:id="submit" value="Say it" />
-		
 		</form>
     </div>
     
+    
 	<script type="text/javascript">
 
-		//init
-		//$(document).ready(function(){ 
-			function test() {
-				alert('test');
-			}
-			
-			
-			function autoFill(id, v){
-				alert(id);
-				alert(v);
-				$(id).css({ color: "#5D5D5D" }).attr({ value: v }).focus(function(){
-					if($(this).val()==v){
-						$(this).val("").css({ color: "#000000" });
-					}
-				}).blur(function(){
-					if($(this).val()==""){
-						$(this).css({ color: "#5D5D5D" }).val(v);
-					}
-				});
+		//the complementary function for autoFill is dynamically added in the Class
+		function autoFill(id, v){
+			$(id).css({ color: "#5D5D5D" }).attr({ value: v }).focus(function(){
+				if($(this).val()==v){
+					$(this).val("").css({ color: "#000000" });
+				}
+			}).blur(function(){
+				if($(this).val()==""){
+					$(this).css({ color: "#5D5D5D" }).val(v);
+				}
+			});
 
-			}
+		}
 			
-		//});
+	
 
 	</script>
 	
