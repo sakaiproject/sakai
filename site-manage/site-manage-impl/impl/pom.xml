@@ -93,6 +93,7 @@
         <directory>${basedir}/src/bundle</directory>
         <includes>
           <include>**/*.properties</include>
+	  <include>**/*.xml</include>
         </includes>
       </resource>
     </resources>
