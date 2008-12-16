@@ -365,9 +365,9 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 			addAsset(asset);
 			assetsAdded++;
 
-//			_log.debug("populate() Added " + asset
-//						+  	 ", vector size = "  + assetVectorSize()
-//						+    ", populated = "    + populated);
+//		_log.debug("populate() Added " + asset
+//					+  	 ", vector size = "  + assetVectorSize()
+//					+    ", populated = "    + populated);
 
 			if (populated >= maximumRecords)
 			{
@@ -377,14 +377,9 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 		/*
 		 * Update the starting record number
 		 */
-		startRecord += Math.min(pageSize, assetsAdded);
+		startRecord += assetsAdded; // WAS: Math.min(pageSize, assetsAdded);
 		sessionContext.putInt("startRecord", startRecord);
 		sessionContext.putInt("pageSize", pageSize);
-
-		for (int i = 0; i < assetVectorSize(); i++)
-		{
-			Asset asset = (Asset) assetVector.elementAt(i);
-		}
   }
 
 	private int idCount = 1;
