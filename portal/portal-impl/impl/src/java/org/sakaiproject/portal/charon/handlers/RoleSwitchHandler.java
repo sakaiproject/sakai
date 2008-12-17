@@ -11,6 +11,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
@@ -22,7 +24,9 @@ import org.sakaiproject.util.Web;
 public class RoleSwitchHandler extends BasePortalHandler
 {
 	private static final String URL_FRAGMENT = "role-switch";
-	
+
+	public static final String EVENT_ROLESWAP_START = "roleswap.start";
+
 	private static final Log log = LogFactory.getLog(SiteHandler.class);
 
 	public RoleSwitchHandler()
@@ -88,6 +92,10 @@ public class RoleSwitchHandler extends BasePortalHandler
 				portalService.setResetState("true"); // flag the portal to reset
 				session.setAttribute("roleswapFlagForClearing/" + parts[2] , "true"); // set a session variable to flag for clearing the cache in authz
 				session.setAttribute("roleswap/site/" + parts[2] , parts[3]); // set the session attribute with the roleid
+				
+				// Post an event
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_ROLESWAP_START, parts[3], parts[2], false, NotificationService.NOTI_NONE));
+				
 				res.sendRedirect(siteUrl);
 				return RESET_DONE;
 			}
