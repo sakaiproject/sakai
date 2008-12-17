@@ -244,17 +244,18 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 	public void interceptActionResult(ARIResult result,
 			ViewParameters incoming, Object actionReturn) {
-		
-		VoteCollection votes = (VoteCollection) actionReturn;
-		if (votes == null)
-			return;
-		if (votes.getId() != null) {
-			m_log.debug("got a voteCollection with id: " + votes.getId());
-			result.resultingView = new VoteCollectionViewParameters(ConfirmProducer.VIEW_ID, votes.getId());
-		} else {
-			m_log.warn("no id in vote collection!");
+
+		if (actionReturn instanceof VoteCollection) {
+			VoteCollection votes = (VoteCollection) actionReturn;
+			if (votes == null)
+				return;
+			if (votes.getId() != null) {
+				m_log.debug("got a voteCollection with id: " + votes.getId());
+				result.resultingView = new VoteCollectionViewParameters(ConfirmProducer.VIEW_ID, votes.getId());
+			} else {
+				m_log.warn("no id in vote collection!");
+			}
 		}
-		
 		
 		
 	}
