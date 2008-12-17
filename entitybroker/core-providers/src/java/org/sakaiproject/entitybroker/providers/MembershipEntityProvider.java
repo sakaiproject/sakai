@@ -88,15 +88,64 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
     public String getEntityPrefix() {
         return PREFIX;
     }
-    
+
+    /**
+     * join/site/siteId or join/siteId
+     * Handle the special case of joining a site,
+     * using normal create will not work
+     */
+    @EntityCustomAction(action="join",viewKey=EntityView.VIEW_NEW)
+    public boolean joinCurrentUserToSite(EntityView view, Map<String, Object> params) {
+        String siteId = view.getPathSegment(2);
+        if (siteId == null) {
+            siteId = (String) params.get("siteId");
+        } else if ("site".equals(siteId)) {
+            siteId = view.getPathSegment(3);
+        }
+        if (siteId == null) {
+            throw new IllegalArgumentException("siteId must be set in order join sites, set in params or in the URL /join/site/siteId");
+        }
+        try {
+            siteService.join(siteId);
+        } catch (IdUnusedException e) {
+            throw new IllegalArgumentException("The siteId provided ("+siteId+") could not be found: " + e, e);
+        } catch (PermissionException e) {
+            throw new SecurityException("The current user ("+developerHelperService.getCurrentUserId()+") does not have permission to join site ("+siteId+"): " + e, e);
+        }
+        return true;
+    }
+
+    /**
+     * unjoin/site/siteId or unjoin/siteId
+     * Handle the special case of un-joining a site,
+     * using normal delete will not work
+     */
+    @EntityCustomAction(action="unjoin",viewKey=EntityView.VIEW_NEW)
+    public boolean unjoinCurrentUserFromSite(EntityView view, Map<String, Object> params) {
+        String siteId = view.getPathSegment(2);
+        if (siteId == null) {
+            siteId = (String) params.get("siteId");
+        } else if ("site".equals(siteId)) {
+            siteId = view.getPathSegment(3);
+        }
+        if (siteId == null) {
+            throw new IllegalArgumentException("siteId must be set in order to unjoin sites, set in params or in the URL /unjoin/site/siteId");
+        }
+        try {
+            siteService.unjoin(siteId);
+        } catch (IdUnusedException e) {
+            throw new IllegalArgumentException("The siteId provided ("+siteId+") could not be found: " + e, e);
+        } catch (PermissionException e) {
+            throw new SecurityException("The current user ("+developerHelperService.getCurrentUserId()+") does not have permission to join site ("+siteId+"): " + e, e);
+        }
+        return true;
+    }
+
     /**
      * Handle the special needs of UX site membership settings, either getting the current
      * list of site memberships via a GET request, or creating a new batch of site memberships
      * via a POST request. In the case of a POST, special HTTP response headers will be
      * used to communicate success or warning conditions to the client.
-     * @param view
-     * @param params
-     * @return the action return
      */
     @EntityCustomAction(action="site",viewKey="")
     public ActionReturn handleSiteMemberships(EntityView view, Map<String, Object> params) {
