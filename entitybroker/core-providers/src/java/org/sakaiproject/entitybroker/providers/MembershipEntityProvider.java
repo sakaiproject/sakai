@@ -638,7 +638,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("Invalid site: " + site.getId() + ":" + e.getMessage(), e);
         } catch (PermissionException e) {
-            throw new SecurityException("Current user not allowed to update site group memberships in group: " + group.getId() + ":" + e.getMessage(), e);
+            throw new SecurityException("Current user ("+developerHelperService.getCurrentUserId()+") not allowed to update site group memberships in group: " + group.getId() + " :"+e.getMessage()+":"+e.getCause(), e);
         }
     }
 
@@ -651,7 +651,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("Invalid site: " + site.getId() + ":" + e.getMessage(), e);
         } catch (PermissionException e) {
-            throw new SecurityException("Current user not allowed to update site memberships in site: " + site.getId() + ":" + e.getMessage(), e);
+            throw new SecurityException("Current user ("+developerHelperService.getCurrentUserId()+") not allowed to update site memberships in site: " + site.getId() + " :"+e.getMessage()+":"+e.getCause(), e);
         }
     }
 

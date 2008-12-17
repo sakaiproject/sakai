@@ -383,7 +383,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                 } catch (SecurityException se) {
                                     // AJAX/WS type security exceptions are handled specially, no redirect
                                     throw new EntityException("Security exception handling request for view ("+view+"), "
-                                            + "this is typically caused by the current user not having access to the "
+                                            + "this is typically caused by the current user ("+sessionManager.getCurrentSessionUserId()+") not having access to the "
                                             + "data requested or the user not being logged in at all :: message=" + se.getMessage(),
                                             view.getEntityReference()+"", HttpServletResponse.SC_FORBIDDEN);
                                 } catch (EntityNotFoundException e) {
