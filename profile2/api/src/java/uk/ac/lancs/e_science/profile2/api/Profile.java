@@ -9,15 +9,22 @@ import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 
 public interface Profile {
 	
-		
+	/**
+	 * Check content type against allowed types. only JPEG,GIF and PNG are support at the moment
+	 *
+	 * @param contentType		string of the content type determined by some image parser
+	 */
 	public boolean checkContentTypeForProfileImage(String contentType);
 
+	/**
+	 * Scale an image so one side is a maximum of maxSize in pixels.
+	 *
+	 * @param imageData		bytes of the original image
+	 * @param maxSize		maximum dimension in px that the image should have on any one side
+	 */
 	public byte[] scaleImage (byte[] imageData, int maxSize);
 	
-	public Date convertStringToDate(String dateStr);
 	
-	public String convertDateToString(Date date);
-
 	/**
 	 * Get a list of uuid's that are friends with a given user
 	 *
@@ -133,5 +140,6 @@ public interface Profile {
 	 * @param profilePrivacy	the record for the user
 	 */
 	public boolean savePrivacyRecordForUser(ProfilePrivacy profilePrivacy);
+	
 	
 }

@@ -34,10 +34,9 @@ public class MyStatusPanel extends Panel {
     private transient Profile profile;
     private transient ProfileStatus profileStatus;
     
-    //get default text that files the textField
-	String defaultStatus = new StringResourceModel("text.no.status", this,null).getString();
-	
-    
+    //get default text that fills the textField
+	String defaultStatus = new ResourceModel("text.no.status", "Say something").getObject().toString();
+        
 	//a number of factors can disable the status
     private boolean displayStatus = true;
 
@@ -54,12 +53,16 @@ public class MyStatusPanel extends Panel {
 		//get info
 		String displayName = userProfile.getDisplayName();
 		final String userId = sakaiProxy.getCurrentUserId();
-	
 		
-		//setup ProfileStatus object and load with the current values from the DB/Hivernate's session for the page to use initially.
-		//we need to look at why its getting dropped on a page refresh, new objects not being backed by hibernate's session for some reason.
-		profileStatus = new ProfileStatus();
+		//setup ProfileStatus object leaded with the current values from the DB/Hibernate's session for the page to use initially.
 		profileStatus = profile.getUserStatus(userId);
+		
+		//if no status, initialise
+		if(profileStatus == null) {
+			displayStatus = false;
+			profileStatus = new ProfileStatus();
+		}
+
 		
 		//the message and date fields get their values from the ProfileStatus object
 		//when the status form is submitted, Hibernate persists the data in teh background
@@ -70,15 +73,16 @@ public class MyStatusPanel extends Panel {
 			private String message = "";
 			
 			public Object getObject(){
-				message = profileStatus.getMessage(); //get from backing object - USE THIS ALWAYS
-				if("".equals(message)){
+				//profileStatus = profile.getUserStatus(userId);
+				message = profileStatus.getMessage(); //get from hibernate
+				if("".equals(message) || message == null){
 					displayStatus = false;
-					return "default message";
-				}
-				System.out.println("update requested - " + message);
-
+					log.warn("No status message for: " + userId );
+				} 
 				return message;
 			}
+			
+			
 			
 			
 		};
@@ -91,8 +95,14 @@ public class MyStatusPanel extends Panel {
 			
 			public Object getObject(){
 				date = profile.getUserStatusDate(userId);
-				//need to transform the date here
-				return date;
+				if(date == null) {
+					displayStatus = false;
+					log.warn("No status date for: " + userId );
+				} else {
+					//transform the date
+					dateStr = profile.convertDateForStatus(date);
+				}
+				return dateStr;
 			}
 			
 		};
@@ -112,13 +122,12 @@ public class MyStatusPanel extends Panel {
 		
 		
 		//status
-		final Label statusMessageLabel = new Label("statusMessage", statusMessageModel);
+		Label statusMessageLabel = new Label("statusMessage", statusMessageModel);
 		statusMessageLabel.setOutputMarkupId(true);
 		statusContainer.add(statusMessageLabel);
 		
 		//status last updated
-		//Label statusDateLabel = new Label("statusDate", userStatus.getDateStr());
-		final Label statusDateLabel = new Label("statusDate", "some date");
+		Label statusDateLabel = new Label("statusDate", statusDateModel);
 		statusDateLabel.setOutputMarkupId(true);
 		statusContainer.add(statusDateLabel);
 		
@@ -126,6 +135,7 @@ public class MyStatusPanel extends Panel {
 		AjaxFallbackLink statusClearLink = new AjaxFallbackLink("statusClearLink") {
 			public void onClick(AjaxRequestTarget target) {
 				System.out.println("clear clicked");
+				//need to clear the latest status message with a blank string
 			}
 						
 		};
@@ -136,12 +146,7 @@ public class MyStatusPanel extends Panel {
 		//add status container
 		add(statusContainer);
 		
-		//hide status if none or its too old
-		//if(!displayStatus) {
-		//	statusContainer.setVisible(false);
-		//}
-		
-		
+				
 		//status form
 		Form form = new Form("form", profileStatusModel);
 		form.setOutputMarkupId(true);
@@ -151,11 +156,11 @@ public class MyStatusPanel extends Panel {
         statusField.setOutputMarkupId(true);
         form.add(statusField);
         
-        //link this field with the focus/blur function via this dynamic js 
+        //link the status textfield field with the focus/blur function via this dynamic js 
 		StringHeaderContributor statusJavascript = new StringHeaderContributor(
 				"<script type=\"text/javascript\">" +
 					"$(document).ready( function(){" +
-					"autoFill($('.statusField'), '" + defaultStatus + "');" +
+					"autoFill($('#" + statusField.getMarkupId() + "'), '" + defaultStatus + "');" +
 					"});" +
 				"</script>");
 		add(statusJavascript);
@@ -167,10 +172,8 @@ public class MyStatusPanel extends Panel {
 				//save() form, show message, then load display panel
 				
 				if(save(form)) {
-					String js = "alert('ok!');";
-					target.appendJavascript(js);
-					// tell wicket to repaint the statusContainer only (or the components inside it, either way is fine)
-				     target.addComponent(statusMessageLabel);
+					// tell wicket to repaint the statusContainer only
+					target.addComponent(statusContainer);
 				
 				} else {
 					String js = "alert('crap!');";
@@ -184,8 +187,6 @@ public class MyStatusPanel extends Panel {
         //add form
 		add(form);
 		
-		
-        
 	}
 	
 
@@ -208,7 +209,8 @@ public class MyStatusPanel extends Panel {
 		//get the status. if its the default text, do not update
 		String statusMessage = profileStatus.getMessage();
 		if(statusMessage.equals(defaultStatus)) {
-			System.out.println("default message, not updating");
+			log.warn("Default message, not updating");
+			return false;
 		}
 		
 		System.out.println("user status on form submit: " + profileStatus.getMessage());
@@ -216,7 +218,7 @@ public class MyStatusPanel extends Panel {
 		//save status from userProfile
 		//need to do some checking in here if its null etc, ie if they want to clear it.
 		if(profile.setUserStatus(userId, profileStatus.getMessage())) {
-			log.info("Saved status for: " + userId );
+			log.info("Saved status for: " + userId);
 			return true;
 		} else {
 			log.info("Couldn't save status for: " + userId);

@@ -58,7 +58,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String FRIEND_UUID = "friendUuid";
 	private static final String CONFIRMED = "confirmed";
 	
-	
+
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#checkContentTypeForProfileImage()
+	 */
 	public boolean checkContentTypeForProfileImage(String contentType) {
 		
 		ArrayList<String> allowedTypes = new ArrayList<String>();
@@ -74,7 +77,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#scaleImage()
+	 */
 	public byte[] scaleImage (byte[] imageData, int maxSize) {
 	
 	    if (log.isDebugEnabled()) {
@@ -134,16 +139,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 
-	public Date convertStringToDate(String dateStr) {
-		Date date = new Date();
-		return date;
-	}
-	
-	public String convertDateToString(Date date) {
-		String dateStr = "";
-		return dateStr;
-	}
-	
 	
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser()
@@ -261,7 +256,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null Argument in getUserStatus");
 	  	}
-		
+				
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_USER_STATUS);
@@ -279,11 +274,15 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatusMessage()
 	 */
 	public String getUserStatusMessage(String userId) {
+		
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null Argument in getUserStatusMessage");
 	  	}
 		
 		ProfileStatus profileStatus = getUserStatus(userId);
+		if(profileStatus == null) {
+			return null;
+		}
 		return profileStatus.getMessage();
 	}
 	
@@ -296,6 +295,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  	}
 		
 		ProfileStatus profileStatus = getUserStatus(userId);
+		if(profileStatus == null) {
+			return null;
+		}
 		return profileStatus.getDateAdded();
 	}
 	
@@ -472,8 +474,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  	getHibernateTemplate().saveOrUpdate(profileFriends);
 	  }
 	*/
-	
-	
 	
 	
 }

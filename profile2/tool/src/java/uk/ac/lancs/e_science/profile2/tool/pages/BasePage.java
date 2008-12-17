@@ -59,7 +59,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//my friends link
     	Link myFriendsLink = new Link("myFriendsLink") {
 			public void onClick() {
-				//setResponsePage(new MyFriends());
+				setResponsePage(new MyFriends());
 			}
 		};
 		myFriendsLink.add(new Label("myFriendsLabel",new ResourceModel("link.my.friends")));
