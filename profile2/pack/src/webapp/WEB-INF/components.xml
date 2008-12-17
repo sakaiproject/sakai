@@ -15,19 +15,19 @@
         <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
 	</bean>
 	
-	<!--  Setup the Profile IMPL with the hibernate implementation -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.Profile"
+	<!--  Setup the Profile IMPL as a DAO with Hibernate  -->
+	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileDAO"
     	class="uk.ac.lancs.e_science.profile2.impl.ProfileImpl"
     	singleton="true">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
 	
 	
-	<!-- This wraps Profile IMPL so that the transactions are managed -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileTransactionProxyFactoryBean"
+	<!-- Give the DAO above the GlobalTransactionManager and call it api.Profile so we have a nice accessor -->
+	<bean id="uk.ac.lancs.e_science.profile2.api.Profile"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-		<property name="target" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+		<property name="target" ref="uk.ac.lancs.e_science.profile2.api.ProfileDAO" />
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>
