@@ -332,8 +332,73 @@
 }
 
 
+/* friends list styles */
+.friendsList {
+	border: 1px solid red;
+}
+
+.friendsListItem {
+	display:block;
+	border: 1px solid green;
+	width: 600px;
+	height: 120px;
+	padding-top: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+}
+
+.friendsListPhoto {
+	float:left;
+	max-width: 100px;
+	max-height: 100px;
+	overflow: hidden;
+	border:1px solid red;
+}
+
+.friendsListPhoto img {
+	/* constrain the width but the height is variable so the image stays proportional,
+	however it will still be cropped via parent class overflow property
+	
+	TODO - position the image a few pixels off to the left and a few pixels above the container
+	so we get more of the middle of the picture.
+	
+	 */
+	
+	max-width: 90px; 
+}
+
+.friendsListInfo {
+	padding-left: 5px;
+	float:left;
+	border:1px solid blue;
+	vertical-align: top;
+}
+
+.friendsListInfoName {
+	display: inline;
+	font-weight: bold;
+}
+
+.friendsListInfoStatus {
+	display:inline;
+	font-weight: normal;
+	font-size: 90%;
+}
+
+.friendsListInfoStatusDate {
+	display:block;
+	color: #5D5D5D;
+	font-size: 90%;
+}
 
 
+.friendsListActions {
+	width: 80px;
+	float:right;
+	border:1px solid yellow;
+	font-size: 90%;
+}
 
 
 		

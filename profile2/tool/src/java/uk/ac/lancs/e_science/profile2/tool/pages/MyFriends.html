@@ -22,8 +22,26 @@
             
             <div wicket:id="heading">[Friends]</div>
             
-            
-		
+            <div class="friendsList">
+				<div wicket:id="friendsList" class="friendsListItem">
+					<div class="friendsListPhoto">
+						<img wicket:id="photo"/>
+					</div>
+			    	<div class="friendsListInfo">
+			    		<span wicket:id="name" class="friendsListInfoName">[name]</span>
+			    		<span wicket:id="statusMessage" class="friendsListInfoStatus">[status]</span>
+			    		<span wicket:id="statusDate" class="friendsListInfoStatusDate">[statusDate]</span>
+			    		
+			    	</div>
+			    	<div class="friendsListActions">
+			    		<a wicket:id="removeLink"><span wicket:id="remove">[remove]</span></a>
+			    	</div>
+			  	</div>
+			</div>
+			
+			<div wicket:id="removeFriendWindow"></div>
+           	
+	
 		</div>
 		
 		<!-- <div id="rightPanel"></div> -->
