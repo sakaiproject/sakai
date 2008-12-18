@@ -4,32 +4,80 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.MonthDateFormat;
+import org.jfree.chart.axis.PeriodAxis;
+import org.jfree.chart.axis.PeriodAxisLabelInfo;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.labels.XYItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYItemRendererState;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.UnknownKeyException;
 import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.CategoryToPieDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.AbstractDataset;
+import org.jfree.data.general.DefaultKeyedValues2DDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
+import org.jfree.data.time.RegularTimePeriod;
+import org.jfree.data.time.TimePeriodAnchor;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
+import org.jfree.util.SortOrder;
+import org.jfree.util.TableOrder;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.EventStat;
+import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
+import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.SummaryActivityChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.chart.ChartService;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
+import org.sakaiproject.sitestats.api.report.Report;
+import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.impl.event.EventRegistryServiceImpl;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -45,12 +93,28 @@ public class ChartServiceImpl implements ChartService {
 
 	/** Sakai services */
 	private StatsManager			M_sm;
+	private SiteService				M_ss;
+	private UserDirectoryService	M_uds;
+	private PreferencesService		M_ps;
+	private EventRegistryService	M_ers;
 
 	// ################################################################
 	// Spring methods
 	// ################################################################
 	public void setStatsManager(StatsManager statsManager) {
 		this.M_sm = statsManager;
+	}
+	public void setSiteService(SiteService siteService) {
+		this.M_ss = siteService;
+	}
+	public void setUserService(UserDirectoryService userDirectoryService) {
+		this.M_uds = userDirectoryService;
+	}
+	public void setPreferencesService(PreferencesService preferencesService) {
+		this.M_ps = preferencesService;
+	}
+	public void setEventRegistryService(EventRegistryService eventRegistryService) {
+		this.M_ers = eventRegistryService;
 	}
 	
 
@@ -67,9 +131,9 @@ public class ChartServiceImpl implements ChartService {
 		
 		CategoryDataset dataset = null;
 		boolean smallFontInDomainAxis = false;
-		if(viewType.equals(StatsManager.VIEW_WEEK)) {
+		if(StatsManager.VIEW_WEEK.equals(viewType)) {
 			dataset = getVisitsWeekDataSet(siteId);
-		}else if(viewType.equals(StatsManager.VIEW_MONTH)) {
+		}else if(StatsManager.VIEW_MONTH.equals(viewType)) {
 			dataset = getVisitsMonthDataSet(siteId, width);
 			smallFontInDomainAxis = true;
 		}else{
@@ -90,11 +154,11 @@ public class ChartServiceImpl implements ChartService {
 			boolean render3d, float transparency, boolean itemLabelsVisible) {
 		
 		boolean smallFontInDomainAxis = false;
-		if(chartType.equals(StatsManager.CHARTTYPE_PIE)) {
+		if(StatsManager.CHARTTYPE_PIE.equals(chartType)) {
 			DefaultPieDataset dataset = null;
-			if(viewType.equals(StatsManager.VIEW_WEEK))
+			if(StatsManager.VIEW_WEEK.equals(viewType))
 				dataset = getActivityWeekPieDataSet(siteId);
-			else if(viewType.equals(StatsManager.VIEW_MONTH))
+			else if(StatsManager.VIEW_MONTH.equals(viewType))
 				dataset = getActivityMonthPieDataSet(siteId);
 			else 
 				dataset = getActivityYearPieDataSet(siteId);
@@ -104,9 +168,9 @@ public class ChartServiceImpl implements ChartService {
 				return generateNoDataChart(width, height);
 		}else{
 			CategoryDataset dataset = null;
-			if(viewType.equals(StatsManager.VIEW_WEEK))
+			if(StatsManager.VIEW_WEEK.equals(viewType))
 				dataset = getActivityWeekBarDataSet(siteId);
-			else if(viewType.equals(StatsManager.VIEW_MONTH)){
+			else if(StatsManager.VIEW_MONTH.equals(viewType)){
 				dataset = getActivityMonthBarDataSet(siteId, width);
 				smallFontInDomainAxis = true;
 			}else 
@@ -126,31 +190,70 @@ public class ChartServiceImpl implements ChartService {
 			int width, int height,
 			boolean render3d, float transparency,
 			boolean itemLabelsVisible) {
-		if(chartType.equals(StatsManager.CHARTTYPE_BAR)) {
+		if(StatsManager.CHARTTYPE_BAR.equals(chartType)) {
 			if(dataset instanceof CategoryDataset) {
 				CategoryDataset ds = (CategoryDataset) dataset;
 				return generateBarChart(siteId, ds, width, height, render3d, transparency, itemLabelsVisible, false);
 			}else{
 				LOG.warn("Dataset not supported for "+chartType+" chart type: only classes implementing CategoryDataset are supported.");
 			}				
-		}else if(chartType.equals(StatsManager.CHARTTYPE_LINE)) {
+		}else if(StatsManager.CHARTTYPE_LINE.equals(chartType)) {
 			if(dataset instanceof CategoryDataset) {
 				CategoryDataset ds = (CategoryDataset) dataset;
 				return generateLineChart(siteId, ds, width, height, render3d, transparency, itemLabelsVisible, false);
 			}else{
 				LOG.warn("Dataset not supported for "+chartType+" chart type: only classes implementing CategoryDataset are supported.");
 			}
-		}else if(chartType.equals(StatsManager.CHARTTYPE_PIE)) {
+		}else if(StatsManager.CHARTTYPE_PIE.equals(chartType)) {
 			if(dataset instanceof PieDataset) {
 				PieDataset ds = (PieDataset) dataset;
 				return generatePieChart(siteId, ds, width, height, render3d, transparency, false);
 			}else{
 				LOG.warn("Dataset not supported for "+chartType+" chart type: only classes implementing PieDataset are supported.");
 			}
+		}else if(StatsManager.CHARTTYPE_TIMESERIES.equals(chartType)) {
+			if(dataset instanceof IntervalXYDataset) {
+				IntervalXYDataset ds = (IntervalXYDataset) dataset;
+				return generateTimeSeriesChart(siteId, ds, width, height, render3d, transparency, itemLabelsVisible, false);
+			}else{
+				LOG.warn("Dataset not supported for "+chartType+" chart type: only classes implementing XYDataset are supported.");
+			}
 		}
 		
-		LOG.warn("Chart type "+chartType+" not supprted: only line, bar, pie are suuported.");
+		LOG.warn("Chart type "+chartType+" not supported: only line, bar, pie, timeseries are supported.");
 		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.chart.ChartService#generateChart(org.sakaiproject.sitestats.api.report.ReportDef, int, int, boolean, float, boolean)
+	 */
+	public BufferedImage generateChart(
+			Report report, 
+			int width, int height,
+			boolean render3d, float transparency,
+			boolean itemLabelsVisible) {
+		AbstractDataset dataset = null;
+		String chartType = report.getReportDefinition().getReportParams().getHowChartType();
+		if(StatsManager.CHARTTYPE_BAR.equals(chartType)
+			|| StatsManager.CHARTTYPE_LINE.equals(chartType)) {
+			dataset = getCategoryDataset(report);			
+		}else if(StatsManager.CHARTTYPE_TIMESERIES.equals(chartType)) {
+			dataset = getTimeSeriesCollectionDataset(report);			
+		}else if(StatsManager.CHARTTYPE_PIE.equals(chartType)) {
+			dataset = getPieDataset(report);			
+		}
+		
+		if(dataset != null) {
+			return generateChart(
+					report.getReportDefinition().getReportParams().getSiteId(), dataset, chartType,
+					width, height,
+					render3d, transparency,
+					itemLabelsVisible
+					);
+		}else{		
+			LOG.warn("Chart type "+chartType+" not supported: only line, bar, pie are supported.");
+			return null;
+		}
 	}
 	
 	
@@ -251,18 +354,14 @@ public class ChartServiceImpl implements ChartService {
 			plot.getDomainAxis().setCategoryMargin(0.05);
 		}
 
-		// set bar outline
-		BarRenderer barrenderer = (BarRenderer) plot.getRenderer();
-		barrenderer.setDrawBarOutline(true);
-		if(smallFontInDomainAxis && !canUseNormalFontSize(width)) 
-			barrenderer.setItemMargin(0.05);
-		else
-			barrenderer.setItemMargin(0.10);
+		// set outline
+		LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();		
+		renderer.setDrawOutlines(true);
 		
 		// item labels
 		if(itemLabelsVisible) {
 			plot.getRangeAxis().setUpperMargin(0.2);
-			barrenderer.setItemLabelGenerator(new StandardCategoryItemLabelGenerator() {
+			renderer.setItemLabelGenerator(new StandardCategoryItemLabelGenerator() {
 				private static final long	serialVersionUID	= 1L;
 
 				@Override
@@ -273,8 +372,8 @@ public class ChartServiceImpl implements ChartService {
 					return "";
 				}			
 			});
-			barrenderer.setItemLabelFont(new Font("SansSerif", Font.PLAIN, 8));
-			barrenderer.setItemLabelsVisible(true);
+			renderer.setItemLabelFont(new Font("SansSerif", Font.PLAIN, 8));
+			renderer.setItemLabelsVisible(true);
 		}
 
 		BufferedImage img = chart.createBufferedImage(width, height);
@@ -313,6 +412,73 @@ public class ChartServiceImpl implements ChartService {
 		// set antialias
 		chart.setAntiAlias(true);
 		
+		BufferedImage img = chart.createBufferedImage(width, height);
+		return img;
+	}
+	
+	private BufferedImage generateTimeSeriesChart(
+			String siteId, IntervalXYDataset dataset, int width, int height,
+			boolean render3d, float transparency,
+			boolean itemLabelsVisible, 
+			boolean smallFontInDomainAxis) {
+		JFreeChart chart = ChartFactory.createTimeSeriesChart(null, null, null, dataset, true, false, false);
+		XYPlot plot = (XYPlot) chart.getPlot();
+		
+		// set transparency
+		plot.setForegroundAlpha(transparency);
+		
+		// set background
+		chart.setBackgroundPaint(parseColor(M_sm.getChartBackgroundColor()));
+		
+		// set chart border
+		chart.setPadding(new RectangleInsets(10,5,5,5));
+		chart.setBorderVisible(true);
+		chart.setBorderPaint(parseColor("#cccccc"));
+		
+		// set antialias
+		chart.setAntiAlias(true);
+		
+		// set domain axis font size
+		if(smallFontInDomainAxis && !canUseNormalFontSize(width)) {
+			plot.getDomainAxis().setTickLabelFont(new Font("SansSerif", Font.PLAIN, 8));
+		}
+		
+		// configure date display (localized) in domain axis
+		Locale locale = msgs.getLocale();		
+		PeriodAxis periodaxis = new PeriodAxis(null);
+		periodaxis.setTickMarkOutsideLength(0.0F);
+        PeriodAxisLabelInfo aperiodaxislabelinfo[] = new PeriodAxisLabelInfo[3];
+        aperiodaxislabelinfo[0] = new PeriodAxisLabelInfo(org.jfree.data.time.Day.class, new SimpleDateFormat("d", locale));
+        aperiodaxislabelinfo[1] = new PeriodAxisLabelInfo(org.jfree.data.time.Month.class, new SimpleDateFormat("MMM", locale));
+        aperiodaxislabelinfo[2] = new PeriodAxisLabelInfo(org.jfree.data.time.Year.class, new SimpleDateFormat("yyyy", locale));
+        periodaxis.setLabelInfo(aperiodaxislabelinfo);
+        plot.setDomainAxis(periodaxis);
+		
+		// set outline
+		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();		
+        renderer.setDrawSeriesLineAsPath(true);
+        renderer.setShapesVisible(true);
+        renderer.setShapesFilled(true);
+		
+		// item labels
+		if(itemLabelsVisible) {
+			plot.getRangeAxis().setUpperMargin(0.2);
+			renderer.setItemLabelGenerator(new XYItemLabelGenerator() {
+				private static final long	serialVersionUID	= 1L;
+
+				public String generateLabel(XYDataset dataset, int series, int item) {
+					Number n = dataset.getY(series, item);
+					if(n.intValue() != 0)
+						return n.intValue()+"";
+					return "";
+				}	
+
+						
+			});
+			renderer.setItemLabelFont(new Font("SansSerif", Font.PLAIN, 8));
+			renderer.setItemLabelsVisible(true);
+		}
+
 		BufferedImage img = chart.createBufferedImage(width, height);
 		return img;
 	}
@@ -535,6 +701,180 @@ public class ChartServiceImpl implements ChartService {
 		return activityYearBarDataSet;
 	}
 	
+	private AbstractDataset getCategoryDataset(Report report) {
+		List<Stat> reportData = report.getReportData();
+		
+		// fill dataset
+		DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
+		String dataSource = report.getReportDefinition().getReportParams().getHowChartSource();
+		String categorySource = report.getReportDefinition().getReportParams().getHowChartCategorySource();
+		if(StatsManager.T_NONE.equals(categorySource)){
+			categorySource = null;
+		}
+		if(categorySource == null){
+			// without categories
+			Set<Comparable> usedKeys = new HashSet<Comparable>();
+			for(Stat s : reportData){
+				Comparable key = getStatValue(s, dataSource);
+				if(key != null) {
+					if(usedKeys.contains(key)){
+						dataSet.incrementValue(s.getCount(), key, key);
+					}else{
+						dataSet.addValue(s.getCount(), key, key);
+						usedKeys.add(key);
+					}
+				}
+			}
+			
+		}else{
+			// with categories
+			Map<Comparable, Comparable> usedKeys = new HashMap<Comparable, Comparable>();
+			for(Stat s : reportData){
+				Comparable key = getStatValue(s, dataSource);
+				Comparable cat = getStatValue(s, categorySource);
+				if(key != null && cat != null) {
+					if(usedKeys.containsKey(cat) && key.equals(usedKeys.get(cat))){
+						dataSet.incrementValue(s.getCount(), key, cat);
+					}else{
+						dataSet.addValue(s.getCount(), key, cat);
+						usedKeys.put(cat, key);
+					}
+				}
+			}			
+			// fill missing values with zeros
+			for(Comparable c : usedKeys.keySet()) {			
+				for(Comparable k : usedKeys.values()) {
+					if(dataSet.getValue(k, c) == null) {
+						dataSet.addValue(0, k, c);
+					}
+				}	
+			}
+		}
+		
+		return dataSet;
+	}
+	
+	private AbstractDataset getPieDataset(Report report) {
+		List<Stat> reportData = report.getReportData();
+		
+		// fill dataset
+		DefaultPieDataset dataSet = new DefaultPieDataset();
+		String dataSource = report.getReportDefinition().getReportParams().getHowChartSource();
+		int total = 0;
+		for(Stat s : reportData){
+			Comparable key = getStatValue(s, dataSource);
+			if(key != null) {
+				try{
+					Number existingValue = dataSet.getValue(key);
+					dataSet.setValue(key, s.getCount() + existingValue.longValue());
+					total += s.getCount();
+				}catch(UnknownKeyException e){
+					dataSet.setValue(key, s.getCount());
+					total += s.getCount();
+				}
+			}
+		}
+		
+		// fill in final key values in dataset
+		int totalKeys = dataSet.getItemCount();
+		List<Comparable> keys = dataSet.getKeys();
+		for(Comparable key : keys) {
+			Number existingValue = dataSet.getValue(key);
+			// re-compute values
+			int valueInt = existingValue.intValue();
+			double percentage = (double) valueInt * 100 / total;
+			double valuePercentage = round(percentage, (percentage > 0.1) ? 1 : 2 );
+			// replace key with updated label
+			StringBuilder keyStr = new StringBuilder(key.toString());
+			keyStr.append(' ');
+			keyStr.append(valuePercentage);
+			keyStr.append("% (");
+			keyStr.append(valueInt);
+			keyStr.append(")");
+			dataSet.remove(key);
+			dataSet.setValue(keyStr.toString(), existingValue);
+		}
+		
+		// sort
+		dataSet.sortByKeys(SortOrder.ASCENDING);
+
+		return dataSet;
+	}
+	
+	private AbstractDataset getTimeSeriesCollectionDataset(Report report) {
+		List<Stat> reportData = report.getReportData();
+		
+		// fill dataset
+		TimeSeriesCollection dataSet = new TimeSeriesCollection();
+		String dataSource = report.getReportDefinition().getReportParams().getHowChartSource();
+		String seriesFrom = report.getReportDefinition().getReportParams().getHowChartSeriesSource();
+		if(StatsManager.T_TOTAL.equals(seriesFrom) || StatsManager.T_NONE.equals(seriesFrom)){
+			seriesFrom = null;
+		}		
+		Set<RegularTimePeriod> keys = new HashSet<RegularTimePeriod>();
+		if(seriesFrom == null){
+			// without additional series	
+			TimeSeries ts = new TimeSeries(msgs.getString("th_total"), org.jfree.data.time.Day.class);		
+			for(Stat s : reportData){
+				RegularTimePeriod key = (RegularTimePeriod) getStatValue(s, dataSource);
+				if(key != null) {
+					Number existing = null;
+					if((existing = ts.getValue(key)) == null) {
+						ts.add(key, s.getCount());
+					}else{
+						ts.addOrUpdate(key, s.getCount() + existing.longValue());
+					}
+					keys.add(key);
+				}
+			}
+			dataSet.addSeries(ts);
+		}else{
+			// with additional series
+			Map<Comparable,TimeSeries> series = new HashMap<Comparable,TimeSeries>();
+			//TimeSeries ts = new TimeSeries(dataSource, org.jfree.data.time.Day.class);
+			for(Stat s : reportData){
+				RegularTimePeriod key = (RegularTimePeriod) getStatValue(s, dataSource);
+				Comparable serie = (Comparable) getStatValue(s, seriesFrom);
+				
+				if(key != null && series != null) {
+					// determine appropriate serie
+					TimeSeries ts = null;
+					if(!series.containsKey(serie)) {
+						ts = new TimeSeries(serie.toString(), org.jfree.data.time.Day.class);
+						series.put(serie, ts);
+					}else{
+						ts = series.get(serie);
+					}
+					
+					Number existing = null;
+					if((existing = ts.getValue(key)) == null) {
+						ts.add(key, s.getCount());
+					}else{
+						ts.addOrUpdate(key, s.getCount() + existing.longValue());
+					}
+					keys.add(key);
+				}
+			}
+			
+			// add series
+			for(TimeSeries ts : series.values()) {
+				dataSet.addSeries(ts);
+			}
+		}
+		
+		// fill missing values with zeros
+		for(TimeSeries ts : (List<TimeSeries>) dataSet.getSeries()) {
+			for(RegularTimePeriod tp : keys) {
+				if(ts.getValue(tp) == null) {
+					ts.add(tp, 0.0);
+				}
+			}
+		}
+		dataSet.setXPosition(TimePeriodAnchor.MIDDLE);
+
+		return dataSet;
+	}
+	
 
 	// ################################################################
 	// Utility Methods
@@ -648,5 +988,88 @@ public class ChartServiceImpl implements ChartService {
 		long tmp = Math.round(val);
 		// Shift the decimal the correct number of places back to the left.
 		return (double) tmp / factor;
+	}
+	
+	private Comparable getStatValue(Stat s, String fieldCode) {
+		if(fieldCode == null) {
+			return null;
+		}
+		try{
+			if(fieldCode.equals(StatsManager.T_SITE)) {
+				String siteId = s.getSiteId();
+				String title = null;
+				try{
+					title = M_ss.getSite(siteId).getTitle();
+				}catch(IdUnusedException e){
+					title = siteId;
+				}
+				return title;
+			}else if(fieldCode.equals(StatsManager.T_USER)) {
+				String userId = s.getUserId();
+				String name = null;
+				if (userId != null) {
+					if(("-").equals(userId)) {
+						name = msgs.getString("user_anonymous");
+					}else if(("?").equals(userId)) {
+						name = msgs.getString("user_anonymous_access");
+					}else{
+						try{
+							name = M_uds.getUser(userId).getDisplayName();
+						}catch(UserNotDefinedException e1){
+							name = msgs.getString("user_unknown");
+						}
+					}
+				}else{
+					name = msgs.getString("user_unknown");
+				}
+				return name;
+			}else if(fieldCode.equals(StatsManager.T_EVENT)) {
+				String eventName = "";
+				if(s instanceof EventStat) {
+					String eventId = ((EventStat) s).getEventId();
+					if(!"".equals(eventId)){
+						eventName = M_ers.getEventName(eventId);
+					}
+				}
+				return eventName;
+			}else if(fieldCode.equals(StatsManager.T_RESOURCE)) {
+				if(s instanceof ResourceStat) {
+					String ref = ((ResourceStat) s).getResourceRef();
+					return M_sm.getResourceName(ref);
+				}else{
+					return "";
+				}
+			}else if(fieldCode.equals(StatsManager.T_RESOURCE_ACTION)) {
+				String action = "";
+				if(s instanceof ResourceStat) {
+					String refAction = ((ResourceStat) s).getResourceAction();
+					if(refAction == null){
+						action = "";
+					}else{
+						if(!"".equals(refAction.trim()))
+							action = msgs.getString("action_"+refAction);
+					}
+				}
+				return action;
+			}else if(fieldCode.equals(StatsManager.T_DATE) || fieldCode.equals(StatsManager.T_LASTDATE)) {
+				Date d = s.getDate();
+				if(d != null) {
+					Calendar c = Calendar.getInstance();
+					c.setTime(d);
+					c.set(Calendar.HOUR_OF_DAY, 0);
+					c.set(Calendar.MINUTE, 0);
+					c.set(Calendar.SECOND, 0);
+					c.set(Calendar.MILLISECOND, 0);
+					return new org.jfree.data.time.Day(c.getTime());
+				}else{
+					return null;
+				}
+			}else if(fieldCode.equals(StatsManager.T_TOTAL)) {
+				return s.getCount();
+			}
+		}catch(Exception e) {
+			LOG.warn("Erro occurred while getting value for chart", e);			
+		}
+		return null;
 	}
 }

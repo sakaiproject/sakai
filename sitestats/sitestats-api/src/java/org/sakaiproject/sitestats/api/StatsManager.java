@@ -50,8 +50,10 @@ public interface StatsManager {
 	public static final String			CHARTTYPE_LINE				= "line";
 	public static final String			CHARTTYPE_BAR				= "bar";
 	public static final String			CHARTTYPE_PIE				= "pie";
+	public static final String			CHARTTYPE_TIMESERIES		= "timeseries";
 	public static final int				Q_TYPE_EVENT				= 0;
 	public static final int				Q_TYPE_RESOURCE				= 1;
+	public static final String			T_NONE						= "none";
 	public static final String			T_SITE						= "site";
 	public static final String			T_USER						= "user";
 	public static final String			T_EVENT						= "event";

@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -11,9 +12,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -44,6 +50,7 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
 import org.sakaiproject.sitestats.tool.wicket.components.ImageWithLink;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menu;
@@ -57,21 +64,28 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * @author Nuno Fernandes
  */
 public class ReportDataPage extends BasePage {
-	private static final long		serialVersionUID	= 1L;
-	private static Log				LOG					= LogFactory.getLog(ReportDataPage.class);
+	private static final long			serialVersionUID	= 1L;
+	private static Log					LOG					= LogFactory.getLog(ReportDataPage.class);
 
 	/** Inject Sakai facade */
 	@SpringBean
-	private transient SakaiFacade	facade;
+	private transient SakaiFacade		facade;
 
-	private String					realSiteId;
-	private String					siteId;
-	private boolean					inPrintVersion;
-	
-	private ReportDefModel			reportDefModel;
-	private Report					report;
-	private PrefsData				prefsdata;
-	private WebPage					returnPage;
+	private String						realSiteId;
+	private String						siteId;
+	private boolean						inPrintVersion;
+
+	private ReportDefModel				reportDefModel;
+	private Report						report;
+	private PrefsData					prefsdata;
+	private WebPage						returnPage;
+
+	private AbstractDefaultAjaxBehavior	chartSizeBehavior	= null;
+	private AjaxLazyLoadImage			reportChart			= null;
+	private int							selectedWidth		= 0;
+	private int							selectedHeight		= 0;
+	private int							maximizedWidth		= 0;
+	private int							maximizedHeight		= 0;
 	
 	public ReportDataPage(final ReportDefModel reportDef) {
 		this(reportDef, null, null);
@@ -156,15 +170,42 @@ public class ReportDataPage extends BasePage {
 		add(toPrintVersion);
 		add(new WebMarkupContainer("inPrintVersion").setVisible(inPrintVersion));
 
-		
-		// Report: table		
+		// Report data
 		final ReportsDataProvider dataProvider = new ReportsDataProvider(getPrefsdata(), getReportDef());
-		SakaiDataTable reportTable = new SakaiDataTable("table", getTableColumns(), dataProvider);
-		form.add(reportTable);
 		report = dataProvider.getReport();
 		
-		// Report: header (report info)
+		// Report: chart
+		reportChart = new AjaxLazyLoadImage("reportChart") {
+			@Override
+			public BufferedImage getBufferedImage() {
+				return getChartImage();
+			}
+
+			@Override
+			public BufferedImage getBufferedMaximizedImage() {
+				return getChartImage(maximizedWidth, maximizedHeight);
+			}		
+		};
+		reportChart.setVisible(
+				ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
+				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
+				);
+		reportChart.setOutputMarkupId(true);
+		add(reportChart);
+		// Report: chart ajax behavior now that we already have report data
+		renderAjaxBehavior();
+			
 		
+		// Report: table
+		SakaiDataTable reportTable = new SakaiDataTable("table", getTableColumns(), dataProvider);
+		reportTable.setVisible(
+				ReportManager.HOW_PRESENTATION_TABLE.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
+				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
+				);
+		form.add(reportTable);
+		
+		
+		// Report: header (report info)		
 		WebMarkupContainer trDescription = new WebMarkupContainer("trDescription");
 		trDescription.setVisible(getReportDescription() != null);
 		trDescription.add(new Label("reportDescription"));
@@ -381,6 +422,99 @@ public class ReportDataPage extends BasePage {
 			columns.add(new PropertyColumn(new ResourceModel("th_total"), ReportsDataProvider.COL_TOTAL, "count"));
 		}
 		return columns;
+	}
+	
+	private BufferedImage getChartImage() {
+		return getChartImage(selectedWidth, selectedHeight);
+	}
+	
+	private BufferedImage getChartImage(int width, int height) {
+		PrefsData prefsData = facade.getStatsManager().getPreferences(siteId, false);
+		int _width = (width <= 0) ? 350 : width;
+		int _height = (height <= 0) ? 200: height;
+		BufferedImage img = facade.getChartService().generateChart(
+				report, _width, _height,
+				prefsData.isChartIn3D(), prefsData.getChartTransparency(),
+				prefsData.isItemLabelsVisible()
+		);
+		return img;
+	}
+	
+	@SuppressWarnings("serial")
+	private void renderAjaxBehavior() {	
+		final boolean renderChart = ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
+								|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode());
+		
+		chartSizeBehavior = new AbstractDefaultAjaxBehavior() {
+			@Override
+			protected void respond(AjaxRequestTarget target) {
+				// get chart size
+		    	Request req = RequestCycle.get().getRequest();
+				try{
+					selectedWidth = (int) Float.parseFloat(req.getParameter("width"));					
+				}catch(NumberFormatException e){
+					e.printStackTrace();
+					selectedWidth = 400;
+				}
+				try{
+					selectedHeight = (int) Float.parseFloat(req.getParameter("height"));
+				}catch(NumberFormatException e){
+					e.printStackTrace();
+					selectedHeight = 200;
+				}
+				try{
+					maximizedWidth = (int) Float.parseFloat(req.getParameter("maxwidth"));
+				}catch(NumberFormatException e){
+					e.printStackTrace();
+					maximizedWidth = 640;
+				}
+				try{
+					maximizedHeight = (int) Float.parseFloat(req.getParameter("maxheight"));
+				}catch(NumberFormatException e){
+					e.printStackTrace();
+					maximizedHeight = 300;
+				}
+				target.appendJavascript(buildCallbackScript(reportChart.getCallbackUrl(), null));
+			}		
+			
+			private String buildCallbackScript(CharSequence callbackUrl, CharSequence onSuccessCallbackScript) {
+				StringBuilder script = new StringBuilder();
+				script.append("wicketAjaxGet('");
+				script.append(callbackUrl);
+				script.append("', function() {");
+				if(onSuccessCallbackScript != null) {
+					script.append("setTimeout(\"");
+					script.append(onSuccessCallbackScript);
+					script.append("\",500)");
+				}
+				script.append("}, function() {});");
+				return script.toString();
+			}   
+		};
+		if(renderChart) {				
+			add(chartSizeBehavior);
+		}
+		
+		WebMarkupContainer js = new WebMarkupContainer("jsWicketChartSize");
+		js.setOutputMarkupId(true);
+		add(js);
+		WebMarkupContainer jsCall = new WebMarkupContainer("jsWicketChartSizeCall") {
+			@Override
+			protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
+				if(renderChart) {
+					StringBuilder buff = new StringBuilder();
+					buff.append("jQuery(document).ready(function() {");
+					buff.append("  var chartSizeCallback = '" + chartSizeBehavior.getCallbackUrl() + "'; ");
+					buff.append("  setWicketChartSize(chartSizeCallback);");
+					buff.append("});");
+					replaceComponentTagBody(markupStream, openTag, buff.toString());
+				}else{
+					super.onComponentTagBody(markupStream, openTag);					
+				}
+			}	
+		};
+		jsCall.setOutputMarkupId(true);
+		add(jsCall);
 	}
 	
 	protected String getExportFileName() {

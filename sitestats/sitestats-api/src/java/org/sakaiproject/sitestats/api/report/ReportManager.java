@@ -29,6 +29,9 @@ public interface ReportManager {
 	public static final String	WHAT_VISITS					= "what-visits";
 	public static final String	HOW_TOTALSBY				= "how-totalsby";
 	public static final String	HOW_SORT_DEFAULT			= "default";
+	public static final String	HOW_PRESENTATION_TABLE		= "how-presentation-table";
+	public static final String	HOW_PRESENTATION_CHART		= "how-presentation-chart";
+	public static final String	HOW_PRESENTATION_BOTH		= "how-presentation-both";
 
 
 	/** Produce a report based on supplied parameters. */

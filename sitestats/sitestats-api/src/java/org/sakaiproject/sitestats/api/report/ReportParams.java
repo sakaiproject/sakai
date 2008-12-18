@@ -2,7 +2,6 @@ package org.sakaiproject.sitestats.api.report;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +33,11 @@ public class ReportParams implements Serializable {
 	private boolean				howSortAscending		= true;
 	public boolean				howLimitedMaxResults	= false;
 	private int					howMaxResults			= 0;
+	private String				howPresentationMode		= ReportManager.HOW_PRESENTATION_TABLE;
+	private String				howChartType			= StatsManager.CHARTTYPE_BAR;
+	private String				howChartSource			= StatsManager.T_EVENT;
+	private String				howChartCategorySource	= StatsManager.T_NONE;
+	private String				howChartSeriesSource	= StatsManager.T_TOTAL;
 	
 	
 	public ReportParams(){		
@@ -262,18 +266,18 @@ public class ReportParams implements Serializable {
 		this.whoUserIds.add(whoUserId);
 	}
 	
-	/** Get how type, show totals by (see {@link StatsManager#TOTALSBY_EVENT_DEFAULT}, {@link StatsManager##T_USER}, {@link StatsManager##T_EVENT}, {@link StatsManager##T_DATE}, {@link StatsManager##T_LASTDATE}). */
+	/** Get how type, show totals by (see {@link StatsManager#TOTALSBY_EVENT_DEFAULT}, {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}). */
 	public List<String> getHowTotalsBy() {
 		howTotalsBy = fixedHowTotalsBy(howTotalsBy);
 		return howTotalsBy;
 	}
 	
-	/** Set how type, show totals by (see {@link StatsManager#TOTALSBY_EVENT_DEFAULT}, {@link StatsManager##T_USER}, {@link StatsManager##T_EVENT}, {@link StatsManager##T_DATE}, {@link StatsManager##T_LASTDATE}). */
+	/** Set how type, show totals by (see {@link StatsManager#TOTALSBY_EVENT_DEFAULT}, {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}). */
 	public void setHowTotalsBy(List<String> totalsBy) {
 		this.howTotalsBy = totalsBy;
 	} 
 	
-	/** Add a totals by item (see {@link StatsManager#TOTALSBY_EVENT_DEFAULT}, {@link StatsManager##T_USER}, {@link StatsManager##T_EVENT}, {@link StatsManager##T_DATE}, {@link StatsManager##T_LASTDATE}). */
+	/** Add a totals by item (see {@link StatsManager#TOTALSBY_EVENT_DEFAULT}, {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}). */
 	public void addHowTotalsBy(String totalsBy) {
 		this.howTotalsBy.add(totalsBy);
 	}
@@ -288,13 +292,13 @@ public class ReportParams implements Serializable {
 		this.howSort = sort;
 	}
 	
-	/** Get how type, sort order (see {@link StatsManager##T_USER}, {@link StatsManager##T_EVENT}, {@link StatsManager##T_DATE}, {@link StatsManager##T_LASTDATE}). */
+	/** Get how type, sort order (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL}). */
 	public String getHowSortBy() {
 		howSortBy = fixedHowSortBy(howSortBy);
 		return howSortBy;
 	}
 	
-	/** Set how type, sort order (see {@link StatsManager#TOTALSBY_EVENT_DEFAULT}, {@link StatsManager##T_USER}, {@link StatsManager##T_EVENT}, {@link StatsManager##T_DATE}, {@link StatsManager##T_LASTDATE}). */
+	/** Set how type, sort order (see {@link StatsManager#TOTALSBY_EVENT_DEFAULT}, {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
 	public void setHowSortBy(String sortBy) {
 		this.howSortBy = sortBy;
 	}
@@ -329,9 +333,58 @@ public class ReportParams implements Serializable {
 		this.howMaxResults = maxResults;
 	}
 	
+	/** Get report presentation mode (see {@link ReportManager#HOW_PRESENTATION_TABLE}, {@link ReportManager#HOW_PRESENTATION_CHART}, {@link ReportManager#HOW_PRESENTATION_BOTH}). */
+	public String getHowPresentationMode() {
+		return howPresentationMode;
+	}
+
+	/** Set report presentation mode (see {@link ReportManager#HOW_PRESENTATION_TABLE}, {@link ReportManager#HOW_PRESENTATION_CHART}, {@link ReportManager#HOW_PRESENTATION_BOTH}). */
+	public void setHowPresentationMode(String howPresentationMode) {
+		this.howPresentationMode = howPresentationMode;
+	}
+
+	/** Get chart type (see {@link StatsManager#CHARTTYPE_BAR}, {@link StatsManager#CHARTTYPE_LINE}, {@link StatsManager#CHARTTYPE_PIE}, {@link StatsManager#CHARTTYPE_TIMESERIES}). */
+	public String getHowChartType() {
+		return howChartType;
+	}
+
+	/** Set chart type (see {@link StatsManager#CHARTTYPE_BAR}, {@link StatsManager#CHARTTYPE_LINE}, {@link StatsManager#CHARTTYPE_PIE}, {@link StatsManager#CHARTTYPE_TIMESERIES). */
+	public void setHowChartType(String howChartType) {
+		this.howChartType = howChartType;
+	}
+
+	/** Get the chart data source (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	public String getHowChartSource() {
+		return howChartSource;
+	}
+
+	/** Set the chart data source (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	public void setHowChartSource(String howChartSource) {
+		this.howChartSource = howChartSource;
+	}
+
+	/** Get the chart category that will group the date source (can be null or {@link StatsManager#T_NONE}) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	public String getHowChartCategorySource() {
+		return howChartCategorySource;
+	}
+
+	/** Set the chart category that will group the data source (can be null or {@link StatsManager#T_NONE}) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	public void setHowChartCategorySource(String howChartCategorySource) {
+		this.howChartCategorySource = howChartCategorySource;
+	}
+
+	/** Get the field chart series will be generated from (only applies to TimeSeries charts) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	public String getHowChartSeriesSource() {
+		return howChartSeriesSource;
+	}
+
+	/** Get the field chart series will be generated from (only applies to TimeSeries charts) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	public void setHowChartSeriesSource(String howChartSeriesSource) {
+		this.howChartSeriesSource = howChartSeriesSource;
+	}
 	
 	
-	
+
 	private List<String> fixedHowTotalsBy(List<String> list) {
 		List<String> fixedList = new ArrayList<String>();
 		if(list == null || list.isEmpty()) {
@@ -388,7 +441,8 @@ public class ReportParams implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append('{');		
+		str.append('{');	
+		
 		str.append(memberToString("siteId", siteId, true));
 		str.append(memberToString("what", what, true));
 		if(ReportManager.WHAT_EVENTS.equals(what)) {
@@ -421,7 +475,19 @@ public class ReportParams implements Serializable {
 		if(ReportManager.WHO_CUSTOM.equals(who)) {
 			str.append(memberToString("whoUserIds", whoUserIds, true));
 		}	
-		str.append(memberToString("howTotalsBy", getHowTotalsBy(), false));
+		str.append(memberToString("howTotalsBy", getHowTotalsBy(), true));
+		str.append(memberToString("howSortBy", getHowSortBy() +", asc? "+getHowSortAscending(), true));
+		str.append(memberToString("howMaxResults", String.valueOf(getHowMaxResults()), true));
+		
+		String presentation = getHowPresentationMode();
+		boolean hasChart = ReportManager.HOW_PRESENTATION_CHART.equals(presentation) || ReportManager.HOW_PRESENTATION_BOTH.equals(presentation);
+		str.append(memberToString("howPresentationMode", getHowPresentationMode(), hasChart));
+		if(hasChart) {
+			str.append(memberToString("howChartType", getHowChartType(), true));
+			str.append(memberToString("howChartSource", getHowChartSource(), true));
+			str.append(memberToString("howChartCategorySource", getHowChartCategorySource(), false));
+		}
+		
 		str.append('}');
 		return str.toString();
 	}

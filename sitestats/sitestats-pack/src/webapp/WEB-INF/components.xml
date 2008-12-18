@@ -176,6 +176,10 @@
 		
 		<!-- Sakai services -->
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+        <property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 	</bean>
 	
 	

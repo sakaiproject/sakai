@@ -28,6 +28,10 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	private Class						returnPage							= null;
 	private AbstractDefaultAjaxBehavior ajaxBehavior						= null;
 
+	public AjaxLazyLoadImage(final String id) {
+		this(id, null, null, null);
+	}
+	
 	public AjaxLazyLoadImage(final String id, final BufferedImage bufferedImage, final Class returnPage) {
 		this(id, bufferedImage, returnPage, new ResourceModel("overview_back"));
 	}
@@ -59,7 +63,10 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	}
 	
 	public Image renderImage(AjaxRequestTarget target) {
-		link.setEnabled(true);
+		if(returnPage != null) {
+			link.add(new AttributeModifier("title", true, new ResourceModel("click_to_max")));
+			link.setEnabled(true);
+		}
 		link.removeAll();
 		Image img = createImage("content", getBufferedImage());
 		link.add(img);

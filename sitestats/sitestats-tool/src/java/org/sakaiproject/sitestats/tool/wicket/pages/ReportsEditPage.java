@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
+import java.io.Serializable;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,10 +16,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.form.AjaxFormValidatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.datetime.StyleDateConverter;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
@@ -49,6 +52,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.Strings;
+import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -93,7 +97,6 @@ public class ReportsEditPage extends BasePage {
 
 	private String					realSiteId;
 	private String					siteId;
-	private String					siteTitle;
 	private boolean					predefined		= false;
 	private String					reportSiteOpt	= REPORT_THISSITE;
 	private boolean					visitsEnabled	= true;
@@ -197,10 +200,12 @@ public class ReportsEditPage extends BasePage {
 		
 		// form
 		Form form = new Form("reportsForm");
+		form.setOutputMarkupId(true);
 		add(form);
 
 		// feedback panel (messages)
 		feedback = new CSSFeedbackPanel("messages");
+		feedback.setOutputMarkupId(true);
 		form.add(feedback);
 		
 		// report details, what, when & who
@@ -364,7 +369,10 @@ public class ReportsEditPage extends BasePage {
 				return (String) object;
 			}		
 		};
-		form.add(new DropDownChoice("reportParams.what", whatOptions, whatChoiceRenderer));
+		DropDownChoice what = new DropDownChoice("reportParams.what", whatOptions, whatChoiceRenderer);
+		what.setMarkupId("what");
+		what.setOutputMarkupId(true);
+		form.add(what);
 		
 		// event selection type
 		List<String> whatEventSelTypeOptions = Arrays.asList(ReportManager.WHAT_EVENTS_BYTOOL, ReportManager.WHAT_EVENTS_BYEVENTS);
@@ -382,7 +390,11 @@ public class ReportsEditPage extends BasePage {
 				return (String) object;
 			}		
 		};
-		form.add(new DropDownChoice("reportParams.whatEventSelType", whatEventSelTypeOptions, whatEventSelTypeChoiceRenderer).setEscapeModelStrings(false));
+		DropDownChoice whatEventSelType = new DropDownChoice("reportParams.whatEventSelType", whatEventSelTypeOptions, whatEventSelTypeChoiceRenderer);
+		whatEventSelType.setEscapeModelStrings(false);
+		whatEventSelType.setMarkupId("whatEventSelType");
+		whatEventSelType.setOutputMarkupId(true);
+		form.add(whatEventSelType);
 		
 		// tool selection
 		Select whatToolIds = new Select("reportParams.whatToolIds");
@@ -401,9 +413,17 @@ public class ReportsEditPage extends BasePage {
 		form.add(whatEventIds);
 		
 		// resources selection
-		form.add(new CheckBox("reportParams.whatLimitedAction"));
-		form.add(new CheckBox("reportParams.whatLimitedResourceIds"));
+		CheckBox whatLimitedAction = new CheckBox("reportParams.whatLimitedAction");
+		whatLimitedAction.setMarkupId("whatLimitedAction");
+		whatLimitedAction.setOutputMarkupId(true);
+		form.add(whatLimitedAction);
+		CheckBox whatLimitedResourceIds = new CheckBox("reportParams.whatLimitedResourceIds");
+		whatLimitedResourceIds.setMarkupId("whatLimitedResourceIds");
+		whatLimitedResourceIds.setOutputMarkupId(true);
+		form.add(whatLimitedResourceIds);
 		final FileSelectorPanel whatResourceIds = new FileSelectorPanel("reportParams.whatResourceIds", siteId);
+		whatResourceIds.setMarkupId("whatResourceIds");
+		whatResourceIds.setOutputMarkupId(true);
 		form.add(whatResourceIds);
 		whatResourceIds.setEnabled(true);
 		
@@ -431,6 +451,8 @@ public class ReportsEditPage extends BasePage {
 			}
 			
 		};
+		whatResourceAction.setMarkupId("whatResourceAction");
+		whatResourceAction.setOutputMarkupId(true);
 		form.add(whatResourceAction);
 	}
 
@@ -460,7 +482,10 @@ public class ReportsEditPage extends BasePage {
 				return (String) object;
 			}		
 		};
-		form.add(new DropDownChoice("reportParams.when", whenOptions, whenChoiceRenderer));
+		DropDownChoice when = new DropDownChoice("reportParams.when", whenOptions, whenChoiceRenderer);
+		when.setMarkupId("when");
+		when.setOutputMarkupId(true);
+		form.add(when);
 		
 		// custom dates
 		form.add(new DateTimeField("reportParams.whenFrom") {			
@@ -535,12 +560,14 @@ public class ReportsEditPage extends BasePage {
 				CharSequence ajaxScript =  super.generateCallbackScript(partialCall);
 				StringBuilder b = new StringBuilder();
 				b.append("checkWhoSelection();");
-				b.append("if(jQuery('.who').val() == 'who-custom') {;");
+				b.append("if(jQuery('#who').val() == 'who-custom') {;");
 				b.append(ajaxScript);
 				b.append("}");
 				return b.toString();
 			}
 		});
+		who.setMarkupId("who");
+		who.setOutputMarkupId(true);
 		form.add(who);
 		
 		// users
@@ -617,6 +644,47 @@ public class ReportsEditPage extends BasePage {
 		boolean renderSiteSortOption = isSiteStatsAdminTool && !predefined && realSiteId.equals(siteId);
 		boolean renderSortAscendingOption = isSiteStatsAdminTool && predefined && realSiteId.equals(siteId);
 
+		// common
+		IChoiceRenderer allColumnsChoiceRenderer = new IChoiceRenderer() {
+			public Object getDisplayValue(Object object) {
+				if(object != null) {
+					String id = (String) object;
+					if(ReportManager.HOW_SORT_DEFAULT.equals(id)) {
+						return (String) new ResourceModel("default").getObject();
+					}
+					if(StatsManager.T_NONE.equals(id)) {
+						return (String) new ResourceModel("none").getObject();
+					}
+					if(StatsManager.T_SITE.equals(id)) {
+						return (String) new ResourceModel("report_option_site").getObject();
+					}
+					if(StatsManager.T_USER.equals(id)) {
+						return (String) new ResourceModel("report_option_user").getObject();
+					}
+					if(StatsManager.T_EVENT.equals(id)) {
+						return (String) new ResourceModel("report_option_event").getObject();
+					}
+					if(StatsManager.T_RESOURCE.equals(id)) {
+						return (String) new ResourceModel("report_option_resource").getObject();
+					}
+					if(StatsManager.T_RESOURCE_ACTION.equals(id)) {
+						return (String) new ResourceModel("report_option_resourceaction").getObject();
+					}
+					if(StatsManager.T_DATE.equals(id)) {
+						return (String) new ResourceModel("report_option_date").getObject();
+					}
+					if(StatsManager.T_TOTAL.equals(id)) {
+						return (String) new ResourceModel("report_option_total").getObject();
+					}
+				}
+				return (String) new ResourceModel("default").getObject();
+			}
+			public String getIdValue(Object object, int index) {
+				return (String) object;
+			}		
+		};
+		
+		
 		// site to report
 		WebMarkupContainer siteContainer = new WebMarkupContainer("siteContainer");		
 		siteContainer.setVisible(renderSiteSelectOption);
@@ -636,7 +704,10 @@ public class ReportsEditPage extends BasePage {
 				return (String) object;
 			}		
 		};
-		siteContainer.add(new DropDownChoice("reportSite",new PropertyModel(this, "reportSite") , reportSiteOptions, reportSiteRenderer));
+		DropDownChoice reportSite = new DropDownChoice("reportSite",new PropertyModel(this, "reportSite") , reportSiteOptions, reportSiteRenderer);
+		reportSite.setMarkupId("reportSite");
+		reportSite.setOutputMarkupId(true);
+		siteContainer.add(reportSite);
 		if(getReportParams().getSiteId() == null) {
 			this.reportSiteOpt = REPORT_ALLSITES;
 		}else {
@@ -645,6 +716,9 @@ public class ReportsEditPage extends BasePage {
 		
 		// totals by
 		Select howTotalsBy = new Select("reportParams.howTotalsBy");
+		howTotalsBy.setRequired(true);
+		howTotalsBy.setMarkupId("howTotalsBy");
+		howTotalsBy.setOutputMarkupId(true);
 		form.add(howTotalsBy);
 		RepeatingView howTotalsByOptions = new RepeatingView("howTotalsByOptions");
 		howTotalsBy.add(howTotalsByOptions);
@@ -654,55 +728,32 @@ public class ReportsEditPage extends BasePage {
 		WebMarkupContainer trSortBy = new WebMarkupContainer("trSortBy");
 		trSortBy.setVisible(renderSortAscendingOption);
 		form.add(trSortBy);
-		trSortBy.add(new CheckBox("reportParams.howSort"));
+		CheckBox howSortCheck = new CheckBox("reportParams.howSort");
+		howSortCheck.setMarkupId("howSortCheck");
+		howSortCheck.setOutputMarkupId(true);
+		trSortBy.add(howSortCheck);
 		// sort options
 		List<String> sortOptions = null;
 		if(renderSiteSortOption) {
-			sortOptions = Arrays.asList(StatsManager.T_SITE, /*StatsManager.T_USER,*/ StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL);
+			sortOptions = Arrays.asList(/*StatsManager.T_USER,*/ StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL, StatsManager.T_SITE);
 		}else{
 			sortOptions = Arrays.asList(/*StatsManager.T_USER,*/ StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE, StatsManager.T_TOTAL);
 		}
-		IChoiceRenderer howSortByRenderer = new IChoiceRenderer() {
-			public Object getDisplayValue(Object object) {
-				if(object != null) {
-					String id = (String) object;
-					if(ReportManager.HOW_SORT_DEFAULT.equals(id)) {
-						return (String) new ResourceModel("default").getObject();
-					}
-					if(StatsManager.T_SITE.equals(id)) {
-						return (String) new ResourceModel("th_site").getObject();
-					}
-					if(StatsManager.T_USER.equals(id)) {
-						return (String) new ResourceModel("report_howtotalsby_user").getObject();
-					}
-					if(StatsManager.T_EVENT.equals(id)) {
-						return (String) new ResourceModel("th_event").getObject();
-					}
-					if(StatsManager.T_RESOURCE.equals(id)) {
-						return (String) new ResourceModel("th_resource").getObject();
-					}
-					if(StatsManager.T_RESOURCE_ACTION.equals(id)) {
-						return (String) new ResourceModel("th_action").getObject();
-					}
-					if(StatsManager.T_DATE.equals(id)) {
-						return (String) new ResourceModel("th_date").getObject();
-					}
-					if(StatsManager.T_TOTAL.equals(id)) {
-						return (String) new ResourceModel("th_total").getObject();
-					}
-				}
-				return (String) new ResourceModel("default").getObject();
-			}
-			public String getIdValue(Object object, int index) {
-				return (String) object;
-			}		
-		};
-		trSortBy.add(new DropDownChoice("reportParams.howSortBy", sortOptions, howSortByRenderer));
-		trSortBy.add(new CheckBox("reportParams.howSortAscending"));
+		DropDownChoice howSortBy = new DropDownChoice("reportParams.howSortBy", sortOptions, allColumnsChoiceRenderer); 
+		howSortBy.setMarkupId("howSortBy");
+		howSortBy.setOutputMarkupId(true);
+		trSortBy.add(howSortBy);
+		CheckBox howSortAscending = new CheckBox("reportParams.howSortAscending");
+		howSortAscending.setMarkupId("howSortAscending");
+		howSortAscending.setOutputMarkupId(true);
+		trSortBy.add(howSortAscending);
 		
 		// max results
-		form.add(new CheckBox("reportParams.howLimitedMaxResults"));
-		form.add(new TextField("reportParams.howMaxResults",int.class) {
+		CheckBox howMaxResultsCheck = new CheckBox("reportParams.howLimitedMaxResults");
+		howMaxResultsCheck.setMarkupId("howMaxResultsCheck");
+		howMaxResultsCheck.setOutputMarkupId(true);
+		form.add(howMaxResultsCheck);
+		TextField howMaxResults = new TextField("reportParams.howMaxResults",int.class) {
 			@Override
 			public String getInput() {
 				String[] input = getInputAsArray();
@@ -712,7 +763,88 @@ public class ReportsEditPage extends BasePage {
 					return trim(input[0]);
 				}
 			}
-		});
+		};
+		howMaxResults.setMarkupId("howMaxResults");
+		howMaxResults.setOutputMarkupId(true);
+		form.add(howMaxResults);
+		
+		// presentation
+		List<String> howPresentationOptions = Arrays.asList(ReportManager.HOW_PRESENTATION_TABLE, ReportManager.HOW_PRESENTATION_CHART, ReportManager.HOW_PRESENTATION_BOTH);
+		IChoiceRenderer howPresentationChoiceRenderer = new IChoiceRenderer() {
+			public Object getDisplayValue(Object object) {
+				if(ReportManager.HOW_PRESENTATION_TABLE.equals(object)) {
+					return new ResourceModel("report_howpresentation_table").getObject();
+				}
+				if(ReportManager.HOW_PRESENTATION_CHART.equals(object)) {
+					return new ResourceModel("report_howpresentation_chart").getObject();
+				}
+				if(ReportManager.HOW_PRESENTATION_BOTH.equals(object)) {
+					return new ResourceModel("report_howpresentation_both").getObject();
+				}
+				return object;
+			}
+			public String getIdValue(Object object, int index) {
+				return (String) object;
+			}		
+		};
+		DropDownChoice howPresentation = new DropDownChoice("reportParams.howPresentationMode", howPresentationOptions, howPresentationChoiceRenderer);
+		howPresentation.setMarkupId("howPresentation");
+		howPresentation.setOutputMarkupId(true);
+		form.add(howPresentation);
+
+		// chart type
+		List<String> howChartTypeOptions = Arrays.asList(StatsManager.CHARTTYPE_BAR, /*StatsManager.CHARTTYPE_LINE,*/ StatsManager.CHARTTYPE_PIE, StatsManager.CHARTTYPE_TIMESERIES);
+		IChoiceRenderer howChartTypeChoiceRenderer = new IChoiceRenderer() {
+			public Object getDisplayValue(Object object) {
+				if(StatsManager.CHARTTYPE_BAR.equals(object)) {
+					return new ResourceModel("report_howchart_bar").getObject();
+				}
+				if(StatsManager.CHARTTYPE_LINE.equals(object)) {
+					return new ResourceModel("report_howchart_line").getObject();
+				}
+				if(StatsManager.CHARTTYPE_PIE.equals(object)) {
+					return new ResourceModel("report_howchart_pie").getObject();
+				}
+				if(StatsManager.CHARTTYPE_TIMESERIES.equals(object)) {
+					return new ResourceModel("report_howchart_timeseries").getObject();
+				}
+				return object;
+			}
+			public String getIdValue(Object object, int index) {
+				return (String) object;
+			}		
+		};
+		DropDownChoice howChartType = new DropDownChoice("reportParams.howChartType", howChartTypeOptions, howChartTypeChoiceRenderer);
+		howChartType.setMarkupId("howChartType");
+		howChartType.setOutputMarkupId(true);
+		form.add(howChartType);
+		
+		// chart source, chart series
+		List<String> howChartSourceOptions = null;
+		List<String> howChartCategorySourceOptions = null;
+		List<String> howChartSeriesSourceOptions = null;
+		if(renderSiteSortOption) {
+			howChartSourceOptions = Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
+			howChartCategorySourceOptions = Arrays.asList(StatsManager.T_NONE, StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
+			howChartSeriesSourceOptions = Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_TOTAL);
+		}else{
+			howChartSourceOptions = Arrays.asList(StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
+			howChartCategorySourceOptions = Arrays.asList(StatsManager.T_NONE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
+			howChartSeriesSourceOptions = Arrays.asList(StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_TOTAL);
+		}
+		DropDownChoice howChartSource = new DropDownChoice("reportParams.howChartSource", howChartSourceOptions, allColumnsChoiceRenderer);
+		howChartSource.setMarkupId("howChartSource");
+		howChartSource.setOutputMarkupId(true);
+		form.add(howChartSource);
+		DropDownChoice howChartCategorySource = new DropDownChoice("reportParams.howChartCategorySource", howChartCategorySourceOptions, allColumnsChoiceRenderer);
+		howChartCategorySource.setMarkupId("howChartCategorySource");
+		howChartCategorySource.setOutputMarkupId(true);
+		form.add(howChartCategorySource);
+		DropDownChoice howChartSeriesSource = new DropDownChoice("reportParams.howChartSeriesSource", howChartSeriesSourceOptions, allColumnsChoiceRenderer);
+		howChartSeriesSource.setMarkupId("howChartSeriesSource");
+		howChartSeriesSource.setOutputMarkupId(true);
+		form.add(howChartSeriesSource);
+
 	}
 	
 	
@@ -898,30 +1030,30 @@ public class ReportsEditPage extends BasePage {
 		WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
 		optgroupItem.setRenderBodyOnly(true);
 		rv.add(optgroupItem);
-		IOptionRenderer optionRenderer = new IOptionRenderer() {
+		final IOptionRenderer optionRenderer = new IOptionRenderer() {
 			public String getDisplayValue(Object o) {
 				SelectOption opt = (SelectOption) o;
 				Object object = opt.getModel().getObject();
 				if(StatsManager.T_USER.equals(object)) {
-					return (String) new ResourceModel("report_howtotalsby_user").getObject();					
+					return (String) new ResourceModel("report_option_user").getObject();					
 				}
 				if(StatsManager.T_EVENT.equals(object)) {
-					return (String) new ResourceModel("report_howtotalsby_event").getObject();
+					return (String) new ResourceModel("report_option_event").getObject();
 				}
 				if(StatsManager.T_RESOURCE.equals(object)) {
-					return (String) new ResourceModel("report_howtotalsby_resource").getObject();
+					return (String) new ResourceModel("report_option_resource").getObject();
 				}
 				if(StatsManager.T_RESOURCE_ACTION.equals(object)) {
-					return (String) new ResourceModel("report_howtotalsby_resourceaction").getObject();
+					return (String) new ResourceModel("report_option_resourceaction").getObject();
 				}
 				if(StatsManager.T_DATE.equals(object)) {
-					return (String) new ResourceModel("report_howtotalsby_date").getObject();
+					return (String) new ResourceModel("report_option_date").getObject();
 				}
 				if(StatsManager.T_LASTDATE.equals(object)) {
-					return (String) new ResourceModel("report_howtotalsby_lastdate").getObject();
+					return (String) new ResourceModel("report_option_lastdate").getObject();
 				}
 				if(StatsManager.T_SITE.equals(object)) {
-					return (String) new ResourceModel("report_howtotalsby_site").getObject();
+					return (String) new ResourceModel("report_option_site").getObject();
 				}
 				return (String) object;			
 			}
@@ -1079,7 +1211,10 @@ public class ReportsEditPage extends BasePage {
 		}
 		
 		// check HOW
-		if(getReportParams().getHowTotalsBy() != null){				
+		if(getReportParams().getHowTotalsBy() != null){
+			if(getReportParams().getHowSortBy().length() == 0) {
+				error((String) new ResourceModel("report_err_totalsbynone").getObject());
+			}
 			if(getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)
 					&& (getReportParams().getHowTotalsBy().contains(StatsManager.T_RESOURCE) || getReportParams().getHowTotalsBy().contains(StatsManager.T_RESOURCE_ACTION) )) {
 				error((String) new ResourceModel("report_err_totalsbyevent").getObject());	

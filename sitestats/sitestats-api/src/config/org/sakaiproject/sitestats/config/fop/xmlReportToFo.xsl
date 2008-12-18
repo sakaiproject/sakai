@@ -36,43 +36,55 @@
 						</fo:table>
 					</fo:block>
 
-					<!-- Report data -->
-					<fo:block font-size="8pt" space-before="10mm">
-						<fo:table table-layout="fixed" width="100%" border-collapse="collapse" >
-							<xsl:if test="showSite = 'true'">
-                                <fo:table-column column-width="auto" />
-                            </xsl:if>
-                            <xsl:if test="showUser = 'true'">
-							    <fo:table-column column-width="auto" />						
-								<fo:table-column column-width="auto" />
-							</xsl:if>
-							<xsl:if test="showEvent = 'true'">
-                                <fo:table-column column-width="auto" />
-							</xsl:if>
-                            <xsl:if test="showResource = 'true'">
-                                <!-- <fo:table-column column-width="55mm" /> -->
-                                <fo:table-column column-width="auto" />
-                            </xsl:if>
-                            <xsl:if test="showResourceAction = 'true'">
-                                <fo:table-column column-width="12.5mm" />
-                            </xsl:if>
-                            <xsl:if test="showDate = 'true'">
-                                <fo:table-column column-width="29.75mm" />
-                            </xsl:if>
-                            <xsl:if test="showLastDate = 'true'">
-                                <fo:table-column column-width="29.75mm" />
-                            </xsl:if>                            
-                            <xsl:if test="showTotal = 'true'">
-                                <fo:table-column column-width="8.5mm" />
-                            </xsl:if>
-							<fo:table-header>
-								<xsl:apply-templates select="datarowheader" />
-							</fo:table-header>
-							<fo:table-body>
-								<xsl:apply-templates select="datarow" />
-							</fo:table-body>
-						</fo:table>
-					</fo:block>
+                    <!-- Report chart -->
+                    <xsl:if test="showChart = 'true'">
+                        <fo:block space-before="10mm">
+                            <fo:external-graphic >
+                                <xsl:attribute name="src">url('<xsl:value-of select="chart"/>')</xsl:attribute>
+                                <!-- <xsl:attribute name="content-height">8pt</xsl:attribute> -->
+                            </fo:external-graphic>
+                        </fo:block>
+                    </xsl:if>
+
+					<!-- Report table -->
+					<xsl:if test="showTable = 'true'">
+						<fo:block font-size="8pt" space-before="10mm">
+							<fo:table table-layout="fixed" width="100%" border-collapse="collapse" >
+								<xsl:if test="showSite = 'true'">
+	                                <fo:table-column column-width="auto" />
+	                            </xsl:if>
+	                            <xsl:if test="showUser = 'true'">
+								    <fo:table-column column-width="auto" />						
+									<fo:table-column column-width="auto" />
+								</xsl:if>
+								<xsl:if test="showEvent = 'true'">
+	                                <fo:table-column column-width="auto" />
+								</xsl:if>
+	                            <xsl:if test="showResource = 'true'">
+	                                <!-- <fo:table-column column-width="55mm" /> -->
+	                                <fo:table-column column-width="auto" />
+	                            </xsl:if>
+	                            <xsl:if test="showResourceAction = 'true'">
+	                                <fo:table-column column-width="12.5mm" />
+	                            </xsl:if>
+	                            <xsl:if test="showDate = 'true'">
+	                                <fo:table-column column-width="29.75mm" />
+	                            </xsl:if>
+	                            <xsl:if test="showLastDate = 'true'">
+	                                <fo:table-column column-width="29.75mm" />
+	                            </xsl:if>                            
+	                            <xsl:if test="showTotal = 'true'">
+	                                <fo:table-column column-width="8.5mm" />
+	                            </xsl:if>
+								<fo:table-header>
+									<xsl:apply-templates select="datarowheader" />
+								</fo:table-header>
+								<fo:table-body>
+									<xsl:apply-templates select="datarow" />
+								</fo:table-body>
+							</fo:table>
+						</fo:block>
+					</xsl:if>
 
 				</fo:flow>
 			</fo:page-sequence>
