@@ -1394,8 +1394,13 @@ public class BasicEmailService implements EmailService
 						final String title = value.substring(0, index);
 						final String email = value.substring(index);
 						
+						// Accomodate Section 2.1.1 of http://tools.ietf.org/html/rfc2822 (line length should not exceed 78 characters and must not exceed 998)
+						String tempTitle = MimeUtility.encodeText(title, "UTF-8", null);
+						if ( name.length() + tempTitle.length() + email.length() > 78 )
+							tempTitle = tempTitle.replace(" ", "\n ");
+						
 						final String[] lines = 
-							(name + MimeUtility.encodeText(title, "UTF-8", null).replace(" ", "\n ") + email).split("\r\n|\r|\n");
+							(name + tempTitle + email).split("\r\n|\r|\n");
 						for (String temp: lines) 
 						{
 							 addHeaderLine(temp);
