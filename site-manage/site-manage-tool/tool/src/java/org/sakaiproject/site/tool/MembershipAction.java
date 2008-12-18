@@ -99,22 +99,24 @@ public class MembershipAction extends PagedResourceActionII
 			search = null;
 		}
 
+		PagingPosition page = new PagingPosition(first, last);
+		
 		if (((Boolean) state.getAttribute(SORT_ASC)).booleanValue())
 		{
 			rv = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE,
 			// null, null, null, org.sakaiproject.service.legacy.site.SiteService.SortType.TITLE_ASC, null);
-					null, search, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+					null, search, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, page);
 		}
 		else
 		{
 			rv = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE,
 			// null, null, null, org.sakaiproject.service.legacy.site.SiteService.SortType.TITLE_DESC, null);
-					null, search, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_DESC, null);
+					null, search, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_DESC, page);
 		}
 
-		PagingPosition page = new PagingPosition(first, last);
-		page.validate(rv.size());
-		rv = rv.subList(page.getFirst() - 1, page.getLast());
+		//PagingPosition page = new PagingPosition(first, last);
+		//page.validate(rv.size());
+		//rv = rv.subList(page.getFirst() - 1, page.getLast());
 
 		return rv;
 	}
