@@ -14,11 +14,14 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 
 
 /**
@@ -83,21 +86,31 @@ public class EntityBatchHandler {
                 continue; // skip
             }
             // identify the EB operations
+            EntityReference entityReference = null;
             if (reference.startsWith(EntityView.DIRECT_PREFIX)) {
                 int loc = reference.indexOf("/", 5);
                 if (loc == -1) {
                     continue; // skip
                 }
                 reference = reference.substring(loc);
-                EntityReference entityReference = entityBrokerManager.parseReference(reference);
+                // TODO split the URL and query string apart, send URL to parse entity URL, process query string below
+                entityReference = entityBrokerManager.parseReference(reference); //parseEntityURL(reference);
+                // check the prefix is valid
+                Map<String, String> params = HttpRESTUtils.parseURLintoParams(reference);
+                // now execute the request to get the data
+                if (entityReference.getId() == null) {
+                    // space (collection)
+                    
+                } else {
+                    
+                }
                 //entityBrokerManager.getEntityData(ref);
             }
-            
+            // compile EB responses
+            // create threads to fire off the non-EB URLs
+            // compile all the responses
+            // create the object to encode into the final response
         }
-        // compile EB responses
-        // create threads to fire off the non-EB URLs
-        // compile all the responses
-        // create the object to encode into the final response
         // put response, headers, and code into the http response
     }
 

@@ -14,12 +14,11 @@
 
 package org.sakaiproject.entitybroker.util;
 
-import static org.junit.Assert.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import junit.framework.TestCase;
+
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 
 
@@ -28,12 +27,11 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class HttpRESTUtilsTest {
+public class HttpRESTUtilsTest extends TestCase {
 
     /**
      * Test method for {@link org.sakaiproject.entitybroker.util.http.HttpRESTUtils#mergeQueryStringWithParams(java.lang.String, java.util.Map)}.
      */
-    @Test
     public void testMergeQueryStringWithParams() {
         String queryString = "/direct/prefix/thing?aaron=az&becky=wife";
         Map<String, String> params = new HashMap<String, String>();
@@ -50,7 +48,6 @@ public class HttpRESTUtilsTest {
     /**
      * Test method for {@link org.sakaiproject.entitybroker.util.http.HttpRESTUtils#parseURLintoParams(java.lang.String)}.
      */
-    @Test
     public void testParseURLintoParams() {
         String queryString = "/direct/prefix/thing?aaron=az&becky=wife";
         Map<String, String> params = HttpRESTUtils.parseURLintoParams(queryString);
