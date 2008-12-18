@@ -36,6 +36,7 @@ public interface StatsManager {
 	public final static String			SITESTATS_TOOLID			= "sakai.sitestats";
 	public final static String			SITESTATS_ADMIN_TOOLID		= "sakai.sitestats.admin";
 	public final static String			RESOURCES_TOOLID			= "sakai.resources";
+	public final static String			DROPBOX_TOOLID				= "sakai.dropbox";
 	public final static String			PARSERTIP_FOR_CONTEXTID		= "contextId";
 	public static final String			VIEW_WEEK					= "week";
 	public static final String			VIEW_MONTH					= "month";
@@ -114,6 +115,9 @@ public interface StatsManager {
 	// ################################################################
 	/** Get the resource name from a reference */
 	public String getResourceName(String ref);
+	
+	/** Get the resource name from a reference */
+	public String getResourceName(String ref, boolean includeLocationPrefix);
 	
 	/** Get the resource image from a reference */
 	public String getResourceImage(String ref);

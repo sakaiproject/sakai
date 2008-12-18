@@ -373,6 +373,13 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceName(java.lang.String)
 	 */
 	public String getResourceName(String ref){
+		return getResourceName(ref, true);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceName(java.lang.String, boolean)
+	 */
+	public String getResourceName(String ref, boolean includeLocationPrefix) {
 		Reference r = EntityManager.newReference(ref);
 		ResourceProperties rp = r.getProperties();
 		if(rp == null){
@@ -381,35 +388,37 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		String name = rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		StringBuffer _fileName = new StringBuffer("");
 		
-		String parts[] = ref.split("\\/");		
-		if(parts[2].equals("user")){
-			_fileName.append("[workspace]");
-			_fileName.append(SEPARATOR);
-		}else if(parts[2].equals("attachment")){
-			if(parts.length > 6 && parts[4].equals("Choose File")){
-				// assignment/annoucement attachment
-				_fileName.append("[attachment]");
+		if(includeLocationPrefix) {
+			String parts[] = ref.split("\\/");		
+			if(parts[2].equals("user")){
+				_fileName.append("[workspace]");
 				_fileName.append(SEPARATOR);
-			}else if(parts.length > 4){
+			}else if(parts[2].equals("attachment")){
+				if(parts.length >= 5){
+					_fileName.append("[attachment");
+					_fileName.append(SEPARATOR);
+					_fileName.append(parts[4]);
+					_fileName.append(']');
+				}else{
+					_fileName.append("[attachment]");
+					_fileName.append(SEPARATOR);
+				}
+			}else if(parts.length > 4  && parts[2].equals("group")){
+				// resource (standard)
+			}else if(parts.length > 5 && parts[2].equals("group-user")){
 				// mail attachment
-				_fileName.append("[attachment]");
+				_fileName.append("[dropbox");
+				_fileName.append(SEPARATOR);
+				String userEid = null;
+				try{
+					userEid = M_uds.getUserEid(parts[4]);
+				}catch(UserNotDefinedException e){
+					userEid = parts[4];
+				}
+				_fileName.append(userEid);
+				_fileName.append("]");
 				_fileName.append(SEPARATOR);
 			}
-		}else if(parts.length > 4  && parts[2].equals("group")){
-			// resource (standard)
-		}else if(parts.length > 5 && parts[2].equals("group-user")){
-			// mail attachment
-			_fileName.append("[dropbox");
-			_fileName.append(SEPARATOR);
-			String userEid = null;
-			try{
-				userEid = M_uds.getUserEid(parts[4]);
-			}catch(UserNotDefinedException e){
-				userEid = parts[4];
-			}
-			_fileName.append(userEid);
-			_fileName.append("]");
-			_fileName.append(SEPARATOR);
 		}
 		
 		_fileName.append(name);

@@ -18,6 +18,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.request.target.basic.EmptyRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -26,6 +27,7 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.models.CHResourceModel;
 
@@ -37,7 +39,10 @@ import org.sakaiproject.sitestats.tool.wicket.models.CHResourceModel;
 
 public class FileSelectorPanel extends Panel {
 	private static final long			serialVersionUID	= 1L;
-	private static final String			BASE_DIR			= "/group/";
+	private static final String			BASE_DIR			= "/";
+	private static final String			RESOURCES_DIR		= "/group/";
+	private static final String			DROPBOX_DIR			= "/group-user/";
+	private static final String			ATTACHMENTS_DIR		= "/attachment/";
 
 	/** Inject Sakai facade */
 	@SpringBean
@@ -145,15 +150,19 @@ public class FileSelectorPanel extends Panel {
 	
 	private List<CHResourceModel> getResources(String dir) throws IdUnusedException, TypeException, PermissionException {
 		List<CHResourceModel> resourcesList = new ArrayList<CHResourceModel>();
-		String siteCollectionId = facade.getContentHostingService().getSiteCollection(siteId);
+		String resourcesCollectionId = facade.getContentHostingService().getSiteCollection(siteId);
+		String dropboxCollectionId = facade.getContentHostingService().getDropboxCollection(siteId);
+		String attachmentsCollectionId = resourcesCollectionId.replaceFirst(RESOURCES_DIR, ATTACHMENTS_DIR);
 		if(dir.equals(BASE_DIR)) {
-			resourcesList.add(new CHResourceModel(siteCollectionId, siteTitle, true));
+			resourcesList.add(new CHResourceModel(resourcesCollectionId, facade.getToolManager().getTool(StatsManager.RESOURCES_TOOLID).getTitle()/*(String) new ResourceModel("report_content_resources").getObject()*/, true));
+			resourcesList.add(new CHResourceModel(dropboxCollectionId, facade.getToolManager().getTool(StatsManager.DROPBOX_TOOLID).getTitle()/*(String) new ResourceModel("report_content_dropbox").getObject()*/, true));
+			resourcesList.add(new CHResourceModel(attachmentsCollectionId, (String) new ResourceModel("report_content_attachments").getObject(), true));
 		}else{
 			ContentCollection collection = facade.getContentHostingService().getCollection(dir);
 			if(collection != null) {
 				List<ContentEntity> members = collection.getMemberResources();
 				for(ContentEntity ce : members) {
-					String dispName = facade.getStatsManager().getResourceName("/content"+ce.getId());
+					String dispName = facade.getStatsManager().getResourceName("/content"+ce.getId(), false);
 					resourcesList.add(new CHResourceModel(ce.getId(), dispName, ce.isCollection()));
 				}
 			}
