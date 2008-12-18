@@ -127,7 +127,16 @@ public class EntityActionsManager {
                     response.setContentType(actionReturn.mimeType);
                 }
             }
+            // also sets the response code when handling the action
+            if (actionReturn.responseCode > 0) {
+                response.setStatus(actionReturn.responseCode);
+            } else {
+                response.setStatus(HttpServletResponse.SC_OK);
+            }
             // other returns require no extra work here
+        } else {
+            // no failure so set the status code
+            response.setStatus(HttpServletResponse.SC_OK);
         }
         return actionReturn;
     }

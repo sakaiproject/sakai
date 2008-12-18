@@ -124,6 +124,20 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                     }
                 }
         );
+        // register the batch prefix to reserve it and load up batch descriptions
+        registerEntityProvider(
+                new DescribePropertiesable() {
+                    public String getEntityPrefix() {
+                        return EntityRequestHandler.BATCH;
+                    }
+                    public String getBaseName() {
+                        return getEntityPrefix();
+                    }
+                    public ClassLoader getResourceClassLoader() {
+                        return EntityProviderManagerImpl.class.getClassLoader();
+                    }
+                }
+        );
     }
 
     /* (non-Javadoc)

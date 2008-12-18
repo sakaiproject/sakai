@@ -102,7 +102,18 @@ public class ActionReturn {
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
     }
-
+    /**
+     * The response code to send back from the processing of this action,
+     * the default which also indicates the response code as determined by the system should be used is -1
+     */
+    public int responseCode = -1;
+    /**
+     * @param responseCode the response code to send back from the processing of this action,
+     * the default which also indicates the response code as determined by the system should be used is -1
+     */
+    public void setResponseCode(int responseCode) {
+        this.responseCode = responseCode;
+    }
 
 
     /**
@@ -238,5 +249,8 @@ public class ActionReturn {
     public Map<String, String> getHeaders() {
         return headers;
     }
-
+    
+    public int getResponseCode() {
+        return responseCode;
+    }
 }

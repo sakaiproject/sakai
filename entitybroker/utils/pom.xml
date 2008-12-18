@@ -56,6 +56,11 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -84,15 +89,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <!--
-                    By default, the surefire plugin will automatically include all test
-                    classes with the following wildcard patterns: "**/Test*.java" -
-                    includes all of its subdirectory and all java filenames that start
-                    with "Test". "**/*Test.java" - includes all of its subdirectory and
-                    all java filenames that end with "Test". "**/*TestCase.java" -
-                    includes all of its subdirectory and all java filenames that end with
-                    "TestCase".
-                -->
             </plugin>
             <!--
                 Convenience declaration of RSF plugin to enable composite builds of

@@ -38,6 +38,11 @@ public interface EntityRequestHandler {
     public static String DESCRIBE = "describe";
     public static String SLASH_DESCRIBE = EntityReference.SEPARATOR + DESCRIBE;
     /**
+     * The reserved word used to trigger batch operations
+     */
+    public static String BATCH = "batch";
+    public static String SLASH_BATCH = EntityReference.SEPARATOR + BATCH;
+    /**
      * This is the name of the header which will contain the id of newly created entities
      */
     public static String HEADER_ENTITY_ID = "EntityId";
