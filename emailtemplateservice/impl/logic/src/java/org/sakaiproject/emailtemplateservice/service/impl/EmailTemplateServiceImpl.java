@@ -168,7 +168,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
          }
       }
 
-      return null;
+      return loc;
    }
 
 
