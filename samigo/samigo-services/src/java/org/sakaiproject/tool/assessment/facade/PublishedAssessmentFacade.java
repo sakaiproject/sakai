@@ -108,20 +108,31 @@ public class PublishedAssessmentFacade
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 		  Date startDate, Date dueDate, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
-	  this(id, title, releaseTo, startDate, dueDate, null, releaseToGroups, lastModifiedDate, lastModifiedBy);
+	  this(id, title, releaseTo, startDate, dueDate, null, null, releaseToGroups, lastModifiedDate, lastModifiedBy, null, null, null);
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 		  Date startDate, Date dueDate, Integer status, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
+	  this(id, title, releaseTo, startDate, dueDate, null, status, releaseToGroups, lastModifiedDate, lastModifiedBy, null, null, null);
+  }
+  
+  public PublishedAssessmentFacade(Long id, String title, String releaseTo,
+		  Date startDate, Date dueDate, Date retractDate, Integer status, String releaseToGroups, 
+		  Date lastModifiedDate, String lastModifiedBy, Integer lateHandling,
+		  Boolean unlimitedSubmissions, Integer submissionsAllowed){
 	  this.publishedAssessmentId = id;
 	  this.title = title;
 	  this.releaseTo = releaseTo;
 	  this.startDate = startDate;
 	  this.dueDate = dueDate;
+	  this.retractDate = retractDate;
 	  this.status = status;
 	  this.releaseToGroups = releaseToGroups;
 	  this.lastModifiedDate = lastModifiedDate;
 	  this.lastModifiedBy = lastModifiedBy;
+	  this.lateHandling = lateHandling;
+	  this.unlimitedSubmissions = unlimitedSubmissions;
+	  this.submissionsAllowed = submissionsAllowed;
   }
 
   // constructor that whole min. info, used for listing

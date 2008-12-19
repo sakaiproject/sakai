@@ -79,9 +79,9 @@ public class TotalScoresBean
   public static final int CALLED_FROM_SUBMISSION_STATUS_LISTENER = 1;  
   public static final int CALLED_FROM_QUESTION_SCORE_LISTENER = 2;  
   public static final int CALLED_FROM_TOTAL_SCORE_LISTENER = 3;  
-  public static final int CALLED_FROM_HISTOGRAM_LISTENER = 3;  
+  public static final int CALLED_FROM_HISTOGRAM_LISTENER = 3;
   
-  /** Use serialVersionUID for interoperability. */
+    /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
   private String assessmentName;
   private String anonymous;
@@ -135,6 +135,7 @@ public class TotalScoresBean
 
   private Boolean releasedToGroups = null; // added by gopalrc - Jan 2008
   private Map userIdMap;
+  private String releaseTo;
   
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
@@ -791,8 +792,7 @@ public class TotalScoresBean
 	    	|| (calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous))
     		|| (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER 
-    	    		&& "true".equalsIgnoreCase(anonymous)) 
-    ) {
+    	    		&& "true".equalsIgnoreCase(anonymous))) {
         enrollments = getAvailableEnrollments();
     }
     // added by gopalrc - Jan 2008
@@ -805,7 +805,6 @@ public class TotalScoresBean
     }
 	return enrollments;
   }
-
 
   private List getSectionEnrollments(String sectionid) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
@@ -1102,6 +1101,14 @@ public class TotalScoresBean
 		this.acceptLateSubmission = acceptLateSubmission;
 	}
 	
+	public String getReleaseTo() {
+		return releaseTo;
+	}
+	
+	public void setReleaseTo(String releaseTo) {
+		this.releaseTo = releaseTo;
+	}
+		
 	/**
 	 * added by gopalrc - jan 2008
 	 * @return
@@ -1112,7 +1119,15 @@ public class TotalScoresBean
     	releasedToGroups = publishedAssessmentService.isReleasedToGroups(publishedId);
 		return releasedToGroups;
 		*/
-		return this.getPublishedAssessment().getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
+		boolean isReleasedToGroups = false;
+		if (getPublishedAssessment() != null && getPublishedAssessment().getAssessmentAccessControl() != null) {
+			isReleasedToGroups = AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(getPublishedAssessment().getAssessmentAccessControl().getReleaseTo());
+		}
+		else {
+			// From AuthorActionListener, the PublishedAssessment is not set (null)
+			isReleasedToGroups = AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(getReleaseTo());
+		}
+		return isReleasedToGroups;
 	}
 	
 }

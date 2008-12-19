@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -33,8 +32,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -63,30 +61,14 @@ public class SortInactivePublishedAssessmentListener
 
    processSortInfo(author);
    
+   // Refresh the inactive published assessment list.
+   AuthorActionListener authorActionListener = new AuthorActionListener();
    GradingService gradingService = new GradingService();
-   HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
-	
-    ArrayList inactivePublishedList = publishedAssessmentService.
-          getBasicInfoOfAllInActivePublishedAssessments(this.getInactivePublishedOrderBy(author),author.isInactivePublishedAscending());
-
-   // get the managed bean, author and set the list
-   author.setInactivePublishedAssessments(inactivePublishedList);
-   boolean isAnyAssessmentRetractForEdit = false;
-   Iterator iter = inactivePublishedList.iterator();
-   while (iter.hasNext()) {
-	   PublishedAssessmentFacade publishedAssessmentFacade = (PublishedAssessmentFacade) iter.next();
-		if (Integer.valueOf(3).equals(publishedAssessmentFacade.getStatus())) {
-		   isAnyAssessmentRetractForEdit = true;
-		   break;
-	   }
-   }
-   if (isAnyAssessmentRetractForEdit) {
-	   author.setIsAnyAssessmentRetractForEdit(true);
-   }
-   else {
-	   author.setIsAnyAssessmentRetractForEdit(false);
-   }
-   setSubmissionSize(inactivePublishedList, map);
+   ArrayList publishedAssessmentList = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments2(
+		   this.getInactivePublishedOrderBy(author),author.isInactivePublishedAscending(), AgentFacade.getCurrentSiteId());
+   HashMap agDataSizeMap = gradingService.getAGDataSizeOfAllPublishedAssessments();
+   ArrayList dividedPublishedAssessmentList = authorActionListener.getTakeableList(publishedAssessmentList, gradingService);
+   authorActionListener.prepareInactivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(1), agDataSizeMap);
   }
 
 /**
@@ -143,15 +125,5 @@ public class SortInactivePublishedAssessmentListener
 	bean.setInactivePublishedAscending(true);
     }
 
-  }
-  
-  private void setSubmissionSize(ArrayList list, HashMap map) {
-	  for (int i = 0; i < list.size(); i++) {
-	      PublishedAssessmentFacade p = (PublishedAssessmentFacade) list.get(i);
-	      Integer size = (Integer) map.get(p.getPublishedAssessmentId());
-	      if (size != null) {
-	        p.setSubmissionSize(size.intValue());
-	      }
-	  }
   }
 }

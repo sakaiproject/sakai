@@ -242,6 +242,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   // added by daisy - please check the logic - I based this on the getBasicInfoOfAllActiveAssessment
   public ArrayList getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, String siteId);
 
+  public ArrayList getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId);
+  
   /**
    * return an array list of the last AssessmentGradingFacade per assessment that
    * a user has submitted for grade.

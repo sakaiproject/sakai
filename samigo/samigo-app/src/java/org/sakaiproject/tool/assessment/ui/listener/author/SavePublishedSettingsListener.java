@@ -139,7 +139,14 @@ implements ActionListener
 			assessmentBean.setTitle(assessmentSettings.getTitle());
 		}
 		else {
-			resetPublishedAssessmentsList(author, assessmentService);
+			// regenerate the publsihed assessment list in autor bean again
+			// sortString can be of these value:title,releaseTo,dueDate,startDate
+			// get the managed bean, author and reset the list.
+			// Yes, we need to do that just in case the user change those delivery
+			// dates and turning an inactive pub to active pub
+			AuthorActionListener authorActionListener = new AuthorActionListener();
+			GradingService gradingService = new GradingService();
+  			authorActionListener.prepareAssessmentsList(author, assessmentService, gradingService, assessmentService);
 		}
 		assessmentSettings.setOutcome(author.getFromPage());
 	}
@@ -483,61 +490,6 @@ implements ActionListener
 			}
 		}
 	}
-
-	public void resetPublishedAssessmentsList(AuthorBean author,
-			PublishedAssessmentService assessmentService) {
-		// regenerate the publsihed assessment list in autor bean again
-		// sortString can be of these value:title,releaseTo,dueDate,startDate
-		// get the managed bean, author and reset the list.
-		// Yes, we need to do that just in case the user change those delivery
-		// dates and turning an inactive pub to active pub
-		GradingService gradingService = new GradingService();
-		HashMap map = gradingService
-		.getSubmissionSizeOfAllPublishedAssessments();
-		ArrayList publishedList = assessmentService
-		.getBasicInfoOfAllActivePublishedAssessments(author
-				.getPublishedAssessmentOrderBy(), author
-				.isPublishedAscending());
-		// get the managed bean, author and set the list
-		author.setPublishedAssessments(publishedList);
-		setSubmissionSize(publishedList, map);
-
-		ArrayList inactivePublishedList = assessmentService
-		.getBasicInfoOfAllInActivePublishedAssessments(author
-				.getInactivePublishedAssessmentOrderBy(), author
-				.isInactivePublishedAscending());
-		// get the managed bean, author and set the list
-		author.setInactivePublishedAssessments(inactivePublishedList);
-		boolean isAnyAssessmentRetractForEdit = false;
-		Iterator iter = inactivePublishedList.iterator();
-		while (iter.hasNext()) {
-			PublishedAssessmentFacade publishedAssessmentFacade = (PublishedAssessmentFacade) iter.next();
-			if (Integer.valueOf(3).equals(publishedAssessmentFacade.getStatus())) {
-				isAnyAssessmentRetractForEdit = true;
-				break;
-			}
-		}
-		if (isAnyAssessmentRetractForEdit) {
-			author.setIsAnyAssessmentRetractForEdit(true);
-		}
-		else {
-			author.setIsAnyAssessmentRetractForEdit(false);
-		}
-		setSubmissionSize(inactivePublishedList, map);
-	}
-
-	private void setSubmissionSize(ArrayList list, HashMap map){
-		for (int i=0; i<list.size();i++){
-			PublishedAssessmentFacade p =(PublishedAssessmentFacade)list.get(i);
-			Integer size = (Integer) map.get(p.getPublishedAssessmentId());
-			if (size != null){
-				p.setSubmissionSize(size.intValue());
-				//log.info("*** submission size" + size.intValue());
-			}
-		}
-	}
-
-
 }
 
 

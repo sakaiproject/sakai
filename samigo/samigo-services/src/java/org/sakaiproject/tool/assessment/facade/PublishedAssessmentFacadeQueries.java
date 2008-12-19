@@ -1337,6 +1337,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	// getBasicInfoOfAllActiveAssessment
 	// modified by gopalrc - Nov 2007
 	// to include release to selected groups
+	// This is for delivery flow
 	/**
 	 * 
 	 * @param orderBy
@@ -1424,6 +1425,72 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return pubList;
 	}
 
+
+	// This is for instructors view (author index page)
+	public ArrayList getBasicInfoOfAllPublishedAssessments2(
+			String sortString, boolean ascending, final String siteAgentId) {
+		Date currentDate = new Date();
+		String orderBy = getOrderBy(sortString);
+		
+		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
+				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, p.status, p.lastModifiedDate, p.lastModifiedBy, "
+				+ "c.lateHandling, c.unlimitedSubmissions, c.submissionsAllowed) "
+				+ " from PublishedAssessmentData p, PublishedAccessControl c, AuthorizationData z  "
+				+ " where c.assessment.publishedAssessmentId = p.publishedAssessmentId "
+				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId "
+				+ " and z.agentIdString=:siteId and (p.status=:activeStatus or p.status=:editStatus) "
+				+ " order by p." + orderBy;
+		if (ascending == true)
+			query += " asc";
+		else
+			query += " desc";
+
+		final String hql = query;
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session.createQuery(hql);
+				q.setString("functionId", "OWN_PUBLISHED_ASSESSMENT");
+				q.setString("siteId", siteAgentId);
+				q.setInteger("activeStatus", 1);
+				q.setInteger("editStatus", 3);
+				return q.list();
+			};
+		};
+		List list = getHibernateTemplate().executeFind(hcb);
+
+		ArrayList pubList = new ArrayList();
+		TreeMap groupsForSite = null;
+		String releaseToGroups;
+		String lastModifiedBy = "";
+		AgentFacade agent = null;
+
+		for (int i = 0; i < list.size(); i++) {
+			PublishedAssessmentData p = (PublishedAssessmentData) list.get(i);
+			releaseToGroups = null;
+			if (p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+				if (groupsForSite == null) {
+					groupsForSite = getGroupsForSite();
+				}
+				Long assessmentId = p.getPublishedAssessmentId();
+				releaseToGroups = getReleaseToGroupsAsString(groupsForSite, assessmentId);
+			}
+			
+
+			agent = new AgentFacade(p.getLastModifiedBy());
+			if (agent != null) {
+				lastModifiedBy = agent.getFirstName() + " " + agent.getLastName();
+			}
+
+			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
+					.getPublishedAssessmentId(), p.getTitle(),
+					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p.getRetractDate(), p.getStatus(), releaseToGroups, 
+					p.getLastModifiedDate(), lastModifiedBy, p.getLateHandling(), p.getUnlimitedSubmissions(), p.getSubmissionsAllowed());
+			pubList.add(f);
+		}
+		return pubList;
+	}
+	
 	/**
 	 * return an array list of the last AssessmentGradingFacade per assessment
 	 * that a user has submitted for grade.
