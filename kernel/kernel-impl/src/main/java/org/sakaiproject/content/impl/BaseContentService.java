@@ -2721,7 +2721,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			    !EVENT_RESOURCE_WRITE.equals(((BaseResourceEdit) entity).getEvent()))
 			{
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE,
-						ref, false));
+						ref, false, priority));
 				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.TRUE.toString());
 			}
 		}
