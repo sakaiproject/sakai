@@ -278,7 +278,9 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertNull(gradeDef.getGraderUid());
 		Assert.assertNull(gradeDef.getDateRecorded());
 
+		String graderComment = "grader comment";
 		gradebookService.setAssignmentScoreString(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new String("35"), "Service Test");
+		gradebookService.setAssignmentScoreComment(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, graderComment);
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
 		Assert.assertTrue(gradeDef != null);
 		Assert.assertEquals(GradebookService.GRADE_TYPE_POINTS, gradeDef.getGradeEntryType());
@@ -286,7 +288,22 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertTrue(gradeDef.isGradeReleased() == false);
 		Assert.assertEquals("35.0", gradeDef.getGrade());
 		Assert.assertEquals(INSTRUCTOR_UID, gradeDef.getGraderUid());
+		Assert.assertEquals(graderComment, gradeDef.getGradeComment());
 		Assert.assertNotNull(gradeDef.getDateRecorded());
+		
+		setAuthnId(STUDENT_IN_SECTION_UID1);
+		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		// the grade is not released, so grade info should be null
+		Assert.assertEquals(GradebookService.GRADE_TYPE_POINTS, gradeDef.getGradeEntryType());
+		Assert.assertEquals(STUDENT_IN_SECTION_UID1, gradeDef.getStudentUid());
+		Assert.assertTrue(gradeDef.isGradeReleased() == false);
+		Assert.assertNull(gradeDef.getGrade()); // should be null if grade not released
+		Assert.assertNull(gradeDef.getGradeComment()); // should be null if grade not released
+		Assert.assertNull(gradeDef.getGraderUid());  // should be null if grade not released
+		Assert.assertNull(gradeDef.getDateRecorded()); // should be null if grade not released
+		
+		// switch back to instructor and double check other grade entry types
+		setAuthnId(INSTRUCTOR_UID);
 		
 		// %-based gradebook
 		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
@@ -294,6 +311,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		gradebookManager.updateGradebook(gradebookNoCat);
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
 		Assert.assertEquals("87.5", gradeDef.getGrade());
+		Assert.assertEquals(graderComment, gradeDef.getGradeComment());
 		Assert.assertEquals(GradebookService.GRADE_TYPE_PERCENTAGE, gradeDef.getGradeEntryType());
 		
 		// letter-based gradebook
@@ -302,6 +320,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
 
 		Assert.assertEquals("B+", gradeDef.getGrade());
+		Assert.assertEquals(graderComment, gradeDef.getGradeComment());
 		Assert.assertEquals(GradebookService.GRADE_TYPE_LETTER, gradeDef.getGradeEntryType());
 		
 		// the TA with standard grader perms should trigger exception for student
@@ -314,6 +333,27 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 			
 		}
 		
+		// let's release the grade and make sure the student can access it
+		setAuthnId(INSTRUCTOR_UID);
+		org.sakaiproject.tool.gradebook.Assignment assignment = gradebookManager.getAssignment(asn1IdNoCat);
+		assignment.setReleased(true);
+		gradebookManager.updateAssignment(assignment);
+		
+		setAuthnId(STUDENT_IN_SECTION_UID1);
+		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		Assert.assertEquals(GradebookService.GRADE_TYPE_LETTER, gradeDef.getGradeEntryType());
+		Assert.assertEquals(STUDENT_IN_SECTION_UID1, gradeDef.getStudentUid());
+		Assert.assertTrue(gradeDef.isGradeReleased());
+		Assert.assertEquals("B+", gradeDef.getGrade());
+        Assert.assertEquals(graderComment, gradeDef.getGradeComment());
+		Assert.assertEquals(INSTRUCTOR_UID, gradeDef.getGraderUid());
+		Assert.assertNotNull(gradeDef.getDateRecorded());
+		
+		// try to retrieve another student's score
+		try {
+		    gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID2);
+		    fail("Did not catch a student trying to retrieve another student's grade info!");
+		} catch (SecurityException se) {}
 	}
 
 	public void testAssignmentScoreComment() throws Exception {
