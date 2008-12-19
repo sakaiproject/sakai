@@ -635,7 +635,7 @@ public class SiteAddParticipantHandler {
 						
 					if (u != null)
 					{
-						M_log.info("found user with eid " + officialAccount);
+						M_log.info("found user with eid " + u.getEid());
 						if (site != null && site.getUserRole(u.getId()) != null) {
 							// user already exists in the site, cannot be added
 							// again
@@ -650,7 +650,7 @@ public class SiteAddParticipantHandler {
 						// update the userRoleTable
 						if (!getUsers().contains(officialAccount))
 						{
-							userRoleEntries.add(new UserRoleEntry(officialAccount, ""));
+							userRoleEntries.add(new UserRoleEntry(u.getEid(), ""));
 						}
 					}
 					else
