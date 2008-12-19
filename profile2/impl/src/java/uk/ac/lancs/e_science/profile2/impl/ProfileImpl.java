@@ -24,6 +24,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
@@ -143,31 +144,38 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser()
 	 */
-	public List getFriendsForUser(final String userId, final boolean confirmed) {
+	public List<Friend> getFriendsForUser(final String userId, final int limit) {
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null Argument in getFriendsForUser");
 	  	}
-		List resultsList = new ArrayList(); 
-		
+		List<Friend> friends = new ArrayList(); 
+	
+		//get friends of this user - Hibernate maps it to the Friend object automatically via the hbm mappings
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_FRIENDS_FOR_USER);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(CONFIRMED, confirmed, Hibernate.BOOLEAN);
+	  			q.setParameter(FRIEND_UUID, userId, Hibernate.STRING);
+	  			
+	  			//limit of 0 = unlimited, else set limit
+	  			if(limit > 0) {
+	  				q.setMaxResults(limit);
+	  			}
+	  			
 	  			return q.list();
 	  		}
 	  	};
 	  	
-	  	resultsList = (List) getHibernateTemplate().executeFind(hcb);
+	  	friends = (List<Friend>) getHibernateTemplate().executeFind(hcb);
 	  	
-	  	return resultsList;
+	  	return friends;
 
 	}
 	
 	/*
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#addFriend()
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#requestFriend()
 	 */	
-	public boolean addFriend(String userId, String friendId) {
+	public boolean requestFriend(String userId, String friendId) {
 		if(userId == null || friendId == null){
 	  		throw new IllegalArgumentException("Null Argument in getFriendsForUser");
 	  	}
@@ -316,9 +324,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		ProfileStatus profileStatus = new ProfileStatus(userId,status,new Date());
 		
-		//save (always inserting, never updating, unless its being cleared which is a different process)
+		//this now uses saveOrUpdate as we are only allowing single status records
+		//so that we can get the friends/statuses more easily via single SQL statements
 		try {
-			getHibernateTemplate().save(profileStatus);
+			getHibernateTemplate().saveOrUpdate(profileStatus);
 			log.info("Updated status for user: " + userId);
 			return true;
 		} catch (Exception e) {
@@ -475,5 +484,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  }
 	*/
 	
+	
+	
+	 
 	
 }

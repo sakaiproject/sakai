@@ -369,7 +369,7 @@
 }
 
 .friendsListInfo {
-	padding-left: 5px;
+	margin-left: 5px;
 	float:left;
 	border:1px solid blue;
 	vertical-align: top;
@@ -398,6 +398,15 @@
 	float:right;
 	border:1px solid yellow;
 	font-size: 90%;
+}
+
+.rssLink {
+	margin: 0;
+	padding: 0;
+}
+
+.rssLink img {
+	vertical-align: middle;
 }
 
 

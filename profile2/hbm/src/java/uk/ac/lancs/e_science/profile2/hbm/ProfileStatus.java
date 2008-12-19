@@ -11,7 +11,6 @@ public class ProfileStatus implements Serializable {
 
 	private transient Logger log = Logger.getLogger(ProfileStatus.class);
 
-	private long id;
 	private String userUuid;
 	private String message;
 	private Date dateAdded;
@@ -26,16 +25,6 @@ public class ProfileStatus implements Serializable {
 		this.userUuid = userUuid;
 		this.message = message;
 		this.dateAdded = dateAdded;
-	}
-
-
-	public long getId() {
-		return id;
-	}
-
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
 

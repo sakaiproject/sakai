@@ -5,7 +5,6 @@ import java.util.Date;
 
 public class UserProfile implements Serializable {
 
-	//we need a var and getters/setters for every field thats in the profile.
 	private String userId;
 	private String nickname;
 	private String birthday;

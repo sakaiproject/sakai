@@ -119,7 +119,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		rssLink.add(icon);
-		icon.setVisible(false);
+		icon.setVisible(true);
 		add(rssLink);
 		
     }

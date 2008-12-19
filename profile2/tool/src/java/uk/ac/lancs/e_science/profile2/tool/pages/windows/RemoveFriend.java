@@ -2,15 +2,15 @@ package uk.ac.lancs.e_science.profile2.tool.pages.windows;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
 public class RemoveFriend extends Panel {
 
-	public RemoveFriend(String id, String userId, String friendId){
+
+	public RemoveFriend(String id, String userId){
         super(id);
 
-        
-        
         
         
         //heading
@@ -18,13 +18,14 @@ public class RemoveFriend extends Panel {
         add(heading);
         
         //text
-        Label text = new Label("text", userId + friendId);
+        Label text = new Label("text", "userId = " + userId);
         add(text);
         
-        
+        System.out.println("value inside modalwindow is: " + userId);
         
     }
-	
+
+
 	
 	
 	

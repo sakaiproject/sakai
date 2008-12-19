@@ -2,6 +2,8 @@ package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -10,19 +12,22 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
+import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
 
 
 public class MyFriends extends BasePage {
 
 	private transient Logger log = Logger.getLogger(MyFriends.class);
-	private static final String UNAVAILABLE_IMAGE = "http://blog.makezine.com/who_tall.jpg";
+	private static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
 	
 	public MyFriends() {
 		
@@ -41,15 +46,10 @@ public class MyFriends extends BasePage {
 		
 		//remove friend modal window
 		final ModalWindow removeFriendWindow = new ModalWindow("removeFriendWindow");
-		
 		add(removeFriendWindow);
 		
-		//we need to get teh parameters into the window here, we may need to implement our own ModalWindow extension that has getters and setters so we can set items into it?
+		//the setup for this modal window is done in the AjaxLink below. see there for info.
 		
-		removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), userId, "DO THIS"));
-		removeFriendWindow.setTitle(new ResourceModel("window.title.friend.remove"));
-		removeFriendWindow.setCookieName("profileModalWindow");
-
 		removeFriendWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() {
             public boolean onCloseButtonClicked(AjaxRequestTarget target) {
             	System.out.println("window closed 1");
@@ -63,46 +63,104 @@ public class MyFriends extends BasePage {
             }
         });
 		
+		//get photo and add to page, otherwise add default image
+		/*
+		pictureBytes = sakaiPerson.getJpegPhoto();
 		
+		if(pictureBytes != null && pictureBytes.length > 0){
 		
+			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+				protected byte[] getImageData() {
+					return pictureBytes;
+				}
+			};
+		
+			add(new Image("photo",photoResource));
+		} else {
+			log.info("No photo for " + userId + ". Using blank image.");
+			add(new ContextImage("photo",new Model(UNAVAILABLE_IMAGE)));
+		}
+		*/
 		
 		
 		
 		//get friends for user
-		List friends = new ArrayList();
-		friends = (ArrayList)profile.getFriendsForUser(userId, true);
-		System.out.println(friends.size());
-		System.out.println(friends.toString());
+		List<Friend> friends = new ArrayList<Friend>(profile.getFriendsForUser(userId, 0));
 		
 		
-				
 		ListView listview = new ListView("friendsList", friends) {
 		    protected void populateItem(ListItem item) {
 		        
 		    	//get a friend object for each user, containing items that we need to list here
 		    	//we also need their privacy settings
 		    	
+		    	//in the friend object add in the photo stream as a param
+		    	
+		    	
+		    	//get Friend object
+		    	Friend friend = (Friend)item.getModelObject();
+		    	
+		    	//setup basic values
+		    	String displayName = sakaiProxy.getUserDisplayName(friend.getUserUuid());
+		    	String statusMessage = friend.getStatusMessage();
+		    	Date statusDate = friend.getStatusDate();
+		    	boolean confirmed = friend.isConfirmed();
+		    	final byte[] photo = friend.getPhoto();
+		    	
 		    	//name
-		    	Label nameLabel = new Label("name", item.getModel());
+		    	Label nameLabel = new Label("name", displayName);
 		    	item.add(nameLabel);
 		    	
-		    	//status
-		    	Label statusMessageLabel = new Label("statusMessage", "status update goes here");
+		    	//status - no default value, set it later
+		    	Label statusMessageLabel = new Label("statusMessage");
 		    	item.add(statusMessageLabel);
 		    	
-		    	//status
-		    	Label statusDateLabel = new Label("statusDate", "on Tuesday");
+		    	//statusDate - no default value, set it later
+		    	Label statusDateLabel = new Label("statusDate");
 		    	item.add(statusDateLabel);
-		    	
+		    			    	
 		    	//photo
-		    	item.add(new ContextImage("photo",new Model(UNAVAILABLE_IMAGE)));
+		    	if(photo != null && photo.length > 0){
+		    		
+					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+						protected byte[] getImageData() {
+							return photo;
+						}
+					};
+				
+					item.add(new Image("photo",photoResource));
+				} else {
+					item.add(new ContextImage("photo",new Model(UNAVAILABLE_IMAGE)));
+				}
+		
+		    	//now set the models on the above objects depending on whether they are filled or not
+		    	if(statusMessage == null) {
+		    		statusMessageLabel.setVisible(false);
+		    	} else 	{
+		    		statusMessageLabel.setModel(new Model(statusMessage));
+		    	}
 		    	
+		    	if(statusDate == null) {
+		    		statusDateLabel.setVisible(false);
+		    	} else 	{
+		    		statusDateLabel.setModel(new Model(profile.convertDateForStatus(statusDate)));
+		    	}
 		    	
 		    	
 		    	//action - remove friend
 		    	AjaxLink removeLink = new AjaxLink("removeLink") {
 		    		public void onClick(AjaxRequestTarget target) {
-		    			//get the friendId and set up the data here.
+		    			
+		    			//setup content panel for removeFriendWindow. This is a custom panel with setters for the data to be used inside
+		    			//we set the data into this Panel when the ajax button is clicked.
+		    			RemoveFriend removeFriend = new RemoveFriend(removeFriendWindow.getContentId(), userId);
+		    			removeFriendWindow.setContent(removeFriend);
+		    			removeFriendWindow.setTitle(new ResourceModel("window.title.friend.remove"));
+		    			removeFriendWindow.setCookieName("profileModalWindow");
+		    			
+		    			
+		    			System.out.println(userId);
+		    			
 		    			removeFriendWindow.show(target);
 	    			}
 	    		};
@@ -114,7 +172,6 @@ public class MyFriends extends BasePage {
 		    }
 		};
 		add(listview);
-		
 		
 		
        

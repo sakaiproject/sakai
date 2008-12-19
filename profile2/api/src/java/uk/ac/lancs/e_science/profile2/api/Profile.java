@@ -3,6 +3,7 @@ package uk.ac.lancs.e_science.profile2.api;
 import java.util.Date;
 import java.util.List;
 
+import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 
@@ -26,20 +27,22 @@ public interface Profile {
 	
 	
 	/**
-	 * Get a list of uuid's that are friends with a given user
+	 * Get a list of friend uuids that are friends with a given user. Uses a native SQL query so we can use unions
 	 *
 	 * @param userId		uuid of the user to retrieve the list of friends for
-	 * @param confirmed		toggles list between confirmed and pending friends
+	 * @param limit			number of records to return or 0 for unlimited
 	 */
-	public List getFriendsForUser(String userId, boolean confirmed);
+	public List<Friend> getFriendsForUser(String userId, int limit);
+	
+	
 	
 	/**
-	 * Make a request that friendId be a friend of userId
+	 * Make a request for friendId to be a friend of userId
 	 *
 	 * @param userId		uuid of the user making the request
 	 * @param friendId		uuid of the user that userId wants to be a friend of
 	 */
-	public boolean addFriend(String userId, String friendId);
+	public boolean requestFriend(String userId, String friendId);
 	
 	/**
 	 * Confirm that userId is a friend of friendId (from a pending friend request)
@@ -64,7 +67,7 @@ public interface Profile {
 		
 	/**
 	 * Get the status (message and date) of a user
-	 * (this could be private as the other methods call it)
+	 * (this could be private as the other methods call it and its not called externally)
 	 *
 	 * @param userId		uuid of the user to get their status for
 	 */
