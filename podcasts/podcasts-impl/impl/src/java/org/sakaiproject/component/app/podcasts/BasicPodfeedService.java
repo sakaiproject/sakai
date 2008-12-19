@@ -420,7 +420,7 @@ public class BasicPodfeedService implements PodfeedService {
 
 		/* For site where not added to folder upon creation
 		 * and has not been revised/updated */
-		if ("".equals(propValue)) {
+		if (propValue == null || "".equals(propValue)) {
 			propValue = getMessageBundleString(bundleName);			
 		}
 
