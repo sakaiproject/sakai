@@ -203,6 +203,10 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 	        }
 	        
 	        UISelect.make(form, "category", category_values, category_labels, "#{GradebookItemBean.categoryId}", categoryId);
+	        
+	        if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+	            UIOutput.make(form, "category_instruction", messageLocator.getMessage("gradebook.add-gradebook-item.cateogry_instruction"));
+	        }
         }
         
         UIBoundBoolean.make(form, "release", assignmentOTP + ".released", assignment.isReleased());
