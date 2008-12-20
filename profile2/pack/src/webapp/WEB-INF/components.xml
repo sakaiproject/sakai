@@ -43,9 +43,9 @@
 
 	    <property name="mappingResources">
 	      <list>
-	        <value>uk/ac/lancs/e_science/profile2/hbm/ProfileFriend.hbm.xml</value>
-	        <value>uk/ac/lancs/e_science/profile2/hbm/ProfilePrivacy.hbm.xml</value>
+	      	<value>uk/ac/lancs/e_science/profile2/hbm/ProfilePrivacy.hbm.xml</value>
 	        <value>uk/ac/lancs/e_science/profile2/hbm/ProfileStatus.hbm.xml</value>
+	        <value>uk/ac/lancs/e_science/profile2/hbm/ProfileFriend.hbm.xml</value>
 	      </list>
 	    </property>
 
