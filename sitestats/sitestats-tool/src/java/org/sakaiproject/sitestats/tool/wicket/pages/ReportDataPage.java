@@ -80,7 +80,6 @@ public class ReportDataPage extends BasePage {
 	private WebPage						returnPage;
 
 	private AbstractDefaultAjaxBehavior	chartSizeBehavior	= null;
-	private boolean						chartSizeBehaviorOn	= true;
 	private AjaxLazyLoadImage			reportChart			= null;
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
@@ -477,8 +476,6 @@ public class ReportDataPage extends BasePage {
 					maximizedHeight = 300;
 				}
 				target.appendJavascript(buildCallbackScript(reportChart.getCallbackUrl(), null));
-				remove(chartSizeBehavior);
-				chartSizeBehaviorOn = false;
 			}		
 			
 			private String buildCallbackScript(CharSequence callbackUrl, CharSequence onSuccessCallbackScript) {
@@ -495,7 +492,7 @@ public class ReportDataPage extends BasePage {
 				return script.toString();
 			}   
 		};
-		if(renderChart && chartSizeBehaviorOn) {				
+		if(renderChart) {				
 			add(chartSizeBehavior);
 		}
 		
@@ -505,7 +502,7 @@ public class ReportDataPage extends BasePage {
 		WebMarkupContainer jsCall = new WebMarkupContainer("jsWicketChartSizeCall") {
 			@Override
 			protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
-				if(renderChart && chartSizeBehaviorOn) {
+				if(renderChart) {
 					StringBuilder buff = new StringBuilder();
 					buff.append("jQuery(document).ready(function() {");
 					buff.append("  var chartSizeCallback = '" + chartSizeBehavior.getCallbackUrl() + "'; ");

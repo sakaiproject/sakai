@@ -20,6 +20,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.version.undo.Change;
 import org.sakaiproject.sitestats.tool.wicket.pages.MaximizedImagePage;
 
 @SuppressWarnings("serial")
@@ -28,7 +29,13 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	private WebMarkupContainer			js									= null;
 	private Class						returnPage							= null;
 	private AbstractDefaultAjaxBehavior ajaxBehavior						= null;
-	private boolean						renderIfCached						= false;
+	private IModel						backButtonMessageModel				= null;
+
+	// State:
+	// 0:add loading component
+	// 1:loading component added, waiting for ajax replace
+	// 2:ajax replacement completed
+	private byte state = 0;
 
 	public AjaxLazyLoadImage(final String id) {
 		this(id, null, null, null);
@@ -42,22 +49,50 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		super(id);
 		setOutputMarkupId(true);
 		this.returnPage = returnPage;
-		final Component loadingComponent = getLoadingComponent("content");
-		
-		link = createMaximizedLink("link", backButtonMessageModel);
-		link.setOutputMarkupId(true);
-		link.setEnabled(false);
-		link.add(loadingComponent.setRenderBodyOnly(true));
-		add(link);
+		this.backButtonMessageModel = backButtonMessageModel;		
 		
 		ajaxBehavior = new AbstractDefaultAjaxBehavior() {
 			@Override
 			protected void respond(AjaxRequestTarget target) {
 				renderImage(target);
-				target.addComponent(link);				
-			}	
+				target.addComponent(link);			
+				setState((byte) 2);
+			}
+
+			@Override
+			public boolean isEnabled(Component component) {
+				return state < 2;
+			}
 		};
 		add(ajaxBehavior);
+	}
+	
+	@Override
+	protected void onBeforeRender() {
+		if(state == 0){
+			final Component loadingComponent = getLoadingComponent("content");		
+			link = createMaximizedLink("link", backButtonMessageModel);
+			link.setOutputMarkupId(true);
+			link.setEnabled(false);
+			link.add(loadingComponent.setRenderBodyOnly(true));
+			add(link);
+			setState((byte) 1);
+		}else if(state == 2){
+			final Component loadingComponent = getLoadingComponent("content");
+			link.setEnabled(false);
+			link.removeAll();
+			link.add(loadingComponent.setRenderBodyOnly(true));
+			add(link);
+			setState((byte) 1);
+		}
+		super.onBeforeRender();
+	}
+
+	private void setState(byte state) {
+		if(this.state != state){
+			addStateChange(new StateChange(this.state));
+		}
+		this.state = state;
 	}
 	
 	public CharSequence getCallbackUrl() {
@@ -71,11 +106,12 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		}
 		link.removeAll();
 		Image img = createImage("content", getBufferedImage());
-		img.add(new SimpleAttributeModifier("style", "display: block; margin: 0 auto;"));
+		img.add(new SimpleAttributeModifier("style", "margin: 0 auto;"));
 		link.add(img);
 		if(target != null) {
 			target.appendJavascript("jQuery('#"+img.getMarkupId(true)+"').fadeIn();");
 		}
+		setState((byte) 1);
 		return img;
 	}
 
@@ -131,5 +167,20 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		};
 		chartImage.setOutputMarkupId(true);
 		return chartImage;
+	}
+	
+	private final class StateChange extends Change {
+		private static final long	serialVersionUID	= 1L;
+
+		private final byte			state;
+
+		public StateChange(byte state) {
+			this.state = state;
+		}
+
+		@Override
+		public void undo() {
+			AjaxLazyLoadImage.this.state = state;
+		}
 	}
 }
