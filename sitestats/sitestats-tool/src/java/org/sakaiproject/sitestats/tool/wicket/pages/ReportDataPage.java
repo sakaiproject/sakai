@@ -16,6 +16,7 @@ import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.ComponentTag;
@@ -26,7 +27,6 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -53,7 +53,6 @@ import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
 import org.sakaiproject.sitestats.tool.wicket.components.ImageWithLink;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
-import org.sakaiproject.sitestats.tool.wicket.components.Menu;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
@@ -81,6 +80,7 @@ public class ReportDataPage extends BasePage {
 	private WebPage						returnPage;
 
 	private AbstractDefaultAjaxBehavior	chartSizeBehavior	= null;
+	private boolean						chartSizeBehaviorOn	= true;
 	private AjaxLazyLoadImage			reportChart			= null;
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
@@ -186,14 +186,16 @@ public class ReportDataPage extends BasePage {
 				return getChartImage(maximizedWidth, maximizedHeight);
 			}		
 		};
-		reportChart.setVisible(
-				ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
-				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
-				);
 		reportChart.setOutputMarkupId(true);
 		add(reportChart);
-		// Report: chart ajax behavior now that we already have report data
-		renderAjaxBehavior();
+		if(ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
+				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode()) ) {
+			reportChart.setVisible(true);
+			// Report: chart ajax behavior now that we already have report data
+			renderAjaxBehavior();
+		}else{
+			reportChart.setVisible(false);
+		}
 			
 		
 		// Report: table
@@ -276,7 +278,7 @@ public class ReportDataPage extends BasePage {
 			}
 		});
 	}
-
+	
 	@SuppressWarnings("serial")
 	private List<IColumn> getTableColumns() {
 		List<IColumn> columns = new ArrayList<IColumn>();
@@ -475,6 +477,8 @@ public class ReportDataPage extends BasePage {
 					maximizedHeight = 300;
 				}
 				target.appendJavascript(buildCallbackScript(reportChart.getCallbackUrl(), null));
+				remove(chartSizeBehavior);
+				chartSizeBehaviorOn = false;
 			}		
 			
 			private String buildCallbackScript(CharSequence callbackUrl, CharSequence onSuccessCallbackScript) {
@@ -491,7 +495,7 @@ public class ReportDataPage extends BasePage {
 				return script.toString();
 			}   
 		};
-		if(renderChart) {				
+		if(renderChart && chartSizeBehaviorOn) {				
 			add(chartSizeBehavior);
 		}
 		
@@ -501,7 +505,7 @@ public class ReportDataPage extends BasePage {
 		WebMarkupContainer jsCall = new WebMarkupContainer("jsWicketChartSizeCall") {
 			@Override
 			protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
-				if(renderChart) {
+				if(renderChart && chartSizeBehaviorOn) {
 					StringBuilder buff = new StringBuilder();
 					buff.append("jQuery(document).ready(function() {");
 					buff.append("  var chartSizeCallback = '" + chartSizeBehavior.getCallbackUrl() + "'; ");

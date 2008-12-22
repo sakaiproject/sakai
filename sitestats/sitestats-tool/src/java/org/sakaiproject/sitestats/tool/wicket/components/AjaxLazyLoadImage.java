@@ -8,6 +8,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Resource;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
@@ -27,6 +28,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	private WebMarkupContainer			js									= null;
 	private Class						returnPage							= null;
 	private AbstractDefaultAjaxBehavior ajaxBehavior						= null;
+	private boolean						renderIfCached						= false;
 
 	public AjaxLazyLoadImage(final String id) {
 		this(id, null, null, null);
@@ -69,6 +71,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		}
 		link.removeAll();
 		Image img = createImage("content", getBufferedImage());
+		img.add(new SimpleAttributeModifier("style", "display: block; margin: 0 auto;"));
 		link.add(img);
 		if(target != null) {
 			target.appendJavascript("jQuery('#"+img.getMarkupId(true)+"').fadeIn();");
