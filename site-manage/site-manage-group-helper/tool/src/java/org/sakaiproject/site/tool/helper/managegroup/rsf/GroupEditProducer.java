@@ -180,6 +180,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          UIInput.make(groupForm, "groupId", "#{SiteManageGroupHandler.id}", groupId);
          
          //process any messages
+         tml = handler.messages;
          if (tml.size() > 0) {
  			for (i = 0; i < tml.size(); i ++ ) {
  				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", new Integer(i).toString());

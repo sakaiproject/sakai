@@ -136,6 +136,12 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, DynamicNa
 				 UIBranchContainer tablerow = UIBranchContainer.make(rosterOptions, "roster-row:");
 				 UIBoundBoolean.make(tablerow, "roster-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRosters." + roster + "}");
 				 UIOutput.make(tablerow, "roster-title", roster);
+				 
+				 // check whether there is already a group with this roster
+				 if (handler.existRosterGroup(roster))
+				 {
+					 UIMessage.make(tablerow, "exist-group-roster", "exist.group.roster");
+				 }
 			 }
 		 }
 		 
@@ -150,8 +156,12 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, DynamicNa
 			 for (Role role: siteRoles) {
 				 UIBranchContainer tablerow = UIBranchContainer.make(roleOptions, "role-row:");
 				 UIBoundBoolean.make(tablerow, "role-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRoles." + role.getId() + "}");
-				 
 				 UIOutput.make(tablerow, "role-title", role.getId());
+				// check whether there is already a group with this role
+				 if (handler.existRoleGroup(role.getId()))
+				 {
+					 UIMessage.make(tablerow, "exist-group-role", "exist.group.role");
+				 }
 			 }
 		 }
 		 
@@ -161,6 +171,7 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, DynamicNa
          
          int i = 0;
          //process any messages
+         tml = handler.messages;
          if (tml.size() > 0) {
  			for (i = 0; i < tml.size(); i ++ ) {
  				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", new Integer(i).toString());

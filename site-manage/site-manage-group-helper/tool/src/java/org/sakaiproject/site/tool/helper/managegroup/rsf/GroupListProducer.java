@@ -131,6 +131,7 @@ public class GroupListProducer
 
 		
 		//process any messages
+		tml = handler.messages;
         if (tml.size() > 0) {
 			for (int i = 0; i < tml.size(); i ++ ) {
 				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", new Integer(i).toString());

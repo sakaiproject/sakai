@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
 
@@ -85,7 +87,18 @@ public class GroupDelProducer implements ViewComponentProducer, ActionResultInte
                 UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
 
     			UIOutput.make(grouprow,"group-title",group.getTitle());
-    			UIOutput.make(grouprow,"group-size",String.valueOf(group.getMembers().size()));
+    			
+    			// group size
+    			int size = 0;
+    			try
+    			{
+    				size=AuthzGroupService.getAuthzGroup(group.getReference()).getMembers().size();
+    			}
+    			catch (GroupNotDefinedException e)
+    			{
+    				M_log.debug(this + "fillComponent: cannot find group " + group.getReference());
+    			}
+    			UIOutput.make(grouprow,"group-size",String.valueOf(size));
 
     			deletable.add(group.getId());
 				UISelectChoice delete =  UISelectChoice.make(grouprow, "group-select", deleteselect.getFullID(), (deletable.size()-1));

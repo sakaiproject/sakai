@@ -91,10 +91,18 @@ public class SiteManageGroupHandler {
     // Tool session attribute name used to schedule a whole page refresh.
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh"; 
 	
-	private TargettedMessageList messages;
+	public TargettedMessageList messages;
 	public void setMessages(TargettedMessageList messages) {
 		this.messages = messages;
 	}
+	
+	/**
+	 * reset the message list
+	 */
+    private void resetTargettedMessageList()
+    {
+    	this.messages = new TargettedMessageList();
+    }
 	
 	// the group title
 	private String id;
@@ -270,6 +278,9 @@ public class SiteManageGroupHandler {
      *
      */
     public String processCancel() {
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 
@@ -281,7 +292,10 @@ public class SiteManageGroupHandler {
      * 
      */
     public String processBack() {
-      return "cancel";
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
+    	return "cancel";
     }
     
     public String reset() {
@@ -311,6 +325,9 @@ public class SiteManageGroupHandler {
      */
     public String processAddGroup () {
 
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
         Group group = null;
         
         id = StringUtil.trimToNull(id);
@@ -345,7 +362,8 @@ public class SiteManageGroupHandler {
 					}
 				}
 				if (titleExist) {
-					messages.addMessage(new TargettedMessage("group.title.same","group with same existing title"));
+					messages.addMessage(new TargettedMessage("group.title.same",new Object[] {}, TargettedMessage.SEVERITY_ERROR));
+		    		
 					return null;
 				}
     		}
@@ -425,6 +443,10 @@ public class SiteManageGroupHandler {
     
     public String processConfirmGroupDelete()
     {
+
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
     	if (deleteGroupIds == null || deleteGroupIds.length == 0)
     	{
     		// no group chosen to be deleted
@@ -455,6 +477,9 @@ public class SiteManageGroupHandler {
     
     public String processDeleteGroups()
     {
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
     	if (site != null)
     	{
 	    	for (int i = 0; i < deleteGroupIds.length; i ++) {
@@ -478,8 +503,11 @@ public class SiteManageGroupHandler {
     	return "success";
     }
     
-    public String processCancelelete()
+    public String processCancelDelete()
     {
+    	// reset the warning messages
+    	resetTargettedMessageList();
+    	
     	return "cancel";
     }
     
