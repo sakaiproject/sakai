@@ -87,6 +87,39 @@
   </source>
 
 	<!-- -->
+  <!-- MusePeer -->
+  <!-- -->
+  <source name="MusePeer Repository">
+    <id name="MusePeer Repository"/>
+    <description name="Access Sirsi SingleSearch via the MusePeer XML interface"/>
+
+		<!-- -->
+		<!-- Base URL [optional, overrides externally configured value]
+    <parameter name="url" value="http://example.com/muse/servlet/MusePeer"/>
+    -->
+
+    <!-- -->
+		<!-- Username and password [optional, overrides externally configured values]
+    <parameter name="username" value="example-username"/>
+    <parameter name="password" value="example-password"/>
+    -->
+
+		<!-- -->
+		<!-- The following are constant values (no need to change) -->
+    <queryhandler name="edu.indiana.lib.twinpeaks.search.singlesearch.musepeer.Query"/>
+    <responsehandler name="edu.indiana.lib.twinpeaks.search.singlesearch.musepeer.Response"/>
+
+		<!-- -->
+    <authority name="sakaibrary"/>
+    <domain name="search"/>
+    <searchtype name="asynchMetasearch"/>
+    <searchdescription name="Meta-search"/>
+
+		<!-- -->
+    <options enabled="true"/>
+  </source>
+
+	<!-- -->
   <!-- 360 Search -->
 	<!-- -->
   <source name="360 Search Repository">
