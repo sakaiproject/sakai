@@ -83,6 +83,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -111,6 +112,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	/** Controller fields */
 	private boolean						showAnonymousAccessEvents				= true;
 
+	private static ResourceLoader		msgs									= new ResourceLoader("Messages");
+	
 	/** Sakai services */
 	private EventRegistryService		M_ers;
 	private SqlService					M_sql;
@@ -390,34 +393,61 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		
 		if(includeLocationPrefix) {
 			String parts[] = ref.split("\\/");		
-			if(parts[2].equals("user")){
-				_fileName.append("[workspace]");
-				_fileName.append(SEPARATOR);
-			}else if(parts[2].equals("attachment")){
-				if(parts.length >= 5){
-					_fileName.append("[attachment");
-					_fileName.append(SEPARATOR);
-					_fileName.append(parts[4]);
-					_fileName.append(']');
-				}else{
-					_fileName.append("[attachment]");
-					_fileName.append(SEPARATOR);
-				}
-			}else if(parts.length > 4  && parts[2].equals("group")){
-				// resource (standard)
-			}else if(parts.length > 5 && parts[2].equals("group-user")){
-				// mail attachment
-				_fileName.append("[dropbox");
-				_fileName.append(SEPARATOR);
-				String userEid = null;
+			if(parts.length >= 4 && parts[2].equals("user")){
+				// My Workspace
+				_fileName.append("[");
 				try{
-					userEid = M_uds.getUserEid(parts[4]);
-				}catch(UserNotDefinedException e){
-					userEid = parts[4];
+					_fileName.append(M_ss.getSite(M_ss.getSiteUserId(parts[3])).getTitle());
+				}catch(IdUnusedException e){
+					_fileName.append("My Workspace");
 				}
-				_fileName.append(userEid);
-				_fileName.append("]");
-				_fileName.append(SEPARATOR);
+				_fileName.append("] ");
+				
+			}else if(parts[2].equals("attachment")){
+				// attachment
+				if(parts.length >= 5){
+					_fileName.append("[");
+					_fileName.append(msgs.getString("report_content_attachments"));
+					_fileName.append(": ");
+					_fileName.append(parts[4]);
+					_fileName.append("] ");
+				}else{
+					_fileName.append("[");
+					_fileName.append(msgs.getString("report_content_attachments"));
+					_fileName.append("] ");
+				}
+				
+			}else if(parts.length > 4 && parts[2].equals("group")){
+				// resource (standard)
+				
+			}else if(parts.length > 4 && parts[2].equals("group-user")){
+				// dropbox
+				_fileName.append("[");
+				_fileName.append(M_tm.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+				if(parts.length > 5){
+					_fileName.append(": ");
+					String user = null;
+					try{
+						StringBuilder refU = new StringBuilder();
+						for(int i=0; i<5; i++) {
+							refU.append(parts[i]);
+							refU.append('/');
+						}
+						Reference rU = EntityManager.newReference(refU.toString());
+						ResourceProperties rpU = rU.getProperties();
+						user = rpU.getProperty(ResourceProperties.PROP_DISPLAY_NAME);						
+					}catch(Exception e1){
+						try{
+							user = M_uds.getUserEid(parts[4]);
+						}catch(UserNotDefinedException e2){
+							user = parts[4];
+						}
+					}
+					_fileName.append(user);
+					_fileName.append("] ");
+				}else{
+					_fileName.append("] ");					
+				}
 			}
 		}
 		
@@ -1219,8 +1249,23 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					q.setParameterList("users", userIds);
 				if(resourceAction != null)
 					q.setString("action", resourceAction);
-				if(resourceIds != null && !resourceIds.isEmpty())
-					q.setParameterList("resources", resourceIds);
+				if(resourceIds != null && !resourceIds.isEmpty()) {
+					List<String> simpleResourceIds = new ArrayList<String>();
+					List<String> wildcardResourceIds = new ArrayList<String>();
+					for(String rId : resourceIds) {
+						if(rId.endsWith("/")) {
+							wildcardResourceIds.add(rId + "%");
+						}else{
+							simpleResourceIds.add(rId);
+						}
+					}
+					if(simpleResourceIds.size() > 0) {
+						q.setParameterList("resources", resourceIds);
+					}
+					for(int i=0; i<wildcardResourceIds.size(); i++) {
+						q.setString("resource"+i, wildcardResourceIds.get(i));
+					}
+				}
 				if(iDate != null)
 					q.setDate("idate", iDate);
 				if(fDate != null){
@@ -1529,7 +1574,21 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				whereFields.add("s.resourceAction = :action");
 			}
 			if(queryType == Q_TYPE_RESOURCE && resourceIds != null && !resourceIds.isEmpty()) {
-				whereFields.add("s.resourceRef in (:resources)");
+				int simpleSelectionCount = 0;
+				int wildcardSelectionCount = 0;
+				for(String rId : resourceIds) {
+					if(rId.endsWith("/")) {
+						wildcardSelectionCount++;
+					}else{
+						simpleSelectionCount++;
+					}
+				}
+				if(simpleSelectionCount > 0) {
+					whereFields.add("s.resourceRef in (:resources)");
+				}
+				for(int i=0; i<wildcardSelectionCount; i++) {
+					whereFields.add("s.resourceRef like (:resource"+i+")");
+				}
 			}
 			if(userIds != null && !userIds.isEmpty()) {
 				whereFields.add("s.userId in (:users)");
@@ -1547,11 +1606,31 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			// build 'where' clause
 			_hql.append("where ");
 			for(int i=0; i<whereFields.size() - 1; i++) {
-				_hql.append(whereFields.get(i));
-				_hql.append(" and ");
+				if(whereFields.get(i).startsWith("s.resourceRef")){
+					// this is a resource condition
+					if(i!= 0 && !whereFields.get(i-1).startsWith("s.resourceRef")) {
+						_hql.append("(");
+					}
+					_hql.append(whereFields.get(i));
+					if(whereFields.get(i+1).startsWith("s.resourceRef")) {
+						 // and so is next
+						_hql.append(" or ");
+					}else{
+						// and next is not
+						_hql.append(") and ");
+					}
+				}else{
+					_hql.append(whereFields.get(i));
+					_hql.append(" and ");
+				}
 			}
 			_hql.append(whereFields.get(whereFields.size() - 1));
+			if(whereFields.size() > 1 && whereFields.get(whereFields.size() - 2).startsWith("s.resourceRef")) {
+				// last was also a resource condition
+				_hql.append(')');
+			}
 			_hql.append(' ');
+			
 			
 			return _hql.toString();
 			

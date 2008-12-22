@@ -38,6 +38,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -1062,13 +1063,45 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				if(list.contains("all"))
 					return msgs.getString("report_what_all");
 				StringBuilder buff = new StringBuilder();
-				for(int i=0; i<list.size() - 1; i++){
+				String siteId = report.getReportDefinition().getReportParams().getSiteId();
+				String resourcesCollectionId = M_chs.getSiteCollection(siteId);
+				String dropboxCollectionId = M_chs.getDropboxCollection(siteId);
+				String attachmentsCollectionId = resourcesCollectionId.replaceFirst(StatsManager.RESOURCES_DIR, StatsManager.ATTACHMENTS_DIR);
+				for(int i=0; i<list.size(); i++){
 					String resourceId = list.get(i);
 					try{
-						ContentResource cr = M_chs.getResource(resourceId);
-						String crName = cr.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
-						buff.append(crName);
-						buff.append(", ");
+						if(resourceId.endsWith("/")) {
+							if(StatsManager.RESOURCES_DIR.equals(resourceId) || resourceId.equals(resourcesCollectionId)) {
+								buff.append(M_tm.getTool(StatsManager.RESOURCES_TOOLID).getTitle());
+							}else if(StatsManager.DROPBOX_DIR.equals(resourceId) || resourceId.equals(dropboxCollectionId)) {
+								buff.append(M_tm.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+							}else if(resourceId.startsWith(dropboxCollectionId)) {
+								buff.append(M_tm.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+								buff.append(": ");
+								ContentCollection cc = M_chs.getCollection(resourceId);
+								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
+								buff.append(ccName);
+							}else if(StatsManager.ATTACHMENTS_DIR.equals(resourceId) || resourceId.equals(attachmentsCollectionId)) {
+								buff.append(msgs.getString("report_content_attachments"));
+							}else if(resourceId.startsWith(attachmentsCollectionId)) {
+								buff.append(msgs.getString("report_content_attachments"));
+								buff.append(": ");
+								ContentCollection cc = M_chs.getCollection(resourceId);
+								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
+								buff.append(ccName);
+							}else{
+								ContentCollection cc = M_chs.getCollection(resourceId);
+								String ccName = cc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
+								buff.append(ccName);
+							}
+						}else{
+							ContentResource cr = M_chs.getResource(resourceId);
+							String crName = cr.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
+							buff.append(crName);
+						}
+						if(list.size() > 1 && i != list.size() - 1) {
+							buff.append(", ");
+						}
 					}catch(PermissionException e){
 						e.printStackTrace();
 					}catch(IdUnusedException e){
@@ -1076,18 +1109,6 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					}catch(TypeException e){
 						e.printStackTrace();
 					}
-				}
-				String resourceId = list.get(list.size() - 1);
-				try{
-					ContentResource cr = M_chs.getResource(resourceId);
-					String crName = cr.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);	
-					buff.append(crName);
-				}catch(PermissionException e){
-					e.printStackTrace();
-				}catch(IdUnusedException e){
-					e.printStackTrace();
-				}catch(TypeException e){
-					e.printStackTrace();
 				}
 				return buff.toString();
 			}

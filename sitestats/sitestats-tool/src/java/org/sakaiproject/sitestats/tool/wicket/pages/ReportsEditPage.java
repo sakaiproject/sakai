@@ -1,6 +1,5 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import java.io.Serializable;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,13 +15,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.form.AjaxFormValidatingBehavior;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.datetime.StyleDateConverter;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.markup.html.form.select.IOptionRenderer;
@@ -30,7 +26,6 @@ import org.apache.wicket.extensions.markup.html.form.select.Select;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOptions;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -52,7 +47,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.Strings;
-import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -66,7 +60,6 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
-import org.sakaiproject.sitestats.tool.wicket.components.AjaxIndicator;
 import org.sakaiproject.sitestats.tool.wicket.components.CSSFeedbackPanel;
 import org.sakaiproject.sitestats.tool.wicket.components.FileSelectorPanel;
 import org.sakaiproject.sitestats.tool.wicket.components.IStylableOptionRenderer;
@@ -413,6 +406,8 @@ public class ReportsEditPage extends BasePage {
 		form.add(whatEventIds);
 		
 		// resources selection
+		boolean isSiteStatsAdminTool = facade.getStatsAuthz().isSiteStatsAdminPage();
+		boolean showDefaultBaseFoldersOnly = isSiteStatsAdminTool && predefined && realSiteId.equals(siteId);
 		CheckBox whatLimitedAction = new CheckBox("reportParams.whatLimitedAction");
 		whatLimitedAction.setMarkupId("whatLimitedAction");
 		whatLimitedAction.setOutputMarkupId(true);
@@ -421,7 +416,7 @@ public class ReportsEditPage extends BasePage {
 		whatLimitedResourceIds.setMarkupId("whatLimitedResourceIds");
 		whatLimitedResourceIds.setOutputMarkupId(true);
 		form.add(whatLimitedResourceIds);
-		final FileSelectorPanel whatResourceIds = new FileSelectorPanel("reportParams.whatResourceIds", siteId);
+		final FileSelectorPanel whatResourceIds = new FileSelectorPanel("reportParams.whatResourceIds", siteId, showDefaultBaseFoldersOnly);
 		whatResourceIds.setMarkupId("whatResourceIds");
 		whatResourceIds.setOutputMarkupId(true);
 		form.add(whatResourceIds);

@@ -40,9 +40,6 @@ import org.sakaiproject.sitestats.tool.wicket.models.CHResourceModel;
 public class FileSelectorPanel extends Panel {
 	private static final long			serialVersionUID	= 1L;
 	private static final String			BASE_DIR			= "/";
-	private static final String			RESOURCES_DIR		= "/group/";
-	private static final String			DROPBOX_DIR			= "/group-user/";
-	private static final String			ATTACHMENTS_DIR		= "/attachment/";
 
 	/** Inject Sakai facade */
 	@SpringBean
@@ -50,15 +47,16 @@ public class FileSelectorPanel extends Panel {
 
 	private String						siteId;
 	private String						siteTitle;
+	private boolean						showDefaultBaseFoldersOnly;
 	private String						currentDir			= BASE_DIR;
 
 	private final AjaxResourcesLoader	ajaxResourcesLoader		= new AjaxResourcesLoader();
 
-	public FileSelectorPanel(String id, String siteId) {
-		this(id, siteId, null);
+	public FileSelectorPanel(String id, String siteId, boolean showDefaultBaseFoldersOnly) {
+		this(id, siteId, null, showDefaultBaseFoldersOnly);
 	}
 	
-	public FileSelectorPanel(String id, String siteId, IModel model) {
+	public FileSelectorPanel(String id, String siteId, IModel model, boolean showDefaultBaseFoldersOnly) {
 		super(id, model);
 		this.siteId = siteId;
 		try{
@@ -66,6 +64,7 @@ public class FileSelectorPanel extends Panel {
 		}catch(IdUnusedException e){
 			this.siteTitle = siteId;
 		}
+		this.showDefaultBaseFoldersOnly = showDefaultBaseFoldersOnly;
 		
 		// selected files
 		HiddenField selectedFiles = new HiddenField("selectedFiles", new PropertyModel(this, "selectedFiles"));
@@ -85,6 +84,17 @@ public class FileSelectorPanel extends Panel {
 	
 	public List<String> getSelectedFilesId() {
 		List<String> files = (List<String>) getModelObject();
+		if(!showDefaultBaseFoldersOnly) {
+			List<String> files2 = new ArrayList<String>();
+			for(String f : files) {
+				if(StatsManager.RESOURCES_DIR.equals(f) || StatsManager.DROPBOX_DIR.equals(f) || StatsManager.ATTACHMENTS_DIR.equals(f)){
+					files2.add(f + siteId + "/");
+				}else{
+					files2.add(f);
+				}
+			}
+			return files2;
+		}
 		return files;
 	}
 	
@@ -96,10 +106,12 @@ public class FileSelectorPanel extends Panel {
 		List<String> files = (List<String>) getModelObject();
 		StringBuilder filesEncoded = new StringBuilder();
 		for(String s : files) {
-			if(filesEncoded.length() == 0) {
-				filesEncoded.append(s);
-			}else{
+			if(filesEncoded.length() != 0) {
 				filesEncoded.append("|||");
+			}
+			if(!showDefaultBaseFoldersOnly && (StatsManager.RESOURCES_DIR.equals(s) || StatsManager.DROPBOX_DIR.equals(s) || StatsManager.ATTACHMENTS_DIR.equals(s))){
+				filesEncoded.append(s + siteId + "/");
+			}else{
 				filesEncoded.append(s);
 			}
 		}
@@ -136,7 +148,7 @@ public class FileSelectorPanel extends Panel {
 		container.getHeaderResponse().renderJavascriptReference("/sakai-sitestats-tool/html/components/jqueryFileTree/jqueryFileTree.js");
 		container.getHeaderResponse().renderCSSReference("/sakai-sitestats-tool/html/components/jqueryFileTree/jqueryFileTree.css");
 		StringBuilder onDomReady = new StringBuilder();
-		onDomReady.append("jQuery('#container').fileTree(");
+		onDomReady.append("jQuery('#containerInner').fileTree(");
 		onDomReady.append("  {root: '");
 		onDomReady.append(BASE_DIR);
 		onDomReady.append("', script: '");
@@ -150,14 +162,23 @@ public class FileSelectorPanel extends Panel {
 	
 	private List<CHResourceModel> getResources(String dir) throws IdUnusedException, TypeException, PermissionException {
 		List<CHResourceModel> resourcesList = new ArrayList<CHResourceModel>();
-		String resourcesCollectionId = facade.getContentHostingService().getSiteCollection(siteId);
-		String dropboxCollectionId = facade.getContentHostingService().getDropboxCollection(siteId);
-		String attachmentsCollectionId = resourcesCollectionId.replaceFirst(RESOURCES_DIR, ATTACHMENTS_DIR);
+		String resourcesCollectionId = null;
+		String dropboxCollectionId = null;
+		String attachmentsCollectionId = null;
+		if(!showDefaultBaseFoldersOnly) {
+			resourcesCollectionId = facade.getContentHostingService().getSiteCollection(siteId);
+			dropboxCollectionId = facade.getContentHostingService().getDropboxCollection(siteId);
+			attachmentsCollectionId = resourcesCollectionId.replaceFirst(StatsManager.RESOURCES_DIR, StatsManager.ATTACHMENTS_DIR);
+		}else{
+			resourcesCollectionId = StatsManager.RESOURCES_DIR;
+			dropboxCollectionId = StatsManager.DROPBOX_DIR;
+			attachmentsCollectionId = StatsManager.ATTACHMENTS_DIR;
+		}
 		if(dir.equals(BASE_DIR)) {
 			resourcesList.add(new CHResourceModel(resourcesCollectionId, facade.getToolManager().getTool(StatsManager.RESOURCES_TOOLID).getTitle()/*(String) new ResourceModel("report_content_resources").getObject()*/, true));
 			resourcesList.add(new CHResourceModel(dropboxCollectionId, facade.getToolManager().getTool(StatsManager.DROPBOX_TOOLID).getTitle()/*(String) new ResourceModel("report_content_dropbox").getObject()*/, true));
 			resourcesList.add(new CHResourceModel(attachmentsCollectionId, (String) new ResourceModel("report_content_attachments").getObject(), true));
-		}else{
+		}else if(!showDefaultBaseFoldersOnly) {
 			ContentCollection collection = facade.getContentHostingService().getCollection(dir);
 			if(collection != null) {
 				List<ContentEntity> members = collection.getMemberResources();
@@ -211,11 +232,16 @@ public class FileSelectorPanel extends Panel {
 						if(!expandToSelection 
 							|| (expandToSelection && !isFolderPartOfSelectedFiles(rm.getResourceId()))								
 						) {
-							String collectionMarkup = "  <li class=\"directory collapsed\"><a href=\"#\" rel=\""+rm.getResourceId()+"\">"+rm.getResourceNameEscaped()+"</a></li>";
-							out.write(collectionMarkup.getBytes(encoding));
+							StringBuilder collectionMarkup = new StringBuilder();
+							collectionMarkup.append("  <li class=\"directory collapsed\">");
+							collectionMarkup.append("    <input type=\"checkbox\" value=\""+rm.getResourceId()+"\" "+ (isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "") +"onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>");
+							collectionMarkup.append("    <a href=\"#\" rel=\""+rm.getResourceId()+"\">"+rm.getResourceNameEscaped()+"</a>");
+							collectionMarkup.append("  </li>");
+							out.write(collectionMarkup.toString().getBytes(encoding));
 						}else{
 							StringBuilder collectionMarkup = new StringBuilder();
 							collectionMarkup.append("  <li class=\"directory expanded\"  style=\"position: static;\">");
+							collectionMarkup.append("    <input type=\"checkbox\" value=\""+rm.getResourceId()+"\" "+ (isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "") +"onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>");
 							collectionMarkup.append("    <a href=\"#\" rel=\""+rm.getResourceId()+"\">"+rm.getResourceNameEscaped()+"</a>");
 							collectionMarkup.append("    <ul style=\"display: block;\" class=\"jqueryFileTree\">");
 							out.write(collectionMarkup.toString().getBytes(encoding));

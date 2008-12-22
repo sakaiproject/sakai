@@ -52,6 +52,9 @@ public interface StatsManager {
 	public static final String			CHARTTYPE_BAR				= "bar";
 	public static final String			CHARTTYPE_PIE				= "pie";
 	public static final String			CHARTTYPE_TIMESERIES		= "timeseries";
+	public static final String			RESOURCES_DIR				= "/group/";
+	public static final String			DROPBOX_DIR					= "/group-user/";
+	public static final String			ATTACHMENTS_DIR				= "/attachment/";
 	public static final int				Q_TYPE_EVENT				= 0;
 	public static final int				Q_TYPE_RESOURCE				= 1;
 	public static final String			T_NONE						= "none";

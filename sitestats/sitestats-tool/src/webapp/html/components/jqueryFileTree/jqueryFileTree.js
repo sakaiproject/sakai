@@ -70,7 +70,7 @@ if(jQuery) (function($){
 									$(this).parent().parent().find('UL:first').slideUp({ duration: o.collapseSpeed, easing: o.collapseEasing });
 									$(this).parent().parent().find('LI.directory').removeClass('expanded').addClass('collapsed');
 								}
-								if($(this).parent().children().size() <= 1) {
+								if($(this).parent().children().size() <= 2) {
 					                // load new content
 					                $(this).parent().find('UL:first').remove(); // cleanup
 					                //showTree( $(this).parent(), escape($(this).attr('rel').match( /.*\// )) );

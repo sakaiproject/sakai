@@ -12,6 +12,9 @@
 			         display: block;
 			         margin: 0.1em 0.3em;
 			      }
+			      #containerInner {
+                    margin-left: -17px; 
+                  }
 			      .containerHover{
 			         background-color:#D4D0C8;
 					 height:214px;
@@ -50,7 +53,9 @@
     <wicket:body>
 		<wicket:panel>
 		      <div wicket:id="containerHover" class="containerHover" style="display:none"></div>
-		      <div id="container"></div>
+		      <div id="container">
+		          <div id="containerInner"></div>
+		      </div>
 		      <input class="selectedFiles" wicket:id="selectedFiles" type="hidden"/>
 		</wicket:panel>
     </wicket:body>
