@@ -173,7 +173,7 @@ public class Part extends edu.indiana.lib.osid.base.repository.Part
     public java.io.Serializable getValue()
     throws org.osid.repository.RepositoryException
     {
-    		_log.debug("Part.getValue() = " + (String) value);
+//    		_log.debug("Part.getValue() = " + (String) value);
         return this.value;
     }
 
