@@ -23,6 +23,7 @@ public class Friend implements Serializable {
 	private boolean confirmed;
 	private byte[] photo;
 	
+	
 	public String getUserUuid() {
 		return userUuid;
 	}

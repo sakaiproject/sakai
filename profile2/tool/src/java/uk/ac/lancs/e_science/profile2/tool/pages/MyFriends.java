@@ -63,26 +63,6 @@ public class MyFriends extends BasePage {
             }
         });
 		
-		//get photo and add to page, otherwise add default image
-		/*
-		pictureBytes = sakaiPerson.getJpegPhoto();
-		
-		if(pictureBytes != null && pictureBytes.length > 0){
-		
-			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
-				protected byte[] getImageData() {
-					return pictureBytes;
-				}
-			};
-		
-			add(new Image("photo",photoResource));
-		} else {
-			log.info("No photo for " + userId + ". Using blank image.");
-			add(new ContextImage("photo",new Model(UNAVAILABLE_IMAGE)));
-		}
-		*/
-		
-		
 		
 		//get friends for user
 		List<Friend> friends = new ArrayList<Friend>(profile.getFriendsForUser(userId, 0));
@@ -105,7 +85,11 @@ public class MyFriends extends BasePage {
 		    	String statusMessage = friend.getStatusMessage();
 		    	Date statusDate = friend.getStatusDate();
 		    	boolean confirmed = friend.isConfirmed();
-		    	final byte[] photo = friend.getPhoto();
+		    	//final byte[] photo = friend.getPhoto();
+		    	
+		    	final byte[] photo = null;
+		    	
+		    	System.out.println(displayName + " " + friend.getUserUuid());
 		    	
 		    	//name
 		    	Label nameLabel = new Label("name", displayName);
@@ -118,7 +102,11 @@ public class MyFriends extends BasePage {
 		    	//statusDate - no default value, set it later
 		    	Label statusDateLabel = new Label("statusDate");
 		    	item.add(statusDateLabel);
-		    			    	
+		    	
+		    	
+		    	
+		    	
+		    	
 		    	//photo
 		    	if(photo != null && photo.length > 0){
 		    		
@@ -172,7 +160,6 @@ public class MyFriends extends BasePage {
 		    }
 		};
 		add(listview);
-		
 		
        
 	    		

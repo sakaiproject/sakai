@@ -21,28 +21,33 @@
 		<property name="confirmed" column="CONFIRMED" not-null="true"/>
 	    <property name="confirmedDate" column="CONFIRMED_DATE" not-null="false" />
 
+  		
   	</class>
   	
   	
+  	<!-- 
   	<class name="Friend" table="PROFILE_FRIENDS_T">
 
-	    <id name="userUuid">
-			<column name="USER_UUID"/>
+	    <id name="id">
+			<column name="ID"/>
 		</id>
+		
+		<property name="confirmed" />
 	
 	    <join table="PROFILE_STATUS_T">
-	        <key column="USER_UUID"/>
-	        <property name="confirmed"/>
-	        <property name="statusMessage"/>
-	        <property name="statusDate"/>
+	        <key property-ref="userUuid" column="USER_UUID" />
+	        <property name="statusMessage" column="MESSAGE" />
+	        <property name="statusDate" column="DATE_ADDED" />
 	    </join>
-	    
+
 	    <join table="SAKAI_PERSON_T">
-	        <key column="AGENT_UUID"/>
-	        <property name="photo"/>
+	        <key property-ref="userUuid" column="AGENT_UUID" />
+	        <property name="photo" column="JPEG_PHOTO" />
 	    </join>
     </class>
-  	
+	-->
+
+	<!-- original
 	<sql-query name="getFriendsForUser">
 		<return alias="friend" class="Friend"/>
     	<![CDATA[
@@ -51,14 +56,41 @@
 		select PROFILE_FRIENDS_T.USER_UUID as {friend.userUuid}, PROFILE_FRIENDS_T.CONFIRMED as {friend.confirmed}, PROFILE_STATUS_T.MESSAGE as {friend.statusMessage}, PROFILE_STATUS_T.DATE_ADDED as {friend.statusDate}, SAKAI_PERSON_T.JPEG_PHOTO as {friend.photo} from PROFILE_FRIENDS_T left join PROFILE_STATUS_T on PROFILE_FRIENDS_T.USER_UUID=PROFILE_STATUS_T.USER_UUID left join SAKAI_PERSON_T on PROFILE_FRIENDS_T.FRIEND_UUID=SAKAI_PERSON_T.AGENT_UUID where PROFILE_FRIENDS_T.FRIEND_UUID = :friendUuid 
 		]]>
 	</sql-query>
+	-->
+
 	<!-- 
-	
-	union 
-		select PROFILE_FRIENDS_T.USER_UUID, PROFILE_FRIENDS_T.CONFIRMED, PROFILE_STATUS_T.MESSAGE, PROFILE_STATUS_T.DATE_ADDED from PROFILE_FRIENDS_T left join PROFILE_STATUS_T on PROFILE_FRIENDS_T.USER_UUID=PROFILE_STATUS_T.USER_UUID where PROFILE_FRIENDS_T.FRIEND_UUID = :friendUuid 
-    	
-	
-	
-	 -->
+	<sql-query name="getFriendsForUser">
+    	<![CDATA[
+    	select PROFILE_FRIENDS_T.FRIEND_UUID from PROFILE_FRIENDS_T where PROFILE_FRIENDS_T.USER_UUID = :userUuid 
+		]]>
+	</sql-query>
+	-->
+
+
+
+<!-- 
+<resultset name="personAddress">
+    <return alias="person" class="eg.Person"/>
+    <return-join alias="address" property="person.mailingAddress"/>
+</resultset>
+
+<sql-query name="personsWith" resultset-ref="personAddress">
+    SELECT person.NAME AS {person.name},
+           person.AGE AS {person.age},
+           person.SEX AS {person.sex},
+           address.STREET AS {address.street},
+           address.CITY AS {address.city},
+           address.STATE AS {address.state},
+           address.ZIP AS {address.zip}
+    FROM PERSON person
+    JOIN ADDRESS address
+        ON person.ID = address.PERSON_ID AND address.TYPE='MAILING'
+    WHERE person.NAME LIKE :namePattern
+</sql-query>
+
+-->
+
+
 	<!-- 
 	<sql-query name="persons">
     <return alias="person" class="eg.Person"/>
@@ -69,8 +101,15 @@
     WHERE person.NAME LIKE :namePattern
 </sql-query>
 -->
-	
-	
+	<!-- 
+	<sql-query name="getFriendsForUser">
+    	<![CDATA[
+    	select PROFILE_FRIENDS_T.FRIEND_UUID, PROFILE_FRIENDS_T.CONFIRMED, PROFILE_STATUS_T.MESSAGE, PROFILE_STATUS_T.DATE_ADDED, SAKAI_PERSON_T.JPEG_PHOTO from PROFILE_FRIENDS_T left join PROFILE_STATUS_T on PROFILE_FRIENDS_T.FRIEND_UUID=PROFILE_STATUS_T.USER_UUID left join SAKAI_PERSON_T on PROFILE_FRIENDS_T.FRIEND_UUID=SAKAI_PERSON_T.AGENT_UUID where PROFILE_FRIENDS_T.USER_UUID = :userUuid 
+		union
+		select PROFILE_FRIENDS_T.USER_UUID, PROFILE_FRIENDS_T.CONFIRMED, PROFILE_STATUS_T.MESSAGE, PROFILE_STATUS_T.DATE_ADDED, SAKAI_PERSON_T.JPEG_PHOTO from PROFILE_FRIENDS_T left join PROFILE_STATUS_T on PROFILE_FRIENDS_T.USER_UUID=PROFILE_STATUS_T.USER_UUID left join SAKAI_PERSON_T on PROFILE_FRIENDS_T.FRIEND_UUID=SAKAI_PERSON_T.AGENT_UUID where PROFILE_FRIENDS_T.FRIEND_UUID = :friendUuid 
+		]]>
+	</sql-query>
+	-->
 	
 	
 	

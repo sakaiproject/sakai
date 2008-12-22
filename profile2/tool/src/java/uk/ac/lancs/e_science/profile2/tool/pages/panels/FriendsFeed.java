@@ -38,12 +38,11 @@ public class FriendsFeed extends Panel {
 		
 
 		
-		
 		//get randomised set of friends for this user, in future, list may be according to some rules		
 		Label heading = new Label("heading", new ResourceModel("heading.feed.friends"));
 		add(heading);
 		
-		
+		/*
 		
 		//get our list of friends as an IDataProvider
 		FriendDataProvider provider = new FriendDataProvider(userId, profile);
@@ -92,7 +91,7 @@ public class FriendsFeed extends Panel {
 		
 		dataView.setColumns(3);
 		add(dataView);
-		
+		*/
 	}
 	
 	

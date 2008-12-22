@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -20,6 +21,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -148,14 +150,46 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null Argument in getFriendsForUser");
 	  	}
-		List<Friend> friends = new ArrayList(); 
-	
+		
+		List<Friend> friends = new ArrayList();
+			
 		//get friends of this user - Hibernate maps it to the Friend object automatically via the hbm mappings
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIENDS_FOR_USER);
+	  			
+	  			Query q = session.createSQLQuery("select PROFILE_FRIENDS_T.FRIEND_UUID as userUuid, PROFILE_FRIENDS_T.CONFIRMED as confirmed, PROFILE_STATUS_T.MESSAGE as statusMessage, PROFILE_STATUS_T.DATE_ADDED as statusDate from PROFILE_FRIENDS_T left join PROFILE_STATUS_T on PROFILE_FRIENDS_T.FRIEND_UUID=PROFILE_STATUS_T.USER_UUID where PROFILE_FRIENDS_T.USER_UUID = :userUuid");
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(FRIEND_UUID, userId, Hibernate.STRING);
+	  			
+	  			q.setResultTransformer(Transformers.aliasToBean(Friend.class));
+
+	  			
+	  			
+	  			//.addScalar("SAKAI_PERSON_T.JPEG_PHOTO", Hibernate.BLOB);
+	  			
+	  			/*
+	  			List insurance = session.createSQLQuery ("select  {ins.*}  from insurance ins")
+	  			      .addEntity("ins", Insurance.class)
+	  			        .list();
+	  			      for (Iterator it = 
+	  			insurance.iterator(); it.hasNext();) {
+	  			        Insurance insuranceObject
+	  			 = (Insurance) it.next();
+	  			        System.out.println("ID: " 
+	  			+ insuranceObject.getLngInsuranceId());
+	  			        System.out.println("Name: 
+	  			" + insuranceObject.getInsuranceName());
+	  			      }
+	  			*/
+	  			
+	  			
+	  			//Query q = session.getNamedQuery(QUERY_GET_FRIENDS_FOR_USER);
+	  			
+	  			
+	  			
+	  			
+	  			//q.setParameter(FRIEND_UUID, userId, Hibernate.STRING);
+	  			
+	  			
 	  			
 	  			//limit of 0 = unlimited, else set limit
 	  			if(limit > 0) {
@@ -167,7 +201,22 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  	};
 	  	
 	  	friends = (List<Friend>) getHibernateTemplate().executeFind(hcb);
-	  	
+	  	/*
+	  	List<Friend> friends = new ArrayList(); 
+	  
+	  	for (Iterator it = rows.iterator(); it.hasNext();) {
+	  		Object[] row = (Object[])it.next();
+	  		
+	  		Friend friend = new Friend();
+			friend.setUserUuid((String)row[0]);	
+			friend.setConfirmed((Boolean)row[1]);	
+			friend.setStatusMessage((String)row[2]);
+			friend.setStatusDate((Date)row[3]);
+			//friend.setPhoto((byte[]) row[4]);
+			friends.add(friend);
+	  		
+	  	}
+	  	*/
 	  	return friends;
 
 	}
