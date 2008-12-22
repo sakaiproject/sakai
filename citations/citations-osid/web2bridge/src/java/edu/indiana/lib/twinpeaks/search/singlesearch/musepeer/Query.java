@@ -211,9 +211,11 @@ public class Query extends HttpTransactionQueryBase
 
 			doProgressCommand();
 			submit();
-
+      /*
+       * Try to wait for a complete set of responses
+       */
 		  sleepCount = 0;
-		  sleepLimit = 5 + getTargetCount();
+		  sleepLimit = 8;
 
 		  done = setStatus(getResponseDocument());
 
@@ -530,16 +532,13 @@ public class Query extends HttpTransactionQueryBase
    */
   private String getPageSize()
   {
-    return "50";
-/***
     int targets   = StatusUtils.getActiveTargetCount(getSessionContext());
     int pageSize  = targets * 10;
 
-    if (pageSize < 50)  pageSize = 50;
-    if (pageSize > 100) pageSize = 100;
+    if (pageSize < 30) pageSize = 30;
+    if (pageSize > 50) pageSize = 50;
 
     return String.valueOf(pageSize);
-***/
   }
 
 	/**
@@ -1142,26 +1141,42 @@ public class Query extends HttpTransactionQueryBase
 			/*
 			 * Target (database)
 			 */
-			element = DomUtils.selectFirstElementByAttributeValue (recordElement, "ENTRY", "key", "targetID");
+			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
+			                                                      "ENTRY",
+			                                                      "key", "targetID");
 			target	= DomUtils.getText(element);
 			map 	  = StatusUtils.getStatusMapForTarget(getSessionContext(), target);
 			/*
-			 * Percent complete
+			 * Get the current search status (we show this as "percent complete")
 			 */
-			element = DomUtils.selectFirstElementByAttributeValue (recordElement, "ENTRY", "key", "status");
-
+			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
+			                                                       "ENTRY",
+			                                                       "key", "status");
 			if ((status	= DomUtils.getText(element)) == null)
 			{
 				status = "0";
+				/*
+				 * No status value - did the search ever start?
+				 */
+  			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
+	  		                                                      "ENTRY",
+		  	                                                      "key", "message");
+			  if ((text	= DomUtils.getText(element)) != null)
+			  {
+				  if ("Not Started".equals(text))
+				  {
+				    status = "100";
+			    }
+		    }
 			}
 			map.put("PERCENT_COMPLETE", status);
       /*
-       * Does the server status say we're done?
+       * Is this search complete?
        */
-  		if ("100".equals(status))
-  		{
-  		  complete++;
-  		}
+			if ("100".equals(status))
+      {
+        complete++;
+      }
 			/*
 			 * Estimated match count
 			 */
@@ -1188,33 +1203,30 @@ public class Query extends HttpTransactionQueryBase
 			}
 			hits = Integer.parseInt(text);
 			/*
-			 * Do final hit & estimate only of the server status is "finished"
+			 * Do final hit and estimate totals
 			 */
  			map.put("STATUS", "DONE");
-
-			if ("100".equals(status))
+      /*
+       * If we have hits, add this estimate to the grand total
+       */
+      if (hits > 0)
       {
-        /*
-         * If we have hits, add this estimate to the grand total
-         */
-        if (hits > 0)
-        {
-     			total	+= estimate;
-        }
-  			/*
-  			 * This search target is active only if there are records available
-  			 */
-  			if ((estimate > 0) && (hits > 0))
-  			{
-  				map.put("STATUS", "ACTIVE");
-  				active++;
-  			}
+   			total	+= estimate;
       }
-			_log.debug("****** Target: "
-			        +  target
-			        +  ", status = "
-			        +  map.get("STATUS"));
-		}
+			/*
+			 * This search target is active only if there are records available
+			 */
+			if ((estimate > 0) && (hits > 0))
+			{
+				map.put("STATUS", "ACTIVE");
+				active++;
+			}
+
+  		_log.debug("****** Target: "
+  		        +  target
+  		        +  ", status = "
+  		        +  map.get("STATUS"));
+    }
 		/*
 		 * Save in session context:
 		 *
