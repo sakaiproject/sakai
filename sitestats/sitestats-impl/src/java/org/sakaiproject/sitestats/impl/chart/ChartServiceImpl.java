@@ -56,6 +56,7 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYDataset;
+import org.jfree.ui.HorizontalAlignment;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.SortOrder;
 import org.jfree.util.TableOrder;
@@ -282,6 +283,10 @@ public class ChartServiceImpl implements ChartService {
 		chart.setPadding(new RectangleInsets(10,5,5,5));
 		chart.setBorderVisible(true);
 		chart.setBorderPaint(parseColor("#cccccc"));
+		
+		// allow longer legends (prevent truncation)
+		plot.getDomainAxis().setMaximumCategoryLabelLines(50);
+		plot.getDomainAxis().setMaximumCategoryLabelWidthRatio(1.0f);
 		
 		// set antialias
 		chart.setAntiAlias(true);
