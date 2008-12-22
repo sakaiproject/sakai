@@ -251,6 +251,25 @@ public class ReportsPage extends BasePage {
 			}
 			hide.add(hideLabel);
 			
+			// duplicate
+			WebMarkupContainer duplicateContainer = new WebMarkupContainer("duplicateContainer");
+			add(duplicateContainer);
+			Link duplicate = new Link("duplicate") {
+				private static final long	serialVersionUID	= 1L;
+				@Override
+				public void onClick() {
+					reportDef.setId(0);
+					String copyTitle = new StringResourceModel("report_duplicate_name", getPage(), model).getString();
+					reportDef.setTitle(copyTitle);
+					if(isPredefinedReport && !isSiteStatsAdminPage) {
+						reportDef.setSiteId(siteId);
+						reportDef.getReportParams().setSiteId(siteId);
+					}
+					facade.getReportManager().saveReportDefinition(reportDef);
+				}	
+			};
+			duplicateContainer.add(duplicate);
+			
 			// delete
 			WebMarkupContainer deleteContainer = new WebMarkupContainer("deleteContainer");
 			deleteContainer.setVisible(!isPredefinedReport || (isPredefinedReport && isSiteStatsAdminPage && realSiteId.equals(siteId)));
