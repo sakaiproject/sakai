@@ -217,13 +217,10 @@ public class Query extends HttpTransactionQueryBase
 		  sleepCount = 0;
 		  sleepLimit = 5;
 
-		  done = false; //setStatus(getResponseDocument());
-
+		  done = setStatus(getResponseDocument());
       while (!done && (sleepCount++ < sleepLimit))
 			{
-				_log.debug("Status is not finished");
-				displayXml("Progress", getResponseDocument());
-
+			  displayXml("Progress", getResponseDocument());
 				try
 				{
 					Thread.sleep(1000);
@@ -231,15 +228,16 @@ public class Query extends HttpTransactionQueryBase
 				}
 				catch (InterruptedException ignore) { }
 
+  			clearParameters();
 				doProgressCommand();
 				submit();
 
   		  done = setStatus(getResponseDocument());
 			}
 
-			displayXml("Final Status", getResponseDocument());
-			validateResponse("PROGRESS");
+		  displayXml("Status done", getResponseDocument());
 
+			validateResponse("PROGRESS");
 			return;
 		}
 		/*
@@ -532,9 +530,9 @@ public class Query extends HttpTransactionQueryBase
   private String getPageSize()
   {
     int targets   = StatusUtils.getActiveTargetCount(getSessionContext());
-    int pageSize  = targets * 25;
+    int pageSize  = targets * 20;
 
-    return String.valueOf(Math.min(pageSize, 10));
+    return String.valueOf(Math.min(pageSize, 50));
   }
 
 	/**
