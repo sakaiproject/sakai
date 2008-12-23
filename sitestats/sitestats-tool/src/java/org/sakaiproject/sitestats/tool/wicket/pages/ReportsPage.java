@@ -258,8 +258,15 @@ public class ReportsPage extends BasePage {
 				private static final long	serialVersionUID	= 1L;
 				@Override
 				public void onClick() {
+					String originalTitle = "";
+					if(reportDef.isTitleLocalized()) {
+						originalTitle = (String) new ResourceModel(reportDef.getTitleBundleKey()).getObject();
+					}else{
+						originalTitle = reportDef.getTitle();
+					}
 					reportDef.setId(0);
-					String copyTitle = new StringResourceModel("report_duplicate_name", getPage(), model).getString();
+					String copyTitle = (String) new ResourceModel("report_duplicate_name").getObject();
+					copyTitle = copyTitle.replaceAll("\\$\\{title\\}", originalTitle);
 					reportDef.setTitle(copyTitle);
 					if(isPredefinedReport && !isSiteStatsAdminPage) {
 						reportDef.setSiteId(siteId);
