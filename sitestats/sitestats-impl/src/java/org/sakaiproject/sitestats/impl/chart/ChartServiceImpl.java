@@ -249,7 +249,7 @@ public class ChartServiceImpl implements ChartService {
 					report.getReportDefinition().getReportParams().getSiteId(), dataset, chartType,
 					width, height,
 					render3d, transparency,
-					itemLabelsVisible
+					/*itemLabelsVisible*/ true
 					);
 		}else{		
 			LOG.warn("Chart type "+chartType+" not supported: only line, bar, pie are supported.");
