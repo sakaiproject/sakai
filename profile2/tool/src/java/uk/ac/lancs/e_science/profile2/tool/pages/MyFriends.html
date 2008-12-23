@@ -20,25 +20,51 @@
 			 <!-- feedback panel -->
             <span class="alertMessage" wicket:id="feedbackPanel" style="clear:none;">[feedback panel]</span>
             
-            <div wicket:id="heading">[Friends]</div>
+            <!--  friend requests -->
+            <div wicket:id="friendRequests-container">
+            	<div wicket:id="friendRequests-heading">[Friend Requests]</div>
             
-            <div class="friendsList">
-				<div wicket:id="friendsList" class="friendsListItem">
-					<div class="friendsListPhoto">
-						<img wicket:id="photo"/>
-					</div>
-			    	<div class="friendsListInfo">
-			    		<span wicket:id="name" class="friendsListInfoName">[name]</span>
-			    		<span wicket:id="statusMessage" class="friendsListInfoStatus">[status]</span>
-			    		<span wicket:id="statusDate" class="friendsListInfoStatusDate">[statusDate]</span>
-			    		
-			    	</div>
-			    	<div class="friendsListActions">
-			    		<a wicket:id="removeLink"><span wicket:id="remove">[remove]</span></a>
-			    	</div>
-			  	</div>
+	            <div class="friendsList">
+					<div wicket:id="friendRequests-list" class="friendsListItem">
+						<div class="friendsListPhoto">
+							<img wicket:id="friendRequest-photo"/>
+						</div>
+				    	<div class="friendsListInfo">
+				    		<span wicket:id="friendRequest-name" class="friendsListInfoName">[name]</span>
+				    	</div>
+				    	<div class="friendsListActions">
+				    		<a wicket:id="friendRequest-confirmLink"><span wicket:id="friendRequest-confirm">[confirm]</span></a>
+				    	</div>
+				  	</div>
+				</div>
 			</div>
-			<div wicket:id="removeFriendWindow"></div>
+			
+			<!--  friends -->
+			<div wicket:id="friends-container">
+				<div wicket:id="friends-heading">[Friends]</div>
+	            
+	            <div class="friendsList">
+					<div wicket:id="friends-list" class="friendsListItem">
+						<div class="friendsListPhoto">
+							<img wicket:id="friend-photo"/>
+						</div>
+				    	<div class="friendsListInfo">
+				    		<span wicket:id="friend-name" class="friendsListInfoName">[name]</span>
+				    		<span wicket:id="friend-statusMessage" class="friendsListInfoStatus">[status]</span>
+				    		<span wicket:id="friend-statusDate" class="friendsListInfoStatusDate">[statusDate]</span>
+				    	</div>
+				    	<div class="friendsListActions">
+				    		<span wicket:id="friend-confirmation">[Friend requested]</span>
+				    		<a wicket:id="friend-removeLink"><span wicket:id="friend-remove">[remove]</span></a>
+				    	</div>
+				  	</div>
+				</div>
+				
+				<div wicket:id="friend-removeWindow"></div>
+			</div>
+			
+			<span wicket:id="friends-none">[no friends]</span>
+			
 	
 		</div>
 		

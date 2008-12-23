@@ -22,6 +22,7 @@ public class Friend implements Serializable {
 	private Date statusDate;
 	private boolean confirmed;
 	private byte[] photo;
+	private Date requestedDate;
 	
 	
 	public String getUserUuid() {
@@ -59,6 +60,12 @@ public class Friend implements Serializable {
 	}
 	public byte[] getPhoto() {
 		return photo;
+	}
+	public void setRequestedDate(Date requestedDate) {
+		this.requestedDate = requestedDate;
+	}
+	public Date getRequestedDate() {
+		return requestedDate;
 	}
 
 }
