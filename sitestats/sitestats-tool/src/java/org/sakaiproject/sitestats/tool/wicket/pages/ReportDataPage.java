@@ -81,6 +81,7 @@ public class ReportDataPage extends BasePage {
 
 	private AbstractDefaultAjaxBehavior	chartSizeBehavior	= null;
 	private AjaxLazyLoadImage			reportChart			= null;
+	private BufferedImage				chartImage			= null;
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
 	private int							maximizedWidth		= 0;
@@ -190,11 +191,11 @@ public class ReportDataPage extends BasePage {
 		if(ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
 				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode()) ) {
 			reportChart.setVisible(true);
-			// Report: chart ajax behavior now that we already have report data
-			renderAjaxBehavior();
 		}else{
 			reportChart.setVisible(false);
 		}
+		// Report: chart ajax behavior now that we already have report data
+		renderAjaxBehavior();
 			
 		
 		// Report: table
@@ -430,15 +431,17 @@ public class ReportDataPage extends BasePage {
 	}
 	
 	private BufferedImage getChartImage(int width, int height) {
-		PrefsData prefsData = facade.getStatsManager().getPreferences(siteId, false);
-		int _width = (width <= 0) ? 350 : width;
-		int _height = (height <= 0) ? 200: height;
-		BufferedImage img = facade.getChartService().generateChart(
-				report, _width, _height,
-				prefsData.isChartIn3D(), prefsData.getChartTransparency(),
-				prefsData.isItemLabelsVisible()
-		);
-		return img;
+		if(chartImage == null) {
+			PrefsData prefsData = facade.getStatsManager().getPreferences(siteId, false);
+			int _width = (width <= 0) ? 350 : width;
+			int _height = (height <= 0) ? 200: height;
+			chartImage = facade.getChartService().generateChart(
+					report, _width, _height,
+					prefsData.isChartIn3D(), prefsData.getChartTransparency(),
+					prefsData.isItemLabelsVisible()
+			);
+		}
+		return chartImage;
 	}
 	
 	@SuppressWarnings("serial")
