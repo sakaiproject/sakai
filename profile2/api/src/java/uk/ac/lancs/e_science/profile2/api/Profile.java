@@ -27,15 +27,25 @@ public interface Profile {
 	
 	
 	/**
-	 * Get a list of friend uuids that are friends with a given user. Uses a native SQL query so we can use unions
+	 * Get a list of Friends for a given user. Uses a native SQL query so we can use unions
+	 * Returns: (all those where userId is the user_uuid) & (all those where user is friend_uuid and confirmed=true)
+	 * This will then get all those that the user has confirmed as well as those that they have requested of others
+	 *  but may have not been confirmed yet.
 	 *
 	 * @param userId		uuid of the user to retrieve the list of friends for
 	 * @param limit			number of records to return or 0 for unlimited
 	 */
 	public List<Friend> getFriendsForUser(String userId, int limit);
 	
-	
-	
+	/**
+	 * Get a list of uncorfirmed Friend requests for a given user. Uses a native SQL query
+	 * Returns: (all those where userId is the friend_uuid and confirmed=false)
+	 *
+	 * @param userId		uuid of the user to retrieve the list of friends for
+	 * @param limit			number of records to return or 0 for unlimited
+	 */
+	public List<Friend> getFriendRequestsForUser(String userId);
+
 	/**
 	 * Make a request for friendId to be a friend of userId
 	 *
@@ -97,19 +107,9 @@ public interface Profile {
 	
 	
 	/**
-	 * Convert a date into a field like (today, yesterday, last week, etc)
+	 * Convert a date into a field like (just then, 2 minutes ago, 4 hours ago, yesterday, on sunday, etc)
 	 *
 	 * @param data		date to convert
-	 * 
-	 * convert the date out into a better format:
-		 * if today = 'today'
-		 * if yesterday = 'yesterday'
-		 * if this week = 'on Weekday'
-		 * if last week = 'last week'
-		 * past a week ago we don't display the status last updated
-		
-	 * 
-	 * 
 	 */
 	public String convertDateForStatus(Date date);
 	
