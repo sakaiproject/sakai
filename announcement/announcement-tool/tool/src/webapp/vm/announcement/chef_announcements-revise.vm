@@ -114,7 +114,41 @@ function resizeFrame(){
 </script>
 <script type="text/javascript" src="/library/js/jquery.js">
 </script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		#if($specify) 
+			$('.showHideDates').show()
+		#else
+			$('.showHideDates').hide()
+		#end
+		$('.showHide').click(function(){
+			if ($('.showHide:checked')){
+				$('.beginEnd').attr({checked:''});
+				$('.showHideDates').fadeOut('slow')
 
+			}
+		});	
+		$('#hidden_specify').click(function(){
+			if ($('#hidden_specify:checked')){
+				$('.showHideDates').fadeIn ('slow');
+				resizeFrame('grow')
+				
+			}
+		});	
+
+		
+		$('.beginEnd').click(function(){
+			if ($('.beginEnd:checked')){
+				//uncheck show hide radios
+				$('.showHide').attr({checked:''});
+				$('#hidden_specify').attr({checked:'checked'});
+				
+
+			}
+		});	
+		
+	});
+</script>	
 <div class="portletBody">
 	<h3>
 		#if ( $newAnn =="true")
@@ -269,52 +303,51 @@ function resizeFrame(){
 		#end
 ##
 ################### AVAILABLE section (to show/hide and set release/retract dates)
-
 			<h4>$tlang.getString("avail.title")</h4>
-			<table>
+			<table border="0" cellpadding="0">
 				<tr>
-					<td>
-						<input type="radio" name="hidden" id="hidden_false" value="false" #if(!$hidden)checked="checked" #end/>
+					<td style="padding:1px 0">
+						<input type="radio" class="showHide" name="hidden" id="hidden_false" value="false" #if(!$hidden)checked="checked" #end/>
 					</td>
-					<td colspan="4">
+					<td style="padding:1px 0"  colspan="4">
 						<label for="hidden_false">
 							$tlang.getString("avail.show")
 						</label>
 					</td>
 				</tr>
 				<tr>
-					<td>
-						<input type="radio" name="hidden" id="hidden_true" value="true" #if($hidden)checked="checked" #end/>
+					<td  style="padding:1px 0">
+						<input type="radio" class="showHide" name="hidden" id="hidden_true" value="true" #if($hidden)checked="checked" #end/>
 					</td>
-					<td colspan="4">
+					<td colspan="4"  style="padding:1px 0">
 						<label for="hidden_true">
 							$tlang.getString("avail.hide")
 						</label>
 					</td>
 				</tr>
 				<tr>
-					<td>
+					<td  style="padding:1px 0">
 						<input type="radio" name="hidden" id="hidden_specify" value="specify" #if($specify)checked="checked" #end/>
 					</td>
-					<td colspan="4">
+					<td colspan="4"  style="padding:1px 0">
 						<label for="hidden_specify">
 							$tlang.getString("avail.specify")
 						</label>
 					</td>
 				</tr>
-				<tr>
-					<td></td>
-					<td>
-						<input type="checkbox" name="use_start_date" id="use_start_date" value="true" #if($useReleaseDate == true)checked="checked" #end/>
+				<tr class="showHideDates">
+					<td  style="padding:1px 0"></td>
+					<td  style="padding:1px 0">
+						<input type="checkbox" class="beginEnd"  name="use_start_date" id="use_start_date" value="true" #if($useReleaseDate == true)checked="checked" #end/>
 					</td>
-					<td colspan="3">
+					<td colspan="3"  style="padding:1px 0">
 						<label for="use_start_date">$tlang.getString("avail.release")</label>
 					</td>
 				</tr>
-				<tr>
-					<td colspan="3"></td>
-					<td><label for="release_year">$tlang.getString("widget_date")</label></td>
-					<td><label for="release_hour">$tlang.getString("widget_time")</label></td>
+				<tr class="showHideDates">
+					<td colspan="3"  style="padding:1px 0"></td>
+					<td  style="padding:1px 0"><label for="release_year">$tlang.getString("widget_date")</label></td>
+					<td  style="padding:1px 0"><label for="release_hour">$tlang.getString("widget_time")</label></td>
 				</tr>
 
 				#set($yearX = $releaseDate.breakdownLocal().year)
@@ -322,28 +355,28 @@ function resizeFrame(){
 				#set($yearN = $yearX + 4)
 				#set($monthX = $releaseDate.breakdownLocal().month)
 				#set($dayX = $releaseDate.breakdownLocal().day)
-				<tr>
-					<td colspan="3"></td>
-					<td>
+				<tr class="showHideDates">
+					<td colspan="3"  style="padding:1px 0"></td>
+					<td  style="padding:1px 0">
 						#chef_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX $dateFormat "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
 					</td>
-					<td>
+					<td  style="padding:1px 0">
 						#custom_timeSelectionWidget("release" $releaseDate "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
 					</td>
 				</tr>
-				<tr>
-					<td></td>
-					<td>
-						<input type="checkbox" name="use_end_date" id="use_end_date" value="true" #if($useRetractDate == true)checked="checked" #end/>
+				<tr class="showHideDates">
+					<td  style="padding:1px 0"></td>
+					<td  style="padding:1px 0">
+						<input type="checkbox" class="beginEnd"  name="use_end_date" id="use_end_date" value="true" #if($useRetractDate == true)checked="checked" #end/>
 					</td>
-					<td colspan="4">
+					<td colspan="4"  style="padding:1px 0">
 						<label for="use_end_date">$tlang.getString("avail.retract")</label>
 					</td>
 				</tr>
-				<tr>
-					<td colspan="3"></td>
-					<td><label for="retract_year">$tlang.getString("widget_date")</label></td>
-					<td><label for="retract_time">$tlang.getString("widget_time")</label></td>
+				<tr class="showHideDates">
+					<td colspan="3"  style="padding:1px 0"></td>
+					<td  style="padding:1px 0"><label for="retract_year">$tlang.getString("widget_date")</label></td>
+					<td  style="padding:1px 0"><label for="retract_time">$tlang.getString("widget_time")</label></td>
 				</tr>
 
 				#set($yearX = $retractDate.breakdownLocal().year)
@@ -351,7 +384,7 @@ function resizeFrame(){
 				#set($yearN = $yearX + 4)
 				#set($monthX = $retractDate.breakdownLocal().month)
 				#set($dayX = $retractDate.breakdownLocal().day)
-				<tr>
+				<tr class="showHideDates">
 					<td colspan="3"></td>
 					<td>
 						#chef_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX $dateFormat "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;")
