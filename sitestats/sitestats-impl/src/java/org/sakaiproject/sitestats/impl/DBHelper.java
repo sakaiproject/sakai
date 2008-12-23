@@ -9,29 +9,39 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.db.api.SqlService;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 
 public class DBHelper {
-	private SqlService	M_sql;
-	private Log			LOG						= LogFactory.getLog(DBHelper.class);
-	private boolean		notifiedIndexesUpdate	= false;
+	private static Log		LOG						= LogFactory.getLog(DBHelper.class);
+	private static DBHelper	me						= null;
+	private static String	dbVendor				= null;
+	private static boolean	notifiedIndexesUpdate	= false;
 
-	public DBHelper(SqlService M_sql) {
-		this.M_sql = M_sql;
+	private DBHelper(String dbVendor) {
+		DBHelper.dbVendor = dbVendor;
+	}
+	
+	public static DBHelper getInstance(String dbVendor) {
+		if(me == null) {
+			me = new DBHelper(dbVendor);
+		}
+		return me;
 	}
 
-	public void updateIndexes() {
-		if(!M_sql.getVendor().equals("mysql") || !M_sql.getVendor().equals("oracle"))
+	public void updateIndexes(Session session) throws SQLException {
+		if(!dbVendor.equals("mysql") || !dbVendor.equals("oracle"))
 			return;
 		notifiedIndexesUpdate = false;
 		Connection c = null;
 		try{
-			c = M_sql.borrowConnection();
+			c = session.connection();
 			List<String> sstEventsIxs = listIndexes(c, "SST_EVENTS");
 			List<String> sstResourcesIxs = listIndexes(c, "SST_RESOURCES");
 			List<String> sstSiteActivityIxs = listIndexes(c, "SST_SITEACTIVITY");
 			List<String> sstSiteVisitsIxs = listIndexes(c, "SST_SITEVISITS");
+			List<String> sstReportsIxs = listIndexes(c, "SST_REPORTS");
 
 			// SST_EVENTS
 			if(sstEventsIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_EVENTS_SITE_ID_IX", "SITE_ID", "SST_EVENTS");
@@ -67,12 +77,16 @@ public class DBHelper {
 			if(sstSiteVisitsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
 			else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_DATE_ID_IX")) createIndex(c, "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
 
+			// SST_REPORTS
+			if(!sstReportsIxs.contains("SST_REPORTS_SITE_ID_IX")) createIndex(c, "SST_REPORTS_SITE_ID_IX", "SITE_ID", "SST_REPORTS");
+			
+		}catch(HibernateException e){
+			LOG.error("Error while updating indexes: no session", e);
 		}catch(Exception e){
 			LOG.error("Error while updating indexes", e);
-			e.printStackTrace();
 		}finally{
 			if(c != null)
-				M_sql.returnConnection(c);
+				c.close();
 		}
 	}
 
@@ -86,10 +100,10 @@ public class DBHelper {
 		List<String> indexes = new ArrayList<String>();
 		String sql = null;
 		int pos = 1;
-		if(M_sql.getVendor().equals("mysql")){
+		if(dbVendor.equals("mysql")){
 			sql = "show indexes from " + table;
 			pos = 3;
-		}else if(M_sql.getVendor().equals("oracle")){
+		}else if(dbVendor.equals("oracle")){
 			sql = "select * from all_indexes where table_name = '" + table + "'";
 			pos = 2;
 		}
@@ -135,8 +149,8 @@ public class DBHelper {
 	private void renameIndex(Connection c, String oldIndex, String newIndex, String field, String table) throws SQLException {
 		String sql = null;
 		notifyIndexesUpdate();
-		if(M_sql.getVendor().equals("mysql")) sql = "ALTER TABLE " + table + " DROP INDEX " + oldIndex + ", ADD INDEX " + newIndex + " USING BTREE(" + field + ")";
-		else if(M_sql.getVendor().equals("oracle")) sql = "ALTER INDEX " + oldIndex + " RENAME TO " + newIndex;
+		if(dbVendor.equals("mysql")) sql = "ALTER TABLE " + table + " DROP INDEX " + oldIndex + ", ADD INDEX " + newIndex + " USING BTREE(" + field + ")";
+		else if(dbVendor.equals("oracle")) sql = "ALTER INDEX " + oldIndex + " RENAME TO " + newIndex;
 		Statement st = null;
 		try{
 			st = c.createStatement();

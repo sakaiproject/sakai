@@ -23,9 +23,7 @@ import java.io.StringBufferInputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,12 +38,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.SettingsFactory;
 import org.hibernate.criterion.Expression;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.DialectFactory;
-import org.hibernate.transform.ResultTransformer;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -244,10 +237,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	// Spring init/destroy methods
 	// ################################################################	
 	public void init(){
-		// Create missing db indexes, if appropriate
-		if (autoDdl && M_sql != null) {
-			DBHelper dbHelper = new DBHelper(M_sql);
-			dbHelper.updateIndexes();
+		// Update db indexes, if needed
+		if (autoDdl) {
+			try{
+				DBHelper dbHelper = DBHelper.getInstance(getDbVendor()); 
+				dbHelper.updateIndexes(getHibernateTemplate().getSessionFactory().getCurrentSession());
+			}catch(SQLException e){
+				LOG.warn("Unable to update db indexes", e);
+			}			
 		}
 		
 		// Checks whether Event.getContext is implemented in Event (from Event API)
