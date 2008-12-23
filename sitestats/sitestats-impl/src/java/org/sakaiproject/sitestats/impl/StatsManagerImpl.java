@@ -1479,7 +1479,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				// user
 				if(totalsBy.contains(T_USER)) {
 					if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-						selectFields.add("case when s.eventId not in (:anonymousEvents) then s.userId else '-' end as user");
+						//selectFields.add("case when s.eventId not in (:anonymousEvents) then s.userId else '-' end as user");
+						selectFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END) as user");
 					}else{
 						selectFields.add("s.userId as user");
 					}
@@ -1628,7 +1629,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(totalsBy.contains(T_USER)) {
 				groupFields.add("s.userId");
 			}
-			if(queryType == Q_TYPE_EVENT && totalsBy.contains(T_EVENT)) {
+			if(queryType == Q_TYPE_EVENT && 
+					(totalsBy.contains(T_EVENT)
+							|| (!dbVendor.equals("mysql") && anonymousEvents != null && anonymousEvents.size() > 0) )
+			) {
 				groupFields.add("s.eventId");
 			}
 			if(queryType == Q_TYPE_RESOURCE && totalsBy.contains(T_RESOURCE)) {
