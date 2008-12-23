@@ -11,83 +11,95 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 
-public class DBHelper {
-	private static Log		LOG						= LogFactory.getLog(DBHelper.class);
-	private static DBHelper	me						= null;
-	private static String	dbVendor				= null;
-	private static boolean	notifiedIndexesUpdate	= false;
-
-	private DBHelper(String dbVendor) {
-		DBHelper.dbVendor = dbVendor;
-	}
+public class DBHelper extends HibernateDaoSupport {
+	private static Log	LOG						= LogFactory.getLog(DBHelper.class);
+	private boolean		autoDdl					= false;
+	private String		dbVendor				= null;
+	private boolean		notifiedIndexesUpdate	= false;
 	
-	public static DBHelper getInstance(String dbVendor) {
-		if(me == null) {
-			me = new DBHelper(dbVendor);
+
+	// ################################################################
+	// Spring bean methods
+	// ################################################################
+
+	public void init() {
+		dbVendor = getDbVendor();
+		autoDdl = getAutoDdl();
+		// update db indexes, if needed
+		if(autoDdl) {
+			updateIndexes();
 		}
-		return me;
 	}
 
-	public void updateIndexes(Session session) throws SQLException {
-		if(!dbVendor.equals("mysql") || !dbVendor.equals("oracle"))
+	public void updateIndexes() {
+		if(!dbVendor.equals("mysql") && !dbVendor.equals("oracle"))
 			return;
 		notifiedIndexesUpdate = false;
-		Connection c = null;
-		try{
-			c = session.connection();
-			List<String> sstEventsIxs = listIndexes(c, "SST_EVENTS");
-			List<String> sstResourcesIxs = listIndexes(c, "SST_RESOURCES");
-			List<String> sstSiteActivityIxs = listIndexes(c, "SST_SITEACTIVITY");
-			List<String> sstSiteVisitsIxs = listIndexes(c, "SST_SITEVISITS");
-			List<String> sstReportsIxs = listIndexes(c, "SST_REPORTS");
-
-			// SST_EVENTS
-			if(sstEventsIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_EVENTS_SITE_ID_IX", "SITE_ID", "SST_EVENTS");
-			else if(!sstEventsIxs.contains("SST_EVENTS_SITE_ID_IX")) createIndex(c, "SST_EVENTS_SITE_ID_IX", "SITE_ID", "SST_EVENTS");
-			if(sstEventsIxs.contains("USER_ID_IX")) renameIndex(c, "USER_ID_IX", "SST_EVENTS_USER_ID_IX", "USER_ID", "SST_EVENTS");
-			else if(!sstEventsIxs.contains("SST_EVENTS_USER_ID_IX")) createIndex(c, "SST_EVENTS_USER_ID_IX", "USER_ID", "SST_EVENTS");
-			if(sstEventsIxs.contains("EVENT_ID_IX")) renameIndex(c, "EVENT_ID_IX", "SST_EVENTS_EVENT_ID_IX", "EVENT_ID", "SST_EVENTS");
-			else if(!sstEventsIxs.contains("SST_EVENTS_EVENT_ID_IX")) createIndex(c, "SST_EVENTS_EVENT_ID_IX", "EVENT_ID", "SST_EVENTS");
-			if(sstEventsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_EVENTS_DATE_ID_IX", "EVENT_DATE", "SST_EVENTS");
-			else if(!sstEventsIxs.contains("SST_EVENTS_DATE_ID_IX")) createIndex(c, "SST_EVENTS_DATE_ID_IX", "EVENT_DATE", "SST_EVENTS");
-
-			// SST_RESOURCES
-			if(sstResourcesIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_RESOURCES_SITE_ID_IX", "SITE_ID", "SST_RESOURCES");
-			else if(!sstResourcesIxs.contains("SST_RESOURCES_SITE_ID_IX")) createIndex(c, "SST_RESOURCES_SITE_ID_IX", "SITE_ID", "SST_RESOURCES");
-			if(sstResourcesIxs.contains("USER_ID_IX")) renameIndex(c, "USER_ID_IX", "SST_RESOURCES_USER_ID_IX", "USER_ID", "SST_RESOURCES");
-			else if(!sstResourcesIxs.contains("SST_RESOURCES_USER_ID_IX")) createIndex(c, "SST_RESOURCES_USER_ID_IX", "USER_ID", "SST_RESOURCES");
-			if(sstResourcesIxs.contains("RES_ACT_IDX")) renameIndex(c, "RES_ACT_IDX", "SST_RESOURCES_RES_ACT_IDX", "RESOURCE_ACTION", "SST_RESOURCES");
-			else if(!sstResourcesIxs.contains("SST_RESOURCES_RES_ACT_IDX")) createIndex(c, "SST_RESOURCES_RES_ACT_IDX", "RESOURCE_ACTION", "SST_RESOURCES");
-			if(sstResourcesIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_RESOURCES_DATE_ID_IX", "RESOURCE_DATE", "SST_RESOURCES");
-			else if(!sstResourcesIxs.contains("SST_RESOURCES_DATE_ID_IX")) createIndex(c, "SST_RESOURCES_DATE_ID_IX", "RESOURCE_DATE", "SST_RESOURCES");
-
-			// SST_SITEACTIVITY
-			if(sstSiteActivityIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_SITEACTIVITY_SITE_ID_IX", "SITE_ID", "SST_SITEACTIVITY");
-			else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_SITE_ID_IX")) createIndex(c, "SST_SITEACTIVITY_SITE_ID_IX", "SITE_ID", "SST_SITEACTIVITY");
-			if(sstSiteActivityIxs.contains("EVENT_ID_IX")) renameIndex(c, "EVENT_ID_IX", "SST_SITEACTIVITY_EVENT_ID_IX", "EVENT_ID", "SST_SITEACTIVITY");
-			else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_EVENT_ID_IX")) createIndex(c, "SST_SITEACTIVITY_EVENT_ID_IX", "EVENT_ID", "SST_SITEACTIVITY");
-			if(sstSiteActivityIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEACTIVITY_DATE_ID_IX", "ACTIVITY_DATE", "SST_SITEACTIVITY");
-			else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_DATE_ID_IX")) createIndex(c, "SST_SITEACTIVITY_DATE_ID_IX", "ACTIVITY_DATE", "SST_SITEACTIVITY");
-
-			// SST_SITEVISITS
-			if(sstSiteVisitsIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_SITEVISITS_SITE_ID_IX", "SITE_ID", "SST_SITEVISITS");
-			else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_SITE_ID_IX")) createIndex(c, "SST_SITEVISITS_SITE_ID_IX", "SITE_ID", "SST_SITEVISITS");
-			if(sstSiteVisitsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
-			else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_DATE_ID_IX")) createIndex(c, "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
-
-			// SST_REPORTS
-			if(!sstReportsIxs.contains("SST_REPORTS_SITE_ID_IX")) createIndex(c, "SST_REPORTS_SITE_ID_IX", "SITE_ID", "SST_REPORTS");
-			
-		}catch(HibernateException e){
-			LOG.error("Error while updating indexes: no session", e);
-		}catch(Exception e){
-			LOG.error("Error while updating indexes", e);
-		}finally{
-			if(c != null)
-				c.close();
-		}
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Connection c = null;
+				try{
+					c = session.connection();
+					List<String> sstEventsIxs = listIndexes(c, "SST_EVENTS");
+					List<String> sstResourcesIxs = listIndexes(c, "SST_RESOURCES");
+					List<String> sstSiteActivityIxs = listIndexes(c, "SST_SITEACTIVITY");
+					List<String> sstSiteVisitsIxs = listIndexes(c, "SST_SITEVISITS");
+					List<String> sstReportsIxs = listIndexes(c, "SST_REPORTS");
+		
+					// SST_EVENTS
+					if(sstEventsIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_EVENTS_SITE_ID_IX", "SITE_ID", "SST_EVENTS");
+					else if(!sstEventsIxs.contains("SST_EVENTS_SITE_ID_IX")) createIndex(c, "SST_EVENTS_SITE_ID_IX", "SITE_ID", "SST_EVENTS");
+					if(sstEventsIxs.contains("USER_ID_IX")) renameIndex(c, "USER_ID_IX", "SST_EVENTS_USER_ID_IX", "USER_ID", "SST_EVENTS");
+					else if(!sstEventsIxs.contains("SST_EVENTS_USER_ID_IX")) createIndex(c, "SST_EVENTS_USER_ID_IX", "USER_ID", "SST_EVENTS");
+					if(sstEventsIxs.contains("EVENT_ID_IX")) renameIndex(c, "EVENT_ID_IX", "SST_EVENTS_EVENT_ID_IX", "EVENT_ID", "SST_EVENTS");
+					else if(!sstEventsIxs.contains("SST_EVENTS_EVENT_ID_IX")) createIndex(c, "SST_EVENTS_EVENT_ID_IX", "EVENT_ID", "SST_EVENTS");
+					if(sstEventsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_EVENTS_DATE_ID_IX", "EVENT_DATE", "SST_EVENTS");
+					else if(!sstEventsIxs.contains("SST_EVENTS_DATE_ID_IX")) createIndex(c, "SST_EVENTS_DATE_ID_IX", "EVENT_DATE", "SST_EVENTS");
+		
+					// SST_RESOURCES
+					if(sstResourcesIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_RESOURCES_SITE_ID_IX", "SITE_ID", "SST_RESOURCES");
+					else if(!sstResourcesIxs.contains("SST_RESOURCES_SITE_ID_IX")) createIndex(c, "SST_RESOURCES_SITE_ID_IX", "SITE_ID", "SST_RESOURCES");
+					if(sstResourcesIxs.contains("USER_ID_IX")) renameIndex(c, "USER_ID_IX", "SST_RESOURCES_USER_ID_IX", "USER_ID", "SST_RESOURCES");
+					else if(!sstResourcesIxs.contains("SST_RESOURCES_USER_ID_IX")) createIndex(c, "SST_RESOURCES_USER_ID_IX", "USER_ID", "SST_RESOURCES");
+					if(sstResourcesIxs.contains("RES_ACT_IDX")) renameIndex(c, "RES_ACT_IDX", "SST_RESOURCES_RES_ACT_IDX", "RESOURCE_ACTION", "SST_RESOURCES");
+					else if(!sstResourcesIxs.contains("SST_RESOURCES_RES_ACT_IDX")) createIndex(c, "SST_RESOURCES_RES_ACT_IDX", "RESOURCE_ACTION", "SST_RESOURCES");
+					if(sstResourcesIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_RESOURCES_DATE_ID_IX", "RESOURCE_DATE", "SST_RESOURCES");
+					else if(!sstResourcesIxs.contains("SST_RESOURCES_DATE_ID_IX")) createIndex(c, "SST_RESOURCES_DATE_ID_IX", "RESOURCE_DATE", "SST_RESOURCES");
+		
+					// SST_SITEACTIVITY
+					if(sstSiteActivityIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_SITEACTIVITY_SITE_ID_IX", "SITE_ID", "SST_SITEACTIVITY");
+					else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_SITE_ID_IX")) createIndex(c, "SST_SITEACTIVITY_SITE_ID_IX", "SITE_ID", "SST_SITEACTIVITY");
+					if(sstSiteActivityIxs.contains("EVENT_ID_IX")) renameIndex(c, "EVENT_ID_IX", "SST_SITEACTIVITY_EVENT_ID_IX", "EVENT_ID", "SST_SITEACTIVITY");
+					else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_EVENT_ID_IX")) createIndex(c, "SST_SITEACTIVITY_EVENT_ID_IX", "EVENT_ID", "SST_SITEACTIVITY");
+					if(sstSiteActivityIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEACTIVITY_DATE_ID_IX", "ACTIVITY_DATE", "SST_SITEACTIVITY");
+					else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_DATE_ID_IX")) createIndex(c, "SST_SITEACTIVITY_DATE_ID_IX", "ACTIVITY_DATE", "SST_SITEACTIVITY");
+		
+					// SST_SITEVISITS
+					if(sstSiteVisitsIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_SITEVISITS_SITE_ID_IX", "SITE_ID", "SST_SITEVISITS");
+					else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_SITE_ID_IX")) createIndex(c, "SST_SITEVISITS_SITE_ID_IX", "SITE_ID", "SST_SITEVISITS");
+					if(sstSiteVisitsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
+					else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_DATE_ID_IX")) createIndex(c, "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
+		
+					// SST_REPORTS
+					if(!sstReportsIxs.contains("SST_REPORTS_SITE_ID_IX")) createIndex(c, "SST_REPORTS_SITE_ID_IX", "SITE_ID", "SST_REPORTS");
+					
+				}catch(HibernateException e){
+					LOG.error("Error while updating indexes: no session", e);
+				}catch(Exception e){
+					LOG.error("Error while updating indexes", e);
+				}finally{
+					if(c != null)
+						c.close();
+				}
+				return null;
+			}
+		};
+		getHibernateTemplate().execute(hcb);
 	}
 
 	private void notifyIndexesUpdate(){
@@ -161,5 +173,31 @@ public class DBHelper {
 			if (st != null)
                 st.close();
 		}
+	}
+	
+	private String getDbVendor() {
+		String dialectStr = null;
+		if(ServerConfigurationService.getString("sitestats.db", "internal").equals("internal")) {
+			dialectStr = ServerConfigurationService.getString("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+		}else{
+			dialectStr = ServerConfigurationService.getString("sitestats.externalDb.hibernate.dialect","org.hibernate.dialect.HSQLDialect");
+		}
+		if(dialectStr.toLowerCase().contains("mysql")) {
+			return "mysql";
+		}else if(dialectStr.toLowerCase().contains("oracle")) {
+			return "oracle";
+		}else{
+			return "hsql";
+		}
+	}
+	
+	public boolean getAutoDdl() {
+		boolean autoDdl = false;
+		if(ServerConfigurationService.getString("sitestats.db", "internal").equals("internal")) {
+			autoDdl = ServerConfigurationService.getBoolean("auto.ddl", true);
+		}else{
+			autoDdl = ServerConfigurationService.getBoolean("sitestats.externalDb.auto.ddl", true);
+		}
+		return autoDdl;
 	}
 }

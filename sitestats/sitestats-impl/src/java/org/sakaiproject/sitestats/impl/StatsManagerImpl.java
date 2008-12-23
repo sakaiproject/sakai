@@ -110,7 +110,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	/** Sakai services */
 	private EventRegistryService		M_ers;
 	private SqlService					M_sql;
-	private boolean						autoDdl;
 	private UserDirectoryService		M_uds;
 	private SiteService					M_ss;
 	private ServerConfigurationService	M_scs;
@@ -204,10 +203,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		this.M_ers = eventRegistryService;
 	}
 
-	public void setAutoDdl(boolean autoDdl) {
-		this.autoDdl = autoDdl;
-	}
-
 	public void setSqlService(SqlService sqlService) {
 		this.M_sql = sqlService;
 	}
@@ -237,16 +232,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	// Spring init/destroy methods
 	// ################################################################	
 	public void init(){
-		// Update db indexes, if needed
-		if (autoDdl) {
-			try{
-				DBHelper dbHelper = DBHelper.getInstance(getDbVendor()); 
-				dbHelper.updateIndexes(getHibernateTemplate().getSessionFactory().getCurrentSession());
-			}catch(SQLException e){
-				LOG.warn("Unable to update db indexes", e);
-			}			
-		}
-		
 		// Checks whether Event.getContext is implemented in Event (from Event API)
 		checkForEventContextSupport();
 		

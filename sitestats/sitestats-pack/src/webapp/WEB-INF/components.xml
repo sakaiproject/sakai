@@ -22,7 +22,7 @@
 	<!-- StatsManager ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.StatsManager"
 		class="org.sakaiproject.sitestats.impl.StatsManagerImpl"
-		singleton="true"
+		singleton="true" depends-on="org.sakaiproject.sitestats.api.DBHelper"
 		init-method="init">
 		
 		<!-- OPTIONS: -->		
@@ -59,7 +59,6 @@
 				
 		
 		<!-- Sakai services -->
-		<property name="autoDdl" value="${auto.ddl}"/>
 		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
@@ -296,6 +295,23 @@
 		<property name="beanId" value="org.sakaiproject.sitestats.api.StatsAggregateJob" />
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
+      
+    
+    <!-- DBHelper ______________________________________________________________________________ -->
+    <bean id="org.sakaiproject.sitestats.api.DBHelper"
+        class="org.sakaiproject.sitestats.impl.DBHelper"
+        singleton="true" init-method="init">
+        <property name="sessionFactory" ref="#{sitestats.db}SitestatsSessionFactory" />
+    </bean>
+    <!-- Transaction proxy: ReportManager -->
+    <bean id="org.sakaiproject.sitestats.api.DBHelperTransactionProxyFactoryBean"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">        
+        <property name="transactionManager" ref="#{sitestats.db}SitestatsTransactionManager" />
+        <property name="target" ref="org.sakaiproject.sitestats.api.DBHelper"/>
+        <property name="transactionAttributes">
+            <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
+        </property>
+    </bean>
 
 
 	<!-- Hibernate objects api-impl mapping _________________________________________________________________________________________ -->
