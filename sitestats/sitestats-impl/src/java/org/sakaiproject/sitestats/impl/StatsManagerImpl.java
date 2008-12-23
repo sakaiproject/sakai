@@ -1622,7 +1622,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			StringBuilder _hql = new StringBuilder();
 			List<String> groupFields = new ArrayList<String>();
 
-			if(siteId != null || totalsBy.contains(T_SITE)) {
+			if(!inverseUserSelection && (siteId != null || totalsBy.contains(T_SITE))) {
 				groupFields.add("s.siteId");
 			}
 			if(totalsBy.contains(T_USER)) {

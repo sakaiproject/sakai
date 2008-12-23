@@ -1,5 +1,11 @@
 package org.sakaiproject.sitestats.impl;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +18,9 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.sitestats.impl.event.FileEventRegistry;
+import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -30,10 +39,76 @@ public class DBHelper extends HibernateDaoSupport {
 	public void init() {
 		dbVendor = getDbVendor();
 		autoDdl = getAutoDdl();
-		// update db indexes, if needed
+		
 		if(autoDdl) {
+			// update db indexes, if needed
 			updateIndexes();
+		
+			// preload default reports, if needed
+			preloadDefaultReports();
 		}
+	}
+	
+	public void preloadDefaultReports() {
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {				
+				Connection c = null;
+				InputStreamReader isr = null;
+				BufferedReader br = null;
+				try{					
+					ClassPathResource defaultReports = new ClassPathResource(dbVendor + "/default_reports.sql");
+					LOG.info("init(): - preloading sitestats default reports");
+					isr = new InputStreamReader(defaultReports.getInputStream());
+					br = new BufferedReader(isr);
+
+					c = session.connection();
+					String sqlLine = null;
+					while((sqlLine = br.readLine()) != null) {
+						sqlLine = sqlLine.trim();
+						if(!sqlLine.equals("") && !sqlLine.startsWith("--")) {
+							if(sqlLine.endsWith(";")) {
+								sqlLine = sqlLine.substring(0, sqlLine.indexOf(";"));
+							}
+							Statement st = null;
+							try{
+								st = c.createStatement();
+								st.execute(sqlLine);
+							}catch(SQLException e){
+								if(!"23000".equals(e.getSQLState())) {
+									LOG.warn("Failed to preload default report: " + sqlLine, e);	
+								}
+							}catch(Exception e){
+								LOG.warn("Failed to preload default report: " + sqlLine, e);
+							}finally{
+								if (st != null)
+					                st.close();
+							}
+						}
+					}
+					
+				}catch(HibernateException e){
+					LOG.error("Error while preloading default reports", e);
+				}catch(Exception e){
+					LOG.error("Error while preloading default reports", e);
+				}finally{
+					if(br != null) {
+						try{
+							br.close();
+						}catch(IOException e){ }
+					}
+					if(isr != null) {
+						try{
+							isr.close();
+						}catch(IOException e){ }
+					}
+					if(c != null) {
+						c.close();
+					}
+				}
+				return null;
+			}
+		};
+		getHibernateTemplate().execute(hcb);
 	}
 
 	public void updateIndexes() {
@@ -89,7 +164,7 @@ public class DBHelper extends HibernateDaoSupport {
 					if(!sstReportsIxs.contains("SST_REPORTS_SITE_ID_IX")) createIndex(c, "SST_REPORTS_SITE_ID_IX", "SITE_ID", "SST_REPORTS");
 					
 				}catch(HibernateException e){
-					LOG.error("Error while updating indexes: no session", e);
+					LOG.error("Error while updating indexes", e);
 				}catch(Exception e){
 					LOG.error("Error while updating indexes", e);
 				}finally{
