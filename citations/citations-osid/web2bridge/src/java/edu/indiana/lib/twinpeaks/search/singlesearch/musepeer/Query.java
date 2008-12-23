@@ -215,9 +215,9 @@ public class Query extends HttpTransactionQueryBase
        * Try to wait for a complete set of responses
        */
 		  sleepCount = 0;
-		  sleepLimit = 8;
+		  sleepLimit = 5;
 
-		  done = setStatus(getResponseDocument());
+		  done = false; //setStatus(getResponseDocument());
 
       while (!done && (sleepCount++ < sleepLimit))
 			{
@@ -392,11 +392,13 @@ public class Query extends HttpTransactionQueryBase
 	/**
 	 * Generate a MORE data command
 	 * @param firstRecord First record to retrieve
+	 * @param pageSize The number of results we want
 	 */
-	private void doMoreCommand(int firstRecord)
+	private void doMoreCommand(int firstRecord, int pageSize)
 	{
     String    start = Integer.toString(firstRecord);
     String    total = Integer.toString(firstRecord - 1);
+    String    first = Integer.toString(firstRecord - pageSize);
 
 		_log.debug("MORE: using result set name \"" + getResultSetName() + "\"");
 		_log.debug("MORE: queryStatement = " + getSearchString());
@@ -423,10 +425,10 @@ public class Query extends HttpTransactionQueryBase
     _log.debug("MORE: start = " + start +  ", total = " + total);
 
 		setParameter("start", start);
-    setParameter("firstRetrievedRecord", start);
+    setParameter("firstRetrievedRecord", first);
   	setParameter("totalRecords", total);
     setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
-  	setParameter("limitsMaxPerPage", getPageSize());
+  	setParameter("limitsMaxPerPage", String.valueOf(pageSize));
     /*
      * Formatting
      */
@@ -438,39 +440,36 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	private void doResultsCommand() throws SearchException
 	{
- 		int start = getSessionContext().getInt("startRecord");
+    int pageSize  = Integer.parseInt(getPageSize());
+ 		int start     = getSessionContext().getInt("startRecord");
     /*
-     * Less than one page of results?
+     * The first page of results?
      */
-    if (start ==  1)
+    if (start == 1)
     {
-      int pageSize        = Integer.parseInt(getPageSize());
-      int totalRemaining  = StatusUtils.getAllRemainingHits(getSessionContext());
+      int totalRemaining = StatusUtils.getAllRemainingHits(getSessionContext());
 
       _log.debug(pageSize + " VS " + totalRemaining);
 
-      if (pageSize > totalRemaining)
-      {
-        /*
-         * Reduce requested page size to match the remaining result count and
-         * fetch the results ...
-         */
-     	  clearParameters();
-     		doPaginationCommand("previous", start, totalRemaining);
+      /*
+       * Reduce requested page size to match the remaining result count and
+       * fetch the results ...
+       */
+   	  clearParameters();
+   		doPaginationCommand("previous", start,  Math.min(pageSize, totalRemaining));
 
-     		submit();
-     		validateResponse("PREVIOUS");
-        return;
-      }
+   		submit();
+   		validateResponse("PREVIOUS");
+      return;
     }
     /*
      * The normal case, use MORE to pick up the results
      */
 	  clearParameters();
-	  doMoreCommand(start);
+	  doMoreCommand(start, pageSize);
 
-	  submit();
-	  validateResponse("MORE");
+    submit();
+    validateResponse("MORE");
 	}
 
   /*
@@ -533,12 +532,9 @@ public class Query extends HttpTransactionQueryBase
   private String getPageSize()
   {
     int targets   = StatusUtils.getActiveTargetCount(getSessionContext());
-    int pageSize  = targets * 10;
+    int pageSize  = targets * 25;
 
-    if (pageSize < 30) pageSize = 30;
-    if (pageSize > 50) pageSize = 50;
-
-    return String.valueOf(pageSize);
+    return String.valueOf(Math.min(pageSize, 10));
   }
 
 	/**
@@ -1120,11 +1116,11 @@ public class Query extends HttpTransactionQueryBase
 	{
     Element   rootElement = document.getDocumentElement();
 		NodeList  nodeList 		= DomUtils.getElementList(rootElement, "ITEM");
+		String    status      = "0";
 		int       targetCount = nodeList.getLength();
 		int       active			= 0;
 		int       total 			= 0;
 		int       complete    = 0;
-		String    status      = "0";
 
 		/*
 		 * Update the status map for each target
@@ -1170,13 +1166,6 @@ public class Query extends HttpTransactionQueryBase
 		    }
 			}
 			map.put("PERCENT_COMPLETE", status);
-      /*
-       * Is this search complete?
-       */
-			if ("100".equals(status))
-      {
-        complete++;
-      }
 			/*
 			 * Estimated match count
 			 */
@@ -1221,11 +1210,18 @@ public class Query extends HttpTransactionQueryBase
 				map.put("STATUS", "ACTIVE");
 				active++;
 			}
+      /*
+       * Is this search complete?
+       */
+			if ("100".equals(status))
+      {
+        complete++;
+      }
 
   		_log.debug("****** Target: "
   		        +  target
   		        +  ", status = "
-  		        +  map.get("STATUS"));
+  		        +  status);
     }
 		/*
 		 * Save in session context:
