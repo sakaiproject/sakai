@@ -841,7 +841,7 @@ public class ChartServiceImpl implements ChartService {
 				RegularTimePeriod key = (RegularTimePeriod) getStatValue(s, dataSource);
 				Comparable serie = (Comparable) getStatValue(s, seriesFrom);
 				
-				if(key != null && series != null) {
+				if(key != null && serie != null) {
 					// determine appropriate serie
 					TimeSeries ts = null;
 					if(!series.containsKey(serie)) {
