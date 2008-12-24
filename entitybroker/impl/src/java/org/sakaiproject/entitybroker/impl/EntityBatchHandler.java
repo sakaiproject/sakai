@@ -14,10 +14,16 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.io.IOException;
 import java.util.Map;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequestWrapper;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -34,6 +40,14 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 public class EntityBatchHandler {
 
     private EntityBrokerManager entityBrokerManager;
+    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+        this.entityBrokerManager = entityBrokerManager;
+    }
+
+    private EntityEncodingManager entityEncodingManager;
+    public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
+        this.entityEncodingManager = entityEncodingManager;
+    }
 
     public void handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         // first find out which METHOD we are dealing with
@@ -85,29 +99,42 @@ public class EntityBatchHandler {
             if (reference == null || "".equals(reference)) {
                 continue; // skip
             }
-            // identify the EB operations
-            EntityReference entityReference = null;
-            if (reference.startsWith(EntityView.DIRECT_PREFIX)) {
-                int loc = reference.indexOf("/", 5);
-                if (loc == -1) {
-                    continue; // skip
-                }
-                reference = reference.substring(loc);
-                // TODO split the URL and query string apart, send URL to parse entity URL, process query string below
-                entityReference = entityBrokerManager.parseReference(reference); //parseEntityURL(reference);
-                // check the prefix is valid
-                Map<String, String> params = HttpRESTUtils.parseURLintoParams(reference);
-                // now execute the request to get the data
-                if (entityReference.getId() == null) {
-                    // space (collection)
-                    
-                } else {
-                    
-                }
-                //entityBrokerManager.getEntityData(ref);
+//            // identify the EB operations
+//            EntityReference entityReference = null;
+//            if (reference.startsWith(EntityView.DIRECT_PREFIX)) {
+//                int loc = reference.indexOf("/", 5);
+//                if (loc == -1) {
+//                    continue; // skip
+//                }
+//                reference = reference.substring(loc);
+//                // TODO split the URL and query string apart, send URL to parse entity URL, process query string below
+//                entityReference = entityBrokerManager.parseReference(reference); //parseEntityURL(reference);
+//                // check the prefix is valid
+//                Map<String, String> params = HttpRESTUtils.parseURLintoParams(reference);
+//                // now execute the request to get the data
+//                if (entityReference.getId() == null) {
+//                    // space (collection)
+//                    
+//                } else {
+//                    
+//                }
+//                //entityBrokerManager.getEntityData(ref);
+//            }
+//            // compile EB responses
+            // fire off the URLs to the server and get back responses
+            RequestDispatcher dispatcher = req.getRequestDispatcher(reference);
+            HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(req);
+            HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(res);
+            try {
+                dispatcher.include(requestWrapper, responseWrapper);
+            } catch (ServletException e) {
+                // TODO Auto-generated catch block
+                throw new RuntimeException("died");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                throw new RuntimeException("died");
             }
-            // compile EB responses
-            // create threads to fire off the non-EB URLs
+            
             // compile all the responses
             // create the object to encode into the final response
         }

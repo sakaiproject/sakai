@@ -251,6 +251,37 @@ public class EntityEncodingManager {
         return entity;
     }
 
+    /**
+     * Will attempt to validate that string data is of a specific format
+     * @param data a chunk of data to validate
+     * @param format the format which the data is supposed encoded in
+     * @return true if the data appears valid for the given format, false otherwise
+     */
+    public boolean validateFormat(String data, String format) {
+        // note: this is a weak implementation for now -AZ
+        boolean valid = false;
+        if (data == null || format == null) {
+            throw new IllegalArgumentException("Cannot validate format when the data ("+data+") OR the format ("+format+") are null");
+        }
+        if (Formats.XML.equals(format)) {
+            if (data.startsWith("<") && data.endsWith(">")) {
+                valid = true;
+            }
+        } else if (Formats.JSON.equals(format)) {
+            if (data.startsWith("{") && data.endsWith("}")) {
+                valid = true;
+            }
+        } else if (Formats.HTML.equals(format)) {
+            if (data.startsWith("<") && data.endsWith(">")) {
+                valid = true;
+            }
+        } else {
+            valid = true;
+        }
+        return valid;
+    }
+
+
     // FUNCTIONAL CODE BELOW
 
     /**
