@@ -1,6 +1,28 @@
 <wicket:panel>
-    <!-- <img wicket:id="content"></img> -->
     <a wicket:id="link">
         <img wicket:id="content" style="display: none;"></img>
     </a>
+        
+    <script type="text/javascript">
+        Wicket.Event.add(window, "domready", function() {
+            // calculate full frame size
+        	var fullscreenWidth = 0;
+            var fullscreenHeight = 0;
+            var obj = document.body;
+            if (document.all) {
+                fullscreenHeight = obj.scrollHeight; // IE
+                fullscreenWidth = obj.scrollWidth; 
+            }else{
+                fullscreenHeight = obj.clientHeight; // other browser!
+                fullscreenWidth = obj.clientWidth;
+            }
+            jQuery('.maxWidth').val(fullscreenWidth);
+            jQuery('.maxHeight').val(fullscreenHeight);
+        });
+    </script>
+    
+    <form wicket:id="chartForm">
+	    <input type="hidden" wicket:id="maxWidth" class="maxWidth"/>
+	    <input type="hidden" wicket:id="maxHeight" class="maxHeight"/>
+    </form>
 </wicket:panel>

@@ -13,9 +13,11 @@ import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
+import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -40,7 +42,6 @@ public class ServerWidePage extends BasePage {
 	private transient SakaiFacade		facade;
 
 	// UI Components
-	private AbstractDefaultAjaxBehavior	chartSizeBehavior		= null;
 	private Label						reportTitle				= null;
 	private Label						reportDescription		= null;
 	private AjaxLazyLoadImage			reportChart				= null;
@@ -52,8 +53,6 @@ public class ServerWidePage extends BasePage {
 	private String						siteId					= null;
 	private int							selectedWidth			= 0;
 	private int							selectedHeight			= 0;
-	private int							maximizedWidth			= 0;
-	private int							maximizedHeight			= 0;
 	private List<Component>				links					= new ArrayList<Component>();
 	private Map<Component,Component>	labels					= new HashMap<Component,Component>();
 	
@@ -66,7 +65,6 @@ public class ServerWidePage extends BasePage {
 		siteId = facade.getToolManager().getCurrentPlacement().getContext();
 		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
 		if(allowed) {
-			renderAjaxBehavior();
 			renderBody();
 		}else{
 			redirectToInterceptPage(new NotAuthorizedPage());
@@ -102,18 +100,19 @@ public class ServerWidePage extends BasePage {
 		form.add(reportNotes);
 
 		// chart
-		reportChart = new AjaxLazyLoadImage("reportChart", null, ServerWidePage.class, new ResourceModel("serverwide_back")) {
+		reportChart = new AjaxLazyLoadImage("reportChart", getPage()) {
 			@Override
 			public BufferedImage getBufferedImage() {
-				return getChartImage();
+				return getChartImage(selectedWidth, selectedHeight);
 			}
 
 			@Override
-			public BufferedImage getBufferedMaximizedImage() {
-				return getChartImage(maximizedWidth, maximizedHeight);
+			public BufferedImage getBufferedImage(int width, int height) {
+				return getChartImage(width, height);
 			}
 		};
 		reportChart.setOutputMarkupId(true);
+		reportChart.setAutoDetermineChartSizeByAjax(".chartContainer");
 		form.add(reportChart);
 		
 		// selectors
@@ -129,85 +128,12 @@ public class ServerWidePage extends BasePage {
 		makeSelectorLink("reportTool", StatsManager.TOOL_REPORT);
 	}
 
-	@SuppressWarnings("serial")
-	private void renderAjaxBehavior() {		
-		chartSizeBehavior = new AbstractDefaultAjaxBehavior() {
-			@Override
-			protected void respond(AjaxRequestTarget target) {
-				// get chart size
-		    	Request req = RequestCycle.get().getRequest();
-				try{
-					selectedWidth = (int) Float.parseFloat(req.getParameter("width"));					
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					selectedWidth = 400;
-				}
-				try{
-					selectedHeight = (int) Float.parseFloat(req.getParameter("height"));
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					selectedHeight = 200;
-				}
-				try{
-					maximizedWidth = (int) Float.parseFloat(req.getParameter("maxwidth"));
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					maximizedWidth = 640;
-				}
-				try{
-					maximizedHeight = (int) Float.parseFloat(req.getParameter("maxheight"));
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					maximizedHeight = 300;
-				}
-				//reportChart.startAjaxUpdate();
-				target.appendJavascript(buildCallbackScript(reportChart.getCallbackUrl(), null));
-			}		
-			
-			private String buildCallbackScript(CharSequence callbackUrl, CharSequence onSuccessCallbackScript) {
-				StringBuilder script = new StringBuilder();
-				script.append("wicketAjaxGet('");
-				script.append(callbackUrl);
-				script.append("', function() {");
-				if(onSuccessCallbackScript != null) {
-					script.append("setTimeout(\"");
-					script.append(onSuccessCallbackScript);
-					script.append("\",500)");
-				}
-				script.append("}, function() {});");
-				return script.toString();
-			}   
-		};
-		add(chartSizeBehavior);
-		
-		WebMarkupContainer js = new WebMarkupContainer("jsWicketChartSize");
-		js.setOutputMarkupId(true);
-		add(js);
-		WebMarkupContainer jsCall = new WebMarkupContainer("jsWicketChartSizeCall") {
-			@Override
-			protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
-				StringBuilder buff = new StringBuilder();
-				buff.append("jQuery(document).ready(function() {");
-				buff.append("  var chartSizeCallback = '" + chartSizeBehavior.getCallbackUrl() + "'; ");
-				buff.append("  setWicketChartSize(chartSizeCallback);");
-				buff.append("});");
-				replaceComponentTagBody(markupStream, openTag, buff.toString());
-			}	
-		};
-		jsCall.setOutputMarkupId(true);
-		add(jsCall);
-	}
-
 	public void setReport(ServerWideModel report) {
 		this.report = report;
 	}
 
 	public ServerWideModel getReport() {
 		return report;
-	}
-	
-	private BufferedImage getChartImage() {
-		return getChartImage(selectedWidth, selectedHeight);
 	}
 	
 	private BufferedImage getChartImage(int width, int height) {
@@ -230,7 +156,7 @@ public class ServerWidePage extends BasePage {
 				reportTitle.add(new AttributeModifier("style", true, new Model("display: block")));
 				reportDescription.add(new AttributeModifier("style", true, new Model("display: block")));
 				reportNotes.add(new AttributeModifier("style", true, new Model("display: block")));
-				reportChart.renderImage(target);
+				reportChart.renderImage(target, true);
 				// toggle selectors link state
 				for(Component lbl : labels.values()) {
 					lbl.setVisible(false);
@@ -244,7 +170,6 @@ public class ServerWidePage extends BasePage {
 				target.addComponent(selectors);
 				target.addComponent(reportTitle);
 				target.addComponent(reportDescription);
-				target.addComponent(reportChart);
 				target.addComponent(reportNotes);
 				target.appendJavascript("setMainFrameHeightNoScroll( window.name, 650 )");
 			}

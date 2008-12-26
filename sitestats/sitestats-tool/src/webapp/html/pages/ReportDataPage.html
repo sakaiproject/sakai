@@ -14,38 +14,7 @@
         </wicket:head>
     </head>
     <body>
-        <wicket:extend>            
-            <!-- Initial callback (determine chart size) -->
-            <script wicket:id="jsWicketChartSize" type="text/javascript">
-                var chartWidth = 0;
-                var chartHeight = 0;
-                function setWicketChartSize(callback) {  
-                    wicketAjaxGet(
-                            callback
-                            + '&width='+getChartWidth()
-                            + '&height='+getChartHeight()
-                            + '&maxwidth='+getMaximizedChartWidth()
-                            + '&maxheight='+getMaximizedChartHeight(), 
-                            function() {}, function() {});  
-                } 
-                function getChartWidth() {
-                    if(chartWidth == 0) {
-                        chartWidth = jQuery(".content").width();
-                    }
-                    return chartWidth;
-                }
-                function getChartHeight() {
-                    return 300;
-                }
-                function getMaximizedChartWidth() {
-                    return getChartWidth();
-                }
-                function getMaximizedChartHeight() {
-                    return getChartWidth / 2;
-                }
-            </script>
-            <script wicket:id="jsWicketChartSizeCall" type="text/javascript"></script>
-            
+        <wicket:extend>
         
             <!-- Menu -->
             <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
@@ -172,7 +141,7 @@
 	            
                     
                 <!-- Report chart -->
-                <div wicket:id="reportChart" style="height: 300px; margin-top: 20px;"></div>
+                <div wicket:id="reportChart" style="height: 300px; margin-top: 20px;" class="chartContainer"></div>
 	            
 	            
 	            <!-- FORM -->

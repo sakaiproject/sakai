@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -38,8 +39,6 @@ public class VisitsPanel extends Panel {
 	private String					selectedView		= StatsManager.VIEW_WEEK;
 	private int						selectedWidth		= 0;
 	private int						selectedHeight		= 0;
-	private int						maximizedWidth			= 0;
-	private int						maximizedHeight			= 0;
 
 	// UI Componets
 	private WebMarkupContainer		selectors			= null;
@@ -83,7 +82,6 @@ public class VisitsPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 				setSelectedView(target, StatsManager.VIEW_WEEK);
 				target.addComponent(selectors);
-				target.addComponent(chart);
 			}			
 		};
 		lastWeekLink.setVisible(!inLastWeek);
@@ -99,7 +97,6 @@ public class VisitsPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 				setSelectedView(target, StatsManager.VIEW_MONTH);
 				target.addComponent(selectors);
-				target.addComponent(chart);
 			}
 		};
 		lastMonthLink.setVisible(!inLastMonth);
@@ -115,7 +112,6 @@ public class VisitsPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 				setSelectedView(target, StatsManager.VIEW_YEAR);
 				target.addComponent(selectors);
-				target.addComponent(chart);
 			}
 
 		};
@@ -127,9 +123,10 @@ public class VisitsPanel extends Panel {
 	}
 
 	/** Render table. */
-	@SuppressWarnings("serial")
 	private void renderTable() {
 		visitsLoader = new AjaxLazyLoadFragment("visitsTableContainer") {
+			private static final long	serialVersionUID	= 12L;
+
 			@Override
 			public Fragment getLazyLoadFragment(String markupId) {
 				return renderTableData(markupId);
@@ -180,30 +177,26 @@ public class VisitsPanel extends Panel {
 		return visitsTableFrag;
 	}
 	
+	public AjaxLazyLoadImage getChartComponent() {
+		return chart;
+	}
 
 	/** Render chart. */
 	@SuppressWarnings("serial")
 	public void renderChart() {
-		chart = new AjaxLazyLoadImage("visitsChart", null, OverviewPage.class) {
+		chart = new AjaxLazyLoadImage("visitsChart", OverviewPage.class) {
 			@Override
 			public BufferedImage getBufferedImage() {
-				return getChartImage();
+				return getChartImage(selectedWidth, 200);
 			}
 
 			@Override
-			public BufferedImage getBufferedMaximizedImage() {
-				return getChartImage(maximizedWidth, maximizedHeight);
+			public BufferedImage getBufferedImage(int width, int height) {
+				return getChartImage(width, height);
 			}
 		};
+		chart.setAutoDetermineChartSizeByAjax(".chartContainer");
 		add(chart);
-	}
-	
-	public CharSequence getChartCallbackUrl() {
-		return chart.getCallbackUrl();
-	}
-	
-	private BufferedImage getChartImage() {
-		return getChartImage(selectedWidth, selectedHeight);
 	}
 	
 	private BufferedImage getChartImage(int width, int height) {
@@ -234,14 +227,12 @@ public class VisitsPanel extends Panel {
 		lastMonthLabel.setVisible(inLastMonth);
 		lastYearLink.setVisible(!inLastYear);
 		lastYearLabel.setVisible(inLastYear);
-		chart.renderImage(target);
+		chart.renderImage(target, true);
 	}
 
-	public void setChartSize(int width, int height, int maximizedWidth, int maximizedHeight) {
+	public void setChartSize(int width, int height) {
 		this.selectedWidth = width;
 		this.selectedHeight = height;
-		this.maximizedWidth = maximizedWidth;
-		this.maximizedHeight = maximizedHeight;
 	}
 
 }

@@ -6,36 +6,12 @@
       xml:lang="en"  
       lang="en">
     <head>        
-        <wicket:head></wicket:head>
+        <wicket:head>
+        </wicket:head>
     </head>
     
 	<body>
-		<wicket:extend>
-		    <!-- Initial callback (determine chart size) -->
-            <script wicket:id="jsWicketChartSize" type="text/javascript">
-                function setWicketChartSize(callback) {  
-                    wicketAjaxGet(
-                            callback
-                            + '&width='+getChartWidth()
-                            + '&height='+getChartHeight()
-                            + '&maxwidth='+getMaximizedChartWidth()
-                            + '&maxheight='+getMaximizedChartHeight(), 
-                            function() {}, function() {});  
-                } 
-                function getChartWidth() {
-                    return (jQuery("#overview").width() - 10) / 2;
-                }
-                function getChartHeight() {
-                    return 200;
-                }
-                function getMaximizedChartWidth() {
-                    return jQuery("#overview").width();
-                }
-                function getMaximizedChartHeight() {
-                    return jQuery("#overview").width() / 2;
-                }
-            </script>
-            <script wicket:id="jsWicketChartSizeCall" type="text/javascript"></script>
+		<wicket:extend>	    
 		
 		    <!-- Menu -->
             <menu wicket:id="menu" class="navIntraTool">[menu]</menu>

@@ -4,19 +4,25 @@ import java.awt.image.BufferedImage;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.Page;
+import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Resource;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.HiddenField;
+import org.apache.wicket.markup.html.form.SubmitLink;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.image.resource.DynamicImageResource;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
@@ -25,53 +31,72 @@ import org.sakaiproject.sitestats.tool.wicket.pages.MaximizedImagePage;
 
 @SuppressWarnings("serial")
 public abstract class AjaxLazyLoadImage extends Panel {
-	private Link						link								= null;
-	private WebMarkupContainer			js									= null;
-	private Class						returnPage							= null;
-	private AbstractDefaultAjaxBehavior ajaxBehavior						= null;
-	private IModel						backButtonMessageModel				= null;
+	private SubmitLink					link								= null;
+	private Page						returnPage							= null;
+	private Class						returnClass							= null;
+	private AbstractDefaultAjaxBehavior chartRenderAjaxBehavior				= null;
+	
+	private Form						form								= null;
+	private boolean						autoDetermineChartSizeByAjax 			= false;
+	private int							selectedWidth						= 400;
+	private int							selectedHeight						= 200;
+	private int							maxWidth							= 800;
+	private int							maxHeight							= 600;
 
 	// State:
 	// 0:add loading component
 	// 1:loading component added, waiting for ajax replace
 	// 2:ajax replacement completed
 	private byte state = 0;
-
-	public AjaxLazyLoadImage(final String id) {
-		this(id, null, null, null);
-	}
 	
-	public AjaxLazyLoadImage(final String id, final BufferedImage bufferedImage, final Class returnPage) {
-		this(id, bufferedImage, returnPage, new ResourceModel("overview_back"));
-	}
-	
-	public AjaxLazyLoadImage(final String id, final BufferedImage bufferedImage, final Class returnPage, final IModel backButtonMessageModel) {
+	public AjaxLazyLoadImage(final String id, final Class returnClass) {
 		super(id);
-		setOutputMarkupId(true);
+		this.returnClass = returnClass;
+		init();
+	}
+	
+	public AjaxLazyLoadImage(final String id, final Page returnPage) {
+		super(id);
 		this.returnPage = returnPage;
-		this.backButtonMessageModel = backButtonMessageModel;		
+		init();
+	}
+	
+	private void init() {
+		setOutputMarkupId(true);	
 		
-		ajaxBehavior = new AbstractDefaultAjaxBehavior() {
+		// render chart by ajax, uppon request
+		chartRenderAjaxBehavior = new AbstractDefaultAjaxBehavior() {
 			@Override
 			protected void respond(AjaxRequestTarget target) {
-				renderImage(target);
-				target.addComponent(link);			
-				setState((byte) 2);
+				System.out.println("chartRenderAjaxBehavior.Responding for "+ getId());
+				renderImage(target, true);
 			}
 
 			@Override
 			public boolean isEnabled(Component component) {
 				return state < 2;
 			}
+			
+			@Override
+			protected String getChannelName() {
+				return getId();
+			}
 		};
-		add(ajaxBehavior);
+		add(chartRenderAjaxBehavior);
+		
+		// fields for maximized chart size
+		setModel(new CompoundPropertyModel(this));
+		form = new Form("chartForm");
+		form.add(new HiddenField("maxWidth"));
+		form.add(new HiddenField("maxHeight"));
+		add(form);
 	}
 	
 	@Override
 	protected void onBeforeRender() {
 		if(state == 0){
 			final Component loadingComponent = getLoadingComponent("content");		
-			link = createMaximizedLink("link", backButtonMessageModel);
+			link = createMaximizedLink("link");
 			link.setOutputMarkupId(true);
 			link.setEnabled(false);
 			link.add(loadingComponent.setRenderBodyOnly(true));
@@ -87,31 +112,33 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		}
 		super.onBeforeRender();
 	}
-
-	private void setState(byte state) {
-		if(this.state != state){
-			addStateChange(new StateChange(this.state));
-		}
-		this.state = state;
-	}
 	
 	public CharSequence getCallbackUrl() {
-		return ajaxBehavior.getCallbackUrl();
+		return chartRenderAjaxBehavior.getCallbackUrl(false);
 	}
 	
-	public Image renderImage(AjaxRequestTarget target) {
-		if(returnPage != null) {
+	public Image renderImage(AjaxRequestTarget target, boolean fullRender) {
+		if(returnPage != null || returnClass != null) {
 			link.add(new AttributeModifier("title", true, new ResourceModel("click_to_max")));
 			link.setEnabled(true);
 		}
 		link.removeAll();
-		Image img = createImage("content", getBufferedImage());
-		img.add(new SimpleAttributeModifier("style", "margin: 0 auto;"));
-		link.add(img);
-		if(target != null) {
-			target.appendJavascript("jQuery('#"+img.getMarkupId(true)+"').fadeIn();");
+		Image img = null;
+		if(!autoDetermineChartSizeByAjax) {
+			img = createImage("content", getBufferedImage());
+		}else{
+			img = createImage("content", getBufferedImage(selectedWidth, selectedHeight));
 		}
+		img.add(new SimpleAttributeModifier("style", "display: none; margin: 0 auto;"));
+		link.add(img);
 		setState((byte) 1);
+		if(fullRender) {
+			if(target != null) {
+				target.addComponent(link);	
+				target.appendJavascript("jQuery('#"+img.getMarkupId()+"').fadeIn();");
+			}		
+			setState((byte) 2);
+		}
 		return img;
 	}
 
@@ -129,14 +156,22 @@ public abstract class AjaxLazyLoadImage extends Panel {
 
 	public abstract BufferedImage getBufferedImage();
 
-	public abstract BufferedImage getBufferedMaximizedImage();
+	public abstract BufferedImage getBufferedImage(int width, int height);
 
-	private Link createMaximizedLink(final String id, final IModel backButtonMessageModel) {
-		Link link = new Link(id) {
+	private SubmitLink createMaximizedLink(final String id) {
+		SubmitLink link = new SubmitLink(id, form) {
 			@Override
-			public void onClick() {
-				setResponsePage(new MaximizedImagePage(getBufferedMaximizedImage(), returnPage, backButtonMessageModel));
-			}			
+			public void onSubmit() {
+				if(returnPage != null || returnClass != null) {
+					setResponsePage(new MaximizedImagePage(returnPage, returnClass) {
+						@Override
+						public BufferedImage getBufferedMaximizedImage() {
+							return AjaxLazyLoadImage.this.getBufferedImage(maxWidth, 2 * maxWidth / 3);
+						}						
+					});
+				}
+				super.onSubmit();
+			}	
 		};
 		link.setOutputMarkupId(true);
 		return link;
@@ -166,7 +201,91 @@ public abstract class AjaxLazyLoadImage extends Panel {
 			}
 		};
 		chartImage.setOutputMarkupId(true);
+		chartImage.setOutputMarkupPlaceholderTag(true);
 		return chartImage;
+	}
+	
+	public void setAutoDetermineChartSizeByAjax(final String jquerySelectorForContainer) {
+		autoDetermineChartSizeByAjax = true;
+		AbstractDefaultAjaxBehavior determineChartSizeBehavior = new AbstractDefaultAjaxBehavior() {
+			@Override
+			protected void respond(AjaxRequestTarget target) {
+				System.out.println("determineChartSizeBehavior.Responding for "+ getId());
+				// parse desired image size
+				Request req = RequestCycle.get().getRequest();
+				try{
+					selectedWidth = (int) Float.parseFloat(req.getParameter("width"));					
+				}catch(NumberFormatException e){
+					e.printStackTrace();
+					selectedWidth = 400;
+				}
+				try{
+					selectedHeight = (int) Float.parseFloat(req.getParameter("height"));
+				}catch(NumberFormatException e){
+					e.printStackTrace();
+					selectedHeight = 200;
+				}
+				
+				// render chart image
+				renderImage(target, true);
+			}
+
+			@Override
+			public void renderHead(IHeaderResponse response) {
+				response.renderOnDomReadyJavascript(getScript(null, getScript(null, null)));
+				super.renderHead(response);
+			}
+			
+			private String getScript(String onSuccess, String onFailure) {
+				StringBuilder buff = new StringBuilder();
+				buff.append("wicketAjaxGet('");
+				buff.append(getCallbackUrl(false));
+				buff.append("&width='+ jQuery('"+jquerySelectorForContainer+"').width()+'");
+				buff.append("&height='+ jQuery('"+jquerySelectorForContainer+"').height()");
+				buff.append(",function() {");
+				if(onSuccess !=  null) {
+					buff.append(onSuccess);
+				}
+				buff.append("}, function() {");
+				if(onFailure !=  null) {
+					buff.append(onFailure);
+				}
+				buff.append("}");
+				buff.append(",null, '" + getChannelName() + "'");
+				buff.append(")");
+				return buff.toString();
+			}
+			
+			@Override
+			protected String getChannelName() {
+				return getId();
+			}
+		};	
+		
+		add(determineChartSizeBehavior);
+	}
+	
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+	
+	public void setMaxWidth(int maxWidth) {
+		this.maxWidth = maxWidth;
+	}
+	
+	public int getMaxHeight() {
+		return maxHeight;
+	}
+	
+	public void setMaxHeight(int maxHeight) {
+		this.maxHeight = maxHeight;
+	}
+
+	private void setState(byte state) {
+		if(this.state != state){
+			addStateChange(new StateChange(this.state));
+		}
+		this.state = state;
 	}
 	
 	private final class StateChange extends Change {

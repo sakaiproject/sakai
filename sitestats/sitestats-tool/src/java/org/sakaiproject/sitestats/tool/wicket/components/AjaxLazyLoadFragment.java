@@ -6,12 +6,15 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.HeaderContributor;
+import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
+import org.apache.wicket.version.undo.Change;
 
 
 /**
@@ -19,21 +22,57 @@ import org.apache.wicket.util.time.Duration;
  */
 public abstract class AjaxLazyLoadFragment extends Panel {
 	private static final long				serialVersionUID	= 1L;
-	private MyAbstractDefaultAjaxBehavior	behavior			= null;
-	private Component						loadingComponent	= null;
-	private boolean							doneAjaxUpdate		= false;
+
+	// State:
+	// 0:add loading component
+	// 1:loading component added, waiting for ajax replace
+	// 2:ajax replacement completed
+	private byte state = 0;
 
 	/**
 	 * @param id
 	 */
-	public AjaxLazyLoadFragment(String id) {
+	public AjaxLazyLoadFragment(final String id) {
 		super(id);
 		setOutputMarkupId(true);
-		loadingComponent = getLoadingComponent("content");
-		add(loadingComponent.setRenderBodyOnly(true));
 
-		behavior = new MyAbstractDefaultAjaxBehavior(Duration.ONE_SECOND);
+		final AbstractDefaultAjaxBehavior behavior = new AbstractDefaultAjaxBehavior() {
+			@Override
+			protected void respond(AjaxRequestTarget target) {
+				Fragment fragment = getLazyLoadFragment("content");
+				AjaxLazyLoadFragment.this.replace(fragment.setRenderBodyOnly(true));
+				target.addComponent(AjaxLazyLoadFragment.this);
+				setState((byte) 2);
+			}
+
+			@Override
+			public void renderHead(IHeaderResponse response) {
+				response.renderOnDomReadyJavascript(getCallbackScript().toString());
+				super.renderHead(response);
+			}
+			
+			@Override
+			protected String getChannelName() {
+				return getId();
+			}
+
+			@Override
+			public boolean isEnabled(Component component) {
+				return state < 2;
+			}			
+		};
 		add(behavior);
+		
+	}
+	
+	@Override
+	protected void onBeforeRender() {
+		if(state == 0){
+			final Component loadingComponent = getLoadingComponent("content");
+			add(loadingComponent.setRenderBodyOnly(true));
+			setState((byte) 1);
+		}
+		super.onBeforeRender();
 	}
 
 	/**
@@ -53,31 +92,25 @@ public abstract class AjaxLazyLoadFragment extends Panel {
 		return indicator;
 	}
 
-	@SuppressWarnings("serial")
-	class MyAbstractDefaultAjaxBehavior extends AbstractAjaxTimerBehavior {
-		
-		public MyAbstractDefaultAjaxBehavior(Duration updateInterval) {
-			super(updateInterval);
+	private void setState(byte state) {
+		if(this.state != state){
+			addStateChange(new StateChange(this.state));
+		}
+		this.state = state;
+	}
+	
+	private final class StateChange extends Change {
+		private static final long	serialVersionUID	= 1L;
+
+		private final byte			state;
+
+		public StateChange(byte state) {
+			this.state = state;
 		}
 
 		@Override
-		protected void onTimer(AjaxRequestTarget target) {
-			if(!doneAjaxUpdate){
-				Fragment fragment = getLazyLoadFragment("content");
-				AjaxLazyLoadFragment.this.replace(fragment.setRenderBodyOnly(true));
-				target.addComponent(AjaxLazyLoadFragment.this);
-				doneAjaxUpdate = true;
-				stop();
-			}
-		}
-
-		public void renderHead(IHeaderResponse response) {
-			super.renderHead(response);
-			response.renderOnDomReadyJavascript(getCallbackScript(false).toString());
-		}
-
-		public boolean isEnabled(Component component) {
-			return get("content") == loadingComponent;
+		public void undo() {
+			AjaxLazyLoadFragment.this.state = state;
 		}
 	}
 }

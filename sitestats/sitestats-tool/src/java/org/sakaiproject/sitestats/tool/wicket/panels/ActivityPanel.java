@@ -39,8 +39,6 @@ public class ActivityPanel extends Panel {
 	private String					selectedType			= StatsManager.CHARTTYPE_PIE;
 	private int						selectedWidth			= 0;
 	private int						selectedHeight			= 0;
-	private int						maximizedWidth			= 0;
-	private int						maximizedHeight			= 0;
 
 	// UI Componets
 	private WebMarkupContainer		selectors				= null;
@@ -91,7 +89,6 @@ public class ActivityPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 				setSelectedView(target, StatsManager.VIEW_WEEK);
 				target.addComponent(selectors);
-				target.addComponent(chart);
 				target.addComponent(chartLegendContainer);
 			}			
 		};
@@ -108,7 +105,6 @@ public class ActivityPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 				setSelectedView(target, StatsManager.VIEW_MONTH);
 				target.addComponent(selectors);
-				target.addComponent(chart);
 				target.addComponent(chartLegendContainer);
 			}
 		};
@@ -125,7 +121,6 @@ public class ActivityPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 				setSelectedView(target, StatsManager.VIEW_YEAR);
 				target.addComponent(selectors);
-				target.addComponent(chart);
 				target.addComponent(chartLegendContainer);
 			}
 
@@ -143,7 +138,6 @@ public class ActivityPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 				setSelectedType(target, StatsManager.CHARTTYPE_PIE);
 				target.addComponent(selectors);
-				target.addComponent(chart);
 				target.addComponent(chartLegendContainer);
 			}
 
@@ -161,7 +155,6 @@ public class ActivityPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 				setSelectedType(target, StatsManager.CHARTTYPE_BAR);
 				target.addComponent(selectors);
-				target.addComponent(chart);
 				target.addComponent(chartLegendContainer);
 			}
 
@@ -176,6 +169,8 @@ public class ActivityPanel extends Panel {
 	/** Render table. */
 	private void renderTable() {
 		activityLoader = new AjaxLazyLoadFragment("activityTableContainer") {
+			private static final long	serialVersionUID	= 22L;
+
 			@Override
 			public Fragment getLazyLoadFragment(String markupId) {
 				return renderTableData(markupId);
@@ -209,22 +204,27 @@ public class ActivityPanel extends Panel {
 		
 		return activityTableFrag;
 	}
+	
+	public AjaxLazyLoadImage getChartComponent() {
+		return chart;
+	}
 
 	/** Render chart. */
 	@SuppressWarnings("serial")
 	public void renderChart() {
 		// chart
-		chart = new AjaxLazyLoadImage("activityChart", null, OverviewPage.class) {
+		chart = new AjaxLazyLoadImage("activityChart", OverviewPage.class) {
 			@Override
 			public BufferedImage getBufferedImage() {
-				return getChartImage();
+				return getChartImage(selectedWidth, 200);
 			}
 
 			@Override
-			public BufferedImage getBufferedMaximizedImage() {
-				return getChartImage(maximizedWidth, maximizedHeight);
+			public BufferedImage getBufferedImage(int width, int height) {
+				return getChartImage(width, height);
 			}
 		};
+		chart.setAutoDetermineChartSizeByAjax(".chartContainer");
 		add(chart);
 		
 		// chart legend
@@ -240,14 +240,6 @@ public class ActivityPanel extends Panel {
 		barChartLegend.setVisible(!inPie);
 		barChartLegend.setOutputMarkupId(true);
 		chartLegendContainer.add(barChartLegend);
-	}
-	
-	public CharSequence getChartCallbackUrl() {
-		return chart.getCallbackUrl();
-	}
-	
-	private BufferedImage getChartImage() {
-		return getChartImage(selectedWidth, selectedHeight);
 	}
 	
 	private BufferedImage getChartImage(int width, int height) {
@@ -278,7 +270,7 @@ public class ActivityPanel extends Panel {
 		lastMonthLabel.setVisible(inLastMonth);
 		lastYearLink.setVisible(!inLastYear);
 		lastYearLabel.setVisible(inLastYear);
-		chart.renderImage(target);
+		chart.renderImage(target, true);
 	}
 
 	public final String getSelectedType() {
@@ -296,14 +288,12 @@ public class ActivityPanel extends Panel {
 		barLabel.setVisible(inBar);	
 		pieChartLegend.setVisible(inPie);
 		barChartLegend.setVisible(inBar);
-		chart.renderImage(target);
+		chart.renderImage(target, true);
 	}
 
-	public void setChartSize(int width, int height, int maximizedWidth, int maximizedHeight) {
+	public void setChartSize(int width, int height) {
 		this.selectedWidth = width;
 		this.selectedHeight = height;
-		this.maximizedWidth = maximizedWidth;
-		this.maximizedHeight = maximizedHeight;
 	}
 
 }

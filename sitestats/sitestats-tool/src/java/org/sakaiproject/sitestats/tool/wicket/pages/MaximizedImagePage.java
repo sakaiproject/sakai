@@ -2,13 +2,12 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import java.awt.image.BufferedImage;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.Resource;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.image.resource.DynamicImageResource;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
@@ -16,34 +15,38 @@ import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 /**
  * @author Nuno Fernandes
  */
-public class MaximizedImagePage extends BasePage {
+public abstract class MaximizedImagePage extends BasePage {
 	private static final long		serialVersionUID	= 1L;
 	
 	/** Inject Sakai facade */
 	@SpringBean
 	private transient SakaiFacade 	facade;
 	
-	private transient BufferedImage	bufferedImage;
-	private Class					returnPage;
-	private IModel					backButtonMessageModel;
+	private Page					returnPage;
+	private Class					returnClass;
 	
 	
-	public MaximizedImagePage(final BufferedImage bufferedImage, final Class returnPage) {
-		this(bufferedImage, returnPage, new ResourceModel("overview_back"));
+	public MaximizedImagePage() {
+		init(null, null);
 	}
 	
-	public MaximizedImagePage(final BufferedImage bufferedImage, final Class returnPage, IModel backButtonMessageModel) {
+	public MaximizedImagePage(final Page returnPage, final Class returnClass) {
+		init(returnPage, returnClass);
+	}
+	
+	private void init(final Page returnPage, final Class returnClass) {
 		String siteId = facade.getToolManager().getCurrentPlacement().getContext();
 		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
-			this.bufferedImage = bufferedImage;
 			this.returnPage = returnPage;
-			this.backButtonMessageModel = backButtonMessageModel;
+			this.returnClass = returnClass;
 			renderBody();
 		}else{
 			redirectToInterceptPage(new NotAuthorizedPage());
 		}
 	}
+	
+	public abstract BufferedImage getBufferedMaximizedImage();
 	
 	@SuppressWarnings("serial")
 	private void renderBody() {
@@ -55,7 +58,7 @@ public class MaximizedImagePage extends BasePage {
 
 					@Override
 					protected byte[] getImageData() {
-						return toImageData(getBufferedImage());
+						return toImageData(getBufferedMaximizedImage());
 					}
 
 					@Override
@@ -78,21 +81,16 @@ public class MaximizedImagePage extends BasePage {
 		Button back = new Button("back") {
 			@Override
 			public void onSubmit() {
-				setResponsePage(returnPage);
+				if(returnPage != null) {
+					setResponsePage(returnPage);
+				}else if(returnClass != null) {
+					setResponsePage(returnClass);
+				}
 				super.onSubmit();
 			}
 		};
-		back.setModel(backButtonMessageModel);
 		back.setDefaultFormProcessing(true);
 		form.add(back);
-	}
-
-	public void setBufferedImage(BufferedImage bufferedImage) {
-		this.bufferedImage = bufferedImage;
-	}
-
-	public BufferedImage getBufferedImage() {
-		return bufferedImage;
 	}
 }
 

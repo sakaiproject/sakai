@@ -84,8 +84,6 @@ public class ReportDataPage extends BasePage {
 	private BufferedImage				chartImage			= null;
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
-	private int							maximizedWidth		= 0;
-	private int							maximizedHeight		= 0;
 	
 	public ReportDataPage(final ReportDefModel reportDef) {
 		this(reportDef, null, null);
@@ -175,15 +173,15 @@ public class ReportDataPage extends BasePage {
 		report = dataProvider.getReport();
 		
 		// Report: chart
-		reportChart = new AjaxLazyLoadImage("reportChart") {
+		reportChart = new AjaxLazyLoadImage("reportChart", getPage()) {
 			@Override
 			public BufferedImage getBufferedImage() {
 				return getChartImage();
 			}
 
 			@Override
-			public BufferedImage getBufferedMaximizedImage() {
-				return getChartImage(maximizedWidth, maximizedHeight);
+			public BufferedImage getBufferedImage(int width, int height) {
+				return getChartImage(width, height);
 			}		
 		};
 		reportChart.setOutputMarkupId(true);
@@ -191,12 +189,10 @@ public class ReportDataPage extends BasePage {
 		if(ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
 				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode()) ) {
 			reportChart.setVisible(true);
+			reportChart.setAutoDetermineChartSizeByAjax(".chartContainer");
 		}else{
 			reportChart.setVisible(false);
-		}
-		// Report: chart ajax behavior now that we already have report data
-		renderAjaxBehavior();
-			
+		}			
 		
 		// Report: table
 		SakaiDataTable reportTable = new SakaiDataTable("table", getTableColumns(), dataProvider);
@@ -427,98 +423,21 @@ public class ReportDataPage extends BasePage {
 	}
 	
 	private BufferedImage getChartImage() {
-		return getChartImage(selectedWidth, selectedHeight);
-	}
-	
-	private BufferedImage getChartImage(int width, int height) {
 		if(chartImage == null) {
-			PrefsData prefsData = facade.getStatsManager().getPreferences(siteId, false);
-			int _width = (width <= 0) ? 350 : width;
-			int _height = (height <= 0) ? 200: height;
-			chartImage = facade.getChartService().generateChart(
-					report, _width, _height,
-					prefsData.isChartIn3D(), prefsData.getChartTransparency(),
-					prefsData.isItemLabelsVisible()
-			);
+			chartImage = getChartImage(selectedWidth, selectedHeight);
 		}
 		return chartImage;
 	}
 	
-	@SuppressWarnings("serial")
-	private void renderAjaxBehavior() {	
-		final boolean renderChart = ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
-								|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode());
-		
-		chartSizeBehavior = new AbstractDefaultAjaxBehavior() {
-			@Override
-			protected void respond(AjaxRequestTarget target) {
-				// get chart size
-		    	Request req = RequestCycle.get().getRequest();
-				try{
-					selectedWidth = (int) Float.parseFloat(req.getParameter("width"));					
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					selectedWidth = 400;
-				}
-				try{
-					selectedHeight = (int) Float.parseFloat(req.getParameter("height"));
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					selectedHeight = 200;
-				}
-				try{
-					maximizedWidth = (int) Float.parseFloat(req.getParameter("maxwidth"));
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					maximizedWidth = 640;
-				}
-				try{
-					maximizedHeight = (int) Float.parseFloat(req.getParameter("maxheight"));
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					maximizedHeight = 300;
-				}
-				target.appendJavascript(buildCallbackScript(reportChart.getCallbackUrl(), null));
-			}		
-			
-			private String buildCallbackScript(CharSequence callbackUrl, CharSequence onSuccessCallbackScript) {
-				StringBuilder script = new StringBuilder();
-				script.append("wicketAjaxGet('");
-				script.append(callbackUrl);
-				script.append("', function() {");
-				if(onSuccessCallbackScript != null) {
-					script.append("setTimeout(\"");
-					script.append(onSuccessCallbackScript);
-					script.append("\",500)");
-				}
-				script.append("}, function() {});");
-				return script.toString();
-			}   
-		};
-		if(renderChart) {				
-			add(chartSizeBehavior);
-		}
-		
-		WebMarkupContainer js = new WebMarkupContainer("jsWicketChartSize");
-		js.setOutputMarkupId(true);
-		add(js);
-		WebMarkupContainer jsCall = new WebMarkupContainer("jsWicketChartSizeCall") {
-			@Override
-			protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
-				if(renderChart) {
-					StringBuilder buff = new StringBuilder();
-					buff.append("jQuery(document).ready(function() {");
-					buff.append("  var chartSizeCallback = '" + chartSizeBehavior.getCallbackUrl() + "'; ");
-					buff.append("  setWicketChartSize(chartSizeCallback);");
-					buff.append("});");
-					replaceComponentTagBody(markupStream, openTag, buff.toString());
-				}else{
-					super.onComponentTagBody(markupStream, openTag);					
-				}
-			}	
-		};
-		jsCall.setOutputMarkupId(true);
-		add(jsCall);
+	private BufferedImage getChartImage(int width, int height) {
+		PrefsData prefsData = facade.getStatsManager().getPreferences(siteId, false);
+		int _width = (width <= 0) ? 350 : width;
+		int _height = (height <= 0) ? 200: height;
+		return facade.getChartService().generateChart(
+					report, _width, _height,
+					prefsData.isChartIn3D(), prefsData.getChartTransparency(),
+					prefsData.isItemLabelsVisible()
+			);
 	}
 	
 	protected String getExportFileName() {

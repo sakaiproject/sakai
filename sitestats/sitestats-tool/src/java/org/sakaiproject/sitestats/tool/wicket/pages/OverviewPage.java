@@ -5,8 +5,10 @@ import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
+import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -33,16 +35,9 @@ public class OverviewPage extends BasePage {
 	private String						realSiteId;
 	private String						siteId;
 
-	private int							width;
-	private int							height;
-	private int							maxwidth;
-	private int							maxheight;
-
 	// UI Components
 	private VisitsPanel					visitsPanel			= null;
 	private ActivityPanel				activityPanel		= null;
-
-	private AbstractDefaultAjaxBehavior chartSizeBehavior = null;
 	
 	
 	public OverviewPage() {
@@ -59,7 +54,6 @@ public class OverviewPage extends BasePage {
 		}
 		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
-			renderAjaxBehavior();
 			renderBody();
 		}else{
 			setResponsePage(NotAuthorizedPage.class);
@@ -107,88 +101,6 @@ public class OverviewPage extends BasePage {
 			activity.add(panel);
 		}
 		add(activity);	
-	}
-	
-	@SuppressWarnings("serial")
-	private void renderAjaxBehavior() {		
-		chartSizeBehavior = new AbstractDefaultAjaxBehavior() {
-			@Override
-			protected void respond(AjaxRequestTarget target) {
-				// get chart size
-		    	Request req = RequestCycle.get().getRequest();
-				try{
-					width = (int) Float.parseFloat(req.getParameter("width"));					
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					width = 400;
-				}
-				try{
-					height = (int) Float.parseFloat(req.getParameter("height"));
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					height = 200;
-				}
-				try{
-					maxwidth = (int) Float.parseFloat(req.getParameter("maxwidth"));
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					maxwidth = 640;
-				}
-				try{
-					maxheight = (int) Float.parseFloat(req.getParameter("maxheight"));
-				}catch(NumberFormatException e){
-					e.printStackTrace();
-					maxheight = 300;
-				}
-				
-				// append callbacks to draw charts, sequentially
-				if(visitsPanel != null) {
-					visitsPanel.setChartSize(width, height, maxwidth, maxheight);
-					CharSequence onSuccess = null;
-					if(activityPanel != null){
-						activityPanel.setChartSize(width, height, maxwidth, maxheight);
-						onSuccess = buildCallbackScript(activityPanel.getChartCallbackUrl(), null);
-					}
-					String callbackScript = buildCallbackScript(visitsPanel.getChartCallbackUrl(), onSuccess);
-					target.appendJavascript(callbackScript);
-				}else if(activityPanel != null){
-					activityPanel.setChartSize(width, height, maxwidth, maxheight);
-					target.appendJavascript(buildCallbackScript(activityPanel.getChartCallbackUrl(), null));
-				}
-			}
-			
-			private String buildCallbackScript(CharSequence callbackUrl, CharSequence onSuccessCallbackScript) {
-				StringBuilder script = new StringBuilder();
-				script.append("wicketAjaxGet('");
-				script.append(callbackUrl);
-				script.append("', function() {");
-				if(onSuccessCallbackScript != null) {
-					script.append("setTimeout(\"");
-					script.append(onSuccessCallbackScript);
-					script.append("\",500)");
-				}
-				script.append("}, function() {});");
-				return script.toString();
-			}
-		};
-		add(chartSizeBehavior);
-		
-		WebMarkupContainer js = new WebMarkupContainer("jsWicketChartSize");
-		js.setOutputMarkupId(true);
-		add(js);
-		WebMarkupContainer jsCall = new WebMarkupContainer("jsWicketChartSizeCall") {
-			@Override
-			protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
-				StringBuilder buff = new StringBuilder();
-				buff.append("jQuery(document).ready(function() {");
-				buff.append("  var chartSizeCallback = '" + chartSizeBehavior.getCallbackUrl() + "'; ");
-				buff.append("  setWicketChartSize(chartSizeCallback);");
-				buff.append("});");
-				replaceComponentTagBody(markupStream, openTag, buff.toString());
-			}	
-		};
-		jsCall.setOutputMarkupId(true);
-		add(jsCall);
 	}
 }
 
