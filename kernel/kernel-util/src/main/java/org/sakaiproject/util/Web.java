@@ -173,6 +173,8 @@ public class Web
 	 * @param value
 	 *        The string to escape.
 	 * @return value escaped.
+	 * @deprecated 
+	 *        Use http://commons.apache.org/lang/api/org/apache/commons/lang/StringEscapeUtils.html instead (see KNL-69).
 	 */
 	public static String escapeJsQuoted(String value)
 	{
