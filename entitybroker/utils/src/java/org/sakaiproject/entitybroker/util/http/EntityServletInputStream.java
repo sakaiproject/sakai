@@ -35,16 +35,16 @@ public class EntityServletInputStream extends ServletInputStream {
 
     /**
      * Creates the SIS from an existing inputstream
-     * @param in the IS to create the SIS from, can be buffered or not
+     * @param inputStream the IS to create the SIS from, can be buffered or not
      */
-    public EntityServletInputStream(InputStream in) {
-        if (in == null) {
+    public EntityServletInputStream(InputStream inputStream) {
+        if (inputStream == null) {
             throw new IllegalArgumentException("inputstream cannot be null");
         }
-        if (BufferedInputStream.class.isAssignableFrom(in.getClass())) {
-            this.in = (BufferedInputStream) in;
+        if (BufferedInputStream.class.isAssignableFrom(inputStream.getClass())) {
+            this.in = (BufferedInputStream) inputStream;
         } else {
-            this.in = new BufferedInputStream(in);
+            this.in = new BufferedInputStream(inputStream);
         }
     }
 

@@ -21,8 +21,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * This is here to allow us to receive response data back which will not mess up an existing response
- * object and to allow for mocking of responses
+ * object and to allow for mocking of responses,
+ * built from the example in spring framework
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
@@ -49,7 +50,7 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     private boolean writerAccessAllowed = true;
     private String characterEncoding = "UTF-8";
     private final ByteArrayOutputStream content = new ByteArrayOutputStream();
-    private final ServletOutputStream outputStream = null; //new ResponseServletOutputStream(this.content);
+    private final ServletOutputStream outputStream = new EntityServletOutputStream(content);
     private PrintWriter writer;
     private int contentLength = 0;
     private String contentType;
@@ -61,8 +62,6 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     private int status = HttpServletResponse.SC_OK;
     private String errorMessage;
     private String redirectedUrl;
-    private String forwardedUrl;
-    private String includedUrl;
 
 
     /**
@@ -103,6 +102,9 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         return this.characterEncoding;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#getOutputStream()
+     */
     public ServletOutputStream getOutputStream() {
         if (!this.outputStreamAccessAllowed) {
             throw new IllegalStateException("OutputStream access not allowed");
@@ -110,6 +112,9 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         return this.outputStream;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#getWriter()
+     */
     public PrintWriter getWriter() throws UnsupportedEncodingException {
         if (!this.writerAccessAllowed) {
             throw new IllegalStateException("Writer access not allowed");
@@ -122,11 +127,18 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         return this.writer;
     }
 
+    /**
+     * @return the content as a byte array
+     */
     public byte[] getContentAsByteArray() {
         flushBuffer();
         return this.content.toByteArray();
     }
 
+    /**
+     * @return a string representing the content of this response
+     * @throws UnsupportedEncodingException
+     */
     public String getContentAsString() throws UnsupportedEncodingException {
         flushBuffer();
         return (this.characterEncoding != null) ?
@@ -232,45 +244,6 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         return null;
     }
 
-    public boolean containsHeader(String name) {
-        return false;
-        // TODO
-//        return (HeaderValueHolder.getByName(this.headers, name) != null);
-    }
-
-    /**
-     * Return the names of all specified headers as a Set of Strings.
-     * @return the <code>Set</code> of header name <code>Strings</code>, or an empty <code>Set</code> if none
-     */
-    public Set getHeaderNames() {
-        return this.headers.keySet();
-    }
-
-    /**
-     * Return the primary value for the given header, if any.
-     * <p>Will return the first value in case of multiple values.
-     * @param name the name of the header
-     * @return the associated header value, or <code>null<code> if none
-     */
-    public Object getHeader(String name) {
-        // TODO
-        return null;
-//        HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-//        return (header != null ? header.getValue() : null);
-    }
-
-    /**
-     * Return all values for the given header as a List of value objects.
-     * @param name the name of the header
-     * @return the associated header values, or an empty List if none
-     */
-    public List getHeaders(String name) {
-        // TODO
-        return null;
-//        HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-//        return (header != null ? header.getValues() : Collections.EMPTY_LIST);
-    }
-
     /**
      * The default implementation returns the given URL String as-is.
      * <p>Can be overridden in subclasses, appending a session id or the like.
@@ -332,11 +305,11 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     }
 
     public void setDateHeader(String name, long value) {
-        setHeaderValue(name, new Long(value));
+        setHeaderValue(name, value+"");
     }
 
     public void addDateHeader(String name, long value) {
-        addHeaderValue(name, new Long(value));
+        addHeaderValue(name, value+"");
     }
 
     public void setHeader(String name, String value) {
@@ -348,35 +321,84 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     }
 
     public void setIntHeader(String name, int value) {
-        setHeaderValue(name, new Integer(value));
+        setHeaderValue(name, value+"");
     }
 
     public void addIntHeader(String name, int value) {
-        addHeaderValue(name, new Integer(value));
+        addHeaderValue(name, value+"");
     }
 
-    private void setHeaderValue(String name, Object value) {
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#containsHeader(java.lang.String)
+     */
+    public boolean containsHeader(String name) {
+        boolean found = false;
+        if (name != null) {
+            found = this.headers.containsKey(name);
+        }
+        return found;
+    }
+
+
+    // HEADER handling methods
+
+    /**
+     * Return the names of all specified headers as a Set of Strings.
+     * @return the <code>Set</code> of header name <code>Strings</code>, or an empty <code>Set</code> if none
+     */
+    public Set getHeaderNames() {
+        return this.headers.keySet();
+    }
+
+    /**
+     * Get all headers in this response
+     * @return all headers as a map of string (header name) -> List(String) (header values)
+     */
+    public Map<String, Vector<String>> getHeaders() {
+        return this.headers;
+    }
+
+    /**
+     * Delete a header and all values by name
+     * @param name the name key of the header
+     */
+    public void removeHeader(String name) {
+        if (name == null || "".equals(name)) {
+            throw new IllegalArgumentException("name ("+name+") must not be null");
+        }
+        this.headers.remove(name);
+    }
+
+    public void clearHeaders() {
+        this.headers.clear();
+    }
+
+    private void setHeaderValue(String name, String value) {
         doAddHeaderValue(name, value, true);
     }
 
-    private void addHeaderValue(String name, Object value) {
+    private void addHeaderValue(String name, String value) {
         doAddHeaderValue(name, value, false);
     }
 
-    private void doAddHeaderValue(String name, Object value, boolean replace) {
-        // TODO
-//        HeaderValueHolder header = HeaderValueHolder.getByName(this.headers, name);
-//        Assert.notNull(value, "Header value must not be null");
-//        if (header == null) {
-//            header = new HeaderValueHolder();
-//            this.headers.put(name, header);
-//        }
-//        if (replace) {
-//            header.setValue(value);
-//        }
-//        else {
-//            header.addValue(value);
-//        }
+    private void doAddHeaderValue(String name, String value, boolean replace) {
+        if (name == null || "".equals(name)
+                || value == null) {
+            throw new IllegalArgumentException("name ("+name+") and value ("+value+") must not be null");
+        }
+        if (replace) {
+            Vector<String> v = new Vector<String>();
+            v.add(value);
+            this.headers.put(name, v);
+        } else {
+            if (this.headers.containsKey(name)) {
+                this.headers.get(name).add(value);
+            } else {
+                Vector<String> v = new Vector<String>();
+                v.add(value);
+                this.headers.put(name, v);
+            }
+        }
     }
 
     public void setStatus(int status) {
@@ -394,27 +416,6 @@ public class EntityHttpServletResponse implements HttpServletResponse {
 
     public String getErrorMessage() {
         return this.errorMessage;
-    }
-
-
-    //---------------------------------------------------------------------
-    // Methods for MockRequestDispatcher
-    //---------------------------------------------------------------------
-
-    public void setForwardedUrl(String forwardedUrl) {
-        this.forwardedUrl = forwardedUrl;
-    }
-
-    public String getForwardedUrl() {
-        return this.forwardedUrl;
-    }
-
-    public void setIncludedUrl(String includedUrl) {
-        this.includedUrl = includedUrl;
-    }
-
-    public String getIncludedUrl() {
-        return this.includedUrl;
     }
 
 }
