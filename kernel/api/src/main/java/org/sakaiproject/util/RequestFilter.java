@@ -616,9 +616,20 @@ public class RequestFilter implements Filter
 						postProcessResponse(s, req, resp);
 					}
 				}
-				catch (Throwable t)
+				catch (RuntimeException t)
 				{
 					M_log.warn("", t);
+					throw t;
+				}
+				catch (IOException ioe)
+				{
+					M_log.warn("", ioe);
+					throw ioe;
+				}
+				catch (ServletException se)
+				{
+					M_log.warn("", se);
+					throw se;
 				}
 				finally
 				{
