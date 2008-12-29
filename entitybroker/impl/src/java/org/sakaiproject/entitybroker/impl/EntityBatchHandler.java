@@ -18,16 +18,14 @@ import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequestWrapper;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 
-import org.sakaiproject.entitybroker.EntityReference;
+import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 
 
 /**
@@ -94,11 +92,19 @@ public class EntityBatchHandler {
             throw new IllegalArgumentException("refs parameter must be set and there must be at least 1 reference (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
         }
         // loop through all references
+        Map<String, Object> results = new ArrayOrderedMap<String, Object>();
+        boolean successOverall = false; // true if all ok or partial ok, false if exception occurs or all fail
+        boolean failure = false;
         for (int i = 0; i < refs.length; i++) {
             String reference = refs[i];
             if (reference == null || "".equals(reference)) {
                 continue; // skip
             }
+            if (results.containsKey(reference)) {
+                continue; // skip, already done, we do not process twice
+            }
+            // object will hold the results of this reference request
+            Object result;
 //            // identify the EB operations
 //            EntityReference entityReference = null;
 //            if (reference.startsWith(EntityView.DIRECT_PREFIX)) {
@@ -121,24 +127,85 @@ public class EntityBatchHandler {
 //                //entityBrokerManager.getEntityData(ref);
 //            }
 //            // compile EB responses
-            // fire off the URLs to the server and get back responses
+
+            // setup the request and response objects to do the reference request
             RequestDispatcher dispatcher = req.getRequestDispatcher(reference);
-            HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(req);
-            HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(res);
+            EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, reference);
+            EntityHttpServletResponse entityResponse = new EntityHttpServletResponse(res);
+            // fire off the URLs to the server and get back responses
+            ResponseError error = null;
             try {
-                dispatcher.include(requestWrapper, responseWrapper);
-            } catch (ServletException e) {
-                // TODO Auto-generated catch block
-                throw new RuntimeException("died");
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                throw new RuntimeException("died");
+                // need to forward instead of include to get headers back
+                dispatcher.forward(entityRequest, entityResponse);
+            } catch (Exception e) {
+                String errorMessage = "Failure attempting to process reference ("+reference+"): " + e.getMessage() + ":" + e.getCause();
+                error = new ResponseError(reference, errorMessage);
             }
-            
-            // compile all the responses
-            // create the object to encode into the final response
+            // create the object to encode and place into the final response
+            if (error == null) {
+                // all ok, create the result for the response object
+                // all cookies go into the main response
+                Cookie[] cookies = entityResponse.getCookies();
+                for (Cookie cookie : cookies) {
+                    res.addCookie(cookie);
+                }
+                // status codes are compiled
+                int status = entityResponse.getStatus();
+                if (status >= 200 && status < 300) {
+                    successOverall = true;
+                }
+                // create the result
+                result = new ResponseResult(reference, status, entityResponse.getHeaders(), entityResponse.getContentAsString());
+            } else {
+                // failure, keep going though
+                result = error;
+                successOverall = false;
+                failure = true;
+            }
+            results.put(reference, result);
+        }
+        // determine overall status
+        int overallStatus = HttpServletResponse.SC_OK;
+        if (failure == true || successOverall == false) {
+            overallStatus = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        }
+        // compile all the responses into encoded data
+        String overallData = entityEncodingManager.encodeData(results, view.getFormat(), "ref", null);
+        try {
+            res.getWriter().write(overallData);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to encode data for overall response: " + e.getMessage(), e);
         }
         // put response, headers, and code into the http response
+        res.setStatus(overallStatus);
+    }
+
+    /**
+     * Holds the error values which will be encoded by the various EB utils
+     */
+    public static class ResponseError {
+        public String reference;
+        public String error;
+        public ResponseError(String reference, String errorMessage) {
+            this.reference = reference;
+            this.error = errorMessage;
+        }
+    }
+
+    /**
+     * Holds the results from a successful response request
+     */
+    public static class ResponseResult {
+        public String reference;
+        public int status;
+        public Map<String, String[]> headers;
+        public String data;
+        public ResponseResult(String reference, int status, Map<String, String[]> headers, String data) {
+            this.reference = reference;
+            this.status = status;
+            this.headers = headers;
+            this.data = data;
+        }
     }
 
 }

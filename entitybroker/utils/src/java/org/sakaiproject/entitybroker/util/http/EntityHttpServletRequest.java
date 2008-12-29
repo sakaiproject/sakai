@@ -101,16 +101,20 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     String servletPath = "";
 
     /**
-     * Create a new request from a given request and modify it based on the path string
+     * Create a new request from a given request
      * @param req any request
      */
     public EntityHttpServletRequest(HttpServletRequest req) {
-        copy = req;
-        if (req != null) {
-            setRequestValues(req);
-        } else {
-            // no request set, make some fake stuff?
-        }
+        this(req, null, null);
+    }
+
+    /**
+     * Create a new request from a given request and modify it based on the path string
+     * @param req any request
+     * @param pathString any path or URL
+     */
+    public EntityHttpServletRequest(HttpServletRequest req, String pathString) {
+        this(req, null, pathString);
     }
 
     /**
@@ -125,35 +129,34 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         if (req != null) {
             setRequestValues(req);
         } else {
-            // no request set, make some fake stuff?
+            throw new IllegalArgumentException("HttpServletRequest must be set and cannot be null");
         }
         if (method == null || "".equals(method)) {
-            setMethod("POST");
+            setMethod( req.getMethod().toUpperCase() );
         }
         // setup the stuff based on the pathString
         setPathString(pathString);
     }
 
     /**
-     * @param method GET, POST, PUT, DELETE (PUT and DELETE not supported by browsers),
-     * this will be set to POST if null or unset
-     * @param pathInfo the part of the URL specifying extra path information that comes 
-     * after the servlet path but before the query string in the request URL
-     * Example: http://server/servlet/extra/path/info?thing=1, pathInfo = /extra/path/info
+     * Create a request using the pathString
+     * @param pathString any path or URL
      */
-    public EntityHttpServletRequest(String method, String pathInfo) {
-        if (method == null || "".equals(method)) {
-            setMethod("POST");
-        }
-        setPathInfo(pathInfo);
+    public EntityHttpServletRequest(String pathString) {
+        // setup the stuff based on the pathString
+        setPathString(pathString);
+        setMethod("POST");
     }
 
     /**
+     * Create a request using the pathString and setting the method and params
+     * @param pathString any path or URL
      * @param method GET, POST, PUT, DELETE (PUT and DELETE not supported by browsers),
      * this will be set to POST if null or unset
      * @param params alternating keys and values (starting with keys) to place into the request parameters
      */
-    public EntityHttpServletRequest(String method, String... params) {
+    public EntityHttpServletRequest(String pathString, String method, String... params) {
+        setPathString(pathString);
         if (method == null || "".equals(method)) {
             setMethod("POST");
         }

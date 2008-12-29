@@ -20,6 +20,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -31,19 +33,45 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import org.azeckoski.reflectutils.map.ArrayOrderedMap;
+
 
 /**
  * This is here to allow us to receive response data back which will not mess up an existing response
  * object and to allow for mocking of responses,
- * built from the example in spring framework
+ * based on and built from the example in spring framework
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
 public class EntityHttpServletResponse implements HttpServletResponse {
 
-    public static final int DEFAULT_SERVER_PORT = 80;
+    /**
+     * Create a default response that is valid for testing
+     */
+    public EntityHttpServletResponse() {
+        this.setLocale( Locale.getDefault() );
+        this.setStatus( HttpServletResponse.SC_OK );
+    }
 
+    /**
+     * Create a servlet response using the various values and codes stored in the given one,
+     * makes copies mostly
+     * @param response any valid response, cannot be null
+     */
+    public EntityHttpServletResponse(HttpServletResponse response) {
+        if (response == null) {
+            throw new IllegalArgumentException("response to copy cannot be null");
+        }
+        this.setBufferSize( response.getBufferSize() );
+        if (response.getContentType() != null) {
+            this.setContentType( response.getContentType() );
+        }
+        this.setLocale( response.getLocale() );
+        this.setStatus( HttpServletResponse.SC_OK );
+    }
+
+    public static final int DEFAULT_SERVER_PORT = 80;
     private static final String CHARSET_PREFIX = "charset=";
 
     private boolean outputStreamAccessAllowed = true;
@@ -137,12 +165,15 @@ public class EntityHttpServletResponse implements HttpServletResponse {
 
     /**
      * @return a string representing the content of this response
-     * @throws UnsupportedEncodingException
      */
-    public String getContentAsString() throws UnsupportedEncodingException {
+    public String getContentAsString() {
         flushBuffer();
-        return (this.characterEncoding != null) ?
-                this.content.toString(this.characterEncoding) : this.content.toString();
+        try {
+            return (this.characterEncoding != null) ?
+                    this.content.toString(this.characterEncoding) : this.content.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Failure during encoding of the string in this response: " + this.characterEncoding + ":" + e.getMessage(), e);
+        }
     }
 
     public void setContentLength(int contentLength) {
@@ -354,8 +385,29 @@ public class EntityHttpServletResponse implements HttpServletResponse {
      * Get all headers in this response
      * @return all headers as a map of string (header name) -> List(String) (header values)
      */
-    public Map<String, Vector<String>> getHeaders() {
-        return this.headers;
+    public Map<String, Vector<String>> getActualHeaders() {
+        return Collections.unmodifiableMap(this.headers);
+    }
+
+    /**
+     * Get all headers in this response as a map of string (name) -> String[] (values)
+     * @return all headers in this response as a map of string (name) -> String[] (values)
+     */
+    public Map<String, String[]> getHeaders() {
+        Map<String, String[]> m = new ArrayOrderedMap<String, String[]>();
+        if (this.headers != null && this.headers.size() > 0) {
+            Set<String> keysSet = this.headers.keySet();
+            ArrayList<String> keysList = new ArrayList<String>(keysSet);
+            Collections.sort(keysList);
+            for (String key : keysList) {
+                Vector<String> values = this.headers.get(key);
+                if (values != null && values.size() > 0) {
+                    String[] value = values.toArray(new String[values.size()]);
+                    m.put(key, value);
+                }
+            }
+        }
+        return m;
     }
 
     /**
