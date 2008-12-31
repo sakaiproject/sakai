@@ -159,6 +159,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.entityRedirectsManager = entityRedirectsManager;
     }
 
+    private EntityBatchHandler entityBatchHandler;
+    public void setEntityBatchHandler(EntityBatchHandler entityBatchHandler) {
+        this.entityBatchHandler = entityBatchHandler;
+    }
+
     /**
      * This has to be the impl, we ONLY use the impl specific methods
      */
@@ -349,8 +354,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
                         if (BATCH.equals(prefix)) {
                             // special batch handling
-                            // TODO
-                            throw new UnsupportedOperationException("Nothing handling batch stuff yet");
+                            entityBatchHandler.handleBatch(view, req, res);
                         } else {
                             // check for provider handling of this request
                             RequestHandler handler = (RequestHandler) entityProviderManager.getProviderByPrefixAndCapability(prefix, RequestHandler.class);

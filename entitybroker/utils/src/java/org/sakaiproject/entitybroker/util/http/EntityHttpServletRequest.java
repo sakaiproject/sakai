@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -103,6 +104,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     String characterEncoding = "UTF-8";
     InputStream contentStream = null;
     int contentLength = 0;
+    HttpSession internalSession;
 
     String scheme = DEFAULT_PROTOCOL;
     String protocol = DEFAULT_PROTOCOL;
@@ -573,23 +575,41 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public String getAuthType() {
-        return copy.getAuthType();
+        if (copy != null) {
+            return copy.getAuthType();
+        }
+        return null; // no auth
     }
 
     public String getLocalAddr() {
-        return copy.getLocalAddr();
+        if (copy != null) {
+            return copy.getLocalAddr();
+        }
+        return DEFAULT_SERVER_ADDR;
     }
 
     public Enumeration getLocales() {
-        return copy.getLocales();
+        if (copy != null) {
+            return copy.getLocales();
+        } else {
+            ArrayList<Locale> l = new ArrayList<Locale>();
+            l.add(locale);
+            return Collections.enumeration(l);
+        }
     }
 
     public String getLocalName() {
-        return copy.getLocalName();
+        if (copy != null) {
+            return copy.getLocalName();
+        }
+        return DEFAULT_SERVER_NAME;
     }
 
     public int getLocalPort() {
-        return copy.getLocalPort();
+        if (copy != null) {
+            return copy.getLocalPort();
+        }
+        return DEFAULT_SERVER_PORT;
     }
 
     public String getParameter(String name) {
@@ -666,23 +686,31 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public String getProtocol() {
-        return copy.getProtocol();
+        return protocol;
     }
 
     public String getRealPath(String path) {
-        return copy.getRealPath(path);
+        if (copy != null) {
+            return copy.getRealPath(path);
+        } else {
+            return path;
+        }
     }
 
     public String getRemoteAddr() {
-        return copy.getRemoteAddr();
+        return remoteAddr;
     }
 
     public String getRemoteHost() {
-        return copy.getRemoteHost();
+        return remoteHost;
     }
 
     public int getRemotePort() {
-        return copy.getRemotePort();
+        if (copy != null) {
+            return copy.getRemotePort();
+        } else {
+            return DEFAULT_SERVER_PORT;
+        }
     }
 
     public String getRemoteUser() {
@@ -698,22 +726,22 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public String getScheme() {
-        return copy.getScheme();
+        return scheme;
     }
 
     public String getServerName() {
-        return copy.getServerName();
+        return serverName;
     }
 
     public int getServerPort() {
-        return copy.getServerPort();
+        return serverPort;
     }
 
     public String getRequestedSessionId() {
         if (copy != null) {
             return copy.getRequestedSessionId();
         } else {
-            throw new RuntimeException("Not implemented");
+            return getInternalSession().getId();
         }
     }
 
@@ -721,7 +749,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         if (copy != null) {
             return copy.getSession();
         } else {
-            throw new RuntimeException("Not implemented");
+            return getInternalSession();
         }
     }
 
@@ -729,36 +757,71 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         if (copy != null) {
             return copy.getSession(create);
         } else {
-            throw new RuntimeException("Not implemented");
+            return getInternalSession();
         }
     }
 
+    private HttpSession getInternalSession() {
+        if (internalSession == null) {
+            internalSession = new EntityHttpSession();
+        }
+        return internalSession;
+    }
+
     public Principal getUserPrincipal() {
-        return copy.getUserPrincipal();
+        if (copy != null) {
+            return copy.getUserPrincipal();
+        } else {
+            return null;
+        }
     }
 
     public boolean isRequestedSessionIdFromCookie() {
-        return copy.isRequestedSessionIdFromCookie();
+        if (copy != null) {
+            return copy.isRequestedSessionIdFromCookie();
+        } else {
+            return false;
+        }
     }
 
     public boolean isRequestedSessionIdFromUrl() {
-        return copy.isRequestedSessionIdFromUrl();
+        if (copy != null) {
+            return copy.isRequestedSessionIdFromUrl();
+        } else {
+            return false;
+        }
     }
 
     public boolean isRequestedSessionIdFromURL() {
-        return copy.isRequestedSessionIdFromURL();
+        if (copy != null) {
+            return copy.isRequestedSessionIdFromURL();
+        } else {
+            return false;
+        }
     }
 
     public boolean isRequestedSessionIdValid() {
-        return copy.isRequestedSessionIdValid();
+        if (copy != null) {
+            return copy.isRequestedSessionIdValid();
+        } else {
+            return true;
+        }
     }
 
     public boolean isSecure() {
-        return copy.isSecure();
+        if (copy != null) {
+            return copy.isSecure();
+        } else {
+            return false;
+        }
     }
 
     public boolean isUserInRole(String role) {
-        return copy.isUserInRole(role);
+        if (copy != null) {
+            return copy.isUserInRole(role);
+        } else {
+            return false;
+        }
     }
 
     /**

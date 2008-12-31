@@ -47,11 +47,20 @@ public class EntityBatchHandler {
         this.entityEncodingManager = entityEncodingManager;
     }
 
-    public void handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
+    /**
+     * Handle the batch operations encoded in this view and request
+     * @param view the current view
+     * @param req the current request
+     * @param res the current response
+     * @return true if the operation was handled, false if it could not be handled
+     */
+    public boolean handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         // first find out which METHOD we are dealing with
+        boolean handled = false;
         String method = req.getMethod() == null ? EntityView.Method.GET.name() : req.getMethod().toUpperCase().trim();
         if (EntityView.Method.GET.name().equals(method)) {
             handleBatchGet(view, req, res);
+            handled = true;
         } else if (EntityView.Method.HEAD.name().equals(method)) {
             throw new java.lang.RuntimeException("Method not implemented yet");
         } else if (EntityView.Method.DELETE.name().equals(method)) {
@@ -63,8 +72,7 @@ public class EntityBatchHandler {
         } else {
             throw new IllegalArgumentException("Unknown HTTP METHOD ("+method+"), cannot continue processing request: " + view);
         }
-                
-        //HttpRESTUtils.
+        return handled;
     }
 
     /**

@@ -249,4 +249,12 @@
             ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage" />
     </bean>
 
+    <bean id="org.sakaiproject.entitybroker.impl.EntityBatchHandler"
+        class="org.sakaiproject.entitybroker.impl.EntityBatchHandler">
+        <property name="entityBrokerManager"
+            ref="org.sakaiproject.entitybroker.impl.EntityBrokerManager" />
+        <property name="entityEncodingManager"
+            ref="org.sakaiproject.entitybroker.impl.EntityEncodingManager" />
+    </bean>
+
 </beans>
