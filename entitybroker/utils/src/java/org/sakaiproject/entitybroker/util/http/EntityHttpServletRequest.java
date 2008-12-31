@@ -17,28 +17,46 @@ package org.sakaiproject.entitybroker.util.http;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
+import javax.servlet.http.HttpSessionContext;
 
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.URLData;
+import org.springframework.mock.web.MockServletContext;
 
 
 /**
@@ -46,7 +64,7 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.URLData;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "deprecation" })
 public class EntityHttpServletRequest implements HttpServletRequest {
 
     /**
@@ -651,7 +669,6 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         return copy.getProtocol();
     }
 
-    @SuppressWarnings("deprecation")
     public String getRealPath(String path) {
         return copy.getRealPath(path);
     }
@@ -673,11 +690,11 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public RequestDispatcher getRequestDispatcher(String path) {
-        return copy.getRequestDispatcher(path);
-    }
-
-    public String getRequestedSessionId() {
-        return copy.getRequestedSessionId();
+        if (copy != null) {
+            return copy.getRequestDispatcher(path);
+        } else {
+            return new EntityRequestDispatcher(path);
+        }
     }
 
     public String getScheme() {
@@ -692,12 +709,28 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         return copy.getServerPort();
     }
 
+    public String getRequestedSessionId() {
+        if (copy != null) {
+            return copy.getRequestedSessionId();
+        } else {
+            throw new RuntimeException("Not implemented");
+        }
+    }
+
     public HttpSession getSession() {
-        return copy.getSession();
+        if (copy != null) {
+            return copy.getSession();
+        } else {
+            throw new RuntimeException("Not implemented");
+        }
     }
 
     public HttpSession getSession(boolean create) {
-        return copy.getSession(create);
+        if (copy != null) {
+            return copy.getSession(create);
+        } else {
+            throw new RuntimeException("Not implemented");
+        }
     }
 
     public Principal getUserPrincipal() {
@@ -708,7 +741,6 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         return copy.isRequestedSessionIdFromCookie();
     }
 
-    @SuppressWarnings("deprecation")
     public boolean isRequestedSessionIdFromUrl() {
         return copy.isRequestedSessionIdFromUrl();
     }
@@ -727,6 +759,497 @@ public class EntityHttpServletRequest implements HttpServletRequest {
 
     public boolean isUserInRole(String role) {
         return copy.isUserInRole(role);
+    }
+
+    /**
+     * A non-functional request dispatcher, based on the spring mock version
+     */
+    public static class EntityRequestDispatcher implements RequestDispatcher {
+
+        private final String url;
+
+        /**
+         * Create a new EntityRequestDispatcher
+         * @param url the URL to dispatch to
+         */
+        public EntityRequestDispatcher(String url) {
+            if (url == null) {
+                throw new IllegalArgumentException("url cannot be null");
+            }
+            this.url = url;
+        }
+
+
+        public void forward(ServletRequest request, ServletResponse response) {
+            if (request == null || response == null) {
+                throw new IllegalArgumentException("request and response cannot be null");
+            }
+            if (response.isCommitted()) {
+                throw new IllegalStateException("Cannot perform forward - response is already committed");
+            }
+            getEntityHttpServletResponse(response).setForwardedUrl(this.url);
+        }
+
+        public void include(ServletRequest request, ServletResponse response) {
+            if (request == null || response == null) {
+                throw new IllegalArgumentException("request and response cannot be null");
+            }
+            getEntityHttpServletResponse(response).setIncludedUrl(this.url);
+        }
+
+        protected EntityHttpServletResponse getEntityHttpServletResponse(ServletResponse response) {
+            if (response instanceof EntityHttpServletResponse) {
+                return (EntityHttpServletResponse) response;
+            }
+            if (response instanceof HttpServletResponseWrapper) {
+                return getEntityHttpServletResponse(((HttpServletResponseWrapper) response).getResponse());
+            }
+            throw new IllegalArgumentException("EntityRequestDispatcher requires EntityHttpServletResponse");
+        }
+
+    }
+
+    
+    /**
+     * For testing, based on the spring Mock version
+     */
+    public static class EntityServletContext implements ServletContext {
+
+        public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "javax.servlet.context.tempdir";
+        private static final String TEMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";
+        private final String resourceBasePath;
+        private String contextPath = "";
+        private final Map contexts = new HashMap();
+        private final Properties initParameters = new Properties();
+        private final Hashtable<String, Object> attributes = new Hashtable<String, Object>();
+        private String servletContextName = "MockServletContext";
+
+        /**
+         * Create a new MockServletContext, using no base path and a
+         * DefaultResourceLoader (i.e. the classpath root as WAR root).
+         * @see org.springframework.core.io.DefaultResourceLoader
+         */
+        public EntityServletContext() {
+            this("");
+        }
+
+        /**
+         * Create a new MockServletContext, using a DefaultResourceLoader.
+         * @param resourceBasePath the WAR root directory (should not end with a slash)
+         * @see org.springframework.core.io.DefaultResourceLoader
+         */
+        public EntityServletContext(String resourceBasePath) {
+            this.resourceBasePath = (resourceBasePath != null ? resourceBasePath : "");
+            // Use JVM temp dir as ServletContext temp dir.
+            String tempDir = System.getProperty(TEMP_DIR_SYSTEM_PROPERTY);
+            if (tempDir != null) {
+                this.attributes.put(TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
+            }
+        }
+
+        protected File getResourceFile(String path) {
+            File f = new File(path);
+            return f;
+        }
+
+        /**
+         * Build a full resource location for the given path,
+         * prepending the resource base path of this MockServletContext.
+         * @param path the path as specified
+         * @return the full resource path
+         */
+        protected String getResourceLocation(String path) {
+            if (!path.startsWith("/")) {
+                path = "/" + path;
+            }
+            return this.resourceBasePath + path;
+        }
+
+
+        public void setContextPath(String contextPath) {
+            this.contextPath = (contextPath != null ? contextPath : "");
+        }
+
+        /* This is a Servlet API 2.5 method. */
+        public String getContextPath() {
+            return this.contextPath;
+        }
+
+        public void registerContext(String contextPath, ServletContext context) {
+            this.contexts.put(contextPath, context);
+        }
+
+        public ServletContext getContext(String contextPath) {
+            if (this.contextPath.equals(contextPath)) {
+                return this;
+            }
+            return (ServletContext) this.contexts.get(contextPath);
+        }
+
+        public int getMajorVersion() {
+            return 2;
+        }
+
+        public int getMinorVersion() {
+            return 5;
+        }
+
+        public String getMimeType(String filePath) {
+            return MimeTypeResolver.getMimeType(filePath);
+        }
+
+        public Set getResourcePaths(String path) {
+            String actualPath = (path.endsWith("/") ? path : path + "/");
+            try {
+                File file = getResourceFile(getResourceLocation(actualPath));
+                String[] fileList = file.list();
+                if (fileList == null || fileList.length == 0) {
+                    return null;
+                }
+                Set<String> resourcePaths = new LinkedHashSet<String>(fileList.length);
+                for (int i = 0; i < fileList.length; i++) {
+                    String resultPath = actualPath + fileList[i];
+                    File f = getResourceFile(resultPath);
+                    if (f.isDirectory()) {
+                        resultPath += "/";
+                    }
+                    resourcePaths.add(resultPath);
+                }
+                return resourcePaths;
+            }
+            catch (Exception ex) {
+                return null;
+            }
+        }
+
+        public URL getResource(String path) throws MalformedURLException {
+            File file = getResourceFile(getResourceLocation(path));
+            if (!file.exists()) {
+                return null;
+            }
+            try {
+                return file.toURL();
+            }
+            catch (MalformedURLException ex) {
+                throw ex;
+            }
+        }
+
+        public InputStream getResourceAsStream(String path) {
+            File file = getResourceFile(getResourceLocation(path));
+            if (!file.exists()) {
+                return null;
+            }
+            try {
+                InputStream stream = new BufferedInputStream( new FileInputStream(file) );
+                return stream;
+            }
+            catch (IOException ex) {
+                return null;
+            }
+        }
+
+        public RequestDispatcher getRequestDispatcher(String path) {
+            if (!path.startsWith("/")) {
+                throw new IllegalArgumentException("RequestDispatcher path at ServletContext level must start with '/'");
+            }
+            return new EntityRequestDispatcher(path);
+        }
+
+        public RequestDispatcher getNamedDispatcher(String path) {
+            return null;
+        }
+
+        public Servlet getServlet(String name) {
+            return null;
+        }
+
+        public Enumeration getServlets() {
+            return Collections.enumeration(Collections.EMPTY_SET);
+        }
+
+        public Enumeration getServletNames() {
+            return Collections.enumeration(Collections.EMPTY_SET);
+        }
+
+        public void log(String message) {
+        }
+
+        public void log(Exception ex, String message) {
+        }
+
+        public void log(String message, Throwable ex) {
+        }
+
+        public String getRealPath(String path) {
+            File file = getResourceFile(getResourceLocation(path));
+            return file.getAbsolutePath();
+        }
+
+        public String getServerInfo() {
+            return "MockServletContext";
+        }
+
+        public String getInitParameter(String name) {
+            if (name == null) {
+                throw new IllegalArgumentException("name cannot be null");
+            }
+            return this.initParameters.getProperty(name);
+        }
+
+        public void addInitParameter(String name, String value) {
+            if (name == null) {
+                throw new IllegalArgumentException("name cannot be null");
+            }
+            this.initParameters.setProperty(name, value);
+        }
+
+        public Enumeration getInitParameterNames() {
+            return this.initParameters.keys();
+        }
+
+        public Object getAttribute(String name) {
+            if (name == null) {
+                throw new IllegalArgumentException("name cannot be null");
+            }
+            return this.attributes.get(name);
+        }
+
+        public Enumeration getAttributeNames() {
+            return this.attributes.keys();
+        }
+
+        public void setAttribute(String name, Object value) {
+            if (name == null) {
+                throw new IllegalArgumentException("name cannot be null");
+            }
+            if (value != null) {
+                this.attributes.put(name, value);
+            }
+            else {
+                this.attributes.remove(name);
+            }
+        }
+
+        public void removeAttribute(String name) {
+            if (name == null) {
+                throw new IllegalArgumentException("name cannot be null");
+            }
+            this.attributes.remove(name);
+        }
+
+        public void setServletContextName(String servletContextName) {
+            this.servletContextName = servletContextName;
+        }
+
+        public String getServletContextName() {
+            return this.servletContextName;
+        }
+
+    }
+
+    private static class MimeTypeResolver {
+        public static String getMimeType(String filePath) {
+            return "text/plain";
+        }
+    }
+
+
+    /**
+     * A fake session for testing, from the spring mock session
+     */
+    public static class EntityHttpSession implements HttpSession {
+
+        public static final String SESSION_COOKIE_NAME = "JSESSION";
+        private static int nextId = 1;
+        private final String id;
+        private final long creationTime = System.currentTimeMillis();
+        private int maxInactiveInterval;
+        private long lastAccessedTime = System.currentTimeMillis();
+        private final ServletContext servletContext;
+        private final Hashtable<String, Object> attributes = new Hashtable<String, Object>();
+        private boolean invalid = false;
+        private boolean isNew = true;
+
+
+        /**
+         * Create a new MockHttpSession with a default {@link MockServletContext}.
+         * @see MockServletContext
+         */
+        public EntityHttpSession() {
+            this(null);
+        }
+
+        /**
+         * Create a new MockHttpSession.
+         * @param servletContext the ServletContext that the session runs in
+         */
+        public EntityHttpSession(ServletContext servletContext) {
+            this(servletContext, null);
+        }
+
+        /**
+         * Create a new MockHttpSession.
+         * @param servletContext the ServletContext that the session runs in
+         * @param id a unique identifier for this session
+         */
+        public EntityHttpSession(ServletContext servletContext, String id) {
+            this.servletContext = (servletContext != null ? servletContext : new EntityServletContext());
+            this.id = (id != null ? id : Integer.toString(nextId++));
+        }
+
+
+        public long getCreationTime() {
+            return this.creationTime;
+        }
+
+        public String getId() {
+            return this.id;
+        }
+
+        public void access() {
+            this.lastAccessedTime = System.currentTimeMillis();
+            this.isNew = false;
+        }
+
+        public long getLastAccessedTime() {
+            return this.lastAccessedTime;
+        }
+
+        public ServletContext getServletContext() {
+            return this.servletContext;
+        }
+
+        public void setMaxInactiveInterval(int interval) {
+            this.maxInactiveInterval = interval;
+        }
+
+        public int getMaxInactiveInterval() {
+            return this.maxInactiveInterval;
+        }
+
+        public HttpSessionContext getSessionContext() {
+            throw new UnsupportedOperationException("getSessionContext");
+        }
+
+        public Object getAttribute(String name) {
+            if (name == null) {
+                throw new IllegalArgumentException("name must not be null");
+            }
+            return this.attributes.get(name);
+        }
+
+        public Object getValue(String name) {
+            return getAttribute(name);
+        }
+
+        public Enumeration getAttributeNames() {
+            return this.attributes.keys();
+        }
+
+        public String[] getValueNames() {
+            return (String[]) this.attributes.keySet().toArray(new String[this.attributes.size()]);
+        }
+
+        public void setAttribute(String name, Object value) {
+            if (name == null) {
+                throw new IllegalArgumentException("name must not be null");
+            }
+            if (value != null) {
+                this.attributes.put(name, value);
+                if (value instanceof HttpSessionBindingListener) {
+                    ((HttpSessionBindingListener) value).valueBound(new HttpSessionBindingEvent(this, name, value));
+                }
+            }
+            else {
+                removeAttribute(name);
+            }
+        }
+
+        public void putValue(String name, Object value) {
+            setAttribute(name, value);
+        }
+
+        public void removeAttribute(String name) {
+            if (name == null) {
+                throw new IllegalArgumentException("name must not be null");
+            }
+            Object value = this.attributes.remove(name);
+            if (value instanceof HttpSessionBindingListener) {
+                ((HttpSessionBindingListener) value).valueUnbound(new HttpSessionBindingEvent(this, name, value));
+            }
+        }
+
+        public void removeValue(String name) {
+            removeAttribute(name);
+        }
+
+        /**
+         * Clear all of this session's attributes.
+         */
+        public void clearAttributes() {
+            for (Iterator it = this.attributes.entrySet().iterator(); it.hasNext();) {
+                Map.Entry entry = (Map.Entry) it.next();
+                String name = (String) entry.getKey();
+                Object value = entry.getValue();
+                it.remove();
+                if (value instanceof HttpSessionBindingListener) {
+                    ((HttpSessionBindingListener) value).valueUnbound(new HttpSessionBindingEvent(this, name, value));
+                }
+            }
+        }
+
+        public void invalidate() {
+            this.invalid = true;
+            clearAttributes();
+        }
+
+        public boolean isInvalid() {
+            return this.invalid;
+        }
+
+        public void setNew(boolean value) {
+            this.isNew = value;
+        }
+
+        public boolean isNew() {
+            return this.isNew;
+        }
+
+
+        /**
+         * Serialize the attributes of this session into an object that can
+         * be turned into a byte array with standard Java serialization.
+         * @return a representation of this session's serialized state
+         */
+        public Serializable serializeState() {
+            HashMap<String, Object> state = new HashMap<String, Object>();
+            for (Iterator it = this.attributes.entrySet().iterator(); it.hasNext();) {
+                Map.Entry entry = (Map.Entry) it.next();
+                String name = (String) entry.getKey();
+                Object value = entry.getValue();
+                it.remove();
+                if (value instanceof Serializable) {
+                    state.put(name, value);
+                }
+                else {
+                    if (value instanceof HttpSessionBindingListener) {
+                        ((HttpSessionBindingListener) value).valueUnbound(new HttpSessionBindingEvent(this, name, value));
+                    }
+                }
+            }
+            return state;
+        }
+
+        /**
+         * Deserialize the attributes of this session from a state object
+         * created by {@link #serializeState()}.
+         * @param state a representation of this session's serialized state
+         */
+        public void deserializeState(Serializable state) {
+            this.attributes.putAll((Map) state);
+        }
+
     }
 
 }

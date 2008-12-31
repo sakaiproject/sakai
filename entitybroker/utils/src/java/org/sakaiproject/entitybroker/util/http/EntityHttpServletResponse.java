@@ -90,7 +90,29 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     private int status = HttpServletResponse.SC_OK;
     private String errorMessage;
     private String redirectedUrl;
+    private String forwardedUrl;
+    private String includedUrl;
 
+    
+    // methods for testing only
+
+    public void setForwardedUrl(String forwardedUrl) {
+        this.forwardedUrl = forwardedUrl;
+    }
+
+    public String getForwardedUrl() {
+        return this.forwardedUrl;
+    }
+
+    public void setIncludedUrl(String includedUrl) {
+        this.includedUrl = includedUrl;
+    }
+
+    public String getIncludedUrl() {
+        return this.includedUrl;
+    }
+
+    // Other methods
 
     /**
      * Set whether {@link #getOutputStream()} access is allowed.
