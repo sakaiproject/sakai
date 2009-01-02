@@ -78,6 +78,7 @@ import org.sakaiproject.taggable.api.TaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -9473,47 +9474,59 @@ public class AssignmentAction extends PagedResourceActionII
 		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
 		{
 			Vector submissions = new Vector();
-
-			Vector assignments = iterator_to_vector(AssignmentService.getAssignmentsForContext((String) state
-					.getAttribute(STATE_CONTEXT_STRING)));
+			
+			Vector assignments = iterator_to_vector(AssignmentService.getAssignmentsForContext(contextString));
 			if (assignments.size() > 0)
 			{
 				// users = AssignmentService.allowAddSubmissionUsers (((Assignment)assignments.get(0)).getReference ());
 			}
 
-			for (int j = 0; j < assignments.size(); j++)
+			try
 			{
-				Assignment a = (Assignment) assignments.get(j);
-				
-				//get the list of users which are allowed to grade this assignment
-				List allowGradeAssignmentUsers = AssignmentService.allowGradeAssignmentUsers(a.getReference());
-				
-				if (!a.getDraft() && AssignmentService.allowGradeSubmission(a.getReference()))
+				// get the site object first
+				Site site = SiteService.getSite(contextString);
+				for (int j = 0; j < assignments.size(); j++)
 				{
-					try
+					Assignment a = (Assignment) assignments.get(j);
+					
+					//get the list of users which are allowed to grade this assignment
+					List allowGradeAssignmentUsers = AssignmentService.allowGradeAssignmentUsers(a.getReference());
+					
+					if (!a.getDraft() && AssignmentService.allowGradeSubmission(a.getReference()))
 					{
-						List assignmentSubmissions = AssignmentService.getSubmissions(a);
-						for (int k = 0; k < assignmentSubmissions.size(); k++)
+						try
 						{
-							AssignmentSubmission s = (AssignmentSubmission) assignmentSubmissions.get(k);
-							if (s != null && (s.getSubmitted() || (s.getReturned() && (s.getTimeLastModified().before(s
-												.getTimeReturned())))))
+							List assignmentSubmissions = AssignmentService.getSubmissions(a);
+							for (int k = 0; k < assignmentSubmissions.size(); k++)
 							{
-								// has been subitted or has been returned and not work on it yet
-								User[] submitters = s.getSubmitters();
-								if (submitters != null && submitters.length > 0 && !allowGradeAssignmentUsers.contains(submitters[0]))
+								AssignmentSubmission s = (AssignmentSubmission) assignmentSubmissions.get(k);
+								if (s != null && (s.getSubmitted() || (s.getReturned() && (s.getTimeLastModified().before(s
+													.getTimeReturned())))))
 								{
-									// only include the student submission
-									submissions.add(s);
-								}
-							} // if-else
+									// has been subitted or has been returned and not work on it yet
+									User[] submitters = s.getSubmitters();
+									if (submitters != null && submitters.length > 0 && !allowGradeAssignmentUsers.contains(submitters[0]))
+									{
+										// find whether the submitter is still an active member of the site
+										Member member = site.getMember(submitters[0].getId());
+										if(member != null && member.isActive()) {
+											// only include the active student submission
+											submissions.add(s);
+										}
+									}
+								} // if-else
+							}
+						}
+						catch (Exception e)
+						{
+							M_log.warn(this + ":sizeResources " + e.getMessage());
 						}
 					}
-					catch (Exception e)
-					{
-						M_log.warn(this + ":sizeResources " + e.getMessage());
-					}
 				}
+			}
+			catch (IdUnusedException idUnusedException)
+			{
+				M_log.warn(this + ":sizeResources " + idUnusedException.getMessage() + " site id=" + contextString);
 			}
 
 			returnResources = submissions;
