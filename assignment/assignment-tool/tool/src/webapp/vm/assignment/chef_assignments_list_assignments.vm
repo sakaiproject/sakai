@@ -178,12 +178,12 @@ function allowClick(object)
 						##only show it when there is at least a group in site
 						<th id="$tlang.getString('gen.visible')">
 							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
-								<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
+								<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
 								#if ($sortedAsc.equals("true"))
-									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"    title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
+									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
 								#else
-									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"    title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
+									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
 								#end
 							#end
 						</th>
