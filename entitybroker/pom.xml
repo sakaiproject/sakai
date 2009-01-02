@@ -230,7 +230,7 @@
             <dependency>
                 <groupId>org.sakaiproject</groupId>
                 <artifactId>generic-dao</artifactId>
-                <version>0.9.12</version>
+                <version>0.9.16</version>
 <!--                <version>[0.9.11,1.0.0)</version>-->
             </dependency>
             <dependency>
