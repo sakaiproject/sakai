@@ -34,9 +34,16 @@ import org.sakaiproject.assignment.api.AssignmentContentEdit;
 import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
+import org.sakaiproject.assignment.cover.AssignmentService;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -429,11 +436,39 @@ public class DbAssignmentService extends BaseAssignmentService
 		}
 		
 		/**
+		 * Helper method to exclude inactive site members from submissions count
+		 * @param sqlWhere where clause from sql query 
+		 * @param assignmentId assignment id relating to query
+		 * @return
+		 */
+		private int getSubmissionsCountWhere(String sqlWhere, String assignmentId) {
+			int count = 0;
+			Site site = null;
+			try {
+				site = SiteService.getSite(AssignmentService.getAssignment(assignmentId).getContext());
+				
+				List l = super.getSelectedResourcesWhere(sqlWhere);
+				for (Object o : l) {
+					AssignmentSubmission assignmentSubmission = (AssignmentSubmission)o;
+					Member member = site.getMember(assignmentSubmission.getSubmitterIdString());
+					if(member != null && member.isActive()) {
+						count++;
+					}
+				}
+			} catch (Throwable t) {
+				M_log.warn(this + ".getSubmissionsCountWhere(): ", t);
+				throw new IllegalArgumentException(t);
+			}
+			
+			return count;
+		}
+		
+		/**
 		 * {@inheritDoc}
 		 */
 		public int getSubmittedSubmissionsCount(String assignmentId)
 		{
-			return super.countSelectedResourcesWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "'" );
+			return getSubmissionsCountWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "'", assignmentId);
 		}
 		
 		/**
@@ -441,7 +476,7 @@ public class DbAssignmentService extends BaseAssignmentService
 		 */
 		public int getUngradedSubmissionsCount(String assignmentId)
 		{
-			return super.countSelectedResourcesWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "' AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'" );
+			return getSubmissionsCountWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "' AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'", assignmentId );
 		}
 		
 
