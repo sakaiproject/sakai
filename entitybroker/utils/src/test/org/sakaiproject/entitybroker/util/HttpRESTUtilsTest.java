@@ -20,7 +20,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
-import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.URLData;
+import org.sakaiproject.entitybroker.util.http.URLData;
 
 
 /**

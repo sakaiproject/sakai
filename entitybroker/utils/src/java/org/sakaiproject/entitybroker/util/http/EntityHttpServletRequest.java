@@ -56,9 +56,6 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionContext;
 
-import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.URLData;
-import org.springframework.mock.web.MockServletContext;
-
 
 /**
  * Makes a copy of the data in a servlet request into a new request object
