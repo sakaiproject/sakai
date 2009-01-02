@@ -358,7 +358,7 @@ function handleEnterKeyPress(ev)
 						<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
 						<table border="0" summary="layout"><tr><td>
 						<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$!value_feedback_text</textarea>		
-## hide for now						#chef_setupformattedtextarea($name_feedback_text)
+						#chef_setupformattedtextarea($name_feedback_text)
 						</td></tr></table>
 					#else
 						<p class="instruction">$tlang.getString("gradingsub.nosubmittedtext")</p>
@@ -421,7 +421,7 @@ function handleEnterKeyPress(ev)
 						</p>
 						<table border="0" summary="layout"><tr><td>
 						<textarea name="$name_feedback_comment" id="$name_feedback_comment" rows="30" wrap="virtual" cols="80">#if($!value_feedback_comment)$validator.escapeHtmlFormattedTextarea($!value_feedback_comment)#end</textarea>
-## hide for now						#chef_setupformattedtextarea($name_feedback_comment)
+						#chef_setupformattedtextarea($name_feedback_comment)
 						</td></tr></table>
 						## for returned (not resubmitted ) submission, show the instructor feedback
 						#if ($!prevFeedbackComment)

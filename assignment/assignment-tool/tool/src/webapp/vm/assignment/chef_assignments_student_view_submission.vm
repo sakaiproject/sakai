@@ -383,7 +383,7 @@
 								<tr>
 									<td>
 										<textarea cols="80" rows="30" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$validator.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>						
-##											#chef_setupformattedtextarea($name_submission_text)
+											#chef_setupformattedtextarea($name_submission_text)
 									</td>
 								</tr>
 							</table>
