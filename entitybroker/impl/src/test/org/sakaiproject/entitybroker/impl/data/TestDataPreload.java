@@ -4,6 +4,7 @@
 
 package org.sakaiproject.entitybroker.impl.data;
 
+import org.junit.Ignore;
 import org.sakaiproject.entitybroker.dao.EntityProperty;
 import org.sakaiproject.entitybroker.dao.EntityTagApplication;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
@@ -14,6 +15,7 @@ import org.sakaiproject.genericdao.api.GenericDao;
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Ignore // does not contain tests but we have to tell junit this
 public class TestDataPreload {
 
    public GenericDao dao;

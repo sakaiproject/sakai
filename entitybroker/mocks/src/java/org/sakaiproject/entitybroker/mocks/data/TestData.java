@@ -146,6 +146,11 @@ public class TestData {
    public static String ENTITY_URL4 = EntityReference.SEPARATOR + PREFIX4 + EntityReference.SEPARATOR + IDS4[0] + EXTENSION4;
    public static String INPUT_URL4 = EntityReference.SEPARATOR + PREFIX4 + EntityReference.SEPARATOR + IDS4[0] + "/extra/stuff." + EXTENSION4;
 
+   public static String ENTITY_URL4_XML = EntityReference.SEPARATOR + PREFIX4 + EntityReference.SEPARATOR + IDS4[0] + "." + Outputable.XML;
+   public static String ENTITY_URL4_JSON = EntityReference.SEPARATOR + PREFIX4 + EntityReference.SEPARATOR + IDS4[0] + "." + Outputable.JSON;
+   public static String COLLECTION_URL4_XML = EntityReference.SEPARATOR + PREFIX4 + "." + Outputable.XML;
+   public static String COLLECTION_URL4_JSON = EntityReference.SEPARATOR + PREFIX4 + "." + Outputable.JSON;
+
    public static String PREFIX5 = "myPrefix5";
    public static String[] IDS5 = new String[] { "fiver", "50" };
    public static String REF5 = EntityReference.SEPARATOR + PREFIX5

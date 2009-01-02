@@ -23,7 +23,7 @@
   <servlet>
     <servlet-name>sakai.entitybroker.direct</servlet-name>
     <servlet-class>
-      org.sakaiproject.entitybroker.servlet.DirectServlet
+      org.sakaiproject.entitybroker.servlet.SakaiDirectServlet
     </servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>

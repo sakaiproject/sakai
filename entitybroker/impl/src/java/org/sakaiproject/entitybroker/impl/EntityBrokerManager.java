@@ -138,7 +138,7 @@ public class EntityBrokerManager {
      * <br/>
      * <b>Note:</b> the webapp name (relative URL path) of the direct servlet, of "/direct" 
      * is hardcoded into this method, and the
-     * {@link org.sakaiproject.entitybroker.servlet.DirectServlet} must be deployed there on this
+     * {@link org.sakaiproject.entitybroker.util.servlet.DirectServlet} must be deployed there on this
      * server.
      * 
      * @param reference a globally unique reference to an entity, 

@@ -40,113 +40,137 @@ import org.sakaiproject.entitybroker.mocks.data.TestData;
  */
 public class ServiceTestManager {
 
-   public FakeServerConfigurationService serverConfigurationService;
-   public RequestStorageImpl requestStorage;
-   public RequestGetterImpl requestGetter;
-   public EntityPropertiesService entityPropertiesService;
-   public EntityActionsManager entityActionsManager;
-   public EntityProviderManagerImpl entityProviderManager;
-   public EntityBrokerManager entityBrokerManager;
-   public EntityDescriptionManager entityDescriptionManager;
-   public EntityEncodingManager entityEncodingManager;
-   public EntityRedirectsManager entityRedirectsManager;
-   public EntityHandlerImpl entityRequestHandler;
-   public HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
-   public EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
-   public EntityMetaPropertiesService entityMetaPropertiesService;
-   public EntityTaggingService entityTaggingService;
+    private static ServiceTestManager instance;
+    public static ServiceTestManager getInstance() {
+        if (instance == null) {
+            instance = new ServiceTestManager( new TestData(), null );
+        }
+        return instance;
+    }
+    public static void setInstance(ServiceTestManager sts) {
+        instance = sts;
+    }
 
-   public ServiceTestManager(TestData td) {
-      this(td, null);
-   }
+    public FakeServerConfigurationService serverConfigurationService;
+    public RequestStorageImpl requestStorage;
+    public RequestGetterImpl requestGetter;
+    public EntityPropertiesService entityPropertiesService;
+    public EntityActionsManager entityActionsManager;
+    public EntityProviderManagerImpl entityProviderManager;
+    public EntityBrokerManager entityBrokerManager;
+    public EntityDescriptionManager entityDescriptionManager;
+    public EntityEncodingManager entityEncodingManager;
+    public EntityRedirectsManager entityRedirectsManager;
+    public EntityHandlerImpl entityRequestHandler;
+    public HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
+    public EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
+    public EntityMetaPropertiesService entityMetaPropertiesService;
+    public EntityTaggingService entityTaggingService;
+    public EntityBatchHandler entityBatchHandler;
 
-   public ServiceTestManager(TestData td, EntityBrokerDao dao) {
-      // initialize all the parts
-      requestGetter = new RequestGetterImpl();
-      entityPropertiesService = new EntityPropertiesService();
-      entityActionsManager = new EntityActionsManager();
-      serverConfigurationService = new FakeServerConfigurationService();
-      httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();
-      entityViewAccessProviderManager = new EntityViewAccessProviderManagerMock();
+    public TestData td;
+    public TestData getTestData() {
+        return td;
+    }
 
-      requestStorage = new RequestStorageImpl();
-      requestStorage.setRequestGetter(requestGetter);
+    public ServiceTestManager(TestData td) {
+        this(td, null);
+    }
 
-      entityRedirectsManager = new EntityRedirectsManager();
-      entityRedirectsManager.setRequestStorage(requestStorage);
+    public ServiceTestManager(TestData td, EntityBrokerDao dao) {
+        this.td = td;
+        // initialize all the parts
+        requestGetter = new RequestGetterImpl();
+        entityPropertiesService = new EntityPropertiesService();
+        entityActionsManager = new EntityActionsManager();
+        serverConfigurationService = new FakeServerConfigurationService();
+        httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();
+        entityViewAccessProviderManager = new EntityViewAccessProviderManagerMock();
 
-      entityProviderManager = new EntityProviderManagerImpl();
-      entityProviderManager.setRequestGetter( requestGetter );
-      entityProviderManager.setRequestStorage( requestStorage );
-      entityProviderManager.setEntityProperties( entityPropertiesService );
-      entityProviderManager.setEntityActionsManager( entityActionsManager );
-      entityProviderManager.setEntityRedirectsManager(entityRedirectsManager);
+        requestStorage = new RequestStorageImpl();
+        requestStorage.setRequestGetter(requestGetter);
 
-      entityProviderManager.init();
+        entityRedirectsManager = new EntityRedirectsManager();
+        entityRedirectsManager.setRequestStorage(requestStorage);
 
-      entityProviderManager.registerEntityProvider(td.entityProvider1);
-      entityProviderManager.registerEntityProvider(td.entityProvider1T);
-      entityProviderManager.registerEntityProvider(td.entityProvider2);
-      entityProviderManager.registerEntityProvider(td.entityProvider3);
-      entityProviderManager.registerEntityProvider(td.entityProvider4);
-      entityProviderManager.registerEntityProvider(td.entityProvider5);
-      entityProviderManager.registerEntityProvider(td.entityProvider6);
-      entityProviderManager.registerEntityProvider(td.entityProvider7);
-      entityProviderManager.registerEntityProvider(td.entityProvider8);
-      entityProviderManager.registerEntityProvider(td.entityProviderA);
-      entityProviderManager.registerEntityProvider(td.entityProviderA1);
-      entityProviderManager.registerEntityProvider(td.entityProviderA2);
-      entityProviderManager.registerEntityProvider(td.entityProviderA3);
-      entityProviderManager.registerEntityProvider(td.entityProviderU1);
-      entityProviderManager.registerEntityProvider(td.entityProviderU2);
-      entityProviderManager.registerEntityProvider(td.entityProviderU3);
-      entityProviderManager.registerEntityProvider(td.entityProviderTag);
-      entityProviderManager.registerEntityProvider(td.entityProviderB1);
-      entityProviderManager.registerEntityProvider(td.entityProviderB2);
-      entityProviderManager.registerEntityProvider(td.entityProviderS1);
-      // add new providers here
+        entityProviderManager = new EntityProviderManagerImpl();
+        entityProviderManager.setRequestGetter( requestGetter );
+        entityProviderManager.setRequestStorage( requestStorage );
+        entityProviderManager.setEntityProperties( entityPropertiesService );
+        entityProviderManager.setEntityActionsManager( entityActionsManager );
+        entityProviderManager.setEntityRedirectsManager(entityRedirectsManager);
 
-      entityBrokerManager = new EntityBrokerManager();
-      entityBrokerManager.setEntityProviderManager( entityProviderManager );
-      entityBrokerManager.setServerConfigurationService( serverConfigurationService );
-      entityBrokerManager.setEntityPropertiesService( entityPropertiesService );
-      entityBrokerManager.setEntityViewAccessProviderManager(entityViewAccessProviderManager);
+        entityProviderManager.init();
 
-      entityDescriptionManager = new EntityDescriptionManager();
-      entityDescriptionManager.setEntityProviderManager( entityProviderManager );
-      entityDescriptionManager.setEntityBrokerManager( entityBrokerManager );
-      entityDescriptionManager.setEntityProperties( entityPropertiesService );
-      entityDescriptionManager.setEntityActionsManager( entityActionsManager );
-      entityDescriptionManager.setEntityRedirectsManager(entityRedirectsManager);
-      entityDescriptionManager.setEntityViewAccessProviderManager(entityViewAccessProviderManager);
-      entityDescriptionManager.setHttpServletAccessProviderManager(httpServletAccessProviderManager);
+        entityProviderManager.registerEntityProvider(td.entityProvider1);
+        entityProviderManager.registerEntityProvider(td.entityProvider1T);
+        entityProviderManager.registerEntityProvider(td.entityProvider2);
+        entityProviderManager.registerEntityProvider(td.entityProvider3);
+        entityProviderManager.registerEntityProvider(td.entityProvider4);
+        entityProviderManager.registerEntityProvider(td.entityProvider5);
+        entityProviderManager.registerEntityProvider(td.entityProvider6);
+        entityProviderManager.registerEntityProvider(td.entityProvider7);
+        entityProviderManager.registerEntityProvider(td.entityProvider8);
+        entityProviderManager.registerEntityProvider(td.entityProviderA);
+        entityProviderManager.registerEntityProvider(td.entityProviderA1);
+        entityProviderManager.registerEntityProvider(td.entityProviderA2);
+        entityProviderManager.registerEntityProvider(td.entityProviderA3);
+        entityProviderManager.registerEntityProvider(td.entityProviderU1);
+        entityProviderManager.registerEntityProvider(td.entityProviderU2);
+        entityProviderManager.registerEntityProvider(td.entityProviderU3);
+        entityProviderManager.registerEntityProvider(td.entityProviderTag);
+        entityProviderManager.registerEntityProvider(td.entityProviderB1);
+        entityProviderManager.registerEntityProvider(td.entityProviderB2);
+        entityProviderManager.registerEntityProvider(td.entityProviderS1);
+        // add new providers here
 
-      entityEncodingManager = new EntityEncodingManager();
-      entityEncodingManager.setEntityProviderManager( entityProviderManager );
-      entityEncodingManager.setEntityBrokerManager( entityBrokerManager );
+        entityBrokerManager = new EntityBrokerManager();
+        entityBrokerManager.setEntityProviderManager( entityProviderManager );
+        entityBrokerManager.setServerConfigurationService( serverConfigurationService );
+        entityBrokerManager.setEntityPropertiesService( entityPropertiesService );
+        entityBrokerManager.setEntityViewAccessProviderManager(entityViewAccessProviderManager);
 
-      entityRequestHandler = new EntityHandlerImpl();
-      entityRequestHandler.setAccessProviderManager( httpServletAccessProviderManager );
-      entityRequestHandler.setEntityBrokerManager( entityBrokerManager );
-      entityRequestHandler.setEntityDescriptionManager( entityDescriptionManager );
-      entityRequestHandler.setEntityEncodingManager( entityEncodingManager );
-      entityRequestHandler.setEntityProviderManager( entityProviderManager );
-      entityRequestHandler.setEntityViewAccessProviderManager( entityViewAccessProviderManager );
-      entityRequestHandler.setRequestGetter( requestGetter );
-      entityRequestHandler.setRequestStorage( requestStorage );
-      entityRequestHandler.setEntityActionsManager(entityActionsManager);
-      entityRequestHandler.setEntityRedirectsManager(entityRedirectsManager);
-      entityRequestHandler.setServerConfigurationService(serverConfigurationService);
+        entityDescriptionManager = new EntityDescriptionManager();
+        entityDescriptionManager.setEntityProviderManager( entityProviderManager );
+        entityDescriptionManager.setEntityBrokerManager( entityBrokerManager );
+        entityDescriptionManager.setEntityProperties( entityPropertiesService );
+        entityDescriptionManager.setEntityActionsManager( entityActionsManager );
+        entityDescriptionManager.setEntityRedirectsManager(entityRedirectsManager);
+        entityDescriptionManager.setEntityViewAccessProviderManager(entityViewAccessProviderManager);
+        entityDescriptionManager.setHttpServletAccessProviderManager(httpServletAccessProviderManager);
 
-      entityMetaPropertiesService = new EntityMetaPropertiesService();
-      entityMetaPropertiesService.setDao(dao);
-      entityMetaPropertiesService.setEntityBrokerManager(entityBrokerManager);
-      entityMetaPropertiesService.setEntityProviderManager(entityProviderManager);
+        entityEncodingManager = new EntityEncodingManager();
+        entityEncodingManager.setEntityProviderManager( entityProviderManager );
+        entityEncodingManager.setEntityBrokerManager( entityBrokerManager );
 
-      entityTaggingService = new EntityTaggingService();
-      entityTaggingService.setDao(dao);
-      entityTaggingService.setEntityBrokerManager(entityBrokerManager);
-      entityTaggingService.setEntityProviderManager(entityProviderManager);
-   }
+        entityRequestHandler = new EntityHandlerImpl();
+        entityRequestHandler.setAccessProviderManager( httpServletAccessProviderManager );
+        entityRequestHandler.setEntityBrokerManager( entityBrokerManager );
+        entityRequestHandler.setEntityDescriptionManager( entityDescriptionManager );
+        entityRequestHandler.setEntityEncodingManager( entityEncodingManager );
+        entityRequestHandler.setEntityProviderManager( entityProviderManager );
+        entityRequestHandler.setEntityViewAccessProviderManager( entityViewAccessProviderManager );
+        entityRequestHandler.setRequestGetter( requestGetter );
+        entityRequestHandler.setRequestStorage( requestStorage );
+        entityRequestHandler.setEntityActionsManager(entityActionsManager);
+        entityRequestHandler.setEntityRedirectsManager(entityRedirectsManager);
+        entityRequestHandler.setServerConfigurationService(serverConfigurationService);
+
+        entityMetaPropertiesService = new EntityMetaPropertiesService();
+        entityMetaPropertiesService.setDao(dao);
+        entityMetaPropertiesService.setEntityBrokerManager(entityBrokerManager);
+        entityMetaPropertiesService.setEntityProviderManager(entityProviderManager);
+
+        entityTaggingService = new EntityTaggingService();
+        entityTaggingService.setDao(dao);
+        entityTaggingService.setEntityBrokerManager(entityBrokerManager);
+        entityTaggingService.setEntityProviderManager(entityProviderManager);
+
+        entityBatchHandler = new EntityBatchHandler();
+        entityBatchHandler.setEntityBrokerManager(entityBrokerManager);
+        entityBatchHandler.setEntityEncodingManager(entityEncodingManager);
+
+        setInstance(this);
+    }
 
 }
