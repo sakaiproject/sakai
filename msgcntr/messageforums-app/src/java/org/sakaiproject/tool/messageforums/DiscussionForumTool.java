@@ -979,6 +979,9 @@ public class DiscussionForumTool
     }
     attachments.clear();
     prepareRemoveAttach.clear();
+    
+    setPermissionMode(PERMISSION_MODE_TOPIC);
+    
     return TOPIC_SETTING_REVISE;
   }
 
