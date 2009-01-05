@@ -264,7 +264,11 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
     public Poll getPollById(Long pollId) {
         DetachedCriteria d = DetachedCriteria.forClass(Poll.class).add(
                 Restrictions.eq("pollId", pollId));
-        Poll poll = (Poll) PollUtil.pollCollectionToList(getHibernateTemplate().findByCriteria(d))
+        Collection c = getHibernateTemplate().findByCriteria(d);
+        if (c == null || c.size() == 0)
+        	return null;
+        
+        Poll poll = (Poll) PollUtil.pollCollectionToList(c)
                 .get(0);
 
         // we need to get the options here
