@@ -164,14 +164,37 @@ public class MyStatusPanel extends Panel {
 		AjaxButton submitButton = new AjaxButton("submit") {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
-				if(save(form)) {
-					// make visible and repaint
+				//get the backing model
+				ProfileStatus profileStatus = (ProfileStatus) form.getModelObject();
+				
+				//get SakaiProxy API
+				sakaiProxy = ProfileApplication.get().getSakaiProxy();
+				
+				//get Profile API
+				profile = ProfileApplication.get().getProfile();
+				
+				//get userId from sakaiProxy
+				String userId = sakaiProxy.getCurrentUserId();
+				
+				//get the status. if its the default text, do not update, although we should clear the model
+				String statusMessage = profileStatus.getMessage().trim();
+				if(statusMessage.equals(defaultStatus)) {
+					profileStatus.setMessage("");
+					log.warn("Status update for userId: " + userId + " was not updated because they didn't enter anything.");
+					return;
+				}
+
+				//save status from userProfile
+				if(profile.setUserStatus(userId, profileStatus.getMessage())) {
+					log.info("Saved status for: " + userId);
+					
+					// make status panel container visible and repaint
 					statusContainer.setVisible(true);
 					target.addComponent(statusContainer);
-				
 				} else {
+					log.error("Couldn't save status for: " + userId);
 					String js = "alert('Failed to save status. If the problem persists, contact your system administrator.');";
-					target.prependJavascript(js);
+					target.prependJavascript(js);	
 				}
 				
             }
@@ -184,42 +207,5 @@ public class MyStatusPanel extends Panel {
 	}
 	
 
-	private boolean save(Form form) {
-		
-		//get the backing model
-		ProfileStatus profileStatus = (ProfileStatus) form.getModelObject();
-		
-		//get SakaiProxy API
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
-		
-		//get Profile API
-		profile = ProfileApplication.get().getProfile();
-		
-		//get userId from sakaiProxy
-		String userId = sakaiProxy.getCurrentUserId();
-		
-		//get the status. if its the default text, do not update
-		String statusMessage = profileStatus.getMessage().trim();
-		if(statusMessage.equals(defaultStatus)) {
-			
-			log.warn("Status update for userId: " + userId + " was not updated because they didn't enter anything.");
-			return true;
-		}
-		
-		System.out.println("user status on form submit: " + profileStatus.getMessage());
-
-		//save status from userProfile
-		//need to do some checking in here if its null etc, ie if they want to clear it.
-		if(profile.setUserStatus(userId, profileStatus.getMessage())) {
-			log.info("Saved status for: " + userId);
-			return true;
-		} else {
-			log.info("Couldn't save status for: " + userId);
-			return false;
-		}
-		
-	}
-	
-	
 	
 }
