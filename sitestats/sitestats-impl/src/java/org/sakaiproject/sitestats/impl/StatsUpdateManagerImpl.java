@@ -844,8 +844,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}else if(parts[2].equals("group-user")){
 					// drop-box
 					if(parts.length <= 5) return false;
-				}
-			}catch(Exception ex){
+				}else if ((parts.length >= 3) && (parts[2].equals("private"))) {
+          // discard
+					LOG.debug("Discarding content event in private area.");
+					return false;
+        }
+      }catch(Exception ex){
 				return false;
 			}
 		}
@@ -911,34 +915,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					ToolInfo toolInfo = eventIdToolMap.get(eventId);
 					EventParserTip parserTip = toolInfo.getEventParserTip();
 					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)) {
-						if (eventRef!=null){
-							String[] parts = eventRef.split("/");
-							if ((parts.length >= 3) && (parts[2].equals("private"))) {
-							  // discard
-								return null;
-							}else{													
-								int index = Integer.parseInt(parserTip.getIndex());
-								return eventRef.split(parserTip.getSeparator())[index];
-							}
-						}else{
-							return null;
-						}
-						
-					}else {
+						int index = Integer.parseInt(parserTip.getIndex());
+						return eventRef.split(parserTip.getSeparator())[index];
+          }else {
+						LOG.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
 						// try with most common syntax (/abc/cde/SITE_ID/...)
-						if (eventRef!=null){
-							String[] parts = eventRef.split("/");
-							if ((parts.length >= 3) && (parts[2].equals("private"))) {
-							  // discard
-								return null;
-							}else{													
-								int index = Integer.parseInt(parserTip.getIndex());
-								return eventRef.split("/")[3];
-							}
-						}else{
-							return null;
-						}
-					}
+						//return eventRef.split("/")[3];
+          }
 				}
 			}catch(Exception ex){
 				LOG.warn("Unable to parse contextId from event: " + eventId + " | " + eventRef, ex);
