@@ -237,7 +237,12 @@ public class AuthorActionListener
 		  maxSubmissionsAllowed = f.getSubmissionsAllowed().intValue();
 	  }
 
-	  f.setSubmissionSize(submissionCountHash.size());
+	  if (submissionCountHash != null) {
+		  f.setSubmissionSize(submissionCountHash.size());
+	  }
+	  else {
+		  f.setSubmissionSize(0);
+	  }
 	  
 	  TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	  totalScores.setReleaseTo(f.getReleaseTo());
