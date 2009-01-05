@@ -55,7 +55,9 @@
 	</sql-query>
 	-->
 	
-	
+	<query name="getFriendRecord">
+    	<![CDATA[from ProfileFriend friend WHERE ((friend.userUuid = :userUuid AND friend.friendUuid = :friendUuid) OR (friend.userUuid = :friendUuid AND friend.friendUuid = :userUuid))]]>
+	</query>
 	
 	<query name="getFriendRequest">
     	<![CDATA[from ProfileFriend friend WHERE friend.friendUuid = :friendUuid AND friend.userUuid = :userUuid AND friend.confirmed = :confirmed]]>

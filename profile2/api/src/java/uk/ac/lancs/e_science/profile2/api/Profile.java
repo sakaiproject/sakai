@@ -65,6 +65,16 @@ public interface Profile {
 	 */
 	public boolean confirmFriend(String friendId, String userId);
 	
+	/**
+	 * Remove a friend connection
+	 *
+	 * @param userId		uuid of one user
+	 * @param userId		uuid of the other user
+	 * 
+	 * Note that they could be in either column
+	 */
+	public boolean removeFriend(String userId, String friendId);
+	
 	
 	/**
 	 * Get the number of unread messages
@@ -78,6 +88,8 @@ public interface Profile {
 	/**
 	 * Get the status (message and date) of a user
 	 * (this could be private as the other methods call it and its not called externally)
+	 * 
+	 * Only returns a status object for those that are up to and including one week old. This could be configurable
 	 *
 	 * @param userId		uuid of the user to get their status for
 	 */
@@ -106,6 +118,13 @@ public interface Profile {
 	 * @param status		status to be set
 	 */
 	public boolean setUserStatus(String userId, String status);
+	
+	/**
+	 * Clear user status
+	 *
+	 * @param userId		uuid of the user 
+	 */
+	public boolean clearUserStatus(String userId);
 	
 	
 	/**

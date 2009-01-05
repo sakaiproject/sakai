@@ -32,7 +32,7 @@
   	</class>
 
   	<query name="getUserStatus">
-    	<![CDATA[from ProfileStatus status WHERE status.userUuid = :userUuid order by dateAdded desc]]>
+    	<![CDATA[from ProfileStatus status WHERE status.userUuid = :userUuid AND status.dateAdded >= :oldestStatusDate ORDER BY dateAdded desc]]>
 	</query>
 
 </hibernate-mapping>

@@ -38,8 +38,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	private transient Logger log = Logger.getLogger(ProfileImpl.class);
 	
-	//surely this is in a calendar API somewhere
-	private static final String[] DAY_OF_WEEK_MAPPINGS = { "Sunday", "Monday",
+	//surely this is in the Calendar API somewhere
+	private static final String[] DAY_OF_WEEK_MAPPINGS = { "", "Sunday", "Monday",
 		"Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 	
 	
@@ -52,15 +52,16 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String QUERY_GET_FRIENDS_FOR_USER = "getFriendsForUser";
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser";
 	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest";
+	private static final String QUERY_GET_FRIEND_RECORD = "getFriendRecord";
 	private static final String QUERY_GET_USER_STATUS = "getUserStatus";
 	private static final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord";
-	private static final String QUERY_GET_PROFILE_IMAGE_FOR_USER = "getProfileImageForUser";
 
 	//Hibernate object fields
 	private static final String USER_UUID = "userUuid";
 	private static final String FRIEND_UUID = "friendUuid";
 	private static final String CONFIRMED = "confirmed";
 	private static final String IMAGE = "image";
+	private static final String OLDEST_STATUS_DATE = "oldestStatusDate";
 
 
 	/*
@@ -253,6 +254,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//get pending ProfileFriend object request for the given details
 		ProfileFriend profileFriend = getPendingFriendRequest(friendId, userId);
 		
+		//FIX THIS as the columns can be the other way around - is this an issue?
+		
 	  	//make necessary changes to the ProfileFriend object.
 	  	profileFriend.setConfirmed(true);
 	  	profileFriend.setConfirmedDate(new Date()); //now
@@ -269,9 +272,36 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	}
 	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#removeFriend()
+	 */
+	public boolean removeFriend(String userId, String friendId) {
+		if(userId == null || friendId == null){
+	  		throw new IllegalArgumentException("Null Argument in removeFriend");
+	  	}
+		
+		//get the friend object for this connection pair
+		ProfileFriend profileFriend = getFriendRecord(userId, friendId);
+		
+		if(profileFriend == null){
+			log.error("ProfileFriend null for userId: " + userId + ", friendId: " + friendId);
+			return false;
+		}
+				
+		//if ok, delete it
+		try {
+			getHibernateTemplate().delete(profileFriend);
+			log.info("User: " + userId + " deleted friend: " + friendId);
+			return true;
+		} catch (Exception e) {
+			log.error("removeFriend() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+		
+		
+	}
 	
-	
-	
+	//only gets a pending request
 	private ProfileFriend getPendingFriendRequest(final String friendId, final String userId) {
 		
 		if(friendId == null || userId == null){
@@ -290,6 +320,31 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 		return (ProfileFriend) getHibernateTemplate().execute(hcb);
 	
+	}
+	
+	//gets a friend record and tries both column arrangements
+	private ProfileFriend getFriendRecord(final String userId, final String friendId) {
+		
+		if(userId == null || friendId == null){
+	  		throw new IllegalArgumentException("Null Argument in getFriendRecord");
+	  	}
+		
+		ProfileFriend profileFriend = null;
+		
+		//this particular query checks for records when userId/friendId is in either column
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		profileFriend = (ProfileFriend) getHibernateTemplate().execute(hcb);
+	
+		return profileFriend;
+		
 	}
 	
 	/*
@@ -311,11 +366,20 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null Argument in getUserStatus");
 	  	}
+		
+		// compute oldest date for status 
+		Calendar cal = Calendar.getInstance(); 
+		cal.add(Calendar.DAY_OF_YEAR, -7); 
+		final Date oldestStatusDate = cal.getTime(); 
+
+		//System.out.println("oldest time is: " + cal.getTimeInMillis());
+		
 				
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_USER_STATUS);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(OLDEST_STATUS_DATE, oldestStatusDate, Hibernate.DATE);
 	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}
@@ -358,10 +422,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	
-	
-	
-	
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#setUserStatus()
 	 */
@@ -383,6 +443,33 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		
 	}
+	
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#clearUserStatus()
+	 */
+	public boolean clearUserStatus(String userId) {
+		
+		//validate userId here - TODO
+		
+		ProfileStatus profileStatus = getUserStatus(userId);
+		
+		if(profileStatus == null){
+			log.error("ProfileStatus null for userId: " + userId);
+			return false;
+		}
+				
+		//if ok, delete it
+		try {
+			getHibernateTemplate().delete(profileStatus);
+			log.info("User: " + userId + " cleared status");
+			return true;
+		} catch (Exception e) {
+			log.error("clearUserStatus() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+		
+	}
 
 	
 	
@@ -392,7 +479,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	 */
 	public String convertDateForStatus(Date date) {
 		
-		//current time (cal also specify timezome and local here, see API)
+		//current time (can also specify timezome and local here, see API)
 		Calendar currentCal = Calendar.getInstance();
 		long currentTimeMillis = currentCal.getTimeInMillis();
 		
@@ -404,9 +491,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//difference
 		int diff = (int)(currentTimeMillis - postingTimeMillis);
 		
-		System.out.println("currentDate:" + currentTimeMillis);
-		System.out.println("postingDate:" + postingTimeMillis);
-		System.out.println("diff:" + diff);
+		
+		//System.out.println("currentDate:" + currentTimeMillis);
+		//System.out.println("postingDate:" + postingTimeMillis);
+		//System.out.println("diff:" + diff);
+		
 		
 		int MILLIS_IN_SECOND = 1000;
 		int MILLIS_IN_MINUTE = 1000 * 60;
@@ -435,22 +524,24 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			//less than a week, calculate days
 			int numDays = diff/MILLIS_IN_DAY;
 			
+			//System.out.println("day diff = " + numDays);
+			
 			//now calculate which day it was
 			if(numDays == 1) {
 				message = "yesterday";
 			} else {
 				//copy calendar, then subtract number of days to find posting day
 				Calendar postingCal = currentCal;
-				postingCal.add(Calendar.DAY_OF_WEEK, numDays);
+				postingCal.add(Calendar.DATE, -numDays);
 				int postingDay = postingCal.get(Calendar.DAY_OF_WEEK);
-					System.out.println("day of week of post = " + postingDay);
-					System.out.println("day of week of post = " + DAY_OF_WEEK_MAPPINGS[postingDay]);
+				//System.out.println("day of week of post = " + postingDay);
+				//System.out.println("day of week of post = " + DAY_OF_WEEK_MAPPINGS[postingDay]);
 
 				//use calendar API to get name of day here, for now using array at top
 				message = "on " + DAY_OF_WEEK_MAPPINGS[postingDay];
 			}
 			
-		}
+		} 
 
 		return message;
 	}
