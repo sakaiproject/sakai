@@ -41,9 +41,13 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
+import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.JobRun;
@@ -77,6 +81,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private StatsManager					M_sm;
 	private EventRegistryService			M_ers;
 	private SiteService						M_ss;
+	private AliasService					M_as;
+	private EntityManager					M_em;
 	private UsageSessionService				M_uss;
 	private EventTrackingService			M_ets;
 
@@ -145,6 +151,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 	public void setSiteService(SiteService ss){
 		this.M_ss = ss;
+	}
+	
+	public void setAliasService(AliasService as) {
+		this.M_as = as;
+	}
+	
+	public void setEntityManager(EntityManager em) {
+		this.M_em = em;
 	}
 	
 	public void setEventTrackingService(EventTrackingService ets){
@@ -393,14 +407,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			if(siteId == null || M_ss.isUserSite(siteId) || M_ss.isSpecialSite(siteId)){
 				return;
 			}
-			if(isCollectEventsForSiteWithToolOnly()){
-				try {
-					if(M_ss.getSite(siteId).getToolForCommonId(StatsManager.SITESTATS_TOOLID) == null)
-						return;
-				}catch(Exception ex) {
-					// not a valid site
-					return;
-				}
+			Site site = getSite(siteId);
+			if(site == null) {
+				return;
+			}
+			if(isCollectEventsForSiteWithToolOnly() && site.getToolForCommonId(StatsManager.SITESTATS_TOOLID) == null) {
+				return;
 			}
 			
 			// user check
@@ -928,6 +940,30 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 		}
 		return null;
+	}
+	
+	private Site getSite(String siteId) {
+		Site site = null;
+		try{
+			// is it a site id?
+			site = M_ss.getSite(siteId);
+		}catch(IdUnusedException e1){
+			// is it an alias?
+			try{
+				String alias = siteId;
+				String target = M_as.getTarget(alias);
+				siteId = M_em.newReference(target).getId();
+				LOG.debug(alias + " is an alias targetting site id: "+siteId);
+				site = M_ss.getSite(siteId);
+			}catch(IdUnusedException e2){
+				// not a valid site
+				LOG.debug(siteId + " is not a valid site.", e2);
+			}
+		}catch(Exception ex) {
+			// not a valid site
+			LOG.debug(siteId + " is not a valid site.", ex);
+		}
+		return site;
 	}
 	
 	private Date getToday() {

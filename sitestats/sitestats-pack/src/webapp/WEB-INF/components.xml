@@ -209,6 +209,8 @@
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="aliasService" ref="org.sakaiproject.alias.api.AliasService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
 	</bean>
