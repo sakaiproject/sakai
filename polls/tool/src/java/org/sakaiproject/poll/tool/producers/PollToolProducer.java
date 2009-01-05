@@ -279,7 +279,7 @@ DefaultView,NavigationCaseReporter {
 
 
 
-			if (isAllowedViewResults(poll)) {
+			if (pollListManager.isAllowedViewResults(poll, userDirectoryService.getCurrentUser().getId())) {
 				UIInternalLink resultsLink =  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
 						new PollViewParameters(ResultsProducer.VIEW_ID, poll.getPollId().toString()));
 				resultsLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_view_results")+ ":" + poll.getText()));
@@ -396,28 +396,7 @@ DefaultView,NavigationCaseReporter {
 		return false;
 	}
 
-	private boolean isAllowedViewResults(Poll poll) {
-		if (SecurityService.isSuperUser())
-			return true;
 
-		if (poll.getDisplayResult().equals("open"))
-			return true;
-
-		if (poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
-			return true;
-
-		if (poll.getDisplayResult().equals("afterVoting") && pollVoteManager.userHasVoted(poll.getPollId()))
-			return true;
-
-		if ((poll.getDisplayResult().equals("afterClosing") || poll.getDisplayResult().equals("afterVoting") )&& poll.getVoteClose().before(new Date()))
-			return true;
-
-		//the owner can view the results
-		if(poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
-			return true;
-
-		return false;
-	}
 
 	private boolean pollCanEdit(Poll poll) {
 		if (SecurityService.isSuperUser() )

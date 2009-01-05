@@ -20,6 +20,7 @@
 
 package org.sakaiproject.poll.tool.entityproviders;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -165,6 +166,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
             throw new IllegalArgumentException("Must include a non-null pollId in order to retreive a list of votes");
         }
         Long pollId = null;
+        boolean viewVoters = false;
         try {
             pollId = developerHelperService.convert(pollRes.getSingleValue(), Long.class);
         } catch (UnsupportedOperationException e) {
@@ -175,10 +177,47 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
             throw new IllegalArgumentException("pollId ("+pollId+") is invalid and does not match any known polls");
         }
         List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
-        return votes;
+        
+        //check permissions
+        String userId = developerHelperService.getUserIdFromRef(currentUser);
+        if (developerHelperService.isUserAdmin(currentUser)) {
+            // ok to view this vote
+        	viewVoters = true;
+        } else if (developerHelperService.isEntityRequestInternal(ref.toString())) {
+            // ok for all internal requests
+        } else if (!pollListManager.isAllowedViewResults(poll, userId)) {
+            // TODO - check vote location and perm?
+            // not allowed to view
+            throw new SecurityException("User ("+currentUser+") cannot view vote ("+ref+")");
+        }
+        
+        if (viewVoters)
+        	return votes;
+        else 
+        	return anonamizeVotes(votes);
     }
 
-    public String[] getHandledOutputFormats() {
+    private List<?> anonamizeVotes(List<Vote> votes) {
+    	List<Vote> ret = new ArrayList<Vote>();
+    	String userId = developerHelperService.getCurrentUserId();
+
+    	for (int i = 0; i < votes.size(); i++) {
+    		Vote vote = (Vote)votes.get(i);
+    		if (!userId.equals(vote.getUserId())) {
+    			Vote newVote = new Vote();
+    			newVote.setPollId(vote.getPollId());
+    			newVote.setPollOption(vote.getPollOption());
+    			newVote.setSubmissionId(vote.getSubmissionId());
+    			ret.add(newVote);
+    		} else {
+    			ret.add(vote);
+    		}
+    		
+    	}
+    	return ret;
+    }
+
+	public String[] getHandledOutputFormats() {
         return new String[] {Formats.XML, Formats.JSON};
     }
 

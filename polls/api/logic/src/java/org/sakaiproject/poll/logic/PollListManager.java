@@ -126,5 +126,14 @@ public interface PollListManager extends EntityProducer {
      * @throws IllegalArgumentException if the pollId is invalid
      */
     public List<Option> getOptionsForPoll(Long pollId);
+    
+    /**
+     *  Can the this user view the results for this poll?
+     * @param poll
+     * @param userId
+     * @return true if the user can view this poll
+     */
+    
+    public boolean isAllowedViewResults(Poll poll, String userId);
 
 }

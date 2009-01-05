@@ -51,6 +51,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -547,5 +548,39 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
         }
         return poll;
     }
+    
+    
+    
+	public boolean isAllowedViewResults(Poll poll, String userId) {
+		if (securityService.isSuperUser())
+			return true;
+
+		if (poll.getDisplayResult().equals("open"))
+			return true;
+
+		if (poll.getOwner().equals(userId))
+			return true;
+
+		if (poll.getDisplayResult().equals("afterVoting")) {
+			DetachedCriteria d = DetachedCriteria.forClass(Vote.class)
+	        .add( Restrictions.eq("userId",userId) )
+	        .add( Restrictions.eq("pollId",poll.getId()) );
+
+	        List<Vote> votes = getHibernateTemplate().findByCriteria(d);		
+	        //System.out.println("got " + pollCollection.size() + "votes for this poll");
+	        if (votes.size() > 0)
+	        	return true;
+		}
+
+		if ((poll.getDisplayResult().equals("afterClosing") || poll.getDisplayResult().equals("afterVoting") )&& poll.getVoteClose().before(new Date()))
+			return true;
+
+		//the owner can view the results
+		if(poll.getOwner().equals(userId))
+			return true;
+
+		return false;
+	}
+    
 
 }
