@@ -25,14 +25,14 @@
 
   	<dependencies>
 
-		<!--  internal dependency on our classes defined by Hibernate -->
+		<!--  logging dependency -->
 		<dependency>
-			<groupId>uk.ac.lancs.e_science</groupId>
-			<artifactId>sakai-profile2-hbm</artifactId>
-			<version>${tool.version}</version>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 
-
+		<!--  Sakai dependenceies -->
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>
@@ -55,6 +55,8 @@
 			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+		
+		
     
   	</dependencies>
 

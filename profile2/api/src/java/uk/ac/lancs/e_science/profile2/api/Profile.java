@@ -85,13 +85,15 @@ public interface Profile {
 	
 	/**
 	 * Get the status message of a user
+	 * NOTE: This is required so the status display model can be dynamically updated with the latest status
 	 *
 	 * @param userId		uuid of the user to get their status message for
 	 */
 	public String getUserStatusMessage(String userId);
 	
 	/**
-	 * Get the status date of a user
+	 * Get the status date of a user.
+	 * NOTE: This is required so the status display model can be dynamically updated with the latest status date
 	 *
 	 * @param userId		uuid of the user to get their status date for
 	 */
@@ -112,6 +114,8 @@ public interface Profile {
 	 * @param data		date to convert
 	 */
 	public String convertDateForStatus(Date date);
+	
+	
 	
 	/**
 	 * Truncate a string and pad it with ... at the end

@@ -54,13 +54,14 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest";
 	private static final String QUERY_GET_USER_STATUS = "getUserStatus";
 	private static final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord";
-
+	private static final String QUERY_GET_PROFILE_IMAGE_FOR_USER = "getProfileImageForUser";
 
 	//Hibernate object fields
 	private static final String USER_UUID = "userUuid";
 	private static final String FRIEND_UUID = "friendUuid";
 	private static final String CONFIRMED = "confirmed";
-	
+	private static final String IMAGE = "image";
+
 
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#checkContentTypeForProfileImage()
@@ -453,6 +454,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 		return message;
 	}
+	
+	
+	
 	
 	/*
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#truncateAndPadStringToSize()

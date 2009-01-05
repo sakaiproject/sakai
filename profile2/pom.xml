@@ -67,7 +67,6 @@
                 <module>impl</module>
                 <module>pack</module>
                 <module>tool</module>
-                <module>hbm</module>
             </modules>
         </profile>
         <profile>
@@ -82,7 +81,6 @@
                 <module>api</module>
                 <module>impl</module>
                 <module>pack</module>
-                <module>hbm</module>
             </modules>
         </profile>
         

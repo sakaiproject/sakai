@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -17,7 +18,6 @@ import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
@@ -29,10 +29,14 @@ public class MyFriends extends BasePage {
 
 	private transient Logger log = Logger.getLogger(MyFriends.class);
 	private static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
+	private boolean friendRemoved;
 	
 	public MyFriends() {
 		
 		if(log.isDebugEnabled()) log.debug("MyFriends()");
+		
+		//this panel stuff
+		final Component thisPage = this;
 		
 		//add the feedback panel for any error messages
 		FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
@@ -131,37 +135,16 @@ public class MyFriends extends BasePage {
 		noFriends.setOutputMarkupId(true);
 		add(noFriends);
 		
-		//remove friend modal window
-		final ModalWindow removeFriendWindow = new ModalWindow("friend-removeWindow");
-		friendsContainer.add(removeFriendWindow);
-		
-		//the setup for this modal window is done in the AjaxLink below. see there for info.
-		
-		removeFriendWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() {
-            public boolean onCloseButtonClicked(AjaxRequestTarget target) {
-            	System.out.println("window closed 1");
-            	return true;
-            }
-        });
 
-		removeFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-            public void onClose(AjaxRequestTarget target){
-            	System.out.println("window closed 2");
-            }
-        });
-		
-		
 		//get friends for user
 		List<Friend> friends = new ArrayList<Friend>(profile.getFriendsForUser(userId, 0));
 		
-		
 		ListView friendsListView = new ListView("friends-list", friends) {
-		    protected void populateItem(ListItem item) {
+		    protected void populateItem(final ListItem item) {
 		        
 		    	//get a friend object for each user, containing items that we need to list here
 		    	//we also need their privacy settings
 		    	
-		    	//in the friend object add in the photo stream as a param
 		    	
 		    	
 		    	//get Friend object
@@ -170,6 +153,9 @@ public class MyFriends extends BasePage {
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(friend.getUserUuid());
 		    	friend.setDisplayName(displayName);
+		    	
+		    	//friend.setPhoto(profile.getUserProfileImage(userId));
+		    	
 		    	String statusMessage = friend.getStatusMessage();
 		    	Date statusDate = friend.getStatusDate();
 		    	boolean confirmed = friend.isConfirmed();
@@ -205,21 +191,39 @@ public class MyFriends extends BasePage {
 					item.add(new ContextImage("friend-photo",new Model(UNAVAILABLE_IMAGE)));
 				}
 		    	
+		    	//remove friend modal window
+				final ModalWindow removeFriendWindow = new ModalWindow("friend-removeWindow");
+				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, MyFriends.this, userId, friend)); 
+				removeFriendWindow.setTitle(new ResourceModel("title.friend.remove")); 
+				removeFriendWindow.setInitialHeight(100);
+				removeFriendWindow.setInitialWidth(400);
 
+				//close button handler
+				removeFriendWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() { 
+					public boolean onCloseButtonClicked(AjaxRequestTarget target) { 
+						setFriendRemoved(false); //close button clicked, don't want friend removed
+						return true; 
+					} 
+				}); 
+
+				//if the window is closed by any method
+				removeFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+		            public void onClose(AjaxRequestTarget target){
+		            	System.out.println("value: " + isFriendRemoved()); //is friend to be removed from list?
+		            	if(isFriendRemoved()) {
+		            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
+		            	}
+		            }
+		        });
+				
+				item.add(removeFriendWindow);
+
+				
+				
 		    	
 		    	//action - remove friend
 		    	AjaxLink removeLink = new AjaxLink("friend-removeLink") {
 		    		public void onClick(AjaxRequestTarget target) {
-		    			
-		    			//setup content panel for removeFriendWindow. This is a custom panel with setters for the data to be used inside
-		    			//we set the data into this Panel when the ajax button is clicked.
-		    			
-		    			RemoveFriend removeFriend = new RemoveFriend(removeFriendWindow.getContentId(), userId, friend);
-		    			removeFriendWindow.setContent(removeFriend);
-		    			//removeFriendWindow.setTitle(new ResourceModel("window.title.friend.remove"));
-		    			removeFriendWindow.setHeightUnit("50");
-		    			removeFriendWindow.setCookieName("profileModalWindow");
-		    			
 		    			removeFriendWindow.show(target);
 	    			}
 	    		};
@@ -251,10 +255,11 @@ public class MyFriends extends BasePage {
 		    		removeLinkLabel.setModel(new ResourceModel("link.friend.request.cancel"));
 		    	}
 		    	
-	    		
-	    		
+	    		item.setOutputMarkupId(true);
 		    }
 		};
+		//friendsListView.setReuseItems(true);
+		friendsListView.setOutputMarkupId(true);
 		friendsContainer.add(friendsListView);
 		
 		//add friend container
@@ -270,6 +275,18 @@ public class MyFriends extends BasePage {
 	
 		
 	}
+
+	public void setFriendRemoved(boolean friendRemoved) {
+		this.friendRemoved = friendRemoved;
+	}
+
+	public boolean isFriendRemoved() {
+		return friendRemoved;
+	}
+	
+	
+	
+	
 }
 
 
