@@ -51,7 +51,7 @@ public class Query extends HttpTransactionQueryBase
 	/**
 	 * Records to fetch from each search target
 	 */
-	private static final String RECORDS_PER_TARGET = "100";
+	private static final String RECORDS_PER_TARGET = "50";
 	/**
 	 * Unique name for this search application
 	 */
@@ -215,7 +215,7 @@ public class Query extends HttpTransactionQueryBase
        * Try to wait for a complete set of responses
        */
 		  sleepCount = 0;
-		  sleepLimit = 5;
+		  sleepLimit = 5 + (getTargetCount() * 2);
 
 		  done = setStatus(getResponseDocument());
       while (!done && (sleepCount++ < sleepLimit))
@@ -527,12 +527,19 @@ public class Query extends HttpTransactionQueryBase
    * Determine the page size (the number of results to request from the server)
    * @return The page size (as a String)
    */
+  public static final int MINIMUM_PAGESIZE = 20;
+  public static final int MAXIMUM_PAGESIZE = 50;
+
   private String getPageSize()
   {
     int targets   = StatusUtils.getActiveTargetCount(getSessionContext());
-    int pageSize  = targets * 20;
+    int pageSize  = targets * MINIMUM_PAGESIZE;
 
-    return String.valueOf(Math.min(pageSize, 50));
+    if ((pageSize = Math.min(pageSize, MAXIMUM_PAGESIZE)) == 0)
+    {
+      pageSize = MINIMUM_PAGESIZE;
+    }
+    return String.valueOf(pageSize);
   }
 
 	/**
@@ -1205,8 +1212,21 @@ public class Query extends HttpTransactionQueryBase
 			 */
 			if ((estimate > 0) && (hits > 0))
 			{
+			  int pageSize = Math.min(targetCount * MINIMUM_PAGESIZE,
+			                                        MAXIMUM_PAGESIZE);
+
 				map.put("STATUS", "ACTIVE");
 				active++;
+        /*
+         * To try and exit the "check status" loop earlier, we consider this
+         * target complete if we've already found enough result records ...
+         */
+        _log.debug("**** " + target + ": " + total + " vs " + pageSize);
+        if (total >= pageSize)
+        {
+          status = "100";
+          _log.debug("**** "  + target + " complete");
+        }
 			}
       /*
        * Is this search complete?
