@@ -1351,7 +1351,7 @@ public class PublishedAssessmentSettingsBean
 							+ group.getDescription();
 					String displayDescription = group.getTitle()
 							+ groupDescription;
-					sortedSelectItems.put(group.getTitle().toUpperCase(),
+					sortedSelectItems.put(displayDescription.toUpperCase(),
 							new SelectItem(group.getId(), displayDescription));
 				}
 				Set keySet = sortedSelectItems.keySet();
