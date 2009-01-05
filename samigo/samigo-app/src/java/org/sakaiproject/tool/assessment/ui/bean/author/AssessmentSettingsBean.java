@@ -1540,7 +1540,7 @@ public class AssessmentSettingsBean
 	    		 //groupType = groupType == null ? "" : " (" + groupType + ")";
 	    		 String groupDescription = group.getDescription()==null || group.getDescription().equals("") ? "" : " : " + group.getDescription();
 	    		 String displayDescription = group.getTitle() + groupDescription;
-	    		 sortedSelectItems.put(group.getTitle().toUpperCase(), new SelectItem(group.getId(), displayDescription));
+	    		 sortedSelectItems.put(displayDescription.toUpperCase(), new SelectItem(group.getId(), displayDescription));
 	    	 }
 	    	 Set keySet = sortedSelectItems.keySet();
 	    	 groupIter = keySet.iterator();
