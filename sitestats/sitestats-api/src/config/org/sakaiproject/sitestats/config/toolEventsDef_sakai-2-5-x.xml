@@ -188,20 +188,6 @@
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
 	
-    <!-- melete (Melete 2.6+) -->
-    <tool 
-        toolId="sakai.melete"
-        selected="true">
-        <event eventId="melete.module.new" selected="true"/>
-        <event eventId="melete.module.edit" selected="true"/>
-        <event eventId="melete.module.delete" selected="true"/>
-        <event eventId="melete.section.new" selected="true"/>
-        <event eventId="melete.section.edit" selected="true"/>
-        <event eventId="melete.section.read" selected="true"/>
-        <event eventId="melete.section.delete" selected="true"/>
-        <eventParserTip for="contextId" separator="/" index="0"/>
-    </tool>
-	
 	
 	<!-- OSP: Glossary -->
 	<tool
