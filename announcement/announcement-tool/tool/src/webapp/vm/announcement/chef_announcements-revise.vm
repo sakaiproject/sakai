@@ -458,16 +458,17 @@ function resizeFrame(){
 			#end
 		</div>	
 		<p class="act">
-				<input type="button" class="active" name="post" accesskey="s" value=
+				<input type="button" class="active" name="post" accesskey="s"  id="saveChanges"  value=
 					#if ( $newAnn =="true")				
 						"$tlang.getString("revise.add")"
 					#else
 						"$tlang.getString("revise.savechanges")"
 					#end
-				 onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='post';document.reviseForm.submit();return false;" />
+				 onclick="javascript:showNotif('submitnotif','saveChanges','reviseForm');document.reviseForm.onsubmit();document.getElementById('option').value='post';document.reviseForm.submit();return false;" />
 				<input type="button" accesskey="v" name="preview" value="$tlang.getString("revise.preview")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='preview';document.reviseForm.submit();return false;" />
 <!--				<input type="button" accesskey="d" name="save" value="$tlang.getString("revise.savedraft")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='save';document.reviseForm.submit();return false;" /> -->
 				<input type="button" accesskey="x" name="cancel" value="$tlang.getString("gen.cancel")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='cancel';document.reviseForm.submit();return false;" />   
+				<span id="submitnotif" style="visibility:hidden" >$tlang.getString("label.proces")</span>
 		</p>
 	</form>
 </div>
