@@ -22,7 +22,6 @@ body{
 #headerMax,#headerMin{
 	margin: 0;
 	height:100%;
-	overflow:hidden;
 }
 
 /*accessibility links wrapper */
@@ -69,18 +68,18 @@ can set display:none if needed because the list-style is taking care of it*/
 }
 
 #toolMenuWrap:hover{
-	border-left:2px solid #7ac252;
+	border-left:2px solid #fff;
 	}
 /*depending on site type - different hover effects for the tool menu parent block
 site types are a local setting - adjust */
 .workspace #toolMenuWrap:hover{
-	border-left:2px solid #7ac252;
+	border-left:2px solid #fff;
 }
 .course #toolMenuWrap:hover{
-		border-left:2px solid #7ac252;
+		border-left:2px solid #fff;
 }
 .project #toolMenuWrap:hover{
-		border-left:2px solid #7ac252;
+		border-left:2px solid #fff;
 }
 #tabBottom{
 	display:none;
@@ -165,31 +164,31 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 #mastBanner{
 		display:block;
 		float:right;
-		width:321px;
+		width:288px;
 		height:50px;
-		background: #7ac252 url(images/loggedinback-p.png) top left no-repeat;
+		background: #7ac252 url(images/loggedinback-p.jpg) top right no-repeat;
 }
 .course #mastBanner{
 		display:block;
 		float:right;
-		width:321px;
+			width:288px;
 		height:50px;
-		background: #7ac252 url(images/loggedinback-p.png) top left no-repeat;
+		background: #7ac252 url(images/loggedinback-p.jpg) top left no-repeat;
 }
 .workspace #mastBanner{
 		display:block;
 		float:right;
-		width:321px;
+		width:288px;
 		height:50px;
-		background: #7ac252 url(images/loggedinback-p.png) top left no-repeat;
+		background: #7ac252 url(images/loggedinback-p.jpg) top left no-repeat;
 }
 
 .project #mastBanner{
 		display:block;
 		float:right;
-		width:321px;
+		width:288px;
 		height:50px;
-		background: #7ac252 url(images/loggedinback-p.png) top left no-repeat;
+		background: #7ac252 url(images/loggedinback-p.jpg) top left no-repeat;
 }
 
 #mastSiteTitle
@@ -318,12 +317,12 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*wrapper for the site link list   - the #siteLinkList child)*/
 #linkNav{
-	float:right
+/*	float:right*/
 }
 
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
-	float:left;
+/*	float:left;*/
 	text-align: right;
 	
 }
@@ -341,7 +340,9 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 #roleSwitch{
-	float:right;
+	position:absolute;
+	top:3px;
+	left:200px;
 }
 #roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
 	color:#fff;
@@ -350,6 +351,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #roleSwitch a#roleSwitchAnchor{
 	margin:10px 5px 0 0;
 	display:block;
+		font-size:0.8em;
 }	
 #roleSwitch select{
 	border:2px solid #0077B5;
@@ -410,9 +412,9 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*links to other sites*/
 #siteLinkList a,#siteLinkList a:link,#siteLinkList a:visited{
 	color: #fff;
-	padding: 2px 6px 2px 4px;
+	padding: 2px 6px 2px 6px;
 	text-decoration: none;
-	/*border-left: 1px solid #fff;*/border-left: 1px solid #fff;
+	border-left:1px solid #fff;
 }
 
 #siteLinkList li:last-child a{
@@ -425,11 +427,132 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	text-decoration: underline;
 }
 
-.fixTabsIE{
-	visibility: hidden;
-	display: none;
+
+
+#siteLinkList li.tab-dim a,
+	#siteLinkList li.tab-dim a:link,
+	#siteLinkList li.tab-dim a:visited,
+	#siteLinkList li.tab-dim a:hover {
+	color: #666;
+	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;
+}
+
+#siteLinkList li.tab-dim a span {
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
+	padding-bottom: 3px;
+}
+
+/* more tab */
+#siteLinkList li.more-tab a span.inner {
+	background-image:  url(images/tab-arrow-down.gif);
+	background-repeat: no-repeat;
+	background-position: center left;
+	padding: 0  0 0 20px;
+	margin: 0;
+}
+
+#siteLinkList li.more-active a,
+	#siteLinkList li.more-active a:link,
+	#siteLinkList li.more-active a:visited {
+	color:#000000;
+	font-weight: bolder;
+	text-decoration: none;
+	background: #fff url(images/tab-left-selected.gif) no-repeat scroll left top;	
 	border-width: 0;
 }
+
+#siteLinkList li.more-active a:hover {
+	text-decoration: underline;
+}
+
+#siteLinkList li.more-active a span {
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
+	padding-bottom: 5px;
+}
+
+#siteLinkList li.more-active a span.inner {
+	background-image: url(images/tab-arrow-down-active.gif);
+}
+
+/*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
+.dhtml_more_tabs {
+	position: absolute !important;
+	float:none  !important;
+	top: 5em  !important;
+	right: 4px  !important;
+	line-height: 1.5em;
+	background-color: #FFFFFF; 
+	border: 2px solid #013F68;
+	border-top-width: 0;
+	width: 75%;
+	z-index: 9999;
+}
+
+html>body .dhtml_more_tabs {
+	right: 2px;
+}
+
+.dhtml_more_tabs div.termContainer {
+	float: left;
+	padding: 0.8em;
+	text-align: left;
+	width: 28%;
+}
+	
+.dhtml_more_tabs h4 {
+	font-size: 1.06em;
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
+}
+
+.dhtml_more_tabs  ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;	
+}
+
+.dhtml_more_tabs  li {
+	margin-bottom: 0.4em; 
+	line-height: 1.1em;
+}
+
+.dhtml_more_tabs div:first-child {
+	border-left: none;
+}
+
+.dhtml_more_tabs a:link, .dhtml_more_tabs a:visited, .dhtml_more_tabs active{
+	color: #35b;
+	text-decoration: underline !important;
+}
+
+.dhtml_more_tabs a:hover {
+	color: #53b;
+	text-decoration: underline !important;
+}
+
+#more_tabs_instr  {
+	color: #333;
+	font-size: 1em;
+	margin: 0.4em 0.8em 0.8em;
+	padding-top: 0.4em;
+	clear: both;
+	border-top: 1px solid #CCC;
+	text-align: left;
+	line-height: 1.1em;
+}
+
+#portalMask {
+	background-color: #EEEEEE; 
+	position: absolute;
+	z-index: 9000;
+	top:0;
+	left:0;
+	filter:alpha(opacity=50);
+	opacity: 0.50;
+	-moz-opacity: 0.50;
+}
+
 
 /*block in case need to display any decorative element above or below the .tabHolder block*/
 #navBottom{
@@ -611,6 +734,7 @@ below they are contextually defined depending on the column as an example,as you
 	padding: 2px 8px 4px 2px;
 	height:.9em;
 	/*float: left;*/float: right;
+	width:90%;
 	color: #000;
 }
 

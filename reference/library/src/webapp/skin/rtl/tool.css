@@ -981,10 +981,10 @@ width:auto !important
 /*some definitions overriding tool_base.css for the external xlogin screen*/
 table.login{
 	border:none;
-	border-top: 1px solid #00338C
+	border-top: 1px solid #5B9D37
 }
 table.login th{
-		background: #00338C url(images/xlogin-blue_tab.gif) top right no-repeat;
+		background: #7AC252;
 		height:24px;
 		padding:0;
 		color:#fff;
@@ -997,7 +997,7 @@ table.login td{
 }
 .login td.logo{
 	width: 14em;
-	background:#fff url(images/xlogin-logo.jpg) 1em 1em no-repeat
+	background:#fff url(images/pda-ico.png) 1em 1em no-repeat
 }
 
 
