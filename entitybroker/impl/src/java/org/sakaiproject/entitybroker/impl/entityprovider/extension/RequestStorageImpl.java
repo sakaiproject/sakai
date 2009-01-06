@@ -223,7 +223,7 @@ public class RequestStorageImpl implements RequestStorage {
         return "RS:getter="+(this.requestGetter != null)+":store=" + getInternalMap();
     }
 
-    public class EntryComparator implements Comparator<Entry<String, Object>>, Serializable {
+    public static class EntryComparator implements Comparator<Entry<String, Object>>, Serializable {
         public final static long serialVersionUID = 1l;
         public int compare(Entry<String, Object> o1, Entry<String, Object> o2) {
             return o1.getKey().compareTo(o2.getKey());

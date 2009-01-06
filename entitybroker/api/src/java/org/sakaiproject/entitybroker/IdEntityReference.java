@@ -32,6 +32,8 @@ package org.sakaiproject.entitybroker;
  */
 public class IdEntityReference extends EntityReference {
 
+    private static final long serialVersionUID = 1L;
+
    /**
     * @deprecated use {@link #getId()} to get the id 
     */

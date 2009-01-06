@@ -961,6 +961,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                     lastModified = ((Long) params.get(key)).longValue();
                 } catch (Exception e) {
                     // nothing to do here but use the default time
+                    lastModified = currentTime;
                 }
             }
         }
@@ -1054,6 +1055,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         res.setHeader(ActionReturn.Header.ETAG.toString(), currentEtag);
     }
 
+    /**
+     * Make a last modified long from this object if possible OR return null
+     * @param lm any object that might be the last modified date
+     * @return the long OR null if it cannot be converted
+     */
     private Long makeLastModified(Object lm) {
         Long lastModified = null;
         if (lm != null) {

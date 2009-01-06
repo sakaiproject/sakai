@@ -584,14 +584,14 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         return new ArrayList<Class<? extends EntityProvider>>(capabilities);
     }
 
-    public class EntityProviderComparator implements Comparator<EntityProvider>, Serializable {
+    public static class EntityProviderComparator implements Comparator<EntityProvider>, Serializable {
         public final static long serialVersionUID = 1l;
         public int compare(EntityProvider o1, EntityProvider o2) {
             return o1.getEntityPrefix().compareTo(o2.getEntityPrefix());
         }
     }
 
-    public class ClassComparator implements Comparator<Class<?>>, Serializable {
+    public static class ClassComparator implements Comparator<Class<?>>, Serializable {
         public final static long serialVersionUID = 1l;
         public int compare(Class<?> o1, Class<?> o2) {
             return o1.getName().compareTo(o2.getName());
