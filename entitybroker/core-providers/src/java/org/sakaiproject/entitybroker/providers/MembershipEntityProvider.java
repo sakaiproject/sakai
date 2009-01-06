@@ -739,7 +739,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
      * 
      * @author Aaron Zeckoski (azeckoski @ gmail.com)
      */
-    public class SiteGroup {
+    public static class SiteGroup {
         public Site site;
         public Group group;
         public String locationReference;

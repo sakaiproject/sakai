@@ -119,7 +119,7 @@ public class ResourceFinder {
     * @return an array of Spring Resource objects
     */
    public static Resource[] getResources(List<String> paths) {
-      return makeResources(paths).toArray(new Resource[] {});
+      return makeResources(paths).toArray(new Resource[paths.size()]);
    }
 
    public static File[] getFiles(List<String> paths) {
