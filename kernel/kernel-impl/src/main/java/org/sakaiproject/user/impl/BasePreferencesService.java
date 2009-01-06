@@ -307,55 +307,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	 */
 	public void commit(PreferencesEdit edit)
 	{
-		// check for closed edit
-		if (!edit.isActiveEdit())
-		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("commit(): closed PreferencesEdit", e);
-			}
-			return;
-		}
-
-		// update the properties
-		// addLiveUpdateProperties(user.getPropertiesEdit());
-
-		// complete the edit
-		m_storage.commit(edit);
-		
-		SessionManager sManager = sessionManager();
-		Session s = sManager.getCurrentSession();
-		
-		// update the session cache if the preference is for current session user
-		if (sManager.getCurrentSessionUserId().equals(edit.getId()))
-		{
-			s.setAttribute(ATTR_PREFERENCE, new BasePreferences((BasePreferences) edit));
-			s.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.FALSE);
-		}
-
-		// track it
-		eventTrackingService()
-				.post(eventTrackingService().newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
-
-		// close the edit object
-		((BasePreferences) edit).closeEdit();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public void cancel(PreferencesEdit edit)
-	{
-		// if this was an add, remove it
-		if (((BasePreferences) edit).m_event.equals(SECURE_ADD_PREFS))
-		{
-			remove(edit);
-		}
-		else
+		if (edit != null)
 		{
 			// check for closed edit
 			if (!edit.isActiveEdit())
@@ -366,16 +318,70 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 				}
 				catch (Exception e)
 				{
-					M_log.warn("cancel(): closed PreferencesEdit", e);
+					M_log.warn("commit(): closed PreferencesEdit", e);
 				}
 				return;
 			}
 
-			// release the edit lock
-			m_storage.cancel(edit);
+			// update the properties
+			// addLiveUpdateProperties(user.getPropertiesEdit());
+
+			// complete the edit
+			m_storage.commit(edit);
+		
+			SessionManager sManager = sessionManager();
+			Session s = sManager.getCurrentSession();
+		
+			// update the session cache if the preference is for current session user
+			if (sManager.getCurrentSessionUserId().equals(edit.getId()))
+			{
+				s.setAttribute(ATTR_PREFERENCE, new BasePreferences((BasePreferences) edit));
+				s.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.FALSE);
+			}
+
+			// track it
+			eventTrackingService()
+					.post(eventTrackingService().newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
 
 			// close the edit object
 			((BasePreferences) edit).closeEdit();
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public void cancel(PreferencesEdit edit)
+	{
+		if (edit != null)
+		{
+			// if this was an add, remove it
+			if (SECURE_ADD_PREFS.equals(((BasePreferences) edit).m_event))
+			{
+				remove(edit);
+			}
+			else
+			{
+				// check for closed edit
+				if (!edit.isActiveEdit())
+				{
+					try
+					{
+						throw new Exception();
+					}
+					catch (Exception e)
+					{
+						M_log.warn("cancel(): closed PreferencesEdit", e);
+					}
+					return;
+				}
+
+				// release the edit lock
+				m_storage.cancel(edit);
+
+				// close the edit object
+				((BasePreferences) edit).closeEdit();
+			}
 		}
 	}
 
