@@ -261,11 +261,11 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
                 if (defaultValue instanceof Number) {
                     int num = ((Number) defaultValue).intValue();
                     int value = serverConfigurationService.getInt(settingName, num);
-                    returnValue = (T) new Integer(value);
+                    returnValue = (T) Integer.valueOf(value);
                 } else if (defaultValue instanceof Boolean) {
                     boolean bool = ((Boolean) defaultValue).booleanValue();
                     boolean value = serverConfigurationService.getBoolean(settingName, bool);
-                    returnValue = (T) new Boolean(value);
+                    returnValue = (T) Boolean.valueOf(value);
                 } else if (defaultValue instanceof String) {
                     returnValue = (T) serverConfigurationService.getString(settingName, (String) defaultValue);
                 }

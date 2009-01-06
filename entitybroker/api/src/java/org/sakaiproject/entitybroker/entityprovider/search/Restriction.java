@@ -97,7 +97,7 @@ public class Restriction {
             if (o instanceof Boolean) {
                 return (Boolean) o;
             } else if (o instanceof String) {
-                return new Boolean((String)o);
+                return Boolean.valueOf((String)o);
             }
         }
         return false;
