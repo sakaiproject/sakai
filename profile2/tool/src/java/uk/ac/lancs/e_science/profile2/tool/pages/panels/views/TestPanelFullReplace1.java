@@ -5,7 +5,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.views.TestPanelFullReplace2;
 
 
 public class TestPanelFullReplace1 extends Panel {

@@ -55,9 +55,17 @@
 			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 		
-		
-    
   	</dependencies>
 
 </project>

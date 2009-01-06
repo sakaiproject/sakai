@@ -1,23 +1,30 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
 
-import java.util.Iterator;
+import java.io.File;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 
@@ -30,8 +37,6 @@ public class SakaiProxyImpl implements SakaiProxy {
     
 	
 	private final int MAX_PROFILE_IMAGE_SIZE = 2; //default if not specified in sakai.properties as profile.picture.max (megs)
-
-    
 	
 	public String getCurrentSiteId(){
 		return toolManager.getCurrentPlacement().getContext();
@@ -158,6 +163,108 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return sites;
 	}
 
+	public String cleanString(String input) {
+		//this could do something with the error messages in the StringBuilder...SS
+		return(FormattedText.processFormattedText(input, new StringBuilder()));
+	}
+
+	
+	public void registerSecurityAdvisor(SecurityAdvisor securityAdvisor){
+		securityService.pushAdvisor(securityAdvisor);
+	}
+	
+	private void enableSecurityAdvisor() {
+        registerSecurityAdvisor(new SecurityAdvisor() {
+            public SecurityAdvice isAllowed(String userId, String function, String reference) {
+                return SecurityAdvice.ALLOWED;
+            }
+        });
+    }
+
+	
+	
+	//wrapper method to get the CHS resourceID for the main profile image for the user
+	private String getResourceIdForProfileImage(String userId, int type) {
+		
+		
+		String resourceId = "";
+		
+		String fullResourceId = "/profilepics/" + userId + "/" + resourceId;
+
+		/*
+		 * put constants in the Image API and use these inplace of the numbers below
+		 * public static final int MAIN_PROFILE_IMAGE = 1;
+		 * public static final int SMALL_PROFILE_IMAGE = 2;
+		 * public staticfinal int TINY_PROFILE_IMAGE = 3;
+		 * 
+		 * is use Image.MAIN_PROFILE_IMAGE
+		 * 
+		 */
+		
+		
+		
+		
+		switch(type) {
+			//full image
+			case 1:
+			{
+				//lookup in db to get the id
+				
+				
+				break;
+			}
+			//small image
+			case 2:
+			{
+				
+				break;
+			}
+			//tiny image
+			case 3:
+			{
+				
+				break;
+			}
+			default:
+				log.warn("SakaiProxy.getResourceIdForProfileImage(): Invalid image type supplied: " + type);
+		}
+		
+		return fullResourceId;
+		
+	}
+	
+	
+	
+	// we need a few separate methods to get different profile pics/sizes
+	public byte[] getResource(String fullResourceId) {
+		byte[] data = null;
+		
+		try {
+			
+			//this needs to come from a sakai property perhaps?
+			//String fullResourceId = "/profilepics/" + contextId + "/" + resourceId;
+			
+			ContentResource resource = contentHostingService.getResource(fullResourceId);
+			data = resource.getContent();
+		}
+		catch(Exception e){
+			log.error("SakaiProxy.fileExists() failed. " + e.getClass() + ": " + e.getMessage());
+		}
+		
+		return data;
+	}
+	
+	
+	
+
+	public String saveFile(String title, String mimeType, byte[] data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+	
+	
 	
 	
 	
@@ -195,15 +302,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.sakaiPersonManager = sakaiPersonManager;
 	}
 	
-	
-	
-	
+	private ContentHostingService contentHostingService;
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+		
 		
 	public void init() {
 		log.debug("init()");
 	}
 
-	
 	
 
 	

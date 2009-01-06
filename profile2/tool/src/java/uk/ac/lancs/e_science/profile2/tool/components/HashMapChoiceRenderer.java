@@ -1,6 +1,7 @@
 package uk.ac.lancs.e_science.profile2.tool.components;
 
 import java.util.Map;
+
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 
 

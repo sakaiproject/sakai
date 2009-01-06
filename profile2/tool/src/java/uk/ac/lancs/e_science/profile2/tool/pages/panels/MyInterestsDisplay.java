@@ -1,7 +1,5 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;

@@ -48,13 +48,14 @@
 	
 	<script type="text/javascript">
 		/*
-		ranged from 1900-2008 and cannot be past today
+		ranged from current year minus 100 years and cannot be past today
 		defaults to today if none set
+		http://docs.jquery.com/UI/Datepicker/datepicker#options
 		*/
 		$(document).ready(function(){
 			$('.datePicker').datepicker({
-				yearRange: '1900:2008',
-				dateFormat: 'd-MM-yy',
+				yearRange: '-100:+1',
+				dateFormat: 'dd-MM-yy',
 				defaultDate: new Date(),
 				hideIfNoPrevNext: true,
 				maxDate: new Date(),  

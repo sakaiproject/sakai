@@ -23,8 +23,23 @@ public interface Profile {
 	 * @param imageData		bytes of the original image
 	 * @param maxSize		maximum dimension in px that the image should have on any one side
 	 */
-	public byte[] scaleImage (byte[] imageData, int maxSize);
+	public byte[] scaleImage(byte[] imageData, int maxSize);
 	
+	/**
+	 * Convert a Date into a String according to format
+	 *
+	 * @param date			date to convert
+	 * @param format		format in SimpleDateFormat syntax
+	 */
+	public String convertDateToString(Date date, String format);
+	
+	/**
+	 * Convert a string into a Date object (reverse of above
+	 *
+	 * @param dateStr		date string to convert
+	 * @param format		format of the input date in SimpleDateFormat syntax
+	 */
+	public Date convertStringToDate(String dateStr, String format);
 	
 	/**
 	 * Get a list of Friends for a given user. Uses a native SQL query so we can use unions
@@ -75,7 +90,6 @@ public interface Profile {
 	 */
 	public boolean removeFriend(String userId, String friendId);
 	
-	
 	/**
 	 * Get the number of unread messages
 	 *
@@ -83,8 +97,6 @@ public interface Profile {
 	 */
 	public int getUnreadMessagesCount(String userId);
 	
-	
-		
 	/**
 	 * Get the status (message and date) of a user
 	 * (this could be private as the other methods call it and its not called externally)
@@ -134,8 +146,6 @@ public interface Profile {
 	 */
 	public String convertDateForStatus(Date date);
 	
-	
-	
 	/**
 	 * Truncate a string and pad it with ... at the end
 	 *
@@ -143,8 +153,6 @@ public interface Profile {
 	 * @param size		size the string should be truncated to (not including the ...)
 	 */
 	public String truncateAndPadStringToSize(String string, int size);
-	
-	
 	
 	/**
 	 * Create a default privacy record where everything is public

@@ -4,20 +4,12 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.ContextImage;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.markup.repeater.data.GridView;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.dataproviders.FriendDataProvider;
 
 
 public class FriendsFeed extends Panel {

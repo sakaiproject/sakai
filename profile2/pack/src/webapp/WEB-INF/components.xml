@@ -13,6 +13,7 @@
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
+		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 	</bean>
 	
 	<!--  Setup the Profile IMPL as a DAO with Hibernate  -->

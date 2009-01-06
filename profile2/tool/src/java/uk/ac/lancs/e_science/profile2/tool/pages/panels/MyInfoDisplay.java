@@ -13,16 +13,18 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
+import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyInfoDisplay extends Panel {
 	
 	private transient Logger log = Logger.getLogger(MyInfoDisplay.class);
 	
-	private String nickname = null;
-	private Date dateOfBirth = null;
-	private String birthday = null;
 	private int visibleFieldCount = 0;
+	private String birthday = "";
+	private String dateFormat = "dd-MMMM-yyyy"; //this should come from user preferences or a Sakai property
+	
 
 	
 	public MyInfoDisplay(final String id, final UserProfile userProfile) {
@@ -31,12 +33,17 @@ public class MyInfoDisplay extends Panel {
 		//this panel stuff
 		final Component thisPanel = this;
 		
-		//get userProfile from userProfileModel
-		//UserProfile userProfile = (UserProfile) this.getModelObject();
+		//get Profile API
+		Profile profile = ProfileApplication.get().getProfile();
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
 		String nickname = userProfile.getNickname();
+		Date dateOfBirth = userProfile.getDateOfBirth();
+		if(dateOfBirth != null) {
+			birthday = profile.convertDateToString(dateOfBirth, dateFormat);
+			userProfile.setBirthday(birthday);
+		}
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.basic")));
@@ -55,7 +62,7 @@ public class MyInfoDisplay extends Panel {
 		//birthday
 		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
-		birthdayContainer.add(new Label("birthdayt", birthday));
+		birthdayContainer.add(new Label("birthday", birthday));
 		add(birthdayContainer);
 		if("".equals(birthday) || birthday == null) {
 			birthdayContainer.setVisible(false);

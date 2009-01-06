@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -138,10 +139,56 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	    		log.debug("Scaling done.");
 	    	}
 	    } catch (IOException e) {
-	    	log.error("failed");
+	    	log.error("Scaling image failed.");
 	    }
 	    return os.toByteArray();
 	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertDateToString()
+	 */
+	public String convertDateToString(Date date, String format) {
+		
+		if(date == null || "".equals(format)) {
+			throw new IllegalArgumentException("Null Argument in Profile.convertDateToString()");	
+		}
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        StringBuilder dateStr = new StringBuilder(dateFormat.format(date));
+        
+        System.out.println("convertDateToString(), Input date: " + date.toString());
+        System.out.println("convertDateToString(), Converted date string: " + dateStr);
+
+		return dateStr.toString();
+		
+	}
+	
+	/*
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertStringToDate()
+	 */
+	public Date convertStringToDate(String dateStr, String format) {
+		
+		if("".equals(dateStr) || "".equals(format)) {
+			throw new IllegalArgumentException("Null Argument in Profile.convertStringToDate()");	
+		}
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+		 
+		try {
+			Date date = dateFormat.parse(dateStr);
+			
+			System.out.println("convertStringToDate(), Input date string: " + dateStr);
+			System.out.println("convertStringToDate(), Converted date: " + date.toString());
+			
+			return date;
+		} catch (Exception e) {
+			log.error("convertStringToDate() failed. " + e.getClass() + ": " + e.getMessage());
+			return null;
+		}            
+        
+	}
+
+
 	
 
 	

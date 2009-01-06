@@ -2,6 +2,8 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -17,6 +19,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
+import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
@@ -24,10 +27,8 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 public class MyInfoEdit extends Panel {
 	
 	private transient Logger log = Logger.getLogger(MyInfoEdit.class);
-	
-	
 	private WebMarkupContainer formFeedback;
-
+	private String dateFormat = "dd-MMMM-yyyy"; //this should come from user preferences or a Sakai property
 	
 	public MyInfoEdit(final String id, final UserProfile userProfile) {
 		super(id);
@@ -78,7 +79,7 @@ public class MyInfoEdit extends Panel {
 					}
 				
 				} else {
-					String js = "alert('crap!');";
+					String js = "alert('Failed to save information. Contact your system administrator.');";
 					target.prependJavascript(js);
 				}
 				
@@ -106,7 +107,7 @@ public class MyInfoEdit extends Panel {
         cancelButton.setDefaultFormProcessing(false);
         form.add(cancelButton);
 		
-        //feedback stuff - make this a class and insance it with diff params
+        //feedback stuff - make this a class and instance it with diff params
         //WebMarkupContainer formFeedback = new WebMarkupContainer("formFeedback");
 		//formFeedback.add(new Label("feedbackMsg", "some message"));
 		//formFeedback.add(new AjaxIndicator("feedbackImg"));
@@ -130,16 +131,28 @@ public class MyInfoEdit extends Panel {
 		//get sakaiProxy, then get userId from sakaiProxy, then get sakaiperson for that userId
 		SakaiProxy sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
+		//get Profile API
+		Profile profile = ProfileApplication.get().getProfile();
+		
 		String userId = sakaiProxy.getCurrentUserId();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 	
 		//set the attributes from userProfile that this form dealt with, into sakaiPerson
 		//this WILL fail if there is no sakaiPerson for the user however this should have been caught already
-		//as a new Sakaiperson for a user is created in MyProfile if they don't have one.
+		//as a new Sakaiperson for a user is created in MyProfile.java if they don't have one.
+		
+		//we should set these up as strings and clean them first
 		
 		sakaiPerson.setNickname(userProfile.getNickname());
-		//sakaiPerson.setDateOfBirth(userProfile.getDateOfBirth());
-		//ned handle on Profile and to process the date here.
+		
+		if(userProfile.getBirthday() != null && userProfile.getBirthday().trim().length()>0) {
+			Date convertedDate = profile.convertStringToDate(userProfile.getBirthday(), dateFormat);
+			userProfile.setDateOfBirth(convertedDate); //set in userProfile which backs the profile
+			sakaiPerson.setDateOfBirth(convertedDate); //set into sakaiPerson to be persisted to DB
+		} else {
+			userProfile.setDateOfBirth(null); //clear both fields
+			sakaiPerson.setDateOfBirth(null);
+		}
 		
 
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
