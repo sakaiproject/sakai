@@ -47,12 +47,20 @@ import org.sakaiproject.entitybroker.util.http.URLData;
  */
 public class EntityBatchHandler {
 
+    private static final String HEADER_BATCH_STATUS = "batchStatus";
+    private static final String HEADER_BATCH_ERRORS = "batchErrors";
+    private static final String HEADER_BATCH_MAPPING = "batchMapping";
+    private static final String HEADER_BATCH_URLS = "batchURLs";
+    private static final String HEADER_BATCH_REFS = "batchRefs";
+    private static final String HEADER_BATCH_KEYS = "batchKeys";
     /**
      * This is the name of the parameter which is used to pass along the reference URLs to be batch processed
      */
     private static final String REFS_PARAM_NAME = "refs";
     private static String UNIQUE_DATA_PREFIX = "X-XqReplaceQX-X-";
     private static Log log = LogFactory.getLog(EntityBatchHandler.class);
+    private static String DIRECT_BATCH = EntityView.DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH;
+    private static String INTERNAL_SERVER_ERROR_STATUS_STRING = HttpServletResponse.SC_INTERNAL_SERVER_ERROR+"";
 
     private EntityBrokerManager entityBrokerManager;
     public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
@@ -96,6 +104,9 @@ public class EntityBatchHandler {
      * Handles batching all get operations
      */
     public void handleBatchGet(EntityView view, HttpServletRequest req, HttpServletResponse res) {
+        if (view == null || req == null || res == null) {
+            throw new IllegalArgumentException("Could not process batch: invalid arguments, no args can be null (view="+view+",req="+req+",res="+res+")");
+        }
         // validate the the refs param
         String[] refs = req.getParameterValues(REFS_PARAM_NAME);
         if (refs == null || refs.length == 0) {
@@ -118,9 +129,9 @@ public class EntityBatchHandler {
         }
 
         // loop through all references
-        HashSet<String> processedRefs = new HashSet<String>(); // holds all refs which we processed in this batch
+        HashSet<String> processedRefsAndURLs = new HashSet<String>(); // holds all refs which we processed in this batch
         HashMap<String, String> dataMap = new HashMap<String, String>(); // the returned content data from each ref
-        Map<String, Object> results = new ArrayOrderedMap<String, Object>(); // the results of all valid refs
+        Map<String, ResponseBase> results = new ArrayOrderedMap<String, ResponseBase>(); // the results of all valid refs
         boolean successOverall = false; // true if all ok or partial ok, false if exception occurs or all fail
         boolean failure = false;
         for (int i = 0; i < refs.length; i++) {
@@ -131,21 +142,33 @@ public class EntityBatchHandler {
                 continue; // skip
             }
             // skip ones that are already done, we do not process twice
-            if (processedRefs.contains(reference)) {
+            if (processedRefsAndURLs.contains(reference)) {
                 continue; // skip
             }
             // fix anything that does not start with a slash or http
+            String entityURL = reference;
             if (! reference.startsWith("/") 
                     && ! reference.startsWith("http://")) {
                 // assume this is an EB entity url without the slash
-                reference = EntityView.DIRECT_PREFIX + EntityView.SEPARATOR + reference;
+                entityURL = EntityView.DIRECT_PREFIX + EntityView.SEPARATOR + reference;
             }
+            // make sure no one tries to batch a batch
+            if (reference.startsWith(EntityRequestHandler.SLASH_BATCH)
+                    || reference.startsWith(DIRECT_BATCH)) {
+                throw new EntityException("Failure processing batch request, "
+                		+ "batch reference ("+reference+") ("+entityURL+") appears to be another "
+           				+ "batch URL (contains "+EntityRequestHandler.SLASH_BATCH+"), "
+           				+ "failure in batch request: " + view,
+                		EntityRequestHandler.SLASH_BATCH, 
+                		HttpServletResponse.SC_BAD_REQUEST);
+            }
+
             // object will hold the results of this reference request
-            Object result;
+            ResponseBase result;
             ResponseError error = null;
 
-            // parse the reference, should hopefully not cause a failure
-            URLData ud = new URLData(reference);
+            // parse the entityURL, should hopefully not cause a failure
+            URLData ud = new URLData(entityURL);
 
             /*
              * identify the EB direct operations - 
@@ -158,19 +181,25 @@ public class EntityBatchHandler {
                     continue;
                 }
                 try {
-                    // parse the entity URL to verify it
+                    // parse the entityURL to verify it
                     entityBrokerManager.parseReference(ud.pathInfo);
                 } catch (IllegalArgumentException e) {
-                    String errorMessage = "Failure parsing direct reference ("+reference+") from path ("+ud.pathInfo+"): " + e.getMessage() + ":" + e.getCause();
+                    String errorMessage = "Failure parsing direct entityURL ("+entityURL+") from reference ("+reference+") from path ("+ud.pathInfo+"): " + e.getMessage() + ":" + e.getCause();
                     log.warn(errorMessage);
-                    error = new ResponseError(reference, errorMessage);
+                    error = new ResponseError(reference, entityURL, errorMessage);
                 }
-                // rebuild the reference with the correct extension in there
-                reference = EntityView.DIRECT_PREFIX + ud.pathInfoNoExtension + EntityView.PERIOD + view.getFormat();
+                // rebuild the entityURL with the correct extension in there
+                StringBuilder sb = new StringBuilder();
+                sb.append(EntityView.DIRECT_PREFIX);
+                sb.append(ud.pathInfoNoExtension);
+                sb.append(EntityView.PERIOD);
+                sb.append(view.getFormat());
                 if (ud.query.length() > 0) {
                     // add on the query string
-                    reference = reference + '?' + ud.query;
+                    sb.append('?');
+                    sb.append(ud.query);
                 }
+                entityURL = sb.toString();
 
 //                // TODO split the URL and query string apart, send URL to parse entity URL, process query string below
 //                EntityReference entityReference = entityView.getEntityReference();
@@ -187,11 +216,15 @@ public class EntityBatchHandler {
 //                }
 //                //entityBrokerManager.getEntityData(ref);
             }
-            // compile EB responses
+
+            // skip urls that are already done, we do not process twice
+            if (processedRefsAndURLs.contains(entityURL)) {
+                continue; // skip
+            }
 
             // setup the request and response objects to do the reference request
-            RequestDispatcher dispatcher = req.getRequestDispatcher(reference);
-            EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, reference);
+            RequestDispatcher dispatcher = req.getRequestDispatcher(entityURL);
+            EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, entityURL);
             entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
             EntityHttpServletResponse entityResponse = new EntityHttpServletResponse(res);
 
@@ -200,9 +233,9 @@ public class EntityBatchHandler {
                 // need to forward instead of include to get headers back
                 dispatcher.forward(entityRequest, entityResponse);
             } catch (Exception e) {
-                String errorMessage = "Failure attempting to process reference ("+reference+"): " + e.getMessage() + ":" + e.getCause();
+                String errorMessage = "Failure attempting to process reference ("+reference+"): " + e.getMessage() + ":" + e;
                 log.warn(errorMessage);
-                error = new ResponseError(reference, errorMessage);
+                error = new ResponseError(reference, entityURL, errorMessage);
             }
             // create the object to encode and place into the final response
             if (error == null) {
@@ -226,14 +259,16 @@ public class EntityBatchHandler {
                     dataMap.put(uniqueKey, content);
                     content = uniqueKey;
                 }
-                result = new ResponseResult(reference, status, entityResponse.getHeaders(), content);
+                result = new ResponseResult(reference, entityURL, status, entityResponse.getHeaders(), content);
             } else {
                 // failure, keep going though
                 result = error;
                 successOverall = false;
                 failure = true;
             }
-            processedRefs.add(reference);
+            // store the processed ref and url so we do not do them again
+            processedRefsAndURLs.add(reference);
+            processedRefsAndURLs.add(entityURL);
             results.put(refKey, result); // use an artificial key
         }
 
@@ -243,7 +278,7 @@ public class EntityBatchHandler {
             overallStatus = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
 
-        // die if everything was invalid
+        // die if every ref was invalid
         if (results.size() == 0) {
             throw new EntityException("Invalid request which resulted in no valid references to batch process, original refs=("
                     +ArrayUtils.arrayToString(refs)+")", EntityRequestHandler.SLASH_BATCH, HttpServletResponse.SC_BAD_REQUEST);
@@ -265,6 +300,31 @@ public class EntityBatchHandler {
             }
         }
         // put response, headers, and code into the http response
+        // set overall headers - batchRefs, batchKeys, batchStatus, batchErrors, batchInvalidRefs
+        int count = 0;
+        for (Entry<String, ResponseBase> entry : results.entrySet()) {
+            String refKey = entry.getKey();
+            ResponseBase refResp = entry.getValue();
+            if (count == 0) {
+                res.setHeader(HEADER_BATCH_KEYS, refKey);
+                res.setHeader(HEADER_BATCH_REFS, refResp.getReference());
+                res.setHeader(HEADER_BATCH_URLS, refResp.getEntityURL());
+                res.setHeader(HEADER_BATCH_MAPPING, refKey + "=" + refResp.getReference());
+            } else {
+                res.addHeader(HEADER_BATCH_KEYS, refKey);
+                res.addHeader(HEADER_BATCH_REFS, refResp.getReference());
+                res.addHeader(HEADER_BATCH_URLS, refResp.getEntityURL());
+                res.addHeader(HEADER_BATCH_MAPPING, refKey + "=" + refResp.getReference());
+            }
+            if (refResp.isFailure()) {
+                res.addHeader(HEADER_BATCH_ERRORS, refKey);
+                res.addHeader(HEADER_BATCH_STATUS, INTERNAL_SERVER_ERROR_STATUS_STRING);
+            } else {
+                int status = ((ResponseResult) refResp).getStatus();
+                res.addHeader(HEADER_BATCH_STATUS, Integer.toString(status));
+            }
+            count++;
+        }
         // put content into the response
         try {
             res.getWriter().write(overallData);
@@ -273,34 +333,56 @@ public class EntityBatchHandler {
         }
         // set overall status code
         res.setStatus(overallStatus);
-        // TODO set overall headers (should include info on results)
+    }
+
+    /**
+     * Base class for all response data which will be encoded and output
+     */
+    public static class ResponseBase {
+        public String reference;
+        public String getReference() {
+            return reference;
+        }
+        public String entityURL;
+        public String getEntityURL() {
+            return entityURL;
+        }
+        public transient boolean failure = false;
+        public boolean isFailure() {
+            return failure;
+        }
     }
 
     /**
      * Holds the error values which will be encoded by the various EB utils
      */
-    public static class ResponseError {
-        public String reference;
+    public static class ResponseError extends ResponseBase {
         public String error;
-        public ResponseError(String reference, String errorMessage) {
+        public ResponseError(String reference, String entityURL, String errorMessage) {
             this.reference = reference;
+            this.entityURL = entityURL;
             this.error = errorMessage;
+            this.failure = true;
         }
     }
 
     /**
      * Holds the results from a successful response request
      */
-    public static class ResponseResult {
-        public String reference;
+    public static class ResponseResult extends ResponseBase {
         public int status;
+        public int getStatus() {
+            return status;
+        }
         public Map<String, String[]> headers;
         public String data;
-        public ResponseResult(String reference, int status, Map<String, String[]> headers, String data) {
+        public ResponseResult(String reference, String entityURL, int status, Map<String, String[]> headers, String data) {
             this.reference = reference;
+            this.entityURL = entityURL;
             this.status = status;
             this.headers = headers;
             this.data = data;
+            this.failure = false;
         }
     }
 

@@ -505,6 +505,72 @@ public class EntityBrokerServletTest {
         }
     }
 
+    @Test
+    public void testBatchGetValidAndInvalidJSON() {
+        // now fire the request
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" 
+                + "?refs=" + DIRECT_PREFIX + TestData.SPACE4
+                + "," + DIRECT_PREFIX + TestData.REF6_2
+                + "," + DIRECT_PREFIX + TestData.SPACE6 + "/XXXXX";
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("\"status\":"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("\"headers\":"));
+            assertTrue(content.contains("\"reference\":"));
+            assertTrue(content.contains("\"data\":"));
+            assertTrue(content.contains(TestData.PREFIX4));
+            assertTrue(content.contains("4-one"));
+            assertTrue(content.contains("4-two"));
+            assertTrue(content.contains("4-three"));
+            assertTrue(content.contains("\"id\": \"4-two\""));
+            assertTrue(content.contains("\"entityReference\":"));
+            assertTrue(content.contains("\\/myPrefix4\\/4-two"));
+            assertTrue(content.contains(TestData.PREFIX6));
+            assertTrue(content.contains("6-two"));
+            assertTrue(content.contains("\"id\": \"6-two\""));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    // TODO need to work on a way to actually call the other webapps, it is not actually possible with forward/include
+
+//    @Test
+//    public void testBatchAllInvalidJSON() {
+//        // now fire the request
+//        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" 
+//                + "?refs=/XXXXX/XXXX/XXX,/YYYYY/YYYY,/ZZZZZ";
+//        fireRequest(url);
+//
+//        try {
+//            String content = this.response.getContent();
+//            assertNotNull(content);
+//            assertTrue(content.contains("ref0"));
+//            assertTrue(content.contains("\"status\":"));
+//            assertTrue(content.contains("200"));
+//            assertTrue(content.contains("\"headers\":"));
+//            assertTrue(content.contains("\"reference\":"));
+//            assertTrue(content.contains("\"data\":"));
+//            assertTrue(content.contains(TestData.PREFIX4));
+//            assertTrue(content.contains("4-one"));
+//            assertTrue(content.contains("4-two"));
+//            assertTrue(content.contains("4-three"));
+//            assertTrue(content.contains("\"id\": \"4-two\""));
+//            assertTrue(content.contains("\"entityReference\":"));
+//            assertTrue(content.contains("\\/myPrefix4\\/4-two"));
+//            assertTrue(content.contains(TestData.PREFIX6));
+//            assertTrue(content.contains("6-two"));
+//            assertTrue(content.contains("\"id\": \"6-two\""));
+//        } catch (Exception e) {
+//            fail("Could not get content: " + e.getMessage());
+//        }
+//    }
+
     // TODO test batch post/head/put/delete
 
 }
