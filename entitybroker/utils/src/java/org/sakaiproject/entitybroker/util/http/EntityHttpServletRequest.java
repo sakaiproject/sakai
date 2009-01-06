@@ -553,6 +553,9 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public String getHeader(String name) {
+        if (name == null || "".equals(name)) {
+            throw new IllegalArgumentException("name cannot be null");
+        }
         String header = null;
         if (headers.containsKey(name)) {
             header = headers.get(name).firstElement();
@@ -565,6 +568,9 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public Enumeration getHeaders(String name) {
+        if (name == null || "".equals(name)) {
+            throw new IllegalArgumentException("name cannot be null");
+        }
         Vector<String> h = new Vector<String>(0);
         if (headers.containsKey(name)) {
             h = headers.get(name);

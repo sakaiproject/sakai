@@ -418,6 +418,9 @@ public class EntityHttpServletResponse implements HttpServletResponse {
      * @return the first value in this header OR null if there is no header by this name
      */
     public String getHeader(String name) {
+        if (name == null || "".equals(name)) {
+            throw new IllegalArgumentException("name cannot be null");
+        }
         String value = null;
         if (this.headers.containsKey(name)) {
             if (this.headers.get(name).size() > 0) {
@@ -435,6 +438,9 @@ public class EntityHttpServletResponse implements HttpServletResponse {
      * @return the list of all values in this header OR null if there are none
      */
     public List<String> getHeaders(String name) {
+        if (name == null || "".equals(name)) {
+            throw new IllegalArgumentException("name cannot be null");
+        }
         List<String> values;
         if (this.headers.containsKey(name)) {
             values = this.headers.get(name);
