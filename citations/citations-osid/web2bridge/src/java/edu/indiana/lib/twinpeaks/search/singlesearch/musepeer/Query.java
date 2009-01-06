@@ -215,7 +215,7 @@ public class Query extends HttpTransactionQueryBase
        * Try to wait for a complete set of responses
        */
 		  sleepCount = 0;
-		  sleepLimit = 5 + (getTargetCount() * 2);
+		  sleepLimit = 5 + (getTargetCount() * 3);
 
 		  done = setStatus(getResponseDocument());
       while (!done && (sleepCount++ < sleepLimit))
