@@ -38,6 +38,7 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 public class EntityReference implements Cloneable, Serializable {
     public final static long serialVersionUID = 1l;
 
+    // NOTE: these are transient for serialization - ignore PMD SE_TRANSIENT_FIELD_NOT_RESTORED
     public static transient final char SEPARATOR = EntityView.SEPARATOR;
     public static transient final char PERIOD = EntityView.PERIOD;
 
