@@ -1913,11 +1913,15 @@ public class DeliveryActionListener
   }
 
   public void setShowStudentQuestionScore(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
-    if (Boolean.TRUE.equals(
-        publishedAssessment.getAssessmentFeedback().getShowStudentQuestionScore())) {
-      if (delivery.getFeedbackComponent()!=null &&
-          delivery.getFeedbackComponent().getShowDateFeedback() && !delivery.getFeedbackOnDate(
-))
+	int action = delivery.getActionMode();
+	// Score should always be shown in grading flow 
+	if (DeliveryBean.GRADE_ASSESSMENT == action) {
+		delivery.setShowStudentQuestionScore(true);
+	}
+	else if (Boolean.TRUE.equals(publishedAssessment.getAssessmentFeedback().getShowStudentQuestionScore())) {
+      if (delivery.getFeedbackComponent()!=null && 
+    		  ((delivery.getFeedbackComponent().getShowDateFeedback() && !delivery.getFeedbackOnDate()) ||
+    		  ((DeliveryBean.TAKE_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT_VIA_URL == action) && delivery.getFeedbackComponent().getShowOnSubmission())))
         delivery.setShowStudentQuestionScore(false);
       else
         delivery.setShowStudentQuestionScore(true);
