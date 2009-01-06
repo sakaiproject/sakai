@@ -57,7 +57,8 @@ public class EntityView implements Cloneable, Serializable {
 
     public static final String PREFIX = "prefix";
     public static final String ID = "id";
-    public static final String DIRECT_PREFIX = SEPARATOR + "direct";
+    public static final String DIRECT = "direct";
+    public static final String DIRECT_PREFIX = SEPARATOR + DIRECT;
 
     /**
      * Represents HTTP methods (GET, POST, etc.)

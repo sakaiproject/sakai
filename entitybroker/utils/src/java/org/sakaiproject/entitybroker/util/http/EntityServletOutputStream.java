@@ -79,20 +79,8 @@ public class EntityServletOutputStream extends ServletOutputStream {
         out.close();
     }
 
-    public boolean equals(Object obj) {
-        return out.equals(obj);
-    }
-
     public void flush() throws IOException {
         out.flush();
-    }
-
-    public int hashCode() {
-        return out.hashCode();
-    }
-
-    public String toString() {
-        return out.toString();
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
@@ -106,6 +94,20 @@ public class EntityServletOutputStream extends ServletOutputStream {
     public void write(int b) throws IOException {
         out.write(b);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return out.equals(obj);
+    }
+    @Override
+    public int hashCode() {
+        return out.hashCode();
+    }
+    @Override
+    public String toString() {
+        return out.toString();
+    }
+
 
     /** Wrap a Writer as an OutputStream.
      * When all you have is a Writer and only an OutputStream will do.

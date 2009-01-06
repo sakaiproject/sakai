@@ -93,13 +93,28 @@ public class LazyRequestInputStream extends ServletInputStream {
     public long skip(long n) throws IOException {
         return getStream().skip(n);
     }
+    @Override
     public boolean equals(Object obj) {
-        return getStream().equals(obj);
+        if (stream == null) {
+            return super.equals(obj);
+        } else {
+            return getStream().equals(obj);
+        }
     }
+    @Override
     public int hashCode() {
-        return getStream().hashCode();
+        if (stream == null) {
+            return super.hashCode();
+        } else {
+            return getStream().hashCode();
+        }
     }
+    @Override
     public String toString() {
-        return getStream().toString();
+        if (stream == null) {
+            return super.toString() + ":LazyStreamNotOpenYet";
+        } else {
+            return getStream().toString();
+        }
     }
 }

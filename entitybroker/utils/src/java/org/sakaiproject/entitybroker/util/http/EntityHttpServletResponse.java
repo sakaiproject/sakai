@@ -19,10 +19,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +50,8 @@ public class EntityHttpServletResponse implements HttpServletResponse {
      * Create a default response that is valid for testing
      */
     public EntityHttpServletResponse() {
+        this.content = new ByteArrayOutputStream(512);
+        this.outputStream = new EntityServletOutputStream(content);
         this.setLocale( Locale.getDefault() );
         this.setStatus( HttpServletResponse.SC_OK );
     }
@@ -60,6 +62,8 @@ public class EntityHttpServletResponse implements HttpServletResponse {
      * @param response any valid response, cannot be null
      */
     public EntityHttpServletResponse(HttpServletResponse response) {
+        this.content = new ByteArrayOutputStream(512);
+        this.outputStream = new EntityServletOutputStream(content);
         if (response == null) {
             throw new IllegalArgumentException("response to copy cannot be null");
         }
@@ -74,19 +78,21 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     public static final int DEFAULT_SERVER_PORT = 80;
     private static final String CHARSET_PREFIX = "charset=";
 
+    public ConcurrentHashMap<String, Vector<String>> headers = new ConcurrentHashMap<String, Vector<String>>();
+    public Vector<Cookie> cookies = new Vector<Cookie>();
+
+    private final ByteArrayOutputStream content;
+    private final ServletOutputStream outputStream;
+
     private boolean outputStreamAccessAllowed = true;
     private boolean writerAccessAllowed = true;
     private String characterEncoding = "UTF-8";
-    private final ByteArrayOutputStream content = new ByteArrayOutputStream();
-    private final ServletOutputStream outputStream = new EntityServletOutputStream(content);
     private PrintWriter writer;
     private int contentLength = 0;
     private String contentType;
     private int bufferSize = 4096;
     private boolean committed;
     private Locale locale = Locale.getDefault();
-    ConcurrentHashMap<String, Vector<String>> headers = new ConcurrentHashMap<String, Vector<String>>();
-    Vector<Cookie> cookies = new Vector<Cookie>();
     private int status = HttpServletResponse.SC_OK;
     private String errorMessage;
     private String redirectedUrl;
@@ -170,7 +176,7 @@ public class EntityHttpServletResponse implements HttpServletResponse {
             throw new IllegalStateException("Writer access not allowed");
         }
         if (this.writer == null) {
-            Writer targetWriter = (this.characterEncoding != null ?
+            OutputStreamWriter targetWriter = (this.characterEncoding != null ?
                     new OutputStreamWriter(this.content, this.characterEncoding) : new OutputStreamWriter(this.content));
             this.writer = new PrintWriter(targetWriter);
         }
@@ -187,12 +193,13 @@ public class EntityHttpServletResponse implements HttpServletResponse {
 
     /**
      * @return a string representing the content of this response
+     * @throws RuntimeException if the encoding fails and the content cannot be retrieved
      */
     public String getContentAsString() {
         flushBuffer();
         try {
-            return (this.characterEncoding != null) ?
-                    this.content.toString(this.characterEncoding) : this.content.toString();
+            String content = (this.characterEncoding != null) ? this.content.toString(this.characterEncoding) : this.content.toString();
+            return content;
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Failure during encoding of the string in this response: " + this.characterEncoding + ":" + e.getMessage(), e);
         }
@@ -231,6 +238,14 @@ public class EntityHttpServletResponse implements HttpServletResponse {
 
     public void flushBuffer() {
         setCommitted(true);
+        if (this.writer != null) {
+            this.writer.flush();
+        }
+        try {
+            this.outputStream.flush();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to flush the outputstream buffer");
+        }
     }
 
     public void resetBuffer() {
@@ -394,6 +409,40 @@ public class EntityHttpServletResponse implements HttpServletResponse {
 
 
     // HEADER handling methods
+
+    /**
+     * Return the primary value for the given header, if any,
+     * Will return the first value in case of multiple values
+     * 
+     * @param name the name of the header
+     * @return the first value in this header OR null if there is no header by this name
+     */
+    public String getHeader(String name) {
+        String value = null;
+        if (this.headers.containsKey(name)) {
+            if (this.headers.get(name).size() > 0) {
+                value = this.headers.get(name).get(0);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Return the primary value for the given header, if any,
+     * Will return the first value in case of multiple values
+     * 
+     * @param name the name of the header
+     * @return the list of all values in this header OR null if there are none
+     */
+    public List<String> getHeaders(String name) {
+        List<String> values;
+        if (this.headers.containsKey(name)) {
+            values = this.headers.get(name);
+        } else {
+            values = new ArrayList<String>();
+        }
+        return values;
+    }
 
     /**
      * Return the names of all specified headers as a Set of Strings.

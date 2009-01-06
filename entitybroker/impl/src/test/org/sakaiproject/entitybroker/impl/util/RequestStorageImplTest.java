@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
-import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import junit.framework.TestCase;
@@ -43,7 +43,7 @@ public class RequestStorageImplTest extends TestCase {
     protected void setUp() throws Exception {
         requestStorage = new RequestStorageImpl();
         RequestGetterImpl rgi = new RequestGetterImpl();
-        MockEBHttpServletRequest req = new MockEBHttpServletRequest("GET","/thing");
+        EntityHttpServletRequest req = new EntityHttpServletRequest("GET", "/thing");
         req.setAttribute("attribNum", 135);
         req.setAttribute("attribStrNum", "135");
         req.setAttribute("attribBool", true);

@@ -291,11 +291,15 @@ public class TemplateParseUtil {
    /**
     * Find the extension from a string and return the string without the extension and the extension,
     * an extension is a period (".") followed by any number of non-periods,
-    * the original input is returned as the 0th item in the array
+    * the original input is returned as the 0th item in the array <br/>
+    * returned array contains 3 strings: <br/>
+    * 0 = the original input string <br/>
+    * 1 = the string without the extension or the original if it has none <br/>
+    * 2 = the extension OR null if there is no extension <br/>
     * 
     * @param input any string
     * @return an array with the string without the extension or the original if it has none in position 1
-    * and the extension in the position 2, position 0 holds the original input string
+    * and the extension in the position 2 (or null if no extension), position 0 holds the original input string
     */
    public static String[] findExtension(String input) {
       // regex pattern: ".*(\\.[^.]+|$)"

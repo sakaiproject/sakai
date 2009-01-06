@@ -44,7 +44,7 @@ public class LazyResponseOutputStream extends OutputStream {
             try {
                 stream = response.getOutputStream();
             } catch (IOException e) {
-                throw new RuntimeException("Failed getting response output stream from HttpServletResponse", e);
+                throw new RuntimeException("LazyResponseOutputStream failed getting response output stream from HttpServletResponse", e);
             }
         }
         return stream;
@@ -60,29 +60,50 @@ public class LazyResponseOutputStream extends OutputStream {
         }
         this.response = response;
     }
-
     @Override
     public void write(byte[] b) throws IOException {
         getStream().write(b);
     }
-
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
         getStream().write(b, off, len);
     }
-
     @Override
     public void write(int b) throws IOException {
         getStream().write(b);
     }
-
     @Override
     public void close() throws IOException {
         getStream().close();
     }
-
     @Override
     public void flush() throws IOException {
         getStream().flush();
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (stream == null) {
+            return super.equals(obj);
+        } else {
+            return getStream().equals(obj);
+        }
+    }
+    @Override
+    public int hashCode() {
+        if (stream == null) {
+            return super.hashCode();
+        } else {
+            return getStream().hashCode();
+        }
+    }
+    @Override
+    public String toString() {
+        // make sure the toString does not actually open up the lazy stream
+        if (stream == null) {
+            return super.toString() + ":LazyStreamNotOpenYet";
+        } else {
+            return getStream().toString();
+        }
+    }
+
 }

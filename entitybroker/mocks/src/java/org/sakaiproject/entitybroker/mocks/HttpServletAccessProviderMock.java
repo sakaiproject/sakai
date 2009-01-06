@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
-import org.springframework.mock.web.MockHttpServletResponse;
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 
 
 /**
@@ -54,7 +54,7 @@ public class HttpServletAccessProviderMock implements HttpServletAccessProvider 
       } catch (IOException e) {
          // nothing to do here
       }
-      ((MockHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
+      ((EntityHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
    }
 
 }

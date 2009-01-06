@@ -15,17 +15,27 @@
 package org.sakaiproject.entitybroker.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.azeckoski.reflectutils.ArrayUtils;
 import org.azeckoski.reflectutils.map.ArrayOrderedMap;
+import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
+import org.sakaiproject.entitybroker.util.http.URLData;
 
 
 /**
@@ -36,6 +46,9 @@ import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class EntityBatchHandler {
+
+    private static String UNIQUE_DATA_PREFIX = "X-XqReplaceQX-X-";
+    private static Log log = LogFactory.getLog(EntityBatchHandler.class);
 
     private EntityBrokerManager entityBrokerManager;
     public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
@@ -99,31 +112,67 @@ public class EntityBatchHandler {
         if (refs.length <= 0) {
             throw new IllegalArgumentException("refs parameter must be set and there must be at least 1 reference (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
         }
+
         // loop through all references
-        Map<String, Object> results = new ArrayOrderedMap<String, Object>();
+        HashSet<String> processedRefs = new HashSet<String>(); // holds all refs which we processed in this batch
+        HashMap<String, String> dataMap = new HashMap<String, String>(); // the returned content data from each ref
+        Map<String, Object> results = new ArrayOrderedMap<String, Object>(); // the results of all valid refs
         boolean successOverall = false; // true if all ok or partial ok, false if exception occurs or all fail
         boolean failure = false;
         for (int i = 0; i < refs.length; i++) {
+            String refKey = "ref" + i;
             String reference = refs[i];
+            // validate the reference is not blank
             if (reference == null || "".equals(reference)) {
                 continue; // skip
             }
-            if (results.containsKey(reference)) {
-                continue; // skip, already done, we do not process twice
+            // skip ones that are already done, we do not process twice
+            if (processedRefs.contains(reference)) {
+                continue; // skip
+            }
+            // fix anything that does not start with a slash or http
+            if (! reference.startsWith("/") 
+                    && ! reference.startsWith("http://")) {
+                // assume this is an EB entity url without the slash
+                reference = EntityView.DIRECT_PREFIX + EntityView.SEPARATOR + reference;
             }
             // object will hold the results of this reference request
             Object result;
-//            // identify the EB operations
-//            EntityReference entityReference = null;
-//            if (reference.startsWith(EntityView.DIRECT_PREFIX)) {
-//                int loc = reference.indexOf("/", 5);
-//                if (loc == -1) {
-//                    continue; // skip
-//                }
-//                reference = reference.substring(loc);
+            ResponseError error = null;
+
+            // parse the reference, should hopefully not cause a failure
+            URLData ud = new URLData(reference);
+
+            /*
+             * identify the EB direct operations - 
+             * this allows us to strip extensions and cleanup direct URLs as needed,
+             * possibly also handle these specially later on if desired
+             */
+            if (EntityView.DIRECT.equals(ud.servletPath)) {
+                if (ud.pathInfo == null || "".equals(ud.pathInfo)) {
+                    // looks like /direct only and we do not process that
+                    continue;
+                }
+                try {
+                    // parse the entity URL to verify it
+                    entityBrokerManager.parseReference(ud.pathInfo);
+                } catch (IllegalArgumentException e) {
+                    String errorMessage = "Failure parsing direct reference ("+reference+") from path ("+ud.pathInfo+"): " + e.getMessage() + ":" + e.getCause();
+                    log.warn(errorMessage);
+                    error = new ResponseError(reference, errorMessage);
+                }
+                // rebuild the reference with the correct extension in there
+                reference = EntityView.DIRECT_PREFIX + ud.pathInfoNoExtension + EntityView.PERIOD + view.getFormat();
+                if (ud.query.length() > 0) {
+                    // add on the query string
+                    reference = reference + '?' + ud.query;
+                }
+
 //                // TODO split the URL and query string apart, send URL to parse entity URL, process query string below
-//                entityReference = entityBrokerManager.parseReference(reference); //parseEntityURL(reference);
+//                EntityReference entityReference = entityView.getEntityReference();
 //                // check the prefix is valid
+//                if (entityProviderManager.getProviderByPrefix(entityReference.prefix) == null) {
+//                 }
 //                Map<String, String> params = HttpRESTUtils.parseURLintoParams(reference);
 //                // now execute the request to get the data
 //                if (entityReference.getId() == null) {
@@ -133,20 +182,21 @@ public class EntityBatchHandler {
 //                    
 //                }
 //                //entityBrokerManager.getEntityData(ref);
-//            }
-//            // compile EB responses
+            }
+            // compile EB responses
 
             // setup the request and response objects to do the reference request
             RequestDispatcher dispatcher = req.getRequestDispatcher(reference);
             EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, reference);
             EntityHttpServletResponse entityResponse = new EntityHttpServletResponse(res);
+
             // fire off the URLs to the server and get back responses
-            ResponseError error = null;
             try {
                 // need to forward instead of include to get headers back
                 dispatcher.forward(entityRequest, entityResponse);
             } catch (Exception e) {
                 String errorMessage = "Failure attempting to process reference ("+reference+"): " + e.getMessage() + ":" + e.getCause();
+                log.warn(errorMessage);
                 error = new ResponseError(reference, errorMessage);
             }
             // create the object to encode and place into the final response
@@ -163,22 +213,54 @@ public class EntityBatchHandler {
                     successOverall = true;
                 }
                 // create the result
-                result = new ResponseResult(reference, status, entityResponse.getHeaders(), entityResponse.getContentAsString());
+                // process the content and see if it matches the expected result, if not we have to dump it in escaped
+                String content = entityResponse.getContentAsString();
+                if (entityEncodingManager.validateFormat(content, view.getFormat())) {
+                    // valid for the current format so insert later instead of merging now
+                    String uniqueKey = UNIQUE_DATA_PREFIX + refKey;
+                    dataMap.put(uniqueKey, content);
+                    content = uniqueKey;
+                }
+                // TODO process the headers so that single ones are not in arrays?
+                result = new ResponseResult(reference, status, entityResponse.getHeaders(), content);
             } else {
                 // failure, keep going though
                 result = error;
                 successOverall = false;
                 failure = true;
             }
-            results.put(reference, result);
+            processedRefs.add(reference);
+            results.put(refKey, result); // use an artificial key
         }
+
         // determine overall status
         int overallStatus = HttpServletResponse.SC_OK;
         if (failure == true || successOverall == false) {
             overallStatus = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
+
+        // die if everything was invalid
+        if (results.size() == 0) {
+            throw new EntityException("Invalid request which resulted in no valid references to batch process, original refs=("
+                    +ArrayUtils.arrayToString(refs)+")", EntityRequestHandler.SLASH_BATCH, HttpServletResponse.SC_BAD_REQUEST);
+        }
+
         // compile all the responses into encoded data
-        String overallData = entityEncodingManager.encodeData(results, view.getFormat(), "ref", null);
+        String overallData = entityEncodingManager.encodeData(results, view.getFormat(), "refs", null);
+        // replace the data unique keys if there are any
+        for (Entry<String, String> entry : dataMap.entrySet()) {
+            if (entry.getKey() != null && ! "".equals(entry.getKey())) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (Formats.XML.equals(view.getFormat())) {
+                    value = "\n" + value; // add in a break
+                } else if (Formats.JSON.equals(view.getFormat())) {
+                    key = '"' + key + '"'; // have to also replace the quotes
+                }
+                overallData = overallData.replace(key, value);
+            }
+        }
+        // put content into the response
         try {
             res.getWriter().write(overallData);
         } catch (IOException e) {

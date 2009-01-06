@@ -14,11 +14,12 @@
 
 package org.sakaiproject.entitybroker.util;
 
+import static org.junit.Assert.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.URLData;
 
@@ -28,11 +29,12 @@ import org.sakaiproject.entitybroker.util.http.URLData;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class HttpRESTUtilsTest extends TestCase {
+public class HttpRESTUtilsTest {
 
     /**
      * Test method for {@link org.sakaiproject.entitybroker.util.http.HttpRESTUtils#mergeQueryStringWithParams(java.lang.String, java.util.Map)}.
      */
+    @Test
     public void testMergeQueryStringWithParams() {
         String queryString = "/direct/prefix/thing?aaron=az&becky=wife";
         Map<String, String> params = new HashMap<String, String>();
@@ -49,6 +51,7 @@ public class HttpRESTUtilsTest extends TestCase {
     /**
      * Test method for {@link org.sakaiproject.entitybroker.util.http.HttpRESTUtils#parseURLintoParams(java.lang.String)}.
      */
+    @Test
     public void testParseURLintoParams() {
         String queryString = "/direct/prefix/thing?aaron=az&becky=wife";
         Map<String, String> params = HttpRESTUtils.parseURLintoParams(queryString);
@@ -59,6 +62,7 @@ public class HttpRESTUtilsTest extends TestCase {
         assertEquals(params.get("becky"), "wife");
     }
 
+    @Test
     public void testParse() {
         String url = null;
         URLData ud = null;
@@ -132,6 +136,8 @@ public class HttpRESTUtilsTest extends TestCase {
         assertEquals("param1=AZ&param2=BZ", ud.query);
         assertEquals("localhost", ud.server);
         assertEquals("direct", ud.servletPath);
+        assertEquals("xml", ud.extension);
+        assertEquals("/prefix/id/thing", ud.pathInfoNoExtension);
 
         url = "ftp://server/direct/prefix/id?param1=AZ&param2=BZ";
         ud = HttpRESTUtils.parseURL(url);
@@ -142,6 +148,8 @@ public class HttpRESTUtilsTest extends TestCase {
         assertEquals("param1=AZ&param2=BZ", ud.query);
         assertEquals("server", ud.server);
         assertEquals("direct", ud.servletPath);
+        assertEquals("", ud.extension);
+        assertEquals("/prefix/id", ud.pathInfoNoExtension);
 
         url = "ftp://server:8080/direct/prefix/id?param1=AZ&param2=BZ";
         ud = HttpRESTUtils.parseURL(url);
@@ -162,6 +170,8 @@ public class HttpRESTUtilsTest extends TestCase {
         assertEquals("param1=AZ&param2=BZ", ud.query);
         assertEquals("server", ud.server);
         assertEquals("direct", ud.servletPath);
+        assertEquals("xml", ud.extension);
+        assertEquals("/prefix/id/thing", ud.pathInfoNoExtension);
 
         url = "ftp://server:8080/direct";
         ud = HttpRESTUtils.parseURL(url);

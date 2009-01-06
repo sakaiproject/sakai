@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.mortbay.jetty.testing.HttpTester;
 import org.mortbay.jetty.testing.ServletTester;
 
+import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.impl.ServiceTestManager;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 
@@ -63,8 +64,12 @@ public class EntityBrokerServletTest {
             fail("Could not start the jetty server: " + e.getMessage());
         }
 
-        this.request = new HttpTester();
         this.response = new HttpTester();
+        prepareRequest();
+    }
+
+    private void prepareRequest() {
+        this.request = new HttpTester();
         this.request.setMethod("GET");
         this.request.setHeader("Host", "tester");
         this.request.setVersion("HTTP/1.0");
@@ -79,19 +84,28 @@ public class EntityBrokerServletTest {
         }
     }
 
+    /**
+     * Fires off a request using Jetty to the given uri (uses GET by default),
+     * also resets the request afterward so it can be used again if desired
+     * @param uri any uri which you want to test (should be valid for the test)
+     */
     protected void fireRequest(String uri) {
+        this.response = new HttpTester(); // build a new response
+        this.request.setMethod("GET");
         this.request.setURI(uri);
         try {
             this.response.parse(tester.getResponses(request.generate()));
         } catch (Exception e) {
             fail("Could not parse the response to the request ("+uri+"): " + e.getMessage());
         }
+        prepareRequest(); // reset the request
     }
+
 
     // now the tests
 
     @Test
-    public void testSimple() {
+    public void testSimpleXML() {
         // now fire the request
         fireRequest(DIRECT_PREFIX + TestData.ENTITY_URL4_XML);
 
@@ -106,134 +120,311 @@ public class EntityBrokerServletTest {
             assertFalse(content.contains("4-two"));
             assertFalse(content.contains("4-three"));
         } catch (Exception e) {
-            fail("Could get content: " + e.getMessage());
+            fail("Could not get content: " + e.getMessage());
         }
     }
 
-    /**********
+    @Test
+    public void testSimpleJSON() {
+        // now fire the request
+        fireRequest(DIRECT_PREFIX + TestData.ENTITY_URL4_JSON);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("myPrefix4"));
+            assertTrue(content.contains("4-one"));
+            assertTrue(content.contains("\"id\": \"4-one\""));
+            assertTrue(content.contains("\"entityReference\":"));
+            assertTrue(content.contains("\\/myPrefix4\\/4-one"));
+            assertFalse(content.contains("4-two"));
+            assertFalse(content.contains("4-three"));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testSimpleCollectionXML() {
+        // now fire the request
+        fireRequest(DIRECT_PREFIX + TestData.COLLECTION_URL4_XML);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("<myPrefix4_collection entityPrefix=\"myPrefix4\">"));
+            assertTrue(content.contains("</myPrefix4_collection>"));
+            assertTrue(content.contains("4-two"));
+            assertTrue(content.contains("4-three"));
+            assertTrue(content.contains("myPrefix4"));
+            assertTrue(content.contains("4-one"));
+            assertTrue(content.contains("<id>4-one</id>"));
+            assertTrue(content.contains("<entityId>4-one</entityId>"));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testSimpleCollectionJSON() {
+        // now fire the request
+        fireRequest(DIRECT_PREFIX + TestData.COLLECTION_URL4_JSON);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("\"myPrefix4_collection\":"));
+            assertTrue(content.contains("myPrefix4"));
+            assertTrue(content.contains("4-one"));
+            assertTrue(content.contains("\"id\": \"4-one\""));
+            assertTrue(content.contains("\"entityReference\":"));
+            assertTrue(content.contains("\\/myPrefix4\\/4-one"));
+            assertTrue(content.contains("4-two"));
+            assertTrue(content.contains("4-three"));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    // test describe
+
     @Test
     public void testDescribe() {
-        assertNotNull(serviceTestManager);
-        assertNotNull(serviceTestManager.entityBrokerManager);
-        assertNotNull(serviceTestManager.entityEncodingManager);
-        assertNotNull(serviceTestManager.entityBatchHandler);
-
-        ServletTester tester = new ServletTester();
-        tester.setContextPath("/");
-        tester.addServlet(TestDirectServlet.class, "/direct");
-        try {
-            tester.start();
-        } catch (Exception e) {
-            fail("Could not start the jetty server: " + e.getMessage());
-        }
-
         // now fire the request
-        String jettyRequest = 
-            "GET /dspace HTTP/1.1\r\n"+
-            "Host: tester\r\n"+
-            "\r\n";
+        fireRequest(DIRECT_PREFIX + EntityRequestHandler.SLASH_DESCRIBE);
+
         try {
-            String content = tester.getResponses(jettyRequest);
+            String content = this.response.getContent();
             assertNotNull(content);
-            assertTrue(content.contains("DSpaceTest"));
-            assertFalse(content.contains("session=null"));
-            assertFalse(content.contains("request=null"));
+            // just check for working and valid format
+            assertTrue(content.contains("<?xml"));
+            assertTrue(content.contains("<!DOCTYPE html"));
+            assertTrue(content.contains("<html"));
+            assertTrue(content.contains("<head"));
+            assertTrue(content.contains("<title"));
+            assertTrue(content.contains("</title>"));
+            assertTrue(content.contains("<body"));
+            assertTrue(content.contains("</body>"));
+            assertTrue(content.contains("</html>"));
         } catch (Exception e) {
-            fail("Could not fire request: " + e.getMessage());
-        }
-
-        // try a request a different way
-        HttpTester request = new HttpTester();
-        HttpTester response = new HttpTester();
-        request.setMethod("GET");
-        request.setHeader("Host","tester");
-        request.setVersion("HTTP/1.0");
-        request.setURI("/dspace");
-
-        try {
-            response.parse( tester.getResponses(request.generate()) );
-        } catch (IOException e1) {
-            fail("Could not parse response: " + e1.getMessage());
-        } catch (Exception e1) {
-            fail("Could not parse response: " + e1.getMessage());
-        }
-
-        assertTrue(response.getMethod() == null);
-        assertEquals(200, response.getStatus());
-        String content = response.getContent();
-        assertNotNull(content);
-        assertTrue(content.contains("DSpaceTest"));
-        assertFalse(content.contains("session=null"));
-        assertFalse(content.contains("request=null"));
-
-        try {
-            tester.stop();
-        } catch (Exception e) {
-            fail("Could not stop the jetty server: " + e.getMessage());
+            fail("Could not get content: " + e.getMessage());
         }
     }
 
     @Test
-    public void testBatch() {
-        assertNotNull(serviceTestManager);
-        assertNotNull(serviceTestManager.entityBrokerManager);
-        assertNotNull(serviceTestManager.entityEncodingManager);
-        assertNotNull(serviceTestManager.entityBatchHandler);
-
-        ServletTester tester = new ServletTester();
-        tester.setContextPath("/");
-        tester.addServlet(TestDirectServlet.class, "/direct");
-        try {
-            tester.start();
-        } catch (Exception e) {
-            fail("Could not start the jetty server: " + e.getMessage());
-        }
-
+    public void testDescribeXML() {
         // now fire the request
-        String jettyRequest = 
-            "GET /dspace HTTP/1.1\r\n"+
-            "Host: tester\r\n"+
-            "\r\n";
+        fireRequest(DIRECT_PREFIX + EntityRequestHandler.SLASH_DESCRIBE + ".xml");
+
         try {
-            String content = tester.getResponses(jettyRequest);
+            String content = this.response.getContent();
             assertNotNull(content);
-            assertTrue(content.contains("DSpaceTest"));
-            assertFalse(content.contains("session=null"));
-            assertFalse(content.contains("request=null"));
+            assertTrue(content.contains("<?xml"));
+            assertTrue(content.contains("<describe>"));
+            assertTrue(content.contains("<prefixes>"));
+            assertTrue(content.contains("<prefix>"));
+            assertTrue(content.contains("<capabilities>"));
+            assertTrue(content.contains("<describeURL>"));
+            assertTrue(content.contains("<capability>"));
+            assertTrue(content.contains("</prefixes>"));
+            assertTrue(content.contains("</describe>"));
         } catch (Exception e) {
-            fail("Could not fire request: " + e.getMessage());
-        }
-
-        // try a request a different way
-        HttpTester request = new HttpTester();
-        HttpTester response = new HttpTester();
-        request.setMethod("GET");
-        request.setHeader("Host","tester");
-        request.setVersion("HTTP/1.0");
-        request.setURI("/dspace");
-
-        try {
-            response.parse( tester.getResponses(request.generate()) );
-        } catch (IOException e1) {
-            fail("Could not parse response: " + e1.getMessage());
-        } catch (Exception e1) {
-            fail("Could not parse response: " + e1.getMessage());
-        }
-
-        assertTrue(response.getMethod() == null);
-        assertEquals(200, response.getStatus());
-        String content = response.getContent();
-        assertNotNull(content);
-        assertTrue(content.contains("DSpaceTest"));
-        assertFalse(content.contains("session=null"));
-        assertFalse(content.contains("request=null"));
-
-        try {
-            tester.stop();
-        } catch (Exception e) {
-            fail("Could not stop the jetty server: " + e.getMessage());
+            fail("Could not get content: " + e.getMessage());
         }
     }
-    *******/
+
+    @Test
+    public void testDescribeEntity() {
+        // now fire the request
+        fireRequest(DIRECT_PREFIX + "/" + TestData.PREFIX4 + EntityRequestHandler.SLASH_DESCRIBE);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("<?xml"));
+            assertTrue(content.contains("<!DOCTYPE html"));
+            assertTrue(content.contains("<html"));
+            assertTrue(content.contains("<head"));
+            assertTrue(content.contains("<title"));
+            assertTrue(content.contains("</title>"));
+            assertTrue(content.contains("<body"));
+            assertTrue(content.contains("</body>"));
+            assertTrue(content.contains("</html>"));
+            assertTrue(content.contains(TestData.PREFIX4));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDescribeEntityXML() {
+        // now fire the request
+        fireRequest(DIRECT_PREFIX + "/" + TestData.PREFIX4 + EntityRequestHandler.SLASH_DESCRIBE + ".xml");
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("<?xml"));
+            assertTrue(content.contains("<prefix>"));
+            assertTrue(content.contains("<collectionURL>/"+TestData.PREFIX4+"</collectionURL>"));
+            assertTrue(content.contains("<describeURL>"));
+            assertTrue(content.contains("<capabilities>"));
+            assertTrue(content.contains("<capability>"));
+            assertTrue(content.contains(TestData.PREFIX4));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+
+    // test batching
+
+    @Test
+    public void testBatchGetOneEntityXML() {
+        // now fire the request
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?refs=" + DIRECT_PREFIX + TestData.REF4;
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("<refs"));
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("<headers"));
+            assertTrue(content.contains("<status"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("<data"));
+            assertTrue(content.contains("refs"));
+            assertTrue(content.contains("refs"));
+            assertTrue(content.contains(TestData.PREFIX4));
+            assertTrue(content.contains("4-one"));
+            assertTrue(content.contains("<id>4-one</id>"));
+            assertTrue(content.contains("<entityId>4-one</entityId>"));
+            assertTrue(content.contains("/myPrefix4/4-one"));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBatchGetOneEntityJSON() {
+        // now fire the request
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?refs=" + DIRECT_PREFIX + TestData.REF4 + ".xml";
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("\"status\":"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("\"headers\":"));
+            assertTrue(content.contains("\"reference\":"));
+            assertTrue(content.contains("\"data\":"));
+            assertTrue(content.contains("myPrefix4"));
+            assertTrue(content.contains("4-one"));
+            assertTrue(content.contains("\"id\": \"4-one\""));
+            assertTrue(content.contains("\"entityReference\":"));
+            assertTrue(content.contains("\\/myPrefix4\\/4-one"));
+            assertTrue(content.contains(TestData.PREFIX4));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+
+        url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?refs=" + DIRECT_PREFIX + TestData.REF4_3;
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("\"status\":"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("\"headers\":"));
+            assertTrue(content.contains("\"reference\":"));
+            assertTrue(content.contains("\"data\":"));
+            assertTrue(content.contains("\"entityReference\":"));
+            assertTrue(content.contains(TestData.IDS4[2]));
+            assertTrue(content.contains(TestData.PREFIX4));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+
+        url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?refs=" + DIRECT_PREFIX + TestData.REF6_3;
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("\"status\":"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("\"headers\":"));
+            assertTrue(content.contains("\"reference\":"));
+            assertTrue(content.contains("\"data\":"));
+            assertTrue(content.contains("\"entityReference\":"));
+            assertTrue(content.contains(TestData.IDS6[2]));
+            assertTrue(content.contains(TestData.PREFIX6));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    // TODO test batch multiple get
+
+    @Test
+    public void testBatchGetEntitiesXML() {
+        // now fire the request
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?refs=" + DIRECT_PREFIX + TestData.REF4;
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("<refs"));
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("<headers"));
+            assertTrue(content.contains("<status"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("<data"));
+            assertTrue(content.contains("refs"));
+            assertTrue(content.contains("refs"));
+            assertTrue(content.contains(TestData.PREFIX4));
+            assertTrue(content.contains("4-one"));
+            assertTrue(content.contains("<id>4-one</id>"));
+            assertTrue(content.contains("<entityId>4-one</entityId>"));
+            assertTrue(content.contains("/myPrefix4/4-one"));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBatchGetEntitiesJSON() {
+        // now fire the request
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?refs=" + DIRECT_PREFIX + TestData.REF4;
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("\"status\":"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("\"headers\":"));
+            assertTrue(content.contains("\"reference\":"));
+            assertTrue(content.contains("\"data\":"));
+            assertTrue(content.contains("myPrefix4"));
+            assertTrue(content.contains("4-one"));
+            assertTrue(content.contains("\"id\": \"4-one\""));
+            assertTrue(content.contains("\"entityReference\":"));
+            assertTrue(content.contains("\\/myPrefix4\\/4-one"));
+            assertTrue(content.contains(TestData.PREFIX4));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    // TODO test batch post/head/put/delete
 
 }

@@ -263,6 +263,7 @@ public class EntityEncodingManager {
         if (data == null || format == null) {
             throw new IllegalArgumentException("Cannot validate format when the data ("+data+") OR the format ("+format+") are null");
         }
+        data = data.trim();
         if (Formats.XML.equals(format)) {
             if (data.startsWith("<") && data.endsWith(">")) {
                 valid = true;

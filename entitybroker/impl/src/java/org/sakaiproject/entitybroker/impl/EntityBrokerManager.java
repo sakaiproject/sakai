@@ -233,6 +233,13 @@ public class EntityBrokerManager {
      * @throws IllegalArgumentException if there is a failure during parsing
      */
     public EntityView parseEntityURL(String entityURL) {
+        if (entityURL == null || "".equals(entityURL)) {
+            throw new IllegalArgumentException("entityURL cannot be null or empty");
+        }
+        // strip off the /direct if this url starts with that
+        if (entityURL.startsWith(EntityView.DIRECT_PREFIX)) {
+            entityURL = entityURL.substring(EntityView.DIRECT_PREFIX.length());
+        }
         EntityView view = null;
         // first get the prefix
         String prefix = EntityReference.getPrefix(entityURL);

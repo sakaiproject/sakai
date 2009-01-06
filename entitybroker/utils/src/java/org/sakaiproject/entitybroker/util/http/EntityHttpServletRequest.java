@@ -112,7 +112,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
 
     String method = "GET";
     String pathInfo = null;
-    String contextPath = "";
+    String contextPath = ""; // always starts with /
     String queryString = null;
     String requestURI = "";
     String servletPath = "";
@@ -160,30 +160,42 @@ public class EntityHttpServletRequest implements HttpServletRequest {
      * @param pathString any path or URL
      */
     public EntityHttpServletRequest(String pathString) {
-        // setup the stuff based on the pathString
-        setPathString(pathString);
-        setMethod("POST");
+        this(null, pathString, (String[]) null);
+    }
+
+    /**
+     * Create a request using the pathString and setting the method
+     * @param pathString any path or URL
+     * @param method GET, POST, PUT, DELETE (PUT and DELETE not supported by browsers),
+     * this will be set to POST if null or unset
+     */
+    public EntityHttpServletRequest(String method, String pathString) {
+        this(method, pathString, (String[]) null);
     }
 
     /**
      * Create a request using the pathString and setting the method and params
-     * @param pathString any path or URL
      * @param method GET, POST, PUT, DELETE (PUT and DELETE not supported by browsers),
      * this will be set to POST if null or unset
+     * @param pathString any path or URL
      * @param params alternating keys and values (starting with keys) to place into the request parameters
      */
-    public EntityHttpServletRequest(String pathString, String method, String... params) {
+    public EntityHttpServletRequest(String method, String pathString, String... params) {
         setPathString(pathString);
         if (method == null || "".equals(method)) {
             setMethod("POST");
+        } else {
+            setMethod( method );
         }
-        for (int i = 0; i < params.length; i++) {
-            if (params.length < i + 1) {
-               break;
-            }
-            this.addParameter(params[i], params[i+1]);
-            i++;
-         }
+        if (params != null) {
+            for (int i = 0; i < params.length; i++) {
+                if (params.length < i + 1) {
+                   break;
+                }
+                this.addParameter(params[i], params[i+1]);
+                i++;
+             }
+        }
     }
 
 
@@ -206,8 +218,10 @@ public class EntityHttpServletRequest implements HttpServletRequest {
             }
         }
         Cookie[] ck = req.getCookies();
-        for (int i = 0; i < ck.length; i++) {
-            cookies.add(ck[i]);
+        if (ck != null) {
+            for (int i = 0; i < ck.length; i++) {
+                cookies.add(ck[i]);
+            }
         }
         Enumeration<String> headerNames = req.getHeaderNames();
         while (headerNames.hasMoreElements()) {
@@ -236,6 +250,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         remoteAddr = req.getRemoteAddr();
         remoteHost = req.getRemoteHost();
     }
+
     /**
      * This will set the given url/path string values into this request
      * @param pathString any url or path string
@@ -270,7 +285,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
             }
             if (ud.servletPath.length() > 0) {
                 this.servletPath = ud.servletPath;
-                this.contextPath = ud.servletPath;
+                this.contextPath = "/" + ud.servletPath;
             } else {
                 this.servletPath = "";
                 this.contextPath = "";
@@ -282,6 +297,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     /**
      * Allows control over the content data which is used in this request,
      * all data should be UTF-8 encoded
+     * @param content any IS content, UTF-8 encoded, replaces existing content
      */
     public void setContent(InputStream contentStream, int contentLength) {
         if (contentStream == null) {
@@ -289,6 +305,21 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         }
         this.contentStream = contentStream;
         this.contentLength = contentLength;
+    }
+
+    /**
+     * Allows control over the content data which is used in this request,
+     * all data should be UTF-8 encoded
+     * @param content any byte[] content, UTF-8 encoded, replaces existing content
+     */
+    public void setContent(byte[] content) {
+        if (content == null) {
+            this.contentLength = 0;
+            this.contentStream = new ByteArrayInputStream(new byte[] {});
+        } else {
+            this.contentLength = content.length;
+            this.contentStream = new ByteArrayInputStream(content);
+        }
     }
 
     /**
@@ -398,7 +429,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public void setMethod(String method) {
-        this.method = method;
+        this.method = (method != null ? method.toUpperCase() : method);
     }
 
     public String getMethod() {
@@ -489,6 +520,9 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public Cookie[] getCookies() {
+        if (cookies == null || cookies.size() == 0) {
+            return null;
+        }
         return cookies.toArray(new Cookie[cookies.size()]);
     }
 

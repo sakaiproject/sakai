@@ -354,6 +354,10 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
                         if (BATCH.equals(prefix)) {
                             // special batch handling
+                            if (view.getExtension() == null) {
+                                // default extension is JSON
+                                view.setExtension(Formats.JSON);
+                            }
                             entityBatchHandler.handleBatch(view, req, res);
                         } else {
                             // check for provider handling of this request

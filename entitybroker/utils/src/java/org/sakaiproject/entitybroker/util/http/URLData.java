@@ -14,6 +14,8 @@
 
 package org.sakaiproject.entitybroker.util.http;
 
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+
 
 /**
  * This is a storage and parsing utility class,
@@ -27,8 +29,10 @@ public class URLData {
     public String server;
     public String port;
     public String path;
+    public String extension;
     public String servletPath;
     public String pathInfo;
+    public String pathInfoNoExtension;
     public String query;
 
     public URLData(String url) {
@@ -81,6 +85,8 @@ public class URLData {
             servletPath = "";
             pathInfo = "";
             query = "";
+            extension = "";
+            pathInfoNoExtension = "";
         }
         // get servlet from path
         if (path != null && path.length() > 2) {
@@ -95,6 +101,14 @@ public class URLData {
             }
             servletPath = path.substring(start, slashLoc);
             pathInfo = path.substring(slashLoc);
+            pathInfoNoExtension = pathInfo;
+            extension = "";
+            // check for extension
+            if (pathInfo.indexOf('.') != -1) {
+                String[] parsed = TemplateParseUtil.findExtension(pathInfo);
+                pathInfoNoExtension = parsed[1];
+                extension = parsed[2] == null ? "" : parsed[2];
+            }
         }
     }
     // done

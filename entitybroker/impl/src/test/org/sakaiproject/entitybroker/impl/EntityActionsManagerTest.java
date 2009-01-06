@@ -34,10 +34,11 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
-import org.sakaiproject.entitybroker.mocks.MockEBHttpServletRequest;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
-import org.springframework.mock.web.MockHttpServletResponse;
+
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 
 
 /**
@@ -63,8 +64,8 @@ public class EntityActionsManagerTest extends TestCase {
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityActionsManager#handleCustomActionRequest(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityView, java.lang.String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
     */
    public void testHandleCustomActionRequest() {
-      MockEBHttpServletRequest request = null;
-      MockHttpServletResponse res = null;
+      EntityHttpServletRequest request = null;
+      EntityHttpServletResponse res = null;
       ActionsEntityProviderMock actionProvider = td.entityProviderA1;
       String action = null;
       String URL = null;
@@ -75,8 +76,8 @@ public class EntityActionsManagerTest extends TestCase {
       URL = TestData.REFA1 + "/" + action;
       MyEntity me = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
       int num = me.getNumber();
-      request = new MockEBHttpServletRequest("GET", URL);
-      res = new MockHttpServletResponse();
+      request = new EntityHttpServletRequest("GET", URL);
+      res = new EntityHttpServletResponse();
       actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
             new EntityView(new EntityReference(URL), EntityView.VIEW_SHOW, null), action, request, res, null);
       assertEquals(HttpServletResponse.SC_OK, res.getStatus());

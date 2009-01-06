@@ -143,6 +143,10 @@ public class ServiceTestManager {
         entityEncodingManager.setEntityProviderManager( entityProviderManager );
         entityEncodingManager.setEntityBrokerManager( entityBrokerManager );
 
+        entityBatchHandler = new EntityBatchHandler();
+        entityBatchHandler.setEntityBrokerManager(entityBrokerManager);
+        entityBatchHandler.setEntityEncodingManager(entityEncodingManager);
+
         entityRequestHandler = new EntityHandlerImpl();
         entityRequestHandler.setAccessProviderManager( httpServletAccessProviderManager );
         entityRequestHandler.setEntityBrokerManager( entityBrokerManager );
@@ -155,6 +159,7 @@ public class ServiceTestManager {
         entityRequestHandler.setEntityActionsManager(entityActionsManager);
         entityRequestHandler.setEntityRedirectsManager(entityRedirectsManager);
         entityRequestHandler.setServerConfigurationService(serverConfigurationService);
+        entityRequestHandler.setEntityBatchHandler(entityBatchHandler);
 
         entityMetaPropertiesService = new EntityMetaPropertiesService();
         entityMetaPropertiesService.setDao(dao);
@@ -165,10 +170,6 @@ public class ServiceTestManager {
         entityTaggingService.setDao(dao);
         entityTaggingService.setEntityBrokerManager(entityBrokerManager);
         entityTaggingService.setEntityProviderManager(entityProviderManager);
-
-        entityBatchHandler = new EntityBatchHandler();
-        entityBatchHandler.setEntityBrokerManager(entityBrokerManager);
-        entityBatchHandler.setEntityEncodingManager(entityEncodingManager);
 
         setInstance(this);
     }

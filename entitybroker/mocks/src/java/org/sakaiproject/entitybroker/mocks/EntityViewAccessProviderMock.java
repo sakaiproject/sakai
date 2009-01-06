@@ -30,7 +30,7 @@ import org.sakaiproject.entitybroker.access.AccessFormats;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
-import org.springframework.mock.web.MockHttpServletResponse;
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 
 /**
  * Pretends to be an access servlet provider for things that use them,
@@ -58,7 +58,7 @@ public class EntityViewAccessProviderMock implements EntityViewAccessProvider, A
          } catch (IOException e) {
             // nothing to do here
          }
-         ((MockHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
+         ((EntityHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
       } else {
          throw new FormatUnsupportedException("No support for format: " + format, view.getEntityReference()+"", format);
       }

@@ -53,7 +53,7 @@ public class EntityServletInputStream extends ServletInputStream {
      * @param str any string
      */
     public EntityServletInputStream(String str) {
-        if (in == null) {
+        if (str == null) {
             throw new IllegalArgumentException("str cannot be null");
         }
         this.in = new BufferedInputStream( new ByteArrayInputStream( str.getBytes() ) );
@@ -99,6 +99,7 @@ public class EntityServletInputStream extends ServletInputStream {
         return in.read();
     }
 
+    @Override
     public int available() throws IOException {
         return in.available();
     }
@@ -107,10 +108,12 @@ public class EntityServletInputStream extends ServletInputStream {
         in.close();
     }
 
+    @Override
     public boolean equals(Object obj) {
         return in.equals(obj);
     }
 
+    @Override
     public int hashCode() {
         return in.hashCode();
     }
@@ -139,6 +142,7 @@ public class EntityServletInputStream extends ServletInputStream {
         return in.skip(n);
     }
 
+    @Override
     public String toString() {
         return in.toString();
     }
