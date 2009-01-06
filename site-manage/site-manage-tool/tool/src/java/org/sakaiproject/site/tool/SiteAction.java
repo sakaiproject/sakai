@@ -4834,18 +4834,25 @@ public class SiteAction extends PagedResourceActionII {
 			if (alias != null) {
 				String channelReference = mailArchiveChannelReference(siteId);
 				try {
-					AliasService.setAlias(alias, channelReference);
-				} catch (IdUsedException ee) {
-					addAlert(state, rb.getString("java.alias") + " " + alias
-							+ " " + rb.getString("java.exists"));
-					M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"), ee);
-				} catch (IdInvalidException ee) {
-					addAlert(state, rb.getString("java.alias") + " " + alias
-							+ " " + rb.getString("java.isinval"));
-					M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"), ee);
-				} catch (PermissionException ee) {
-					addAlert(state, rb.getString("java.addalias") + " ");
-					M_log.warn(this + ".setSiteAlias: " + rb.getString("java.addalias") + ee);
+					// test whether the alias already is used for some channel
+					AliasService.getTarget(alias);
+				} catch (IdUnusedException e)
+				{
+					// only if the targe is not used, then add it as the alias to the site
+					try {
+						AliasService.setAlias(alias, channelReference);
+					} catch (IdUsedException ee) {
+						addAlert(state, rb.getString("java.alias") + " " + alias
+								+ " " + rb.getString("java.exists"));
+						M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"), ee);
+					} catch (IdInvalidException ee) {
+						addAlert(state, rb.getString("java.alias") + " " + alias
+								+ " " + rb.getString("java.isinval"));
+						M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"), ee);
+					} catch (PermissionException ee) {
+						addAlert(state, rb.getString("java.addalias") + " ");
+						M_log.warn(this + ".setSiteAlias: " + rb.getString("java.addalias") + ee);
+					}
 				}
 			}
 		}
