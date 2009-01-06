@@ -41,31 +41,32 @@ import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
  */
 public class EntityViewAccessProviderMock implements EntityViewAccessProvider, AccessFormats {
 
-   private String prefix = null;
-   public EntityViewAccessProviderMock(String prefix) {
-      this.prefix = prefix;
-   }
+    private String prefix = null;
+    public EntityViewAccessProviderMock(String prefix) {
+        this.prefix = prefix;
+    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.access.EntityViewAccessProvider#handleAccess(org.sakaiproject.entitybroker.EntityView, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-    */
-   public void handleAccess(EntityView view, HttpServletRequest req, HttpServletResponse res) {
-      String format = view.getFormat();
-      if (format.equals(Formats.HTML) || format.equals(Formats.RSS)) {
-         // Okey dokey, do nothing but say all is well
-         try {
-            res.getWriter().print(prefix + ": EntityViewAccessProviderMock");
-         } catch (IOException e) {
-            // nothing to do here
-         }
-         ((EntityHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
-      } else {
-         throw new FormatUnsupportedException("No support for format: " + format, view.getEntityReference()+"", format);
-      }
-   }
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.access.EntityViewAccessProvider#handleAccess(org.sakaiproject.entitybroker.EntityView, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+     */
+    public void handleAccess(EntityView view, HttpServletRequest req, HttpServletResponse res) {
+        String format = view.getFormat();
+        if (format.equals(Formats.HTML) || format.equals(Formats.RSS)) {
+            // Okey dokey, do nothing but say all is well
+            try {
+                res.getWriter().print(prefix + ": EntityViewAccessProviderMock");
+            } catch (IOException e) {
+                // nothing to do here
+                e.printStackTrace();
+            }
+            ((EntityHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
+        } else {
+            throw new FormatUnsupportedException("No support for format: " + format, view.getEntityReference()+"", format);
+        }
+    }
 
-   public String[] getHandledAccessFormats() {
-      return new String[] {Formats.HTML, Formats.RSS, Formats.ATOM};
-   }
+    public String[] getHandledAccessFormats() {
+        return new String[] {Formats.HTML, Formats.RSS, Formats.ATOM};
+    }
 
 }

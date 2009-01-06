@@ -39,22 +39,23 @@ import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 @SuppressWarnings("deprecation")
 public class HttpServletAccessProviderMock implements HttpServletAccessProvider {
 
-   private String prefix = null;
-   public HttpServletAccessProviderMock(String prefix) {
-      this.prefix = prefix;
-   }
+    private String prefix = null;
+    public HttpServletAccessProviderMock(String prefix) {
+        this.prefix = prefix;
+    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.access.HttpServletAccessProvider#handleAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.entitybroker.EntityReference)
-    */
-   public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
-      // Okey dokey, do nothing but say all is well
-      try {
-         res.getWriter().print(prefix + ": HttpServletAccessProviderMock");
-      } catch (IOException e) {
-         // nothing to do here
-      }
-      ((EntityHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
-   }
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.access.HttpServletAccessProvider#handleAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.entitybroker.EntityReference)
+     */
+    public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
+        // Okey dokey, do nothing but say all is well
+        try {
+            res.getWriter().print(prefix + ": HttpServletAccessProviderMock");
+        } catch (IOException e) {
+            // nothing to do here
+            e.printStackTrace();
+        }
+        ((EntityHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
+    }
 
 }
