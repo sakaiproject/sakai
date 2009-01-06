@@ -95,13 +95,13 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     		throw new IllegalArgumentException("No role id specified");
     	}
     	Site site = getSiteById(siteId);
-    	if (view.getMethod().equals(Method.POST)){
+    	if (view.getMethod().equals(Method.POST.name())){
 	    	try {
 				site.addRole(roleId);
 			} catch (RoleAlreadyDefinedException e) {
 				// Ignore
 			} 
-    	} else if (view.getMethod().equals(Method.DELETE)) {
+    	} else if (view.getMethod().equals(Method.DELETE.name())) {
     		site.removeRole(roleId);
     	} else {
     		throw new IllegalArgumentException("Method " + view.getMethod() + " not supported");
