@@ -39,23 +39,26 @@ public class MyEntity {
 
    @Override
    public boolean equals(Object obj) {
-      if (null == obj)
+      if (null == obj) {
          return false;
-      if (!(obj instanceof MyEntity))
+      }
+      if (!(obj instanceof MyEntity)) {
          return false;
-      else {
+      } else {
          MyEntity castObj = (MyEntity) obj;
-         if (null == this.id || null == castObj.id)
+         if (null == this.id || null == castObj.id) {
             return false;
-         else
+         } else {
             return (this.id.equals(castObj.id));
+         }
       }
    }
 
    @Override
    public int hashCode() {
-      if (null == this.id)
+      if (null == this.id) {
          return super.hashCode();
+      }
       String hashStr = this.getClass().getName() + ":" + this.id.hashCode();
       return hashStr.hashCode();
    }
