@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.providers;
 
+import java.io.Serializable;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -250,7 +251,8 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
         return m;
     }
 
-    public static class ESCComparator implements Comparator<EntityServerConfig> {
+    public static class ESCComparator implements Comparator<EntityServerConfig>, Serializable {
+        public final static long serialVersionUID = 1l;
         public int compare(EntityServerConfig o1, EntityServerConfig o2) {
             return o1.getName().compareTo(o2.getName());
         }

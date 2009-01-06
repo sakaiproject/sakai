@@ -40,6 +40,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
  */
 @ReflectIgnoreClassFields({"role"})
 public class EntityMember implements Member {
+    public final static long serialVersionUID = 1l;
 
     @EntityId
     private String id;
