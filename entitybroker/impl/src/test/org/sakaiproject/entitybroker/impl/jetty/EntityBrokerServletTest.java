@@ -375,7 +375,74 @@ public class EntityBrokerServletTest {
     @Test
     public void testBatchGetEntitiesXML() {
         // now fire the request
-        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?refs=" + DIRECT_PREFIX + TestData.REF4;
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" 
+                + "?refs=" + DIRECT_PREFIX + TestData.REF4_two
+                + "," + DIRECT_PREFIX + TestData.REF6_2;
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("<refs"));
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("<headers"));
+            assertTrue(content.contains("<status"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("<data"));
+            assertTrue(content.contains("refs"));
+            assertTrue(content.contains("refs"));
+            assertTrue(content.contains(TestData.PREFIX4));
+            assertTrue(content.contains("4-two"));
+            assertTrue(content.contains("<id>4-two</id>"));
+            assertTrue(content.contains("<entityId>4-two</entityId>"));
+            assertTrue(content.contains("/myPrefix4/4-two"));
+            assertTrue(content.contains(TestData.PREFIX6));
+            assertTrue(content.contains("6-two"));
+            assertTrue(content.contains("<id>6-two</id>"));
+            assertTrue(content.contains("<entityId>6-two</entityId>"));
+            assertTrue(content.contains("/myPrefix6/6-two"));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBatchGetEntitiesJSON() {
+        // now fire the request
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" 
+                + "?refs=" + DIRECT_PREFIX + TestData.REF4_two
+                + "," + DIRECT_PREFIX + TestData.REF6_2;
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("\"status\":"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("\"headers\":"));
+            assertTrue(content.contains("\"reference\":"));
+            assertTrue(content.contains("\"data\":"));
+            assertTrue(content.contains(TestData.PREFIX4));
+            assertTrue(content.contains("4-two"));
+            assertTrue(content.contains("\"id\": \"4-two\""));
+            assertTrue(content.contains("\"entityReference\":"));
+            assertTrue(content.contains("\\/myPrefix4\\/4-two"));
+            assertTrue(content.contains(TestData.PREFIX6));
+            assertTrue(content.contains("6-two"));
+            assertTrue(content.contains("\"id\": \"6-two\""));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void testBatchGetCollectionsXML() {
+        // now fire the request
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" 
+                + "?refs=" + DIRECT_PREFIX + TestData.SPACE4
+                + "," + DIRECT_PREFIX + TestData.REF6_2;
         fireRequest(url);
 
         try {
@@ -391,18 +458,27 @@ public class EntityBrokerServletTest {
             assertTrue(content.contains("refs"));
             assertTrue(content.contains(TestData.PREFIX4));
             assertTrue(content.contains("4-one"));
-            assertTrue(content.contains("<id>4-one</id>"));
-            assertTrue(content.contains("<entityId>4-one</entityId>"));
-            assertTrue(content.contains("/myPrefix4/4-one"));
+            assertTrue(content.contains("4-two"));
+            assertTrue(content.contains("4-three"));
+            assertTrue(content.contains("<id>4-two</id>"));
+            assertTrue(content.contains("<entityId>4-two</entityId>"));
+            assertTrue(content.contains("/myPrefix4/4-two"));
+            assertTrue(content.contains(TestData.PREFIX6));
+            assertTrue(content.contains("6-two"));
+            assertTrue(content.contains("<id>6-two</id>"));
+            assertTrue(content.contains("<entityId>6-two</entityId>"));
+            assertTrue(content.contains("/myPrefix6/6-two"));
         } catch (Exception e) {
             fail("Could not get content: " + e.getMessage());
         }
     }
 
     @Test
-    public void testBatchGetEntitiesJSON() {
+    public void testBatchGetCollectionsJSON() {
         // now fire the request
-        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?refs=" + DIRECT_PREFIX + TestData.REF4;
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" 
+                + "?refs=" + DIRECT_PREFIX + TestData.SPACE4
+                + "," + DIRECT_PREFIX + TestData.REF6_2;
         fireRequest(url);
 
         try {
@@ -414,12 +490,16 @@ public class EntityBrokerServletTest {
             assertTrue(content.contains("\"headers\":"));
             assertTrue(content.contains("\"reference\":"));
             assertTrue(content.contains("\"data\":"));
-            assertTrue(content.contains("myPrefix4"));
-            assertTrue(content.contains("4-one"));
-            assertTrue(content.contains("\"id\": \"4-one\""));
-            assertTrue(content.contains("\"entityReference\":"));
-            assertTrue(content.contains("\\/myPrefix4\\/4-one"));
             assertTrue(content.contains(TestData.PREFIX4));
+            assertTrue(content.contains("4-one"));
+            assertTrue(content.contains("4-two"));
+            assertTrue(content.contains("4-three"));
+            assertTrue(content.contains("\"id\": \"4-two\""));
+            assertTrue(content.contains("\"entityReference\":"));
+            assertTrue(content.contains("\\/myPrefix4\\/4-two"));
+            assertTrue(content.contains(TestData.PREFIX6));
+            assertTrue(content.contains("6-two"));
+            assertTrue(content.contains("\"id\": \"6-two\""));
         } catch (Exception e) {
             fail("Could not get content: " + e.getMessage());
         }

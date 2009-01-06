@@ -710,6 +710,17 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     /**
+     * Removes a parameter and all values for it
+     * @param name
+     */
+    public void removeParameter(String name) {
+        if (name == null || "".equals(name)) {
+            throw new IllegalArgumentException("name cannot be null");
+        }
+        this.parameters.remove(name);
+    }
+    
+    /**
      * Remove all parameters
      */
     public void clearParameters() {

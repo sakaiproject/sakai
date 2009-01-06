@@ -47,6 +47,10 @@ import org.sakaiproject.entitybroker.util.http.URLData;
  */
 public class EntityBatchHandler {
 
+    /**
+     * This is the name of the parameter which is used to pass along the reference URLs to be batch processed
+     */
+    private static final String REFS_PARAM_NAME = "refs";
     private static String UNIQUE_DATA_PREFIX = "X-XqReplaceQX-X-";
     private static Log log = LogFactory.getLog(EntityBatchHandler.class);
 
@@ -93,7 +97,7 @@ public class EntityBatchHandler {
      */
     public void handleBatchGet(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         // validate the the refs param
-        String[] refs = req.getParameterValues("refs");
+        String[] refs = req.getParameterValues(REFS_PARAM_NAME);
         if (refs == null || refs.length == 0) {
             throw new IllegalArgumentException("refs parameter must be set (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
         }
@@ -188,6 +192,7 @@ public class EntityBatchHandler {
             // setup the request and response objects to do the reference request
             RequestDispatcher dispatcher = req.getRequestDispatcher(reference);
             EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, reference);
+            entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
             EntityHttpServletResponse entityResponse = new EntityHttpServletResponse(res);
 
             // fire off the URLs to the server and get back responses
@@ -221,7 +226,6 @@ public class EntityBatchHandler {
                     dataMap.put(uniqueKey, content);
                     content = uniqueKey;
                 }
-                // TODO process the headers so that single ones are not in arrays?
                 result = new ResponseResult(reference, status, entityResponse.getHeaders(), content);
             } else {
                 // failure, keep going though
@@ -246,7 +250,7 @@ public class EntityBatchHandler {
         }
 
         // compile all the responses into encoded data
-        String overallData = entityEncodingManager.encodeData(results, view.getFormat(), "refs", null);
+        String overallData = entityEncodingManager.encodeData(results, view.getFormat(), REFS_PARAM_NAME, null);
         // replace the data unique keys if there are any
         for (Entry<String, String> entry : dataMap.entrySet()) {
             if (entry.getKey() != null && ! "".equals(entry.getKey())) {
@@ -260,14 +264,16 @@ public class EntityBatchHandler {
                 overallData = overallData.replace(key, value);
             }
         }
+        // put response, headers, and code into the http response
         // put content into the response
         try {
             res.getWriter().write(overallData);
         } catch (IOException e) {
             throw new RuntimeException("Unable to encode data for overall response: " + e.getMessage(), e);
         }
-        // put response, headers, and code into the http response
+        // set overall status code
         res.setStatus(overallStatus);
+        // TODO set overall headers (should include info on results)
     }
 
     /**
