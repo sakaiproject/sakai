@@ -46,7 +46,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
  */
 public abstract class DirectServlet extends HttpServlet {
 
-    protected static Log log = LogFactory.getLog(DirectServlet.class);
+    protected static final Log log = LogFactory.getLog(DirectServlet.class);
 
     protected transient EntityRequestHandler entityRequestHandler;
     public void setEntityRequestHandler(EntityRequestHandler entityRequestHandler) {

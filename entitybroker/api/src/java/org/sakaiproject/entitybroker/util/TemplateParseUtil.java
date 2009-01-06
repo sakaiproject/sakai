@@ -136,11 +136,11 @@ public class TemplateParseUtil {
    /**
     * Stores the preloaded default templates
     */
-   public static List<Template> defaultTemplates;
+   public static final List<Template> defaultTemplates;
    /**
     * Stores the preloaded processed default templates
     */
-   public static List<PreProcessedTemplate> defaultPreprocessedTemplates;
+   public static final List<PreProcessedTemplate> defaultPreprocessedTemplates;
 
    // static initializer
    static {
