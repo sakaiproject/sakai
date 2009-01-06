@@ -84,6 +84,10 @@ public class Web2Query extends HttpTransactionQueryBase {
 	 * Local byte array ready for use?
 	 */
 	private boolean _localResponseBytesReady = false;
+  /**
+   * Next RESULT record to request
+   */
+  private int _nextResult = 0;
 	/**
 	 * General synchronization
 	 */
@@ -513,15 +517,17 @@ public class Web2Query extends HttpTransactionQueryBase {
 		pageSize	= getSessionContext().getInt("pageSize");
 		perTarget = pageSize;
 
+    _nextResult += Math.min(start, pageSize);
+
 		_log.debug("Results commmand: " + resultSetId);
-		_log.debug("Active = " + active + ", start record = " + start + ", page size = " + pageSize + ", per=target = " + perTarget);
+		_log.debug("Active = " + active + ", start record = " + _nextResult + ", page size = " + pageSize + ", per=target = " + perTarget);
 
 		try
 		{
 			doWeb2InputHeader();
 
 			resultsElement = addWeb2Input("RESULTS");
-			addWeb2Input(resultsElement, "START", String.valueOf(start));
+			addWeb2Input(resultsElement, "START", String.valueOf(_nextResult));
 			addWeb2Input(resultsElement, "PER_PAGE", String.valueOf(pageSize));
 			addWeb2Input(resultsElement, "PER_TARGET", String.valueOf(perTarget));
 	    addWeb2Input(resultsElement, "RESULT_SET", resultSetId);
@@ -943,10 +949,10 @@ public class Web2Query extends HttpTransactionQueryBase {
 			text 		= DomUtils.getText(element);
 			hits		= (text == null) ? 0 : Integer.parseInt(text);
 			/*
-			 * One common failure mode for the database connectors is to return a 
+			 * One common failure mode for the database connectors is to return a
 			 * positive estimated result count with no actual hits.
 			 *
-			 * So, to use results from this database, we need to find both an 
+			 * So, to use results from this database, we need to find both an
 			 * estimate and some hits.
 			 */
 			map.put("ESTIMATE", "0");
