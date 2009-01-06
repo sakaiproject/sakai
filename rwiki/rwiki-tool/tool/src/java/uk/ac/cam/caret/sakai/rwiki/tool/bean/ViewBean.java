@@ -643,5 +643,8 @@ public class ViewBean
 				withBreadcrumbs);
 	}
 
+	public boolean getDisplayHtmlEditor() {
+		return ServerConfigurationService.getBoolean("rwiki.useHTMLEditor", true);
+	}
 
 }
