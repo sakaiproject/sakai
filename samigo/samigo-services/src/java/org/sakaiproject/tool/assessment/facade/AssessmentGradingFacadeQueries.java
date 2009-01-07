@@ -556,6 +556,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     Session session = null;
     Connection conn = null;
     ResultSet rs = null;
+    PreparedStatement statement = null;
     try{
       session = getSessionFactory().openSession();
       conn = session.connection();
@@ -570,7 +571,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       log.debug("****mediaLocation="+mediaLocation);
 
       String query="delete from SAM_MEDIA_T where MEDIAID=?";
-      PreparedStatement statement = conn.prepareStatement(query);
+      statement = conn.prepareStatement(query);
       statement.setLong(1, mediaId.longValue());
       statement.executeUpdate();
     }
@@ -578,16 +579,35 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       log.warn(e.getMessage());
     }
     finally{
-      try{
-        if (session !=null) session.close();
-        if (conn !=null) conn.close();
-        if (rs !=null) rs.close();
-      }
-      catch(Exception ex){
-        log.warn(ex.getMessage());
-      }
+    	if (session !=null){
+    		try {
+    			session.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	}
+    	if (rs !=null){
+    		try {
+    			rs.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	}
+    	if (statement !=null){
+    		try {
+    			statement.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	}
+    	if (conn !=null){
+    		try {
+    			conn.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	} 
     }
-
     try{
       if (mediaLocation != null){
         File mediaFile = new File(mediaLocation);
