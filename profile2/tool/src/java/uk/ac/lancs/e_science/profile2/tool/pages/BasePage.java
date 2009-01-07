@@ -160,17 +160,23 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderCSSReference(toolCSS);
 		response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
 		
-		//Tool additions
-		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
-		response.renderCSSReference("css/profile2.css");
-		response.renderJavascriptReference("javascript/profile2.js");
+		//for jQuery
 		response.renderJavascriptReference("javascript/jquery-1.2.5.min.js");
-
-		
+			
 		//for datepicker
 		response.renderCSSReference("css/flora.datepicker.css");
 		response.renderJavascriptReference("javascript/jquery.ui.core-1.5.2.min.js");
 		response.renderJavascriptReference("javascript/jquery.datepicker-1.5.2.min.js");
+
+		//for cluetip
+		response.renderCSSReference("css/jquery.cluetip.css");
+		response.renderJavascriptReference("javascript/jquery.dimensions.js");
+		response.renderJavascriptReference("javascript/jquery.hoverIntent.js");
+		response.renderJavascriptReference("javascript/jquery.cluetip.js");
+		
+		//Tool additions (at end so we can override if required)
+		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
+		response.renderCSSReference("css/profile2.css");
 
 		
 	}

@@ -413,4 +413,11 @@ h2 {
 	margin-top: 0;
 }
 
+/* overrides cluetip's text color */
+#cluetip-inner {
+	color: #5D5D5D;
+}
+
+
+
 		
