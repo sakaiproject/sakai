@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+<wicket:panel>
+
+<style type="text/css">
+	.sakai-wicket-iconwithtooltip {
+		height: 16px;
+		width: 16px;
+		display: inline;
+	}
+	
+	.sakai-wicket-iconwithtooltip img {
+		 vertical-align: middle;
+	}
+
+</style>
+
+<!-- the href and rel must equal the id of the toolTipText span and have #prepended to them, see below: -->
+<a wicket:id="link" href="#text" rel="#text" class="sakai-wicket-iconwithtooltip">
+	<img wicket:id="icon" src="#" />
+</a>
+<span wicket:id="text" id="#text">Your tool tip text here</span>
+
+</wicket:panel>
+
+</body>
+</html>
