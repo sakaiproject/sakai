@@ -69,7 +69,7 @@ public class SortPublishedAssessmentListener
  		   this.getPublishedOrderBy(author), author.isPublishedAscending(), AgentFacade.getCurrentSiteId());
     HashMap agDataSizeMap = gradingService.getAGDataSizeOfAllPublishedAssessments();
     ArrayList dividedPublishedAssessmentList = authorActionListener.getTakeableList(publishedAssessmentList, gradingService);
-    authorActionListener.prepareInactivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(1), agDataSizeMap);
+    authorActionListener.prepareActivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(0), agDataSizeMap);
   }
 
   /**
