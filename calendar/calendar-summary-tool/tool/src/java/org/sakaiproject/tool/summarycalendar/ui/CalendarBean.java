@@ -177,19 +177,27 @@ public class CalendarBean {
 		
 		// priority colors (CSS properties)
 		priorityColorsMap = PrefsBean.getPreferencePriorityColors();
-		highPrCSSProp = (String) priorityColorsMap.get(PrefsBean.PREFS_HIGHPRIORITY_COLOR);
-		mediumPrCSSProp = (String) priorityColorsMap.get(PrefsBean.PREFS_MEDIUMPRIORITY_COLOR);
-		lowPrCSSProp = (String) priorityColorsMap.get(PrefsBean.PREFS_LOWPRIORITY_COLOR);
-		
-		highPrCSSProp = highPrCSSProp.equals("")? "" : "background-color: " + highPrCSSProp;
-		mediumPrCSSProp = mediumPrCSSProp.equals("")? "" : "background-color: " + mediumPrCSSProp;
-		lowPrCSSProp = lowPrCSSProp.equals("")? "" : "background-color: " + lowPrCSSProp;
+		if(priorityColorsMap != null) {
+			highPrCSSProp = (String) priorityColorsMap.get(PrefsBean.PREFS_HIGHPRIORITY_COLOR);
+			mediumPrCSSProp = (String) priorityColorsMap.get(PrefsBean.PREFS_MEDIUMPRIORITY_COLOR);
+			lowPrCSSProp = (String) priorityColorsMap.get(PrefsBean.PREFS_LOWPRIORITY_COLOR);
+			
+			highPrCSSProp = (highPrCSSProp == null || highPrCSSProp.trim().length() == 0)? "" : "background-color: " + highPrCSSProp;
+			mediumPrCSSProp = (mediumPrCSSProp == null || mediumPrCSSProp.trim().length() == 0)? "" : "background-color: " + mediumPrCSSProp;
+			lowPrCSSProp = (lowPrCSSProp == null || lowPrCSSProp.trim().length() == 0)? "" : "background-color: " + lowPrCSSProp;
+		}
 		
 		// priority events
 		priorityEventsMap = PrefsBean.getPreferencePriorityEvents();
-		highPriorityEvents = (List) priorityEventsMap.get(PrefsBean.PREFS_HIGHPRIORITY_EVENTS);
-		mediumPriorityEvents = (List) priorityEventsMap.get(PrefsBean.PREFS_MEDIUMPRIORITY_EVENTS);
-		lowPriorityEvents = (List) priorityEventsMap.get(PrefsBean.PREFS_LOWPRIORITY_EVENTS);
+		if(priorityEventsMap != null) {
+			highPriorityEvents = (List) priorityEventsMap.get(PrefsBean.PREFS_HIGHPRIORITY_EVENTS);
+			mediumPriorityEvents = (List) priorityEventsMap.get(PrefsBean.PREFS_MEDIUMPRIORITY_EVENTS);
+			lowPriorityEvents = (List) priorityEventsMap.get(PrefsBean.PREFS_LOWPRIORITY_EVENTS);
+		}else{
+			highPriorityEvents = new ArrayList();
+			mediumPriorityEvents = new ArrayList();
+			lowPriorityEvents = new ArrayList();
+		}
 	}
 	
 	private List getCalendarReferences() {
