@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -59,6 +60,7 @@ public class MyPrivacy extends BasePage {
 		//feedback for form submit action
 		final Label formFeedback = new Label("formFeedback");
 		formFeedback.setOutputMarkupPlaceholderTag(true);
+		final String formFeedbackId = formFeedback.getMarkupId();
 		add(formFeedback);
 		
 		
@@ -89,6 +91,9 @@ public class MyPrivacy extends BasePage {
 		//when using DDC with a compoundPropertyModel we use this constructor: DDC<T>(String,IModel<List<T>>,IChoiceRenderer<T>)
 		//and the ID of the DDC field maps to the field in the CompoundPropertyModel
 		
+		//the AjaxFormComponentUpdatingBehavior is to allow the DDC and checkboxes to fadeaway any error/success message
+		//that might be visible since the form has changed and it needs to be submitted again for it to take effect
+		
 		//profile privacy
 		WebMarkupContainer profileContainer = new WebMarkupContainer("profileContainer");
 		profileContainer.add(new Label("profileLabel", new ResourceModel("privacy.profile")));
@@ -97,6 +102,14 @@ public class MyPrivacy extends BasePage {
 		//tooltip
 		profileContainer.add(new IconWithClueTip("profileToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.profile.tooltip")));
 		form.add(profileContainer);
+		//updater
+		profileChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		
 		
 		//basicInfo privacy
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("basicInfoContainer");
@@ -106,6 +119,12 @@ public class MyPrivacy extends BasePage {
 		//tooltip
 		basicInfoContainer.add(new IconWithClueTip("basicInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.basicinfo.tooltip")));
 		form.add(basicInfoContainer);
+		//updater
+		basicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
 		
 		//contactInfo privacy
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("contactInfoContainer");
@@ -115,6 +134,12 @@ public class MyPrivacy extends BasePage {
 		//tooltip
 		contactInfoContainer.add(new IconWithClueTip("contactInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.contactinfo.tooltip")));
 		form.add(contactInfoContainer);
+		//updater
+		contactInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
 		
 		//personalInfo privacy
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
@@ -124,6 +149,12 @@ public class MyPrivacy extends BasePage {
 		//tooltip
 		personalInfoContainer.add(new IconWithClueTip("personalInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.personalinfo.tooltip")));
 		form.add(personalInfoContainer);
+		//updater
+		personalInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
 		
 		//birthYear privacy
 		WebMarkupContainer birthYearContainer = new WebMarkupContainer("birthYearContainer");
@@ -133,6 +164,12 @@ public class MyPrivacy extends BasePage {
 		//tooltip
 		birthYearContainer.add(new IconWithClueTip("birthYearToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.birthyear.tooltip")));
 		form.add(birthYearContainer);
+		//updater
+		birthYearCheckbox.add(new AjaxFormComponentUpdatingBehavior("onclick") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
 		
 		//search privacy
 		WebMarkupContainer searchContainer = new WebMarkupContainer("searchContainer");
@@ -142,7 +179,12 @@ public class MyPrivacy extends BasePage {
 		//tooltip
 		searchContainer.add(new IconWithClueTip("searchToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.search.tooltip")));
 		form.add(searchContainer);
-		
+		//updater
+		searchChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
 		/* 
 		phoneVendorDDC.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
@@ -173,7 +215,6 @@ public class MyPrivacy extends BasePage {
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
 				}
 				target.addComponent(formFeedback);
-				
             }
 		};
 		form.add(submitButton);
