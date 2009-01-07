@@ -24,6 +24,8 @@ package org.sakaiproject.assignment.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -36,7 +38,9 @@ import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
@@ -444,15 +448,54 @@ public class DbAssignmentService extends BaseAssignmentService
 		private int getSubmissionsCountWhere(String sqlWhere, String assignmentId) {
 			int count = 0;
 			Site site = null;
+			
+			Collection asgGroups = null;
+			
 			try {
-				site = SiteService.getSite(AssignmentService.getAssignment(assignmentId).getContext());
+				Assignment a = AssignmentService.getAssignment(assignmentId);
+				if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+				{
+					asgGroups = a.getGroups();
+				}
 				
+				site = SiteService.getSite(a.getContext());
 				List l = super.getSelectedResourcesWhere(sqlWhere);
+				
+				// check whether the submitter is an active member of the site
 				for (Object o : l) {
 					AssignmentSubmission assignmentSubmission = (AssignmentSubmission)o;
-					Member member = site.getMember(assignmentSubmission.getSubmitterIdString());
-					if(member != null && member.isActive()) {
-						count++;
+					String userId = assignmentSubmission.getSubmitterIdString();
+					Member member = site.getMember(userId);
+					if(member != null && member.isActive()) 
+					{	
+						if (asgGroups != null)
+						{
+							// for group based assignment: check whether member is in any group if the assignment is for groups
+							boolean inGroup = false;
+							for (Iterator iAsgGroups=asgGroups.iterator(); site!=null && !inGroup && iAsgGroups.hasNext();)
+							{
+								String groupId = (String) iAsgGroups.next();
+								try
+								{
+									Group group = site.getGroup(groupId);
+									if ( group != null && group.getUserRole(userId) != null)
+									{
+										// in one of the group, hence increase the count
+										inGroup = true;
+										count++;
+									}
+								}
+								catch (Exception ee)
+								{
+									M_log.warn(this + " getSubmissionsCountWhere " + ee.getMessage() + " sqlWhere = " + sqlWhere + " assignmentId=" + assignmentId);
+								}
+							}
+						}
+						else
+						{
+							// for site based assignment
+							count++;
+						}
 					}
 				}
 			} catch (Throwable t) {

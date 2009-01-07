@@ -68,11 +68,15 @@
 						</select>
 					</form>
 				</div>
+			</div>
 		#end		
 		#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
 		#set ($showMsg = false)
 		#set ($showMsg = $!allMsgNumber)
 		#if (!$!showMsg || $showMsg ==0)
+			<div class="allPurpose">
+				$tlang.getString("theisnostudent")
+			</div>
 		#else
 			#if ($submissionType != 4)
 				## only show this for not "non-electronic" type of assignments
@@ -109,9 +113,6 @@
 		#set ($showMsg = false)
 		#set ($showMsg = $!allMsgNumber)
 		#if (!$!showMsg || $showMsg ==0)
-			<p class="instruction">
-				$tlang.getString("theisnostudent")
-			</p>
 		#else
 		<div class="navPanel">
 			#if ($submissionType != 4)
