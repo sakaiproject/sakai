@@ -623,10 +623,11 @@ public class Response extends SearchResultBase
 	 */
 	private static void displayXml(String errorText, Object xmlObject) {
 
-		try {
+		try
+		{
 			LogUtils.displayXml(_log, errorText, xmlObject);
-		} catch (Exception ignore) {
 		}
+		catch (Exception ignore) { }
 	}
 
 	/**
@@ -637,9 +638,10 @@ public class Response extends SearchResultBase
 	 */
 	private void displayXml(Object xmlObject) {
 
-		try {
+		try
+		{
 			LogUtils.displayXml(_log, xmlObject);
-		} catch (Exception ignore) {
 		}
+		catch (Exception ignore) { }
 	}
 }

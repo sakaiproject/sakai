@@ -43,7 +43,7 @@ public class Query extends HttpTransactionQueryBase
   /**
    * DEBUG only: Display server response data?
    */
-  public static final boolean DISPLAY_XML = true;
+  public static final boolean DISPLAY_XML = false;
 	/**
 	 * Records displayed "per page"
 	 */
