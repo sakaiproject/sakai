@@ -72,6 +72,13 @@ public class MyInterestsEdit extends Panel {
 		quotesContainer.add(favouriteQuotes);
 		form.add(quotesContainer);
 		
+		//other information
+		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
+		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
+		TextArea otherInformation = new TextArea("otherInformation", new PropertyModel(userProfile, "otherInformation"));
+		otherContainer.add(otherInformation);
+		form.add(otherContainer);
+		
 		//submit button
 		AjaxButton submitButton = new AjaxButton("submit") {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -146,6 +153,7 @@ public class MyInterestsEdit extends Panel {
 		sakaiPerson.setFavouriteTvShows(userProfile.getFavouriteTvShows());
 		sakaiPerson.setFavouriteMovies(userProfile.getFavouriteMovies());
 		sakaiPerson.setFavouriteQuotes(userProfile.getFavouriteQuotes());
+		sakaiPerson.setNotes(userProfile.getOtherInformation());
 
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {

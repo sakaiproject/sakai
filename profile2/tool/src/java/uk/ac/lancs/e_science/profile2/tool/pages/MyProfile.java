@@ -92,6 +92,7 @@ public class MyProfile extends BasePage {
 		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
+		userProfile.setOtherInformation(sakaiPerson.getNotes());
 
 		
 		//get photo and add to page, otherwise add default image

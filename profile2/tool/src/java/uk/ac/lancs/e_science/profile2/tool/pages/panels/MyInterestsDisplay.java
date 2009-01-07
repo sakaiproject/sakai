@@ -33,6 +33,7 @@ public class MyInterestsDisplay extends Panel {
 		String favouriteTvShows = userProfile.getFavouriteTvShows();
 		String favouriteMovies = userProfile.getFavouriteMovies();
 		String favouriteQuotes = userProfile.getFavouriteQuotes();
+		String otherInformation = userProfile.getOtherInformation();
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.interests")));
@@ -77,6 +78,17 @@ public class MyInterestsDisplay extends Panel {
 		add(quotesContainer);
 		if("".equals(favouriteQuotes) || favouriteQuotes == null) {
 			quotesContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//favourite quotes
+		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
+		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
+		otherContainer.add(new Label("otherInformation", otherInformation));
+		add(otherContainer);
+		if("".equals(otherInformation) || otherInformation == null) {
+			otherContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}

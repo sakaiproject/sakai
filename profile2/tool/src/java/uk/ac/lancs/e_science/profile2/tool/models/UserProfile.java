@@ -24,6 +24,7 @@ public class UserProfile implements Serializable {
 	private String favouriteTvShows;
 	private String favouriteMovies;
 	private String favouriteQuotes;
+	private String otherInformation;
 	
 	
 	public String getUserId() {
@@ -150,7 +151,21 @@ public class UserProfile implements Serializable {
 	}
 
 
-	/* for the form feedback, to get around a bug */
+
+
+
+	public void setOtherInformation(String otherInformation) {
+		this.otherInformation = otherInformation;
+	}
+	public String getOtherInformation() {
+		return otherInformation;
+	}
+
+
+
+
+
+	/* for the form feedback, to get around a bug in Wicket where it needs a backing model */
 	private String emailFeedback;
 	private String fileFeedback;
 
