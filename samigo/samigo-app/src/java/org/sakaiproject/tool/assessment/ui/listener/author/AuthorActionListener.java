@@ -265,6 +265,13 @@ public class AuthorActionListener
 				  useridMap = totalScores.getUserIdMap(Integer.parseInt(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE));
 			  }
 			  Set uidSet = useridMap.keySet();
+			  if (uidSet == null || uidSet.size() == 0) {
+				  // if no student enroll into this site yet, use dueDate and acceptLateSubmission to decide the assessment status
+				  if (dueDate != null && dueDate.before(currentDate) && !acceptLateSubmission) {
+					  return false;
+				  }
+				  return true;
+			  }
 			  Iterator iter = uidSet.iterator();
 			  String userId = null;
 			  boolean isStillAvailable = false;
