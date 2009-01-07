@@ -644,7 +644,7 @@ public class ViewBean
 	}
 
 	public boolean getDisplayHtmlEditor() {
-		return ServerConfigurationService.getBoolean("rwiki.useHTMLEditor", true);
+		return ServerConfigurationService.getBoolean("wiki.wysiwyg", true);
 	}
 
 }
