@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="uk.ac.lancs.e_science.profile2.hbm">
+
+	<class name="ProfileImage" table="PROFILE_IMAGES_T">
+
+
+	    <id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">PROFILE_IMAGES_S</param>
+	      </generator>
+	    </id>
+
+	   	<property name="userUuid" column="USER_UUID" length="36" not-null="true" />
+		<property name="type" column="TYPE" not-null="true" />
+		<property name="resourceId" column="RESOURCE_ID" not-null="true" />
+  	</class>
+
+</hibernate-mapping>
