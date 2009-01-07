@@ -15,6 +15,7 @@ public class ProfilePrivacy implements Serializable {
 	private int basicInfo;
 	private int contactInfo;
 	private int personalInfo;
+	private boolean showBirthYear;
 	private int search;
 	
 
@@ -24,13 +25,14 @@ public class ProfilePrivacy implements Serializable {
 	/*
 	 * Constructor to allow creation of object in one go (ie for new entries when a profile is first created)
 	 */
-	public ProfilePrivacy(String userUuid, int profile, int basicInfo, int contactInfo, int personalInfo,int search) {
+	public ProfilePrivacy(String userUuid, int profile, int basicInfo, int contactInfo, int personalInfo, boolean showBirthYear, int search) {
 		super();
 		this.userUuid = userUuid;
 		this.profile = profile;
 		this.basicInfo = basicInfo;
 		this.contactInfo = contactInfo;
 		this.personalInfo = personalInfo;
+		this.showBirthYear = showBirthYear;
 		this.search = search;
 		
 	}
@@ -84,6 +86,14 @@ public class ProfilePrivacy implements Serializable {
 		this.personalInfo = personalInfo;
 	}
 
+
+	public void setShowBirthYear(boolean showBirthYear) {
+		this.showBirthYear = showBirthYear;
+	}
+
+	public boolean isShowBirthYear() {
+		return showBirthYear;
+	}
 
 	public int getSearch() {
 		return search;

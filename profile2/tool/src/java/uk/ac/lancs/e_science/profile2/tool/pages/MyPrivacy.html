@@ -17,8 +17,6 @@
 		-->
 		
 		<div id="fullWidth">
-			 <!-- feedback panel -->
-            <span class="alertMessage" wicket:id="feedbackPanel" style="clear:none;">[feedback panel]</span>
             
             <div wicket:id="heading">[Privacy settings]</div>
             
@@ -49,6 +47,12 @@
 						<td class="content"><select wicket:id="personalInfo"></select></td>
 					</tr>
 					
+					<!-- showBirthYear -->
+					<tr wicket:id="birthYearContainer">
+						<td class="label" wicket:id="birthYearLabel">[birthYearLabel]</td>
+						<td class="content"><input wicket:id="birthYear" type="checkbox"></input></td>
+					</tr>
+					
 					<!-- search -->
 					<tr wicket:id="searchContainer">
 						<td class="label" wicket:id="searchLabel">[searchLabel]</td>
@@ -61,8 +65,11 @@
 				<input type="submit" wicket:id="submit" value="Save setting" />
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<input type="button" wicket:id="cancel" value="Cancel"/>
+		
 				
 			</form>	
+			
+			<div wicket:id="formFeedback">[formFeedback]</div>
 		
 		</div>
 		

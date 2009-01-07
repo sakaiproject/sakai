@@ -612,7 +612,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	 */
 	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
 		
-		ProfilePrivacy profilePrivacy = new ProfilePrivacy(userId,0,0,0,0,0);
+		//see ProfilePrivacy for this constructor and what it all means
+		ProfilePrivacy profilePrivacy = new ProfilePrivacy(userId,0,0,0,0,true,0);
 		
 		//save
 		try {
@@ -663,16 +664,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 	}
 
-
-		
-	/*
-	private void saveFriendRecord(ProfileFriends profileFriends)
-	  {
-	  	getHibernateTemplate().saveOrUpdate(profileFriends);
-	  }
-	*/
-	
-	
 	
 	 
 	

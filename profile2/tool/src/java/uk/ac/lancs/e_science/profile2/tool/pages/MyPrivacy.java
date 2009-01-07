@@ -5,16 +5,18 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -33,10 +35,6 @@ public class MyPrivacy extends BasePage {
 		
 		if(log.isDebugEnabled()) log.debug("MyPrivacy()");
 		
-		//add the feedback panel for any error messages
-		FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
-		add(feedbackPanel);
-		feedbackPanel.setVisible(false); //hide by default
 
 		//get current user
 		String userId = sakaiProxy.getCurrentUserId();
@@ -57,12 +55,21 @@ public class MyPrivacy extends BasePage {
 		Label heading = new Label("heading", new ResourceModel("heading.privacy"));
 		add(heading);
 		
+		//feedback for form submit action
+		final Label formFeedback = new Label("formFeedback");
+		formFeedback.setOutputMarkupPlaceholderTag(true);
+		add(formFeedback);
+		
+		
+		
 		//create model
 		CompoundPropertyModel privacyModel = new CompoundPropertyModel(profilePrivacy);
 		
 		//setup form		
 		Form form = new Form("form", privacyModel);
 		form.setOutputMarkupId(true);
+		
+		
 		
 		//setup LinkedHashMap of privacy options
 		final LinkedHashMap<String, String> privacySettings = new LinkedHashMap<String, String>();
@@ -109,6 +116,13 @@ public class MyPrivacy extends BasePage {
 		personalInfoContainer.add(personalInfoChoice);
 		form.add(personalInfoContainer);
 		
+		//birthYear privacy
+		WebMarkupContainer birthYearContainer = new WebMarkupContainer("birthYearContainer");
+		birthYearContainer.add(new Label("birthYearLabel", new ResourceModel("privacy.birthyear")));
+		CheckBox birthYearCheckbox = new CheckBox("birthYear", new PropertyModel(privacyModel, "showBirthYear"));
+		birthYearContainer.add(birthYearCheckbox);
+		form.add(birthYearContainer);
+		
 		//search privacy
 		WebMarkupContainer searchContainer = new WebMarkupContainer("searchContainer");
 		searchContainer.add(new Label("searchLabel", new ResourceModel("privacy.search")));
@@ -133,23 +147,19 @@ public class MyPrivacy extends BasePage {
 		
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.settings"), form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				//save() form, show message, then load display panel
+				//save() form, show feedback. perhaps redirect back to main page after a short while?
 				if(save(form)){
-					System.out.println("privacy saved");
+					formFeedback.setModel(new ResourceModel("success.save.ok"));
+					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+					target.addComponent(formFeedback);
+				} else {
+					formFeedback.setModel(new ResourceModel("error.save.failed"));
+					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
 				}
-				
+				target.addComponent(formFeedback);
 				
             }
 		};
@@ -167,6 +177,10 @@ public class MyPrivacy extends BasePage {
 		
         
         add(form);
+        
+        
+ 
+        
 		
 	}
 	
