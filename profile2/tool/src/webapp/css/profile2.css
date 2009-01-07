@@ -257,8 +257,14 @@
 .profileContent .content {
 	padding-left: 2px;
 	/*padding-right: 40px;*/
+}
+
+.profileContent .toolTip {
+	padding-left: 8px;
+	/*padding-right: 40px;*/
 	
 }
+
 
 .profileForm, .statusForm {
 	background-color: #e9edff;

@@ -23,6 +23,7 @@ import org.apache.wicket.model.StringResourceModel;
 import uk.ac.lancs.e_science.profile2.api.ProfileException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
+import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
 
 
 public class MyPrivacy extends BasePage {
@@ -93,6 +94,8 @@ public class MyPrivacy extends BasePage {
 		profileContainer.add(new Label("profileLabel", new ResourceModel("privacy.profile")));
 		DropDownChoice profileChoice = new DropDownChoice("profile", dropDownModel, new HashMapChoiceRenderer(privacySettings));             
 		profileContainer.add(profileChoice);
+		//tooltip
+		profileContainer.add(new IconWithClueTip("profileToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.profile.tooltip")));
 		form.add(profileContainer);
 		
 		//basicInfo privacy
@@ -100,13 +103,17 @@ public class MyPrivacy extends BasePage {
 		basicInfoContainer.add(new Label("basicInfoLabel", new ResourceModel("privacy.basicinfo")));
 		DropDownChoice basicInfoChoice = new DropDownChoice("basicInfo", dropDownModel, new HashMapChoiceRenderer(privacySettings));
 		basicInfoContainer.add(basicInfoChoice);
+		//tooltip
+		basicInfoContainer.add(new IconWithClueTip("basicInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.basicinfo.tooltip")));
 		form.add(basicInfoContainer);
 		
-		//basicInfo privacy
+		//contactInfo privacy
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("contactInfoContainer");
 		contactInfoContainer.add(new Label("contactInfoLabel", new ResourceModel("privacy.contactinfo")));
 		DropDownChoice contactInfoChoice = new DropDownChoice("contactInfo", dropDownModel, new HashMapChoiceRenderer(privacySettings));
 		contactInfoContainer.add(contactInfoChoice);
+		//tooltip
+		contactInfoContainer.add(new IconWithClueTip("contactInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.contactinfo.tooltip")));
 		form.add(contactInfoContainer);
 		
 		//personalInfo privacy
@@ -114,6 +121,8 @@ public class MyPrivacy extends BasePage {
 		personalInfoContainer.add(new Label("personalInfoLabel", new ResourceModel("privacy.personalinfo")));
 		DropDownChoice personalInfoChoice = new DropDownChoice("personalInfo", dropDownModel, new HashMapChoiceRenderer(privacySettings));
 		personalInfoContainer.add(personalInfoChoice);
+		//tooltip
+		personalInfoContainer.add(new IconWithClueTip("personalInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.personalinfo.tooltip")));
 		form.add(personalInfoContainer);
 		
 		//birthYear privacy
@@ -121,6 +130,8 @@ public class MyPrivacy extends BasePage {
 		birthYearContainer.add(new Label("birthYearLabel", new ResourceModel("privacy.birthyear")));
 		CheckBox birthYearCheckbox = new CheckBox("birthYear", new PropertyModel(privacyModel, "showBirthYear"));
 		birthYearContainer.add(birthYearCheckbox);
+		//tooltip
+		birthYearContainer.add(new IconWithClueTip("birthYearToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.birthyear.tooltip")));
 		form.add(birthYearContainer);
 		
 		//search privacy
@@ -128,6 +139,8 @@ public class MyPrivacy extends BasePage {
 		searchContainer.add(new Label("searchLabel", new ResourceModel("privacy.search")));
 		DropDownChoice searchChoice = new DropDownChoice("search", dropDownModel, new HashMapChoiceRenderer(privacySettings));
 		searchContainer.add(searchChoice);
+		//tooltip
+		searchContainer.add(new IconWithClueTip("searchToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.search.tooltip")));
 		form.add(searchContainer);
 		
 		/* 

@@ -22,6 +22,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyInfoEdit extends Panel {
@@ -29,6 +30,8 @@ public class MyInfoEdit extends Panel {
 	private transient Logger log = Logger.getLogger(MyInfoEdit.class);
 	private WebMarkupContainer formFeedback;
 	private String dateFormat = "dd-MMMM-yyyy"; //this should come from user preferences or a Sakai property
+	
+
 	
 	public MyInfoEdit(final String id, final UserProfile userProfile) {
 		super(id);
@@ -61,7 +64,10 @@ public class MyInfoEdit extends Panel {
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
 		TextField birthday = new TextField("birthday", new PropertyModel(userProfile, "birthday"));
 		birthdayContainer.add(birthday);
+		//tooltip
+		birthdayContainer.add(new IconWithClueTip("birthdayToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.profile.birthyear.tooltip")));
 		form.add(birthdayContainer);
+
 		
 		//submit button
 		AjaxButton submitButton = new AjaxButton("submit") {

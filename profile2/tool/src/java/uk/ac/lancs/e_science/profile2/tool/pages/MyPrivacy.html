@@ -27,36 +27,42 @@
 					<tr wicket:id="profileContainer">
 						<td class="label" wicket:id="profileLabel">[profileLabel]</td>
 						<td class="content"><select wicket:id="profile"></select></td>
+						<td class="toolTip"><span wicket:id="profileToolTip">[profileToolTip]</span></td>
 					</tr>
 					
 					<!-- basicInfo -->
 					<tr wicket:id="basicInfoContainer">
 						<td class="label" wicket:id="basicInfoLabel">[basicInfoLabel]</td>
 						<td class="content"><select wicket:id="basicInfo"></select></td>
+						<td class="toolTip"><span wicket:id="basicInfoToolTip">[basicInfoToolTip]</span></td>
 					</tr>
 					
 					<!-- contactInfo -->
 					<tr wicket:id="contactInfoContainer">
 						<td class="label" wicket:id="contactInfoLabel">[contactInfoLabel]</td>
 						<td class="content"><select wicket:id="contactInfo"></select></td>
+						<td class="toolTip"><span wicket:id="contactInfoToolTip">[contactInfoToolTip]</span></td>
 					</tr>
 					
 					<!-- personalInfo -->
 					<tr wicket:id="personalInfoContainer">
 						<td class="label" wicket:id="personalInfoLabel">[personalInfoLabel]</td>
 						<td class="content"><select wicket:id="personalInfo"></select></td>
+						<td class="toolTip"><span wicket:id="personalInfoToolTip">[personalInfoToolTip]</span></td>
 					</tr>
 					
 					<!-- showBirthYear -->
 					<tr wicket:id="birthYearContainer">
 						<td class="label" wicket:id="birthYearLabel">[birthYearLabel]</td>
 						<td class="content"><input wicket:id="birthYear" type="checkbox"></input></td>
+						<td class="toolTip"><span wicket:id="birthYearToolTip">[birthYearToolTip]</span></td>
 					</tr>
 					
 					<!-- search -->
 					<tr wicket:id="searchContainer">
 						<td class="label" wicket:id="searchLabel">[searchLabel]</td>
 						<td class="content"><select wicket:id="search"></select></td>
+						<td class="toolTip"><span wicket:id="searchToolTip">[searchToolTip]</span></td>
 					</tr>
 					
 					
@@ -86,6 +92,19 @@
 			//resize iframe
 			setMainFrameHeight(window.name);
 
+		});
+
+		$(document).ready(function() {
+			$('.sakai-wicket-iconwithtooltip').cluetip({
+				local: true,
+				showTitle: false,
+				attribute: 'rel',
+				cursor: 'pointer',
+				cluetipClass: 'jtip',
+				arrows: true,
+				hoverIntent: true
+			});	
+			
 		});
 
 	</script>

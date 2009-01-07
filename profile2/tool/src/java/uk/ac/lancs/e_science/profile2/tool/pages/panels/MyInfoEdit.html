@@ -27,7 +27,10 @@
 					<!-- birthday -->
 					<tr wicket:id="birthdayContainer">
 						<td class="label" wicket:id="birthdayLabel">[birthdayLabel]</td>
-						<td class="content"><input type="text" wicket:id="birthday" class="formInputField datePicker" readonly="readonly" /></td>
+						<td class="content">
+							<input type="text" wicket:id="birthday" class="formInputField datePicker" readonly="readonly" />
+							<span wicket:id="birthdayToolTip">[birthdayToolTip]</span>
+						</td>
 					</tr>
 					
 				</table>
@@ -63,6 +66,20 @@
 				buttonImage: '/library/image/silk/calendar.png',
 				buttonImageOnly: true
 			});
+		});
+
+
+		$(document).ready(function() {
+			$('.sakai-wicket-iconwithtooltip').cluetip({
+				local: true,
+				showTitle: false,
+				attribute: 'rel',
+				cursor: 'pointer',
+				cluetipClass: 'jtip',
+				arrows: true,
+				hoverIntent: true
+			});	
+			
 		});
 	</script> 
 	
