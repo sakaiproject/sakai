@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
+import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 
@@ -169,11 +170,38 @@ public interface Profile {
 	public ProfilePrivacy getPrivacyRecordForUser(String userId);
 	
 	/**
-	 * Save the profile privacy record to the database for this user
+	 * Save the profile privacy record to the database
 	 *
 	 * @param profilePrivacy	the record for the user
 	 */
-	public boolean savePrivacyRecordForUser(ProfilePrivacy profilePrivacy);
+	public boolean savePrivacyRecord(ProfilePrivacy profilePrivacy);
 	
+	/**
+	 * Add a new profile image record to the database. Invalidates others before it adds itself.
+	 *
+	 * @param userId		userId of the user
+	 * @param mainResource	the resourceId of the main profile image
+	 * @param resourceId	the ContentHosting resource id
+	 */
+	public boolean addNewProfileImage(String userId, String mainResource, String thumbnailResource);
+	
+	/**
+	 * Get the current ProfileImage record from the database.
+	 * There should only ever be one, but if there are more this will return the latest. 
+	 * This is called when retrieving the profileImage for a user. When adding a new image, there is a call
+	 * to a private method called getCurrentProfileImageRecords() which should invalidate any multiple current images
+	 *
+	 * @param userId		userId of the user
+	 */
+	
+	public ProfileImage getCurrentProfileImageRecord(final String userId);
+	
+	/**
+	 * Get old ProfileImage records from the database. Used for displaying old the profile pictures album.
+	 *
+	 * @param userId		userId of the user
+	 */
+	public List<ProfileImage> getOtherProfileImageRecords(final String userId);
+
 	
 }

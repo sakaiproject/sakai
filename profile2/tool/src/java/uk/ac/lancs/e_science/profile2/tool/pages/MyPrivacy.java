@@ -245,7 +245,7 @@ public class MyPrivacy extends BasePage {
 		//get the backing model - its elems have been updated with the form params
 		ProfilePrivacy profilePrivacy = (ProfilePrivacy) form.getModelObject();
 
-		if(profile.savePrivacyRecordForUser(profilePrivacy)) {
+		if(profile.savePrivacyRecord(profilePrivacy)) {
 			log.info("Saved ProfilePrivacy for: " + profilePrivacy.getUserUuid());
 			return true;
 		} else {

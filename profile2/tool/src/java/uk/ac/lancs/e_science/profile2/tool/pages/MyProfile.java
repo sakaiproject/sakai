@@ -15,6 +15,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileException;
+import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
@@ -28,9 +29,8 @@ public class MyProfile extends BasePage {
 
 	private transient Logger log = Logger.getLogger(MyProfile.class);
 	private static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
-	private transient byte[] pictureBytes;
+	private transient byte[] profileImageBytes;
 	private final ChangeProfilePicture changePicture;
-
 	
 	public MyProfile() {
 		
@@ -94,15 +94,21 @@ public class MyProfile extends BasePage {
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
 		userProfile.setOtherInformation(sakaiPerson.getNotes());
 
+		//get profileImage object
+		ProfileImage profileImage = profile.getCurrentProfileImageRecord(userId);
 		
-		//get photo and add to page, otherwise add default image
-		pictureBytes = sakaiPerson.getJpegPhoto();
-		
-		if(pictureBytes != null && pictureBytes.length > 0){
+		if(profileImage != null) {
+			String profileImageResourceId = profileImage.getMainResource();
+			System.out.println("MyProfile profileImageResourceId: " + profileImageResourceId);
+			profileImageBytes = sakaiProxy.getResource(profileImageResourceId);
+		}
+
+		//use profile bytes or add default image if none
+		if(profileImageBytes != null && profileImageBytes.length > 0){
 		
 			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
 				protected byte[] getImageData() {
-					return pictureBytes;
+					return profileImageBytes;
 				}
 			};
 		

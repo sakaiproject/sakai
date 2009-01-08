@@ -1,41 +1,34 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
 
-import java.io.File;
 import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.event.cover.NotificationService;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
 
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-
-
 
 
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private transient Logger log = Logger.getLogger(SakaiProxyImpl.class);
     
-	
 	private final int MAX_PROFILE_IMAGE_SIZE = 2; //default if not specified in sakai.properties as profile.picture.max (megs)
 	
 	public String getCurrentSiteId(){
@@ -51,7 +44,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			eid = userDirectoryService.getUser(userId).getEid();
 		} catch (UserNotDefinedException e) {
-			log.warn("Cannot get eid for id: " + userId + ":" + e.getClass() + ":" + e.getMessage());
+			log.warn("Cannot get eid for id: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return eid;
 	}
@@ -61,7 +54,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			name = userDirectoryService.getUser(userId).getDisplayName();
 		} catch (UserNotDefinedException e) {
-			log.warn("Cannot get displayname for id: " + userId + ":" + e.getClass() + ":" + e.getMessage());
+			log.warn("Cannot get displayname for id: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return name;
 	}
@@ -71,7 +64,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			email = userDirectoryService.getUser(userId).getEmail();
 		} catch (UserNotDefinedException e) {
-			log.warn("Cannot get email for id: " + userId + ":" + e.getClass() + ":" + e.getMessage());
+			log.warn("Cannot get email for id: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return email;
 	}
@@ -89,7 +82,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		} catch (Exception e) {
-			log.error("Couldn't get SakaiPerson for: " + userId + ":" + e.getClass() + ":" + e.getMessage());
+			log.error("Couldn't get SakaiPerson for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return sakaiPerson;
 	}
@@ -102,7 +95,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.getPrototype();
 		} catch (Exception e) {
-			log.error("Couldn't get SakaiPerson prototype:" + e.getClass() + ":" + e.getMessage());
+			log.error("Couldn't get SakaiPerson prototype: " + e.getClass() + " : " + e.getMessage());
 		}
 		return sakaiPerson;
 	}
@@ -115,7 +108,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.create(userId, sakaiPersonManager.getUserMutableType());
 		} catch (Exception e) {
-			log.error("Couldn't create SakaiPerson:" + e.getClass() + ":" + e.getMessage());
+			log.error("Couldn't create SakaiPerson: " + e.getClass() + " : " + e.getMessage());
 		}
 		return sakaiPerson;
 	}
@@ -130,7 +123,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			sakaiPersonManager.save(sakaiPerson);
 			return true;
 		} catch (Exception e) {
-			log.error("Couldn't update SakaiPerson: " + e.getClass() + ":" + e.getMessage());
+			log.error("Couldn't update SakaiPerson: " + e.getClass() + " : " + e.getMessage());
 		}
 		return false;
 	}
@@ -183,86 +176,76 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	
 	
-	//wrapper method to get the CHS resourceID for the main profile image for the user
-	private String getResourceIdForProfileImage(String userId, int type) {
+	public String getProfileImageResourcePath(String userId, int type, String fileName) {
 		
-		
-		String resourceId = "";
-		
-		String fullResourceId = "/profilepics/" + userId + "/" + resourceId;
-
-		/*
-		 * put constants in the Image API and use these inplace of the numbers below
-		 * public static final int MAIN_PROFILE_IMAGE = 1;
-		 * public static final int SMALL_PROFILE_IMAGE = 2;
-		 * public staticfinal int TINY_PROFILE_IMAGE = 3;
-		 * 
-		 * is use Image.MAIN_PROFILE_IMAGE
-		 * 
-		 */
-		
-		
-		
-		
-		switch(type) {
-			//full image
-			case 1:
-			{
-				//lookup in db to get the id
-				
-				
-				break;
-			}
-			//small image
-			case 2:
-			{
-				
-				break;
-			}
-			//tiny image
-			case 3:
-			{
-				
-				break;
-			}
-			default:
-				log.warn("SakaiProxy.getResourceIdForProfileImage(): Invalid image type supplied: " + type);
-		}
+		//this needs to come from a sakai property perhaps?
+		//may break on windows unless use File.separator?
+		String fullResourceId = "/private/profileImages/" + userId + "/" + type + "/" + fileName;
 		
 		return fullResourceId;
 		
 	}
 	
-	
-	
-	// we need a few separate methods to get different profile pics/sizes
-	public byte[] getResource(String fullResourceId) {
-		byte[] data = null;
+	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData) {
+		
+		ContentResourceEdit resource = null;
 		
 		try {
 			
-			//this needs to come from a sakai property perhaps?
-			//String fullResourceId = "/profilepics/" + contextId + "/" + resourceId;
+			enableSecurityAdvisor();
 			
-			ContentResource resource = contentHostingService.getResource(fullResourceId);
+			try {
+								
+				resource = contentHostingService.addResource(fullResourceId);
+				resource.setContentType(mimeType);
+				resource.setContent(fileData);
+				ResourceProperties props = resource.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, mimeType);
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
+				props.addProperty(ResourceProperties.PROP_CREATOR, userId);
+				resource.getPropertiesEdit().set(props);
+				contentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
+				return true;
+			}
+			catch (IdUsedException e){
+				contentHostingService.cancelResource(resource);
+				log.error("saveFile(): id= " + fullResourceId + " is in use : " + e.getClass() + " : " + e.getMessage());
+				return false;
+			}
+			catch (Exception e){
+				contentHostingService.cancelResource(resource);
+				log.error("saveFile(): failed: " + e.getClass() + " : " + e.getMessage());
+				return false;
+			}
+			
+		
+		} catch (Exception e) {
+			//do we need to do something with the security advisor here?
+			log.error("saveFile():" + e.getClass() + ":" + e.getMessage());
+			return false;
+		}
+		
+		//do we need to do something with the security advisor?
+		
+	}
+	
+	
+	
+	public byte[] getResource(String resourceId) {
+		
+		byte[] data = null;
+				
+		try {
+			ContentResource resource = contentHostingService.getResource(resourceId);
 			data = resource.getContent();
 		}
 		catch(Exception e){
-			log.error("SakaiProxy.fileExists() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("SakaiProxy.getResource() failed for resourceId: " + resourceId + " : " + e.getClass() + " : " + e.getMessage());
+			return null;
 		}
 		
 		return data;
 	}
-	
-	
-	
-
-	public String saveFile(String title, String mimeType, byte[] data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
 	
 	
 	
@@ -309,7 +292,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		
 	public void init() {
-		log.debug("init()");
+		log.debug("Profile2 SakaiProxy init()");
 	}
 
 	

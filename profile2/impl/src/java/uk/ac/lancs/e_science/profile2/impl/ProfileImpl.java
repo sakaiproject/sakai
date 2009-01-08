@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -28,6 +29,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
+import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 
@@ -56,16 +58,16 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String QUERY_GET_FRIEND_RECORD = "getFriendRecord";
 	private static final String QUERY_GET_USER_STATUS = "getUserStatus";
 	private static final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord";
+	private static final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord";
+	private static final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords";
 
 	//Hibernate object fields
 	private static final String USER_UUID = "userUuid";
 	private static final String FRIEND_UUID = "friendUuid";
 	private static final String CONFIRMED = "confirmed";
-	private static final String IMAGE = "image";
 	private static final String OLDEST_STATUS_DATE = "oldestStatusDate";
 
-
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#checkContentTypeForProfileImage()
 	 */
 	public boolean checkContentTypeForProfileImage(String contentType) {
@@ -83,7 +85,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#scaleImage()
 	 */
 	public byte[] scaleImage (byte[] imageData, int maxSize) {
@@ -106,9 +108,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	    int scaledH = (int) (scale * inImage.getHeight(null));
 	
 	    // Create an image buffer in which to paint on.
-	    BufferedImage outImage = new BufferedImage(
-	            scaledW, scaledH, BufferedImage.TYPE_INT_RGB
-	        );
+	    BufferedImage outImage = new BufferedImage(scaledW, scaledH, BufferedImage.TYPE_INT_RGB);
 	
 	    // Set the scale.
 	    AffineTransform tx = new AffineTransform();
@@ -144,7 +144,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	    return os.toByteArray();
 	}
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertDateToString()
 	 */
 	public String convertDateToString(Date date, String format) {
@@ -163,7 +163,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 	}
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertStringToDate()
 	 */
 	public Date convertStringToDate(String dateStr, String format) {
@@ -192,7 +192,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser()
 	 */
 	public List<Friend> getFriendsForUser(final String userId, final int limit) {
@@ -233,7 +233,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser()
 	 */
 	public List<Friend> getFriendRequestsForUser(final String userId) {
@@ -267,7 +267,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#requestFriend()
 	 */	
 	public boolean requestFriend(String userId, String friendId) {
@@ -290,7 +290,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	}
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriend()
 	 */
 	public boolean confirmFriend(final String friendId, final String userId) {
@@ -319,7 +319,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	}
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#removeFriend()
 	 */
 	public boolean removeFriend(String userId, String friendId) {
@@ -361,6 +361,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
 	  			q.setParameter(CONFIRMED, false, Hibernate.BOOLEAN);
+	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}
 		};
@@ -384,6 +385,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_RECORD);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
 	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
+	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}
 		};
@@ -394,7 +396,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 	}
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUnreadMessagesCount()
 	 */
 	public int getUnreadMessagesCount(String userId) {
@@ -405,7 +407,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatus()
 	 */
 	public ProfileStatus getUserStatus(final String userId) {
@@ -436,7 +438,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatusMessage()
 	 */
 	public String getUserStatusMessage(String userId) {
@@ -452,7 +454,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		return profileStatus.getMessage();
 	}
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatusDate()
 	 */
 	public Date getUserStatusDate(String userId) {
@@ -469,7 +471,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#setUserStatus()
 	 */
 	public boolean setUserStatus(String userId, String status) {
@@ -492,7 +494,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#clearUserStatus()
 	 */
 	public boolean clearUserStatus(String userId) {
@@ -521,7 +523,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertDateForStatus()
 	 */
 	public String convertDateForStatus(Date date) {
@@ -596,7 +598,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#truncateAndPadStringToSize()
 	 */
 	public String truncateAndPadStringToSize(String string, int size) {
@@ -607,7 +609,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPrivacyRecord()
 	 */
 	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
@@ -627,7 +629,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	/*
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getPrivacyRecordForUser()
 	 */
 	public ProfilePrivacy getPrivacyRecordForUser(final String userId) {
@@ -640,6 +642,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_PRIVACY_RECORD);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}
 		};
@@ -648,10 +651,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	}
 	
-	/*
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#savePrivacyRecordForUser()
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#savePrivacyRecord()
 	 */
-	public boolean savePrivacyRecordForUser(ProfilePrivacy profilePrivacy) {
+	public boolean savePrivacyRecord(ProfilePrivacy profilePrivacy) {
 
 		try {
 			getHibernateTemplate().update(profilePrivacy);
@@ -663,8 +666,119 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		
 	}
+	
+
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#addNewProfileImage()
+	 */
+	public boolean addNewProfileImage(String userId, String mainResource, String thumbnailResource) {
+		
+			
+		//first get the current ProfileImage records
+		List<ProfileImage> currentImages = new ArrayList<ProfileImage>(getCurrentProfileImageRecords(userId));
+		for(Iterator<ProfileImage> i = currentImages.iterator(); i.hasNext();){
+			ProfileImage currentImage = (ProfileImage)i.next();
+			
+			//invalidate each
+			currentImage.setCurrent(false);
+			
+			//save
+			try {
+				getHibernateTemplate().update(currentImage);
+				log.info("saveProfileImageRecord(): Invalidated profileImage: " + currentImage.getId() + " for user: " + currentImage.getUserUuid());
+			} catch (Exception e) {
+				log.error("saveProfileImageRecord(): Couldn't invalidate profileImage: " + e.getClass() + ": " + e.getMessage());
+			}
+		}
+				
+		//now create a new ProfileImage object with the new data - this is our new current ProfileImage
+		ProfileImage newProfileImage = new ProfileImage(userId, mainResource, thumbnailResource, true);
+		
+		//save the new ProfileImage to the db
+		try {
+			getHibernateTemplate().save(newProfileImage);
+			log.info("saveProfileImageRecord(): Saved new profileImage for user: " + newProfileImage.getUserUuid());
+			return true;
+		} catch (Exception e) {
+			log.error("saveProfileImageRecord() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+
 
 	
-	 
+	
+	
+
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getCurrentProfileImageRecord()
+	 */
+	public ProfileImage getCurrentProfileImageRecord(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileImage) getHibernateTemplate().execute(hcb);
+	}
+
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getOtherProfileImageRecords()
+	 */
+	public List<ProfileImage> getOtherProfileImageRecords(final String userId) {
+		
+		List<ProfileImage> images = new ArrayList();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_OTHER_PROFILE_IMAGE_RECORDS);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
+	  	
+	  	return images;
+	}
+	
+	
+	/**
+	 * Get the current ProfileImages record from the database.
+	 * There should only ever be one, but in case things get out of sync this returns all.
+	 * This method is only used when we are adding a new image as we need to invalidate all of the others
+	 * If you are just wanting to retrieve the latest image, see getCurrentProfileImageRecord()
+	 *
+	 * @param userId		userId of the user
+	 */
+	private List<ProfileImage> getCurrentProfileImageRecords(final String userId) {
+		
+		List<ProfileImage> images = new ArrayList();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
+	  	
+	  	return images;
+	}
+
+
+	
 	
 }

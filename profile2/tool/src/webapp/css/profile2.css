@@ -41,6 +41,7 @@
 
 #myPhoto img {
 	max-width: 200px;
+	background-color: transparent;
 }
 
 

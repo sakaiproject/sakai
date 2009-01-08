@@ -35,9 +35,16 @@ public interface SakaiProxy {
 	public String cleanString(String input);
 	
 	public void registerSecurityAdvisor(SecurityAdvisor securityAdvisor);
-		
-	public String saveFile(String title, String mimeType, byte[] data);
 	
-	public byte[] getResource(String fullResourceId);
+	public String getProfileImageResourcePath(String userId, int type, String fileName);
+	
+	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData);
+		
+	/**
+	 * Retrieve a resource from ContentHosting
+	 *
+	 * @param resourceId	the full resourceId of the file
+	 */
+	public byte[] getResource(String resourceId);
 	
 }

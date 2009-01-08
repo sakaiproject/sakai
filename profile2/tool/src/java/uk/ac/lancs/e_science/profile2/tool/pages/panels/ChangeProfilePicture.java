@@ -35,6 +35,10 @@ public class ChangeProfilePicture extends Panel{
 
 	private final int MAX_IMAGE_XY = 400; //one side will be scaled to this if larger. 400 is large enough
     
+	private final int PROFILE_IMAGE_MAIN = 1;
+	private final int PROFILE_IMAGE_THUMBNAIL = 2;
+
+	
 	public ChangeProfilePicture(String id, UserProfile userProfile) {  
         super(id);  
         
@@ -58,10 +62,13 @@ public class ChangeProfilePicture extends Panel{
 				
 				//get userid and sakaiperson for this user
 				String userId = sakaiProxy.getCurrentUserId();
-				SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
+				//SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 				
 				//get file that was uploaded
 				FileUpload upload = uploadField.getFileUpload();
+				
+				String mimeType = upload.getContentType();
+				String fileName = upload.getClientFileName();
 				
 				if (upload == null) {
 					log.error("upload was null.");
@@ -71,24 +78,36 @@ public class ChangeProfilePicture extends Panel{
 				    log.error("upload was empty.");
 					error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
 					return;
-				} else if (!profile.checkContentTypeForProfileImage(upload.getContentType())) {
+				} else if (!profile.checkContentTypeForProfileImage(mimeType)) {
 					error(new StringResourceModel("error.invalid.image.type", this, null).getString());
 				    return;
 				} else {
 					//get bytes, set into sakaiperson directly
-					byte[] photoBytes = upload.getBytes();
+					byte[] imageBytes = upload.getBytes();
+					
+					//scale image for the main profile pic
+					//imageBytes = profile.scaleImage(imageBytes, MAX_IMAGE_XY);
 					 
-					photoBytes = profile.scaleImage(photoBytes, MAX_IMAGE_XY);
-					 
-					sakaiPerson.setJpegPhoto(photoBytes);
-					 
+					//save the main profile image to CHS and get the resource_id back
+					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, PROFILE_IMAGE_MAIN, fileName);
+					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, PROFILE_IMAGE_THUMBNAIL, fileName);
+
+					System.out.println("mainResourceId:" + mainResourceId);
+					System.out.println("thumbnailResourceId:" + thumbnailResourceId);
+
+					boolean result = sakaiProxy.saveFile(mainResourceId, userId, fileName, mimeType, imageBytes);
+					
+					System.out.println("saved new image? " + result);
+					
 					//save
-					if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
-						log.info("SakaiPerson save ok");
+					if(profile.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
+						log.info("Updated profile image");
 						setResponsePage(new MyProfile()); //to refresh the image data
 					} else {
-						log.error("SakaiPerson save failed");
+						log.error("Profile image update failed");
 					}
+					
+					 
 				}
 				
 				

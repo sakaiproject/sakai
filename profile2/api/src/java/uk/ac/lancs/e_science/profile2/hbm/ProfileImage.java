@@ -8,23 +8,26 @@ public class ProfileImage {
 
 	private long id;
 	private String userUuid;
-	private int type;
-	private String resourceId;
+	private String mainResource;
+	private String thumbnailResource;
+	private boolean current;
 	
-	public ProfileImage(long id, String userUuid, int type, String resourceId) {
-		super();
-		this.id = id;
-		this.resourceId = resourceId;
-		this.type = type;
-		this.userUuid = userUuid;
+	public ProfileImage() {
 	}
 
-	public long getId() {
-		return id;
+	public ProfileImage(String userUuid, String mainResource, String thumbnailResource, boolean current) {
+		this.userUuid = userUuid;
+		this.mainResource = mainResource;
+		this.thumbnailResource = thumbnailResource;
+		this.current = current;
 	}
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public long getId() {
+		return id;
 	}
 
 	public String getUserUuid() {
@@ -35,20 +38,29 @@ public class ProfileImage {
 		this.userUuid = userUuid;
 	}
 
-	public int getType() {
-		return type;
+	public String getMainResource() {
+		return mainResource;
 	}
 
-	public void setType(int type) {
-		this.type = type;
+	public void setMainResource(String mainResource) {
+		this.mainResource = mainResource;
 	}
 
-	public String getResourceId() {
-		return resourceId;
+	public String getThumbnailResource() {
+		return thumbnailResource;
 	}
 
-	public void setResourceId(String resourceId) {
-		this.resourceId = resourceId;
+	public void setThumbnailResource(String thumbnailResource) {
+		this.thumbnailResource = thumbnailResource;
 	}
+
+	public boolean isCurrent() {
+		return current;
+	}
+
+	public void setCurrent(boolean current) {
+		this.current = current;
+	}
+	
 	
 }
