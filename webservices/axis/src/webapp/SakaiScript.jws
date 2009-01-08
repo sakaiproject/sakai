@@ -193,7 +193,7 @@ public String removeUser( String sessionid, String eid) throws AxisFault
  * Edit a user's account details
  *
  * @param	sessionid		the id of a valid session
- * @param	eid				the login username (ie jsmith26) of user you want to edit
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
  * @param	firstname		the updated firstname for the user
  * @param	lastname		the updated last name for the user
  * @param	email			the updated email address for the user
@@ -234,7 +234,7 @@ public String changeUserInfo( String sessionid, String eid, String firstname, St
  * Edit a user's firstname/lastname
  *
  * @param	sessionid		the id of a valid session
- * @param	eid				the login username (ie jsmith26) of user you want to edit
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
  * @param	firstname		the updated firstname for the user
  * @param	lastname		the updated last name for the user
  * @return		        	success or exception message
@@ -266,7 +266,7 @@ public String changeUserName( String sessionid, String eid, String firstname, St
  * Edit a user's email address
  *
  * @param	sessionid		the id of a valid session
- * @param	eid				the login username (ie jsmith26) of user you want to edit
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
  * @param	email			the updated email address for the user
  * @return		        	success or exception message
  * @throws	AxisFault
@@ -296,7 +296,7 @@ public String changeUserEmail( String sessionid, String eid, String email) throw
  * Edit a user's user type
  *
  * @param	sessionid		the id of a valid session
- * @param	eid				the login username (ie jsmith26) of user you want to edit
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
  * @param	type			the updated user type. See addNewUser() for an explanation of what this field means
  * @return		        	success or exception message
  * @throws	AxisFault
@@ -325,7 +325,7 @@ public String changeUserType( String sessionid, String eid, String type) throws 
  * Edit a user's password
  *
  * @param	sessionid		the id of a valid session
- * @param	eid				the login username (ie jsmith26) of user you want to edit
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
  * @param	password		the password for the user
  * @return		        	success or exception message
  * @throws	AxisFault
@@ -373,7 +373,7 @@ public String getUserEmail( String sessionid ) throws AxisFault
  * with that user. This uses a userid as well so we could be logged in as admin and retrieve the email address for any user.
  * 
  * @param	sessionid	the id of a valid session
- * @param	userid		the eid of the user you want the email address for
+ * @param	userid		the login username (ie jsmith26) of the user you want the email address for
  * @return				the display name for the user
  * @throws	AxisFault	
  *
@@ -414,7 +414,7 @@ public String getUserDisplayName( String sessionid ) throws AxisFault
  * with that user. This uses a userid as well so we could be logged in as admin and retrieve the display name for any user.
  * 
  * @param	sessionid	the id of a valid session
- * @param	userid		the eid of the user you want the name of
+ * @param	userid		the login username (ie jsmith26) of the user you want the display name for
  * @return				the display name for the user
  * @throws	AxisFault	
  *
@@ -475,7 +475,7 @@ public String addGroupToSite( String sessionid, String siteid, String grouptitle
  * @param 	userid 		the internal userid of the member to add
  * @return 	true 		if successful/exception
  *
- * TODO: This is not returning false if it fails (ie if user isn't in site to begin with). Needs more error checking.
+ * TODO: This is not returning false if it fails (ie if user isn't in site to begin with). SAK-15334
  */
 public boolean addMemberToGroup( String sessionid, String siteid, String groupid, String userid ) throws AxisFault
 {
@@ -499,15 +499,23 @@ public boolean addMemberToGroup( String sessionid, String siteid, String groupid
 	 	return false;
 	}
 }
-//addNewRealm
-public String addNewAuthzGroup(String sessionid, String groupid) throws AxisFault
+
+/**
+ * Create a new authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the new authzgroup
+ * @return					success or exception message
+ *
+ */
+public String addNewAuthzGroup(String sessionid, String authzgroupid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
 
 		AuthzGroup authzgroup = null;
-		authzgroup = AuthzGroupService.addAuthzGroup(groupid);
+		authzgroup = AuthzGroupService.addAuthzGroup(authzgroupid);
 		AuthzGroupService.save(authzgroup);
 	
 	}
@@ -517,7 +525,15 @@ public String addNewAuthzGroup(String sessionid, String groupid) throws AxisFaul
 	return "success";
 }
 
-//removeRealm
+
+/**
+ * Remove an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to remove
+ * @return					success or exception message
+ *
+ */
 public String removeAuthzGroup( String sessionid, String authzgroupid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -534,7 +550,17 @@ public String removeAuthzGroup( String sessionid, String authzgroupid) throws Ax
 	return "success";
 }
 
-//addNewRoleToRealm
+
+/**
+ * Add a role to an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to add the role to
+ * @param 	roleid		 	the id of the role to add
+ * @param 	description 	the description for the new role
+ * @return					success or exception message
+ *
+ */
 public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, String roleid, String description) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -553,8 +579,16 @@ public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, Str
 	return "success";
 }
 
-//removeAllRolesFromRealm
-public String removeAllRolesFromAuthzGroup( String sessionid, String authzgroupid) throws AxisFault
+
+/**
+ * Remove all roles that exist in an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to remove the roles from
+ * @return					success or exception message
+ *
+ */
+ public String removeAllRolesFromAuthzGroup( String sessionid, String authzgroupid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
@@ -571,7 +605,16 @@ public String removeAllRolesFromAuthzGroup( String sessionid, String authzgroupi
 	return "success";
 }
 
-//removeRolefromRealm
+/**
+ * Remove a role from an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to remove the role from
+ * @param 	roleid		 	the id of the role to remove
+ * @return					success or exception message
+ *
+ * TODO: if the role doesn't exist it is still returning success - SAK-15334
+ */
 public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, String roleid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -589,8 +632,17 @@ public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, S
 	return "success";
 }
 
-//addLockToRole
-//TODO: fix for if the functionname doesn't exist, it is still returning success - SS
+/**
+ * Add a function to a role in an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup that the role is in
+ * @param 	roleid		 	the id of the role to add a function to
+ * @param	functionname	the name of the new function eg content.new
+ * @return					success or exception message
+ *
+ * TODO: fix for if the functionname doesn't exist, it is still returning success - SAK-15334
+ */
 public String allowFunctionForRole( String sessionid, String authzgroupid, String roleid, String functionname) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -609,7 +661,16 @@ public String allowFunctionForRole( String sessionid, String authzgroupid, Strin
 	return "success";
 }
 
-//removeAllLocksFromRole
+
+/**
+ * Remove all functions from a role in an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup that the role is in
+ * @param 	roleid		 	the id of the role to remove the functions from
+ * @return					success or exception message
+ *
+ */
 public String disallowAllFunctionsForRole( String sessionid, String authzgroupid, String roleid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -628,8 +689,18 @@ public String disallowAllFunctionsForRole( String sessionid, String authzgroupid
 	return "success";
 }
 
-//removeLockFromRole
-//TODO: fix for if the functionname doesn't exist, it is still returning success - SS
+
+/**
+ * Remove a function from a role in an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup that the role is in
+ * @param 	roleid		 	the id of the role to remove the function from
+ * @param	functionname	the name of the function to remove
+ * @return					success or exception message
+ *
+ * TODO: fix for if the functionname doesn't exist, it is still returning success - SAK-15334
+ */
 public String disallowFunctionForRole( String sessionid, String authzgroupid, String roleid, String functionname) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -648,6 +719,16 @@ public String disallowFunctionForRole( String sessionid, String authzgroupid, St
 	return "success";
 }
 
+/**
+ * Edit a role's description
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup that the role exists in
+ * @param 	roleid		 	the id of the role to edit
+ * @param 	description 	the updated description for the role
+ * @return					success or exception message
+ *
+ */
 public String setRoleDescription( String sessionid, String authzgroupid, String roleid, String description) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -666,7 +747,18 @@ public String setRoleDescription( String sessionid, String authzgroupid, String 
 	return "success";
 }
 
-//addUserToRealmWithRole
+
+/**
+ * Add a user to an authgroup with the given role
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	eid	 			the login username (ie jsmith26) of the user you want to add
+ * @param 	authzgroupid 	the id of the authzgroup to add the user to
+ * @param 	roleid		 	the id of the role to add the user to in the authzgroup
+ * @return					success or exception message
+ *
+ * TODO: fix for if the role doesn't exist in the authzgroup, it is still returning success - SAK-15334
+ */
 public String addMemberToAuthzGroupWithRole( String sessionid, String eid, String authzgroupid, String roleid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -685,8 +777,17 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	return "success";
 }
 
-//removeUserFromRealm
-public String removeMemberFromAuthzGroup( String sessionid, String eid, String authzgroupid) throws AxisFault
+
+/**
+ * Remove a user from an authgroup
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	eid	 			the login username (ie jsmith26) of the user you want to remove
+ * @param 	authzgroupid 	the id of the authzgroup to remove the user from
+ * @return					success or exception message
+ *
+ */
+ public String removeMemberFromAuthzGroup( String sessionid, String eid, String authzgroupid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
@@ -704,8 +805,16 @@ public String removeMemberFromAuthzGroup( String sessionid, String eid, String a
 	return "success";
 }
 
-//removeAllUsersFromRealm
-public String removeAllMembersFromAuthzGroup( String sessionid, String authzgroupid) throws AxisFault
+
+/**
+ * Remove all users from an authgroup
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to remove the users from
+ * @return					success or exception message
+ *
+ */
+ public String removeAllMembersFromAuthzGroup( String sessionid, String authzgroupid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
@@ -722,8 +831,17 @@ public String removeAllMembersFromAuthzGroup( String sessionid, String authzgrou
 	return "success";
 }
 
-//setRoleForRealmMaintenance
-public String setRoleForAuthzGroupMaintenance( String sessionid, String authzgroupid, String roleid) throws AxisFault
+/**
+ * Set the role that allows maintenance on the given authgroup
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to edit
+ * @param 	roleid		 	the id of the role to to set
+ * @return					success or exception message
+ *
+ * TODO: fix for if the role doesn't exist in the authzgroup, it is still returning success - SAK-15334
+ */
+ public String setRoleForAuthzGroupMaintenance( String sessionid, String authzgroupid, String roleid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
@@ -740,6 +858,17 @@ public String setRoleForAuthzGroupMaintenance( String sessionid, String authzgro
 	return "success";
 }
 
+/**
+ * Add a user to a site with a given role
+ *
+ * @param 	sessionid 	the id of a valid session
+ * @param 	siteid 		the id of the site to add the user to
+ * @param 	eid		 	the login username (ie jsmith26) of the user you want to add to the site
+ * @param 	roleid		the id of the role to to give the user in the site
+ * @return				success or exception message
+ *
+ * TODO: fix for if the role doesn't exist in the site, it is still returning success - SAK-15334
+ */
 public String addMemberToSiteWithRole(String sessionid, String siteid, String eid, String roleid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -755,6 +884,7 @@ public String addMemberToSiteWithRole(String sessionid, String siteid, String ei
 	}
 	return "success";
 }
+
 
 public String addNewSite( String sessionid, String siteid, String title, String description, String shortdesc, String iconurl, String infourl, boolean joinable, String joinerrole, boolean published, boolean publicview, String skin, String type) throws AxisFault
 {
