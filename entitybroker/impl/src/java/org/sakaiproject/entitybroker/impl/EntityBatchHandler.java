@@ -35,6 +35,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
+import org.sakaiproject.entitybroker.util.http.HttpClientWrapper;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.URLData;
@@ -166,6 +167,9 @@ public class EntityBatchHandler {
                 		HttpServletResponse.SC_BAD_REQUEST);
             }
 
+            // in case there are external ones we will reuse the httpclient
+            HttpClientWrapper clientWrapper = null;
+
             // object will hold the results of this reference request
             ResponseBase result = null;
             ResponseError error = null;
@@ -229,10 +233,17 @@ public class EntityBatchHandler {
 //                //entityBrokerManager.getEntityData(ref);
             } else {
                 // non-EB URL so we have to fire it off using the HttpUtils
-                String serverUrl = "http://localhost:8080";
-                // TODO look up the server URL using a service
-                String url = serverUrl + entityURL;
-                result = generateExternalResult(reference, url, view.getMethod());
+
+                // set the client wrapper with cookies
+                if (clientWrapper == null) {
+                    clientWrapper = HttpRESTUtils.makeReusableHttpClient(false, 0, req.getCookies());
+                }
+
+//                String serverUrl = "http://localhost:8080";
+//                // TODO look up the server URL using a service
+//                String url = serverUrl + entityURL;
+
+                result = generateExternalResult(reference, entityURL, view.getMethod(), clientWrapper);
             }
 
             if (error == null) {
@@ -362,7 +373,7 @@ public class EntityBatchHandler {
      * Processing external (non-EB) requests
      * @return the result from the request (may be an error)
      */
-    private ResponseBase generateExternalResult(String reference, String entityURL, String method) {
+    private ResponseBase generateExternalResult(String reference, String entityURL, String method, HttpClientWrapper clientWrapper) {
         ResponseBase result = null;
         ResponseError error = null;
 
@@ -371,7 +382,8 @@ public class EntityBatchHandler {
         // fire off the request and hope it does not die horribly
         HttpResponse httpResponse = null;
         try {
-            httpResponse = HttpRESTUtils.fireRequest(entityURL, 
+            httpResponse = HttpRESTUtils.fireRequest(clientWrapper, 
+                    entityURL, 
                     HttpRESTUtils.makeMethodFromString(method), 
                     null, null, guaranteeSSL);
         } catch (RuntimeException e) {
