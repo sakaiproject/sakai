@@ -73,34 +73,15 @@ public class Query extends HttpTransactionQueryBase
    */
   private int _targetCount;
 	/**
-	 * Web2 input
-	 */
-	private Document _web2Document;
-	/**
-	 * Active reference ID #
-	 */
-	private static long _referenceId = System.currentTimeMillis();
-	/**
 	 * Local ID (for the current transaction)
 	 */
 	private long _transactionId;
-	/**
-	 * Local version of server response (modified to contain SFX URL data)
-	 */
-	private byte _localResponseBytes[];
-	/**
-	 * Local byte array ready for use?
-	 */
-	private boolean _localResponseBytesReady = false;
-	/**
-	 * General synchronization
-	 */
-	private static Object _sync = new Object();
 
 	/**
 	 * Constructor
 	 */
-	public Query() {
+	public Query()
+	{
 		super();
 	}
 
@@ -348,7 +329,7 @@ public class Query extends HttpTransactionQueryBase
 	}
 
 	/**
-	 * Generate a pagination command
+	 * Generate a pagination (NEXT or PREVIOUS) command
 	 * @param page Pagination (<code>next</code> | <code>previous</code>)
 	 * @param firstRecord First record to retrieve
 	 */
@@ -475,7 +456,7 @@ public class Query extends HttpTransactionQueryBase
    */
 
   /**
-   * Common formatting files
+   * Set up the list of common server-side formatting files
    */
   private void setFormattingFiles()
   {
@@ -513,332 +494,6 @@ public class Query extends HttpTransactionQueryBase
 		}
 		_log.debug(count + " active database(s)");
   }
-
-  /**
-   * Get the number of requested search targets (databases)
-   * @return The count of target DBs
-   */
-  private int getTargetCount()
-  {
-    return _targetCount;
-  }
-
-  /**
-   * Determine the page size (the number of results to request from the server)
-   * @return The page size (as a String)
-   */
-  public static final int MINIMUM_PAGESIZE = 20;
-  public static final int MAXIMUM_PAGESIZE = 50;
-
-  private String getPageSize()
-  {
-    int targets   = StatusUtils.getActiveTargetCount(getSessionContext());
-    int pageSize  = targets * MINIMUM_PAGESIZE;
-
-    if ((pageSize = Math.min(pageSize, MAXIMUM_PAGESIZE)) == 0)
-    {
-      pageSize = MINIMUM_PAGESIZE;
-    }
-    return String.valueOf(pageSize);
-  }
-
-	/**
-	 * Fetch the Muse session ID
-	 * @return The session ID (null until a Muse LOGON has taken place)
-	 */
-	private String getSessionId()
-	{
-		return (String) getSessionContext().get("SESSION_ID");
-	}
-
-	/**
-	 * Set the Muse session ID
-	 * @param sessionId The session ID
-	 */
-	private void setSessionId(String sessionId)
-	{
-		getSessionContext().put("SESSION_ID", sessionId);
-	}
-
-	/**
-	 * Fetch the search reference id
-	 * @return The reference id (null until a search is done)
-	 */
-	private String getReferenceId()
-	{
-		return (String) getSessionContext().get("REFERENCE_ID");
-	}
-
-	/**
-	 * Save the Muse search reference
-	 * @param referenceNumber The reference number for this search
-	 */
-	private void setReferenceId(String referenceNumber)
-	{
-		getSessionContext().put("REFERENCE_ID", referenceNumber);
-	}
-
-	/**
-	 * Construct the search result set name
-	 * @return the default result set for this search
-	 */
-	private String getResultSetName()
-	{
-		return (String) getSessionContext().get("RESULT_SET_NAME");
-	}
-
-	/**
-	 * Save the name of the search result set
-	 * @param name The result set name
-	 */
-	private void setResultSetName(String name)
-	{
-		getSessionContext().put("RESULT_SET_NAME", name);
-	}
-
-	/**
-	 * Fetch the (Muse format) search string (overrides HttpTransactionQueryBase)
-	 * @return The native Muse query text
-	 */
-	public String getSearchString()
-	{
-	  return (String) getSessionContext().get("SEARCH_QUERY");
-	}
-
-	/**
-	 * Parse CQL search queries into a crude take on the Muse format.
-	 * @param cql String containing a cql query
-	 * @return Muse search criteria
-	 */
-	private String parseCql(String cql) throws IllegalArgumentException
-	{
-		CqlParser	parser;
-		String		result;
-
-		_log.debug( "Initial CQL Criteria: " + cql );
-
-		parser 	= new CqlParser();
-		result	= parser.doCQL2MetasearchCommand(cql);
-
-		_log.debug("Processed Result: " + result);
-		return result;
-	}
-
-	/**
-	 * Debugging: Display XML (write a Document or Element to the log)
-	 *
-	 * @param text Label text for this document
-	 * @param xmlObject XML Document or Element to display
-	 */
-	private void displayXml(String text, Object xmlObject)
-	{
-	  if (DISPLAY_XML)
-	  {
-	    LogUtils.displayXml(_log, text, xmlObject);
-    }
-  }
-
-	/**
-	 * Format the current reference id
-	 * @return XML id
-	 */
-	private Element addReferenceId() {
-		return addWeb2Input("REFERENCE_ID", getTransactionId());
-	}
-
-	/**
-	 * Establish a transaction ID for the current activity (LOGIN, SEARCH, etc)
-	 */
-	private void setTransactionId() {
-		synchronized (_sync) {
-			_transactionId = _referenceId++;
-		}
-	}
-
-	/**
-	 * Fetch the current transaction id
-	 * @return The ID
-	 */
-	private String getTransactionId() {
-		return Long.toHexString(_transactionId);
-	}
-
-	/**
-	 * Returns a new result set name for this transaction
-	 * @return Result set name (constant portion + reference ID)
-	 */
-	private synchronized String saveFindReferenceId(String transactionId)
-	{
-		removeSessionParameter(APPLICATION, "findReferenceId");
-		setSessionParameter(APPLICATION, "findReferenceId", transactionId);
-
-		return getFindReferenceId();
-	}
-
-	/**
-	 * Returns a new result set name for this transaction
-	 * @return Result set name (constant portion + reference ID)
-	 */
-	private synchronized String getFindReferenceId()
-	{
-		return getSessionParameter(APPLICATION, "findReferenceId");
-	}
-
-	public Iterator getStatusMapEntrySetIterator()
-	{
-		HashMap statusMap = (HashMap) getSessionContext().get("searchStatus");
-		Set			entrySet	= statusMap.entrySet();
-
-		return entrySet.iterator();
-	}
-
-	/**
-	 * Returns a new result set name for this transaction
-	 * @return Active result set name(s) (name1|name2|name3), null if none active
-	 */
-	private String getFindResultSetId()
-	{
-		String	ids				= "";
-		int			active		= 0;
-
-		for (Iterator iterator = getStatusMapEntrySetIterator(); iterator.hasNext(); )
-		{
-			Map.Entry entry 			= (Map.Entry) iterator.next();
-			HashMap		systemMap 	= (HashMap) entry.getValue();
-			String		status			= (String) systemMap.get("STATUS");
-			String		id;
-
-			if (!status.equals("ACTIVE"))
-			{
-				continue;
-			}
-
-			id = (String) systemMap.get("RESULT_SET");
-
-			if (ids.length() == 0)
-			{
-				ids = id;
-			}
-			else
-			{
-				ids = ids + "|" + id;
-			}
-			active++;
-		}
-		_log.debug(active + " result set ids: " + ids);
-		getSessionContext().putInt("active", active);
-		return (ids.length() == 0) ? null : ids;
-	}
-
-	/**
-	 * Returns a new result set name for this transaction
-	 * @return Result set name (constant portion + reference ID)
-	 */
-	private synchronized String getNewTransactionResultSetName() {
-
-		removeSessionParameter(APPLICATION, "resultSetName");
-		return getTransactionResultSetName();
-	}
-
-	/**
-	 * Returns the result set name for this transaction (SEARCH)
-	 * @return Result set name (constant portion + reference ID)
-	 */
-	private synchronized String getTransactionResultSetName() {
-		String resultSetName = getSessionParameter(APPLICATION, "resultSetName");
-
-		if (resultSetName == null) {
-			StringBuilder name = new StringBuilder("sakaibrary");
-
-			name.append(getTransactionId());
-			name.append(".xml");
-
-			resultSetName = name.toString();
-			setSessionParameter(APPLICATION, "resultSetName", resultSetName);
-		}
-		_log.debug("Transaction result set name: " + resultSetName);
-		return resultSetName;
-	}
-
-
-	/**
-	 * Add Element and child text
-	 * @param parentElement Add new element here
-	 * @param newElementName New element name
-	 * @param text Child text (for the new element)
-	 */
-	private Element addWeb2Input(Element parentElement,
-			String newElementName,
-			String text) {
-		Element element;
-
-		element = DomUtils.createElement(parentElement, newElementName);
-
-		if (!StringUtils.isNull(text)) {
-			DomUtils.addText(element, text);
-		}
-		return element;
-	}
-
-	/**
-	 * Add Element and child text to document root
-	 * @param newElementName New element name
-	 * @param text Child text (for the new element)
-	 */
-	private Element addWeb2Input(String newElementName,
-			String text) {
-
-		return addWeb2Input(_web2Document.getDocumentElement(), newElementName, text);
-	}
-
-	/**
-	 * Add Element to parent
-	 * @param parentElement Add new element here
-	 * @param newElementName New element name
-	 */
-	private Element addWeb2Input(Element 	parentElement,
-			String 	newElementName) {
-
-		return addWeb2Input(parentElement, newElementName, null);
-	}
-
-	/**
-	 * Add Element to document root
-	 * @param newElementName New element name
-	 */
-	private Element addWeb2Input(String newElementName) {
-
-		return addWeb2Input(_web2Document.getDocumentElement(), newElementName, null);
-	}
-
-	/**
-	 * Get an element from the server response
-	 * @Element parent Look for named element here
-	 * @param elementName Element name
-	 * @return The first occurance of the named element (null if none)
-	 */
-	private Element getElement(Element parent, String elementName) {
-		try {
-			Element root = parent;
-
-			if (root == null) {
-				root = getResponseDocument().getDocumentElement();
-			}
-			return DomUtils.getElement(root, elementName);
-
-		} catch (Exception exception) {
-			throw new SearchException(exception.toString());
-		}
-	}
-
-	/**
-	 * Get an element from the server response (search from document root)
-	 * @param elementName Element name
-	 * @return The first occurance of the named element (null if none)
-	 */
-	private Element getElement(String elementName) {
-		return getElement(null, elementName);
-	}
 
 	/**
 	 * Initial response validation and cleanup activities.
@@ -950,166 +605,6 @@ public class Query extends HttpTransactionQueryBase
 		 */
 		StatusUtils.setGlobalError(getSessionContext(), errorText);
 		throw new SearchException(errorText);
-	}
-
-	/**
-	 * Save the initial status (find set name(s), estimated hits, etc.) as
-	 * session context information
-	 * @return A Map of status details (keyed by target name)
-	 */
-	private void setFindStatus() throws SearchException
-	{
-		NodeList	nodeList;
-		String		target;
-		int				active, total;
-
-		nodeList 		= DomUtils.getElementList(getResponseDocument().getDocumentElement(), "RECORD");
-		active			= 0;
-		total 			= 0;
-
-		/*
-		 * Update the status map for each target
-		 */
-		for (int i = 0; i < nodeList.getLength(); i++)
-		{
-			Element		recordElement	= (Element) nodeList.item(i);
-			HashMap		map;
-
-			String		text;
-			Element		element;
-			int				estimate;
-
-			element	= DomUtils.getElement(recordElement, "TARGET");
-			target	= DomUtils.getText(element);
-			map 		= StatusUtils.getStatusMapForTarget(getSessionContext(), target);
-
-			element = DomUtils.getElement(recordElement, "RESULT_SET");
-			text 		= DomUtils.getText(element);
-			map.put("RESULT_SET", ((text == null) ? "<none>" : text));
-
-			element = DomUtils.getElement(recordElement, "ESTIMATE");
-			text 		= DomUtils.getText(element);
-			map.put("ESTIMATE", text);
-
-			estimate = Integer.parseInt(text);
-			total		+= estimate;
-
-			map.put("STATUS", "DONE");
-			if (estimate > 0)
-			{
-				map.put("STATUS", "ACTIVE");
-				active++;
-			}
-		}
-		/*
-		 * Save in session context:
-		 *
-		 * -- The largest number of records we could possibly return
-		 * -- The count of "in progress" searches
-		 */
-		getSessionContext().put("maxRecords", String.valueOf(total));
-		getSessionContext().putInt("active", active);
-	}
-
-
-	private boolean isStatusReadyToBeRead(Document document)
-	{
-		NodeList	nodeList;
-		Node node;
-
-		Element rootElement;
-		Element	recordElement;
-
-		String attributeResult;
-
-		boolean status = false;
-
-
-		/* Response will look like:
-
-		<PROGRESS>
-			<TOTAL_HITS>100</TOTAL_HITS>
-		  	<TOTAL_ESTIMATE>4449</TOTAL_ESTIMATE>
-			<STATUS>1</STATUS>
-			<ITEMS>
-				<ITEM>
-					<ENTRY key="searchURL">
-						http://server
-					</ENTRY>
-					<ENTRY key="messageID">STATUS_DONE</ENTRY>
-					<ENTRY key="moduleName">Academic Search Premier</ENTRY>
-					<ENTRY key="targetID">EBSCOASP</ENTRY>
-					<ENTRY key="hits">100</ENTRY>
-					<ENTRY key="instructionID">
-						EBSCOASP.jar:com.edulib.ice.modules.connectors.EBSCO@4
-					</ENTRY>
-					<ENTRY key="status">100</ENTRY>
-					<ENTRY key="timestamp">1226947004852</ENTRY>
-					<ENTRY key="estimate">4449</ENTRY>
-					<ENTRY key="message">Done</ENTRY>
-				</ITEM>
-			</ITEMS>
-		</PROGRESS>
-		*/
-
-		rootElement = document.getDocumentElement();
-
-		node = DomUtils.getElement(rootElement, "TOTAL_ESTIMATE");
-
-		if (node == null)
-		{
-			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ total estimate = null");
-			return false;
-		}
-/*
-		int total_estimate = Integer.parseInt(node.getTextContent());
-
-		if (total_estimate > 0)
-		{
-			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ total estimate > 0");
-			return true;
-		}
-*/
-
-		nodeList = DomUtils.getElementList(rootElement, "ENTRY");
-
-		if (nodeList == null)
-		{
-			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ no items");
-			return false;
-		}
-
-		for (int i = 0; i < nodeList.getLength(); i++)
-		{
-			recordElement	= (Element) nodeList.item(i);
-
-			attributeResult = recordElement.getAttribute("key");
-
-			if (attributeResult != null)
-			{
-				attributeResult = attributeResult.trim();
-
-				if (attributeResult.equalsIgnoreCase("status"))
-				{
-					if (recordElement.getTextContent().trim().equals("100"))
-					{
-						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ status = 100");
-						status = true;
-					}
-					else
-					{
-						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ status != 100. status = " + recordElement.getTextContent());
-						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ key = " + attributeResult);
-
-						return false;
-					}
-				} // end if attributeResult.length > 0
-			} // end if attributeResult != null
-
-
-		} // end for i
-
-		return status;
 	}
 
 	/**
@@ -1254,84 +749,266 @@ public class Query extends HttpTransactionQueryBase
 		return complete == targetCount;
 	}
 
+
+  /**
+   * Get the number of requested search targets (databases)
+   * @return The count of target DBs
+   */
+  private int getTargetCount()
+  {
+    return _targetCount;
+  }
+
+  /**
+   * Determine the page size (the number of results to request from the server)
+   * @return The page size (as a String)
+   */
+  public static final int MINIMUM_PAGESIZE = 20;
+  public static final int MAXIMUM_PAGESIZE = 50;
+
+  private String getPageSize()
+  {
+    int targets   = StatusUtils.getActiveTargetCount(getSessionContext());
+    int pageSize  = targets * MINIMUM_PAGESIZE;
+
+    if ((pageSize = Math.min(pageSize, MAXIMUM_PAGESIZE)) == 0)
+    {
+      pageSize = MINIMUM_PAGESIZE;
+    }
+    return String.valueOf(pageSize);
+  }
+
 	/**
-	 * Save the initial SEARCH command status (find set name, estimated hits)
-	 * @return A Map of status details (keyed by target name)
+	 * Fetch the Muse session ID
+	 * @return The session ID (null until a Muse LOGON has taken place)
 	 */
-	private void setSearchStatus() throws SearchException
+	private String getSessionId()
 	{
-		List			nodeList;
-		String		target;
-		int				active, total;
-
-		nodeList		= DomUtils.selectElementsByAttributeValue(getResponseDocument().getDocumentElement(), "RECORD", "type", "status");
-		active			= 0;
-		total 			= 0;
-
-		for (int i = 0; i < nodeList.size(); i++)
-		{
-			Element		recordElement	= (Element) nodeList.get(i);
-			HashMap		map;
-			String		text;
-			Element		element;
-			int				max;
-
-
-			target = getSourceId(recordElement.getAttribute("source"));
-			if (target.equals("unavailable"))
-			{
-				target = recordElement.getAttribute("source");
-			}
-
-			map	= StatusUtils.getStatusMapForTarget(getSessionContext(), target);
-			map.put("RESULT_SET", getTransactionResultSetName());
-			map.put("HITS", "0");
-
-			element = DomUtils.getElement(recordElement, "ESTIMATE");
-			text 		= DomUtils.getText(element);
-			map.put("ESTIMATE", text);
-
-			max	= Integer.parseInt(text);
-			total	+= max;
-
-			map.put("STATUS", "DONE");
-			if (max > 0)
-			{
-				map.put("STATUS", "ACTIVE");
-				active++;
-			}
-		}
-		/*
-		 * Save in session context:
-		 *
-		 * -- The largest number of records we could possibly return
-		 * -- The count of "in progress" searches
-		 */
-		getSessionContext().put("maxRecords", String.valueOf(total));
-		getSessionContext().putInt("active", active);
+		return (String) getSessionContext().get("SESSION_ID");
 	}
 
 	/**
-	 * Look up the "sourceID" attribute (the target name) for a specified
-	 * RECORD element "source"
-	 * @param source Source attribute text
-	 * @return The sourceID attribute
+	 * Set the Muse session ID
+	 * @param sessionId The session ID
 	 */
-	private String getSourceId(String source)
+	private void setSessionId(String sessionId)
 	{
-		NodeList nodeList;
+		getSessionContext().put("SESSION_ID", sessionId);
+	}
 
-		nodeList = DomUtils.getElementList(getResponseDocument().getDocumentElement(), "RECORD");
+	/**
+	 * Fetch the search reference id
+	 * @return The reference id (null until a search is done)
+	 */
+	private String getReferenceId()
+	{
+		return (String) getSessionContext().get("REFERENCE_ID");
+	}
+
+	/**
+	 * Save the Muse search reference
+	 * @param referenceNumber The reference number for this search
+	 */
+	private void setReferenceId(String referenceNumber)
+	{
+		getSessionContext().put("REFERENCE_ID", referenceNumber);
+	}
+
+	/**
+	 * Construct the search result set name
+	 * @return the default result set for this search
+	 */
+	private String getResultSetName()
+	{
+		return (String) getSessionContext().get("RESULT_SET_NAME");
+	}
+
+	/**
+	 * Save the name of the search result set
+	 * @param name The result set name
+	 */
+	private void setResultSetName(String name)
+	{
+		getSessionContext().put("RESULT_SET_NAME", name);
+	}
+
+	/**
+	 * Fetch the (Muse format) search string (overrides HttpTransactionQueryBase)
+	 * @return The native Muse query text
+	 */
+	public String getSearchString()
+	{
+	  return (String) getSessionContext().get("SEARCH_QUERY");
+	}
+
+	/**
+	 * Parse CQL search queries into a crude take on the Muse format.
+	 * @param cql String containing a cql query
+	 * @return Muse search criteria
+	 */
+	private String parseCql(String cql) throws IllegalArgumentException
+	{
+		CqlParser	parser;
+		String		result;
+
+		_log.debug( "Initial CQL Criteria: " + cql );
+
+		parser 	= new CqlParser();
+		result	= parser.doCQL2MetasearchCommand(cql);
+
+		_log.debug("Processed Result: " + result);
+		return result;
+	}
+
+	/**
+	 * Get an element from the server response
+	 * @Element parent Look for named element here
+	 * @param elementName Element name
+	 * @return The first occurance of the named element (null if none)
+	 */
+	private Element getElement(Element parent, String elementName)
+	{
+		try
+		{
+			Element root = parent;
+
+			if (root == null)
+			{
+				root = getResponseDocument().getDocumentElement();
+			}
+			return DomUtils.getElement(root, elementName);
+
+		}
+		catch (Exception exception)
+		{
+			throw new SearchException(exception.toString());
+		}
+	}
+
+	/**
+	 * Get an element from the server response (search from document root)
+	 * @param elementName Element name
+	 * @return The first occurance of the named element (null if none)
+	 */
+	private Element getElement(String elementName)
+	{
+		return getElement(null, elementName);
+	}
+
+	/**
+	 * Debugging: Display XML (write a Document or Element to the log)
+	 *
+	 * @param text Label text for this document
+	 * @param xmlObject XML Document or Element to display
+	 */
+	private void displayXml(String text, Object xmlObject)
+	{
+	  if (DISPLAY_XML)
+	  {
+	    LogUtils.displayXml(_log, text, xmlObject);
+    }
+  }
+
+  /*
+   * Not used
+   */
+	private boolean isStatusReadyToBeRead(Document document)
+	{
+		NodeList	nodeList;
+		Node node;
+
+		Element rootElement;
+		Element	recordElement;
+
+		String attributeResult;
+
+		boolean status = false;
+
+
+		/* Response will look like:
+
+		<PROGRESS>
+			<TOTAL_HITS>100</TOTAL_HITS>
+		  	<TOTAL_ESTIMATE>4449</TOTAL_ESTIMATE>
+			<STATUS>1</STATUS>
+			<ITEMS>
+				<ITEM>
+					<ENTRY key="searchURL">
+						http://server
+					</ENTRY>
+					<ENTRY key="messageID">STATUS_DONE</ENTRY>
+					<ENTRY key="moduleName">Academic Search Premier</ENTRY>
+					<ENTRY key="targetID">EBSCOASP</ENTRY>
+					<ENTRY key="hits">100</ENTRY>
+					<ENTRY key="instructionID">
+						EBSCOASP.jar:com.edulib.ice.modules.connectors.EBSCO@4
+					</ENTRY>
+					<ENTRY key="status">100</ENTRY>
+					<ENTRY key="timestamp">1226947004852</ENTRY>
+					<ENTRY key="estimate">4449</ENTRY>
+					<ENTRY key="message">Done</ENTRY>
+				</ITEM>
+			</ITEMS>
+		</PROGRESS>
+		*/
+
+		rootElement = document.getDocumentElement();
+
+		node = DomUtils.getElement(rootElement, "TOTAL_ESTIMATE");
+
+		if (node == null)
+		{
+			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ total estimate = null");
+			return false;
+		}
+/*
+		int total_estimate = Integer.parseInt(node.getTextContent());
+
+		if (total_estimate > 0)
+		{
+			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ total estimate > 0");
+			return true;
+		}
+*/
+
+		nodeList = DomUtils.getElementList(rootElement, "ENTRY");
+
+		if (nodeList == null)
+		{
+			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ no items");
+			return false;
+		}
 
 		for (int i = 0; i < nodeList.getLength(); i++)
 		{
-			Element recordElement = (Element) nodeList.item(i);
+			recordElement	= (Element) nodeList.item(i);
 
-			if (source.equals(recordElement.getAttribute("source")))
+			attributeResult = recordElement.getAttribute("key");
+
+			if (attributeResult != null)
 			{
-				return recordElement.getAttribute("sourceID");
-			}
-		}
-		return "unavailable";
+				attributeResult = attributeResult.trim();
+
+				if (attributeResult.equalsIgnoreCase("status"))
+				{
+					if (recordElement.getTextContent().trim().equals("100"))
+					{
+						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ status = 100");
+						status = true;
+					}
+					else
+					{
+						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ status != 100. status = " + recordElement.getTextContent());
+						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ key = " + attributeResult);
+
+						return false;
+					}
+				} // end if attributeResult.length > 0
+			} // end if attributeResult != null
+
+
+		} // end for i
+
+		return status;
 	}
 }
