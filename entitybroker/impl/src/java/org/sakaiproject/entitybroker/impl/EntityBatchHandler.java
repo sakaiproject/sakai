@@ -134,7 +134,7 @@ public class EntityBatchHandler {
 
         // loop through all references
         HashSet<String> processedRefsAndURLs = new HashSet<String>(); // holds all refs which we processed in this batch
-        HashMap<String, String> dataMap = new HashMap<String, String>(); // the returned content data from each ref
+        HashMap<String, String> dataMap = new ArrayOrderedMap<String, String>(); // the returned content data from each ref
         Map<String, ResponseBase> results = new ArrayOrderedMap<String, ResponseBase>(); // the results of all valid refs
         boolean successOverall = false; // true if all ok or partial ok, false if exception occurs or all fail
         boolean failure = false;
@@ -246,7 +246,12 @@ public class EntityBatchHandler {
                 result = generateExternalResult(reference, entityURL, view.getMethod(), clientWrapper);
             }
 
-            if (error == null) {
+            if (result instanceof ResponseError) {
+                // looks like a failure occurred, keep going though
+                result = error;
+                successOverall = false;
+                failure = true;
+            } else {
                 // all ok, process data
                 if (result == null) {
                     successOverall = false;
@@ -258,14 +263,9 @@ public class EntityBatchHandler {
                     successOverall = true;
                 }
                 // process the content and see if it matches the expected result, if not we have to dump it in escaped
-                String content = ((ResponseResult)result).getData();
-                content = checkContent(format, content, refKey, dataMap);
-                ((ResponseResult)result).setData(content);
-            } else {
-                // failure, keep going though
-                result = error;
-                successOverall = false;
-                failure = true;
+                String content = ((ResponseResult)result).content;
+                String dataKey = checkContent(format, content, refKey, dataMap);
+                ((ResponseResult)result).setDataKey(dataKey);
             }
 
             // store the processed ref and url so we do not do them again
@@ -409,7 +409,10 @@ public class EntityBatchHandler {
      */
     private String reintegrateDataContent(String format, HashMap<String, String> dataMap,
             String overallData) {
+        StringBuilder sb = new StringBuilder();
+        int curLoc = 0;
         for (Entry<String, String> entry : dataMap.entrySet()) {
+            // looping order is critical here, it must be in the same order it was added
             if (entry.getKey() != null && ! "".equals(entry.getKey())) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -418,27 +421,35 @@ public class EntityBatchHandler {
                 } else if (Formats.JSON.equals(format)) {
                     key = '"' + key + '"'; // have to also replace the quotes
                 }
-                overallData = overallData.replace(key, value);
+                int keyLoc = overallData.indexOf(key);
+                if (keyLoc > -1) {
+                    sb.append( overallData.subSequence(curLoc, keyLoc) );
+                    sb.append( value );
+                    curLoc = keyLoc + key.length();
+                }
+                //overallData = overallData.replace(key, value);
             }
         }
-        return overallData;
+        // add in the remainder of the overall data string
+        sb.append( overallData.subSequence(curLoc, overallData.length()) );
+        return sb.toString();
     }
 
     /**
      * Checks that the content is in the correct format and is not too large,
      * if it is too large it will not be processed and if it is in the wrong format it will be encoded as a data chunk,
-     * it is ok it will be placed into the datamap and reintegrated after encoding
-     * @return the content to put into the object
+     * it is OK it will be placed into the dataMap and reintegrated after encoding
+     * @return the dataKey which maps to the real content, need replace the key later
      */
     private String checkContent(String format, String content, String refKey,
             HashMap<String, String> dataMap) {
+        String dataKey = null;
         if (entityEncodingManager.validateFormat(content, format)) {
             // valid for the current format so insert later instead of merging now
-            String uniqueKey = UNIQUE_DATA_PREFIX + refKey;
-            dataMap.put(uniqueKey, content);
-            content = uniqueKey;
+            dataKey = UNIQUE_DATA_PREFIX + refKey;
+            dataMap.put(dataKey, content);
         }
-        return content;
+        return dataKey;
     }
 
     /**
@@ -482,30 +493,37 @@ public class EntityBatchHandler {
      */
     public static class ResponseResult extends ResponseBase {
         public Map<String, String[]> headers;
-        public Map<String, String[]> getHeaders() {
-            return headers;
-        }
         public String data;
-        public String getData() {
-            return data;
+        /**
+         * Set the data key (clears the raw content) if the key is non-null
+         * @param data processed data
+         */
+        public void setDataKey(String dataKey) {
+            if (dataKey != null) {
+                this.data = dataKey;
+                this.content = null;
+            }
         }
-        public void setData(String data) {
-            this.data = data;
-        }
+        /**
+         * The raw content from the request
+         */
+        public String content;
         public ResponseResult(String reference, String entityURL, int status, Map<String, String[]> headers) {
             this.reference = reference;
             this.entityURL = entityURL;
             this.status = status;
             this.headers = headers;
             this.failure = false;
-            this.data = "";
+            this.content = null;
+            this.data = null;
         }
-        public ResponseResult(String reference, String entityURL, int status, Map<String, String[]> headers, String data) {
+        public ResponseResult(String reference, String entityURL, int status, Map<String, String[]> headers, String content) {
             this.reference = reference;
             this.entityURL = entityURL;
             this.status = status;
             this.headers = headers;
-            this.data = data;
+            this.content = content;
+            this.data = null;
             this.failure = false;
         }
     }

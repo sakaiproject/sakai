@@ -127,6 +127,8 @@
             ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
         <property name="entityActionsManager"
             ref="org.sakaiproject.entitybroker.impl.EntityActionsManager" />
+        <property name="entityBatchHandler"
+            ref="org.sakaiproject.entitybroker.impl.EntityBatchHandler" />
         <property name="entityBrokerManager"
             ref="org.sakaiproject.entitybroker.impl.EntityBrokerManager" />
         <property name="entityDescriptionManager"
