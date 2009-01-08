@@ -35,6 +35,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
+import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
+import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.URLData;
 
 
@@ -127,6 +129,7 @@ public class EntityBatchHandler {
         if (refs.length <= 0) {
             throw new IllegalArgumentException("refs parameter must be set and there must be at least 1 reference (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
         }
+        String format = view.getFormat();
 
         // loop through all references
         HashSet<String> processedRefsAndURLs = new HashSet<String>(); // holds all refs which we processed in this batch
@@ -164,7 +167,7 @@ public class EntityBatchHandler {
             }
 
             // object will hold the results of this reference request
-            ResponseBase result;
+            ResponseBase result = null;
             ResponseError error = null;
 
             // parse the entityURL, should hopefully not cause a failure
@@ -173,7 +176,8 @@ public class EntityBatchHandler {
             /*
              * identify the EB direct operations - 
              * this allows us to strip extensions and cleanup direct URLs as needed,
-             * possibly also handle these specially later on if desired
+             * possibly also handle these specially later on if desired,
+             * only EB operations can be handled internally
              */
             if (EntityView.DIRECT.equals(ud.servletPath)) {
                 if (ud.pathInfo == null || "".equals(ud.pathInfo)) {
@@ -188,20 +192,30 @@ public class EntityBatchHandler {
                     log.warn(errorMessage);
                     error = new ResponseError(reference, entityURL, errorMessage);
                 }
-                // rebuild the entityURL with the correct extension in there
-                StringBuilder sb = new StringBuilder();
-                sb.append(EntityView.DIRECT_PREFIX);
-                sb.append(ud.pathInfoNoExtension);
-                sb.append(EntityView.PERIOD);
-                sb.append(view.getFormat());
-                if (ud.query.length() > 0) {
-                    // add on the query string
-                    sb.append('?');
-                    sb.append(ud.query);
-                }
-                entityURL = sb.toString();
 
-//                // TODO split the URL and query string apart, send URL to parse entity URL, process query string below
+                if (error == null) {
+                    // rebuild the entityURL with the correct extension in there
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(EntityView.DIRECT_PREFIX);
+                    sb.append(ud.pathInfoNoExtension);
+                    sb.append(EntityView.PERIOD);
+                    sb.append(format);
+                    if (ud.query.length() > 0) {
+                        // add on the query string
+                        sb.append('?');
+                        sb.append(ud.query);
+                    }
+                    entityURL = sb.toString();
+    
+                    // skip urls that are already done, we do not process twice
+                    if (processedRefsAndURLs.contains(entityURL)) {
+                        continue; // skip
+                    }
+    
+                    result = generateInternalResult(reference, entityURL, req, res);
+                }
+
+//                // split the URL and query string apart, send URL to parse entity URL, process query string below
 //                EntityReference entityReference = entityView.getEntityReference();
 //                // check the prefix is valid
 //                if (entityProviderManager.getProviderByPrefix(entityReference.prefix) == null) {
@@ -210,62 +224,39 @@ public class EntityBatchHandler {
 //                // now execute the request to get the data
 //                if (entityReference.getId() == null) {
 //                    // space (collection)
-//                    
 //                } else {
-//                    
 //                }
 //                //entityBrokerManager.getEntityData(ref);
+            } else {
+                // non-EB URL so we have to fire it off using the HttpUtils
+                String serverUrl = "http://localhost:8080";
+                // TODO look up the server URL using a service
+                String url = serverUrl + entityURL;
+                result = generateExternalResult(reference, url, view.getMethod());
             }
 
-            // skip urls that are already done, we do not process twice
-            if (processedRefsAndURLs.contains(entityURL)) {
-                continue; // skip
-            }
-
-            // setup the request and response objects to do the reference request
-            RequestDispatcher dispatcher = req.getRequestDispatcher(entityURL);
-            EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, entityURL);
-            entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
-            EntityHttpServletResponse entityResponse = new EntityHttpServletResponse(res);
-
-            // fire off the URLs to the server and get back responses
-            try {
-                // need to forward instead of include to get headers back
-                dispatcher.forward(entityRequest, entityResponse);
-            } catch (Exception e) {
-                String errorMessage = "Failure attempting to process reference ("+reference+"): " + e.getMessage() + ":" + e;
-                log.warn(errorMessage);
-                error = new ResponseError(reference, entityURL, errorMessage);
-            }
-            // create the object to encode and place into the final response
             if (error == null) {
-                // all ok, create the result for the response object
-                // all cookies go into the main response
-                Cookie[] cookies = entityResponse.getCookies();
-                for (Cookie cookie : cookies) {
-                    res.addCookie(cookie);
+                // all ok, process data
+                if (result == null) {
+                    successOverall = false;
+                    failure = true;
+                    throw new IllegalStateException("Somehow the result is null, this should never happen, fatal error");
                 }
-                // status codes are compiled
-                int status = entityResponse.getStatus();
+                int status = result.getStatus();
                 if (status >= 200 && status < 300) {
                     successOverall = true;
                 }
-                // create the result
                 // process the content and see if it matches the expected result, if not we have to dump it in escaped
-                String content = entityResponse.getContentAsString();
-                if (entityEncodingManager.validateFormat(content, view.getFormat())) {
-                    // valid for the current format so insert later instead of merging now
-                    String uniqueKey = UNIQUE_DATA_PREFIX + refKey;
-                    dataMap.put(uniqueKey, content);
-                    content = uniqueKey;
-                }
-                result = new ResponseResult(reference, entityURL, status, entityResponse.getHeaders(), content);
+                String content = ((ResponseResult)result).getData();
+                content = checkContent(format, content, refKey, dataMap);
+                ((ResponseResult)result).setData(content);
             } else {
                 // failure, keep going though
                 result = error;
                 successOverall = false;
                 failure = true;
             }
+
             // store the processed ref and url so we do not do them again
             processedRefsAndURLs.add(reference);
             processedRefsAndURLs.add(entityURL);
@@ -285,20 +276,10 @@ public class EntityBatchHandler {
         }
 
         // compile all the responses into encoded data
-        String overallData = entityEncodingManager.encodeData(results, view.getFormat(), REFS_PARAM_NAME, null);
+        String overallData = entityEncodingManager.encodeData(results, format, REFS_PARAM_NAME, null);
         // replace the data unique keys if there are any
-        for (Entry<String, String> entry : dataMap.entrySet()) {
-            if (entry.getKey() != null && ! "".equals(entry.getKey())) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                if (Formats.XML.equals(view.getFormat())) {
-                    value = "\n" + value; // add in a break
-                } else if (Formats.JSON.equals(view.getFormat())) {
-                    key = '"' + key + '"'; // have to also replace the quotes
-                }
-                overallData = overallData.replace(key, value);
-            }
-        }
+        overallData = reintegrateDataContent(format, dataMap, overallData);
+
         // put response, headers, and code into the http response
         // set overall headers - batchRefs, batchKeys, batchStatus, batchErrors, batchInvalidRefs
         int count = 0;
@@ -335,6 +316,119 @@ public class EntityBatchHandler {
         res.setStatus(overallStatus);
     }
 
+
+    /**
+     * Processing internal (EB) requests
+     * @return the result from the request (may be an error)
+     */
+    private ResponseBase generateInternalResult(String reference, String entityURL, HttpServletRequest req, HttpServletResponse res) {
+        ResponseBase result = null;
+        ResponseError error = null;
+        // setup the request and response objects to do the reference request
+        RequestDispatcher dispatcher = req.getRequestDispatcher(entityURL);
+        EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, entityURL);
+        entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
+        EntityHttpServletResponse entityResponse = new EntityHttpServletResponse(res);
+
+        // fire off the URLs to the server and get back responses
+        try {
+            // need to forward instead of include to get headers back
+            dispatcher.forward(entityRequest, entityResponse);
+        } catch (Exception e) {
+            String errorMessage = "Failure attempting to process reference ("+reference+"): " + e.getMessage() + ":" + e;
+            log.warn(errorMessage);
+            error = new ResponseError(reference, entityURL, errorMessage);
+        }
+
+        // create the result object to encode and place into the final response
+        if (error == null) {
+            // all ok, create the result for the response object
+            // all cookies go into the main response
+            Cookie[] cookies = entityResponse.getCookies();
+            for (Cookie cookie : cookies) {
+                res.addCookie(cookie);
+            }
+            // status codes are compiled
+            int status = entityResponse.getStatus();
+            // create the result (with raw content)
+            result = new ResponseResult(reference, entityURL, status, entityResponse.getHeaders(), entityResponse.getContentAsString());
+        } else {
+            result = error;
+        }
+        return result;
+    }
+
+    /**
+     * Processing external (non-EB) requests
+     * @return the result from the request (may be an error)
+     */
+    private ResponseBase generateExternalResult(String reference, String entityURL, String method) {
+        ResponseBase result = null;
+        ResponseError error = null;
+
+        boolean guaranteeSSL = false;
+        // TODO allow enabling SSL?
+        // fire off the request and hope it does not die horribly
+        HttpResponse httpResponse = null;
+        try {
+            httpResponse = HttpRESTUtils.fireRequest(entityURL, 
+                    HttpRESTUtils.makeMethodFromString(method), 
+                    null, null, guaranteeSSL);
+        } catch (RuntimeException e) {
+            String errorMessage = "Failure attempting to process external URL ("+entityURL+") from reference ("+reference+"): " + e.getMessage() + ":" + e;
+            log.warn(errorMessage);
+            error = new ResponseError(reference, entityURL, errorMessage);
+        }
+
+        // create the result object to encode and place into the final response
+        if (error == null) {
+            result = new ResponseResult(reference, entityURL, httpResponse.getResponseCode(), 
+                    httpResponse.getResponseHeaders(), httpResponse.getResponseBody());
+        } else {
+            result = error;
+        }
+        return result;
+    }
+
+    /**
+     * Takes the overall data and reintegrates any content data that is waiting to be merged,
+     * this may do nothing if there is no content to merge
+     * @return the integrated data content
+     */
+    private String reintegrateDataContent(String format, HashMap<String, String> dataMap,
+            String overallData) {
+        for (Entry<String, String> entry : dataMap.entrySet()) {
+            if (entry.getKey() != null && ! "".equals(entry.getKey())) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (Formats.XML.equals(format)) {
+                    value = "\n" + value; // add in a break
+                } else if (Formats.JSON.equals(format)) {
+                    key = '"' + key + '"'; // have to also replace the quotes
+                }
+                overallData = overallData.replace(key, value);
+            }
+        }
+        return overallData;
+    }
+
+    /**
+     * Checks that the content is in the correct format and is not too large,
+     * if it is too large it will not be processed and if it is in the wrong format it will be encoded as a data chunk,
+     * it is ok it will be placed into the datamap and reintegrated after encoding
+     * @return the content to put into the object
+     */
+    private String checkContent(String format, String content, String refKey,
+            HashMap<String, String> dataMap) {
+        if (entityEncodingManager.validateFormat(content, format)) {
+            // valid for the current format so insert later instead of merging now
+            String uniqueKey = UNIQUE_DATA_PREFIX + refKey;
+            dataMap.put(uniqueKey, content);
+            content = uniqueKey;
+        }
+        return content;
+    }
+
     /**
      * Base class for all response data which will be encoded and output
      */
@@ -346,6 +440,10 @@ public class EntityBatchHandler {
         public String entityURL;
         public String getEntityURL() {
             return entityURL;
+        }
+        public int status;
+        public int getStatus() {
+            return status;
         }
         public transient boolean failure = false;
         public boolean isFailure() {
@@ -363,6 +461,7 @@ public class EntityBatchHandler {
             this.entityURL = entityURL;
             this.error = errorMessage;
             this.failure = true;
+            this.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
     }
 
@@ -370,12 +469,25 @@ public class EntityBatchHandler {
      * Holds the results from a successful response request
      */
     public static class ResponseResult extends ResponseBase {
-        public int status;
-        public int getStatus() {
-            return status;
-        }
         public Map<String, String[]> headers;
+        public Map<String, String[]> getHeaders() {
+            return headers;
+        }
         public String data;
+        public String getData() {
+            return data;
+        }
+        public void setData(String data) {
+            this.data = data;
+        }
+        public ResponseResult(String reference, String entityURL, int status, Map<String, String[]> headers) {
+            this.reference = reference;
+            this.entityURL = entityURL;
+            this.status = status;
+            this.headers = headers;
+            this.failure = false;
+            this.data = "";
+        }
         public ResponseResult(String reference, String entityURL, int status, Map<String, String[]> headers, String data) {
             this.reference = reference;
             this.entityURL = entityURL;

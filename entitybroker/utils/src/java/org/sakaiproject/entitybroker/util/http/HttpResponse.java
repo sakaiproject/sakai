@@ -47,14 +47,14 @@ public class HttpResponse {
     * The map of the response headers,
     * this may be null
     */
-   public Map<String, String> responseHeaders;
+   public Map<String, String[]> responseHeaders;
 
    public HttpResponse(int responseCode) {
       this.responseCode = responseCode;
    }
 
    public HttpResponse(int responseCode, String responseMessage, String responseBody,
-         Map<String, String> responseHeaders) {
+         Map<String, String[]> responseHeaders) {
       this.responseCode = responseCode;
       this.responseMessage = responseMessage;
       this.responseBody = responseBody;
@@ -85,11 +85,11 @@ public class HttpResponse {
       this.responseBody = responseBody;
    }
    
-   public Map<String, String> getResponseHeaders() {
+   public Map<String, String[]> getResponseHeaders() {
       return responseHeaders;
    }
    
-   public void setResponseHeaders(Map<String, String> responseHeaders) {
+   public void setResponseHeaders(Map<String, String[]> responseHeaders) {
       this.responseHeaders = responseHeaders;
    }
 

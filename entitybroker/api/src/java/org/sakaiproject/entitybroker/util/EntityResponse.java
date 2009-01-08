@@ -50,10 +50,10 @@ public class EntityResponse {
     * The map of the response headers,
     * this may be null
     */
-   public Map<String, String> responseHeaders;
+   public Map<String, String[]> responseHeaders;
 
    public EntityResponse(int responseCode, String responseMessage, String responseBody,
-         Map<String, String> responseHeaders) {
+         Map<String, String[]> responseHeaders) {
       this.responseCode = responseCode;
       this.responseMessage = responseMessage;
       this.responseBody = responseBody;
@@ -72,7 +72,7 @@ public class EntityResponse {
       return responseBody;
    }
 
-   public Map<String, String> getResponseHeaders() {
+   public Map<String, String[]> getResponseHeaders() {
       return responseHeaders;
    }
 
