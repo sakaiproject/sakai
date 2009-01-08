@@ -354,7 +354,7 @@ public String changeUserPassword( String sessionid, String eid, String password)
  * Get a user's email address
  *
  * @param	sessionid		the session id of the user who's email address you wish to retrieve
- * @return		        	success or exception message
+ * @return		        	their email address
  * @throws	AxisFault
  *
  */
@@ -363,6 +363,31 @@ public String getUserEmail( String sessionid ) throws AxisFault
 	Session session = establishSession(sessionid);
 	User user = UserDirectoryService.getCurrentUser();
 	return user.getEmail();
+}
+
+
+/**
+ * Gets the email address for a given user. 
+ *
+ * Differs from original above as that one uses the session to get the displayname hence you must know this in advance or be logged in to the web services
+ * with that user. This uses a userid as well so we could be logged in as admin and retrieve the email address for any user.
+ * 
+ * @param	sessionid	the id of a valid session
+ * @param	userid		the eid of the user you want the email address for
+ * @return				the display name for the user
+ * @throws	AxisFault	
+ *
+ */
+public String getUserEmail( String sessionid, String userid ) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	try {
+		User user = UserDirectoryService.getUserByEid(userid);
+		return user.getEmail();
+	} catch (Exception e) {  
+	 	LOG.warn("WS getUserEmail() failed for user: " + userid);
+		return "";
+	}
 }
 
 
@@ -404,7 +429,6 @@ public String getUserDisplayName( String sessionid, String userid ) throws AxisF
 	 	LOG.warn("WS getUserDisplayName() failed for user: " + userid);
 		return "";
 	}
-	
 }
 
 
