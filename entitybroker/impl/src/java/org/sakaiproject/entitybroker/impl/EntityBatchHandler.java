@@ -15,6 +15,9 @@
 package org.sakaiproject.entitybroker.impl;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -172,7 +175,6 @@ public class EntityBatchHandler {
 
             // object will hold the results of this reference request
             ResponseBase result = null;
-            ResponseError error = null;
 
             // parse the entityURL, should hopefully not cause a failure
             URLData ud = new URLData(entityURL);
@@ -188,16 +190,19 @@ public class EntityBatchHandler {
                     // looks like /direct only and we do not process that
                     continue;
                 }
+
+                boolean success = false;
                 try {
                     // parse the entityURL to verify it
                     entityBrokerManager.parseReference(ud.pathInfo);
+                    success = true;
                 } catch (IllegalArgumentException e) {
                     String errorMessage = "Failure parsing direct entityURL ("+entityURL+") from reference ("+reference+") from path ("+ud.pathInfo+"): " + e.getMessage() + ":" + e.getCause();
                     log.warn(errorMessage);
-                    error = new ResponseError(reference, entityURL, errorMessage);
+                    result = new ResponseError(reference, entityURL, errorMessage);
                 }
 
-                if (error == null) {
+                if (success) {
                     // rebuild the entityURL with the correct extension in there
                     StringBuilder sb = new StringBuilder();
                     sb.append(EntityView.DIRECT_PREFIX);
@@ -239,25 +244,42 @@ public class EntityBatchHandler {
                     clientWrapper = HttpRESTUtils.makeReusableHttpClient(false, 0, req.getCookies());
                 }
 
-//                String serverUrl = "http://localhost:8080";
-//                // TODO look up the server URL using a service
-//                String url = serverUrl + entityURL;
+                if (entityURL.startsWith("/")) {
+                    // http client can only deal in complete URLs - e.g. "http://localhost:8080/thing"
+                    String serverName = req.getServerName();
+                    int serverPort = req.getServerPort();
+                    String protocol = req.getScheme();
+                    if (protocol == null || "".equals(protocol)) {
+                        protocol = "http";
+                    }
+                    StringBuilder sb = new StringBuilder(); // the server URL
+                    sb.append(protocol);
+                    sb.append("://");
+                    sb.append(serverName);
+                    if (serverPort > 0) {
+                        sb.append(":");
+                        sb.append(serverPort);
+                    }
+                    // look up the server URL using a service?
+                    entityURL = sb.toString() + entityURL;
+                }
 
                 result = generateExternalResult(reference, entityURL, view.getMethod(), clientWrapper);
             }
 
+            // special handling for null result (should really not happen unless there was a logic error)
+            if (result == null) {
+                successOverall = false;
+                failure = true;
+                throw new IllegalStateException("Somehow the result is null, this should never happen, fatal error");
+            }
+
             if (result instanceof ResponseError) {
                 // looks like a failure occurred, keep going though
-                result = error;
                 successOverall = false;
                 failure = true;
             } else {
                 // all ok, process data
-                if (result == null) {
-                    successOverall = false;
-                    failure = true;
-                    throw new IllegalStateException("Somehow the result is null, this should never happen, fatal error");
-                }
                 int status = result.getStatus();
                 if (status >= 200 && status < 300) {
                     successOverall = true;
@@ -388,7 +410,7 @@ public class EntityBatchHandler {
                     null, null, guaranteeSSL);
         } catch (RuntimeException e) {
             String errorMessage = "Failure attempting to process external URL ("+entityURL+") from reference ("+reference+"): " + e.getMessage() + ":" + e;
-            log.warn(errorMessage);
+            log.warn(errorMessage, e); // TODO remove ,e to reduce error here
             error = new ResponseError(reference, entityURL, errorMessage);
         }
 
