@@ -159,6 +159,7 @@ public String addNewUser( String sessionid, String id ,String eid, String firstn
 	return "success";
 }
 
+
 /**
  * Remove a user account
  *
@@ -186,6 +187,7 @@ public String removeUser( String sessionid, String eid) throws AxisFault
 	}
 	return "success";
 }
+
 
 /**
  * Edit a user's account details
@@ -227,6 +229,18 @@ public String changeUserInfo( String sessionid, String eid, String firstname, St
 	return "success";
 }
 
+
+/**
+ * Edit a user's firstname/lastname
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of user you want to edit
+ * @param	firstname		the updated firstname for the user
+ * @param	lastname		the updated last name for the user
+ * @return		        	success or exception message
+ * @throws	AxisFault
+ *
+ */
 public String changeUserName( String sessionid, String eid, String firstname, String lastname) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -247,6 +261,17 @@ public String changeUserName( String sessionid, String eid, String firstname, St
 	return "success";
 }
 
+
+/**
+ * Edit a user's email address
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of user you want to edit
+ * @param	email			the updated email address for the user
+ * @return		        	success or exception message
+ * @throws	AxisFault
+ *
+ */
 public String changeUserEmail( String sessionid, String eid, String email) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -266,6 +291,17 @@ public String changeUserEmail( String sessionid, String eid, String email) throw
 	return "success";
 }
 
+
+/**
+ * Edit a user's user type
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of user you want to edit
+ * @param	type			the updated user type. See addNewUser() for an explanation of what this field means
+ * @return		        	success or exception message
+ * @throws	AxisFault
+ *
+ */
 public String changeUserType( String sessionid, String eid, String type) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -284,6 +320,17 @@ public String changeUserType( String sessionid, String eid, String type) throws 
 	return "success";
 }
 
+
+/**
+ * Edit a user's password
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of user you want to edit
+ * @param	password		the password for the user
+ * @return		        	success or exception message
+ * @throws	AxisFault
+ *
+ */
 public String changeUserPassword( String sessionid, String eid, String password) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -303,6 +350,14 @@ public String changeUserPassword( String sessionid, String eid, String password)
 	return "success";
 }
 
+/**
+ * Get a user's email address
+ *
+ * @param	sessionid		the session id of the user who's email address you wish to retrieve
+ * @return		        	success or exception message
+ * @throws	AxisFault
+ *
+ */
 public String getUserEmail( String sessionid ) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -310,6 +365,15 @@ public String getUserEmail( String sessionid ) throws AxisFault
 	return user.getEmail();
 }
 
+
+/**
+ * Get a user's display name
+ *
+ * @param	sessionid		the session id of the user who's display name you wish to retrieve
+ * @return		        	success or exception message
+ * @throws	AxisFault
+ *
+ */
 public String getUserDisplayName( String sessionid ) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -317,12 +381,14 @@ public String getUserDisplayName( String sessionid ) throws AxisFault
 	return user.getDisplayName();
 }
 
+
 /**
  * Gets the display name for a given user. 
  *
- * Differs from original above as that one uses the session to get the displayname, this uses a userid
+ * Differs from original above as that one uses the session to get the displayname hence you must know this in advance or be logged in to the web services
+ * with that user. This uses a userid as well so we could be logged in as admin and retrieve the display name for any user.
  * 
- * @param	sessionid	the sessionid of a valid session for the admin user
+ * @param	sessionid	the id of a valid session
  * @param	userid		the eid of the user you want the name of
  * @return				the display name for the user
  * @throws	AxisFault	
