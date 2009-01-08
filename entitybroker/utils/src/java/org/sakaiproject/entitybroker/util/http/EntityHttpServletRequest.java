@@ -66,9 +66,13 @@ import javax.servlet.http.HttpSessionContext;
 public class EntityHttpServletRequest implements HttpServletRequest {
 
     /**
-     * default protocol: http
+     * default schema: http
      */
-    public static final String DEFAULT_PROTOCOL = "http";
+    public static final String DEFAULT_SCHEMA = "http";
+    /**
+     * default protocol: HTTP/1.0
+     */
+    public static final String DEFAULT_PROTOCOL = "HTTP/1.0";
     /**
      * default server address: 127.0.0.1
      */
@@ -111,11 +115,17 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     String remoteHost = DEFAULT_REMOTE_HOST;
 
     String method = "GET";
+    String contextPath = ""; // always starts with "/", "" indicates root
     String pathInfo = null;
-    String contextPath = ""; // always starts with /
     String queryString = null;
     String requestURI = "";
     String servletPath = "";
+
+    @Override
+    public String toString() {
+        return method + " " + contextPath + (pathInfo == null ? "" : pathInfo) 
+            + (queryString == null ? "" : "?"+queryString) + " "+ super.toString();
+    }
 
     /**
      * Create a new request from a given request
@@ -128,7 +138,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     /**
      * Create a new request from a given request and modify it based on the path string
      * @param req any request
-     * @param pathString any path or URL
+     * @param pathString any full path or URL (/direct/prefix/id.xml)
      */
     public EntityHttpServletRequest(HttpServletRequest req, String pathString) {
         this(req, null, pathString);
@@ -139,7 +149,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
      * @param req any request
      * @param method GET, POST, PUT, DELETE (PUT and DELETE not supported by browsers),
      * this will be set to POST if null or unset
-     * @param pathString any path or URL
+     * @param pathString any full path or URL (/direct/prefix/id.xml)
      */
     public EntityHttpServletRequest(HttpServletRequest req, String method, String pathString) {
         copy = req;
@@ -237,28 +247,36 @@ public class EntityHttpServletRequest implements HttpServletRequest {
             parameters.put(entry.getKey(), entry.getValue());
         }
         // get the basic values out
-        locale = req.getLocale();
-        method = req.getMethod();
-        contentType = req.getContentType();
-        characterEncoding = req.getCharacterEncoding() == null ? "UTF-8" : req.getCharacterEncoding();
-        contentLength = req.getContentLength();
+        this.locale = req.getLocale();
+        this.method = req.getMethod();
+        this.contentType = req.getContentType();
+        this.characterEncoding = req.getCharacterEncoding() == null ? "UTF-8" : req.getCharacterEncoding();
+        this.contentLength = req.getContentLength();
 
-        scheme = req.getScheme();
-        protocol = req.getProtocol();
-        serverName = req.getServerName();
-        serverPort = req.getServerPort();
-        remoteAddr = req.getRemoteAddr();
-        remoteHost = req.getRemoteHost();
+        this.contextPath = req.getContextPath();
+        this.pathInfo = req.getPathInfo();
+        this.queryString = req.getQueryString();
+        this.requestURI = req.getRequestURI();
+        this.servletPath = req.getServletPath();
+
+        this.scheme = req.getScheme();
+        this.protocol = req.getProtocol();
+        this.serverName = req.getServerName();
+        this.serverPort = req.getServerPort();
+        this.remoteAddr = req.getRemoteAddr();
+        this.remoteHost = req.getRemoteHost();
     }
 
     /**
-     * This will set the given url/path string values into this request
+     * This will set the given url/path string values into this request,
+     * this will override any values that are currently set
      * @param pathString any url or path string
      * @return the url data object based on the input object OR null if the string is null or empty
      */
     public URLData setPathString(String pathString) {
         URLData ud = null;
         if (pathString != null && pathString.length() > 1) {
+            this.requestURI = pathString;
             ud = HttpRESTUtils.parseURL(pathString);
             if (ud.pathInfo.length() > 0) {
                 this.pathInfo = ud.pathInfo;
@@ -266,14 +284,18 @@ public class EntityHttpServletRequest implements HttpServletRequest {
                 this.pathInfo = null;
             }
             if (ud.port.length() > 0) {
+                // only if port is set and a number
                 try {
                     this.serverPort = new Integer(ud.port);
                 } catch (NumberFormatException e) {
-                    this.serverPort = 80;
+                    // set to default if it cannot be set and is not set
+                    if (this.serverPort <= 0) {
+                        this.serverPort = 80;
+                    }
                 }
             }
             if (ud.protocol.length() > 0) {
-                this.protocol = ud.protocol;
+                this.scheme = ud.protocol;
             }
             if (ud.query.length() > 0) {
                 this.queryString = ud.query;
@@ -455,11 +477,15 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public String getPathInfo() {
-        return pathInfo;
+        return this.pathInfo;
     }
 
     public String getPathTranslated() {
-        return copy.getPathTranslated();
+        if (copy != null) {
+            return copy.getPathTranslated();
+        } else {
+            return null;
+        }
     }
     
     public void setQueryString(String queryString) {
@@ -467,15 +493,29 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public String getQueryString() {
-        return queryString;
+        return this.queryString;
     }
 
     public String getRequestURI() {
-        return copy.getRequestURI();
+        return this.requestURI;
     }
 
     public StringBuffer getRequestURL() {
-        return copy.getRequestURL();
+        StringBuffer sb = new StringBuffer();
+        sb.append(this.scheme);
+        sb.append("://");
+        sb.append(this.serverName);
+        if (this.serverPort > 0) {
+            sb.append(":");
+            sb.append(this.serverPort);
+        }
+        if (this.contextPath == null || this.contextPath.length() == 0) {
+            sb.append("/");
+        } else {
+            sb.append(this.contextPath);
+        }
+        sb.append( getRequestURI() );
+        return sb;
     }
 
     public void setServletPath(String servletPath) {

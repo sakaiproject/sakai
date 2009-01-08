@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import javax.servlet.http.Cookie;
 
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HeaderElement;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
@@ -202,16 +203,19 @@ public class HttpRESTUtils {
             response.setResponseBody(body);
             response.setResponseMessage(httpMethod.getStatusText());
             // now get the headers
-            HashMap<String, String[]> headerMap = new HashMap<String, String[]>();
+            HashMap<String, String[]> responseHeaders = new HashMap<String, String[]>();
             Header[] headers = httpMethod.getResponseHeaders();
             for (int i = 0; i < headers.length; i++) {
                 Header header = headers[i];
-                String[] values = new String[] {header.toExternalForm()};
-//                HeaderElement[] elements = header.getElements();
+                String extForm = header.toExternalForm();
+                String[] values = new String[] {extForm};
+                HeaderElement[] elements = header.getElements();
+                int l = elements.length;
 //                for (int j = 0; j < elements.length; j++) {
 //                }
-                headerMap.put(header.getName(), values);
+                responseHeaders.put(header.getName(), values);
             }
+            response.setResponseHeaders(responseHeaders);
         }
         catch (HttpException he) {
             // error contained in he.getMessage()

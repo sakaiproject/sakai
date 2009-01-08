@@ -15,9 +15,6 @@
 package org.sakaiproject.entitybroker.impl;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -205,7 +202,7 @@ public class EntityBatchHandler {
                 if (success) {
                     // rebuild the entityURL with the correct extension in there
                     StringBuilder sb = new StringBuilder();
-                    sb.append(EntityView.DIRECT_PREFIX);
+//                    sb.append(EntityView.DIRECT_PREFIX);
                     sb.append(ud.pathInfoNoExtension);
                     sb.append(EntityView.PERIOD);
                     sb.append(format);
@@ -358,8 +355,10 @@ public class EntityBatchHandler {
         ResponseBase result = null;
         ResponseError error = null;
         // setup the request and response objects to do the reference request
-        RequestDispatcher dispatcher = req.getRequestDispatcher(entityURL);
-        EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, entityURL);
+        RequestDispatcher dispatcher = req.getRequestDispatcher(entityURL); // should only be the relative path from this webapp
+        // the request needs to get the full url or path though
+        EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, req.getContextPath() + entityURL);
+        entityRequest.setContextPath("");
         entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
         EntityHttpServletResponse entityResponse = new EntityHttpServletResponse(res);
 

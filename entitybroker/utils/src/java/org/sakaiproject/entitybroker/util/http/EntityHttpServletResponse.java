@@ -53,7 +53,6 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         this.content = new ByteArrayOutputStream(512);
         this.outputStream = new EntityServletOutputStream(content);
         this.setLocale( Locale.getDefault() );
-        this.setStatus( HttpServletResponse.SC_OK );
     }
 
     /**
@@ -72,7 +71,6 @@ public class EntityHttpServletResponse implements HttpServletResponse {
             this.setContentType( response.getContentType() );
         }
         this.setLocale( response.getLocale() );
-        this.setStatus( HttpServletResponse.SC_OK );
     }
 
     public static final int DEFAULT_SERVER_PORT = 80;
@@ -93,7 +91,7 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     private int bufferSize = 4096;
     private boolean committed;
     private Locale locale = Locale.getDefault();
-    private int status = HttpServletResponse.SC_OK;
+    private int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
     private String errorMessage;
     private String redirectedUrl;
     private String forwardedUrl;
@@ -104,6 +102,7 @@ public class EntityHttpServletResponse implements HttpServletResponse {
 
     public void setForwardedUrl(String forwardedUrl) {
         this.forwardedUrl = forwardedUrl;
+        this.status = HttpServletResponse.SC_OK;
     }
 
     public String getForwardedUrl() {
@@ -112,6 +111,7 @@ public class EntityHttpServletResponse implements HttpServletResponse {
 
     public void setIncludedUrl(String includedUrl) {
         this.includedUrl = includedUrl;
+        this.status = HttpServletResponse.SC_OK;
     }
 
     public String getIncludedUrl() {
