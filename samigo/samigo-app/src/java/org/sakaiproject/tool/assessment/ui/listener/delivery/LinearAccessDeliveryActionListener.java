@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.faces.context.FacesContext;
@@ -91,16 +92,19 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       if (itemGradingHash!=null && itemGradingHash.size()>0){
     	  log.debug("itemGradingHash!=null && itemGradingHash.size()>0");
     	  ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
-    	  delivery.setAssessmentGrading(ag);
+    	  setAttemptDateIfNull(ag);
       }
       else{
     	  ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
     	  if (ag == null) {
     		  ag = createAssessmentGrading(publishedAssessment);
     	  }
-    	  
-    	  delivery.setAssessmentGrading(ag);
+    	  else {
+    		  setAttemptDateIfNull(ag);
+    	  }
       }
+	  delivery.setAssessmentGrading(ag);
+	  
       log.debug("itemgrading size = " + ag.getItemGradingSet().size());
       delivery.setAssessmentGradingId(delivery.getAssessmentGrading().getAssessmentGradingId());
       
@@ -110,6 +114,16 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
     	  setTimer(delivery, publishedAssessment, true);
     	  setStatus(delivery, pubService, Long.valueOf(id));
+    	  // If it comes from Begin Assessment button clicks, reset isNoQuestion to false
+    	  // because we want to always display the first page
+    	  // Otherwise, if isNoQuestion set to true in the last delivery and 
+    	  // if the first part has no question, it will not be rendered
+    	  // See getPageContentsByQuestion() for more details
+    	  // Of course it is better to do this inside getPageContentsByQuestion()
+    	  // However, ae is not passed in getPageContentsByQuestion()
+    	  // and there are multiple places to modify if I want to get ae inside getPageContentsByQuestion()
+    	  delivery.setNoQuestions(false);
+    	      	  
     	  int action = delivery.getActionMode();
     	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
     		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), true));

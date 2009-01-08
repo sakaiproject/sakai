@@ -141,19 +141,21 @@ public class DeliveryActionListener
       // delivery bean to the right place.
       // However, it comes from Begin Assessment button clicks, we need to reset the indexes to 0
       // Otherwise, the first question of the first part will not be displayed 
-      if (!delivery.getNavigation().equals("1") && ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+      if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
     	  // If it comes from Begin Assessment button clicks, reset the indexes to 0
     	  log.debug("From Begin Assessment button clicks");
     	  delivery.setPartIndex(0);
     	  delivery.setQuestionIndex(0);
-    	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
-    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), true));
-    	  }
-    	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
-    		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-    		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
-    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take.via_url", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), siteId, true, NotificationService.NOTI_REQUIRED));
-    	  }
+    	  
+    	  // If it comes from Begin Assessment button clicks, reset isNoQuestion to false
+    	  // because we want to always display the first page
+    	  // Otherwise, if isNoQuestion set to true in the last delivery and 
+    	  // if the first part has no question, it will not be rendered
+    	  // See getPageContentsByQuestion() for more details
+    	  // Of course it is better to do this inside getPageContentsByQuestion()
+    	  // However, ae is not passed in getPageContentsByQuestion()
+    	  // and there are multiple places to modify if I want to get ae inside getPageContentsByQuestion()
+       	  delivery.setNoQuestions(false);
       }
       else {
     	  // If from table of contents page, there is no parameters like partnumber or questionnumber
@@ -269,16 +271,18 @@ public class DeliveryActionListener
                   if (itemGradingHash!=null && itemGradingHash.size()>0){
                 	  log.debug("**** DeliveryActionListener #1a");
                 	  ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
-                	  log.debug("**** DeliveryActionListener #1b");
-                	  delivery.setAssessmentGrading(ag);
+                	  setAttemptDateIfNull(ag);
                   }
                   else {
                 	  ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
                 	  if (ag == null) {
                 		  ag = createAssessmentGrading(publishedAssessment);
                 	  }
-                       	  delivery.setAssessmentGrading(ag);
+                	  else {
+                		  setAttemptDateIfNull(ag);
+                	  }
                   }
+                  delivery.setAssessmentGrading(ag);
               }
               log.debug("**** DeliveryAction, itemgrading size="+ag.getItemGradingSet().size());
               delivery.setAssessmentGradingId(delivery.getAssessmentGrading().getAssessmentGradingId());
@@ -290,6 +294,15 @@ public class DeliveryActionListener
               if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
             	  setTimer(delivery, publishedAssessment, true);
             	  setStatus(delivery, pubService, Long.valueOf(id));
+            	  
+               	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
+            		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), true));
+            	  }
+            	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
+            		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+            		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
+            		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take.via_url", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), siteId, true, NotificationService.NOTI_REQUIRED));
+            	  }
               }
               else {
             	  setTimer(delivery, publishedAssessment, false);
@@ -302,18 +315,6 @@ public class DeliveryActionListener
               break;
 
       default: break;
-      }
-	  // If it comes from Begin Assessment button clicks, reset isNoQuestion to false
-	  // because we want to always display the first page
-	  // Otherwise, if isNoQuestion set to true in the last delivery and 
-	  // if the first part has no question, it will not be rendered
-	  // See getPageContentsByQuestion() for more details
-	  // Of course it is better to do this inside getPageContentsByQuestion()
-	  // However, ae is not passed in getPageContentsByQuestion()
-	  // and there are multiple places to modify if I want to get ae inside getPageContentsByQuestion()
-      if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
-    	  log.debug("From Begin Assessment button clicks");
-    	  delivery.setNoQuestions(false);
       }
 
       // overload itemGradingHash with the sequence in case renumbering is turned off.
@@ -2108,6 +2109,14 @@ public class DeliveryActionListener
     return adata;
   }
 
+  protected void setAttemptDateIfNull(AssessmentGradingData ag){
+	  if (ag.getAttemptDate() == null) {
+		  ag.setAttemptDate(new Date());
+		  GradingService gradingService = new GradingService();
+		  gradingService.saveOrUpdateAssessmentGrading(ag);
+	  }
+  }
+  
   /* this method takes the list returned from the data/dao class, and checks for part type and returns a sorted list of items. If part type is not random then return the original list
   */
   private ArrayList getItemArraySortedWithRandom(SectionDataIfc part, ArrayList list, long seed) {
