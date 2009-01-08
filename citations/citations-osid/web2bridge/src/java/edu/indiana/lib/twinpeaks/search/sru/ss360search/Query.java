@@ -44,7 +44,7 @@ public class Query extends SruQueryBase implements Constants
   /**
    * Display debug details (verbose)
    */
-  private boolean DEBUG = true;
+  private boolean DEBUG = false;
 	/**
 	 * Unique name for this search application
 	 */
