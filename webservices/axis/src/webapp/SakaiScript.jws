@@ -432,79 +432,73 @@ public String getUserDisplayName( String sessionid, String userid ) throws AxisF
 }
 
 
-
-
 /**
- ** Create user-group to specified worksite (as if it had been added in Worksite Setup)
- **
- ** @param sessionId valid sessionId
- ** @param siteId specified worksite id
- ** @param groupTitle Name of group
- ** @param groupDesc Description of group
- ** @return groupId if successful
- **/
+ * Create user-group to specified worksite (as if it had been added in Worksite Setup)
+ *
+ * @param 	sessionid 	the id of a valid session
+ * @param 	siteid 		the id of the site you want the group created in
+ * @param 	grouptitle 	the name of the new group
+ * @param 	groupdesc 	the description of the new group
+ * @return groupid 		if successful/exception
+ *
+ */
 private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
-public String addGroupToSite( String sessionId, 
-										String siteId,
-										String groupTitle, 
-										String groupDesc )
-	throws AxisFault
+public String addGroupToSite( String sessionid, String siteid, String grouptitle, String groupdesc ) throws AxisFault
 {
-	Session session = establishSession(sessionId);
+	Session session = establishSession(sessionid);
 	try
 	{
-		Site site = SiteService.getSite(siteId);
+		Site site = SiteService.getSite(siteid);
 		Group group = site.addGroup();
-		group.setTitle(groupTitle);
-		group.setDescription(groupDesc);
-		group.getProperties().addProperty(
-							GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+		group.setTitle(grouptitle);
+		group.setDescription(groupdesc);
+		group.getProperties().addProperty(GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 
 		SiteService.save(site);
 		return group.getId();
 	}
 	catch (Exception e)
 	{
-		throw new AxisFault(e.toString());
+		LOG.error("WS addGroupToSite(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "";
+
 	}
 } 
 
+
 /**
- ** Add member to specified worksite group
- **
- ** @param sessionId valid sessionId
- ** @param siteId specified worksite id
- ** @param groupId specified group id
- ** @param userId userid of member to add
- ** @return true if successful
- **/
-public Boolean addMemberToGroup( String sessionId, 
-											String siteId, 
-											String groupId,
-											String userId ) 
-	throws AxisFault
+ * Add member to specified worksite group
+ *
+ * @param 	sessionid 	the id of a valid session
+ * @param 	siteid 		the id of the site that the group is in
+ * @param 	groupid 	the id of the group you want to add the user to
+ * @param 	userid 		the internal userid of the member to add
+ * @return 	true 		if successful/exception
+ *
+ * TODO: This is not returning false if it fails (ie if user isn't in site to begin with). Needs more error checking.
+ */
+public boolean addMemberToGroup( String sessionid, String siteid, String groupid, String userid ) throws AxisFault
 {
-	Session session = establishSession(sessionId);
+	Session session = establishSession(sessionid);
 	try
 	{
-		Site site = SiteService.getSite(siteId);
-		Group group = site.getGroup(groupId);
+		Site site = SiteService.getSite(siteid);
+		Group group = site.getGroup(groupid);
 		if ( group == null )
 			return false;
 	
-		Role r = site.getUserRole(userId);
-		Member m = site.getMember(userId);
-		group.addMember(userId, r != null ? r.getId()	: "", 
-							 m != null ? m.isActive() : true,	false);
+		Role r = site.getUserRole(userid);
+		Member m = site.getMember(userid);
+		group.addMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true,	false);
 		SiteService.save(site);
 		return true;
 	}
 	catch (Exception e)
 	{
-		throw new AxisFault(e.toString());
+		LOG.error("WS addMemberToGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return false;
 	}
 }
-
 //addNewRealm
 public String addNewAuthzGroup(String sessionid, String groupid) throws AxisFault
 {
