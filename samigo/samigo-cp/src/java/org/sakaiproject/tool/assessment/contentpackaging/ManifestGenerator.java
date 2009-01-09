@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.contentpackaging;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -30,13 +31,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.dom4j.Namespace;
-import org.dom4j.QName;
-import org.dom4j.io.DOMWriter;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Text;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.component.cover.ServerConfigurationService; 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -72,10 +71,17 @@ import org.sakaiproject.content.api.ContentHostingService;
 public class ManifestGenerator {
 	private static Log log = LogFactory.getLog(ManifestGenerator.class);
 
-	private String assessmentId;
+	/**default namespace and metadata namespace*/
+	private static String DEFAULT_NAMESPACE_URI = "http://www.imsglobal.org/xsd/imscp_v1p1";
+	private static String DEFAULT_NAMESPACE_SCHEMA_LOCATION = "http://www.imsglobal.org/xsd/imscp_v1p1.xsd";
+	private static String IMSMD_NAMESPACE_URI = "http://www.imsglobal.org/xsd/imsmd_v1p2";
+	private static String IMSMD_NAMESPACE_SCHEMA_LOCATION = "http://www.imsglobal.org/xsd/imsmd_v1p2.xsd";
 
+	private static String EXPORT_ASSESSMENT = "exportAssessment";
+	private static String EXPORT_ASSESSMENT_XML = EXPORT_ASSESSMENT + ".xml";
+	private Document document;
+	private String assessmentId;
 	private HashMap contentMap = new HashMap();
-	
 	private ContentHostingService contentHostingService;
 
 	public ManifestGenerator(String assessmentId) {
@@ -83,23 +89,8 @@ public class ManifestGenerator {
 	}
 
 	public String getManifest() {
-		org.w3c.dom.Document document = null;
-		try {
-			Document doc = readXMLDocument();
-			document = new DOMWriter().write(doc);
-		} catch (ParserConfigurationException e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} catch (SAXException e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} catch (IOException e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} catch (DocumentException e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
-		}
+		document = readXMLDocument();
+		
 		if (document == null) {
 			log.info("document == null");
 			return "";
@@ -118,46 +109,43 @@ public class ManifestGenerator {
 		return contentMap;
 	}
 
-	private Document readXMLDocument() throws ParserConfigurationException,
-			SAXException, IOException {
+	private Document readXMLDocument() {
+		document = getDocument();
+		
+		// Need to create upper level metadata elements
+		Element manifestElement = createManifestElement();
+		document.appendChild(manifestElement);
+		
+		// create manifest metadata
+		Element metadata = createDefaultNSElement("metadata");
+		appendLOMMetadataToElement(EXPORT_ASSESSMENT, metadata);
+		manifestElement.appendChild(metadata);
+		
+		// Need organizations element
+		Element organizationsElement = createOrganizationsElement();
+		manifestElement.appendChild(organizationsElement);
 
-		Document document = DocumentHelper.createDocument();
-		Element root = document.addElement("root");
-		root.addAttribute("identifier", "Manifest1");
-		// Set up the necessary namespaces
-		root.setQName(new QName("manifest", new Namespace(null,
-				"http://www.imsglobal.org/xsd/imscp_v1p1")));
-		root.add(new Namespace("imsmd",
-				"http://www.imsglobal.org/xsd/imsmd_v1p2"));
-		root.add(new Namespace("xsi",
-				"http://www.w3.org/2001/XMLSchema-instance"));
-
-		root.addAttribute("xsi:schemaLocation",
-				"http://www.imsglobal.org/xsd/imscp_v1p1 "
-						+ "http://www.imsglobal.org/xsd/imscp_v1p1.xsd "
-						+ "http://www.imsglobal.org/xsd/imsmd_v1p2 "
-						+ "http://www.imsglobal.org/xsd/imsmd_v1p2.xsd ");
-
-		root.addElement("organizations");
-
-		Element resourcesElement = DocumentHelper.createElement("resources");
-		root.add(resourcesElement);
-
-		Element resourceElement = DocumentHelper.createElement("resource");
-		resourceElement.addAttribute("identifier", "Resource1");
-		resourcesElement.add(resourceElement);
+		// resources
+		Element resourcesElement = createDefaultNSElement("resources");
+		// resource
+		Element resourceElement = createResourceElement();
+		Element xmlFileElement = createFileElement(EXPORT_ASSESSMENT_XML);
+		resourceElement.appendChild(xmlFileElement);
 		
 		setContentHostingService();
 		getAttachments();
 		getFCKAttachments();
 		Iterator iter = contentMap.keySet().iterator();
-		Element fileElement = null;
 		String filename = null;
+		Element fileElement = null;
 		while (iter.hasNext()) {
 			filename = ((String) iter.next()).replaceAll(" ", "");
-			fileElement = resourceElement.addElement("file");
-			fileElement.addAttribute("href", filename);
+			fileElement = createFileElement(filename);
+			resourceElement.appendChild(fileElement);
 		}
+		resourcesElement.appendChild(resourceElement);
+		manifestElement.appendChild(resourcesElement);
+
 		return document;
 	}
 
@@ -390,4 +378,99 @@ public class ManifestGenerator {
 			this.contentHostingService = AssessmentService.getContentHostingService();
 		}
 	}
+	
+	private Element createManifestElement()
+	{
+		Element manifest = createDefaultNSElement("manifest");
+		manifest.setAttribute("identifier", "MANIFEST1");
+		manifest.setAttribute("xmlns", DEFAULT_NAMESPACE_URI);
+		manifest.setAttribute("xmlns:imsmd", IMSMD_NAMESPACE_URI);
+		manifest.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		manifest.setAttribute("xsi:schemaLocation",
+				DEFAULT_NAMESPACE_URI + " " + DEFAULT_NAMESPACE_SCHEMA_LOCATION + " "
+				+ IMSMD_NAMESPACE_URI  + " " + IMSMD_NAMESPACE_SCHEMA_LOCATION);
+				
+		return manifest;
+	}
+
+	public void appendLOMMetadataToElement(String title, Element parent)
+	{
+		// imsmd:lom
+		Element imsmdLom = createLOMElement("lom");
+		// imsmd:general
+		Element imsmdGeneral = createLOMElement("general");
+		// imsmd:identifier
+		String identifier = Long.toHexString((new Date()).getTime());
+		Element imsmdIdentifier = createLOMElementWithLangstring("identifier", identifier);
+		imsmdGeneral.appendChild(imsmdIdentifier);
+		// imsmd:title
+		Element imsmdTitle = createLOMElementWithLangstring("title", title);
+		imsmdGeneral.appendChild(imsmdTitle);
+		imsmdLom.appendChild(imsmdGeneral);
+		parent.appendChild(imsmdLom);
+	}
+
+	private Element createOrganizationsElement()
+	{
+		Element organizations = createDefaultNSElement("organizations");
+		return organizations;
+	}
+
+	public Element createResourceElement() 
+	{
+		Element resourceElement = createDefaultNSElement("resource");
+		resourceElement.setAttributeNS(DEFAULT_NAMESPACE_URI, "identifier", "RESOURCE1");
+		resourceElement.setAttributeNS(DEFAULT_NAMESPACE_URI, "type","imsqti_xmlv1p1");
+		resourceElement.setAttributeNS(DEFAULT_NAMESPACE_URI, "href", EXPORT_ASSESSMENT_XML);
+		
+		return resourceElement;
+	}
+
+	public Element createFileElement(String href) 
+	{
+		Element fileElement = createDefaultNSElement("file");
+		fileElement.setAttributeNS(DEFAULT_NAMESPACE_URI, "href", href);
+		
+		return fileElement;
+	}
+	
+	private Element createDefaultNSElement(String elename) {
+
+		return getDocument().createElementNS(DEFAULT_NAMESPACE_URI, elename);
+	}
+
+	private Element createLOMElement(String elename) {
+
+		Element imsmdlom = getDocument().createElementNS(IMSMD_NAMESPACE_URI, elename);
+		imsmdlom.setPrefix("imsmd");
+
+		return imsmdlom;
+	}
+	
+	
+	private Element createLOMElementWithLangstring(String elementName, String text) {
+		
+		Element element = createLOMElement(elementName);
+		//imsmd:langstring
+		Element imsmdlangstring = createLOMElement("langstring");
+		imsmdlangstring.setAttribute("xml:lang", "en-US");
+		setNodeValue(imsmdlangstring, text);
+		element.appendChild(imsmdlangstring);
+
+		return element;
+	}
+	
+	private void setNodeValue( Element parent, String data ) {
+		Text textNode = getDocument().createTextNode(data);
+		parent.appendChild( textNode );
+	}
+
+	private Document getDocument() {
+		if (document != null)
+			return document;
+		else
+			document = XmlUtil.createDocument();
+		return document;
+	}
+
 }
