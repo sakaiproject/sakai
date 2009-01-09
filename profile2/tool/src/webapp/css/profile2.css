@@ -37,11 +37,18 @@
 #myPhoto {
 	max-width: 200px;
 	position: relative;
+	/* centre the image inside this div */
+	text-align:center;
+    margin-top:0px;
+    margin-bottom:0px;
+    padding:0px;
+    /* end of centreing the image */
 }
 
 #myPhoto img {
 	max-width: 200px;
 	background-color: transparent;
+	text-align:center;
 }
 
 

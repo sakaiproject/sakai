@@ -1,6 +1,7 @@
 package uk.ac.lancs.e_science.profile2.tool.components;
 
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -13,7 +14,7 @@ public class CloseButton extends Panel{
 	private static final String CLOSE_IMAGE = "/library/image/silk/cross.png";
 	
 	
-	public CloseButton(String id, final String parentId) {
+	public CloseButton(String id, final Component parent) {
 		super(id);
 			
 		//container
@@ -27,7 +28,7 @@ public class CloseButton extends Panel{
 			public void onClick(AjaxRequestTarget target) {
 				if(target != null) {
 					
-					target.appendJavascript("$('#" + parentId + "').slideUp();");
+					target.prependJavascript("$('#" + parent.getMarkupId() + "').slideUp();");
 					target.appendJavascript("setMainFrameHeight(window.name);");
 
 					//do we also need to remove the component as well?

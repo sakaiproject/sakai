@@ -15,6 +15,7 @@ import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -22,15 +23,14 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileImage;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 
 
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private transient Logger log = Logger.getLogger(SakaiProxyImpl.class);
-    
-	private final int MAX_PROFILE_IMAGE_SIZE = 2; //default if not specified in sakai.properties as profile.picture.max (megs)
-	
+    	
 	public String getCurrentSiteId(){
 		return toolManager.getCurrentPlacement().getContext();
 	}
@@ -119,6 +119,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson) {
 		//the save is void, so unless it throws an exception, its ok (?)
 		//I'd prefer a return value from sakaiPersonManager. this wraps it.
+		
+		System.out.println("saving...");
+		
 		try {
 			sakaiPersonManager.save(sakaiPerson);
 			return true;
@@ -144,7 +147,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	
 	public int getMaxProfilePictureSize() {
-		return getSakaiConfigurationParameterAsInt("profile.picture.max", MAX_PROFILE_IMAGE_SIZE);
+		return getSakaiConfigurationParameterAsInt("profile.picture.max", ProfileImage.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
 	}
 	
 	public LinkedHashMap<String, String> getSiteListForUser(int limitSites) {
@@ -162,17 +165,23 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	
-	public void registerSecurityAdvisor(SecurityAdvisor securityAdvisor){
-		securityService.pushAdvisor(securityAdvisor);
-	}
-	
+	/**
+	 * Setup a security advisor.
+	 */
 	private void enableSecurityAdvisor() {
-        registerSecurityAdvisor(new SecurityAdvisor() {
-            public SecurityAdvice isAllowed(String userId, String function, String reference) {
-                return SecurityAdvice.ALLOWED;
-            }
-        });
-    }
+		securityService.pushAdvisor(new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference){
+				  return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+	/**
+	 * Remove our security advisor.
+	 */
+	public void disableSecurityAdvisor(){
+		securityService.popAdvisor();
+	}
 
 	
 	
@@ -180,7 +189,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		//this needs to come from a sakai property perhaps?
 		//may break on windows unless use File.separator?
-		String fullResourceId = "/private/profileImages/" + userId + "/" + type + "/" + fileName;
+		
+		//String fullResourceId = "/private/profileImages/" + userId + "/" + type + "/" + fileName;
+		
+		String fullResourceId = "/private/profileImages/" + userId + "/" + type + "/" + idManager.createUuid();
+		
 		
 		return fullResourceId;
 		
@@ -189,6 +202,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData) {
 		
 		ContentResourceEdit resource = null;
+		boolean result = true;
 		
 		try {
 			
@@ -205,27 +219,26 @@ public class SakaiProxyImpl implements SakaiProxy {
 				props.addProperty(ResourceProperties.PROP_CREATOR, userId);
 				resource.getPropertiesEdit().set(props);
 				contentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
-				return true;
+				result = true;
 			}
 			catch (IdUsedException e){
 				contentHostingService.cancelResource(resource);
 				log.error("saveFile(): id= " + fullResourceId + " is in use : " + e.getClass() + " : " + e.getMessage());
-				return false;
+				result = false;
 			}
 			catch (Exception e){
 				contentHostingService.cancelResource(resource);
 				log.error("saveFile(): failed: " + e.getClass() + " : " + e.getMessage());
-				return false;
+				result = false;
 			}
 			
-		
 		} catch (Exception e) {
-			//do we need to do something with the security advisor here?
 			log.error("saveFile():" + e.getClass() + ":" + e.getMessage());
-			return false;
+			result = false;
+		} finally {
+			disableSecurityAdvisor();
 		}
-		
-		//do we need to do something with the security advisor?
+		return result;
 		
 	}
 	
@@ -234,16 +247,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public byte[] getResource(String resourceId) {
 		
 		byte[] data = null;
-				
-		try {
-			ContentResource resource = contentHostingService.getResource(resourceId);
-			data = resource.getContent();
-		}
-		catch(Exception e){
-			log.error("SakaiProxy.getResource() failed for resourceId: " + resourceId + " : " + e.getClass() + " : " + e.getMessage());
-			return null;
-		}
 		
+		try {
+			
+			enableSecurityAdvisor();
+		
+			try {
+				ContentResource resource = contentHostingService.getResource(resourceId);
+				data = resource.getContent();
+			}
+			catch(Exception e){
+				log.error("SakaiProxy.getResource() failed for resourceId: " + resourceId + " : " + e.getClass() + " : " + e.getMessage());
+			}
+		} catch (Exception e) {
+			log.error("getResource():" + e.getClass() + ":" + e.getMessage());
+		}
+		finally	{
+			disableSecurityAdvisor();
+		}
 		return data;
 	}
 	
@@ -289,8 +310,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
 	}
-		
-		
+	
+	private IdManager idManager;
+	public void setIdManager(IdManager idManager) {
+		this.idManager = idManager;
+	}
+
 	public void init() {
 		log.debug("Profile2 SakaiProxy init()");
 	}

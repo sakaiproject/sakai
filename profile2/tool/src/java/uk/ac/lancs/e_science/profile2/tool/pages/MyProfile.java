@@ -14,7 +14,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileException;
+import uk.ac.lancs.e_science.profile2.api.exception.ProfileAccessException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
@@ -32,7 +32,7 @@ public class MyProfile extends BasePage {
 	private transient byte[] profileImageBytes;
 	private final ChangeProfilePicture changePicture;
 	
-	public MyProfile() {
+	public MyProfile()   {
 		
 		if(log.isDebugEnabled()) log.debug("MyProfile()");
 		
@@ -52,7 +52,7 @@ public class MyProfile extends BasePage {
 			sakaiPerson = sakaiProxy.createSakaiPerson(userId);
 			//if its still null, throw exception
 			if(sakaiPerson == null) {
-				throw new ProfileException("Couldn't create a SakaiPerson for " + userId);
+				throw new ProfileAccessException("Couldn't create a SakaiPerson for " + userId);
 			}
 		} 
 		
@@ -121,6 +121,7 @@ public class MyProfile extends BasePage {
 		//change picture panel
 		changePicture = new ChangeProfilePicture("changePicture", userProfile);
 		changePicture.setOutputMarkupPlaceholderTag(true);
+		final String changePictureMarkupId = changePicture.getMarkupId();
 		//changePicture.setOutputMarkupId(true);
 		changePicture.setVisible(false);
 		add(changePicture);
@@ -131,13 +132,11 @@ public class MyProfile extends BasePage {
 				
 				//add the full changePicture component to the page dynamically
 				target.addComponent(changePicture);
-				String js1 = "$('#" + changePicture.getMarkupId() + "').fadeIn();"; //this isn't firing in the right order
-				target.appendJavascript(js1);
+				//target.appendJavascript("$('#" + changePictureMarkupId + "').fadeIn();"); //this isn't firing in the right order
 				changePicture.setVisible(true);
 				
 				//resize iframe
 				target.appendJavascript("setMainFrameHeight(window.name);");
-				
 				//when the editImageButton is clicked, show the panel
 				//its possible this will push the content lower than the iframe, so make sure the iframe size is good.
 				//String js = "$('#" + changePicture.getMarkupId() + "').slideToggle()";
@@ -167,6 +166,11 @@ public class MyProfile extends BasePage {
 		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
 		myInterestsDisplay.setOutputMarkupId(true);
 		add(myInterestsDisplay);
+		
+		//quick links panel
+		//this is to go in the quick links page but notes are here
+		//if this profile is not the current user's profile, then we need to present some links like 'Add as a friend' etc
+		
 		
 		//friends quick panel
 		Panel friendsFeed = new FriendsFeed("friendsFeed", userId);

@@ -9,13 +9,11 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.util.lang.Bytes;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileImage;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
@@ -33,18 +31,12 @@ public class ChangeProfilePicture extends Panel{
     private transient Profile profile;
 	private transient Logger log = Logger.getLogger(ChangeProfilePicture.class);
 
-	private final int MAX_IMAGE_XY = 400; //one side will be scaled to this if larger. 400 is large enough
-    
-	private final int PROFILE_IMAGE_MAIN = 1;
-	private final int PROFILE_IMAGE_THUMBNAIL = 2;
+	
 
 	
 	public ChangeProfilePicture(String id, UserProfile userProfile) {  
         super(id);  
         
-        //create model
-		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
-		
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
@@ -52,13 +44,8 @@ public class ChangeProfilePicture extends Panel{
 		profile = ProfileApplication.get().getProfile();
 		   
         //setup form	
-		Form form = new Form("form", userProfileModel) {
+		Form form = new Form("form") {
 			public void onSubmit(){
-				
-				//get the backing model
-				UserProfile userProfile = (UserProfile) this.getModelObject();
-				
-				boolean proceed = true;
 				
 				//get userid and sakaiperson for this user
 				String userId = sakaiProxy.getCurrentUserId();
@@ -66,9 +53,7 @@ public class ChangeProfilePicture extends Panel{
 				
 				//get file that was uploaded
 				FileUpload upload = uploadField.getFileUpload();
-				
-				String mimeType = upload.getContentType();
-				String fileName = upload.getClientFileName();
+								
 				
 				if (upload == null) {
 					log.error("upload was null.");
@@ -78,26 +63,29 @@ public class ChangeProfilePicture extends Panel{
 				    log.error("upload was empty.");
 					error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
 					return;
-				} else if (!profile.checkContentTypeForProfileImage(mimeType)) {
+				} else if (!profile.checkContentTypeForProfileImage(upload.getContentType())) {
+					log.error("invalid file type uploaded for profile picture");
 					error(new StringResourceModel("error.invalid.image.type", this, null).getString());
 				    return;
 				} else {
+					
+					String mimeType = upload.getContentType();
+					String fileName = upload.getClientFileName();
+					
 					//get bytes, set into sakaiperson directly
 					byte[] imageBytes = upload.getBytes();
 					
 					//scale image for the main profile pic
-					//imageBytes = profile.scaleImage(imageBytes, MAX_IMAGE_XY);
+					imageBytes = profile.scaleImage(imageBytes, ProfileImage.MAX_IMAGE_XY);
 					 
 					//save the main profile image to CHS and get the resource_id back
-					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, PROFILE_IMAGE_MAIN, fileName);
-					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, PROFILE_IMAGE_THUMBNAIL, fileName);
+					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, SakaiProxy.PROFILE_IMAGE_MAIN, fileName);
+					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, SakaiProxy.PROFILE_IMAGE_THUMBNAIL, fileName);
 
 					System.out.println("mainResourceId:" + mainResourceId);
 					System.out.println("thumbnailResourceId:" + thumbnailResourceId);
 
 					boolean result = sakaiProxy.saveFile(mainResourceId, userId, fileName, mimeType, imageBytes);
-					
-					System.out.println("saved new image? " + result);
 					
 					//save
 					if(profile.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
@@ -116,13 +104,14 @@ public class ChangeProfilePicture extends Panel{
 		};
 		
 		//get the max upload size from Sakai
-		form.setMaxSize(Bytes.megabytes(sakaiProxy.getMaxProfilePictureSize()));	
+		//form.setMaxSize(Bytes.megabytes(sakaiProxy.getMaxProfilePictureSize()));	
+
 		form.setOutputMarkupId(true);
 		form.setMultiPart(true);
        
         
         //close button - this needs to be a component -TODO
-        CloseButton closeButton = new CloseButton("closeButton", this.getMarkupId());
+        CloseButton closeButton = new CloseButton("closeButton", this);
         closeButton.setOutputMarkupId(true);
 		form.add(closeButton);
       
@@ -166,15 +155,6 @@ public class ChangeProfilePicture extends Panel{
     }
 	
 	
-	
-	
-	//called when the form is to be saved
-	private boolean save() {
-		
-        
-		//System.out.println(userProfile.getNickname());
-		return false;
-	}
 	
 	
 }

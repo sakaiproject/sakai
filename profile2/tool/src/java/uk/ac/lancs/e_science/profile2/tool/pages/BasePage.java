@@ -1,6 +1,7 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
@@ -108,17 +109,23 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myPrivacyLink.add(new Label("myPrivacyLabel",new ResourceModel("link.my.privacy")));
 		add(myPrivacyLink);
 		
-	
+		//search link
+    	Link searchLink = new Link("searchLink") {
+			public void onClick() {
+				setResponsePage(new Search());
+			}
+		};
+		searchLink.add(new Label("searchLabel",new ResourceModel("link.search")));
+		add(searchLink);
 				
 		//rss link
 		ContextImage icon = new ContextImage("icon",new Model(RSS_IMG));
-	
 		Link rssLink = new Link("rssLink") {
 			public void onClick() {
-				//setResponsePage(new TestData());
 			}
 		};
 		rssLink.add(icon);
+		rssLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.rss")));
 		icon.setVisible(true);
 		add(rssLink);
 		
@@ -173,6 +180,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderJavascriptReference("javascript/jquery.dimensions.js");
 		response.renderJavascriptReference("javascript/jquery.hoverIntent.js");
 		response.renderJavascriptReference("javascript/jquery.cluetip.js");
+		
+		//for color plugin
+		//response.renderJavascriptReference("javascript/jquery.color.js");
 		
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");

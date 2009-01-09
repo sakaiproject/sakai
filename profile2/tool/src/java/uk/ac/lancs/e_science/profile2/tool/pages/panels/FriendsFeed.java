@@ -84,6 +84,9 @@ public class FriendsFeed extends Panel {
 		dataView.setColumns(3);
 		add(dataView);
 		*/
+		
+		//if no friends, hide
+		this.setVisible(false);
 	}
 	
 	

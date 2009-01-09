@@ -96,11 +96,24 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	    // Get the image from a file.
 	    Image inImage = new ImageIcon(imageData).getImage();
 	
-	    // Determine the scale.
+	    // Determine the scale (we could change this to only determine scale from one dimension, ie the width only?)
 	    double scale = (double) maxSize / (double) inImage.getHeight(null);
 	    if (inImage.getWidth(null) > inImage.getHeight(null)) {
 	        scale = (double) maxSize / (double) inImage.getWidth(null);
 	    }
+	    
+	    System.out.println("===========Image scaling============");
+	    System.out.println("WIDTH: " + inImage.getWidth(null));
+	    System.out.println("HEIGHT: " + inImage.getHeight(null));
+	    System.out.println("SCALE: " + scale);
+	    System.out.println("========End of image scaling========");
+
+	    //if image is smaller than desired image size (ie scale is larger) just return the original image bytes
+	    if (scale >= 1.0d) {
+	    	return imageData;
+	    }
+	    
+	    
 	
 	    // Determine size of new image.
 	    // One of the dimensions should equal maxSize.
@@ -113,11 +126,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	    // Set the scale.
 	    AffineTransform tx = new AffineTransform();
 	
-	    // If the image is smaller than the desired image size,
-	    // don't bother scaling.
-	    if (scale < 1.0d) {
-	        tx.scale(scale, scale);
-	    }
+	    //scale
+	    tx.scale(scale, scale);
 	
 	    // Paint image.
 	    Graphics2D g2d = outImage.createGraphics();

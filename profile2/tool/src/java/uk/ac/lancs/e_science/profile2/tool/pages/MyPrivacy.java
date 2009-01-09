@@ -21,7 +21,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileException;
+import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrivacyException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
@@ -48,8 +48,9 @@ public class MyPrivacy extends BasePage {
 		if(profilePrivacy == null) {
 			profilePrivacy = profile.createDefaultPrivacyRecord(userId);
 			//if its still null, throw exception
+			
 			if(profilePrivacy == null) {
-				throw new ProfileException("Couldn't create default privacy record for " + userId);
+				throw new ProfilePrivacyException("Couldn't create default privacy record for " + userId);
 			}
 			
 		}

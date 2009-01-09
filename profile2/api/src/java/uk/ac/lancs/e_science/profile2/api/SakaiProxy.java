@@ -1,12 +1,15 @@
 package uk.ac.lancs.e_science.profile2.api;
 
-import java.io.File;
 import java.util.LinkedHashMap;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 
 public interface SakaiProxy {
+	
+	//part or parth for where a profile image is uplaoded to depending on its type
+	public static final int PROFILE_IMAGE_MAIN = 1;		
+	public static final int PROFILE_IMAGE_THUMBNAIL = 2;
+	
 	
 	public String getCurrentSiteId();
 	
@@ -33,9 +36,7 @@ public interface SakaiProxy {
 	public LinkedHashMap<String,String> getSiteListForUser(int limitSites);
 	
 	public String cleanString(String input);
-	
-	public void registerSecurityAdvisor(SecurityAdvisor securityAdvisor);
-	
+		
 	public String getProfileImageResourcePath(String userId, int type, String fileName);
 	
 	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData);
