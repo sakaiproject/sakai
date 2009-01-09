@@ -216,6 +216,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         
         //RSFUtil.addResultingViewBinding(form, "assignmentId", assignmentOTP + ".id");
         RSFUtil.addResultingViewBinding(form, "name", assignmentOTP + ".name");
+        RSFUtil.addResultingViewBinding(form, "requireDueDate", "#{GradebookItemBean.requireDueDate}");
+        RSFUtil.addResultingViewBinding(form, "dueDate", assignmentOTP + ".dueDate");
         
         //Action Buttons
         if (add){
@@ -234,9 +236,17 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 				result.resultingView = new RawViewParameters(params.finishURL);
 			}
 			else if (params.finishURL != null && actionReturn.equals("submit")) {
-				//tack on name of newly created item
+				//tack on name and due date of newly created item
 				String name = ((GradebookItemViewParams)result.resultingView).name;
-				result.resultingView = new RawViewParameters(params.finishURL + "?value=" + name);
+				String gbItemDueTime = "";
+				boolean requireDueDate = ((GradebookItemViewParams)result.resultingView).requireDueDate;
+				if (requireDueDate) {
+				    Date dueDate = ((GradebookItemViewParams)result.resultingView).dueDate;
+				    if (dueDate != null) {
+				        gbItemDueTime = dueDate.getTime() + "";
+				    }
+				}
+				result.resultingView = new RawViewParameters(params.finishURL + "?gbItemName=" + name + "&gbItemDueTime=" + gbItemDueTime);
 			}
 		}
 	}

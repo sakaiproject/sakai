@@ -1,5 +1,7 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.params;
 
+import java.util.Date;
+
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 
 public class GradebookItemViewParams extends SimpleViewParameters {
@@ -8,6 +10,8 @@ public class GradebookItemViewParams extends SimpleViewParameters {
 	public String contextId;
 	public String finishURL;
 	public String name;
+	public boolean requireDueDate;
+	public Date dueDate;
 	
 	public GradebookItemViewParams() {}
 	
