@@ -80,7 +80,6 @@ public String checkSession(String id) {
 	}
 }
 
-
 /**
  * Create a new user account
  *
@@ -118,7 +117,6 @@ public String addNewUser( String sessionid, String eid, String firstname, String
 	}
 	return "success";
 }
-
 
 /**
  * Create a new user account
@@ -159,7 +157,6 @@ public String addNewUser( String sessionid, String id ,String eid, String firstn
 	return "success";
 }
 
-
 /**
  * Remove a user account
  *
@@ -187,7 +184,6 @@ public String removeUser( String sessionid, String eid) throws AxisFault
 	}
 	return "success";
 }
-
 
 /**
  * Edit a user's account details
@@ -229,7 +225,6 @@ public String changeUserInfo( String sessionid, String eid, String firstname, St
 	return "success";
 }
 
-
 /**
  * Edit a user's firstname/lastname
  *
@@ -261,7 +256,6 @@ public String changeUserName( String sessionid, String eid, String firstname, St
 	return "success";
 }
 
-
 /**
  * Edit a user's email address
  *
@@ -291,7 +285,6 @@ public String changeUserEmail( String sessionid, String eid, String email) throw
 	return "success";
 }
 
-
 /**
  * Edit a user's user type
  *
@@ -319,7 +312,6 @@ public String changeUserType( String sessionid, String eid, String type) throws 
 	}
 	return "success";
 }
-
 
 /**
  * Edit a user's password
@@ -351,7 +343,7 @@ public String changeUserPassword( String sessionid, String eid, String password)
 }
 
 /**
- * Get a user's email address
+ * Get a user's email address based on their session id
  *
  * @param	sessionid		the session id of the user who's email address you wish to retrieve
  * @return		        	their email address
@@ -365,9 +357,8 @@ public String getUserEmail( String sessionid ) throws AxisFault
 	return user.getEmail();
 }
 
-
 /**
- * Gets the email address for a given user. 
+ * Gets the email address for a given user
  *
  * Differs from original above as that one uses the session to get the displayname hence you must know this in advance or be logged in to the web services
  * with that user. This uses a userid as well so we could be logged in as admin and retrieve the email address for any user.
@@ -390,9 +381,8 @@ public String getUserEmail( String sessionid, String userid ) throws AxisFault
 	}
 }
 
-
 /**
- * Get a user's display name
+ * Get a user's display name based on their session id
  *
  * @param	sessionid		the session id of the user who's display name you wish to retrieve
  * @return		        	success or exception message
@@ -406,9 +396,8 @@ public String getUserDisplayName( String sessionid ) throws AxisFault
 	return user.getDisplayName();
 }
 
-
 /**
- * Gets the display name for a given user. 
+ * Gets the display name for a given user 
  *
  * Differs from original above as that one uses the session to get the displayname hence you must know this in advance or be logged in to the web services
  * with that user. This uses a userid as well so we could be logged in as admin and retrieve the display name for any user.
@@ -430,7 +419,6 @@ public String getUserDisplayName( String sessionid, String userid ) throws AxisF
 		return "";
 	}
 }
-
 
 /**
  * Create user-group to specified worksite (as if it had been added in Worksite Setup)
@@ -464,7 +452,6 @@ public String addGroupToSite( String sessionid, String siteid, String grouptitle
 
 	}
 } 
-
 
 /**
  * Add member to specified worksite group
@@ -525,7 +512,6 @@ public String addNewAuthzGroup(String sessionid, String authzgroupid) throws Axi
 	return "success";
 }
 
-
 /**
  * Remove an authzgroup (realm)
  *
@@ -549,7 +535,6 @@ public String removeAuthzGroup( String sessionid, String authzgroupid) throws Ax
 	}
 	return "success";
 }
-
 
 /**
  * Add a role to an authzgroup (realm)
@@ -578,7 +563,6 @@ public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, Str
 	}
 	return "success";
 }
-
 
 /**
  * Remove all roles that exist in an authzgroup (realm)
@@ -661,7 +645,6 @@ public String allowFunctionForRole( String sessionid, String authzgroupid, Strin
 	return "success";
 }
 
-
 /**
  * Remove all functions from a role in an authzgroup (realm)
  *
@@ -688,7 +671,6 @@ public String disallowAllFunctionsForRole( String sessionid, String authzgroupid
 	}
 	return "success";
 }
-
 
 /**
  * Remove a function from a role in an authzgroup (realm)
@@ -747,7 +729,6 @@ public String setRoleDescription( String sessionid, String authzgroupid, String 
 	return "success";
 }
 
-
 /**
  * Add a user to an authgroup with the given role
  *
@@ -777,7 +758,6 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	return "success";
 }
 
-
 /**
  * Remove a user from an authgroup
  *
@@ -804,7 +784,6 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	}
 	return "success";
 }
-
 
 /**
  * Remove all users from an authgroup
@@ -885,7 +864,27 @@ public String addMemberToSiteWithRole(String sessionid, String siteid, String ei
 	return "success";
 }
 
-
+/**
+ * Create a new site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the new site (ie test123)
+ * @param 	title 			the title of the new site
+ * @param 	description 	the full description for the new site
+ * @param 	shortdesc 		the short description for the new site
+ * @param 	iconurl 		the url to an icon for the site (on the default skin should not be more than 100px wide)
+ * @param 	infourl 		the url to a page of information about the site (this is added to the Site Information portlet)
+ * @param 	joinable 		should this site be joinable?
+ * @param 	joinerrole 		if joinable, the role to assign users that join this site
+ * @param 	published 		should this site be made available to participants of the site now? 
+ * @param 	publicview 		should this site be shown on the public list of sites?
+ * @param 	skin 			the id of the skin for this site, from the list in /library/skin/SKIN
+ * @param 	type 			the type of site ie project, course, etc, or any type defined as !site.template.TYPE. If blank will inherit !site.template roles/permissions
+ * @return					success or exception message
+ *
+ * Note that this will create an empty site with no tools. If you would like to create a site from a template, ie inherit its tool structure (not content), see copySite()
+ *
+ */
 public String addNewSite( String sessionid, String siteid, String title, String description, String shortdesc, String iconurl, String infourl, boolean joinable, String joinerrole, boolean published, boolean publicview, String skin, String type) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -914,7 +913,14 @@ public String addNewSite( String sessionid, String siteid, String title, String 
 	return "success";
 }
 
-
+/**
+ * Remove a site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to remove
+ * @return					success or exception message
+ *
+ */
 public String removeSite( String sessionid, String siteid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -932,6 +938,26 @@ public String removeSite( String sessionid, String siteid) throws AxisFault
 	return "success";
 }
 
+/**
+ * Create a new site based on another site. This will copy its tool structure, but not its content
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteidtocopy	the id of the site to base this new site on
+ * @param 	siteid 			the id of the new site (ie test123)
+ * @param 	title 			the title of the new site
+ * @param 	description 	the full description for the new site
+ * @param 	shortdesc 		the short description for the new site
+ * @param 	iconurl 		the url to an icon for the site (on the default skin should not be more than 100px wide)
+ * @param 	infourl 		the url to a page of information about the site (this is added to the Site Information portlet)
+ * @param 	joinable 		should this site be joinable?
+ * @param 	joinerrole 		if joinable, the role to assign users that join this site
+ * @param 	published 		should this site be made available to participants of the site now? 
+ * @param 	publicview 		should this site be shown on the public list of sites?
+ * @param 	skin 			the id of the skin for this site, from the list in /library/skin/SKIN
+ * @param 	type 			the type of site ie project, course, etc, or any type defined as !site.template.TYPE. If blank will inherit !site.template roles/permissions
+ * @return					success or exception message
+ *
+ */
 public String copySite( String sessionid, String siteidtocopy, String newsiteid, String title, String description, String shortdesc, String iconurl, String infourl, boolean joinable, String joinerrole, boolean published, boolean publicview, String skin, String type) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -960,6 +986,16 @@ public String copySite( String sessionid, String siteidtocopy, String newsiteid,
 	return "success";
 }
 
+/**
+ * Create a new page in a site. A page holds one or more tools and is shown in the main navigation section. You will still need to add tools to this page.
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to add the page to
+ * @param 	pagetitle 		the title of the new page
+ * @param 	pagelayout 		single or double column (0 or 1). Any other value will revert to 0.
+ * @return					success or exception message
+ *
+ */
 public String addNewPageToSite( String sessionid, String siteid, String pagetitle, int pagelayout) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -981,6 +1017,17 @@ public String addNewPageToSite( String sessionid, String siteid, String pagetitl
 	return "success";
 }
 
+/**
+ * Remove a page from a site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to remove the page from
+ * @param 	pagetitle 		the title of the page to remove
+ * @return					success or exception message
+ *
+ * TODO: fix for if the page title is blank it removes nothing and is still returning success - SAK-15334
+ * TODO: fix for ConcurrentModficationException being thrown - SAK-15337. Is this because it removes via pagetitle but can allow multiple page titles of the same name?
+ */
 public String removePageFromSite( String sessionid, String siteid, String pagetitle) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -1006,7 +1053,19 @@ public String removePageFromSite( String sessionid, String siteid, String pageti
 }
 
 
-
+/**
+ * Add a new tool to a page in a site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to add the page to
+ * @param 	pagetitle 		the title of the page to add the tool to
+ * @param 	tooltitle 		the title of the new tool (ie Resources)
+ * @param 	toolid 			the id of the new tool (ie sakai.resources)
+ * @param 	layouthints 	where on the page this tool should be added, in 'row, col' and 0 based, ie first column, first tool='0,0'; Second column third tool = '1,2'
+ * @return					success or exception message
+ *
+ * TODO: fix for if any values (except sessionid and siteid) are blank or invalid, it is still returning success - SAK-15334
+ */
 public String addNewToolToPage( String sessionid, String siteid, String pagetitle, String tooltitle, String toolid, String layouthints) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -1040,7 +1099,19 @@ public String addNewToolToPage( String sessionid, String siteid, String pagetitl
 }
 
 
-
+/**
+ * Add a property to a tool on a page in a site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to add the page to
+ * @param 	pagetitle 		the title of the page the tool exists in
+ * @param 	tooltitle 		the title of the tool to add the property to
+ * @param 	propname 		the name of the property
+ * @param 	propvalue 		the value of the property
+ * @return					success or exception message
+ *
+ * TODO: fix for if any values (except sessionid and siteid) are blank or invalid, it is still returning success - SAK-15334
+ */
 public String addConfigPropertyToTool( String sessionid, String siteid, String pagetitle, String tooltitle, String propname, String propvalue) throws AxisFault
 {
 	Session session = establishSession(sessionid);
@@ -1076,7 +1147,14 @@ public String addConfigPropertyToTool( String sessionid, String siteid, String p
 	return "success";
 }
 
-//checkForUser(): a call to check for an existing user
+/**
+ * Check if a user exists (either as an account in Sakai or in any external provider)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	eid 			the login username (ie jsmith26) of the user to check for
+ * @return					true/false
+ *
+ */
 public boolean checkForUser(String sessionid, String eid) throws AxisFault
 {
 	Session s = establishSession(sessionid);
@@ -1096,8 +1174,15 @@ public boolean checkForUser(String sessionid, String eid) throws AxisFault
 	}
 }
 
-// checkForSite(): a call to check for an existing site
-public boolean checkForSite(String sessionid, String siteid) throws AxisFault
+/**
+ * Check if a site exists
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to check for
+ * @return					true/false
+ *
+ */
+ public boolean checkForSite(String sessionid, String siteid) throws AxisFault
 {
 	Session s = establishSession(sessionid);
 	
@@ -1115,7 +1200,16 @@ public boolean checkForSite(String sessionid, String siteid) throws AxisFault
 	}
 }
 
-//checkForUserInRealmWithRole
+/**
+ * Check if a user exists in the authzgroup (or site) with the given role
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	eid 			the login username (ie jsmith26) of the user to check for
+ * @param 	authzgroupid 	the id of the authzgroup to check in. If this is a site it should be of the form /site/SITEID
+ * @param 	role 			the id of the role for the user in the site
+ * @return					true/false
+ *
+ */
 public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, String authzgroupid, String role) throws AxisFault
 {
 	Session s = establishSession(sessionid);
@@ -1135,7 +1229,26 @@ public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, 
 	}
 }
 
-// Return XML document listing all sites user has read or write access
+/**
+ * Return XML document listing all sites user has read or write access based on their session id.
+ *
+ * @param 	sessionid 		the session id of a user who's list of sites you want to retrieve
+ * @param 	eid 			the login username (ie jsmith26) of the user to check for
+ * @param 	authzgroupid 	the id of the authzgroup to check in. If this is a site it should be of the form /site/SITEID
+ * @param 	role 			the id of the role for the user in the site
+ * @return					xml or an empty list <list/>. The return XML format is below:
+ *<list>
+ *	<item>
+ *		<siteId>!admin</siteId>
+ *		<siteTitle>Administration Workspace</siteTitle>
+ *	</item>
+ *	<item>
+ *		...
+ *	</item>
+ *	...
+ *</list>
+ *
+ */
 public String getSitesUserCanAccess(String sessionid)
 	throws AxisFault
 {
