@@ -53,10 +53,10 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
+import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
 import org.azeckoski.reflectutils.ReflectUtils;
 
 
@@ -72,6 +72,9 @@ public class EntityActionsManager {
     private HashSet<String> reservedActions = null;
     private Map<String, Map<String, CustomAction>> entityActions = new ConcurrentHashMap<String, Map<String,CustomAction>>();
 
+    /**
+     * Full constructor
+     */
     public EntityActionsManager() {
         reservedActions = new HashSet<String>(4);
         reservedActions.add("describe");

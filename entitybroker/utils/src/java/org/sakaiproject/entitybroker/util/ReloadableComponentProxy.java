@@ -11,6 +11,7 @@ import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
+ * WARNING: Requires Spring 1.2.8 or newer libraries in the classpath <br/>
  * Allows you to define a Sakai component in a webapp so it can be reloaded,
  * this makes development easier since it does not require all of Sakai to be restarted
  * and yet allows you to expose beans to the Sakai component manager<br/>

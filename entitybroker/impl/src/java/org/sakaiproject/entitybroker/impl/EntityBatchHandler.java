@@ -91,7 +91,8 @@ public class EntityBatchHandler {
     }
 
     /**
-     * Can only set this after the class is constructed since it forms a circular dependency
+     * Can only set this after the class is constructed since it forms a circular dependency,
+     * this is being set by the setter/constructor in the EntityHandlerImpl
      */
     private EntityHandlerImpl entityRequestHandler;
     public void setEntityRequestHandler(EntityHandlerImpl entityRequestHandler) {

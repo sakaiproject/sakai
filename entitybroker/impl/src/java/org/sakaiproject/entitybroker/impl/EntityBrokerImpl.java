@@ -41,9 +41,10 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.util.EntityResponse;
+import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -56,11 +57,22 @@ import org.sakaiproject.event.api.NotificationService;
  */
 public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
-    private static Log log = LogFactory.getLog(EntityBrokerImpl.class);
+    private static final Log log = LogFactory.getLog(EntityBrokerImpl.class);
 
-    private EntityActionsManager entityActionsManager;
-    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
-        this.entityActionsManager = entityActionsManager;
+    /**
+     * Empty constructor
+     */
+    protected EntityBrokerImpl() { }
+
+    /**
+     * Minimal constructor
+     */
+    public EntityBrokerImpl(EntityProviderManager entityProviderManager,
+            EntityBrokerManager entityBrokerManager) {
+        super();
+        this.entityProviderManager = entityProviderManager;
+        this.entityBrokerManager = entityBrokerManager;
+        this.requestStorage = new RequestStorageImpl(); // not ideal, should be loaded from the request/REST section
     }
 
     private EntityProviderManager entityProviderManager;
@@ -68,9 +80,17 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         this.entityProviderManager = entityProviderManager;
     }
 
-    private EventTrackingService eventTrackingService;
-    public void setEventTrackingService(EventTrackingService eventTrackingService) {
-        this.eventTrackingService = eventTrackingService;
+    private EntityBrokerManager entityBrokerManager;
+    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+        this.entityBrokerManager = entityBrokerManager;
+    }
+
+    // TODO constructor or setter to set the REST services
+
+    // Servlet/REST services
+    private EntityActionsManager entityActionsManager;
+    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
+        this.entityActionsManager = entityActionsManager;
     }
 
     private EntityEncodingManager entityEncodingManager;
@@ -78,11 +98,18 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         this.entityEncodingManager = entityEncodingManager;
     }
 
-    private EntityBrokerManager entityBrokerManager;
-    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
-        this.entityBrokerManager = entityBrokerManager;
+    private EntityHandlerImpl entityHandler;
+    public void setEntityRequestHandler(EntityHandlerImpl entityHandler) {
+        this.entityHandler = entityHandler;
     }
 
+    private RequestStorageWrite requestStorage;
+    public void setRequestStorage(RequestStorageWrite requestStorage) {
+        this.requestStorage = requestStorage;
+    }
+
+
+    // OPTIONAL
     private EntityMetaPropertiesService entityMetaPropertiesService;
     public void setEntityMetaPropertiesService(
             EntityMetaPropertiesService entityMetaPropertiesService) {
@@ -94,22 +121,15 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         this.entityTaggingService = entityTaggingService;
     }
 
-    private EntityHandlerImpl entityHandler;
-    public void setEntityRequestHandler(EntityHandlerImpl entityHandler) {
-        this.entityHandler = entityHandler;
-    }
-
-    private EntityManager entityManager;
+    // SAKAI
+    private EntityManager entityManager; // for find entity by reference
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
-    /**
-     * Must be the implementation
-     */
-    private RequestStorageImpl requestStorage;
-    public void setRequestStorage(RequestStorageImpl requestStorage) {
-        this.requestStorage = requestStorage;
+    private EventTrackingService eventTrackingService; // for fire event
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
+        this.eventTrackingService = eventTrackingService;
     }
 
 
@@ -371,73 +391,127 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
     public List<String> findEntityRefs(String[] prefixes, String[] name, String[] searchValue,
             boolean exactMatch) {
-        return entityMetaPropertiesService.findEntityRefs(prefixes, name, searchValue, exactMatch);
+        if (entityMetaPropertiesService != null) {
+            return entityMetaPropertiesService.findEntityRefs(prefixes, name, searchValue, exactMatch);
+        } else {
+            log.warn("No entityMetaPropertiesService defined");
+            return new ArrayList<String>();
+        }
     }
 
     public Map<String, String> getProperties(String reference) {
-        return entityMetaPropertiesService.getProperties(reference);
+        if (entityMetaPropertiesService != null) {
+            return entityMetaPropertiesService.getProperties(reference);
+        } else {
+            log.warn("No entityMetaPropertiesService defined");
+            return new HashMap<String, String>(0);
+        }
     }
 
     public String getPropertyValue(String reference, String name) {
-        return entityMetaPropertiesService.getPropertyValue(reference, name);
+        if (entityMetaPropertiesService != null) {
+            return entityMetaPropertiesService.getPropertyValue(reference, name);
+        } else {
+            log.warn("No entityMetaPropertiesService defined");
+            return null;
+        }
     }
 
     public void setPropertyValue(String reference, String name, String value) {
-        entityMetaPropertiesService.setPropertyValue(reference, name, value);
+        if (entityMetaPropertiesService != null) {
+            entityMetaPropertiesService.setPropertyValue(reference, name, value);
+        } else {
+            log.warn("No entityMetaPropertiesService defined");
+        }
     }
 
 
     // TAGS
 
-
     public List<EntityData> findEntitesByTags(String[] tags, String[] prefixes,
             boolean matchAll, Search search, Map<String, Object> params) {
-        requestStorage.setRequestValues(params);
-        List<EntityData> results = entityTaggingService.findEntitesByTags(tags, prefixes, matchAll, search);
-        requestStorage.reset();
-        return results;
+        if (entityTaggingService != null) {
+            requestStorage.setRequestValues(params);
+            List<EntityData> results = entityTaggingService.findEntitesByTags(tags, prefixes, matchAll, search);
+            requestStorage.reset();
+            return results;
+        } else {
+            log.warn("No entityTaggingService defined");
+            return new ArrayList<EntityData>();
+        }
     }
 
     public List<String> getTagsForEntity(String reference) {
-        return entityTaggingService.getTagsForEntity(reference);
+        if (entityTaggingService != null) {
+            return entityTaggingService.getTagsForEntity(reference);
+        } else {
+            log.warn("No entityTaggingService defined");
+            return new ArrayList<String>();
+        }
     }
 
     public void removeTagsFromEntity(String reference, String[] tags) {
-        entityTaggingService.removeTagsFromEntity(reference, tags);
+        if (entityTaggingService != null) {
+            entityTaggingService.removeTagsFromEntity(reference, tags);
+        } else {
+            log.warn("No entityTaggingService defined");
+        }
     }
 
     public void addTagsToEntity(String reference, String[] tags) {
-        entityTaggingService.addTagsToEntity(reference, tags);
+        if (entityTaggingService != null) {
+            entityTaggingService.addTagsToEntity(reference, tags);
+        } else {
+            log.warn("No entityTaggingService defined");
+        }
     }
 
     public void setTagsForEntity(String reference, String[] tags) {
-        entityTaggingService.setTagsForEntity(reference, tags);
+        if (entityTaggingService != null) {
+            entityTaggingService.setTagsForEntity(reference, tags);
+        } else {
+            log.warn("No entityTaggingService defined");
+        }
     }
 
     /**
      * @deprecated use {@link #getTagsForEntity(String)}
      */
     public Set<String> getTags(String reference) {
-        return new HashSet<String>( entityTaggingService.getTagsForEntity(reference) );
+        if (entityTaggingService != null) {
+            return new HashSet<String>( entityTaggingService.getTagsForEntity(reference) );
+        } else {
+            log.warn("No entityTaggingService defined");
+            return new HashSet<String>();
+        }
     }
 
     /**
      * @deprecated use {@link #setTagsForEntity(String, String[])}
      */
     public void setTags(String reference, String[] tags) {
-        entityTaggingService.setTagsForEntity(reference, tags);
+        if (entityTaggingService != null) {
+            entityTaggingService.setTagsForEntity(reference, tags);
+        } else {
+            log.warn("No entityTaggingService defined");
+        }
     }
 
     /**
      * @deprecated use {@link #findEntitesByTags(String[], String[], boolean, Search)}
      */
     public List<String> findEntityRefsByTags(String[] tags) {
-        ArrayList<String> refs = new ArrayList<String>();
-        List<EntityData> results = entityTaggingService.findEntitesByTags(tags, null, false, null);
-        for (EntityData entitySearchResult : results) {
-            refs.add( entitySearchResult.getEntityReference() );
+        if (entityTaggingService != null) {
+            ArrayList<String> refs = new ArrayList<String>();
+            List<EntityData> results = entityTaggingService.findEntitesByTags(tags, null, false, null);
+            for (EntityData entitySearchResult : results) {
+                refs.add( entitySearchResult.getEntityReference() );
+            }
+            return refs;
+        } else {
+            log.warn("No entityTaggingService defined");
+            return new ArrayList<String>();
         }
-        return refs;
     }
 
 }

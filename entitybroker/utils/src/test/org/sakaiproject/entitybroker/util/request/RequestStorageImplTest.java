@@ -18,14 +18,14 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl.util;
+package org.sakaiproject.entitybroker.util.request;
 
 import java.util.Map;
 
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
+import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
+import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
 
 import junit.framework.TestCase;
 
@@ -53,12 +53,12 @@ public class RequestStorageImplTest extends TestCase {
         req.addParameter("paramArray", new String[] {"A","B","C"});
         req.addHeader("header", "Header1");
         rgi.setRequest(req);
-        rgi.setResponse(new MockHttpServletResponse());
+        rgi.setResponse(new EntityHttpServletResponse());
         requestStorage.setRequestGetter(rgi);
     }
 
     /**
-     * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl#getStorageMapCopy()}.
+     * Test method for {@link org.sakaiproject.entitybroker.util.request.RequestStorageImpl#getStorageMapCopy()}.
      */
     public void testGetStorageMapCopy() {
         Map<String, Object> m = requestStorage.getStorageMapCopy();
@@ -88,7 +88,7 @@ public class RequestStorageImplTest extends TestCase {
     }
 
     /**
-     * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl#getStoredValue(java.lang.String)}.
+     * Test method for {@link org.sakaiproject.entitybroker.util.request.RequestStorageImpl#getStoredValue(java.lang.String)}.
      */
     public void testGetStoredValue() {
         assertEquals(135, requestStorage.getStoredValue("attribNum"));
@@ -98,7 +98,7 @@ public class RequestStorageImplTest extends TestCase {
     }
 
     /**
-     * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl#getStoredValueAsType(java.lang.Class, java.lang.String)}.
+     * Test method for {@link org.sakaiproject.entitybroker.util.request.RequestStorageImpl#getStoredValueAsType(java.lang.Class, java.lang.String)}.
      */
     public void testGetStoredValueAsType() {
         assertEquals((Integer) 135, requestStorage.getStoredValueAsType(Integer.class, "attribNum"));
@@ -109,7 +109,7 @@ public class RequestStorageImplTest extends TestCase {
     }
 
     /**
-     * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl#setStoredValue(java.lang.String, java.lang.Object)}.
+     * Test method for {@link org.sakaiproject.entitybroker.util.request.RequestStorageImpl#setStoredValue(java.lang.String, java.lang.Object)}.
      */
     public void testSetStoredValue() {
         assertEquals(null, requestStorage.getStoredValue("test"));

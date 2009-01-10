@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl.entityprovider.extension;
+package org.sakaiproject.entitybroker.util.request;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.azeckoski.reflectutils.ReflectUtils;
 
 
@@ -43,7 +43,7 @@ import org.azeckoski.reflectutils.ReflectUtils;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
-public class RequestStorageImpl implements RequestStorage {
+public class RequestStorageImpl implements RequestStorageWrite {
 
     private ThreadLocal<HashMap<String, Object>> requestStore = new ThreadLocal<HashMap<String,Object>>();
     protected HashMap<String, Object> getInternalMap() {

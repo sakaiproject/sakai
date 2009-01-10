@@ -28,6 +28,7 @@ import junit.framework.TestCase;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Order;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 

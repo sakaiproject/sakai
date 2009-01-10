@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl.collector;
+package org.sakaiproject.entitybroker.util.spring;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -20,12 +20,11 @@
 
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
-import java.util.IllegalFormatConversionException;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * This allows access to values which are stored in the current request thread,
+ * This allows write access to values which are stored in the current request thread,
  * these values are inaccessible outside of a request and will be destroyed
  * when the thread ends<br/>
  * This also "magically" exposes all the values in the request (attributes and params)
@@ -41,43 +40,28 @@ import java.util.Map;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public interface RequestStorage {
+public interface RequestStorageWrite extends RequestStorage {
 
     /**
-     * Indicates the origin of the current request
-     */
-    public static enum RequestOrigin { REST, EXTERNAL, INTERNAL };
-
-    /**
-     * Reserved keys with special data in them,
-     * see {@link RequestStorage}
-     */
-    public static enum ReservedKeys { _locale, _requestEntityReference, _requestActive, _requestOrigin };
-
-    /**
-     * Get the data as a map for easy access to the full set of keys/values, 
-     * this is a copy and changing it has no effect on the data in the request
-     * @return a copy of the internal storage of request keys and values as a map, 
-     * may be empty but will not be null
-     */
-    public Map<String, Object> getStorageMapCopy();
-
-    /**
-     * Get a value that is stored in the request for a specific key
+     * Store a value in the request storage with an associated key
      * @param key a key for a stored value
-     * @return the stored value if found OR null if not found
-     * @throws IllegalArgumentException if the key is null
+     * @param value an object to store
+     * @throws IllegalArgumentException if the key OR value are null, 
+     * also if an attempt is made to change a reserved value (see {@link RequestStorageWrite})
      */
-    public Object getStoredValue(String key);
+    public void setStoredValue(String key, Object value);
 
     /**
-     * @param <T>
-     * @param type an object type to attempt to convert the object to
-     * @param key a key for the stored value
-     * @return the stored value converted to the requested type OR null if none found
-     * @throws IllegalArgumentException if the type or key is null
-     * @throws IllegalFormatConversionException if the conversion cannot be completed
+     * Place all these params into the request storage
+     * @param params map of string -> value params
+     * @throws IllegalArgumentException if the key OR value are null, 
+     * also if an attempt is made to change a reserved value (see {@link RequestStorageWrite})
      */
-    public <T> T getStoredValueAsType(Class<T> type, String key);
+    public void setRequestValues(Map<String, Object> params);
+
+    /**
+     * Clear all values in the request storage (does not wipe the values form the request itself)
+     */
+    public void reset();
 
 }

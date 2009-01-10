@@ -75,8 +75,6 @@ import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
-import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestStorageImpl;
 import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
@@ -86,6 +84,8 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
+import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
+import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
@@ -103,13 +103,39 @@ import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
 
-    /**
-     * If this param is set then the sakai session for the current request is set to this rather than establishing one,
-     * will allow changing the session as well
-     */
-    public static String SAKAI_SESSION = "sakai.session";
+    private static final Log log = LogFactory.getLog(EntityHandlerImpl.class);
 
-    private static Log log = LogFactory.getLog(EntityHandlerImpl.class);
+    /**
+     * Empty constructor
+     */
+    protected EntityHandlerImpl() { }
+
+    /**
+     * Full constructor
+     */
+    public EntityHandlerImpl(EntityProviderManager entityProviderManager,
+            EntityBrokerManager entityBrokerManager, EntityEncodingManager entityEncodingManager,
+            EntityDescriptionManager entityDescriptionManager,
+            HttpServletAccessProviderManager accessProviderManager,
+            EntityViewAccessProviderManager entityViewAccessProviderManager,
+            RequestGetter requestGetter, EntityActionsManager entityActionsManager,
+            EntityRedirectsManager entityRedirectsManager, EntityBatchHandler entityBatchHandler,
+            RequestStorageImpl requestStorage) {
+        super();
+        this.entityProviderManager = entityProviderManager;
+        this.entityBrokerManager = entityBrokerManager;
+        this.entityEncodingManager = entityEncodingManager;
+        this.entityDescriptionManager = entityDescriptionManager;
+        this.accessProviderManager = accessProviderManager;
+        this.entityViewAccessProviderManager = entityViewAccessProviderManager;
+        this.requestGetter = requestGetter;
+        this.entityActionsManager = entityActionsManager;
+        this.entityRedirectsManager = entityRedirectsManager;
+        this.requestStorage = requestStorage;
+        setEntityBatchHandler(entityBatchHandler);
+        log.info("init complete");
+    }
+
 
     private EntityProviderManager entityProviderManager;
     public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
@@ -172,7 +198,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.requestStorage = requestStorage;
     }
 
-    // SAKAI STUFF
+    // SAKAI
     private ServerConfigurationService serverConfigurationService;
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
@@ -210,6 +236,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         }
     }
 
+    
+    /**
+     * If this param is set then the sakai session for the current request is set to this rather than establishing one,
+     * will allow changing the session as well
+     */
+
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
@@ -226,10 +258,17 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
         String handledReference = null;
 
+        // SAKAI
         // http://jira.sakaiproject.org/jira/browse/SAK-14899 - added support for setting the sakai session id
-        if (req.getParameter(SAKAI_SESSION) != null) {
+        final String SAKAI_SESSION = "sakai.session";
+        final String SESSION_ID = "_sessionId";
+        if (req.getParameter(SAKAI_SESSION) != null
+                || req.getParameter(SESSION_ID) != null) {
             // set the session to the given id if possible or die
             String sessionId = req.getParameter(SAKAI_SESSION);
+            if (sessionId == null) {
+                sessionId = req.getParameter(SESSION_ID);
+            }
             try {
                 // this also protects us from null pointer where session service is not set or working
                 Session s = sessionManager.getSession(sessionId);

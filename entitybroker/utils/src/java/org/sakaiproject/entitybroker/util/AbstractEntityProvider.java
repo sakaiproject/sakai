@@ -27,6 +27,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
+ * WARNING: Requires Spring 1.2.8 or newer libraries in the classpath <br/>
  * Makes it easier to write {@link EntityProvider}s in webapps <br/>
  * A class to extend that gets rid of some of the redundant code that has
  * to be written over and over, causes this provider to be registered when it

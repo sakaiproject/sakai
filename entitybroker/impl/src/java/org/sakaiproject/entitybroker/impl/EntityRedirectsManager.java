@@ -38,7 +38,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
@@ -61,8 +61,8 @@ public class EntityRedirectsManager {
 
     private Map<String, List<URLRedirect>> entityRedirects = new ConcurrentHashMap<String, List<URLRedirect>>();
 
-    private RequestStorage requestStorage;
-    public void setRequestStorage(RequestStorage requestStorage) {
+    private RequestStorageWrite requestStorage;
+    public void setRequestStorage(RequestStorageWrite requestStorage) {
         this.requestStorage = requestStorage;
     }
 
