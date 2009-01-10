@@ -131,19 +131,25 @@ public class EntityBatchHandler {
      * @return true if the operation was handled, false if it could not be handled
      */
     public boolean handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
+        if (view == null || req == null || res == null) {
+            throw new IllegalArgumentException("Could not process batch: invalid arguments, no args can be null (view="+view+",req="+req+",res="+res+")");
+        }
+
         // first find out which METHOD we are dealing with
         boolean handled = false;
         // set up the servlet context if this is the first time
         if (this.servletContext == null) {
             setServletContext( RequestUtils.getServletContext(req) );
         }
+
         // now get to handling stuff
         String method = req.getMethod() == null ? EntityView.Method.GET.name() : req.getMethod().toUpperCase().trim();
         if (EntityView.Method.GET.name().equals(method)) {
             handleBatchGet(view, req, res);
             handled = true;
         } else if (EntityView.Method.HEAD.name().equals(method)) {
-            throw new java.lang.RuntimeException("Method not implemented yet");
+            handleBatchGet(view, req, res); // use GET for head
+            handled = true;
         } else if (EntityView.Method.DELETE.name().equals(method)) {
             throw new java.lang.RuntimeException("Method not implemented yet");
         } else if (EntityView.Method.PUT.name().equals(method)) {
@@ -160,29 +166,9 @@ public class EntityBatchHandler {
      * Handles batching all get operations
      */
     public void handleBatchGet(EntityView view, HttpServletRequest req, HttpServletResponse res) {
-        if (view == null || req == null || res == null) {
-            throw new IllegalArgumentException("Could not process batch: invalid arguments, no args can be null (view="+view+",req="+req+",res="+res+")");
-        }
         // validate the the refs param
-        String[] refs = req.getParameterValues(REFS_PARAM_NAME);
-        if (refs == null || refs.length == 0) {
-            throw new IllegalArgumentException("refs parameter must be set (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
-        }
-        if (refs.length == 1) {
-            // process separated list, assume comma separated
-            String separator = req.getParameter("separator");
-            if (separator == null || "".equals(separator)) {
-                separator = ",";
-            }
-            String presplit = refs[0];
-            refs = presplit.split(separator);
-            if (refs == null || refs.length == 0) {
-                throw new IllegalStateException("Failure attempting to process the refs ("+presplit+") listing, could not get the final list of refs out by splitting using the separator ("+separator+")");
-            }
-        }
-        if (refs.length <= 0) {
-            throw new IllegalArgumentException("refs parameter must be set and there must be at least 1 reference (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
-        }
+        String[] refs = getRefsOrFail(req);
+
         String format = view.getFormat();
 
         // loop through all references
@@ -221,7 +207,7 @@ public class EntityBatchHandler {
                 		HttpServletResponse.SC_BAD_REQUEST);
             }
 
-            // in case there are external ones we will reuse the httpclient
+            // in case there are external ones we will reuse this httpclient
             HttpClientWrapper clientWrapper = null;
 
             // object will hold the results of this reference request
@@ -275,46 +261,16 @@ public class EntityBatchHandler {
                     result = generateInternalResult(reference, entityURL, req, res);
                 }
 
-//                // split the URL and query string apart, send URL to parse entity URL, process query string below
-//                EntityReference entityReference = entityView.getEntityReference();
-//                // check the prefix is valid
-//                if (entityProviderManager.getProviderByPrefix(entityReference.prefix) == null) {
-//                 }
-//                Map<String, String> params = HttpRESTUtils.parseURLintoParams(reference);
-//                // now execute the request to get the data
-//                if (entityReference.getId() == null) {
-//                    // space (collection)
-//                } else {
-//                }
-//                //entityBrokerManager.getEntityData(ref);
             } else {
                 // non-EB URL so we have to fire it off using the HttpUtils
 
-                // set the client wrapper with cookies
+                // http utils requires full URLs
+                entityURL = makeFullExternalURL(req, entityURL);
+
+                // set the client wrapper with cookies so we can reuse it for efficiency
                 if (clientWrapper == null) {
                     clientWrapper = HttpRESTUtils.makeReusableHttpClient(false, 0, req.getCookies());
                 }
-
-                if (entityURL.startsWith("/")) {
-                    // http client can only deal in complete URLs - e.g. "http://localhost:8080/thing"
-                    String serverName = req.getServerName();
-                    int serverPort = req.getServerPort();
-                    String protocol = req.getScheme();
-                    if (protocol == null || "".equals(protocol)) {
-                        protocol = "http";
-                    }
-                    StringBuilder sb = new StringBuilder(); // the server URL
-                    sb.append(protocol);
-                    sb.append("://");
-                    sb.append(serverName);
-                    if (serverPort > 0) {
-                        sb.append(":");
-                        sb.append(serverPort);
-                    }
-                    // look up the server URL using a service?
-                    entityURL = sb.toString() + entityURL;
-                }
-
                 result = generateExternalResult(reference, entityURL, view.getMethod(), clientWrapper);
             }
 
@@ -452,13 +408,20 @@ public class EntityBatchHandler {
                     throw new EntityException("Failed to find redirect URL when redirect was indicated by status ("+entityResponse.getStatus()+") for reference ("+reference+")", reference);
                 }
                 entityURL = redirectURL;
-                entityRequest.setPathString(redirectURL);
-                entityResponse.reset();
-                redirected = true;
+                // check that the redirect is not external
+                if ( entityURL.startsWith(servletContext) ) {
+                    // internal
+                    entityRequest.setPathString(redirectURL);
+                    entityResponse.reset();
+                    redirected = true;
+                } else {
+                    // TODO find a way to handle an external URL here
+                    redirected = false;
+                }
             }
         } while (redirected);
 
-        /** OLD CODE which can't work in tomcat 5
+/** OLD CODE which can't work in tomcat 5
         // setup the request and response objects to do the reference request
         RequestDispatcher dispatcher = req.getRequestDispatcher(entityURL); // should only be the relative path from this webapp
         // the request needs to get the full url or path though
@@ -527,6 +490,64 @@ public class EntityBatchHandler {
             result = error;
         }
         return result;
+    }
+
+    /**
+     * Creates a full URL so that the request can be sent
+     * @param req the request
+     * @param entityURL the partial URL (e.g. /thing/blah)
+     * @return a full URL (e.g. http://server/thing/blah)
+     */
+    private String makeFullExternalURL(HttpServletRequest req, String entityURL) {
+        if (entityURL.startsWith("/")) {
+            // http client can only deal in complete URLs - e.g. "http://localhost:8080/thing"
+            String serverName = req.getServerName();
+            int serverPort = req.getServerPort();
+            String protocol = req.getScheme();
+            if (protocol == null || "".equals(protocol)) {
+                protocol = "http";
+            }
+            StringBuilder sb = new StringBuilder(); // the server URL
+            sb.append(protocol);
+            sb.append("://");
+            sb.append(serverName);
+            if (serverPort > 0) {
+                sb.append(":");
+                sb.append(serverPort);
+            }
+            // look up the server URL using a service?
+            entityURL = sb.toString() + entityURL;
+        }
+        return entityURL;
+    }
+
+    /**
+     * Gets the refs (batch URLs to handle) from the request if possible
+     * @param req the request
+     * @return the array of references
+     * @throws IllegalArgumentException if the refs canot be found
+     */
+    private String[] getRefsOrFail(HttpServletRequest req) {
+        String[] refs = req.getParameterValues(REFS_PARAM_NAME);
+        if (refs == null || refs.length == 0) {
+            throw new IllegalArgumentException("refs parameter must be set (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
+        }
+        if (refs.length == 1) {
+            // process separated list, assume comma separated
+            String separator = req.getParameter("separator");
+            if (separator == null || "".equals(separator)) {
+                separator = ",";
+            }
+            String presplit = refs[0];
+            refs = presplit.split(separator);
+            if (refs == null || refs.length == 0) {
+                throw new IllegalStateException("Failure attempting to process the refs ("+presplit+") listing, could not get the final list of refs out by splitting using the separator ("+separator+")");
+            }
+        }
+        if (refs.length <= 0) {
+            throw new IllegalArgumentException("refs parameter must be set and there must be at least 1 reference (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
+        }
+        return refs;
     }
 
     /**
