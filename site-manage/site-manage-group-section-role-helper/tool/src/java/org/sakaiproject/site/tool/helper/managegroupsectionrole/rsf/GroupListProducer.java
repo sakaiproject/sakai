@@ -14,7 +14,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupEditViewParameters;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -39,7 +38,8 @@ import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
-import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
@@ -47,6 +47,7 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.stringutil.StringList;
 
 /**
@@ -55,7 +56,7 @@ import uk.org.ponder.stringutil.StringList;
  *
  */
 public class GroupListProducer 
-        implements ViewComponentProducer, DynamicNavigationCaseReporter, DefaultView {
+        implements ViewComponentProducer, ActionResultInterceptor, DefaultView {
     
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(GroupListProducer.class);
@@ -165,13 +166,14 @@ public class GroupListProducer
 			}
         }
     }
-
-    public List reportNavigationCases() {
-        Tool tool = handler.getCurrentTool();
-        List togo = new ArrayList();
-        togo.add(new NavigationCase("confirm", new SimpleViewParameters(GroupDelProducer.VIEW_ID)));
-        togo.add(new NavigationCase("done", 
-                new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager))));
-        return togo;
+    
+    // new hotness
+    public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
+        if ("confirm".equals(actionReturn)) {
+            result.resultingView = new SimpleViewParameters(GroupDelProducer.VIEW_ID);
+        } else if ("done".equals(actionReturn)) {
+            Tool tool = handler.getCurrentTool();
+            result.resultingView = new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager));
+        }
     }
 }

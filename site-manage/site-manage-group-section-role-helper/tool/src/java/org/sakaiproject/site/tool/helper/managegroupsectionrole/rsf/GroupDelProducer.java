@@ -13,7 +13,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupEditViewParameters;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
@@ -37,7 +36,8 @@ import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
-import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
@@ -45,6 +45,7 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.stringutil.StringList;
 
 /**
@@ -53,7 +54,7 @@ import uk.org.ponder.stringutil.StringList;
  *
  */
 public class GroupDelProducer 
-implements ViewComponentProducer, DynamicNavigationCaseReporter{
+implements ViewComponentProducer, ActionResultInterceptor{
     
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(GroupDelProducer.class);
@@ -140,10 +141,10 @@ implements ViewComponentProducer, DynamicNavigationCaseReporter{
         return params;
     }
     
-    public List reportNavigationCases() {
-        List togo = new ArrayList();
-        togo.add(new NavigationCase("success", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
-    	togo.add(new NavigationCase("cancel", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
-        return togo;
+    // new hotness
+    public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
+        if ("success".equals(actionReturn) || "cancel".equals(actionReturn)) {
+            result.resultingView = new SimpleViewParameters(GroupListProducer.VIEW_ID);
+        }
     }
 }

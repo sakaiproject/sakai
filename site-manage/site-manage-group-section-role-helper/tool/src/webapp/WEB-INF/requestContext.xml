@@ -3,16 +3,9 @@
 <beans>
   <bean id="siteId" factory-bean="sakai-Placement"
     factory-method="getContext" />
-    
-  <bean id="sakaiFCKTextEvolver"
- 	class="uk.ac.cam.caret.sakai.rsf.evolverimpl.SakaiFCKTextEvolver">
- 	<property name="contentHostingService"
-   		ref="org.sakaiproject.content.api.ContentHostingService" />
- 	<property name="context" ref="sakai-Context" />
-  </bean>
 
-   <!-- rich text evolver bean def -->
-   <bean id="richTextEvolver" parent="sakaiFCKTextEvolver" />
+  <!-- rich text evolver bean def -->
+  <bean id="richTextEvolver" parent="sakaiFCKTextEvolver" />
    
   <bean id="GroupListProducer"
       class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupListProducer">

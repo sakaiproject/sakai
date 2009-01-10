@@ -28,6 +28,9 @@
       classpath:conf/rsf-config.xml,
       classpath:conf/blank-applicationContext.xml,
       classpath:conf/sakai-applicationContext.xml,
+      classpath:conf/components-applicationContext.xml,
+      classpath:conf/sakaiComponents-applicationContext.xml,
+      classpath:conf/sakai-portalErrors-applicationContext.xml,
       /WEB-INF/applicationContext.xml
     </param-value>
   </context-param>
@@ -40,6 +43,9 @@
       classpath:conf/rsf-requestscope-config.xml,
       classpath:conf/blank-requestContext.xml,
       classpath:conf/sakai-requestContext.xml,
+      classpath:conf/components-requestContext.xml,
+      classpath:conf/sakaiComponents-requestContext.xml,
+      classpath:conf/sakai-portalErrors-requestContext.xml,
       /WEB-INF/requestContext.xml
     </param-value>
   </context-param>

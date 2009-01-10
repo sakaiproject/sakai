@@ -40,7 +40,8 @@ import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
-import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
@@ -54,7 +55,7 @@ import uk.org.ponder.stringutil.StringList;
  * @author
  *
  */
-public class GroupAutoCreateProducer implements ViewComponentProducer, DynamicNavigationCaseReporter, ViewParamsReporter {
+public class GroupAutoCreateProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter {
 
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(GroupAutoCreateProducer.class);
@@ -194,11 +195,10 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, DynamicNa
         return params;
     }
     
-    public List reportNavigationCases() {
-        List togo = new ArrayList();
-        togo.add(new NavigationCase("done", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
-    	togo.add(new NavigationCase("cancel", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
-        return togo;
+    // new hotness
+    public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
+        if ("done".equals(actionReturn) || "cancel".equals(actionReturn)) {
+            result.resultingView = new SimpleViewParameters(GroupListProducer.VIEW_ID);
+        }
     }
-
 }
