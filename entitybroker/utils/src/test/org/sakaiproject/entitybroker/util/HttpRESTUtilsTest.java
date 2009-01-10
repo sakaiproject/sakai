@@ -75,7 +75,7 @@ public class HttpRESTUtilsTest {
         assertEquals("http", ud.protocol);
         assertEquals("", ud.query);
         assertEquals("localhost", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
 
         url = "/direct/prefix";
         ud = HttpRESTUtils.parseURL(url);
@@ -85,7 +85,7 @@ public class HttpRESTUtilsTest {
         assertEquals("http", ud.protocol);
         assertEquals("", ud.query);
         assertEquals("localhost", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
 
         url = "/direct/prefix/id";
         ud = HttpRESTUtils.parseURL(url);
@@ -95,7 +95,7 @@ public class HttpRESTUtilsTest {
         assertEquals("http", ud.protocol);
         assertEquals("", ud.query);
         assertEquals("localhost", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
 
         url = "direct/prefix/id";
         ud = HttpRESTUtils.parseURL(url);
@@ -105,7 +105,7 @@ public class HttpRESTUtilsTest {
         assertEquals("http", ud.protocol);
         assertEquals("", ud.query);
         assertEquals("localhost", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
 
         url = "/direct/prefix/id?param1=AZ";
         ud = HttpRESTUtils.parseURL(url);
@@ -115,7 +115,7 @@ public class HttpRESTUtilsTest {
         assertEquals("http", ud.protocol);
         assertEquals("param1=AZ", ud.query);
         assertEquals("localhost", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
 
         url = "/direct/prefix/id?param1=AZ&param2=BZ";
         ud = HttpRESTUtils.parseURL(url);
@@ -125,7 +125,7 @@ public class HttpRESTUtilsTest {
         assertEquals("http", ud.protocol);
         assertEquals("param1=AZ&param2=BZ", ud.query);
         assertEquals("localhost", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
 
         url = "/direct/prefix/id/thing.xml?param1=AZ&param2=BZ";
         ud = HttpRESTUtils.parseURL(url);
@@ -135,7 +135,7 @@ public class HttpRESTUtilsTest {
         assertEquals("http", ud.protocol);
         assertEquals("param1=AZ&param2=BZ", ud.query);
         assertEquals("localhost", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
         assertEquals("xml", ud.extension);
         assertEquals("/prefix/id/thing", ud.pathInfoNoExtension);
 
@@ -147,7 +147,7 @@ public class HttpRESTUtilsTest {
         assertEquals("ftp", ud.protocol);
         assertEquals("param1=AZ&param2=BZ", ud.query);
         assertEquals("server", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
         assertEquals("", ud.extension);
         assertEquals("/prefix/id", ud.pathInfoNoExtension);
 
@@ -159,7 +159,7 @@ public class HttpRESTUtilsTest {
         assertEquals("ftp", ud.protocol);
         assertEquals("param1=AZ&param2=BZ", ud.query);
         assertEquals("server", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
 
         url = "ftp://server:8080/direct/prefix/id/thing.xml?param1=AZ&param2=BZ";
         ud = HttpRESTUtils.parseURL(url);
@@ -169,7 +169,7 @@ public class HttpRESTUtilsTest {
         assertEquals("ftp", ud.protocol);
         assertEquals("param1=AZ&param2=BZ", ud.query);
         assertEquals("server", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
         assertEquals("xml", ud.extension);
         assertEquals("/prefix/id/thing", ud.pathInfoNoExtension);
 
@@ -181,7 +181,7 @@ public class HttpRESTUtilsTest {
         assertEquals("ftp", ud.protocol);
         assertEquals("", ud.query);
         assertEquals("server", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
 
         url = "ftp://server:8080/direct?param1=AZ&param2=BZ";
         ud = HttpRESTUtils.parseURL(url);
@@ -191,7 +191,7 @@ public class HttpRESTUtilsTest {
         assertEquals("ftp", ud.protocol);
         assertEquals("param1=AZ&param2=BZ", ud.query);
         assertEquals("server", ud.server);
-        assertEquals("direct", ud.servletPath);
+        assertEquals("direct", ud.servletName);
 
         try {
             ud = HttpRESTUtils.parseURL(null);

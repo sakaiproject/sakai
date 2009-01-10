@@ -79,6 +79,7 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     public ConcurrentHashMap<String, Vector<String>> headers = new ConcurrentHashMap<String, Vector<String>>();
     public Vector<Cookie> cookies = new Vector<Cookie>();
 
+    private boolean contentAccessed = false; // for debugging and tracking
     private final ByteArrayOutputStream content;
     private final ServletOutputStream outputStream;
 
@@ -90,8 +91,10 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     private String contentType;
     private int bufferSize = 4096;
     private boolean committed;
+
     private Locale locale = Locale.getDefault();
     private int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+
     private String errorMessage;
     private String redirectedUrl;
     private String forwardedUrl;
@@ -150,10 +153,16 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         return this.writerAccessAllowed;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#setCharacterEncoding(java.lang.String)
+     */
     public void setCharacterEncoding(String characterEncoding) {
         this.characterEncoding = characterEncoding;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#getCharacterEncoding()
+     */
     public String getCharacterEncoding() {
         return this.characterEncoding;
     }
@@ -162,9 +171,11 @@ public class EntityHttpServletResponse implements HttpServletResponse {
      * @see javax.servlet.ServletResponse#getOutputStream()
      */
     public ServletOutputStream getOutputStream() {
-        if (!this.outputStreamAccessAllowed) {
+        if (! this.outputStreamAccessAllowed) {
             throw new IllegalStateException("OutputStream access not allowed");
         }
+        this.writerAccessAllowed = false;
+        this.contentAccessed = true;
         return this.outputStream;
     }
 
@@ -172,30 +183,38 @@ public class EntityHttpServletResponse implements HttpServletResponse {
      * @see javax.servlet.ServletResponse#getWriter()
      */
     public PrintWriter getWriter() throws UnsupportedEncodingException {
-        if (!this.writerAccessAllowed) {
+        if (! this.writerAccessAllowed) {
             throw new IllegalStateException("Writer access not allowed");
         }
+        this.outputStreamAccessAllowed = false;
         if (this.writer == null) {
             OutputStreamWriter targetWriter = (this.characterEncoding != null ?
                     new OutputStreamWriter(this.content, this.characterEncoding) : new OutputStreamWriter(this.content));
             this.writer = new PrintWriter(targetWriter);
         }
+        this.contentAccessed = true;
         return this.writer;
     }
 
     /**
-     * @return the content as a byte array
+     * @return the content as a byte array OR empty array if there is no content
      */
     public byte[] getContentAsByteArray() {
+        if (! this.contentAccessed) {
+            return new byte[] {};
+        }
         flushBuffer();
         return this.content.toByteArray();
     }
 
     /**
-     * @return a string representing the content of this response
+     * @return a string representing the content of this response OR "" if there is no content
      * @throws RuntimeException if the encoding fails and the content cannot be retrieved
      */
     public String getContentAsString() {
+        if (! this.contentAccessed) {
+            return "";
+        }
         flushBuffer();
         try {
             String content = (this.characterEncoding != null) ? this.content.toString(this.characterEncoding) : this.content.toString();
@@ -205,6 +224,9 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         }
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#setContentLength(int)
+     */
     public void setContentLength(int contentLength) {
         this.contentLength = contentLength;
     }
@@ -224,18 +246,30 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         }
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#getContentType()
+     */
     public String getContentType() {
         return this.contentType;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#setBufferSize(int)
+     */
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#getBufferSize()
+     */
     public int getBufferSize() {
         return this.bufferSize;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#flushBuffer()
+     */
     public void flushBuffer() {
         setCommitted(true);
         if (this.writer != null) {
@@ -248,31 +282,47 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         }
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#resetBuffer()
+     */
     public void resetBuffer() {
         if (isCommitted()) {
             throw new IllegalStateException("Cannot reset buffer - response is already committed");
         }
         this.content.reset();
+        this.contentLength = 0;
     }
 
     public void setCommitted(boolean committed) {
         this.committed = committed;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#isCommitted()
+     */
     public boolean isCommitted() {
         return this.committed;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletResponse#reset()
+     */
     public void reset() {
         resetBuffer();
         this.characterEncoding = null;
         this.contentLength = 0;
         this.contentType = null;
-        this.locale = null;
+        this.locale = Locale.getDefault();
         this.cookies.clear();
         this.headers.clear();
-        this.status = HttpServletResponse.SC_OK;
+        this.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         this.errorMessage = null;
+        this.forwardedUrl = null;
+        this.redirectedUrl = null;
+        this.contentAccessed = false;
+        this.outputStreamAccessAllowed = true;
+        this.writerAccessAllowed = true;
+        this.writer = null;
     }
 
     public void setLocale(Locale locale) {
@@ -288,6 +338,9 @@ public class EntityHttpServletResponse implements HttpServletResponse {
     // HttpServletResponse interface
     //---------------------------------------------------------------------
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#addCookie(javax.servlet.http.Cookie)
+     */
     public void addCookie(Cookie cookie) {
         if (cookie == null) {
             throw new IllegalArgumentException("Cookie cannot be null");
@@ -332,14 +385,23 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         return encodeURL(url);
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#encodeUrl(java.lang.String)
+     */
     public String encodeUrl(String url) {
         return encodeURL(url);
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#encodeRedirectUrl(java.lang.String)
+     */
     public String encodeRedirectUrl(String url) {
         return encodeRedirectURL(url);
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#sendError(int, java.lang.String)
+     */
     public void sendError(int status, String errorMessage) throws IOException {
         if (isCommitted()) {
             throw new IllegalStateException("Cannot set error status - response is already committed");
@@ -349,6 +411,9 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         setCommitted(true);
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#sendError(int)
+     */
     public void sendError(int status) throws IOException {
         if (isCommitted()) {
             throw new IllegalStateException("Cannot set error status - response is already committed");
@@ -357,6 +422,9 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         setCommitted(true);
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#sendRedirect(java.lang.String)
+     */
     public void sendRedirect(String url) throws IOException {
         if (isCommitted()) {
             throw new IllegalStateException("Cannot send redirect - response is already committed");
@@ -368,30 +436,89 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         setCommitted(true);
     }
 
-    public String getRedirectedUrl() {
-        return this.redirectedUrl;
+    // these allow us to know if this response was forwarded
+
+    /**
+     * @return true if this response was redirected
+     */
+    public boolean isRedirected() {
+        boolean redirected = false;
+        if (this.getForwardedUrl() != null
+                || this.getStatus() == HttpServletResponse.SC_FOUND
+                || this.getStatus() == HttpServletResponse.SC_MOVED_PERMANENTLY
+                || this.getStatus() == HttpServletResponse.SC_SEE_OTHER
+                || this.getStatus() == HttpServletResponse.SC_TEMPORARY_REDIRECT) {
+            redirected = true;
+        }
+        return redirected;
     }
 
+    /**
+     * @return the URL this response was forwarded or redirected to OR null if not redirected
+     */
+    public String getRedirectedUrl() {
+        String url = this.redirectedUrl;
+        if (url == null) {
+            if ( isRedirected() ) {
+                url = this.getForwardedUrl();
+                if (url == null) {
+                    url = this.getIncludedUrl();
+                }
+                if (this.getStatus() == HttpServletResponse.SC_MOVED_PERMANENTLY
+                    || this.getStatus() == HttpServletResponse.SC_SEE_OTHER
+                    || this.getStatus() == HttpServletResponse.SC_TEMPORARY_REDIRECT) {
+                    // get the location
+                    String newLocation = this.getHeader("Location");
+                    if (newLocation == null) {
+                        newLocation = this.getHeader("location");
+                    }
+                    if (newLocation != null) {
+                        url = newLocation;
+                    }
+                }
+            }
+        }
+        return url;
+    }
+
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#setDateHeader(java.lang.String, long)
+     */
     public void setDateHeader(String name, long value) {
         setHeaderValue(name, value+"");
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#addDateHeader(java.lang.String, long)
+     */
     public void addDateHeader(String name, long value) {
         addHeaderValue(name, value+"");
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#setHeader(java.lang.String, java.lang.String)
+     */
     public void setHeader(String name, String value) {
         setHeaderValue(name, value);
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#addHeader(java.lang.String, java.lang.String)
+     */
     public void addHeader(String name, String value) {
         addHeaderValue(name, value);
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#setIntHeader(java.lang.String, int)
+     */
     public void setIntHeader(String name, int value) {
         setHeaderValue(name, value+"");
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#addIntHeader(java.lang.String, int)
+     */
     public void addIntHeader(String name, int value) {
         addHeaderValue(name, value+"");
     }
@@ -530,10 +657,16 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         }
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#setStatus(int)
+     */
     public void setStatus(int status) {
         this.status = status;
     }
 
+    /* (non-Javadoc)
+     * @see javax.servlet.http.HttpServletResponse#setStatus(int, java.lang.String)
+     */
     public void setStatus(int status, String errorMessage) {
         this.status = status;
         this.errorMessage = errorMessage;

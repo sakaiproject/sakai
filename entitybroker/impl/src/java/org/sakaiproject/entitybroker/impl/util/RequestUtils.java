@@ -361,4 +361,24 @@ public class RequestUtils {
         res.setCharacterEncoding(Formats.UTF_8);
     }
 
+    /**
+     * This finds the correct servlet path or returns the default one,
+     * will not return "" or null
+     * @param req the incoming request
+     * @return the servlet context path (/ + servletName)
+     */
+    public static String getServletContext(HttpServletRequest req) {
+        String context = null;
+        if (req != null) {
+            context = req.getContextPath();
+            if ("".equals(context)) {
+                context = req.getServletPath();
+            }
+        }
+        if (context == null || "".equals(context)) {
+            context = EntityView.DIRECT_PREFIX;
+        }
+        return context;
+    }
+
 }

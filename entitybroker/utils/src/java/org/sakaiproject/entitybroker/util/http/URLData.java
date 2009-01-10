@@ -30,7 +30,8 @@ public class URLData {
     public String port;
     public String path;
     public String extension;
-    public String servletPath;
+    public String servletName;
+    public String contextPath;
     public String pathInfo;
     public String pathInfoNoExtension;
     public String query;
@@ -82,7 +83,8 @@ public class URLData {
         } else {
             // no path
             path = "";
-            servletPath = "";
+            servletName = "";
+            contextPath = "";
             pathInfo = "";
             query = "";
             extension = "";
@@ -99,7 +101,10 @@ public class URLData {
             if (slashLoc == -1) {
                 slashLoc = path.length();
             }
-            servletPath = path.substring(start, slashLoc);
+            servletName = path.substring(start, slashLoc);
+            if (servletName.length() > 0) {
+                contextPath = "/" + servletName;
+            }
             pathInfo = path.substring(slashLoc);
             pathInfoNoExtension = pathInfo;
             extension = "";

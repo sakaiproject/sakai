@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +32,7 @@ import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 import org.sakaiproject.entitybroker.util.http.HttpClientWrapper;
@@ -60,10 +60,25 @@ public class EntityBatchHandler {
      * This is the name of the parameter which is used to pass along the reference URLs to be batch processed
      */
     private static final String REFS_PARAM_NAME = "refs";
-    private static String UNIQUE_DATA_PREFIX = "X-XqReplaceQX-X-";
-    private static Log log = LogFactory.getLog(EntityBatchHandler.class);
-    private static String DIRECT_BATCH = EntityView.DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH;
+    private static final String UNIQUE_DATA_PREFIX = "X-XqReplaceQX-X-";
+    private static final Log log = LogFactory.getLog(EntityBatchHandler.class);
     private static String INTERNAL_SERVER_ERROR_STATUS_STRING = HttpServletResponse.SC_INTERNAL_SERVER_ERROR+"";
+
+    /**
+     * Empty constructor, must use setters to set the needed services
+     */
+    public EntityBatchHandler() { }
+
+    /**
+     * Full constructor, use this to correctly construct this class,
+     * note that after construction, the entityRequestHandler must be set also
+     */
+    public EntityBatchHandler(EntityBrokerManager entityBrokerManager,
+            EntityEncodingManager entityEncodingManager) {
+        super();
+        this.entityBrokerManager = entityBrokerManager;
+        this.entityEncodingManager = entityEncodingManager;
+    }
 
     private EntityBrokerManager entityBrokerManager;
     public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
@@ -76,6 +91,39 @@ public class EntityBatchHandler {
     }
 
     /**
+     * Can only set this after the class is constructed since it forms a circular dependency
+     */
+    private EntityHandlerImpl entityRequestHandler;
+    public void setEntityRequestHandler(EntityHandlerImpl entityRequestHandler) {
+        this.entityRequestHandler = entityRequestHandler;
+    }
+
+    // allow the servlet name to be more flexible
+    private String servletContext;
+    private String getServletContext() {
+        if (this.servletContext == null) {
+            setServletContext(null); // set defaults
+        }
+        return this.servletContext;
+    }
+
+    public void setServletContext(String servletContext) {
+        if (servletContext == null) {
+            servletContext = RequestUtils.getServletContext(null);
+        }
+        this.servletContext = servletContext;
+        this.servletBatch = servletContext + EntityRequestHandler.SLASH_BATCH;
+    }
+
+    private String servletBatch;
+    private String getServletBatch() {
+        if (this.servletBatch == null) {
+            setServletContext(null); // set defaults
+        }
+        return this.servletBatch;
+    }
+
+    /**
      * Handle the batch operations encoded in this view and request
      * @param view the current view
      * @param req the current request
@@ -85,6 +133,11 @@ public class EntityBatchHandler {
     public boolean handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         // first find out which METHOD we are dealing with
         boolean handled = false;
+        // set up the servlet context if this is the first time
+        if (this.servletContext == null) {
+            setServletContext( RequestUtils.getServletContext(req) );
+        }
+        // now get to handling stuff
         String method = req.getMethod() == null ? EntityView.Method.GET.name() : req.getMethod().toUpperCase().trim();
         if (EntityView.Method.GET.name().equals(method)) {
             handleBatchGet(view, req, res);
@@ -149,16 +202,17 @@ public class EntityBatchHandler {
             if (processedRefsAndURLs.contains(reference)) {
                 continue; // skip
             }
+            String servletContext = getServletContext(); // will be the servlet context (e.g. /direct)
             // fix anything that does not start with a slash or http
             String entityURL = reference;
             if (! reference.startsWith("/") 
                     && ! reference.startsWith("http://")) {
                 // assume this is an EB entity url without the slash
-                entityURL = EntityView.DIRECT_PREFIX + EntityView.SEPARATOR + reference;
+                entityURL = servletContext + EntityView.SEPARATOR + reference;
             }
             // make sure no one tries to batch a batch
             if (reference.startsWith(EntityRequestHandler.SLASH_BATCH)
-                    || reference.startsWith(DIRECT_BATCH)) {
+                    || reference.startsWith( getServletBatch() )) {
                 throw new EntityException("Failure processing batch request, "
                 		+ "batch reference ("+reference+") ("+entityURL+") appears to be another "
            				+ "batch URL (contains "+EntityRequestHandler.SLASH_BATCH+"), "
@@ -182,9 +236,9 @@ public class EntityBatchHandler {
              * possibly also handle these specially later on if desired,
              * only EB operations can be handled internally
              */
-            if (EntityView.DIRECT.equals(ud.servletPath)) {
+            if ( servletContext.equals(ud.contextPath) ) {
                 if (ud.pathInfo == null || "".equals(ud.pathInfo)) {
-                    // looks like /direct only and we do not process that
+                    // looks like this servlet only with no path and we do not process that
                     continue;
                 }
 
@@ -202,7 +256,7 @@ public class EntityBatchHandler {
                 if (success) {
                     // rebuild the entityURL with the correct extension in there
                     StringBuilder sb = new StringBuilder();
-//                    sb.append(EntityView.DIRECT_PREFIX);
+                    sb.append( servletContext );
                     sb.append(ud.pathInfoNoExtension);
                     sb.append(EntityView.PERIOD);
                     sb.append(format);
@@ -354,6 +408,57 @@ public class EntityBatchHandler {
     private ResponseBase generateInternalResult(String reference, String entityURL, HttpServletRequest req, HttpServletResponse res) {
         ResponseBase result = null;
         ResponseError error = null;
+
+        /* WARNING: This is important to understand why this was done as is
+         * First of all, forget the servlet forwarding, it is hopeless.
+         * Why you ask? This is why, tomcat 5 has issues with calling forward using a set of custom
+         * httpservelet* objects, it REQUIRES objects that are tomcat objects and attempts to use and
+         * even cast to those objects. This causes 2 failures:
+         * 1) tomcat attempts to access specific attributes from the request which are not there in
+         * other request objects, thus it skips over processing the request entirely... without marking it as failed...
+         * 2) tomcat attempts to cast the response object to a tomcat object after most of the processing
+         * is complete and causes a ClassCastException which blows up everything
+         * 
+         * The alternatives are using httpclient for everything (maybe not a bad plan)
+         * or calling the entity request handler directly, this has its own issues in that
+         * it actually causes problems with redirection and requires injecting things
+         * which depend on each other
+         * 
+         * One last note on this, this all works fine in Jetty... tomcat fail
+         * Fun times for all
+         */
+
+        EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, entityURL);
+        entityRequest.setContextPath("");
+        entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
+        entityRequest.setUseRealDispatcher(false); // we do not want to actually have the container handle forwarding
+        EntityHttpServletResponse entityResponse = new EntityHttpServletResponse(res);
+
+        boolean redirected = false;
+        do {
+            try {
+                entityRequestHandler.handleEntityAccess(entityRequest, entityResponse, null);
+                redirected = false; // assume no redirect
+            } catch (Exception e) {
+                String errorMessage = "Failure attempting to process reference ("+reference+") for url ("+entityURL+"): " + e.getMessage() + ":" + e;
+                log.warn(errorMessage, e);
+                error = new ResponseError(reference, entityURL, errorMessage);
+                break; // take us out if there is a failure
+            }
+            // Must handle all redirects manually despite the annoyance - this is really crappy but oh well
+            if (entityResponse.isRedirected()) {
+                String redirectURL = entityResponse.getRedirectedUrl();
+                if (redirectURL == null || redirectURL.length() == 0) {
+                    throw new EntityException("Failed to find redirect URL when redirect was indicated by status ("+entityResponse.getStatus()+") for reference ("+reference+")", reference);
+                }
+                entityURL = redirectURL;
+                entityRequest.setPathString(redirectURL);
+                entityResponse.reset();
+                redirected = true;
+            }
+        } while (redirected);
+
+        /** OLD CODE which can't work in tomcat 5
         // setup the request and response objects to do the reference request
         RequestDispatcher dispatcher = req.getRequestDispatcher(entityURL); // should only be the relative path from this webapp
         // the request needs to get the full url or path though
@@ -368,9 +473,10 @@ public class EntityBatchHandler {
             dispatcher.forward(entityRequest, entityResponse);
         } catch (Exception e) {
             String errorMessage = "Failure attempting to process reference ("+reference+"): " + e.getMessage() + ":" + e;
-            log.warn(errorMessage);
+            log.warn(errorMessage, e);
             error = new ResponseError(reference, entityURL, errorMessage);
         }
+**/
 
         // create the result object to encode and place into the final response
         if (error == null) {

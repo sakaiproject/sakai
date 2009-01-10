@@ -109,8 +109,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
      */
     public static String SAKAI_SESSION = "sakai.session";
 
-    protected static final String DIRECT = TemplateParseUtil.DIRECT_PREFIX;
-
     private static Log log = LogFactory.getLog(EntityHandlerImpl.class);
 
     private EntityProviderManager entityProviderManager;
@@ -162,6 +160,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     private EntityBatchHandler entityBatchHandler;
     public void setEntityBatchHandler(EntityBatchHandler entityBatchHandler) {
         this.entityBatchHandler = entityBatchHandler;
+        // NOTE: this is somewhat tricky but it avoids issues related to circular dependencies
+        this.entityBatchHandler.setEntityRequestHandler(this);
     }
 
     /**
@@ -172,6 +172,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.requestStorage = requestStorage;
     }
 
+    // SAKAI STUFF
     private ServerConfigurationService serverConfigurationService;
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
@@ -192,10 +193,32 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.sessionManager = sessionManager;
     }
 
+
+    // allow the servlet name to be more flexible
+    private String servletContext;
+    public String getServletContext() {
+        if (this.servletContext == null) {
+            return RequestUtils.getServletContext(null);
+        }
+        return this.servletContext;
+    }
+    public void setServletContext(String servletContext) {
+        if (servletContext != null) {
+            this.servletContext = servletContext;
+            entityRedirectsManager.setServletContext(servletContext);
+            entityBatchHandler.setServletContext(servletContext);
+        }
+    }
+
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     public String handleEntityAccess(HttpServletRequest req, HttpServletResponse res, String path) {
+        // set the servlet context if not set
+        if (this.servletContext == null) {
+            setServletContext( RequestUtils.getServletContext(req) );
+        }
+
         // get the path info if not set
         if (path == null) {
             path = req.getPathInfo();
@@ -219,12 +242,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                 throw new IllegalArgumentException("Failure attempting to set sakai session id ("+sessionId+"): " + e.getMessage());
             }
         }
-        
+
         if (path == null || "".equals(path) || "/".equals(path)) {
             // SPECIAL handling for empty path
             res.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
             try {
-                res.sendRedirect( res.encodeRedirectURL(DIRECT + SLASH_DESCRIBE) );
+                res.sendRedirect( res.encodeRedirectURL(getServletContext() + SLASH_DESCRIBE) );
             } catch (IOException e) {
                 // should never happen
                 throw new RuntimeException("Could not encode the redirect URL");

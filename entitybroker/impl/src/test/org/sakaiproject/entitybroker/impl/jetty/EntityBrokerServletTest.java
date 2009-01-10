@@ -276,7 +276,6 @@ public class EntityBrokerServletTest {
         }
     }
 
-
     // test batching
 
     @Test
@@ -370,7 +369,59 @@ public class EntityBrokerServletTest {
         }
     }
 
-    // TODO test batch multiple get
+    // test redirect
+    @Test
+    public void testBatchRedirectEntityXML() {
+        // normal
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?refs=" + DIRECT_PREFIX + TestData.REFU1 + ".xml";
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("<refs"));
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("<headers"));
+            assertTrue(content.contains("<status"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("<data"));
+            assertTrue(content.contains("refs"));
+            assertTrue(content.contains(TestData.PREFIXU1));
+            assertTrue(content.contains("rA"));
+            assertTrue(content.contains("<id>rA</id>"));
+            assertTrue(content.contains("<entityId>rA</entityId>"));
+            assertTrue(content.contains("/redirect1/rA"));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+
+        // once again with feeling
+        url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?refs=" 
+            + DIRECT_PREFIX + "/" + TestData.PREFIXU1 + "/xml/" + TestData.IDSU1[0];
+        fireRequest(url);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("<refs"));
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("<headers"));
+            assertTrue(content.contains("<status"));
+            assertTrue(content.contains("200"));
+            assertTrue(content.contains("<data"));
+            assertTrue(content.contains("refs"));
+            assertTrue(content.contains(TestData.PREFIXU1));
+            assertTrue(content.contains("rA"));
+            assertTrue(content.contains("<id>rA</id>"));
+            assertTrue(content.contains("<entityId>rA</entityId>"));
+            assertTrue(content.contains("/redirect1/rA"));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+
+    }
+
+    // test batch multiple get
 
     @Test
     public void testBatchGetEntitiesXML() {

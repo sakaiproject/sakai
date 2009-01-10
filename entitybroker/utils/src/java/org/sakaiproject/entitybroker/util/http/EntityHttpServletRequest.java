@@ -119,7 +119,7 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     String pathInfo = null;
     String queryString = null;
     String requestURI = "";
-    String servletPath = "";
+    String servletPath = ""; // always starts with "/", "" indicates /* used to match
 
     @Override
     public String toString() {
@@ -265,6 +265,8 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         this.serverPort = req.getServerPort();
         this.remoteAddr = req.getRemoteAddr();
         this.remoteHost = req.getRemoteHost();
+
+        this.realDispatcher = true;
     }
 
     /**
@@ -305,9 +307,9 @@ public class EntityHttpServletRequest implements HttpServletRequest {
             if (ud.server.length() > 0) {
                 this.serverName = ud.server;
             }
-            if (ud.servletPath.length() > 0) {
-                this.servletPath = ud.servletPath;
-                this.contextPath = "/" + ud.servletPath;
+            if (ud.servletName.length() > 0) {
+                this.servletPath = "/" + ud.servletName;
+                this.contextPath = ud.contextPath;
             } else {
                 this.servletPath = "";
                 this.contextPath = "";
@@ -805,9 +807,22 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         return copy.getRemoteUser();
     }
 
+    private boolean realDispatcher = false;
+    /**
+     * @param real if true and there is a real RequestDispatcher available then use it,
+     * otherwise just emulate a forward/include call using the fake one 
+     * (will always use the fake one if no real one is found)
+     */
+    public void setUseRealDispatcher(boolean real) {
+        this.realDispatcher = real;
+    }
+
+    /* (non-Javadoc)
+     * @see javax.servlet.ServletRequest#getRequestDispatcher(java.lang.String)
+     */
     public RequestDispatcher getRequestDispatcher(String path) {
-        if (copy != null) {
-            return copy.getRequestDispatcher(path);
+        if (this.copy != null && this.realDispatcher) {
+            return this.copy.getRequestDispatcher(path);
         } else {
             return new EntityRequestDispatcher(path);
         }

@@ -31,6 +31,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.azeckoski.reflectutils.ReflectUtils;
+
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable;
@@ -40,11 +43,11 @@ import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
+import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.ProcessedTemplate;
-import org.azeckoski.reflectutils.ReflectUtils;
 
 
 /**
@@ -61,6 +64,20 @@ public class EntityRedirectsManager {
     private RequestStorage requestStorage;
     public void setRequestStorage(RequestStorage requestStorage) {
         this.requestStorage = requestStorage;
+    }
+
+    // allow the servlet name to be more flexible
+    private String servletContext;
+    private String getServletContext() {
+        if (this.servletContext == null) {
+            return RequestUtils.getServletContext(null);
+        }
+        return this.servletContext;
+    }
+    public void setServletContext(String servletContext) {
+        if (servletContext != null) {
+            this.servletContext = servletContext;
+        }
     }
 
     /**
@@ -221,8 +238,8 @@ public class EntityRedirectsManager {
                     || targetURL.startsWith("http:") || targetURL.startsWith("https:")) {
                 // leave it as is
             } else {
-                // append the DIRECT stuff so we know to forward this
-                targetURL = TemplateParseUtil.DIRECT_PREFIX + TemplateParseUtil.SEPARATOR + targetURL;
+                // append the servlet path stuff so we know to forward this
+                targetURL = getServletContext() + TemplateParseUtil.SEPARATOR + targetURL;
             }
         }
         return targetURL;
