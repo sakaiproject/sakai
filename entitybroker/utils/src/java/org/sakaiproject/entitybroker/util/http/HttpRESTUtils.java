@@ -207,13 +207,24 @@ public class HttpRESTUtils {
             Header[] headers = httpMethod.getResponseHeaders();
             for (int i = 0; i < headers.length; i++) {
                 Header header = headers[i];
-                String extForm = header.toExternalForm();
-                String[] values = new String[] {extForm};
+                // now we convert the headers from these odd pairs into something more like servlets expect
                 HeaderElement[] elements = header.getElements();
-                int l = elements.length;
-//                for (int j = 0; j < elements.length; j++) {
-//                }
-                responseHeaders.put(header.getName(), values);
+                if (elements == null || elements.length == 0) {
+                    continue;
+                } else if (elements.length >= 1) {
+                    String[] values = new String[elements.length];
+                    StringBuilder sb = new StringBuilder();
+                    for (int j = 0; j < elements.length; j++) {
+                        sb.setLength(0); // clear the StringBuilder
+                        sb.append(elements[j].getName());
+                        if (elements[j].getValue() != null) {
+                            sb.append("=");
+                            sb.append(elements[j].getValue());
+                        }
+                        values[j] = sb.toString();
+                    }
+                    responseHeaders.put(header.getName(), values);
+                }
             }
             response.setResponseHeaders(responseHeaders);
         }
