@@ -59,7 +59,7 @@ public class EntityBatchHandler {
     /**
      * This is the name of the parameter which is used to pass along the reference URLs to be batch processed
      */
-    private static final String REFS_PARAM_NAME = "refs";
+    private static final String REFS_PARAM_NAME = "_refs";
     private static final String UNIQUE_DATA_PREFIX = "X-XqReplaceQX-X-";
     private static final Log log = LogFactory.getLog(EntityBatchHandler.class);
     private static String INTERNAL_SERVER_ERROR_STATUS_STRING = HttpServletResponse.SC_INTERNAL_SERVER_ERROR+"";
