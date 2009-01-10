@@ -215,6 +215,13 @@ public class AuthorActionListener
 	  Date retractDate = f.getRetractDate();
 	  Date dueDate = f.getDueDate();
 
+	  if (submissionCountHash != null) {
+		  f.setSubmissionSize(submissionCountHash.size());
+	  }
+	  else {
+		  f.setSubmissionSize(0);
+	  }
+	  
 	  if (!Integer.valueOf(1).equals(status)) {
 		  return false;
 	  }
@@ -235,13 +242,6 @@ public class AuthorActionListener
 	  int maxSubmissionsAllowed = 9999;
 	  if ((Boolean.FALSE).equals(f.getUnlimitedSubmissions())){
 		  maxSubmissionsAllowed = f.getSubmissionsAllowed().intValue();
-	  }
-
-	  if (submissionCountHash != null) {
-		  f.setSubmissionSize(submissionCountHash.size());
-	  }
-	  else {
-		  f.setSubmissionSize(0);
 	  }
 	  
 	  TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
