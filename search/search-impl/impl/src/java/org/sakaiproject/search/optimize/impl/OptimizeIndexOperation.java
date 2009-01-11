@@ -133,7 +133,8 @@ public class OptimizeIndexOperation implements ManagementOperation
 					{
 						try
 						{
-							optimizeUpdateTransaction.close();
+							if (optimizeUpdateTransaction != null)
+								optimizeUpdateTransaction.close();
 						}
 						catch (Exception ex)
 						{

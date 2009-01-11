@@ -103,17 +103,13 @@ public class SearchServiceManagement extends NotificationBroadcasterSupport impl
 						throws IOException
 				{
 					sendNotification(new Notification("index-reader-close",
-							searchServiceON, notificationNo++, "Closed "
-									+ oldMultiReader.directory().toString()));
-
+							searchServiceON, notificationNo++, "Closed oldMultiReader" ));
 				}
 
 				public void doIndexReaderOpen(IndexReader newMultiReader)
 				{
 					sendNotification(new Notification("index-reader-open",
-							searchServiceON, notificationNo++, "Opened "
-									+ newMultiReader.directory().toString()));
-
+							searchServiceON, notificationNo++, "Opened newMultiReader"));
 				}
 
 				public void doIndexSearcherClose(IndexSearcher indexSearcher)

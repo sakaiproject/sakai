@@ -149,7 +149,7 @@ public class ConcurrentIndexManager implements IndexListener
 	public void doIndexReaderClose(IndexReader oldMultiReader) throws IOException
 	{
 		nropen--;
-		log.debug("Closed Readerr " + nropen + " " + oldMultiReader);
+		log.debug("Closed Reader " + nropen + " " + oldMultiReader);
 		indexListenerCloser.doIndexReaderClose(oldMultiReader);
 
 	}

@@ -182,7 +182,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 					indexReader.close();
 					indexReader = null;
 				}
-				if (new File(tempIndex,"segments").exists())
+				if (new File(tempIndex,"segments.gen").exists())
 				{
 					indexWriter = new IndexWriter(tempIndex,
 							((TransactionIndexManagerImpl) manager).getAnalyzer(), false);
@@ -331,7 +331,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 					tempIndex = ((TransactionIndexManagerImpl) manager)
 							.getTemporarySegment(transactionId);
 				}
-				if (!new File(tempIndex,"segments").exists())
+				if (!new File(tempIndex,"segments.gen").exists())
 				{
 					getIndexWriter();					
 				}

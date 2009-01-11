@@ -388,7 +388,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 			}
 			if (currentSegment == null)
 			{
-				if (tmpDirectory[0].fileExists("segments"))
+				if (tmpDirectory[0].fileExists("segments.gen"))
 				{
 					currentSegment = clusterFS.saveTemporarySegment();
 					/*
@@ -424,7 +424,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 					indexWriter.setMaxMergeDocs(50);
 					indexWriter.setMergeFactor(50);
 
-					if (tmpDirectory[0].fileExists("segments"))
+					if (tmpDirectory[0].fileExists("segments.gen"))
 					{
 						if (log.isDebugEnabled())
 							log.debug("Merging Temp segment " + tmpSegment.getPath()
@@ -613,7 +613,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 
 										Directory d = FSDirectory.getDirectory(si
 												.getSegmentLocation(), false);
-										if (d.fileExists("segments"))
+										if (d.fileExists("segments.gen"))
 										{
 											status.append("   Merge ").append(
 													si.getName()).append(" >> ").append(

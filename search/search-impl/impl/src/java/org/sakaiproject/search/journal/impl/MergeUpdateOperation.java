@@ -214,7 +214,8 @@ public class MergeUpdateOperation implements ManagementOperation
 						{
 							try
 							{
-								mergeUpdateTransaction.close();
+								if (mergeUpdateTransaction != null) 
+									mergeUpdateTransaction.close();
 							}
 							catch (Exception ex)
 							{
@@ -227,7 +228,7 @@ public class MergeUpdateOperation implements ManagementOperation
 				{
 					if (log.isDebugEnabled())
 					{
-						log.debug("No More Jounral Entries ", ex);
+						log.debug("No More Journal Entries ");
 					}
 				}
 				log.info("Local Merge Operation "+sb.toString()+"\n");

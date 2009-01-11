@@ -131,7 +131,8 @@ public class JournalOptimizationOperation implements ManagementOperation
 		{
 			try
 			{
-				journalOptimizationTransaction.close();
+				if (journalOptimizationTransaction != null)
+					journalOptimizationTransaction.close();
 			}
 			catch (Exception ex)
 			{

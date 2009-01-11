@@ -272,13 +272,17 @@ public class MergeUpdateOperationTest extends TestCase
 				+ ".testRunOnce");
 		List<SearchBuilderItem> items = populate(1000,100);
 
+		log.debug("finished populating data");
+		
 		// need to populate the index with some data first.
 		mu.runOnce();
 
-		
+		log.debug("finished runOnce");
 		
 		IndexSearcher indexSearcher = journaledFSIndexStorage.getIndexSearcher();
 
+		log.debug("finished getIndexSearcher");
+		
 		assertEquals("There were errors validating the index, check log ", 0,tds.checkIndexContents(items,indexSearcher));
 
 		indexSearcher.close();

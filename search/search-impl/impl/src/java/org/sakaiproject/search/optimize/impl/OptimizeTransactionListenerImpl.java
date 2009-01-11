@@ -97,7 +97,6 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 			IndexWriter iw = ((IndexOptimizeTransaction) transaction)
 					.getTemporaryIndexWriter();
 			Directory d = iw.getDirectory();
-			iw.close();
 
 			// close the temporary index
 			IndexWriter pw = ((IndexOptimizeTransaction) transaction)
@@ -107,6 +106,8 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 			pw.addIndexes(new Directory[] { d });
 			pw.optimize();
 			pw.close();
+
+			iw.close();
 
 			File[] optimzableSegments = ((IndexOptimizeTransaction) transaction)
 					.getOptimizableSegments();

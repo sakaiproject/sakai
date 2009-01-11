@@ -486,15 +486,17 @@ public class SearchIndexerNode
 	public void testSlowSearch() throws Exception
 	{
 		long start1 = System.currentTimeMillis();
+
+		log.debug("Getting index searcher");
 		IndexSearcher is = journaledFSIndexStorage.getIndexSearcher();
 		TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, "node"));
 
 		long start = System.currentTimeMillis();
-		log.info("Searching with " + is);
+		log.info("Searching with " + is + " and reader " + is.getIndexReader());
 		Hits h = is.search(tq);
-		log.info("Performing Search and Slepping 500ms with " + is);
+		log.info("Performing Search and Sleeping 500ms with " + is);
 		Thread.sleep(500);
-		log.info("Performing Search and Slepping 500ms with " + is);
+		log.info("Performing Search and Sleeping 500ms with " + is);
 		long end = System.currentTimeMillis();
 		log.info("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
 				+ " for node " + instanceName + " in " + (end - start) + ":"
@@ -516,7 +518,7 @@ public class SearchIndexerNode
 	{
 		journaledFSIndexStorage.markModified();
 		journaledFSIndexStorage.getIndexReader();
-		log.info("Reopend Index");
+		log.info("Reopened Index");
 
 	}
 

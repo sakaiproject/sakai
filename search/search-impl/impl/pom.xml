@@ -110,9 +110,9 @@
 <!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}jar-->
 <!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}jar-->
     <dependency>
-      <groupId>lucene</groupId>
+      <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
-      <version>1.9.1</version>
+      <version>2.2.0</version>
       <type>jar</type>
     </dependency>
     <dependency>
