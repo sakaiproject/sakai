@@ -2404,7 +2404,9 @@ extends VelocityPortletStateAction
 		
 		// add external calendar subscriptions
       List referenceList = mergedCalendarList.getReferenceList();
-      Set subscriptionRefList = ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(referenceList);
+      Set subscriptionRefList = ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(
+    		  primaryCalendarReference,
+    		  referenceList);
       referenceList.addAll(subscriptionRefList);
         
 		return referenceList;

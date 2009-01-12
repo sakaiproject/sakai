@@ -68,13 +68,13 @@ public class ExternalCalendarSubscriptionService {
 		return service.getCalendarSubscription(reference);	
 	}
 	
-	public static Set<String> getCalendarSubscriptionChannelsForChannels(Collection<Object> channels)
+	public static Set<String> getCalendarSubscriptionChannelsForChannels(String primaryCalendarReference, Collection<Object> channels)
 	{
 		org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService service = getInstance();
 		if (service == null)
 			return null;
 
-		return service.getCalendarSubscriptionChannelsForChannels(channels);	
+		return service.getCalendarSubscriptionChannelsForChannels(primaryCalendarReference, channels);	
 	}
 	
 	/* (non-Javadoc)

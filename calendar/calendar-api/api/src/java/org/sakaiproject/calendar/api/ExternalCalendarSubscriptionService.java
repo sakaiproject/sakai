@@ -8,6 +8,9 @@ public interface ExternalCalendarSubscriptionService
 
 	/** sakai.properties: enable/disable ical external subscriptions */
 	public final static String SAK_PROP_EXTSUBSCRIPTIONS_ENABLED = "calendar.external.subscriptions.enable";
+	
+	/** sakai.properties: merge ical external subscriptions from other sites into My Workspace? */
+	public final static String SAK_PROP_EXTSUBSCRIPTIONS_MERGEINTOMYWORKSPACE = "calendar.external.subscriptions.mergeIntoMyworkspace";
 
 	/** sakai.properties: url list of ical external subscriptions */
 	public final static String SAK_PROP_EXTSUBSCRIPTIONS_URL = "calendar.external.subscriptions.url";
@@ -56,6 +59,7 @@ public interface ExternalCalendarSubscriptionService
 
 	/** Get Calendar Subscriptions for specified Calendar channels */
 	public Set<String> getCalendarSubscriptionChannelsForChannels(
+			String primaryCalendarReference,
 			Collection<Object> channels);
 
 	/** Get Calendar channels for specified Calendar channels */

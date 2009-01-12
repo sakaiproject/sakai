@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -52,6 +53,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
@@ -90,6 +92,9 @@ public class BaseExternalCalendarSubscriptionService implements
 
 	/** iCal external subscription enable flag */
 	private boolean enabled = false;
+	
+	/** merge iCal external subscriptions from other sites into My Workspace?  */
+	private boolean mergeIntoMyworkspace = true;
 
 	/** Column map for iCal processing */
 	private Map columnMap = null;
@@ -149,9 +154,9 @@ public class BaseExternalCalendarSubscriptionService implements
 	public void init()
 	{
 		// external calendar subscriptions: enable?
-		enabled = m_configurationService.getBoolean(SAK_PROP_EXTSUBSCRIPTIONS_ENABLED,
-				false);
-		m_log.info("init(): enabled: " + enabled);
+		enabled = m_configurationService.getBoolean(SAK_PROP_EXTSUBSCRIPTIONS_ENABLED, false);
+		mergeIntoMyworkspace = m_configurationService.getBoolean(SAK_PROP_EXTSUBSCRIPTIONS_MERGEINTOMYWORKSPACE, true); 
+		m_log.info("init(): enabled: " + enabled + ", merge from other sites into My Workspace? "+mergeIntoMyworkspace);
 
 		if (enabled)
 		{
@@ -310,10 +315,15 @@ public class BaseExternalCalendarSubscriptionService implements
 	}
 
 	public Set<String> getCalendarSubscriptionChannelsForChannels(
+			String primaryCalendarReference,
 			Collection<Object> channels)
 	{
 		Set<String> subscriptionChannels = new HashSet<String>();
 		Set<String> subscriptionUrlsAdded = new HashSet<String>();
+		if(isOnWorkspaceTab() && (!mergeIntoMyworkspace || SecurityService.isSuperUser())) {
+			channels = new ArrayList<Object>();
+			channels.add(primaryCalendarReference);
+		}
 		for (Object channel : channels)
 		{
 			Set<String> channelSubscriptions = getCalendarSubscriptionChannelsForChannel((String) channel);
@@ -671,6 +681,15 @@ public class BaseExternalCalendarSubscriptionService implements
 					+ calendarName + "' from URL: " + url, e);
 		}
 		return subscription;
+	}
+	
+	/**
+	 * See if the current tab is the workspace tab (i.e. user site)
+	 * @return true if we are currently on the "My Workspace" tab.
+	 */
+	private boolean isOnWorkspaceTab()
+	{
+		return m_siteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 	}
 
 	// ######################################################

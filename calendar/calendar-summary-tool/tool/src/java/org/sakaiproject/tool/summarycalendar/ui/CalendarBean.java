@@ -218,7 +218,9 @@ public class CalendarBean {
  		
 		// add external calendar subscriptions
         List referenceList = mergedCalendarList.getReferenceList();
-        Set subscriptionRefList = M_ecs.getCalendarSubscriptionChannelsForChannels(referenceList);
+        Set subscriptionRefList = M_ecs.getCalendarSubscriptionChannelsForChannels(
+        		primaryCalendarReference,
+        		referenceList);
         referenceList.addAll(subscriptionRefList);
 				
 		return referenceList;
