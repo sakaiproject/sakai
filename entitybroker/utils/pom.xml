@@ -18,29 +18,32 @@
         <version>1.3.5-SNAPSHOT</version><!--entitybroker.version-->
     </parent>
     <dependencies>
-<!-- internal dependencies -->
+        <!-- internal dependencies -->
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
         </dependency>
-<!-- for reloadable proxy -->
+        <!-- for reloadable proxy and spring stuff -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
         </dependency>
-<!-- Sakai K1 -->
-<!-- -->
+        <!-- Sakai dependency is for the reloadable proxy also -->
+        <!-- Sakai K1 -->
+        <!-- -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
-<!-- -->
-<!-- Sakai preK1 -->
+        <!-- -->
+        <!-- Sakai preK1 -->
         <!--
-            <dependency> <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-component</artifactId> </dependency>
+        <dependency> 
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-component</artifactId> 
+        </dependency>
         -->
-<!-- required for bean cloning and reflection -->
+        <!-- required for bean cloning and reflection -->
         <dependency>
             <groupId>org.azeckoski</groupId>
             <artifactId>reflectutils</artifactId>
