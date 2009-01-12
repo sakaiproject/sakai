@@ -20,8 +20,8 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import org.sakaiproject.entitybroker.EntityPropertiesService;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
 import org.sakaiproject.entitybroker.mocks.EntityViewAccessProviderManagerMock;
@@ -29,6 +29,7 @@ import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
 import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
+import org.sakaiproject.entitybroker.util.spring.EntityPropertiesServiceSpringImpl;
 
 
 /**
@@ -81,7 +82,7 @@ public class ServiceTestManager {
         this.td = td;
         // initialize all the parts
         requestGetter = new RequestGetterImpl();
-        entityPropertiesService = new EntityPropertiesService();
+        entityPropertiesService = new EntityPropertiesServiceSpringImpl();
         entityActionsManager = new EntityActionsManager();
         serverConfigurationService = new FakeServerConfigurationService();
         httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();

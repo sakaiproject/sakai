@@ -29,9 +29,9 @@ import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.EntityPropertiesService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 
 /**
  * implementation of the helper service methods which are internal only

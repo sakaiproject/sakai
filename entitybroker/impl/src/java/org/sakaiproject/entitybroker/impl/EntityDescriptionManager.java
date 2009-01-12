@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sakaiproject.entitybroker.EntityPropertiesService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
@@ -49,7 +50,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.impl.util.VersionConstants;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;

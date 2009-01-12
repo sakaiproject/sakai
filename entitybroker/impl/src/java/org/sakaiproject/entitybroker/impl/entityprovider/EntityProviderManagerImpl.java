@@ -40,6 +40,7 @@ import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.refmap.ReferenceMap;
 import org.azeckoski.reflectutils.refmap.ReferenceType;
 
+import org.sakaiproject.entitybroker.EntityPropertiesService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
