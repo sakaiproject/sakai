@@ -284,34 +284,36 @@ public class BeginDeliveryActionListener implements ActionListener
     // check if we need to time the assessment, i.e.hasTimeassessment="true"
     String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
     if (hasTimeLimit!=null && hasTimeLimit.equals("true")){
-      delivery.setHasTimeLimit(true);
-      delivery.setTimerId((new Date()).getTime()+"");
+    	delivery.setHasTimeLimit(true);
+    	delivery.setTimerId((new Date()).getTime()+"");
+
+    	try {
+    		if (control.getTimeLimit() != null) {
+    			delivery.setTimeLimit(delivery.updateTimeLimit(control.getTimeLimit().toString()));
+    			int seconds = control.getTimeLimit().intValue();
+    			int hour = 0;
+    			int minute = 0;
+    			if (seconds>=3600) {
+    				hour = Math.abs(seconds/3600);
+    				minute =Math.abs((seconds-hour*3600)/60);
+    			}
+    			else {
+    				minute = Math.abs(seconds/60);
+    			}
+    			delivery.setTimeLimit_hour(hour);
+    			delivery.setTimeLimit_minute(minute);
+    		}
+    	} catch (RuntimeException e)
+    	{
+    		delivery.setTimeLimit("");
+    	}
     }
     else{
-      delivery.setHasTimeLimit(false);
-      delivery.setTimerId(null);
-    }
-
-    try {
-      if (control.getTimeLimit() != null) {
-        delivery.setTimeLimit(delivery.updateTimeLimit(control.getTimeLimit().toString()));
-        int seconds = control.getTimeLimit().intValue();
-        int hour = 0;
-        int minute = 0;
-        if (seconds>=3600) {
-          hour = Math.abs(seconds/3600);
-          minute =Math.abs((seconds-hour*3600)/60);
-        }
-        else {
-          minute = Math.abs(seconds/60);
-        }
-        delivery.setTimeLimit_hour(hour);
-        delivery.setTimeLimit_minute(minute);
+        delivery.setHasTimeLimit(false);
+        delivery.setTimerId(null);
+        delivery.setTimeLimit("0");
       }
-    } catch (RuntimeException e)
-    {
-      delivery.setTimeLimit("");
-    }
+
   }
 
   public PublishedAssessmentFacade getPublishedAssessmentBasedOnAction(int action, DeliveryBean delivery){

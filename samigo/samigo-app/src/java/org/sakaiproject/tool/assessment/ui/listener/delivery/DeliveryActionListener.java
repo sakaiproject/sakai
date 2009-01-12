@@ -1996,7 +1996,7 @@ public class DeliveryActionListener
     // is not recorded properly in DB - daisyf
     int timeLimit = 0;
     AssessmentAccessControlIfc control = publishedAssessment.getAssessmentAccessControl();
-    if (control != null && control.getTimeLimit()!=null) {
+    if (delivery.getHasTimeLimit() && control != null && control.getTimeLimit()!=null) {
     	if (fromBeginAssessment) {
     		timeLimit = Integer.parseInt(delivery.updateTimeLimit(publishedAssessment.getAssessmentAccessControl().getTimeLimit().toString()));
     	}
