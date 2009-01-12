@@ -106,6 +106,7 @@
         </map>
      </property>
   </bean> 
+
     <bean id="org.sakaiproject.search.component.adapter.contenthosting.XLContentDigester" 
      class="org.sakaiproject.search.component.adapter.contenthosting.XLContentDigester"
      init-method="init" 
@@ -123,5 +124,17 @@
        </property>
     </bean> 
     
+    <bean id="org.sakaiproject.search.component.adapter.contenthosting.OOXmlContentDigester" 
+     class="org.sakaiproject.search.component.adapter.contenthosting.OOXmlContentDigester"
+     init-method="init" 
+     destroy-method="destroy"
+     >
+       <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+       <property name="mimeTypes">
+          <map>
+             <entry key="application/vnd.openxmlformats"><value>application/vnd.openxmlformats</value></entry>
+          </map>
+       </property>
+    </bean> 
   
 </beans>

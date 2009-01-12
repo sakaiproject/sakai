@@ -50,5 +50,13 @@
       <artifactId>sakai-search-impl</artifactId>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>2.5.1</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 </project>
