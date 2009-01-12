@@ -312,7 +312,7 @@ public class EntityBatchHandler {
 
         // die if every ref was invalid
         if (results.size() == 0) {
-            throw new EntityException("Invalid request which resulted in no valid references to batch process, original refs=("
+            throw new EntityException("Invalid request which resulted in no valid references to batch process, original _refs=("
                     +ArrayUtils.arrayToString(refs)+")", EntityRequestHandler.SLASH_BATCH, HttpServletResponse.SC_BAD_REQUEST);
         }
 
@@ -531,7 +531,7 @@ public class EntityBatchHandler {
     private String[] getRefsOrFail(HttpServletRequest req) {
         String[] refs = req.getParameterValues(REFS_PARAM_NAME);
         if (refs == null || refs.length == 0) {
-            throw new IllegalArgumentException("refs parameter must be set (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
+            throw new IllegalArgumentException(REFS_PARAM_NAME + " parameter must be set (e.g. /direct/batch.json?"+REFS_PARAM_NAME+"=/sites/popular,/sites/newest)");
         }
         if (refs.length == 1) {
             // process separated list, assume comma separated
@@ -542,11 +542,11 @@ public class EntityBatchHandler {
             String presplit = refs[0];
             refs = presplit.split(separator);
             if (refs == null || refs.length == 0) {
-                throw new IllegalStateException("Failure attempting to process the refs ("+presplit+") listing, could not get the final list of refs out by splitting using the separator ("+separator+")");
+                throw new IllegalStateException("Failure attempting to process the _refs ("+presplit+") listing, could not get the final list of refs out by splitting using the separator ("+separator+")");
             }
         }
         if (refs.length <= 0) {
-            throw new IllegalArgumentException("refs parameter must be set and there must be at least 1 reference (e.g. /direct/batch.json?refs=/sites/popular,/sites/newest)");
+            throw new IllegalArgumentException(REFS_PARAM_NAME + " parameter must be set and there must be at least 1 reference (e.g. /direct/batch.json?"+REFS_PARAM_NAME+"=/sites/popular,/sites/newest)");
         }
         return refs;
     }
