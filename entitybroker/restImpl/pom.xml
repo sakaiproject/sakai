@@ -18,7 +18,7 @@
         <version>1.3.5-SNAPSHOT</version><!--entitybroker.version-->
     </parent>
     <dependencies>
-<!-- internal dependencies -->
+        <!-- internal dependencies -->
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
@@ -27,9 +27,16 @@
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
         </dependency>
+        <!-- internal testing -->
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-mocks</artifactId>
+            <scope>test</scope>
+            <!-- for 2.0.6 compatibility, http://jira.codehaus.org/browse/MNG-2919 -->
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-impl</artifactId>
             <scope>test</scope>
             <!-- for 2.0.6 compatibility, http://jira.codehaus.org/browse/MNG-2919 -->
         </dependency>
@@ -38,24 +45,17 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-        </dependency>
-        <!-- generic DAO -->
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>generic-dao</artifactId>
-        </dependency>
+        <!-- Data processing -->
         <dependency>
             <groupId>org.azeckoski</groupId>
             <artifactId>reflectutils</artifactId>
         </dependency>
-        <!-- Data processing -->
+        <!-- logging -->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
+
         <!-- testing -->
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
@@ -70,72 +70,10 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.4</version>
+            <version>4.5</version>
             <scope>test</scope>
         </dependency>
 
-<!-- Sakai K1 dependencies -->
-<!-- -->
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-util</artifactId>
-        </dependency>
-<!-- -->
-
-        <!-- Pre K1 Sakai deps -->
-<!-- 
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-authz-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-cluster-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-component-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-email-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-entity-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-event-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-site-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-tool-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-user-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-entity-util</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
--->
-
-        <!-- testing dependencies -->
     </dependencies>
     <build>
         <resources>
@@ -164,20 +102,5 @@
                 -->
             </plugin>
         </plugins>
-        <testResources>
-            <testResource>
-                <directory>${basedir}/../pack/src/webapp/WEB-INF</directory>
-                <includes>
-                    <include>spring-jdbc.xml</include>
-                </includes>
-            </testResource>
-            <testResource>
-                <directory>${basedir}/src/test</directory>
-                <includes>
-                    <include>database-test.xml</include>
-                    <include>database.properties</include>
-                </includes>
-            </testResource>
-        </testResources>
     </build>
 </project>
