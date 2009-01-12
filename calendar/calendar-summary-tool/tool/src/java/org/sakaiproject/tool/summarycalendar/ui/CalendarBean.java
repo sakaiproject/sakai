@@ -47,7 +47,6 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
@@ -60,11 +59,12 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.util.CalendarChannelReferenceMaker;
+import org.sakaiproject.util.CalendarReferenceToChannelConverter;
 import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.util.EntryProvider;
 import org.sakaiproject.util.MergedList;
-import org.sakaiproject.util.MergedListEntryProviderBase;
 import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -81,9 +81,6 @@ public class CalendarBean {
 	private static final String 					imgLocation				= "../../../library/image/sakai/";
 	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
 	
-	/** Used to retrieve non-notification sites for MyWorkspace page */
-	private static final String 					TABS_EXCLUDED_PREFS 	= "sakai:portal:sitenav";
-	private final String 							TAB_EXCLUDED_SITES 		= "exclude";
 	private static final String 					MERGED_CALENDARS_PROP 	= "mergedCalendarReferences";
 	
 	/** Our log (commons). */
@@ -249,132 +246,6 @@ public class CalendarBean {
 		mergedCalendarList.loadChannelsFromDelimitedString(isOnWorkspaceTab, false, entryProvider, StringUtil.trimToZero(M_sm.getCurrentSessionUserId()), channelArray, M_as.isSuperUser(), getSiteId());
 
 		return mergedCalendarList;
-	}
-	
-	/*
-	 * Callback class so that we can form references in a generic way.
-	 */
-	private final class CalendarChannelReferenceMaker implements MergedList.ChannelReferenceMaker {
-		public String makeReference(String siteId) {
-			return M_ca.calendarReference(siteId, SiteService.MAIN_CONTAINER);
-		}
-	}
-	
-	/**
-	 * Provides a list of merged calendars by iterating through all
-	 * available calendars.
-	 */
-	private final class EntryProvider extends MergedListEntryProviderBase {
- 		/** calendar channels from hidden sites */
- 		private final List excludedSites = new ArrayList();
- 		
- 		public EntryProvider() {
- 			this(false);
- 		}
- 		
- 		public EntryProvider(boolean excludeHiddenSites) {
- 			if(excludeHiddenSites) {
-	 			List<String> excludedSiteIds = getExcludedSitesFromTabs();
-	 			if(excludedSiteIds != null) {
-		 			for(String siteId : excludedSiteIds) {
-		 				excludedSites.add(M_ca.calendarReference(siteId, SiteService.MAIN_CONTAINER));
-		 			}
-	 			}
- 			}
- 		}
- 		
-		/*
-		 * (non-Javadoc)
-		 * @see
-		 * org.sakaiproject.util.MergedListEntryProviderBase#makeReference(java
-		 * .lang.String)
-		 */
-		public Object makeObjectFromSiteId(String id) {
-			String calendarReference = M_ca.calendarReference(id, SiteService.MAIN_CONTAINER);
-			Object calendar = null;
-
-			if(calendarReference != null){
-				try{
-					calendar = M_ca.getCalendar(calendarReference);
-				}catch(IdUnusedException e){
-					// The channel isn't there.
-				}catch(PermissionException e){
-					// We can't see the channel
-				}
-			}
-
-			return calendar;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see
-		 * org.chefproject.actions.MergedEntryList.EntryProvider#allowGet(java
-		 * .lang.Object)
-		 */
-		public boolean allowGet(String ref) {
-			return !excludedSites.contains(ref) && M_ca.allowGetCalendar(ref);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see
-		 * org.chefproject.actions.MergedEntryList.EntryProvider#getContext(
-		 * java.lang.Object)
-		 */
-		public String getContext(Object obj) {
-			if(obj == null){
-				return "";
-			}
-
-			org.sakaiproject.calendar.api.Calendar calendar = (org.sakaiproject.calendar.api.Calendar) obj;
-			return calendar.getContext();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see
-		 * org.chefproject.actions.MergedEntryList.EntryProvider#getReference
-		 * (java.lang.Object)
-		 */
-		public String getReference(Object obj) {
-			if(obj == null){
-				return "";
-			}
-
-			org.sakaiproject.calendar.api.Calendar calendar = (org.sakaiproject.calendar.api.Calendar) obj;
-			return calendar.getReference();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see
-		 * org.chefproject.actions.MergedEntryList.EntryProvider#getProperties
-		 * (java.lang.Object)
-		 */
-		public ResourceProperties getProperties(Object obj) {
-			if(obj == null){
-				return null;
-			}
-
-			org.sakaiproject.calendar.api.Calendar calendar = (org.sakaiproject.calendar.api.Calendar) obj;
-			return calendar.getProperties();
-		}
-	}
-	
-	/**
-	 * Used by callback to convert channel references to channels.
-	 */
-	private final class CalendarReferenceToChannelConverter implements MergedListEntryProviderFixedListWrapper.ReferenceToChannelConverter {
-		public Object getChannel(String channelReference) {
-			try{
-				return M_ca.getCalendar(channelReference);
-			}catch(IdUnusedException e){
-				return null;
-			}catch(PermissionException e){
-				return null;
-			}
-		}
 	}
 
 	private String getSiteId() {
@@ -972,16 +843,6 @@ public class CalendarBean {
 
 	public void setViewingDate(Date selectedMonth) {
 		this.viewingDate = selectedMonth;
-	}
-	
-	/**
-	 * Pulls excluded site ids from Tabs preferences
-	 */
-	private List getExcludedSitesFromTabs() {
-		final Preferences prefs = M_ps.getPreferences(M_sm.getCurrentSessionUserId());
-		final ResourceProperties props = prefs.getProperties(TABS_EXCLUDED_PREFS);
-		final List l = props.getPropertyList(TAB_EXCLUDED_SITES);
-		return l;		
 	}
 	
 	public String[] getDayOfWeekNames() {
