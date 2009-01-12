@@ -246,7 +246,6 @@ public class AuthorActionListener
 	  
 	  TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	  totalScores.setReleaseTo(f.getReleaseTo());
-	  totalScores.setPublishedId(f.getPublishedAssessmentId().toString());
 	  Map useridMap = null;
 	  if (f.getReleaseTo() != null && !("").equals(f.getReleaseTo())) {
 		  if (f.getReleaseTo().indexOf("Anonymous Users") >= 0) {
