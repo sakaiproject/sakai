@@ -36,6 +36,7 @@ import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
@@ -44,6 +45,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribeDefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
@@ -66,6 +68,8 @@ import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
 @SuppressWarnings("deprecation")
 public class EntityDescriptionManager {
 
+    private static final String INPUT_DESCRIBE_KEY = "input";
+    private static final String OUTPUT_DESCRIBE_KEY = "output";
     private static final String VIEW_KEY_PREFIX = "view.";
     private static final String FIELD_KEY_PREFIX = "field.";
     private static final String REDIRECT_KEY_PREFIX = "redirect.";
@@ -279,23 +283,25 @@ public class EntityDescriptionManager {
                         sb.append("      <createDescription>"+viewDesc+"</createDescription>\n");
                     }
                 }
-                sb.append("      <showURL>" + ev.getEntityURL(EntityView.VIEW_SHOW, null) + "</showURL>\n");
-                String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
-                if (viewDesc != null) {
-                    sb.append("      <showDescription>"+viewDesc+"</showDescription>\n");
+                if (caps.contains(CoreEntityProvider.class) || caps.contains(Resolvable.class)) {
+                    sb.append("      <showURL>" + ev.getEntityURL(EntityView.VIEW_SHOW, null) + "</showURL>\n");
+                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
+                    if (viewDesc != null) {
+                        sb.append("      <showDescription>"+viewDesc+"</showDescription>\n");
+                    }
                 }
                 if (caps.contains(Updateable.class)) {
                     sb.append("      <updateURL>" + ev.getEntityURL(EntityView.VIEW_EDIT, null) + "</updateURL>\n");
-                    String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
-                    if (viewDesc2 != null) {
-                        sb.append("      <updateDescription>"+viewDesc2+"</updateDescription>\n");
+                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
+                    if (viewDesc != null) {
+                        sb.append("      <updateDescription>"+viewDesc+"</updateDescription>\n");
                     }
                 }
                 if (caps.contains(Deleteable.class)) {
                     sb.append("      <deleteURL>" + ev.getEntityURL(EntityView.VIEW_DELETE, null) + "</deleteURL>\n");
-                    String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
-                    if (viewDesc2 != null) {
-                        sb.append("      <deleteDescription>"+viewDesc2+"</deleteDescription>\n");
+                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
+                    if (viewDesc != null) {
+                        sb.append("      <deleteDescription>"+viewDesc+"</deleteDescription>\n");
                     }
                 }
                 // Custom Actions
@@ -335,6 +341,10 @@ public class EntityDescriptionManager {
                         }
                     }
                 }
+                String outputDesc = getEntityDescription(prefix, OUTPUT_DESCRIBE_KEY, locale);
+                if (outputDesc != null) {
+                    sb.append("          <description>"+outputDesc+"</description>\n");
+                }
                 sb.append("       </outputFormats>\n");
 
                 String[] inputFormats = getFormats(prefix, false);
@@ -347,6 +357,10 @@ public class EntityDescriptionManager {
                             sb.append("        <format>"+inputFormats[i]+"</format>\n");
                         }
                     }
+                }
+                String intputDesc = getEntityDescription(prefix, INPUT_DESCRIBE_KEY, locale);
+                if (intputDesc != null) {
+                    sb.append("          <description>"+intputDesc+"</description>\n");
                 }
                 sb.append("       </inputFormats>\n");
 
@@ -486,68 +500,77 @@ public class EntityDescriptionManager {
                 // URLs
                 EntityView ev = entityBrokerManager.makeEntityView(new EntityReference(prefix, id), null, null);
                 String url = "";
-                sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.sample.urls", locale)
-                        +" (_id='"+id+"') ["
-                        +entityProperties.getProperty(DESCRIBE, "describe.entity.may.be.invalid", locale)+"]:</h4>\n");
-                sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
-                if (caps.contains(CollectionResolvable.class)) {
-                    url = ev.getEntityURL(EntityView.VIEW_LIST, null);
-                    sb.append("        <div>\n");
-                    sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.collection.url", locale)
-                            +": <a href='"+ directUrl+url +"'>"+url+"</a>"
-                            + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST, locale);
-                    if (viewDesc != null) {
-                        sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                if (caps.contains(CollectionResolvable.class) 
+                        || caps.contains(Createable.class)
+                        || caps.contains(CoreEntityProvider.class) 
+                        || caps.contains(Resolvable.class)
+                        || caps.contains(Updateable.class)
+                        || caps.contains(Deleteable.class)) {
+                    sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.sample.urls", locale)
+                            +" (_id='"+id+"') ["
+                            +entityProperties.getProperty(DESCRIBE, "describe.entity.may.be.invalid", locale)+"]:</h4>\n");
+                    sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
+                    if (caps.contains(CollectionResolvable.class)) {
+                        url = ev.getEntityURL(EntityView.VIEW_LIST, null);
+                        sb.append("        <div>\n");
+                        sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.collection.url", locale)
+                                +": <a href='"+ directUrl+url +"'>"+url+"</a>"
+                                + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
+                        String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST, locale);
+                        if (viewDesc != null) {
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                        }
+                        sb.append("        </div>\n");
                     }
-                    sb.append("        </div>\n");
-                }
-                if (caps.contains(Createable.class)) {
-                    url = ev.getEntityURL(EntityView.VIEW_NEW, null);
-                    sb.append("        <div>\n");
-                    sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.create.url", locale)
-                            +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW, locale);
-                    if (viewDesc != null) {
-                        sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                    if (caps.contains(Createable.class)) {
+                        url = ev.getEntityURL(EntityView.VIEW_NEW, null);
+                        sb.append("        <div>\n");
+                        sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.create.url", locale)
+                                +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
+                        String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW, locale);
+                        if (viewDesc != null) {
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                        }
+                        sb.append("        </div>\n");
                     }
-                    sb.append("        </div>\n");
-                }
-
-                url = ev.getEntityURL(EntityView.VIEW_SHOW, null);
-                sb.append("        <div>\n");
-                sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.show.url", locale)
-                        +": <a href='"+ directUrl+url +"'>"+url+"</a>"
-                        + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
-                String viewDesc2 = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
-                if (viewDesc2 != null) {
-                    sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc2+"</div>\n");
-                }
-                sb.append("        </div>\n");
-
-                if (caps.contains(Updateable.class)) {
-                    url = ev.getEntityURL(EntityView.VIEW_EDIT, null);
-                    sb.append("        <div>\n");
-                    sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.update.url", locale)
-                            +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
-                    if (viewDesc != null) {
-                        sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+    
+                    if (caps.contains(CoreEntityProvider.class) || caps.contains(Resolvable.class)) {
+                        url = ev.getEntityURL(EntityView.VIEW_SHOW, null);
+                        sb.append("        <div>\n");
+                        sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.show.url", locale)
+                                +": <a href='"+ directUrl+url +"'>"+url+"</a>"
+                                + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
+                        String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
+                        if (viewDesc != null) {
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                        }
+                        sb.append("        </div>\n");
                     }
-                    sb.append("        </div>\n");
-                }
-                if (caps.contains(Deleteable.class)) {
-                    url = ev.getEntityURL(EntityView.VIEW_DELETE, null);
-                    sb.append("        <div>\n");
-                    sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)
-                            +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
-                    String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
-                    if (viewDesc != null) {
-                        sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+    
+                    if (caps.contains(Updateable.class)) {
+                        url = ev.getEntityURL(EntityView.VIEW_EDIT, null);
+                        sb.append("        <div>\n");
+                        sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.update.url", locale)
+                                +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
+                        String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
+                        if (viewDesc != null) {
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                        }
+                        sb.append("        </div>\n");
                     }
-                    sb.append("        </div>\n");
+                    if (caps.contains(Deleteable.class)) {
+                        url = ev.getEntityURL(EntityView.VIEW_DELETE, null);
+                        sb.append("        <div>\n");
+                        sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)
+                                +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
+                        String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
+                        if (viewDesc != null) {
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                        }
+                        sb.append("        </div>\n");
+                    }
+                    sb.append("      </div>\n");
                 }
-                sb.append("      </div>\n");
 
                 // Custom Actions
                 List<CustomAction> customActions = entityActionsManager.getCustomActions(prefix);
@@ -583,9 +606,18 @@ public class EntityDescriptionManager {
                 sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
                 sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.formats.output", locale)+" : "
                         + makeFormatsString(outputFormats, EntityEncodingManager.HANDLED_OUTPUT_FORMATS, locale) +"</div>\n");
+                String outputDesc = getEntityDescription(prefix, OUTPUT_DESCRIBE_KEY, locale);
+                if (outputDesc != null) {
+                    sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+outputDesc+"</div>\n");
+                }
                 String[] inputFormats = getFormats(prefix, false);
                 sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.formats.input", locale)+" : "
                         + makeFormatsString(inputFormats, EntityEncodingManager.HANDLED_INPUT_FORMATS, locale) +"</div>\n");
+                String intputDesc = getEntityDescription(prefix, INPUT_DESCRIBE_KEY, locale);
+                if (intputDesc != null) {
+                    sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+intputDesc+"</div>\n");
+                }
+
                 EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
                 if (evap != null) {
                     sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.data.access.provider", locale)+" : "+ EntityViewAccessProvider.class.getSimpleName() +"</div>\n");

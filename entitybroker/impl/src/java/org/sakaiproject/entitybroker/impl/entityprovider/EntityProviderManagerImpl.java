@@ -36,6 +36,10 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.azeckoski.reflectutils.ReflectUtils;
+import org.azeckoski.reflectutils.refmap.ReferenceMap;
+import org.azeckoski.reflectutils.refmap.ReferenceType;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -46,6 +50,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutionControllable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
@@ -56,12 +61,9 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityProviderList
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.impl.EntityActionsManager;
+import org.sakaiproject.entitybroker.impl.EntityEncodingManager;
 import org.sakaiproject.entitybroker.impl.EntityRedirectsManager;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
-
-import org.azeckoski.reflectutils.ReflectUtils;
-import org.azeckoski.reflectutils.refmap.ReferenceMap;
-import org.azeckoski.reflectutils.refmap.ReferenceType;
 
 /**
  * Base implementation of the entity provider manager
@@ -126,7 +128,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         );
         // register the batch prefix to reserve it and load up batch descriptions
         registerEntityProvider(
-                new DescribePropertiesable() {
+                new BatchProvider() {
                     public String getEntityPrefix() {
                         return EntityRequestHandler.BATCH;
                     }
@@ -136,9 +138,14 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                     public ClassLoader getResourceClassLoader() {
                         return EntityProviderManagerImpl.class.getClassLoader();
                     }
+                    public String[] getHandledOutputFormats() {
+                        return EntityEncodingManager.HANDLED_OUTPUT_FORMATS;
+                    }
                 }
         );
     }
+
+    private static interface BatchProvider extends DescribePropertiesable, Outputable {};
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.managers.EntityProviderManager#getProviderByPrefix(java.lang.String)

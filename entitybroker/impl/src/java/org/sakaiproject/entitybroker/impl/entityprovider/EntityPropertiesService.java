@@ -56,7 +56,7 @@ public class EntityPropertiesService {
    }
 
    /**
-    * Register the properties in this clasloader for this prefix
+    * Register the properties in this classloader for this prefix
     * @param prefix an entity prefix
     * @param baseName (optional) the part before the .properties or _en.properties,
     * example: location/dir/myentity.properties, if null then prefix is used
