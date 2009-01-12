@@ -115,8 +115,6 @@
             ref="org.sakaiproject.entity.api.EntityManager" />
         <property name="entityProviderManager"
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
-        <property name="httpAccess"
-            ref="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerHttpAccess" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.EntityRequestHandler"
@@ -196,15 +194,6 @@
         init-method="init">
         <property name="entityProviderManager"
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
-    </bean>
-
-    <bean id="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerHttpAccess"
-        class="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerHttpAccess">
-        <property name="accessProviderManager"
-            ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
-        <property name="entityBrokerManager"
-            ref="org.sakaiproject.entitybroker.impl.EntityBrokerManager" />
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     </bean>
 
     <!-- warning id out of sync with bean -->

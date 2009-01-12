@@ -64,7 +64,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.impl.EntityActionsManager;
 import org.sakaiproject.entitybroker.impl.EntityEncodingManager;
 import org.sakaiproject.entitybroker.impl.EntityRedirectsManager;
-import org.sakaiproject.entitybroker.impl.util.URLRedirect;
+import org.sakaiproject.entitybroker.util.request.URLRedirect;
 
 /**
  * Base implementation of the entity provider manager

@@ -24,9 +24,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+import org.sakaiproject.entitybroker.util.request.URLRedirect;
 
 
 /**
@@ -170,7 +170,7 @@ public class EntityRedirectsManagerTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityRedirectsManager#addURLRedirects(java.lang.String, org.sakaiproject.entitybroker.impl.util.URLRedirect[])}.
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityRedirectsManager#addURLRedirects(java.lang.String, org.sakaiproject.entitybroker.util.request.URLRedirect[])}.
     */
    public void testAddURLRedirects() {
       entityRedirectsManager.addURLRedirects("testing", new URLRedirect[] {valid1, valid2});

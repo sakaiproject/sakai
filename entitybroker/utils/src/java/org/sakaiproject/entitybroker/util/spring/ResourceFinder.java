@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl.util;
+package org.sakaiproject.entitybroker.util.spring;
 
 import java.io.File;
 import java.io.IOException;

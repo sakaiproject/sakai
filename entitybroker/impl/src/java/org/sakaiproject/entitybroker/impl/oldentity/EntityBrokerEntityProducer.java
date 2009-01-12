@@ -63,11 +63,6 @@ public class EntityBrokerEntityProducer implements EntityProducer {
       this.entityBrokerManager = entityBrokerManager;
    }
 
-   private HttpAccess httpAccess;
-   public void setHttpAccess(HttpAccess httpAccess) {
-      this.httpAccess = httpAccess;
-   }
-
    /**
     * <b>NOTE VERY CAREFULLY</b> - current implementation of EntityManager ignores referenceRoot!
     * This will fail if this ever changes
@@ -149,11 +144,10 @@ public class EntityBrokerEntityProducer implements EntityProducer {
 
    /*
     * (non-Javadoc)
-    * 
     * @see org.sakaiproject.entity.api.EntityProducer#getHttpAccess()
     */
    public HttpAccess getHttpAccess() {
-      return httpAccess;
+      return null; // no more http access through access servlet
    }
 
    /*

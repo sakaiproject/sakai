@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl.util;
+package org.sakaiproject.entitybroker.util;
 
 /**
  * Tracking the version for output on screen
