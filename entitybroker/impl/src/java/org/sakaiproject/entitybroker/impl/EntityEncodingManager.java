@@ -71,14 +71,13 @@ public class EntityEncodingManager {
     public static final String ENTITY_ID = "entityId";
     public static final String ENTITY_URL = "entityURL";
     public static final String ENTITY_TITLE = "entityTitle";
+    public static final String ENTITY_PREFIX = "entityPrefix";
+    public static final String COLLECTION = "_collection";
 
     private static Log log = LogFactory.getLog(EntityEncodingManager.class);
 
-    private static final String ENTITY_PREFIX = "entityPrefix";
-    private static final String COLLECTION = "_collection";
     public static final String[] HANDLED_INPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
     public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
-
 
     private EntityProviderManager entityProviderManager;
     public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
@@ -89,6 +88,9 @@ public class EntityEncodingManager {
     public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
         this.entityBrokerManager = entityBrokerManager;
     }
+    /**
+     * FOR TESTING ONLY
+     */
     public EntityBrokerManager getEntityBrokerManager() {
         return entityBrokerManager;
     }
@@ -585,7 +587,7 @@ public class EntityEncodingManager {
      * Encode data into a given format, can handle any java object,
      * note that unsupported formats will result in an exception
      * 
-     * @param data the data to encode
+     * @param data the data to encode (can be a POJO or Map or pretty much any java object)
      * @param format the format to use for output (from {@link Formats})
      * @param name (optional) the name to use for the encoded data (e.g. root node for XML)
      * @param properties (optional) extra properties to add into the encoding, ignored if encoded object is not a map or bean

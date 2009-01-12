@@ -42,7 +42,7 @@ import org.springframework.core.io.DefaultResourceLoader;
  */
 public class EntityPropertiesService {
 
-   private static Log log = LogFactory.getLog(EntityPropertiesService.class);
+   private static final Log log = LogFactory.getLog(EntityPropertiesService.class);
 
    protected Map<String, MessageSource> prefixMap = new ConcurrentHashMap<String, MessageSource>();
 

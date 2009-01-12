@@ -30,17 +30,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
-import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesService;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -62,50 +56,19 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class DeveloperHelperServiceImpl implements DeveloperHelperService {
+public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
 
     /**
      * Location id for the Sakai Gateway site
      */
     public static String GATEWAY_ID = "!gateway";
-    /**
-     * Encoding method to use when URL encoding
-     */
-    public static String URL_ENCODING = "UTF-8";
+
     /**
      * The portal base URL
      */
     public static String PORTAL_BASE = "/portal";
-    /**
-     * The site reference base
-     */
-    public static String SITE_BASE = "/site/";
 
     protected final String CURRENT_USER_MARKER = "originalCurrentUser";
-
-
-    private static Log log = LogFactory.getLog(DeveloperHelperService.class);
-
-    // INTERNAL
-    private EntityBroker entityBroker;
-    public void setEntityBroker(EntityBroker entityBroker) {
-        this.entityBroker = entityBroker;
-    }
-
-    private EntityBrokerManager entityBrokerManager;
-    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
-        this.entityBrokerManager = entityBrokerManager;
-    }
-
-    private EntityEncodingManager entityEncodingManager;
-    public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
-        this.entityEncodingManager = entityEncodingManager;
-    }
-
-    private EntityPropertiesService entityProperties;
-    public void setEntityProperties(EntityPropertiesService entityProperties) {
-        this.entityProperties = entityProperties;
-    }
 
     // SAKAI
     private AuthzGroupService authzGroupService;
@@ -148,43 +111,8 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
         this.userDirectoryService = userDirectoryService;
     }
 
-    private RequestStorage requestStorage;
-    public void setRequestStorage(RequestStorage requestStorage) {
-        this.requestStorage = requestStorage;
-    }
-
 
     // ENTITY
-
-    public boolean entityExists(String reference) {
-        return entityBroker.entityExists(reference);
-    }
-
-    public Object fetchEntity(String reference) {
-        Object entity = entityBroker.fetchEntity(reference);
-        if (entity == null 
-                && reference.startsWith("/user")) {
-            // this sucks but legacy user cannot be resolved for some reason 
-            // so look up directly since it is one of the top entities being fetched
-            String userId = getUserIdFromRef(reference);
-            if (userId != null) {
-                try {
-                    entity = userDirectoryService.getUser(userId);
-                } catch (UserNotDefinedException e) {
-                    entity = null;
-                }
-            }
-        }
-        return entity;
-    }
-
-    public void fireEvent(String eventName, String reference) {
-        entityBroker.fireEvent(eventName, reference);
-    }
-
-    public String getEntityURL(String reference, String viewKey, String extension) {
-        return entityBroker.getEntityURL(reference, viewKey, extension);
-    }
 
     public String setCurrentUser(String userReference) {
         if (userReference == null) {
@@ -280,6 +208,7 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.DeveloperHelperService#getCurrentLocale()
      */
+    @Override
     public Locale getCurrentLocale() {
         return new ResourceLoader().getLocale();
     }
@@ -295,29 +224,6 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
     public String getCurrentUserId() {
         String userId = sessionManager.getCurrentSessionUserId();
         return userId;
-    }
-
-    public String getUserIdFromRef(String userReference) {
-        String userId = null;
-        if (userReference != null) {
-            if (userReference.startsWith("/")) {
-                // assume the form of "/user/userId" (the UDS method is protected)
-                userId = new EntityReference(userReference).getId();
-            } else {
-                // otherwise assume this is the id
-                userId = userReference;
-            }
-        }
-        return userId;
-    }
-
-    public String getUserRefFromUserId(String userId) {
-        String userRef = null;
-        if (userId != null) {
-            // user the UDS method for controlling its references
-            userRef = userDirectoryService.userReference(userId);
-        }
-        return userRef;
     }
 
     public String getUserRefFromUserEid(String userEid) {
@@ -361,31 +267,8 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
         return locationId;
     }
 
-    public String getLocationIdFromRef(String locationReference) {
-        String locationId = null;
-        if (locationReference != null) {
-            // assume the form of "/site/siteId" (the Site method is protected)
-            locationId = new EntityReference(locationReference).getId();
-        }
-        return locationId;
-    }
-
     public String getStartingLocationReference() {
-        return SITE_BASE + GATEWAY_ID;
-    }
-
-    public String getUserHomeLocationReference(String userReference) {
-        if (userReference == null) {
-            userReference = getCurrentUserReference();
-        }
-        String userId = getUserIdFromRef(userReference);
-        String locationRef = null;
-        if (userId != null) {
-            locationRef = SITE_BASE + "~" + userId; // make this manually
-        } else {
-            log.warn("Cannot get the userhome locationReference because there is no current user: " + userReference);
-        }
-        return locationRef;
+        return GROUP_BASE + GATEWAY_ID;
     }
 
     // TOOLS
@@ -398,14 +281,6 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
             toolRef = new EntityReference("tool", toolId).toString();
         }
         return toolRef;
-    }
-
-    public String getToolIdFromToolRef(String toolReference) {
-        String toolId = null;
-        if (toolReference != null) {
-            toolId = new EntityReference(toolReference).getId();
-        }
-        return toolId;
     }
 
     /* (non-Javadoc)
@@ -472,19 +347,6 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
 
     public String getServerURL() {
         return serverConfigurationService.getServerUrl();
-    }
-
-    public String getUserHomeLocationURL(String userReference) {
-        String locationReference = getUserHomeLocationReference(userReference);
-        if (locationReference == null) {
-            throw new IllegalArgumentException("Could not get location from userReference ("+userReference+") to generate URL");
-        }
-        return getLocationReferenceURL(locationReference);
-    }
-
-    public String getLocationReferenceURL(String locationReference) {
-        new EntityReference(locationReference); // validate the reference
-        return getPortalURL() + locationReference;
     }
 
     public String getToolViewURL(String toolRegistrationId, String localView,
@@ -619,77 +481,6 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
             userRefs.add( getUserRefFromUserId(userId) );
         }
         return userRefs;
-    }
-
-    /**
-     * Checks to see if a request is internal and therefore can bypass some or all security
-     * @param reference an entity reference string
-     * @return true if internal OR false if external or REST
-     */
-    public boolean isEntityRequestInternal(String reference) {
-        boolean internal = false;
-        String origin = (String) requestStorage.getStoredValue(RequestStorage.ReservedKeys._requestOrigin.name());
-        if (RequestStorage.RequestOrigin.INTERNAL.name().equals(origin)) {
-            internal = true;
-        } else {
-            if (reference != null) {
-                String ref = (String) requestStorage.getStoredValue(RequestStorage.ReservedKeys._requestEntityReference.name());
-                if (reference.equals(ref)) {
-                    // if this ref was the one requested from outside it is definitely not internal
-                    internal = false;
-                } else {
-                    internal = true;
-                }
-            }
-        }
-        return internal;
-    }
-
-    // BEANS
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.DeveloperHelperService#cloneBean(java.lang.Object, int, java.lang.String[])
-     */
-    public <T> T cloneBean(T bean, int maxDepth, String[] propertiesToSkip) {
-        return entityBrokerManager.getReflectUtil().clone(bean, maxDepth, propertiesToSkip);
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.DeveloperHelperService#copyBean(java.lang.Object, java.lang.Object, int, java.lang.String[], boolean)
-     */
-    public void copyBean(Object orig, Object dest, int maxDepth, String[] fieldNamesToSkip,
-            boolean ignoreNulls) {
-        entityBrokerManager.getReflectUtil().copy(orig, dest, maxDepth, fieldNamesToSkip, ignoreNulls);
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.DeveloperHelperService#populate(java.lang.Object, java.util.Map)
-     */
-    public List<String> populate(Object object, Map<String, Object> properties) {
-        return entityBrokerManager.getReflectUtil().populate(object, properties);
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.DeveloperHelperService#convert(java.lang.Object, java.lang.Class)
-     */
-    public <T> T convert(Object object, Class<T> type) {
-        return entityBrokerManager.getReflectUtil().convert(object, type);
-    }
-
-    public Map<String, Object> decodeData(String data, String format) {
-        return entityEncodingManager.decodeData(data, format);
-    }
-
-    public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
-        return entityEncodingManager.encodeData(data, format, name, properties);
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.DeveloperHelperService#getMessage(java.lang.String, java.lang.String)
-     */
-    public String getMessage(String prefix, String messageKey) {
-        return entityProperties.getProperty(prefix, messageKey);
     }
 
 }
