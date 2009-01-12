@@ -110,7 +110,7 @@ public class ChangeProfilePicture extends Panel{
 		form.setMultiPart(true);
        
         
-        //close button - this needs to be a component -TODO
+        //close button
         CloseButton closeButton = new CloseButton("closeButton", this);
         closeButton.setOutputMarkupId(true);
 		form.add(closeButton);
@@ -124,6 +124,7 @@ public class ChangeProfilePicture extends Panel{
 		form.add(feedback);
 		
 		// filteredErrorLevels will not be shown in the FeedbackPanel
+		//this way we can control them. see the onSubmit method for the form
         int[] filteredErrorLevels = new int[]{FeedbackMessage.ERROR};
         feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(filteredErrorLevels));
 		
@@ -134,7 +135,6 @@ public class ChangeProfilePicture extends Panel{
 		//file feedback will be redirected here
         final FeedbackLabel fileFeedback = new FeedbackLabel("fileFeedback", form);
         fileFeedback.setOutputMarkupId(true);
-        uploadField.add(new ComponentVisualErrorBehavior("onblur", fileFeedback));
         form.add(fileFeedback);
 		
 		//submit button
