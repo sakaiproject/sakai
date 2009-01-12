@@ -49,6 +49,7 @@
 	        <value>uk/ac/lancs/e_science/profile2/hbm/ProfilePrivacy.hbm.xml</value>
 	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileFriend.hbm.xml</value>
 	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileImage.hbm.xml</value>
+	       	<value>uk/ac/lancs/e_science/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
 	      </list>
 	    </property>
 
