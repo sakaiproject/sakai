@@ -68,7 +68,7 @@
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.DeveloperHelperService"
-        class="org.sakaiproject.entitybroker.impl.DeveloperHelperServiceImpl">
+        class="org.sakaiproject.entitybroker.impl.devhelper.DeveloperHelperServiceImpl">
         <property name="authzGroupService"
             ref="org.sakaiproject.authz.api.AuthzGroupService" />
         <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />

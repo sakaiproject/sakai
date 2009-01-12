@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.impl.devhelper;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

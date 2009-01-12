@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.impl.devhelper;
 
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +32,7 @@ import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityPropertiesService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
+import org.sakaiproject.entitybroker.impl.EntityEncodingManager;
 
 /**
  * implementation of the helper service methods which are internal only
