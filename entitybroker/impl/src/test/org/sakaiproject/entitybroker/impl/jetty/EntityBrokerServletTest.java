@@ -281,7 +281,7 @@ public class EntityBrokerServletTest {
     @Test
     public void testBatchGetOneEntityXML() {
         // now fire the request
-        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?refs=" + DIRECT_PREFIX + TestData.REF4;
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?_refs=" + DIRECT_PREFIX + TestData.REF4;
         fireRequest(url);
 
         try {
@@ -308,7 +308,7 @@ public class EntityBrokerServletTest {
     @Test
     public void testBatchGetOneEntityJSON() {
         // now fire the request
-        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?refs=" + DIRECT_PREFIX + TestData.REF4 + ".xml";
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?_refs=" + DIRECT_PREFIX + TestData.REF4 + ".xml";
         fireRequest(url);
 
         try {
@@ -330,7 +330,7 @@ public class EntityBrokerServletTest {
             fail("Could not get content: " + e.getMessage());
         }
 
-        url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?refs=" + DIRECT_PREFIX + TestData.REF4_3;
+        url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?_refs=" + DIRECT_PREFIX + TestData.REF4_3;
         fireRequest(url);
 
         try {
@@ -349,7 +349,7 @@ public class EntityBrokerServletTest {
             fail("Could not get content: " + e.getMessage());
         }
 
-        url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?refs=" + DIRECT_PREFIX + TestData.REF6_3;
+        url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" + "?_refs=" + DIRECT_PREFIX + TestData.REF6_3;
         fireRequest(url);
 
         try {
@@ -373,7 +373,7 @@ public class EntityBrokerServletTest {
     @Test
     public void testBatchRedirectEntityXML() {
         // normal
-        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?refs=" + DIRECT_PREFIX + TestData.REFU1 + ".xml";
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?_refs=" + DIRECT_PREFIX + TestData.REFU1 + ".xml";
         fireRequest(url);
 
         try {
@@ -396,7 +396,7 @@ public class EntityBrokerServletTest {
         }
 
         // once again with feeling
-        url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?refs=" 
+        url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" + "?_refs=" 
             + DIRECT_PREFIX + "/" + TestData.PREFIXU1 + "/xml/" + TestData.IDSU1[0];
         fireRequest(url);
 
@@ -427,7 +427,7 @@ public class EntityBrokerServletTest {
     public void testBatchGetEntitiesXML() {
         // now fire the request
         String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" 
-                + "?refs=" + DIRECT_PREFIX + TestData.REF4_two
+                + "?_refs=" + DIRECT_PREFIX + TestData.REF4_two
                 + "," + DIRECT_PREFIX + TestData.REF6_2;
         fireRequest(url);
 
@@ -461,7 +461,7 @@ public class EntityBrokerServletTest {
     public void testBatchGetEntitiesJSON() {
         // now fire the request
         String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" 
-                + "?refs=" + DIRECT_PREFIX + TestData.REF4_two
+                + "?_refs=" + DIRECT_PREFIX + TestData.REF4_two
                 + "," + DIRECT_PREFIX + TestData.REF6_2;
         fireRequest(url);
 
@@ -492,7 +492,7 @@ public class EntityBrokerServletTest {
     public void testBatchGetCollectionsXML() {
         // now fire the request
         String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".xml" 
-                + "?refs=" + DIRECT_PREFIX + TestData.SPACE4
+                + "?_refs=" + DIRECT_PREFIX + TestData.SPACE4
                 + "," + DIRECT_PREFIX + TestData.REF6_2;
         fireRequest(url);
 
@@ -528,7 +528,7 @@ public class EntityBrokerServletTest {
     public void testBatchGetCollectionsJSON() {
         // now fire the request
         String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" 
-                + "?refs=" + DIRECT_PREFIX + TestData.SPACE4
+                + "?_refs=" + DIRECT_PREFIX + TestData.SPACE4
                 + "," + DIRECT_PREFIX + TestData.REF6_2;
         fireRequest(url);
 
@@ -560,7 +560,7 @@ public class EntityBrokerServletTest {
     public void testBatchGetValidAndInvalidJSON() {
         // now fire the request
         String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" 
-                + "?refs=" + DIRECT_PREFIX + TestData.SPACE4
+                + "?_refs=" + DIRECT_PREFIX + TestData.SPACE4
                 + "," + DIRECT_PREFIX + TestData.REF6_2
                 + "," + DIRECT_PREFIX + TestData.SPACE6 + "/XXXXX";
         fireRequest(url);
@@ -595,7 +595,7 @@ public class EntityBrokerServletTest {
 //    public void testBatchAllInvalidJSON() {
 //        // now fire the request
 //        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH + ".json" 
-//                + "?refs=/XXXXX/XXXX/XXX,/YYYYY/YYYY,/ZZZZZ";
+//                + "?_refs=/XXXXX/XXXX/XXX,/YYYYY/YYYY,/ZZZZZ";
 //        fireRequest(url);
 //
 //        try {

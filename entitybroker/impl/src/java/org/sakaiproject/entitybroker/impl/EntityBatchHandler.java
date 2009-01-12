@@ -317,7 +317,7 @@ public class EntityBatchHandler {
         }
 
         // compile all the responses into encoded data
-        String overallData = entityEncodingManager.encodeData(results, format, REFS_PARAM_NAME, null);
+        String overallData = entityEncodingManager.encodeData(results, format, "refs", null);
         // replace the data unique keys if there are any
         overallData = reintegrateDataContent(format, dataMap, overallData);
 
