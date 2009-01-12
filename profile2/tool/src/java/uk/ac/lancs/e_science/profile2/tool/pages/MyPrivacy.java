@@ -210,7 +210,6 @@ public class MyPrivacy extends BasePage {
 				if(save(form)){
 					formFeedback.setModel(new ResourceModel("success.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
-					target.addComponent(formFeedback);
 				} else {
 					formFeedback.setModel(new ResourceModel("error.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
@@ -222,6 +221,7 @@ public class MyPrivacy extends BasePage {
 		
         
 		//cancel button
+		/*
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             protected void onSubmit(AjaxRequestTarget target, Form form) {
 				setResponsePage(new MyProfile());
@@ -229,7 +229,7 @@ public class MyPrivacy extends BasePage {
         };
         cancelButton.setDefaultFormProcessing(false);
         form.add(cancelButton);
-		
+		*/
         
         add(form);
         

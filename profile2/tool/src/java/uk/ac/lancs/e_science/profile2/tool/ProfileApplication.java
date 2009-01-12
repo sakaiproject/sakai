@@ -69,8 +69,6 @@ public class ProfileApplication extends WebApplication {
 	public Profile getProfile() {
 		return profile;
 	}
-	
-	
-	
+		
 
 }

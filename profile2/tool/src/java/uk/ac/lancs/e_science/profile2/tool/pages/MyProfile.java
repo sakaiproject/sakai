@@ -122,7 +122,6 @@ public class MyProfile extends BasePage {
 		changePicture = new ChangeProfilePicture("changePicture", userProfile);
 		changePicture.setOutputMarkupPlaceholderTag(true);
 		final String changePictureMarkupId = changePicture.getMarkupId();
-		//changePicture.setOutputMarkupId(true);
 		changePicture.setVisible(false);
 		add(changePicture);
 		

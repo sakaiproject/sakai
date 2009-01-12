@@ -18,30 +18,30 @@
 		
 		<div id="fullWidth">
             
-            <div wicket:id="heading">[Privacy settings]</div>
-            <!-- 
-            <form wicket:id="form" class="profileForm">
+           	<div wicket:id="feedback"></div>
+            
+            <div wicket:id="sbnHeading">[searchByNameHeading]</div>
+
+            <form wicket:id="sbnForm" class="profileForm">
 				<table class="profileContent">
 					
-					<tr wicket:id="profileContainer">
-						<td class="label" wicket:id="profileLabel">[profileLabel]</td>
-						<td class="content"><select wicket:id="profile"></select></td>
-						<td class="toolTip"><span wicket:id="profileToolTip">[profileToolTip]</span></td>
+					<tr>
+						<td class="label" wicket:id="sbnNameLabel">[sbnNameLabel]</td>
+						<td class="content">
+							<input type="text" wicket:id="searchName" class="formInputField" />
+							<span class="feedbackLabel" wicket:id="searchNameFeedback">[searchNameFeedback]</span>
+						</td>
+						<td class="toolTip"><span wicket:id="sbnNameToolTip">[searchToolTip]</span></td>
 					</tr>
-									
 					
 				</table>
 				
-				<input type="submit" wicket:id="submit" value="Save setting" />
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<input type="button" wicket:id="cancel" value="Cancel"/>
-		
+				<input type="submit" wicket:id="sbnSubmit" value="Search" />&nbsp;&nbsp;<img wicket:id="sbnIndicator" />
 				
 			</form>	
 			
-			<div wicket:id="formFeedback">[formFeedback]</div>
-			-->
-		
+			
+					
 		</div>
 		
 		<!-- <div id="rightPanel"></div> -->

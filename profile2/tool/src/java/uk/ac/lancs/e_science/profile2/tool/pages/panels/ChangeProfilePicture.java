@@ -144,19 +144,16 @@ public class ChangeProfilePicture extends Panel{
 		form.add(submitButton);
 		
 		//form indicator - show when the submit button has been clicked - TODO
-		//requires AJAX submit button
+		//requires AJAX submit button but we can't use it since Ajax cant do file uploads
 		AjaxIndicator indicator = new AjaxIndicator("indicator");
-		indicator.setOutputMarkupPlaceholderTag(true);
+		indicator.setOutputMarkupId(true);
 		indicator.setVisible(false);
 		form.add(indicator);
 		
 		//add form to page
 		add(form);
     }
-	
-	
-	
-	
+
 }
 
 

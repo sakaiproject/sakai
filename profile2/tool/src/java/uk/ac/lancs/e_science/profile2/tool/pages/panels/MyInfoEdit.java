@@ -29,7 +29,7 @@ public class MyInfoEdit extends Panel {
 	
 	private transient Logger log = Logger.getLogger(MyInfoEdit.class);
 	private WebMarkupContainer formFeedback;
-	private String dateFormat = "dd-MMMM-yyyy"; //this should come from user preferences or a Sakai property
+	private String dateFormat = "dd MMMM yyyy"; //this should come from user preferences or a Sakai property
 	
 
 	

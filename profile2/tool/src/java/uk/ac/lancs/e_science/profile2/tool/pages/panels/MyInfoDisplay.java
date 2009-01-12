@@ -23,7 +23,7 @@ public class MyInfoDisplay extends Panel {
 	
 	private int visibleFieldCount = 0;
 	private String birthday = "";
-	private String dateFormat = "dd-MMMM-yyyy"; //this should come from user preferences or a Sakai property
+	private String dateFormat = "dd MMMM yyyy"; //this should come from user preferences or a Sakai property
 	
 
 	

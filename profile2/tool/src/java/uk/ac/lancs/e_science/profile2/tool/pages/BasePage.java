@@ -43,7 +43,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		//get Profile API
 		profile = ProfileApplication.get().getProfile();
-
 		
 		
     	//profile link
@@ -112,7 +111,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//search link
     	Link searchLink = new Link("searchLink") {
 			public void onClick() {
-				setResponsePage(new Search());
+				setResponsePage(new MySearch());
 			}
 		};
 		searchLink.add(new Label("searchLabel",new ResourceModel("link.search")));

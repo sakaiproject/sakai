@@ -36,7 +36,7 @@
 
 #myPhoto {
 	max-width: 200px;
-	position: relative;
+	position: relative;	
 	/* centre the image inside this div */
 	text-align:center;
     margin-top:0px;
@@ -269,6 +269,7 @@
 
 .profileContent .toolTip {
 	padding-left: 8px;
+	vertical-align: top;
 	/*padding-right: 40px;*/
 	
 }
@@ -310,6 +311,7 @@
 }
 
 .feedbackLabel {
+	display:block;
     font-weight: bold;
 }
 
@@ -432,6 +434,9 @@ h2 {
 	color: #5D5D5D;
 }
 
-
+.searchResultsHeader {
+	border-bottom: thin solid black;
+}
+	
 
 		
