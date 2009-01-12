@@ -194,10 +194,10 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         if (viewVoters)
         	return votes;
         else 
-        	return anonamizeVotes(votes);
+        	return anonymizeVotes(votes);
     }
 
-    private List<?> anonamizeVotes(List<Vote> votes) {
+    private List<?> anonymizeVotes(List<Vote> votes) {
     	List<Vote> ret = new ArrayList<Vote>();
     	String userId = developerHelperService.getCurrentUserId();
 
