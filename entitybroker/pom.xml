@@ -45,6 +45,7 @@
             <modules>
                 <module>api</module>
                 <module>impl</module>
+                <module>restImpl</module>
                 <module>tool</module>
                 <module>pack</module>
                 <module>mocks</module>
@@ -75,6 +76,7 @@
             <modules>
                 <module>api</module>
                 <module>impl</module>
+                <module>restImpl</module>
                 <module>tool</module>
                 <module>pack</module>
                 <module>mocks</module>
@@ -206,6 +208,15 @@
             <dependency>
                 <groupId>org.sakaiproject.entitybroker</groupId>
                 <artifactId>entitybroker-impl</artifactId>
+                <version>1.3.5-SNAPSHOT</version><!--entitybroker.version-->
+                <!--
+                    <scope>runtime</scope> for 2.0.6 compatibility,
+                    http://jira.codehaus.org/browse/MNG-2919
+                -->
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.entitybroker</groupId>
+                <artifactId>entitybroker-restimpl</artifactId>
                 <version>1.3.5-SNAPSHOT</version><!--entitybroker.version-->
                 <!--
                     <scope>runtime</scope> for 2.0.6 compatibility,
