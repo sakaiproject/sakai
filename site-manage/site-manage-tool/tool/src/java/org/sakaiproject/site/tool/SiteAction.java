@@ -8344,7 +8344,7 @@ public class SiteAction extends PagedResourceActionII {
 				Tool toolRegFound = null;
 				for (Iterator i = toolRegistrationSet.iterator(); i.hasNext();) {
 					Tool toolReg = (Tool) i.next();
-					if (toolId.indexOf(toolReg.getId()) != -1) {
+					if (toolId.equals(toolReg.getId())) {
 						toolRegFound = toolReg;
 					}
 				}
