@@ -32,13 +32,13 @@ import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
-import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 import org.sakaiproject.entitybroker.util.http.HttpClientWrapper;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.URLData;
+import org.sakaiproject.entitybroker.util.request.RequestUtils;
 
 
 /**

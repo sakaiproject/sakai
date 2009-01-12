@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl.util;
+package org.sakaiproject.entitybroker.util.request;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +28,8 @@ import junit.framework.TestCase;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Order;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.impl.util.RequestUtils;
-import org.springframework.mock.web.MockHttpServletResponse;
-
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
+import org.sakaiproject.entitybroker.util.request.RequestUtils;
 
 /**
  * testing the request utilities
@@ -191,10 +190,10 @@ public class RequestUtilsTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.util.RequestUtils#setResponseEncoding(java.lang.String, javax.servlet.http.HttpServletResponse)}.
+    * Test method for {@link org.sakaiproject.entitybroker.util.request.RequestUtils#setResponseEncoding(java.lang.String, javax.servlet.http.HttpServletResponse)}.
     */
    public void testSetResponseEncoding() {
-      MockHttpServletResponse res = new MockHttpServletResponse();
+      EntityHttpServletResponse res = new EntityHttpServletResponse();
 
       RequestUtils.setResponseEncoding(Formats.XML, res);
       assertEquals(Formats.UTF_8, res.getCharacterEncoding());

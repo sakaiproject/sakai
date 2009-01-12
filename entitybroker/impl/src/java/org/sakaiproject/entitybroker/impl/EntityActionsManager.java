@@ -53,10 +53,10 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
-import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
+import org.sakaiproject.entitybroker.util.request.RequestUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 
 

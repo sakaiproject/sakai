@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl.util;
+package org.sakaiproject.entitybroker.util.request;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -51,7 +51,7 @@ public class RequestUtils {
 
     private static final String DIVIDER = "||";
     private static final String ENTITY_REDIRECT_CHECK = "_entityRedirectCheck";
-    private static Log log = LogFactory.getLog(RequestUtils.class);
+    private static final Log log = LogFactory.getLog(RequestUtils.class);
 
     /**
      * Handles the redirect to a URL from the current location,

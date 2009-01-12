@@ -43,11 +43,11 @@ import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
-import org.sakaiproject.entitybroker.impl.util.RequestUtils;
 import org.sakaiproject.entitybroker.impl.util.URLRedirect;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.ProcessedTemplate;
+import org.sakaiproject.entitybroker.util.request.RequestUtils;
 
 
 /**
