@@ -179,7 +179,7 @@ public String removeUser( String sessionid, String eid) throws AxisFault
 	
 	}
 	catch (Exception e) {  
-		LOG.warn("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
 	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
@@ -219,7 +219,7 @@ public String changeUserInfo( String sessionid, String eid, String firstname, St
 	
 	}
 	catch (Exception e) { 
-		LOG.warn("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
 	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
@@ -248,10 +248,10 @@ public String changeUserName( String sessionid, String eid, String firstname, St
 		userEdit.setFirstName(firstname);
 		userEdit.setLastName(lastname);
 		UserDirectoryService.commitEdit(userEdit);
-	
 	}
-	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+	catch (Exception e) { 
+		LOG.error("WS changeUserName(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -279,8 +279,9 @@ public String changeUserEmail( String sessionid, String eid, String email) throw
 		UserDirectoryService.commitEdit(userEdit);
 	
 	}
-	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+	catch (Exception e) { 
+		LOG.error("WS changeUserEmail(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -307,8 +308,9 @@ public String changeUserType( String sessionid, String eid, String type) throws 
 		UserDirectoryService.commitEdit(userEdit);
 	
 	}
-	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+	catch (Exception e) { 
+		LOG.error("WS changeUserType(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -336,8 +338,9 @@ public String changeUserPassword( String sessionid, String eid, String password)
 		UserDirectoryService.commitEdit(userEdit);
 	
 	}
-	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+	catch (Exception e) {
+		LOG.error("WS changeUserPassword(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -376,7 +379,7 @@ public String getUserEmail( String sessionid, String userid ) throws AxisFault
 		User user = UserDirectoryService.getUserByEid(userid);
 		return user.getEmail();
 	} catch (Exception e) {  
-	 	LOG.warn("WS getUserEmail() failed for user: " + userid);
+		LOG.error("WS getUserEmail() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
 		return "";
 	}
 }
@@ -415,7 +418,7 @@ public String getUserDisplayName( String sessionid, String userid ) throws AxisF
 		User user = UserDirectoryService.getUserByEid(userid);
 		return user.getDisplayName();
 	} catch (Exception e) {  
-	 	LOG.warn("WS getUserDisplayName() failed for user: " + userid);
+	 	LOG.error("WS getUserDisplayName() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
 		return "";
 	}
 }
@@ -507,7 +510,8 @@ public String addNewAuthzGroup(String sessionid, String authzgroupid) throws Axi
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS addNewAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -531,7 +535,8 @@ public String removeAuthzGroup( String sessionid, String authzgroupid) throws Ax
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS removeAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -559,7 +564,8 @@ public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, Str
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS addNewRoleToAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -584,7 +590,8 @@ public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, Str
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS removeAllRolesFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -611,7 +618,8 @@ public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, S
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS removeRoleFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -640,7 +648,8 @@ public String allowFunctionForRole( String sessionid, String authzgroupid, Strin
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS allowFunctionForRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -667,7 +676,8 @@ public String disallowAllFunctionsForRole( String sessionid, String authzgroupid
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS disallowAllFunctionsForRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -696,7 +706,8 @@ public String disallowFunctionForRole( String sessionid, String authzgroupid, St
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS disallowFunctionForRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -724,7 +735,8 @@ public String setRoleDescription( String sessionid, String authzgroupid, String 
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS setRoleDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -753,7 +765,8 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS addMemberToAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -780,7 +793,8 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS removeMemberFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -805,7 +819,8 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS removeAllMembersFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -832,7 +847,8 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS setRoleForAuthzGroupMaintenance(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -858,8 +874,9 @@ public String addMemberToSiteWithRole(String sessionid, String siteid, String ei
 		site.addMember(userid,roleid,true,false);
 		SiteService.save(site);
 	}
-	catch (Exception e) {
-		return e.getClass().getName() + " : " + e.getMessage();
+	catch (Exception e) {  
+		LOG.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -908,7 +925,8 @@ public String addNewSite( String sessionid, String siteid, String title, String 
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS addNewSite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -933,7 +951,8 @@ public String removeSite( String sessionid, String siteid) throws AxisFault
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS removeSite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -981,7 +1000,8 @@ public String copySite( String sessionid, String siteidtocopy, String newsiteid,
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS copySite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -1012,7 +1032,8 @@ public String addNewPageToSite( String sessionid, String siteid, String pagetitl
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS addNewPageToSite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -1047,7 +1068,8 @@ public String removePageFromSite( String sessionid, String siteid, String pageti
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS removePageFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -1093,7 +1115,8 @@ public String addNewToolToPage( String sessionid, String siteid, String pagetitl
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS addNewToolToPage(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -1142,7 +1165,8 @@ public String addConfigPropertyToTool( String sessionid, String siteid, String p
 	
 	}
 	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
+		LOG.error("WS addConfigPropertyToTool(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
 }
@@ -1163,13 +1187,14 @@ public boolean checkForUser(String sessionid, String eid) throws AxisFault
 		User u = null;
 		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		u = UserDirectoryService.getUser(userid);
-		if (u != null)
+		if (u != null) {
 			return true;
-		else
+		} else {
 			return false;
+		}
 	}
-	catch (Exception e)
-	{
+	catch (Exception e) {
+		LOG.error("WS checkForUser(): " + e.getClass().getName() + " : " + e.getMessage());
 		return false;
 	}
 }
@@ -1189,13 +1214,14 @@ public boolean checkForUser(String sessionid, String eid) throws AxisFault
 	try {
 		Site site = null;
 		site = SiteService.getSite(siteid);
-		if (site != null)
+		if (site != null) {
 			return true;
-		else
+		} else {
 			return false;
+		}
 	}
-	catch (Exception e)
-	{
+	catch (Exception e) {
+		LOG.error("WS checkForSite(): " + e.getClass().getName() + " : " + e.getMessage());
 		return false;
 	}
 }
@@ -1217,14 +1243,15 @@ public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, 
 	try {
 		AuthzGroup authzgroup = null; 
 		authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
-		if (authzgroup == null)
+		if (authzgroup == null) {
 			return false;
-		else {
+		} else {
 			String userid = UserDirectoryService.getUserByEid(eid).getId();
 			return authzgroup.hasRole(userid, role);
 		}
 	}
 	catch (Exception e) {
+		LOG.error("WS checkForMemberInAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
 		return false;
 	}
 }
@@ -1249,8 +1276,7 @@ public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, 
  *</list>
  *
  */
-public String getSitesUserCanAccess(String sessionid)
-	throws AxisFault
+public String getSitesUserCanAccess(String sessionid) throws AxisFault
 {
 	Session s = establishSession(sessionid);
 	
@@ -1261,9 +1287,9 @@ public String getSitesUserCanAccess(String sessionid)
 		List moreSites = SiteService.getSites(SelectionType.UPDATE, null, null,
 															null, SortType.TITLE_ASC, null);
 		
-		if ( (allSites == null || moreSites == null) ||
-			  (allSites.size() == 0 && moreSites.size() == 0) )
+		if ((allSites == null || moreSites == null) || (allSites.size() == 0 && moreSites.size() == 0)) {
 			return "<list/>";
+		}
 
 		// Remove duplicates and combine two lists
 		allSites.removeAll( moreSites );
@@ -1291,6 +1317,7 @@ public String getSitesUserCanAccess(String sessionid)
 	}
 	catch (Exception e) 
 	{
+		LOG.error("WS getSitesUserCanAccess(): " + e.getClass().getName() + " : " + e.getMessage());
 		return "<exception/>";
 	}
 }
@@ -1550,7 +1577,7 @@ public String changeSiteDescription( String sessionid, String siteid, String des
 	
 	}
 	catch (Exception e) {  
-		LOG.warn("WS changeSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.error("WS changeSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
 	 	return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
@@ -1585,7 +1612,7 @@ public String getSiteProperty(String sessionid, String siteid, String propname) 
 		
 	}
 	catch (Exception e) {
-		LOG.warn("WS getSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.error("WS getSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
 		return "";
 	}
 }
@@ -1621,7 +1648,7 @@ public String setSiteProperty(String sessionid, String siteid, String propname, 
 	
 	}
 	catch (Exception e) {
-		LOG.warn("WS setSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.error("WS setSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
 		return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
@@ -1658,7 +1685,7 @@ public String removeSiteProperty( String sessionid, String siteid, String propna
 	
 	}
 	catch (Exception e) {
-		LOG.warn("WS removeSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.error("WS removeSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
 		return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
@@ -1692,7 +1719,7 @@ public boolean checkForRoleInAuthzGroup(String sessionid, String authzgroupid, S
 	
 	}
 	catch (Exception e) {
-		LOG.warn("WS checkForRoleInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.error("WS checkForRoleInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
 		return false;
 	}
 }
@@ -1768,7 +1795,7 @@ public String searchForUsers(String sessionid, String criteria, int first, int l
 				list.appendChild(userNode);
 					
 			} catch (Exception e) {
-				//log this error and continue otherwise we get nothing
+				//log this error and continue to the next user, otherwise we get nothing
 				LOG.warn("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
 			}
 			
@@ -1783,7 +1810,7 @@ public String searchForUsers(String sessionid, String criteria, int first, int l
 	
 	}
 	catch (Exception e) {
-		LOG.warn("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+		LOG.error("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
 		return "<exception/>";
 
 	}
@@ -1814,9 +1841,8 @@ public boolean checkForAuthzGroup(String sessionid, String authzgroupid) throws 
 			return false;
 		}
 	}
-	catch (Exception e)
-	{
-		LOG.warn("WS checkForAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	catch (Exception e) {
+		LOG.error("WS checkForAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
 		return false;
 	}
 }
@@ -1841,7 +1867,7 @@ public String removeMemberFromSite(String sessionid, String siteid, String eid) 
         site.removeMember(userid);
         SiteService.save(site);
     } catch (Exception e) {
-    	LOG.warn("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
+    	LOG.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
         return e.getClass().getName() + " : " + e.getMessage();
     }
     return "success";
@@ -1874,6 +1900,7 @@ public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, S
 		return false;		
 	}
 	catch (Exception e) {
+	    LOG.error("WS checkForUserInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
 		return false;
 	}
 }
@@ -1941,7 +1968,7 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
 		return Xml.writeDocumentToString(dom);
 	}
 	catch (Exception e) {
-        LOG.warn("WS getUsersInAuthzGroupWithRoles(): " + e.getClass().getName() + " : " + e.getMessage());
+        LOG.error("WS getUsersInAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
 		return "<exception/>";
 
 	}
@@ -2007,7 +2034,7 @@ public String getUsersInAuthzGroup(String sessionid, String authzgroupid) throws
 		return Xml.writeDocumentToString(dom);
 	}
 	catch (Exception e) {
-        LOG.warn("WS getUsersInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+        LOG.error("WS getUsersInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
 		return "<exception/>";
 	}
 }
