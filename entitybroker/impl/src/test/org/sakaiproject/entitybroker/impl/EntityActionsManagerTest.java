@@ -20,10 +20,6 @@
 
 package org.sakaiproject.entitybroker.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
@@ -31,12 +27,10 @@ import junit.framework.TestCase;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
-import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
-
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 
@@ -215,66 +209,6 @@ public class EntityActionsManagerTest extends TestCase {
       assertEquals(2, aep.myEntities.size());
       aep.clear();
       assertEquals(0, aep.myEntities.size());      
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#setCustomActions(java.lang.String, java.util.Map)}.
-    */
-   public void testSetCustomActions() {
-      Map<String, CustomAction> actions = new HashMap<String, CustomAction>();
-      actions.put("test", new CustomAction("test", EntityView.VIEW_SHOW));
-      entityActionsManager.setCustomActions(TestData.PREFIXA1, actions);
-      assertNotNull(entityActionsManager.getCustomAction(TestData.PREFIXA1, "test"));
-
-      // NOTE: can set custom actions for entities without the ability to process them
-      entityActionsManager.setCustomActions(TestData.PREFIX2, actions);
-
-      // test using reserved word fails
-      actions.clear();
-      actions.put("describe", new CustomAction("describe", EntityView.VIEW_SHOW));
-      try {
-         entityActionsManager.setCustomActions(TestData.PREFIXA1, actions);
-         fail("should have thrown exeception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#getCustomAction(java.lang.String, java.lang.String)}.
-    */
-   public void testGetCustomAction() {
-      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "xxx") );
-      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "double") );
-
-      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA2, "xxx") );
-      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA2, "clear") );
-
-      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA3, "clear") );
-      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA3, "double") );
-
-      assertNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "apple") );
-      assertNull( entityActionsManager.getCustomAction(TestData.PREFIX2, "action") );
-      assertNull( entityActionsManager.getCustomAction(TestData.PREFIX5, "action") );
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#removeCustomActions(java.lang.String)}.
-    */
-   public void testRemoveCustomActions() {
-      assertNotNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "xxx") );
-      entityActionsManager.removeCustomActions(TestData.PREFIXA1);
-      assertNull( entityActionsManager.getCustomAction(TestData.PREFIXA1, "xxx") );      
-   }
-
-   public void testGetCustomActions() {
-      List<CustomAction> actions = entityActionsManager.getCustomActions(TestData.PREFIXA1);
-      assertNotNull(actions);
-      assertEquals(3, actions.size());
-
-      actions = entityActionsManager.getCustomActions(TestData.PREFIX3);
-      assertNotNull(actions);
-      assertEquals(0, actions.size());
    }
 
    public void testCustomActions() {

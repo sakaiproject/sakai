@@ -100,14 +100,13 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
         entityBroker = new EntityBrokerImpl();
         entityBroker.setEntityBrokerManager( tm.entityBrokerManager );
         entityBroker.setEntityEncodingManager( tm.entityEncodingManager );
-        entityBroker.setEntityManager(entityManager);
         entityBroker.setEntityProviderManager( tm.entityProviderManager );
         entityBroker.setEntityRequestHandler( tm.entityRequestHandler );
-        entityBroker.setEventTrackingService(eventTrackingService);
         entityBroker.setEntityActionsManager( tm.entityActionsManager );
         entityBroker.setEntityTaggingService( tm.entityTaggingService);
         entityBroker.setEntityMetaPropertiesService( tm.entityMetaPropertiesService);
         entityBroker.setRequestStorage( tm.requestStorage );
+        // NOTE: no external integration provider set
     }
 
     // run this before each test starts and as part of the transaction

@@ -35,7 +35,9 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.impl.EntityEncodingManager;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
+import org.sakaiproject.entitybroker.util.devhelper.AbstractDeveloperHelperService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -111,6 +113,34 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
         this.userDirectoryService = userDirectoryService;
     }
 
+    protected EntityEncodingManager entityEncodingManager;
+    /**
+     * Set this to include an optional encoding/decoding handler
+     * @param entityEncodingManager the encoding manager service
+     */
+    public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
+        this.entityEncodingManager = entityEncodingManager;
+    }
+
+
+    // ENCODING
+
+    public Map<String, Object> decodeData(String data, String format) {
+        if (entityEncodingManager == null) {
+            throw new IllegalStateException("No entityEncodingManager available for decoding");
+        }
+        return entityEncodingManager.decodeData(data, format);
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.DeveloperHelperService#encodeData(java.lang.Object, java.lang.String, java.lang.String, java.util.Map)
+     */
+    public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
+        if (entityEncodingManager == null) {
+            throw new IllegalStateException("No entityEncodingManager available for encoding");
+        }
+        return entityEncodingManager.encodeData(data, format, name, properties);
+    }
 
     // ENTITY
 

@@ -60,6 +60,15 @@ public interface RequestStorageWrite extends RequestStorage {
     public void setRequestValues(Map<String, Object> params);
 
     /**
+     * Allows user to set the value of a key directly, including reserved keys
+     * @param key the name of the value
+     * @param value the value to store
+     * @throws IllegalArgumentException if the key OR value are null, 
+     * also if an attempt is made to change a reserved value (see {@link RequestStorageWrite})
+     */
+    public void setRequestValue(String key, Object value);
+
+    /**
      * Clear all values in the request storage (does not wipe the values form the request itself)
      */
     public void reset();

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.util.request;
+package org.sakaiproject.entitybroker.entityprovider.extension;
 
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;

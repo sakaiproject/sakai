@@ -45,6 +45,13 @@ import org.azeckoski.reflectutils.ReflectUtils;
 @SuppressWarnings("unchecked")
 public class RequestStorageImpl implements RequestStorageWrite {
 
+    protected RequestStorageImpl() { }
+
+    public RequestStorageImpl(RequestGetter requestGetter) {
+        super();
+        this.requestGetter = requestGetter;
+    }
+
     private ThreadLocal<HashMap<String, Object>> requestStore = new ThreadLocal<HashMap<String,Object>>();
     protected HashMap<String, Object> getInternalMap() {
         if (requestStore.get() == null) {

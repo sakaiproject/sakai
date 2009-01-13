@@ -92,7 +92,7 @@ public class TestData {
 
 
    // testing constants
-   public static String SERVER_URL = "http://localhost:8001/portal";
+   public static String SERVER_URL = "http://localhost:8080";
    public static String DIRECT = "/direct";
 
    public static String PREFIX1 = "AZprefix1";

@@ -25,7 +25,7 @@ import java.util.Stack;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entitybroker.impl.EntityBrokerManager;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

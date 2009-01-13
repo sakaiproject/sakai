@@ -23,9 +23,9 @@ import org.junit.Test;
 import org.mortbay.jetty.testing.HttpTester;
 import org.mortbay.jetty.testing.ServletTester;
 
-import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.impl.ServiceTestManager;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
+import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 
 
 /**

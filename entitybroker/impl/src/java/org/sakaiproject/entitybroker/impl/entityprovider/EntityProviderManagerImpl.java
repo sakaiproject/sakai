@@ -40,12 +40,11 @@ import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.refmap.ReferenceMap;
 import org.azeckoski.reflectutils.refmap.ReferenceType;
 
-import org.sakaiproject.entitybroker.EntityPropertiesService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsDefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutionControllable;
@@ -61,10 +60,11 @@ import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityProviderListener;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
-import org.sakaiproject.entitybroker.impl.EntityActionsManager;
+import org.sakaiproject.entitybroker.entityprovider.extension.URLRedirect;
 import org.sakaiproject.entitybroker.impl.EntityEncodingManager;
-import org.sakaiproject.entitybroker.impl.EntityRedirectsManager;
-import org.sakaiproject.entitybroker.util.request.URLRedirect;
+import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
+import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
+import org.sakaiproject.entitybroker.util.request.EntityProviderMethodStoreImpl;
 
 /**
  * Base implementation of the entity provider manager
@@ -75,6 +75,28 @@ import org.sakaiproject.entitybroker.util.request.URLRedirect;
 public class EntityProviderManagerImpl implements EntityProviderManager {
 
     private static Log log = LogFactory.getLog(EntityProviderManagerImpl.class);
+    
+    /**
+     * Empty constructor
+     */
+    protected EntityProviderManagerImpl() { }
+
+    /**
+     * Base constructor
+     * @param requestStorage the request storage service
+     * @param requestGetter the request getter service
+     * @param entityProperties the entity properties service
+     * @param entityProviderMethodStore the provider method storage
+     */
+    public EntityProviderManagerImpl(RequestStorage requestStorage, RequestGetter requestGetter,
+            EntityPropertiesService entityProperties, EntityProviderMethodStore entityProviderMethodStore) {
+        super();
+        this.requestStorage = requestStorage;
+        this.requestGetter = requestGetter;
+        this.entityProperties = entityProperties;
+        this.entityProviderMethodStore = entityProviderMethodStore;
+        init();
+    }
 
     private RequestStorage requestStorage;
     public void setRequestStorage(RequestStorage requestStorage) {
@@ -91,14 +113,9 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         this.entityProperties = entityProperties;
     }
 
-    private EntityActionsManager entityActionsManager;
-    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
-        this.entityActionsManager = entityActionsManager;
-    }
-
-    private EntityRedirectsManager entityRedirectsManager;
-    public void setEntityRedirectsManager(EntityRedirectsManager entityRedirectsManager) {
-        this.entityRedirectsManager = entityRedirectsManager;
+    private EntityProviderMethodStore entityProviderMethodStore;
+    public void setEntityProviderMethodStore(EntityProviderMethodStore entityProviderMethodStore) {
+        this.entityProviderMethodStore = entityProviderMethodStore;
     }
 
     protected ReferenceMap<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.SOFT);
@@ -289,11 +306,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                     }
                     if (!superclasses.contains(ActionsExecutionControllable.class)) {
                         // do the actions defineable validation check
-                        EntityActionsManager.validateCustomActionMethods((ActionsDefineable)entityProvider);
+                        EntityProviderMethodStoreImpl.validateCustomActionMethods((ActionsDefineable)entityProvider);
                     }
                 } else {
                     // auto detect the custom actions
-                    customActions = entityActionsManager.findCustomActions(entityProvider, true);
+                    customActions = entityProviderMethodStore.findCustomActions(entityProvider, true);
                 }
                 // register the actions
                 Map<String,CustomAction> actions = new HashMap<String, CustomAction>();
@@ -305,7 +322,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                     }
                     actions.put(action, customAction);
                 }
-                entityActionsManager.setCustomActions(prefix, actions);
+                entityProviderMethodStore.setCustomActions(prefix, actions);
             } else if (superclazz.equals(Describeable.class)) {
                 // need to load up the default properties into the cache
                 if (! superclasses.contains(DescribePropertiesable.class)) {
@@ -319,14 +336,14 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                 String baseName = ((DescribePropertiesable)entityProvider).getBaseName();
                 entityProperties.loadProperties(prefix, baseName, cl);
             } else if (superclazz.equals(Redirectable.class)) {
-                URLRedirect[] redirects = entityRedirectsManager.findURLRedirectMethods(entityProvider);
-                entityRedirectsManager.addURLRedirects(prefix, redirects);
+                URLRedirect[] redirects = entityProviderMethodStore.findURLRedirectMethods(entityProvider);
+                entityProviderMethodStore.addURLRedirects(prefix, redirects);
             } else if (superclazz.equals(RedirectDefinable.class)) {
-                URLRedirect[] redirects = EntityRedirectsManager.validateDefineableTemplates((RedirectDefinable)entityProvider);
-                entityRedirectsManager.addURLRedirects(prefix, redirects);
+                URLRedirect[] redirects = EntityProviderMethodStoreImpl.validateDefineableTemplates((RedirectDefinable)entityProvider);
+                entityProviderMethodStore.addURLRedirects(prefix, redirects);
             } else if (superclazz.equals(RedirectControllable.class)) {
-                URLRedirect[] redirects = EntityRedirectsManager.validateControllableTemplates((RedirectControllable)entityProvider);
-                entityRedirectsManager.addURLRedirects(prefix, redirects);
+                URLRedirect[] redirects = EntityProviderMethodStoreImpl.validateControllableTemplates((RedirectControllable)entityProvider);
+                entityProviderMethodStore.addURLRedirects(prefix, redirects);
             }
         }
         log.info("EntityBroker: Registered entity provider ("+entityProvider.getClass().getName()
@@ -391,13 +408,13 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         // do any cleanup that needs to be done when unregistering
         if (ActionsExecutable.class.equals(capability)) {
             // clean up the list of custom actions
-            entityActionsManager.removeCustomActions(prefix);
+            entityProviderMethodStore.removeCustomActions(prefix);
         } else if (Describeable.class.isAssignableFrom(capability)) {
             // clean up properties record
             entityProperties.unloadProperties(prefix);
         } else if (Redirectable.class.isAssignableFrom(capability)) {
             // clean up the redirect URLs record
-            entityRedirectsManager.removeURLRedirects(prefix);
+            entityProviderMethodStore.removeURLRedirects(prefix);
         }
         log.info("EntityBroker: Unregistered entity provider capability ("+capability.getName()+") for prefix ("+prefix+")");
     }

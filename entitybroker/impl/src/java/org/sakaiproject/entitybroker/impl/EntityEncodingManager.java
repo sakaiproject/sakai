@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ConstructorUtils;
+import org.azeckoski.reflectutils.FieldUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.StringUtils;
 import org.azeckoski.reflectutils.map.ArrayOrderedMap;
@@ -42,6 +44,7 @@ import org.azeckoski.reflectutils.transcoders.HTMLTranscoder;
 import org.azeckoski.reflectutils.transcoders.JSONTranscoder;
 import org.azeckoski.reflectutils.transcoders.Transcoder;
 import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
@@ -79,6 +82,17 @@ public class EntityEncodingManager {
     public static final String[] HANDLED_INPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
     public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
 
+    
+    protected EntityEncodingManager() { }
+
+    public EntityEncodingManager(EntityProviderManager entityProviderManager,
+            EntityBrokerManager entityBrokerManager) {
+        super();
+        this.entityProviderManager = entityProviderManager;
+        this.entityBrokerManager = entityBrokerManager;
+        init();
+    }
+
     private EntityProviderManager entityProviderManager;
     public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
         this.entityProviderManager = entityProviderManager;
@@ -88,11 +102,27 @@ public class EntityEncodingManager {
     public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
         this.entityBrokerManager = entityBrokerManager;
     }
+
+    private static final String rFieldName = "replacementTranscoders";
     /**
-     * FOR TESTING ONLY
+     * Loads up the transcoder replacements if there are any
      */
-    public EntityBrokerManager getEntityBrokerManager() {
-        return entityBrokerManager;
+    @SuppressWarnings("unchecked")
+    public void init() {
+        // attempt to load the replacements
+        if (entityBrokerManager != null) {
+            try {
+                Set<Transcoder> transcoders = FieldUtils.getInstance().getFieldValue(entityBrokerManager, rFieldName, Set.class);
+                if (transcoders != null) {
+                    for (Transcoder transcoder : transcoders) {
+                        setTranscoder(transcoder.getHandledFormat(), transcoder);
+                    }
+                }
+            } catch (Exception e) {
+                // this is sorta ok, no replacements available
+                log.warn("Could not get replacement transcoders set from entityBrokerManager: " + rFieldName + ": " + e.getMessage());
+            }
+        }
     }
 
 
@@ -315,7 +345,7 @@ public class EntityEncodingManager {
                         if (params != null && params.size() > 0) {
                             entity = current;
                             try {
-                                entityBrokerManager.getReflectUtil().populateFromParams(entity, params);
+                                ReflectUtils.getInstance().populateFromParams(entity, params);
                             } catch (RuntimeException e) {
                                 throw new EntityEncodingException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), ref+"", e);
                             }
@@ -566,6 +596,17 @@ public class EntityEncodingManager {
     protected static final String DATA_KEY = Transcoder.DATA_KEY;
 
     private Map<String, Transcoder> transcoders;
+    public void setTranscoders(Map<String, Transcoder> transcoders) {
+        this.transcoders = transcoders;
+    }
+    public void setTranscoder(String format, Transcoder transcoder) {
+        if (transcoders == null) {
+            getTranscoder(Formats.XML);
+        }
+        if (format != null && transcoder != null) {
+            transcoders.put(format, transcoder);
+        }
+    }
     public Transcoder getTranscoder(String format) {
         if (transcoders == null) {
             transcoders = new HashMap<String, Transcoder>();

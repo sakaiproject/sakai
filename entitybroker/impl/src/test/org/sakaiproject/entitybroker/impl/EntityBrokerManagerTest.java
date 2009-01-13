@@ -41,7 +41,7 @@ import org.azeckoski.reflectutils.ReflectUtils;
  */
 public class EntityBrokerManagerTest extends TestCase {
 
-   protected EntityBrokerManager entityBrokerManager;
+   protected EntityBrokerManagerImpl entityBrokerManager;
    private TestData td;
 
    @Override
@@ -208,7 +208,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#getReflectUtil()}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#getReflectUtil()}.
     */
    public void testGetReflectUtil() {
       ReflectUtils ru = entityBrokerManager.getReflectUtil();
@@ -224,17 +224,17 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#makeFullURL(java.lang.String)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#makeFullURL(java.lang.String)}.
     */
    public void testMakeFullURL() {
       String full = entityBrokerManager.makeFullURL(TestData.REF1);
       assertNotNull(full);
-      assertEquals("http://localhost:8001/portal/direct" + TestData.REF1, full);
+      assertEquals("http://localhost:8080/direct" + TestData.REF1, full);
    }
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#makeEntityView(org.sakaiproject.entitybroker.EntityReference, java.lang.String, java.lang.String)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#makeEntityView(org.sakaiproject.entitybroker.EntityReference, java.lang.String, java.lang.String)}.
     */
    public void testMakeEntityView() {
       EntityView ev = entityBrokerManager.makeEntityView(new EntityReference("azprefix", "azid"), EntityView.VIEW_SHOW, Formats.XML);
@@ -261,7 +261,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#fetchEntity(org.sakaiproject.entitybroker.EntityReference)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#fetchEntity(org.sakaiproject.entitybroker.EntityReference)}.
     */
    public void testFetchEntity() {
       EntityReference ref = new EntityReference(TestData.REF4);
@@ -283,7 +283,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#getEntityData(org.sakaiproject.entitybroker.EntityReference)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#getEntityData(org.sakaiproject.entitybroker.EntityReference)}.
     */
    public void testGetEntityData() {
       EntityReference ref = new EntityReference(TestData.REF4);
@@ -312,7 +312,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#fetchEntities(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search, java.util.Map)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#fetchEntities(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search, java.util.Map)}.
     */
    public void testFetchEntities() {
       EntityReference ref = new EntityReference(TestData.SPACE4);
@@ -350,7 +350,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#getEntitiesData(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search, java.util.Map)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#getEntitiesData(org.sakaiproject.entitybroker.EntityReference, org.sakaiproject.entitybroker.entityprovider.search.Search, java.util.Map)}.
     */
    public void testGetEntitiesData() {
       EntityReference ref = new EntityReference(TestData.SPACE4);
@@ -382,7 +382,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#browseEntities(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.lang.String, java.lang.String, EntityReference, java.util.Map)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#browseEntities(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.lang.String, java.lang.String, EntityReference, java.util.Map)}.
     */
    public void testBrowseEntities() {
       List<EntityData> data = entityBrokerManager.browseEntities(TestData.PREFIX4, null, null, null, null, null);
@@ -419,7 +419,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#convertToEntityData(java.util.List, org.sakaiproject.entitybroker.EntityReference)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#convertToEntityData(java.util.List, org.sakaiproject.entitybroker.EntityReference)}.
     */
    public void testConvertToEntityDataListOfQEntityReference() {
       // TODO fail("Not yet implemented");
@@ -427,7 +427,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#convertToEntityData(java.lang.Object, org.sakaiproject.entitybroker.EntityReference)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#convertToEntityData(java.lang.Object, org.sakaiproject.entitybroker.EntityReference)}.
     */
    public void testConvertToEntityDataObjectEntityReference() {
    // TODO fail("Not yet implemented");
@@ -435,7 +435,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#populateEntityData(java.util.List)}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#populateEntityData(java.util.List)}.
     */
    public void testPopulateEntityDataListOfEntityData() {
    // TODO fail("Not yet implemented");
@@ -443,7 +443,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManager#populateEntityData(org.sakaiproject.entitybroker.entityprovider.extension.EntityData[])}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl#populateEntityData(org.sakaiproject.entitybroker.entityprovider.extension.EntityData[])}.
     */
    public void testPopulateEntityDataEntityDataArray() {
    // TODO fail("Not yet implemented");

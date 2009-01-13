@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;

@@ -25,8 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,11 +36,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.email.api.EmailService;
+
 import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.access.AccessFormats;
 import org.sakaiproject.entitybroker.access.AccessViews;
@@ -70,11 +67,14 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
+import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
+
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.EntityResponse;
@@ -86,10 +86,7 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
 import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
+
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 
@@ -116,7 +113,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     public EntityHandlerImpl(EntityProviderManager entityProviderManager,
             EntityBrokerManager entityBrokerManager, EntityEncodingManager entityEncodingManager,
             EntityDescriptionManager entityDescriptionManager,
-            HttpServletAccessProviderManager accessProviderManager,
             EntityViewAccessProviderManager entityViewAccessProviderManager,
             RequestGetter requestGetter, EntityActionsManager entityActionsManager,
             EntityRedirectsManager entityRedirectsManager, EntityBatchHandler entityBatchHandler,
@@ -126,7 +122,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.entityBrokerManager = entityBrokerManager;
         this.entityEncodingManager = entityEncodingManager;
         this.entityDescriptionManager = entityDescriptionManager;
-        this.accessProviderManager = accessProviderManager;
         this.entityViewAccessProviderManager = entityViewAccessProviderManager;
         this.requestGetter = requestGetter;
         this.entityActionsManager = entityActionsManager;
@@ -190,33 +185,9 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.entityBatchHandler.setEntityRequestHandler(this);
     }
 
-    /**
-     * This has to be the impl, we ONLY use the impl specific methods
-     */
-    private RequestStorageImpl requestStorage;
-    public void setRequestStorage(RequestStorageImpl requestStorage) {
+    private RequestStorageWrite requestStorage;
+    public void setRequestStorage(RequestStorageWrite requestStorage) {
         this.requestStorage = requestStorage;
-    }
-
-    // SAKAI
-    private ServerConfigurationService serverConfigurationService;
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
-    private EmailService emailService;
-    public void setEmailService(EmailService emailService) {
-        this.emailService = emailService;
-    }
-
-    private UsageSessionService usageSessionService;
-    public void setUsageSessionService(UsageSessionService usageSessionService) {
-        this.usageSessionService = usageSessionService;
-    }
-
-    private SessionManager sessionManager;
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
     }
 
 
@@ -258,27 +229,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
         String handledReference = null;
 
-        // SAKAI
-        // http://jira.sakaiproject.org/jira/browse/SAK-14899 - added support for setting the sakai session id
-        final String SAKAI_SESSION = "sakai.session";
-        final String SESSION_ID = "_sessionId";
-        if (req.getParameter(SAKAI_SESSION) != null
-                || req.getParameter(SESSION_ID) != null) {
-            // set the session to the given id if possible or die
-            String sessionId = req.getParameter(SAKAI_SESSION);
-            if (sessionId == null) {
-                sessionId = req.getParameter(SESSION_ID);
-            }
+        // special handling in case the session ID is sent in the request 
+        // (allows setting up and reusing a session over and over without holding cookies)
+        if (entityBrokerManager.getExternalIntegrationProvider() != null) {
             try {
-                // this also protects us from null pointer where session service is not set or working
-                Session s = sessionManager.getSession(sessionId);
-                if (s != null) {
-                    sessionManager.setCurrentSession(s);
-                } else {
-                    throw new IllegalArgumentException("Invalid sakai session id ("+sessionId+") supplied, could not find a valid session with that id to set");
-                }
+                entityBrokerManager.getExternalIntegrationProvider().handleUserSessionKey(req);
             } catch (Exception e) {
-                throw new IllegalArgumentException("Failure attempting to set sakai session id ("+sessionId+"): " + e.getMessage());
+                log.warn("External handleUserSessionKey method failed, continuing...: " + e);
             }
         }
 
@@ -458,7 +415,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                     } catch (SecurityException se) {
                                         // AJAX/WS type security exceptions are handled specially, no redirect
                                         throw new EntityException("Security exception handling request for view ("+view+"), "
-                                                + "this is typically caused by the current user ("+sessionManager.getCurrentSessionUserId()+") not having access to the "
+                                                + "this is typically caused by the current user not having access to the "
                                                 + "data requested or the user not being logged in at all :: message=" + se.getMessage(),
                                                 view.getEntityReference()+"", HttpServletResponse.SC_FORBIDDEN);
                                     } catch (EntityNotFoundException e) {
@@ -858,62 +815,17 @@ public class EntityHandlerImpl implements EntityRequestHandler {
      * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityError(javax.servlet.http.HttpServletRequest, java.lang.Throwable)
      */
     public String handleEntityError(HttpServletRequest req, Throwable error) {
-        String subject = "Direct request failure: " + error.getClass().getSimpleName() + ":" + error.getMessage();
-
-        String sakaiVersion = "Sakai version: " + serverConfigurationService.getString("version.sakai") 
-                + "("+serverConfigurationService.getString("version.service")+")\n ";
-
-        String serverInfo = "Server: " + serverConfigurationService.getServerName() 
-                + "("+serverConfigurationService.getServerId()+") ["+serverConfigurationService.getServerIdInstance()+"]\n ";
-
-        String usageSessionInfo = "";
-        if (usageSessionService != null) {
-            UsageSession usageSession = usageSessionService.getSession();
-            if (usageSession != null) {
-                usageSessionInfo = "Server: " + usageSession.getServer() + "\n "
-                        //+ "Hostname: " + usageSession.getHostName() + "\n " // removed since this is incompatible with older sakai
-                        + "User agent: " + usageSession.getUserAgent() + "\n "
-                        + "Browser ID: " + usageSession.getBrowserId() + "\n "
-                        + "IP address: " + usageSession.getIpAddress() + "\n "
-                        + "User ID: " + usageSession.getUserId() + "\n "
-                        + "User EID: " + usageSession.getUserEid() + "\n "
-                        + "User Display ID: " + usageSession.getUserDisplayId() + "\n ";
+        String msg = "Failure processing entity request ("+req.getPathInfo()+"): " + error.getMessage();
+        if (entityBrokerManager.getExternalIntegrationProvider() != null) {
+            try {
+                msg = entityBrokerManager.getExternalIntegrationProvider().handleEntityError(req, error);
+            } catch (UnsupportedOperationException e) {
+                // nothing to do here, this is OK
+            } catch (Exception e) {
+                log.warn("External handleEntityError method failed, using default instead: " + e);
             }
         }
-
-        String requestInfo = "";
-        if (req != null) {
-            requestInfo = "Request URI: "+req.getRequestURI()+"\n "
-                    + "Path Info: "+req.getPathInfo()+"\n "
-                    + "Context path: "+req.getContextPath()+"\n "
-                    + "Method: "+req.getMethod()+"\n ";
-        }
-
-        // get the stacktrace out
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        error.printStackTrace(pw);
-        String stacktrace = "Full stacktrace:\n" + error.getClass().getSimpleName() + ":" 
-                + error.getMessage() + ":\n" + sw.toString();
-
-        String body = subject + ":\n " + sakaiVersion + "\n" + serverInfo + "\n" 
-                + requestInfo + "\n" + usageSessionInfo;
-
-        // attempt to get the email address, if it is not there then we will not send an email
-        String emailAddr = serverConfigurationService.getString("direct.error.email");
-        if (emailAddr == null) {
-            emailAddr = serverConfigurationService.getString("portal.error.email");
-        }
-        if (emailAddr != null) {
-            String from = "\"<no-reply@" + serverConfigurationService.getServerName() + ">";
-            if (emailService != null) {
-                emailService.send(from, emailAddr, subject, body + "\n" + stacktrace, emailAddr, null, null);
-            } else {
-                log.error("Could not send email, no emailService");
-            }
-        }
-        String errorMessage = subject + ":" + body;
-        return errorMessage;
+        return msg;
     }
 
 
@@ -925,27 +837,29 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         // no special handling so send on to the standard access provider if one can be found
         EntityViewAccessProvider evAccessProvider = entityViewAccessProviderManager.getProvider(view.getEntityReference().getPrefix());
         if (evAccessProvider == null) {
-            // try the old type access provider then
-            HttpServletAccessProvider httpAccessProvider = accessProviderManager.getProvider(view.getEntityReference().getPrefix());
-            if (httpAccessProvider == null) {
-                return false;
-            } else {
-                // classloader protection START
-                ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-                try {
-                    Object thing = httpAccessProvider;
-                    ClassLoader newClassLoader = thing.getClass().getClassLoader();
-                    // check to see if this access provider reports the correct classloader
-                    if (thing instanceof ClassLoaderReporter) {
-                        newClassLoader = ((ClassLoaderReporter) thing).getSuitableClassLoader();
+            if (accessProviderManager != null) {
+                // try the old type access provider then
+                HttpServletAccessProvider httpAccessProvider = accessProviderManager.getProvider(view.getEntityReference().getPrefix());
+                if (httpAccessProvider == null) {
+                    return false;
+                } else {
+                    // classloader protection START
+                    ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+                    try {
+                        Object thing = httpAccessProvider;
+                        ClassLoader newClassLoader = thing.getClass().getClassLoader();
+                        // check to see if this access provider reports the correct classloader
+                        if (thing instanceof ClassLoaderReporter) {
+                            newClassLoader = ((ClassLoaderReporter) thing).getSuitableClassLoader();
+                        }
+                        Thread.currentThread().setContextClassLoader(newClassLoader);
+                        // send request to the access provider which will route it on to the correct entity world
+                        httpAccessProvider.handleAccess(req, res, view.getEntityReference());
+                    } finally {
+                        Thread.currentThread().setContextClassLoader(currentClassLoader);
                     }
-                    Thread.currentThread().setContextClassLoader(newClassLoader);
-                    // send request to the access provider which will route it on to the correct entity world
-                    httpAccessProvider.handleAccess(req, res, view.getEntityReference());
-                } finally {
-                    Thread.currentThread().setContextClassLoader(currentClassLoader);
+                    // classloader protection END
                 }
-                // classloader protection END
             }
         } else {
             // check if this view key is specifically disallowed
@@ -1097,7 +1011,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                 if (ed.getData() != null) {
                     // look for the annotation on the entity
                     try {
-                        lm = entityBrokerManager.getReflectUtil().getFieldValue(ed.getData(), "lastModified", EntityLastModified.class);
+                        lm = ReflectUtils.getInstance().getFieldValue(ed.getData(), "lastModified", EntityLastModified.class);
                         Long l = makeLastModified(lm);
                         if (l != null) {
                             lastModified = l.longValue();

@@ -18,11 +18,12 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker;
+package org.sakaiproject.entitybroker.providers;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.exception.EntityException;
 
 /**

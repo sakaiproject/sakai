@@ -31,7 +31,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.entity.api.EntityManager;
+import org.azeckoski.reflectutils.transcoders.Transcoder;
+
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -40,14 +41,14 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 import org.sakaiproject.entitybroker.util.EntityResponse;
+import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
 import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
-import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.NotificationService;
 
 /**
  * The default implementation of the EntityBroker interface
@@ -68,11 +69,11 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
      * Minimal constructor
      */
     public EntityBrokerImpl(EntityProviderManager entityProviderManager,
-            EntityBrokerManager entityBrokerManager) {
+            EntityBrokerManagerImpl entityBrokerManager) {
         super();
         this.entityProviderManager = entityProviderManager;
         this.entityBrokerManager = entityBrokerManager;
-        this.requestStorage = new RequestStorageImpl(); // not ideal, should be loaded from the request/REST section
+        this.requestStorage = new RequestStorageImpl(new RequestGetterImpl()); // not ideal, should be loaded from the request/REST section
     }
 
     private EntityProviderManager entityProviderManager;
@@ -80,9 +81,16 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         this.entityProviderManager = entityProviderManager;
     }
 
-    private EntityBrokerManager entityBrokerManager;
-    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+    private EntityBrokerManagerImpl entityBrokerManager;
+    public void setEntityBrokerManager(EntityBrokerManagerImpl entityBrokerManager) {
         this.entityBrokerManager = entityBrokerManager;
+    }
+
+    // OPTIONAL external integration provider
+    private ExternalIntegrationProvider externalIntegrationProvider;
+    public void setExternalIntegrationProvider(
+            ExternalIntegrationProvider externalIntegrationProvider) {
+        this.externalIntegrationProvider = externalIntegrationProvider;
     }
 
     // TODO constructor or setter to set the REST services
@@ -121,15 +129,27 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         this.entityTaggingService = entityTaggingService;
     }
 
-    // SAKAI
-    private EntityManager entityManager; // for find entity by reference
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
 
-    private EventTrackingService eventTrackingService; // for fire event
-    public void setEventTrackingService(EventTrackingService eventTrackingService) {
-        this.eventTrackingService = eventTrackingService;
+    /**
+     * Override the transcoder used for a specific format
+     * @param transcoder a transcoder implementation
+     */
+    public void setTranscoder(Transcoder transcoder) {
+        if (this.entityEncodingManager != null) {
+            this.entityEncodingManager.setTranscoder(transcoder.getHandledFormat(), transcoder);
+        }
+        this.entityBrokerManager.getTranscoderReplacements().put(transcoder.getHandledFormat(), transcoder);
+    }
+    /**
+     * Get the transcoder being used for a specific format
+     * @param format the format key from {@link Formats} (e.g. {@link Formats#XML})
+     * @return the Trancoder if there is one OR null if there is none for that format
+     */
+    public Transcoder getTranscoder(String format) {
+        if (this.entityEncodingManager != null) {
+            return this.entityEncodingManager.getTranscoder(format);
+        }
+        return null;
     }
 
 
@@ -204,24 +224,26 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (reference == null || "".equals(reference)) {
             throw new IllegalArgumentException("Cannot fire event if reference is null or empty");
         }
-        String refName = reference;
-        try {
-            // parse the reference string to validate it and remove any extra bits
-            EntityReference ref = entityBrokerManager.parseReference(reference);
-            if (ref != null) {
-                refName = ref.toString();
-            } else {
-                // fallback to simple parsing
-                refName = new EntityReference(reference).toString();
+        if (externalIntegrationProvider != null) {
+            String refName = reference;
+            try {
+                // parse the reference string to validate it and remove any extra bits
+                EntityReference ref = entityBrokerManager.parseReference(reference);
+                if (ref != null) {
+                    refName = ref.toString();
+                } else {
+                    // fallback to simple parsing
+                    refName = new EntityReference(reference).toString();
+                }
+            } catch (Exception e) {
+                refName = reference;
+                log.warn("Invalid reference ("+reference+") for eventName ("+eventName+"), could not parse the reference correctly, continuing to create event with original reference");
             }
-        } catch (Exception e) {
-            refName = reference;
-            log.warn("Invalid reference ("+reference+") for eventName ("+eventName+"), could not parse the reference correctly, continuing to create event with original reference");
+            // had to take out the exists check because it makes firing events for removing entities very annoying -AZ
+            externalIntegrationProvider.fireEvent(eventName, refName);
+        } else {
+            log.warn("No external system to handle events: event not fired: " + eventName + ":" + reference);
         }
-        // had to take out the exists check because it makes firing events for removing entities very annoying -AZ
-        Event event = eventTrackingService.newEvent(eventName, refName, true,
-                NotificationService.PREF_IMMEDIATE);
-        eventTrackingService.post(event);
     }
 
     /* (non-Javadoc)
@@ -239,13 +261,9 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         Object entity = null;
         EntityReference ref = entityBrokerManager.parseReference(reference);
         if (ref == null) {
-            // not handled in EB so attempt to parse out a prefix and try to get entity from the legacy system
-            try {
-                // cannot test this in a meaningful way so the tests are designed to not get here -AZ
-                entity = entityManager.newReference(reference).getEntity();
-            } catch (Exception e) {
-                log.warn("Failed to look up reference '" + reference
-                        + "' to an entity in legacy entity system", e);
+            // not handled in EB so attempt to parse out a prefix and try to get entity from the external system
+            if (externalIntegrationProvider != null) {
+                externalIntegrationProvider.fetchEntity(ref);
             }
         } else {
             // this is a registered prefix

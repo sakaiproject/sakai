@@ -28,9 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.sakaiproject.entitybroker.EntityPropertiesService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.access.AccessFormats;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
@@ -40,6 +38,7 @@ import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
@@ -50,9 +49,11 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.extension.URLRedirect;
+import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
+import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.VersionConstants;
-import org.sakaiproject.entitybroker.util.request.URLRedirect;
 import org.azeckoski.reflectutils.ArrayUtils;
 import org.azeckoski.reflectutils.ConstructorUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
@@ -93,6 +94,34 @@ public class EntityDescriptionManager {
     		+ " : " + VersionConstants.SVN_LAST_UPDATE + "</div>"
     		+ "\n</body>\n</html>\n";
 
+    
+    protected EntityDescriptionManager() {
+    }
+
+    /**
+     * Full constructor
+     * @param entityViewAccessProviderManager
+     * @param httpServletAccessProviderManager
+     * @param entityProviderManager
+     * @param entityProperties
+     * @param entityBrokerManager
+     * @param entityProviderMethodStore
+     */
+    public EntityDescriptionManager(
+            EntityViewAccessProviderManager entityViewAccessProviderManager,
+            HttpServletAccessProviderManager httpServletAccessProviderManager,
+            EntityProviderManager entityProviderManager, EntityPropertiesService entityProperties,
+            EntityBrokerManagerImpl entityBrokerManager,
+            EntityProviderMethodStore entityProviderMethodStore) {
+        super();
+        this.entityViewAccessProviderManager = entityViewAccessProviderManager;
+        this.httpServletAccessProviderManager = httpServletAccessProviderManager;
+        this.entityProviderManager = entityProviderManager;
+        this.entityProperties = entityProperties;
+        this.entityBrokerManager = entityBrokerManager;
+        this.entityProviderMethodStore = entityProviderMethodStore;
+    }
+
     private EntityViewAccessProviderManager entityViewAccessProviderManager;
     public void setEntityViewAccessProviderManager(
             EntityViewAccessProviderManager entityViewAccessProviderManager) {
@@ -115,19 +144,14 @@ public class EntityDescriptionManager {
         this.entityProperties = entityProperties;
     }
 
-    private EntityBrokerManager entityBrokerManager;
-    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+    private EntityBrokerManagerImpl entityBrokerManager;
+    public void setEntityBrokerManager(EntityBrokerManagerImpl entityBrokerManager) {
         this.entityBrokerManager = entityBrokerManager;
     }
 
-    private EntityActionsManager entityActionsManager;
-    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
-        this.entityActionsManager = entityActionsManager;
-    }
-
-    private EntityRedirectsManager entityRedirectsManager;
-    public void setEntityRedirectsManager(EntityRedirectsManager entityRedirectsManager) {
-        this.entityRedirectsManager = entityRedirectsManager;
+    private EntityProviderMethodStore entityProviderMethodStore;
+    public void setEntityProviderMethodStore(EntityProviderMethodStore entityProviderMethodStore) {
+        this.entityProviderMethodStore = entityProviderMethodStore;
     }
 
 
@@ -305,7 +329,7 @@ public class EntityDescriptionManager {
                     }
                 }
                 // Custom Actions
-                List<CustomAction> customActions = entityActionsManager.getCustomActions(prefix);
+                List<CustomAction> customActions = entityProviderMethodStore.getCustomActions(prefix);
                 if (! customActions.isEmpty()) {
                     for (CustomAction customAction : customActions) {
                         sb.append("      <customActions>\n");
@@ -443,7 +467,7 @@ public class EntityDescriptionManager {
                 }
 
                 // Redirects
-                List<URLRedirect> redirects = entityRedirectsManager.getURLRedirects(prefix);
+                List<URLRedirect> redirects = entityProviderMethodStore.getURLRedirects(prefix);
                 if (! redirects.isEmpty()) {
                     sb.append("      <redirects>\n");
                     for (int i = 0; i < redirects.size(); i++) {
@@ -573,7 +597,7 @@ public class EntityDescriptionManager {
                 }
 
                 // Custom Actions
-                List<CustomAction> customActions = entityActionsManager.getCustomActions(prefix);
+                List<CustomAction> customActions = entityProviderMethodStore.getCustomActions(prefix);
                 if (! customActions.isEmpty()) {
                     sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.custom.actions", locale)+"</h4>\n");
                     sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
@@ -712,7 +736,7 @@ public class EntityDescriptionManager {
                 }
 
                 // Redirects
-                List<URLRedirect> redirects = entityRedirectsManager.getURLRedirects(prefix);
+                List<URLRedirect> redirects = entityProviderMethodStore.getURLRedirects(prefix);
                 if (! redirects.isEmpty()) {
                     sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.url.redirects", locale)+"</h4>\n");
                     sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");

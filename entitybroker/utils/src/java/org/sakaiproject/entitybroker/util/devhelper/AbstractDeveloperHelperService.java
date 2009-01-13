@@ -18,8 +18,9 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl.devhelper;
+package org.sakaiproject.entitybroker.util.devhelper;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,15 +28,20 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ReflectUtils;
+import org.azeckoski.reflectutils.transcoders.HTMLTranscoder;
+import org.azeckoski.reflectutils.transcoders.JSONTranscoder;
+import org.azeckoski.reflectutils.transcoders.Transcoder;
+import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
-import org.sakaiproject.entitybroker.EntityPropertiesService;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
-import org.sakaiproject.entitybroker.impl.EntityEncodingManager;
+import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 
 /**
  * implementation of the helper service methods which are internal only
+ * NOTE: you should probably override encode and decode data rather than simply using the current impl
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
@@ -67,15 +73,6 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
     protected RequestStorage requestStorage;
     public void setRequestStorage(RequestStorage requestStorage) {
         this.requestStorage = requestStorage;
-    }
-
-    protected EntityEncodingManager entityEncodingManager;
-    /**
-     * Set this to include an optional encoding/decoding handler
-     * @param entityEncodingManager
-     */
-    public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
-        this.entityEncodingManager = entityEncodingManager;
     }
 
     protected EntityPropertiesService entityProperties;
@@ -254,20 +251,66 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
     }
 
     public Map<String, Object> decodeData(String data, String format) {
-        if (entityEncodingManager == null) {
-            throw new IllegalStateException("No entityEncodingManager available for decoding");
+        if (format == null) {
+            format = Formats.XML;
         }
-        return entityEncodingManager.decodeData(data, format);
+        Map<String, Object> decoded = new HashMap<String, Object>(0);
+        if (data != null) {
+            Transcoder transcoder = getTranscoder(format);
+            try {
+                decoded = transcoder.decode(data);
+            } catch (RuntimeException e) {
+                // convert failure to UOE
+                throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
+            }
+        }
+        return decoded;
+//        if (entityEncodingManager == null) {
+//            throw new IllegalStateException("No entityEncodingManager available for decoding");
+//        }
+//        return entityEncodingManager.decodeData(data, format);
     }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.DeveloperHelperService#encodeData(java.lang.Object, java.lang.String, java.lang.String, java.util.Map)
      */
     public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
-        if (entityEncodingManager == null) {
-            throw new IllegalStateException("No entityEncodingManager available for encoding");
+        if (format == null) {
+            format = Formats.XML;
         }
-        return entityEncodingManager.encodeData(data, format, name, properties);
+        String encoded = "";
+        if (data != null) {
+            Transcoder transcoder = getTranscoder(format);
+            try {
+                encoded = transcoder.encode(data, name, properties);
+            } catch (RuntimeException e) {
+                // convert failure to UOE
+                throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
+            }
+        }
+        return encoded;
+//        if (entityEncodingManager == null) {
+//            throw new IllegalStateException("No entityEncodingManager available for encoding");
+//        }
+//        return entityEncodingManager.encodeData(data, format, name, properties);
+    }
+
+    private Map<String, Transcoder> transcoders;
+    private Transcoder getTranscoder(String format) {
+        if (transcoders == null) {
+            transcoders = new HashMap<String, Transcoder>();
+            JSONTranscoder jt = new JSONTranscoder(true, true, false);
+            transcoders.put(jt.getHandledFormat(), jt);
+            XMLTranscoder xt = new XMLTranscoder(true, true, false, false);
+            transcoders.put(xt.getHandledFormat(), xt);
+            HTMLTranscoder ht = new HTMLTranscoder();
+            transcoders.put(ht.getHandledFormat(), ht);
+        }
+        Transcoder transcoder = transcoders.get(format);
+        if (transcoder == null) {
+            throw new IllegalArgumentException("Failed to find a transcoder for format, none exists, cannot encode or decode data for format: " + format);
+        }
+        return transcoder;
     }
 
     /* (non-Javadoc)

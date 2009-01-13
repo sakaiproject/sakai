@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl.access;
+package org.sakaiproject.entitybroker.util.access;
 
 import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;

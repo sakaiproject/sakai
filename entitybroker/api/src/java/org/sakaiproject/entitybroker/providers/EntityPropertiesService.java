@@ -18,7 +18,7 @@
  * limitations under the License.
  **/
 
-package org.sakaiproject.entitybroker;
+package org.sakaiproject.entitybroker.providers;
 
 import java.util.Locale;
 
