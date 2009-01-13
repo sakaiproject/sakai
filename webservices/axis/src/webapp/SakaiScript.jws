@@ -490,6 +490,59 @@ public boolean addMemberToGroup( String sessionid, String siteid, String groupid
 	}
 }
 
+
+/** 
+ * Get list of groups in a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site to retrieve the group list for
+ * @return		        	xml doc of the list of groups, title and description
+ * @throws	AxisFault		returns <exception /> string if exception encountered and logs it	
+ *
+ */
+public String getGroupsInSite(String sessionid, String siteid) throws AxisFault {
+	
+	Session s = establishSession(sessionid);
+		
+	try {
+		
+		Site site = SiteService.getSite(siteid);
+	
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+	
+	
+		for (Iterator iter = site.getGroups().iterator(); iter.hasNext();) {
+			Group group = (Group) iter.next();
+			
+			Node groupNode = dom.createElement("group");
+			
+			Node groupId = dom.createElement("id");
+			groupId.appendChild(dom.createTextNode(group.getId()));
+			
+			Node groupTitle = dom.createElement("title");
+			groupTitle.appendChild(dom.createTextNode(group.getTitle()));
+			
+			Node groupDesc = dom.createElement("description");
+			groupDesc.appendChild(dom.createTextNode(group.getDescription()));
+			
+			groupNode.appendChild(groupId);
+			groupNode.appendChild(groupTitle);
+			groupNode.appendChild(groupDesc);
+			list.appendChild(groupNode);
+			
+				
+		}
+		return Xml.writeDocumentToString(dom);
+	}
+	catch (Exception e) {
+        LOG.error("WS getGroupsInSite(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+
+	}
+}
+
 /**
  * Create a new authzgroup (realm)
  *
@@ -1972,7 +2025,6 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
 		return "<exception/>";
 
 	}
-		
 }
 
 
