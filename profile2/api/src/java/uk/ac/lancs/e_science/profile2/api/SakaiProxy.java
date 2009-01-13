@@ -1,12 +1,14 @@
 package uk.ac.lancs.e_science.profile2.api;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 public interface SakaiProxy {
 	
-	//part or parth for where a profile image is uplaoded to depending on its type
+	public static final int FIRST_RECORD = 0;		
+	public static final int MAX_RECORDS = 99;
 	public static final int PROFILE_IMAGE_MAIN = 1;		
 	public static final int PROFILE_IMAGE_THUMBNAIL = 2;
 	
@@ -47,5 +49,12 @@ public interface SakaiProxy {
 	 * @param resourceId	the full resourceId of the file
 	 */
 	public byte[] getResource(String resourceId);
+	
+	/**
+	 * Search UserDirectoryService for a user that matches in name or email
+	 *
+	 * @param search	search string. Return's List of Sakai userId's 
+	 */
+	public List<String> searchUsers(String search);
 	
 }

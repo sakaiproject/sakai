@@ -21,6 +21,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
 
@@ -28,7 +29,6 @@ import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
 public class MyFriends extends BasePage {
 
 	private transient Logger log = Logger.getLogger(MyFriends.class);
-	private static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
 	private boolean friendRemoved;
 	
 	public MyFriends() {
@@ -91,7 +91,7 @@ public class MyFriends extends BasePage {
 				
 					item.add(new Image("friendRequest-photo",photoResource));
 				} else {
-					item.add(new ContextImage("friendRequest-photo",new Model(UNAVAILABLE_IMAGE)));
+					item.add(new ContextImage("friendRequest-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
 		
 		    	
@@ -188,7 +188,7 @@ public class MyFriends extends BasePage {
 				
 					item.add(new Image("friend-photo",photoResource));
 				} else {
-					item.add(new ContextImage("friend-photo",new Model(UNAVAILABLE_IMAGE)));
+					item.add(new ContextImage("friend-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
 		    	
 		    	//remove friend modal window

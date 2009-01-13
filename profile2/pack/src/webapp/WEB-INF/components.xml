@@ -22,6 +22,7 @@
     	class="uk.ac.lancs.e_science.profile2.impl.ProfileImpl"
     	singleton="true">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
 	</bean>
 	
 	

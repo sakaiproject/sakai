@@ -16,8 +16,6 @@ public class FriendsFeed extends Panel {
 	
 	private transient Logger log = Logger.getLogger(MyInfoDisplay.class);
 	
-	private static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
-
 	
 	public FriendsFeed(String id, String userId) {
 		super(id);
@@ -76,7 +74,7 @@ public class FriendsFeed extends Panel {
 				
 					item.add(new Image("photo",photoResource));
 				} else {
-					item.add(new ContextImage("photo",new Model(UNAVAILABLE_IMAGE)));
+					item.add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
 			}
 		};

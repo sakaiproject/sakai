@@ -14,6 +14,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileAccessException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
@@ -28,7 +29,6 @@ import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
 public class MyProfile extends BasePage {
 
 	private transient Logger log = Logger.getLogger(MyProfile.class);
-	private static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
 	private transient byte[] profileImageBytes;
 	private final ChangeProfilePicture changePicture;
 	
@@ -115,7 +115,7 @@ public class MyProfile extends BasePage {
 			add(new Image("photo",photoResource));
 		} else {
 			log.info("No photo for " + userId + ". Using blank image.");
-			add(new ContextImage("photo",new Model(UNAVAILABLE_IMAGE)));
+			add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 		}
 		
 		//change picture panel

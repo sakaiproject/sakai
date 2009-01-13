@@ -23,10 +23,12 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
+import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
@@ -60,13 +62,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord";
 	private static final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord";
 	private static final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords";
-
+	private static final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail";
+	private static final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest";
+	
 	//Hibernate object fields
 	private static final String USER_UUID = "userUuid";
 	private static final String FRIEND_UUID = "friendUuid";
 	private static final String CONFIRMED = "confirmed";
 	private static final String OLDEST_STATUS_DATE = "oldestStatusDate";
-
+	private static final String SEARCH = "search";
+	
+	
 	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#checkContentTypeForProfileImage()
 	 */
@@ -380,31 +386,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	}
 	
-	//gets a friend record and tries both column arrangements
-	private ProfileFriend getFriendRecord(final String userId, final String friendId) {
-		
-		if(userId == null || friendId == null){
-	  		throw new IllegalArgumentException("Null Argument in getFriendRecord");
-	  	}
-		
-		ProfileFriend profileFriend = null;
-		
-		//this particular query checks for records when userId/friendId is in either column
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
 	
-		profileFriend = (ProfileFriend) getHibernateTemplate().execute(hcb);
-	
-		return profileFriend;
-		
-	}
 	
 	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUnreadMessagesCount()
@@ -739,7 +721,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getOtherProfileImageRecords()
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getOtherProfileImageRecords(final String userId)
 	 */
 	public List<ProfileImage> getOtherProfileImageRecords(final String userId) {
 		
@@ -759,6 +741,54 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  	
 	  	return images;
 	}
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#findUsersByNameOrEmail(String search)
+	 */
+	public List<String> findUsersByNameOrEmail(String search) {
+		
+		//get users from SakaiPerson
+		List<String> userUuids = new ArrayList<String>(findSakaiPersonsByNameOrEmail(search));
+
+		//get users from UserDirectoryService
+		List<String> usersUuidsFromUserDirectoryService = new ArrayList<String>(sakaiProxy.searchUsers(search));
+		
+		//combine with no duplicates
+		userUuids.removeAll(usersUuidsFromUserDirectoryService);
+		userUuids.addAll(usersUuidsFromUserDirectoryService);
+
+		return userUuids;
+	
+	}
+	
+	
+	
+	
+	
+	
+	//private method to query SakaiPerson for matches
+	//this should go in the profile ProfilePersistence API
+	private List<String> findSakaiPersonsByNameOrEmail(final String search) {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL);
+	  			q.setParameter(SEARCH, '%' + search + '%', Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
+	
+	  	return userUuids;
+	}
+
+	
 	
 	
 	/**
@@ -790,5 +820,37 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 
 	
+
+	//gets a friend record and tries both column arrangements
+	private ProfileFriend getFriendRecord(final String userId, final String friendId) {
+		
+		if(userId == null || friendId == null){
+	  		throw new IllegalArgumentException("Null Argument in getFriendRecord");
+	  	}
+		
+		ProfileFriend profileFriend = null;
+		
+		//this particular query checks for records when userId/friendId is in either column
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		profileFriend = (ProfileFriend) getHibernateTemplate().execute(hcb);
+	
+		return profileFriend;
+	}
+	
+	
+	//setup SakaiProxy API
+	private SakaiProxy sakaiProxy;
+	public void setSakaiProxy(SakaiProxy sakaiProxy) {
+		this.sakaiProxy = sakaiProxy;
+	}
 	
 }

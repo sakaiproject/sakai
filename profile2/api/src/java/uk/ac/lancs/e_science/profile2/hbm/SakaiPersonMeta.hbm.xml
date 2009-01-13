@@ -25,5 +25,15 @@
 	</query>
 	
 	
+	
+	<!--  these are on the SakaiPerson object. -->
+	<query name="findSakaiPersonsByNameOrEmail">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.nickname like :search or sp.mail like :search]]>
+  	</query>
+  
+ 	<query name="findSakaiPersonsByInterest">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.favouriteBooks like :search or sp.favouriteTvShows like :search or sp.favouriteMovies like :search or sp.favouriteQuotes like :search or sp.notes like :search]]>
+  	</query>
+	
 
 </hibernate-mapping>

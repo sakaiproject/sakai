@@ -1,7 +1,10 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -19,11 +22,12 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileImage;
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 
 
@@ -147,7 +151,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	
 	public int getMaxProfilePictureSize() {
-		return getSakaiConfigurationParameterAsInt("profile.picture.max", ProfileImage.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
+		return getSakaiConfigurationParameterAsInt("profile.picture.max", ProfileImageManager.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
 	}
 	
 	public LinkedHashMap<String, String> getSiteListForUser(int limitSites) {
@@ -268,6 +272,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return data;
 	}
 	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.SakaiProxy#findUsersByNameOrEmailFromUserDirectory(String search)
+	 */
+	public List<String> searchUsers(String search) {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//search for users
+		List<User> results = new ArrayList<User>(userDirectoryService.searchUsers(search, SakaiProxy.FIRST_RECORD, SakaiProxy.MAX_RECORDS));
+		
+		for(Iterator<User> i = results.iterator(); i.hasNext();){
+			User user = (User)i.next();
+			//get id
+			userUuids.add(user.getId());	
+	  	}
+		
+		return userUuids;
+	}
+
 	
 	
 	

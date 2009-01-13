@@ -3,6 +3,8 @@ package uk.ac.lancs.e_science.profile2.api;
 import java.util.Date;
 import java.util.List;
 
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
+
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
@@ -10,6 +12,7 @@ import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 
 
 public interface Profile {
+
 	
 	/**
 	 * Check content type against allowed types. only JPEG,GIF and PNG are support at the moment
@@ -202,6 +205,21 @@ public interface Profile {
 	 * @param userId		userId of the user
 	 */
 	public List<ProfileImage> getOtherProfileImageRecords(final String userId);
+
+	/**
+	 * Find all users that match the search string in either name or email. 
+	 * THis first queries Sakai's UserDirectoryProvider for matches, then queries SakaiPerson and combines the lists
+	 * This approach is so that we can get attempt to get all users, with or without profiles.
+	 * 
+	 * Returns only user_uuids for speed
+	 * 
+	 * Once this list is returned, paginate and lookup sets of SakaiPersons and their associated Privacy and Image records.
+	 * 
+	 * @param search 	used to search the nickname and email fields. 
+	 * @return List 	only userIds (for speed and since the list might be vey long.
+	 */
+	public List<String> findUsersByNameOrEmail(String search);
+	
 
 	
 }

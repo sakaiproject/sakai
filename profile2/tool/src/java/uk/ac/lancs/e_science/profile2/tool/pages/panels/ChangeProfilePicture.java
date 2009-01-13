@@ -13,7 +13,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImage;
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
@@ -76,7 +76,7 @@ public class ChangeProfilePicture extends Panel{
 					byte[] imageBytes = upload.getBytes();
 					
 					//scale image for the main profile pic
-					imageBytes = profile.scaleImage(imageBytes, ProfileImage.MAX_IMAGE_XY);
+					imageBytes = profile.scaleImage(imageBytes, ProfileImageManager.MAX_IMAGE_XY);
 					 
 					//save the main profile image to CHS and get the resource_id back
 					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, SakaiProxy.PROFILE_IMAGE_MAIN, fileName);
