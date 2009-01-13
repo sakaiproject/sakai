@@ -90,22 +90,6 @@
         </map>
      </property>
   </bean> 
-  <bean id="org.sakaiproject.search.component.adapter.contenthosting.WordContentDigester" 
-     class="org.sakaiproject.search.component.adapter.contenthosting.WordContentDigester"
-     init-method="init" 
-     destroy-method="destroy"
-     >
-     <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
-     <property name="mimeTypes">
-        <map>
-           <entry key="application/msword"><value>application/msword</value></entry>
-           <entry key="application/vnd.ms-word"><value>application/vnd.ms-word</value></entry>
-           <entry key="application/ms-word"><value>application/ms-word</value></entry>
-           <entry key="application/x-msword"><value>application/x-msword</value></entry>
-           <entry key="application/x-ms-word"><value>application/x-ms-word</value></entry>
-        </map>
-     </property>
-  </bean> 
 
     <bean id="org.sakaiproject.search.component.adapter.contenthosting.XLContentDigester" 
      class="org.sakaiproject.search.component.adapter.contenthosting.XLContentDigester"
@@ -124,8 +108,8 @@
        </property>
     </bean> 
     
-    <bean id="org.sakaiproject.search.component.adapter.contenthosting.OOXmlContentDigester" 
-     class="org.sakaiproject.search.component.adapter.contenthosting.OOXmlContentDigester"
+    <bean id="org.sakaiproject.search.component.adapter.contenthosting.PoiContentDigester" 
+     class="org.sakaiproject.search.component.adapter.contenthosting.PoiContentDigester"
      init-method="init" 
      destroy-method="destroy"
      >
@@ -133,6 +117,23 @@
        <property name="mimeTypes">
           <map>
              <entry key="application/vnd.openxmlformats"><value>application/vnd.openxmlformats</value></entry>
+             <entry key="application/vnd.ms-word.document.macroEnabled.12"><value>application/vnd.ms-word.document.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document"><value>application/vnd.openxmlformats-officedocument.wordprocessingml.document</value></entry>
+             <entry key="application/vnd.ms-word.template.macroEnabled.12"><value>application/vnd.ms-word.template.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.template"><value>application/vnd.openxmlformats-officedocument.wordprocessingml.template</value></entry>
+             <entry key="application/vnd.ms-powerpoint.slideshow.macroEnabled.12"><value>application/vnd.ms-powerpoint.slideshow.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.presentationml.slideshow"><value>application/vnd.openxmlformats-officedocument.presentationml.slideshow</value></entry>
+             <entry key="application/vnd.ms-powerpoint.presentation.macroEnabled.12"><value>application/vnd.ms-powerpoint.presentation.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation"><value>application/vnd.openxmlformats-officedocument.presentationml.presentation</value></entry>
+             <entry key="application/vnd.ms-excel.sheet.binary.macroEnabled.12"><value>application/vnd.ms-excel.sheet.binary.macroEnabled.12</value></entry>
+             <entry key="application/vnd.ms-excel.sheet.macroEnabled.12"><value>application/vnd.ms-excel.sheet.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><value>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</value></entry>
+             <entry key="application/vnd.ms-xpsdocument"><value>application/vnd.ms-xpsdocument</value></entry>
+             <entry key="application/msword"><value>application/msword</value></entry>
+             <entry key="application/vnd.ms-word"><value>application/vnd.ms-word</value></entry>
+             <entry key="application/ms-word"><value>application/ms-word</value></entry>
+             <entry key="application/x-msword"><value>application/x-msword</value></entry>
+             <entry key="application/x-ms-word"><value>application/x-ms-word</value></entry>
           </map>
        </property>
     </bean> 

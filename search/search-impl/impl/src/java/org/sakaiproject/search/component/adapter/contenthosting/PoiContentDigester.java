@@ -27,20 +27,23 @@ import java.io.StringReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.POITextExtractor;
+import org.apache.poi.extractor.ExtractorFactory;
+import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.search.api.SearchUtils;
-import org.textmining.text.extraction.WordExtractor;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 /**
  * @author ieb
  */
-public class WordContentDigester extends BaseContentDigester
+public class PoiContentDigester extends BaseContentDigester
 {
+	private static Log log = LogFactory.getLog(PoiContentDigester.class);
 
-	private static Log log = LogFactory.getLog(WordContentDigester.class);
-	
-	static {
-		System.setProperty("org.apache.poi.util.POILogger", "org.apache.poi.util.NullLogger");
+	static
+	{
+		System.setProperty("org.apache.poi.util.POILogger",
+				"org.apache.poi.util.NullLogger");
 	}
 
 	/*
@@ -48,31 +51,33 @@ public class WordContentDigester extends BaseContentDigester
 	 * 
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
 	 */
-	
+
 	public String getContent(ContentResource contentResource)
 	{
-		if ( contentResource != null && 
-				contentResource.getContentLength() > maxDigestSize  ) {
-			throw new RuntimeException("Attempt to get too much content as a string on "+contentResource.getReference());
+		log.debug("Digesting with PoiContentDigester");
+		
+		if (contentResource != null && contentResource.getContentLength() > maxDigestSize)
+		{
+			throw new RuntimeException("Attempt to get too much content as a string on "
+					+ contentResource.getReference());
 		}
 		InputStream contentStream = null;
+
 		try
 		{
-			
-            WordExtractor extractor = new WordExtractor();
+			contentStream = contentResource.streamContent();			
+			POITextExtractor DocExt = ExtractorFactory.createExtractor(contentStream);
 
-			contentStream = contentResource.streamContent();
-            String text = extractor.extractText(contentStream);
-
+			String doctext = DocExt.getText(); 
 			
-			StringBuilder sb = new StringBuilder();
-			SearchUtils.appendCleanString(text,sb);
-			return sb.toString();
+			log.debug("Digested " + contentResource.getReference() + " to: " + doctext);
+			
+			return DocExt.getText();
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to read content for indexing ",
-					e);
+			log.debug("Cannot index", e);
+			throw new RuntimeException("Failed to read content for indexing ", e);
 		}
 		finally
 		{
@@ -95,7 +100,7 @@ public class WordContentDigester extends BaseContentDigester
 	 * 
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource)
 	 */
-	
+
 	public Reader getContentReader(ContentResource contentResource)
 	{
 		return new StringReader(getContent(contentResource));
