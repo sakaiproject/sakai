@@ -422,6 +422,7 @@ public class OptimizeOperationTest extends TestCase
 		FileUtils.listDirectory(new File(journalSettings.getSharedJournalBase()));
 
 		s.close();
+		s2.close();
 		assertEquals(
 				"Check on index contents failed, Merge Index Failure on Local Node, please check logs ",
 				0, errors2);

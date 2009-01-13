@@ -120,8 +120,54 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 			if (closing) return true;
 			closing = true;
 		}
+
 		opened--;
 		if (log.isDebugEnabled()) log.debug("Closing Index " + this);
+
+		for (IndexReader ir : indexReaders)
+		{
+			try
+			{
+				// close index
+				File f = null;
+				boolean deleteme = false; 
+
+				try {
+
+					// can we delete any of these indexes ?
+					Directory d = ir.directory();
+					
+					// index closers manage their own delete operations
+					if (!(ir instanceof IndexCloser) && (d instanceof FSDirectory))
+					{
+						FSDirectory fsd = (FSDirectory) d;
+						f = fsd.getFile();
+						File deleteMarker = new File(f,JournaledIndex.DELETE_ON_CLOSE_FILE);
+						deleteme = deleteMarker.exists();
+					}
+				
+					ir.close();
+
+					if (log.isDebugEnabled())
+						log.debug("Closed indexreader " + ir);
+				}
+				catch (AlreadyClosedException acex)
+				{
+					log.debug("Already closed");
+				}
+
+				if (f != null && deleteme)
+				{
+					FileUtils.deleteAll(f);
+					log.debug("Deleting Index on Close " + f);
+				}
+
+			}
+			catch (IOException ioex)
+			{
+				log.debug(ioex);
+			}
+		}
 
 		try
 		{
@@ -133,54 +179,6 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 
 		}
 
-		for (IndexReader ir : indexReaders)
-		{
-			try
-			{
-				ir.close();
-				if (log.isDebugEnabled())
-					log.debug("Closed indexreader " + ir);
-			}
-			catch (IOException ioex)
-			{
-				log.debug(ioex);
-
-			}
-		}
-
-		// can we delete any of these indexes ?
-
-		for (IndexReader ir : indexReaders)
-		{
-			try
-			{
-
-				// index closers manage their own delete operations
-				if (!(ir instanceof IndexCloser))
-				{
-					Directory d = ir.directory();
-					if (d instanceof FSDirectory)
-					{
-						FSDirectory fsd = (FSDirectory) d;
-						File f = fsd.getFile();
-						File deleteMarker = new File(f,JournaledIndex.DELETE_ON_CLOSE_FILE);
-						if (deleteMarker.exists())
-						{
-							FileUtils.deleteAll(f);
-							log.debug("Deleting Index on Close " + f);
-						}
-					}
-				}
-			}
-			catch (AlreadyClosedException acex)
-			{
-				log.debug("Already closed");
-			}
-			catch (IOException ioex)
-			{
-				log.debug(ioex);
-			}
-		}
 		try
 		{
 			Directory d = this.directory();
