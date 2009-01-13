@@ -656,7 +656,7 @@ public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, Str
  * @param 	roleid		 	the id of the role to remove
  * @return					success or exception message
  *
- * TODO: if the role doesn't exist it is still returning success - SAK-15334
+ * Note: This web service has been modified, see SAK-15334
  */
 public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, String roleid) throws AxisFault
 {
@@ -665,6 +665,12 @@ public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, S
 	try {
 
 		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		//get existing roles
+		Set roles = authzgroup.getRoles();
+		if(!roles.contains(roleid)) {
+			//log warning, but still continue so as not to break any existing implementations
+			LOG.warn("WS removeRoleFromAuthzGroup(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
+		}
 		authzgroup.removeRole(roleid);
 		AuthzGroupService.save(authzgroup);
 	
