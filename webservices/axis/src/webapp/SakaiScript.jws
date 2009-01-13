@@ -490,7 +490,6 @@ public boolean addMemberToGroup( String sessionid, String siteid, String groupid
 	}
 }
 
-
 /** 
  * Get list of groups in a site
  *
@@ -1963,7 +1962,7 @@ public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, S
  * Get list of users in an authzgroup with the given role(s)
  *
  * @param	sessionid		the id of a valid session
- * @param	authzgroupid	the id of the authzgroup or site you want to get the users in (if site: /site/SITEID)
+ * @param	authzgroupid	the id of the authzgroup, site or group you want to get the users in (if site: /site/SITEID, if group: /site/SITEID/group/GROUPID)
  * @param	authzgrouproles	the roles that you want to filter on (string with spaces as delimiters)
  * @return		        	xml doc of the list of users, display name and roleid
  * @throws	AxisFault		returns <exception /> string if exception encountered and logs it	
@@ -2033,7 +2032,7 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
  *
  * 
  * @param	sessionid		the id of a valid session
- * @param	authzgroupid	the id of the authzgroup or site you want to get the users in (if site: /site/SITEID)
+ * @param	authzgroupid	the id of the authzgroup, site or group you want to get the users in (if site: /site/SITEID, if group: /site/SITEID/group/GROUPID)
  * @return					xml doc of the list of users, display name and roleid
  * @throws	AxisFault		returns <exception /> string if exception encountered	
  *
