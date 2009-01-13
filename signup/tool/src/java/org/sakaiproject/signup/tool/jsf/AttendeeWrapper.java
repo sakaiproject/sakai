@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -114,4 +114,11 @@ public class AttendeeWrapper {
 		return PlainTextFormat.convertFormattedHtmlTextToPlaintext(comment);
 	}
 
+	public boolean isComment(){
+		String comment = this.signupAttendee.getComments();
+		if (comment != null && comment.trim().length() > 0)
+			return true;
+		
+		return false;
+	}
 }

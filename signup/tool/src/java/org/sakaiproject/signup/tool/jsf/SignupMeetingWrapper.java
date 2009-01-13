@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -49,6 +50,22 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 
 	private SakaiFacade sakaiFacade;
 
+	private boolean subRecurringMeeting;
+
+	private String recurId;
+
+	private int recurEventsSize = 0;
+
+	private String hideStyle = "display: none;";
+
+	private Date startTime;
+
+	private Date endTime;
+
+	private boolean showMyAppointmentTimeFrame = false;
+
+	private String availableStatus = null;
+
 	/**
 	 * Constructor
 	 * 
@@ -59,12 +76,14 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	 * @param currentUserId
 	 *            an unique sakai internal user id(not username).
 	 */
-	public SignupMeetingWrapper(SignupMeeting signupMeeting, String creator, String currentUserId,SakaiFacade sakaiFacade) {
+	public SignupMeetingWrapper(SignupMeeting signupMeeting, String creator, String currentUserId,
+			SakaiFacade sakaiFacade) {
 		this.meeting = signupMeeting;
 		this.creator = creator;
 		this.currentUserId = currentUserId;
 		this.sakaiFacade = sakaiFacade;
 		this.selected = false;
+		this.subRecurringMeeting = false;
 	}
 
 	/**
@@ -91,7 +110,20 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	 * @return an avaiability status string.
 	 */
 	public String getAvailableStatus() {
+		if (this.availableStatus == null) {
+			this.availableStatus = retrieveAvailStatus();
+		}
+		return this.availableStatus;
+	}
 
+	/**
+	 * It will force to recalculate the current available status.
+	 */
+	public void resetAvailableStatus() {
+		this.availableStatus = null;
+	}
+
+	private String retrieveAvailStatus() {
 		long curTime = (new Date()).getTime();
 		long meetingStartTime = meeting.getStartTime().getTime();
 		long meetingEndTime = meeting.getEndTime().getTime();
@@ -106,14 +138,16 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 		}
 
 		String availableStatus = Utilities.rb.getString("event.unavailable");
-		boolean isSignupBegin=true;
-		boolean isOnWaitList=false;
+		boolean isSignupBegin = true;
 		if (meetingSignupBegin > curTime) {
-			isSignupBegin=false;
-			availableStatus = Utilities.rb.getString("event.Signup.not.started.yet") + " "
-					+ getSakaiFacade().getTimeService().newTime(meeting.getSignupBegins().getTime()).toStringLocalShortDate();
+			isSignupBegin = false;
+			availableStatus = Utilities.rb.getString("event.Signup.not.started.yet")
+					+ " "
+					+ getSakaiFacade().getTimeService().newTime(meeting.getSignupBegins().getTime())
+							.toStringLocalShortDate();
 		}
-	
+
+		boolean isOnWaitingList = false;
 		List<SignupTimeslot> signupTimeSlots = meeting.getSignupTimeSlots();
 		for (SignupTimeslot timeslot : signupTimeSlots) {
 			List<SignupAttendee> attendees = timeslot.getAttendees();
@@ -123,16 +157,21 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 			}
 
 			List<SignupAttendee> waiters = timeslot.getWaitingList();
-			for (SignupAttendee waiter : waiters) {
-				if (waiter.getAttendeeUserId().equals(currentUserId)){
-					availableStatus = Utilities.rb.getString("event.youOnWaitList");
-					isOnWaitList =true;
+			if (!isOnWaitingList) {
+				for (SignupAttendee waiter : waiters) {
+					if (waiter.getAttendeeUserId().equals(currentUserId)) {
+						availableStatus = Utilities.rb.getString("event.youOnWaitList");
+						isOnWaitingList = true;
+						break;
+					}
 				}
 			}
 
 			int size = (attendees == null) ? 0 : attendees.size();
-			if (!isOnWaitList && isSignupBegin && (size < timeslot.getMaxNoOfAttendees() || timeslot.getMaxNoOfAttendees() == SignupTimeslot.UNLIMITED)) {			 
-					availableStatus = Utilities.rb.getString("event.available");
+			if (!isOnWaitingList
+					&& isSignupBegin
+					&& (size < timeslot.getMaxNoOfAttendees() || timeslot.getMaxNoOfAttendees() == SignupTimeslot.UNLIMITED)) {
+				availableStatus = Utilities.rb.getString("event.available");
 			}
 		}
 
@@ -223,5 +262,140 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	private SakaiFacade getSakaiFacade() {
 		return sakaiFacade;
 	}
-	
+
+	/**
+	 * It is a UI getter method.
+	 * 
+	 * @return
+	 */
+	public boolean isSubRecurringMeeting() {
+		return subRecurringMeeting;
+	}
+
+	public void setSubRecurringMeeting(boolean subRecurringMeeting) {
+		this.subRecurringMeeting = subRecurringMeeting;
+	}
+
+	/**
+	 * The recurId format is as '294_0' where 294:parent meetingId; _0:first
+	 * sub-recurrent meeting
+	 * 
+	 * @return a String object
+	 */
+	public String getRecurId() {
+		if (meeting.getRecurrenceId() != null && isSubRecurringMeeting())
+			return this.recurId;
+
+		return meeting.getRecurrenceId() != null ? meeting.getRecurrenceId().toString() : meeting.getId().toString();
+	}
+
+	/*
+	 * The recurId format is as '294_0' where 294:parent meetingId; _0:first
+	 * sub-recurrent meeting
+	 */
+	public void setRecurId(String recurId) {
+		this.recurId = recurId;
+	}
+
+	/**
+	 * It's a getter method.
+	 * 
+	 * @return
+	 */
+	public String getHideStyle() {
+		if (isSubRecurringMeeting())
+			return hideStyle;
+
+		return "";
+	}
+
+	public void setHideStyle(String hideStyle) {
+		this.hideStyle = hideStyle;
+	}
+
+	/**
+	 * It's a getter method for UI
+	 * 
+	 * @return true if it's the first one in the table.
+	 */
+	public boolean isFirstOneRecurMeeting() {
+		if (meeting.isRecurredMeeting() && !isSubRecurringMeeting())
+			return true;
+
+		return false;
+	}
+
+	/**
+	 * It's a getter method.
+	 * 
+	 * @return the size of the recurring meetings.
+	 */
+	public int getRecurEventsSize() {
+		return recurEventsSize;
+	}
+
+	public void setRecurEventsSize(int recurEventsSize) {
+		this.recurEventsSize = recurEventsSize;
+	}
+
+	/**
+	 * This is mainly used for showing my appointment time frame at UI.
+	 * 
+	 * @return a Date object
+	 */
+	public Date getStartTime() {
+		if (!isShowMyAppointmentTimeFrame())
+			return meeting.getStartTime();
+
+		return startTime != null ? startTime : meeting.getStartTime();
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	/**
+	 * This is mainly used for showing my appointment time frame at UI.
+	 * 
+	 * @return a Date object
+	 */
+	public Date getEndTime() {
+		if (!isShowMyAppointmentTimeFrame())
+			return meeting.getEndTime();
+
+		return endTime != null ? endTime : meeting.getEndTime();
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isShowMyAppointmentTimeFrame() {
+		return showMyAppointmentTimeFrame;
+	}
+
+	public void setShowMyAppointmentTimeFrame(boolean showMyAppointmentTimeFrame) {
+		this.showMyAppointmentTimeFrame = showMyAppointmentTimeFrame;
+	}
+
+	private Calendar cal = Calendar.getInstance();
+
+	/**
+	 * This will test if the event/meeting is cross days
+	 * 
+	 * @return true if the event/meeting is cross days
+	 */
+	public boolean isMyAppointmentCrossDays() {
+		cal.setTime(getStartTime());
+		int startingDay = cal.get(Calendar.DAY_OF_YEAR);
+		cal.setTime(getEndTime());
+		int endingDay = cal.get(Calendar.DAY_OF_YEAR);
+		return (startingDay != endingDay);
+	}
+
 }

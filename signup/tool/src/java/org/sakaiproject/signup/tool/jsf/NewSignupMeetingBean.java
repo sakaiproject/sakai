@@ -1,9 +1,9 @@
 /**********************************************************************************
  * $URL$
  * $Id$
-***********************************************************************************
+ ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,7 +13,7 @@
  * 
  * Unless required by applicable law or agreed to in writing, software 
  * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either exsss or implied. 
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  *   
@@ -25,7 +25,6 @@ package org.sakaiproject.signup.tool.jsf;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.component.UIData;
@@ -44,13 +43,13 @@ import org.sakaiproject.signup.logic.SignupMessageTypes;
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.tool.jsf.organizer.action.CreateMeetings;
+import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
-import org.sakaiproject.signup.util.SignupDateFormat;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
@@ -84,25 +83,37 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	private String signupBeginsType;
 
-	/* singup can start before this minutes/hours/days */
+	private String repeatType;
+
+	private Date repeatUntil;
+
+	private boolean assignParicitpantsToAllRecurEvents = false;
+
+	/* sign up can start before this minutes/hours/days */
 	private int signupBegins;
 
 	private String deadlineTimeType;
 
-	/* singup deadline before this minutes/hours/days */
+	/* sign up deadline before this minutes/hours/days */
+
 	private int deadlineTime;
 
 	private SignupSiteWrapper currentSite;
 
 	private List<SignupSiteWrapper> otherSites;
 
-	private static boolean DEFAULT_SEND_EMAIL= "true".equalsIgnoreCase(Utilities.rb.getString("default.email.notification"))? true : false;
+	private static boolean DEFAULT_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.rb
+			.getString("default.email.notification")) ? true : false;
 
-	private boolean sendEmail = DEFAULT_SEND_EMAIL;
+	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
 
 	private boolean receiveEmail;
 
 	private List<TimeslotWrapper> timeSlotWrappers;
+
+	private List<SelectItem> meetingTypeRadioBttns;
+
+	List<SignupUser> allSignupUsers;
 
 	private List<SelectItem> allAttendees;
 
@@ -113,22 +124,18 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	private UIData timeslotWrapperTable;
 
-	private SignupMeetingsBean signupMeetingsBean;
-
 	private boolean showParticipants;
 
 	private boolean validationError;
 
 	private boolean eidInputMode = false;
 
+	private Boolean publishedSite;
+
 	private Log logger = LogFactory.getLog(getClass());
 
 	/* used for jsf parameter passing */
 	private final static String PARAM_NAME_FOR_ATTENDEE_USERID = "attendeeUserId";
-
-	public void setSignupMeetingsBean(SignupMeetingsBean signupMeetingsBean) {
-		this.signupMeetingsBean = signupMeetingsBean;
-	}
 
 	public String getCurrentUserDisplayName() {
 		return sakaiFacade.getUserDisplayName(sakaiFacade.getCurrentUserId());
@@ -142,20 +149,38 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		init();
 	}
 
+	public String getRepeatType() {
+		return repeatType;
+	}
+
+	public Date getRepeatUntil() {
+		return repeatUntil;
+	}
+
+	public void setRepeatType(String repeatType) {
+		this.repeatType = repeatType;
+	}
+
+	public void setRepeatUntil(Date repeatUntil) {
+		this.repeatUntil = repeatUntil;
+	}
+
 	/** Initialize all the default setting for creating new events. */
 	private void init() {
+
 		signupMeeting = new SignupMeeting();
 		signupMeeting.setMeetingType(INDIVIDUAL);
-
 		Date date = new Date();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		calendar.set(Calendar.MINUTE, 0);
 		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
 		signupMeeting.setStartTime(calendar.getTime());
 		signupMeeting.setEndTime(calendar.getTime());
 		unlimited = false;
 		recurrence = false;
+		assignParicitpantsToAllRecurEvents = false;
 		numberOfSlots = 4;
 		numberOfAttendees = 1;
 		maxOfAttendees = 10;
@@ -169,9 +194,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		receiveEmail = false;
 		currentStepHiddenInfo = null;
 		eidInputMode = false;
+		repeatType = ONCE_ONLY;
+		repeatUntil = calendar.getTime();
+		this.publishedSite = null;
 	}
 
-	private void reset() {
+	public void reset() {
 		init();
 		signupBeginsType = Utilities.DAYS;
 		deadlineTimeType = Utilities.HOURS;
@@ -181,7 +209,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		currentSite = null;
 		otherSites = null;
 		/* for main meetingpage */
-		this.signupMeetingsBean.setSignupMeetings(null);
+		Utilities.resetMeetingList();
 		this.eidInputByUser = null;
 	}
 
@@ -197,26 +225,13 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		}
 
 		String step = (String) currentStepHiddenInfo.getValue();
-		if (step.equals("step1") && !isRecurrence()) {
+		if (step.equals("step1")) {
 			/*
 			 * let recalculate the duration just in case of meeting endTime
 			 * changes
 			 */
 			setTimeSlotDuration(0);
-			return ADD_MEETING_STEP3_PAGE_URL;
-		}
-
-		if (step.equals("step1") && isRecurrence())
 			return ADD_MEETING_STEP2_PAGE_URL;
-
-		if (step.equals("step2"))
-			return ADD_MEETING_STEP3_PAGE_URL;
-
-		if (step.equals("step3"))
-			return ADD_MEETING_STEP4_PAGE_URL;
-
-		if (step.equals("step4")) {
-			return ADD_MEETING_STEP5_PAGE_URL;
 		}
 
 		return "";
@@ -229,23 +244,53 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @param e
 	 *            an ActionEvent object.
 	 */
+
 	public void validateNewMeeting(ActionEvent e) {
 		String step = (String) currentStepHiddenInfo.getValue();
+
 		if (step.equals("step1")) {
+
 			Date endTime = signupMeeting.getEndTime();
 			Date startTime = signupMeeting.getStartTime();
-			if (endTime.before(startTime)) {
+			if (endTime.before(startTime) || startTime.equals(endTime)) {
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.endTime_should_after_startTime"));
+				// signupMeeting.setMeetingType(null);
 				return;
 			}
+
+			setRecurrence(false);
+			if (!(getRepeatType().equals(ONCE_ONLY))) {
+				int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
+						getRepeatUntil());
+				if (signupMeeting.isMeetingCrossDays() && DAILY.equals(getRepeatType())) {
+					validationError = true;
+					Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
+					return;
+				}
+				// TODO need to check for weekly too?
+
+				if (repeatNum < 1) {
+					validationError = true;
+					Utilities.addErrorMessage(Utilities.rb.getString("event.repeatbeforestart"));
+					return;
+				}
+				setRecurrence(true);
+			}
+
 			warnMeetingAccrossTwoDates(endTime, startTime);
 
-		}
-		if (step.equals("step4")) {
-			if (!isAtleastASiteOrGroupSelected(this.getCurrentSite(), this.getOtherSites())) {
+			if (!CreateSitesGroups.isAtleastASiteOrGroupSelected(this.getCurrentSite(), this.getOtherSites())) {
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("select.atleast.oneGroup"));
+
+			}
+
+			if (signupMeeting.getMeetingType() == null) {
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("signup.validator.selectMeetingType"));
+				// signupMeeting.setMeetingType(null);
+
 			}
 
 		}
@@ -270,28 +315,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoYears"));
 	}
 
-	/* make sure that one site or group is selected. */
-	private boolean isAtleastASiteOrGroupSelected(SignupSiteWrapper currentSite, List<SignupSiteWrapper> otherSites) {
-		if (currentSite.isSelected())
-			return true;
-		List<SignupGroupWrapper> currentGroupsW = currentSite.getSignupGroupWrappers();
-		for (SignupGroupWrapper wrapper : currentGroupsW) {
-			if (wrapper.isSelected())
-				return true;
-		}
-
-		for (SignupSiteWrapper siteW : otherSites) {
-			if (siteW.isSelected())
-				return true;
-			List<SignupGroupWrapper> otherGroupsW = siteW.getSignupGroupWrappers();
-			for (SignupGroupWrapper groupW : otherGroupsW) {
-				if (groupW.isSelected())
-					return true;
-			}
-		}
-		return false;
-	}
-
 	/**
 	 * This is a JSF action call method by UI to let user navigate one page
 	 * back.
@@ -300,25 +323,14 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 */
 	public String goBack() {
 		String step = (String) currentStepHiddenInfo.getValue();
-		if (step.equals("step2"))
+		if (step.equals("step2")) {
 			return ADD_MEETING_STEP1_PAGE_URL;
-
-		if (step.equals("step3") && isRecurrence())
-			return ADD_MEETING_STEP2_PAGE_URL;
-
-		if (step.equals("step3") && !isRecurrence())
-			return ADD_MEETING_STEP1_PAGE_URL;
-
-		if (step.equals("step4"))
-			return ADD_MEETING_STEP3_PAGE_URL;
-
-		if (step.equals("step5"))
-			return ADD_MEETING_STEP4_PAGE_URL;
-
+		}
 		if (step.equals("assignAttendee")) {
 			timeSlotWrappers = null; // reset to remove timeslots info with
+			assignParicitpantsToAllRecurEvents = false;
 			// attendees
-			return ADD_MEETING_STEP5_PAGE_URL;
+			return ADD_MEETING_STEP2_PAGE_URL;
 		}
 
 		return "";
@@ -362,7 +374,11 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		Boolean changeValue = (Boolean) vce.getNewValue();
 		if (changeValue != null) {
 			unlimited = changeValue.booleanValue();
+			if (unlimited)
+				maxOfAttendees = 10;
+
 		}
+
 		return "";
 
 	}
@@ -374,49 +390,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return an action outcome string.
 	 */
 	public String processSave() {
+
 		preSaveAction();
-		try {
-			signupMeetingService.saveMeeting(signupMeeting, sakaiFacade.getCurrentUserId());
-
-			logger.info("Meeting Name:"
-					+ signupMeeting.getTitle()
-					+ " - UserId:"
-					+ sakaiFacade.getCurrentUserId()
-					+ " - has created a new meeting at meeting startTime:"
-					+ getSakaiFacade().getTimeService().newTime(signupMeeting.getStartTime().getTime())
-							.toStringLocalFull());
-
-			/*
-			 * reset the meetings in the SignupMeetingsBean to null so we will
-			 * fetch all the meeting again
-			 */
-			this.signupMeetingsBean.setSignupMeetings(null);
-
-			if (sendEmail) {
-				try {
-					signupMeetingService.sendEmail(signupMeeting, SIGNUP_NEW_MEETING);
-				} catch (Exception e) {
-					logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
-					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
-				}
-			}
-
-			try {
-				signupMeetingService.postToCalendar(signupMeeting);
-			} catch (Exception e) {
-				Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.posted_failed"));
-				logger.info(Utilities.rb.getString("error.calendarEvent.posted_failed") + " - " + e.getMessage());
-			}
-
-			reset();
-		} catch (PermissionException e) {
-			logger.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
-			Utilities.addErrorMessage(Utilities.rb.getString("no.permission_create_event"));
-		} catch (Exception e) {
-			logger.info(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
-			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
-		}
-
+		processSaveMeetings();
+		reset();
 		return MAIN_EVENTS_LIST_PAGE_URL;
 	}
 
@@ -447,7 +424,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		// sBegin
 		signupMeeting.setSignupDeadline(sDeadline);
 
-		signupMeeting.setSignupSites(getSelectedSignupSites());
+		signupMeeting.setSignupSites(CreateSitesGroups.getSelectedSignupSites(getCurrentSite(), getOtherSites()));
 
 		signupMeeting.setCreatorUserId(sakaiFacade.getCurrentUserId());
 		signupMeeting.setReceiveEmailByOwner(receiveEmail);
@@ -473,43 +450,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 */
 	public String processAssignStudentsAndPublish() {
 		preSaveAction();
-		try {
-			signupMeetingService.saveMeeting(signupMeeting, sakaiFacade.getCurrentUserId());
-
-			logger.info("Meeting Name:"
-					+ signupMeeting.getTitle()
-					+ " - UserId:"
-					+ sakaiFacade.getCurrentUserId()
-					+ " - has created a new meeting at meeting startTime:"
-					+ getSakaiFacade().getTimeService().newTime(signupMeeting.getStartTime().getTime())
-							.toStringLocalFull());
-
-			/* send email to notiy attendee's assigned spot */			
-			try {
-				if (sendEmail)
-					signupMeetingService.sendEmail(signupMeeting, SIGNUP_NEW_MEETING);
-				signupMeetingService.sendEmail(signupMeeting, SIGNUP_PRE_ASSIGN);
-			} catch (Exception e) {
-				logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
-				Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
-			}
-
-			try {
-				signupMeetingService.postToCalendar(signupMeeting);
-			} catch (Exception e) {
-				Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.posted_failed"));
-				logger.info(Utilities.rb.getString("error.calendarEvent.posted_failed") + " - " + e.getMessage());
-			}
-
-			reset();
-
-		} catch (PermissionException e) {
-			logger.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
-			Utilities.addErrorMessage(Utilities.rb.getString("no.permission_create_event"));
-		} catch (Exception e) {
-			logger.info(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
-			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
-		}
+		processSaveMeetings();
+		reset();
 		return MAIN_EVENTS_LIST_PAGE_URL;
 	}
 
@@ -535,7 +477,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + attendeeEid);
 			return "";
 		}
-		SignupAttendee attendee = new SignupAttendee(attendeeUserId, sakaiFacade.getCurrentLocationId());
+		SignupAttendee attendee = new SignupAttendee(attendeeUserId, SignupUIBaseBean.getAttendeeMainActiveSiteId(
+				attendeeUserId, this.allSignupUsers, getSakaiFacade().getCurrentLocationId()));
 		if (isDuplicateAttendee(timeslotWrapper.getTimeSlot(), attendee))
 			Utilities.addErrorMessage(Utilities.rb.getString("attendee.already.in.timeslot"));
 		else {
@@ -638,45 +581,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	}
 
 	/**
-	 * This is a getter method for UI and it provides the selected
-	 * site(s)/group(s) by user.
-	 * 
-	 * @return a list of SignupSite objects.
-	 */
-	public List<SignupSite> getSelectedSignupSites() {
-		List<SignupSite> sites = new ArrayList<SignupSite>();
-
-		List<SignupSiteWrapper> siteWrappers = new ArrayList<SignupSiteWrapper>(this.getOtherSites());
-		siteWrappers.add(0, this.getCurrentSite());
-
-		for (SignupSiteWrapper wrapper : siteWrappers) {
-			SignupSite site = wrapper.getSignupSite();
-			if (wrapper.isSelected()) {
-				site.setSignupGroups(null); /*
-											 * the meeting is 'site scope' for
-											 * this site
-											 */
-			} else {
-				List<SignupGroupWrapper> signupGroupWrappers = wrapper.getSignupGroupWrappers();
-				List<SignupGroup> groups = new ArrayList<SignupGroup>();
-				for (SignupGroupWrapper groupWrapper : signupGroupWrappers) {
-					if (groupWrapper.isSelected())
-						groups.add(groupWrapper.getSignupGroup());
-				}
-				if (groups.isEmpty())/*
-										 * neither site or it's groups aren't
-										 * selected
-										 */
-					continue;
-				site.setSignupGroups(groups);
-			}
-			sites.add(site);
-		}
-		return sites;
-
-	}
-
-	/**
 	 * This is a getter method for UI and it provides the time for Signup-begin.
 	 * 
 	 * @return a Date object.
@@ -714,52 +618,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 		return signupMeeting.getEndTime();
 	}
-
-	/**
-	 * This is a getter method for UI purpose *
-	 * 
-	 * @return a long value.
-	 */
-	public long getMeetingStarTime() {
-		return this.signupMeeting.getStartTime().getTime();
-	}
-
-	/**
-	 * This is a setter method for UI and it's doing nothing.
-	 * 
-	 * @param v
-	 *            a long value
-	 */
-	public void setMeetingStarTime(long v) {
-		// do-nothing; it's only for UI purpose
-	}
-
-	/**
-	 * This is a getter method for UI purpose
-	 * 
-	 * @return a formated date string value.
-	 */
-	public String getMeetingEndTimeFormat() {
-		/*
-		 * not use TimeServie due to UI JavaScript format,otherwise the UI
-		 * javaScript need to be changed.
-		 */
-		return SignupDateFormat.format_date_h_mm_a(getMeetingEndTime());
-	}
-
-	/**
-	 * This is a setter method for UI and it's doing nothing.
-	 * 
-	 * @param in
-	 *            a string value
-	 */
-	public void setMeetingEndTimeFormat(String in) {
-		// nothing, it's only for UI purpose
-	}
-
-	/*
-	 * public String addMeeting() { return null; }
-	 */
 
 	/**
 	 * This is a getter method.
@@ -1037,50 +895,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return a list of SignupSiteWrapper objects.
 	 */
 	public List<SignupSiteWrapper> getOtherSites() {
-		if (otherSites == null)
-			setupSingupSites();
-
-		return otherSites;
-	}
-
-	private void setupSingupSites() {
-		String currentUserId = sakaiFacade.getCurrentUserId();
-		String currentSiteId = sakaiFacade.getCurrentLocationId();
-		List tmpSites = sakaiFacade.getUserSites(currentUserId);
-		List<SignupSiteWrapper> siteWrappers = new ArrayList<SignupSiteWrapper>();
-
-		for (Iterator iter = tmpSites.iterator(); iter.hasNext();) {
-			SignupSite signupSite = (SignupSite) iter.next();
-			String siteId = signupSite.getSiteId();
-			boolean siteAllowed = signupMeetingService.isAllowedToCreateinSite(currentUserId, siteId);
-			SignupSiteWrapper sSiteWrapper = new SignupSiteWrapper(signupSite, siteAllowed);
-
-			List<SignupGroup> signupGroups = signupSite.getSignupGroups();
-			List<SignupGroupWrapper> groupWrappers = new ArrayList<SignupGroupWrapper>();
-			for (SignupGroup group : signupGroups) {
-				boolean groupAllowed = false;
-				if (siteAllowed)
-					groupAllowed = true;
-				else
-					groupAllowed = signupMeetingService.isAllowedToCreateinGroup(currentUserId, siteId, group
-							.getGroupId());
-				
-				if(groupAllowed){
-					SignupGroupWrapper groupWrapper = new SignupGroupWrapper(group, groupAllowed);
-					groupWrappers.add(groupWrapper);
-				}
-			}
-			sSiteWrapper.setSignupGroupWrappers(groupWrappers);
-			/* default setting if having site permission */
-			if (siteId.equals(currentSiteId))
-				sSiteWrapper.setSelected(siteAllowed);
-
-			if (!currentSiteId.equals(signupSite.getSiteId()))
-				siteWrappers.add(sSiteWrapper);
-			else
-				this.currentSite = sSiteWrapper;
+		if (this.currentSite == null) {
+			getAvailableSiteGroups();
 		}
-		this.otherSites = siteWrappers;
+		return otherSites;
 	}
 
 	/**
@@ -1099,10 +917,20 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return a SignupSiteWrapper object.
 	 */
 	public SignupSiteWrapper getCurrentSite() {
-		if (currentSite == null)
-			setupSingupSites();
-
+		if (this.currentSite == null) {
+			getAvailableSiteGroups();
+		}
 		return currentSite;
+	}
+
+	/*
+	 * Due to Authz bug, we have to share the same CreateSitesGroups object. It
+	 * will much simple if Authz bug is fixed.
+	 */
+	private void getAvailableSiteGroups() {
+		Utilities.getSignupMeetingsBean().getCreateSitesGroups().resetSiteGroupCheckboxMark();
+		currentSite = Utilities.getSignupMeetingsBean().getCreateSitesGroups().getCurrentSite();
+		otherSites = Utilities.getSignupMeetingsBean().getCreateSitesGroups().getOtherSites();
 	}
 
 	/**
@@ -1121,6 +949,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return true if email notification will be sent away.
 	 */
 	public boolean isSendEmail() {
+		if (!getPublishedSite())
+			sendEmail = false;// no email notification
+
 		return sendEmail;
 	}
 
@@ -1200,9 +1031,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	}
 
 	private void loadAllAttendees(SignupMeeting meeting) {
-		List<SignupUser> users = sakaiFacade.getAllUsers(meeting);
+		this.allSignupUsers = sakaiFacade.getAllUsers(meeting);
 
-		if (users != null && users.size() > MAX_NUM_PARTICIPANTS_FOR_DROPDOWN_BEFORE_AUTO_SWITCH_TO_EID_INPUT_MODE) {
+		if (allSignupUsers != null
+				&& allSignupUsers.size() > MAX_NUM_PARTICIPANTS_FOR_DROPDOWN_BEFORE_AUTO_SWITCH_TO_EID_INPUT_MODE) {
 			setEidInputMode(true);
 			return;
 		}
@@ -1211,7 +1043,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		this.allAttendees = new ArrayList<SelectItem>();
 		SelectItem sItem = new SelectItem("", " " + Utilities.rb.getString("label.select.attendee"));
 		allAttendees.add(sItem);
-		for (SignupUser user : users) {
+		for (SignupUser user : allSignupUsers) {
 			allAttendees.add(new SelectItem(user.getEid(), user.getDisplayName()));
 		}
 	}
@@ -1348,7 +1180,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	}
 
 	/**
-	 * This is for javascrip UI only.
+	 * This is for Javascript UI only.
 	 * 
 	 * @return empty string.
 	 */
@@ -1357,7 +1189,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	}
 
 	/**
-	 * This is for javascrip UI only.
+	 * This is for Javascript UI only.
 	 * 
 	 * @param userInputEid
 	 *            a String value.
@@ -1367,11 +1199,110 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			this.eidInputByUser = userInputEid;
 	}
 
-	/* proxy method */
+	/* Proxy method */
 	private String getEidInputByUser() {
 		String eid = this.eidInputByUser;
 		this.eidInputByUser = null;// reset for use once only
 		return eid;
+	}
+
+	private void processSaveMeetings() {
+		signupMeeting.setRepeatUntil(getRepeatUntil());
+		signupMeeting.setRepeatType(getRepeatType());
+
+		CreateMeetings createMeeting = new CreateMeetings(signupMeeting, sendEmail,
+				!assignParicitpantsToAllRecurEvents, assignParicitpantsToAllRecurEvents, getSignupBegins(),
+				getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), sakaiFacade, signupMeetingService,
+				sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
+
+		try {
+			createMeeting.processSaveMeetings();
+		} catch (PermissionException e) {
+			logger.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
+		} catch (Exception e) {
+			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
+			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
+		}
+	}
+
+	/**
+	 * This is a getter for UI
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isAssignParicitpantsToAllRecurEvents() {
+		return assignParicitpantsToAllRecurEvents;
+	}
+
+	/**
+	 * This is a setter method for UI
+	 * 
+	 * @param assignParicitpantsToAllRecurEvents
+	 *            a boolean vaule
+	 */
+	public void setAssignParicitpantsToAllRecurEvents(boolean assignParicitpantsToAllRecurEvents) {
+		this.assignParicitpantsToAllRecurEvents = assignParicitpantsToAllRecurEvents;
+	}
+
+	private String eventFreqType = "";
+
+	/**
+	 * This is a getter method for UI
+	 * 
+	 * @return a event frequency type string
+	 */
+	public String getEventFreqType() {
+		eventFreqType = "";
+		if (getRepeatType().equals(DAILY))
+			eventFreqType = Utilities.rb.getString("label_daily");
+		else if (getRepeatType().equals(WEEKLY))
+			eventFreqType = Utilities.rb.getString("label_weekly");
+		else if (getRepeatType().equals(BIWEEKLY))
+			eventFreqType = Utilities.rb.getString("label_biweekly");
+
+		return eventFreqType;
+	}
+
+	/**
+	 * This is a getter method for UI and it provides the selected
+	 * site(s)/group(s) by user.
+	 * 
+	 * @return a list of SignupSite objects.
+	 */
+	public List<SignupSite> getSelectedSignupSites() {
+		return CreateSitesGroups.getSelectedSignupSites(this.currentSite, this.otherSites);
+	}
+
+	/**
+	 * This is a getter method for UI and it provides the meeting types for
+	 * radio buttons.
+	 * 
+	 * @return a list of SelectItem objects.
+	 */
+	public List<SelectItem> getMeetingTypeRadioBttns() {
+		this.meetingTypeRadioBttns = Utilities.getMeetingTypeSelectItems("", false);
+		return meetingTypeRadioBttns;
+	}
+
+	/**
+	 * This is a getter method for UI
+	 * 
+	 * @return true if the site is published.
+	 */
+	public Boolean getPublishedSite() {
+		if (this.publishedSite == null) {
+			try {
+				boolean status = sakaiFacade.getSiteService().getSite(sakaiFacade.getCurrentLocationId()).isPublished();
+				this.publishedSite = new Boolean(status);
+
+			} catch (Exception e) {
+				logger.warn(e.getMessage());
+				this.publishedSite = new Boolean(false);
+
+			}
+		}
+
+		return publishedSite.booleanValue();
 	}
 
 }

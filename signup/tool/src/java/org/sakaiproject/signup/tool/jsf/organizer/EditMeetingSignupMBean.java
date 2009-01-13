@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,14 +22,15 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.organizer;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
+import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
 
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
@@ -37,6 +38,7 @@ import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
 import org.sakaiproject.signup.tool.jsf.organizer.action.EditMeeting;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * <p>
@@ -52,13 +54,17 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	private boolean showAttendeeName;
 
-	private int addMoreTimeslots;
+	// private int addMoreTimeslots;
 
 	private int durationOfTslot;
 
 	private boolean unlimited;
 
 	private int totalEventDuration;// for group/announcement types
+
+	private int timeSlotDuration;
+
+	private int numberOfSlots;
 
 	private SignupMeeting originalMeetingCopy;
 
@@ -71,8 +77,14 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	/* singup deadline before this minutes/hours/days */
 	private int deadlineTime;
-	
+
 	private EditMeeting editMeeting;
+
+	private boolean convertToNoRecurrent;
+
+	private List<SelectItem> meetingTypeRadioBttns;
+
+	private boolean validationError;
 
 	/**
 	 * This method will reset everything to orignal value and also initialize
@@ -81,13 +93,15 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 * 
 	 */
 	public void reset() {
-		addMoreTimeslots = 0;
+		// addMoreTimeslots = 0;
 		maxNumOfAttendees = 0;
 		showAttendeeName = false;
 		sendEmail = DEFAULT_SEND_EMAIL;
 		unlimited = false;
-		
-		editMeeting =null;
+
+		editMeeting = null;
+
+		convertToNoRecurrent = false;
 
 		this.signupMeeting = reloadMeeting(meetingWrapper.getMeeting());
 		/* for check pre-condition purpose */
@@ -95,22 +109,17 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		// keep the last version need a deep copy?
 
 		List<SignupTimeslot> signupTimeSlots = getSignupMeeting().getSignupTimeSlots();
-		if (signupTimeSlots == null)
-			return;
 
 		if (signupTimeSlots != null && !signupTimeSlots.isEmpty()) {
 			SignupTimeslot ts = (SignupTimeslot) signupTimeSlots.get(0);
-			int timeSlotDuration = (int) ((ts.getEndTime().getTime() - ts.getStartTime().getTime()) / MINUTE_IN_MILLISEC);
-			setDurationOfTslot(timeSlotDuration);
 			maxNumOfAttendees = ts.getMaxNoOfAttendees();
+			this.unlimited = ts.isUnlimitedAttendee();
 			showAttendeeName = ts.isDisplayAttendees();
-			unlimited = ts.isUnlimitedAttendee();
-			setTotalEventDuration(timeSlotDuration * signupTimeSlots.size());
+			this.numberOfSlots = signupTimeSlots.size();
+
+			// setTotalEventDuration(timeSlotDuration * signupTimeSlots.size());
 		} else {// announcement meeting type
-			int meetingDuration = (int) ((getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime()
-					.getTime()) / MINUTE_IN_MILLISEC);
-			setDurationOfTslot(meetingDuration);
-			setTotalEventDuration(meetingDuration);
+			setNumberOfSlots(1);
 
 		}
 		populateDataForBeginDeadline(this.signupMeeting);
@@ -142,50 +151,83 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 * @return an action outcome string.
 	 */
 	public String processSaveModify() {
+		if (validationError) {
+			validationError = false;
+			return "";
+		}
+
 		try {
 			SignupMeeting meeting = getSignupMeeting();
-			
-			EditMeeting editMeeting = new EditMeeting(getSakaiFacade().getCurrentUserId(),getSakaiFacade().getCurrentLocationId(),getSignupMeetingService(),true);
-			/*Pass modified data*/
-			editMeeting.setAddMoreTimeslots(getAddMoreTimeslots());
+
+			EditMeeting editMeeting = new EditMeeting(getSakaiFacade().getCurrentUserId(), getSakaiFacade()
+					.getCurrentLocationId(), getSignupMeetingService(), true);
+			/* Pass modified data */
+			editMeeting.setCurrentNumberOfSlots(getNumberOfSlots());// (getAddMoreTimeslots());
 			editMeeting.setSignupBegins(getSignupBegins());
 			editMeeting.setSignupBeginsType(getSignupBeginsType());
 			editMeeting.setDeadlineTime(getDeadlineTime());
 			editMeeting.setDeadlineTimeType(getDeadlineTimeType());
-			editMeeting.setDurationOfTslot(getDurationOfTslot());
+			editMeeting.setTimeSlotDuration(getTimeSlotDuration());
 			editMeeting.setMaxNumOfAttendees(getMaxNumOfAttendees());
 			editMeeting.setShowAttendeeName(isShowAttendeeName());
 			editMeeting.setOriginalMeetingCopy(this.originalMeetingCopy);
 			editMeeting.setUnlimited(isUnlimited());
-			editMeeting.setTotalEventDuration(getTotalEventDuration());						
-			
+			// editMeeting.setTotalEventDuration(getTotalEventDuration());
+			/* disable the association with other related recurrence events */
+			editMeeting.setConvertToNoRecurrent(convertToNoRecurrent);
+			/* update to DB */
 			editMeeting.saveModifiedMeeting(meeting);
-			
+
+			/* For case: a set of recurring meetings are updated */
+			List<SignupMeeting> successUpdatedMeetings = editMeeting.getSavedMeetings();
+			/* only tracked the first one if it's a series of recurrences. may consider them later?*/
+			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_MODIFY, ToolManager.getCurrentPlacement().getContext() + " title: "
+					+ meeting.getTitle());
+
+			if (meeting.getRecurrenceId() != null) {
+				Utilities.resetMeetingList();// refresh main-page to catch
+				// the changes
+			}
+
 			if (sendEmail) {
 				try {
-					signupMeetingService.sendEmail(meeting, SIGNUP_MEETING_MODIFIED);
-					/*send email to promoted waiter if size increased*/
-					signupMeetingService.sendEmailToParticipantsByOrganizerAction(editMeeting.getSignupEventTrackingInfo());
+					signupMeetingService.sendEmail(successUpdatedMeetings.get(0), SIGNUP_MEETING_MODIFIED);
+					/* send email to promoted waiter if size increased */
+					/*
+					 * Not for recurring meetings since it's not traced for all
+					 * of them yet
+					 */
+					if (successUpdatedMeetings.get(0).getRecurrenceId() == null) {
+						signupMeetingService.sendEmailToParticipantsByOrganizerAction(editMeeting
+								.getSignupEventTrackingInfo());
+					}
 				} catch (Exception e) {
 					logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 				}
 			}
 
-			try {
-				signupMeetingService.modifyCalendar(meeting);
-			} catch (Exception e) {
-				Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.updated_failed"));
-				logger.warn(Utilities.rb.getString("error.calendarEvent.updated_failed") + " - " + e.getMessage());
+			for (SignupMeeting savedMeeting : successUpdatedMeetings) {
+				try {
+					signupMeetingService.modifyCalendar(savedMeeting);
+
+				} catch (PermissionException pe) {
+					Utilities.addErrorMessage(Utilities.rb
+							.getString("error.calendarEvent.updated_failed_due_to_permission"));
+					logger.debug(Utilities.rb.getString("error.calendarEvent.updated_failed_due_to_permission")
+							+ " - Meeting title:" + savedMeeting.getTitle());
+				} catch (Exception e) {
+					Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.updated_failed"));
+					logger.warn(Utilities.rb.getString("error.calendarEvent.updated_failed") + " - Meeting title:"
+							+ savedMeeting.getTitle());
+				}
 			}
 
 		} catch (PermissionException pe) {
 			Utilities.addErrorMessage(Utilities.rb.getString("no.permissoin.do_it"));
 		} catch (SignupUserActionException ue) {
-			Utilities.addErrorMessage(ue.getMessage());// TODO need to keep in
-														// the same page with
-														// new data if db
-														// changes
+			/* TODO need to keep in the same page with new data if db changes */
+			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
 			Utilities.addErrorMessage(Utilities.rb.getString("db.error_or_event.notExisted"));
 			logger.warn(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getMessage());
@@ -195,24 +237,6 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		reloadMeetingWrapperInOrganizerPage();
 
 		return ORGANIZER_MEETING_PAGE_URL;
-	}
-	
-
-	/**
-	 * This is for UI-display End time purpose. When user selects a new starting
-	 * time, it will refresh the page with new ending time.
-	 * 
-	 * @param vce
-	 *            A ValueChangeEvent object.
-	 * @return an action outcome stirng
-	 */
-	public String processEventEndTime(ValueChangeEvent vce) {
-		Date newStartTime = (Date) vce.getNewValue();
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(newStartTime);
-		cal.add(Calendar.MINUTE, getTotalEventDuration());
-		this.signupMeeting.setEndTime(cal.getTime());
-		return "";
 	}
 
 	private void reloadMeetingWrapperInOrganizerPage() {
@@ -226,6 +250,31 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	private SignupMeeting reloadMeeting(SignupMeeting meeting) {
 		return signupMeetingService.loadSignupMeeting(meeting.getId(), sakaiFacade.getCurrentUserId(), sakaiFacade
 				.getCurrentLocationId());
+	}
+
+	/**
+	 * This is a validator to make sure that the event/meeting starting time is
+	 * before ending time etc.
+	 * 
+	 * @param e
+	 *            an ActionEvent object.
+	 */
+	public void validateModifyMeeting(ActionEvent e) {
+
+		Date endTime = this.signupMeeting.getEndTime();
+		Date startTime = this.signupMeeting.getStartTime();
+		if (endTime.before(startTime) || startTime.equals(endTime)) {
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("event.endTime_should_after_startTime"));
+			return;
+		}
+		int timeduration = getTimeSlotDuration();
+		if (timeduration < 1) {
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("event.timeslot_duration_should_not_lessThan_one"));
+			return;
+		}
+
 	}
 
 	/* overwrite the default one */
@@ -250,44 +299,6 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setShowAttendeeName(boolean showAttendeeName) {
 		this.showAttendeeName = showAttendeeName;
-	}
-
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return an integer number.
-	 */
-	public int getAddMoreTimeslots() {
-		return addMoreTimeslots;
-	}
-
-	/**
-	 * This is a setter for UI.
-	 * 
-	 * @param addMoreTimeslots
-	 *            an integer number.
-	 */
-	public void setAddMoreTimeslots(int addMoreTimeslots) {
-		this.addMoreTimeslots = addMoreTimeslots;
-	}
-
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return an integer value.
-	 */
-	public int getDurationOfTslot() {
-		return durationOfTslot;
-	}
-
-	/**
-	 * This is a setter for UI.
-	 * 
-	 * @param durationOfTslot
-	 *            an integer value.
-	 */
-	public void setDurationOfTslot(int durationOfTslot) {
-		this.durationOfTslot = durationOfTslot;
 	}
 
 	/**
@@ -345,25 +356,6 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setUnlimited(boolean unlimited) {
 		this.unlimited = unlimited;
-	}
-
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return an integer number.
-	 */
-	public int getTotalEventDuration() {
-		return totalEventDuration;
-	}
-
-	/**
-	 * This is a setter for UI.
-	 * 
-	 * @param totalEventDuration
-	 *            an integer number.
-	 */
-	public void setTotalEventDuration(int totalEventDuration) {
-		this.totalEventDuration = totalEventDuration;
 	}
 
 	/**
@@ -441,6 +433,72 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setSignupBeginsType(String signupBeginsType) {
 		this.signupBeginsType = signupBeginsType;
+	}
+
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return true if the recurring event will be converted to stand-alone
+	 *         event
+	 */
+	public boolean isConvertToNoRecurrent() {
+		return convertToNoRecurrent;
+	}
+
+	public void setConvertToNoRecurrent(boolean convertToNoRecurrent) {
+		this.convertToNoRecurrent = convertToNoRecurrent;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a HtmlInputHidden object.
+	 */
+	public int getTimeSlotDuration() {
+		long duration = (getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
+				/ (MINUTE_IN_MILLISEC * getNumberOfSlots());
+		return (int) duration;
+	}
+
+	public void setTimeSlotDuration(int timeSlotDuration) {
+		this.timeSlotDuration = timeSlotDuration;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a HtmlInputHidden object.
+	 */
+	public int getNumberOfSlots() {
+		return numberOfSlots;
+	}
+
+	/**
+	 * This is a setter method for UI.
+	 * 
+	 * @param numberOfSlots
+	 *            an int value
+	 */
+	public void setNumberOfSlots(int numberOfSlots) {
+		this.numberOfSlots = numberOfSlots;
+	}
+
+	/**
+	 * It's a getter method for UI
+	 * 
+	 * @return a list of SelectItem objects for radio buttons.
+	 */
+	public List<SelectItem> getMeetingTypeRadioBttns() {
+		this.meetingTypeRadioBttns = Utilities.getMeetingTypeSelectItems(getSignupMeeting().getMeetingType(), true);
+		return meetingTypeRadioBttns;
+	}
+
+	public boolean isValidationError() {
+		return validationError;
+	}
+
+	public void setValidationError(boolean validationError) {
+		this.validationError = validationError;
 	}
 
 }

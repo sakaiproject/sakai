@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -32,6 +32,7 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupMessageTypes;
+import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupAttendee;
@@ -61,11 +62,14 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	protected boolean currentUserSignedup;
 
-	protected static boolean DEFAULT_SEND_EMAIL= "true".equalsIgnoreCase(Utilities.rb.getString("default.email.notification"))? true : false;
+	protected static boolean DEFAULT_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.rb
+			.getString("default.email.notification")) ? true : false;
 
 	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
 
 	protected Log logger = LogFactoryImpl.getLog(getClass());
+
+	protected Boolean publishedSite;
 
 	/**
 	 * This method will get the most updated event/meeting data and handle all
@@ -127,6 +131,8 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 						.getCurrentUserId(), sakaiFacade.getCurrentLocationId());
 
 			getMeetingWrapper().setMeeting(meeting);
+			getMeetingWrapper().resetAvailableStatus();// re-process avail.
+			// status
 			updateTimeSlotWrappers(getMeetingWrapper());
 			return destinationUrl;
 		} catch (Exception e) {
@@ -322,6 +328,9 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * @return true if email should be sent away.
 	 */
 	public boolean isSendEmail() {
+		if (!getPublishedSite())
+			sendEmail = false;
+
 		return sendEmail;
 	}
 
@@ -335,5 +344,77 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		this.sendEmail = sendEmail;
 	}
 
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a constant string.
+	 */
+	public String getIndividual() {
+		return INDIVIDUAL;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a constant string.
+	 */
+	public String getGroup() {
+		return GROUP;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a constant string.
+	 */
+	public String getAnnouncement() {
+		return ANNOUNCEMENT;
+	}
+
+	/**
+	 * This is a getter method for UI
+	 * 
+	 * @return true if the site is published.
+	 */
+	public Boolean getPublishedSite() {
+		if (this.publishedSite == null) {
+			try {
+				boolean status = sakaiFacade.getSiteService().getSite(sakaiFacade.getCurrentLocationId()).isPublished();
+				this.publishedSite = new Boolean(status);
+
+			} catch (Exception e) {
+				logger.warn(e.getMessage());
+				this.publishedSite = new Boolean(false);
+
+			}
+		}
+
+		return publishedSite.booleanValue();
+	}
+
+	/**
+	 * This method provides the correct SiteId, which the user has access to the
+	 * published meeting in the sign-up tool at that site
+	 * 
+	 * @param internalUserId
+	 *            an unique userId
+	 * @param allSignupUsers
+	 *            a list of SignupUser object.
+	 * @param defaultSiteId
+	 *            a unique SiteId, which the user belongs to.
+	 * @return a unique siteId
+	 */
+	public static String getAttendeeMainActiveSiteId(String internalUserId, List<SignupUser> allSignupUsers,
+			String defaultSiteId) {
+		if (allSignupUsers != null) {
+			for (SignupUser signupUser : allSignupUsers) {
+				if (internalUserId.equals(signupUser.getInternalUserId())) {
+					return signupUser.getMainSiteId();
+				}
+			}
+		}
+		/* default */
+		return defaultSiteId;
+	}
 
 }

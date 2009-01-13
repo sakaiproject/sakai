@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic.messages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,10 +77,9 @@ public class AttendeeCancellationEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: " +rb.getString("subject.Cancel.appointment.A") + space
-				+ getTime(meeting.getStartTime()).toStringLocalDate()
-				+ rb.getString("subject.Cancel.appointment.B") + space
-				+ initiator.getDisplayName());
+		rv.add("Subject: "
+				+ MessageFormat.format(rb.getString("subject.Cancel.appointment.field"), new Object[] {
+						getTime(meeting.getStartTime()).toStringLocalDate(), initiator.getDisplayName() }));
 		rv.add("From: " + initiator.getEmail());
 		rv.add("To: " + organizer.getEmail());
 
@@ -99,26 +99,37 @@ public class AttendeeCancellationEmail extends SignupEmailBase {
 		}
 
 		StringBuilder message = new StringBuilder();
-		message.append(rb.getString("body.greeting") + space + makeFirstCapLetter(organizer.getDisplayName()) + "," + newline);
-		message.append(newline + makeFirstCapLetter(initiator.getDisplayName()) + space + rb.getString("body.attendee.cancel.appointment"));
-		message.append(newline + newline + rb.getString("body.meetingTopic") + space + meeting.getTitle());
-		message.append(newline + rb.getString("body.timeslot") + space );
+		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"),
+				new Object[] { makeFirstCapLetter(organizer.getDisplayName()) }));
+
+		Object[] params = new Object[] { makeFirstCapLetter(initiator.getDisplayName()), getSiteTitleWithQuote(),
+				getServiceName() };
+		message.append(newline + newline
+				+ MessageFormat.format(rb.getString("body.attendee.cancel.appointment.part"), params));
+
+		message.append(newline + newline
+				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+		message.append(newline + rb.getString("body.timeslot") + space);
 		/* Currently, we only consider the first one */
 		if (intiatorItem.getRemovedFromTimeslot() != null && !intiatorItem.getRemovedFromTimeslot().isEmpty())
-			if(!meeting.isMeetingCrossDays())
-				message.append(getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime()
-					+ " - "
-					+ getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime() + space
-					+ rb.getString("body.on")+ space
-					+ getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalDate());
-			else
-				message.append(getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime() + ", " 
-						+ getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalShortDate()
-						+ "  -  "
-						+ getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime()
-						+ ", " + getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalShortDate());
+			if (!meeting.isMeetingCrossDays()) {
+				Object[] paramsTimeframe = new Object[] {
+						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime(),
+						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime(),
+						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalDate() };
+				message.append(MessageFormat.format(rb.getString("body.meeting.timeslot.timeframe"), paramsTimeframe));
+			} else {
+				Object[] paramsTimeframe = new Object[] {
+						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime(),
+						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalShortDate(),
+						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime(),
+						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalShortDate() };
+				message.append(MessageFormat.format(rb.getString("body.meeting.crossdays.timeslot.timeframe"),
+						paramsTimeframe));
+			}
 
 		message.append(newline + getFooter(newline));
+
 		return message.toString();
 	}
 

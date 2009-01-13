@@ -1,39 +1,50 @@
-table.signupTable{
+table.signupTable {
 	text-align: left;
-}	
+}
+
 table.signupTable th {
 	background-color: #ddd;
 	padding: .3em 1em;
 }
 
 table.signupTable tr.evenRow {
-   background: #f8f8f8;
+	background: #f8f8f8;
+}
+
+table.signupTable tr.recurRow {
+	display: table-row;
+	background-color: #EEF3F6; /*#FFFFCC*/
 }
 
 table.signupTable td {
-   padding: .3em 1em;
+	padding: .3em 1em;
 }
 
-.titleColumn{
+table.signupTable td.titleCol{	
+	padding: .3em 1em;
+	padding-left:1.2em;
+}
+
+.titleColumn {
 	vertical-align: top;
-	text-align:right;
+	text-align: right;
 	font-weight: bold;
 	padding: 0.2em 1em;
 	white-space: nowrap;
 }
 
-.plainTitleColumn{
+.plainTitleColumn {
 	vertical-align: top;
 	padding: 0.2em 1em;
 }
 
-.valueColumn{
+.valueColumn {
 	vertical-align: top;
 	padding: 0.2em 1em;
 }
-	
+
 .titleText {
-
+	
 }
 
 .longtext {
@@ -42,38 +53,39 @@ table.signupTable td {
 }
 
 .editText {
+	
 }
 
-.oddTimeSlotRow{
+.oddTimeSlotRow {
 	height: 50px;
-	}
+}
 
-.evenTimeSlotRow{
+.evenTimeSlotRow {
 	height: 50px;
 	background: rgb(248, 248, 248);
-	}
+}
 
-.addButton{
+.addButton {
 	padding-left: 15px;
-	}
-	
-.timeslotCol{
+}
+
+.timeslotCol {
 	white-space: nowrap;
 	text-align: left;
 	width: 30%;
-	}
+}
 
-.assignStudentsCol{
-	text-align: left;	
-	width: 70%;	
-	}
-
-table.organizerAction{
+.assignStudentsCol {
 	text-align: left;
-	}
+	width: 70%;
+}
+
+table.organizerAction {
+	text-align: left;
+}
 
 table.organizerAction td {
-   padding: 0em 0em;
+	padding: 0em 0em;
 }
 
 .orgTimeslotCol {
@@ -92,18 +104,22 @@ table.organizerAction td {
 .orgWaiterStatusCo {
 	width: 32%;
 }
-.attendeeSignupTSCol{
+
+.attendeeSignupTSCol {
 	width: 25%;
-	}
-.attendeeSignupAvailCol{
+}
+
+.attendeeSignupAvailCol {
 	width: 15%;
-	}
-.attendeeSignupCol{
+}
+
+.attendeeSignupCol {
 	width: 20%;
-	}
-.attendeeInfoCol{
+}
+
+.attendeeInfoCol {
 	width: 20%
-	}	
+}
 
 .actButton {
 	padding: .2em 1;
@@ -115,13 +131,16 @@ table.organizerAction td {
 	color: blue;
 }
 
+.attendee_status:hover {
+	cursor:help;
+}
+
 .signedUpList {
 	margin: .4em 1em;
 	border: 1px solid #fff;
 	cursor: pointer;
 	line-height: .8em;
 	color: darkred;
-	/*background: rgb(255,102,153);*/
 }
 
 .waitingList {
@@ -131,7 +150,6 @@ table.organizerAction td {
 	line-height: .8em;
 	background: rgb(221, 221, 221);
 }
-
 
 .evenRow {
 	background: rgb(248, 248, 248);
@@ -148,17 +166,74 @@ table.organizer td {
 	font-weight: bold;
 	color: red;
 }
+
 .attendee_canceled {
 	font-weight: bold;
 	color: red;
 }
 
 .meetingTypeTable {
-	margin:5px 5px 5px 20px;		
+	margin: 5px 5px 5px 20px;
+}
+
+.meetingGpsSitesTable {
+	vertical-align: top;
+	margin-top: 5px;
+	margin-left: 10px;
+}
+
+.rs {
+	vertical-align: top;
+}
+
+.untilCalendar {
+	margin-left: 5px;
+}
+
+.mi {
+	vertical-align: top;
+	margin-left: 30px;
+	background: #e7eef5;
+	width: 350px;
+}
+
+.si {
+	vertical-align: top;
+	margin-left: 30px;
+	background: #e7eef5;
+	color: #e7eef5;
+	width: 350px;
+}
+
+.alertMessage {
+	width: 80%;
+	font-size: 1em;
+	color: #b11;
+	margin: 5px 0px 5px 0;
+	padding: 3px 3px 3px 25px;
+}
+
+.multiple {
+	background: #eee;
+}
+
+.single {
+	background: #e7eef5;
+	background-color: #e7eef5;
+	color: #e7eef5;
+}
+
+.displaySites {
+	background: #c12;
+	background-color: #c12;
+}
+
+.recurrence {
+	padding: 5px 5px 5px 120px;
 }
 
 .meetingMaxAttd {
-	margin: 5px 5px 5px 30px;	
+	margin: 5px 5px 5px 30px;
 }
 
 .grouptitle {
@@ -180,6 +255,24 @@ table.sitegroup td {
 	white-space: nowrap;
 }
 
+.published_grouptitle {
+	margin: 5px 0px;
+	line-height: 90%;
+	font-size: 85%;
+	font-size: 85%
+}
+
+.published_sitetitle {
+	margin: 10px 0px;
+	line-height: 100%;
+}
+
+table.published_sitegroup td {
+	padding: 3px 0px 3px 20px;
+	text-align: left;
+	white-space: nowrap;
+}
+
 table.preSignTable td {
 	padding: .15em 0em 0em 1em;
 	text-align: left;
@@ -197,36 +290,100 @@ table.preSignTable td {
 	padding: 4px 3px 4px 20px;
 }
 
-.instruction{
+.instruction {
 	margin-left: 10px;
 	line-height: 130%;
 	font-size: 90%;
 }
 
-.alertMessageInline{	
+.alertMessageInline {
 	width: 80%;
 	font-size: 1em;
 	color: #b11;
-	margin: 5px 0px 5px 0;	
+	margin: 5px 0px 5px 0;
 	padding: 3px 3px 3px 25px;
 }
 
-.noMeetingsWarn{
+.noMeetingsWarn {
 	margin-left: 2em;
 }
-.organizerToplevelTable{
+
+.organizerToplevelTable {
 	width: 100%;
-	}
-	
-.addAttendee{
-	cursor:pointer;
+}
+
+.addAttendee,.activeTag {
+	cursor: pointer;
 	color: #35b;
 	text-decoration: none !important;
 }
-.disabledAddAttendee{}
-.addWaiter{
+
+.addWaiter {
 	margin-left: 2px;
-	cursor:pointer;
+	cursor: pointer;
 	color: #35b;
 	text-decoration: none !important;
 }
+
+.addWaiter:hover,.addAttendee:hover,.activeTag:hover {
+	color: blue;
+}
+
+.disabledAddAttendee {
+	
+}
+
+.expandAllRecurMeetings {
+	margin-left: 30px;
+	text-align: left;
+}
+
+.calendarImageIcon {
+	vertical-align: bottom;
+	margin-left: 3px;
+	margin-right: 7px;
+}
+
+.orgShowTitleOnly, .emailTable, .assingAttendeeTable {
+	width:98%;
+}
+
+table.orgShowTitleOnly td.titleColumn {
+	width: 12.3%;
+}
+
+table.assingAttendeeTable td.titleColumn{
+	width: 10%;
+}
+
+table.emailTable td.alignRightColumn {
+	text-align: right;
+	white-space: nowrap;
+	padding-right:20px;
+}
+
+table.emailTable td.titleColumn {
+	width: 10%;
+	text-align:left;
+	font-weight:bold; 
+}
+
+table.emailTable td.valueColumn {	
+	text-align:left;
+	padding-left:0px;
+}
+
+.openCloseImageIcon:hover, .addButton:hover{
+	background:buttonhighlight;
+	/* for IE */
+  	filter:alpha(opacity=80);
+  	/* CSS3 standard */
+  	opacity:0.80;
+}
+
+.published_siteGroupTable{
+	margin-top:-8px; 
+	margin-left:-5px;
+}
+
+

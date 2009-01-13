@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -72,8 +72,8 @@ public interface SakaiFacade {
 	public static final String SIGNUP_UPDATE_GROUP = "signup.update.group";
 
 	public static final String SIGNUP_UPDATE_GROUP_ALL = "signup.update.group.all";
-	
-	public static final String STUDENT_ROLE_ID ="student";
+
+	public static final String STUDENT_ROLE_ID = "student";
 
 	/**
 	 * check to see if the user is Admin
@@ -234,6 +234,16 @@ public interface SakaiFacade {
 	 * @return an unique page Id
 	 */
 	public String getCurrentPageId();
+
+	/**
+	 * get site-signup pageId,which is an unique id *
+	 * 
+	 * @param siteId
+	 *            a unique site Id
+	 * 
+	 * @return an unique page Id
+	 */
+	public String getSiteSignupPageId(String siteId);
 
 	/**
 	 * get a TimeService object from one of the Sakai service

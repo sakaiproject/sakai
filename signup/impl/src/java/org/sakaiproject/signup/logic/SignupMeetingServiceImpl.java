@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -92,6 +92,14 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 	 */
 	public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate) {
 		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetings(currentSiteId, startDate, endDate);
+		return screenAllowableMeetings(currentSiteId, userId, meetings);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<SignupMeeting> getRecurringSignupMeetings(String currentSiteId, String userId, Long recurrenceId, Date startDate) {
+		List<SignupMeeting> meetings = signupMeetingDao.getRecurringSignupMeetings(currentSiteId, recurrenceId, startDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
 
@@ -282,6 +290,21 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 		}
 		throw new PermissionException(userId, "signup.create", "signup tool");
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void saveMeetings(List<SignupMeeting> signupMeetings, String userId) throws PermissionException {
+		if (signupMeetings ==null || signupMeetings.isEmpty())
+			return;
+		
+		if (isAllowedToCreate(userId, signupMeetings.get(0))) {
+			signupMeetingDao.saveMeetings(signupMeetings);
+		}
+		else{ 
+			throw new PermissionException(userId, "signup.create", "signup tool");
+		}
+	}
 
 	/* check to see if the user has create permission at any level */
 	private boolean isAllowedToCreate(String userId, SignupMeeting signupMeeting) {
@@ -428,6 +451,44 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void updateSignupMeetings(List<SignupMeeting> meetings, boolean isOrganizer) throws Exception {
+		
+		if (meetings == null || meetings.isEmpty()) {
+			return;
+		}
+		
+		SignupMeeting oneMeeting = (SignupMeeting) meetings.get(0);
+		/* Here, assuming that organizer has the update permission for any one meeting, then he has the permissions for all */	
+		Permission permission = oneMeeting.getPermission();
+
+		/*
+		 * if null, only consider an organizer-updating case (higher requirement
+		 * level)
+		 */
+		if (permission == null) {
+			if (isAllowToUpdate(sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), oneMeeting)) {
+				signupMeetingDao.updateMeetings(meetings);
+				return;
+			}
+			throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+		}
+
+		if (isOrganizer) {
+			if (permission.isUpdate())
+				signupMeetingDao.updateMeetings(meetings);
+			else
+				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+		} else {
+			if (permission.isAttend())
+				signupMeetingDao.updateMeetings(meetings);
+			else
+				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -472,8 +533,10 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 
 		} catch (IdUnusedException e) {
 			log.info("IdUnusedException: " + e.getMessage());
-		} catch (PermissionException e) {
-			log.info("PermissionException for posting calendar: " + e.getMessage());
+			throw e;
+		} catch (PermissionException pe) {
+			log.info("PermissionException for posting calendar: " + pe.getMessage());
+			throw pe;
 		}
 	}
 
@@ -522,8 +585,10 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 				calendar.commitEvent(eventEdit);
 			} catch (IdUnusedException e) {
 				log.info("IdUnusedException: " + e.getMessage());
-			} catch (PermissionException e) {
-				log.info("PermissionException for calendar-modification: " + e.getMessage());
+				throw e;
+			} catch (PermissionException pe) {
+				log.info("PermissionException for calendar-modification: " + pe.getMessage());
+				throw pe;
 			}
 		}
 

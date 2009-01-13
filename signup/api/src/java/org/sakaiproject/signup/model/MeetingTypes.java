@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -46,5 +46,13 @@ public interface MeetingTypes {
 	 * not required.
 	 */
 	static final String ANNOUNCEMENT = "announcement";
+	
+	static final String DAILY = "1";
+	
+	static final String WEEKLY = "2";
+	
+	static final String BIWEEKLY = "3";
+	
+	static final String ONCE_ONLY = "0";
 
 }

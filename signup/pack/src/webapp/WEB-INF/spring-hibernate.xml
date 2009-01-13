@@ -30,8 +30,9 @@
 				<prop key="get*">PROPAGATION_SUPPORTS,readOnly</prop>
 				<prop key="loadSignupMeeting">PROPAGATION_REQUIRED,readOnly</prop>
 				<prop key="updateMeeting">PROPAGATION_REQUIRED</prop>
+				<prop key="updateMeetings">PROPAGATION_REQUIRED</prop>
 				<prop key="saveMeeting">PROPAGATION_REQUIRED</prop>
-				<prop key="updateMeeting">PROPAGATION_REQUIRED</prop>
+				<prop key="saveMeetings">PROPAGATION_REQUIRED</prop>
 				<prop key="removeMeetings">PROPAGATION_REQUIRED</prop>
 				<!-- prop key="*">PROPAGATION_REQUIRED</prop -->
 			</props>

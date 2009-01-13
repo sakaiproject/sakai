@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -28,18 +28,24 @@ import java.util.Date;
 import java.util.List;
 
 import javax.faces.component.UIData;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.signup.logic.Permission;
 import org.sakaiproject.signup.logic.SakaiFacade;
+import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.tool.jsf.attendee.AttendeeSignupMBean;
 import org.sakaiproject.signup.tool.jsf.organizer.OrganizerSignupMBean;
+import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * <p>
@@ -66,10 +72,22 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 	private OrganizerSignupMBean organizerSignupMBean;
 
+	private NewSignupMeetingBean newSignupMeetingBean;
+
 	private SignupSorter signupSorter = new SignupSorter();
 
+	private boolean showAllRecurMeetings = false;// default
+
+	private boolean enableExpandOption = false;
+
+	private List<SelectItem> viewDropDownList;
+
+	private final String disabledSelectView = "none";
+
+	private String meetingUnavailableMessages;
+
 	/**
-	 * Default Constructro
+	 * Default Constructor
 	 * 
 	 */
 	public SignupMeetingsBean() {
@@ -91,6 +109,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return an action outcome string.
 	 */
 	public String addMeeting() {
+		getNewSignupMeetingBean().reset();
 		return ADD_MEETING_PAGE_URL;
 	}
 
@@ -119,6 +138,11 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 						+ " - has removed the meeting at meeting startTime:"
 						+ getSakaiFacade().getTimeService().newTime(meeting.getStartTime().getTime())
 								.toStringLocalFull());
+
+				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_REMOVE, ToolManager.getCurrentPlacement().getContext() + " meetingId|title:"
+						+ meeting.getId() + "|" + meeting.getTitle() + " at startTime:" + getSakaiFacade().getTimeService().newTime(meeting.getStartTime().getTime())
+						.toStringLocalFull());
+
 			}
 
 			try {
@@ -149,14 +173,14 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		// to disable everything in that page
 		SignupMeetingWrapper meetingWrapper = (SignupMeetingWrapper) meetingTable.getRowData();
 		Permission permission = meetingWrapper.getMeeting().getPermission();
-		if (permission.isUpdate()) {
-			organizerSignupMBean.init(meetingWrapper);
-			return ORGANIZER_MEETING_PAGE_URL;
-		}
-
-		attendeeSignupMBean.setMeetingWrapper(meetingWrapper);
 		try {
-			attendeeSignupMBean.updateTimeSlotWrappers(meetingWrapper);
+			if (permission.isUpdate()) {
+				organizerSignupMBean.init(meetingWrapper);
+				return ORGANIZER_MEETING_PAGE_URL;
+			}
+
+			attendeeSignupMBean.init(meetingWrapper);
+
 		} catch (Exception e) {
 			return MAIN_EVENTS_LIST_PAGE_URL;
 		}
@@ -173,8 +197,43 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public String processSelectedRange(ValueChangeEvent vce) {
 		String viewRange = (String) vce.getNewValue();
+		if (disabledSelectView.equals(viewRange))
+			return MAIN_EVENTS_LIST_PAGE_URL;// do-nothing for IE browser
+		// case
+
 		setViewDateRang(viewRange);
 		setSignupMeetings(null);// reset
+
+		return MAIN_EVENTS_LIST_PAGE_URL;
+
+	}
+
+	/**
+	 * This is a ValueChange Listener to watch the show-all-recurring-events
+	 * check-box value change by user.
+	 * 
+	 * @param vce
+	 *            a ValuechangeEvent object.
+	 * @return a outcome string.
+	 */
+	public String processExpandAllRcurEvents(ValueChangeEvent vce) {
+		Boolean expandAllEvents = (Boolean) vce.getNewValue();
+		setShowAllRecurMeetings(expandAllEvents.booleanValue());
+		List<SignupMeetingWrapper> smWrappers = getSignupMeetings();
+		if (smWrappers != null) {
+			if (isShowAllRecurMeetings()) {
+				for (SignupMeetingWrapper smWrp : smWrappers) {
+					smWrp.setRecurEventsSize(0);
+					smWrp.setSubRecurringMeeting(false);
+				}
+			} else {
+				getSignupSorter().setSortAscending(true);
+				getSignupSorter().setSortColumn(SignupSorter.DATE_COLUMN);
+				getSignupSorter().sort(smWrappers);
+				markingRecurMeetings(smWrappers);
+				setSignupMeetings(smWrappers);
+			}
+		}
 
 		return MAIN_EVENTS_LIST_PAGE_URL;
 
@@ -228,10 +287,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			if (signupMeetings == null || isRefresh()) {
 				loadMeetings(getViewDateRang());
 				setLastUpdatedTime(new Date().getTime());
-			}
-			/* sorting according to user's choices on main page */
-			if(hasToSortAgain())
-				getSignupSorter().sort(signupMeetings);
+			}			
 
 		} catch (Exception e) {
 			log.error(Utilities.rb.getString("failed.fetch_allEvents_from_db") + " - " + e.getMessage());
@@ -240,20 +296,6 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		return signupMeetings;
 	}
 
-	private long lastSortTime = (new Date()).getTime();
-	private final long INTERVAL = 500; //milli-second
-	/**
-	 * This will make sure that it only sorts once per user's click for the meetings in the main webpage
-	 * @return true if the time frame pass the interval
-	 */
-	private boolean hasToSortAgain() {
-		Long currentSortTime = (new Date()).getTime();
-		if ((currentSortTime - lastSortTime) > INTERVAL ){
-			lastSortTime = currentSortTime;
-			return true;
-		}
-		return false;
-	}
 	/**
 	 * This is a getter method for UI.
 	 * 
@@ -271,7 +313,38 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	}
 
 	private void loadMeetings(String viewRange) {
-		setSignupMeetings(getMeetingWrapper(viewRange));
+		List<SignupMeetingWrapper> mWrappers = getMeetingWrapper(viewRange);
+		if (!isShowAllRecurMeetings()) {
+			markingRecurMeetings(mWrappers);
+		}
+		setSignupMeetings(mWrappers);
+	}
+
+	private void markingRecurMeetings(List<SignupMeetingWrapper> smList) {
+		if (smList == null || smList.size() == 0)
+			return;
+
+		/*
+		 * Assume that the list is already sorted by Date (default Date sorting
+		 * by sql-query)
+		 */
+		for (int i = 0; i < smList.size(); i++) {
+			SignupMeetingWrapper smWrapper = (SignupMeetingWrapper) smList.get(i);
+			Long firstRecurId = smWrapper.getMeeting().getRecurrenceId();
+			if (firstRecurId != null && firstRecurId.longValue() >= 0 && !smWrapper.isSubRecurringMeeting()) {
+				int index = 0;
+				for (int j = i + 1; j < smList.size(); j++) {
+					SignupMeetingWrapper nextOne = (SignupMeetingWrapper) smList.get(j);
+					if (nextOne.getMeeting().getRecurrenceId() != null
+							&& nextOne.getMeeting().getRecurrenceId().longValue() == firstRecurId.longValue()) {
+						nextOne.setSubRecurringMeeting(true);
+						nextOne.setRecurId(firstRecurId + "_" + index++);
+
+					}
+				}
+				smWrapper.setRecurEventsSize(index + 1);
+			}
+		}
 	}
 
 	private List<SignupMeetingWrapper> getMeetingWrapper(String viewRange) {
@@ -289,8 +362,14 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			int currentMinutes = calendar.get(Calendar.MINUTE);
 			calendar.add(Calendar.HOUR, -1 * currentHour);
 			calendar.add(Calendar.MINUTE, -1 * currentMinutes);
+			String searchDateStr = viewRange;
+
+			if (VIEW_MY_SIGNED_UP.equals(viewRange) || VIEW_IMMEDIATE_AVAIL.equals(viewRange))
+				searchDateStr = ALL_FUTURE;
+
 			signupMeetings = signupMeetingService.getSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId,
-					calendar.getTime(), getUserDefinedDate(Integer.parseInt(viewRange)));
+					calendar.getTime(), getUserDefinedDate(Integer.parseInt(searchDateStr)));
+
 		} else if (OLD_DAYS.equals(viewRange)) {
 			// calendar.add(Calendar.HOUR, 1 * 24);//exluding today for search
 			signupMeetings = signupMeetingService.getSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId,
@@ -305,8 +384,19 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			SignupMeetingWrapper wrapper = new SignupMeetingWrapper(meeting, sakaiFacade.getUserDisplayName(meeting
 					.getCreatorUserId()), sakaiFacade.getCurrentUserId(), getSakaiFacade());
 			wrapppers.add(wrapper);
-
 		}
+
+		/* filter out not-relevant ones */
+		signupFilter filter = new signupFilter(currentUserId, viewRange);
+		filter.filterSignupMeetings(wrapppers);
+
+		/* show user the option check-box to expand all */
+		setEnableExpandOption(false);
+		for (SignupMeetingWrapper meetingWrp : wrapppers) {
+			if (meetingWrp.getMeeting().isRecurredMeeting())
+				setEnableExpandOption(true);
+		}
+
 		return wrapppers;
 	}
 
@@ -394,9 +484,29 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return true if atleast one of the meeting has create permission for the
 	 *         current user.
 	 */
+	private CreateSitesGroups createSitesGroups = null;
+
 	public boolean isAllowedToCreate() {
-		return signupMeetingService.isAllowedToCreateAnyInSite(sakaiFacade.getCurrentUserId(), sakaiFacade
+		boolean allowed = signupMeetingService.isAllowedToCreateAnyInSite(sakaiFacade.getCurrentUserId(), sakaiFacade
 				.getCurrentLocationId());
+		/*
+		 * Temporary bug fix for AuthZ code ( isAllowed(..) ), which gives wrong
+		 * permission for the first time at 'Create new or Copy meeting pages',
+		 * once it's fixed, remove this below and make it into a more clean way
+		 */
+		if (allowed && createSitesGroups == null) {
+			createSitesGroups = new CreateSitesGroups(null, sakaiFacade, signupMeetingService);
+		}
+
+		return allowed;
+	}
+
+	/*
+	 * provide a way to let other bean to access this same object (temporary
+	 * fixing Authz code problem)
+	 */
+	public CreateSitesGroups getCreateSitesGroups() {
+		return createSitesGroups;
 	}
 
 	/**
@@ -516,6 +626,170 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public void setSignupSorter(SignupSorter signupSorter) {
 		this.signupSorter = signupSorter;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isShowAllRecurMeetings() {
+		return showAllRecurMeetings;
+	}
+
+	/**
+	 * This is a setter method for UI.
+	 * 
+	 * @param showAllRecurMeetings
+	 *            a boolean value
+	 */
+	public void setShowAllRecurMeetings(boolean showAllRecurMeetings) {
+		this.showAllRecurMeetings = showAllRecurMeetings;
+	}
+
+	private String iframeId = "";
+
+	/**
+	 * This is a getter method which provide current Iframe id for refresh
+	 * IFrame purpose.
+	 * 
+	 * @return a String
+	 */
+	public String getIframeId() {
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
+				.getRequest();
+		String iFrameId = (String) request.getAttribute("sakai.tool.placement.id");
+		return iFrameId;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isEnableExpandOption() {
+		return enableExpandOption;
+	}
+
+	/**
+	 * This is a setter method for UI.
+	 * 
+	 * @param enableExpandOption
+	 *            a boolean value
+	 */
+	public void setEnableExpandOption(boolean enableExpandOption) {
+		this.enableExpandOption = enableExpandOption;
+	}
+
+	/**
+	 * This is a getter method.
+	 * 
+	 * @return a list of SelectItem which provide user's choices for view
+	 */
+	public List<SelectItem> getViewDropDownList() {
+		if (viewDropDownList == null) {
+			initViewDropDownList();
+		}
+		return viewDropDownList;
+	}
+
+	private void initViewDropDownList() {
+		List<SelectItem> viewDrpDwnList = new ArrayList<SelectItem>();
+
+		viewDrpDwnList.add(new SelectItem(THIRTY_DAYS, Utilities.rb.getString("view_current_month")));
+		viewDrpDwnList.add(new SelectItem(NINTY_DAYS, Utilities.rb.getString("view_current_three_months")));
+		viewDrpDwnList.add(new SelectItem(ALL_FUTURE, Utilities.rb.getString("view_all_future_meetings")));
+		/*
+		 * viewDrpDwnList.add(new SelectItem(OLD_DAYS,
+		 * Utilities.rb.getString("view_previous_events")));
+		 */
+		viewDrpDwnList.add(new SelectItem(VIEW_ALL, Utilities.rb.getString("view_all")));
+		viewDrpDwnList.add(new SelectItem(disabledSelectView, Utilities.rb.getString("dropDown_line_separator"),
+				"line-separator", true));
+		viewDrpDwnList.add(new SelectItem(VIEW_MY_SIGNED_UP, Utilities.rb.getString("view_my_signed_up")));
+		viewDrpDwnList.add(new SelectItem(VIEW_IMMEDIATE_AVAIL, Utilities.rb.getString("view_immediate_avail_ones")));
+		setViewDropDownList(viewDrpDwnList);
+	}
+
+	private void setViewDropDownList(List<SelectItem> viewDropDownList) {
+		this.viewDropDownList = viewDropDownList;
+	}
+
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return a String message.
+	 */
+	public String getMeetingUnavailableMessages() {
+		this.meetingUnavailableMessages = "";
+		if (isMeetingsAvailable())
+			return this.meetingUnavailableMessages;
+
+		/* no meeting available cases: */
+		if (isAllowedToCreate() && isSelectedViewFutureMeetings())
+			setMeetingUnavailableMessages(Utilities.rb.getString("no_events_in_future_organizer"));
+		else if (isAllowedToCreate() && isSelectedViewAllMeetings())
+			setMeetingUnavailableMessages(Utilities.rb.getString("no_events_in_timeframe_organizer"));
+		else if (!isAllowedToCreate() && isSelectedViewAllMeetings())
+			setMeetingUnavailableMessages(Utilities.rb.getString("no_events_in_timeframe_attendee"));
+		else if (isSelectedViewImmediateAvail())
+			setMeetingUnavailableMessages(Utilities.rb.getString("no_future_events_in_immediate_available"));
+		else if (isSelectedViewMySignedUp())
+			setMeetingUnavailableMessages(Utilities.rb.getString("no_future_events_I_have_signed_up"));
+		else if (!isAllowedToCreate() && isSelectedViewFutureMeetings() || !isSelectedViewAllMeetings()
+				&& !isSelectedViewFutureMeetings())
+			setMeetingUnavailableMessages(Utilities.rb.getString("no_events_in_this_period_attendee_orgnizer"));
+
+		return this.meetingUnavailableMessages;
+	}
+
+	public boolean isSelectedViewImmediateAvail() {
+		boolean t = false;
+		if (getViewDateRang().equals(VIEW_IMMEDIATE_AVAIL))
+			t = true;
+		return t;
+	}
+
+	public boolean isSelectedViewMySignedUp() {
+		boolean t = false;
+		if (getViewDateRang().equals(VIEW_MY_SIGNED_UP))
+			t = true;
+		return t;
+	}
+
+	private void setMeetingUnavailableMessages(String meetingUnavailableMessages) {
+		this.meetingUnavailableMessages = meetingUnavailableMessages;
+	}
+
+	/**
+	 * It's getter method for JSF bean
+	 * 
+	 * @return a NewSignupMeetingBean object
+	 */
+	public NewSignupMeetingBean getNewSignupMeetingBean() {
+		return newSignupMeetingBean;
+	}
+
+	/**
+	 * It's a setter method for JSF bean.
+	 * 
+	 * @param newSignupMeetingBean
+	 *            a NewSignupMeetingBean object
+	 */
+	public void setNewSignupMeetingBean(NewSignupMeetingBean newSignupMeetingBean) {
+		this.newSignupMeetingBean = newSignupMeetingBean;
+	}
+
+	/**
+	 * For UI, it will switch the time-column accordingly
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isShowMyAppointmentTime() {
+		if (VIEW_MY_SIGNED_UP.equals(this.viewDateRang))
+			return true;
+
+		return false;
 	}
 
 }

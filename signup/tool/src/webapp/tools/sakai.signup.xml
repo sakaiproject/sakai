@@ -4,7 +4,7 @@
 		title="Sign-up"
 		description="For publishing meetings and other events.">
 		
-		<configuration name="functions.require" value="signup.view" />
+		<configuration name="functions.require" value="signup.view|signup.view.all" />
 		<category name="course" />
 		<category name="project" />
 		

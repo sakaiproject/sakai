@@ -17,7 +17,7 @@
 			 	<sakai:view_title value="#{msgs.event_assign_attendee_page_title}"/>
 				<sakai:messages />
 
-				<h:panelGrid columns="2" style="padding-bottom:30px;" columnClasses="titleColumn,valueColumn">
+				<h:panelGrid columns="2" style="margin-bottom:20px;" columnClasses="titleColumn,valueColumn">
 					<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
 					<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
 						<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
@@ -27,11 +27,27 @@
 				    
 				    <h:outputText value="#{msgs.event_max_num_attendees}" rendered="#{NewSignupMeetingBean.groupType}" styleClass="titleText" escape="false"/>
 				    <h:outputText value="#{NewSignupMeetingBean.maxOfAttendees}" rendered="#{NewSignupMeetingBean.groupType && !NewSignupMeetingBean.unlimited}" styleClass="longtext" escape="false"/>
-					<h:outputText value="#{msgs.event_unlimited}" rendered="#{NewSignupMeetingBean.groupType && NewSignupMeetingBean.unlimited}" styleClass="longtext" escape="false"/>
+					<h:outputText value="#{msgs.event_unlimited}" rendered="#{NewSignupMeetingBean.groupType && NewSignupMeetingBean.unlimited}" styleClass="longtext" escape="false"/>									
+				
+					<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/> 
+					<h:outputText value="#{NewSignupMeetingBean.eventFreqType}" rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/>
+					 
+					<h:outputText value="#{msgs.event_repeat_until}" styleClass="titleText"  rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/>
+					<h:outputText value="#{NewSignupMeetingBean.repeatUntil}" rendered="#{NewSignupMeetingBean.recurrence}">
+						<f:convertDateTime dateStyle="full" />
+					</h:outputText>
 				</h:panelGrid>
-					    
+				
+				<h:panelGrid columns="2" rendered="#{NewSignupMeetingBean.recurrence}" columnClasses="titleColumn,valueColumn" styleClass="assingAttendeeTable">
+					<h:outputText value="#{msgs.assign_participants_toAllRecurrences}"  escape="false" styleClass="titleText"/>
+					<h:panelGroup styleClass="longtext" >
+			   			<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.assignParicitpantsToAllRecurEvents}" style="vertical-align:middle;"/>
+						<h:outputText value="#{msgs.apply_added_participants_to_allRecur_events}" escape="false"/>
+			   		</h:panelGroup>
+				</h:panelGrid>
+			   	    
 			   <h:dataTable id="preSignup" value="#{NewSignupMeetingBean.timeSlotWrappers}" var="timeSlot"
-			   		rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,assignStudentsCol" styleClass="signupTable"  style="width: 50%"
+			   		rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,assignStudentsCol" styleClass="signupTable"  style="width: 55%"
 			   		binding="#{NewSignupMeetingBean.timeslotWrapperTable}">
 					<h:column>		   
 						<f:facet name="header">
@@ -58,7 +74,7 @@
 						<h:dataTable id="attendees" value="#{timeSlot.attendeeWrappers}" var="attendeeWrapper">
 							<h:column>
 								<h:commandLink id="deleteAttendee" title="#{msgs.event_tool_tips_delete}" action="#{NewSignupMeetingBean.removeAttendee}" >
-									<h:graphicImage value="/images/delete.png"  alt="delete" style="border:none" />
+									<h:graphicImage value="/images/delete.png"  alt="delete" title="#{msgs.event_tool_tips_delete}" style="border:none" styleClass="openCloseImageIcon" />
 				   						<f:param id="deletAttendeeUserId" name="#{NewSignupMeetingBean.attendeeUserId}" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"/>
 				   				</h:commandLink>
 				   				<h:outputText value="&nbsp;" escape="false" />
@@ -67,7 +83,7 @@
 						</h:dataTable>
 						<h:panelGroup id="addAttendee">
 						<h:outputLabel onclick="showHideAddPanel('#{timeSlot.positionInTSlist}');" styleClass="addAttendee">
-				   			<h:graphicImage value="/images/add.png"  alt="add an attendee" styleClass="addButton" style="border:nonem" />
+				   			<h:graphicImage value="/images/add.png"  alt="add an attendee" title="#{msgs.event_tool_tips_add}" styleClass="addButton" style="border:none" />
 				   			<h:outputText value="#{msgs.event_add_attendee}" escape="false"/>
 				   		</h:outputLabel>
 					   	</h:panelGroup>
@@ -90,6 +106,7 @@
 			   		</h:column>
 			   </h:dataTable>
 			   
+						   
 			    <sakai:doc_section>
 					<h:panelGrid columns="2" styleClass="instruction">
 				   		<h:outputText  value="#{msgs.organizer_note_name}" escape="false" />
@@ -97,8 +114,12 @@
 				   		
 				   		<h:outputText value="&nbsp;" escape="false"/>
 				   		<h:outputText  value="#{msgs.preAssign_note_max_number_message}" escape="false" />
+				   		
+				   		<h:outputText value="&nbsp;" escape="false"/>
+				   		<h:outputText  value="#{msgs.preAssign_note_publish_message}" escape="false" />
 			   		</h:panelGrid>
 			   </sakai:doc_section>
+			   			  
 			   
 				<h:inputHidden value="assignAttendee" binding="#{NewSignupMeetingBean.currentStepHiddenInfo}"/>
 				<sakai:button_bar>

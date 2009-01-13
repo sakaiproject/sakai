@@ -68,6 +68,32 @@
 			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+	      <groupId>org.sakaiproject</groupId>
+	      <artifactId>sakai-entity-util</artifactId>
+	      <version>${sakai.version}</version>
+	    </dependency>
+	   	<dependency>
+			<groupId>org.sakaiproject</groupId>
+		    <artifactId>sakai-tool-api</artifactId>
+		     <version>${sakai.version}</version>
+	    </dependency>
+	     <dependency>
+		      <groupId>org.sakaiproject</groupId>
+		      <artifactId>sakai-event-api</artifactId>
+		      <version>${sakai.version}</version>
+	    </dependency>		
+	    		
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
 			<version>${sakai.spring.version}</version>

@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -27,13 +27,17 @@ import java.util.List;
 
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
+import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
+import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
@@ -54,7 +58,7 @@ public class ReplaceAttendee extends SignupAction {
 	 *            an unique sakai site id.
 	 */
 	public ReplaceAttendee(String userId, String siteId, SignupMeetingService signupMeetingService) {
-		super(userId, siteId, signupMeetingService,true);
+		super(userId, siteId, signupMeetingService, true);
 	}
 
 	/**
@@ -73,13 +77,17 @@ public class ReplaceAttendee extends SignupAction {
 	 *             throw if anything goes wrong.
 	 */
 	public void replace(SignupMeeting meeting, SignupTimeslot currentTimeslot, String toBeReplacedUserId,
-			String replacerUserId) throws Exception {
+			String replacerUserId, List<SignupUser> allSignupUsers) throws Exception {
 
-		SignupAttendee replacer = new SignupAttendee(replacerUserId, siteId);
+		SignupAttendee replacer = new SignupAttendee(replacerUserId, SignupUIBaseBean.getAttendeeMainActiveSiteId(
+				replacerUserId, allSignupUsers, this.siteId));
 
 		try {
 			handleVersion(meeting, currentTimeslot, toBeReplacedUserId, replacer);
-			logger.info("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
+			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_REPLACE_ATTENDEE_L, ToolManager
+					.getCurrentPlacement().getContext()
+					+ " meetingId:" + meeting.getId() + this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {
 			throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));
@@ -87,8 +95,8 @@ public class ReplaceAttendee extends SignupAction {
 
 	}
 
-	private void replace(SignupMeeting meeting, SignupTimeslot currentTimeslot, String toBeReplacedUserId, SignupAttendee replacer)
-			throws Exception {
+	private void replace(SignupMeeting meeting, SignupTimeslot currentTimeslot, String toBeReplacedUserId,
+			SignupAttendee replacer) throws Exception {
 		List<SignupAttendee> attendees = currentTimeslot.getAttendees();
 		int count = 0;
 		if (currentTimeslot.getAttendee(replacer.getAttendeeUserId()) != null)
@@ -103,7 +111,7 @@ public class ReplaceAttendee extends SignupAction {
 						SignupEmailFacade.SIGNUP_ATTENDEE_SIGNUP_REPLACE, true, att);
 				signupEventTrackingInfo.addOrUpdateAttendeeAllocationInfo(att, currentTimeslot,
 						SignupEmailFacade.SIGNUP_ATTENDEE_CANCEL, false);
-				/*remove from any Wait List if any*/
+				/* remove from any Wait List if any */
 				removeAttendeeFromWaitingList(meeting, replacer);
 				break;
 			}
@@ -130,7 +138,7 @@ public class ReplaceAttendee extends SignupAction {
 
 				replace(meeting, currentTimeslot, toBeReplacedUserId, newAttendee);
 
-				signupMeetingService.updateSignupMeeting(meeting,isOrganizer);
+				signupMeetingService.updateSignupMeeting(meeting, isOrganizer);
 				return;
 			} catch (OptimisticLockingFailureException oe) {
 				// don't do any thing

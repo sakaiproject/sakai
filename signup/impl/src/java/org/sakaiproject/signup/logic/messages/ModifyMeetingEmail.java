@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic.messages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,8 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 
 	private final User organizer;
 
+	private final String emailReturnSiteId;
+
 	/**
 	 * Constructor
 	 * 
@@ -50,10 +53,13 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 	 *            a SignupMeeting object
 	 * @param sakaiFacade
 	 *            a SakaiFacade object
+	 * @param emailReturnSiteId
+	 *            a unique SiteId string
 	 */
-	public ModifyMeetingEmail(User orgainzer, SignupMeeting meeting, SakaiFacade sakaiFacade) {
+	public ModifyMeetingEmail(User orgainzer, SignupMeeting meeting, SakaiFacade sakaiFacade, String emailReturnSiteId) {
 		this.organizer = orgainzer;
 		this.meeting = meeting;
+		this.emailReturnSiteId = emailReturnSiteId;
 		this.setSakaiFacade(sakaiFacade);
 	}
 
@@ -64,9 +70,9 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: " + rb.getString("subject.meeting.modification.A") + space + organizer.getDisplayName() + space
-				+ rb.getString("subject.meeting.modification.B") + space
-				+ getTime(meeting.getStartTime()).toStringLocalDate());
+		rv.add("Subject: "
+				+ MessageFormat.format(rb.getString("subject.meeting.modification.field"), new Object[] {
+						organizer.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate() }));
 		rv.add("From: " + organizer.getEmail());
 		rv.add("To: " + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName());
 
@@ -78,26 +84,60 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 	 */
 	public String getMessage() {
 		StringBuilder message = new StringBuilder();
-		message.append(newline + rb.getString("body.organizerModified.meeting") + space + makeFirstCapLetter(organizer.getDisplayName()) + ":");
-		
-		message.append(newline + newline + rb.getString("body.meetingTopic") + space + meeting.getTitle());
-		if(!meeting.isMeetingCrossDays())
-			message.append(newline + rb.getString("body.meeting.time") + space + getTime(meeting.getStartTime()).toStringLocalDate() + space + " -" + space + rb.getString("body.word.from") + space
-				+ getTime(meeting.getStartTime()).toStringLocalTime() + space + rb.getString("body.word.to") + space
-				+ getTime(meeting.getEndTime()).toStringLocalTime());
-		else
-			message.append(newline + rb.getString("body.meeting.time") + space 
-					+ getTime(meeting.getStartTime()).toStringLocalTime() + ", " + getTime(meeting.getStartTime()).toStringLocalShortDate()
-					+ space + space + rb.getString("body.word.to") + space + space 
-					+ getTime(meeting.getEndTime()).toStringLocalTime() + ", " + getTime(meeting.getEndTime()).toStringLocalShortDate());
-			
+		Object[] params = new Object[] { getSiteTitleWithQuote(emailReturnSiteId), getServiceName(),
+				makeFirstCapLetter(organizer.getDisplayName()) };
+		message.append(newline + MessageFormat.format(rb.getString("body.organizerModified.meeting.field"), params));
+
+		message.append(newline + newline
+				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+		if (!meeting.isMeetingCrossDays()) {
+			Object[] paramsTimeframe = new Object[] { getTime(meeting.getStartTime()).toStringLocalDate(),
+					getTime(meeting.getStartTime()).toStringLocalTime(),
+					getTime(meeting.getEndTime()).toStringLocalTime() };
+			message.append(newline
+					+ MessageFormat.format(rb.getString("body.organizer.meeting.timeframe"), paramsTimeframe));
+		} else {
+			Object[] paramsTimeframe1 = new Object[] { getTime(meeting.getStartTime()).toStringLocalTime(),
+					getTime(meeting.getStartTime()).toStringLocalShortDate(),
+					getTime(meeting.getEndTime()).toStringLocalTime(),
+					getTime(meeting.getEndTime()).toStringLocalShortDate() };
+			message.append(newline
+					+ MessageFormat
+							.format(rb.getString("body.organizer.meeting.crossdays.timeframe"), paramsTimeframe1));
+		}
+
 		message.append(newline + rb.getString("body.meeting.place") + space + meeting.getLocation());
-		
+
+		if (meeting.getRecurrenceId() != null) {
+			message.append(newline + newline + "<b>Attention:</b>");
+			String recurFrqs = "";
+			if (DAILY.equals(meeting.getRepeatType()))
+				recurFrqs = rb.getString("body.meeting.repeatDaily");
+			else if (WEEKLY.equals(meeting.getRepeatType()))
+				recurFrqs = rb.getString("body.meeting.repeatWeekly");
+			else if (BIWEEKLY.equals(meeting.getRepeatType()))
+				recurFrqs = rb.getString("body.meeting.repeatBiWeekly");
+			else
+				recurFrqs = rb.getString("body.meeting.unknown.repeatType");
+
+			Object[] paramsRecur = new Object[] { recurFrqs, getTime(meeting.getRepeatUntil()).toStringLocalDate() };
+			message.append(newline + "  - "
+					+ MessageFormat.format(rb.getString("body.recurrence.meeting.status"), paramsRecur));
+
+			message.append(newline + space + space + rb.getString("body.meeting.recurrences.changed.note"));
+
+			message.append(newline + space + space + rb.getString("body.meeting.recurrences.check.status.note"));
+
+		}
+
 		message.append(newline + newline + meeting.getDescription());
-		message.append(newline + rb.getString("body.attendeeCheck.meetingStatus"));
+		message.append(newline
+				+ newline
+				+ MessageFormat.format(rb.getString("body.attendeeCheck.meetingStatus"),
+						new Object[] { getServiceName() }));
 
 		/* footer */
-		message.append(newline + getFooter(newline));
+		message.append(newline + getFooter(newline, emailReturnSiteId));
 		return message.toString();
 	}
 }

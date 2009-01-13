@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.util;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +30,14 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.ErrorMessageUIBean;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
@@ -39,7 +47,7 @@ import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
  * This Utility class provides the common used logic by Signup tool.
  * </P>
  */
-public final class Utilities implements SignupBeanConstants {
+public final class Utilities implements SignupBeanConstants, MeetingTypes {
 
 	/**
 	 * Get the resource bundle for messages.properties file
@@ -50,6 +58,8 @@ public final class Utilities implements SignupBeanConstants {
 	 * Defined a constant name for errorMessageUIBean
 	 */
 	public static final String ERROR_MESSAGE_UIBEAN = "errorMessageUIBean";
+
+	protected Log logger = LogFactoryImpl.getLog(getClass());
 
 	/**
 	 * Add the error message to errorMessageUIBean for UI purpose.
@@ -63,8 +73,10 @@ public final class Utilities implements SignupBeanConstants {
 
 	private static void addMessage(String key, String errorMsg) {
 		FacesContext context = FacesContext.getCurrentInstance();
-		Map sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
-		ErrorMessageUIBean errorBean = (ErrorMessageUIBean) sessionMap.get(ERROR_MESSAGE_UIBEAN);
+		Map sessionMap = FacesContext.getCurrentInstance().getExternalContext()
+				.getSessionMap();
+		ErrorMessageUIBean errorBean = (ErrorMessageUIBean) sessionMap
+				.get(ERROR_MESSAGE_UIBEAN);
 		errorBean.setErrorMessages(errorMsg);
 		errorBean.setError(true);
 		sessionMap.put(key, errorBean);
@@ -92,25 +104,36 @@ public final class Utilities implements SignupBeanConstants {
 	 */
 	public static String getRequestParam(String attrName) {
 
-		String value = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get(
-				attrName);
+		String value = (String) FacesContext.getCurrentInstance()
+				.getExternalContext().getRequestParameterMap().get(attrName);
 
 		if (value == null || value.trim().length() == 0) {
-			value = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestMap().get(attrName);
+			value = (String) FacesContext.getCurrentInstance()
+					.getExternalContext().getRequestMap().get(attrName);
 		}
 
 		return value;
 	}
 
 	/**
-	 * * Reset the meetings in the SignupMeetingsBean to null so we will fetch
-	 * all the updat-to-date meeting data again
-	 * 
+	 * Reset the meetings in the SignupMeetingsBean to null so we will fetch all
+	 * the up-to-date meeting data again
 	 */
 	public static void resetMeetingList() {
-		SignupMeetingsBean meetingsBean = (SignupMeetingsBean) FacesContext.getCurrentInstance().getExternalContext()
-				.getSessionMap().get("SignupMeetingsBean");
+		SignupMeetingsBean meetingsBean = (SignupMeetingsBean) FacesContext
+				.getCurrentInstance().getExternalContext().getSessionMap().get(
+						"SignupMeetingsBean");
 		meetingsBean.setSignupMeetings(null);
+	}
+
+	/**
+	 * Get the SignupMeetingsBean in JSF as a session bean
+	 * 
+	 * @return a SignupMeetingsBean JSF object
+	 */
+	public static SignupMeetingsBean getSignupMeetingsBean() {
+		return (SignupMeetingsBean) FacesContext.getCurrentInstance()
+				.getExternalContext().getSessionMap().get("SignupMeetingsBean");
 	}
 
 	/**
@@ -129,8 +152,8 @@ public final class Utilities implements SignupBeanConstants {
 	 *            data.
 	 * @return a Date object, which holds the ending time of the event/meeting.
 	 */
-	public static Date reAllocateTimeslots(Date startTime, int timeSlotDuration, int numOfTimeslot,
-			List<SignupTimeslot> tsList) {
+	public static Date reAllocateTimeslots(Date startTime,
+			int timeSlotDuration, int numOfTimeslot, List<SignupTimeslot> tsList) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(startTime);// new starting time
 		if (tsList == null || tsList.isEmpty())
@@ -210,6 +233,70 @@ public final class Utilities implements SignupBeanConstants {
 			rValue = timeLength / Hour_In_MINUTES;
 
 		return (int) rValue;
+	}
+
+	/**
+	 * It provides a list of meeting type choices for user.
+	 * 
+	 * @param mSelectedType
+	 *            a String value, which indicates that the passed-in meeting
+	 *            type will not disabled.
+	 * @param disableNotSelectedOnes
+	 *            a boolean value which indicate whether to disable other
+	 *            meeting types except this one.
+	 * @return a list of SelectItem objects.
+	 */
+	public static List<SelectItem> getMeetingTypeSelectItems(
+			String mSelectedType, boolean disableNotSelectedOnes) {
+		List<SelectItem> meetingTypeItems = new ArrayList<SelectItem>();
+		SelectItem announ = new SelectItem(ANNOUNCEMENT, Utilities.rb
+				.getString("label_announcement"), "anouncment");
+		SelectItem multiple = new SelectItem(INDIVIDUAL, Utilities.rb
+				.getString("label_individaul"), "individaul");
+		SelectItem group = new SelectItem(GROUP, Utilities.rb
+				.getString("label_group"), "group");
+
+		if (disableNotSelectedOnes) {
+			if (!ANNOUNCEMENT.equals(mSelectedType))
+				announ.setDisabled(true);
+			if (!GROUP.equals(mSelectedType))
+				group.setDisabled(true);
+			if (!INDIVIDUAL.equals(mSelectedType))
+				multiple.setDisabled(true);
+		}
+		meetingTypeItems.add(announ);
+		meetingTypeItems.add(group);
+		meetingTypeItems.add(multiple);
+
+		return meetingTypeItems;
+	}
+
+	private static boolean postToDatabase = "false".equals(rb
+			.getString("post.eventTracking.info.to.DB")) ? false : true;
+
+	/**
+	 * This method will post user action event to DB by using
+	 * Sakai-event-tracking mechanism. This event tracking can be turned off by
+	 * setting value of post.eventTracking.info.to.DB in message.properties file
+	 * to <b>false</b>
+	 * 
+	 * @param mainSignupEventType
+	 *            a sign-up event type string
+	 * @param eventActionInfo
+	 *            a detailed action info string
+	 */
+	public static void postEventTracking(String mainSignupEventType,
+			String eventActionInfo) {
+		if (postToDatabase) {
+			UsageSession usageSession = UsageSessionService.getSession();
+			if (eventActionInfo != null && eventActionInfo.length() >= 256) {
+				/* truncate it due to DB field size(255) constraint */
+				eventActionInfo = eventActionInfo.substring(0, 252) + "...";
+			}
+			EventTrackingService.post(EventTrackingService.newEvent(
+					mainSignupEventType, eventActionInfo, false), usageSession);
+		}
+
 	}
 
 }

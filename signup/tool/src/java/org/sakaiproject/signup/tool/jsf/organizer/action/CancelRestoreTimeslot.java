@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
+import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
@@ -34,6 +35,7 @@ import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.signup.util.SignupDateFormat;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
@@ -81,7 +83,11 @@ public class CancelRestoreTimeslot extends SignupAction {
 		boolean cancelAction = !timeslot.isCanceled();
 		try {
 			handleVersion(meeting, timeslot, cancelAction);
-			logger.info("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId + " - has "
+			String signupEventType=timeslot.isCanceled()? SignupEventTypes.EVENT_SIGNUP_MTNG_TS_UNCANCEL : SignupEventTypes.EVENT_SIGNUP_MTNG_TS_CANCEL;
+			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
+					+ meeting.getId() + " on the TS:"
+						+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
+			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId + " - has "
 					+ (cancelAction ? "canceled" : "restored") + " the timeslot started at:"
 					+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
 		} catch (PermissionException pe) {

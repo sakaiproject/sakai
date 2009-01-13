@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -27,6 +27,7 @@ import javax.faces.component.UIData;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.organizer.action.AddAttendee;
@@ -49,6 +50,21 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 	private String currentUserId;
 
 	private String currentSiteId;
+
+	private boolean collapsedMeetingInfo;
+
+	/**
+	 * This will initialize all the wrapper objects such as
+	 * SignupMeetingWrapper, SignupTimeslotWrapper etc.
+	 * 
+	 * @param meetingWrapper
+	 *            a SignupMeetingWrapper object.
+	 */
+	public void init(SignupMeetingWrapper meetingWrapper) throws Exception {
+		setMeetingWrapper(meetingWrapper);
+		updateTimeSlotWrappers(meetingWrapper);
+		this.collapsedMeetingInfo = false;
+	}
 
 	/**
 	 * This is a JSF action call method by UI to let attendee sign up the
@@ -114,13 +130,14 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			CancelAttendee signup = new CancelAttendee(signupMeetingService, currentUserId(), currentSiteId(), false);
 			SignupAttendee removedAttendee = new SignupAttendee(currentUserId(), currentSiteId());
 			meeting = signup.cancelSignup(meetingWrapper.getMeeting(), timeslotWrapper.getTimeSlot(), removedAttendee);
-			/* send notification to organizer and possible promoted participants*/
+			/* send notification to organizer and possible promoted participants */
 			try {
 				signupMeetingService.sendCancellationEmail(signup.getSignupEventTrackingInfo());
 			} catch (Exception e) {
 				logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 				Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 			}
+
 		} catch (SignupUserActionException ue) {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
@@ -129,6 +146,13 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 		}
 
 		// TODO calendar event id;
+
+		/*
+		 * refresh meeting list to catch the changes when go back the main
+		 * meeting list page
+		 */
+		if (Utilities.getSignupMeetingsBean().isShowMyAppointmentTime())
+			Utilities.resetMeetingList();
 
 		return updateMeetingwrapper(meeting, ATTENDEE_MEETING_PAGE_URL);
 	}
@@ -221,6 +245,25 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			currentSiteId = sakaiFacade.getCurrentLocationId();
 
 		return currentSiteId;
+	}
+
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isCollapsedMeetingInfo() {
+		return collapsedMeetingInfo;
+	}
+
+	/**
+	 * It's a setter method for UI.
+	 * 
+	 * @param collapsedMeetingInfo
+	 *            a boolean value
+	 */
+	public void setCollapsedMeetingInfo(boolean collapsedMeetingInfo) {
+		this.collapsedMeetingInfo = collapsedMeetingInfo;
 	}
 
 }

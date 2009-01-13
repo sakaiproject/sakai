@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic.messages;
 
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -42,17 +43,30 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 
 	protected static ResourceBundle rb = ResourceBundle.getBundle("emailMessage");
 
-	public static final String newline = "<br/>\n"; // System.getProperty("line.separator");
+	public static final String newline = "<BR>\r\n"; // System.getProperty("line.separator");\r\n
 
 	public static final String space = " ";
 
 	/* footer for the email */
 	protected String getFooter(String newline) {
-		// tag the message - HTML version
-		String rv = newline + rb.getString("separator") + newline + rb.getString("this") + space
-				+ sakaiFacade.getServerConfigurationService().getString("ui.service", "Sakai") + " (<a href=\""
-				+ getSiteAccessUrl() + "\">" + getSiteAccessUrl() + "</a>) " + rb.getString("forthe") + space
-				+ getSiteTitle() + space + rb.getString("site") + newline + rb.getString("youcan") + newline;
+		/* tag the message - HTML version */
+		Object[] params = new Object[] { getServiceName(),
+				"<a href=\"" + getSiteAccessUrl() + "\">" + getSiteAccessUrl() + "</a>", getSiteTitle(), newline };
+		String rv = newline + rb.getString("separator") + newline
+				+ MessageFormat.format(rb.getString("body.footer.text"), params) + newline;
+
+		return rv;
+	}
+
+	/* footer for the email */
+	protected String getFooter(String newline, String targetSiteId) {
+		/* tag the message - HTML version */
+		Object[] params = new Object[] { getServiceName(),
+				"<a href=\"" + getSiteAccessUrl(targetSiteId) + "\">" + getSiteAccessUrl(targetSiteId) + "</a>",
+				getSiteTitle(targetSiteId), newline };
+		String rv = newline + rb.getString("separator") + newline
+				+ MessageFormat.format(rb.getString("body.footer.text"), params) + newline;
+
 		return rv;
 	}
 
@@ -100,7 +114,22 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 		return getSakaiFacade().getLocationTitle(getSiteId());
 	}
 
-	/* get the link to access the signup tool page in a site */
+	/* get the site name */
+	protected String getSiteTitle(String targetSiteId) {
+		return getSakaiFacade().getLocationTitle(targetSiteId);
+	}
+
+	/* get the site name with a quotation mark */
+	protected String getSiteTitleWithQuote() {
+		return "\"" + getSiteTitle() + "\"";
+	}
+
+	/* get the site name with a quotation mark */
+	protected String getSiteTitleWithQuote(String targetSiteId) {
+		return "\"" + getSiteTitle(targetSiteId) + "\"";
+	}
+
+	/* get the link to access the current-site signup tool page in a site */
 	protected String getSiteAccessUrl() {
 		// TODO May have efficiency issue with getPageId
 		String siteUrl = getSakaiFacade().getServerConfigurationService().getPortalUrl() + "/site/" + getSiteId()
@@ -108,9 +137,17 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 		return siteUrl;
 	}
 
+	/* get the link to access corresponding site - signup tool page in a site */
+	protected String getSiteAccessUrl(String targetSiteId) {
+		// TODO May have efficiency issue with getPageId
+		String siteUrl = getSakaiFacade().getServerConfigurationService().getPortalUrl() + "/site/" + targetSiteId
+				+ "/page/" + getSakaiFacade().getSiteSignupPageId(targetSiteId);
+		return siteUrl;
+	}
+
 	/**
 	 * This will convert the Java date object to a Sakai's Time object, which
-	 * provides all the usefull methods for output.
+	 * provides all the useful methods for output.
 	 * 
 	 * @param date
 	 *            a Java Date object.
@@ -134,5 +171,26 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 			temp = st.substring(0, 1).toUpperCase() + st.substring(1);
 
 		return temp;
+	}
+
+	static private String myServiceName = null;
+
+	protected String getServiceName() {
+		/* first look at email bundle since it's not a Sakai core tool yet */
+		if (myServiceName == null) {
+			try {
+				myServiceName = rb.getString("ui.service");
+				if (myServiceName.trim().length() < 1)
+					myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service",
+							"Sakai Service");
+			} catch (Exception e) {
+				myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service",
+						"Sakai Service");
+				;
+			}
+		}
+
+		return myServiceName;
+
 	}
 }

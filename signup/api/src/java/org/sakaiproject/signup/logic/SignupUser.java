@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -41,6 +41,10 @@ public class SignupUser implements Comparable {
 	private String lastName;
 
 	private Role userRole;
+	
+	private String mainSiteId;
+	
+	private boolean publishedSite;
 
 	/**
 	 * Construtor
@@ -56,12 +60,14 @@ public class SignupUser implements Comparable {
 	 * @param role
 	 *            a Sakai Role object
 	 */
-	public SignupUser(String eid, String internalUserId, String firstName, String lastName, Role role) {
+	public SignupUser(String eid, String internalUserId, String firstName, String lastName, Role role,String siteId,boolean publishedSite) {
 		this.eid = eid;
 		this.internalUserId = internalUserId;
 		this.firstName = firstName;
 		this.lastName = firstCharToUppercase(lastName);
 		this.userRole = role;
+		this.mainSiteId = siteId;
+		this.publishedSite = publishedSite;
 
 	}
 
@@ -171,6 +177,22 @@ public class SignupUser implements Comparable {
 	 */
 	public void setUserRole(Role userRole) {
 		this.userRole = userRole;
+	}		
+
+	public String getMainSiteId() {
+		return mainSiteId;
+	}
+
+	public void setMainSiteId(String mainSiteId) {
+		this.mainSiteId = mainSiteId;
+	}
+
+	public boolean isPublishedSite() {
+		return publishedSite;
+	}
+
+	public void setPublishedSite(boolean publishedSite) {
+		this.publishedSite = publishedSite;
 	}
 
 	private String firstCharToUppercase(String name) {

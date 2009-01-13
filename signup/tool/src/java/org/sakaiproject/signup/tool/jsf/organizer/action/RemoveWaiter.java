@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.SignupAttendee;
@@ -36,6 +37,7 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.signup.util.SignupDateFormat;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
@@ -101,7 +103,11 @@ public class RemoveWaiter implements SignupBeanConstants {
 		try {
 
 			handleVersion(meeting, timeslot, waiter);
-			logger.info("Meeting Name:" + meeting.getTitle() + " - UserId:" + currentUserId
+			String signupEventType = isOrganizer? SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_L : SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_S;
+			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
+					+ meeting.getId() + " -removed from wlist on TS:"
+					+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
+			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + currentUserId
 					+ " - has removed attendee(userId):" + waiter.getAttendeeUserId() + " from waiting list"
 					+ " at timeslot started at:" + SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
 		} catch (PermissionException pe) {

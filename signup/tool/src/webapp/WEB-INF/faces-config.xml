@@ -118,6 +118,10 @@
 			<property-name>organizerSignupMBean</property-name>
 			<value>#{OrganizerSignupMBean}</value>
 		</managed-property>
+		<managed-property>
+			<property-name>newSignupMeetingBean</property-name>
+			<value>#{NewSignupMeetingBean}</value>
+		</managed-property>
     </managed-bean>
     
      <managed-bean>
@@ -213,10 +217,6 @@
 			<property-name>sakaiFacade</property-name>
 			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
 		</managed-property>
-		<managed-property>
-			<property-name>signupMeetingsBean</property-name>
-			<value>#{SignupMeetingsBean}</value>
-		</managed-property>
     </managed-bean>
     
     <managed-bean>
@@ -231,7 +231,7 @@
     	<validator-id>Signup.EmptyStringValidator</validator-id>
     	<validator-class>org.sakaiproject.signup.tool.jsf.validator.EmptyStringValidator</validator-class>
 	</validator>
-
+	
  	<render-kit>
         <renderer>
             <component-family>javax.faces.Command</component-family>

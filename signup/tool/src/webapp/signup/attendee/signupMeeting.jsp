@@ -13,6 +13,8 @@
 		<style type="text/css" media="print">
 				@import url("/sakai-signup-tool/css/print.css");
 		</style>
+		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>
 			
 		<h:form id="signupMeeting">
 			<sakai:tool_bar>
@@ -33,70 +35,136 @@
 
 				<sakai:messages />
 
-				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
-					<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
-					<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.title}"
-						styleClass="longtext" />
-
-					<h:outputText value="#{msgs.event_organizer}" styleClass="titleText" escape="false"/>
-					<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.creator}"
-						styleClass="longtext" />
-
-					<h:outputText value="#{msgs.event_location}" styleClass="titleText" escape="false"/>
-					<h:outputText
-						value="#{AttendeeSignupMBean.meetingWrapper.meeting.location}"
-						styleClass="longtext" />
-
-					<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
-					<h:outputText
-						value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
-						<f:convertDateTime dateStyle="full"/>
-					</h:outputText>
-					
-					<h:outputText value="#{msgs.event_time_period}" styleClass="titleText" escape="false"/>
-					<h:panelGroup>
-						<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}">
-							<f:convertDateTime timeStyle="short" />
-						</h:outputText>
-						<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-								<f:convertDateTime pattern=", EEEEEEEE" />
-						</h:outputText>	
-						<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
-						<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.endTime}">
-							<f:convertDateTime timeStyle="short" />
-						</h:outputText>
-						<h:outputText value=",&nbsp;" escape="false" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}"/>
-						<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}" >
+				<%-- show title only when collapsed --%>
+				<h:panelGrid id="showMeetingTitleOnly" columns="2" columnClasses="titleColumn,valueColumn" styleClass="orgShowTitleOnly">
+							<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
+								<h:panelGroup>
+									<h:panelGroup rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.recurrenceId !=null}">
+										<h:graphicImage title="#{msgs.event_tool_tips_recurrence}" value="/images/recurrence.gif"  alt="recurrence" style="border:none" />
+										<h:outputText value="&nbsp;" escape="false"/>
+									</h:panelGroup>
+								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.title}" styleClass="longtext"/>
+							</h:panelGroup>
+				</h:panelGrid>
+				
+				<%-- show all meeting details when expanded --%>
+				<h:panelGroup id="meetingInfoDetails">
+						<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
+							<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
+							<h:panelGroup>
+								<h:panelGroup rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.recurrenceId !=null}">
+									<h:graphicImage title="#{msgs.event_tool_tips_recurrence}" value="/images/recurrence.gif"  alt="recurrence" style="border:none" />
+									<h:outputText value="&nbsp;" escape="false"/>
+								</h:panelGroup>
+								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.title}" styleClass="longtext" />
+							</h:panelGroup>
+		
+							<h:outputText value="#{msgs.event_organizer}" styleClass="titleText" escape="false"/>
+							<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.creator}"
+								styleClass="longtext" />
+		
+							<h:outputText value="#{msgs.event_location}" styleClass="titleText" escape="false"/>
+							<h:outputText
+								value="#{AttendeeSignupMBean.meetingWrapper.meeting.location}"
+								styleClass="longtext" />
+		
+							<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
+							<h:outputText
+								value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
 								<f:convertDateTime dateStyle="full"/>
-						</h:outputText>	
-					</h:panelGroup>	
-
-					<h:outputText value="#{msgs.event_signup_start}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
-					<h:outputText
-						value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupBegins}"
-						styleClass="longtext" rendered="#{!AttendeeSignupMBean.announcementType}">
-						<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
-					</h:outputText>
-
-					<h:outputText value="#{msgs.event_signup_deadline}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
-					<h:outputText
-						value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupDeadline}"
-						styleClass="longtext" rendered="#{!AttendeeSignupMBean.announcementType}">
-						<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
-					</h:outputText>
-					
-					<h:outputText value="#{msgs.event_status}" styleClass="titleText" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline || !AttendeeSignupMBean.meetingWrapper.meeting.startToSignUp}" escape="false"/>
-					<h:outputText value="#{msgs.event_not_start_signup_process}" styleClass="longtext" escape="false"  rendered="#{!AttendeeSignupMBean.meetingWrapper.meeting.startToSignUp}"/>
-					<h:outputText value="#{msgs.event_passed_deadline}" styleClass="longtext" escape="false"  rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline && !AttendeeSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
-					<h:outputText value="#{msgs.event_isOver}" styleClass="longtext" escape="false"  rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingExpired && AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline}"/>
-					
-					<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
-					<h:outputText
-						value="#{AttendeeSignupMBean.meetingWrapper.meeting.description}"
-						escape="false" styleClass="longtext" />
-						
-					<h:outputText value="&nbsp;" escape="false"/>
-					<h:outputText value="&nbsp;" escape="false"/>
+							</h:outputText>
+							
+							<h:outputText value="#{msgs.event_time_period}" styleClass="titleText" escape="false"/>
+							<h:panelGroup>
+								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}">
+									<f:convertDateTime timeStyle="short" />
+								</h:outputText>
+								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+										<f:convertDateTime pattern=", EEEEEEEE" />
+								</h:outputText>	
+								<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
+								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.endTime}">
+									<f:convertDateTime timeStyle="short" />
+								</h:outputText>
+								<h:outputText value=",&nbsp;" escape="false" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}"/>
+								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}" >
+										<f:convertDateTime dateStyle="full"/>
+								</h:outputText>	
+							</h:panelGroup>	
+		
+							<h:outputText value="#{msgs.event_signup_start}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
+							<h:outputText
+								value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupBegins}"
+								styleClass="longtext" rendered="#{!AttendeeSignupMBean.announcementType}">
+								<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
+							</h:outputText>
+		
+							<h:outputText value="#{msgs.event_signup_deadline}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
+							<h:outputText
+								value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupDeadline}"
+								styleClass="longtext" rendered="#{!AttendeeSignupMBean.announcementType}">
+								<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
+							</h:outputText>
+							
+							<h:outputText value="#{msgs.event_status}" styleClass="titleText" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline || !AttendeeSignupMBean.meetingWrapper.meeting.startToSignUp}" escape="false"/>
+							<h:outputText value="#{msgs.event_not_start_signup_process}" styleClass="longtext" escape="false"  rendered="#{!AttendeeSignupMBean.meetingWrapper.meeting.startToSignUp}"/>
+							<h:outputText value="#{msgs.event_passed_deadline}" styleClass="longtext" escape="false"  rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline && !AttendeeSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
+							<h:outputText value="#{msgs.event_isOver}" styleClass="longtext" escape="false"  rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingExpired && AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline}"/>
+							
+							<%-- display published site/groups --%>
+							<h:outputText value="#{msgs.event_publish_to}" escape="false"  styleClass="titleText"/>
+								<h:panelGrid columns="1" styleClass="published_siteGroupTable">
+										<h:panelGroup >	
+						   	    				<h:outputLabel  id="imageOpen_publishedSiteGroup" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_publishedSiteGroup','meeting:imageClose_publishedSiteGroup','meeting:publishedSiteGroups');">
+							   	    				<h:graphicImage value="/images/open.gif"  alt="open" style="border:none" />
+							   	    				<h:outputText value="#{msgs.event_hide_site_group_detail}" escape="false" />
+						   	    				</h:outputLabel>
+						   	    				<h:outputLabel id="imageClose_publishedSiteGroup" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_publishedSiteGroup','meeting:imageClose_publishedSiteGroup','meeting:publishedSiteGroups');">
+						   	    					<h:graphicImage value="/images/closed.gif" alt="close" style="border:none" />
+						   	    					<h:outputText value="#{msgs.event_show_site_group_detail}" escape="false" />
+						   	    				</h:outputLabel>
+							            </h:panelGroup>
+							            <h:panelGroup id="publishedSiteGroups" style="display:none">
+												<h:dataTable id="userSites" value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupSites}" var="site"  styleClass="published_sitegroup">
+													<h:column>
+														<h:outputText value="#{site.title} #{msgs.event_site_level}" rendered="#{site.siteScope}" styleClass="published_sitetitle" escape="false"/>
+														<h:panelGroup rendered="#{!site.siteScope}">
+															<h:outputText value="#{site.title} #{msgs.event_group_level}" styleClass="published_sitetitle" escape="false"/>
+															<h:dataTable id="userGroups" value="#{site.signupGroups}" var="group" styleClass="published_sitegroup">
+																<h:column>
+																		<h:outputText value=" - #{group.title}" escape="false" styleClass="published_grouptitle"/>
+																</h:column>
+															</h:dataTable>
+														</h:panelGroup>							
+													</h:column>
+												</h:dataTable>
+										</h:panelGroup>
+								</h:panelGrid>
+								<%-- end of display published site/groups --%>
+							
+							<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
+							<h:outputText
+								value="#{AttendeeSignupMBean.meetingWrapper.meeting.description}"
+								escape="false" styleClass="longtext" />
+								
+							<h:outputText value="&nbsp;" escape="false"/>
+							<h:outputText value="&nbsp;" escape="false"/>
+						</h:panelGrid>
+				</h:panelGroup>
+				
+				<%-- control expand-collapse --%>
+				<h:panelGrid  columns="1" rendered="#{!AttendeeSignupMBean.announcementType}" columnClasses="alignRightColumn" styleClass="emailTable">																		
+						<h:panelGroup>	
+		   	    				<h:outputLabel  id="imageOpen_meetingInfoDetail"  styleClass="activeTag" onclick="showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail','meeting:meetingInfoDetails');setMeetingCollapseInfo(true);">
+			   	    				<h:graphicImage value="/images/openTop.gif"  alt="open" title="#{msgs.event_tool_tips_hide_details}" style="border:none; vertical-align: bottom;" styleClass="openCloseImageIcon" />
+			   	    				<h:outputText value="#{msgs.event_hide_meetingIfo_detail}" escape="false" />
+		   	    				</h:outputLabel>
+		   	    				<h:outputLabel id="imageClose_meetingInfoDetail" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail','meeting:meetingInfoDetails');setMeetingCollapseInfo(false);">
+		   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="#{msgs.event_tool_tips_show_details}" style="border:none" styleClass="openCloseImageIcon" />
+		   	    					<h:outputText value="#{msgs.event_show_meetingIfo_detail}" escape="false" />
+		   	    				</h:outputLabel>
+		   	    				<h:inputHidden id="meetingInfoCollapseExpand" value="#{AttendeeSignupMBean.collapsedMeetingInfo}"/>
+			            </h:panelGroup>				
 				</h:panelGrid>
 								
 				<h:panelGrid rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}" columns="1" styleClass="annoncement">
@@ -116,7 +184,7 @@
 						<h:panelGroup>
 							<h:graphicImage value="/images/spacer.gif" width="15" height="13" alt="spacer" style="border:none" rendered="#{!timeSlotWrapper.timeSlot.locked && !timeSlotWrapper.timeSlot.canceled && AttendeeSignupMBean.meetingWrapper.atleastOneTimeslotLockedOrCanceled}"/>
 							<h:graphicImage value="/images/lock.gif"  alt="#{msgs.event_tool_tip_ts_locked}" title="#{msgs.event_tool_tip_ts_locked}" style="border:none" rendered="#{timeSlotWrapper.timeSlot.locked && !timeSlotWrapper.timeSlot.canceled}"/>
-							<h:graphicImage value="/images/cancelled.gif"  alt="#{msgs.event_tool_tip_ts_cancelled}" style="border:none" rendered="#{timeSlotWrapper.timeSlot.canceled}"/>							
+							<h:graphicImage value="/images/cancelled.gif"  alt="#{msgs.event_tool_tip_ts_cancelled}" title="#{msgs.event_tool_tip_ts_cancelled}" style="border:none" rendered="#{timeSlotWrapper.timeSlot.canceled}"/>							
 							<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}"
 								styleClass="longtext">
 								<f:convertDateTime timeStyle="short"/>
@@ -234,4 +302,44 @@
 			</h:form>
 		</sakai:view_content>
 	</sakai:view_container>
+	
+	<f:verbatim>
+		<script>
+			var hiddenInputCollapeMInfo =document.getElementById("meeting:meetingInfoCollapseExpand");
+			var showMInfoTitleTag =document.getElementById("meeting:showMeetingTitleOnly");
+			//initialize
+			initMeetingInfoDetail();
+			
+			function initMeetingInfoDetail(){
+				var collapseMInfoTag =document.getElementById("meeting:meetingInfoDetails");				
+				if(collapseMInfoTag && hiddenInputCollapeMInfo && hiddenInputCollapeMInfo.value == 'true'){
+					collapseMInfoTag.style.display="none";
+					showMInfoTitleTag.style.display="";
+					//reverse the default:show when page refreshed
+					showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail');
+				}else{
+					collapseMInfoTag.style.display="";
+					showMInfoTitleTag.style.display="none";
+				}	
+			}
+			
+			function setMeetingCollapseInfo(val){				
+				hiddenInputCollapeMInfo.value=val;
+				if(val)				  
+				  	showMInfoTitleTag.style.display="";
+				 else
+				  	showMInfoTitleTag.style.display="none";				  
+			}
+			
+			//just introduce jquery slideUp/Down visual effect to overwrite top function
+			function switchShowOrHide(tag){
+				if(tag){
+					if(tag.style.display=="none")
+						$(tag).slideDown("fast");
+					else
+						$(tag).slideUp("fast");
+				}
+			}								
+		</script>
+	</f:verbatim>
 </f:view>

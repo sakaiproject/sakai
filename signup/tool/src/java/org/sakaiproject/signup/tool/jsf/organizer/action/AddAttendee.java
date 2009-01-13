@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
+import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
@@ -33,6 +34,7 @@ import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
@@ -74,7 +76,10 @@ public class AddAttendee extends SignupAction {
 			throws Exception {
 		try {
 			handleVersion(meeting, currentTimeslot, newAttendee);
-			logger.info("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
+			String signupEventType = isOrganizer? SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_L : SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_S;
+			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
+					+ meeting.getId() + this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {
 			throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));

@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -27,17 +27,21 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
 
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
+import org.sakaiproject.signup.tool.jsf.SignupSiteWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
+import org.sakaiproject.signup.tool.jsf.organizer.action.CreateMeetings;
+import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.Utilities;
 
 /**
@@ -52,13 +56,9 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 	private boolean keepAttendees;
 
-	private int durationOfTimeSlot;
-
 	private int maxNumOfAttendees;
 
-	private int totalEventDuration;// for group/announcement types
-
-	private boolean unlimited = false;
+	private boolean unlimited;
 
 	private String signupBeginsType;
 
@@ -70,14 +70,58 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	/* singup deadline before this minutes/hours/days */
 	private int deadlineTime;
 
+	private Date repeatUntil;
+
+	private String repeatType;
+
+	private int timeSlotDuration;
+
+	private int numberOfSlots;
+
+	private boolean showAttendeeName;
+
+	private boolean truncateAttendee;
+
+	private SignupSiteWrapper currentSite;
+
+	private List<SignupSiteWrapper> otherSites;
+
+	private List<SignupUser> allowedUserList;
+
+	private boolean missingSitGroupWarning;
+
+	private List<String> missingSites;
+
+	private List<String> missingGroups;
+
+	private boolean assignParicitpantsToAllRecurEvents;
+
+	private boolean validationError;
+
+	private boolean recurrence;
+
+	private List<SelectItem> meetingTypeRadioBttns;
+
 	/**
 	 * this reset information which contains in this UIBean lived in a session
 	 * scope
 	 * 
 	 */
 	public void reset() {
+		unlimited = false;
 		keepAttendees = false;
+		assignParicitpantsToAllRecurEvents = false;
 		sendEmail = DEFAULT_SEND_EMAIL;
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		repeatUntil = calendar.getTime();
+		repeatType = ONCE_ONLY;
+		showAttendeeName = false;
+		truncateAttendee = false;
+		missingSitGroupWarning = false;
+
 		this.signupMeeting = signupMeetingService.loadSignupMeeting(meetingWrapper.getMeeting().getId(), sakaiFacade
 				.getCurrentUserId(), sakaiFacade.getCurrentLocationId());
 
@@ -85,18 +129,20 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 		if (signupTimeSlots != null && !signupTimeSlots.isEmpty()) {
 			SignupTimeslot ts = (SignupTimeslot) signupTimeSlots.get(0);
-			int timeSlotDuration = (int) ((ts.getEndTime().getTime() - ts.getStartTime().getTime()) / MINUTE_IN_MILLISEC);
-			setDurationOfTimeSlot(timeSlotDuration);
 			maxNumOfAttendees = ts.getMaxNoOfAttendees();
 			this.unlimited = ts.isUnlimitedAttendee();
-			setTotalEventDuration(timeSlotDuration * signupTimeSlots.size());
+			showAttendeeName = ts.isDisplayAttendees();
+			this.numberOfSlots = signupTimeSlots.size();
+
 		} else {// announcement meeting type
-			int meetingDuration = (int) ((signupMeeting.getEndTime().getTime() - signupMeeting.getStartTime().getTime()) / MINUTE_IN_MILLISEC);
-			setDurationOfTimeSlot(meetingDuration);
-			setTotalEventDuration(meetingDuration);
+			setNumberOfSlots(1);
+
 		}
 
 		populateDataForBeginDeadline(this.signupMeeting);
+
+		/* Initialize site/groups for current organizer */
+		initializeSitesGroups();
 
 	}
 
@@ -134,32 +180,24 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	// TODO: what to do if timeslot is locked or canceled
 	public String processSaveCopy() {
+		if (validationError) {
+			validationError = false;
+			return "";
+		}
+
 		SignupMeeting sMeeting = getSignupMeeting();
 		try {
 			prepareCopy(sMeeting);
-			this.signupMeetingService.saveMeeting(sMeeting, sakaiFacade.getCurrentUserId());
-			Utilities.resetMeetingList();
 
-			logger.info("Meeting Name:" + sMeeting.getTitle() + " - UserId:" + sakaiFacade.getCurrentUserId()
-					+ " - has copied to create a new meeting at meeting startTime:"
-					+ getSakaiFacade().getTimeService().newTime(sMeeting.getStartTime().getTime()).toStringLocalFull());
+			sMeeting.setRepeatUntil(getRepeatUntil());
+			sMeeting.setRepeatType(getRepeatType());
 
-			try {
-				if (sendEmail)
-					signupMeetingService.sendEmail(sMeeting, SIGNUP_NEW_MEETING);
+			CreateMeetings createMeeting = new CreateMeetings(sMeeting, sendEmail, keepAttendees
+					&& !assignParicitpantsToAllRecurEvents, keepAttendees && assignParicitpantsToAllRecurEvents,
+					getSignupBegins(), getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), sakaiFacade,
+					signupMeetingService, sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
 
-				signupMeetingService.sendEmail(sMeeting, SIGNUP_PRE_ASSIGN);
-			} catch (Exception e) {
-				logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
-				Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
-			}
-
-			try {
-				signupMeetingService.postToCalendar(sMeeting);
-			} catch (Exception e) {
-				Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.posted_failed"));
-				logger.warn(Utilities.rb.getString("error.calendarEvent.posted_failed") + " - " + e.getMessage());
-			}
+			createMeeting.processSaveMeetings();
 
 		} catch (PermissionException e) {
 			logger.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
@@ -177,9 +215,75 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		return MAIN_EVENTS_LIST_PAGE_URL;
 	}
 
+	/**
+	 * This is a validator to make sure that the event/meeting starting time is
+	 * before ending time etc.
+	 * 
+	 * @param e
+	 *            an ActionEvent object.
+	 */
+	public void validateCopyMeeting(ActionEvent e) {
+		Date endTime = signupMeeting.getEndTime();
+		Date startTime = signupMeeting.getStartTime();
+		if (endTime.before(startTime) || startTime.equals(endTime)) {
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("event.endTime_should_after_startTime"));
+			return;
+		}
+
+		if (!(getRepeatType().equals(ONCE_ONLY))) {
+			int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
+					getRepeatUntil());
+			if (signupMeeting.isMeetingCrossDays() && DAILY.equals(getRepeatType())) {
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
+				return;
+			}
+
+			if (repeatNum < 1) {
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("event.repeatbeforestart"));
+				return;
+			}
+		}
+
+		if (!CreateSitesGroups.isAtleastASiteOrGroupSelected(this.getCurrentSite(), this.getOtherSites())) {
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("select.atleast.oneGroup.for.copyMeeting"));
+
+		}
+	}
+
+	/**
+	 * This is a ValueChange Listener to watch changes on the selection of
+	 * 'unlimited attendee' choice by user.
+	 * 
+	 * @param vce
+	 *            a ValuechangeEvent object.
+	 * @return a outcome string.
+	 */
+	public String processGroup(ValueChangeEvent vce) {
+		Boolean changeValue = (Boolean) vce.getNewValue();
+		if (changeValue != null) {
+			unlimited = changeValue.booleanValue();
+			if (unlimited)
+				maxNumOfAttendees = 10;
+
+		}
+
+		return "";
+
+	}
+
 	private void prepareCopy(SignupMeeting meeting) throws Exception {
 
 		meeting.setId(null);// to save as new meeting in db
+		meeting.setRecurrenceId(null);
+
+		meeting.setSignupSites(CreateSitesGroups.getSelectedSignupSites(getCurrentSite(), getOtherSites()));
+
+		this.allowedUserList = LoadAllowedUsers(meeting);
+
 		List<SignupTimeslot> timeslots = meeting.getSignupTimeSlots();
 
 		boolean lockOrCanceledTimeslot = false;
@@ -188,16 +292,59 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 		/* Announcement type */
 		if (isAnnouncementType() || timeslots == null || timeslots.isEmpty()) {
-			calendar.add(Calendar.MINUTE, getTotalEventDuration());
+			calendar.add(Calendar.MINUTE, getTimeSlotDuration());
 			meeting.setMeetingType(ANNOUNCEMENT);
 			meeting.setSignupTimeSlots(null);
 		} else {
-			for (SignupTimeslot timeslot : timeslots) {
-				lockOrCanceledTimeslot = copyTimeslot(meeting, lockOrCanceledTimeslot, calendar, timeslot);
+			if (meeting.getMeetingType().equals(INDIVIDUAL) || meeting.getMeetingType().equals(GROUP)) {
+				List<SignupTimeslot> origTsList = meeting.getSignupTimeSlots();
+
+				SignupTimeslot origTs = null;
+				List<SignupTimeslot> cpTimeslotList = new ArrayList<SignupTimeslot>();
+				for (int i = 0; i < getNumberOfSlots(); i++) {
+					SignupTimeslot cpTs = new SignupTimeslot();
+					int maxAttendees = (unlimited) ? SignupTimeslot.UNLIMITED : maxNumOfAttendees;
+					cpTs.setMaxNoOfAttendees(maxAttendees);
+					cpTs.setDisplayAttendees(showAttendeeName);
+					cpTs.setStartTime(calendar.getTime());
+					calendar.add(Calendar.MINUTE, getTimeSlotDuration());
+					cpTs.setEndTime(calendar.getTime());
+
+					/* pass attendees */
+					if (i < origTsList.size()) {
+						origTs = origTsList.get(i);
+						List<SignupAttendee> attList = origTs.getAttendees();
+						/* screening attendees */
+						removeNotAllowedAttedees(attList);
+
+						if (!unlimited && attList != null && attList.size() > maxAttendees) {
+							/* attendee may be truncated */
+							this.truncateAttendee = true;
+							for (int j = attList.size(); j > maxAttendees; j--)
+								attList.remove(j - 1);
+						}
+						cpTs.setAttendees(attList);
+						origTs.setAttendees(null);// cleanup,may not necessary
+						cpTs.setLocked(origTs.isLocked());
+						cpTs.setCanceled(origTs.isCanceled());
+						if (origTs.isCanceled() || origTs.isLocked())
+							lockOrCanceledTimeslot = true;
+
+					}
+					cpTimeslotList.add(cpTs);
+				}
+
+				meeting.setSignupTimeSlots(cpTimeslotList);// pass over
+
+				if (lockOrCanceledTimeslot)
+					Utilities.addMessage(Utilities.rb.getString("warning.some_timeslot_may_locked_canceled"));
+
+				if (origTsList.size() < getNumberOfSlots()
+						|| origTsList.get(0).getMaxNoOfAttendees() < getMaxNumOfAttendees()) {
+					this.truncateAttendee = true;// attendee may be truncated
+				}
 			}
 
-			if (lockOrCanceledTimeslot)
-				Utilities.addMessage(Utilities.rb.getString("warning.some_timeslot_may_locked_canceled"));
 		}
 
 		meeting.setEndTime(calendar.getTime());
@@ -206,76 +353,8 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		setSignupBeginDeadlineData(meeting, getSignupBegins(), getSignupBeginsType(), getDeadlineTime(),
 				getDeadlineTimeType());
 
-		copySites(meeting);
+		// copySites(meeting);
 
-	}
-
-	/**
-	 * This is for UI-display End time purpose. When user selects a new starting
-	 * time, it will refresh the page with new ending time
-	 * 
-	 * @param vce
-	 *            A ValueChangeEvent object
-	 * @return an action outcome stirng
-	 */
-	public String processEventEndTime(ValueChangeEvent vce) {
-		Date newStartTime = (Date) vce.getNewValue();
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(newStartTime);
-		cal.add(Calendar.MINUTE, getTotalEventDuration());
-		this.signupMeeting.setEndTime(cal.getTime());
-		return "";
-	}
-
-	private boolean copyTimeslot(SignupMeeting meeting, boolean lockOrCanceledTimeslot, Calendar calendar,
-			SignupTimeslot timeslot) {
-
-		/* to save as new TimeSlot in db */
-		timeslot.setId(null);
-
-		/* Never copy wait list people */
-		timeslot.setWaitingList(null);
-
-		if (timeslot.isCanceled() || timeslot.isLocked())
-			lockOrCanceledTimeslot = true;
-		if (!this.keepAttendees)
-			timeslot.setAttendees(null);// clear up
-		else {
-			// TODO: should we copy the command, calendar id need to be
-			// copied, calendar
-			List<SignupAttendee> attendees = new ArrayList<SignupAttendee>(timeslot.getAttendees());
-			for (SignupAttendee attendee : attendees) {
-
-				// attendee.setComments(null);
-				attendee.setCalendarEventId(null);
-				attendee.setCalendarId(null);
-			}
-			timeslot.setAttendees(attendees);
-
-		}
-
-		timeslot.setStartTime(calendar.getTime());
-		calendar.add(Calendar.MINUTE, durationOfTimeSlot);
-		timeslot.setEndTime(calendar.getTime());
-
-		return lockOrCanceledTimeslot;
-	}
-
-	private void copySites(SignupMeeting meeting) {
-		List<SignupSite> sites = meeting.getSignupSites();
-		if (sites != null && !sites.isEmpty()) {
-			for (SignupSite site : sites) {
-				site.setId(null);
-				site.setCalendarEventId(null);
-				site.setCalendarId(null);
-				List<SignupGroup> grps = new ArrayList<SignupGroup>(site.getSignupGroups());// copy
-				for (SignupGroup group : grps) {
-					group.setCalendarId(null);
-					group.setCalendarEventId(null);
-				}
-				site.setSignupGroups(grps);
-			}
-		}
 	}
 
 	/**
@@ -296,25 +375,6 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setKeepAttendees(boolean keepAttendees) {
 		this.keepAttendees = keepAttendees;
-	}
-
-	/**
-	 * this is a getter method
-	 * 
-	 * @return an integer value
-	 */
-	public int getDurationOfTimeSlot() {
-		return durationOfTimeSlot;
-	}
-
-	/**
-	 * this is a setter
-	 * 
-	 * @param durationOfTslot
-	 *            an integer value
-	 */
-	public void setDurationOfTimeSlot(int durationOfTslot) {
-		this.durationOfTimeSlot = durationOfTslot;
 	}
 
 	/**
@@ -372,25 +432,6 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setUnlimited(boolean unlimited) {
 		this.unlimited = unlimited;
-	}
-
-	/**
-	 * this is a getter method for UI
-	 * 
-	 * @return an integer number
-	 */
-	public int getTotalEventDuration() {
-		return totalEventDuration;
-	}
-
-	/**
-	 * this is a setter for UI
-	 * 
-	 * @param totalEventDuration
-	 *            an integer number
-	 */
-	public void setTotalEventDuration(int totalEventDuration) {
-		this.totalEventDuration = totalEventDuration;
 	}
 
 	/**
@@ -470,4 +511,222 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		this.signupBeginsType = signupBeginsType;
 	}
 
+	public Date getRepeatUntil() {
+		return repeatUntil;
+	}
+
+	public void setRepeatUntil(Date repeatUntil) {
+		this.repeatUntil = repeatUntil;
+	}
+
+	public String getRepeatType() {
+		return repeatType;
+	}
+
+	public void setRepeatType(String repeatType) {
+		this.repeatType = repeatType;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a HtmlInputHidden object.
+	 */
+	public int getTimeSlotDuration() {
+		long duration = (getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
+				/ (MINUTE_IN_MILLISEC * getNumberOfSlots());
+		return (int) duration;
+	}
+
+	public void setTimeSlotDuration(int timeSlotDuration) {
+		this.timeSlotDuration = timeSlotDuration;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a HtmlInputHidden object.
+	 */
+	public int getNumberOfSlots() {
+		return numberOfSlots;
+	}
+
+	/**
+	 * This is a setter method for UI.
+	 * 
+	 * @param numberOfSlots
+	 *            an int value
+	 */
+	public void setNumberOfSlots(int numberOfSlots) {
+		this.numberOfSlots = numberOfSlots;
+	}
+
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isTruncateAttendee() {
+		return truncateAttendee;
+	}
+
+	public void setTruncateAttendee(boolean truncateAttendee) {
+		this.truncateAttendee = truncateAttendee;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a list of SignupSiteWrapper objects.
+	 */
+	public List<SignupSiteWrapper> getOtherSites() {
+		return otherSites;
+	}
+
+	/**
+	 * This is a setter method for UI.
+	 * 
+	 * @param signupSiteWrapperList
+	 *            a list of SignupSiteWrapper object.
+	 */
+	public void setOtherSites(List<SignupSiteWrapper> signupSiteWrapperList) {
+		this.otherSites = signupSiteWrapperList;
+	}
+
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return a SignupSiteWrapper object.
+	 */
+	public SignupSiteWrapper getCurrentSite() {
+		return currentSite;
+	}
+
+	/**
+	 * This is a setter for UI.
+	 * 
+	 * @param currentSite
+	 *            a SignupSiteWrapper object.
+	 */
+	public void setCurrentSite(SignupSiteWrapper currentSite) {
+		this.currentSite = currentSite;
+	}
+
+	private void initializeSitesGroups() {
+		/*
+		 * Temporary bug fix for AuthZ code ( isAllowed(..) ), which gives wrong
+		 * permission for the first time at 'Create new or Copy meeting pages'.
+		 * The bug will be gone by second time go into it. Once it's fixed,
+		 * remove this below and other places and make it into a more clean way
+		 * by not sharing the same CreateSitesGroups Object. new
+		 * CreateSitesGroups(getSignupMeeting(),sakaiFacade,signupMeetingService);
+		 */
+		CreateSitesGroups createSiteGroups = Utilities.getSignupMeetingsBean().getCreateSitesGroups();
+		createSiteGroups.resetSiteGroupCheckboxMark();
+		createSiteGroups.setSignupMeeting(this.getSignupMeeting());
+		createSiteGroups.processSiteGroupSelectionMarks();
+		setCurrentSite(createSiteGroups.getCurrentSite());
+		setOtherSites(createSiteGroups.getOtherSites());
+		setMissingSitGroupWarning(createSiteGroups.isSiteOrGroupTruncated());
+		setMissingSites(createSiteGroups.getMissingSites());
+		setMissingGroups(createSiteGroups.getMissingGroups());
+	}
+
+	private List<SignupUser> LoadAllowedUsers(SignupMeeting meeting) {
+		return sakaiFacade.getAllUsers(getSignupMeeting());
+	}
+
+	private void removeNotAllowedAttedees(List<SignupAttendee> screenAttendeeList) {
+		if (screenAttendeeList == null || screenAttendeeList.isEmpty())
+			return;
+
+		boolean notFound = true;
+		for (int i = screenAttendeeList.size(); i > 0; i--) {
+			notFound = true;
+			for (SignupUser allowedOne : allowedUserList) {
+				if (allowedOne.getInternalUserId().equals(screenAttendeeList.get(i - 1).getAttendeeUserId())) {
+					notFound = false;
+					break;
+				}
+			}
+			if (notFound) {
+				screenAttendeeList.remove(i - 1);
+			}
+		}
+	}
+
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isMissingSitGroupWarning() {
+		return missingSitGroupWarning;
+	}
+
+	private void setMissingSitGroupWarning(boolean missingSitGroupWarning) {
+		this.missingSitGroupWarning = missingSitGroupWarning;
+	}
+
+	public List<String> getMissingSites() {
+		return missingSites;
+	}
+
+	private void setMissingSites(List<String> missingSites) {
+		this.missingSites = missingSites;
+	}
+
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isMissingSitesThere() {
+		if (this.missingSites == null || this.missingSites.isEmpty())
+			return false;
+		return true;
+	}
+
+	public List<String> getMissingGroups() {
+		return missingGroups;
+	}
+
+	private void setMissingGroups(List<String> missingGroups) {
+		this.missingGroups = missingGroups;
+	}
+
+	public boolean isMissingGroupsThere() {
+		if (this.missingGroups == null || this.missingGroups.isEmpty())
+			return false;
+		return true;
+	}
+
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isAssignParicitpantsToAllRecurEvents() {
+		return assignParicitpantsToAllRecurEvents;
+	}
+
+	/**
+	 * It's a setter for UI
+	 * 
+	 * @param assignParicitpantsToAllRecurEvents
+	 *            a boolean value
+	 */
+	public void setAssignParicitpantsToAllRecurEvents(boolean assignParicitpantsToAllRecurEvents) {
+		this.assignParicitpantsToAllRecurEvents = assignParicitpantsToAllRecurEvents;
+	}
+
+	/**
+	 * It's a getter method for UI
+	 * 
+	 * @return a list of SelectItem objects for radio buttons.
+	 */
+	public List<SelectItem> getMeetingTypeRadioBttns() {
+		this.meetingTypeRadioBttns = Utilities.getMeetingTypeSelectItems(getSignupMeeting().getMeetingType(), true);
+		return meetingTypeRadioBttns;
+	}
 }

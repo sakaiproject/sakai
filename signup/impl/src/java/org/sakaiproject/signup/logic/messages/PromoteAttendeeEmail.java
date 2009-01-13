@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic.messages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +46,8 @@ public class PromoteAttendeeEmail extends SignupEmailBase {
 
 	private final SignupMeeting meeting;
 
+	private String emailReturnSiteId;
+
 	/**
 	 * constructor
 	 * 
@@ -62,6 +65,7 @@ public class PromoteAttendeeEmail extends SignupEmailBase {
 		this.item = item;
 		this.meeting = meeting;
 		this.setSakaiFacade(sakaiFacade);
+		this.emailReturnSiteId = item.getAttendee().getSignupSiteId();
 	}
 
 	/**
@@ -71,8 +75,9 @@ public class PromoteAttendeeEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: " + rb.getString("subject.promote.appointment") + space
-				+ getTime(meeting.getStartTime()).toStringLocalDate());
+		rv.add("Subject: "
+				+ MessageFormat.format(rb.getString("subject.promote.appointment.field"), new Object[] { getTime(
+						meeting.getStartTime()).toStringLocalDate() }));
 		rv.add("From: " + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName());
 		rv.add("To: " + attendee.getEmail());
 
@@ -85,47 +90,63 @@ public class PromoteAttendeeEmail extends SignupEmailBase {
 	public String getMessage() {
 
 		StringBuilder message = new StringBuilder();
-		message.append(rb.getString("body.greeting") + space + makeFirstCapLetter(attendee.getDisplayName()) + "," + newline);
-		message.append(newline + rb.getString("body.assigned.promote.appointment"));
-		message.append(newline + newline + rb.getString("body.meetingTopic") + space + meeting.getTitle());
-		message.append(newline + rb.getString("body.timeslot") + space + meeting.getTitle());
+		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"),
+				new Object[] { makeFirstCapLetter(attendee.getDisplayName()) }));
 
-		if(!meeting.isMeetingCrossDays())
-			message.append(newline + rb.getString("body.timeslot") + space
-				+ getTime(item.getAddToTimeslot().getStartTime()).toStringLocalTime() + " - "
-				+ getTime(item.getAddToTimeslot().getEndTime()).toStringLocalTime() + space + rb.getString("body.on")
-				+ space + getTime(item.getAddToTimeslot().getStartTime()).toStringLocalDate());
-		else
-			message.append(newline + rb.getString("body.timeslot") + space
-				+ getTime(item.getAddToTimeslot().getStartTime()).toStringLocalTime() + ", " + getTime(item.getAddToTimeslot().getStartTime()).toStringLocalShortDate()
-				+ "  -  "
-				+ getTime(item.getAddToTimeslot().getEndTime()).toStringLocalTime() + ", "
-				+ getTime(item.getAddToTimeslot().getEndTime()).toStringLocalShortDate());
+		Object[] params = new Object[] { getSiteTitleWithQuote(this.emailReturnSiteId), getServiceName() };
+		message.append(newline + newline
+				+ MessageFormat.format(rb.getString("body.assigned.promote.appointment.part"), params));
 
-		/*If you want more detail info, include the following block*/
-		/*if (getCancelledSlots() !=null){
-			message.append(getCancelledSlots());
-		}*/
-		
-		message.append(newline + newline + rb.getString("body.attendeeCheck.meetingStatus.B"));
+		message.append(newline + newline
+				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+
+		if (!meeting.isMeetingCrossDays()) {
+			Object[] paramsTimeframe = new Object[] {
+					getTime(item.getAddToTimeslot().getStartTime()).toStringLocalTime(),
+					getTime(item.getAddToTimeslot().getEndTime()).toStringLocalTime(),
+					getTime(item.getAddToTimeslot().getStartTime()).toStringLocalDate() };
+			message.append(newline
+					+ MessageFormat.format(rb.getString("body.attendee.meeting.timeslot"), paramsTimeframe));
+		} else {
+			Object[] paramsTimeframe = new Object[] {
+					getTime(item.getAddToTimeslot().getStartTime()).toStringLocalTime(),
+					getTime(item.getAddToTimeslot().getStartTime()).toStringLocalShortDate(),
+					getTime(item.getAddToTimeslot().getEndTime()).toStringLocalTime(),
+					getTime(item.getAddToTimeslot().getEndTime()).toStringLocalShortDate() };
+			message.append(newline
+					+ MessageFormat.format(rb.getString("body.attendee.meeting.crossdays.timeslot"), paramsTimeframe));
+
+		}
+		/* If you want more detail info, include the following block */
+		/*
+		 * if (getCancelledSlots() !=null){ message.append(getCancelledSlots()); }
+		 */
+
+		message.append(newline
+				+ newline
+				+ MessageFormat.format(rb.getString("body.attendeeCheck.meetingStatus.B"),
+						new Object[] { getServiceName() }));
 		/* footer */
-		message.append(newline + getFooter(newline));
+		message.append(newline + getFooter(newline, this.emailReturnSiteId));
 		return message.toString();
 	}
-	
-	private String getCancelledSlots(){
-		StringBuilder tmp =new StringBuilder();
+
+	private String getCancelledSlots() {
+		StringBuilder tmp = new StringBuilder();
 		List<SignupTimeslot> rmList = item.getRemovedFromTimeslot();
-		if (rmList !=null || !rmList.isEmpty()){
+		if (rmList != null || !rmList.isEmpty()) {
 			tmp.append(newline + newline + rb.getString("body.cancelled.timeSlots"));
 			for (SignupTimeslot rmSlot : rmList) {
-				tmp.append(newline + space + space +getSakaiFacade().getTimeService().newTime(rmSlot.getStartTime().getTime()).toStringLocalTime() 
-						+ " - "
-						+ getSakaiFacade().getTimeService().newTime(rmSlot.getEndTime().getTime()).toStringLocalTime()); 
+				tmp.append(newline
+						+ space
+						+ space
+						+ getSakaiFacade().getTimeService().newTime(rmSlot.getStartTime().getTime())
+								.toStringLocalTime() + " - "
+						+ getSakaiFacade().getTimeService().newTime(rmSlot.getEndTime().getTime()).toStringLocalTime());
 			}
 		}
-		
-		return tmp.length() < 1? null : tmp.toString();
+
+		return tmp.length() < 1 ? null : tmp.toString();
 	}
 
 }

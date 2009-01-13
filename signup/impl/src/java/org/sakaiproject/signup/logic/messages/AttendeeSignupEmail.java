@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic.messages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,9 +77,9 @@ public class AttendeeSignupEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: " + rb.getString("subject.attendee.signup.A") 
-				+ space + getTime(meeting.getStartTime()).toStringLocalDate() + space +  rb.getString("subject.attendee.signup.B") 
-				+ space+ currentUser.getDisplayName());
+		rv.add("Subject: "
+				+ MessageFormat.format(rb.getString("subject.attendee.signup.field"), new Object[] {
+						getTime(meeting.getStartTime()).toStringLocalDate(), currentUser.getDisplayName() }));
 		rv.add("From: " + currentUser.getEmail());
 		rv.add("To: " + creator.getEmail());
 
@@ -90,22 +91,31 @@ public class AttendeeSignupEmail extends SignupEmailBase {
 	 */
 	public String getMessage() {
 		StringBuilder message = new StringBuilder();
-		message.append(rb.getString("body.greeting") + space + makeFirstCapLetter(creator.getDisplayName()) + "," + newline);
-		message.append(newline + makeFirstCapLetter(currentUser.getDisplayName()) + space + rb.getString("body.attendee.hasSignup"));
-		message.append(newline + newline + rb.getString("body.meetingTopic") + space + meeting.getTitle());			
-		if(!meeting.isMeetingCrossDays())
-			message.append(newline + rb.getString("body.timeslot") + space
-					+ getTime(timeslot.getStartTime()).toStringLocalTime() 
-					+ " - "
-					+ getTime(timeslot.getEndTime()).toStringLocalTime() + space + rb.getString("body.on") + space
-					+ getTime(timeslot.getStartTime()).toStringLocalDate());
-		else
-			message.append(newline + rb.getString("body.timeslot") + space
-					+ getTime(timeslot.getStartTime()).toStringLocalTime() + ", " + getTime(timeslot.getStartTime()).toStringLocalShortDate()
-					+ "  -  "
-					+ getTime(timeslot.getEndTime()).toStringLocalTime() + ", " + getTime(timeslot.getEndTime()).toStringLocalShortDate());
-		
-		/*footer*/
+		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"),
+				new Object[] { makeFirstCapLetter(creator.getDisplayName()) }));
+
+		Object[] params = new Object[] { makeFirstCapLetter(currentUser.getDisplayName()), getSiteTitleWithQuote(),
+				getServiceName() };
+		message.append(newline + newline + MessageFormat.format(rb.getString("body.attendee.hasSignup.part"), params));
+
+		message.append(newline + newline
+				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+		if (!meeting.isMeetingCrossDays()) {
+			Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
+					getTime(timeslot.getEndTime()).toStringLocalTime(),
+					getTime(timeslot.getStartTime()).toStringLocalDate() };
+			message.append(newline
+					+ MessageFormat.format(rb.getString("body.attendee.meeting.timeslot"), paramsTimeframe));
+		} else {
+			Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
+					getTime(timeslot.getStartTime()).toStringLocalShortDate(),
+					getTime(timeslot.getEndTime()).toStringLocalTime(),
+					getTime(timeslot.getEndTime()).toStringLocalShortDate() };
+			message.append(newline
+					+ MessageFormat.format(rb.getString("body.attendee.meeting.crossdays.timeslot"), paramsTimeframe));
+
+		}
+		/* footer */
 		message.append(newline + getFooter(newline));
 		return message.toString();
 	}

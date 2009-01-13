@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -69,21 +69,10 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 */
 	@SuppressWarnings("unchecked")
 	public void sendEmailAllUsers(SignupMeeting meeting, String messageType) throws Exception {
-		if (messageType.equals(SIGNUP_NEW_MEETING)) {
+		if (messageType.equals(SIGNUP_NEW_MEETING) || messageType.equals(SIGNUP_MEETING_MODIFIED)) {
 			sendEmailToAllUsers(meeting, messageType);
 			return;
 		}
-
-		if (messageType.equals(SIGNUP_PRE_ASSIGN)) {
-			sendEmailToAssignedUsers(meeting);
-			return;
-		}
-
-		if (messageType.equals(SIGNUP_MEETING_MODIFIED)) {
-			sendEmailToAllUsers(meeting, messageType);
-			return;
-		}
-
 	}
 
 	/**
@@ -119,7 +108,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 */
 	public void sendCancellationEmail(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception {
 		/* send email to everyone who get promoted during the process */
-		//TODO Do we need to send info about promoted guys to organizer?
+		// TODO Do we need to send info about promoted guys to organizer?
 		List<SignupTrackingItem> sigupTList = signupEventTrackingInfo.getAttendeeTransferInfos();
 		for (SignupTrackingItem item : sigupTList) {
 			/* no email send to the cancellation guy */
@@ -141,9 +130,9 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		/* send one email to organizer about the update status */
 		if (!signupEventTrackingInfo.getMeeting().isReceiveEmailByOwner())
 			return;
-		
+
 		User organizer = null;
-		User initiator = null;		
+		User initiator = null;
 		try {
 			organizer = userDirectoryService.getUser(signupEventTrackingInfo.getMeeting().getCreatorUserId());
 			initiator = userDirectoryService.getUser(signupEventTrackingInfo.getInitiatorAllocationInfo().getAttendee()
@@ -186,7 +175,8 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 					email = new SwapAttendeeEmail(organizer, participant, participant2, item, signupEventTrackingInfo
 							.getMeeting(), sakaiFacade);
 				else if (item.getMessageType().equals(SIGNUP_ATTENDEE_CANCEL))
-					email = new CancellationEmail(organizer, participant,item, signupEventTrackingInfo.getMeeting(), sakaiFacade);
+					email = new CancellationEmail(organizer, participant, item, signupEventTrackingInfo.getMeeting(),
+							sakaiFacade);
 				else if (item.getMessageType().equals(SIGNUP_ATTENDEE_SIGNUP_REPLACE)
 						|| item.getMessageType().equals(SIGNUP_ATTENDEE_SIGNUP))
 					email = new AddAttendeeEmail(organizer, participant, item, signupEventTrackingInfo.getMeeting(),
@@ -218,31 +208,121 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		emailService.sendToUsers(list, email.getHeader(), email.getMessage());
 	}
 
+	@SuppressWarnings("unchecked")
+	private List<EmailUserSiteGroup> getUserSiteEmailGroups(List<SignupUser> signupUsers) {
+		List<EmailUserSiteGroup> userSiteGroupList = new ArrayList<EmailUserSiteGroup>();
+		for (SignupUser signupUser : signupUsers) {
+			String siteId = signupUser.getMainSiteId();
+			boolean found = false;
+			for (EmailUserSiteGroup userSiteGroup : userSiteGroupList) {
+				if (siteId.equals(userSiteGroup.getSiteId())) {
+					userSiteGroup.addSignupUser(signupUser);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				EmailUserSiteGroup usg = new EmailUserSiteGroup(siteId, signupUser);
+				userSiteGroupList.add(usg);
+			}
+		}
+
+		return userSiteGroupList;
+	}
+
 	/* send email to all according to the message type */
 	@SuppressWarnings("unchecked")
 	private void sendEmailToAllUsers(SignupMeeting meeting, String messageType) throws Exception {
 		List<SignupUser> signupUsers = sakaiFacade.getAllUsers(meeting);
-		List<String> userIds = new ArrayList<String>();
-		for (SignupUser signupUser : signupUsers) {
-			userIds.add(signupUser.getInternalUserId());
-		}
-		List<User> sakaiUsers = userDirectoryService.getUsers(userIds);
-		User organizer = null;
-		try {
-			SignupEmailNotification email = null;
-			if (messageType.equals(SIGNUP_NEW_MEETING)) {
-				organizer = userDirectoryService.getUser(meeting.getCreatorUserId());
-				email = new NewMeetingEmail(organizer, meeting, this.sakaiFacade);
-				excludPreAssignedAttendee(sakaiUsers, meeting);
-			} else if (messageType.equals(SIGNUP_MEETING_MODIFIED)){
-				organizer = userDirectoryService.getUser(getSakaiFacade().getCurrentUserId());
-				email = new ModifyMeetingEmail(organizer, meeting, this.sakaiFacade);
-			}
 
-			emailService.sendToUsers(sakaiUsers, email.getHeader(), email.getMessage());
-		} catch (UserNotDefinedException e) {
-			throw new Exception("User is not found for userId: " + meeting.getCreatorUserId());
+		List<EmailUserSiteGroup> userSiteGroupList = getUserSiteEmailGroups(signupUsers);
+		boolean isException = false;		
+		for (EmailUserSiteGroup emailUserSiteGroup : userSiteGroupList) {
+			if (!emailUserSiteGroup.isPublishedSite())
+				continue;// skip sending email
+
+			List<String> userIds = null;
+			List<User> sakaiUsers = null;
+			User organizer = null;			
+			try {
+				SignupEmailNotification email = null;
+				if (messageType.equals(SIGNUP_NEW_MEETING)) {
+					organizer = userDirectoryService.getUser(meeting.getCreatorUserId());
+					email = new NewMeetingEmail(organizer, meeting, this.sakaiFacade, emailUserSiteGroup.getSiteId());
+					/*
+					 * send email to pre-assiged people for this site group and
+					 * also excluding them for next step.
+					 */
+					sendEmailToPreAssignedAttendee(emailUserSiteGroup, meeting);
+					/* get the people list excluding pre-assigned ones */
+					userIds = emailUserSiteGroup.getUserInternalIds();
+					sakaiUsers = userDirectoryService.getUsers(userIds);
+
+				} else if (messageType.equals(SIGNUP_MEETING_MODIFIED)) {
+					userIds = emailUserSiteGroup.getUserInternalIds();
+					sakaiUsers = userDirectoryService.getUsers(userIds);
+					organizer = userDirectoryService.getUser(getSakaiFacade().getCurrentUserId());
+					email = new ModifyMeetingEmail(organizer, meeting, this.sakaiFacade, emailUserSiteGroup.getSiteId());
+				}
+
+				if (email != null)
+					emailService.sendToUsers(sakaiUsers, email.getHeader(), email.getMessage());
+
+			} catch (UserNotDefinedException ue) {
+				isException = true;
+				logger.warn("User is not found for userId: " + meeting.getCreatorUserId());
+			} catch (Exception e) {
+				isException = true;
+				logger.warn(e.getMessage());
+			}
 		}
+		
+		if(isException)
+			throw new Exception("Some emails may not be sent out due to error.");
+	}
+
+	private void sendEmailToPreAssignedAttendee(EmailUserSiteGroup emailUserSiteGroup, SignupMeeting meeting)
+			throws Exception {
+		List<SignupUser> sgpUsers = emailUserSiteGroup.getSignupUsers();
+		List<SignupTimeslot> signupTimeSlots = meeting.getSignupTimeSlots();
+		if (signupTimeSlots == null)
+			return;
+
+		boolean isExcepiotn = false;
+		User currentUser = userDirectoryService.getCurrentUser();
+		for (SignupTimeslot timeslot : signupTimeSlots) {
+			List<SignupAttendee> attendees = timeslot.getAttendees();
+			if (attendees == null)
+				continue;
+
+			for (SignupAttendee attendee : attendees) {
+				for (Iterator iter = sgpUsers.iterator(); iter.hasNext();) {
+					SignupUser spUser = (SignupUser) iter.next();
+					if (spUser.getInternalUserId().equals(attendee.getAttendeeUserId())) {
+						User user;
+						try {
+							user = userDirectoryService.getUser(attendee.getAttendeeUserId());
+							SignupEmailNotification email = new OrganizerPreAssignEmail(currentUser, meeting, timeslot,
+									user, this.sakaiFacade, emailUserSiteGroup.getSiteId());
+							sendEmail(user, email);
+						} catch (UserNotDefinedException e) {
+							logger.warn("User is not found for userId: " + attendee.getAttendeeUserId());
+							isExcepiotn = true;
+						}
+						/*
+						 * remove it to avoid send new meeting notification
+						 * again
+						 */
+						iter.remove();
+						break;
+					}
+				}
+
+			}
+		}
+
+		if (isExcepiotn)
+			throw new Exception("User is not found and email may not be sent out.");
 	}
 
 	/**
@@ -256,22 +336,23 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 */
 	private void excludPreAssignedAttendee(List<User> sakaiUsers, SignupMeeting meeting) {
 		List<SignupTimeslot> signupTimeSlots = meeting.getSignupTimeSlots();
-		if (signupTimeSlots ==null)
+		if (signupTimeSlots == null)
 			return;
-		
+
 		for (SignupTimeslot timeslot : signupTimeSlots) {
-			List<SignupAttendee> attendees = timeslot.getAttendees();			
-			if (attendees ==null)
+			List<SignupAttendee> attendees = timeslot.getAttendees();
+			if (attendees == null)
 				continue;
-			
+
 			User preAssignedUser = null;
 			for (SignupAttendee attendee : attendees) {
 				try {
 					preAssignedUser = userDirectoryService.getUser(attendee.getAttendeeUserId());
 					for (Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
 						User sakaiUser = (User) iter.next();
-						if (sakaiUser.getEid().equals(preAssignedUser.getEid()))
+						if (sakaiUser.getEid().equals(preAssignedUser.getEid())) {
 							iter.remove();
+						}
 					}
 
 				} catch (UserNotDefinedException e) {
@@ -280,37 +361,6 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 
 			}
 		}
-	}
-
-	/*
-	 * when organizer pre-assign attendees to an event/meeting, this will send
-	 * an email to notify them
-	 */
-	@SuppressWarnings("unchecked")
-	private void sendEmailToAssignedUsers(SignupMeeting signupMeeting) throws Exception {
-		List<String> userIds = new ArrayList<String>();
-		List<SignupTimeslot> signupTimeSlots = signupMeeting.getSignupTimeSlots();
-		User currentUser = userDirectoryService.getCurrentUser();
-		for (SignupTimeslot timeslot : signupTimeSlots) {
-			List<SignupAttendee> attendees = timeslot.getAttendees();
-			if (attendees == null)
-				continue;
-			
-			for (SignupAttendee attendee : attendees) {
-				userIds.add(attendee.getAttendeeUserId());
-				User user;
-				try {
-					user = userDirectoryService.getUser(attendee.getAttendeeUserId());
-					SignupEmailNotification email = new OrganizerPreAssignEmail(currentUser, signupMeeting, timeslot,
-							user, this.sakaiFacade);
-					sendEmail(user, email);
-				} catch (UserNotDefinedException e) {
-					throw new Exception("User is not found for userId: " + attendee.getAttendeeUserId());
-				}
-
-			}
-		}
-
 	}
 
 	/**
@@ -368,6 +418,57 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 */
 	public void setSakaiFacade(SakaiFacade sakaiFacade) {
 		this.sakaiFacade = sakaiFacade;
+	}
+
+	private class EmailUserSiteGroup {
+		private String siteId;
+
+		private boolean publishedSite;
+
+		private List<SignupUser> signupUsers = new ArrayList<SignupUser>();
+
+		public EmailUserSiteGroup(String siteId, SignupUser user) {
+			this.siteId = siteId;
+			this.signupUsers.add(user);
+			this.publishedSite = user.isPublishedSite();
+		}
+
+		public void addSignupUser(SignupUser user) {
+			this.signupUsers.add(user);
+		}
+
+		public String getSiteId() {
+			return siteId;
+		}
+
+		public void setSiteId(String siteId) {
+			this.siteId = siteId;
+		}
+
+		public List<SignupUser> getSignupUsers() {
+			return signupUsers;
+		}
+
+		public void setSignupUsers(List<SignupUser> signupUsers) {
+			this.signupUsers = signupUsers;
+		}
+
+		public List<String> getUserInternalIds() {
+			List<String> userIds = new ArrayList<String>();
+			for (SignupUser signupUser : signupUsers) {
+				userIds.add(signupUser.getInternalUserId());
+			}
+			return userIds;
+		}
+
+		public boolean isPublishedSite() {
+			return publishedSite;
+		}
+
+		public void setPublishedSite(boolean publishedSite) {
+			this.publishedSite = publishedSite;
+		}
+
 	}
 
 }

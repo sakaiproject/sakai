@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -81,6 +81,22 @@ public interface SignupMeetingService {
 	List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate);
 
 	/**
+	 * This returns a subset list of SignupMeetings with the same recurrenceId from starting date for
+	 * the site
+	 * 
+	 * @param currentSiteId
+	 *            a unique id which represents the current site
+	 * @param userId
+	 *            the internal user id (not username)
+	 * @param recurrenceId
+	 *            recurrenceId,which constraints the recurring meetings.         
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getRecurringSignupMeetings(String currentSiteId, String userId, Long recurrenceId, Date startDate);
+
+	/**
 	 * This saves meeting object into database
 	 * 
 	 * @param signupMeeting
@@ -92,6 +108,19 @@ public interface SignupMeetingService {
 	 *             thrown if the user does not have access
 	 */
 	Long saveMeeting(SignupMeeting signupMeeting, String userId) throws PermissionException;
+	
+	/**
+	 * This saves meeting objects into database
+	 * 
+	 * @param signupMeeting
+	 *            a list of SignupMeeting objects
+	 * @param userId
+	 *            the internal user id (not username)
+	 * @return void
+	 * @throws PermissionException
+	 *             thrown if the user does not have access
+	 */
+	void saveMeetings(List<SignupMeeting> signupMeetings, String userId) throws PermissionException;
 
 	/**
 	 * This updates the SingupMeeting object into the database storage. If it's
@@ -106,6 +135,20 @@ public interface SignupMeetingService {
 	 *             thrown if something goes bad
 	 */
 	void updateSignupMeeting(SignupMeeting meeting, boolean isOrganizer) throws Exception;
+	
+	/**
+	 * This updates a list of SingupMeeting objects into the database storage. If it's
+	 * an organizer, permission: signup.update is required. Otherwise
+	 * permission: signup.attend/signup.attend.all is required
+	 * 
+	 * @param meetings
+	 *            a list of SignupMeeting objects
+	 * @param isOrganizer
+	 *            true if the user is event-organizer
+	 * @throws Exception
+	 *             thrown if something goes bad
+	 */
+	void updateSignupMeetings(List<SignupMeeting> meetings, boolean isOrganizer) throws Exception;
 
 	/**
 	 * This retrieve a SignupMeeting object from database according to the

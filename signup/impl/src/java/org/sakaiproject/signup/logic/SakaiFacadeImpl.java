@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -90,6 +90,15 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
+	}
+
+	/**
+	 * get the ToolManager object.
+	 * 
+	 * @return a ToolManager object.
+	 */
+	public ToolManager getToolManager() {
+		return this.toolManager;
 	}
 
 	private SecurityService securityService;
@@ -258,25 +267,28 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 * {@inheritDoc}
 	 */
 	public String getCurrentPageId() {
+		return getSiteSignupPageId(getCurrentLocationId());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getSiteSignupPageId(String siteId) {
 		try {
-			Site currentSite = siteService.getSite(getCurrentLocationId());
-			String currentToolId = toolManager.getCurrentPlacement().getToolId();
+			Site appliedSite = siteService.getSite(siteId);
+			String signupToolId = toolManager.getCurrentPlacement().getToolId();
 
 			SitePage page = null;
-			List pageList = currentSite.getPages();
+			List pageList = appliedSite.getPages();
 			for (int i = 0; i < pageList.size(); i++) {
 				page = (SitePage) pageList.get(i);
 				List pageToolList = page.getTools();
 				if (pageToolList != null && !pageToolList.isEmpty()) {
-					ToolConfiguration toolConf = (ToolConfiguration) pageToolList.get(0);// take
-					// first
-					// one
-					// only
-					// for
-					// efficiency
+					/* take first one only for efficiency */
+					ToolConfiguration toolConf = (ToolConfiguration) pageToolList.get(0);
 					if (toolConf != null) {
 						String toolId = toolConf.getToolId();
-						if (toolId.equalsIgnoreCase(currentToolId)) {
+						if (toolId.equalsIgnoreCase(signupToolId)) {
 							return page.getId();
 						}
 					}
@@ -400,28 +412,37 @@ public class SakaiFacadeImpl implements SakaiFacade {
 			return;
 		}
 		Group group = site.getGroup(signupGroup.getGroupId());
-		if (group ==null)
+		if (group == null)
 			return;
 		Set<Member> members = group.getMembers();
+		SignupUser signupUser = null;
 		for (Member member : members) {
-			if (member.isActive() && (hasPredefinedViewPermisson(member) ||isAllowedGroup(member.getUserId(), SIGNUP_VIEW, site.getId(), group.getId()))) {
+			if (member.isActive()
+					&& (hasPredefinedViewPermisson(member)
+							|| isAllowedGroup(member.getUserId(), SIGNUP_VIEW, site.getId(), group.getId()) || isAllowedSite(
+							member.getUserId(), SIGNUP_VIEW_ALL, site.getId()))) {
 				User user = getUser(member.getUserId());
 				if (user == null) {
 					log.info("user is not found from 'userDirectoryService' for userId:" + member.getUserId());
-					signupUsers.add(new SignupUser(member.getUserEid(), member.getUserId(), "", member.getUserEid(),
-							member.getRole()));
+					signupUser = new SignupUser(member.getUserEid(), member.getUserId(), "", member.getUserEid(),
+							member.getRole(), site.getId(), site.isPublished());
+					processAddOrUpdateSignupUsers(signupUsers, signupUser);
 					continue;
 				}
 
-				signupUsers.add(new SignupUser(member.getUserEid(), member.getUserId(), user.getFirstName(), user
-						.getLastName(), member.getRole()));
+				signupUser = new SignupUser(member.getUserEid(), member.getUserId(), user.getFirstName(), user
+						.getLastName(), member.getRole(), site.getId(), site.isPublished());
+				processAddOrUpdateSignupUsers(signupUsers, signupUser);
 				// comment: member.getUserDisplayId() not used
 			}
 		}
 	}
-	
-	private boolean hasPredefinedViewPermisson(Member member){
-		/*just assume student role has the signup.view permission and could add more roles to exclude*/
+
+	private boolean hasPredefinedViewPermisson(Member member) {
+		/*
+		 * just assume student role has the signup.view permission and could add
+		 * more roles to exclude
+		 */
 		return STUDENT_ROLE_ID.equalsIgnoreCase(member.getRole().getId());
 	}
 
@@ -434,24 +455,63 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage(), e);
 		}
-		
-		if (site==null)
-			return;		
+
+		if (site == null)
+			return;
+
+		boolean isSitePublished = site.isPublished();
+		SignupUser signupUser = null;
 		Set<Member> members = site.getMembers();
 		for (Member member : members) {
-			if (member.isActive() && (hasPredefinedViewPermisson(member) ||isAllowedSite(member.getUserId(), SIGNUP_VIEW, site.getId()))) {
+			if (member.isActive()
+					&& (hasPredefinedViewPermisson(member)
+							|| isAllowedSite(member.getUserId(), SIGNUP_VIEW, site.getId()) || isAllowedSite(member
+							.getUserId(), SIGNUP_VIEW_ALL, site.getId()))) {
 				User user = getUser(member.getUserId());
 				if (user == null) {
 					log.info("user is not found from 'userDirectoryService' for userId:" + member.getUserId());
-					signupUsers.add(new SignupUser(member.getUserEid(), member.getUserId(), "", member.getUserEid(),
-							member.getRole()));
+					signupUser = new SignupUser(member.getUserEid(), member.getUserId(), "", member.getUserEid(),
+							member.getRole(), site.getId(), site.isPublished());
+					processAddOrUpdateSignupUsers(signupUsers, signupUser);
 					continue;
 				}
 
-				signupUsers.add(new SignupUser(member.getUserEid(), member.getUserId(), user.getFirstName(), user
-						.getLastName(), member.getRole()));
+				signupUser = new SignupUser(member.getUserEid(), member.getUserId(), user.getFirstName(), user
+						.getLastName(), member.getRole(), site.getId(), site.isPublished());
+				processAddOrUpdateSignupUsers(signupUsers, signupUser);
+
 			}
 		}
+	}
+
+	/**
+	 * It will make sure that the user has a point to a published site and
+	 * possible with the same creator's siteId if possible
+	 * 
+	 * @param signupUsers
+	 *            a List of SignupUser objects.
+	 * @param signupUser
+	 *            a SignupUser object
+	 */
+	private void processAddOrUpdateSignupUsers(Set<SignupUser> signupUsers, SignupUser signupUser) {
+		boolean update = true;
+		if (!signupUsers.isEmpty() && signupUsers.contains(signupUser)) {
+			for (SignupUser sUser : signupUsers) {
+				if (sUser.equals(signupUser)) {
+					if (!sUser.isPublishedSite() && signupUser.isPublishedSite() || signupUser.isPublishedSite()
+							&& signupUser.getMainSiteId().equals(getCurrentLocationId())) {
+						update = true;
+					} else {
+						update = false;
+					}
+
+					break;
+				}
+			}
+		}
+
+		if (update)
+			signupUsers.add(signupUser);
 	}
 
 	/**

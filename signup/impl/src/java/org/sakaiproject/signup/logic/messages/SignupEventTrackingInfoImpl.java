@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -156,39 +156,39 @@ public class SignupEventTrackingInfoImpl implements SignupEventTrackingInfo, Sig
 	public String getAllAttendeeTransferLogInfo() {
 		StringBuilder sb = new StringBuilder();
 		List<SignupTrackingItem> trackItemList = this.getAttendeeTransferInfos();
-		sb.append(" - has started following actions:");
+		sb.append(" Acts:");
 		for (SignupTrackingItem item : trackItemList) {
 			if (item.getMessageType().equals(SIGNUP_ATTENDEE_SIGNUP)) {
-				sb.append("- attendee(" + item.getAttendee().getAttendeeUserId() + ") is signed up to timeslot: "
+				sb.append("-att:" + item.getAttendee().getAttendeeUserId() + " signUpToTs: "
 						+ getTimeSlot(item.getAddToTimeslot()));
 			} else if (item.getMessageType().equals(SIGNUP_ATTENDEE_CANCEL)) {
-				sb.append("- attendee(" + item.getAttendee().getAttendeeUserId() + ") is canceled from timeslot: "
+				sb.append("-att:" + item.getAttendee().getAttendeeUserId() + " canclFrTs: "
 						+ getTimeSlot(item.getRemovedFromTimeslot()));
 			} else if (item.getMessageType().equals(SIGNUP_ORGANIZER_REMOVE)) {
-				sb.append("- attendee(" + item.getAttendee().getAttendeeUserId() + ") is removed from timeslot: "
+				sb.append("-att:" + item.getAttendee().getAttendeeUserId() + " rmvFrTs: "
 						+ getTimeSlot(item.getRemovedFromTimeslot()));
 			} else if (item.getMessageType().equals(SIGNUP_ATTENDEE_PROMOTE)) {
-				sb.append("- attendee(" + item.getAttendee().getAttendeeUserId() + ") is promoted to timeslot: "
+				sb.append("-att:" + item.getAttendee().getAttendeeUserId() + " promtToTs: "
 						+ getTimeSlot(item.getAddToTimeslot()));
 			} else if (item.getMessageType().equals(SIGNUP_ATTENDEE_SIGNUP_SWAP)) {
-				sb.append("- attendee(" + item.getAttendee().getAttendeeUserId() + ") is swapped to timeslot: "
+				sb.append("-att:" + item.getAttendee().getAttendeeUserId() + " swapToTs: "
 						+ getTimeSlot(item.getAddToTimeslot()));
 			} else if (item.getMessageType().equals(SIGNUP_ATTENDEE_SIGNUP_MOVE)) {
-				sb.append("- attendee(" + item.getAttendee().getAttendeeUserId() + ") is moved to timeslot: "
+				sb.append("-att:" + item.getAttendee().getAttendeeUserId() + " movToTs: "
 						+ getTimeSlot(item.getAddToTimeslot()));
 			} else if (item.getMessageType().equals(SIGNUP_ATTENDEE_SIGNUP_REPLACE)) {
-				sb.append("- attendee(" + item.getAttendee().getAttendeeUserId()
-						+ " has been added (by replacement) to timeslot: " + getTimeSlot(item.getAddToTimeslot()));
+				sb.append("-att:" + item.getAttendee().getAttendeeUserId() + " add(replace)ToTs: "
+						+ getTimeSlot(item.getAddToTimeslot()));
 			}
 
 		}
-		sb.append(" on " + SignupDateFormat.format_date_mm_dd_yy(meeting.getStartTime()) + "- endOfAction");
+		sb.append(" on " + SignupDateFormat.format_date_mm_dd_yy(meeting.getStartTime()));
 		return sb.toString();
 	}
 
 	/* display time slot in a string */
 	private String getTimeSlot(SignupTimeslot timeslot) {
-		String s = " " + SignupDateFormat.format_h_mm_a(timeslot.getStartTime()) + " - "
+		String s = " " + SignupDateFormat.format_h_mm_a(timeslot.getStartTime()) + "-"
 				+ SignupDateFormat.format_h_mm_a(timeslot.getEndTime()) + " ";
 		return s;
 	}
@@ -199,7 +199,7 @@ public class SignupEventTrackingInfoImpl implements SignupEventTrackingInfo, Sig
 			return " ";
 		StringBuilder sb = new StringBuilder();
 		for (SignupTimeslot timeslot : timeslots) {
-			sb.append(" " + SignupDateFormat.format_h_mm_a(timeslot.getStartTime()) + " - "
+			sb.append(" " + SignupDateFormat.format_h_mm_a(timeslot.getStartTime()) + "-"
 					+ SignupDateFormat.format_h_mm_a(timeslot.getEndTime()) + " ");
 		}
 		return sb.toString();

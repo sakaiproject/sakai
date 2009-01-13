@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -48,9 +48,15 @@ public interface SignupBeanConstants {
 	
 	public static final String VIEW_ALL ="all";
 	
+	public static final String VIEW_MY_SIGNED_UP ="mySignUp";
+	
+	public static final String VIEW_IMMEDIATE_AVAIL ="immediateAvail";
+	
 	public static final long dataRefreshInterval= 5*60*1000;//5 minutes
 	
 	public final static int MINUTE_IN_MILLISEC = 1000 * 60;// milli-seconds
+	
+	public final static int DAY_IN_MILLISEC = 1000 * 60 * 60 * 24;// milli-seconds
 	
 	public static int DAY_IN_MINUTES=24*60;
 	
@@ -64,6 +70,13 @@ public interface SignupBeanConstants {
 	
 	public static final int MAX_NUMBER_OF_RETRY = 20;
 	
+	public static final int onceOnly= 0;
+	
+	public static final int perDay = 1;
+	
+	public static final int perWeek = 7;
+	
+	public static final int perBiweek = 14;
 	
 	/** define the JSF action outcomes constants*/
 	public static final int MAX_NUM_PARTICIPANTS_FOR_DROPDOWN_BEFORE_AUTO_SWITCH_TO_EID_INPUT_MODE= 600;//1000;
@@ -92,10 +105,4 @@ public interface SignupBeanConstants {
 	
 	public static final String ADD_MEETING_STEP2_PAGE_URL="addMeetingStep2";
 	
-	public static final String  ADD_MEETING_STEP3_PAGE_URL="addMeetingStep3";
-	
-	public static final String ADD_MEETING_STEP4_PAGE_URL="addMeetingStep4";
-	
-	public static final String ADD_MEETING_STEP5_PAGE_URL="addMeetingStep5";
-
 }

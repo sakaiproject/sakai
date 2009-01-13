@@ -1,9 +1,9 @@
 /**********************************************************************************
  * $URL$
  * $Id$
-***********************************************************************************
+ ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -42,7 +42,8 @@ import org.springframework.dao.DataAccessException;
  * creating, updating and removing SignupMeeting objects.
  * </p>
  */
-public class SignupMeetingDaoImpl extends HibernateCompleteGenericDao implements SignupMeetingDao {
+public class SignupMeetingDaoImpl extends HibernateCompleteGenericDao implements
+		SignupMeetingDao {
 
 	private static Log log = LogFactory.getLog(SignupMeetingDaoImpl.class);
 
@@ -55,21 +56,41 @@ public class SignupMeetingDaoImpl extends HibernateCompleteGenericDao implements
 	 */
 	@SuppressWarnings("unchecked")
 	public List<SignupMeeting> getAllSignupMeetings(String siteId) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class).addOrder(Order.asc("startTime"))
+		DetachedCriteria criteria = DetachedCriteria.forClass(
+				SignupMeeting.class).addOrder(Order.asc("startTime"))
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-				.createCriteria("signupSites")
+				.createCriteria("signupSites").add(
+						Restrictions.eq("siteId", siteId));
+		return getHibernateTemplate().findByCriteria(criteria);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public List<SignupMeeting> getSignupMeetings(String siteId,
+			Date searchEndDate) {
+		DetachedCriteria criteria = DetachedCriteria.forClass(
+				SignupMeeting.class).add(
+				Restrictions.le("startTime", searchEndDate)).addOrder(
+				Order.asc("startTime")).createCriteria("signupSites").add(
+				Restrictions.eq("siteId", siteId));
+
+		return getHibernateTemplate().findByCriteria(criteria);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public List<SignupMeeting> getSignupMeetings(String siteId, Date startDate,
+			Date endDate) {
+		DetachedCriteria criteria = DetachedCriteria.forClass(
+				SignupMeeting.class).setResultTransformer(
+				Criteria.DISTINCT_ROOT_ENTITY).add(
+				Restrictions.between("startTime", startDate, endDate))
+				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
 				.add(Restrictions.eq("siteId", siteId));
-		return getHibernateTemplate().findByCriteria(criteria);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	public List<SignupMeeting> getSignupMeetings(String siteId, Date searchEndDate) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class).add(
-				Restrictions.le("startTime", searchEndDate)).addOrder(Order.asc("startTime")).createCriteria(
-				"signupSites").add(Restrictions.eq("siteId", siteId));
 
 		return getHibernateTemplate().findByCriteria(criteria);
 	}
@@ -78,11 +99,15 @@ public class SignupMeetingDaoImpl extends HibernateCompleteGenericDao implements
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
-	public List<SignupMeeting> getSignupMeetings(String siteId, Date startDate, Date endDate) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-				.add(Restrictions.between("startTime", startDate, endDate)).addOrder(Order.asc("startTime"))
-				.createCriteria("signupSites").add(Restrictions.eq("siteId", siteId));
+	public List<SignupMeeting> getRecurringSignupMeetings(String siteId,
+			Long recurrenceId, Date startDate) {
+		DetachedCriteria criteria = DetachedCriteria.forClass(
+				SignupMeeting.class).setResultTransformer(
+				Criteria.DISTINCT_ROOT_ENTITY).add(
+				Restrictions.eq("recurrenceId", recurrenceId)).add(
+				Restrictions.gt("startTime", startDate)).addOrder(
+				Order.asc("startTime")).createCriteria("signupSites").add(
+				Restrictions.eq("siteId", siteId));
 
 		return getHibernateTemplate().findByCriteria(criteria);
 	}
@@ -97,15 +122,39 @@ public class SignupMeetingDaoImpl extends HibernateCompleteGenericDao implements
 	/**
 	 * {@inheritDoc}
 	 */
+	public void saveMeetings(List<SignupMeeting> signupMeetings) {
+		if (signupMeetings != null && signupMeetings.size() > 0) {
+			SignupMeeting sm = (SignupMeeting) signupMeetings.get(0);
+			if (sm.isRecurredMeeting()) {
+				Long reRecurId = (Long) getHibernateTemplate().save(sm);
+				/*
+				 * use the first unique meeting id as the reRecurId for all
+				 * recurring meetings
+				 */
+				for (SignupMeeting sMeeting : signupMeetings) {
+					sMeeting.setRecurrenceId(reRecurId);
+				}
+
+			}
+
+			getHibernateTemplate().saveOrUpdateAll(signupMeetings);
+		}
+
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public SignupMeeting loadSignupMeeting(Long meetingId) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-			.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-			.add(Restrictions.eq("id", meetingId));
+		DetachedCriteria criteria = DetachedCriteria.forClass(
+				SignupMeeting.class).setResultTransformer(
+				Criteria.DISTINCT_ROOT_ENTITY).add(
+				Restrictions.eq("id", meetingId));
 		List ls = getHibernateTemplate().findByCriteria(criteria);
 		if (ls == null || ls.isEmpty())
 			return null;
-		
-		return (SignupMeeting) ls.get(0);		
+
+		return (SignupMeeting) ls.get(0);
 
 	}
 
@@ -114,6 +163,15 @@ public class SignupMeetingDaoImpl extends HibernateCompleteGenericDao implements
 	 */
 	public void updateMeeting(SignupMeeting meeting) throws DataAccessException {
 		getHibernateTemplate().update(meeting);
+
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void updateMeetings(List<SignupMeeting> meetings)
+			throws DataAccessException {
+		getHibernateTemplate().saveOrUpdateAll(meetings);
 
 	}
 

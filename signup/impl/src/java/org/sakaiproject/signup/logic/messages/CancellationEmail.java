@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic.messages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,8 @@ public class CancellationEmail extends SignupEmailBase {
 
 	private String organizer;
 
+	private String emailReturnSiteId;
+
 	/**
 	 * constructor
 	 * 
@@ -65,6 +68,7 @@ public class CancellationEmail extends SignupEmailBase {
 		this.item = item;
 		this.meeting = meeting;
 		this.setSakaiFacade(sakaiFacade);
+		this.emailReturnSiteId = item.getAttendee().getSignupSiteId();
 
 	}
 
@@ -91,6 +95,7 @@ public class CancellationEmail extends SignupEmailBase {
 		this.item = item;
 		this.meeting = meeting;
 		this.setSakaiFacade(sakaiFacade);
+		this.emailReturnSiteId = item.getAttendee().getSignupSiteId();
 
 	}
 
@@ -101,10 +106,10 @@ public class CancellationEmail extends SignupEmailBase {
 		List<String> rv = new ArrayList<String>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
-		rv.add("Subject: " + rb.getString("subject.Cancel.appointment.A") + space
-				+ getTime(meeting.getStartTime()).toStringLocalDate() + space
-				+ rb.getString("subject.Cancel.appointment.B") + space
-				+ getSakaiFacade().getUserDisplayName(meeting.getCreatorUserId()));
+		rv.add("Subject: "
+				+ MessageFormat.format(rb.getString("subject.Cancel.appointment.field"), new Object[] {
+						getTime(meeting.getStartTime()).toStringLocalDate(),
+						getSakaiFacade().getUserDisplayName(meeting.getCreatorUserId()) }));
 		rv.add("From: " + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName());
 		rv.add("To: " + attendee.getEmail());
 
@@ -116,29 +121,47 @@ public class CancellationEmail extends SignupEmailBase {
 	 */
 	public String getMessage() {
 		StringBuilder message = new StringBuilder();
-		message.append(rb.getString("body.greeting") + space + makeFirstCapLetter(attendee.getDisplayName()) + "," + newline);
-		message.append(newline + makeFirstCapLetter(getOrganizer()) + space
-				+ rb.getString("body.organizerCancel.appointment"));
-		message.append(newline + newline + rb.getString("body.meetingTopic") + space + meeting.getTitle());
+		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"),
+				new Object[] { makeFirstCapLetter(attendee.getDisplayName()) }));
+
+		Object[] params = new Object[] { makeFirstCapLetter(getOrganizer()),
+				getSiteTitleWithQuote(this.emailReturnSiteId), getServiceName() };
+		message.append(newline + newline
+				+ MessageFormat.format(rb.getString("body.organizerCancel.appointment.part"), params));
+
+		message.append(newline + newline
+				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
 		message.append(newline + rb.getString("body.timeslot") + space);
 		List<SignupTimeslot> removedFromTimeslots = item.getRemovedFromTimeslot();
 		if (!removedFromTimeslots.isEmpty()) {
 			for (SignupTimeslot timeslot : removedFromTimeslots) {
-				if(!meeting.isMeetingCrossDays())
-					message.append(getTime(timeslot.getStartTime()).toStringLocalTime() + " - "
-						+ getTime(timeslot.getEndTime()).toStringLocalTime() + space + rb.getString("body.on") + space
-						+ getTime(timeslot.getStartTime()).toStringLocalDate() + newline);
-				else
-					message.append(getTime(timeslot.getStartTime()).toStringLocalTime() + ", " + getTime(timeslot.getStartTime()).toStringLocalShortDate() 
-							+ "  -  "
-							+ getTime(timeslot.getEndTime()).toStringLocalTime() + ", "
-							+ getTime(timeslot.getEndTime()).toStringLocalShortDate() + newline);
+				if (!meeting.isMeetingCrossDays()) {
+					Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
+							getTime(timeslot.getEndTime()).toStringLocalTime(),
+							getTime(timeslot.getStartTime()).toStringLocalDate() };
+					message.append(MessageFormat.format(rb.getString("body.meeting.timeslot.timeframe"),
+							paramsTimeframe)
+							+ newline);
+				} else {
+					Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
+							getTime(timeslot.getStartTime()).toStringLocalShortDate(),
+							getTime(timeslot.getEndTime()).toStringLocalTime(),
+							getTime(timeslot.getEndTime()).toStringLocalShortDate() };
+					message.append(MessageFormat.format(rb.getString("body.meeting.crossdays.timeslot.timeframe"),
+							paramsTimeframe)
+							+ newline);
+
+				}
 			}
 		}
 
-		message.append(newline + rb.getString("body.attendeeCheck.meetingStatus.B"));
+		message.append(newline
+				+ newline
+				+ MessageFormat.format(rb.getString("body.attendeeCheck.meetingStatus.B"),
+						new Object[] { getServiceName() }));
+
 		/* footer */
-		message.append(newline + getFooter(newline));
+		message.append(newline + getFooter(newline, this.emailReturnSiteId));
 		return message.toString();
 	}
 

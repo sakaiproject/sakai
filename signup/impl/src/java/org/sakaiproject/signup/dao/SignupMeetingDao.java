@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -72,6 +72,20 @@ public interface SignupMeetingDao extends CompleteGenericDao {
 	 * @return a list of SignupMeeting objects
 	 */
 	List<SignupMeeting> getSignupMeetings(String siteId, Date startDate, Date endDate);
+	
+	/**
+	 * This returns a subset list of SignupMeetings with the same recurrenceId from a starting Date for
+	 * the site
+	 * 
+	 * @param currentSiteId
+	 *            a unique id which represents the current site
+	 * @param recurrenceId
+	 *            recurrenceId,which constraints the recurring meetings.         
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getRecurringSignupMeetings(String currentSiteId, Long recurrenceId, Date startDate);
 
 	/**
 	 * This saves meeting object into database
@@ -81,6 +95,13 @@ public interface SignupMeetingDao extends CompleteGenericDao {
 	 * @return a unique Id for the SignupMeeting object from DB
 	 */
 	Long saveMeeting(SignupMeeting signupMeeting);
+	
+	/**
+	 * This saves a list of meeting object into database
+	 * @param signupMeetings
+	 * @param userId
+	 */
+	void saveMeetings(List<SignupMeeting> signupMeetings);
 
 	/**
 	 * This retrieve a SignupMeeting object from database according to the
@@ -101,6 +122,16 @@ public interface SignupMeetingDao extends CompleteGenericDao {
 	 *             thrown if the data is not accessible
 	 */
 	void updateMeeting(SignupMeeting meeting) throws DataAccessException;
+	
+	/**
+	 * This updates a list of SignupMeeting objects in the DB
+	 * 
+	 * @param meetings
+	 *            a list of SignupMeeting objects
+	 * @throws DataAccessException
+	 *             thrown if the data is not accessible
+	 */
+	void updateMeetings(List<SignupMeeting> meetings) throws DataAccessException;
 
 	/**
 	 * This deletes a list of SignupMeeting objects. It should remove all or

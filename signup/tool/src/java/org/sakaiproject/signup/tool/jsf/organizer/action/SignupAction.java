@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
+import org.sakaiproject.signup.logic.SignupMessageTypes;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
 import org.sakaiproject.signup.model.SignupAttendee;
@@ -42,7 +43,7 @@ import org.sakaiproject.signup.tool.util.SignupBeanConstants;
  * shared methods for children user action classes.
  * </P>
  */
-public abstract class SignupAction implements SignupBeanConstants {
+public abstract class SignupAction implements SignupBeanConstants{
 
 	protected final String userId;
 

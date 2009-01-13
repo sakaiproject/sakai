@@ -3,7 +3,7 @@
  * $Id$
 ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Yale University
+ * Copyright (c) 2007, 2008, 2009 Yale University
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -37,6 +37,7 @@ import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.tool.jsf.AttendeeWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
@@ -113,6 +114,8 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 
 	private CancelRestoreTimeslot cancelRestoreTimeslot;
 
+	private boolean collapsedMeetingInfo;
+
 	private boolean eidInputMode = false;
 
 	/**
@@ -122,9 +125,10 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	 * @param meetingWrapper
 	 *            a SignupMeetingWrapper object.
 	 */
-	public void init(SignupMeetingWrapper meetingWrapper) {
+	public void init(SignupMeetingWrapper meetingWrapper) throws Exception {
 		reset(meetingWrapper);
 		this.eidInputMode = false;
+		this.collapsedMeetingInfo = false;
 		loadAllAttendees(meetingWrapper.getMeeting());
 	}
 
@@ -202,7 +206,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		TimeslotWrapper timeslotWrapper = (TimeslotWrapper) timeslotWrapperTable.getRowData();
 		cancelRestoreTimeslot = new CancelRestoreTimeslot(getMeetingWrapper().getMeeting(), timeslotWrapper
 				.getTimeSlot(), currentUserId(), currentSiteId(), signupMeetingService);
-		return "cancelTimeslot";
+		return cancelRestoreTimeslot();
 	}
 
 	/**
@@ -215,7 +219,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		TimeslotWrapper timeslotWrapper = (TimeslotWrapper) timeslotWrapperTable.getRowData();
 		cancelRestoreTimeslot = new CancelRestoreTimeslot(getMeetingWrapper().getMeeting(), timeslotWrapper
 				.getTimeSlot(), currentUserId(), currentSiteId(), signupMeetingService);
-		return cancelTimeslot();
+		return cancelRestoreTimeslot();
 	}
 
 	/**
@@ -294,7 +298,8 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			meeting = cancelRestoreTimeslot.cancelOrRestore();
 			if (sendEmail) {
 				try {
-					signupMeetingService.sendEmailToParticipantsByOrganizerAction(cancelRestoreTimeslot.getSignupEventTrackingInfo());
+					signupMeetingService.sendEmailToParticipantsByOrganizerAction(cancelRestoreTimeslot
+							.getSignupEventTrackingInfo());
 				} catch (Exception e) {
 					logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
@@ -357,6 +362,13 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		/* reset */
 		setSelectedAction(REPLACE_ACTION);
 
+		/*
+		 * refresh meeting list to catch the changes when go back the main
+		 * meetings list page
+		 */
+		if (Utilities.getSignupMeetingsBean().isShowMyAppointmentTime())
+			Utilities.resetMeetingList();
+
 		return updateMeetingwrapper(meeting, ORGANIZER_MEETING_PAGE_URL);
 	}
 
@@ -385,7 +397,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		ReplaceAttendee replaceAttendee = new ReplaceAttendee(this.currentUserId(), this.currentSiteId(),
 				signupMeetingService);
 		replaceAttendee.replace(getMeetingWrapper().getMeeting(), wrapper.getTimeSlot(), this.selectedFirstUser,
-				replacerUserId);
+				replacerUserId, this.allSignupUsers);
 
 		return replaceAttendee.getSignupEventTrackingInfo();
 	}
@@ -549,7 +561,8 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
 
-		SignupAttendee newAttendee = new SignupAttendee(newUserId, sakaiFacade.getCurrentLocationId());
+		SignupAttendee newAttendee = new SignupAttendee(newUserId, getAttendeeMainActiveSiteId(newUserId,
+				this.allSignupUsers, getSakaiFacade().getCurrentLocationId()));
 		timeslotWrapper.setNewAttendee(newAttendee);
 
 		SignupMeeting meeting = null;
@@ -628,6 +641,13 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
 		}
 
+		/*
+		 * refresh meeting list to catch the changes when go back the main
+		 * meeting list page
+		 */
+		if (Utilities.getSignupMeetingsBean().isShowMyAppointmentTime())
+			Utilities.resetMeetingList();
+
 		return updateMeetingwrapper(meeting, ORGANIZER_MEETING_PAGE_URL);
 	}
 
@@ -660,7 +680,8 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
 
-		SignupAttendee newWaiter = new SignupAttendee(waiterUserId, currentSiteId());
+		SignupAttendee newWaiter = new SignupAttendee(waiterUserId, getAttendeeMainActiveSiteId(waiterUserId,
+				allSignupUsers, getSakaiFacade().getCurrentLocationId()));
 		SignupMeeting meeting = null;
 		try {
 			AddWaiter addWaiter = new AddWaiter(signupMeetingService, currentUserId(), currentSiteId(),
@@ -1114,11 +1135,39 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			this.eidInputByUser = userInputEid;
 	}
 
+	/**
+	 * It's a getter method for UI.
+	 * 
+	 * @return a list of SignupSite objects.
+	 */
+	public List<SignupSite> getPublishedSignupSites() {
+		return getMeetingWrapper().getMeeting().getSignupSites();
+	}
+
 	/* proxy method */
 	private String getEidInputByUser() {
 		String eid = this.eidInputByUser;
 		this.eidInputByUser = null;// reset for only use once
 		return eid;
+	}
+
+	/**
+	 * It's a getter method for UI
+	 * 
+	 * @return a boolean value
+	 */
+	public boolean isCollapsedMeetingInfo() {
+		return collapsedMeetingInfo;
+	}
+
+	/**
+	 * This is a setter method for UI.
+	 * 
+	 * @param collapsedMeetingInfo
+	 *            a boolean value
+	 */
+	public void setCollapsedMeetingInfo(boolean collapsedMeetingInfo) {
+		this.collapsedMeetingInfo = collapsedMeetingInfo;
 	}
 
 }
