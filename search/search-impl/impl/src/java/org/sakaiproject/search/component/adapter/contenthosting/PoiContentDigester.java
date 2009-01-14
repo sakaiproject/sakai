@@ -68,10 +68,6 @@ public class PoiContentDigester extends BaseContentDigester
 			contentStream = contentResource.streamContent();			
 			POITextExtractor DocExt = ExtractorFactory.createExtractor(contentStream);
 
-			String doctext = DocExt.getText(); 
-			
-			log.debug("Digested " + contentResource.getReference() + " to: " + doctext);
-			
 			return DocExt.getText();
 		}
 		catch (Exception e)
