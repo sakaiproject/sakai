@@ -119,16 +119,22 @@
 
     <!--  REST beans -->
     <bean id="org.sakaiproject.entitybroker.rest.EntityActionsManager"
-        class="org.sakaiproject.entitybroker.rest.EntityActionsManager" />
+        class="org.sakaiproject.entitybroker.rest.EntityActionsManager">
+        <property name="entityProviderMethodStore"
+            ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore" />
+    </bean>
 
     <bean id="org.sakaiproject.entitybroker.rest.EntityRedirectsManager"
         class="org.sakaiproject.entitybroker.rest.EntityRedirectsManager">
         <property name="requestStorage"
             ref="org.sakaiproject.entitybroker.util.request.RequestStorage" />
+        <property name="entityProviderMethodStore"
+            ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore" />
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.rest.EntityDescriptionManager"
-        class="org.sakaiproject.entitybroker.rest.EntityDescriptionManager">
+        class="org.sakaiproject.entitybroker.rest.EntityDescriptionManager"
+        init-method="init" destroy-method="destroy">
         <property name="entityBrokerManager"
             ref="org.sakaiproject.entitybroker.EntityBrokerManager" />
         <property name="entityProviderMethodStore"
@@ -160,7 +166,8 @@
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.EntityRequestHandler"
-        class="org.sakaiproject.entitybroker.rest.EntityHandlerImpl">
+        class="org.sakaiproject.entitybroker.rest.EntityHandlerImpl"
+        init-method="init">
         <property name="accessProviderManager"
             ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
         <property name="entityActionsManager"

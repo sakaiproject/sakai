@@ -19,6 +19,8 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -30,11 +32,15 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
 
 
 /**
- * This is the standard entity REST provider which will be created and set in the entity broker manager
+ * This is the standard entity REST provider which will be created and set in the entity broker manager,
+ * it will register itself with the entitybrokermanager on startup or construction,
+ * it should also be unregistered correctly
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class EntityRESTProviderBase implements EntityRESTProvider {
+
+    private static final Log log = LogFactory.getLog(EntityRESTProviderBase.class);
 
     protected EntityRESTProviderBase() { }
 
@@ -68,11 +74,13 @@ public class EntityRESTProviderBase implements EntityRESTProvider {
     }
 
     public void init() {
+        log.info("init");
         // register with the entity broker manager
         this.entityBrokerManager.setEntityRESTProvider(this);
     }
 
     public void destroy() {
+        log.info("destroy");
         // unregister
         this.entityBrokerManager.setEntityRESTProvider(null);
     }

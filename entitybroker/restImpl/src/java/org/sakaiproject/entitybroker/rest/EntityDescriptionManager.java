@@ -56,6 +56,8 @@ import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.VersionConstants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ArrayUtils;
 import org.azeckoski.reflectutils.ConstructorUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
@@ -70,6 +72,8 @@ import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
  */
 @SuppressWarnings("deprecation")
 public class EntityDescriptionManager {
+
+    private static final Log log = LogFactory.getLog(EntityDescriptionManager.class);
 
     private static final String INPUT_DESCRIBE_KEY = "input";
     private static final String OUTPUT_DESCRIBE_KEY = "output";
@@ -97,8 +101,7 @@ public class EntityDescriptionManager {
     		+ "\n</body>\n</html>\n";
 
     
-    protected EntityDescriptionManager() {
-    }
+    protected EntityDescriptionManager() { }
 
     /**
      * Full constructor
@@ -125,37 +128,53 @@ public class EntityDescriptionManager {
         init();
     }
 
+    private EntityProvider describeEP = null;
+    private EntityProvider batchEP = null;
     public void init() {
+        log.info("init");
         // register the describe and batch prefixes to load up descriptions
-        entityProviderManager.registerEntityProvider(
-                new DescribePropertiesable() {
-                    public String getEntityPrefix() {
-                        return EntityRequestHandler.DESCRIBE;
-                    }
-                    public String getBaseName() {
-                        return getEntityPrefix();
-                    }
-                    public ClassLoader getResourceClassLoader() {
-                        return EntityDescriptionManager.class.getClassLoader();
-                    }
-                }
-        );
-        entityProviderManager.registerEntityProvider(
-                new BatchProvider() {
-                    public String getEntityPrefix() {
-                        return EntityRequestHandler.BATCH;
-                    }
-                    public String getBaseName() {
-                        return getEntityPrefix();
-                    }
-                    public ClassLoader getResourceClassLoader() {
-                        return EntityDescriptionManager.class.getClassLoader();
-                    }
-                    public String[] getHandledOutputFormats() {
-                        return EntityEncodingManager.HANDLED_OUTPUT_FORMATS;
-                    }
-                }
-        );
+        describeEP = new DescribePropertiesable() {
+            public String getEntityPrefix() {
+                return EntityRequestHandler.DESCRIBE;
+            }
+            public String getBaseName() {
+                return getEntityPrefix();
+            }
+            public ClassLoader getResourceClassLoader() {
+                return EntityDescriptionManager.class.getClassLoader();
+            }
+        };
+        entityProviderManager.registerEntityProvider(describeEP);
+
+        batchEP = new BatchProvider() {
+            public String getEntityPrefix() {
+                return EntityRequestHandler.BATCH;
+            }
+            public String getBaseName() {
+                return getEntityPrefix();
+            }
+            public ClassLoader getResourceClassLoader() {
+                return EntityDescriptionManager.class.getClassLoader();
+            }
+            public String[] getHandledOutputFormats() {
+                return EntityEncodingManager.HANDLED_OUTPUT_FORMATS;
+            }
+        };
+        entityProviderManager.registerEntityProvider(batchEP);
+    }
+
+    public void destroy() {
+        log.info("destroy");
+        try {
+            if (describeEP != null) {
+                entityProviderManager.unregisterEntityProvider(describeEP);
+            }
+            if (batchEP != null) {
+                entityProviderManager.unregisterEntityProvider(batchEP);
+            }
+        } catch (Exception e) {
+            log.warn("Unable to unregister the describe and batch description providers");
+        }
     }
 
     private static interface BatchProvider extends DescribePropertiesable, Outputable {};

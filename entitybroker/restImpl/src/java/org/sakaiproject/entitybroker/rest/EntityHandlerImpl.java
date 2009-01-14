@@ -84,7 +84,6 @@ import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
-import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
 
 import org.azeckoski.reflectutils.ReflectUtils;
@@ -116,7 +115,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             EntityViewAccessProviderManager entityViewAccessProviderManager,
             RequestGetter requestGetter, EntityActionsManager entityActionsManager,
             EntityRedirectsManager entityRedirectsManager, EntityBatchHandler entityBatchHandler,
-            RequestStorageImpl requestStorage) {
+            RequestStorageWrite requestStorage) {
         super();
         this.entityProviderManager = entityProviderManager;
         this.entityBrokerManager = entityBrokerManager;
@@ -128,9 +127,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.entityRedirectsManager = entityRedirectsManager;
         this.requestStorage = requestStorage;
         setEntityBatchHandler(entityBatchHandler);
-        log.info("init complete");
+        init();
     }
 
+    public void init() {
+        log.info("init complete");
+    }
 
     private EntityProviderManager entityProviderManager;
     public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
