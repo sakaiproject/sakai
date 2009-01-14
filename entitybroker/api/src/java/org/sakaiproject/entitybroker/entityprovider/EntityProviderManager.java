@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityProviderListener;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 
@@ -216,7 +216,7 @@ public interface EntityProviderManager {
      * Allows access to the current RequestGetter service
      * @return the current RequestGetter service
      */
-    public RequestGetter getRequestGetter();
+    public RequestGetterWrite getRequestGetter();
 
     /**
      * Allows access to the current EntityPropertiesService service

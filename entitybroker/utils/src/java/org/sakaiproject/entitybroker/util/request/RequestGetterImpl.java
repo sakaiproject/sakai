@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;
 
 
 /**
@@ -32,49 +33,47 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class RequestGetterImpl implements RequestGetter {
+public class RequestGetterImpl implements RequestGetter, RequestGetterWrite {
 
-   /**
-    * Stores the request related to the current thread
-    */
-   private ThreadLocal<HttpServletRequest> requestTL = new ThreadLocal<HttpServletRequest>();
-   /**
-    * Stores the response related to the current thread
-    */
-   private ThreadLocal<HttpServletResponse> responseTL = new ThreadLocal<HttpServletResponse>();
+    /**
+     * Stores the request related to the current thread
+     */
+    private ThreadLocal<HttpServletRequest> requestTL = new ThreadLocal<HttpServletRequest>();
+    /**
+     * Stores the response related to the current thread
+     */
+    private ThreadLocal<HttpServletResponse> responseTL = new ThreadLocal<HttpServletResponse>();
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter#getRequest()
-    */
-   public HttpServletRequest getRequest() {
-      HttpServletRequest req = requestTL.get();
-      // TODO try to get this from Sakai?
-      return req;
-   }
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter#getRequest()
+     */
+    public HttpServletRequest getRequest() {
+        HttpServletRequest req = requestTL.get();
+        // TODO try to get this from Sakai?
+        return req;
+    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter#getResponse()
-    */
-   public HttpServletResponse getResponse() {
-      HttpServletResponse res = responseTL.get();
-      // TODO try to get this from Sakai?
-      return res;
-   }
-   
-   /**
-    * Sets the request for the current thread, this will be cleared when the thread closes
-    * @param req
-    */
-   public void setRequest(HttpServletRequest req) {
-      requestTL.set(req);
-   }
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter#getResponse()
+     */
+    public HttpServletResponse getResponse() {
+        HttpServletResponse res = responseTL.get();
+        // TODO try to get this from Sakai?
+        return res;
+    }
 
-   /**
-    * Sets the response for the current thread, this will be closed when the thread closes
-    * @param res
-    */
-   public void setResponse(HttpServletResponse res) {
-      responseTL.set(res);
-   }
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite#setRequest(javax.servlet.http.HttpServletRequest)
+     */
+    public void setRequest(HttpServletRequest req) {
+        requestTL.set(req);
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite#setResponse(javax.servlet.http.HttpServletResponse)
+     */
+    public void setResponse(HttpServletResponse res) {
+        responseTL.set(res);
+    }
 
 }

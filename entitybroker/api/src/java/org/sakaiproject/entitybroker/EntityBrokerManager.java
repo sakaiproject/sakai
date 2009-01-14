@@ -30,7 +30,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchabl
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
@@ -241,7 +241,7 @@ public interface EntityBrokerManager {
      * Allows access to the current RequestGetter service
      * @return the current RequestGetter
      */
-    public RequestGetter getRequestGetter();
+    public RequestGetterWrite getRequestGetter();
 
     /**
      * Allows access to the current RequestStorageWrite service

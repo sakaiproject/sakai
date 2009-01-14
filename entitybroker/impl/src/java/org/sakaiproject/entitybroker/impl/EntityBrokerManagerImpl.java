@@ -56,7 +56,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
@@ -748,7 +748,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.EntityBrokerManager#getRequestGetter()
      */
-    public RequestGetter getRequestGetter() {
+    public RequestGetterWrite getRequestGetter() {
         return entityProviderManager.getRequestGetter();
     }
 

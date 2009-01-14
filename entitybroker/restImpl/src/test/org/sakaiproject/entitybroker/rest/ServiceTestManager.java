@@ -62,7 +62,7 @@ public class ServiceTestManager {
         instance = sts;
     }
 
-    private EntityRESTServiceManager entityRESTServiceManager;
+    private EntityBrokerRESTServiceManager entityRESTServiceManager;
 
     private HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
     private EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
@@ -96,7 +96,7 @@ public class ServiceTestManager {
     }
 
     public void initializeRESTServices() {
-        this.entityRESTServiceManager = new EntityRESTServiceManager(this.entityBrokerManager, this.httpServletAccessProviderManager);
+        this.entityRESTServiceManager = new EntityBrokerRESTServiceManager(this.entityBrokerManager, this.httpServletAccessProviderManager);
         // get out the services from the service manager
         this.entityActionsManager = this.entityRESTServiceManager.getEntityActionsManager();
         this.entityBatchHandler = this.entityRESTServiceManager.getEntityBatchHandler();

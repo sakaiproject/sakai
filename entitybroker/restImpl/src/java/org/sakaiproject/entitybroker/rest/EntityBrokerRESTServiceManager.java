@@ -25,7 +25,7 @@ import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 
@@ -40,22 +40,22 @@ import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("deprecation")
-public class EntityRESTServiceManager {
+public class EntityBrokerRESTServiceManager {
 
-    private static EntityRESTServiceManager instance;
-    public static EntityRESTServiceManager getInstance() {
+    private static EntityBrokerRESTServiceManager instance;
+    public static EntityBrokerRESTServiceManager getInstance() {
         if (instance == null) {
-            instance = new EntityRESTServiceManager();
+            instance = new EntityBrokerRESTServiceManager();
         }
         return instance;
     }
-    public static void setInstance(EntityRESTServiceManager ersm) {
+    public static void setInstance(EntityBrokerRESTServiceManager ersm) {
         instance = ersm;
     }
 
     // services we need
     private RequestStorageWrite requestStorage;
-    private RequestGetter requestGetter;
+    private RequestGetterWrite requestGetter;
     private EntityPropertiesService entityPropertiesService;
     private EntityBrokerManager entityBrokerManager;
     private EntityProviderManager entityProviderManager;
@@ -82,13 +82,13 @@ public class EntityRESTServiceManager {
         this.entityViewAccessProviderManager = entityBrokerManager.getEntityViewAccessProviderManager();
     }
 
-    protected EntityRESTServiceManager() { }
+    protected EntityBrokerRESTServiceManager() { }
 
     /**
      * Base constructor
      * @param entityBrokerManager the main entity broker manager service
      */
-    public EntityRESTServiceManager(EntityBrokerManager entityBrokerManager) {
+    public EntityBrokerRESTServiceManager(EntityBrokerManager entityBrokerManager) {
         this(entityBrokerManager, null);
     }
 
@@ -97,7 +97,7 @@ public class EntityRESTServiceManager {
      * @param entityBrokerManager the main entity broker manager service
      * @param httpServletAccessProviderManager (optional)
      */
-    public EntityRESTServiceManager(EntityBrokerManager entityBrokerManager,
+    public EntityBrokerRESTServiceManager(EntityBrokerManager entityBrokerManager,
             HttpServletAccessProviderManager httpServletAccessProviderManager) {
         super();
         if (entityBrokerManager == null) {

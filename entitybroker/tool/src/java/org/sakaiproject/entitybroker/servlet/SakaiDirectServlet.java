@@ -29,7 +29,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
-import org.sakaiproject.entitybroker.rest.EntityRESTServiceManager;
+import org.sakaiproject.entitybroker.rest.EntityBrokerRESTServiceManager;
 import org.sakaiproject.entitybroker.util.servlet.DirectServlet;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
@@ -54,7 +54,7 @@ import org.sakaiproject.util.Web;
 @SuppressWarnings("deprecation")
 public class SakaiDirectServlet extends DirectServlet {
 
-    private transient EntityRESTServiceManager entityRESTServiceManager;
+    private transient EntityBrokerRESTServiceManager entityRESTServiceManager;
     private transient BasicAuth basicAuth;
 
     @Override
@@ -80,7 +80,7 @@ public class SakaiDirectServlet extends DirectServlet {
         // for legacy support
         HttpServletAccessProviderManager hsapm = (HttpServletAccessProviderManager) 
             ComponentManager.get(HttpServletAccessProviderManager.class.getName());
-        entityRESTServiceManager = new EntityRESTServiceManager(ebm, hsapm);
+        entityRESTServiceManager = new EntityBrokerRESTServiceManager(ebm, hsapm);
         EntityRequestHandler erh = entityRESTServiceManager.getEntityRequestHandler();
         if (erh == null) {
             throw new RuntimeException("FAILED to load EntityRequestHandler");

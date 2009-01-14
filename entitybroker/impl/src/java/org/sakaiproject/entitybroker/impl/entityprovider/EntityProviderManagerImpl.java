@@ -55,7 +55,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityProviderListener;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.URLRedirect;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
@@ -84,7 +84,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
      * @param entityProperties the entity properties service
      * @param entityProviderMethodStore the provider method storage
      */
-    public EntityProviderManagerImpl(RequestStorageWrite requestStorage, RequestGetter requestGetter,
+    public EntityProviderManagerImpl(RequestStorageWrite requestStorage, RequestGetterWrite requestGetter,
             EntityPropertiesService entityProperties, EntityProviderMethodStore entityProviderMethodStore) {
         super();
         this.requestStorage = requestStorage;
@@ -95,7 +95,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     }
 
     private RequestStorageWrite requestStorage;
-    private RequestGetter requestGetter;
+    private RequestGetterWrite requestGetter;
     private EntityPropertiesService entityProperties;
     private EntityProviderMethodStore entityProviderMethodStore;
 
@@ -621,11 +621,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getRequestGetter()
      */
-    public RequestGetter getRequestGetter() {
+    public RequestGetterWrite getRequestGetter() {
         return requestGetter;
     }
 
-    public void setRequestGetter(RequestGetter requestGetter) {
+    public void setRequestGetter(RequestGetterWrite requestGetter) {
         this.requestGetter = requestGetter;
     }
 

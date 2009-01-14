@@ -65,7 +65,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
@@ -83,7 +83,6 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
-import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
 
 import org.azeckoski.reflectutils.ReflectUtils;
@@ -113,7 +112,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             EntityBrokerManager entityBrokerManager, EntityEncodingManager entityEncodingManager,
             EntityDescriptionManager entityDescriptionManager,
             EntityViewAccessProviderManager entityViewAccessProviderManager,
-            RequestGetter requestGetter, EntityActionsManager entityActionsManager,
+            RequestGetterWrite requestGetter, EntityActionsManager entityActionsManager,
             EntityRedirectsManager entityRedirectsManager, EntityBatchHandler entityBatchHandler,
             RequestStorageWrite requestStorage) {
         super();
@@ -165,8 +164,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         this.entityViewAccessProviderManager = entityViewAccessProviderManager;
     }
 
-    private RequestGetter requestGetter;
-    public void setRequestGetter(RequestGetter requestGetter) {
+    private RequestGetterWrite requestGetter;
+    public void setRequestGetter(RequestGetterWrite requestGetter) {
         this.requestGetter = requestGetter;
     }
 
@@ -360,8 +359,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                     // wrap in try block so that request storage is always cleaned up
                     try {
                         // store the current request and response
-                        ((RequestGetterImpl) requestGetter).setRequest(req);
-                        ((RequestGetterImpl) requestGetter).setResponse(res);
+                        requestGetter.setRequest(req);
+                        requestGetter.setResponse(res);
                         // set the request variables
                         requestStorage.setRequestValue(RequestStorage.ReservedKeys._requestEntityReference.name(), view.getEntityReference().toString());
                         requestStorage.setRequestValue(RequestStorage.ReservedKeys._requestOrigin.name(), RequestStorage.RequestOrigin.REST.name());
@@ -742,8 +741,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                     } finally {
                         // clear the request data no matter what happens
                         requestStorage.reset();
-                        ((RequestGetterImpl) requestGetter).setRequest(null);
-                        ((RequestGetterImpl) requestGetter).setResponse(null);
+                        requestGetter.setRequest(null);
+                        requestGetter.setResponse(null);
                     }
                 }
             }
