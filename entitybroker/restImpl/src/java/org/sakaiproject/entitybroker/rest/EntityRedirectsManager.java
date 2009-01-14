@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.rest;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

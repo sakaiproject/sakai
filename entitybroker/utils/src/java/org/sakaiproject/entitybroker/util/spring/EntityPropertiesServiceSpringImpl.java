@@ -23,13 +23,10 @@ package org.sakaiproject.entitybroker.util.spring;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.MissingResourceException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
-import org.springframework.context.MessageSource;
+import org.sakaiproject.entitybroker.util.core.AbstractEntityPropertiesService;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -37,123 +34,48 @@ import org.springframework.core.io.DefaultResourceLoader;
 /**
  * This service allows us to track all the properties files related to describing the capabilities
  * of our entities and the entities themselves, it allows lookup of strings as well<br/>
- * NOTE: For internal use only, has no dependencies
+ * NOTE: Depends on spring and extends the spring based message bundle
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class EntityPropertiesServiceSpringImpl implements EntityPropertiesService {
+public class EntityPropertiesServiceSpringImpl extends AbstractEntityPropertiesService implements EntityPropertiesService {
 
-    private static final Log log = LogFactory.getLog(EntityPropertiesServiceSpringImpl.class);
-
-    protected Map<String, MessageSource> prefixMap = new ConcurrentHashMap<String, MessageSource>();
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesServiceAPI#getLocale()
-     */
-    public Locale getLocale() {
-        // This tries to fire up the CM if it is not already there so we will use the default for now
-        //return new ResourceLoader().getLocale();
-        return Locale.getDefault();
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesServiceAPI#loadProperties(java.lang.String, java.lang.String, java.lang.ClassLoader)
-     */
-    public void loadProperties(String prefix, String baseName, ClassLoader classLoader) {
-        if (prefix == null) {
-            throw new IllegalArgumentException("Cannot register properties for a null prefix");
-        }
-        Locale locale = getLocale();
-        if (classLoader == null) {
-            classLoader = Thread.currentThread().getContextClassLoader();
-        }
-        if (baseName == null) {
-            baseName = prefix;
-        }
-        EntityMessageSource bundle = new EntityMessageSource();
-        bundle.setResourceLoader( new DefaultResourceLoader(classLoader) );
-        bundle.setBasename(baseName);
-        bundle.setDefaultEncoding("UTF-8");
-        /**
-      ResourceBundle bundle = PropertyResourceBundle.getBundle(baseName, locale, classLoader);
-      ArrayList<String> keys = new ArrayList<String>();
-      Enumeration<String> enumKeys = bundle.getKeys();
-      while (enumKeys.hasMoreElements()) {
-         String key = enumKeys.nextElement();
-         keys.add(key);
-      }
-         **/
-        List<String> keys = bundle.getPropertyKeys(locale);
-        if (keys.size() > 0) {
-            prefixMap.put(prefix, bundle);
-            log.info("Added "+keys.size()+" properties for entity prefix (" + prefix + ") and basename ("+baseName+")");
-        } else {
-            log.warn("No properties to load for entity prefix (" + prefix + ") and basename ("+baseName+")");
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesServiceAPI#unloadProperties(java.lang.String)
-     */
-    public boolean unloadProperties(String prefix) {
-        boolean unreg = false;
-        if (prefix != null) {
-            unreg = (prefixMap.remove(prefix) != null);
-        }
-        return unreg;
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesServiceAPI#getProperty(java.lang.String, java.lang.String)
-     */
-    public String getProperty(String prefix, String key) {
-        return getProperty(prefix, key, null);
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesServiceAPI#getProperty(java.lang.String, java.lang.String, java.util.Locale)
-     */
-    public String getProperty(String prefix, String key, Locale locale) {
-        return getProperty(prefix, key, locale, null);
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.impl.entityprovider.EntityPropertiesServiceAPI#getProperty(java.lang.String, java.lang.String, java.util.Locale, java.lang.String)
-     */
-    public String getProperty(String prefix, String key, Locale locale, String defaultValue) {
-        if (prefix == null) {
-            throw new IllegalArgumentException("Cannot get properties for a null prefix");
-        }
-        if (key == null) {
-            throw new IllegalArgumentException("Cannot get properties for a null key");
-        }
-        if (locale == null) {
-            locale = getLocale();
-        }
-        String value = null;
-        MessageSource bundle = prefixMap.get(prefix);
-        if (bundle != null) {
+    protected class SpringMessageBundle extends ReloadableResourceBundleMessageSource implements MessageBundle {
+        public String getPropertyMessage(String key, Object[] args, Locale locale) {
+            String msg;
             try {
-                value = (String) bundle.getMessage(key, null, locale);
+                msg = getMessage(key, args, locale);
             } catch (NoSuchMessageException e) {
-                value = null;
+                throw new MissingResourceException("Cannot find key ("+key+"): " + e.getMessage(), 
+                        SpringMessageBundle.class.getName(), key);
             }
+            return msg;
         }
-        if (value == null) {
-            value = defaultValue;
-        }
-        return value;
-    }
-
-    protected class EntityMessageSource extends ReloadableResourceBundleMessageSource {
         public List<String> getPropertyKeys(Locale locale) {
             ArrayList<String> keys = new ArrayList<String>();
-            PropertiesHolder ph = getMergedProperties(locale);
+            PropertiesHolder ph = this.getMergedProperties(locale);
             for (Object o : ph.getProperties().keySet()) {
                 keys.add(o.toString());
             }
             return keys;
         }
+        public Locale getLocale() {
+            return this.getLocale();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.util.core.AbstractEntityPropertiesService#registerLocaleMessages(java.lang.String, java.lang.String, java.util.Locale, java.lang.ClassLoader)
+     */
+    @Override
+    public List<String> registerLocaleMessages(String prefix, String baseName, Locale locale,
+            ClassLoader classLoader) {
+        SpringMessageBundle bundle = new SpringMessageBundle();
+        bundle.setResourceLoader( new DefaultResourceLoader(classLoader) );
+        bundle.setBasename(baseName);
+        bundle.setDefaultEncoding("UTF-8");
+        List<String> keys = bundle.getPropertyKeys(locale);
+        return keys;
     }
 
 }

@@ -27,7 +27,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.URLRedirect;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
-import org.sakaiproject.entitybroker.util.request.EntityProviderMethodStoreImpl;
+import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;
 
 /**
  * Testing the EPMSI

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.rest;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,6 +31,7 @@ import org.sakaiproject.entitybroker.mocks.ActionsDefineableEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
+import org.sakaiproject.entitybroker.rest.EntityActionsManager;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 
@@ -55,7 +56,7 @@ public class EntityActionsManagerTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityActionsManager#handleCustomActionRequest(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityView, java.lang.String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
+    * Test method for {@link org.sakaiproject.entitybroker.rest.EntityActionsManager#handleCustomActionRequest(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityView, java.lang.String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
     */
    public void testHandleCustomActionRequest() {
       EntityHttpServletRequest request = null;
@@ -113,7 +114,7 @@ public class EntityActionsManagerTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityActionsManager#handleCustomActionExecution(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityReference, java.lang.String, java.util.Map, java.io.OutputStream)}.
+    * Test method for {@link org.sakaiproject.entitybroker.rest.EntityActionsManager#handleCustomActionExecution(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityReference, java.lang.String, java.util.Map, java.io.OutputStream)}.
     */
    public void testHandleCustomActionExecution() {
       // test the double/xxx/clear actions

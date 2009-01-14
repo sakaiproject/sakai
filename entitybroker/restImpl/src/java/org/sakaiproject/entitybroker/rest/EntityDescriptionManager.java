@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.rest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.access.AccessFormats;
@@ -43,6 +44,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResol
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribeDefineable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
@@ -111,7 +113,7 @@ public class EntityDescriptionManager {
             EntityViewAccessProviderManager entityViewAccessProviderManager,
             HttpServletAccessProviderManager httpServletAccessProviderManager,
             EntityProviderManager entityProviderManager, EntityPropertiesService entityProperties,
-            EntityBrokerManagerImpl entityBrokerManager,
+            EntityBrokerManager entityBrokerManager,
             EntityProviderMethodStore entityProviderMethodStore) {
         super();
         this.entityViewAccessProviderManager = entityViewAccessProviderManager;
@@ -120,7 +122,44 @@ public class EntityDescriptionManager {
         this.entityProperties = entityProperties;
         this.entityBrokerManager = entityBrokerManager;
         this.entityProviderMethodStore = entityProviderMethodStore;
+        init();
     }
+
+    public void init() {
+        // register the describe and batch prefixes to load up descriptions
+        entityProviderManager.registerEntityProvider(
+                new DescribePropertiesable() {
+                    public String getEntityPrefix() {
+                        return EntityRequestHandler.DESCRIBE;
+                    }
+                    public String getBaseName() {
+                        return getEntityPrefix();
+                    }
+                    public ClassLoader getResourceClassLoader() {
+                        return EntityDescriptionManager.class.getClassLoader();
+                    }
+                }
+        );
+        entityProviderManager.registerEntityProvider(
+                new BatchProvider() {
+                    public String getEntityPrefix() {
+                        return EntityRequestHandler.BATCH;
+                    }
+                    public String getBaseName() {
+                        return getEntityPrefix();
+                    }
+                    public ClassLoader getResourceClassLoader() {
+                        return EntityDescriptionManager.class.getClassLoader();
+                    }
+                    public String[] getHandledOutputFormats() {
+                        return EntityEncodingManager.HANDLED_OUTPUT_FORMATS;
+                    }
+                }
+        );
+    }
+
+    private static interface BatchProvider extends DescribePropertiesable, Outputable {};
+
 
     private EntityViewAccessProviderManager entityViewAccessProviderManager;
     public void setEntityViewAccessProviderManager(
@@ -144,8 +183,8 @@ public class EntityDescriptionManager {
         this.entityProperties = entityProperties;
     }
 
-    private EntityBrokerManagerImpl entityBrokerManager;
-    public void setEntityBrokerManager(EntityBrokerManagerImpl entityBrokerManager) {
+    private EntityBrokerManager entityBrokerManager;
+    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
         this.entityBrokerManager = entityBrokerManager;
     }
 
@@ -442,8 +481,8 @@ public class EntityDescriptionManager {
                         sb.append("        <type>bean</type>\n");
                         sb.append("        <fields>\n");
                         // get all the read and write fields from this object
-                        Map<String, Class<?>> readTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass(), FieldsFilter.SERIALIZABLE);
-                        Map<String, Class<?>> writeTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass(), FieldsFilter.WRITEABLE);
+                        Map<String, Class<?>> readTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.SERIALIZABLE);
+                        Map<String, Class<?>> writeTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.WRITEABLE);
                         Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
                         entityTypes.putAll(writeTypes);
                         ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
@@ -695,8 +734,8 @@ public class EntityDescriptionManager {
                         sb.append("          </thead>\n");
                         sb.append("          <tbody>\n");
                         // get all the read and write fields from this object
-                        Map<String, Class<?>> readTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass(), FieldsFilter.SERIALIZABLE);
-                        Map<String, Class<?>> writeTypes = entityBrokerManager.getReflectUtil().getFieldTypes(entity.getClass(), FieldsFilter.WRITEABLE);
+                        Map<String, Class<?>> readTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.SERIALIZABLE);
+                        Map<String, Class<?>> writeTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.WRITEABLE);
                         Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
                         entityTypes.putAll(writeTypes);
                         ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());

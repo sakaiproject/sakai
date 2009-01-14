@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.rest;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,6 +41,8 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
+import org.sakaiproject.entitybroker.rest.EntityEncodingManager;
+import org.sakaiproject.entitybroker.rest.EntityHandlerImpl;
 import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 
 /**

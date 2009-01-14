@@ -12,7 +12,7 @@
  * Aaron Zeckoski (azeckoski @ gmail.com) (aaronz @ vt.edu) (aaron @ caret.cam.ac.uk)
  */
 
-package org.sakaiproject.entitybroker.impl.jetty;
+package org.sakaiproject.entitybroker.rest.jetty;
 
 import java.io.IOException;
 
@@ -21,9 +21,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.entitybroker.impl.ServiceTestManager;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
+import org.sakaiproject.entitybroker.rest.ServiceTestManager;
 import org.sakaiproject.entitybroker.util.servlet.DirectServlet;
 
 

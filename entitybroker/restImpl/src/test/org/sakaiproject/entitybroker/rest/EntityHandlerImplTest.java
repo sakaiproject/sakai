@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.rest;
 
 import java.io.UnsupportedEncodingException;
 
@@ -33,6 +33,8 @@ import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
+import org.sakaiproject.entitybroker.rest.EntityEncodingManager;
+import org.sakaiproject.entitybroker.rest.EntityHandlerImpl;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 
@@ -57,7 +59,7 @@ public class EntityHandlerImplTest extends TestCase {
     }
 
     /**
-     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)}.
+     * Test method for {@link org.sakaiproject.entitybroker.rest.EntityHandlerImpl#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)}.
      */
     public void testHandleEntityAccess() {
         EntityHttpServletRequest req = null;

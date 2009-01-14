@@ -35,7 +35,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.impl.EntityEncodingManager;
+import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.entitybroker.util.devhelper.AbstractDeveloperHelperService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -113,33 +113,38 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
         this.userDirectoryService = userDirectoryService;
     }
 
-    protected EntityEncodingManager entityEncodingManager;
+    protected EntityRESTProvider entityRESTProvider;
     /**
      * Set this to include an optional encoding/decoding handler
-     * @param entityEncodingManager the encoding manager service
+     * @param entityRESTProvider the encoding manager service
      */
-    public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
-        this.entityEncodingManager = entityEncodingManager;
+    public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider) {
+        this.entityRESTProvider = entityRESTProvider;
     }
 
 
-    // ENCODING
+    // ENCODING / DECODING
 
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.util.devhelper.AbstractDeveloperHelperService#decodeData(java.lang.String, java.lang.String)
+     */
+    @Override
     public Map<String, Object> decodeData(String data, String format) {
-        if (entityEncodingManager == null) {
+        if (entityRESTProvider == null) {
             throw new IllegalStateException("No entityEncodingManager available for decoding");
         }
-        return entityEncodingManager.decodeData(data, format);
+        return entityRESTProvider.decodeData(data, format);
     }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.DeveloperHelperService#encodeData(java.lang.Object, java.lang.String, java.lang.String, java.util.Map)
      */
+    @Override
     public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
-        if (entityEncodingManager == null) {
+        if (entityRESTProvider == null) {
             throw new IllegalStateException("No entityEncodingManager available for encoding");
         }
-        return entityEncodingManager.encodeData(data, format, name, properties);
+        return entityRESTProvider.encodeData(data, format, name, properties);
     }
 
     // ENTITY

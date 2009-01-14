@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ConstructorUtils;
-import org.azeckoski.reflectutils.FieldUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.StringUtils;
 import org.azeckoski.reflectutils.map.ArrayOrderedMap;
@@ -82,7 +80,7 @@ public class EntityEncodingManager {
     public static final String[] HANDLED_INPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
     public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
 
-    
+
     protected EntityEncodingManager() { }
 
     public EntityEncodingManager(EntityProviderManager entityProviderManager,
@@ -90,7 +88,6 @@ public class EntityEncodingManager {
         super();
         this.entityProviderManager = entityProviderManager;
         this.entityBrokerManager = entityBrokerManager;
-        init();
     }
 
     private EntityProviderManager entityProviderManager;
@@ -101,28 +98,6 @@ public class EntityEncodingManager {
     private EntityBrokerManager entityBrokerManager;
     public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
         this.entityBrokerManager = entityBrokerManager;
-    }
-
-    private static final String rFieldName = "replacementTranscoders";
-    /**
-     * Loads up the transcoder replacements if there are any
-     */
-    @SuppressWarnings("unchecked")
-    public void init() {
-        // attempt to load the replacements
-        if (entityBrokerManager != null) {
-            try {
-                Set<Transcoder> transcoders = FieldUtils.getInstance().getFieldValue(entityBrokerManager, rFieldName, Set.class);
-                if (transcoders != null) {
-                    for (Transcoder transcoder : transcoders) {
-                        setTranscoder(transcoder.getHandledFormat(), transcoder);
-                    }
-                }
-            } catch (Exception e) {
-                // this is sorta ok, no replacements available
-                log.warn("Could not get replacement transcoders set from entityBrokerManager: " + rFieldName + ": " + e.getMessage());
-            }
-        }
     }
 
 
@@ -599,10 +574,15 @@ public class EntityEncodingManager {
     public void setTranscoders(Map<String, Transcoder> transcoders) {
         this.transcoders = transcoders;
     }
-    public void setTranscoder(String format, Transcoder transcoder) {
+    /**
+     * Override the transcoder used for a specific format
+     * @param transcoder a transcoder implementation
+     */
+    public void setTranscoder(Transcoder transcoder) {
         if (transcoders == null) {
             getTranscoder(Formats.XML);
         }
+        String format = transcoder.getHandledFormat();
         if (format != null && transcoder != null) {
             transcoders.put(format, transcoder);
         }

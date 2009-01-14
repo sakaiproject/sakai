@@ -517,6 +517,5 @@ public interface DeveloperHelperService {
      * @throws IllegalArgumentException if the data cannot be decoded because there is no decoder for that format
      */
     public Map<String, Object> decodeData(String data, String format);
-    
 
 }

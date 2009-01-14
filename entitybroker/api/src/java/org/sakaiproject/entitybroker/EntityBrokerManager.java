@@ -28,6 +28,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResol
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 
 /**
@@ -47,6 +48,27 @@ public interface EntityBrokerManager {
      * @return the external integration provider OR null if there is not one
      */
     public ExternalIntegrationProvider getExternalIntegrationProvider();
+
+    /**
+     * Allows developers to setup providers to handle parts of the EB system which cannot
+     * really be handled internally, the system will operate without this set
+     * @param externalIntegrationProvider the external integration provider to use in the system
+     */
+    public void setExternalIntegrationProvider(ExternalIntegrationProvider externalIntegrationProvider);
+
+    /**
+     * FOR INTERNAL USE ONLY
+     * Allows other parts of EB to get to the registered REST provider if there is one
+     * @return the REST provider OR null if there is not one
+     */
+    public EntityRESTProvider getEntityRESTProvider();
+
+    /**
+     * Allows the developer to set a REST provider to add functionality to the {@link EntityBroker}
+     * system from a REST handler, the system will operate without this set but some methods will fail
+     * @param entityRESTProvider a service to provide REST functionality
+     */
+    public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider);
 
     /**
      * FOR INTERNAL USE ONLY
@@ -106,6 +128,13 @@ public interface EntityBrokerManager {
      * @throws IllegalArgumentException if there is a failure during parsing
      */
     public EntityView parseEntityURL(String entityURL);
+
+    /**
+     * Make a full entity URL (http://....) from just a path URL (/prefix/id.xml)
+     * @param pathURL a path (like pathInfo from a request) (e.g. /prefix/id.xml)
+     * @throws IllegalArgumentException is the pathURL is null
+     */
+    public String makeFullURL(String pathURL);
 
     /**
      * Get an entity object of some kind for this reference if it has an id,

@@ -31,7 +31,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.azeckoski.reflectutils.transcoders.Transcoder;
 
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -41,14 +40,10 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
-import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 import org.sakaiproject.entitybroker.util.EntityResponse;
-import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
-import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
 
 /**
  * The default implementation of the EntityBroker interface
@@ -69,11 +64,12 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
      * Minimal constructor
      */
     public EntityBrokerImpl(EntityProviderManager entityProviderManager,
-            EntityBrokerManagerImpl entityBrokerManager) {
+            EntityBrokerManagerImpl entityBrokerManager,
+            RequestStorageWrite requestStorageWrite) {
         super();
         this.entityProviderManager = entityProviderManager;
         this.entityBrokerManager = entityBrokerManager;
-        this.requestStorage = new RequestStorageImpl(new RequestGetterImpl()); // not ideal, should be loaded from the request/REST section
+        this.requestStorage = requestStorageWrite;
     }
 
     private EntityProviderManager entityProviderManager;
@@ -86,38 +82,12 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         this.entityBrokerManager = entityBrokerManager;
     }
 
-    // OPTIONAL external integration provider
-    private ExternalIntegrationProvider externalIntegrationProvider;
-    public void setExternalIntegrationProvider(
-            ExternalIntegrationProvider externalIntegrationProvider) {
-        this.externalIntegrationProvider = externalIntegrationProvider;
-    }
-
-    // TODO constructor or setter to set the REST services
-
-    // Servlet/REST services
-    private EntityActionsManager entityActionsManager;
-    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
-        this.entityActionsManager = entityActionsManager;
-    }
-
-    private EntityEncodingManager entityEncodingManager;
-    public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
-        this.entityEncodingManager = entityEncodingManager;
-    }
-
-    private EntityHandlerImpl entityHandler;
-    public void setEntityRequestHandler(EntityHandlerImpl entityHandler) {
-        this.entityHandler = entityHandler;
-    }
-
     private RequestStorageWrite requestStorage;
     public void setRequestStorage(RequestStorageWrite requestStorage) {
         this.requestStorage = requestStorage;
     }
 
-
-    // OPTIONAL
+    // OPTIONAL Data Storage providers
     private EntityMetaPropertiesService entityMetaPropertiesService;
     public void setEntityMetaPropertiesService(
             EntityMetaPropertiesService entityMetaPropertiesService) {
@@ -129,28 +99,6 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         this.entityTaggingService = entityTaggingService;
     }
 
-
-    /**
-     * Override the transcoder used for a specific format
-     * @param transcoder a transcoder implementation
-     */
-    public void setTranscoder(Transcoder transcoder) {
-        if (this.entityEncodingManager != null) {
-            this.entityEncodingManager.setTranscoder(transcoder.getHandledFormat(), transcoder);
-        }
-        this.entityBrokerManager.getTranscoderReplacements().put(transcoder.getHandledFormat(), transcoder);
-    }
-    /**
-     * Get the transcoder being used for a specific format
-     * @param format the format key from {@link Formats} (e.g. {@link Formats#XML})
-     * @return the Trancoder if there is one OR null if there is none for that format
-     */
-    public Transcoder getTranscoder(String format) {
-        if (this.entityEncodingManager != null) {
-            return this.entityEncodingManager.getTranscoder(format);
-        }
-        return null;
-    }
 
 
     /* (non-Javadoc)
@@ -224,7 +172,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (reference == null || "".equals(reference)) {
             throw new IllegalArgumentException("Cannot fire event if reference is null or empty");
         }
-        if (externalIntegrationProvider != null) {
+        if (entityBrokerManager.getExternalIntegrationProvider() != null) {
             String refName = reference;
             try {
                 // parse the reference string to validate it and remove any extra bits
@@ -240,7 +188,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                 log.warn("Invalid reference ("+reference+") for eventName ("+eventName+"), could not parse the reference correctly, continuing to create event with original reference");
             }
             // had to take out the exists check because it makes firing events for removing entities very annoying -AZ
-            externalIntegrationProvider.fireEvent(eventName, refName);
+            entityBrokerManager.getExternalIntegrationProvider().fireEvent(eventName, refName);
         } else {
             log.warn("No external system to handle events: event not fired: " + eventName + ":" + reference);
         }
@@ -251,7 +199,11 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
      */
     public EntityResponse fireEntityRequest(String reference, String viewKey, String format,
             Map<String, String> params, Object entity) {
-        return entityHandler.fireEntityRequestInternal(reference, viewKey, format, params, entity);
+        if (entityBrokerManager.getEntityRESTProvider() != null) {
+            return entityBrokerManager.getEntityRESTProvider().handleEntityRequest(reference, viewKey, format, params, entity);
+        } else {
+            throw new UnsupportedOperationException("No provider to handle fireEntityRequest for ("+reference+","+viewKey+","+format+")");
+        }
     }
 
     /* (non-Javadoc)
@@ -262,8 +214,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         EntityReference ref = entityBrokerManager.parseReference(reference);
         if (ref == null) {
             // not handled in EB so attempt to parse out a prefix and try to get entity from the external system
-            if (externalIntegrationProvider != null) {
-                externalIntegrationProvider.fetchEntity(ref);
+            if (entityBrokerManager.getExternalIntegrationProvider() != null) {
+                entityBrokerManager.getExternalIntegrationProvider().fetchEntity(ref);
             }
         } else {
             // this is a registered prefix
@@ -347,14 +299,18 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (ref == null) {
             throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
         }
-        try {
-            requestStorage.setRequestValues(params);
-            // convert entities to entity data list
-            List<EntityData> data = entityBrokerManager.convertToEntityData(entities, ref);
-            if (params == null) { params = new HashMap<String, Object>(); }
-            entityEncodingManager.formatAndOutputEntity(ref, format, data, output, params);
-        } finally {
-            requestStorage.reset();
+        if (entityBrokerManager.getEntityRESTProvider() != null) {
+            try {
+                requestStorage.setRequestValues(params);
+                // convert entities to entity data list
+                List<EntityData> data = entityBrokerManager.convertToEntityData(entities, ref);
+                if (params == null) { params = new HashMap<String, Object>(); }
+                entityBrokerManager.getEntityRESTProvider().formatAndOutputEntity(ref, format, data, output, params);
+            } finally {
+                requestStorage.reset();
+            }
+        } else {
+            throw new UnsupportedOperationException("No provider to handle formatAndOutputEntity for ("+reference+","+format+")");
         }
     }
 
@@ -365,12 +321,16 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
             throw new IllegalArgumentException("Cannot output formatted entity, entity reference is invalid: " + reference);
         }
         Object entity = null;
-        try {
-            requestStorage.setRequestValues(params);
-            if (params == null) { params = new HashMap<String, Object>(); }
-            entity = entityEncodingManager.translateInputToEntity(ref, format, input, params);
-        } finally {
-            requestStorage.reset();
+        if (entityBrokerManager.getEntityRESTProvider() != null) {
+            try {
+                requestStorage.setRequestValues(params);
+                if (params == null) { params = new HashMap<String, Object>(); }
+                entity = entityBrokerManager.getEntityRESTProvider().translateInputToEntity(ref, format, input, params);
+            } finally {
+                requestStorage.reset();
+            }
+        } else {
+            throw new UnsupportedOperationException("No provider to handle translateInputToEntity for ("+reference+","+format+")");
         }
         return entity;
     }
@@ -386,20 +346,24 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
             throw new IllegalArgumentException("The provider for prefix ("+ref.getPrefix()+") cannot handle custom actions");
         }
         ActionReturn ar = null;
-        try {
-            requestStorage.setRequestValues(params);
-            if (params == null) { params = new HashMap<String, Object>(); }
-            ar = entityActionsManager.handleCustomActionExecution(actionProvider, ref, action, params, outputStream, null, null);
-            // populate the entity data
-            if (ar != null) {
-                if (ar.entitiesList != null) {
-                    entityBrokerManager.populateEntityData(ar.entitiesList);
-                } else if (ar.entityData != null) {
-                    entityBrokerManager.populateEntityData( new EntityData[] {ar.entityData} );
+        if (entityBrokerManager.getEntityRESTProvider() != null) {
+            try {
+                requestStorage.setRequestValues(params);
+                if (params == null) { params = new HashMap<String, Object>(); }
+                ar = entityBrokerManager.getEntityRESTProvider().handleCustomActionExecution(actionProvider, ref, action, params, outputStream, null, null);
+                // populate the entity data
+                if (ar != null) {
+                    if (ar.entitiesList != null) {
+                        entityBrokerManager.populateEntityData(ar.entitiesList);
+                    } else if (ar.entityData != null) {
+                        entityBrokerManager.populateEntityData( new EntityData[] {ar.entityData} );
+                    }
                 }
+            } finally {
+                requestStorage.reset();
             }
-        } finally {
-            requestStorage.reset();
+        } else {
+            throw new UnsupportedOperationException("No provider to handle executeCustomAction for ("+reference+","+action+")");
         }
         return ar;
     }

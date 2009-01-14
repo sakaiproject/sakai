@@ -9,27 +9,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.easymock.EasyMock.*;
-
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
-import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
-import org.sakaiproject.entitybroker.impl.mocks.FakeEvent;
-import org.sakaiproject.entitybroker.mocks.ActionsEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
-import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 /**
@@ -38,16 +28,13 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  * @author Aaron Zeckoski (azeckoski@gmail.com)
  */
 @SuppressWarnings("deprecation")
-public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTests {
+public class EntityBrokerTransactionalTest extends AbstractTransactionalSpringContextTests {
 
     protected EntityBrokerImpl entityBroker;
 
     private EntityBrokerDao dao;
     private TestData td;
     private TestDataPreload tdp;
-
-    private EntityManager entityManager;
-    private EventTrackingService eventTrackingService;
 
     protected String[] getConfigLocations() {
         // point to the needed spring config files, must be on the classpath
@@ -66,8 +53,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
         }
 
         // load up the test data preloader from spring
-        tdp = (TestDataPreload) applicationContext
-        .getBean("org.sakaiproject.entitybroker.impl.test.data.TestDataPreload");
+        tdp = (TestDataPreload) applicationContext.getBean("org.sakaiproject.entitybroker.impl.test.data.TestDataPreload");
         if (tdp == null) {
             throw new NullPointerException(
             "TestDatePreload could not be retrieved from spring context");
@@ -78,35 +64,18 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
         // init the test data
         td = new TestData();
 
-        // setup the mock objects if needed
-        entityManager = createNiceMock(EntityManager.class);
-        replay(entityManager);
-        eventTrackingService = createMock(EventTrackingService.class);
-
-        // setup the defaults for the mock objects (if there are any)
-        // sessionManager.getCurrentSessionUserId(); // expect this to be called
-        // sessionManagerControl.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
-        // sessionManagerControl.setReturnValue(TestDataPreload.USER_ID, MockControl.ZERO_OR_MORE);
-        // sessionManagerControl.replay();
-        expect(eventTrackingService.newEvent(isA(String.class), isA(String.class), anyBoolean(), anyInt())).andReturn(new FakeEvent()).anyTimes(); // expect this to be called
-        eventTrackingService.post(isA(Event.class));
-        expectLastCall().anyTimes();
-        replay(eventTrackingService);
-
         // setup fake internal services
         ServiceTestManager tm = new ServiceTestManager(td, dao);
 
         // create and setup the object to be tested
         entityBroker = new EntityBrokerImpl();
         entityBroker.setEntityBrokerManager( tm.entityBrokerManager );
-        entityBroker.setEntityEncodingManager( tm.entityEncodingManager );
         entityBroker.setEntityProviderManager( tm.entityProviderManager );
-        entityBroker.setEntityRequestHandler( tm.entityRequestHandler );
-        entityBroker.setEntityActionsManager( tm.entityActionsManager );
         entityBroker.setEntityTaggingService( tm.entityTaggingService);
         entityBroker.setEntityMetaPropertiesService( tm.entityMetaPropertiesService);
         entityBroker.setRequestStorage( tm.requestStorage );
         // NOTE: no external integration provider set
+        // NOTE: no REST provider set
     }
 
     // run this before each test starts and as part of the transaction
@@ -359,39 +328,17 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
     }
 
     public void testFormatAndOutputEntity() {
-
-        String fo = null;
-        String reference = null;
-        OutputStream output = null;
+        // test no provider
+        String reference = TestData.REF4;
+        OutputStream output = new ByteArrayOutputStream();
         String format = Formats.XML;
 
-        // XML test valid resolveable entity
-        reference = TestData.REF4;
-        output = new ByteArrayOutputStream();
-        entityBroker.formatAndOutputEntity(reference, format, null, output, null);
-        fo = output.toString();
-        assertNotNull(fo);
-        assertTrue(fo.length() > 20);
-        assertTrue(fo.contains(TestData.PREFIX4));
-        assertTrue(fo.contains("<id>4-one</id>"));
-        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
-
-        // test list of entities
-        ArrayList<EntityData> testEntities = new ArrayList<EntityData>();
-        testEntities.add( new EntityData(TestData.REF4, null, TestData.entity4) );
-        testEntities.add( new EntityData(TestData.REF4_two, null, TestData.entity4_two) );
-        reference = TestData.SPACE4;
-        output = new ByteArrayOutputStream();
-        entityBroker.formatAndOutputEntity(reference, format, testEntities, output, null);
-        fo = output.toString();
-        assertNotNull(fo);
-        assertTrue(fo.length() > 20);
-        assertTrue(fo.contains(TestData.PREFIX4));
-        assertTrue(fo.contains("<id>4-one</id>"));
-        assertTrue(fo.contains("<id>4-two</id>"));
-        assertFalse(fo.contains("<id>4-three</id>"));
-        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
-
+        try {
+            entityBroker.formatAndOutputEntity(reference, format, null, output, null);
+            fail("Should have died");
+        } catch (UnsupportedOperationException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     /**
@@ -408,78 +355,26 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
     }
 
     public void testTranslateInputToEntity() {
-        InputStream input = null;
-        MyEntity me = null;
-
-        // test creating an entity
+        // test no provider
         String reference = TestData.SPACE6;
         String format = Formats.XML;
-        input = new ByteArrayInputStream( makeUTF8Bytes("<"+TestData.PREFIX6+"><stuff>TEST</stuff><number>5</number></"+TestData.PREFIX6+">") );
-        me = (MyEntity) entityBroker.translateInputToEntity(reference, format, input, null);
-        assertNotNull(me);
-        assertNull(me.getId());
-        assertEquals("TEST", me.getStuff());
-        assertEquals(5, me.getNumber());
-
-        // test modifying an entity
-        reference = TestData.REF6_2;
-        input = new ByteArrayInputStream( makeUTF8Bytes("<"+TestData.PREFIX6+"><id>"+TestData.IDS6[1]+"</id><stuff>TEST-PUT</stuff><number>8</number></"+TestData.PREFIX6+">") );
-        me = (MyEntity) entityBroker.translateInputToEntity(reference, format, input, null);
-        assertNotNull(me);
-        assertNotNull(me.getId());
-        assertEquals(TestData.IDS6[1], me.getId());
-        assertEquals("TEST-PUT", me.getStuff());
-        assertEquals(8, me.getNumber());
+        InputStream input = new ByteArrayInputStream( makeUTF8Bytes("<"+TestData.PREFIX6+"><stuff>TEST</stuff><number>5</number></"+TestData.PREFIX6+">") );
+        try {
+            entityBroker.translateInputToEntity(reference, format, input, null);
+            fail("Should have died");
+        } catch (UnsupportedOperationException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     public void testExecuteCustomAction() {
-        ActionReturn actionReturn = null;
-
-        // test the double/xxx/clear actions
-        ActionsEntityProviderMock actionProvider = td.entityProviderA1;
-
-        // double
-        MyEntity me = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
-        int num = me.getNumber();
-        actionReturn = entityBroker.executeCustomAction(TestData.REFA1, "double", null, null);
-        //ActionReturn actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "double", null, null);
-        assertNotNull(actionReturn);
-        assertNotNull(actionReturn.entityData);
-        MyEntity doubleMe = (MyEntity) actionReturn.entityData.getData();
-        assertEquals(doubleMe.getNumber(), num * 2);
-        assertEquals(me.getId(), doubleMe.getId());
-
-        // xxx
-        MyEntity me1 = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
-        assertFalse("xxx".equals(me1.extra));
-        assertFalse("xxx".equals(me1.getStuff()));
-        actionReturn = entityBroker.executeCustomAction(TestData.REFA1, "xxx", null, null);
-        assertNull(actionReturn);
-        MyEntity xxxMe = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
-        assertEquals(me1.getId(), xxxMe.getId());
-        assertTrue("xxx".equals(xxxMe.extra));
-        assertTrue("xxx".equals(xxxMe.getStuff()));
-
-        // clear
-        assertEquals(2, actionProvider.myEntities.size());
-        actionReturn = entityBroker.executeCustomAction(TestData.SPACEA1, "clear", null, null);
-        assertEquals(0, actionProvider.myEntities.size());
-
-        // check exception when try to execute invalid action
+        // test no provider
         try {
-            entityBroker.executeCustomAction(TestData.REF3A, "action", null, null);
-            fail("should have thrown exeception");
-        } catch (IllegalArgumentException e) {
+            entityBroker.executeCustomAction(TestData.REFA1, "double", null, null);
+            fail("Should have died");
+        } catch (UnsupportedOperationException e) {
             assertNotNull(e.getMessage());
         }
-
-        try {
-            entityBroker.executeCustomAction(TestData.INVALID_REF, "action", null, null);
-            fail("should have thrown exeception");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-
     }
 
     /**

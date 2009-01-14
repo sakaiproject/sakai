@@ -49,9 +49,9 @@ public interface DescribePropertiesable extends Describeable {
    public String getBaseName();
 
    /**
-    * Defines the classloader which will be used to load the properties bundle file/classes which
+    * Defines the ClassLoader which will be used to load the properties bundle file/classes which
     * contain the entity descriptions
-    * @return the classloader which can find the files using {@link #getBaseName()}
+    * @return the ClassLoader which can find the files using {@link #getBaseName()}
     */
    public ClassLoader getResourceClassLoader();
 

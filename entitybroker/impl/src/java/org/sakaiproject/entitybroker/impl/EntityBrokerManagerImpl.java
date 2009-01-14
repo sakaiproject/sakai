@@ -24,17 +24,14 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.azeckoski.reflectutils.ConstructorUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
-import org.azeckoski.reflectutils.transcoders.Transcoder;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -61,6 +58,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
+import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
@@ -126,25 +124,11 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     }
 
 
-    private HashMap<String, Transcoder> transcoderReplacements = new HashMap<String, Transcoder>();
-    public HashMap<String, Transcoder> getTranscoderReplacements() {
-        return transcoderReplacements;
-    }
-    /**
-     * FOR INTERNAL USE
-     * @return the replacement transcoders which are stored in the component piece
-     */
-    public Set<Transcoder> getReplacementTranscoders() {
-        HashSet<Transcoder> s = new HashSet<Transcoder>();
-        if (transcoderReplacements != null && transcoderReplacements.size() > 0) {
-            s.addAll( transcoderReplacements.values() );
-        }
-        return Collections.unmodifiableSet(s);
-    }
-
     private ExternalIntegrationProvider externalIntegrationProvider;
-    public void setExternalIntegrationProvider(
-            ExternalIntegrationProvider externalIntegrationProvider) {
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#setExternalIntegrationProvider(org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider)
+     */
+    public void setExternalIntegrationProvider(ExternalIntegrationProvider externalIntegrationProvider) {
         this.externalIntegrationProvider = externalIntegrationProvider;
     }
     /* (non-Javadoc)
@@ -153,6 +137,21 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     public ExternalIntegrationProvider getExternalIntegrationProvider() {
         return this.externalIntegrationProvider;
     }
+
+    private EntityRESTProvider entityRESTProvider;
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getEntityRESTProvider()
+     */
+    public EntityRESTProvider getEntityRESTProvider() {
+        return entityRESTProvider;
+    }
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#setEntityRESTProvider(org.sakaiproject.entitybroker.providers.EntityRESTProvider)
+     */
+    public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider) {
+        this.entityRESTProvider = entityRESTProvider;
+    }
+    
 
     private String servletContext;
     public String getServletContext() {
@@ -224,7 +223,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     /**
      * Make a full URL (http://....) from just a path URL (/prefix/id.xml)
      */
-    protected String makeFullURL(String pathURL) {
+    public String makeFullURL(String pathURL) {
         String serverUrl = "http://localhost:8080";
         if (externalIntegrationProvider != null) {
             serverUrl = externalIntegrationProvider.getServerUrl();

@@ -18,18 +18,26 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.rest;
 
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
+import org.sakaiproject.entitybroker.impl.EntityBrokerImpl;
+import org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.mocks.EntityViewAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
+import org.sakaiproject.entitybroker.rest.EntityActionsManager;
+import org.sakaiproject.entitybroker.rest.EntityBatchHandler;
+import org.sakaiproject.entitybroker.rest.EntityDescriptionManager;
+import org.sakaiproject.entitybroker.rest.EntityEncodingManager;
+import org.sakaiproject.entitybroker.rest.EntityHandlerImpl;
+import org.sakaiproject.entitybroker.rest.EntityRedirectsManager;
+import org.sakaiproject.entitybroker.util.core.EntityPropertiesServiceSimple;
 import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;
 import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
 import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
-import org.sakaiproject.entitybroker.util.spring.EntityPropertiesServiceSpringImpl;
 
 
 /**
@@ -54,14 +62,20 @@ public class ServiceTestManager {
 
     public RequestStorageImpl requestStorage;
     public RequestGetterImpl requestGetter;
-    public EntityProviderMethodStoreImpl entityProviderMethodStore;
     public EntityPropertiesService entityPropertiesService;
+    public EntityActionsManager entityActionsManager;
     public EntityProviderManagerImpl entityProviderManager;
     public EntityBrokerManagerImpl entityBrokerManager;
+    public EntityDescriptionManager entityDescriptionManager;
+    public EntityEncodingManager entityEncodingManager;
+    public EntityRedirectsManager entityRedirectsManager;
+    public EntityHandlerImpl entityRequestHandler;
     public HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
     public EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
-    public EntityMetaPropertiesService entityMetaPropertiesService;
-    public EntityTaggingService entityTaggingService;
+    public EntityBatchHandler entityBatchHandler;
+    public EntityProviderMethodStoreImpl entityProviderMethodStore;
+    public EntityBrokerImpl entityBroker;
+    public EntityRESTProviderBase entityRESTProvider;
 
     public TestData td;
     public TestData getTestData() {
@@ -76,12 +90,14 @@ public class ServiceTestManager {
         this.td = td;
         // initialize all the parts
         requestGetter = new RequestGetterImpl();
-        entityPropertiesService = new EntityPropertiesServiceSpringImpl();
+        entityPropertiesService = new EntityPropertiesServiceSimple();
         httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();
         entityViewAccessProviderManager = new EntityViewAccessProviderManagerMock();
         entityProviderMethodStore = new EntityProviderMethodStoreImpl();
 
         requestStorage = new RequestStorageImpl(requestGetter);
+        entityActionsManager = new EntityActionsManager(entityProviderMethodStore);
+        entityRedirectsManager = new EntityRedirectsManager(entityProviderMethodStore, requestStorage);
         entityProviderManager = new EntityProviderManagerImpl(requestStorage, requestGetter, entityPropertiesService, entityProviderMethodStore);
 
         entityProviderManager.registerEntityProvider(td.entityProvider1);
@@ -107,17 +123,21 @@ public class ServiceTestManager {
         // add new providers here
 
         entityBrokerManager = new EntityBrokerManagerImpl(entityProviderManager, entityPropertiesService, entityViewAccessProviderManager);
+        entityDescriptionManager = new EntityDescriptionManager(entityViewAccessProviderManager,
+                httpServletAccessProviderManager, entityProviderManager, entityPropertiesService,
+                entityBrokerManager, entityProviderMethodStore);
+        entityEncodingManager = new EntityEncodingManager(entityProviderManager, entityBrokerManager);
+        entityBatchHandler = new EntityBatchHandler(entityBrokerManager, entityEncodingManager);
 
-        // optional DB pieces
-        entityMetaPropertiesService = new EntityMetaPropertiesService();
-        entityMetaPropertiesService.setDao(dao);
-        entityMetaPropertiesService.setEntityBrokerManager(entityBrokerManager);
-        entityMetaPropertiesService.setEntityProviderManager(entityProviderManager);
+        entityRequestHandler = new EntityHandlerImpl(entityProviderManager,
+                entityBrokerManager, entityEncodingManager, entityDescriptionManager,
+                entityViewAccessProviderManager, requestGetter, entityActionsManager,
+                entityRedirectsManager, entityBatchHandler, requestStorage);
+        entityRequestHandler.setAccessProviderManager( httpServletAccessProviderManager );
 
-        entityTaggingService = new EntityTaggingService();
-        entityTaggingService.setDao(dao);
-        entityTaggingService.setEntityBrokerManager(entityBrokerManager);
-        entityTaggingService.setEntityProviderManager(entityProviderManager);
+        entityRESTProvider = new EntityRESTProviderBase(entityBrokerManager, entityActionsManager, entityEncodingManager, entityRequestHandler);
+
+        entityBroker = new EntityBrokerImpl(entityProviderManager, entityBrokerManager, requestStorage);
 
         setInstance(this);
     }

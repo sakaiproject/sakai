@@ -55,7 +55,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#entityExists(java.lang.String)}.
+    * {@link org.sakaiproject.entitybroker.rest.EntityHandlerImpl#entityExists(java.lang.String)}.
     */
    public void testEntityExists() {
       EntityReference ref = null;
@@ -86,7 +86,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#getEntityURL(java.lang.String)}.
+    * {@link org.sakaiproject.entitybroker.rest.EntityHandlerImpl#getEntityURL(java.lang.String)}.
     */
    public void testGetEntityURL() {
       String url = null;
@@ -109,7 +109,7 @@ public class EntityBrokerManagerTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#parseReference(java.lang.String)}.
+    * {@link org.sakaiproject.entitybroker.rest.EntityHandlerImpl#parseReference(java.lang.String)}.
     */
    public void testParseReference() {
       EntityReference er = null;

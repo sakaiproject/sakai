@@ -18,11 +18,12 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.impl;
+package org.sakaiproject.entitybroker.rest;
 
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.mocks.data.TestData;
+import org.sakaiproject.entitybroker.rest.EntityRedirectsManager;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 
@@ -46,7 +47,7 @@ public class EntityRedirectsManagerTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityRedirectsManager#checkForTemplateMatch(org.sakaiproject.entitybroker.entityprovider.EntityProvider, java.lang.String, String)}.
+    * Test method for {@link org.sakaiproject.entitybroker.rest.EntityRedirectsManager#checkForTemplateMatch(org.sakaiproject.entitybroker.entityprovider.EntityProvider, java.lang.String, String)}.
     */
    public void testCheckForTemplateMatch() {
       String targetURL = null;
