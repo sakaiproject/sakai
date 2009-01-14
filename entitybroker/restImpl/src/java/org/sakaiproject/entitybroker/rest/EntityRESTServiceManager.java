@@ -31,8 +31,8 @@ import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 
 
 /**
- * This creates all the needed services (as if it were the component manager),
- * this will let us create the objects we need without too much confusion and ensure
+ * This creates all the needed services (as if it were a service manager),
+ * this will let us create the services we need without too much confusion and ensure
  * we are using the same ones <br/>
  * If this is used then the services should not be created in some other way but should be
  * initiated here and then exported from this class only
@@ -72,33 +72,55 @@ public class EntityRESTServiceManager {
     private EntityBatchHandler entityBatchHandler;
     private EntityRESTProviderBase entityRESTProvider;
 
-    protected EntityRESTServiceManager() { }
-
-    public EntityRESTServiceManager(RequestStorageWrite requestStorage, RequestGetter requestGetter,
-            EntityPropertiesService entityPropertiesService,
-            EntityBrokerManager entityBrokerManager, EntityProviderManager entityProviderManager,
-            EntityProviderMethodStore entityProviderMethodStore,
-            HttpServletAccessProviderManager httpServletAccessProviderManager,
-            EntityViewAccessProviderManager entityViewAccessProviderManager) {
-        super();
-        this.requestStorage = requestStorage;
-        this.requestGetter = requestGetter;
-        this.entityPropertiesService = entityPropertiesService;
+    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
         this.entityBrokerManager = entityBrokerManager;
-        this.entityProviderManager = entityProviderManager;
-        this.entityProviderMethodStore = entityProviderMethodStore;
-        this.httpServletAccessProviderManager = httpServletAccessProviderManager;
-        this.entityViewAccessProviderManager = entityViewAccessProviderManager;
+        this.requestStorage = entityBrokerManager.getRequestStorage();
+        this.requestGetter = entityBrokerManager.getRequestGetter();
+        this.entityPropertiesService = entityBrokerManager.getEntityPropertiesService();
+        this.entityProviderManager = entityBrokerManager.getEntityProviderManager();
+        this.entityProviderMethodStore = entityBrokerManager.getEntityProviderMethodStore();
+        this.entityViewAccessProviderManager = entityBrokerManager.getEntityViewAccessProviderManager();
     }
 
+    protected EntityRESTServiceManager() { }
+
+    /**
+     * Base constructor
+     * @param entityBrokerManager the main entity broker manager service
+     */
+    public EntityRESTServiceManager(EntityBrokerManager entityBrokerManager) {
+        this(entityBrokerManager, null);
+    }
+
+    /**
+     * Full constructor
+     * @param entityBrokerManager the main entity broker manager service
+     * @param httpServletAccessProviderManager (optional)
+     */
+    public EntityRESTServiceManager(EntityBrokerManager entityBrokerManager,
+            HttpServletAccessProviderManager httpServletAccessProviderManager) {
+        super();
+        if (entityBrokerManager == null) {
+            throw new IllegalArgumentException("entityBrokerManager cannot be null");
+        }
+        setEntityBrokerManager(entityBrokerManager);
+        this.httpServletAccessProviderManager = httpServletAccessProviderManager;
+        init();
+    }
+
+    /**
+     * Startup all the REST service for the EB system,
+     * this can only be run after this is constructed with a full constructor or 
+     * the {@link #setEntityBrokerManager(EntityBrokerManager)} method has been called
+     * (i.e. all the required services are set)
+     */
     public void init() {
-        if (this.requestGetter == null
+        if (this.entityBrokerManager == null
+                || this.requestGetter == null
                 || this.requestStorage == null
                 || this.entityPropertiesService == null
-                || this.entityBrokerManager == null
                 || this.entityProviderManager == null
                 || this.entityProviderMethodStore == null
-                || this.httpServletAccessProviderManager == null
                 || this.entityViewAccessProviderManager == null) {
             throw new IllegalArgumentException("Main services must all be set and non-null!");
         }
@@ -142,56 +164,28 @@ public class EntityRESTServiceManager {
         return entityActionsManager;
     }
     
-    public void setEntityActionsManager(EntityActionsManager entityActionsManager) {
-        this.entityActionsManager = entityActionsManager;
-    }
-    
     public EntityDescriptionManager getEntityDescriptionManager() {
         return entityDescriptionManager;
-    }
-    
-    public void setEntityDescriptionManager(EntityDescriptionManager entityDescriptionManager) {
-        this.entityDescriptionManager = entityDescriptionManager;
     }
     
     public EntityEncodingManager getEntityEncodingManager() {
         return entityEncodingManager;
     }
     
-    public void setEntityEncodingManager(EntityEncodingManager entityEncodingManager) {
-        this.entityEncodingManager = entityEncodingManager;
-    }
-    
     public EntityRedirectsManager getEntityRedirectsManager() {
         return entityRedirectsManager;
-    }
-    
-    public void setEntityRedirectsManager(EntityRedirectsManager entityRedirectsManager) {
-        this.entityRedirectsManager = entityRedirectsManager;
     }
     
     public EntityHandlerImpl getEntityRequestHandler() {
         return entityRequestHandler;
     }
     
-    public void setEntityRequestHandler(EntityHandlerImpl entityRequestHandler) {
-        this.entityRequestHandler = entityRequestHandler;
-    }
-    
     public EntityBatchHandler getEntityBatchHandler() {
         return entityBatchHandler;
     }
     
-    public void setEntityBatchHandler(EntityBatchHandler entityBatchHandler) {
-        this.entityBatchHandler = entityBatchHandler;
-    }
-    
     public EntityRESTProviderBase getEntityRESTProvider() {
         return entityRESTProvider;
-    }
-    
-    public void setEntityRESTProvider(EntityRESTProviderBase entityRESTProvider) {
-        this.entityRESTProvider = entityRESTProvider;
     }
 
 }

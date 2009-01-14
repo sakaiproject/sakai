@@ -23,11 +23,17 @@ package org.sakaiproject.entitybroker;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 
@@ -42,39 +48,7 @@ public interface EntityBrokerManager {
 
     public static final String POST_METHOD = "_method";
 
-    /**
-     * FOR INTERNAL USE ONLY
-     * Allows other parts of EB to get to any registered ExIP
-     * @return the external integration provider OR null if there is not one
-     */
-    public ExternalIntegrationProvider getExternalIntegrationProvider();
-
-    /**
-     * Allows developers to setup providers to handle parts of the EB system which cannot
-     * really be handled internally, the system will operate without this set
-     * @param externalIntegrationProvider the external integration provider to use in the system
-     */
-    public void setExternalIntegrationProvider(ExternalIntegrationProvider externalIntegrationProvider);
-
-    /**
-     * FOR INTERNAL USE ONLY
-     * Allows other parts of EB to get to the registered REST provider if there is one
-     * @return the REST provider OR null if there is not one
-     */
-    public EntityRESTProvider getEntityRESTProvider();
-
-    /**
-     * Allows the developer to set a REST provider to add functionality to the {@link EntityBroker}
-     * system from a REST handler, the system will operate without this set but some methods will fail
-     * @param entityRESTProvider a service to provide REST functionality
-     */
-    public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider);
-
-    /**
-     * FOR INTERNAL USE ONLY
-     * @param servletContext sets the servlet context being used by the system (defaults to {@link #DIRECT})
-     */
-    public void setServletContext(String servletContext);
+    // Normal interface
 
     /**
      * Determines if an entity exists based on the reference
@@ -236,5 +210,77 @@ public interface EntityBrokerManager {
      * @return a sample object OR null if none can be found
      */
     public Object getSampleEntityObject(String prefix, String id);
+
+    
+    // Special service handling methods
+    /**
+     * Allows access to the current EntityProviderManager service
+     * @return the current EntityProviderManager service
+     */
+    public EntityProviderManager getEntityProviderManager();
+
+    /**
+     * Allows access to the current EntityPropertiesService
+     * @return the current EntityPropertiesService
+     */
+    public EntityPropertiesService getEntityPropertiesService();
+
+    /**
+     * Allows access to the current EntityViewAccessProviderManager service
+     * @return the current EntityViewAccessProviderManager
+     */
+    public EntityViewAccessProviderManager getEntityViewAccessProviderManager();
+
+    /**
+     * Allows access to the current EntityProviderMethodStore service
+     * @return the current EntityProviderMethodStore
+     */
+    public EntityProviderMethodStore getEntityProviderMethodStore();
+
+    /**
+     * Allows access to the current RequestGetter service
+     * @return the current RequestGetter
+     */
+    public RequestGetter getRequestGetter();
+
+    /**
+     * Allows access to the current RequestStorageWrite service
+     * @return the current RequestStorageWrite
+     */
+    public RequestStorageWrite getRequestStorage();
+
+    /**
+     * Allows access to any registered ExternalIntegrationProvider
+     * @return the external integration provider OR null if there is not one
+     */
+    public ExternalIntegrationProvider getExternalIntegrationProvider();
+
+    /**
+     * Allows access to the registered REST provider if there is one
+     * @return the REST provider OR null if there is not one
+     */
+    public EntityRESTProvider getEntityRESTProvider();
+
+    /**
+     * Allows developers to setup providers to handle parts of the EB system which cannot
+     * really be handled internally, the system will operate without this set
+     * @param externalIntegrationProvider the external integration provider to use in the system
+     */
+
+    public void setExternalIntegrationProvider(ExternalIntegrationProvider externalIntegrationProvider);
+
+    /**
+     * Allows the developer to set a REST provider to add functionality to the {@link EntityBroker}
+     * system from a REST handler, the system will operate without this set but some methods will fail
+     * @param entityRESTProvider a service to provide REST functionality
+     */
+    public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider);
+
+    /**
+     * FOR INTERNAL USE ONLY (do not mess with this in other words)
+     * @param servletContext sets the servlet context being used by the system (defaults to {@link #DIRECT})
+     */
+    public void setServletContext(String servletContext);
+    
 
 }

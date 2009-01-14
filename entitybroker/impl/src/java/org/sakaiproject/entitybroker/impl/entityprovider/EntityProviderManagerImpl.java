@@ -56,7 +56,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityProviderListener;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.extension.URLRedirect;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
@@ -71,7 +71,7 @@ import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;
 public class EntityProviderManagerImpl implements EntityProviderManager {
 
     private static Log log = LogFactory.getLog(EntityProviderManagerImpl.class);
-    
+
     /**
      * Empty constructor
      */
@@ -79,12 +79,12 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
     /**
      * Base constructor
-     * @param requestStorage the request storage service
+     * @param requestStorage the request storage service (writeable)
      * @param requestGetter the request getter service
      * @param entityProperties the entity properties service
      * @param entityProviderMethodStore the provider method storage
      */
-    public EntityProviderManagerImpl(RequestStorage requestStorage, RequestGetter requestGetter,
+    public EntityProviderManagerImpl(RequestStorageWrite requestStorage, RequestGetter requestGetter,
             EntityPropertiesService entityProperties, EntityProviderMethodStore entityProviderMethodStore) {
         super();
         this.requestStorage = requestStorage;
@@ -94,25 +94,10 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         init();
     }
 
-    private RequestStorage requestStorage;
-    public void setRequestStorage(RequestStorage requestStorage) {
-        this.requestStorage = requestStorage;
-    }
-
+    private RequestStorageWrite requestStorage;
     private RequestGetter requestGetter;
-    public void setRequestGetter(RequestGetter requestGetter) {
-        this.requestGetter = requestGetter;
-    }
-
     private EntityPropertiesService entityProperties;
-    public void setEntityProperties(EntityPropertiesService entityProperties) {
-        this.entityProperties = entityProperties;
-    }
-
     private EntityProviderMethodStore entityProviderMethodStore;
-    public void setEntityProviderMethodStore(EntityProviderMethodStore entityProviderMethodStore) {
-        this.entityProviderMethodStore = entityProviderMethodStore;
-    }
 
     protected ReferenceMap<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.SOFT);
 
@@ -599,6 +584,53 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         public int compare(Class<?> o1, Class<?> o2) {
             return o1.getName().compareTo(o2.getName());
         }
+    }
+
+
+    // GETTERS and SETTERS
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getRequestStorage()
+     */
+    public RequestStorageWrite getRequestStorage() {
+        return requestStorage;
+    }
+
+    public void setRequestStorage(RequestStorageWrite requestStorage) {
+        this.requestStorage = requestStorage;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getRequestGetter()
+     */
+    public RequestGetter getRequestGetter() {
+        return requestGetter;
+    }
+
+    public void setRequestGetter(RequestGetter requestGetter) {
+        this.requestGetter = requestGetter;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getEntityProperties()
+     */
+    public EntityPropertiesService getEntityProperties() {
+        return entityProperties;
+    }
+
+    public void setEntityProperties(EntityPropertiesService entityProperties) {
+        this.entityProperties = entityProperties;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getEntityProviderMethodStore()
+     */
+    public EntityProviderMethodStore getEntityProviderMethodStore() {
+        return entityProviderMethodStore;
+    }
+
+    public void setEntityProviderMethodStore(EntityProviderMethodStore entityProviderMethodStore) {
+        this.entityProviderMethodStore = entityProviderMethodStore;
     }
 
 }

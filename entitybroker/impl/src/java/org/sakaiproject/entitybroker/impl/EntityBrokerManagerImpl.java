@@ -42,6 +42,7 @@ import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseNestable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.BrowseSearchable;
@@ -55,6 +56,8 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
@@ -96,62 +99,20 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
             EntityViewAccessProviderManager entityViewAccessProviderManager,
             ExternalIntegrationProvider externalIntegrationProvider) {
         super();
+        if (entityProviderManager == null) {
+            throw new IllegalArgumentException("entityProviderManager cannot be null");
+        }
         this.entityProviderManager = entityProviderManager;
         this.entityPropertiesService = entityPropertiesService;
         this.entityViewAccessProviderManager = entityViewAccessProviderManager;
         this.externalIntegrationProvider = externalIntegrationProvider;
     }
-
 
     private EntityProviderManager entityProviderManager;
-    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
-        this.entityProviderManager = entityProviderManager;
-    }
-
     private EntityPropertiesService entityPropertiesService;
-    public void setEntityPropertiesService(EntityPropertiesService entityPropertiesService) {
-        this.entityPropertiesService = entityPropertiesService;
-    }
-
     private EntityViewAccessProviderManager entityViewAccessProviderManager;
-    public void setEntityViewAccessProviderManager(
-            EntityViewAccessProviderManager entityViewAccessProviderManager) {
-        this.entityViewAccessProviderManager = entityViewAccessProviderManager;
-    }
-
-    public ReflectUtils getReflectUtil() {
-        return ReflectUtils.getInstance();
-    }
-
-
     private ExternalIntegrationProvider externalIntegrationProvider;
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.EntityBrokerManager#setExternalIntegrationProvider(org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider)
-     */
-    public void setExternalIntegrationProvider(ExternalIntegrationProvider externalIntegrationProvider) {
-        this.externalIntegrationProvider = externalIntegrationProvider;
-    }
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.impl.EntityBrokerManager#getExternalIntegrationProvider()
-     */
-    public ExternalIntegrationProvider getExternalIntegrationProvider() {
-        return this.externalIntegrationProvider;
-    }
-
     private EntityRESTProvider entityRESTProvider;
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getEntityRESTProvider()
-     */
-    public EntityRESTProvider getEntityRESTProvider() {
-        return entityRESTProvider;
-    }
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.EntityBrokerManager#setEntityRESTProvider(org.sakaiproject.entitybroker.providers.EntityRESTProvider)
-     */
-    public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider) {
-        this.entityRESTProvider = entityRESTProvider;
-    }
-    
 
     private String servletContext;
     public String getServletContext() {
@@ -160,6 +121,9 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
         }
         return this.servletContext;
     }
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#setServletContext(java.lang.String)
+     */
     public void setServletContext(String servletContext) {
         if (servletContext != null) {
             this.servletContext = servletContext;
@@ -676,7 +640,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
                 // check the object itself next
                 if (isPOJO && titleNotSet) {
                     try {
-                        String title = getReflectUtil().getFieldValueAsString(entityData.getData(), "title", EntityTitle.class);
+                        String title = ReflectUtils.getInstance().getFieldValueAsString(entityData.getData(), "title", EntityTitle.class);
                         if (title != null) {
                             entityData.setDisplayTitle(title);
                             titleNotSet = false;
@@ -735,6 +699,94 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
             }
         }
         return entity;
+    }
+
+    // GETTERS
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getEntityRESTProvider()
+     */
+    public EntityRESTProvider getEntityRESTProvider() {
+        return entityRESTProvider;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.impl.EntityBrokerManager#getExternalIntegrationProvider()
+     */
+    public ExternalIntegrationProvider getExternalIntegrationProvider() {
+        return this.externalIntegrationProvider;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getEntityProviderManager()
+     */
+    public EntityProviderManager getEntityProviderManager() {
+        return entityProviderManager;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getEntityPropertiesService()
+     */
+    public EntityPropertiesService getEntityPropertiesService() {
+        return entityPropertiesService;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getEntityViewAccessProviderManager()
+     */
+    public EntityViewAccessProviderManager getEntityViewAccessProviderManager() {
+        return entityViewAccessProviderManager;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getEntityProviderMethodStore()
+     */
+    public EntityProviderMethodStore getEntityProviderMethodStore() {
+        return entityProviderManager.getEntityProviderMethodStore();
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getRequestGetter()
+     */
+    public RequestGetter getRequestGetter() {
+        return entityProviderManager.getRequestGetter();
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getRequestStorage()
+     */
+    public RequestStorageWrite getRequestStorage() {
+        return entityProviderManager.getRequestStorage();
+    }
+
+
+    // SETTERS
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#setEntityRESTProvider(org.sakaiproject.entitybroker.providers.EntityRESTProvider)
+     */
+    public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider) {
+        this.entityRESTProvider = entityRESTProvider;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#setExternalIntegrationProvider(org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider)
+     */
+    public void setExternalIntegrationProvider(ExternalIntegrationProvider externalIntegrationProvider) {
+        this.externalIntegrationProvider = externalIntegrationProvider;
+    }
+
+    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
+        this.entityProviderManager = entityProviderManager;
+    }
+
+    public void setEntityPropertiesService(EntityPropertiesService entityPropertiesService) {
+        this.entityPropertiesService = entityPropertiesService;
+    }
+
+    public void setEntityViewAccessProviderManager(
+            EntityViewAccessProviderManager entityViewAccessProviderManager) {
+        this.entityViewAccessProviderManager = entityViewAccessProviderManager;
     }
 
 }

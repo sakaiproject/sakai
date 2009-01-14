@@ -26,6 +26,9 @@ import java.util.Set;
 
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityProviderListener;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
+import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 
 /**
  * Handles all internal work of managing and working with the entity providers<br/> <br/>
@@ -202,5 +205,29 @@ public interface EntityProviderManager {
      * @throws IllegalArgumentException if the params are null
      */
     public <T extends EntityProvider> void unregisterListener(EntityProviderListener<T> listener);
+
+    /**
+     * Allows access to the current RequestStorage service
+     * @return the current RequestStorageWrite service
+     */
+    public RequestStorageWrite getRequestStorage();
+
+    /**
+     * Allows access to the current RequestGetter service
+     * @return the current RequestGetter service
+     */
+    public RequestGetter getRequestGetter();
+
+    /**
+     * Allows access to the current EntityPropertiesService service
+     * @return the current EntityPropertiesService service
+     */
+    public EntityPropertiesService getEntityProperties();
+
+    /**
+     * Allows access to the current EntityProviderMethodStore service
+     * @return the current EntityProviderMethodStore service
+     */
+    public EntityProviderMethodStore getEntityProviderMethodStore();
 
 }
