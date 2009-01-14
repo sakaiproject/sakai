@@ -20,13 +20,14 @@
 
 package org.sakaiproject.entitybroker.rest;
 
-import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.impl.EntityBrokerImpl;
 import org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
+
 import org.sakaiproject.entitybroker.mocks.EntityViewAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
+
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.rest.EntityActionsManager;
 import org.sakaiproject.entitybroker.rest.EntityBatchHandler;
@@ -34,6 +35,7 @@ import org.sakaiproject.entitybroker.rest.EntityDescriptionManager;
 import org.sakaiproject.entitybroker.rest.EntityEncodingManager;
 import org.sakaiproject.entitybroker.rest.EntityHandlerImpl;
 import org.sakaiproject.entitybroker.rest.EntityRedirectsManager;
+
 import org.sakaiproject.entitybroker.util.core.EntityPropertiesServiceSimple;
 import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;
 import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
@@ -52,7 +54,7 @@ public class ServiceTestManager {
     private static ServiceTestManager instance;
     public static ServiceTestManager getInstance() {
         if (instance == null) {
-            instance = new ServiceTestManager( new TestData(), null );
+            instance = new ServiceTestManager( new TestData() );
         }
         return instance;
     }
@@ -60,21 +62,25 @@ public class ServiceTestManager {
         instance = sts;
     }
 
-    public RequestStorageImpl requestStorage;
-    public RequestGetterImpl requestGetter;
-    public EntityPropertiesService entityPropertiesService;
-    public EntityActionsManager entityActionsManager;
-    public EntityProviderManagerImpl entityProviderManager;
+    private EntityRESTServiceManager entityRESTServiceManager;
+
+    private HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
+    private EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
+    private RequestStorageImpl requestStorage;
+    private RequestGetterImpl requestGetter;
+    private EntityProviderMethodStoreImpl entityProviderMethodStore;
+    private EntityPropertiesService entityPropertiesService;
+    private EntityProviderManagerImpl entityProviderManager;
+
     public EntityBrokerManagerImpl entityBrokerManager;
-    public EntityDescriptionManager entityDescriptionManager;
+    public EntityBrokerImpl entityBroker;
+
+    public EntityActionsManager entityActionsManager;
     public EntityEncodingManager entityEncodingManager;
     public EntityRedirectsManager entityRedirectsManager;
-    public EntityHandlerImpl entityRequestHandler;
-    public HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
-    public EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
     public EntityBatchHandler entityBatchHandler;
-    public EntityProviderMethodStoreImpl entityProviderMethodStore;
-    public EntityBrokerImpl entityBroker;
+    public EntityDescriptionManager entityDescriptionManager;
+    public EntityHandlerImpl entityRequestHandler;
     public EntityRESTProviderBase entityRESTProvider;
 
     public TestData td;
@@ -83,12 +89,25 @@ public class ServiceTestManager {
     }
 
     public ServiceTestManager(TestData td) {
-        this(td, null);
+        this.td = td;
+        initializeCoreServiceMocks();
+        initializeRESTServices();
+        setInstance(this);
     }
 
-    public ServiceTestManager(TestData td, EntityBrokerDao dao) {
-        this.td = td;
-        // initialize all the parts
+    public void initializeRESTServices() {
+        this.entityRESTServiceManager = new EntityRESTServiceManager(this.entityBrokerManager, this.httpServletAccessProviderManager);
+        // get out the services from the service manager
+        this.entityActionsManager = this.entityRESTServiceManager.getEntityActionsManager();
+        this.entityBatchHandler = this.entityRESTServiceManager.getEntityBatchHandler();
+        this.entityDescriptionManager = this.entityRESTServiceManager.getEntityDescriptionManager();
+        this.entityEncodingManager = this.entityRESTServiceManager.getEntityEncodingManager();
+        this.entityRedirectsManager = this.entityRESTServiceManager.getEntityRedirectsManager();
+        this.entityRequestHandler = this.entityRESTServiceManager.getEntityRequestHandler();
+        this.entityRESTProvider = this.entityRESTServiceManager.getEntityRESTProvider();
+    }
+
+    public void initializeCoreServiceMocks() {
         requestGetter = new RequestGetterImpl();
         entityPropertiesService = new EntityPropertiesServiceSimple();
         httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();
@@ -123,23 +142,7 @@ public class ServiceTestManager {
         // add new providers here
 
         entityBrokerManager = new EntityBrokerManagerImpl(entityProviderManager, entityPropertiesService, entityViewAccessProviderManager);
-        entityDescriptionManager = new EntityDescriptionManager(entityViewAccessProviderManager,
-                httpServletAccessProviderManager, entityProviderManager, entityPropertiesService,
-                entityBrokerManager, entityProviderMethodStore);
-        entityEncodingManager = new EntityEncodingManager(entityProviderManager, entityBrokerManager);
-        entityBatchHandler = new EntityBatchHandler(entityBrokerManager, entityEncodingManager);
-
-        entityRequestHandler = new EntityHandlerImpl(entityProviderManager,
-                entityBrokerManager, entityEncodingManager, entityDescriptionManager,
-                entityViewAccessProviderManager, requestGetter, entityActionsManager,
-                entityRedirectsManager, entityBatchHandler, requestStorage);
-        entityRequestHandler.setAccessProviderManager( httpServletAccessProviderManager );
-
-        entityRESTProvider = new EntityRESTProviderBase(entityBrokerManager, entityActionsManager, entityEncodingManager, entityRequestHandler);
-
         entityBroker = new EntityBrokerImpl(entityProviderManager, entityBrokerManager, requestStorage);
-
-        setInstance(this);
     }
 
 }
