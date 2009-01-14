@@ -44,5 +44,17 @@
  		<property name="cacheMinutes"><value>5</value></property>
  		<property name="cacheCleanerMinutes"><value>15</value></property>
 	</bean>
+	
+	<!-- Init method registers this bean with the injected NotificationService -->
+	<bean id="org.sakaiproject.site.api.SiteAliasCleanupNotificationAction"
+		class="org.sakaiproject.site.impl.SiteAliasCleanupNotificationAction"
+		init-method="init"
+		singleton="true">
+		<property name="aliasService" ref="org.sakaiproject.alias.api.AliasService" />
+		<property name="notificationService" ref="org.sakaiproject.event.api.NotificationService" />
+		<!-- Optional properties -->
+		<!-- property name="enabled" value="true" / -->
+		<!-- property name="propagateExceptions" value="false" / -->
+	</bean>
 
 </beans>
