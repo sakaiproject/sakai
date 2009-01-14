@@ -204,12 +204,6 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 					indexWriter.addIndexes(new Directory[] { d });
 
-					searchBuilderItemSerializer.removeTransactionList(f);
-					long end = System.currentTimeMillis();
-					log.info("Merged SavePoint " + f + " in " + (end - start) + " ms "
-							+ f.getPath());
-					timings.append("\n\tMerged SavePoint ").append(f.getName()).append(" in ").append((end - start)).append(" ms ");
-					
 
 					// collect additional delete references to be applied to earlier segments
 					List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
@@ -221,6 +215,14 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 							deletedReferences.put(sbi.getName(),sbi.getName());
 						}
 					}
+					
+					// Finish
+					searchBuilderItemSerializer.removeTransactionList(f);
+					long end = System.currentTimeMillis();
+					log.info("Merged SavePoint " + f + " in " + (end - start) + " ms "
+							+ f.getPath());
+					timings.append("\n\tMerged SavePoint ").append(f.getName()).append(" in ").append((end - start)).append(" ms ");
+					
 
 				}
 
