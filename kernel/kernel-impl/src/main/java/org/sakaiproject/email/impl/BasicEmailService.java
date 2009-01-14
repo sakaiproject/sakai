@@ -1033,7 +1033,7 @@ public class BasicEmailService implements EmailService
 		FileDataSource source = new FileDataSource(attachment.getFile());
 		attachPart = new MimeBodyPart();
 		attachPart.setDataHandler(new DataHandler(source));
-		attachPart.setFileName(attachment.getFile().getName());
+		attachPart.setFileName(attachment.getFile().getPath());
 		return attachPart;
 	}
 
