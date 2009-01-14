@@ -208,10 +208,10 @@ public class MyPrivacy extends BasePage {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//save() form, show feedback. perhaps redirect back to main page after a short while?
 				if(save(form)){
-					formFeedback.setModel(new ResourceModel("success.save.ok"));
+					formFeedback.setModel(new ResourceModel("success.privacy.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 				} else {
-					formFeedback.setModel(new ResourceModel("error.save.failed"));
+					formFeedback.setModel(new ResourceModel("error.privacy.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
 				}
 				target.addComponent(formFeedback);

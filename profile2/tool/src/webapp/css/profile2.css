@@ -280,6 +280,10 @@
 	border: 1px solid #d0d0df;
 }
 
+.profileForm {
+	margin-bottom: 12px;
+}
+
 .statusForm {
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
@@ -356,7 +360,7 @@
 .friendsListItem {
 	display:block;
 	border: 1px solid green;
-	width: 600px;
+	width: 500px;
 	height: 120px;
 	padding-top: 5px;
 	padding-left: 5px;
@@ -434,8 +438,16 @@ h2 {
 	color: #5D5D5D;
 }
 
-.searchResultsHeader {
-	border-bottom: thin solid black;
+
+.itemHeader {
+	font-size: 100%;
+	font-weight: bold;
+	border-bottom: thin solid #5D5D5D;
+	margin-bottom: 4px;
+}
+
+.resultsHeader {
+	font-weight: normal;
 }
 	
 

@@ -215,11 +215,21 @@ public interface Profile {
 	 * 
 	 * Once this list is returned, paginate and lookup sets of SakaiPersons and their associated Privacy and Image records.
 	 * 
-	 * @param search 	used to search the nickname and email fields. 
-	 * @return List 	only userIds (for speed and since the list might be vey long.
+	 * @param search 	string to search for
+	 * @return List 	only userIds (for speed and since the list might be very long).
 	 */
 	public List<String> findUsersByNameOrEmail(String search);
 	
 
-	
+	/**
+	 * Find all users that match the search string in any of the relevant SakaiPerson fields
+	 * 
+	 * Returns only user_uuids for speed
+	 * 
+	 * Once this list is returned, paginate and lookup sets of SakaiPersons and their associated Privacy and Image records.
+	 * 
+	 * @param search 	string to search for
+	 * @return List 	only userIds (for speed and since the list might be very long).
+	 */
+	public List<String> findUsersByInterest(String search);
 }

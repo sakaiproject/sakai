@@ -23,8 +23,11 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
+import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
@@ -42,14 +45,17 @@ public class MySearch extends BasePage {
 		
 		if(log.isDebugEnabled()) log.debug("MyPrivacy()");
 		
-
 		//get current user
 		String userId = sakaiProxy.getCurrentUserId();
+		
 		
 		// FeedbackPanel - so we activate feedback
         final FeedbackPanel feedback = new FeedbackPanel("feedback");
         feedback.setOutputMarkupId(true);
         add(feedback);
+        // filteredErrorLevels will not be shown in the FeedbackPanel
+        int[] filteredErrorLevels = new int[]{FeedbackMessage.ERROR};
+        feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(filteredErrorLevels));
      
         //create model for form
 		search = new Search();
@@ -57,28 +63,23 @@ public class MySearch extends BasePage {
         
 		/* 
 		 * 
-		 * SEARCH BY NAME
+		 * SEARCH BY NAME FORM
 		 * 
 		 */
 		
-		
         //heading	
-		Label heading = new Label("sbnHeading", new ResourceModel("heading.search.byname"));
-		add(heading);
-		
+		Label sbnHeading = new Label("sbnHeading", new ResourceModel("heading.search.byname"));
+		add(sbnHeading);
 		
 		//setup form		
 		Form sbnForm = new Form("sbnForm", searchModel);
 		sbnForm.setOutputMarkupId(true);
 		
-		// filteredErrorLevels will not be shown in the FeedbackPanel
-        int[] filteredErrorLevels = new int[]{FeedbackMessage.ERROR};
-        feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(filteredErrorLevels));
-		
 		//search field
         sbnForm.add(new Label("sbnNameLabel", new ResourceModel("text.search.byname")));
-		TextField sbnNameField = new TextField("searchName");
+		final TextField sbnNameField = new TextField("searchName");
 		sbnNameField.setRequired(true);
+		sbnNameField.setOutputMarkupId(true);
 		sbnForm.add(sbnNameField);
 		sbnForm.add(new IconWithClueTip("sbnNameToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.search.byname.tooltip")));
 		
@@ -94,6 +95,51 @@ public class MySearch extends BasePage {
 		sbnIndicator.setVisible(false);
 		sbnForm.add(sbnIndicator);
 		
+		/* 
+		 * 
+		 * SEARCH BY INTEREST FORM
+		 * 
+		 */
+		
+        //heading	
+		Label sbiHeading = new Label("sbiHeading", new ResourceModel("heading.search.byinterest"));
+		add(sbiHeading);
+		
+		
+		//setup form		
+		Form sbiForm = new Form("sbiForm", searchModel);
+		sbiForm.setOutputMarkupId(true);
+		
+		//search field
+        sbiForm.add(new Label("sbiInterestLabel", new ResourceModel("text.search.byinterest")));
+		final TextField sbiInterestField = new TextField("searchInterest");
+		sbiInterestField.setRequired(true);
+		sbiInterestField.setOutputMarkupId(true);
+		sbiForm.add(sbiInterestField);
+		sbiForm.add(new IconWithClueTip("sbiInterestToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.search.byinterest.tooltip")));
+		
+		//search feedback
+        final FeedbackLabel sbiInterestFeedback = new FeedbackLabel("searchInterestFeedback", sbiInterestField, new ResourceModel("text.search.nothing"));
+        sbiInterestFeedback.setOutputMarkupId(true);
+        //sbnNameField.add(new ComponentVisualErrorBehavior("onblur", sbnNameFeedback)); //removed for now
+        sbiForm.add(sbiInterestFeedback);
+		
+		//form indicator - need to use IAjaxIndicatorAware TODO
+		final AjaxIndicator sbiIndicator = new AjaxIndicator("sbiIndicator");
+		sbiIndicator.setOutputMarkupId(true);
+		sbiIndicator.setVisible(false);
+		sbiForm.add(sbiIndicator);
+		
+		
+		
+		
+		
+		/* 
+		 * 
+		 * RESULTS
+		 * 
+		 */
+		
 		//search results label
 		final Label numSearchResults = new Label("numSearchResults");
 		numSearchResults.setOutputMarkupId(true);
@@ -103,46 +149,52 @@ public class MySearch extends BasePage {
 		// model to wrap search results
 		LoadableDetachableModel resultsModel = new LoadableDetachableModel(){
 			protected Object load() {
-				System.out.println("loading results 1...");
 				return results;
 			}
-			
 		};
-		
-		
-		//search results
-		/*
-		final SearchResults searchResults = new SearchResults("searchResults", resultsModel);
-		searchResults.setOutputMarkupId(true);
-		add(searchResults);
-		*/
-		
-		
+				
 		//container which wraps list
 		final WebMarkupContainer resultsContainer = new WebMarkupContainer("searchResultsContainer");
-		resultsContainer.setOutputMarkupId(true);
+		resultsContainer.setOutputMarkupPlaceholderTag(true);
 		
+		//search results
 		ListView resultsListView = new ListView("results-list", resultsModel) {
 		    protected void populateItem(ListItem item) {
 		        
-		    	//get userUuid string, then get a SakaiPerson for each, their Privacy record, and if authorised, their photo etc
+		    	//get userUuid string, 
+		    	//then get a SakaiPerson for each, 
+		    	//their Privacy record, 
+		    	//and if authorised, their ProfileImage record
 		    	//also figure out if they are a friend already.
 		    	
 		    	//get userUuid
 		    	String userUuid = (String)item.getModelObject();
 		    	
-		    	System.out.println("item: " + userUuid);
-		    	
-		    	
-		    	
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
-		    			    			    	
+		    	final byte[] photo;
+		    		
+		    	//get objects for this userUuid
+				SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		    	ProfilePrivacy profilePrivacy = profile.getPrivacyRecordForUser(userUuid);
+		    	
+		    	//based on profileProvacy, they might need to be ecluded from the search result,
+		    	//or not have thier profile linked/image available
+		    	
+		    	
+		    	ProfileImage profileImage = profile.getCurrentProfileImageRecord(userUuid);
+		    	
+		    	//if they don't have a ProfileImage record, they have no photo
+		    	if(profileImage != null) {
+		    		photo = sakaiProxy.getResource(profileImage.getThumbnailResource());
+		    	} else {
+		    		photo = null;
+		    	}
+		    	
 		    	//name
 		    	Label nameLabel = new Label("result-name", displayName);
 		    	item.add(nameLabel);
 		    	
-		    	final byte[] photo = null;
 		    	//photo
 		    	if(photo != null && photo.length > 0){
 		    		
@@ -157,8 +209,6 @@ public class MySearch extends BasePage {
 					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
 		
-		    	
-		    	
 		    	
 		    	//action - confirm friend
 		    	/*
@@ -179,11 +229,10 @@ public class MySearch extends BasePage {
 		//add friend container
 		add(resultsContainer);
 		
-		
 		//hide if no results
-		//if(results.size() == 0) {
-			//resultsContainer.setVisible(false);
-		//}
+		if(results.size() == 0) {
+			resultsContainer.setVisible(false);
+		}
 		
 		
 		
@@ -193,53 +242,112 @@ public class MySearch extends BasePage {
 		
 		
 		
-				
-		//submit
+			
+		 
+		/* 
+		 * 
+		 * SEARCH BY NAME SUBMIT
+		 * 
+		 */
+		
+		//sbn submit
 		AjaxFallbackButton sbnSubmitButton = new AjaxFallbackButton("sbnSubmit", new ResourceModel("button.search.byname"), sbnForm) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//need to show the busyindicator here TODO
 
-				
-				//get the model
-				Search search = (Search) form.getModelObject();
-				
-				//get search field
-				String searchText = search.getSearchName();
-				
-				//search both UDB and Sakaiperson for matches.
-				results = new ArrayList(profile.findUsersByNameOrEmail(searchText));
-
-				//text
-				if(results.isEmpty()) {
-					numSearchResults.setModel(new StringResourceModel("text.search.no.results", null, new Object[]{ searchText } ));
-				} else {
-					numSearchResults.setModel(new StringResourceModel("text.search.all.results", null, new Object[]{ results.size(), searchText } ));
-				}
-				
-				
-				
-				//update components
 				if(target != null) {
+					//get the model
+					Search search = (Search) form.getModelObject();
+					
+					//get search field
+					String searchText = search.getSearchName();
+					
+					if(log.isDebugEnabled()) log.debug("MySearch() search.getSearchName(): " + searchText);
+					
+					//clear the interest search field in model and repaint to clear value
+					search.setSearchInterest("");
+					
+					//search both UDB and Sakaiperson for matches.
+					results = new ArrayList(profile.findUsersByNameOrEmail(searchText));
+	
+					if(log.isDebugEnabled()) log.debug("MySearch() results: " + results.toString());
+					
+					//text
+					if(results.isEmpty()) {
+						numSearchResults.setModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
+						resultsContainer.setVisible(false);
+					} else {
+						numSearchResults.setModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ results.size(), searchText } ));
+						resultsContainer.setVisible(true);
+					}
+					
+					//repaint components
+					target.addComponent(sbiInterestField);
+					target.addComponent(numSearchResults);
 					target.addComponent(numSearchResults);
 					target.addComponent(resultsContainer);
 					target.appendJavascript("setMainFrameHeight(window.name);");	
+
 				}
-				
-				
 				
 				
             }
 		};
 		sbnForm.add(sbnSubmitButton);
-
-		
-		
-		
-	
-		
-        
-        
         add(sbnForm);
+        
+        
+        
+        /* 
+		 * 
+		 * SEARCH BY INTEREST SUBMIT
+		 * 
+		 */
+		
+		//sbn submit
+		AjaxFallbackButton sbiSubmitButton = new AjaxFallbackButton("sbiSubmit", new ResourceModel("button.search.byinterest"), sbiForm) {
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
+				//need to show the busyindicator here TODO
+
+				if(target != null) {
+					//get the model
+					Search search = (Search) form.getModelObject();
+					
+					//get search field
+					String searchText = search.getSearchInterest();
+					
+					if(log.isDebugEnabled()) log.debug("MySearch() search.getSearchInterest(): " + searchText);
+					
+					//clear the name search field in model and repaint to clear value
+					search.setSearchName("");
+					
+					//search SakaiPerson for matches
+					results = new ArrayList(profile.findUsersByInterest(searchText));
+
+					if(log.isDebugEnabled()) log.debug("MySearch() results: " + results.toString());
+					
+					//text
+					if(results.isEmpty()) {
+						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
+						resultsContainer.setVisible(false);
+					} else {
+						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ results.size(), searchText } ));
+						resultsContainer.setVisible(true);
+					}
+					
+					//repaint components
+					target.addComponent(sbnNameField);
+					target.addComponent(numSearchResults);
+					target.addComponent(resultsContainer);
+					target.appendJavascript("setMainFrameHeight(window.name);");	
+
+				}
+				
+				
+            }
+		};
+		sbiForm.add(sbiSubmitButton);
+        add(sbiForm);
    	
 	}
 

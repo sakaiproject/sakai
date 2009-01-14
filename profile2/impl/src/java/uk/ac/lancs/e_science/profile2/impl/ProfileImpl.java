@@ -762,7 +762,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	}
 	
-	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#findUsersByNameOrEmail(String search)
+	 */
+	public List<String> findUsersByInterest(String search) {
+		
+		//get users from SakaiPerson
+		List<String> userUuids = new ArrayList<String>(findSakaiPersonsByInterest(search));
+		
+		return userUuids;
+		
+	}
 	
 	
 	
@@ -787,6 +797,29 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	  	return userUuids;
 	}
+	
+	
+	//private method to query SakaiPerson for matches
+	//this should go in the profile ProfilePersistence API
+	private List<String> findSakaiPersonsByInterest(final String search) {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST);
+	  			q.setParameter(SEARCH, '%' + search + '%', Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
+	
+	  	return userUuids;
+	}
+
 
 	
 	
@@ -852,5 +885,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
+
+
 	
 }

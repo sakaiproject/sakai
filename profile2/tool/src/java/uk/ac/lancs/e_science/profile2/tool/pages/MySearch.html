@@ -18,31 +18,59 @@
 		
 		<div id="fullWidth">
             
-           	<div wicket:id="feedback"></div>
+            <div wicket:id="feedback"></div>
             
-            <div wicket:id="sbnHeading">[searchByNameHeading]</div>
-
-            <form wicket:id="sbnForm" class="profileForm">
-				<table class="profileContent">
+            <!--  search by name form -->
+            <div class="mainSectionContentForm">
+	            
+	            <div wicket:id="sbnHeading" class="itemHeader">[searchByNameHeading]</div>
+	            
+	            <form wicket:id="sbnForm" class="profileForm">
+					<table class="profileContent">
+						
+						<tr>
+							<td class="label" wicket:id="sbnNameLabel">[sbnNameLabel]</td>
+							<td class="content">
+								<input type="text" wicket:id="searchName" class="formInputField" />
+								<span class="feedbackLabel" wicket:id="searchNameFeedback">[searchNameFeedback]</span>
+							</td>
+							<td class="toolTip"><span wicket:id="sbnNameToolTip">[searchToolTip]</span></td>
+						</tr>
+						
+					</table>
 					
-					<tr>
-						<td class="label" wicket:id="sbnNameLabel">[sbnNameLabel]</td>
-						<td class="content">
-							<input type="text" wicket:id="searchName" class="formInputField" />
-							<span class="feedbackLabel" wicket:id="searchNameFeedback">[searchNameFeedback]</span>
-						</td>
-						<td class="toolTip"><span wicket:id="sbnNameToolTip">[searchToolTip]</span></td>
-					</tr>
+					<input type="submit" wicket:id="sbnSubmit" value="Search" />&nbsp;&nbsp;<img wicket:id="sbnIndicator" />
 					
-				</table>
+				</form>	
+			</div>
+			
+			
+			<!--  search by interest form -->
+			<div class="mainSectionContentForm">
+				<div wicket:id="sbiHeading" class="itemHeader">[searchByInterestHeading]</div>
 				
-				<input type="submit" wicket:id="sbnSubmit" value="Search" />&nbsp;&nbsp;<img wicket:id="sbnIndicator" />
-				
-			</form>	
+				<form wicket:id="sbiForm" class="profileForm">
+					<table class="profileContent">
+						
+						<tr>
+							<td class="label" wicket:id="sbiInterestLabel">[sbiInterestLabel]</td>
+							<td class="content">
+								<input type="text" wicket:id="searchInterest" class="formInputField" />
+								<span class="feedbackLabel" wicket:id="searchInterestFeedback">[searchInterestFeedback]</span>
+							</td>
+							<td class="toolTip"><span wicket:id="sbiInterestToolTip">[searchToolTip]</span></td>
+						</tr>
+						
+					</table>
+					
+					<input type="submit" wicket:id="sbiSubmit" value="Search" />&nbsp;&nbsp;<img wicket:id="sbiIndicator" />
+					
+				</form>	
+			</div>
 			
 			
 			<!--  results -->
-			<div wicket:id="numSearchResults">No results or 1-5 of 20 results</div>
+			<div wicket:id="numSearchResults" class="resultsHeader">No results or 1-5 of 20 results</div>
 			
 			 <div class="friendsList" wicket:id="searchResultsContainer">
 				<div wicket:id="results-list" class="friendsListItem">

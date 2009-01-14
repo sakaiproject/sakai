@@ -46,9 +46,7 @@ public class MyFriends extends BasePage {
 		//get current user
 		final String userId = sakaiProxy.getCurrentUserId();
 
-		
 	
-		
 		WebMarkupContainer friendRequestsContainer = new WebMarkupContainer("friendRequests-container");
 		friendRequestsContainer.setOutputMarkupId(true);
 		
