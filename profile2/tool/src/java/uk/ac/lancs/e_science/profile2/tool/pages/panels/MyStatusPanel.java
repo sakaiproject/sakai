@@ -14,7 +14,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -69,11 +69,11 @@ public class MyStatusPanel extends Panel {
 		//and the message and date fields get their values again, via these models from the ProfileStatus object.
 		
 		//setup model for status message
-		IModel statusMessageModel = new Model() {
+		LoadableDetachableModel statusMessageModel = new LoadableDetachableModel() {
 			private String message = "";
 			
-			public Object getObject(){
-				//profileStatus = profile.getUserStatus(userId);
+			protected Object load() {
+				profileStatus = profile.getUserStatus(userId);
 				message = profileStatus.getMessage(); //get from hibernate
 				if("".equals(message) || message == null){
 					log.warn("No status message for: " + userId);
@@ -84,12 +84,12 @@ public class MyStatusPanel extends Panel {
 		};
 		
 		//setup model for status date
-		Model statusDateModel = new Model() {
+		LoadableDetachableModel statusDateModel = new LoadableDetachableModel() {
 			
 			private Date date;
 			private String dateStr = "";
 			
-			public Object getObject(){
+			protected Object load() {
 				date = profile.getUserStatusDate(userId);
 				if(date == null) {
 					log.warn("No status date for: " + userId );
