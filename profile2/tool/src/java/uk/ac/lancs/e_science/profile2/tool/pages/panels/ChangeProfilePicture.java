@@ -11,6 +11,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.protocol.http.RequestLogger;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
@@ -18,7 +19,6 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.components.CloseButton;
-import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehavior;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
@@ -31,9 +31,6 @@ public class ChangeProfilePicture extends Panel{
     private transient Profile profile;
 	private transient Logger log = Logger.getLogger(ChangeProfilePicture.class);
 
-	
-
-	
 	public ChangeProfilePicture(String id, UserProfile userProfile) {  
         super(id);  
         
@@ -72,30 +69,64 @@ public class ChangeProfilePicture extends Panel{
 					String mimeType = upload.getContentType();
 					String fileName = upload.getClientFileName();
 					
-					//get bytes, set into sakaiperson directly
+					//ok so get bytes of file uploaded
 					byte[] imageBytes = upload.getBytes();
 					
-					//scale image for the main profile pic
+					//TODO: take a copy of the bytes and then scale each individually but need to monitor memory usage
+					
+					/*
+					 * MAIN PROFILE IMAGE
+					 */
+					//scale image
 					imageBytes = profile.scaleImage(imageBytes, ProfileImageManager.MAX_IMAGE_XY);
 					 
-					//save the main profile image to CHS and get the resource_id back
-					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, SakaiProxy.PROFILE_IMAGE_MAIN, fileName);
-					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, SakaiProxy.PROFILE_IMAGE_THUMBNAIL, fileName);
+					//create resource ID
+					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, SakaiProxy.PROFILE_IMAGE_DIR, fileName);
 
 					System.out.println("mainResourceId:" + mainResourceId);
-					System.out.println("thumbnailResourceId:" + thumbnailResourceId);
-
-					boolean result = sakaiProxy.saveFile(mainResourceId, userId, fileName, mimeType, imageBytes);
 					
+					//save, if error, log and return.
+					if(!sakaiProxy.saveFile(mainResourceId, userId, fileName, mimeType, imageBytes)) {
+						log.error("Saving main profile image failed");
+						error(new StringResourceModel("error.file.save.failed", this, null).getString());
+					    return;
+					}
+
+					/*
+					 * THUMBNAIL PROFILE IMAGE
+					 */
+					//scale image
+					imageBytes = profile.scaleImage(imageBytes, ProfileImageManager.MAX_THUMBNAIL_IMAGE_XY);
+					 
+					//create resource ID
+					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, SakaiProxy.PROFILE_IMAGE_THUMBNAIL_DIR, fileName);
+
+					System.out.println("thumbnailResourceId:" + thumbnailResourceId);
+					
+					//save, if error, log and return.
+					if(!sakaiProxy.saveFile(thumbnailResourceId, userId, fileName, mimeType, imageBytes)) {
+						log.error("Saving thumbnail profile image failed");
+						error(new StringResourceModel("error.file.save.failed", this, null).getString());
+					    return;
+					}
+					
+					/*
+					 * SAVE IMAGE RESOURCE IDS
+					 */
 					//save
 					if(profile.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
 						log.info("Updated profile image");
 						setResponsePage(new MyProfile()); //to refresh the image data
 					} else {
 						log.error("Profile image update failed");
+						error(new StringResourceModel("error.file.save.failed", this, null).getString());
+						return;
 					}
 					
-					 
+					
+					
+					//if ok, log it
+					log.info("User " + userId + " successfully changed profile picture.");
 				}
 				
 				

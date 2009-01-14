@@ -33,10 +33,11 @@ public class ProfileApplication extends WebApplication {
 		getMarkupSettings().setStripWicketTags(true);
 		//mountBookmarkablePage("/my", MyProfile.class);
 		
-		//addComponentInstantiationListener(new SpringComponentInjector(this));
-		//getResourceSettings().setThrowExceptionOnMissingResource(true);
-		//getDebugSettings().setAjaxDebugModeEnabled(log.isDebugEnabled());	
-		//getApplicationSettings().setPageExpiredErrorPage(SakaiSessionExpiredPage.class);
+		
+		
+		
+		
+		
 	}
 	
 	public ProfileApplication() {
