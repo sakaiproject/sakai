@@ -137,5 +137,19 @@
           </map>
        </property>
     </bean> 
+    
+ <bean id="org.sakaiproject.search.component.adapter.contenthosting.TikaContentDigester" 
+     class="org.sakaiproject.search.component.adapter.contenthosting.TikaContentDigester"
+     init-method="init" 
+     destroy-method="destroy"
+     >
+       <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+       <property name="mimeTypes">
+          <map>
+           <entry key="application/rtf"><value>application/rtf</value></entry>
+           <entry key="application/vnd.oasis.opendocument.text"><value>application/vnd.oasis.opendocument.text</value></entry>        
+          </map>
+       </property>
+    </bean> 
   
 </beans>
