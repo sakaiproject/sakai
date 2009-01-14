@@ -2534,4 +2534,44 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		finalizeNullGradeRecords(getGradebook(gradebookUid));
 	}
+	
+	public String getLowestPossibleGradeForGbItem(final String gradebookUid, final Long gradebookItemId) {
+	    if (gradebookUid == null || gradebookItemId == null) {
+	        throw new IllegalArgumentException("Null gradebookUid and/or gradebookItemId " +
+	        		"passed to getLowestPossibleGradeForGbItem. gradebookUid:" + 
+	        		gradebookUid + " gradebookItemId:" + gradebookItemId);
+	    }
+	    
+	    Assignment gbItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                return getAssignmentWithoutStats(gradebookUid, gradebookItemId, session);
+            }
+        });
+	    
+	    if (gbItem == null) {
+	        throw new AssessmentNotFoundException("No gradebook item found with id " + gradebookItemId);
+	    }
+	    
+	    Gradebook gradebook = gbItem.getGradebook();
+	    
+	    // double check that user has some permission to access gb items in this site
+	    if (!isUserAbleToViewAssignments(gradebookUid) && !currentUserHasViewOwnGradesPerm(gradebookUid)) {
+	        throw new SecurityException("User attempted to access gradebookItem: " + 
+	                gradebookItemId + " in gradebook:" + gradebookUid + " without permission!");
+	    }
+	    
+	    String lowestPossibleGrade = null;
+	    
+	    if (gbItem.getUngraded()) {
+	        lowestPossibleGrade = null;
+	    } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE || 
+	            gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
+	        lowestPossibleGrade = "0";
+	    } else if (gbItem.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+	        LetterGradePercentMapping mapping = getLetterGradePercentMapping(gradebook);
+	        lowestPossibleGrade = mapping.getGrade(0d);
+	    }
+	    
+	    return lowestPossibleGrade;
+	}
 }

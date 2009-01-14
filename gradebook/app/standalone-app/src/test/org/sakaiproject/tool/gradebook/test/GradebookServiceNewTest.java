@@ -952,4 +952,46 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		
 		assertEquals(GradebookService.GRADE_TYPE_LETTER, gradebookService.getGradeEntryType(GRADEBOOK_UID_NO_CAT));
 	}
+	
+	public void testGetLowestPossibleGradeForGbItem() throws Exception {
+	    // try passing some nulls
+	    try {
+	        gradebookService.getLowestPossibleGradeForGbItem(null, asn1IdNoCat);
+	        fail("did not catch null gradebookUid passed to getLowestPossibleGradeForGbItem");
+	    } catch (IllegalArgumentException iae) {}
+
+	    try {
+	        gradebookService.getLowestPossibleGradeForGbItem(GRADEBOOK_UID_NO_CAT, null);
+	        fail("did not catch null gradebookItemId passed to getLowestPossibleGradeForGbItem");
+	    } catch (IllegalArgumentException iae) {}
+
+	    // let's start with a point gb
+	    Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+	    gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+	    gradebookManager.updateGradebook(gradebookNoCat);
+	    String lowestPointsPossible = gradebookService.getLowestPossibleGradeForGbItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+	    assertEquals("0", lowestPointsPossible);
+
+	    // change it to %
+	    gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+	    gradebookManager.updateGradebook(gradebookNoCat);
+
+	    lowestPointsPossible = gradebookService.getLowestPossibleGradeForGbItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+	    assertEquals("0", lowestPointsPossible);
+
+	    // change it to letter
+	    gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+	    gradebookManager.updateGradebook(gradebookNoCat);
+
+	    lowestPointsPossible = gradebookService.getLowestPossibleGradeForGbItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+	    assertEquals("F", lowestPointsPossible);
+
+	    // now let's change the gb item to ungraded
+	    org.sakaiproject.tool.gradebook.Assignment assignment = gradebookManager.getAssignment(asn1IdNoCat);
+	    assignment.setUngraded(true);
+	    gradebookManager.updateAssignment(assignment);
+
+	    lowestPointsPossible = gradebookService.getLowestPossibleGradeForGbItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+	    assertNull(lowestPointsPossible);
+	}
 }

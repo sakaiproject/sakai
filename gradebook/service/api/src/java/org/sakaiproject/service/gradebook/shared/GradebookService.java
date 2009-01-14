@@ -737,4 +737,18 @@ public interface GradebookService {
 	public void finalizeGrades(String gradebookUid)
 			throws GradebookNotFoundException;
 	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gradebookItemId
+	 * @return the lowest possible grade allowed for the given gradebookItemId.
+	 * For example, in a points or %-based gradebook, the lowest possible grade for
+	 * a gradebook item is 0.  In a letter-grade gb, it may be 'F' depending on
+	 * the letter grade mapping. Ungraded items have a lowest value of null.
+	 * @throws SecurityException if user does not have permission to view assignments
+	 * in the given gradebook
+	 * @throws AssessmentNotFoundException if there is no gradebook item with the given gradebookItemId
+	 */
+	public String getLowestPossibleGradeForGbItem(final String gradebookUid, final Long gradebookItemId);
+	
 }
