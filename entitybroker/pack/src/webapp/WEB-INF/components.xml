@@ -49,11 +49,11 @@
 
     <bean id="org.sakaiproject.entitybroker.DeveloperHelperService"
         class="org.sakaiproject.entitybroker.impl.devhelper.DeveloperHelperServiceImpl">
+        <property name="entityBrokerManager"
+            ref="org.sakaiproject.entitybroker.EntityBrokerManager" />
         <property name="authzGroupService"
             ref="org.sakaiproject.authz.api.AuthzGroupService" />
         <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
-        <property name="entityRESTProvider"
-            ref="org.sakaiproject.entitybroker.providers.EntityRESTProvider" />
         <property name="entityProperties" 
             ref="org.sakaiproject.entitybroker.EntityPropertiesService" />
         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
@@ -118,6 +118,7 @@
 
 
     <!--  REST beans -->
+<!-- Now part of the tool
     <bean id="org.sakaiproject.entitybroker.rest.EntityActionsManager"
         class="org.sakaiproject.entitybroker.rest.EntityActionsManager">
         <property name="entityProviderMethodStore"
@@ -204,6 +205,7 @@
         <property name="entityRequestHandler"
             ref="org.sakaiproject.entitybroker.EntityRequestHandler" />
     </bean>
+-->
 
     <!-- OPTIONAL storage beans -->
     <bean id="org.sakaiproject.entitybroker.impl.EntityMetaPropertiesService"

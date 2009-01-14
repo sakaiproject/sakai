@@ -55,6 +55,7 @@ public abstract class DirectServlet extends HttpServlet {
 
 
     /**
+     * This runs on servlet initialization (it is the first thing to run)
      * This must be implemented to provide the entity request handler itself <br/>
      * This needs to at least load up the entityRequestHandler service (from the entity broker core)
      * in order for things to work, if that service is not loaded then nothing will work,
@@ -64,7 +65,7 @@ public abstract class DirectServlet extends HttpServlet {
      * 
      * @return the entity request handler service object
      */
-    protected abstract EntityRequestHandler getEntityRequestHandler();
+    protected abstract EntityRequestHandler initializeEntityRequestHandler();
 
     /**
      * This should return the userId for the currently logged in user if there is one,
@@ -107,13 +108,13 @@ public abstract class DirectServlet extends HttpServlet {
 
     /**
      * Initializes the servlet, executed automatically by the servlet container<br/>
-     * This basically just calls the {@link #getEntityRequestHandler()} method and throws exceptions
+     * This basically just calls the {@link #initializeEntityRequestHandler()} method and throws exceptions
      * if something is missing
      */
     protected void initialize() {
         if (entityRequestHandler == null) {
             // call the entity request handler method
-            entityRequestHandler = getEntityRequestHandler();
+            entityRequestHandler = initializeEntityRequestHandler();
         }
         if (entityRequestHandler == null) {
             throw new IllegalStateException("FAILURE to get the handler during init of the direct servlet");

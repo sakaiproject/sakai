@@ -54,6 +54,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.URLRedirect;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
+import org.sakaiproject.entitybroker.rest.caps.BatchProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.VersionConstants;
 import org.apache.commons.logging.Log;
@@ -176,9 +177,6 @@ public class EntityDescriptionManager {
             log.warn("Unable to unregister the describe and batch description providers");
         }
     }
-
-    private static interface BatchProvider extends DescribePropertiesable, Outputable {};
-
 
     private EntityViewAccessProviderManager entityViewAccessProviderManager;
     public void setEntityViewAccessProviderManager(

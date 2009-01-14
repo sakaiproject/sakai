@@ -27,12 +27,6 @@
       <scope>runtime</scope>
 <!-- for 2.0.6 compatibility, http://jira.codehaus.org/browse/MNG-2919 -->
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.entitybroker</groupId>
-      <artifactId>entitybroker-restimpl</artifactId>
-      <scope>runtime</scope>
-<!-- for 2.0.6 compatibility, http://jira.codehaus.org/browse/MNG-2919 -->
-    </dependency>
   </dependencies>
   <build/>
 </project>

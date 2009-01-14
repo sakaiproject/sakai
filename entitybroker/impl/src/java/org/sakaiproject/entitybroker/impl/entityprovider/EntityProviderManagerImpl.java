@@ -173,7 +173,14 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         for (String bikey : prefixMap.keySet()) {
             String curPrefix = EntityProviderManagerImpl.getPrefix(bikey);
             if (curPrefix.equals(prefix)) {
-                caps.add( getCapability(bikey) );
+                try {
+                    Class<? extends EntityProvider> capability = getCapability(bikey);
+                    caps.add( capability );
+                } catch (RuntimeException e) {
+                    // added because there will be times where we cannot resolve capabilities 
+                    // because of shifting ClassLoaders or CL visibility and that should not cause this to die
+                    log.warn("getPrefixCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
+                }
             }
         }
         Collections.sort(caps, new ClassComparator());
@@ -192,7 +199,14 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             if (! m.containsKey(prefix)) {
                 m.put(prefix, new ArrayList<Class<? extends EntityProvider>>());
             }
-            m.get(prefix).add( getCapability(bikey) );
+            try {
+                Class<? extends EntityProvider> capability = getCapability(bikey);
+                m.get(prefix).add( capability );
+            } catch (RuntimeException e) {
+                // added because there will be times where we cannot resolve capabilities 
+                // because of shifting ClassLoaders or CL visibility and that should not cause this to die
+                log.warn("getRegisteredEntityCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
+            }
         }      
         return m;
     }
@@ -546,7 +560,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         try {
             c = Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Could not get Class from classname: " + className);
+            try {
+                c = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
+            } catch (ClassNotFoundException e1) {
+                throw new RuntimeException("Could not get Class from classname: " + className, e);
+            }
         }
         return (Class<? extends EntityProvider>) c;
     }

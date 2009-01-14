@@ -26,7 +26,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
+import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
+import org.sakaiproject.entitybroker.rest.EntityRESTServiceManager;
 import org.sakaiproject.entitybroker.util.servlet.DirectServlet;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
@@ -48,8 +51,10 @@ import org.sakaiproject.util.Web;
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @author Sakai Software Development Team
  */
+@SuppressWarnings("deprecation")
 public class SakaiDirectServlet extends DirectServlet {
 
+    private transient EntityRESTServiceManager entityRESTServiceManager;
     private transient BasicAuth basicAuth;
 
     @Override
@@ -69,8 +74,14 @@ public class SakaiDirectServlet extends DirectServlet {
     }
 
     @Override
-    public EntityRequestHandler getEntityRequestHandler() {
-        EntityRequestHandler erh = (EntityRequestHandler) ComponentManager.get("org.sakaiproject.entitybroker.EntityRequestHandler");
+    public EntityRequestHandler initializeEntityRequestHandler() {
+        // fire up the EB rest services
+        EntityBrokerManager ebm = (EntityBrokerManager) ComponentManager.get(EntityBrokerManager.class.getName());
+        // for legacy support
+        HttpServletAccessProviderManager hsapm = (HttpServletAccessProviderManager) 
+            ComponentManager.get(HttpServletAccessProviderManager.class.getName());
+        entityRESTServiceManager = new EntityRESTServiceManager(ebm, hsapm);
+        EntityRequestHandler erh = entityRESTServiceManager.getEntityRequestHandler();
         if (erh == null) {
             throw new RuntimeException("FAILED to load EntityRequestHandler");
         }

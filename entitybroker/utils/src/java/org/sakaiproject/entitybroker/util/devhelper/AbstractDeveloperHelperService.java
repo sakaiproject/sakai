@@ -34,6 +34,7 @@ import org.azeckoski.reflectutils.transcoders.Transcoder;
 import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
@@ -48,6 +49,42 @@ import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 public abstract class AbstractDeveloperHelperService implements DeveloperHelperService {
 
     private static final Log log = LogFactory.getLog(AbstractDeveloperHelperService.class);
+
+    /**
+     * EMPTY - do not use
+     */
+    public AbstractDeveloperHelperService() { super(); }
+
+    /**
+     * MINIMAL
+     * @param entityBroker
+     * @param entityBrokerManager
+     * @param requestStorage
+     */
+    public AbstractDeveloperHelperService(EntityBroker entityBroker,
+            EntityBrokerManager entityBrokerManager, RequestStorage requestStorage) {
+        super();
+        this.entityBroker = entityBroker;
+        this.entityBrokerManager = entityBrokerManager;
+        this.requestStorage = requestStorage;
+    }
+
+    /**
+     * FULL
+     * @param entityBroker
+     * @param entityBrokerManager
+     * @param requestStorage
+     * @param entityProperties
+     */
+    public AbstractDeveloperHelperService(EntityBroker entityBroker,
+            EntityBrokerManager entityBrokerManager, RequestStorage requestStorage,
+            EntityPropertiesService entityProperties) {
+        super();
+        this.entityBroker = entityBroker;
+        this.entityBrokerManager = entityBrokerManager;
+        this.requestStorage = requestStorage;
+        this.entityProperties = entityProperties;
+    }
 
     /**
      * Encoding method to use when URL encoding
@@ -65,17 +102,22 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
     protected final String CURRENT_USER_MARKER = "originalCurrentUser";
 
     // INTERNAL
-    protected EntityBroker entityBroker;
+    public EntityBroker entityBroker;
     public void setEntityBroker(EntityBroker entityBroker) {
         this.entityBroker = entityBroker;
     }
 
-    protected RequestStorage requestStorage;
+    public EntityBrokerManager entityBrokerManager;
+    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+        this.entityBrokerManager = entityBrokerManager;
+    }
+
+    public RequestStorage requestStorage;
     public void setRequestStorage(RequestStorage requestStorage) {
         this.requestStorage = requestStorage;
     }
 
-    protected EntityPropertiesService entityProperties;
+    public EntityPropertiesService entityProperties;
     /**
      * Set this to include an optional properties handler
      * @param entityProperties
@@ -101,7 +143,7 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
     }
 
     public String getEntityURL(String reference, String viewKey, String extension) {
-        return entityBroker.getEntityURL(reference, viewKey, extension);
+        return entityBrokerManager.getEntityURL(reference, viewKey, extension);
     }
 
 

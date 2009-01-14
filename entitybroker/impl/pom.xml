@@ -85,12 +85,6 @@
             <version>${hsqldb.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>${easymock.version}</version>
-            <scope>test</scope>
-        </dependency>
 
 <!-- Sakai K1 dependencies -->
 <!-- -->

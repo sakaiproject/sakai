@@ -46,7 +46,7 @@ public class MockDirectServlet extends DirectServlet {
      * @see org.sakaiproject.entitybroker.util.servlet.DirectServlet#getEntityRequestHandler()
      */
     @Override
-    protected EntityRequestHandler getEntityRequestHandler() {
+    protected EntityRequestHandler initializeEntityRequestHandler() {
         EntityRequestHandler erh = ServiceTestManager.getInstance().entityRequestHandler;
         return erh;
     }

@@ -34,7 +34,11 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
+import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.entitybroker.util.devhelper.AbstractDeveloperHelperService;
@@ -60,6 +64,41 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
 
+    protected DeveloperHelperServiceImpl() {}
+
+    /**
+     * Full constructor
+     * @param entityBroker
+     * @param entityBrokerManager
+     * @param requestStorage
+     * @param entityProperties
+     * @param authzGroupService
+     * @param functionManager
+     * @param securityService
+     * @param serverConfigurationService
+     * @param sessionManager
+     * @param siteService
+     * @param toolManager
+     * @param userDirectoryService
+     */
+    public DeveloperHelperServiceImpl(EntityBroker entityBroker,
+            EntityBrokerManager entityBrokerManager, RequestStorage requestStorage,
+            EntityPropertiesService entityProperties, AuthzGroupService authzGroupService,
+            FunctionManager functionManager, SecurityService securityService,
+            ServerConfigurationService serverConfigurationService, SessionManager sessionManager,
+            SiteService siteService, ToolManager toolManager,
+            UserDirectoryService userDirectoryService) {
+        super(entityBroker, entityBrokerManager, requestStorage, entityProperties);
+        this.authzGroupService = authzGroupService;
+        this.functionManager = functionManager;
+        this.securityService = securityService;
+        this.serverConfigurationService = serverConfigurationService;
+        this.sessionManager = sessionManager;
+        this.siteService = siteService;
+        this.toolManager = toolManager;
+        this.userDirectoryService = userDirectoryService;
+    }
+
     /**
      * Location id for the Sakai Gateway site
      */
@@ -74,46 +113,21 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
 
     // SAKAI
     private AuthzGroupService authzGroupService;
-    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-        this.authzGroupService = authzGroupService;
-    }
-
     private FunctionManager functionManager;
-    public void setFunctionManager(FunctionManager functionManager) {
-        this.functionManager = functionManager;
-    }
-
     private SecurityService securityService;
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
     private ServerConfigurationService serverConfigurationService;
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
     private SessionManager sessionManager;
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
     private SiteService siteService;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
     private ToolManager toolManager;
-    public void setToolManager(ToolManager toolManager) {
-        this.toolManager = toolManager;
-    }
-
     private UserDirectoryService userDirectoryService;
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-        this.userDirectoryService = userDirectoryService;
-    }
 
     protected EntityRESTProvider entityRESTProvider;
+    public EntityRESTProvider getEntityRESTProvider() {
+        if (this.entityRESTProvider == null) {
+            this.entityRESTProvider = this.entityBrokerManager.getEntityRESTProvider();
+        }
+        return this.entityRESTProvider;
+    }
     /**
      * Set this to include an optional encoding/decoding handler
      * @param entityRESTProvider the encoding manager service
@@ -130,10 +144,10 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
      */
     @Override
     public Map<String, Object> decodeData(String data, String format) {
-        if (entityRESTProvider == null) {
+        if (getEntityRESTProvider() == null) {
             throw new IllegalStateException("No entityEncodingManager available for decoding");
         }
-        return entityRESTProvider.decodeData(data, format);
+        return getEntityRESTProvider().decodeData(data, format);
     }
 
     /* (non-Javadoc)
@@ -141,10 +155,10 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
      */
     @Override
     public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
-        if (entityRESTProvider == null) {
+        if (getEntityRESTProvider() == null) {
             throw new IllegalStateException("No entityEncodingManager available for encoding");
         }
-        return entityRESTProvider.encodeData(data, format, name, properties);
+        return getEntityRESTProvider().encodeData(data, format, name, properties);
     }
 
     // ENTITY
@@ -516,6 +530,38 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
             userRefs.add( getUserRefFromUserId(userId) );
         }
         return userRefs;
+    }
+
+    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+        this.authzGroupService = authzGroupService;
+    }
+
+    public void setFunctionManager(FunctionManager functionManager) {
+        this.functionManager = functionManager;
+    }
+
+    public void setSecurityService(SecurityService securityService) {
+        this.securityService = securityService;
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
+    }
+
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
     }
 
 }
