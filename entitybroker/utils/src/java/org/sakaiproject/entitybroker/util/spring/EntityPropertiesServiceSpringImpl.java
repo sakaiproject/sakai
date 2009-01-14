@@ -70,11 +70,12 @@ public class EntityPropertiesServiceSpringImpl extends AbstractEntityPropertiesS
     @Override
     public List<String> registerLocaleMessages(String prefix, String baseName, Locale locale,
             ClassLoader classLoader) {
-        SpringMessageBundle bundle = new SpringMessageBundle();
-        bundle.setResourceLoader( new DefaultResourceLoader(classLoader) );
-        bundle.setBasename(baseName);
-        bundle.setDefaultEncoding("UTF-8");
-        List<String> keys = bundle.getPropertyKeys(locale);
+        SpringMessageBundle messageBundle = new SpringMessageBundle();
+        messageBundle.setResourceLoader( new DefaultResourceLoader(classLoader) );
+        messageBundle.setBasename(baseName);
+        messageBundle.setDefaultEncoding("UTF-8");
+        List<String> keys = messageBundle.getPropertyKeys(locale);
+        registerPrefixMessageBundle(prefix, messageBundle);
         return keys;
     }
 

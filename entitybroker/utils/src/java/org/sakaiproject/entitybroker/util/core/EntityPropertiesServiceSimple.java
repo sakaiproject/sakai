@@ -89,7 +89,8 @@ public class EntityPropertiesServiceSimple extends AbstractEntityPropertiesServi
                 keys.add(key);
             }
             if (keys.size() > 0) {
-                prefixMap.put(prefix, new ResourceBundleMessageSource(bundle));
+                MessageBundle messageBundle = new ResourceBundleMessageSource(bundle);
+                registerPrefixMessageBundle(prefix, messageBundle);
             }
         } catch (MissingResourceException e) {
             // looks like no properties files for this prefix

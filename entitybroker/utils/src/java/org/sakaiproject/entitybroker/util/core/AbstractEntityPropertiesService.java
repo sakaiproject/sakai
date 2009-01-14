@@ -67,6 +67,29 @@ public abstract class AbstractEntityPropertiesService implements EntityPropertie
     }
 
     protected Map<String, MessageBundle> prefixMap = new ConcurrentHashMap<String, MessageBundle>();
+    /**
+     * Register this message bundle with the internal storage
+     * @param prefix the related entity prefix for this message bundle
+     * @param messageBundle the message bundle
+     * @throws IllegalArgumentException is any arguments are null
+     */
+    public void registerPrefixMessageBundle(String prefix, MessageBundle messageBundle) {
+        if (prefix == null || messageBundle == null) {
+            throw new IllegalArgumentException("prefix and messageBundle cannot be null");
+        }
+        this.prefixMap.put(prefix, messageBundle);
+    }
+    /**
+     * Unregister this message bundle
+     * @param prefix the related entity prefix for a message bundle
+     * @throws IllegalArgumentException is any arguments are null
+     */
+    public void unregisterPrefixMessageBundle(String prefix) {
+        if (prefix == null) {
+            throw new IllegalArgumentException("prefix cannot be null");
+        }
+        this.prefixMap.remove(prefix);
+    }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.providers.EntityPropertiesService#getLocale()
@@ -98,14 +121,17 @@ public abstract class AbstractEntityPropertiesService implements EntityPropertie
     }
 
     /**
-     * Override this to provide custom message handling
+     * Override this to provide custom message handling,
+     * you must register the {@link MessageBundle} you create in this method so that the
+     * messages can be looked up later, register using {@link #registerPrefixMessageBundle(String, MessageBundle)}
+     * 
      * @param prefix an entity prefix
      * @param baseName (optional) the part before the .properties or _en.properties,
      * example: location/dir/myentity.properties, if null then prefix is used
-     * @param locale the locale to register messages for
+     * @param locale the Locale to register messages for
      * @param classLoader (optional) the ClassLoader to find the properties files in,
      * if null then the default thread ClassLoader is used
-     * @return the list of registered keys for this locale
+     * @return the list of registered keys for this Locale
      */
     public abstract List<String> registerLocaleMessages(String prefix, String baseName, Locale locale, ClassLoader classLoader);
 
