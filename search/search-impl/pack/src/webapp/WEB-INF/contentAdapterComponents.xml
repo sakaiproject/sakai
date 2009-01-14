@@ -147,7 +147,21 @@
        <property name="mimeTypes">
           <map>
            <entry key="application/rtf"><value>application/rtf</value></entry>
-           <entry key="application/vnd.oasis.opendocument.text"><value>application/vnd.oasis.opendocument.text</value></entry>        
+           <entry key="application/vnd.oasis.opendocument.text"><value>application/vnd.oasis.opendocument.text</value></entry>
+           <entry key="application/vnd.oasis.opendocument.text-template"><value>application/vnd.oasis.opendocument.text-template</value></entry>
+           <entry key="application/vnd.oasis.opendocument.text-web"><value>application/vnd.oasis.opendocument.text-web</value></entry>
+           <entry key="application/vnd.oasis.opendocument.text-master"><value>application/vnd.oasis.opendocument.text-master</value></entry>
+           <entry key="application/vnd.oasis.opendocument.graphics"><value>application/vnd.oasis.opendocument.graphics</value></entry>
+           <entry key="application/vnd.oasis.opendocument.graphics-template"><value>application/vnd.oasis.opendocument.graphics-template</value></entry>
+           <entry key="application/vnd.oasis.opendocument.presentation"><value>application/vnd.oasis.opendocument.presentation</value></entry>
+           <entry key="application/vnd.oasis.opendocument.presentation-template"><value>application/vnd.oasis.opendocument.presentation-template</value></entry>
+           <entry key="application/vnd.oasis.opendocument.spreadsheet"><value>application/vnd.oasis.opendocument.spreadsheet</value></entry>
+           <entry key="application/vnd.oasis.opendocument.spreadsheet-template"><value>application/vnd.oasis.opendocument.spreadsheet-template</value></entry>
+           <entry key="application/vnd.oasis.opendocument.chart"><value>application/vnd.oasis.opendocument.chart</value></entry>
+           <entry key="application/vnd.oasis.opendocument.formula"><value>application/vnd.oasis.opendocument.formula</value></entry>
+           <entry key="application/vnd.oasis.opendocument.database"><value>application/vnd.oasis.opendocument.database</value></entry>
+           <entry key="application/vnd.oasis.opendocument.image"><value>application/vnd.oasis.opendocument.image</value></entry>
+           <entry key="application/vnd.openofficeorg.extension"><value>application/vnd.openofficeorg.extension</value></entry>
           </map>
        </property>
     </bean> 
