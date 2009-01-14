@@ -20,16 +20,16 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
+import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
+import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetterWrite;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
-import org.sakaiproject.entitybroker.mocks.EntityViewAccessProviderManagerMock;
-import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;
-import org.sakaiproject.entitybroker.util.request.RequestGetterImpl;
-import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
-import org.sakaiproject.entitybroker.util.spring.EntityPropertiesServiceSpringImpl;
 
 
 /**
@@ -39,6 +39,7 @@ import org.sakaiproject.entitybroker.util.spring.EntityPropertiesServiceSpringIm
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@SuppressWarnings("deprecation")
 public class ServiceTestManager {
 
     private static ServiceTestManager instance;
@@ -52,14 +53,19 @@ public class ServiceTestManager {
         instance = sts;
     }
 
-    public RequestStorageImpl requestStorage;
-    public RequestGetterImpl requestGetter;
+    private EntityBrokerCoreServiceManager entityBrokerCoreServiceManager;
+    public EntityBrokerCoreServiceManager getEntityBrokerCoreServiceManager() {
+        return entityBrokerCoreServiceManager;
+    }
+
+    public RequestStorageWrite requestStorage;
+    public RequestGetterWrite requestGetter;
     public EntityProviderMethodStoreImpl entityProviderMethodStore;
     public EntityPropertiesService entityPropertiesService;
     public EntityProviderManagerImpl entityProviderManager;
     public EntityBrokerManagerImpl entityBrokerManager;
-    public HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
-    public EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
+    public HttpServletAccessProviderManager httpServletAccessProviderManager;
+    public EntityViewAccessProviderManager entityViewAccessProviderManager;
     public EntityMetaPropertiesService entityMetaPropertiesService;
     public EntityTaggingService entityTaggingService;
 
@@ -74,16 +80,25 @@ public class ServiceTestManager {
 
     public ServiceTestManager(TestData td, EntityBrokerDao dao) {
         this.td = td;
-        // initialize all the parts
-        requestGetter = new RequestGetterImpl();
-        entityPropertiesService = new EntityPropertiesServiceSpringImpl();
-        httpServletAccessProviderManager = new HttpServletAccessProviderManagerMock();
-        entityViewAccessProviderManager = new EntityViewAccessProviderManagerMock();
-        entityProviderMethodStore = new EntityProviderMethodStoreImpl();
+        this.entityBrokerCoreServiceManager = new EntityBrokerCoreServiceManager(dao, true);
 
-        requestStorage = new RequestStorageImpl(requestGetter);
-        entityProviderManager = new EntityProviderManagerImpl(requestStorage, requestGetter, entityPropertiesService, entityProviderMethodStore);
+        // init the variables for the getters
+        this.requestGetter = this.entityBrokerCoreServiceManager.getRequestGetter();
+        this.entityPropertiesService = this.entityBrokerCoreServiceManager.getEntityPropertiesService();
+        this.httpServletAccessProviderManager = this.entityBrokerCoreServiceManager.getHttpServletAccessProviderManager();
+        this.entityViewAccessProviderManager = this.entityBrokerCoreServiceManager.getEntityViewAccessProviderManager();
+        this.entityProviderMethodStore = (EntityProviderMethodStoreImpl) this.entityBrokerCoreServiceManager.getEntityProviderMethodStore();
+        this.requestStorage = this.entityBrokerCoreServiceManager.getRequestStorage();
+        this.entityProviderManager = (EntityProviderManagerImpl) this.entityBrokerCoreServiceManager.getEntityProviderManager();
+        this.entityBrokerManager = (EntityBrokerManagerImpl) this.entityBrokerCoreServiceManager.getEntityBrokerManager();
+        this.entityMetaPropertiesService = this.entityBrokerCoreServiceManager.getEntityMetaPropertiesService();
+        this.entityTaggingService = this.entityBrokerCoreServiceManager.getEntityTaggingService();
 
+        initTestProviders(this.entityProviderManager, this.td);
+        setInstance(this);
+    }
+
+    public void initTestProviders(EntityProviderManager entityProviderManager, TestData td) {
         entityProviderManager.registerEntityProvider(td.entityProvider1);
         entityProviderManager.registerEntityProvider(td.entityProvider1T);
         entityProviderManager.registerEntityProvider(td.entityProvider2);
@@ -105,21 +120,5 @@ public class ServiceTestManager {
         entityProviderManager.registerEntityProvider(td.entityProviderB2);
         entityProviderManager.registerEntityProvider(td.entityProviderS1);
         // add new providers here
-
-        entityBrokerManager = new EntityBrokerManagerImpl(entityProviderManager, entityPropertiesService, entityViewAccessProviderManager);
-
-        // optional DB pieces
-        entityMetaPropertiesService = new EntityMetaPropertiesService();
-        entityMetaPropertiesService.setDao(dao);
-        entityMetaPropertiesService.setEntityBrokerManager(entityBrokerManager);
-        entityMetaPropertiesService.setEntityProviderManager(entityProviderManager);
-
-        entityTaggingService = new EntityTaggingService();
-        entityTaggingService.setDao(dao);
-        entityTaggingService.setEntityBrokerManager(entityBrokerManager);
-        entityTaggingService.setEntityProviderManager(entityProviderManager);
-
-        setInstance(this);
     }
-
 }

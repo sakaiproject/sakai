@@ -76,4 +76,12 @@ public class RequestGetterImpl implements RequestGetter, RequestGetterWrite {
         responseTL.set(res);
     }
 
+    /**
+     * Cleanup on shutdown
+     */
+    public void destroy() {
+        requestTL.remove();
+        responseTL.remove();
+    }
+
 }

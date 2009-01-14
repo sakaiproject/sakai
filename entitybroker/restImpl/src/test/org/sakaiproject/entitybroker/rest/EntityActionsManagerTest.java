@@ -43,205 +43,205 @@ import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
  */
 public class EntityActionsManagerTest extends TestCase {
 
-   protected EntityActionsManager entityActionsManager;
-   private TestData td;
+    protected EntityActionsManager entityActionsManager;
+    private TestData td;
 
-   @Override
-   protected void setUp() throws Exception {
-      super.setUp();
-      // setup things
-      td = new TestData();
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        // setup things
+        td = new TestData();
 
-      entityActionsManager = new ServiceTestManager(td).entityActionsManager;
-   }
+        entityActionsManager = new ServiceTestManager(td).entityActionsManager;
+    }
 
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.rest.EntityActionsManager#handleCustomActionRequest(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityView, java.lang.String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
-    */
-   public void testHandleCustomActionRequest() {
-      EntityHttpServletRequest request = null;
-      EntityHttpServletResponse res = null;
-      ActionsEntityProviderMock actionProvider = td.entityProviderA1;
-      String action = null;
-      String URL = null;
-      ActionReturn actionReturn = null;
+    /**
+     * Test method for {@link org.sakaiproject.entitybroker.rest.EntityActionsManager#handleCustomActionRequest(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityView, java.lang.String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
+     */
+    public void testHandleCustomActionRequest() {
+        EntityHttpServletRequest request = null;
+        EntityHttpServletResponse res = null;
+        ActionsEntityProviderMock actionProvider = td.entityProviderA1;
+        String action = null;
+        String URL = null;
+        ActionReturn actionReturn = null;
 
-      // double
-      action = "double";
-      URL = TestData.REFA1 + "/" + action;
-      MyEntity me = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
-      int num = me.getNumber();
-      request = new EntityHttpServletRequest("GET", URL);
-      res = new EntityHttpServletResponse();
-      actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
-            new EntityView(new EntityReference(URL), EntityView.VIEW_SHOW, null), action, request, res, null);
-      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
-      assertNotNull(actionReturn);
-      assertNotNull(actionReturn.entityData);
-      MyEntity doubleMe = (MyEntity) actionReturn.entityData.getData();
-      assertEquals(doubleMe.getNumber(), num * 2);
-      assertEquals(me.getId(), doubleMe.getId());
+        // double
+        action = "double";
+        URL = TestData.REFA1 + "/" + action;
+        MyEntity me = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
+        int num = me.getNumber();
+        request = new EntityHttpServletRequest("GET", URL);
+        res = new EntityHttpServletResponse();
+        actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
+                new EntityView(new EntityReference(URL), EntityView.VIEW_SHOW, null), action, request, res, null);
+        assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+        assertNotNull(actionReturn);
+        assertNotNull(actionReturn.entityData);
+        MyEntity doubleMe = (MyEntity) actionReturn.entityData.getData();
+        assertEquals(doubleMe.getNumber(), num * 2);
+        assertEquals(me.getId(), doubleMe.getId());
 
-      // xxx
-      action = "xxx";
-      URL = TestData.REFA1 + "/" + action;
-      MyEntity me1 = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
-      assertFalse("xxx".equals(me1.extra));
-      assertFalse("xxx".equals(me1.getStuff()));
-      actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
-            new EntityView(new EntityReference(URL), EntityView.VIEW_EDIT, null), action, request, res, null);
-      assertNull(actionReturn);
-      MyEntity xxxMe = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
-      assertEquals(me1.getId(), xxxMe.getId());
-      assertTrue("xxx".equals(xxxMe.extra));
-      assertTrue("xxx".equals(xxxMe.getStuff()));
+        // xxx
+        action = "xxx";
+        URL = TestData.REFA1 + "/" + action;
+        MyEntity me1 = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
+        assertFalse("xxx".equals(me1.extra));
+        assertFalse("xxx".equals(me1.getStuff()));
+        actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
+                new EntityView(new EntityReference(URL), EntityView.VIEW_EDIT, null), action, request, res, null);
+        assertNull(actionReturn);
+        MyEntity xxxMe = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
+        assertEquals(me1.getId(), xxxMe.getId());
+        assertTrue("xxx".equals(xxxMe.extra));
+        assertTrue("xxx".equals(xxxMe.getStuff()));
 
-      // clear
-      action = "clear";
-      URL = TestData.SPACEA1 + "/" + action;
-      assertEquals(2, actionProvider.myEntities.size());
-      actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
-            new EntityView(new EntityReference(URL), EntityView.VIEW_NEW, null), action, request, res, null);
-      assertEquals(0, actionProvider.myEntities.size());
+        // clear
+        action = "clear";
+        URL = TestData.SPACEA1 + "/" + action;
+        assertEquals(2, actionProvider.myEntities.size());
+        actionReturn = entityActionsManager.handleCustomActionRequest(actionProvider, 
+                new EntityView(new EntityReference(URL), EntityView.VIEW_NEW, null), action, request, res, null);
+        assertEquals(0, actionProvider.myEntities.size());
 
-      // exceptions
-      try {
-         entityActionsManager.handleCustomActionRequest(actionProvider, null, action, request, res, null);
-         fail("should have thrown exeception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-   }
+        // exceptions
+        try {
+            entityActionsManager.handleCustomActionRequest(actionProvider, null, action, request, res, null);
+            fail("should have thrown exeception");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
 
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.rest.EntityActionsManager#handleCustomActionExecution(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityReference, java.lang.String, java.util.Map, java.io.OutputStream)}.
-    */
-   public void testHandleCustomActionExecution() {
-      // test the double/xxx/clear actions
-      ActionsEntityProviderMock actionProvider = td.entityProviderA1;
-      EntityReference ref = new EntityReference(TestData.PREFIXA1, TestData.IDSA1[0]);
+    /**
+     * Test method for {@link org.sakaiproject.entitybroker.rest.EntityActionsManager#handleCustomActionExecution(org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable, org.sakaiproject.entitybroker.EntityReference, java.lang.String, java.util.Map, java.io.OutputStream)}.
+     */
+    public void testHandleCustomActionExecution() {
+        // test the double/xxx/clear actions
+        ActionsEntityProviderMock actionProvider = td.entityProviderA1;
+        EntityReference ref = new EntityReference(TestData.PREFIXA1, TestData.IDSA1[0]);
 
-      // double
-      MyEntity me = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
-      int num = me.getNumber();
-      ActionReturn actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "double", null, null, null, null);
-      assertNotNull(actionReturn);
-      assertNotNull(actionReturn.entityData);
-      MyEntity doubleMe = (MyEntity) actionReturn.entityData.getData();
-      assertEquals(doubleMe.getNumber(), num * 2);
-      assertEquals(me.getId(), doubleMe.getId());
+        // double
+        MyEntity me = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
+        int num = me.getNumber();
+        ActionReturn actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "double", null, null, null, null);
+        assertNotNull(actionReturn);
+        assertNotNull(actionReturn.entityData);
+        MyEntity doubleMe = (MyEntity) actionReturn.entityData.getData();
+        assertEquals(doubleMe.getNumber(), num * 2);
+        assertEquals(me.getId(), doubleMe.getId());
 
-      // xxx
-      MyEntity me1 = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
-      assertFalse("xxx".equals(me1.extra));
-      assertFalse("xxx".equals(me1.getStuff()));
-      actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "xxx", null, null, null, null);
-      assertNull(actionReturn);
-      MyEntity xxxMe = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
-      assertEquals(me1.getId(), xxxMe.getId());
-      assertTrue("xxx".equals(xxxMe.extra));
-      assertTrue("xxx".equals(xxxMe.getStuff()));
+        // xxx
+        MyEntity me1 = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
+        assertFalse("xxx".equals(me1.extra));
+        assertFalse("xxx".equals(me1.getStuff()));
+        actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, ref, "xxx", null, null, null, null);
+        assertNull(actionReturn);
+        MyEntity xxxMe = (MyEntity) actionProvider.getEntity( new EntityReference(TestData.REFA1) );
+        assertEquals(me1.getId(), xxxMe.getId());
+        assertTrue("xxx".equals(xxxMe.extra));
+        assertTrue("xxx".equals(xxxMe.getStuff()));
 
-      // clear
-      assertEquals(2, actionProvider.myEntities.size());
-      actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, new EntityReference(TestData.PREFIXA1, ""), "clear", null, null, null, null);
-      assertEquals(0, actionProvider.myEntities.size());
+        // clear
+        assertEquals(2, actionProvider.myEntities.size());
+        actionReturn = entityActionsManager.handleCustomActionExecution(actionProvider, new EntityReference(TestData.PREFIXA1, ""), "clear", null, null, null, null);
+        assertEquals(0, actionProvider.myEntities.size());
 
-      // check exception when try to execute invalid action
-      try {
-         entityActionsManager.handleCustomActionExecution(actionProvider, ref, "NOT_VALID_ACTION", null, null, null, null);
-         fail("should have thrown exeception");
-      } catch (UnsupportedOperationException e) {
-         assertNotNull(e.getMessage());
-      }
+        // check exception when try to execute invalid action
+        try {
+            entityActionsManager.handleCustomActionExecution(actionProvider, ref, "NOT_VALID_ACTION", null, null, null, null);
+            fail("should have thrown exeception");
+        } catch (UnsupportedOperationException e) {
+            assertNotNull(e.getMessage());
+        }
 
-      try {
-         entityActionsManager.handleCustomActionExecution(null, ref, "xxx", null, null, null, null);
-         fail("should have thrown exeception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
+        try {
+            entityActionsManager.handleCustomActionExecution(null, ref, "xxx", null, null, null, null);
+            fail("should have thrown exeception");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
 
-      try {
-         entityActionsManager.handleCustomActionExecution(actionProvider, null, "xxx", null, null, null, null);
-         fail("should have thrown exeception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
+        try {
+            entityActionsManager.handleCustomActionExecution(actionProvider, null, "xxx", null, null, null, null);
+            fail("should have thrown exeception");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
 
-      try {
-         entityActionsManager.handleCustomActionExecution(actionProvider, ref, "", null, null, null, null);
-         fail("should have thrown exeception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-   }
+        try {
+            entityActionsManager.handleCustomActionExecution(actionProvider, ref, "", null, null, null, null);
+            fail("should have thrown exeception");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
 
-   /**
-    * Ensure that the mock for testing the custom actions works correctly
-    */
-   public void testActionsEntityProviderMock() {
-      ActionsEntityProviderMock aep = td.entityProviderA1;
+    /**
+     * Ensure that the mock for testing the custom actions works correctly
+     */
+    public void testActionsEntityProviderMock() {
+        ActionsEntityProviderMock aep = td.entityProviderA1;
 
-      // check double operation works
-      MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
-      int num = me.getNumber();
-      ActionReturn ar = (ActionReturn) aep.doubleCustomAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
-      MyEntity doubleMe = (MyEntity) ar.entityData.getData();
-      assertEquals(doubleMe.getNumber(), num * 2);
-      assertEquals(me.getId(), doubleMe.getId());
+        // check double operation works
+        MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+        int num = me.getNumber();
+        ActionReturn ar = (ActionReturn) aep.doubleCustomAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+        MyEntity doubleMe = (MyEntity) ar.entityData.getData();
+        assertEquals(doubleMe.getNumber(), num * 2);
+        assertEquals(me.getId(), doubleMe.getId());
 
-      // make sure it works twice
-      ar = (ActionReturn) aep.doubleCustomAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
-      doubleMe = (MyEntity) ar.entityData.getData();
-      assertEquals(doubleMe.getNumber(), num * 2);
+        // make sure it works twice
+        ar = (ActionReturn) aep.doubleCustomAction(new EntityView(new EntityReference(TestData.REFA1), null, null));
+        doubleMe = (MyEntity) ar.entityData.getData();
+        assertEquals(doubleMe.getNumber(), num * 2);
 
-      // test xxx operation
-      MyEntity me1 = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
-      assertFalse("xxx".equals(me1.extra));
-      assertFalse("xxx".equals(me1.getStuff()));
-      aep.xxxAction( new EntityReference(TestData.REFA1) );
-      MyEntity xxxMe = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
-      assertEquals(me1.getId(), xxxMe.getId());
-      assertTrue("xxx".equals(xxxMe.extra));
-      assertTrue("xxx".equals(xxxMe.getStuff()));
+        // test xxx operation
+        MyEntity me1 = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+        assertFalse("xxx".equals(me1.extra));
+        assertFalse("xxx".equals(me1.getStuff()));
+        aep.xxxAction( new EntityReference(TestData.REFA1) );
+        MyEntity xxxMe = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA1) );
+        assertEquals(me1.getId(), xxxMe.getId());
+        assertTrue("xxx".equals(xxxMe.extra));
+        assertTrue("xxx".equals(xxxMe.getStuff()));
 
-      // test clear
-      assertEquals(2, aep.myEntities.size());
-      aep.clear();
-      assertEquals(0, aep.myEntities.size());      
-   }
+        // test clear
+        assertEquals(2, aep.myEntities.size());
+        aep.clear();
+        assertEquals(0, aep.myEntities.size());      
+    }
 
-   public void testCustomActions() {
-      ActionsDefineableEntityProviderMock aep = td.entityProviderA2;
+    public void testCustomActions() {
+        ActionsDefineableEntityProviderMock aep = td.entityProviderA2;
 
-      // check double operation works
-      MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
-      int num = me.getNumber();
-      ActionReturn ar = (ActionReturn) aep.doubleUp(new EntityView(new EntityReference(TestData.REFA2), null, null));
-      MyEntity doubleMe = (MyEntity) ar.entityData.getData();
-      assertEquals(doubleMe.getNumber(), num * 2);
-      assertEquals(me.getId(), doubleMe.getId());
+        // check double operation works
+        MyEntity me = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
+        int num = me.getNumber();
+        ActionReturn ar = (ActionReturn) aep.doubleUp(new EntityView(new EntityReference(TestData.REFA2), null, null));
+        MyEntity doubleMe = (MyEntity) ar.entityData.getData();
+        assertEquals(doubleMe.getNumber(), num * 2);
+        assertEquals(me.getId(), doubleMe.getId());
 
-      // make sure it works twice
-      ar = (ActionReturn) aep.doubleUp(new EntityView(new EntityReference(TestData.REFA2), null, null));
-      doubleMe = (MyEntity) ar.entityData.getData();
-      assertEquals(doubleMe.getNumber(), num * 2);
+        // make sure it works twice
+        ar = (ActionReturn) aep.doubleUp(new EntityView(new EntityReference(TestData.REFA2), null, null));
+        doubleMe = (MyEntity) ar.entityData.getData();
+        assertEquals(doubleMe.getNumber(), num * 2);
 
-      // test xxx operation
-      MyEntity me1 = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
-      assertFalse("xxx".equals(me1.extra));
-      assertFalse("xxx".equals(me1.getStuff()));
-      aep.xxxChange( new EntityReference(TestData.REFA2) );
-      MyEntity xxxMe = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
-      assertEquals(me1.getId(), xxxMe.getId());
-      assertTrue("xxx".equals(xxxMe.extra));
-      assertTrue("xxx".equals(xxxMe.getStuff()));
+        // test xxx operation
+        MyEntity me1 = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
+        assertFalse("xxx".equals(me1.extra));
+        assertFalse("xxx".equals(me1.getStuff()));
+        aep.xxxChange( new EntityReference(TestData.REFA2) );
+        MyEntity xxxMe = (MyEntity) aep.getEntity( new EntityReference(TestData.REFA2) );
+        assertEquals(me1.getId(), xxxMe.getId());
+        assertTrue("xxx".equals(xxxMe.extra));
+        assertTrue("xxx".equals(xxxMe.getStuff()));
 
-      // test clear
-      assertEquals(2, aep.myEntities.size());
-      aep.clearAll();
-      assertEquals(0, aep.myEntities.size());      
-   }
+        // test clear
+        assertEquals(2, aep.myEntities.size());
+        aep.clearAll();
+        assertEquals(0, aep.myEntities.size());      
+    }
 
 }

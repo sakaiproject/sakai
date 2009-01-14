@@ -109,7 +109,9 @@ public class EntityBrokerRESTServiceManager {
     }
 
     /**
-     * Startup all the REST service for the EB system,
+     * WARNING: If you use the non-empty constructors to make this object then do not run this,
+     * it has already been run and should not be run a second time <br/>
+     * Startup all the REST services for the EB system,
      * this can only be run after this is constructed with a full constructor or 
      * the {@link #setEntityBrokerManager(EntityBrokerManager)} method has been called
      * (i.e. all the required services are set)
@@ -146,6 +148,17 @@ public class EntityBrokerRESTServiceManager {
         setInstance(this);
     }
 
+    /**
+     * Shutdown the services
+     * (just calls over to destroy)
+     */
+    public void shutdown() {
+        destroy();
+    }
+
+    /**
+     * Shuts down all services and cleans up
+     */
     public void destroy() {
         // cleanup everything
         setInstance(null);

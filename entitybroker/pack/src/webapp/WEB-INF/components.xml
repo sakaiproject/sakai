@@ -94,7 +94,7 @@
         class="org.sakaiproject.entitybroker.util.spring.EntityPropertiesServiceSpringImpl" />
 
     <bean id="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager"
-        class="org.sakaiproject.entitybroker.util.access.EntityViewAccessProviderImpl" />
+        class="org.sakaiproject.entitybroker.util.access.EntityViewAccessProviderManagerImpl" />
 
     <bean id="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager"
         class="org.sakaiproject.entitybroker.util.access.HttpServletAccessProviderManagerImpl">

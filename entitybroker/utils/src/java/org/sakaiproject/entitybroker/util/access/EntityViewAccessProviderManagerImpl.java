@@ -28,7 +28,7 @@ import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class EntityViewAccessProviderImpl 
+public class EntityViewAccessProviderManagerImpl 
    extends AccessProviderManagerImpl<EntityViewAccessProvider> 
       implements EntityViewAccessProviderManager {
 

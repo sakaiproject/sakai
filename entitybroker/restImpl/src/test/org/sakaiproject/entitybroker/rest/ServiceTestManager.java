@@ -62,7 +62,10 @@ public class ServiceTestManager {
         instance = sts;
     }
 
-    private EntityBrokerRESTServiceManager entityRESTServiceManager;
+    private EntityBrokerRESTServiceManager entityBrokerRESTServiceManager;
+    public EntityBrokerRESTServiceManager getEntityBrokerRESTServiceManager() {
+        return entityBrokerRESTServiceManager;
+    }
 
     private HttpServletAccessProviderManagerMock httpServletAccessProviderManager;
     private EntityViewAccessProviderManagerMock entityViewAccessProviderManager;
@@ -96,15 +99,15 @@ public class ServiceTestManager {
     }
 
     public void initializeRESTServices() {
-        this.entityRESTServiceManager = new EntityBrokerRESTServiceManager(this.entityBrokerManager, this.httpServletAccessProviderManager);
+        this.entityBrokerRESTServiceManager = new EntityBrokerRESTServiceManager(this.entityBrokerManager, this.httpServletAccessProviderManager);
         // get out the services from the service manager
-        this.entityActionsManager = this.entityRESTServiceManager.getEntityActionsManager();
-        this.entityBatchHandler = this.entityRESTServiceManager.getEntityBatchHandler();
-        this.entityDescriptionManager = this.entityRESTServiceManager.getEntityDescriptionManager();
-        this.entityEncodingManager = this.entityRESTServiceManager.getEntityEncodingManager();
-        this.entityRedirectsManager = this.entityRESTServiceManager.getEntityRedirectsManager();
-        this.entityRequestHandler = this.entityRESTServiceManager.getEntityRequestHandler();
-        this.entityRESTProvider = this.entityRESTServiceManager.getEntityRESTProvider();
+        this.entityActionsManager = this.entityBrokerRESTServiceManager.getEntityActionsManager();
+        this.entityBatchHandler = this.entityBrokerRESTServiceManager.getEntityBatchHandler();
+        this.entityDescriptionManager = this.entityBrokerRESTServiceManager.getEntityDescriptionManager();
+        this.entityEncodingManager = this.entityBrokerRESTServiceManager.getEntityEncodingManager();
+        this.entityRedirectsManager = this.entityBrokerRESTServiceManager.getEntityRedirectsManager();
+        this.entityRequestHandler = this.entityBrokerRESTServiceManager.getEntityRequestHandler();
+        this.entityRESTProvider = this.entityBrokerRESTServiceManager.getEntityRESTProvider();
     }
 
     public void initializeCoreServiceMocks() {
