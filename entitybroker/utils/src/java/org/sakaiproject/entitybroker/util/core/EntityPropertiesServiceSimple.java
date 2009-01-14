@@ -71,9 +71,6 @@ public class EntityPropertiesServiceSimple extends AbstractEntityPropertiesServi
             }
             return keys;
         }
-        public Locale getLocale() {
-            return bundle.getLocale();
-        }
     }
 
     /* (non-Javadoc)

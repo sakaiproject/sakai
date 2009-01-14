@@ -59,9 +59,6 @@ public class EntityPropertiesServiceSpringImpl extends AbstractEntityPropertiesS
             }
             return keys;
         }
-        public Locale getLocale() {
-            return this.getLocale();
-        }
     }
 
     /* (non-Javadoc)

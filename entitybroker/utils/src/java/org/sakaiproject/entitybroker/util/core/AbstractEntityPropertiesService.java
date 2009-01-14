@@ -60,10 +60,6 @@ public abstract class AbstractEntityPropertiesService implements EntityPropertie
          * @return the list of all keys found for the given Locale
          */
         public List<String> getPropertyKeys(Locale locale);
-        /**
-         * @return the Locale used in this message bundle
-         */
-        public Locale getLocale();
     }
 
     protected Map<String, MessageBundle> prefixMap = new ConcurrentHashMap<String, MessageBundle>();
