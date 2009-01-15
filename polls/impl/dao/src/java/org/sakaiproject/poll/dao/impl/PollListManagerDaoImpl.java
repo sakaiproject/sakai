@@ -564,7 +564,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 		if (poll.getDisplayResult().equals("afterVoting")) {
 			DetachedCriteria d = DetachedCriteria.forClass(Vote.class)
 	        .add( Restrictions.eq("userId",userId) )
-	        .add( Restrictions.eq("pollId",poll.getId()) );
+	        .add( Restrictions.eq("pollId",poll.getPollId()) );
 
 	        List<Vote> votes = getHibernateTemplate().findByCriteria(d);		
 	        //System.out.println("got " + pollCollection.size() + "votes for this poll");
