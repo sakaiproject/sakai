@@ -39,7 +39,6 @@ import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
-import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.entitybroker.util.devhelper.AbstractDeveloperHelperService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -121,45 +120,6 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
     private ToolManager toolManager;
     private UserDirectoryService userDirectoryService;
 
-    protected EntityRESTProvider entityRESTProvider;
-    public EntityRESTProvider getEntityRESTProvider() {
-        if (this.entityRESTProvider == null) {
-            this.entityRESTProvider = this.entityBrokerManager.getEntityRESTProvider();
-        }
-        return this.entityRESTProvider;
-    }
-    /**
-     * Set this to include an optional encoding/decoding handler
-     * @param entityRESTProvider the encoding manager service
-     */
-    public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider) {
-        this.entityRESTProvider = entityRESTProvider;
-    }
-
-
-    // ENCODING / DECODING
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.util.devhelper.AbstractDeveloperHelperService#decodeData(java.lang.String, java.lang.String)
-     */
-    @Override
-    public Map<String, Object> decodeData(String data, String format) {
-        if (getEntityRESTProvider() == null) {
-            throw new IllegalStateException("No entityEncodingManager available for decoding");
-        }
-        return getEntityRESTProvider().decodeData(data, format);
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.DeveloperHelperService#encodeData(java.lang.Object, java.lang.String, java.lang.String, java.util.Map)
-     */
-    @Override
-    public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
-        if (getEntityRESTProvider() == null) {
-            throw new IllegalStateException("No entityEncodingManager available for encoding");
-        }
-        return getEntityRESTProvider().encodeData(data, format, name, properties);
-    }
 
     // ENTITY
 

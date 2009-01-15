@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.util.devhelper;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +40,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
+import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 
 /**
  * implementation of the helper service methods which are internal only
@@ -84,6 +86,76 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
         this.entityBrokerManager = entityBrokerManager;
         this.requestStorage = requestStorage;
         this.entityProperties = entityProperties;
+    }
+
+    // weak ref to ensure we do not hold anything open
+    protected WeakReference<EntityRESTProvider> entityRESTProviderWeak;
+    public EntityRESTProvider getEntityRESTProvider() {
+        EntityRESTProvider erp = null;
+        if (this.entityRESTProviderWeak == null) {
+            setEntityRESTProvider( this.entityBrokerManager.getEntityRESTProvider() );
+        }
+        return erp;
+    }
+    /**
+     * Set this to include an optional encoding/decoding handler
+     * @param entityRESTProvider the encoding manager service
+     */
+    public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider) {
+        if (entityRESTProvider != null) {
+            this.entityRESTProviderWeak = new WeakReference<EntityRESTProvider>(entityRESTProvider);
+        } else {
+            this.entityRESTProviderWeak = null;
+        }
+    }
+
+    // ENCODING / DECODING
+
+    public Map<String, Object> decodeData(String data, String format) {
+        if (format == null) {
+            format = Formats.XML;
+        }
+        Map<String, Object> decoded = new HashMap<String, Object>(0);
+        if (getEntityRESTProvider() == null) {
+            log.warn("No entityRESTProvider available for decoding, using basic internal decoder");
+            if (data != null) {
+                Transcoder transcoder = getTranscoder(format);
+                try {
+                    decoded = transcoder.decode(data);
+                } catch (RuntimeException e) {
+                    // convert failure to UOE
+                    throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
+                }
+            }
+        } else {
+            decoded = getEntityRESTProvider().decodeData(data, format);
+        }
+        return decoded;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.DeveloperHelperService#encodeData(java.lang.Object, java.lang.String, java.lang.String, java.util.Map)
+     */
+    public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
+        if (format == null) {
+            format = Formats.XML;
+        }
+        String encoded = "";
+        if (getEntityRESTProvider() == null) {
+            log.warn("No entityRESTProvider available for encoding, using basic internal encoder");
+            if (data != null) {
+                Transcoder transcoder = getTranscoder(format);
+                try {
+                    encoded = transcoder.encode(data, name, properties);
+                } catch (RuntimeException e) {
+                    // convert failure to UOE
+                    throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
+                }
+            }
+        } else {
+            encoded = getEntityRESTProvider().encodeData(data, format, name, properties);
+        }
+        return encoded;
     }
 
     /**
@@ -181,6 +253,15 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
         return userRef;
     }
 
+    public String getCurrentUserReference() {
+        String userRef = null;
+        String userId = getCurrentUserId();
+        if (userId != null) {
+            userRef = USER_BASE + userId;
+        }
+        return userRef;
+    }
+
     // LOCATION
 
     public String getLocationIdFromRef(String locationReference) {
@@ -190,6 +271,15 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
             locationId = new EntityReference(locationReference).getId();
         }
         return locationId;
+    }
+
+    public String getCurrentLocationReference() {
+        String locRef = null;
+        String locId = getCurrentLocationId();
+        if (locId != null) {
+            locRef = GROUP_BASE + locId;
+        }
+        return locRef;
     }
 
     public String getStartingLocationReference() {
@@ -292,50 +382,6 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
         return ReflectUtils.getInstance().convert(object, type);
     }
 
-    public Map<String, Object> decodeData(String data, String format) {
-        if (format == null) {
-            format = Formats.XML;
-        }
-        Map<String, Object> decoded = new HashMap<String, Object>(0);
-        if (data != null) {
-            Transcoder transcoder = getTranscoder(format);
-            try {
-                decoded = transcoder.decode(data);
-            } catch (RuntimeException e) {
-                // convert failure to UOE
-                throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
-            }
-        }
-        return decoded;
-//        if (entityEncodingManager == null) {
-//            throw new IllegalStateException("No entityEncodingManager available for decoding");
-//        }
-//        return entityEncodingManager.decodeData(data, format);
-    }
-
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.DeveloperHelperService#encodeData(java.lang.Object, java.lang.String, java.lang.String, java.util.Map)
-     */
-    public String encodeData(Object data, String format, String name, Map<String, Object> properties) {
-        if (format == null) {
-            format = Formats.XML;
-        }
-        String encoded = "";
-        if (data != null) {
-            Transcoder transcoder = getTranscoder(format);
-            try {
-                encoded = transcoder.encode(data, name, properties);
-            } catch (RuntimeException e) {
-                // convert failure to UOE
-                throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
-            }
-        }
-        return encoded;
-//        if (entityEncodingManager == null) {
-//            throw new IllegalStateException("No entityEncodingManager available for encoding");
-//        }
-//        return entityEncodingManager.encodeData(data, format, name, properties);
-    }
 
     private Map<String, Transcoder> transcoders;
     private Transcoder getTranscoder(String format) {
