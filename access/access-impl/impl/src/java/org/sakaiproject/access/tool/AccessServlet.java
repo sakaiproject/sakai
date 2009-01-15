@@ -226,11 +226,11 @@ public class AccessServlet extends VmServlet
 	public void dispatch(HttpServletRequest req, HttpServletResponse res) throws ServletException
 	{
 		ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
+
 		// get the path info
 		String path = params.getPath();
 		if (path == null) path = "";
 
-System.out.println("AccessServlet.dispatch " + path );
 		if (!m_ready)
 		{
 			sendError(res, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -351,7 +351,6 @@ System.out.println("AccessServlet.dispatch " + path );
 			if (SessionManager.getCurrentSessionUserId() == null)
 			{
 				try {
-               System.out.println("AccessServlet - doLogin - EntityPermisionException "+origPath + " " + req.getPathInfo());
 					doLogin(req, res, origPath);
 				} catch ( IOException ioex ) {}
 				return;
