@@ -37,8 +37,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
-import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.entitybroker.util.devhelper.AbstractDeveloperHelperService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -69,8 +67,6 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
      * Full constructor
      * @param entityBroker
      * @param entityBrokerManager
-     * @param requestStorage
-     * @param entityProperties
      * @param authzGroupService
      * @param functionManager
      * @param securityService
@@ -81,13 +77,13 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
      * @param userDirectoryService
      */
     public DeveloperHelperServiceImpl(EntityBroker entityBroker,
-            EntityBrokerManager entityBrokerManager, RequestStorage requestStorage,
-            EntityPropertiesService entityProperties, AuthzGroupService authzGroupService,
+            EntityBrokerManager entityBrokerManager, 
+            AuthzGroupService authzGroupService,
             FunctionManager functionManager, SecurityService securityService,
             ServerConfigurationService serverConfigurationService, SessionManager sessionManager,
             SiteService siteService, ToolManager toolManager,
             UserDirectoryService userDirectoryService) {
-        super(entityBroker, entityBrokerManager, requestStorage, entityProperties);
+        super(entityBroker, entityBrokerManager);
         this.authzGroupService = authzGroupService;
         this.functionManager = functionManager;
         this.securityService = securityService;

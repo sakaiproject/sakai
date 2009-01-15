@@ -59,33 +59,16 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
 
     /**
      * MINIMAL
-     * @param entityBroker
-     * @param entityBrokerManager
-     * @param requestStorage
+     * @param entityBroker the main EntityBroker service
+     * @param entityBrokerManager the main EB manager service
      */
     public AbstractDeveloperHelperService(EntityBroker entityBroker,
-            EntityBrokerManager entityBrokerManager, RequestStorage requestStorage) {
+            EntityBrokerManager entityBrokerManager) {
         super();
         this.entityBroker = entityBroker;
         this.entityBrokerManager = entityBrokerManager;
-        this.requestStorage = requestStorage;
-    }
-
-    /**
-     * FULL
-     * @param entityBroker
-     * @param entityBrokerManager
-     * @param requestStorage
-     * @param entityProperties
-     */
-    public AbstractDeveloperHelperService(EntityBroker entityBroker,
-            EntityBrokerManager entityBrokerManager, RequestStorage requestStorage,
-            EntityPropertiesService entityProperties) {
-        super();
-        this.entityBroker = entityBroker;
-        this.entityBrokerManager = entityBrokerManager;
-        this.requestStorage = requestStorage;
-        this.entityProperties = entityProperties;
+        this.requestStorage = entityBrokerManager.getRequestStorage();
+        this.entityProperties = entityBrokerManager.getEntityPropertiesService();
     }
 
     // weak ref to ensure we do not hold anything open
