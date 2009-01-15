@@ -28,12 +28,7 @@
 			<version>${tool.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>uk.ac.lancs.e_science</groupId>
-			<artifactId>sakai-profile2-hbm</artifactId>
-			<version>${tool.version}</version>
-			<scope>provided</scope>
-		</dependency>
+		
 		
 		 <!-- generic DAO -->
         <dependency>
