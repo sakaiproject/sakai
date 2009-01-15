@@ -78,9 +78,16 @@
 	<bean id="org.sakaiproject.content.api.ContentTypeImageService"
 			class="org.sakaiproject.content.impl.BasicContentTypeImageService"
             init-method="init" destroy-method="destroy" singleton="true">
-        <property name="imageFile">     <value>content_type_images.properties</value>       </property>
-        <property name="nameFile">      <value>content_type_names.properties</value>        </property>
-        <property name="extensionFile"> <value>content_type_extensions.properties</value>   </property>
+            
+        <property name="serverConfigurationService">
+        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        </property>
+        
+        <!--    
+        <property name="imageFile"><value>content_type_images.properties</value></property>
+        <property name="nameFile"><value>content_type_names.properties</value></property>
+        <property name="extensionFile"><value>content_type_extensions.properties</value></property>
+        -->
 	</bean>
 
 	<bean id="org.sakaiproject.content.api.ContentResourceFilter.base"
