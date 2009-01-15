@@ -685,9 +685,11 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		long x2 = start2;
 
 		long tlock = 0;
+
+		log.debug("Check 1: modified="  + modified + " multiReader=" + multiReader + " current=" + current);
+
 		if (modified || multiReader == null || !current)
 		{
-			modified = false;
 			/*
 			 * We must get a read lock to prevent a writer from opening when we
 			 * are trying to open for read. Writers will have already taken
@@ -724,6 +726,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 									"Failed to get current status assuming index reload is required ",
 									ex);
 				}
+				log.debug("Check 2: modified="  + modified + " multiReader=" + multiReader + " current=" + current);
 				if (modified || multiReader == null || !current)
 				{
 					f1 = System.currentTimeMillis();
@@ -731,6 +734,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 					{
 						r1 = System.currentTimeMillis();
 						getIndexReaderInternal();
+						modified = false;
 						r2 = System.currentTimeMillis();
 					}
 					finally
