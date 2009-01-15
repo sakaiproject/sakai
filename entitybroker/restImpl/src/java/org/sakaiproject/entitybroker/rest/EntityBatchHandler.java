@@ -59,6 +59,7 @@ public class EntityBatchHandler {
     private static final String HEADER_BATCH_REFS = "batchRefs";
     private static final String HEADER_BATCH_KEYS = "batchKeys";
     private static final String HEADER_BATCH_METHOD = "batchMethod";
+    private static final String UNREFERENCED_PARAMS = "NoRefs";
     /**
      * This is the name of the parameter which is used to pass along the reference URLs to be batch processed
      */
@@ -133,6 +134,7 @@ public class EntityBatchHandler {
      * @param req the current request
      * @param res the current response
      */
+    @SuppressWarnings("unchecked")
     public void handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         if (view == null || req == null || res == null) {
             throw new IllegalArgumentException("Could not process batch: invalid arguments, no args can be null (view="+view+",req="+req+",res="+res+")");
@@ -163,8 +165,35 @@ public class EntityBatchHandler {
         // validate the the refs param
         String[] refs = getRefsOrFail(req);
 
+        // Decode params into a reference map based on the refs for POST/PUT
+        ArrayOrderedMap<String, Map<String, String[]>> referencedParams = null;
         if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
-            // TODO Decode params and content
+            referencedParams = new ArrayOrderedMap<String, Map<String, String[]>>();
+            Map<String, String[]> params = req.getParameterMap();
+            // create the maps to hold the params
+            referencedParams.put(UNREFERENCED_PARAMS, new ArrayOrderedMap<String, String[]>(params.size()));
+            for (int i = 0; i < refs.length; i++) {
+                String refKey = "ref" + i + '.';
+                referencedParams.put(refKey, new ArrayOrderedMap<String, String[]>(params.size()));
+            }
+            // put all request params into the map
+            for (Entry<String, String[]> entry : params.entrySet()) {
+                if (REFS_PARAM_NAME.equals(entry.getKey())) {
+                    continue; // skip over the refs param
+                }
+                boolean found = false;
+                for (String refKey : referencedParams.keySet()) {
+                    if (entry.getKey().startsWith(refKey)) {
+                        referencedParams.get(refKey).put(entry.getKey(), entry.getValue());
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // put the values into the unreferenced params portion of the map
+                    referencedParams.get(UNREFERENCED_PARAMS).put(entry.getKey(), entry.getValue());
+                }
+            }
         }
 
         // loop through all references
@@ -256,7 +285,7 @@ public class EntityBatchHandler {
                         continue; // skip
                     }
     
-                    result = generateInternalResult(reference, entityURL, req, res);
+                    result = generateInternalResult(refKey, reference, entityURL, req, res, method, referencedParams);
                 }
 
             } else {
@@ -269,7 +298,7 @@ public class EntityBatchHandler {
                 if (clientWrapper == null) {
                     clientWrapper = HttpRESTUtils.makeReusableHttpClient(false, 0, req.getCookies());
                 }
-                result = generateExternalResult(reference, entityURL, view.getMethod(), clientWrapper);
+                result = generateExternalResult(refKey, reference, entityURL, method, referencedParams, clientWrapper);
             }
 
             // special handling for null result (should really not happen unless there was a logic error)
@@ -375,7 +404,8 @@ public class EntityBatchHandler {
      * Processing internal (EB) requests
      * @return the result from the request (may be an error)
      */
-    private ResponseBase generateInternalResult(String reference, String entityURL, HttpServletRequest req, HttpServletResponse res) {
+    private ResponseBase generateInternalResult(String refKey, String reference, String entityURL, HttpServletRequest req, 
+            HttpServletResponse res, Method method, Map<String, Map<String, String[]>> referencedParams) {
         ResponseBase result = null;
         ResponseError error = null;
 
@@ -400,7 +430,14 @@ public class EntityBatchHandler {
 
         EntityHttpServletRequest entityRequest = new EntityHttpServletRequest(req, entityURL);
         entityRequest.setContextPath("");
-        entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
+        if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
+            // set only the unreferenced and correct referenced params for this request
+            entityRequest.clearParameters();
+            entityRequest.setParameters( referencedParams.get(UNREFERENCED_PARAMS) );
+            entityRequest.setParameters( referencedParams.get(refKey + '.') );
+        } else {
+            entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
+        }
         entityRequest.setUseRealDispatcher(false); // we do not want to actually have the container handle forwarding
         EntityHttpServletResponse entityResponse = new EntityHttpServletResponse(res);
 
@@ -477,22 +514,29 @@ public class EntityBatchHandler {
      * Processing external (non-EB) requests
      * @return the result from the request (may be an error)
      */
-    private ResponseBase generateExternalResult(String reference, String entityURL, String method, HttpClientWrapper clientWrapper) {
+    private ResponseBase generateExternalResult(String refKey, String reference, String entityURL, Method method, 
+            Map<String, Map<String, String[]>> referencedParams, HttpClientWrapper clientWrapper) {
         ResponseBase result = null;
         ResponseError error = null;
 
         boolean guaranteeSSL = false;
         // TODO allow enabling SSL?
+        Map<String, String> params = null;
+        if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
+            //referencedParams // TODO
+        } else {
+            // just pull all params and merge them // TODO
+        }
         // fire off the request and hope it does not die horribly
         HttpResponse httpResponse = null;
         try {
             httpResponse = HttpRESTUtils.fireRequest(clientWrapper, 
                     entityURL, 
-                    HttpRESTUtils.makeMethodFromString(method), 
-                    null, null, guaranteeSSL);
+                    method,
+                    params, null, guaranteeSSL);
         } catch (RuntimeException e) {
             String errorMessage = "Failure attempting to process external URL ("+entityURL+") from reference ("+reference+"): " + e.getMessage() + ":" + e;
-            log.warn(errorMessage, e); // TODO remove ,e to reduce error here
+            log.warn(errorMessage); //, e); // remove ,e to reduce error here
             error = new ResponseError(reference, entityURL, errorMessage);
         }
 

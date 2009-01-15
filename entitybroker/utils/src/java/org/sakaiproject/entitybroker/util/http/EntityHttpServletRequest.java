@@ -758,6 +758,17 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     /**
+     * Set a large number of params at once,
+     * replaces existing params
+     * @param params map of params
+     */
+    public void setParameters(Map<String, String[]> params) {
+        if (params != null && params.size() > 0) {
+            this.parameters.putAll( params );
+        }
+    }
+
+    /**
      * Removes a parameter and all values for it
      * @param name
      */
