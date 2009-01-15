@@ -270,6 +270,11 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     /**
+     * This stores all the query params found when the request was created
+     */
+    public Map<String, String[]> pathQueryParams = new HashMap<String, String[]>(0);
+
+    /**
      * This will set the given url/path string values into this request,
      * this will override any values that are currently set
      * @param pathString any url or path string
@@ -301,6 +306,12 @@ public class EntityHttpServletRequest implements HttpServletRequest {
             }
             if (ud.query.length() > 0) {
                 this.queryString = ud.query;
+                Map<String, String> p = HttpRESTUtils.parseURLintoParams(ud.query);
+                for (Entry<String, String> entry : p.entrySet()) {
+                    String[] value = new String[] {entry.getValue()};
+                    this.pathQueryParams.put(entry.getKey(), value);
+                    setParameter(entry.getKey(), value);
+                }
             } else {
                 this.queryString = null;
             }

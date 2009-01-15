@@ -225,11 +225,11 @@ public class EntityBatchHandler {
             if (reference.startsWith(EntityRequestHandler.SLASH_BATCH)
                     || reference.startsWith( getServletBatch() )) {
                 throw new EntityException("Failure processing batch request, "
-                		+ "batch reference ("+reference+") ("+entityURL+") appears to be another "
-           				+ "batch URL (contains "+EntityRequestHandler.SLASH_BATCH+"), "
-           				+ "failure in batch request: " + view,
-                		EntityRequestHandler.SLASH_BATCH, 
-                		HttpServletResponse.SC_BAD_REQUEST);
+                        + "batch reference ("+reference+") ("+entityURL+") appears to be another "
+                        + "batch URL (contains "+EntityRequestHandler.SLASH_BATCH+"), "
+                        + "failure in batch request: " + view,
+                        EntityRequestHandler.SLASH_BATCH, 
+                        HttpServletResponse.SC_BAD_REQUEST);
             }
 
             // in case there are external ones we will reuse this httpclient
@@ -279,12 +279,12 @@ public class EntityBatchHandler {
                         }
                         entityURL = sb.toString();
                     }
-    
+
                     // skip urls that are already done, we do not process twice
                     if (processedRefsAndURLs.contains(entityURL)) {
                         continue; // skip
                     }
-    
+
                     result = generateInternalResult(refKey, reference, entityURL, req, res, method, referencedParams);
                 }
 
@@ -432,9 +432,14 @@ public class EntityBatchHandler {
         entityRequest.setContextPath("");
         if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
             // set only the unreferenced and correct referenced params for this request
-            entityRequest.clearParameters();
+            entityRequest.clearParameters(); // also clears REFS_PARAM_NAME
             entityRequest.setParameters( referencedParams.get(UNREFERENCED_PARAMS) );
-            entityRequest.setParameters( referencedParams.get(refKey + '.') );
+            String key = refKey + '.';
+            if (referencedParams.containsKey(key)) {
+                entityRequest.setParameters( referencedParams.get(key) );
+            }
+            // set the params from the query itself again
+            entityRequest.setParameters( entityRequest.pathQueryParams );
         } else {
             entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
         }
@@ -472,7 +477,7 @@ public class EntityBatchHandler {
             }
         } while (redirected);
 
-/** OLD CODE which can't work in tomcat 5
+        /** OLD CODE which can't work in tomcat 5
         // setup the request and response objects to do the reference request
         RequestDispatcher dispatcher = req.getRequestDispatcher(entityURL); // should only be the relative path from this webapp
         // the request needs to get the full url or path though
@@ -490,7 +495,7 @@ public class EntityBatchHandler {
             log.warn(errorMessage, e);
             error = new ResponseError(reference, entityURL, errorMessage);
         }
-**/
+         **/
 
         // create the result object to encode and place into the final response
         if (error == null) {
@@ -522,10 +527,37 @@ public class EntityBatchHandler {
         boolean guaranteeSSL = false;
         // TODO allow enabling SSL?
         Map<String, String> params = null;
-        if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
-            //referencedParams // TODO
-        } else {
-            // just pull all params and merge them // TODO
+        if (referencedParams != null && ! referencedParams.isEmpty()) {
+            params = new ArrayOrderedMap<String, String>(referencedParams.size());
+            // put all unreferenced params in
+            Map<String, String[]> urp = referencedParams.get(UNREFERENCED_PARAMS);
+            for (Entry<String, String[]> entry : urp.entrySet()) {
+                String name = entry.getKey();
+                String value;
+                if (entry.getValue() == null || entry.getValue().length == 0) {
+                    value = "";
+                } else {
+                    value = entry.getValue()[0];
+                }
+                params.put(name, value);
+            }
+            if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
+                // put all referenced params in for this key
+                String key = refKey + '.';
+                Map<String, String[]> rp = referencedParams.get(key);
+                if (rp != null) {
+                    for (Entry<String, String[]> entry : rp.entrySet()) {
+                        String name = entry.getKey();
+                        String value;
+                        if (entry.getValue() == null || entry.getValue().length == 0) {
+                            value = "";
+                        } else {
+                            value = entry.getValue()[0];
+                        }
+                        params.put(name, value);
+                    }
+                }
+            }
         }
         // fire off the request and hope it does not die horribly
         HttpResponse httpResponse = null;
