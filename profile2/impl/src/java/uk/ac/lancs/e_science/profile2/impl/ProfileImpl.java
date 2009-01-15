@@ -628,7 +628,15 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
 		
 		//see ProfilePrivacy for this constructor and what it all means
-		ProfilePrivacy profilePrivacy = new ProfilePrivacy(userId,0,0,0,0,true,0);
+		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
+				userId,
+				0,
+				0,
+				0,
+				0,
+				ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY,
+				0
+		);
 		
 		//save
 		try {
@@ -818,7 +826,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	 */
 	public boolean isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
 		
-		//get ProfilePrivacy record for user
+		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
     	
     	//if none, return whatever the flag is set as by default
@@ -848,6 +856,23 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	
     	//uncaught rule, return false
     	return false;
+		
+	}
+
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isBirthYearVisible(String userId)
+	 */
+	public boolean isBirthYearVisible(String userId) {
+		
+		//get privacy record for this user
+		ProfilePrivacy profilePrivacy = this.getPrivacyRecordForUser(userId);
+		
+		//return value or whatever the flag is set as by default
+    	if(profilePrivacy == null) {
+    		return ProfilePrivacyManager.DEFAULT_PROFILE_VISIBILITY;
+    	} else {
+    		return profilePrivacy.isShowBirthYear();
+    	}
 		
 	}
 

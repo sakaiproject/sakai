@@ -270,6 +270,19 @@ public interface Profile {
 	public boolean isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
 	
 	
+	
+	/**
+	 * Has the user allowed viewing of their birth year in their profile. 
+	 * This is either on or off and does not depend on friends etc
+	 * 
+	 * @param userId			the uuid of the user we are querying
+	 * @return boolean
+	 */
+	public boolean isBirthYearVisible(String userId);
+	
+	
+	
+	
 	/**
 	 * Get the profile image for the given user
 	 * First calls getCurrentProfileImageRecord to get the record, then using the URLs contained within

@@ -20,6 +20,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
@@ -29,9 +30,6 @@ public class MyInfoEdit extends Panel {
 	
 	private transient Logger log = Logger.getLogger(MyInfoEdit.class);
 	private WebMarkupContainer formFeedback;
-	private String dateFormat = "dd MMMM yyyy"; //this should come from user preferences or a Sakai property
-	
-
 	
 	public MyInfoEdit(final String id, final UserProfile userProfile) {
 		super(id);
@@ -152,7 +150,7 @@ public class MyInfoEdit extends Panel {
 		sakaiPerson.setNickname(userProfile.getNickname());
 		
 		if(userProfile.getBirthday() != null && userProfile.getBirthday().trim().length()>0) {
-			Date convertedDate = profile.convertStringToDate(userProfile.getBirthday(), dateFormat);
+			Date convertedDate = profile.convertStringToDate(userProfile.getBirthday(), ProfileUtilityManager.DEFAULT_DATE_FORMAT);
 			userProfile.setDateOfBirth(convertedDate); //set in userProfile which backs the profile
 			sakaiPerson.setDateOfBirth(convertedDate); //set into sakaiPerson to be persisted to DB
 		} else {

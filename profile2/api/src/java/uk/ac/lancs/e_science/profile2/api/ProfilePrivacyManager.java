@@ -10,12 +10,16 @@ public class ProfilePrivacyManager {
 
 	//TODO allow these to be overriden in sakai.properties
 	
+	//these values are also used when creating a default privacy record for a user
 	
 	//if they have no privacy record, ie have not turned explicitly turned searches on or off
 	public static final boolean DEFAULT_SEARCH_VISIBILITY = true;
 	
 	//if they have no privacy record, ie have not turned explicitly turned profile and image visibility on or off
 	public static final boolean DEFAULT_PROFILE_VISIBILITY = true;
+	
+	//if they have no privacy record, ie have not turned explicitly turned birth year display on or off
+	public static final boolean DEFAULT_BIRTHYEAR_VISIBILITY = false;
 	
 	//if the user doing a search finds themself in the results, should they be included in the results?
 	public static final boolean SELF_SEARCH_VISIBILITY = true;

@@ -8,6 +8,7 @@ public class UserProfile implements Serializable {
 	private String userId;
 	private String nickname;
 	private String birthday;
+	private String birthdayDisplay;
 	private Date dateOfBirth;
 	private String displayName;
 	private String email;
@@ -47,7 +48,13 @@ public class UserProfile implements Serializable {
 	public void setBirthday(String birthday) {
 		this.birthday = birthday;
 	}
-		
+	public String getBirthdayDisplay() {
+		return birthdayDisplay;
+	}
+	public void setBirthdayDisplay(String birthdayDisplay) {
+		this.birthdayDisplay = birthdayDisplay;
+	}
+	
 	public Date getDateOfBirth() {
 		return dateOfBirth;
 	}

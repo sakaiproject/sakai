@@ -197,6 +197,8 @@ public class MySearch extends BasePage {
 		    	}
 		    	
 		    	
+		    	System.out.println("profileallowed: " + profileAllowed);
+		    	
 		    	//name
 		    	Label nameLabel = new Label("result-name", displayName);
 		    	item.add(nameLabel);

@@ -14,6 +14,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
@@ -22,9 +24,8 @@ public class MyInfoDisplay extends Panel {
 	private transient Logger log = Logger.getLogger(MyInfoDisplay.class);
 	
 	private int visibleFieldCount = 0;
-	private String birthday = "";
-	private String dateFormat = "dd MMMM yyyy"; //this should come from user preferences or a Sakai property
-	
+	private String birthday = ""; 
+	private String birthdayDisplay = "";
 
 	
 	public MyInfoDisplay(final String id, final UserProfile userProfile) {
@@ -36,13 +37,29 @@ public class MyInfoDisplay extends Panel {
 		//get Profile API
 		Profile profile = ProfileApplication.get().getProfile();
 		
+		//get userId of this profile
+		String userId = userProfile.getUserId();
+		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
 		String nickname = userProfile.getNickname();
 		Date dateOfBirth = userProfile.getDateOfBirth();
 		if(dateOfBirth != null) {
-			birthday = profile.convertDateToString(dateOfBirth, dateFormat);
+			
+			//full value contains year regardless of privacy settings
+			birthday = profile.convertDateToString(dateOfBirth, ProfileUtilityManager.DEFAULT_DATE_FORMAT);
+			
+			//get privacy on display of birthday year and format accordingly
+			if(profile.isBirthYearVisible(userId)) {
+				birthdayDisplay = birthday;
+			} else {
+				birthdayDisplay = profile.convertDateToString(dateOfBirth, ProfileUtilityManager.DEFAULT_DATE_FORMAT_HIDE_YEAR);
+			}
+			
+			//set both values as they are used differently
+			userProfile.setBirthdayDisplay(birthdayDisplay);
 			userProfile.setBirthday(birthday);
+
 		}
 		
 		//heading
@@ -62,9 +79,9 @@ public class MyInfoDisplay extends Panel {
 		//birthday
 		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
-		birthdayContainer.add(new Label("birthday", birthday));
+		birthdayContainer.add(new Label("birthday", birthdayDisplay));
 		add(birthdayContainer);
-		if("".equals(birthday) || birthday == null) {
+		if("".equals(birthdayDisplay) || birthdayDisplay == null) {
 			birthdayContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
