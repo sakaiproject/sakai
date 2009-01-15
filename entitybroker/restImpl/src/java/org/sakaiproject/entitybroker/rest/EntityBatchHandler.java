@@ -39,6 +39,7 @@ import org.sakaiproject.entitybroker.util.http.HttpClientWrapper;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.URLData;
+import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
 
 
@@ -57,6 +58,7 @@ public class EntityBatchHandler {
     private static final String HEADER_BATCH_URLS = "batchURLs";
     private static final String HEADER_BATCH_REFS = "batchRefs";
     private static final String HEADER_BATCH_KEYS = "batchKeys";
+    private static final String HEADER_BATCH_METHOD = "batchMethod";
     /**
      * This is the name of the parameter which is used to pass along the reference URLs to be batch processed
      */
@@ -130,48 +132,40 @@ public class EntityBatchHandler {
      * @param view the current view
      * @param req the current request
      * @param res the current response
-     * @return true if the operation was handled, false if it could not be handled
      */
-    public boolean handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
+    public void handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         if (view == null || req == null || res == null) {
             throw new IllegalArgumentException("Could not process batch: invalid arguments, no args can be null (view="+view+",req="+req+",res="+res+")");
         }
 
-        // first find out which METHOD we are dealing with
-        boolean handled = false;
         // set up the servlet context if this is the first time
         if (this.servletContext == null) {
             setServletContext( RequestUtils.getServletContext(req) );
         }
 
-        // now get to handling stuff
-        String method = req.getMethod() == null ? EntityView.Method.GET.name() : req.getMethod().toUpperCase().trim();
-        if (EntityView.Method.GET.name().equals(method)) {
-            handleBatchGet(view, req, res);
-            handled = true;
-        } else if (EntityView.Method.HEAD.name().equals(method)) {
-            handleBatchGet(view, req, res); // use GET for head
-            handled = true;
-        } else if (EntityView.Method.DELETE.name().equals(method)) {
-            throw new java.lang.RuntimeException("Method not implemented yet");
-        } else if (EntityView.Method.PUT.name().equals(method)) {
-            throw new java.lang.RuntimeException("Method not implemented yet");
-        } else if (EntityView.Method.POST.name().equals(method)) {
-            throw new java.lang.RuntimeException("Method not implemented yet");
-        } else {
-            throw new IllegalArgumentException("Unknown HTTP METHOD ("+method+"), cannot continue processing request: " + view);
-        }
-        return handled;
-    }
+        // first find out which METHOD we are dealing with
+        String reqMethod = req.getMethod() == null ? EntityView.Method.GET.name() : req.getMethod().toUpperCase().trim();
+        Method method = HttpRESTUtils.makeMethodFromString(reqMethod);
 
-    /**
-     * Handles batching all get operations
-     */
-    public void handleBatchGet(EntityView view, HttpServletRequest req, HttpServletResponse res) {
+        if (Method.GET.equals(method) 
+                || Method.POST.equals(method)
+                || Method.PUT.equals(method)
+                || Method.DELETE.equals(method)) {
+            // valid methods
+            res.setHeader(HEADER_BATCH_METHOD, method.name());
+        } else {
+            throw new IllegalArgumentException("Cannot batch "+reqMethod+" request method, cannot continue processing request: " + view);
+        }
+
+        // now get to handling stuff
+        String format = view.getFormat();
+
         // validate the the refs param
         String[] refs = getRefsOrFail(req);
 
-        String format = view.getFormat();
+        if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
+            // TODO Decode params and content
+        }
 
         // loop through all references
         HashSet<String> processedRefsAndURLs = new HashSet<String>(); // holds all refs which we processed in this batch
@@ -242,18 +236,20 @@ public class EntityBatchHandler {
                 }
 
                 if (success) {
-                    // rebuild the entityURL with the correct extension in there
-                    StringBuilder sb = new StringBuilder();
-                    sb.append( servletContext );
-                    sb.append(ud.pathInfoNoExtension);
-                    sb.append(EntityView.PERIOD);
-                    sb.append(format);
-                    if (ud.query.length() > 0) {
-                        // add on the query string
-                        sb.append('?');
-                        sb.append(ud.query);
+                    if (Method.GET.equals(method)) {
+                        // rebuild the entityURL with the correct extension in there for GET
+                        StringBuilder sb = new StringBuilder();
+                        sb.append( servletContext );
+                        sb.append(ud.pathInfoNoExtension);
+                        sb.append(EntityView.PERIOD);
+                        sb.append(format);
+                        if (ud.query.length() > 0) {
+                            // add on the query string
+                            sb.append('?');
+                            sb.append(ud.query);
+                        }
+                        entityURL = sb.toString();
                     }
-                    entityURL = sb.toString();
     
                     // skip urls that are already done, we do not process twice
                     if (processedRefsAndURLs.contains(entityURL)) {
@@ -293,10 +289,16 @@ public class EntityBatchHandler {
                 if (status >= 200 && status < 300) {
                     successOverall = true;
                 }
-                // process the content and see if it matches the expected result, if not we have to dump it in escaped
-                String content = ((ResponseResult)result).content;
-                String dataKey = checkContent(format, content, refKey, dataMap);
-                ((ResponseResult)result).setDataKey(dataKey);
+                if (status == HttpServletResponse.SC_NO_CONTENT) {
+                    // no content to process
+                    ((ResponseResult)result).content = null;
+                    ((ResponseResult)result).data = null;
+                } else {
+                    // process the content and see if it matches the expected result, if not we have to dump it in escaped
+                    String content = ((ResponseResult)result).content;
+                    String dataKey = checkContent(format, content, refKey, dataMap);
+                    ((ResponseResult)result).setDataKey(dataKey);
+                }
             }
 
             // store the processed ref and url so we do not do them again
@@ -323,6 +325,24 @@ public class EntityBatchHandler {
         overallData = reintegrateDataContent(format, dataMap, overallData);
 
         // put response, headers, and code into the http response
+        applyOverallHeaders(res, results);
+        // put content into the response
+        try {
+            res.getWriter().write(overallData);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to encode data for overall response: " + e.getMessage(), e);
+        }
+        // set overall status code
+        res.setStatus(overallStatus);
+    }
+
+    /**
+     * Apply the headers to the batched response,
+     * these headers are applied to all responses
+     * @param res the response to apply headers to
+     * @param results the results of the requests
+     */
+    private void applyOverallHeaders(HttpServletResponse res, Map<String, ResponseBase> results) {
         // set overall headers - batchRefs, batchKeys, batchStatus, batchErrors, batchInvalidRefs
         int count = 0;
         for (Entry<String, ResponseBase> entry : results.entrySet()) {
@@ -348,14 +368,6 @@ public class EntityBatchHandler {
             }
             count++;
         }
-        // put content into the response
-        try {
-            res.getWriter().write(overallData);
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to encode data for overall response: " + e.getMessage(), e);
-        }
-        // set overall status code
-        res.setStatus(overallStatus);
     }
 
 
@@ -589,15 +601,18 @@ public class EntityBatchHandler {
      * Checks that the content is in the correct format and is not too large,
      * if it is too large it will not be processed and if it is in the wrong format it will be encoded as a data chunk,
      * it is OK it will be placed into the dataMap and reintegrated after encoding
+     * @param content this it the content of the response body (if null then no processing occurs, null returned)
      * @return the dataKey which maps to the real content, need replace the key later
      */
     private String checkContent(String format, String content, String refKey,
             HashMap<String, String> dataMap) {
         String dataKey = null;
-        if (entityEncodingManager.validateFormat(content, format)) {
-            // valid for the current format so insert later instead of merging now
-            dataKey = UNIQUE_DATA_PREFIX + refKey;
-            dataMap.put(dataKey, content);
+        if ( content != null && ! "".equals(content.trim()) ) {
+            if (entityEncodingManager.validateFormat(content, format)) {
+                // valid for the current format so insert later instead of merging now
+                dataKey = UNIQUE_DATA_PREFIX + refKey;
+                dataMap.put(dataKey, content);
+            }
         }
         return dataKey;
     }

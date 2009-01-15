@@ -64,7 +64,7 @@ public class HttpRESTUtils {
 
     public static final String CONTENT_TYPE_UTF8 = "text/xml; charset=UTF-8";
     public static final String ENCODING_UTF8 = "UTF-8";
-    public static enum Method {POST, GET, PUT, DELETE, HEAD};
+    public static enum Method {POST, GET, PUT, DELETE, HEAD, OPTIONS, TRACE};
 
     /**
      * Fire off a request to a URL using the specified method,
@@ -369,8 +369,12 @@ public class HttpRESTUtils {
             m = Method.DELETE;
         } else if (method.equalsIgnoreCase("HEAD")) {
             m = Method.HEAD;
+        } else if (method.equalsIgnoreCase("OPTIONS")) {
+            m = Method.OPTIONS;
+        } else if (method.equalsIgnoreCase("TRACE")) {
+            m = Method.TRACE;
         } else {
-            throw new IllegalArgumentException("Unknown http method type ("+method+"): should be GET, POST, PUT, DELETE, or HEAD");
+            throw new IllegalArgumentException("Unknown http method type ("+method+"): should be GET, POST, PUT, DELETE, HEAD, OPTIONS, or TRACE");
         }
         return m;
     }
