@@ -21,13 +21,13 @@
 package org.sakaiproject.localization.util;
 
 /**
- * This class should be configured as a "Tool" bundles bean
+ * This class should be configured as a "types" bundles bean
  * (see components.xml) in order to provide the context for 
- * the kernel to load the localized tools*.properties files.
+ * the kernel to load the localized types_*.properties files.
  */
-public class ToolProperties {
+public class TypeProperties {
 
-	public ToolProperties() {
+	public TypeProperties() {
 		// constructor
 	}
 }

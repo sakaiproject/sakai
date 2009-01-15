@@ -21,13 +21,13 @@
 package org.sakaiproject.localization.util;
 
 /**
- * This class should be configured as a "Tool" bundles bean
+ * This class should be configured as a "SiteImpl" bundles bean
  * (see components.xml) in order to provide the context for 
  * the kernel to load the localized tools*.properties files.
  */
-public class ToolProperties {
+public class SiteImplProperties {
 
-	public ToolProperties() {
+	public SiteImplProperties() {
 		// constructor
 	}
 }
