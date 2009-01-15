@@ -1174,13 +1174,10 @@ public class RequestFilter implements Filter
 				c = new Cookie(SESSION_COOKIE, sessionId);
 				c.setPath("/");
 				c.setMaxAge(-1);
-				/// NOTE: this depends on its being set outside this method
-				String configuredUrl = (String) ThreadLocalManager.get(ServerConfigurationService.CURRENT_SERVER_URL);
-				if (req.isSecure() == true ||
-						(configuredUrl != null && configuredUrl.startsWith("https")))
-					{
-						c.setSecure(true);
-					}
+				if (req.isSecure() == true)
+				{
+					c.setSecure(true);
+				}
 				res.addCookie(c);
 			}
 		}
