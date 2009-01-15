@@ -51,6 +51,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 
@@ -73,8 +74,17 @@ import org.sakaiproject.util.StringUtil;
  */
 public class DropboxNotification extends EmailNotification 
 {
-	private static ResourceLoader rb = new ResourceLoader("siteemacon");
 	static final Log logger = LogFactory.getLog(DropboxNotification.class);
+	
+	/* property bundles */
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.SiteemaconProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteemacon.siteemacon";
+	private static final String RESOURCECLASS = "resource.class.siteemacon";
+	private static final String RESOURCEBUNDLE = "resource.bundle.siteemacon";
+	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+	// private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
 	
 	private final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
 	private final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";

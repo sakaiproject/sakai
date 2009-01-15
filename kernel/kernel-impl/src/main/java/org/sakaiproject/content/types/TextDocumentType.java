@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.ArrayList;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
@@ -48,27 +49,28 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
-/**
- * 
- * 
- *
- */
 public class TextDocumentType extends BaseResourceType 
 {
-	public static final String MY_HELPER_ID = "sakai.resource.type.helper";
-	
-	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
-
-	protected Map<String, ResourceToolAction> actions = new HashMap<String, ResourceToolAction>();	
 	protected String typeId = ResourceType.TYPE_TEXT;
 	protected String helperId = "sakai.resource.type.helper";
-
-	protected UserDirectoryService userDirectoryService;
+	public static final String MY_HELPER_ID = "sakai.resource.type.helper";
 	
-	/** Resource bundle using current language locale */
-	private static ResourceLoader rb = new ResourceLoader("types");
+	/** localized tool properties **/
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.TypeProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.type.types";
+	private static final String RESOURCECLASS = "resource.class.type";
+	private static final String RESOURCEBUNDLE = "resource.bundle.type";
+	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+	// private static ResourceLoader rb = new ResourceLoader("types");
+	
+	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
+	protected Map<String, ResourceToolAction> actions = new HashMap<String, ResourceToolAction>();	
+	protected UserDirectoryService userDirectoryService;
 	
 	public TextDocumentType()
 	{

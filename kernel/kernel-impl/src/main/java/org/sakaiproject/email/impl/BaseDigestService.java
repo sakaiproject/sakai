@@ -61,6 +61,7 @@ import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.Xml;
@@ -79,7 +80,13 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BasicEmailService.class);
 
-	private ResourceLoader rb = new ResourceLoader("email-impl");
+	/** localized tool properties **/
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.EmailImplProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.emailimpl.email-impl";
+	private static final String RESOURCECLASS = "resource.class.emailimpl";
+	private static final String RESOURCEBUNDLE = "resource.bundle.emailimpl";	
+	private ResourceLoader rb = null;
+	// private ResourceLoader rb = new ResourceLoader("email-impl");
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
@@ -98,17 +105,17 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 
 	/** How long to wait between digest checks (seconds) */
 	private int DIGEST_PERIOD = 3600;
-   /** How long to wait between digest checks (seconds) */
-   public void setDIGEST_PERIOD(int digest_period) {
-      DIGEST_PERIOD = digest_period;
-   }
+	/** How long to wait between digest checks (seconds) */
+	public void setDIGEST_PERIOD(int digest_period) {
+		DIGEST_PERIOD = digest_period;
+	}
 
-   /** How long to wait before the first digest check (seconds) */
-   private int DIGEST_DELAY = 300;
-   /** How long to wait before the first digest check (seconds) */
-   public void setDIGEST_DELAY(int digest_delay) {
-      DIGEST_DELAY = digest_delay;
-   }
+	/** How long to wait before the first digest check (seconds) */
+	private int DIGEST_DELAY = 300;
+	/** How long to wait before the first digest check (seconds) */
+	public void setDIGEST_DELAY(int digest_delay) {
+		DIGEST_DELAY = digest_delay;
+	}
 
 	/** True if we are in the mode of sending out digests, false if we are waiting. */
 	protected boolean m_sendDigests = true;
@@ -127,7 +134,8 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	 * are digests that need to be sent (they are always only sent once per day), default=3600
 	 */
 	public static final String EMAIL_DIGEST_CHECK_PERIOD_PROPERTY = "email.digest.check.period";
-   /**
+   
+	/**
     * This is the name of the sakai.properties property for the DIGEST_DELAY,
     * this is how long (in seconds) the digest service will wait after starting up
     * before it does the first check for sending out digests, default=300
@@ -624,9 +632,14 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 
 		// setup the queue
 		m_digestQueue.clear();
-
-	   // USE A TIMER INSTEAD OF CREATING A NEW THREAD -AZ
-//		start();
+		
+		// Resource Bundle
+		String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+		String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+		rb = new Resource().getLoader(resourceClass, resourceBundle);
+		
+		// USE A TIMER INSTEAD OF CREATING A NEW THREAD -AZ
+		// start();
 		int digestPeriod = serverConfigurationService.getInt(EMAIL_DIGEST_CHECK_PERIOD_PROPERTY, DIGEST_PERIOD);
 		int digestDelay = serverConfigurationService.getInt(EMAIL_DIGEST_START_DELAY_PROPERTY, DIGEST_DELAY);
 		digestDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync

@@ -85,6 +85,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -100,7 +101,12 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	private static Log M_log = LogFactory.getLog(BaseSiteService.class);
 
 	/** The layouts in human readable form (localized) */
-	protected ResourceLoader rb = new ResourceLoader("site-impl");
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.SiteImplProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteimpl.site-impl";
+	private static final String RESOURCECLASS = "resource.class.siteimpl";
+	private static final String RESOURCEBUNDLE = "resource.bundle.siteimpl";
+	private ResourceLoader rb = null;
+	// protected ResourceLoader rb = new ResourceLoader("site-impl");
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
@@ -415,6 +421,11 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		try
 		{
+			// Get resource bundle
+			String resourceClass = serverConfigurationService().getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+			String resourceBundle = serverConfigurationService().getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+			rb = new Resource().getLoader(resourceClass, resourceBundle);
+			
 			m_relativeAccessPoint = REFERENCE_ROOT;
 
 			// construct storage and read

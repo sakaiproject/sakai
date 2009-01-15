@@ -23,7 +23,7 @@ package org.sakaiproject.content.impl;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.ResourceBundle;
+// import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +48,8 @@ import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.SiteEmailNotification;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Resource;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -59,7 +61,16 @@ import org.sakaiproject.util.FormattedText;
 public class SiteEmailNotificationContent extends SiteEmailNotification
 {
 	private static Log log = LogFactory.getLog(SiteEmailNotificationContent.class);
-	private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
+	
+	/* property bundles */
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.SiteemaconProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteemacon.siteemacon";
+	private static final String RESOURCECLASS = "resource.class.siteemacon";
+	private static final String RESOURCEBUNDLE = "resource.bundle.siteemacon";
+	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+	// private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
 	
 	protected String plainTextContent(Event event) {
 		return generateContentForType(false, event);

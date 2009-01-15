@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
+// import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
@@ -140,6 +140,8 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.DefaultEntityHandler;
+import org.sakaiproject.util.Resource;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
@@ -654,6 +656,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		try
 		{
+			// Get resource bundle
+			String resourceClass = m_serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+			String resourceBundle = m_serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+			ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+			
 			m_relativeAccessPoint = REFERENCE_ROOT;
 
 			// construct a storage helper and read
@@ -8701,11 +8708,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * Dropbox Stuff
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	private static ResourceBundle rb = ResourceBundle.getBundle("content");
+	protected static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
+	protected static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
+	protected static final String RESOURCECLASS = "resource.class.content";
+	protected static final String RESOURCEBUNDLE = "resource.bundle.content";
+	private ResourceLoader rb = null;
+	// private static ResourceBundle rb = ResourceBundle.getBundle("content");
+	
+	// protected static final String PROP_MEMBER_DROPBOX_DESCRIPTION = rb.getString("use1");
 
-	protected static final String PROP_MEMBER_DROPBOX_DESCRIPTION = rb.getString("use1");
-
-	protected static final String PROP_SITE_DROPBOX_DESCRIPTION = rb.getString("use2");
+	// protected static final String PROP_SITE_DROPBOX_DESCRIPTION = rb.getString("use2");
 
 	protected static final String DROPBOX_ID = " Drop Box";
 
@@ -8865,7 +8877,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				
 				// these need to be moved to language bundle
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, siteId + DROPBOX_ID);
-				props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_SITE_DROPBOX_DESCRIPTION);
+				props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use2"));
+				// props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_SITE_DROPBOX_DESCRIPTION);
+				
 				commitCollection(edit);
 			}
 		}
@@ -8925,7 +8939,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
 					ResourcePropertiesEdit props = edit.getPropertiesEdit();
 					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName());
-					props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
+					props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
+					// props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
 					commitCollection(edit);
 				}
 			}
@@ -8997,7 +9012,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
 						ResourcePropertiesEdit props = edit.getPropertiesEdit();
 						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName());
-						props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
+						props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
+						// props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
 						commitCollection(edit);
 					}
 				}

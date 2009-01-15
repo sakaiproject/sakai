@@ -54,6 +54,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.ResourceLoader;
@@ -72,9 +73,16 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(ActiveToolComponent.class);
-
+	
 	/** localized tool properties **/
-	private ResourceLoader toolProps = null;
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ToolProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.tool.tools";
+	private static final String RESOURCECLASS = "resource.class.tool";
+	private static final String RESOURCEBUNDLE = "resource.bundle.tool";
+	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+	private ResourceLoader loader = new Resource().getLoader(resourceClass, resourceBundle);
+	// private ResourceLoader toolProps = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
@@ -166,37 +174,19 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	}
 	
 	/**
-	 ** Get optional Localized Tool Properties (i.e. tool title, description)
+	 * Get optional Localized Tool Properties (i.e. tool title, description)
 	 **/
-	private ResourceLoader getToolProps()
-	{
-		try
-		{
-			if ( toolProps == null ) {
-				toolProps = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools", ComponentManager.get("org.sakaiproject.localization.util.ToolProperties").getClass().getClassLoader());
-			}
-		}
-		catch (Exception e)
-		{
-			M_log.warn("Cannot locate org.sakaiproject.localization.util.ToolProperties in order to load localized tool properties: " + e.toString() );
-		}
-		
-		return toolProps;
-	}
-	
-	public String getLocalizedToolProperty(String toolId, String key)
-	{
-		if ( getToolProps() == null )
+	public String getLocalizedToolProperty(String toolId, String key) {
+		if (loader == null) {
 			return null;
+		}
 			
-		final String toolProp = getToolProps().getString(toolId + "." + key, "");
+		final String toolProp = loader.getString(toolId + "." + key, "");
 		
-		if( toolProp.length() < 1 || toolProp.equals(""))
-		{
+		if (toolProp.length() < 1 || toolProp.equals("")) {
 			return null;
 		}
-		else
-		{
+		else {
 			return toolProp;
 		}
 	}
