@@ -62,8 +62,7 @@
 							</h:panelGroup>
 							<h:panelGroup styleClass="editText">
 		        						<t:inputDate id="startTime" type="both"  ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.startTime}"
-		        							style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear();getSignupDuration();return false;" 
-		        							onchange="setEndtimeMonthDateYear(); getSignupDuration(); return false;"/>
+		        							style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear();getSignupDuration();return false;"/>
 										<h:message for="startTime" errorClass="alertMessageInline"/>
 							</h:panelGroup>
 							
@@ -73,8 +72,7 @@
 							</h:panelGroup>
 		        			<h:panelGroup styleClass="editText">
 		        						<t:inputDate id="endTime" type="both" ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" style="color:black;" popupCalendar="true" 
-		        							onkeyup="getSignupDuration();return false;"
-		        							onchange="getSignupDuration(); return false;" />
+		        							onkeyup="getSignupDuration();return false;"/>
 										<h:message for="endTime" errorClass="alertMessageInline"/>
 							</h:panelGroup>
 							
