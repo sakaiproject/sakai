@@ -27,6 +27,7 @@
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
 					<include>**/*.properties</include>
+					<include>**/*.metaprops</include>
 				</includes>
 			</resource>
 		</resources>
