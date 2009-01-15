@@ -14,4 +14,7 @@ public class ProfileImageManager {
 	//default image if none available or access is denied
 	public static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
 
+	//directories in content hosting that these images live in
+	public static final int PROFILE_IMAGE_MAIN = 1;		
+	public static final int PROFILE_IMAGE_THUMBNAIL = 2;
 }

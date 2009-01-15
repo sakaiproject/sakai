@@ -9,8 +9,7 @@ public interface SakaiProxy {
 	
 	public static final int FIRST_RECORD = 0;		
 	public static final int MAX_RECORDS = 99;
-	public static final int PROFILE_IMAGE_DIR = 1;		
-	public static final int PROFILE_IMAGE_THUMBNAIL_DIR = 2;
+	
 	
 	
 	public String getCurrentSiteId();

@@ -50,6 +50,8 @@ public interface Profile {
 	 * Returns: (all those where userId is the user_uuid) & (all those where user is friend_uuid and confirmed=true)
 	 * This will then get all those that the user has confirmed as well as those that they have requested of others
 	 *  but may have not been confirmed yet.
+	 *  
+	 *  If you need this separate, see getFriendRequestsForUser() and getConfirmedFriendsForUser()
 	 *
 	 * @param userId		uuid of the user to retrieve the list of friends for
 	 * @param limit			number of records to return or 0 for unlimited
@@ -57,13 +59,25 @@ public interface Profile {
 	public List<Friend> getFriendsForUser(String userId, int limit);
 	
 	/**
-	 * Get a list of uncorfirmed Friend requests for a given user. Uses a native SQL query
+	 * Get a list of unconfirmed Friend requests for a given user. Uses a native SQL query
 	 * Returns: (all those where userId is the friend_uuid and confirmed=false)
 	 *
 	 * @param userId		uuid of the user to retrieve the list of friends for
-	 * @param limit			number of records to return or 0 for unlimited
 	 */
 	public List<Friend> getFriendRequestsForUser(String userId);
+	
+	/**
+	 * Get a list of confirmed friends for a given user. Uses a native SQL query so we can use unions
+	 * Returns: (all those where userId is the user_uuid and confirmed=true) & (all those where user is friend_uuid and confirmed=true)
+	 *
+	 * This only returns userIds, as I havent had a need for getting Friend objects yet (ie more than one param returned)
+	 * If required, simply implement this again, with a modified HBM query to add the extra fields
+	 * and Transform to Friend object.
+	 * 
+	 * @param userId		uuid of the user to retrieve the list of friends for
+	 */
+	public List<String> getConfirmedFriendUserIdsForUser(final String userId);
+	
 
 	/**
 	 * Make a request for friendId to be a friend of userId
@@ -188,23 +202,9 @@ public interface Profile {
 	 */
 	public boolean addNewProfileImage(String userId, String mainResource, String thumbnailResource);
 	
-	/**
-	 * Get the current ProfileImage record from the database.
-	 * There should only ever be one, but if there are more this will return the latest. 
-	 * This is called when retrieving the profileImage for a user. When adding a new image, there is a call
-	 * to a private method called getCurrentProfileImageRecords() which should invalidate any multiple current images
-	 *
-	 * @param userId		userId of the user
-	 */
 	
-	public ProfileImage getCurrentProfileImageRecord(final String userId);
 	
-	/**
-	 * Get old ProfileImage records from the database. Used for displaying old the profile pictures album.
-	 *
-	 * @param userId		userId of the user
-	 */
-	public List<ProfileImage> getOtherProfileImageRecords(final String userId);
+	
 
 	/**
 	 * Find all users that match the search string in either name or email. 
@@ -232,4 +232,52 @@ public interface Profile {
 	 * @return List 	only userIds (for speed and since the list might be very long).
 	 */
 	public List<String> findUsersByInterest(String search);
+	
+	
+	/**
+	 * Is this user a friend of the given user?
+	 * 
+	 * @param userId			the uuid of the user we are querying
+	 * @param currentUserId		current user uuid
+	 * @return boolean
+	 */
+	public boolean isUserFriendOfCurrentUser(String userId, String currentUserUuid);
+	
+	
+	
+	
+	/**
+	 * Should this user show up in searches by the given user?
+	 * 
+	 * @param userId			the uuid of the user we are querying
+	 * @param currentUserId		current user uuid
+	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @return boolean
+	 */
+	public boolean isUserVisibleInSearchesByCurrentUser(String userId, String currentUserId, boolean friend);
+	
+	
+	
+	/**
+	 * Has the user allowed viewing of their profile (including image) by the given user?
+	 * ie have they restricted it to only me or friends etc
+	 * 
+	 * @param userId			the uuid of the user we are querying
+	 * @param currentUserId		current user uuid
+	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @return boolean
+	 */
+	public boolean isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	
+	
+	/**
+	 * Get the profile image for the given user
+	 * First calls getCurrentProfileImageRecord to get the record, then using the URLs contained within
+	 * calls sakaiProxy.getResource(resource_id) to get the bytes.
+	 * 
+	 * @param userId 		the uuid of the user we are querying
+	 * @param imageType		comes from ProfileImageManager and maps to a directory in ContentHosting
+	 * @return boolean
+	 */
+	public byte[] getCurrentProfileImageForUser(String userId, int imageType);
 }

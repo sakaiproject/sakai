@@ -44,6 +44,15 @@
 		select PROFILE_FRIENDS_T.USER_UUID as userUuid, PROFILE_FRIENDS_T.REQUESTED_DATE as requestedDate from PROFILE_FRIENDS_T where PROFILE_FRIENDS_T.FRIEND_UUID = :userUuid and PROFILE_FRIENDS_T.CONFIRMED=false
 		]]>
 	</sql-query>
+	
+	<sql-query name="getConfirmedFriendUserIdsForUser">
+		<return-scalar column="userUuid" type="string" />
+    	<![CDATA[
+		select PROFILE_FRIENDS_T.FRIEND_UUID as userUuid from PROFILE_FRIENDS_T where PROFILE_FRIENDS_T.USER_UUID = :userUuid and PROFILE_FRIENDS_T.CONFIRMED=true
+		union
+		select PROFILE_FRIENDS_T.USER_UUID as userUuid from PROFILE_FRIENDS_T where PROFILE_FRIENDS_T.FRIEND_UUID = :userUuid and PROFILE_FRIENDS_T.CONFIRMED=true
+		]]>
+	</sql-query>
 
 	<!-- 
 	<sql-query name="getFriendsForUser">

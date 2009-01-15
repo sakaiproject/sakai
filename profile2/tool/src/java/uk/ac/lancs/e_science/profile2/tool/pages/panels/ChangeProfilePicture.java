@@ -81,7 +81,7 @@ public class ChangeProfilePicture extends Panel{
 					imageBytes = profile.scaleImage(imageBytes, ProfileImageManager.MAX_IMAGE_XY);
 					 
 					//create resource ID
-					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, SakaiProxy.PROFILE_IMAGE_DIR, fileName);
+					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_MAIN, fileName);
 
 					System.out.println("mainResourceId:" + mainResourceId);
 					
@@ -99,7 +99,7 @@ public class ChangeProfilePicture extends Panel{
 					imageBytes = profile.scaleImage(imageBytes, ProfileImageManager.MAX_THUMBNAIL_IMAGE_XY);
 					 
 					//create resource ID
-					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, SakaiProxy.PROFILE_IMAGE_THUMBNAIL_DIR, fileName);
+					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fileName);
 
 					System.out.println("thumbnailResourceId:" + thumbnailResourceId);
 					

@@ -28,6 +28,8 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
@@ -56,6 +58,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	private static final String QUERY_GET_FRIENDS_FOR_USER = "getFriendsForUser";
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser";
+	private static final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser";
 	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest";
 	private static final String QUERY_GET_FRIEND_RECORD = "getFriendRecord";
 	private static final String QUERY_GET_USER_STATUS = "getUserStatus";
@@ -268,7 +271,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
 	  			q.setResultTransformer(Transformers.aliasToBean(Friend.class));
 	  			
-	  			
 	  			return q.list();
 	  		}
 	  	};
@@ -278,13 +280,32 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  	return requests;
 	}
 	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getConfirmedFriendUserIdsForUser(String userId)
+	 */	
+	public List<String> getConfirmedFriendUserIdsForUser(final String userId) {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
 	
+	  	return userUuids;
+
 	
-	
-	
+	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#requestFriend()
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#requestFriend(String userId, String friendId)
 	 */	
 	public boolean requestFriend(String userId, String friendId) {
 		if(userId == null || friendId == null){
@@ -307,7 +328,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriend()
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriend(final String friendId, final String userId)
 	 */
 	public boolean confirmFriend(final String friendId, final String userId) {
 		if(friendId == null || userId == null){
@@ -336,7 +357,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#removeFriend()
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#removeFriend(String userId, String friendId)
 	 */
 	public boolean removeFriend(String userId, String friendId) {
 		if(userId == null || friendId == null){
@@ -701,46 +722,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-
-	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getCurrentProfileImageRecord()
-	 */
-	public ProfileImage getCurrentProfileImageRecord(final String userId) {
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		return (ProfileImage) getHibernateTemplate().execute(hcb);
-	}
-
-	
-	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getOtherProfileImageRecords(final String userId)
-	 */
-	public List<ProfileImage> getOtherProfileImageRecords(final String userId) {
-		
-		List<ProfileImage> images = new ArrayList();
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_OTHER_PROFILE_IMAGE_RECORDS);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
-	  	
-	  	return images;
-	}
 	
 	
 	/**
@@ -773,6 +754,162 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		return userUuids;
 		
 	}
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserFriendOfCurrentUser(String userId, String currentUserId)
+	 */
+	public boolean isUserFriendOfCurrentUser(String userId, String currentUserId) {
+		
+		//get friends of current user
+		List<String> friendUuids = new ArrayList<String>(getConfirmedFriendUserIdsForUser(currentUserId));
+		
+		//if list of confirmed friends contains this user, they are a friend
+		if(friendUuids.contains(userId)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserVisibleInSearchesByCurrentUser(String userId, String currentUserId, boolean friend)
+	 */
+	public boolean isUserVisibleInSearchesByCurrentUser(String userId, String currentUserId, boolean friend) {
+				
+		//get ProfilePrivacy record for user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	//if none, return whatever the flag is set as by default
+    	if(profilePrivacy == null) {
+    		return ProfilePrivacyManager.DEFAULT_SEARCH_VISIBILITY;
+    	}
+    	
+    	//if user is the current user (ie they foumd themself in a search)
+    	if(currentUserId.equals(userId)) {
+    		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
+    	}
+    	
+    	//if restricted to only self, not allowed
+    	if(profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    		return false;
+    	}
+    	
+    	//if friend and friends are allowed
+    	if(friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if everyone is allowed
+    	if(friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	
+    	//uncaught rule, return false
+    	return false;
+		
+	}
+	
+	
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 */
+	public boolean isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+		
+		//get ProfilePrivacy record for user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	
+    	//if none, return whatever the flag is set as by default
+    	if(profilePrivacy == null) {
+    		return ProfilePrivacyManager.DEFAULT_PROFILE_VISIBILITY;
+    	}
+    	
+    	//if user is the current user, they ARE allowed to view their own picture!
+    	if(currentUserId.equals(userId)) {
+    		return true;
+    	}
+    	
+    	//if restricted to only self, not allowed
+    	if(profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    		return false;
+    	}
+    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if everyone is allowed
+    	if(friend && profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	
+    	//uncaught rule, return false
+    	return false;
+		
+	}
+
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserFriendOfCurrentUser(String userId, String currentUserUuid)
+	 */
+	public byte[] getCurrentProfileImageForUser(String userId, int imageType) {
+		
+		byte[] image = null;
+		
+		//get record from db
+		ProfileImage profileImage = getCurrentProfileImageRecord(userId);
+		
+		if(profileImage == null) {
+			log.warn("Profile.getCurrentProfileImageForUser() null for userId: " + userId);
+			return null;
+		}
+		
+		//get main image
+		if(imageType == ProfileImageManager.PROFILE_IMAGE_MAIN) {
+			image = sakaiProxy.getResource(profileImage.getMainResource());
+		}
+		
+		//or get thumbnail
+		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
+			image = sakaiProxy.getResource(profileImage.getMainResource());
+		}
+		
+		return image;
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -825,7 +962,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * Get the current ProfileImages record from the database.
+	 * Get the current ProfileImage records from the database.
 	 * There should only ever be one, but in case things get out of sync this returns all.
 	 * This method is only used when we are adding a new image as we need to invalidate all of the others
 	 * If you are just wanting to retrieve the latest image, see getCurrentProfileImageRecord()
@@ -852,7 +989,53 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 
 
+	/**
+	 * Get the current ProfileImage record from the database.
+	 * There should only ever be one, but if there are more this will return the latest. 
+	 * This is called when retrieving a profile image for a user. When adding a new image, there is a call
+	 * to a private method called getCurrentProfileImageRecords() which should invalidate any multiple current images
+	 *
+	 * @param userId		userId of the user
+	 */
+	private ProfileImage getCurrentProfileImageRecord(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
 	
+		return (ProfileImage) getHibernateTemplate().execute(hcb);
+	}
+	
+	
+	/**
+	 * Get old ProfileImage records from the database. TODO: Used for displaying old the profile pictures album
+	 *
+	 * @param userId		userId of the user
+	 */
+	private List<ProfileImage> getOtherProfileImageRecords(final String userId) {
+		
+		List<ProfileImage> images = new ArrayList();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_OTHER_PROFILE_IMAGE_RECORDS);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
+	  	
+	  	return images;
+	}
+
 
 	//gets a friend record and tries both column arrangements
 	private ProfileFriend getFriendRecord(final String userId, final String friendId) {
@@ -880,12 +1063,18 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
+	
+	
+	
+	
 	//setup SakaiProxy API
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
 
+
+	
 
 	
 }

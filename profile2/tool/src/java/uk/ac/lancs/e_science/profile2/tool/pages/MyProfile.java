@@ -94,14 +94,8 @@ public class MyProfile extends BasePage {
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
 		userProfile.setOtherInformation(sakaiPerson.getNotes());
 
-		//get profileImage object
-		ProfileImage profileImage = profile.getCurrentProfileImageRecord(userId);
-		
-		if(profileImage != null) {
-			String profileImageResourceId = profileImage.getMainResource();
-			System.out.println("MyProfile profileImageResourceId: " + profileImageResourceId);
-			profileImageBytes = sakaiProxy.getResource(profileImageResourceId);
-		}
+		//get profile image
+		profileImageBytes = profile.getCurrentProfileImageForUser(userId, ProfileImageManager.PROFILE_IMAGE_MAIN);
 
 		//use profile bytes or add default image if none
 		if(profileImageBytes != null && profileImageBytes.length > 0){

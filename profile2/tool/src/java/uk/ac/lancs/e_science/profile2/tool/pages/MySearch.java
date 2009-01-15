@@ -46,7 +46,7 @@ public class MySearch extends BasePage {
 		if(log.isDebugEnabled()) log.debug("MyPrivacy()");
 		
 		//get current user
-		String userId = sakaiProxy.getCurrentUserId();
+		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		
 		
 		// FeedbackPanel - so we activate feedback
@@ -176,20 +176,26 @@ public class MySearch extends BasePage {
 		    		
 		    	//get objects for this userUuid
 				SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-		    	ProfilePrivacy profilePrivacy = profile.getPrivacyRecordForUser(userUuid);
+
+				//is this user a friend of the current user?
+				boolean friend = profile.isUserFriendOfCurrentUser(userUuid, currentUserUuid);
+				
+		    	//should they be skipped from this search result?
+		    	if(!profile.isUserVisibleInSearchesByCurrentUser(userUuid, currentUserUuid, friend)) {
+		    		return;
+		    	}
 		    	
-		    	//based on profileProvacy, they might need to be ecluded from the search result,
-		    	//or not have thier profile linked/image available
+		    	//check privacy on this user's profile/image
+		    	//if its disabled, their profile will not be linked and their image will be the default one
+		    	boolean profileAllowed = profile.isUserProfileVisibleByCurrentUser(userUuid, currentUserUuid, friend);
 		    	
 		    	
-		    	ProfileImage profileImage = profile.getCurrentProfileImageRecord(userUuid);
-		    	
-		    	//if they don't have a ProfileImage record, they have no photo
-		    	if(profileImage != null) {
-		    		photo = sakaiProxy.getResource(profileImage.getThumbnailResource());
+		    	if(profileAllowed) {
+		    		photo = profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 		    	} else {
 		    		photo = null;
 		    	}
+		    	
 		    	
 		    	//name
 		    	Label nameLabel = new Label("result-name", displayName);
