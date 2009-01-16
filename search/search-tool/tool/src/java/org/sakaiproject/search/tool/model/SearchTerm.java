@@ -28,6 +28,8 @@ package org.sakaiproject.search.tool.model;
  */
 public interface SearchTerm
 {
+
+	
 	/**
 	 * the relative weight of the search term 1 - 100
 	 * @return
