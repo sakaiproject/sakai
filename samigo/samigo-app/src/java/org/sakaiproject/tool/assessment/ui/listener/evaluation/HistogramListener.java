@@ -193,6 +193,12 @@ public class HistogramListener
 		  }
 		  
 		  histogramScores.setPublishedId(publishedId);
+		  int callerName = TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER;
+		  String isFromStudent = (String) ContextUtil.lookupParam("isFromStudent");
+		  if (isFromStudent != null && "true".equals(isFromStudent)) {
+			  callerName = TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER_STUDENT;
+		  }
+		  
  		  // get the Map of all users(keyed on userid) belong to the selected sections 
 		  // now we only include scores of users belong to the selected sections
 		  Map useridMap = null; 
@@ -207,7 +213,7 @@ public class HistogramListener
 			  {
 				  AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
 				  String agentid =  data.getAgentId();
-				  useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER); 
+				  useridMap = totalScores.getUserIdMap(callerName); 
 				  if (useridMap.containsKey(agentid)) {
 					  scores.add(data);
 				  }
@@ -286,7 +292,7 @@ public class HistogramListener
 
 			  HashMap itemScoresMap = delegate.getItemScores(new Long(publishedId), new Long(0), which);
 			  HashMap itemScores = new HashMap();
-
+			  			  
 			  if (totalScores.getReleaseToAnonymous()) {
 				  // skip section filter if it's published to anonymous users
 				  itemScores.putAll(itemScoresMap);
@@ -304,7 +310,7 @@ public class HistogramListener
 						  ItemGradingData idata = (ItemGradingData) itemScoresIter.next();
 						  String agentid = idata.getAgentId();
 						  if (useridMap == null) {
-							  useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER); 
+							  useridMap = totalScores.getUserIdMap(callerName); 
 						  }
 						  if (useridMap.containsKey(agentid)) {
 							  filteredItemScoresList.add(idata);

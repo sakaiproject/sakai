@@ -278,6 +278,7 @@ sorting actions for table:
         <f:param name="hasNav" value="false"/>
         <f:param name="allSubmissions" value="true" />
         <f:param name="actionString" value="reviewAssessment"/>
+        <f:param name="isFromStudent" value="true"/>
         <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
         <h:outputText value="#{selectIndexMessages.stats} "/>

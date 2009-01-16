@@ -80,7 +80,8 @@ public class TotalScoresBean
   public static final int CALLED_FROM_QUESTION_SCORE_LISTENER = 2;  
   public static final int CALLED_FROM_TOTAL_SCORE_LISTENER = 3;  
   public static final int CALLED_FROM_HISTOGRAM_LISTENER = 4;
-  
+  public static final int CALLED_FROM_HISTOGRAM_LISTENER_STUDENT = 5;
+    
     /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
   private String assessmentName;
@@ -785,15 +786,18 @@ public class TotalScoresBean
     	    		&& calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous)) 
     ) {
-*/    	
-    if (this.getSelectedSectionFilterValue().trim().equals(this.ALL_SECTIONS_SELECT_VALUE)
+*/  
+    if (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER_STUDENT){
+    	enrollments = getAvailableEnrollments(true);
+    }
+    else if (this.getSelectedSectionFilterValue().trim().equals(this.ALL_SECTIONS_SELECT_VALUE)
     		|| (calledFrom==CALLED_FROM_TOTAL_SCORE_LISTENER 
     				&& "true".equalsIgnoreCase(anonymous)) 
 	    	|| (calledFrom==CALLED_FROM_QUESTION_SCORE_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous))
     		|| (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous))) {
-        enrollments = getAvailableEnrollments();
+        enrollments = getAvailableEnrollments(false);
     }
     // added by gopalrc - Jan 2008
     else if (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE)) {
@@ -812,11 +816,17 @@ public class TotalScoresBean
   }
 
 
-  private List getAvailableEnrollments() {
+  private List getAvailableEnrollments(boolean fromStudentStatistics) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
-    return service.getAvailableEnrollments(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString());
-  }
-  
+    List list = null;
+    if (fromStudentStatistics) {
+    	list = service.getAvailableEnrollments(AgentFacade.getCurrentSiteId(), "-1");
+    }
+    else {
+    	list = service.getAvailableEnrollments(AgentFacade.getCurrentSiteId(), AgentFacade.getAgentString());
+    }
+    return list; 
+  }  
 
   private List getGroupReleaseEnrollments() {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();

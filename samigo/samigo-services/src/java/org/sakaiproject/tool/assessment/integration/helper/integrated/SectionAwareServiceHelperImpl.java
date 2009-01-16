@@ -72,7 +72,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	 */
 	public List getAvailableEnrollments(String siteid, String userUid) {
 		List enrollments;
-		if (isUserAbleToGradeAll(siteid, userUid)) {
+		if ("-1".equals(userUid) || isUserAbleToGradeAll(siteid, userUid)) {
 			enrollments = getSectionAwareness().getSiteMembersInRole(siteid, Role.STUDENT);
 		} else {
 			// We use a map because we may have duplicate students among the section
