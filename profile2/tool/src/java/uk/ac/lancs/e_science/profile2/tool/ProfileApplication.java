@@ -33,8 +33,9 @@ public class ProfileApplication extends WebApplication {
 		getMarkupSettings().setStripWicketTags(true);
 		//mountBookmarkablePage("/my", MyProfile.class);
 		
-		
-		
+		getMarkupSettings().setDefaultBeforeDisabledLink(null);
+		getMarkupSettings().setDefaultAfterDisabledLink(null);
+
 		
 		
 		

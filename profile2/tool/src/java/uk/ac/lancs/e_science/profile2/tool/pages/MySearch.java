@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -23,7 +24,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
@@ -174,22 +174,16 @@ public class MySearch extends BasePage {
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
 		    	final byte[] photo;
 		    		
-		    	//get sakaiPerson for this userUuid
-				SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		    	//is profile and profile image allowed to be viewed by this user/friend?
+				final boolean isProfileAllowed = searchResult.isProfileAllowed();
 				
-		    	//is profile and profile iamge allowed to be viewed?
-		    	if(searchResult.isProfileAllowed()) {
+		    	if(isProfileAllowed) {
 		    		photo = profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 		    	} else {
 		    		photo = null;
 		    	}
 		    	
-		    	
-		    	//name
-		    	Label nameLabel = new Label("result-name", displayName);
-		    	item.add(nameLabel);
-		    	
-		    	//photo
+		    	//photo (if allowed or default)
 		    	if(photo != null && photo.length > 0){
 		    		
 					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
@@ -202,6 +196,29 @@ public class MySearch extends BasePage {
 				} else {
 					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
+		    	
+		    	
+		    	//name and link to profile (if allowed or no link)
+		    	Link profileLink = new Link("result-profileLink") {
+
+					public void onClick() {
+						setResponsePage(new ViewProfile((String)getModelObject()));
+					}
+					
+					
+				};
+				
+				if(isProfileAllowed) {
+					profileLink.setModel(new Model(userUuid));
+				} else {
+					profileLink.setEnabled(false);
+				}
+				
+				
+				
+				profileLink.add(new Label("result-name", displayName));
+		    	item.add(profileLink);
+		    	
 		
 		    	
 		    	//action - confirm friend
@@ -260,8 +277,6 @@ public class MySearch extends BasePage {
 					//search both UDB and Sakaiperson for matches.
 					results = new ArrayList(profile.findUsersByNameOrEmail(searchText, currentUserUuid));
 	
-					if(log.isDebugEnabled()) log.debug("MySearch() results: " + results.toString());
-					
 					//text
 					if(results.isEmpty()) {
 						numSearchResults.setModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
@@ -312,8 +327,6 @@ public class MySearch extends BasePage {
 					
 					//search SakaiPerson for matches
 					results = new ArrayList(profile.findUsersByInterest(searchText, currentUserUuid));
-					
-					if(log.isDebugEnabled()) log.debug("MySearch() results: " + results.toString());
 					
 					//text
 					if(results.isEmpty()) {

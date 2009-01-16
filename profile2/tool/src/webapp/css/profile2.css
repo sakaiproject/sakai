@@ -395,10 +395,12 @@
 	vertical-align: top;
 }
 
+
 .friendsListInfoName {
 	display: inline;
 	font-weight: bold;
 }
+
 
 .friendsListInfoStatus {
 	display:inline;

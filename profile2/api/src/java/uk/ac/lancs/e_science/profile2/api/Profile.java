@@ -211,7 +211,7 @@ public interface Profile {
 	 * able to see them. We gather some other privacy information, create a SearchResult item and return the List of these
 	 * [The above is performed in a private method]
 	 *
-	 * Once this list is returned, paginate and lookup sets of SakaiPersons and their associated Image records.
+	 * Once this list is returned, can lookup more info based on SearchResult.getUserUuid()
 	 * 
 	 * @param search 	string to search for
 	 * @param userId 	uuid of user performing the search
@@ -227,7 +227,7 @@ public interface Profile {
 	 * able to see them. We gather some other privacy information, create a SearchResult item and return the List of these
 	 * [The above is performed in a private method]
 	 * 
-	 * Once this list is returned, paginate and lookup sets of SakaiPersons and their associated Image records.
+	 * Once this list is returned, can lookup more info based on SearchResult.getUserUuid()
 	 * 
 	 * @param search 	string to search for
 	 * @param userId 	uuid of user performing the search
