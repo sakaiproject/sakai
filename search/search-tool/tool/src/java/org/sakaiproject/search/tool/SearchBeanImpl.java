@@ -98,8 +98,9 @@ public class SearchBeanImpl implements SearchBean
 	private String search;
 	
 	
-	private Scope scope = Scope.SITE;
-
+	//private Scope scope = Scope.SITE;
+	private Scope scope = null;
+	
 	/**
 	 * The Search Service to use
 	 */
@@ -436,7 +437,10 @@ public class SearchBeanImpl implements SearchBean
 	
 	public boolean isScope(String scope)
 	{
-		return this.scope != null && this.scope.equals(Scope.valueOf(scope));
+		if (this.scope == null)
+			this.scope = getDefaultSearchScope();
+		
+		return this.scope.equals(Scope.valueOf(scope));
 	}
 
 	/**
@@ -1082,6 +1086,23 @@ public class SearchBeanImpl implements SearchBean
 	public String getRequestUrl()
 	{
 		return FormattedText.escapeHtml(requestURL, false);
+	}
+
+	private Boolean searchScopeSite = null;
+	
+
+	private Scope getDefaultSearchScope() {
+		log.debug("setting default scope!");
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		if (siteService.isUserSite(siteId)) {
+			log.debug("got scope of Mine");
+			return Scope.MINE;
+		} else {
+			log.debug("got scope of Site");
+			return Scope.SITE;
+		}
+
+		
 	}
 	
 }
