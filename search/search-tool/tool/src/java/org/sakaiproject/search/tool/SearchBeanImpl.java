@@ -772,7 +772,7 @@ public class SearchBeanImpl implements SearchBean
 				{
 					final String searchURL = "?search="
 							+ URLEncoder.encode(search, "UTF-8") + "&page="
-							+ String.valueOf(cpage);
+							+ String.valueOf(cpage)+"&scope=" + this.scope;
 
 					final String name = String.valueOf(cpage + 1);
 					String cssInd = "1";
