@@ -26,8 +26,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
-import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
+import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
@@ -39,7 +38,7 @@ public class MySearch extends BasePage {
 
 	private transient Logger log = Logger.getLogger(MySearch.class);
 	private transient Search search;
-	private List<String> results = new ArrayList<String>();
+	private List<SearchResult> results = new ArrayList<SearchResult>();
 	
 	public MySearch() {
 		
@@ -152,52 +151,39 @@ public class MySearch extends BasePage {
 				return results;
 			}
 		};
+		
+		
 				
 		//container which wraps list
 		final WebMarkupContainer resultsContainer = new WebMarkupContainer("searchResultsContainer");
 		resultsContainer.setOutputMarkupPlaceholderTag(true);
+		resultsContainer.setVisible(false); //hide initially
 		
 		//search results
 		ListView resultsListView = new ListView("results-list", resultsModel) {
 		    protected void populateItem(ListItem item) {
 		        
-		    	//get userUuid string, 
-		    	//then get a SakaiPerson for each, 
-		    	//their Privacy record, 
-		    	//and if authorised, their ProfileImage record
-		    	//also figure out if they are a friend already.
+		    	//get SearchResult object
+		    	//this contains info like if they are a friend and if their profile is visible etc
+		    	SearchResult searchResult = (SearchResult)item.getModelObject();
 		    	
 		    	//get userUuid
-		    	String userUuid = (String)item.getModelObject();
+		    	String userUuid = searchResult.getUserUuid();
 		    	
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
 		    	final byte[] photo;
 		    		
-		    	//get objects for this userUuid
+		    	//get sakaiPerson for this userUuid
 				SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-
-				//is this user a friend of the current user?
-				boolean friend = profile.isUserFriendOfCurrentUser(userUuid, currentUserUuid);
 				
-		    	//should they be skipped from this search result?
-		    	if(!profile.isUserVisibleInSearchesByCurrentUser(userUuid, currentUserUuid, friend)) {
-		    		return;
-		    	}
-		    	
-		    	//check privacy on this user's profile/image
-		    	//if its disabled, their profile will not be linked and their image will be the default one
-		    	boolean profileAllowed = profile.isUserProfileVisibleByCurrentUser(userUuid, currentUserUuid, friend);
-		    	
-		    	
-		    	if(profileAllowed) {
+		    	//is profile and profile iamge allowed to be viewed?
+		    	if(searchResult.isProfileAllowed()) {
 		    		photo = profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 		    	} else {
 		    		photo = null;
 		    	}
 		    	
-		    	
-		    	System.out.println("profileallowed: " + profileAllowed);
 		    	
 		    	//name
 		    	Label nameLabel = new Label("result-name", displayName);
@@ -228,19 +214,15 @@ public class MySearch extends BasePage {
 	    		confirmLink.add(new Label("friendRequest-confirm",new ResourceModel("link.friend.request.confirm")));
 	    		item.add(confirmLink);
 	    		*/
-	    		
-	    		
+	    
 		    }
 		};
 		resultsContainer.add(resultsListView);
 		
-		//add friend container
-		add(resultsContainer);
 		
-		//hide if no results
-		if(results.size() == 0) {
-			resultsContainer.setVisible(false);
-		}
+		
+		//add results container
+		add(resultsContainer);
 		
 		
 		
@@ -276,7 +258,7 @@ public class MySearch extends BasePage {
 					search.setSearchInterest("");
 					
 					//search both UDB and Sakaiperson for matches.
-					results = new ArrayList(profile.findUsersByNameOrEmail(searchText));
+					results = new ArrayList(profile.findUsersByNameOrEmail(searchText, currentUserUuid));
 	
 					if(log.isDebugEnabled()) log.debug("MySearch() results: " + results.toString());
 					
@@ -291,9 +273,8 @@ public class MySearch extends BasePage {
 					
 					//repaint components
 					target.addComponent(sbiInterestField);
-					target.addComponent(numSearchResults);
-					target.addComponent(numSearchResults);
 					target.addComponent(resultsContainer);
+					target.addComponent(numSearchResults);
 					target.appendJavascript("setMainFrameHeight(window.name);");	
 
 				}
@@ -330,8 +311,8 @@ public class MySearch extends BasePage {
 					search.setSearchName("");
 					
 					//search SakaiPerson for matches
-					results = new ArrayList(profile.findUsersByInterest(searchText));
-
+					results = new ArrayList(profile.findUsersByInterest(searchText, currentUserUuid));
+					
 					if(log.isDebugEnabled()) log.debug("MySearch() results: " + results.toString());
 					
 					//text

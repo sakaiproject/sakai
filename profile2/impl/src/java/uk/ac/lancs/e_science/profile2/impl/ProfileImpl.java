@@ -36,6 +36,7 @@ import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
+import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
@@ -732,34 +733,42 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#findUsersByNameOrEmail(String search)
-	 */
-	public List<String> findUsersByNameOrEmail(String search) {
-		
-		//get users from SakaiPerson
-		List<String> userUuids = new ArrayList<String>(findSakaiPersonsByNameOrEmail(search));
 
-		//get users from UserDirectoryService
-		List<String> usersUuidsFromUserDirectoryService = new ArrayList<String>(sakaiProxy.searchUsers(search));
-		
-		//combine with no duplicates
-		userUuids.removeAll(usersUuidsFromUserDirectoryService);
-		userUuids.addAll(usersUuidsFromUserDirectoryService);
-
-		return userUuids;
 	
+	
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#findUsersByNameOrEmail(String search, String userId)
+	 */
+	public List<SearchResult> findUsersByNameOrEmail(String search, String userId) {
+		
+		//perform search (uses private method to wrap the two searches into one)
+		List<String> userUuids = new ArrayList<String>(findUsersByNameOrEmail(search));
+
+		//format into SearchResult records (based on friend status, privacy status etc)
+		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(userUuids, userId));
+		
+		return results;
+		
 	}
 	
+	
+	
+	
+	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#findUsersByNameOrEmail(String search)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#findUsersByNameOrEmail(String search, String userId)
 	 */
-	public List<String> findUsersByInterest(String search) {
+	public List<SearchResult> findUsersByInterest(String search, String userId) {
 		
-		//get users from SakaiPerson
+		//perform search (uses private method to wrap the search)
 		List<String> userUuids = new ArrayList<String>(findSakaiPersonsByInterest(search));
 		
-		return userUuids;
+		//format into SearchResult records (based on friend status, privacy status etc)
+		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(userUuids, userId));
+		
+		return results;
 		
 	}
 	
@@ -770,6 +779,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public boolean isUserFriendOfCurrentUser(String userId, String currentUserId) {
 		
 		//get friends of current user
+		//TODO change this to be a single lookup rather than iterating over a list
 		List<String> friendUuids = new ArrayList<String>(getConfirmedFriendUserIdsForUser(currentUserId));
 		
 		//if list of confirmed friends contains this user, they are a friend
@@ -790,30 +800,42 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
+    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: no record, returning default visibility");
     		return ProfilePrivacyManager.DEFAULT_SEARCH_VISIBILITY;
     	}
     	
     	//if user is the current user (ie they foumd themself in a search)
     	if(currentUserId.equals(userId)) {
+    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: user is current user");
     		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
     	if(profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: only me");
     		return false;
     	}
     	
-    	//if friend and friends are allowed
+    	//if friend and set to friends only
     	if(friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: only friends and is friend");
     		return true;
     	}
     	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: only friends and not friend");
+    		return false;
+    	}
+    	
     	//if everyone is allowed
-    	if(friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: everyone");
     		return true;
     	}
     	
     	//uncaught rule, return false
+    	log.error("SEARCH VISIBILITY: Uncaught rule");
     	return false;
 		
 	}
@@ -1088,8 +1110,74 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
+	//private method to back the search methods. returns only uuids which then need to be checked for privacy settings etc.
+	private List<String> findUsersByNameOrEmail(String search) {
+		
+		//get users from SakaiPerson
+		List<String> userUuids = new ArrayList<String>(findSakaiPersonsByNameOrEmail(search));
+
+		//get users from UserDirectoryService
+		List<String> usersUuidsFromUserDirectoryService = new ArrayList<String>(sakaiProxy.searchUsers(search));
+		
+		//combine with no duplicates
+		userUuids.removeAll(usersUuidsFromUserDirectoryService);
+		userUuids.addAll(usersUuidsFromUserDirectoryService);
+		
+		return userUuids;
+	
+	}
 	
 	
+	//private utility method used by findUsersByNameOrEmail() and findUsersByInterest() to format results from
+	//the supplied userUuids to SearchResult records based on friend status and the privacy settings for each user
+	//that was in the initial search results
+	private List<SearchResult> createSearchResultRecordsFromSearch(List<String> userUuids, String userId) {
+
+		List<SearchResult> results = new ArrayList<SearchResult>();
+				
+		//for each userUuid, is userId a friend?
+		//also, get privacy record for the userUuid. if searches not allowed for this user pair, skip to next
+		//otherwise create SearchResult record and add to list
+		for(Iterator<String> i = userUuids.iterator(); i.hasNext();){
+			String userUuid = (String)i.next();
+			
+			System.out.println("======================== START");
+			System.out.println("userUuid: " + userUuid);
+			System.out.println("userId: " + userId);
+						
+			
+			boolean friend = this.isUserFriendOfCurrentUser(userUuid, userId);
+			
+			System.out.println("friend: " + friend);
+
+			
+			
+			if(!isUserVisibleInSearchesByCurrentUser(userUuid, userId, friend)) {
+				System.out.println("visible in searches: " + false);
+				System.out.println("======================== END");
+				continue; //not visible, skip
+			}
+			
+			System.out.println("visible: " + true);
+
+			
+			boolean profileAllowed = this.isUserProfileVisibleByCurrentUser(userUuid, userId, friend);
+			
+			System.out.println("profileAllowed: " + profileAllowed);
+			System.out.println("======================== END");
+
+			//make object
+			SearchResult searchResult = new SearchResult(
+					userUuid,
+					friend,
+					profileAllowed
+					);
+			
+			results.add(searchResult);
+		}
+		
+		return results;
+	}
 	
 	
 	//setup SakaiProxy API

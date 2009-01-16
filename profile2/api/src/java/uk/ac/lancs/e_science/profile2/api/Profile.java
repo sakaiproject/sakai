@@ -3,12 +3,10 @@ package uk.ac.lancs.e_science.profile2.api;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
-
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
+import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 
 
 public interface Profile {
@@ -203,35 +201,39 @@ public interface Profile {
 	public boolean addNewProfileImage(String userId, String mainResource, String thumbnailResource);
 	
 	
-	
-	
-
 	/**
 	 * Find all users that match the search string in either name or email. 
-	 * THis first queries Sakai's UserDirectoryProvider for matches, then queries SakaiPerson and combines the lists
+	 * This first queries Sakai's UserDirectoryProvider for matches, then queries SakaiPerson and combines the lists
 	 * This approach is so that we can get attempt to get all users, with or without profiles.
 	 * 
-	 * Returns only user_uuids for speed
-	 * 
-	 * Once this list is returned, paginate and lookup sets of SakaiPersons and their associated Privacy and Image records.
+	 * We then check to see if the returned user is a friend of the person performing the search
+	 * We then check to see if this person has their privacy settings restricted such that this user should not be
+	 * able to see them. We gather some other privacy information, create a SearchResult item and return the List of these
+	 * [The above is performed in a private method]
+	 *
+	 * Once this list is returned, paginate and lookup sets of SakaiPersons and their associated Image records.
 	 * 
 	 * @param search 	string to search for
-	 * @return List 	only userIds (for speed and since the list might be very long).
+	 * @param userId 	uuid of user performing the search
+	 * @return List 	of SearchResult objects containing a few other pieces of information.
 	 */
-	public List<String> findUsersByNameOrEmail(String search);
-	
+	public List<SearchResult> findUsersByNameOrEmail(String search, String userId);
 
 	/**
 	 * Find all users that match the search string in any of the relevant SakaiPerson fields
 	 * 
-	 * Returns only user_uuids for speed
+	 * We then check to see if the returned user is a friend of the person performing the search
+	 * We then check to see if this person has their privacy settings restricted such that this user should not be
+	 * able to see them. We gather some other privacy information, create a SearchResult item and return the List of these
+	 * [The above is performed in a private method]
 	 * 
-	 * Once this list is returned, paginate and lookup sets of SakaiPersons and their associated Privacy and Image records.
+	 * Once this list is returned, paginate and lookup sets of SakaiPersons and their associated Image records.
 	 * 
 	 * @param search 	string to search for
+	 * @param userId 	uuid of user performing the search
 	 * @return List 	only userIds (for speed and since the list might be very long).
 	 */
-	public List<String> findUsersByInterest(String search);
+	public List<SearchResult> findUsersByInterest(String search, String userId);
 	
 	
 	/**
