@@ -76,7 +76,7 @@
 			      <div class="searchItemBody" >${result.searchResult}</div>
 			      <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
 			    #if($searchModel.isScope('MINE'))
-	    			<br/><span class="searchSite">Site: ${result.siteTitle}<span>
+	    			<br/><span class="searchSite">Site: <a href="$result.siteURL" target="_top">${result.siteTitle}</a><span>
 	    		#end 
 			      </div>
 

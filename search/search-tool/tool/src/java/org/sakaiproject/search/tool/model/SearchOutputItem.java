@@ -52,5 +52,7 @@ public interface SearchOutputItem
 	String getSearchResult();
 	
 	String getSiteTitle();
+	
+	String getSiteURL();
 
 }

@@ -829,6 +829,7 @@ public class SearchBeanImpl implements SearchBean
 		for (Iterator i = sl.iterator(); i.hasNext();)
 		{
 			final SearchResult sr = (SearchResult) i.next();
+			
 			l.add(new SearchOutputItem()
 			{
 
@@ -881,21 +882,47 @@ public class SearchBeanImpl implements SearchBean
 						return "";
 					}
 
-				}
+					
 
+				}
+				
+				private Site site = null;
+
+				public String getSiteURL() {
+					String url = null;
+					
+					if (site == null)
+						site = getSite();
+					
+					url = site.getUrl();
+					
+					return url;
+				}
+				
 				public String getSiteTitle() {
-					try {
-						Site site = siteService.getSite(sr.getSiteId());
+						if (site == null)
+							site = getSite();
+						
 						if (site != null)
 							return FormattedText.escapeHtml(site.getTitle(), false);
-					} catch (IdUnusedException e) {
-						log.debug("Couldn't find site: "+ siteId);
-					} catch (Exception e) {
-					}
+					
 					
 					return "";
 
 				}
+				
+				private Site getSite() {
+					try {
+						Site s = siteService.getSite(sr.getSiteId());
+						return s;
+					} catch (IdUnusedException e) {
+						log.warn("site: " + sr.getSiteId() + "referenced in search results doesn't exits");
+					}
+					
+					return null;
+				}
+					
+				
 
 			});
 		}
