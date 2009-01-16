@@ -209,9 +209,10 @@ public class EntityBatchHandler {
             if (reference == null || "".equals(reference)) {
                 continue; // skip
             }
-            // skip ones that are already done, we do not process twice
-            if (processedRefsAndURLs.contains(reference)) {
-                continue; // skip
+            // skip ones that are already done, we do not process twice unless it is a POST
+            if (! Method.POST.equals(method) 
+                    && processedRefsAndURLs.contains(reference)) {
+                continue; // skip for GET/DELETE/PUT
             }
             String servletContext = getServletContext(); // will be the servlet context (e.g. /direct)
             // fix anything that does not start with a slash or http
