@@ -512,12 +512,7 @@ public class SearchBeanImpl implements SearchBean
 	protected String[] getToolPropertySiteIds() {
 		Properties props = extractPropertiesFromTool();
 		String[] searchSiteIds;
-		if (siteService.isUserSite(siteId)) {
-			log.debug("Searching all sites");
-			searchSiteIds = getAllUsersSites();
-		} else {
-			searchSiteIds = extractSiteIdsFromProperties(props);
-		}
+		searchSiteIds = extractSiteIdsFromProperties(props);
 		return searchSiteIds;
 	}
 	
