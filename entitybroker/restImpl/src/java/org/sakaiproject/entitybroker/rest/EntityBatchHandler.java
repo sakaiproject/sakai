@@ -134,7 +134,6 @@ public class EntityBatchHandler {
      * @param req the current request
      * @param res the current response
      */
-    @SuppressWarnings("unchecked")
     public void handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         if (view == null || req == null || res == null) {
             throw new IllegalArgumentException("Could not process batch: invalid arguments, no args can be null (view="+view+",req="+req+",res="+res+")");
@@ -165,36 +164,8 @@ public class EntityBatchHandler {
         // validate the the refs param
         String[] refs = getRefsOrFail(req);
 
-        // Decode params into a reference map based on the refs for POST/PUT
-        ArrayOrderedMap<String, Map<String, String[]>> referencedParams = null;
-        if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
-            referencedParams = new ArrayOrderedMap<String, Map<String, String[]>>();
-            Map<String, String[]> params = req.getParameterMap();
-            // create the maps to hold the params
-            referencedParams.put(UNREFERENCED_PARAMS, new ArrayOrderedMap<String, String[]>(params.size()));
-            for (int i = 0; i < refs.length; i++) {
-                String refKey = "ref" + i + '.';
-                referencedParams.put(refKey, new ArrayOrderedMap<String, String[]>(params.size()));
-            }
-            // put all request params into the map
-            for (Entry<String, String[]> entry : params.entrySet()) {
-                if (REFS_PARAM_NAME.equals(entry.getKey())) {
-                    continue; // skip over the refs param
-                }
-                boolean found = false;
-                for (String refKey : referencedParams.keySet()) {
-                    if (entry.getKey().startsWith(refKey)) {
-                        referencedParams.get(refKey).put(entry.getKey(), entry.getValue());
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    // put the values into the unreferenced params portion of the map
-                    referencedParams.get(UNREFERENCED_PARAMS).put(entry.getKey(), entry.getValue());
-                }
-            }
-        }
+        // decode the params into a set of reference params
+        Map<String, Map<String, String[]>> referencedParams = extractReferenceParams(req, method, refs);
 
         // loop through all references
         HashSet<String> processedRefsAndURLs = new HashSet<String>(); // holds all refs which we processed in this batch
@@ -367,6 +338,58 @@ public class EntityBatchHandler {
     }
 
     /**
+     * This will decode the set of params into a group of reference params based on the set of references
+     * @param req the current request
+     * @param method the current method
+     * @param refs the array of references
+     * @return the map of reference params with unreferenced params under the {@value #UNREFERENCED_PARAMS} key
+     * and everything else in ref# -> params map
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, Map<String, String[]>> extractReferenceParams(
+            HttpServletRequest req, Method method, String[] refs) {
+        // Decode params into a reference map based on the refs for POST/PUT
+        ArrayOrderedMap<String, Map<String, String[]>> referencedParams = null;
+        if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
+            referencedParams = new ArrayOrderedMap<String, Map<String, String[]>>();
+            Map<String, String[]> params = req.getParameterMap();
+            // create the maps to hold the params
+            referencedParams.put(UNREFERENCED_PARAMS, new ArrayOrderedMap<String, String[]>(params.size()));
+            for (int i = 0; i < refs.length; i++) {
+                String refKey = "ref" + i + '.';
+                referencedParams.put(refKey, new ArrayOrderedMap<String, String[]>(params.size()));
+            }
+            // put all request params into the map
+            for (Entry<String, String[]> entry : params.entrySet()) {
+                if (REFS_PARAM_NAME.equals(entry.getKey())) {
+                    continue; // skip over the refs param
+                }
+                boolean found = false;
+                for (String refKey : referencedParams.keySet()) {
+                    if (entry.getKey().startsWith(refKey)) {
+                        String key = entry.getKey();
+                        // fix key by removing the ref#. prefix
+                        key = key.substring(refKey.length());
+                        if (key.length() == 0) {
+                            log.warn("Skipping invalid reference param name ("+entry.getKey()+"), " +
+                            		"name must start with ref#. but MUST have the actual name of the param after that");
+                        } else {
+                            referencedParams.get(refKey).put(key, entry.getValue());
+                        }
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // put the values into the unreferenced params portion of the map
+                    referencedParams.get(UNREFERENCED_PARAMS).put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+        return referencedParams;
+    }
+
+    /**
      * Apply the headers to the batched response,
      * these headers are applied to all responses
      * @param res the response to apply headers to
@@ -433,14 +456,17 @@ public class EntityBatchHandler {
         entityRequest.setContextPath("");
         if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
             // set only the unreferenced and correct referenced params for this request
+            log.warn("POST/PUT: Putting in params for key: " + refKey);
             entityRequest.clearParameters(); // also clears REFS_PARAM_NAME
             entityRequest.setParameters( referencedParams.get(UNREFERENCED_PARAMS) );
             String key = refKey + '.';
             if (referencedParams.containsKey(key)) {
+                log.warn("Found RP for key: " + key);
                 entityRequest.setParameters( referencedParams.get(key) );
             }
             // set the params from the query itself again
             entityRequest.setParameters( entityRequest.pathQueryParams );
+            log.info("All request params: " + entityRequest.getStringParameters());
         } else {
             entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
         }

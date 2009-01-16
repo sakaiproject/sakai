@@ -38,6 +38,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -700,6 +701,30 @@ public class EntityHttpServletRequest implements HttpServletRequest {
             return copy.getLocalPort();
         }
         return DEFAULT_SERVER_PORT;
+    }
+
+    /**
+     * @return all parameters in this request
+     */
+    public Map<String, String[]> getParameters() {
+        return Collections.unmodifiableMap(this.parameters);
+    }
+
+    /**
+     * @return all parameters in this request as single strings
+     */
+    public Map<String, String> getStringParameters() {
+        Map<String, String> m = new TreeMap<String, String>();
+        for (Entry<String, String[]> entry : this.parameters.entrySet()) {
+            String key = entry.getKey();
+            String value = "";
+            String[] sa = entry.getValue();
+            if (sa != null && sa.length > 0) {
+                value = sa[0];
+            }
+            m.put(key, value);
+        }
+        return m;
     }
 
     public String getParameter(String name) {
