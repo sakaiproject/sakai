@@ -56,6 +56,14 @@
         <profile>
             <id>tool</id>
             <modules>
+                <module>restImpl</module>
+                <module>tool</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>rest</id>
+            <modules>
+                <module>restImpl</module>
                 <module>tool</module>
             </modules>
         </profile>
