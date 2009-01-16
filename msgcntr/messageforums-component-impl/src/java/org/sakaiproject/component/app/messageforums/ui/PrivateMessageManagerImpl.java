@@ -1125,6 +1125,22 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     	additionalHeaders.add("From: " + systemEmail);
     	additionalHeaders.add("Subject: " + message.getTitle());
     	emailService.sendToUsers(recipients, additionalHeaders, bodyString);
+    	
+    	//After send message to the campus email, send message to Sakai Message recipient(s)'s receive folder.
+    	for (Iterator i = recipients.iterator(); i.hasNext();) {
+    		User u = (User) i.next();      
+    		String userId = u.getId();
+
+    		/** determine if current user is equal to recipient */
+    		Boolean isRecipientCurrentUser = 
+    			(currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
+
+
+    		PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
+    				userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
+    				isRecipientCurrentUser);
+    		recipientList.add(receiver);
+    	}   	
 
     }
     
