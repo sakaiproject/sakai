@@ -20,22 +20,24 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.console.pages;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.wicket.Component;
+import org.apache.wicket.PageMap;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.lang.PropertyResolver;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
@@ -43,10 +45,14 @@ import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 import org.sakaiproject.scorm.ui.reporting.pages.ResultsListPage;
+import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.BasicDataTable;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ImageLinkColumn;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 
@@ -78,12 +84,43 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 			
 		String[] paramPropertyExpressions = {"contentPackageId", "resourceId", "title"};
 		
-		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions);
+		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions){
+			@Override
+			public Component newLink(String id, Object bean) {
+				IModel labelModel = null;
+				if (displayModel != null) {
+					labelModel = displayModel;
+		 		} else {
+		 			String labelValue = String.valueOf(PropertyResolver.getValue(labelPropertyExpression, bean));
+		 			labelModel = new Model(labelValue);
+		 		}
+				
+				PageParameters params = buildPageParameters(paramPropertyExpressions, bean);
+				Link link = new BookmarkablePageLabeledLink(id, labelModel, pageClass, params);
+
+				if (popupWindowName != null) {
+					PopupSettings popupSettings = new PopupSettings(PageMap.forName(popupWindowName), PopupSettings.RESIZABLE);
+					popupSettings.setWidth(1020);
+					popupSettings.setHeight(740);
+					
+					popupSettings.setWindowName(popupWindowName);
+					
+		 			link.setPopupSettings(popupSettings);
+				}
+				
+				link.setEnabled(isEnabled(bean));
+				link.setVisible(isVisible(bean));
+					
+		 		return link;
+			}
+			
+		};
 		launchAction.setEnabled(canLaunch);
 		actionColumn.addAction(launchAction);
 		
-		if (lms.canLaunchNewWindow())
+		if (lms.canLaunchNewWindow()) {
 			launchAction.setPopupWindowName("ScormPlayer");
+		}
 		
 		if (canConfigure)
 			actionColumn.addAction(new Action(new ResourceModel("column.action.edit.label"), PackageConfigurationPage.class, paramPropertyExpressions));

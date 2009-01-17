@@ -1,5 +1,6 @@
 package org.sakaiproject.scorm.ui.player.components;
 
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -17,7 +18,7 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 	private static final long serialVersionUID = 1L;
 	
 	protected static final String HEADSCRIPTS = "/library/js/headscripts.js";
-	protected static final String BODY_ONLOAD_ADDTL="setMainFrameHeight( 'scormContent' )";
+	protected static final String RESIZESCRIPT = "scripts/resize.js";
 	
 	private PlayerPage view;
 	private ActivityTree tree;
@@ -61,7 +62,9 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 	
 	public void renderHead(IHeaderResponse response) {
 		response.renderJavascriptReference(HEADSCRIPTS);
-		response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
+		response.renderJavascriptReference(RESIZESCRIPT);
+		response.renderOnLoadJavascript("initResizing()");
+		response.renderOnEventJavacript("window", "resize", "resizeWindow()");
 	}
 
 	public WebMarkupContainer getContentPanel() {

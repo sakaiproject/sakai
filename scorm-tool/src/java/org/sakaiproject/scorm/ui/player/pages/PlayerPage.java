@@ -20,8 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.player.pages;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -42,6 +40,8 @@ import org.sakaiproject.scorm.ui.player.behaviors.CloseWindowBehavior;
 import org.sakaiproject.scorm.ui.player.components.ButtonForm;
 import org.sakaiproject.scorm.ui.player.components.LaunchPanel;
 import org.sakaiproject.scorm.ui.player.components.LazyLaunchPanel;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 public class PlayerPage extends BaseToolPage {
@@ -86,6 +86,7 @@ public class PlayerPage extends BaseToolPage {
 		
 		closeWindowBehavior = new CloseWindowBehavior(sessionBean, lms.canUseRelativeUrls());
 		add(closeWindowBehavior);
+		
 	}
 	
 	
@@ -114,7 +115,6 @@ public class PlayerPage extends BaseToolPage {
 	
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		
 		response.renderOnEventJavacript("window", "beforeunload", closeWindowBehavior.getCall());
 	}
 	
