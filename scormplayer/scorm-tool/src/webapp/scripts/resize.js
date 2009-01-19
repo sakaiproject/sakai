@@ -1,21 +1,23 @@
 function initResizing() {
-	resizeWindow();
+	onResize();
 }
 
-function resizeWindow() {
-	var windowHeight = getInnerHeight();
-	var headerHeight = document.getElementById("scormButtonPanel").offsetHeight;
-	var footerHeight = document.getElementById("scormFooter").offsetHeight;
-	var mainHeight = windowHeight - (headerHeight + footerHeight) -4;
+function onResize() {
+	if (document.getElementById("scormContent")) {
+		var windowHeight = getInnerHeight();
+		var headerHeight = document.getElementById("scormButtonPanel").offsetHeight;
+		var footerHeight = document.getElementById("scormFooter").offsetHeight;
+		var mainHeight = windowHeight - (headerHeight + footerHeight) -4;
+		
+		var windowWidth = getInnerWidth();
+		var navWidth = document.getElementById("scormNavPanel").offsetWidth;
+		var mainWidth = windowWidth - navWidth;
 	
-	var windowWidth = getInnerWidth();
-	var navWidth = document.getElementById("scormNavPanel").offsetWidth;
-	var mainWidth = windowWidth - navWidth;
-
-	document.getElementById("scormNavPanel").style.height = mainHeight+"px";
-	document.getElementById("scormContentPanel").style.height = mainHeight+"px";
-	document.getElementById("scormContent").style.height = mainHeight+"px";
-	document.getElementById("scormContent").style.width = mainWidth + "px";
+		document.getElementById("scormNavPanel").style.height = mainHeight+"px";
+		document.getElementById("scormContentPanel").style.height = mainHeight+"px";
+		document.getElementById("scormContent").style.height = mainHeight+"px";
+		document.getElementById("scormContent").style.width = mainWidth + "px";
+	}
 }
 
 function getInnerHeight() {
