@@ -7,7 +7,7 @@
         <parent>
                 <artifactId>scorm-base</artifactId>
                 <groupId>org.sakaiproject</groupId>
-                <version>M2</version>
+                <version>2.5.3</version>
                 <relativePath>../../pom.xml</relativePath>
         </parent>
         <name>sakai-scorm-client-impl</name>
