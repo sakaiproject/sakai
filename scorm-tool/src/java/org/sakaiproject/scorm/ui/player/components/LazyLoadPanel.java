@@ -53,6 +53,8 @@ import org.apache.wicket.model.IModel;
 
 public abstract class LazyLoadPanel extends Panel {
 	
+	private static final long serialVersionUID = 1L;
+
 	public LazyLoadPanel(String id, IModel model) {
 		super(id, model);
 		setOutputMarkupId(true);

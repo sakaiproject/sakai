@@ -1,6 +1,5 @@
 package org.sakaiproject.scorm.ui.player.components;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -64,7 +63,7 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 		response.renderJavascriptReference(HEADSCRIPTS);
 		response.renderJavascriptReference(RESIZESCRIPT);
 		response.renderOnLoadJavascript("initResizing()");
-		response.renderOnEventJavacript("window", "resize", "resizeWindow()");
+		response.renderOnEventJavacript("window", "resize", "onResize()");
 	}
 
 	public WebMarkupContainer getContentPanel() {
