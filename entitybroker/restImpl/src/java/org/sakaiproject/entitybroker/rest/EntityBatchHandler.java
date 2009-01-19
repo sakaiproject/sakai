@@ -160,6 +160,7 @@ public class EntityBatchHandler {
 
         // now get to handling stuff
         String format = view.getFormat();
+        String servletContext = getServletContext(); // will be the servlet context (e.g. /direct)
 
         // validate the the refs param
         String[] refs = getRefsOrFail(req);
@@ -185,7 +186,6 @@ public class EntityBatchHandler {
                     && processedRefsAndURLs.contains(reference)) {
                 continue; // skip for GET/DELETE/PUT
             }
-            String servletContext = getServletContext(); // will be the servlet context (e.g. /direct)
             // fix anything that does not start with a slash or http
             String entityURL = reference;
             if (! reference.startsWith("/") 
@@ -253,7 +253,8 @@ public class EntityBatchHandler {
                     }
 
                     // skip urls that are already done, we do not process twice
-                    if (processedRefsAndURLs.contains(entityURL)) {
+                    if (! Method.POST.equals(method) 
+                            && processedRefsAndURLs.contains(entityURL)) {
                         continue; // skip
                     }
 
@@ -456,17 +457,15 @@ public class EntityBatchHandler {
         entityRequest.setContextPath("");
         if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
             // set only the unreferenced and correct referenced params for this request
-            log.warn("POST/PUT: Putting in params for key: " + refKey);
             entityRequest.clearParameters(); // also clears REFS_PARAM_NAME
             entityRequest.setParameters( referencedParams.get(UNREFERENCED_PARAMS) );
             String key = refKey + '.';
             if (referencedParams.containsKey(key)) {
-                log.warn("Found RP for key: " + key);
                 entityRequest.setParameters( referencedParams.get(key) );
             }
             // set the params from the query itself again
             entityRequest.setParameters( entityRequest.pathQueryParams );
-            log.info("All request params: " + entityRequest.getStringParameters());
+            //log.info("All request params: " + entityRequest.getStringParameters());
         } else {
             entityRequest.removeParameter(REFS_PARAM_NAME); // make sure this is not passed along
         }

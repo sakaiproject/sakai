@@ -638,6 +638,9 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                                             view+"", HttpServletResponse.SC_NOT_IMPLEMENTED);
                                                                 }
                                                                 String createdId = createable.createEntity(view.getEntityReference(), entity, requestStorage.getStorageMapCopy());
+                                                                if (createdId == null || "".equals(createdId)) {
+                                                                    throw new IllegalStateException("Could not get the createdId from the newly created entity for ("+view+"), please ensure the provider is returning a non-null and non-empty value from the create method, if the item was not created then an exception should have been thrown");
+                                                                }
                                                                 view.setEntityReference( new EntityReference(prefix, createdId) ); // update the entity view
                                                                 res.setHeader(EntityRequestHandler.HEADER_ENTITY_ID, createdId);
                                                                 res.setStatus(HttpServletResponse.SC_CREATED);

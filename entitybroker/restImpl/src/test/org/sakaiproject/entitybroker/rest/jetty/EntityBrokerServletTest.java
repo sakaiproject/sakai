@@ -16,6 +16,9 @@ package org.sakaiproject.entitybroker.rest.jetty;
 
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +29,7 @@ import org.mortbay.jetty.testing.ServletTester;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.rest.ServiceTestManager;
+import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 
 
 /**
@@ -90,8 +94,35 @@ public class EntityBrokerServletTest {
      * @param uri any uri which you want to test (should be valid for the test)
      */
     protected void fireRequest(String uri) {
+        fireRequest(uri, null, null);
+    }
+
+    /**
+     * Fires off a request using Jetty to the given uri (uses GET by default),
+     * also resets the request afterward so it can be used again if desired
+     * @param uri any uri which you want to test (should be valid for the test)
+     * @param method (optional) the method to use, if null then GET
+     */
+    protected void fireRequest(String uri, String method) {
+        fireRequest(uri, null, null);
+    }
+
+    /**
+     * Fires off a request using Jetty to the given uri (uses GET by default),
+     * also resets the request afterward so it can be used again if desired
+     * @param uri any uri which you want to test (should be valid for the test)
+     * @param method (optional) the method to use, if null then GET
+     * @param params (optional) params to append to the end of the uri
+     */
+    protected void fireRequest(String uri, String method, Map<String, String> params) {
+        if (method == null || "".equals(null)) {
+            method = "GET";
+        }
         this.response = new HttpTester(); // build a new response
-        this.request.setMethod("GET");
+        this.request.setMethod( method.toUpperCase() );
+        if (params != null && params.size() > 0) {
+            uri = HttpRESTUtils.mergeQueryStringWithParams(uri, params);
+        }
         this.request.setURI(uri);
         try {
             this.response.parse(tester.getResponses(request.generate()));
@@ -587,6 +618,52 @@ public class EntityBrokerServletTest {
         } catch (Exception e) {
             fail("Could not get content: " + e.getMessage());
         }
+    }
+
+
+    @Test
+    public void testBatchNew() {
+        // now fire the request
+        String newURL = DIRECT_PREFIX + "/" + TestData.PREFIX6 + "/new";
+        String url = DIRECT_PREFIX + EntityRequestHandler.SLASH_BATCH 
+                + "?_refs=" + newURL + "," + newURL + "," + newURL;
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("ref0.id", "AZ0");
+        params.put("ref1.id", "AZ1");
+        params.put("ref2.id", "AZ2");
+        params.put("ref0.stuff", "Aaron");
+        params.put("ref1.stuff", "Becky");
+        params.put("ref2.stuff", "Minerva");
+        params.put("number", "11");
+
+        assertEquals(4, td.entityProvider6.myEntities.size());
+
+        fireRequest(url, "POST", params);
+
+        try {
+            String content = this.response.getContent();
+            assertNotNull(content);
+            assertTrue(content.contains("ref0"));
+            assertTrue(content.contains("ref1"));
+            assertTrue(content.contains("ref2"));
+            assertTrue(content.contains("\"status\":"));
+            assertTrue(content.contains("201"));
+            assertTrue(content.contains("\"headers\":"));
+            assertTrue(content.contains("\"reference\":"));
+        } catch (Exception e) {
+            fail("Could not get content: " + e.getMessage());
+        }
+
+        assertEquals(7, td.entityProvider6.myEntities.size());
+        assertNotNull(td.entityProvider6.myEntities.get("AZ0"));
+        assertNotNull(td.entityProvider6.myEntities.get("AZ1"));
+        assertNotNull(td.entityProvider6.myEntities.get("AZ2"));
+        assertEquals("Aaron", td.entityProvider6.myEntities.get("AZ0").getStuff());
+        assertEquals("Becky", td.entityProvider6.myEntities.get("AZ1").getStuff());
+        assertEquals("Minerva", td.entityProvider6.myEntities.get("AZ2").getStuff());
+        assertEquals(11, td.entityProvider6.myEntities.get("AZ0").getNumber());
+        assertEquals(11, td.entityProvider6.myEntities.get("AZ1").getNumber());
+        assertEquals(11, td.entityProvider6.myEntities.get("AZ2").getNumber());
     }
 
     // TODO need to work on a way to actually call the other webapps, it is not actually possible with forward/include

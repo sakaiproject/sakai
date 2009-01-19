@@ -21,7 +21,7 @@
 package org.sakaiproject.entitybroker.mocks;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
  */
 public class CRUDableEntityProviderMock extends EntityProviderMock implements CoreEntityProvider, CRUDable {
 
-   public Map<String, MyEntity> myEntities = new HashMap<String, MyEntity>();
+   public Map<String, MyEntity> myEntities = new LinkedHashMap<String, MyEntity>(4);
    
    public CRUDableEntityProviderMock(String prefix, String[] ids) {
       super(prefix);
@@ -107,15 +107,17 @@ public class CRUDableEntityProviderMock extends EntityProviderMock implements Co
       if (me.getStuff() == null) {
          throw new IllegalArgumentException("stuff is not set, it is required");
       }
-      String newId = null;
+      String newId = me.getId();
       int counter = 0;
-      while (newId == null) {
-         String id = "my"+counter++;
-         if (! myEntities.containsKey(id)) {
-            newId = id;
-         }
+      if (newId == null || "".equals(newId)) {
+          while (newId == null) {
+             String id = "my"+counter++;
+             if (! myEntities.containsKey(id)) {
+                newId = id;
+             }
+          }
+          me.setId( newId );
       }
-      me.setId( newId );
       myEntities.put(newId, me);
       return newId;
    }

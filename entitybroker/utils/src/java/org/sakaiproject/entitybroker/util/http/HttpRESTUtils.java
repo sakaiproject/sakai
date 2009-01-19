@@ -244,7 +244,9 @@ public class HttpRESTUtils {
     }
 
     /**
-     * Merges an existing queryString with a set of params to create one queryString
+     * Merges an existing queryString with a set of params to create one queryString,
+     * this basically just adds the params to the end of the existing query string and will not insert a "?"
+     * but will take care of the "&"s
      * @param queryString the query string in URL encoded form, without a leading '?'
      * @param params a set of key->value strings to use as params for the request
      * @return the merged queryString with the params included
