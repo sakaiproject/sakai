@@ -181,9 +181,11 @@ public class EntityBatchHandler {
             if (reference == null || "".equals(reference)) {
                 continue; // skip
             }
-            // skip ones that are already done, we do not process twice unless it is a POST
+            // skip refs that are already done, we do not process twice unless it is a POST
+            // NOTE: this duplicate check happens again slightly down below so change both at once
             if (! Method.POST.equals(method) 
                     && processedRefsAndURLs.contains(reference)) {
+                log.warn("Found a duplicate reference, this will not be processed: " + reference);
                 continue; // skip for GET/DELETE/PUT
             }
             // fix anything that does not start with a slash or http
@@ -252,9 +254,11 @@ public class EntityBatchHandler {
                         entityURL = sb.toString();
                     }
 
-                    // skip urls that are already done, we do not process twice
+                    // skip URLs that are already done, we do not process twice unless it is a POST
+                    // NOTE: this duplicate check happens again slightly above so change both at once
                     if (! Method.POST.equals(method) 
                             && processedRefsAndURLs.contains(entityURL)) {
+                        log.warn("Found a duplicate entityURL, this will not be processed: " + entityURL);
                         continue; // skip
                     }
 
