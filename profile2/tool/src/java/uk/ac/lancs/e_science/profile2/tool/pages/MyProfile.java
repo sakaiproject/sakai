@@ -15,8 +15,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.exception.ProfileAccessException;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
+import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
@@ -52,7 +51,7 @@ public class MyProfile extends BasePage {
 			sakaiPerson = sakaiProxy.createSakaiPerson(userId);
 			//if its still null, throw exception
 			if(sakaiPerson == null) {
-				throw new ProfileAccessException("Couldn't create a SakaiPerson for " + userId);
+				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userId);
 			}
 		} 
 		

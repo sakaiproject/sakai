@@ -38,7 +38,10 @@
 		</property>
 	</bean>	
 	
-	
+	<!-- Add Spring Bean definition for the ProfileEntityProvider -->
+	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider"
+			class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl">
+	</bean>
 
 	<!-- Add our HBM files to the Sakai global session factory -->
 	<bean id="uk.ac.lancs.e_science.profile2.hbm.HBMMappingList"

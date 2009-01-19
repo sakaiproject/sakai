@@ -126,22 +126,32 @@
         	<groupId>org.sakaiproject</groupId>
         	<artifactId>sakai-util-api</artifactId>
         	<version>${sakai.version}</version>
+        	<scope>provided</scope>
       	</dependency>
       	<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-content-api</artifactId>
 			<version>${sakai.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-event-api</artifactId>
 			<version>${sakai.version}</version>
+			<scope>provided</scope>
 		</dependency>
+		<dependency>
+      		<groupId>org.sakaiproject.entitybroker</groupId>
+      		<artifactId>entitybroker-api</artifactId>
+      		<version>${entitybroker.version}</version>
+      		<scope>provided</scope>
+    	</dependency> 
 		
   	
   	</dependencies>
