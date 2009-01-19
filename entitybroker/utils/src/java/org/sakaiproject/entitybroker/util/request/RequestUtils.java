@@ -263,7 +263,9 @@ public class RequestUtils {
                         // get paging values out if possible
                         if ("_limit".equals(key) 
                                 || "_perpage".equals(key)
-                                || "perpage".equals(key)) {
+                                || "perpage".equals(key)
+                                || "count".equals(key)
+                                || "itemsPerPage".equals(key)) {
                             try {
                                 limit = Integer.valueOf(value.toString()).intValue();
                                 search.setLimit(limit);
@@ -271,7 +273,8 @@ public class RequestUtils {
                                 log.warn("Invalid non-number passed in for _limit/_perpage param: " + value, e);
                             }
                             continue;
-                        } else if ("_start".equals(key)) {
+                        } else if ("_start".equals(key)
+                                || "startIndex".equals(key)) {
                             try {
                                 int start = Integer.valueOf(value.toString()).intValue();
                                 search.setStart(start);
@@ -280,7 +283,8 @@ public class RequestUtils {
                             }
                             continue;
                         } else if ("_page".equals(key)
-                                || "page".equals(key)) {
+                                || "page".equals(key)
+                                || "startPage".equals(key)) {
                             try {
                                 page = Integer.valueOf(value.toString()).intValue();
                             } catch (NumberFormatException e) {
@@ -313,6 +317,15 @@ public class RequestUtils {
                                 } catch (RuntimeException e) {
                                     log.warn("Failed while getting the sort/order param: " + val, e);
                                 }
+                            }
+                            continue;
+                        } else if ("_searchTerms".equals(key) 
+                                || "searchTerms".equals(key)) {
+                            // indicates a space delimited list of search terms
+                            if (value != null) {
+                                String val = value.toString();
+                                String[] terms = val.split(" ");
+                                search.addRestriction( new Restriction("searchTerms", terms) );
                             }
                             continue;
                         }
