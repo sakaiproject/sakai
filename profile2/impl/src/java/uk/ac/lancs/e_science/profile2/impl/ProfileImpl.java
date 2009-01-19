@@ -23,7 +23,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
-import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -68,6 +68,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords";
 	private static final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail";
 	private static final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest";
+	private static final String QUERY_LIST_ALL_SAKAI_PERSONS = "listAllSakaiPersons";
 	
 	//Hibernate object fields
 	private static final String USER_UUID = "userUuid";
@@ -755,8 +756,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	
-	
 	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#findUsersByNameOrEmail(String search, String userId)
 	 */
@@ -771,6 +770,32 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		return results;
 		
 	}
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#listAllSakaiPersons()
+	 */
+	public List<String> listAllSakaiPersons() {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_LIST_ALL_SAKAI_PERSONS);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
+	
+	  	return userUuids;
+	}
+	
+	
+	
+	
 	
 	
 	/**
@@ -872,7 +897,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	
     	//if everyone is allowed
-    	if(friend && profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	
@@ -901,7 +926,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserFriendOfCurrentUser(String userId, String currentUserUuid)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getCurrentProfileImageForUser(String userId, int imageType)
 	 */
 	public byte[] getCurrentProfileImageForUser(String userId, int imageType) {
 		
@@ -922,13 +947,27 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//or get thumbnail
 		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
-			image = sakaiProxy.getResource(profileImage.getMainResource());
+			image = sakaiProxy.getResource(profileImage.getThumbnailResource());
 		}
 		
 		return image;
 	}
 
 	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#hasProfileImage(String userId)
+	 */
+	public boolean hasProfileImage(String userId) {
+		
+		//get record from db
+		ProfileImage profileImage = getCurrentProfileImageRecord(userId);
+		
+		if(profileImage == null) {
+			return false;
+		}
+		return true;
+		
+	}
 	
 	
 	
@@ -1170,13 +1209,121 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			SearchResult searchResult = new SearchResult(
 					userUuid,
 					friend,
-					profileAllowed
-					);
+					profileAllowed);
 			
 			results.add(searchResult);
 		}
 		
 		return results;
+	}
+	
+	
+	//init method called when Tomcat starts up
+	public void init() {
+		
+		log.info("Profile2: init()");
+		
+		//do we need to run the conversion utility?
+		if(sakaiProxy.getSakaiConfigurationParameterAsBoolean("profile.convert", false)) {
+			convertProfile();
+		}
+	}
+	
+	
+	
+	//method to convert profileImages
+	private void convertProfile() {
+		log.info("Profile2: ===============================");
+		log.info("Profile2: Conversion utility starting up.");
+		log.info("Profile2: ===============================");
+
+		//get list of users
+		List<String> allUsers = new ArrayList<String>(listAllSakaiPersons());
+		
+		if(allUsers.isEmpty()){
+			log.info("Profile2: No SakaiPersons to process.");
+			return;
+		}
+		//for each, do they have a profile image record. if so, skip (perhaps null the SakaiPerson JPEG_PHOTO bytes?)
+		for(Iterator<String> i = allUsers.iterator(); i.hasNext();) {
+			String userUuid = (String)i.next();
+			
+			//if already have a current ProfileImage record, skip to next user
+			if(hasProfileImage(userUuid)) {
+				log.info("Profile2: valid record already exists for " + userUuid);
+				continue;
+			}
+
+			//get SakaiPerson
+			SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+			
+			if(sakaiPerson == null) {
+				log.error("Profile2: no SakaiPerson exists for " + userUuid + " but there should be one. hmm.");
+				continue;
+			}
+			
+			//get photo from SakaiPerson
+			byte[] image = null;
+			image = sakaiPerson.getJpegPhoto();
+			
+			//if none, nothing to do
+			if(image == null) {
+				log.info("Profile2: nothing to convert for " + userUuid);
+				continue;
+			}
+			
+			//set some defaults for the image we are adding to ContentHosting
+			String fileName = "Profile Image";
+			String mimeType = "image/jpeg";
+			
+			//scale the main image
+			byte[] imageMain = scaleImage(image, ProfileImageManager.MAX_IMAGE_XY);
+			
+			//create resource ID
+			String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN, fileName);
+			System.out.println("mainResourceId: " + mainResourceId);
+			
+			//save, if error, log and return.
+			if(!sakaiProxy.saveFile(mainResourceId, userUuid, fileName, mimeType, imageMain)) {
+				log.error("Saving main profile image failed");
+				continue;
+			}
+
+			/*
+			 * THUMBNAIL PROFILE IMAGE
+			 */
+			//scale image
+			byte[] imageThumbnail = scaleImage(image, ProfileImageManager.MAX_THUMBNAIL_IMAGE_XY);
+			 
+			//create resource ID
+			String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fileName);
+
+			System.out.println("thumbnailResourceId:" + thumbnailResourceId);
+			
+			//save, if error, log and return.
+			if(!sakaiProxy.saveFile(thumbnailResourceId, userUuid, fileName, mimeType, imageThumbnail)) {
+				log.error("Saving thumbnail profile image failed");
+				continue;
+			}
+
+			/*
+			 * SAVE IMAGE RESOURCE IDS
+			 */
+			if(addNewProfileImage(userUuid, mainResourceId, thumbnailResourceId)) {
+				log.info("Profile2: image converted for user: " + userUuid);
+			} else {
+				log.error("Profile2: image conversion failed for user: " + userUuid);
+				continue;
+			}
+			
+		}
+		
+		
+		
+		
+		return;
+		
+		
 	}
 	
 	

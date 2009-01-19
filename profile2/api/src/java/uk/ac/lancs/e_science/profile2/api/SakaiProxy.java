@@ -34,6 +34,10 @@ public interface SakaiProxy {
 			
 	public int getMaxProfilePictureSize();
 	
+	public String getSakaiConfigurationParameterAsString(String parameter, String defaultValue);
+	public int getSakaiConfigurationParameterAsInt(String parameter, int defaultValue);
+	public boolean getSakaiConfigurationParameterAsBoolean(String parameter, boolean defaultValue);
+	
 	public LinkedHashMap<String,String> getSiteListForUser(int limitSites);
 	
 	public String cleanString(String input);
@@ -55,5 +59,6 @@ public interface SakaiProxy {
 	 * @param search	search string. Return's List of Sakai userId's 
 	 */
 	public List<String> searchUsers(String search);
+	
 	
 }

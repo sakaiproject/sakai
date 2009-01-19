@@ -20,7 +20,8 @@
 	<!--  Setup the Profile IMPL as a DAO with Hibernate  -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileDAO"
     	class="uk.ac.lancs.e_science.profile2.impl.ProfileImpl"
-    	singleton="true">
+    	singleton="true"
+    	init-method="init">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
 	</bean>
@@ -42,6 +43,7 @@
 	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider"
 			class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl">
 	</bean>
+
 
 	<!-- Add our HBM files to the Sakai global session factory -->
 	<bean id="uk.ac.lancs.e_science.profile2.hbm.HBMMappingList"

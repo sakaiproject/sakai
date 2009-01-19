@@ -237,6 +237,13 @@ public interface Profile {
 	
 	
 	/**
+	 * Get a list of all SakaiPerson's (ie list of all people with profile records)
+	 *
+	 * @return	List of Sakai userId's 
+	 */
+	public List<String> listAllSakaiPersons();
+	
+	/**
 	 * Is this user a friend of the given user?
 	 * 
 	 * @param userId			the uuid of the user we are querying
@@ -292,7 +299,19 @@ public interface Profile {
 	 * 
 	 * @param userId 		the uuid of the user we are querying
 	 * @param imageType		comes from ProfileImageManager and maps to a directory in ContentHosting
-	 * @return boolean
+	 * @return image as bytes
 	 */
 	public byte[] getCurrentProfileImageForUser(String userId, int imageType);
+	
+	
+	/**
+	 * Does this user have a profile image record?
+	 * Calls getCurrentProfileImageRecord to see if a record exists.
+	 * 
+	 * This is mainly used by the convertProfile() method, but could have another use.
+	 * 
+	 * @param userId 		the uuid of the user we are querying
+	 * @return boolean		true if it exists/false if not
+	 */
+	public boolean hasProfileImage(String userId);
 }

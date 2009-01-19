@@ -137,15 +137,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	
 	
-	private String getSakaiConfigurationParameterAsString(String parameter, String defaultValue) {
+	public String getSakaiConfigurationParameterAsString(String parameter, String defaultValue) {
 		return(ServerConfigurationService.getString(parameter, defaultValue));
 	}
 	
-	private int getSakaiConfigurationParameterAsInt(String parameter, int defaultValue) {
+	public int getSakaiConfigurationParameterAsInt(String parameter, int defaultValue) {
 		return ServerConfigurationService.getInt(parameter, defaultValue);
 	}
 	
-	private boolean getSakaiConfigurationParameterAsBoolean(String parameter, boolean defaultValue) {
+	public boolean getSakaiConfigurationParameterAsBoolean(String parameter, boolean defaultValue) {
 		return ServerConfigurationService.getBoolean(parameter, defaultValue);
 	}
 
@@ -290,7 +290,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		return userUuids;
 	}
-
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.SakaiProxy#listAllSakaiPersons()
+	 */
+	public List<String> listAllSakaiPersons() {
+		return null;
+	}
 	
 	
 	
