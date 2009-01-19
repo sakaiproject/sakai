@@ -23,12 +23,9 @@ package org.sakaiproject.scorm.ui.player.components;
 import org.adl.sequencer.SeqNavRequests;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.scorm.ui.player.components.ActivityAjaxButton;
-import org.sakaiproject.scorm.ui.player.components.LaunchPanel;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 
 public class ButtonForm extends Form {
@@ -68,7 +65,7 @@ public class ButtonForm extends Form {
 	
 	public void synchronizeState(SessionBean sessionBean, AjaxRequestTarget target) {
 		boolean isContinueEnabled = sequencingService.isContinueEnabled(sessionBean);
-		boolean isContinueExitEnabled = sequencingService.isContinueExitEnabled(sessionBean);
+		//boolean isContinueExitEnabled = sequencingService.isContinueExitEnabled(sessionBean);
 		boolean isPreviousEnabled = sequencingService.isPreviousEnabled(sessionBean);
 		boolean isStartEnabled = sequencingService.isStartEnabled(sessionBean);
 		boolean isSuspendEnabled = sequencingService.isSuspendEnabled(sessionBean);

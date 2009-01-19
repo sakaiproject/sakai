@@ -20,12 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui;
 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
@@ -37,8 +31,15 @@ import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
+import javax.servlet.http.HttpServletRequest;
+
 public abstract class ResourceNavigator implements INavigable, Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(ResourceNavigator.class);
 	
 	protected abstract ScormResourceService resourceService();
@@ -54,7 +55,7 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 			return;
 		
 		if (sessionBean.isEnded() && target != null) {		
-			((AjaxRequestTarget)target).appendJavascript("window.location.href='" + sessionBean.getCompletionUrl() + "';");
+			((AjaxRequestTarget)target).appendJavascript("window.location.href='" + sessionBean.getCompletionUrl() + "';initResizing();");
 		}
 		
 		String url = getUrl(sessionBean);
@@ -77,12 +78,14 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 		if (useLocationRedirect()) {
 			component.add(new AttributeModifier("src", new Model(fullUrl)));
 			
-			if (target != null)
+			if (target != null) {
 				((AjaxRequestTarget)target).addComponent(component);
+				((AjaxRequestTarget)target).appendJavascript("initResizing();");
+			}
 		} else if (target != null) {
 			// It's critical to the proper functioning of the tool that this logic be maintained for SjaxCall 
 			// This is due to a bug in Firefox's handling of Javascript when an iframe has control of the XMLHttpRequest
-			((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + fullUrl + "'");
+			((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + fullUrl + "';initResizing();");
 		}
 
 	}
