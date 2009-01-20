@@ -4807,7 +4807,7 @@ extends VelocityPortletStateAction
 			}
 			else
 			{
-				addAlert(sstate, rb.getString("java.alert.youchoosegroup "));
+				addAlert(sstate, rb.getString("java.alert.youchoosegroup"));
 			}
 		}
 		
@@ -5941,7 +5941,7 @@ extends VelocityPortletStateAction
 		{
 			state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 			state.setState("new");
-			addAlert(sstate, rb.getString("java.alert.youchoosegroup "));
+			addAlert(sstate, rb.getString("java.alert.youchoosegroup"));
 		}
 		else
 		{
@@ -6316,7 +6316,7 @@ extends VelocityPortletStateAction
 				{
 					state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 					state.setState("revise");
-					addAlert(sstate, rb.getString("java.alert.youchoosegroup "));
+					addAlert(sstate, rb.getString("java.alert.youchoosegroup"));
 				}
 				else
 				{
