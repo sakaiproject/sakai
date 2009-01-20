@@ -7,6 +7,8 @@ import org.apache.wicket.protocol.http.WebApplication;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
+import uk.ac.lancs.e_science.profile2.tool.pages.errors.InternalErrorPage;
+import uk.ac.lancs.e_science.profile2.tool.pages.errors.SessionExpiredPage;
 
 
 
@@ -25,14 +27,21 @@ public class ProfileApplication extends WebApplication {
 		//addComponentInstantiationListener(new SpringComponentInjector(this));
 		getResourceSettings().setThrowExceptionOnMissingResource(true);
 		//getDebugSettings().setAjaxDebugModeEnabled(log.isDebugEnabled());	
-		//getApplicationSettings().setPageExpiredErrorPage(SakaiSessionExpiredPage.class);
 		
+		/* if Session expires, show this error instead */
+		getApplicationSettings().setPageExpiredErrorPage(SessionExpiredPage.class);
+		
+		/* if internal error occurr, show this page */
+		getApplicationSettings().setInternalErrorPage(InternalErrorPage.class);
 		
 		//super.init();
 		//if(logger.isDebugEnabled()) logger.debug("init()");
+		
+		/* strip the wicket:id tags from the output HTML */
 		getMarkupSettings().setStripWicketTags(true);
 		//mountBookmarkablePage("/my", MyProfile.class);
 		
+		/* a component that is disabled by Wicket will normally have <em> surrounding it. This makes it null */
 		getMarkupSettings().setDefaultBeforeDisabledLink(null);
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 
