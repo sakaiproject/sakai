@@ -579,7 +579,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	public void init()
 	{
-		contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.contentHostingService");
+		contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		
 		try
 		{
