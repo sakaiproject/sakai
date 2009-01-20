@@ -34,6 +34,12 @@
          <artifactId>sakai-entitybroker-api</artifactId>
          <version>${sakai.version}</version>
       </dependency>
+      
+      <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-entitybroker-utils</artifactId>
+            <version>${sakai.version}</version>
+      </dependency>
 
       <!-- external dependencies -->
       <dependency>

@@ -55,11 +55,22 @@
 		<dependency>
 			<groupId>generic-dao</groupId>
 			<artifactId>generic-dao</artifactId>
-			<version>0.9.8</version>
+			<version>0.9.16</version>
+		<type>jar</type>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
 		</dependency>
+		
+		<dependency>
+            <groupId>org.azeckoski</groupId>
+            <artifactId>reflectutils</artifactId>
+            <version>0.9.10</version>
+            <type>jar</type>
+	    <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
 
 		<!-- Data processing -->
 		<dependency>

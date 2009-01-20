@@ -6,7 +6,7 @@
     <extend>../../master/project.xml</extend>
     <name>sakai-entitybroker-impl</name>
     <groupId>sakaiproject</groupId>
-    <id>sakai-entitybroker-impl</id>
+    <id>sakai-entitybroker-restimpl</id>
     <currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
@@ -52,13 +52,13 @@
         <dependency>
             <groupId>generic-dao</groupId>
             <artifactId>generic-dao</artifactId>
-            <version>0.9.16</version>
+            <version>0.9.12</version>
         </dependency>
 
         <dependency>
             <groupId>org.azeckoski</groupId>
             <artifactId>reflectutils</artifactId>
-            <version>0.9.10</version>
+            <version>0.9.7</version>
             <type>jar</type>
         </dependency>
 

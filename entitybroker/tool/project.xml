@@ -57,6 +57,24 @@
       <artifactId>sakai-entitybroker-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-entitybroker-restimpl</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-entitybroker-utils</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
 
     <dependency>
       <groupId>sakaiproject</groupId>
@@ -71,6 +89,16 @@
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-user-util</artifactId>
       <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.azeckoski</groupId>
+      <artifactId>reflectutils</artifactId>
+      <version>0.9.10</version>
+      <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>

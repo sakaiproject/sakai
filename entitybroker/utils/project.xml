@@ -54,6 +54,13 @@
             <version>1.0.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.azeckoski</groupId>
+            <artifactId>reflectutils</artifactId>
+            <version>0.9.7</version>
+            <type>jar</type>
+        </dependency>
+
         <!-- required for bean cloning -->
         <dependency>
             <groupId>commons-beanutils</groupId>
