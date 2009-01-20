@@ -10,12 +10,15 @@
     </organization>
     <inceptionYear>2007</inceptionYear>
     <packaging>war</packaging>
+    <!-- NOTE: the name of the generated war is controlled below -->
+
     <!-- the base is parent -->
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
         <version>1.3.6-SNAPSHOT</version><!--entitybroker.version-->
     </parent>
+
     <dependencies>
         <!-- internal dependencies -->
         <dependency>
@@ -96,5 +99,17 @@
                 <filtering>false</filtering>
             </resource>
         </resources>
+<!-- 
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warName>direct</warName>
+                    <outputDirectory>${maven.tomcat.home}</outputDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+ -->
     </build>
 </project>

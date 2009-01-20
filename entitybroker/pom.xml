@@ -79,16 +79,8 @@
             </modules>
         </profile>
         <profile>
-            <id>assembly</id>
+            <id>deploy</id>
             <modules>
-                <module>api</module>
-                <module>impl</module>
-                <module>restImpl</module>
-                <module>tool</module>
-                <module>pack</module>
-                <module>mocks</module>
-                <module>utils</module>
-                <module>core-providers</module>
                 <module>deploy-assembly</module>
             </modules>
         </profile>

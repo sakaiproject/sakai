@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>tomcat-overlay</id>
+    <formats>
+        <format>dir</format>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <!-- stuff that goes into shared -->
+        <dependencySet>
+            <outputDirectory>shared/lib</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.entitybroker:*:jar:*</include>
+            </includes>
+        </dependencySet>
+        <!-- stuff that goes into components -->
+        <dependencySet>
+            <outputDirectory>components/entitybroker-pack</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.entitybroker:entitybroker-pack:war:*</include>
+            </includes>
+            <unpack>true</unpack>
+        </dependencySet>
+        <!-- stuff that goes into webapps -->
+        <dependencySet>
+            <outputDirectory>webapps</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.entitybroker:direct:war:*</include>
+                <include>org.sakaiproject.entitybroker:providers:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>${project.basedir}/README*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
