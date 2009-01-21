@@ -279,6 +279,39 @@ public interface Profile {
 	public boolean isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
 	
 	
+	/**
+	 * Has the user allowed viewing of their basic info by the given user?
+	 * ie have they restricted it to only me or friends etc
+	 * 
+	 * @param userId			the uuid of the user we are querying
+	 * @param currentUserId		current user uuid
+	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @return boolean
+	 */
+	public boolean isBasicInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	
+	/**
+	 * Has the user allowed viewing of their contact info by the given user?
+	 * ie have they restricted it to only me or friends etc
+	 * 
+	 * @param userId			the uuid of the user we are querying
+	 * @param currentUserId		current user uuid
+	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @return boolean
+	 */
+	public boolean isContactInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	
+	/**
+	 * Has the user allowed viewing of their personal info by the given user?
+	 * ie have they restricted it to only me or friends etc
+	 * 
+	 * @param userId			the uuid of the user we are querying
+	 * @param currentUserId		current user uuid
+	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @return boolean
+	 */
+	public boolean isPersonalInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	
 	
 	/**
 	 * Has the user allowed viewing of their birth year in their profile. 
@@ -288,7 +321,6 @@ public interface Profile {
 	 * @return boolean
 	 */
 	public boolean isBirthYearVisible(String userId);
-	
 	
 	
 	

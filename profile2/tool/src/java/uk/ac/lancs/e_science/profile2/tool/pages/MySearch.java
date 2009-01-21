@@ -168,7 +168,7 @@ public class MySearch extends BasePage {
 		    	SearchResult searchResult = (SearchResult)item.getModelObject();
 		    	
 		    	//get userUuid
-		    	String userUuid = searchResult.getUserUuid();
+		    	final String userUuid = searchResult.getUserUuid();
 		    	
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
@@ -202,7 +202,12 @@ public class MySearch extends BasePage {
 		    	Link profileLink = new Link("result-profileLink") {
 
 					public void onClick() {
-						setResponsePage(new ViewProfile((String)getModelObject()));
+						//if user found themself, go to own profile, else show other profile
+						if(userUuid.equals(currentUserUuid)) {
+							setResponsePage(new MyProfile());
+						} else {
+							setResponsePage(new ViewProfile((String)getModelObject()));
+						}
 					}
 					
 					

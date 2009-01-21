@@ -632,13 +632,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//see ProfilePrivacy for this constructor and what it all means
 		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
 				userId,
-				0,
-				0,
-				0,
-				0,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PROFILE,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_BASICINFO,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
 				ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY,
-				0
-		);
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_SEARCH);
 		
 		//save
 		try {
@@ -873,6 +872,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	 */
 	public boolean isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
 		
+		
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
     	
@@ -896,15 +896,147 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     		return true;
     	}
     	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
     	//if everyone is allowed
     	if(profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	
     	//uncaught rule, return false
+    	log.error("isUserProfileVisibleByCurrentUser: Uncaught rule");
     	return false;
-		
 	}
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isBasicInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 */
+	public boolean isBasicInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+		
+		//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	
+    	//if none, return whatever the flag is set as by default
+    	if(profilePrivacy == null) {
+    		return ProfilePrivacyManager.DEFAULT_BASICINFO_VISIBILITY;
+    	}
+    	
+    	//if user is the current user, they ARE allowed to view their own picture!
+    	//but this will never be called as the current user cannot access ViewProfile.
+    	//so this has been removed from this function and all other privacy checks
+    	/*
+    	if(currentUserId.equals(userId)) {
+    		return true;
+    	}
+    	*/
+    	
+    	//if restricted to only self, not allowed
+    	if(profilePrivacy.getBasicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    		return false;
+    	}
+    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getBasicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getBasicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//if everyone is allowed
+    	if(profilePrivacy.getBasicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	
+    	//uncaught rule, return false
+    	log.error("isBasicInfoVisibleByCurrentUser: Uncaught rule");
+    	return false;
+	}
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isContactInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 */
+	public boolean isContactInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+		
+		//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	
+    	//if none, return whatever the flag is set as by default
+    	if(profilePrivacy == null) {
+    		return ProfilePrivacyManager.DEFAULT_CONTACTINFO_VISIBILITY;
+    	}
+    	
+    	//if restricted to only self, not allowed
+    	if(profilePrivacy.getContactInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    		return false;
+    	}
+    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getContactInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getContactInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//if everyone is allowed
+    	if(profilePrivacy.getContactInfo() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	
+    	//uncaught rule, return false
+    	log.error("isContactInfoVisibleByCurrentUser: Uncaught rule");
+    	return false;
+	}
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isPersonalInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 */
+	public boolean isPersonalInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+		
+		//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	
+    	//if none, return whatever the flag is set as by default
+    	if(profilePrivacy == null) {
+    		return ProfilePrivacyManager.DEFAULT_PERSONALINFO_VISIBILITY;
+    	}
+    	
+    	//if restricted to only self, not allowed
+    	if(profilePrivacy.getPersonalInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    		return false;
+    	}
+    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getPersonalInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getPersonalInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//if everyone is allowed
+    	if(profilePrivacy.getPersonalInfo() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	    	
+    	//uncaught rule, return false
+    	log.error("isPersonalInfoVisibleByCurrentUser: Uncaught rule");
+    	return false;
+	}
+	
+	
 
 	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isBirthYearVisible(String userId)
@@ -916,7 +1048,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//return value or whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_PROFILE_VISIBILITY;
+    		return ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY;
     	} else {
     		return profilePrivacy.isShowBirthYear();
     	}
@@ -1250,7 +1382,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			
 			//if already have a current ProfileImage record, skip to next user
 			if(hasProfileImage(userUuid)) {
-				log.info("Profile2: valid record already exists for " + userUuid);
+				log.info("Profile2: valid record already exists for " + userUuid + ". Skipping...");
 				continue;
 			}
 
@@ -1258,7 +1390,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
 			
 			if(sakaiPerson == null) {
-				log.error("Profile2: no SakaiPerson exists for " + userUuid + " but there should be one. hmm.");
+				log.error("Profile2: no SakaiPerson exists for " + userUuid + ". There should be one. Skipping...");
 				continue;
 			}
 			
@@ -1268,7 +1400,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			
 			//if none, nothing to do
 			if(image == null) {
-				log.info("Profile2: nothing to convert for " + userUuid);
+				log.info("Profile2: nothing to convert for " + userUuid + ". Skipping...");
 				continue;
 			}
 			
@@ -1281,11 +1413,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			
 			//create resource ID
 			String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN, fileName);
-			System.out.println("mainResourceId: " + mainResourceId);
+			log.info("Profile2: mainResourceId: " + mainResourceId);
 			
 			//save, if error, log and return.
 			if(!sakaiProxy.saveFile(mainResourceId, userUuid, fileName, mimeType, imageMain)) {
-				log.error("Saving main profile image failed");
+				log.error("Saving main profile image failed.");
 				continue;
 			}
 
@@ -1298,11 +1430,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			//create resource ID
 			String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fileName);
 
-			System.out.println("thumbnailResourceId:" + thumbnailResourceId);
+			log.info("Profile2: thumbnailResourceId:" + thumbnailResourceId);
 			
 			//save, if error, log and return.
 			if(!sakaiProxy.saveFile(thumbnailResourceId, userUuid, fileName, mimeType, imageThumbnail)) {
-				log.error("Saving thumbnail profile image failed");
+				log.error("Saving thumbnail profile image failed.");
 				continue;
 			}
 
@@ -1310,9 +1442,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			 * SAVE IMAGE RESOURCE IDS
 			 */
 			if(addNewProfileImage(userUuid, mainResourceId, thumbnailResourceId)) {
-				log.info("Profile2: image converted for user: " + userUuid);
+				log.info("Profile2: image converted for " + userUuid);
 			} else {
-				log.error("Profile2: image conversion failed for user: " + userUuid);
+				log.error("Profile2: image conversion failed for " + userUuid);
 				continue;
 			}
 			

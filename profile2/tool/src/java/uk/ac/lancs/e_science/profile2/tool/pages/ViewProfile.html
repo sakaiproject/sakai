@@ -12,32 +12,141 @@
 	
 		<div id="leftPanel">
 	    	<div id="myPhoto">
-<!--	    		<img wicket:id="photo"/>-->
+	    		<img wicket:id="photo"/>
 	    	</div>
 	    	
-	    	
-	    	<!-- 
-	    	<ul id="sideLink">
-	    		<li><a href="something">a link</a></li>
-	    		<li>another link</li>
+	    	<ul id="sideLink" wicket:id="sideLinks">
+	    		<li><a wicket:id="addFriendLink"><span wicket:id="addFriendLabel">[addFriendLabel]</span></a></li>
 	    	</ul>
-	    	-->
 	    	
 	    </div>
 		
 		<div id="mainPanel">
 			
 			<!--  heading/status panel -->
-<!--			<div wicket:id="myStatusPanel">[my status panel]</div>-->
-            
-            <!-- info -->
-<!--            <div wicket:id="myInfo">[myInfo panel]</div>-->
-		
+			<div id="profileHeading">
+		    	<span id="profileHeadingName" wicket:id="profileName">[profileName]</span>&nbsp;
+		    	<span wicket:id="statusContainer">
+		    		<span wicket:id="statusMessage">[statusMessage]</span>
+		    		<span class="tiny" wicket:id="statusDate">[statusDate]</span>
+		    	</span>
+		    </div>
+		    
+		    <!--  no containers visible? -->	
+			<span wicket:id="noContainersVisible" class="instruction">Nothing visible</span>
+			
+            <!-- basic info -->
+			<div class="mainSection" wicket:id="mainSectionContainer_basic">
+				<div class="mainSectionHeading">
+					<span wicket:id="mainSectionHeading_basic">[Basic Information]</span>
+				</div>
+				<div class="mainSectionContent">
+					<table class="profileContent">
+				
+						<!-- nickname -->
+						<tr wicket:id="nicknameContainer">
+							<td class="label" wicket:id="nicknameLabel">[nicknameLabel]</td>
+							<td class="content" wicket:id="nickname">[nickname]</td>
+						</tr>
+						
+						<!-- birthday -->
+						<tr wicket:id="birthdayContainer">
+							<td class="label" wicket:id="birthdayLabel">[birthdayLabel]</td>
+							<td class="content" wicket:id="birthday">[birthday]</td>
+						</tr>
+																
+					</table>
+				</div>
+			</div>
+			
+			
 			<!-- contact -->
-<!--            <div wicket:id="myContact">[myContact panel]</div>-->
-            
+			<div class="mainSection" wicket:id="mainSectionContainer_contact">
+				<div class="mainSectionHeading">
+					<span wicket:id="mainSectionHeading_contact">[Contact Information]</span>
+				</div>
+				<div class="mainSectionContent">
+					<table class="profileContent">
+				
+						<!-- email -->
+						<tr wicket:id="emailContainer">
+							<td class="label" wicket:id="emailLabel">[emailLabel]</td>
+							<td class="content" wicket:id="email">[email]</td>
+						</tr>
+						
+						<!-- homepage -->
+						<tr wicket:id="homepageContainer">
+							<td class="label" wicket:id="homepageLabel">[homepageLabel]</td>
+							<td class="content" wicket:id="homepage">[homepage]</td>
+						</tr>
+						
+						<!-- work phone -->
+						<tr wicket:id="workphoneContainer">
+							<td class="label" wicket:id="workphoneLabel">[workphoneLabel]</td>
+							<td class="content" wicket:id="workphone">[workphone]</td>
+						</tr>
+						
+						<!-- home phone -->
+						<tr wicket:id="homephoneContainer">
+							<td class="label" wicket:id="homephoneLabel">[homephoneLabel]</td>
+							<td class="content" wicket:id="homephone">[workphone]</td>
+						</tr>
+						
+						<!-- mobile phone -->
+						<tr wicket:id="mobilephoneContainer">
+							<td class="label" wicket:id="mobilephoneLabel">[mobilephoneLabel]</td>
+							<td class="content" wicket:id="mobilephone">[mobilephone]</td>
+						</tr>
+																
+					</table>
+				</div>
+			</div>
+
             <!-- interests -->
-            <!-- <div wicket:id="myInterests">[myInterests panel]</div>-->
+			<div class="mainSection" wicket:id="mainSectionContainer_personal">
+				<div class="mainSectionHeading">
+					<span wicket:id="mainSectionHeading_personal">[Personal Information]</span>
+				</div>
+				<div class="mainSectionContent">
+					<table class="profileContent">
+				
+						<!-- favourite books -->
+						<tr wicket:id="booksContainer">
+							<td class="label" wicket:id="booksLabel">[booksLabel]</td>
+							<td class="content" wicket:id="favouriteBooks">[favouriteBooks]</td>
+						</tr>
+						
+						<!-- favourite tv shows -->
+						<tr wicket:id="tvContainer">
+							<td class="label" wicket:id="tvLabel">[tvLabel]</td>
+							<td class="content" wicket:id="favouriteTvShows">[favouriteTvShows]</td>
+						</tr>
+						
+						<!-- favourite movies -->
+						<tr wicket:id="moviesContainer">
+							<td class="label" wicket:id="moviesLabel">[moviesLabel]</td>
+							<td class="content" wicket:id="favouriteMovies">[favouriteMovies]</td>
+						</tr>
+						
+						<!-- favourite quotes -->
+						<tr wicket:id="quotesContainer">
+							<td class="label" wicket:id="quotesLabel">[quotesLabel]</td>
+							<td class="content" wicket:id="favouriteQuotes">[favouriteQuotes]</td>
+						</tr>
+						
+						<!-- other -->
+						<tr wicket:id="otherContainer">
+							<td class="label" wicket:id="otherLabel">[otherLabel]</td>
+							<td class="content" wicket:id="otherInformation">[otherInformation]</td>
+						</tr>
+																
+					</table>
+				</div>
+			</div>
+			
+			
+			
+			
 				
 		
 		</div>
