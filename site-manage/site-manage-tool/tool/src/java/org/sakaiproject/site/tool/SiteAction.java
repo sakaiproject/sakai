@@ -5940,18 +5940,22 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 		}
-		state.setAttribute(STATE_TERM_SELECTED, cms.getAcademicSession(termEid));
 		
-		try
+		if (termEid != null)
 		{
-		List sections = prepareCourseAndSectionListing(UserDirectoryService.getCurrentUser().getEid(), cms.getAcademicSession(termEid).getEid(), state);
-		isFutureTermSelected(state);
-		if (sections != null && sections.size() > 0) 
-			state.setAttribute(STATE_TERM_COURSE_LIST, sections);
-		}
-		catch (Exception e)
-		{
-			M_log.warn(this + ".doMenu_siteinfo_addClass: " + e.getMessage() + termEid, e);
+			state.setAttribute(STATE_TERM_SELECTED, cms.getAcademicSession(termEid));
+			
+			try
+			{
+			List sections = prepareCourseAndSectionListing(UserDirectoryService.getCurrentUser().getEid(), cms.getAcademicSession(termEid).getEid(), state);
+			isFutureTermSelected(state);
+			if (sections != null && sections.size() > 0) 
+				state.setAttribute(STATE_TERM_COURSE_LIST, sections);
+			}
+			catch (Exception e)
+			{
+				M_log.warn(this + ".doMenu_siteinfo_addClass: " + e.getMessage() + termEid, e);
+			}
 		}
 		state.setAttribute(STATE_TEMPLATE_INDEX, "36");
 
