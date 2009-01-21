@@ -31,6 +31,9 @@ var tempFCKContent="";
 // Variable used to discard the replacement of FCK content in asynchronous calls to server
 var calledFromFck=false;
 
+// Variable used to activate the tool init behaviour
+var pageInit=true;
+
 // Remove uncompatible and unnecessary markup from a server-generated HTML content
 function cleanHTML(inputString)
 {
@@ -380,7 +383,10 @@ function FCKToWiki()
 {
 	  //Permit to discard calls from the preview pane
 	calledFromFck=false;
-		
+	 
+	 // page initialization special behaviour: no synchro
+	 if (!pageInit)
+	 {	 
 	  if(!isContentSynchro("fck"))
 		{
 			//Convert HTML back to wiki via Javascript
@@ -388,7 +394,13 @@ function FCKToWiki()
 			
 			//Save current state
 			saveTempContent('all');
-		}
+		}		
+	 }
+	 else
+	 {
+		 pageInit=false;
+	 }
+	
 }
 
 function wikiToFCK()
