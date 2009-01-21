@@ -41,7 +41,7 @@ public class MyContactDisplay extends Panel {
 		//heading
 		add(new Label("heading", new ResourceModel("heading.contact")));
 		
-		//nickname
+		//email
 		WebMarkupContainer emailContainer = new WebMarkupContainer("emailContainer");
 		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
 		emailContainer.add(new Label("email", email));

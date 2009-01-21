@@ -91,7 +91,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return sakaiPerson;
 	}
 	
-	//deprecated as its not persistable. use createSakaiPerson instead
+	//this is not persistable so should only be used for temporary views. use createSakaiPerson if need persistable object for saving a profile.
 	public SakaiPerson getSakaiPersonPrototype() {
 		
 		SakaiPerson sakaiPerson = null;
