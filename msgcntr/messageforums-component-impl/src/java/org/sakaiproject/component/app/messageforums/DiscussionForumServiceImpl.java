@@ -456,7 +456,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					if (fromAttach != null && !fromAttach.isEmpty()) {
 						for (int currAttach=0; currAttach < fromAttach.size(); currAttach++) {                   			
 							Attachment thisAttach = (Attachment)fromAttach.get(currAttach);
-							Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId());
+							Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
 							if (newForum != null && newAttachment != null)
 								newForum.addAttachment(newAttachment);
 						}
@@ -530,7 +530,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
 								for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {                   			
 									Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
-									Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId());
+									Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
 									if (newTopic != null && newAttachment != null)
 										newTopic.addAttachment(newAttachment);
 								}			
@@ -683,7 +683,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 																	+ oldUrl.substring(15 + fromSiteId.length());
 															oldAttachId = Validator.escapeQuestionMark(newUrl);
 														}
-														Attachment newAttachment = copyAttachment(oldAttachId);
+														Attachment newAttachment = copyAttachment(oldAttachId, siteId);
 														if (newAttachment != null)	
 															dfForum.addAttachment(newAttachment);																	
 													}			
@@ -825,7 +825,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 																				+ oldUrl.substring(15 + fromSiteId.length());
 																		oldAttachId = Validator.escapeQuestionMark(newUrl);
 																	}
-																	Attachment newAttachment = copyAttachment(oldAttachId);
+																	Attachment newAttachment = copyAttachment(oldAttachId, siteId);
 																	if (newAttachment != null)
 																		dfTopic.addAttachment(newAttachment);																	
 																}				
@@ -994,13 +994,12 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		return value;
 	}
 	
-	private Attachment copyAttachment(String attachmentId) {
+	private Attachment copyAttachment(String attachmentId, String toContext) {
 		try {			
 			ContentResource oldAttachment = contentHostingService.getResource(attachmentId);
 			ContentResource attachment = contentHostingService.addAttachmentResource(
 				oldAttachment.getProperties().getProperty(
-						ResourceProperties.PROP_DISPLAY_NAME), ToolManager
-						.getCurrentPlacement().getContext(), ToolManager.getTool(
+						ResourceProperties.PROP_DISPLAY_NAME), toContext, ToolManager.getTool(
 						"sakai.forums").getTitle(), oldAttachment.getContentType(),
 						oldAttachment.getContent(), oldAttachment.getProperties());
 			Attachment thisDFAttach = dfManager.createDFAttachment(
