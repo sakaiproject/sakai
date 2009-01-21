@@ -3749,17 +3749,21 @@ public class SiteAction extends PagedResourceActionII {
 
 		List toolList = (List) state
 				.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-		for (int i = 0; i < toolList.size() && !fromENW; i++) {
-			String toolId = (String) toolList.get(i);
-			if (toolId.equals("sakai.mailbox")
-					|| isMultipleInstancesAllowed(findOriginalToolId(state, toolId))) {
-				if (oTools == null) {
-					// if during site creation proces
-					fromENW = true;
-				} else if (!oTools.contains(toolId)) {
-					// if user is adding either EmailArchive tool, News tool or
-					// Web Content tool, go to the Customize page for the tool
-					fromENW = true;
+		
+		if (toolList != null)
+		{
+			for (int i = 0; i < toolList.size() && !fromENW; i++) {
+				String toolId = (String) toolList.get(i);
+				if (toolId.equals("sakai.mailbox")
+						|| isMultipleInstancesAllowed(findOriginalToolId(state, toolId))) {
+					if (oTools == null) {
+						// if during site creation proces
+						fromENW = true;
+					} else if (!oTools.contains(toolId)) {
+						// if user is adding either EmailArchive tool, News tool or
+						// Web Content tool, go to the Customize page for the tool
+						fromENW = true;
+					}
 				}
 			}
 		}
