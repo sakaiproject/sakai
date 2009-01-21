@@ -152,6 +152,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	            replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
 	            replacementValues.put("siteName", siteTitle);
 	            replacementValues.put("productionSiteName", productionSiteName);
+	            replacementValues.put("newNonOfficialAccount", new Boolean(newNonOfficialAccount).toString());
 	         
 	            M_log.debug("getting template: sitemange.notifyAddedParticipant");
 	            RenderedTemplate template = null;

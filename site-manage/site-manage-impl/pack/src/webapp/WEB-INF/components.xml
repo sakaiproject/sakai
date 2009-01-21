@@ -16,7 +16,7 @@
 			destroy-method="destroy"
 			singleton="true">
 	</bean>
-	
+	<!-- 
 	<bean id="org.sakaiproject.sitemanage.api.UserNotificationProvider" 
 		class="org.sakaiproject.sitemanage.impl.UserNotificationProviderImpl"
 		init-method="init"
@@ -24,9 +24,9 @@
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-	</bean>
+	</bean>-->
 
-	<!-- Uncomment to use the EmailTemplateService notification provider 
+	<!-- Uncomment to use the EmailTemplateService notification provider -->
 	<bean id="org.sakaiproject.sitemanage.api.UserNotificationProvider" 
 		class="org.sakaiproject.sitemanage.impl.ETSUserNotificationProviderImpl"
 		init-method="init"
@@ -36,7 +36,7 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
 	</bean>
-	 -->
+	 
 	
 	<!--  Hibernate persistence -->
 

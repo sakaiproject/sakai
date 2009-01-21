@@ -2,12 +2,12 @@
 <emailTemplates>
 <emailTemplate>
  <subject>${localSakaiName} New User Notification </subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
  You have been added to  ${localSakaiName} (${localSakaiURL}) by ${currentUserDisplayName}. 
 
  
- java.passwordis1: ${newPassword} 
+ Your password is: ${newPassword} 
  You can later go to the Account tool in your My Workspace site to reset it.
 
 
@@ -17,7 +17,7 @@
 </emailTemplate>
 <emailTemplate>
  <subject>${localSakaiName} Notificaci al nou usuari</subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 Us hem afegit a ${localSakaiName} (${localSakaiURL})per ${currentUserDisplayName}. 
 
@@ -32,7 +32,7 @@ Després podeu anar a l'eina de Comptes al vostre lloc El meu espai de treball p
 <!-- 
 <emailTemplate>
  <subject>${localSakaiName} </subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
  ${localSakaiName} (${localSakaiURL}) ${currentUserDisplayName}. 
 
@@ -47,7 +47,7 @@ Després podeu anar a l'eina de Comptes al vostre lloc El meu espai de treball p
 
 <emailTemplate>
  <subject>${localSakaiName} Notifica\u00e7\u00e3o de novo usu\u00e1rio</subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 Foi adicionado a ${localSakaiName} (${localSakaiURL})por ${currentUserDisplayName}. 
 
@@ -62,7 +62,7 @@ Pode ir \u00E0 ferramenta &quot;Gest\u00E3o de Conta&quot; na sua &quot;\u00C1re
  -->
  <emailTemplate>
  <subject>${localSakaiName} Nieuwe gebruiker melding</subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 Je bent toegevoegd aan ${localSakaiName} (${localSakaiURL})door ${currentUserDisplayName}. 
 
@@ -77,7 +77,7 @@ U kunt naar de 'Accountgegevens' gaan in 'Mijn Werkruimte' om het wachtwoord te 
 <!-- 
 <emailTemplate>
  <subject>${localSakaiName} Notifiering till ny anv\u00E4ndare</subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 Du har lagts till i ${localSakaiName} (${localSakaiURL})av ${currentUserDisplayName}. 
 
@@ -92,7 +92,7 @@ Du kan senare g\u00E5 till verktyget f\u00F6r kontouppgifter i din arbetsyta f\u
  -->
 <emailTemplate>
  <subject>${localSakaiName} </subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 Ha sido añadido a ${localSakaiName} (${localSakaiURL})por ${currentUserDisplayName}. 
 
@@ -107,7 +107,7 @@ Puede ir a la herramienta de Cuentas en 'Mi Sito de Trabajo' para inicializarlo.
 <!--  
 <emailTemplate>
  <subject>${localSakaiName} </subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 \u60A8\u5DF2\u88AB\u6DFB\u52A0\u5230 ${localSakaiName} (${localSakaiURL})\u88AB ${currentUserDisplayName}. 
 
@@ -121,7 +121,7 @@ Puede ir a la herramienta de Cuentas en 'Mi Sito de Trabajo' para inicializarlo.
 </emailTemplate>
 <emailTemplate>
  <subject>${localSakaiName} Nouvelle notification utilisateur</subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 Vous avez \u00E9t\u00E9 ajout\u00E9 \u00E0 ${localSakaiName} (${localSakaiURL})par ${currentUserDisplayName}. 
 
@@ -135,7 +135,7 @@ Vous pouvez aller dans l'outil Compte dans le site ma Zone de Travail pour le r\
 </emailTemplate>
 <emailTemplate>
  <subject>${localSakaiName} </subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 \u6b21\u306b\u8ffd\u52a0\u3055\u308c\u307e\u3057\u305f\uff1a ${localSakaiName} (${localSakaiURL})by ${currentUserDisplayName}. 
 
@@ -149,7 +149,7 @@ Vous pouvez aller dans l'outil Compte dans le site ma Zone de Travail pour le r\
 </emailTemplate>
 <emailTemplate>
  <subject>${localSakaiName} Notifica\u00e7\u00e3o de novo usu\u00e1rio</subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 Voc\u00ea foi adicionado ao ${localSakaiName} (${localSakaiURL})por ${currentUserDisplayName}. 
 
