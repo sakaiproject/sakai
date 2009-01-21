@@ -284,6 +284,20 @@
 	margin-bottom: 12px;
 }
 
+.profileFormButtons {
+	margin-top:8px;
+	text-align:center;
+}
+
+.profileFormButtons input {
+	margin-left: 6px;
+	margin-right: 6px;
+}
+
+.profileFormButtons input[type="submit"] {
+	color: #09c;
+}
+
 .statusForm {
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;

@@ -68,7 +68,7 @@ public class MyInfoEdit extends Panel {
 
 		
 		//submit button
-		AjaxButton submitButton = new AjaxButton("submit") {
+		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//save() form, show message, then load display panel
 
