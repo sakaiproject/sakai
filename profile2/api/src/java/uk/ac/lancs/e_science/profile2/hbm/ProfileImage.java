@@ -1,11 +1,11 @@
 package uk.ac.lancs.e_science.profile2.hbm;
 
-import org.apache.log4j.Logger;
+import java.io.Serializable;
 
-public class ProfileImage {
+public class ProfileImage implements Serializable {
 
-	private transient Logger log = Logger.getLogger(ProfileImage.class);
-
+	private static final long serialVersionUID = 1L;
+	
 	private long id;
 	private String userUuid;
 	private String mainResource;

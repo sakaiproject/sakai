@@ -28,6 +28,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	protected transient SakaiProxy sakaiProxy;
 	protected transient Profile profile;
+	private boolean confirmResult;
 	
 	private static final String RSS_IMG = "/library/image/feed.png";
 
@@ -216,7 +217,16 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	}
 	*/
 	
+	public BasePage getBasePage() {
+		return this;
+	}
 	
-	
+	public boolean getConfirmResult() {
+		return confirmResult;
+	}
+
+	public void setConfirmResult(boolean confirmResult){
+		this.confirmResult = confirmResult;
+	}
 	
 }

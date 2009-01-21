@@ -1,11 +1,12 @@
 package uk.ac.lancs.e_science.profile2.hbm;
 
-import org.apache.log4j.Logger;
+import java.io.Serializable;
 
-public class SakaiPersonMeta {
+public class SakaiPersonMeta implements Serializable {
 
-	private transient Logger log = Logger.getLogger(ProfileImage.class);
-
+	private static final long serialVersionUID = 1L;
+	
+	
 	private long id;
 	private long userUuid;
 	private String property;

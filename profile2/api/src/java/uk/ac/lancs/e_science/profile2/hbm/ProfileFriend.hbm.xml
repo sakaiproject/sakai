@@ -69,8 +69,7 @@
 	</query>
 	
 	<query name="getFriendRequest">
-    	<![CDATA[from ProfileFriend friend WHERE friend.friendUuid = :friendUuid AND friend.userUuid = :userUuid AND friend.confirmed = :confirmed]]>
+    	<![CDATA[from ProfileFriend friend WHERE friend.userUuid = :userUuid AND friend.friendUuid = :friendUuid AND friend.confirmed = :confirmed]]>
 	</query>
-	
 
 </hibernate-mapping>

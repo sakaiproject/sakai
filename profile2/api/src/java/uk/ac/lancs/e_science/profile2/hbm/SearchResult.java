@@ -1,7 +1,6 @@
 package uk.ac.lancs.e_science.profile2.hbm;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /*
  * SearchResult.java

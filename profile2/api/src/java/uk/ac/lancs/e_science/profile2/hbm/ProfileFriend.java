@@ -1,15 +1,14 @@
 package uk.ac.lancs.e_science.profile2.hbm;
 
+import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
 
 
+public class ProfileFriend implements Serializable {
 
-public class ProfileFriend {
-
-	private transient Logger log = Logger.getLogger(ProfileFriend.class);
-
+	private static final long serialVersionUID = 1L;
+	
 	private long id;
 	private String userUuid;
 	private String friendUuid;

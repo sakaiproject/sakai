@@ -12,67 +12,59 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
+import uk.ac.lancs.e_science.profile2.tool.pages.BasePage;
 
-public class RemoveFriend extends Panel {
+public class AddFriend extends Panel {
 
-	private transient Logger log = Logger.getLogger(RemoveFriend.class);
+	private static final long serialVersionUID = 1L;
+	private transient Logger log = Logger.getLogger(AddFriend.class);
 	
-	public RemoveFriend(String id, final ModalWindow window, final MyFriends parent, final String userId, Friend friend){
+	public AddFriend(String id, final ModalWindow window, final BasePage basePage, final String currentUserId, final String friendUserId, String friendName){
         super(id);
 
-        if(log.isDebugEnabled()) log.debug("RemoveFriend()");
-        
-        //info
-        final String friendUuid = friend.getUserUuid();
-        String friendDisplayName = friend.getDisplayName();
-      
         //window setup
-		window.setTitle(new ResourceModel("title.friend.remove")); 
+		window.setTitle(new StringResourceModel("title.friend.add", null, new Object[]{ friendName } )); 
 		window.setInitialHeight(100);
 		window.setInitialWidth(400);
-        
+				
         //text
-        Label text = new Label("text", new StringResourceModel("text.friend.remove", null, new Object[]{ friendDisplayName } ));
+        Label text = new Label("text", new StringResourceModel("text.friend.add", null, new Object[]{ friendName } ));
         text.setEscapeModelStrings(false);
         add(text);
            
         //setup form		
 		Form form = new Form("form");
 		form.setOutputMarkupId(true);
-
+		
 		//submit button
-		AjaxButton submitButton = new AjaxButton("submit") {
+		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.add"), form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				
-				log.info("User: " + userId + " attempted to remove friend: " + friendUuid);
 				
 				//get Profile API
 				Profile profile = ProfileApplication.get().getProfile();
 				 
-				//try to remove friend 
-				if(profile.removeFriend(userId, friendUuid)) {
-					log.info("User: " + userId + " removed friend: " + friendUuid);
-					parent.setFriendRemoved(true); 	//tell parent to remove friend from display
+				//request friend
+				if(profile.requestFriend(currentUserId, friendUserId)) {
+					basePage.setConfirmResult(true);
+					log.info("User: " + currentUserId + " added friend: " + friendUserId);
 				} else {
 					//it failed, the logs will say why but we need to UI stuff here.
-					target.appendJavascript("alert('Failed to remove friend. Check the system logs.');");
+					basePage.setConfirmResult(false);
+					target.appendJavascript("alert('Failed to add friend. Check the system logs.');");
 				}
-				 
-				window.close(target);				//close this window
+				window.close(target);
             }
 		};
-		submitButton.setLabel(new ResourceModel("button.friend.remove"));
+		//submitButton.setLabel(new ResourceModel("button.friend.add"));
 		form.add(submitButton);
 		
         
 		//cancel button
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             protected void onSubmit(AjaxRequestTarget target, Form form) {
-            	parent.setFriendRemoved(false);	//tell parent not to remove friend from display
-            	window.close(target); 			//close this window
+            	basePage.setConfirmResult(false);
+            	window.close(target);
             }
         };
         cancelButton.setDefaultFormProcessing(false);
@@ -83,6 +75,8 @@ public class RemoveFriend extends Panel {
         
     }
 
+	
+	
 }
 
 

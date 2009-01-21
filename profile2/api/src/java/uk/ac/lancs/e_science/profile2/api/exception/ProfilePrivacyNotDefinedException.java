@@ -2,9 +2,9 @@ package uk.ac.lancs.e_science.profile2.api.exception;
 
 public class ProfilePrivacyNotDefinedException extends RuntimeException {
 		
-	private String message = null;
+	private final transient String message;
 	
-	public ProfilePrivacyNotDefinedException(String message){
+	public ProfilePrivacyNotDefinedException(final String message){
 		this.message = message;
 	}
 

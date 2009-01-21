@@ -323,28 +323,46 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			log.info("User: " + userId + " requested friend: " + friendId);
 			return true;
 		} catch (Exception e) {
-			log.error("addFriend() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("requestFriend() failed. " + e.getClass() + ": " + e.getMessage());
 			return false;
 		}
 	
 	}
 	
 	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isFriendRequestPending(String userId, String friendId)
+	 */	
+	public boolean isFriendRequestPending(String userId, String friendId) {
+		
+		ProfileFriend profileFriend = getPendingFriendRequest(userId, friendId);
+
+		if(profileFriend == null) {
+			log.warn("No pending friend request from userId: " + userId + " to friendId: " + friendId + " found.");
+			return false;
+		}
+		return true;
+	}
+	
+	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriend(final String friendId, final String userId)
 	 */
-	public boolean confirmFriend(final String friendId, final String userId) {
-		if(friendId == null || userId == null){
+	public boolean confirmFriend(final String userId, final String friendId) {
+		
+		if(userId == null || friendId == null){
 	  		throw new IllegalArgumentException("Null Argument in confirmFriend");
 	  	}
 		
 		//get pending ProfileFriend object request for the given details
-		ProfileFriend profileFriend = getPendingFriendRequest(friendId, userId);
-		
-		//FIX THIS as the columns can be the other way around - is this an issue?
+		ProfileFriend profileFriend = getPendingFriendRequest(userId, friendId);
+
+		if(profileFriend == null) {
+			log.warn("confirmFriend() failed. No pending friend request from userId: " + userId + " to friendId: " + friendId + " found.");
+			return false;
+		}
 		
 	  	//make necessary changes to the ProfileFriend object.
 	  	profileFriend.setConfirmed(true);
-	  	profileFriend.setConfirmedDate(new Date()); //now
+	  	profileFriend.setConfirmedDate(new Date());
 		
 		//save
 		try {
@@ -366,7 +384,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  		throw new IllegalArgumentException("Null Argument in removeFriend");
 	  	}
 		
-		//get the friend object for this connection pair
+		//get the friend object for this connection pair (could be any way around)
 		ProfileFriend profileFriend = getFriendRecord(userId, friendId);
 		
 		if(profileFriend == null){
@@ -388,17 +406,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	//only gets a pending request
-	private ProfileFriend getPendingFriendRequest(final String friendId, final String userId) {
+	private ProfileFriend getPendingFriendRequest(final String userId, final String friendId) {
 		
-		if(friendId == null || userId == null){
+		if(userId == null || friendId == null){
 	  		throw new IllegalArgumentException("Null Argument in getPendingFriendRequest");
 	  	}
 		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUEST);
-	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
 	  			q.setParameter(CONFIRMED, false, Hibernate.BOOLEAN);
 	  			q.setMaxResults(1);
 	  			return q.uniqueResult();

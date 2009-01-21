@@ -4,8 +4,10 @@ package uk.ac.lancs.e_science.profile2.tool.pages;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
@@ -16,13 +18,12 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileIllegalAccessException;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrototypeNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
-import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
+import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
 
 
 public class ViewProfile extends BasePage {
@@ -34,6 +35,9 @@ public class ViewProfile extends BasePage {
 	public ViewProfile(String userUuid)   {
 		
 		if(log.isDebugEnabled()) log.debug("ViewProfile()");
+
+		//get basePage
+		final BasePage basePage = getBasePage();
 		
 		//get current user Id
 		String currentUserId = sakaiProxy.getCurrentUserId();
@@ -41,10 +45,8 @@ public class ViewProfile extends BasePage {
 		//friend?
 		boolean friend = profile.isUserFriendOfCurrentUser(userUuid, currentUserId);
 
-		//if not friend, friend requested?
-		boolean friendRequested = false;
-		
-		
+		//if not friend, has a friend request already been made to this person?
+		boolean friendRequested = profile.isFriendRequestPending(currentUserId, userUuid);
 		
 		//is this user allowed to view this person's profile?
 		boolean isProfileAllowed = profile.isUserProfileVisibleByCurrentUser(userUuid, currentUserId, friend);
@@ -391,37 +393,64 @@ public class ViewProfile extends BasePage {
 		}
 		
 		
+		
 		/* SIDELINKS */
 		WebMarkupContainer sideLinks = new WebMarkupContainer("sideLinks");
 		
+		//ADD FRIEND MODAL WINDOW
+		final ModalWindow addFriendWindow = new ModalWindow("addFriendWindow");
+		addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, basePage, currentUserId, userUuid, userDisplayName)); 
+
 		//FRIEND LINK/STATUS
-    	AjaxLink addFriendLink = new AjaxLink("addFriendLink") {
+		final AjaxLink addFriendLink = new AjaxLink("addFriendLink") {
     		public void onClick(AjaxRequestTarget target) {
-    			//addFriendWindow.show(target);
+    			addFriendWindow.show(target);
 			}
 		};
 		
-		Label addFriendLabel = new Label("addFriendLabel");
+		final Label addFriendLabel = new Label("addFriendLabel");
 		addFriendLink.add(addFriendLabel);
 		
 		if(friend) {
 			addFriendLabel.setModel(new ResourceModel("text.friend.confirmed"));
+    		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
 			addFriendLink.setEnabled(false);
 		} else if (friendRequested) {
 			addFriendLabel.setModel(new ResourceModel("text.friend.requested"));
+    		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
 			addFriendLink.setEnabled(false);
 		} else {
 			addFriendLabel.setModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
 		}
 		sideLinks.add(addFriendLink);
 		
+		
+		//ADD FRIEND MODAL WINDOW HANDLER 
+		addFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+            public void onClose(AjaxRequestTarget target){
+            	if(basePage.getConfirmResult()) { 
+            		//friend was successfully requested, update label and link
+            		addFriendLabel.setModel(new ResourceModel("text.friend.requested"));
+            		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
+            		addFriendLink.setEnabled(false);
+            		target.addComponent(addFriendLink);
+            	}
+            }
+        });
+		
+		add(addFriendWindow);
+		
+		
+		
+		
+		
+		
 		add(sideLinks);
-		
-		
-		
+	
 	}
 	
-		
+	
+	
 	
 	
 	

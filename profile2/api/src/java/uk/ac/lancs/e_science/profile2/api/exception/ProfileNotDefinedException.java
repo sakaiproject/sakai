@@ -2,9 +2,9 @@ package uk.ac.lancs.e_science.profile2.api.exception;
 
 public class ProfileNotDefinedException extends RuntimeException {
 		
-	private String message = null;
+	private final transient String message;
 	
-	public ProfileNotDefinedException(String message){
+	public ProfileNotDefinedException(final String message){
 		this.message = message;
 	}
 
