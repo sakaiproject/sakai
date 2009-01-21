@@ -1,96 +1,149 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-
-	<title>Site Page Order</title>
-	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
-	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
-	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" rsf:id="resize"/>
-	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-	<script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url"></script>
-	<script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url"></script>
-	<script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
-    <script type="text/javascript" language="JavaScript" src="/sakai-site-manage-group-section-role-helper/content/js/jquery/jquery.js"></script>
-</head>
-<body>
-<div class="portletBody">
-	<div rsf:id="error-row:">
-		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
-	</div>
-	<form rsf:id="groups-form">
-		<h3 rsf:id="prompt"></h3>
-		<div rsf:id="roster_options:">
-			<h3 rsf:id="instruction-roster">Select a course roster to create a separate group for that roster.</h3>
-			<table width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
-	            <thead>
-	                <tr>
-	                    <th width="10%">
-	                        <input id="rosterSelectAllNone" type="checkbox" />
-	                        <span rsf:id="roster-select-header">Select</span>
-	                    </th>
-	                    <th rsf:id="roster-title-header">Course Roster</th>
-	                </tr>
-	            </thead>
-	            <tbody>
-	                <tr rsf:id="roster-row:">
-	                    <td width="10%">
-	                        <input class=" rostercheckbox "rsf:id="roster-checkbox" type="checkbox" />
-	                    </td>
-	                    <td>
-	                        <label rsf:id="roster-title">Provider Title</label>
-	                        <label rsf:id="exist-group-roster">A site with this roster already exist</label>
-	                    </td>
-	                </tr>
-	            </tbody>
-	        </table>
+    <head>
+        <title>Site Page Order</title>
+        <link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+        <link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" rsf:id="resize"/>
+        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+        </script>
+        <script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" language="JavaScript" src="/sakai-site-manage-group-section-role-helper/content/js/jquery/jquery.js">
+        </script>
+    </head>
+    <body>
+        <div class="portletBody">
+            <div rsf:id="error-row:">
+                <div class="alertMessage" rsf:id="error">
+                    We Have Errors!
+                </div>
+            </div>
+            <form rsf:id="groups-form">
+                <h3 rsf:id="prompt"></h3>
+                <div rsf:id="roster_options:">
+                    <p rsf:id="instruction-roster" class="instruction">Select a course roster to create a separate group for that roster.</p>
+                    <table width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines" summary="placeholder summary">
+                        <thead>
+                            <tr>
+                                <th class="attach">
+                                    <input id="rosterSelectAllNone" type="checkbox" /><span rsf:id="roster-select-header" class="skip">Select</span>
+                                </th>
+                                <th rsf:id="roster-title-header">
+                                    Course Roster
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr rsf:id="roster-row:">
+                                <td class="attach">
+                                    <input class="rostercheckbox "rsf:id="roster-checkbox" type="checkbox" />
+                                </td>
+                                <td>
+                                    <label rsf:id="roster-title">
+                                        Provider Title
+                                    </label>
+                                    <label rsf:id="exist-group-roster">
+                                        A site with this roster already exist
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div rsf:id="role_options:">
+                    <p rsf:id="instruction-role" class="instruction">Select a role to create a separate group for that role.</p>
+                    <table width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines" summary="placeholder summary">
+                        <thead>
+                            <tr>
+                                <th class="attach">
+                                    <input id="roleSelectAllNone" type="checkbox" /><span rsf:id="role-select-header" class="skip">Select</span>
+                                </th>
+                                <th rsf:id="role-title-header">
+                                    Role
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr rsf:id="role-row:">
+                                <td class="attach">
+                                    <input class="rolecheckbox "rsf:id="role-checkbox" type="checkbox"/>
+                                </td>
+                                <td>
+                                    <label rsf:id="role-title">
+                                        Role Title
+                                    </label>
+                                    <label rsf:id="exist-group-role">
+                                        A group with this role already exist
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="act">
+                    <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save"/><input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+                </p>
+            </form>
         </div>
-        <div rsf:id="role_options:">
-	        <h3 rsf:id="instruction-role">Select a role to create a separate group for that role.</h3>
-	        <table width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
-	            <thead>
-	                <tr>
-	                    <th width="10%">
-	                        <input id="roleSelectAllNone" type="checkbox" />
-	                        <span rsf:id="role-select-header">Select</span>
-	                    </th>
-	                    <th rsf:id="role-title-header">Role</th>
-	                </tr>
-	            </thead>
-	            <tbody>
-	                <tr rsf:id="role-row:">
-	                    <td width="10%">
-	                        <input class=" rolecheckbox "rsf:id="role-checkbox" type="checkbox" />
-	                    </td>
-	                    <td>
-	                        <label rsf:id="role-title">Role Title</label>
-	                        <label rsf:id="exist-group-role">A group with this role already exist</label>
-	                    </td>
-	                </tr>
-	            </tbody>
-	        </table>
-	    </div>
-		<p class="act">
-			<input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit"/>
-			<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
-		</p>			
-	</form>
-</div>
-<script>
-  var rosterSelectAllBox = jQuery('#rosterSelectAllNone');
-  rosterSelectAllBox.change( function() {
-	  var onoff = rosterSelectAllBox.get(0).checked;
-	  jQuery('.rostercheckbox').each(function(i) {
-	    this.checked = onoff;
-	  });
-  });
-  var roleSelectAllBox = jQuery('#roleSelectAllNone');
-  roleSelectAllBox.change( function() {
-	  var onoff = roleSelectAllBox.get(0).checked;
-	  jQuery('.rolecheckbox').each(function(i) {
-	    this.checked = onoff;
-	  });
-  });
-</script>
-</body>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('#save').attr('disabled', 'disabled');
+				 $('tbody :checkbox').each(function(){
+				   if (this.checked) {
+				   	$(this).parents("tr").addClass('selectedSelected');
+				   }     
+				 	});
+                $('tbody :checkbox').click(function(){
+                    $('tr').removeClass('selectedSelected');
+                    var checkedCount = 0;
+                    $('tbody :checkbox').each(function(){
+                        if (this.checked) {
+                            checkedCount++
+                            $(this).parents("tr").addClass('selectedSelected');
+                            $('#save').attr('disabled', '')
+                        }
+                        else {
+                            $('#save').attr('disabled', 'disabled')
+                        }
+                        
+                    });
+                    if (checkedCount > 0) {
+                        $('#save').attr('disabled', '')
+                    }
+                    else {
+                        $('#save').attr('disabled', 'disabled')
+                    }
+                    if (checkedCount == $('tbody :checkbox').length) {
+                        $('thead :checkbox').attr('checked', 'checked')
+                    }
+                    else {
+                        $('thead :checkbox').attr('checked', '')
+                    }
+                });
+                $('thead th :checkbox').click(function(){
+                    if (this.checked) {
+                        $('td :checkbox').attr('checked', 'checked');
+                        $('tbody tr').addClass('selectedSelected');
+                        $('#save').attr('disabled', '')
+                        $('#save').removeClass('disabled')                        
+
+                    }
+                    else {
+                        $('td :checkbox').attr('checked', '')
+                        $('tbody tr').removeClass('selectedSelected')
+                        $('#save').attr('disabled', 'disabled')
+                        $('#save').addClass('disabled')                        
+                    }
+                    
+                });
+                
+            });
+        </script>
+    </body>
 </html>

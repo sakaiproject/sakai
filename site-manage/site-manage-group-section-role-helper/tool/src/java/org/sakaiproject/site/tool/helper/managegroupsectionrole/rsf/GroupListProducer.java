@@ -132,7 +132,7 @@ public class GroupListProducer
 
     			UIInternalLink editLink = UIInternalLink.make(grouprow,"group-revise",messageLocator.getMessage("editgroup.revise"),  
     						new GroupEditViewParameters(GroupEditProducer.VIEW_ID, groupId));
-    			editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("group.sorttitleasc")+ ":" + group.getTitle()));
+    			editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("editgroup.revise")+ ":" + group.getTitle()));
     			deletable.add(group.getId());
 				UISelectChoice delete =  UISelectChoice.make(grouprow, "group-select", deleteselect.getFullID(), (deletable.size()-1));
 				delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {group.getTitle()})));
