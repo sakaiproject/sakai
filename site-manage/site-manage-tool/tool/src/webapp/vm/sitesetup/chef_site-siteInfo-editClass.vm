@@ -21,12 +21,12 @@
 					</th>
 				</tr>
 				#set ($providerCourseListNum =0)	
-				#foreach($id in $!providerCourseTitles)
+				#foreach($id in $!providerCourseTitles.keys())
 				#set ($providerCourseListNum =$providerCourseListNum + 1)	
 					<tr>
 						<td headers="class">
 							<h4><label for="pcl$providerCourseListNum">
-								$id
+								$!providerCourseTitles.get($id)
 							</label></h4>
 						</td>
 						<td headers="remove" class="screenOnly">

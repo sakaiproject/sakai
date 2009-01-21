@@ -3350,18 +3350,18 @@ public class SiteAction extends PagedResourceActionII {
 		if (providerCourseList != null && providerCourseList.size() > 0) {
 			state.setAttribute(SITE_PROVIDER_COURSE_LIST, providerCourseList);
 			
-			List<String> sectionTitles = new Vector<String>();
+			Hashtable<String, String> sectionTitles = new Hashtable<String, String>();
 			for(int i = 0; i < providerCourseList.size(); i++)
 			{
 				String sectionId = (String) providerCourseList.get(i);
 				try
 				{
 					Section s = cms.getSection(sectionId);
-					sectionTitles.add(s.getTitle());
+					sectionTitles.put(sectionId, s.getTitle());
 				}
 				catch (Exception e)
 				{
-					sectionTitles.add(sectionId);
+					sectionTitles.put(sectionId, sectionId);
 					M_log.warn(this + ".coursesIntoContext " + e.getMessage() + " sectionId=" + sectionId, e);
 				}
 			}
