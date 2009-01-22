@@ -579,6 +579,9 @@ public class EntityEncodingManager {
      * @param transcoder a transcoder implementation
      */
     public void setTranscoder(Transcoder transcoder) {
+        if (transcoder == null) {
+            throw new IllegalArgumentException("transcoder cannot be null");
+        }
         if (transcoders == null) {
             getTranscoder(Formats.XML);
         }

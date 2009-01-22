@@ -239,11 +239,9 @@ public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore 
     public void addURLRedirects(String prefix, URLRedirect[] redirects) {
         if (redirects != null && redirects.length > 0) {
             ArrayList<URLRedirect> urlRedirects = new ArrayList<URLRedirect>();
-            int templateKeys = 0;
             if (entityRedirects.containsKey(prefix)) {
                 List<URLRedirect> current = entityRedirects.get(prefix);
                 urlRedirects.addAll(current);
-                templateKeys += urlRedirects.size();
             }
             StringBuilder sb = new StringBuilder();
             for (URLRedirect redirect : redirects) {

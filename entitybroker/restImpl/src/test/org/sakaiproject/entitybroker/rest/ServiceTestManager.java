@@ -51,7 +51,7 @@ import org.sakaiproject.entitybroker.util.request.RequestStorageImpl;
  */
 public class ServiceTestManager {
 
-    private static ServiceTestManager instance;
+    private static volatile ServiceTestManager instance;
     public static ServiceTestManager getInstance() {
         if (instance == null) {
             instance = new ServiceTestManager( new TestData() );

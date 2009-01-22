@@ -45,7 +45,7 @@ import org.sakaiproject.entitybroker.util.spring.EntityPropertiesServiceSpringIm
 @SuppressWarnings("deprecation")
 public class EntityBrokerCoreServiceManager {
 
-    private static EntityBrokerCoreServiceManager instance;
+    private static volatile EntityBrokerCoreServiceManager instance;
     public static EntityBrokerCoreServiceManager getInstance() {
         if (instance == null) {
             instance = new EntityBrokerCoreServiceManager();

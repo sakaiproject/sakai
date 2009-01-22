@@ -550,8 +550,13 @@ public class EntityHttpServletResponse implements HttpServletResponse {
         }
         String value = null;
         if (this.headers.containsKey(name)) {
-            if (this.headers.get(name).size() > 0) {
-                value = this.headers.get(name).get(0);
+            Vector<String> v = this.headers.get(name);
+            if (v == null) {
+                this.headers.remove(name);
+            } else {
+                if (v.size() > 0) {
+                    value = v.get(0);
+                }
             }
         }
         return value;
@@ -648,7 +653,12 @@ public class EntityHttpServletResponse implements HttpServletResponse {
             this.headers.put(name, v);
         } else {
             if (this.headers.containsKey(name)) {
-                this.headers.get(name).add(value);
+                Vector<String> v = this.headers.get(name);
+                if (v == null) {
+                    v = new Vector<String>();
+                    this.headers.put(name, v);
+                }
+                v.add(value);
             } else {
                 Vector<String> v = new Vector<String>();
                 v.add(value);

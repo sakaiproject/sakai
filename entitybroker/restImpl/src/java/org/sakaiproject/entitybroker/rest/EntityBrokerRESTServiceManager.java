@@ -42,7 +42,7 @@ import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 @SuppressWarnings("deprecation")
 public class EntityBrokerRESTServiceManager {
 
-    private static EntityBrokerRESTServiceManager instance;
+    private static volatile EntityBrokerRESTServiceManager instance;
     public static EntityBrokerRESTServiceManager getInstance() {
         if (instance == null) {
             instance = new EntityBrokerRESTServiceManager();

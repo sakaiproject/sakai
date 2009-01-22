@@ -612,7 +612,10 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         }
         String header = null;
         if (headers.containsKey(name)) {
-            header = headers.get(name).firstElement();
+            Vector<String> v = headers.get(name);
+            if (v != null) {
+                header = v.firstElement();
+            }
         }
         return header;
     }
@@ -627,7 +630,10 @@ public class EntityHttpServletRequest implements HttpServletRequest {
         }
         Vector<String> h = new Vector<String>(0);
         if (headers.containsKey(name)) {
-            h = headers.get(name);
+            Vector<String> v = headers.get(name);
+            if (v != null) {
+                h = v;
+            }
         }
         return Collections.enumeration(h);
     }
