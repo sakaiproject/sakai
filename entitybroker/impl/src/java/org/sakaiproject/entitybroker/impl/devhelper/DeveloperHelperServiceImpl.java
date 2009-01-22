@@ -119,6 +119,25 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
 
     // ENTITY
 
+    @Override
+    public Object fetchEntity(String reference) {
+        Object entity = super.fetchEntity(reference);
+        if (entity == null 
+                && reference.startsWith("/user")) {
+            // this sucks but legacy user cannot be resolved for some reason 
+            // so look up directly since it is one of the top entities being fetched
+            String userId = getUserIdFromRef(reference);
+            if (userId != null) {
+                try {
+                    entity = userDirectoryService.getUser(userId);
+                } catch (UserNotDefinedException e) {
+                    entity = null;
+                }
+            }
+        }
+        return entity;
+    }
+
     public String setCurrentUser(String userReference) {
         if (userReference == null) {
             throw new IllegalArgumentException("userReference cannot be null");
