@@ -47,7 +47,6 @@ public class AddFriend extends Panel {
 				//request friend
 				if(profile.requestFriend(currentUserId, friendUserId)) {
 					basePage.setConfirmResult(true);
-					log.info("User: " + currentUserId + " added friend: " + friendUserId);
 				} else {
 					//it failed, the logs will say why but we need to UI stuff here.
 					basePage.setConfirmResult(false);

@@ -42,11 +42,24 @@ public class ViewProfile extends BasePage {
 		//get current user Id
 		String currentUserId = sakaiProxy.getCurrentUserId();
 		
+		//init
+		boolean friend = false;
+		boolean friendRequestToThisPerson = false;
+		boolean friendRequestFromThisPerson = false;
+
 		//friend?
-		boolean friend = profile.isUserFriendOfCurrentUser(userUuid, currentUserId);
+		friend = profile.isUserFriendOfCurrentUser(userUuid, currentUserId);
 
 		//if not friend, has a friend request already been made to this person?
-		boolean friendRequested = profile.isFriendRequestPending(currentUserId, userUuid);
+		if(!friend) {
+			friendRequestToThisPerson = profile.isFriendRequestPending(currentUserId, userUuid);
+		}
+		
+		//if not friend and no friend request to this person, has a friend request been made from tis person to the current user?
+		if(!friend && !friendRequestToThisPerson) {
+			friendRequestFromThisPerson = profile.isFriendRequestPending(userUuid, currentUserId);
+		}
+		
 		
 		//is this user allowed to view this person's profile?
 		boolean isProfileAllowed = profile.isUserProfileVisibleByCurrentUser(userUuid, currentUserId, friend);
@@ -179,6 +192,7 @@ public class ViewProfile extends BasePage {
 		nicknameContainer.add(new Label("nickname", nickname));
 		basicInfoContainer.add(nicknameContainer);
 		if("".equals(nickname) || nickname == null) {
+			nickname=""; //for the 'add friend' link
 			nicknameContainer.setVisible(false);
 		} else {
 			visibleFieldCount_basic++;
@@ -415,11 +429,17 @@ public class ViewProfile extends BasePage {
 			addFriendLabel.setModel(new ResourceModel("text.friend.confirmed"));
     		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
 			addFriendLink.setEnabled(false);
-		} else if (friendRequested) {
+		} else if (friendRequestToThisPerson) {
 			addFriendLabel.setModel(new ResourceModel("text.friend.requested"));
     		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
 			addFriendLink.setEnabled(false);
-		} else {
+		} else if (friendRequestFromThisPerson) {
+			//TODO (confirm pending friend request link)
+			//could be done by setting the content off the addFriendWindow. Change it to a generic modal window perhaps?)
+			addFriendLabel.setModel(new ResourceModel("text.friend.pending"));
+    		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
+			addFriendLink.setEnabled(false);
+		}  else {
 			addFriendLabel.setModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
 		}
 		sideLinks.add(addFriendLink);
