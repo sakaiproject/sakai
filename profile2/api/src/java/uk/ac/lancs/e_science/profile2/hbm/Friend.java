@@ -21,9 +21,8 @@ public class Friend implements Serializable {
 	private String statusMessage;
 	private Date statusDate;
 	private boolean confirmed;
-	private byte[] photo;
 	private Date requestedDate;
-	
+
 	
 	public String getUserUuid() {
 		return userUuid;
@@ -55,12 +54,7 @@ public class Friend implements Serializable {
 	public void setConfirmed(boolean confirmed) {
 		this.confirmed = confirmed;
 	}
-	public void setPhoto(byte[] photo) {
-		this.photo = photo;
-	}
-	public byte[] getPhoto() {
-		return photo;
-	}
+	
 	public void setRequestedDate(Date requestedDate) {
 		this.requestedDate = requestedDate;
 	}

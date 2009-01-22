@@ -27,10 +27,11 @@ import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
 
 public class MyProfile extends BasePage {
 
+	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyProfile.class);
 	private transient byte[] profileImageBytes;
 	private final ChangeProfilePicture changePicture;
-	
+
 	public MyProfile()   {
 		
 		if(log.isDebugEnabled()) log.debug("MyProfile()");
@@ -164,8 +165,8 @@ public class MyProfile extends BasePage {
 		//if this profile is not the current user's profile, then we need to present some links like 'Add as a friend' etc
 		
 		
-		//friends quick panel
-		Panel friendsFeed = new FriendsFeed("friendsFeed", userId);
+		//friends feed panel for self
+		Panel friendsFeed = new FriendsFeed("friendsFeed", userId, userId);
 		friendsFeed.setOutputMarkupId(true);
 		add(friendsFeed);
 		

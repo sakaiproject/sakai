@@ -29,7 +29,8 @@ public class ProfilePrivacyManager {
 	public static final boolean DEFAULT_BASICINFO_VISIBILITY = true;
 	public static final boolean DEFAULT_CONTACTINFO_VISIBILITY = true;
 	public static final boolean DEFAULT_PERSONALINFO_VISIBILITY = true;
-
+	public static final boolean DEFAULT_MYFRIENDS_VISIBILITY = true;
+	
 	//if they have no privacy record, ie have not turned explicitly turned birth year display on or off
 	public static final boolean DEFAULT_BIRTHYEAR_VISIBILITY = true;
 	

@@ -1,5 +1,6 @@
 package uk.ac.lancs.e_science.profile2.tool.dataproviders;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -12,23 +13,25 @@ import org.apache.wicket.model.Model;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
 
-public class FriendDataProvider implements IDataProvider {
+public class FriendDataProvider implements IDataProvider, Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	private transient List<Friend> friends = new ArrayList<Friend>();
 	
-	public FriendDataProvider(final String userId, Profile profile) {
+	public FriendDataProvider(final String ownerUserId, final String viewingUserId, Profile profile) {
 		
 		//get friends for user (6)
-		friends = profile.getFriendsForUser(userId, 6);
+		friends = profile.getFriendsForUser(ownerUserId, 6);
+		
+		//we need to make sure the friends returned here are allowed to be visible to viewingUserId
+		//so we should get all, randomly, then test and see
+		
 		
 	}
 	
-	
-	
-	
-	public Iterator iterator(int first, int count) {
+	public Iterator<Friend> iterator(int first, int count) {
 		try {
-			List slice = friends.subList(first, first + count);
+			List<Friend> slice = friends.subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e)

@@ -71,7 +71,7 @@ public class MyFriends extends BasePage {
 		    	
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(friend.getUserUuid());
-		    	final byte[] photo = friend.getPhoto();
+		    	final byte[] photo = null;
 		    			    			    	
 		    	//name
 		    	Label nameLabel = new Label("friendRequest-name", displayName);
@@ -157,7 +157,7 @@ public class MyFriends extends BasePage {
 		    	String statusMessage = friend.getStatusMessage();
 		    	Date statusDate = friend.getStatusDate();
 		    	boolean confirmed = friend.isConfirmed();
-		    	final byte[] photo = friend.getPhoto();
+		    	final byte[] photo = null;
 		    			    			    	
 		    	//name
 		    	Label nameLabel = new Label("friend-name", displayName);

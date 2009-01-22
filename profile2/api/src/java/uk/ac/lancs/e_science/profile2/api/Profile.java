@@ -49,7 +49,7 @@ public interface Profile {
 	 * This will then get all those that the user has confirmed as well as those that they have requested of others
 	 *  but may have not been confirmed yet.
 	 *  
-	 *  If you need this separate, see getFriendRequestsForUser() and getConfirmedFriendsForUser()
+	 *  If you need this separate, see getFriendRequestsForUser() and getConfirmedFriendUserIdsForUser()
 	 *
 	 * @param userId		uuid of the user to retrieve the list of friends for
 	 * @param limit			number of records to return or 0 for unlimited
@@ -319,6 +319,17 @@ public interface Profile {
 	 * @return boolean
 	 */
 	public boolean isPersonalInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	
+	/**
+	 * Has the user allowed viewing of their friends list (which in turn has its own privacy associated for each record)
+	 * by the given user? ie have they restricted it to only me or friends etc
+	 * 
+	 * @param userId			the uuid of the user we are querying
+	 * @param currentUserId		current user uuid
+	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @return boolean
+	 */
+	public boolean isFriendsListVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
 	
 	
 	/**

@@ -39,9 +39,9 @@
 	position: relative;	
 	/* centre the image inside this div */
 	text-align:center;
-    margin-top:0px;
-    margin-bottom:0px;
-    padding:0px;
+    margin-top:0;
+    margin-bottom:0;
+    padding:0;
     /* end of centreing the image */
 }
 
@@ -196,20 +196,50 @@
   
 /* sideBox styles */
 .sideBox {
-	border-top: 1px solid black;
+	margin-top: 4px;
+	border-top: thin solid #09c;
+	border-right: thin solid #d0d0df;
+	
 }
 
 .sideBoxHeading {
-	padding-top: 1px;
-	padding-bottom: 1px;
+	padding-top: 2px;
+	padding-bottom: 2px;
 	padding-left: 2px;
 	display:block;
+	font-weight: bold;
 	background-color: #B8D5F8;
 }
 	
 .sideBoxContent {
 	display:block;	
 	margin-bottom: 4px;
+}
+
+.sideBoxLabels {
+	display: block;
+	position: relative;
+	/*border-bottom: thin solid #d0d0df;*/
+	height: 1.0em;
+	padding-top: 2px;
+	margin-bottom: 2px;
+}
+
+.sideBoxItemCount, .sideBoxMoreLink  {
+	font-size: 70%;
+	position: absolute;
+	width: 50%;
+}
+
+.sideBoxItemCount {
+   	left: 0;
+   	padding-left: 2px;
+}
+
+.sideBoxMoreLink {
+   right: 0;
+   text-align: right; /* depends on element width */
+   padding-right: 2px;
 }
 
 
@@ -226,11 +256,9 @@
 .mainSectionHeading {
 	display:block;
 	font-weight: bold;
-	border-bottom-style: solid;
-	border-bottom-color: #09c;
-	border-bottom-width: thin;
-	margin-bottom: 0px;
-	padding-bottom: 0px;
+	border-bottom: thin solid #09c;
+	margin-bottom: 0;
+	padding-bottom: 0;
 }
 
 .mainSectionContent {
@@ -345,14 +373,15 @@
 
 /* friends feed styles */
 #friendsFeed {
-	}
+	display: block;
+}
 	
 .friendsFeedItem {
 	vertical-align: top;
 	width: 60px;
 	max-width: 60px;
 	overflow: hidden;
-	}
+}
 	
 .friendsFeedItem img {
 	max-width: 50px;
@@ -465,6 +494,10 @@ h2 {
 .resultsHeader {
 	font-weight: normal;
 }
+
+
+
+
 	
 
 		

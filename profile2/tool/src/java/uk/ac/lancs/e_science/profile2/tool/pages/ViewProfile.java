@@ -13,6 +13,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -23,6 +24,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileIllegalAccessException;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrototypeNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
 
 
@@ -460,12 +462,24 @@ public class ViewProfile extends BasePage {
 		
 		add(addFriendWindow);
 		
-		
-		
-		
-		
-		
 		add(sideLinks);
+		
+		
+		
+		
+		/* FRIEND FEED PANEL */
+		//friends feed panel
+		boolean isFriendsListVisible = profile.isFriendsListVisibleByCurrentUser(userUuid, currentUserId, friend);
+		
+		Panel friendsFeed;
+		if(isFriendsListVisible) {
+			friendsFeed = new FriendsFeed("friendsFeed", userUuid, currentUserId);
+		} else {
+			friendsFeed = new Panel("friendsFeed");
+		}
+		friendsFeed.setOutputMarkupId(true);
+		
+		add(friendsFeed);
 	
 	}
 	

@@ -1057,6 +1057,46 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isPersonalInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 */
+	public boolean isFriendsListVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+		
+		//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	
+    	//if none, return whatever the flag is set as by default
+    	if(profilePrivacy == null) {
+    		return ProfilePrivacyManager.DEFAULT_MYFRIENDS_VISIBILITY;
+    	}
+    	
+    	//if restricted to only self, not allowed
+    	if(profilePrivacy.getMyFriends() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    		return false;
+    	}
+    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getMyFriends() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getMyFriends() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//if everyone is allowed
+    	if(profilePrivacy.getMyFriends() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	    	
+    	//uncaught rule, return false
+    	log.error("isFriendsListVisibleByCurrentUser: Uncaught rule");
+    	return false;
+	}
+	
+	
+	
 
 	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isBirthYearVisible(String userId)
