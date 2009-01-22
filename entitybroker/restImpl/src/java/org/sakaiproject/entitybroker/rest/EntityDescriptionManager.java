@@ -166,15 +166,19 @@ public class EntityDescriptionManager {
 
     public void destroy() {
         log.info("destroy");
-        try {
-            if (describeEP != null) {
+        if (describeEP != null) {
+            try {
                 entityProviderManager.unregisterEntityProvider(describeEP);
+            } catch (RuntimeException e) {
+                log.warn("Unable to unregister the describe and batch description providers");
             }
-            if (batchEP != null) {
+        }
+        if (batchEP != null) {
+            try {
                 entityProviderManager.unregisterEntityProvider(batchEP);
+            } catch (RuntimeException e) {
+                log.warn("Unable to unregister the describe and batch description providers");
             }
-        } catch (Exception e) {
-            log.warn("Unable to unregister the describe and batch description providers");
         }
     }
 

@@ -36,16 +36,12 @@ public class DeveloperHelperServiceMock extends AbstractDeveloperHelperService {
     private Map<String, Object> settings = new HashMap<String, Object>();
     @SuppressWarnings("unchecked")
     public <T> T getConfigurationSetting(String settingName, T defaultValue) {
-        T value = null; 
-        if (value == null) {
-            value = defaultValue;
+        T value = null;
+        Object o = settings.get(settingName);
+        if (defaultValue == null) {
+            value = (T) o;
         } else {
-            Object o = settings.get(settingName);
-            if (defaultValue == null) {
-                value = (T) o;
-            } else {
-                ReflectUtils.getInstance().convert( settings.get(settingName), defaultValue.getClass());
-            }
+            ReflectUtils.getInstance().convert( settings.get(settingName), defaultValue.getClass());
         }
         return value;
     }
