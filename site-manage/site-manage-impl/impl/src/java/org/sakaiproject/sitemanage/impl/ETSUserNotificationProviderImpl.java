@@ -64,6 +64,8 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 
 	private static String NOTIFY_NEW_USER ="sitemanage.notifyNewUserEmail"; 
 	
+	private static final String ADMIN = "admin";
+	
 	private EmailService emailService; 
 	
 	
