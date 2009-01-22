@@ -594,7 +594,7 @@ public class EntityDescriptionManager {
                         url = ev.getEntityURL(EntityView.VIEW_LIST, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.collection.url", locale)
-                                +": <a href='"+ directUrl+url +"'>"+url+"</a>"
+                                +": GET <a href='"+ directUrl+url +"'>"+url+"</a>"
                                 + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST, locale);
                         if (viewDesc != null) {
@@ -606,7 +606,7 @@ public class EntityDescriptionManager {
                         url = ev.getEntityURL(EntityView.VIEW_NEW, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.create.url", locale)
-                                +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
+                                +": POST <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW, locale);
                         if (viewDesc != null) {
                             sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
@@ -618,7 +618,7 @@ public class EntityDescriptionManager {
                         url = ev.getEntityURL(EntityView.VIEW_SHOW, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.show.url", locale)
-                                +": <a href='"+ directUrl+url +"'>"+url+"</a>"
+                                +": GET <a href='"+ directUrl+url +"'>"+url+"</a>"
                                 + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
                         if (viewDesc != null) {
@@ -631,7 +631,7 @@ public class EntityDescriptionManager {
                         url = ev.getEntityURL(EntityView.VIEW_EDIT, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.update.url", locale)
-                                +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
+                                +": PUT <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
                         if (viewDesc != null) {
                             sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
@@ -642,7 +642,7 @@ public class EntityDescriptionManager {
                         url = ev.getEntityURL(EntityView.VIEW_DELETE, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)
-                                +": <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
+                                +": DELETE <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
                         if (viewDesc != null) {
                             sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
@@ -901,11 +901,12 @@ public class EntityDescriptionManager {
      * @return a URL for triggering the custom action (without http://server/direct)
      */
     protected String makeActionURL(EntityView ev, CustomAction customAction) {
+        // switched to this since it is more correct
+        String URL = EntityView.SEPARATOR + ev.getEntityReference().getPrefix() + EntityView.SEPARATOR + customAction.action;
         String viewKey = customAction.viewKey;
-        if (viewKey == null || "".equals(viewKey)) {
-            viewKey = EntityView.VIEW_LIST; // default to simplest example
+        if (viewKey != null || EntityView.VIEW_SHOW.equals(viewKey)) {
+            URL = ev.getEntityURL(viewKey, null) + EntityView.SEPARATOR + customAction.action;
         }
-        String URL = ev.getEntityURL(viewKey, null) + EntityView.SEPARATOR + customAction.action;
         return URL;
     }
 
