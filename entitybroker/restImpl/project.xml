@@ -52,13 +52,13 @@
         <dependency>
             <groupId>generic-dao</groupId>
             <artifactId>generic-dao</artifactId>
-            <version>0.9.12</version>
+            <version>0.9.16</version>
         </dependency>
 
         <dependency>
             <groupId>org.azeckoski</groupId>
             <artifactId>reflectutils</artifactId>
-            <version>0.9.7</version>
+            <version>0.9.10</version>
             <type>jar</type>
         </dependency>
 

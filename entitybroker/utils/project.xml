@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.azeckoski</groupId>
             <artifactId>reflectutils</artifactId>
-            <version>0.9.7</version>
+            <version>0.9.10</version>
             <type>jar</type>
         </dependency>
 
