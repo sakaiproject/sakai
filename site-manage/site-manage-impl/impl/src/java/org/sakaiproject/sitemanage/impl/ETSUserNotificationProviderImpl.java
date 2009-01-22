@@ -36,6 +36,8 @@ import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -85,7 +87,10 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		emailTemplateService = ets;
 	}
 	
-	
+	private SessionManager sessionManager;
+	public void setSessionManager(SessionManager s) {
+		this.sessionManager = s;
+	}
 
 	public void init() {
 		//nothing realy to do
@@ -246,6 +251,10 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 
 	private void loadAddedParticipantMail() {
 		try {
+			//we need a user session to avoind potential NPE's
+			Session sakaiSession = sessionManager.getCurrentSession();
+			sakaiSession.setUserId(ADMIN);
+		    sakaiSession.setUserEid(ADMIN);
 			InputStream in = ETSUserNotificationProviderImpl.class.getClassLoader().getResourceAsStream("notifyAddedParticipants.xml");
 			Document document = new SAXBuilder(  ).build(in);
 			List it = document.getRootElement().getChildren("emailTemplate");
@@ -254,7 +263,8 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 				Element xmlTemplate = (Element)it.get(i);
 				xmlToTemplate(xmlTemplate, this.NOTIFY_ADDED_PARTICIPANT);
 			}
-			
+			sakaiSession.setUserId(null);
+		    sakaiSession.setUserEid(null);
 
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -270,6 +280,10 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 
 	private void loadNewUserMail() {
 		try {
+			//we need a user session to avoind potential NPE's
+			Session sakaiSession = sessionManager.getCurrentSession();
+			sakaiSession.setUserId(ADMIN);
+		    sakaiSession.setUserEid(ADMIN);
 			InputStream in = ETSUserNotificationProviderImpl.class.getClassLoader().getResourceAsStream("notifyNewuser.xml");
 			Document document = new SAXBuilder(  ).build(in);
 			List it = document.getRootElement().getChildren("emailTemplate");
@@ -278,7 +292,8 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 				Element xmlTemplate = (Element)it.get(i);
 				xmlToTemplate(xmlTemplate, this.NOTIFY_NEW_USER);
 			}
-			
+			sakaiSession.setUserId(null);
+		    sakaiSession.setUserEid(null);
 
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
