@@ -380,6 +380,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#removeFriend(String userId, String friendId)
 	 */
 	public boolean removeFriend(String userId, String friendId) {
+		
 		if(userId == null || friendId == null){
 	  		throw new IllegalArgumentException("Null Argument in removeFriend");
 	  	}
@@ -655,7 +656,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
 				ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_SEARCH);
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_SEARCH,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYFRIENDS);
 		
 		//save
 		try {
@@ -1465,6 +1467,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				log.error("Profile2: image conversion failed for " + userUuid);
 				continue;
 			}
+			
+			//go to next user
 			
 		}
 		

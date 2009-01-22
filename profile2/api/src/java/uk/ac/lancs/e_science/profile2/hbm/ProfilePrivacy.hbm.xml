@@ -18,6 +18,7 @@
 	    <property name="personalInfo" column="PERSONAL_INFO" not-null="true" />
 	    <property name="showBirthYear" column="BIRTH_YEAR" not-null="true" />
 		<property name="search" column="SEARCH" not-null="true" />
+		<property name="myFriends" column="MY_FRIENDS" not-null="true" />
 		
   	</class>
 

@@ -186,6 +186,27 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
+		
+		
+		//search privacy
+		WebMarkupContainer myFriendsContainer = new WebMarkupContainer("myFriendsContainer");
+		myFriendsContainer.add(new Label("myFriendsLabel", new ResourceModel("privacy.myfriends")));
+		DropDownChoice myFriendsChoice = new DropDownChoice("myFriends", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		myFriendsContainer.add(myFriendsChoice);
+		//tooltip
+		myFriendsContainer.add(new IconWithClueTip("myFriendsToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.myfriends.tooltip")));
+		form.add(myFriendsContainer);
+		//updater
+		myFriendsChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		
+		
+		
+		
 		/* 
 		phoneVendorDDC.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
