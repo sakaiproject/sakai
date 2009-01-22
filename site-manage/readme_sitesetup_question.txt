@@ -45,3 +45,12 @@ The template the questions.xml is as follows:
 	  			</question>
 	  		</site>
 	  	</SiteSetupQuestions>
+
+----------------------------------------------------------------------------------------------------------------------------------------
+The functionality to change question set after deployment is added SAK-14748: "For the set of questions to be asked during the Worksite setup, need to allow admin upload new question set, while preserving the old questions/answers/user responses"
+
+1. The maintainer of site id="setupQuestionsAdmin"(id configurable) can still upload questions.xml file according to above steps. Once the file is loaded, db is populated with questions, and the questions.xml file is moved into a backup folder in "setupQuestionsAdmin" Resources tool. 
+
+2. In order to upload new question set, the maintainer just upload a new questions.xml into the config folder. The file gets read and Sakai inserts the new questions into db and marks previous questions as "old" questions. Only the current "new" questions will be asked upon user login, while all the old questions and answers are preserved in db.
+
+3. The above question update process (step 2) can be repeated if needed. 
