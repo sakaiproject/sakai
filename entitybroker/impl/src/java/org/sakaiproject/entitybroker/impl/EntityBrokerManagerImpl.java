@@ -21,6 +21,7 @@
 package org.sakaiproject.entitybroker.impl;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -237,16 +238,35 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
                 ref = new EntityReference(reference);
             } else {
                 EntityReference exemplar = provider.getParsedExemplar();
-                if (exemplar.getClass() == EntityReference.class) {
+                if (exemplar == null) {
                     ref = new EntityReference(reference);
                 } else {
-                    // construct the custom class and then return it
-                    try {
-                        Constructor<? extends Object> m = exemplar.getClass().getConstructor(String.class);
-                        ref = (EntityReference) m.newInstance(reference);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Failed to invoke a constructor which takes a single string "
-                                + "(reference="+reference+") for class: " + exemplar.getClass(), e);
+                    if (exemplar.getClass() == EntityReference.class) {
+                        ref = new EntityReference(reference);
+                    } else {
+                        // construct the custom class and then return it
+                        try {
+                            Constructor<? extends Object> m = exemplar.getClass().getConstructor(String.class);
+                            ref = (EntityReference) m.newInstance(reference);
+                        } catch (SecurityException e) {
+                            throw new RuntimeException("Failed to invoke a constructor which takes a single string "
+                                    + "(reference="+reference+") for class: " + exemplar.getClass(), e);
+                        } catch (IllegalArgumentException e) {
+                            throw new RuntimeException("Failed to invoke a constructor which takes a single string "
+                                    + "(reference="+reference+") for class: " + exemplar.getClass(), e);
+                        } catch (NoSuchMethodException e) {
+                            throw new RuntimeException("Failed to invoke a constructor which takes a single string "
+                                    + "(reference="+reference+") for class: " + exemplar.getClass(), e);
+                        } catch (InstantiationException e) {
+                            throw new RuntimeException("Failed to invoke a constructor which takes a single string "
+                                    + "(reference="+reference+") for class: " + exemplar.getClass(), e);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException("Failed to invoke a constructor which takes a single string "
+                                    + "(reference="+reference+") for class: " + exemplar.getClass(), e);
+                        } catch (InvocationTargetException e) {
+                            throw new RuntimeException("Failed to invoke a constructor which takes a single string "
+                                    + "(reference="+reference+") for class: " + exemplar.getClass(), e);
+                        }
                     }
                 }
             }

@@ -5,8 +5,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.entitybroker.EntityReference;
-
 public interface ExternalIntegrationProvider {
 
     /**
@@ -42,14 +40,14 @@ public interface ExternalIntegrationProvider {
      * the type of object should be determined out of band<br/>
      * This should return null if the entity exists but has no available object
      * 
-     * @param entityReference a parsed reference object to a unique entity
+     * @param reference a string representing a unique reference to an entity (e.g. /type/id/extra)
      * @return an object which represents the entity OR null if none can be found or this type does not support fetching
      * @throws SecurityException if the entity cannot be accessed by the current user or is not publicly accessible
      * @throws IllegalArgumentException if the reference is invalid
      * @throws UnsupportedOperationException if the external system cannot handle this
      * @throws IllegalStateException if any other error occurs
      */
-    public Object fetchEntity(EntityReference entityReference);
+    public Object fetchEntity(String reference);
 
     /**
      * Handles an error which occurs while processing an entity request,

@@ -215,7 +215,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (ref == null) {
             // not handled in EB so attempt to parse out a prefix and try to get entity from the external system
             if (entityBrokerManager.getExternalIntegrationProvider() != null) {
-                entityBrokerManager.getExternalIntegrationProvider().fetchEntity(ref);
+                entityBrokerManager.getExternalIntegrationProvider().fetchEntity(reference);
             }
         } else {
             // this is a registered prefix

@@ -16,7 +16,6 @@ package org.sakaiproject.entitybroker.util.external;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 
 
@@ -30,7 +29,7 @@ public class ExternalIntegrationProviderMock implements ExternalIntegrationProvi
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#fetchEntity(org.sakaiproject.entitybroker.EntityReference)
      */
-    public Object fetchEntity(EntityReference entityReference) {
+    public Object fetchEntity(String reference) {
         return null;
     }
 

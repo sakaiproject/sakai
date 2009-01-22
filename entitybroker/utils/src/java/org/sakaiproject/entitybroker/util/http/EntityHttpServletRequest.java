@@ -574,10 +574,13 @@ public class EntityHttpServletRequest implements HttpServletRequest {
     }
 
     public Cookie[] getCookies() {
-        if (cookies == null || cookies.size() == 0) {
-            return null;
+        Cookie[] c;
+        if (this.cookies == null || this.cookies.size() == 0) {
+            c = new Cookie[0];
+        } else {
+            c = this.cookies.toArray(new Cookie[this.cookies.size()]);
         }
-        return cookies.toArray(new Cookie[cookies.size()]);
+        return c;
     }
 
     /**

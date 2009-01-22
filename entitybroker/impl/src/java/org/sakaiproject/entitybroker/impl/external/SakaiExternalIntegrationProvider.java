@@ -25,7 +25,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
-import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 import org.sakaiproject.entitybroker.util.servlet.DirectServlet;
 import org.sakaiproject.event.api.Event;
@@ -97,11 +96,10 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
     }
 
     /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.impl.ExternalIntegrationProvider#fetchEntity(org.sakaiproject.entitybroker.EntityReference)
+     * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#fetchEntity(java.lang.String)
      */
-    public Object fetchEntity(EntityReference entityReference) {
+    public Object fetchEntity(String reference) {
         Object entity = null;
-        String reference = entityReference.getReference();
         try {
             // cannot test this in a meaningful way so the tests are designed to not get here -AZ
             entity = entityManager.newReference(reference).getEntity();
