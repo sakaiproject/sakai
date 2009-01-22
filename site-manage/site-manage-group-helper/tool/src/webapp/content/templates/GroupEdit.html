@@ -32,42 +32,41 @@
 	<form rsf:id="groups-form">
 		<h3 rsf:id="prompt"></h3>
 		<p rsf:id="instructions" class="instruction">
+			Select members of the site member list and add to group. Select members of group list and remove. Click Update to save changes.
 		</p>
-		 <table>
+		<p class="shorttext">
+			<label style='float:none;clear:both;margin:0;padding:0' for="group_title">
+				<span class="reqStar">*</span>
+				<span rsf:id="group_title_label">Title</span>
+			</label>
+			<br />
+			<input name="Title" type="text" size="50" rsf:id="group_title" />
+		</p>	
+		<label rsf:id="group_description_label">
+			Description
+		</label>
+		<div  style="width:70%">
+			<div rsf:id="group_description:">
+				<textarea name="Description" cols="50" rows="3" wrap="virtual"></textarea>
+			</div>
+		</div>	
+
+
+		<h4 rsf:id="membership_label"></h4>
+		<table class="sidebyside" cellpadding="0" cellspacing="0" style="margin:0">
 			<tr>
-				<td><span class="reqStarInline">*</span> <label
-					rsf:id="group_title_label">Title</label></td>
-				<td><input name="Title" type="text" size="50"
-					rsf:id="group_title" /></td>
-			</tr>
-		 	<tr>
-				<td valign="top">
-					<label rsf:id="group_description_label">
-						Description
-					</label>
-				</td>
-				<td>
-					<div rsf:id="group_description:">
-						<textarea name="Description" cols="50" rows="3" wrap="virtual"></textarea>
-					</div>
-				</td>
-			</tr>
-		</table>
-		<h3 rsf:id="membership_label"></h3>
-		<table class="sidebyside">
-			<tr>
-				<td>
-					<h3 rsf:id="membership_site_label"></h3>
+				<td style="padding:0">
+					<h4 rsf:id="membership_site_label"></h4>
 					<select multiple="multiple" size="10" rsf:id="siteMembers" id="siteMembers-selection" name="siteMembers-selection" onDblClick="opt.transferRight()">
 					</select>
 				</td>
-				<td style="text-align:center;padding-top:2em">
+				<td style="padding:.3em;text-align:center;vertical-align:bottom">
 					<input type="button" name="right" value="&gt;&gt;" onclick="opt.transferRight()" /><br /><br />
 					<input type="button" name="right" value="All &gt;&gt;" onclick="opt.transferAllRight()" /><br /><br />
 					<input type="button" name="left" value="&lt;&lt;" onclick="opt.transferLeft()" /><br /><br />
 					<input type="button" name="left" value="All &lt;&lt;" onclick="opt.transferAllLeft()" />
 				</td>
-				<td valign="top">
+				<td valign="top" style="padding:0">
 					<h3 rsf:id="membership_group_label"></h3>
 					<select multiple="multiple" rsf:id="groupMembers" id = "groupMembers-selection" name="groupMembers-selection" size="10" ondblclick="opt.transferLeft()" >
 					</select>

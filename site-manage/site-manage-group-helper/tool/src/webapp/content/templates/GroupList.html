@@ -16,21 +16,22 @@
 <div rsf:id="actions:" class="navIntraTool">
 	<a href="#" rsf:id="add" class="item_control" title="Create New Group" onclick="">Create New Group</a>
 </div>
+<h3 rsf:id="group-list-title">Groups</h3>
 <!-- alert message -->
 <div rsf:id="error-row:">
 	<div class="alertMessage" rsf:id="error">We Have Errors!</div>
 </div>
-<h3 rsf:id="group-list-title">Groups</h3>
-
 
 <form rsf:id="delete-group-form">
-<h4 rsf:id="no-group">No group</h4>
+<p rsf:id="no-group" class="instruction">No group</p>
 <!-- This span is needed here to guide the renderer away to the checkboxes -->
 <span rsf:id="delete-group"/>
-<table class="listHier" border="0" cellspacing="0">
+<table class="listHier lines nolines centerLines" border="0" cellspacing="0">
   <thead>
     <tr> 
       	<th rsf:id="group-title-title">
+		</th>
+		<th>
 		</th>
 		<th rsf:id="group-size-title">
 		</th>
@@ -41,8 +42,11 @@
 
     <tr rsf:id="group-row:"> 
        <td><span rsf:id="group-title">Group Title</span>
-          <div class="itemAction"><a href="GroupEdit.html" target="_self"  rsf:id="group-revise">Edit</a></div>
+          
        </td>
+	   <td>
+		<span class="itemAction"><a href="GroupEdit.html" target="_self"  rsf:id="group-revise">Edit</a></span>
+	   </td>	
       <td rsf:id="group-size">
       	Group Size
       </td>
@@ -61,6 +65,22 @@
 
 <input type="hidden" id="removeCount" value="0" />
 </form>
+<script  type="text/JavaScript">
+     $(document).ready(function(){
+	  if ($('.listHier td').length ==0) {
+	  	$('.listHier').hide();
+	  }
+	 	$('tbody :checkbox').click(function(){
+		if (this.checked){
+		  $(this).parents("tr").addClass('selectedSelected');
+		}
+		else{
+		  $(this).parents("tr").removeClass('selectedSelected');}
+   });
+   });
+
+	</script>
+
 </div>
 	<script language="JavaScript" type="text/JavaScript">
 	<!--	
