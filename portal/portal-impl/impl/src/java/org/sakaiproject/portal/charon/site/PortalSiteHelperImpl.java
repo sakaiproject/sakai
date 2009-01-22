@@ -21,6 +21,8 @@
 
 package org.sakaiproject.portal.charon.site;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -468,7 +470,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
 		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu",
 				true);
-		String iconUrl = site.getIconUrlFull();
+		String iconUrl = "";
+		try { 
+			if (site.getIconUrlFull() != null)
+				iconUrl = new URI(site.getIconUrlFull()).toString();
+		} catch (URISyntaxException uex) {
+			log.debug("Icon URL is invalid: " + site.getIconUrlFull());
+		}
+
 		boolean published = site.isPublished();
 		String type = site.getType();
 
