@@ -43,6 +43,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -165,6 +166,11 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         int numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
         if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " externally defined scores");
+
+        List toBeDeletedEvent = hibTempl.find("from GradingEvent as ge where ge.gradableObject=?", asn);
+        int numberDeletedEvent = toBeDeletedEvent.size();
+        hibTempl.deleteAll(toBeDeletedEvent);
+        if (log.isInfoEnabled()) log.info("Deleted " + numberDeletedEvent + " externally defined grading event");
 
         // Delete the assessment.
 		hibTempl.flush();
@@ -360,6 +366,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 						else
 							agr.setPointsEarned(null);
 						session.update(agr);
+						logGradingEvent(agr.getStudentId(), agr.getGraderId(), agr.getAssignment(), agr.getPointsEarned(), session);
 						changedStudents.add(studentUid);
 					}
 				}
@@ -373,6 +380,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 						agr.setDateRecorded(now);
 						agr.setGraderId(graderId);
 						session.save(agr);
+						logGradingEvent(agr.getStudentId(), agr.getGraderId(), agr.getAssignment(), agr.getPointsEarned(), session);
 						changedStudents.add(studentUid);
 					}
 				}
@@ -563,6 +571,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					if (log.isDebugEnabled()) log.debug("About to save AssignmentGradeRecord id=" + agr.getId() + ", version=" + agr.getVersion() + ", studenttId=" + agr.getStudentId() + ", pointsEarned=" + agr.getPointsEarned());
 					session.saveOrUpdate(agr);
 
+					logGradingEvent(agr.getStudentId(), agr.getGraderId(), agr.getAssignment(), agr.getPointsEarned(), session);
+					
 					// Sync database.
 					session.flush();
 					session.clear();
@@ -577,4 +587,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
 	}
 
+	private void logGradingEvent(String studentId, String graderId, Assignment assignment, String grade, Session session) 
+	{
+		if (studentId == null || graderId == null || assignment == null) {
+			throw new IllegalArgumentException("null value for studentId or graderId or assignment passed to GradebookExternalAssessmentServiceImpl.logGradingEvent");
+		}
+
+		session.save(new GradingEvent(assignment, graderId, studentId, grade));
+	}
 }
