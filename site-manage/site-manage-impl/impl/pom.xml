@@ -86,6 +86,11 @@
       </dependency>
 <!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
 <!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->
+     <dependency>
+		<groupId>xerces</groupId>
+		<artifactId>xercesImpl</artifactId>
+		<version>2.6.2</version>
+	</dependency>
   </dependencies>
   <build>
     <resources>

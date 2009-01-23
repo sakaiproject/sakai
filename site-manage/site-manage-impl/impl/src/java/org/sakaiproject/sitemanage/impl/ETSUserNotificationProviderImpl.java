@@ -47,9 +47,7 @@ import org.sakaiproject.util.ResourceLoader;
 //import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import sun.util.logging.resources.logging;
-
-import com.sun.org.apache.xerces.internal.util.DOMUtil;
+import org.apache.xerces.util.DOMUtil;
 
 
 
