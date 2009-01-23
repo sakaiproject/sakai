@@ -27,6 +27,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.tool.SearchBeanImpl.Scope;
 import org.sakaiproject.search.tool.api.OpenSearchBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -57,7 +58,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 	private Placement placement;
 
 	private String baseURL;
-	
+	private String scope = null;
 	public OpenSearchBeanImpl(HttpServletRequest request,
 			SearchService searchService, SiteService siteService,
 			ToolManager toolManager) throws IdUnusedException
@@ -70,6 +71,11 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 		this.toolId = toolManager.getCurrentTool().getId();
 		this.siteId = toolManager.getCurrentPlacement().getContext();
 		this.currentSite = this.siteService.getSite(this.siteId);
+		if (siteService.isUserSite(siteId)) {
+			scope = Scope.MINE.name();
+		} else {
+			scope = Scope.SITE.name();
+		}
 		String siteCheck = currentSite.getReference();
 		baseURL = getBaseURL();
 	}
@@ -104,7 +110,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 
 	public String getHTMLSearchTemplate()
 	{
-		return baseURL + "/index?panel=Main&amp;search={searchTerms}";
+		return baseURL + "/index?panel=Main&amp;scope=" + scope +"&amp;search={searchTerms}";
 	}
 
 	public String getIconUrl()
