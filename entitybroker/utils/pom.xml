@@ -30,19 +30,19 @@
 
         <!-- Sakai dependency is for the reloadable proxy also -->
         <!-- Sakai K1 -->
-<!-- -->
+<!-- 
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
-<!-- -->
+ -->
         <!-- Sakai preK1 -->
-<!-- 
+<!-- -->
         <dependency> 
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-component</artifactId> 
         </dependency>
- -->
+<!-- -->
 
         <!-- required for bean cloning and reflection -->
         <dependency>

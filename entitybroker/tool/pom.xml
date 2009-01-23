@@ -44,7 +44,7 @@
         </dependency>
 
         <!-- Sakai K1 dependencies -->
-<!-- -->
+<!-- 
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -57,10 +57,10 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
-<!-- -->
+ -->
 
         <!-- Sakai preK1 dependencies -->
-<!-- 
+<!-- -->
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-component</artifactId>
@@ -79,7 +79,7 @@
             <artifactId>sakai-util</artifactId>
             <version>${sakai.version}</version>
         </dependency>
- -->
+<!-- -->
     </dependencies>
 
     <build>
