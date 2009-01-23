@@ -8352,10 +8352,25 @@ public class SiteAction extends PagedResourceActionII {
 				Tool toolRegFound = null;
 				for (Iterator i = toolRegistrationSet.iterator(); i.hasNext();) {
 					Tool toolReg = (Tool) i.next();
-					if (toolId.equals(toolReg.getId())) {
+					String toolRegId = toolReg.getId();
+					if (toolId.equals(toolRegId)) {
 						toolRegFound = toolReg;
+						break;
 					}
-				}
+					else if (toolId.startsWith(toolRegId))
+					{
+						try
+						{
+							// in case of adding multiple tools, tool id is of format ORIGINAL_TOOL_ID + INDEX_NUMBER
+							Integer.parseInt(toolId.replace(toolRegId, ""));
+							toolRegFound = toolReg;
+							break;
+						}
+						catch (Exception parseException)
+						{
+							// ignore parse exception
+						}
+					}				}
 
 				if (toolRegFound != null) {
 					// we know such a tool, so add it
