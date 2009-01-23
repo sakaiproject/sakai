@@ -918,10 +918,18 @@ public class SearchBeanImpl implements SearchBean
 					
 					return null;
 				}
+
+				public boolean isVisible() {
+					if (sr.isCensored())
+						return false;
+					else 
+						return true;
+				}
 					
 				
 
 			});
+			
 		}
 		return l;
 	}

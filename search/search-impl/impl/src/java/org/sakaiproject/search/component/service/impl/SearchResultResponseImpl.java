@@ -240,5 +240,8 @@ public class SearchResultResponseImpl implements SearchResult
 	public String getSiteId() {
 		return (String) attributes.get("site");
 	}
+	public boolean isCensored() {
+		return false;
+	}
 
 }

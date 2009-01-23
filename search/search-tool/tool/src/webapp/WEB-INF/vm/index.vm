@@ -70,15 +70,20 @@
    #foreach ( $result in ${searchModel.results} ) 
 	        <!--is-->
 	        <div class="searchItem" > 
-
+			#if (${result.isVisible()})
 	        <span class="searchTool">${result.tool}:</span>
 	        <a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
 			      <div class="searchItemBody" >${result.searchResult}</div>
 			      <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
 			    #if($searchModel.isScope('MINE'))
 	    			<br/><span class="searchSite">Site: <a href="$result.siteURL" target="_top">${result.siteTitle}</a><span>
-	    		#end 
+	    		#end
+	    	 #else
+	    	 	<span class="searchTool">${result.title}</span>
+	    	 #end 
 			      </div>
+			
+			 	
 
 			      <!--ie-->
 	  #end

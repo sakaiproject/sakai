@@ -112,6 +112,12 @@ public interface SearchResult
 	 */
 	String getTool();
 	
+	/**
+	 *  Has this item been censored by a filter?
+	 * @return
+	 */
+	boolean isCensored();
+	
 	String getSiteId();
 
 	void toXMLString(StringBuilder sb);

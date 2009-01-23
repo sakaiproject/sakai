@@ -236,4 +236,8 @@ public class SearchResultImpl implements SearchResult
 		return doc.get(SearchService.FIELD_SITEID);
 	}
 
+	public boolean isCensored() {
+		return false;
+	}
+
 }

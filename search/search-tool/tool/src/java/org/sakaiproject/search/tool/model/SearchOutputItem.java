@@ -54,5 +54,10 @@ public interface SearchOutputItem
 	String getSiteTitle();
 	
 	String getSiteURL();
+	/**
+	 * This item is visible to to the user viewing - used for optional rendering in the tool view
+	 * @return
+	 */
+	boolean isVisible();
 
 }

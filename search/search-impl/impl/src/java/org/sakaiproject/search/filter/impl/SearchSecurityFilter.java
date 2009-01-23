@@ -212,6 +212,10 @@ public class SearchSecurityFilter implements SearchItemFilter
 			return ""; //$NON-NLS-1$
 		}
 
+		public boolean isCensored() {
+			return true;
+		}
+
 	}
 
 	/**
