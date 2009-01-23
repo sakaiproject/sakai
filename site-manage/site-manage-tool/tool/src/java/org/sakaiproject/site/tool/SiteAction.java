@@ -8370,7 +8370,8 @@ public class SiteAction extends PagedResourceActionII {
 						{
 							// ignore parse exception
 						}
-					}				}
+					}
+				}
 
 				if (toolRegFound != null) {
 					// we know such a tool, so add it
@@ -9588,28 +9589,38 @@ public class SiteAction extends PagedResourceActionII {
 		Hashtable<String, Hashtable<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(Hashtable<String, Hashtable<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new Hashtable<String, Hashtable<String, String>>();
 		
 		int toolListedTimes = 0;
+		
+		// get the proper insert index for the whole tool list
 		int index = 0;
 		int insertIndex = 0;
 		while (index < toolList.size()) {
 			MyTool tListed = (MyTool) toolList.get(index);
 			if (tListed.getId().indexOf(toolId) != -1 && !oTools.contains(tListed.getId())) {
 				toolListedTimes++;
+				// update the insert index
+				insertIndex = index+1;
 			}
 
-			if (toolListedTimes > 0 && insertIndex == 0) {
+			index++;
+		}
+		
+		// get the proper insert index for the selected tool list
+		List toolSelected = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+		index = 0;
+		int insertSelectedToolIndex = 0;
+		while (index < toolSelected.size()) {
+			String selectedId = (String) toolSelected.get(index);
+			if (selectedId.indexOf(toolId) != -1 ) {
 				// update the insert index
-				insertIndex = index;
+				insertSelectedToolIndex = index+1;
 			}
 
 			index++;
 		}
 
-		List toolSelected = (List) state
-				.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-
 		// insert multiple tools
 		for (int i = 0; i < insertTimes; i++) {
-			toolSelected.add(toolId + toolListedTimes);
+			toolSelected.add(insertSelectedToolIndex, toolId + toolListedTimes);
 
 			// We need to insert a specific tool entry only if all the specific
 			// tool entries have been selected
