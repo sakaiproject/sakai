@@ -889,14 +889,11 @@ public class SearchBeanImpl implements SearchBean
 				private Site site = null;
 
 				public String getSiteURL() {
-					String url = null;
 					
 					if (site == null)
 						site = getSite();
 					
-					url = site.getUrl();
-					
-					return url;
+					return (site != null) ? site.getUrl() : null;
 				}
 				
 				public String getSiteTitle() {
