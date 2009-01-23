@@ -36,6 +36,8 @@ public interface Formats {
     */
    public static String HTML = "html";
    public static String HTML_MIME_TYPE = "text/html";
+   public static String[] HTML_EXTENSIONS = new String[] {"html","htm","HTML","HTM"};
+
    /**
     * XML formatted text (application/xml or text/xml) <br/>
     * http://en.wikipedia.org/wiki/XML <br/>
@@ -44,6 +46,8 @@ public interface Formats {
     */
    public static String XML = "xml";
    public static String XML_MIME_TYPE = "application/xml";
+   public static String[] XML_EXTENSIONS = new String[] {"xml","XML"};
+
    /**
     * JSON formatted text (application/json or text/javascript) <br/>
     * http://en.wikipedia.org/wiki/JSON <br/>
@@ -51,7 +55,9 @@ public interface Formats {
     * OUTPUT: JSON text <br/>
     */
    public static String JSON = "json";
-   public static String JSON_MIME_TYPE = "text/plain"; //"application/json"; // switched to plain so it easier to work with
+   public static String JSON_MIME_TYPE = "text/plain"; //"application/json"; // switched to plain so its easier to work with
+   public static String[] JSON_EXTENSIONS = new String[] {"json","jsn","JSON","JSN"};
+
    /**
     * Plain text (text/plain) <br/>
     * http://en.wikipedia.org/wiki/Plain_text <br/>
@@ -60,6 +66,7 @@ public interface Formats {
     */
    public static String TXT = "txt";
    public static String TXT_MIME_TYPE = "text/plain";
+   public static String[] TXT_EXTENSIONS = new String[] {"txt","text","TXT","TEXT"};
 
    /**
     * RSS 2 XML feed (application/rss+xml) <br/>
@@ -69,6 +76,7 @@ public interface Formats {
     */
    public static String RSS = "rss";
    public static String RSS_MIME_TYPE = "application/rss+xml";
+   public static String[] RSS_EXTENSIONS = new String[] {"rss","RSS"};
 
    /**
     * ATOM XML feed (application/atom+xml) <br/>
@@ -78,6 +86,7 @@ public interface Formats {
     */
    public static String ATOM = "atom";
    public static String ATOM_MIME_TYPE = "application/atom+xml";
+   public static String[] ATOM_EXTENSIONS = new String[] {"atom","ATOM"};
 
    /**
     * All character data should be encoded and decoded as UTF-8,
