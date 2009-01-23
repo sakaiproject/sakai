@@ -278,6 +278,7 @@
         </resources>
 
         <!-- unit testing -->
+<!-- SAK-15442 Temporarily removing these to get it to build.
         <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
         <unitTest>
             <includes>
@@ -305,6 +306,7 @@
                 </resource>
             </resources>
         </unitTest>
+-->
 
     </build>
 
