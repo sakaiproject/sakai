@@ -459,11 +459,35 @@
 
 
 .friendsListActions {
-	width: 80px;
+	width: 120px;
 	float:right;
 	border:1px solid yellow;
 	font-size: 90%;
 }
+
+.searchAddFriend, .searchConfirmFriend, .searchRemoveFriend {
+	display: block;
+	font-size: 70%;
+	padding-left: 24px;
+	padding-bottom: 4px;
+	padding-top: 4px; 
+	padding-right: 2px;
+	background-repeat: no-repeat;
+	background-position: 4px center;
+}
+
+.searchAddFriend {
+	background-image: url("/library/image/silk/user_add.png");
+}
+.searchConfirmFriend {
+	background-image: url("/library/image/silk/user_add.png");
+}
+.searchRemoveFriend {
+	background-image: url("/library/image/silk/user_delete.png");
+}
+
+
+
 
 .rssLink {
 	margin: 0;

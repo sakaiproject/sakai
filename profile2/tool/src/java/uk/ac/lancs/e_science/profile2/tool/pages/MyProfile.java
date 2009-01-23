@@ -161,8 +161,6 @@ public class MyProfile extends BasePage {
 		add(myInterestsDisplay);
 		
 		//quick links panel
-		//this is to go in the quick links page but notes are here
-		//if this profile is not the current user's profile, then we need to present some links like 'Add as a friend' etc
 		
 		
 		//friends feed panel for self

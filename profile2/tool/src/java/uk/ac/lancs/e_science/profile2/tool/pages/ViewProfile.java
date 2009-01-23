@@ -57,7 +57,7 @@ public class ViewProfile extends BasePage {
 			friendRequestToThisPerson = profile.isFriendRequestPending(currentUserId, userUuid);
 		}
 		
-		//if not friend and no friend request to this person, has a friend request been made from tis person to the current user?
+		//if not friend and no friend request to this person, has a friend request been made from this person to the current user?
 		if(!friend && !friendRequestToThisPerson) {
 			friendRequestFromThisPerson = profile.isFriendRequestPending(userUuid, currentUserId);
 		}
@@ -427,6 +427,7 @@ public class ViewProfile extends BasePage {
 		final Label addFriendLabel = new Label("addFriendLabel");
 		addFriendLink.add(addFriendLabel);
 		
+		//setup link/label and windows
 		if(friend) {
 			addFriendLabel.setModel(new ResourceModel("text.friend.confirmed"));
     		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
@@ -450,7 +451,7 @@ public class ViewProfile extends BasePage {
 		//ADD FRIEND MODAL WINDOW HANDLER 
 		addFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
             public void onClose(AjaxRequestTarget target){
-            	if(basePage.getConfirmResult()) { 
+            	if(basePage.isFriendRequestedResult()) { 
             		//friend was successfully requested, update label and link
             		addFriendLabel.setModel(new ResourceModel("text.friend.requested"));
             		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
