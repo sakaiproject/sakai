@@ -124,11 +124,11 @@ function replaceLink(selection)
 			  var linkUrl  = linkUrl.replace(RegexWorkLink,escRep);
 			  var linkFileName = linkUrl.lastIndexOf("/");
 			  var strFileName = linkUrl.substring(linkFileName,linkUrl.length);
-			  if(!RegexExtLink.test(result)) { //if is an internal link
+			  if(linkUrl.indexOf("http://")==-1 && linkUrl.indexOf("ftp://")==-1 && linkUrl.indexOf("https://")==-1 && linkUrl.indexOf("news://")==-1) { //if is an internal link
 			     var newlink = "{link:"+linkText+"|worksite:"+strFileName+"}";
 			  } 
 			  else {
-		         var newlink = linkUrl;
+		         var newlink = "{link:text="+linkText+"|url="+linkUrl+"}";
 		    }
 			  selection = selection.replace(result,newlink);
 			} 
