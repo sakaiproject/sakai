@@ -282,8 +282,9 @@ public class SiteAddParticipantHandler {
     	// reset user list
     	resetUserRolesEntries();
     	checkAddParticipant();
-    	if (targettedMessageList != null && targettedMessageList.size() > 0)
+    	if (targettedMessageList != null && targettedMessageList.size() > 0 && targettedMessageList.isError())
     	{
+    		
     		// there is error, remain on the same page
     		return "";
     	}
@@ -592,7 +593,7 @@ public class SiteAddParticipantHandler {
 
 		// if there is no eid or nonOfficialAccount entered
 		if (officialAccounts == null && nonOfficialAccounts == null) {
-			targettedMessageList.addMessage(new TargettedMessage("java.guest", null, TargettedMessage.SEVERITY_INFO));
+			targettedMessageList.addMessage(new TargettedMessage("java.guest", null, TargettedMessage.SEVERITY_ERROR));
 		}
 
 		String at = "@";
@@ -658,7 +659,7 @@ public class SiteAddParticipantHandler {
 						// not valid user
 						targettedMessageList.addMessage(new TargettedMessage("java.username",
 				                new Object[] { officialAccount }, 
-				                TargettedMessage.SEVERITY_INFO));
+				                TargettedMessage.SEVERITY_ERROR));
 					}
 				}
 			}
@@ -682,23 +683,23 @@ public class SiteAddParticipantHandler {
 						// must be a valid email address
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
 				                new Object[] { nonOfficialAccount }, 
-				                TargettedMessage.SEVERITY_INFO));
+				                TargettedMessage.SEVERITY_ERROR));
 					} else if ((parts.length != 2) || (parts[0].length() == 0)) {
 						// must have both id and address part
 						targettedMessageList.addMessage(new TargettedMessage("java.notemailid", 
 				                new Object[] { nonOfficialAccount }, 
-				                TargettedMessage.SEVERITY_INFO));
+				                TargettedMessage.SEVERITY_ERROR));
 					} else if (!Validator.checkEmailLocal(parts[0])) {
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
 				                new Object[] { nonOfficialAccount }, 
-				                TargettedMessage.SEVERITY_INFO));
+				                TargettedMessage.SEVERITY_ERROR));
 						targettedMessageList.addMessage(new TargettedMessage("java.theemail", "no text"));
 					} else if (nonOfficialAccount != null
 							&& !isValidDomain(nonOfficialAccount)) {
 						// wrong string inside nonOfficialAccount id
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
 		                new Object[] { nonOfficialAccount }, 
-		                TargettedMessage.SEVERITY_INFO));
+		                TargettedMessage.SEVERITY_ERROR));
 					} else {
 						Participant participant = new Participant();
 						try {
@@ -745,7 +746,7 @@ public class SiteAddParticipantHandler {
 		} // nonOfficialAccounts
 
 		if (roleChoice.equals("same_role")) {
-			targettedMessageList.addMessage(new TargettedMessage("java.roletype", null, TargettedMessage.SEVERITY_INFO));
+			targettedMessageList.addMessage(new TargettedMessage("java.roletype", null, TargettedMessage.SEVERITY_ERROR));
 		}
 
 		// remove duplicate or existing user from participant list
@@ -822,11 +823,9 @@ public class SiteAddParticipantHandler {
 				count++;
 			}
 			if (count == 1) {
-				targettedMessageList.addMessage(new TargettedMessage(messageLocator.getMessage("add.duplicatedpart.single")
-						+ accounts + ".", "no message"));
+				targettedMessageList.addMessage(new TargettedMessage("add.duplicatedpart.single",new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
 			} else {
-				targettedMessageList.addMessage(new TargettedMessage(messageLocator.getMessage("add.duplicatedpart") + accounts
-						+ ".", "no message"));
+				targettedMessageList.addMessage(new TargettedMessage("add.duplicatedpart", new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
 			}
 		}
 
