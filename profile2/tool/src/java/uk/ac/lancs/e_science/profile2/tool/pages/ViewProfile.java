@@ -50,7 +50,7 @@ public class ViewProfile extends BasePage {
 		boolean friendRequestFromThisPerson = false;
 
 		//friend?
-		friend = profile.isUserFriendOfCurrentUser(userUuid, currentUserId);
+		friend = profile.isUserXFriendOfUserY(userUuid, currentUserId);
 
 		//if not friend, has a friend request already been made to this person?
 		if(!friend) {
@@ -64,7 +64,7 @@ public class ViewProfile extends BasePage {
 		
 		
 		//is this user allowed to view this person's profile?
-		boolean isProfileAllowed = profile.isUserProfileVisibleByCurrentUser(userUuid, currentUserId, friend);
+		boolean isProfileAllowed = profile.isUserXProfileVisibleByUserY(userUuid, currentUserId, friend);
 		
 		if(!isProfileAllowed) {
 			throw new ProfileIllegalAccessException("User: " + currentUserId + " is not allowed to view profile for: " + userUuid);
@@ -165,7 +165,7 @@ public class ViewProfile extends BasePage {
 		/* BASIC INFO */
 		
 		// privacy settings for basic info
-		boolean isBasicInfoAllowed = profile.isBasicInfoVisibleByCurrentUser(userUuid, currentUserId, friend);
+		boolean isBasicInfoAllowed = profile.isUserXBasicInfoVisibleByUserY(userUuid, currentUserId, friend);
 
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("mainSectionContainer_basic");
 		basicInfoContainer.setOutputMarkupId(true);
@@ -225,7 +225,7 @@ public class ViewProfile extends BasePage {
 		/* CONTACT INFO */
 		
 		// privacy settings for contact info
-		boolean isContactInfoAllowed = profile.isContactInfoVisibleByCurrentUser(userUuid, currentUserId, friend);
+		boolean isContactInfoAllowed = profile.isUserXContactInfoVisibleByUserY(userUuid, currentUserId, friend);
 
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("mainSectionContainer_contact");
 		contactInfoContainer.setOutputMarkupId(true);
@@ -316,7 +316,7 @@ public class ViewProfile extends BasePage {
 		/* PERSONAL INFO */
 		
 		// privacy settings for basic info
-		boolean isPersonalInfoAllowed = profile.isPersonalInfoVisibleByCurrentUser(userUuid, currentUserId, friend);
+		boolean isPersonalInfoAllowed = profile.isUserXPersonalInfoVisibleByUserY(userUuid, currentUserId, friend);
 
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("mainSectionContainer_personal");
 		personalInfoContainer.setOutputMarkupId(true);
@@ -469,7 +469,7 @@ public class ViewProfile extends BasePage {
 		
 		/* FRIEND FEED PANEL */
 		//friends feed panel
-		boolean isFriendsListVisible = profile.isFriendsListVisibleByCurrentUser(userUuid, currentUserId, friend);
+		boolean isFriendsListVisible = profile.isUserXFriendsListVisibleByUserY(userUuid, currentUserId, friend);
 		
 		Panel friendsFeed;
 		if(isFriendsListVisible) {

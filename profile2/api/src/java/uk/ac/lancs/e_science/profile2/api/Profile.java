@@ -76,7 +76,7 @@ public interface Profile {
 	 */
 	public List<String> getConfirmedFriendUserIdsForUser(final String userId);
 	
-
+	
 	/**
 	 * Make a request for friendId to be a friend of userId
 	 *
@@ -251,27 +251,46 @@ public interface Profile {
 	 */
 	public List<String> listAllSakaiPersons();
 	
+	
 	/**
-	 * Is this user a friend of the given user?
+	 * Is userY a friend of the userX?
 	 * 
-	 * @param userId			the uuid of the user we are querying
-	 * @param currentUserId		current user uuid
+	 * @param userX			the uuid of the user we are querying
+	 * @param userY			current user uuid
 	 * @return boolean
 	 */
-	public boolean isUserFriendOfCurrentUser(String userId, String currentUserUuid);
+	public boolean isUserXFriendOfUserY(String userX, String userY);
 	
 	
+	/**
+	 * Get a list of confirmed friends for userX, that is visible by userY, depending on the individual 
+	 * privacy settings of each friend
+	 * 
+	 * - First Calls getConfirmedFriendUserIdsForUser() for userX first,
+	 * - Then determines if each person in that list is visible by userY by getting list of userX's friends
+	 * 		via (getConfirmedFriendUserIdsForUser) and checking each person in the first list against
+	 * 		the second list. This determines friend status.
+	 * - Then checks privacy status of each person. If all ok, add to the final list that is returned.
+	 * 
+	 * @param userX		uuid of the user to retrieve the list of friends for
+	 * @param userY		uuid of the user viewing the list
+	 */
+	public List<String> getFriendsOfUserXVisibleByUserY(final String userX, final String userY);
 	
 	
 	/**
 	 * Should this user show up in searches by the given user?
 	 * 
-	 * @param userId			the uuid of the user we are querying
-	 * @param currentUserId		current user uuid
-	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @param userX			the uuid of the user we are querying
+	 * @param userY			current user uuid
+	 * @param friend 		if the current user is a friend of the user we are querying
 	 * @return boolean
+	 * 
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 * 
 	 */
-	public boolean isUserVisibleInSearchesByCurrentUser(String userId, String currentUserId, boolean friend);
+	public boolean isUserXVisibleInSearchesByUserY(String userX, String userY, boolean friend);
 	
 	
 	
@@ -279,57 +298,77 @@ public interface Profile {
 	 * Has the user allowed viewing of their profile (including image) by the given user?
 	 * ie have they restricted it to only me or friends etc
 	 * 
-	 * @param userId			the uuid of the user we are querying
-	 * @param currentUserId		current user uuid
-	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @param userX			the uuid of the user we are querying
+	 * @param userY			current user uuid
+	 * @param friend 		if the current user is a friend of the user we are querying
 	 * @return boolean
+	 *
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 * 
 	 */
-	public boolean isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	public boolean isUserXProfileVisibleByUserY(String userX, String userY, boolean friend);
 	
 	
 	/**
 	 * Has the user allowed viewing of their basic info by the given user?
 	 * ie have they restricted it to only me or friends etc
 	 * 
-	 * @param userId			the uuid of the user we are querying
-	 * @param currentUserId		current user uuid
-	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @param userX			the uuid of the user we are querying
+	 * @param userY			current user uuid
+	 * @param friend 		if the current user is a friend of the user we are querying
 	 * @return boolean
+	 *
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 * 
 	 */
-	public boolean isBasicInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	public boolean isUserXBasicInfoVisibleByUserY(String userX, String userY, boolean friend);
 	
 	/**
 	 * Has the user allowed viewing of their contact info by the given user?
 	 * ie have they restricted it to only me or friends etc
 	 * 
-	 * @param userId			the uuid of the user we are querying
-	 * @param currentUserId		current user uuid
-	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @param userX			the uuid of the user we are querying
+	 * @param userY			current user uuid
+	 * @param friend 		if the current user is a friend of the user we are querying
 	 * @return boolean
+	 *
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 * 
 	 */
-	public boolean isContactInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	public boolean isUserXContactInfoVisibleByUserY(String userX, String userY, boolean friend);
 	
 	/**
 	 * Has the user allowed viewing of their personal info by the given user?
 	 * ie have they restricted it to only me or friends etc
 	 * 
-	 * @param userId			the uuid of the user we are querying
-	 * @param currentUserId		current user uuid
-	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @param userX			the uuid of the user we are querying
+	 * @param userY			current user uuid
+	 * @param friend 		if the current user is a friend of the user we are querying
 	 * @return boolean
+	 *
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 * 
 	 */
-	public boolean isPersonalInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	public boolean isUserXPersonalInfoVisibleByUserY(String userX, String userY, boolean friend);
 	
 	/**
 	 * Has the user allowed viewing of their friends list (which in turn has its own privacy associated for each record)
 	 * by the given user? ie have they restricted it to only me or friends etc
 	 * 
-	 * @param userId			the uuid of the user we are querying
-	 * @param currentUserId		current user uuid
-	 * @param friend 			if the current user is a friend of the user we are querying
+	 * @param userX			the uuid of the user we are querying
+	 * @param userY			current user uuid
+	 * @param friend 		if the current user is a friend of the user we are querying
 	 * @return boolean
+	 *
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 * 
 	 */
-	public boolean isFriendsListVisibleByCurrentUser(String userId, String currentUserId, boolean friend);
+	public boolean isUserXFriendsListVisibleByUserY(String userX, String userY, boolean friend);
 	
 	
 	/**

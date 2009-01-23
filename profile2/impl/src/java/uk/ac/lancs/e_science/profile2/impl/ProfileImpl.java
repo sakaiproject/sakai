@@ -302,9 +302,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
 	
 	  	return userUuids;
-
 	
 	}
+	
+	
 	
 	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#requestFriend(String userId, String friendId)
@@ -818,38 +819,75 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserFriendOfCurrentUser(String userId, String currentUserId)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserXFriendOfUserY(String userX, String userY)
 	 */
-	public boolean isUserFriendOfCurrentUser(String userId, String currentUserId) {
+	public boolean isUserXFriendOfUserY(String userX, String userY) {
 		
 		//get friends of current user
 		//TODO change this to be a single lookup rather than iterating over a list
-		List<String> friendUuids = new ArrayList<String>(getConfirmedFriendUserIdsForUser(currentUserId));
+		List<String> friendUuids = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userY));
 		
 		//if list of confirmed friends contains this user, they are a friend
-		if(friendUuids.contains(userId)) {
+		if(friendUuids.contains(userX)) {
 			return true;
 		}
 		
 		return false;
 	}
 	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsOfUserXVisibleByUserY(final String userX, final String userY)
+	 */
+	public List<String> getFriendsOfUserXVisibleByUserY(final String userX, final String userY) {
+		
+		//get userX friend list
+		List<String> userXFriends = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userX));
+		
+		//get userX friend list
+		List<String> userYFriends = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userY));
+		
+		//setup return list
+		List<String> returnList = new ArrayList<String>();
+		
+		//iterate over first list
+		for(Iterator<String> i = userXFriends.iterator(); i.hasNext();){
+			String userXFriend = (String)i.next();
+			boolean friend = false;
+			
+			//if in list, they are friends
+			if(userYFriends.contains(userXFriend)) {
+				friend = true;
+			}
+			
+			//if profile is visible, add them to the list that is to be returned
+			if(isUserXProfileVisibleByUserY(userXFriend, userY, friend)) {
+				returnList.add(userXFriend);
+			}
+			
+		}
+		
+		return returnList;
+		
+	}
+
+	
+	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserVisibleInSearchesByCurrentUser(String userId, String currentUserId, boolean friend)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserVisibleInSearchesByCurrentUser(String userX, String userY, boolean friend)
 	 */
-	public boolean isUserVisibleInSearchesByCurrentUser(String userId, String currentUserId, boolean friend) {
+	public boolean isUserXVisibleInSearchesByUserY(String userX, String userY, boolean friend) {
 				
 		//get ProfilePrivacy record for user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: no record, returning default visibility");
     		return ProfilePrivacyManager.DEFAULT_SEARCH_VISIBILITY;
     	}
     	
-    	//if user is the current user (ie they foumd themself in a search)
-    	if(currentUserId.equals(userId)) {
+    	//if userX is userY (ie they found themself in a search)
+    	if(userY.equals(userX)) {
     		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: user is current user");
     		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
     	}
@@ -888,21 +926,21 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserProfileVisibleByCurrentUser(String userX, String userY, boolean friend)
 	 */
-	public boolean isUserProfileVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+	public boolean isUserXProfileVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		
 		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		return ProfilePrivacyManager.DEFAULT_PROFILE_VISIBILITY;
     	}
     	
-    	//if user is the current user, they ARE allowed to view their own picture!
-    	if(currentUserId.equals(userId)) {
+    	//if userX is userY, they ARE allowed to view their own picture!
+    	if(userY.equals(userX)) {
     		return true;
     	}
     	
@@ -932,12 +970,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isBasicInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isBasicInfoVisibleByCurrentUser(String userX, String userY, boolean friend)
 	 */
-	public boolean isBasicInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+	public boolean isUserXBasicInfoVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
@@ -980,12 +1018,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isContactInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isContactInfoVisibleByCurrentUser(String userX, String userY, boolean friend)
 	 */
-	public boolean isContactInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+	public boolean isUserXContactInfoVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
@@ -1019,12 +1057,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isPersonalInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserXPersonalInfoVisibleByUserY(String userX, String userY, boolean friend)
 	 */
-	public boolean isPersonalInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+	public boolean isUserXPersonalInfoVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
@@ -1058,12 +1096,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isPersonalInfoVisibleByCurrentUser(String userId, String currentUserId, boolean friend)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserXFriendsListVisibleByUserY(String userX, String userY, boolean friend)
 	 */
-	public boolean isFriendsListVisibleByCurrentUser(String userId, String currentUserId, boolean friend) {
+	public boolean isUserXFriendsListVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
@@ -1372,31 +1410,14 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		for(Iterator<String> i = userUuids.iterator(); i.hasNext();){
 			String userUuid = (String)i.next();
 			
-			System.out.println("======================== START");
-			System.out.println("userUuid: " + userUuid);
-			System.out.println("userId: " + userId);
-						
+			boolean friend = isUserXFriendOfUserY(userUuid, userId);
 			
-			boolean friend = this.isUserFriendOfCurrentUser(userUuid, userId);
-			
-			System.out.println("friend: " + friend);
-
-			
-			
-			if(!isUserVisibleInSearchesByCurrentUser(userUuid, userId, friend)) {
-				System.out.println("visible in searches: " + false);
-				System.out.println("======================== END");
+			if(!isUserXVisibleInSearchesByUserY(userUuid, userId, friend)) {
 				continue; //not visible, skip
 			}
 			
-			System.out.println("visible: " + true);
-
+			boolean profileAllowed = isUserXProfileVisibleByUserY(userUuid, userId, friend);
 			
-			boolean profileAllowed = this.isUserProfileVisibleByCurrentUser(userUuid, userId, friend);
-			
-			System.out.println("profileAllowed: " + profileAllowed);
-			System.out.println("======================== END");
-
 			//make object
 			SearchResult searchResult = new SearchResult(
 					userUuid,
@@ -1513,10 +1534,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		
 		
-		
-		
 		return;
-		
 		
 	}
 	
