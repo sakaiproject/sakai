@@ -18,11 +18,11 @@ import org.apache.wicket.model.StringResourceModel;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.dataproviders.FriendDataProvider;
+import uk.ac.lancs.e_science.profile2.tool.dataproviders.FriendsFeedDataProvider;
 import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
 import uk.ac.lancs.e_science.profile2.tool.pages.MySearch;
+import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 
 
 /*
@@ -37,18 +37,19 @@ public class FriendsFeed extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	//private transient Logger log = Logger.getLogger(FriendsFeed.class);
+	private transient Profile profile;
+	private transient SakaiProxy sakaiProxy;
 	
-	public FriendsFeed(String id, String ownerUserId, String viewingUserId) {
+	public FriendsFeed(String id, final String ownerUserId, final String viewingUserId) {
 		super(id);
 		
 		//get SakaiProxy
-		final SakaiProxy sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
 		//get Profile
-		final Profile profile = ProfileApplication.get().getProfile();
-		
+		profile = ProfileApplication.get().getProfile();
 
-		//get randomised set of friends for this user, in future, list may be according to some rules		
+		//heading	
 		Label heading = new Label("heading", new ResourceModel("heading.feed.my.friends"));
 		add(heading);
 		
@@ -56,8 +57,7 @@ public class FriendsFeed extends Panel {
 		//get our list of friends as an IDataProvider
 		//the FriendDataProvider takes care of the privacy associated with the associated list
 		//so what it returns will always be clean
-		FriendDataProvider provider = new FriendDataProvider(ownerUserId, viewingUserId, profile);
-
+		FriendsFeedDataProvider provider = new FriendsFeedDataProvider(ownerUserId, viewingUserId);
 		
 		GridView dataView = new GridView("rows", provider) {
 			
@@ -68,17 +68,22 @@ public class FriendsFeed extends Panel {
 			{
 				WebMarkupContainer c = new WebMarkupContainer("friendsFeedItem");
 				c.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-				c.add(new Label("friendName","empty"));
+				Link friendLink = new Link("friendLink") {
+					private static final long serialVersionUID = 1L;
+
+					public void onClick() {}
+				};
+				friendLink.add(new Label("friendName","empty"));
+				c.add(friendLink);
 				item.add(c);
 				c.setVisible(false);
 			}
 			
 			protected void populateItem(Item item)
 			{
-				Friend friend = (Friend)item.getModelObject();
+				final String friendId = (String)item.getModelObject();
 				
 				//setup info
-				String friendId = friend.getUserUuid();
 				String displayName = sakaiProxy.getUserDisplayName(friendId);
 		    	final byte[] imageBytes = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 			
@@ -87,6 +92,8 @@ public class FriendsFeed extends Panel {
 		    	//photo
 		    	if(imageBytes != null && imageBytes.length > 0){
 					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+						private static final long serialVersionUID = 1L;
+
 						protected byte[] getImageData() {
 							return imageBytes;
 						}
@@ -96,9 +103,16 @@ public class FriendsFeed extends Panel {
 					c.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
 		    	
-		    	//name
-		    	Label nameLabel = new Label("friendName", displayName);
-		    	c.add(nameLabel);
+		    	//name link - the list is already cleaned by FriendsFeedDataProvider so we can safely link without worrying about privacy restrictions
+		    	Link friendLink = new Link("friendLink") {
+					private static final long serialVersionUID = 1L;
+		    		public void onClick() {
+						setResponsePage(new ViewProfile(friendId));
+					}
+				};
+		    	Label friendLinkLabel = new Label("friendName", displayName);
+		    	friendLink.add(friendLinkLabel);
+		    	c.add(friendLink);
 		
 		    	item.add(c);
 		    	
@@ -115,31 +129,44 @@ public class FriendsFeed extends Panel {
 		
 		
 		/* VIEW ALL FRIENDS LINK */
-    	Link viewAllFriendsLink = new Link("viewAllFriendsLink") {
+    	Link viewFriendsLink = new Link("viewFriendsLink") {
+			
+			private static final long serialVersionUID = 1L;
+
 			public void onClick() {
 				//this could come from a bookmarkablelink, but this works for now
 				if(numFriends == 0) {
 					setResponsePage(new MySearch());
 				} else {
-					setResponsePage(new MyFriends());
+					//if own FriendsFeed, link to own MyFriends, otherwise link to ViewFriends
+					if(viewingUserId.equals(ownerUserId)) {
+						setResponsePage(new MyFriends());
+					} else {
+						//setResponsePage(new ViewFriends());
+					}
 				}
 			}
 		};
-		Label viewAllFriendsLabel = new Label("viewAllFriendsLabel");
-		viewAllFriendsLink.add(viewAllFriendsLabel);
-		add(viewAllFriendsLink);
+		Label viewFriendsLabel = new Label("viewFriendsLabel");
+		viewFriendsLink.add(viewFriendsLabel);
+		add(viewFriendsLink);
 
 		
-		/* TESTS FOR THE ABOVE to change labels etc */
+		/* TESTS FOR THE ABOVE to change labels and links */
 		if(numFriends == 0) {
 			numFriendsLabel.setVisible(false);
-			viewAllFriendsLabel.setModel(new ResourceModel("link.friend.feed.search"));
+			//if own FriendsFeed, show search link, otherwise hide
+			if(viewingUserId.equals(ownerUserId)) {
+				viewFriendsLabel.setModel(new ResourceModel("link.friend.feed.search"));
+			} else {
+				viewFriendsLink.setVisible(false);
+			}
 		} else if (numFriends == 1) {
 			numFriendsLabel.setModel(new ResourceModel("link.friend.feed.num.one"));
-			viewAllFriendsLabel.setModel(new ResourceModel("link.friend.feed.view"));
+			viewFriendsLink.setVisible(false);
 		} else {
 			numFriendsLabel.setModel(new StringResourceModel("link.friend.feed.num.many", null, new Object[]{ numFriends }));
-			viewAllFriendsLabel.setModel(new ResourceModel("link.friend.feed.view"));
+			viewFriendsLabel.setModel(new ResourceModel("link.friend.feed.view"));
 		}
 		
 		
