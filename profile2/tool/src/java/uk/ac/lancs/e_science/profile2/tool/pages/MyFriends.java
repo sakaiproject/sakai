@@ -191,7 +191,7 @@ public class MyFriends extends BasePage {
 		    	
 		    	//remove friend modal window
 				final ModalWindow removeFriendWindow = new ModalWindow("friend-removeWindow");
-				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, MyFriends.this, userId, friend)); 
+				//removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, basePage, currentUserUuid, userUuid)); 
 
 				//close button handler
 				removeFriendWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() { 

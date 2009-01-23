@@ -15,15 +15,15 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.pages.BasePage;
 
-public class AddFriend extends Panel {
+public class ConfirmFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(AddFriend.class);
+	private transient Logger log = Logger.getLogger(ConfirmFriend.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile;
 
 	
-	public AddFriend(String id, final ModalWindow window, final BasePage basePage, final String userX, final String userY){
+	public ConfirmFriend(String id, final ModalWindow window, final BasePage basePage, final String userX, final String userY){
         super(id);
 
         //get API's
@@ -34,66 +34,25 @@ public class AddFriend extends Panel {
         String friendName = sakaiProxy.getUserDisplayName(userY);
                 
         //window setup
-		window.setTitle(new StringResourceModel("title.friend.add", null, new Object[]{ friendName } )); 
+		window.setTitle(new StringResourceModel("title.friend.confirm", null, new Object[]{ friendName } )); 
 		window.setInitialHeight(100);
 		window.setInitialWidth(400);
-		
-        //text (model set later)
-        Label text = new Label("text", new StringResourceModel("text.friend.add", null, new Object[]{ friendName } ));
+				
+        //text
+        Label text = new Label("text", new StringResourceModel("text.friend.confirm", null, new Object[]{ friendName } ));
         text.setEscapeModelStrings(false);
         add(text);
-        
-                   
+           
         //setup form		
 		Form form = new Form("form");
 		form.setOutputMarkupId(true);
 		
 		//submit button
-		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.add"), form) {
+		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.confirm"), form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
-				 /* THIS NEEDS TO GO IN ONSUBMIT, IE DO CHECKING HERE  - and update text label */
-		        //already friends/pending
-				/*
-				boolean friend = false;
-				boolean friendRequestToThisPerson = false;
-				boolean friendRequestFromThisPerson = false;
-
-				//friend?
-				friend = profile.isUserXFriendOfUserY(userX, userY);
-
-				//if not friend, has a friend request already been made to this person?
-				if(!friend) {
-					friendRequestToThisPerson = profile.isFriendRequestPending(userX, userY);
-				}
-				
-				//if not friend and no friend request to this person, has a friend request been made from this person to the current user?
-				if(!friend && !friendRequestToThisPerson) {
-					friendRequestFromThisPerson = profile.isFriendRequestPending(userY, userX);
-				}
-		        
-				//set text appropriately - disable submit if required
-				if(friend) {
-			        text.setModel(new StringResourceModel("text.friend.already", null, new Object[]{ friendName } ));
-			        submitButton.setVisible(false);
-				} else if (friendRequestToThisPerson || friendRequestFromThisPerson) {
-			        text.setModel(new StringResourceModel("text.friend.already.pending", null, new Object[]{ friendName } ));
-			        submitButton.setVisible(false);
-				} else {
-			        //ok
-				}
-				*/
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				//if ok, request friend
-				if(profile.requestFriend(userX, userY)) {
+				//confirm friend (note order must be backwards like this)
+				if(profile.confirmFriend(userY, userX)) {
 					basePage.setFriendRequestedResult(true);
 				} else {
 					//it failed, the logs will say why but we need to UI stuff here.
@@ -119,14 +78,8 @@ public class AddFriend extends Panel {
         //add form
         add(form);
         
-        
-       
-        
-
     }
 
-	
-	
 	
 	
 }

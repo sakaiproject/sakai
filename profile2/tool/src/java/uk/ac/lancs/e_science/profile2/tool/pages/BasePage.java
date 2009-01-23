@@ -28,7 +28,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	protected transient SakaiProxy sakaiProxy;
 	protected transient Profile profile;
-	private boolean confirmResult;
+	
+	private boolean friendRequestedResult;
+	private boolean friendConfirmedResult;
+	private boolean friendRemovedResult;
 	
 	private static final String RSS_IMG = "/library/image/feed.png";
 
@@ -220,13 +223,35 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	public BasePage getBasePage() {
 		return this;
 	}
+
 	
-	public boolean getConfirmResult() {
-		return confirmResult;
+	/* MODAL WINDOW HANDLERS */
+	
+	public boolean isFriendRequestedResult() {
+		return friendRequestedResult;
 	}
 
-	public void setConfirmResult(boolean confirmResult){
-		this.confirmResult = confirmResult;
+	public void setFriendRequestedResult(boolean friendRequestedResult) {
+		this.friendRequestedResult = friendRequestedResult;
 	}
+
+	public boolean isFriendConfirmedResult() {
+		return friendConfirmedResult;
+	}
+
+	public void setFriendConfirmedResult(boolean friendConfirmedResult) {
+		this.friendConfirmedResult = friendConfirmedResult;
+	}
+
+	public boolean isFriendRemovedResult() {
+		return friendRemovedResult;
+	}
+
+	public void setFriendRemovedResult(boolean friendRemovedResult) {
+		this.friendRemovedResult = friendRemovedResult;
+	}
+	
+	
+	
 	
 }

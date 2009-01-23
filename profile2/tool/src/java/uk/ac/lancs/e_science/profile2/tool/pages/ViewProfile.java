@@ -415,7 +415,7 @@ public class ViewProfile extends BasePage {
 		
 		//ADD FRIEND MODAL WINDOW
 		final ModalWindow addFriendWindow = new ModalWindow("addFriendWindow");
-		addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, basePage, currentUserId, userUuid, userDisplayName)); 
+		addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, basePage, currentUserId, userUuid)); 
 
 		//FRIEND LINK/STATUS
 		final AjaxLink addFriendLink = new AjaxLink("addFriendLink") {

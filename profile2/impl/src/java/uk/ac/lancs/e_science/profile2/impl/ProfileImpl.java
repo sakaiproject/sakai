@@ -345,19 +345,19 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriend(final String friendId, final String userId)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriend(final String fromUser, final String toUser)
 	 */
-	public boolean confirmFriend(final String userId, final String friendId) {
+	public boolean confirmFriend(final String fromUser, final String toUser) {
 		
-		if(userId == null || friendId == null){
+		if(fromUser == null || toUser == null){
 	  		throw new IllegalArgumentException("Null Argument in confirmFriend");
 	  	}
 		
 		//get pending ProfileFriend object request for the given details
-		ProfileFriend profileFriend = getPendingFriendRequest(userId, friendId);
+		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
 
 		if(profileFriend == null) {
-			log.warn("confirmFriend() failed. No pending friend request from userId: " + userId + " to friendId: " + friendId + " found.");
+			log.warn("confirmFriend() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
 			return false;
 		}
 		
@@ -368,7 +368,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//save
 		try {
 			getHibernateTemplate().update(profileFriend);
-			log.info("User: " + friendId + " confirmed friend request from: " + userId);
+			log.info("User: " + fromUser + " confirmed friend request from: " + toUser);
 			return true;
 		} catch (Exception e) {
 			log.error("confirmFriend() failed. " + e.getClass() + ": " + e.getMessage());
@@ -1398,7 +1398,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	//private utility method used by findUsersByNameOrEmail() and findUsersByInterest() to format results from
-	//the supplied userUuids to SearchResult records based on friend status and the privacy settings for each user
+	//the supplied userUuids to SearchResult records based on friend or friendRequest status and the privacy settings for each user
 	//that was in the initial search results
 	private List<SearchResult> createSearchResultRecordsFromSearch(List<String> userUuids, String userId) {
 
@@ -1410,19 +1410,39 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		for(Iterator<String> i = userUuids.iterator(); i.hasNext();){
 			String userUuid = (String)i.next();
 			
+			//friend?
 			boolean friend = isUserXFriendOfUserY(userUuid, userId);
 			
-			if(!isUserXVisibleInSearchesByUserY(userUuid, userId, friend)) {
-				continue; //not visible, skip
+			//init request flags
+			boolean friendRequestToThisPerson = false;
+			boolean friendRequestFromThisPerson = false;
+			
+			//if not friend, has a friend request already been made to this person?
+			if(!friend) {
+				friendRequestToThisPerson = isFriendRequestPending(userId, userUuid);
 			}
 			
+			//if not friend and no friend request to this person, has a friend request been made from this person to the current user?
+			if(!friend && !friendRequestToThisPerson) {
+				friendRequestFromThisPerson = isFriendRequestPending(userUuid, userId);
+			}
+			
+			//is this user visible in searches by this user? if not, skip
+			if(!isUserXVisibleInSearchesByUserY(userUuid, userId, friend)) {
+				continue; 
+			}
+			
+			//is profile/ photo visible to this user
 			boolean profileAllowed = isUserXProfileVisibleByUserY(userUuid, userId, friend);
 			
 			//make object
 			SearchResult searchResult = new SearchResult(
 					userUuid,
 					friend,
-					profileAllowed);
+					profileAllowed,
+					friendRequestToThisPerson,
+					friendRequestFromThisPerson
+					);
 			
 			results.add(searchResult);
 		}

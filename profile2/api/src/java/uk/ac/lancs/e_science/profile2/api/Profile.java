@@ -94,15 +94,15 @@ public interface Profile {
 	public boolean isFriendRequestPending(String userId, String friendId);
 	
 	/**
-	 * Confirm that userId is a friend of friendId (from a pending friend request)
+	 * Confirm that toUser is a friend of fromUser (from a pending friend request)
 	 *
-	 * @param userId		uuid of the user that made the original friend request
-	 * @param friendId		uuid of the user that received the friend request
+	 * @param fromUser		uuid of the user that made the original friend request
+	 * @param toUser		uuid of the user that received the friend request
 	 * 
-	 * Note that userId will ALWAYS be the one making the friend request, and friendId
+	 * Note that fromUser will ALWAYS be the one making the friend request, and toUser
 	 * will ALWAYS be the one who receives the request.
 	 */
-	public boolean confirmFriend(String userId, String friendId);
+	public boolean confirmFriend(String fromUser, String toUser);
 	
 	/**
 	 * Remove a friend connection

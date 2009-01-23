@@ -82,11 +82,18 @@
 			    		<a href="#" wicket:id="result-profileLink"><span wicket:id="result-name" class="friendsListInfoName">[name]</span></a>
 			    	</div>
 			    	<div class="friendsListActions">
-			    		<!-- <a wicket:id="result-connectionLink"><span wicket:id="result-connectionLabel">[add/remove]</span></a>-->
+			    		<span wicket:id="result-connectionStatus" class="searchFriendLabel">[you are friends]</span>
+			    		<!--  only one of these will be visible/activated at any one time (except if ignoring a friend request)  -->
+			    		<a wicket:id="result-addConnectionLink" class="searchAddFriend"><span wicket:id="result-addConnectionLabel">[add connection]</span></a>
+			    		<a wicket:id="result-confirmConnectionLink" class="searchConfirmFriend"><span wicket:id="result-confirmConnectionLabel">[confirm connection]</span></a>
+			    		<a wicket:id="result-ignoreConnectionLink" class="searchRemoveFriend"><span wicket:id="result-ignoreConnectionLabel">[ignore connection]</span></a>
+			    		<a wicket:id="result-removeConnectionLink" class="searchRemoveFriend"><span wicket:id="result-removeConnectionLabel">[remove connection]</span></a>
 			    	</div>
-			    	
-			    	<!-- <div wicket:id="result-actionWindow"></div>-->
-			    	
+			    	<!--  window placeholders -->
+					<div wicket:id="result-addConnectionWindow"></div>	
+					<div wicket:id="result-confirmConnectionWindow"></div>	
+					<div wicket:id="result-ignoreConnectionWindow"></div>	
+					<div wicket:id="result-removeConnectionWindow"></div>			    	
 			  	</div>
 			</div>
 			

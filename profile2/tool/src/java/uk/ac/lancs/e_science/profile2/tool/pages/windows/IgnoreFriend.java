@@ -15,15 +15,15 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.pages.BasePage;
 
-public class RemoveFriend extends Panel {
+public class IgnoreFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(RemoveFriend.class);
+	private transient Logger log = Logger.getLogger(IgnoreFriend.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile;
 
 	
-	public RemoveFriend(String id, final ModalWindow window, final BasePage basePage, final String userX, final String userY){
+	public IgnoreFriend(String id, final ModalWindow window, final BasePage basePage, final String userX, final String userY){
         super(id);
 
         //get API's
@@ -34,12 +34,12 @@ public class RemoveFriend extends Panel {
         String friendName = sakaiProxy.getUserDisplayName(userY);
                 
         //window setup
-		window.setTitle(new ResourceModel("title.friend.remove")); 
+		window.setTitle(new ResourceModel("title.friend.ignore")); 
 		window.setInitialHeight(100);
 		window.setInitialWidth(400);
 				
         //text
-        Label text = new Label("text", new StringResourceModel("text.friend.remove", null, new Object[]{ friendName } ));
+        Label text = new Label("text", new StringResourceModel("text.friend.ignore", null, new Object[]{ friendName } ));
         text.setEscapeModelStrings(false);
         add(text);
            
@@ -48,16 +48,16 @@ public class RemoveFriend extends Panel {
 		form.setOutputMarkupId(true);
 		
 		//submit button
-		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.remove"), form) {
+		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.ignore"), form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
-				//try to remove friend
+				//try to ignore friend, ie just remove request.
 				if(profile.removeFriend(userX, userY)) {
 					basePage.setFriendRemovedResult(true);
 				} else {
 					//it failed, the logs will say why but we need to UI stuff here.
 					basePage.setFriendRemovedResult(false);
-					target.appendJavascript("alert('Failed to remove friend. Check the system logs.');");
+					target.appendJavascript("alert('Failed to ignore friend request. Check the system logs.');");
 				}
 				window.close(target);
             }

@@ -466,7 +466,6 @@
 }
 
 .searchAddFriend, .searchConfirmFriend, .searchRemoveFriend {
-	display: block;
 	font-size: 70%;
 	padding-left: 24px;
 	padding-bottom: 4px;
@@ -486,7 +485,10 @@
 	background-image: url("/library/image/silk/user_delete.png");
 }
 
-
+.searchFriendLabel {
+	color: #5D5D5D;
+	font-size: 90%;
+}
 
 
 .rssLink {
