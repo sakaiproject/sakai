@@ -91,6 +91,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.Date;
@@ -2035,9 +2036,9 @@ public class DavServlet extends HttpServlet
 							// Create multistatus object
 							XMLWriter generatedXML = new XMLWriter(resp.getWriter());
 							generatedXML.writeXMLHeader();
-							generatedXML.writeElement(null, "multistatus" + generateNamespaceDeclarations(), XMLWriter.OPENING);
+							generatedXML.writeElement("D", "multistatus" + generateNamespaceDeclarations(), XMLWriter.OPENING);
 							parseLockNullProperties(req, generatedXML, lockNullPath, type, properties);
-							generatedXML.writeElement(null, "multistatus", XMLWriter.CLOSING);
+							generatedXML.writeElement("D", "multistatus", XMLWriter.CLOSING);
 							generatedXML.sendData();
 							return;
 						}
@@ -2060,7 +2061,7 @@ public class DavServlet extends HttpServlet
 		XMLWriter generatedXML = new XMLWriter(resp.getWriter());
 		generatedXML.writeXMLHeader();
 
-		generatedXML.writeElement(null, "multistatus" + generateNamespaceDeclarations(), XMLWriter.OPENING);
+		generatedXML.writeElement("D", "multistatus" + generateNamespaceDeclarations(), XMLWriter.OPENING);
 
 		if (depth == 0)
 		{
@@ -2139,7 +2140,7 @@ public class DavServlet extends HttpServlet
 			}
 		}
 
-		generatedXML.writeElement(null, "multistatus", XMLWriter.CLOSING);
+		generatedXML.writeElement("D", "multistatus", XMLWriter.CLOSING);
 		// if (M_log.isDebugEnabled()) M_log.debug("SAKAIDAV.propfind() at end:" + generatedXML.toString());
 		generatedXML.sendData();
 
@@ -2151,19 +2152,116 @@ public class DavServlet extends HttpServlet
 	protected void doProppatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 
-		if (readOnly)
-		{
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
+	    //		if (readOnly)
+	    //		{
+	    //			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
+	    //			return;
+	    //		}
 
-		if (isLocked(req))
-		{
-			resp.sendError(SakaidavStatus.SC_LOCKED);
-			return;
-		}
+	    //		if (isLocked(req))
+	    //		{
+	    //			resp.sendError(SakaidavStatus.SC_LOCKED);
+	    //			return;
+	    //		}
 
-		resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+	    // we can't actually do this, but MS requires us to. Say we did.
+	    // I'm trying to be as close to valid here, so I generate an OK
+	    // for all the properties they tried to set. This is really hairy because
+	    // it gets into name spaces. But if we ever try to implement this for real,
+	    // we'll have to do this. So might as well start now.
+	    //    During testing I found by mistake that it's actually OK to send
+	    // an empty multistatus return, so I don't actually  need all of this stuff.
+	    //    The big problem is that the properties are typically not in the dav namespace
+	    // we build a hash table of namespaces, with the prefix we're going to use
+	    // since D: is used for dav, we start with E:, actually D+1
+
+	    DocumentBuilder documentBuilder = null;
+	    try {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
+		documentBuilder = factory.newDocumentBuilder();
+	    } catch (Exception e) {
+		resp.sendError(SakaidavStatus.SC_METHOD_FAILURE);
+		return;
+	    }
+
+	    int contentLength = req.getContentLength();
+
+	    // a list of the properties with the new prefix
+	    List<String> props = new ArrayList<String>();
+	    // hash of namespace, prefix
+	    Hashtable<String,String> spaces = new Hashtable<String, String>();
+
+	    // read the xml document
+	    if (contentLength > 0) {
+
+		byte[] byteContent = new byte[contentLength];
+		InputStream inputStream = req.getInputStream();
+
+		int lenRead = 0;
+
+		try {
+		    while (lenRead < contentLength) {
+			int read = inputStream.read(byteContent, lenRead, contentLength - lenRead);
+			if (read <= 0) break;
+			lenRead += read;
+		    }
+		}catch (Exception ignore) {}
+		
+		// Parse the input XML to see what they really want
+		if (lenRead > 0) 
+		    try {
+			// if we got here, "is" is the xml document
+			InputStream is = new ByteArrayInputStream(byteContent, 0, lenRead);
+			Document document = documentBuilder.parse(new InputSource(is));
+
+			// Get the root element of the document
+			Element rootElement = document.getDocumentElement();
+			// find all the property nodes
+			NodeList childList = rootElement.getElementsByTagNameNS("DAV:", "prop");
+
+			int nextChar = 1;
+
+			for (int i = 0; i < childList.getLength(); i++) {
+
+			    // this should be a prop node
+			    Node currentNode = childList.item(i);
+			    // this should be the actual property
+			    NodeList names = currentNode.getChildNodes();
+			    // this should be the name
+			    for (int j = 0; j < names.getLength(); j++ ) {
+				String namespace = names.item(j).getNamespaceURI();
+				String prefix = spaces.get(namespace);
+				// see if we know about this namespace. If not add it and
+				// generate a prefix
+				if (prefix == null) {
+				    prefix = "" +  Character.toChars('D' + nextChar)[0];
+				    spaces.put(namespace, prefix);
+				}
+				props.add(prefix + ":" + names.item(j).getLocalName());
+			    }
+			}
+		    } catch (Exception ignore) {}
+	    }
+
+
+	    //		resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
+	    resp.setStatus(SakaidavStatus.SC_MULTI_STATUS);
+	    resp.setContentType("text/xml; charset=UTF-8");
+
+	    Writer writer = resp.getWriter();
+
+	    writer.write("<D:multistatus xmlns:D=\"DAV:\"");
+	    // dump all the name spaces and their prefix
+	    for (String namespace: spaces.keySet())
+		writer.write(" xmlns:" + spaces.get(namespace) + "=\"" + namespace + "\"");
+	    writer.write("><D:response><D:href>" + javax.servlet.http.HttpUtils.getRequestURL(req) + "</D:href>");
+	    // now output properties, claiming we did it
+	    for (String pname: props) {
+		writer.write("<D:propstat><D:prop><" + pname + "/></D:prop><D:status>HTTP/1.1 201 OK</D:status></D:propstat>");
+	    }
+	    writer.write("</D:response></D:multistatus>");
+	    writer.close();
 
 	}
 
@@ -2990,23 +3088,23 @@ public class DavServlet extends HttpServlet
 					XMLWriter generatedXML = new XMLWriter();
 					generatedXML.writeXMLHeader();
 
-					generatedXML.writeElement(null, "multistatus" + generateNamespaceDeclarations(), XMLWriter.OPENING);
+					generatedXML.writeElement("D", "multistatus" + generateNamespaceDeclarations(), XMLWriter.OPENING);
 
 					while (lockPathsList.hasMoreElements())
 					{
-						generatedXML.writeElement(null, "response", XMLWriter.OPENING);
-						generatedXML.writeElement(null, "href", XMLWriter.OPENING);
+						generatedXML.writeElement("D", "response", XMLWriter.OPENING);
+						generatedXML.writeElement("D", "href", XMLWriter.OPENING);
 						generatedXML.writeText((String) lockPathsList.nextElement());
-						generatedXML.writeElement(null, "href", XMLWriter.CLOSING);
-						generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+						generatedXML.writeElement("D", "href", XMLWriter.CLOSING);
+						generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 						generatedXML.writeText("HTTP/1.1 " + SakaidavStatus.SC_LOCKED + " "
 								+ SakaidavStatus.getStatusText(SakaidavStatus.SC_LOCKED));
-						generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
+						generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
 
-						generatedXML.writeElement(null, "response", XMLWriter.CLOSING);
+						generatedXML.writeElement("D", "response", XMLWriter.CLOSING);
 					}
 
-					generatedXML.writeElement(null, "multistatus", XMLWriter.CLOSING);
+					generatedXML.writeElement("D", "multistatus", XMLWriter.CLOSING);
 
 					Writer writer = resp.getWriter();
 					writer.write(generatedXML.toString());
@@ -3177,15 +3275,15 @@ public class DavServlet extends HttpServlet
 		// the lock information
 		XMLWriter generatedXML = new XMLWriter();
 		generatedXML.writeXMLHeader();
-		generatedXML.writeElement(null, "prop" + generateNamespaceDeclarations(), XMLWriter.OPENING);
+		generatedXML.writeElement("D", "prop" + generateNamespaceDeclarations(), XMLWriter.OPENING);
 
-		generatedXML.writeElement(null, "lockdiscovery", XMLWriter.OPENING);
+		generatedXML.writeElement("D", "lockdiscovery", XMLWriter.OPENING);
 
 		lock.toXML(generatedXML, true);
 
-		generatedXML.writeElement(null, "lockdiscovery", XMLWriter.CLOSING);
+		generatedXML.writeElement("D", "lockdiscovery", XMLWriter.CLOSING);
 
-		generatedXML.writeElement(null, "prop", XMLWriter.CLOSING);
+		generatedXML.writeElement("D", "prop", XMLWriter.CLOSING);
 
 		/* the RFC requires this header in response to lock creation */
 
@@ -3317,7 +3415,7 @@ public class DavServlet extends HttpServlet
 	 */
 	private String generateNamespaceDeclarations()
 	{
-		return " xmlns=\"" + DEFAULT_NAMESPACE + "\"";
+		return " xmlns:D=\"" + DEFAULT_NAMESPACE + "\"";
 	}
 
 	/**
@@ -4029,7 +4127,7 @@ public class DavServlet extends HttpServlet
 		XMLWriter generatedXML = new XMLWriter();
 		generatedXML.writeXMLHeader();
 
-		generatedXML.writeElement(null, "multistatus" + generateNamespaceDeclarations(), XMLWriter.OPENING);
+		generatedXML.writeElement("D", "multistatus" + generateNamespaceDeclarations(), XMLWriter.OPENING);
 
 		Enumeration pathList = errorList.keys();
 		while (pathList.hasMoreElements())
@@ -4038,22 +4136,22 @@ public class DavServlet extends HttpServlet
 			String errorPath = (String) pathList.nextElement();
 			int errorCode = ((Integer) errorList.get(errorPath)).intValue();
 
-			generatedXML.writeElement(null, "response", XMLWriter.OPENING);
+			generatedXML.writeElement("D", "response", XMLWriter.OPENING);
 
-			generatedXML.writeElement(null, "href", XMLWriter.OPENING);
+			generatedXML.writeElement("D", "href", XMLWriter.OPENING);
 			String toAppend = errorPath.substring(relativePath.length());
 			if (!toAppend.startsWith("/")) toAppend = "/" + toAppend;
 			generatedXML.writeText(absoluteUri + toAppend);
-			generatedXML.writeElement(null, "href", XMLWriter.CLOSING);
-			generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+			generatedXML.writeElement("D", "href", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 			generatedXML.writeText("HTTP/1.1 " + errorCode + " " + SakaidavStatus.getStatusText(errorCode));
-			generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
 
-			generatedXML.writeElement(null, "response", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "response", XMLWriter.CLOSING);
 
 		}
 
-		generatedXML.writeElement(null, "multistatus", XMLWriter.CLOSING);
+		generatedXML.writeElement("D", "multistatus", XMLWriter.CLOSING);
 
 		Writer writer = resp.getWriter();
 		writer.write(generatedXML.toString());
@@ -4084,11 +4182,11 @@ public class DavServlet extends HttpServlet
 
 		ResourceInfoSAKAI resourceInfo = new ResourceInfoSAKAI(path, resources);
 
-		generatedXML.writeElement(null, "response", XMLWriter.OPENING);
+		generatedXML.writeElement("D", "response", XMLWriter.OPENING);
 		String status = new String("HTTP/1.1 " + SakaidavStatus.SC_OK + " " + SakaidavStatus.getStatusText(SakaidavStatus.SC_OK));
 
 		// Generating href element
-		generatedXML.writeElement(null, "href", XMLWriter.OPENING);
+		generatedXML.writeElement("D", "href", XMLWriter.OPENING);
 
 		String href = (String) req.getAttribute("javax.servlet.forward.servlet_path");
 		if (href == null)
@@ -4110,7 +4208,7 @@ public class DavServlet extends HttpServlet
 
 		generatedXML.writeText(rewriteUrl(href));
 
-		generatedXML.writeElement(null, "href", XMLWriter.CLOSING);
+		generatedXML.writeElement("D", "href", XMLWriter.CLOSING);
 
 		String resourceName = justName(path);
 
@@ -4119,74 +4217,74 @@ public class DavServlet extends HttpServlet
 
 			case FIND_ALL_PROP:
 
-				generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
-				generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.OPENING);
 
-				generatedXML.writeProperty(null, "creationdate", getISOCreationDate(resourceInfo.creationDate));
-				generatedXML.writeElement(null, "displayname", XMLWriter.OPENING);
+				generatedXML.writeProperty("D", "creationdate", getISOCreationDate(resourceInfo.creationDate));
+				generatedXML.writeElement("D", "displayname", XMLWriter.OPENING);
 				generatedXML.writeData(resourceName);
-				generatedXML.writeElement(null, "displayname", XMLWriter.CLOSING);
-				generatedXML.writeProperty(null, "getcontentlanguage", Locale.getDefault().toString());
+				generatedXML.writeElement("D", "displayname", XMLWriter.CLOSING);
+				generatedXML.writeProperty("D", "getcontentlanguage", Locale.getDefault().toString());
 				if (!resourceInfo.collection)
 				{
-					generatedXML.writeProperty(null, "getlastmodified", resourceInfo.httpDate);
-					generatedXML.writeProperty(null, "getcontentlength", String.valueOf(resourceInfo.length));
-					generatedXML.writeProperty(null, "getcontenttype", resourceInfo.MIMEType);
+					generatedXML.writeProperty("D", "getlastmodified", resourceInfo.httpDate);
+					generatedXML.writeProperty("D", "getcontentlength", String.valueOf(resourceInfo.length));
+					generatedXML.writeProperty("D", "getcontenttype", resourceInfo.MIMEType);
 					// getServletContext().getMimeType(resourceInfo.path));
-					generatedXML.writeProperty(null, "getetag", resourceInfo.eTag);
+					generatedXML.writeProperty("D", "getetag", resourceInfo.eTag);
 					// getETagValue(resourceInfo, true));
-					generatedXML.writeElement(null, "resourcetype", XMLWriter.NO_CONTENT);
+					generatedXML.writeElement("D", "resourcetype", XMLWriter.NO_CONTENT);
 				}
 				else
 				{
-					generatedXML.writeElement(null, "resourcetype", XMLWriter.OPENING);
-					generatedXML.writeElement(null, "collection", XMLWriter.NO_CONTENT);
-					generatedXML.writeElement(null, "resourcetype", XMLWriter.CLOSING);
+					generatedXML.writeElement("D", "resourcetype", XMLWriter.OPENING);
+					generatedXML.writeElement("D", "collection", XMLWriter.NO_CONTENT);
+					generatedXML.writeElement("D", "resourcetype", XMLWriter.CLOSING);
 				}
 
-				generatedXML.writeProperty(null, "source", "");
+				generatedXML.writeProperty("D", "source", "");
 
-				String supportedLocks = "<lockentry>" + "<lockscope><exclusive/></lockscope>" + "<locktype><write/></locktype>"
-						+ "</lockentry>" + "<lockentry>" + "<lockscope><shared/></lockscope>" + "<locktype><write/></locktype>"
-						+ "</lockentry>";
-				generatedXML.writeElement(null, "supportedlock", XMLWriter.OPENING);
+				String supportedLocks = "<D:lockentry>" + "<D:lockscope><D:exclusive/></D:lockscope>" + "<D:locktype><D:write/></D:locktype>"
+						+ "</D:lockentry>" + "<D:lockentry>" + "<D:lockscope><D:shared/></D:lockscope>" + "<D:locktype><D:write/></D:locktype>"
+						+ "</D:lockentry>";
+				generatedXML.writeElement("D", "supportedlock", XMLWriter.OPENING);
 				generatedXML.writeText(supportedLocks);
-				generatedXML.writeElement(null, "supportedlock", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "supportedlock", XMLWriter.CLOSING);
 
 				generateLockDiscovery(path, generatedXML);
 
-				generatedXML.writeElement(null, "prop", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 				generatedXML.writeText(status);
-				generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "propstat", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.CLOSING);
 
 				break;
 
 			case FIND_PROPERTY_NAMES:
 
-				generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
-				generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.OPENING);
 
-				generatedXML.writeElement(null, "creationdate", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "displayname", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "creationdate", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "displayname", XMLWriter.NO_CONTENT);
 				if (!resourceInfo.collection)
 				{
-					generatedXML.writeElement(null, "getcontentlanguage", XMLWriter.NO_CONTENT);
-					generatedXML.writeElement(null, "getcontentlength", XMLWriter.NO_CONTENT);
-					generatedXML.writeElement(null, "getcontenttype", XMLWriter.NO_CONTENT);
-					generatedXML.writeElement(null, "getetag", XMLWriter.NO_CONTENT);
-					generatedXML.writeElement(null, "getlastmodified", XMLWriter.NO_CONTENT);
+					generatedXML.writeElement("D", "getcontentlanguage", XMLWriter.NO_CONTENT);
+					generatedXML.writeElement("D", "getcontentlength", XMLWriter.NO_CONTENT);
+					generatedXML.writeElement("D", "getcontenttype", XMLWriter.NO_CONTENT);
+					generatedXML.writeElement("D", "getetag", XMLWriter.NO_CONTENT);
+					generatedXML.writeElement("D", "getlastmodified", XMLWriter.NO_CONTENT);
 				}
-				generatedXML.writeElement(null, "resourcetype", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "source", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "lockdiscovery", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "resourcetype", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "source", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "lockdiscovery", XMLWriter.NO_CONTENT);
 
-				generatedXML.writeElement(null, "prop", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 				generatedXML.writeText(status);
-				generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "propstat", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.CLOSING);
 
 				break;
 
@@ -4196,8 +4294,8 @@ public class DavServlet extends HttpServlet
 
 				// Parse the list of properties
 
-				generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
-				generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.OPENING);
 
 				Enumeration properties = propertiesVector.elements();
 
@@ -4208,14 +4306,14 @@ public class DavServlet extends HttpServlet
 
 					if (property.equals("creationdate"))
 					{
-						generatedXML.writeProperty(null, "creationdate", getISOCreationDate(resourceInfo.creationDate));
+						generatedXML.writeProperty("D", "creationdate", getISOCreationDate(resourceInfo.creationDate));
 					}
 					else if (property.equals("displayname"))
 					{
-						generatedXML.writeElement(null, "displayname", XMLWriter.OPENING);
+						generatedXML.writeElement("D", "displayname", XMLWriter.OPENING);
 
 						generatedXML.writeData(resourceInfo.displayName);
-						generatedXML.writeElement(null, "displayname", XMLWriter.CLOSING);
+						generatedXML.writeElement("D", "displayname", XMLWriter.CLOSING);
 					}
 					else if (property.equals("getcontentlanguage"))
 					{
@@ -4225,7 +4323,7 @@ public class DavServlet extends HttpServlet
 						}
 						else
 						{
-							generatedXML.writeProperty(null, "getcontentlanguage", Locale.getDefault().toString());
+							generatedXML.writeProperty("D", "getcontentlanguage", Locale.getDefault().toString());
 						}
 					}
 					else if (property.equals("getcontentlength"))
@@ -4236,7 +4334,7 @@ public class DavServlet extends HttpServlet
 						}
 						else
 						{
-							generatedXML.writeProperty(null, "getcontentlength", (String.valueOf(resourceInfo.length)));
+							generatedXML.writeProperty("D", "getcontentlength", (String.valueOf(resourceInfo.length)));
 						}
 					}
 					else if (property.equals("getcontenttype"))
@@ -4247,7 +4345,7 @@ public class DavServlet extends HttpServlet
 						}
 						else
 						{
-							generatedXML.writeProperty(null, "getcontenttype", getServletContext().getMimeType(resourceInfo.path));
+							generatedXML.writeProperty("D", "getcontenttype", getServletContext().getMimeType(resourceInfo.path));
 						}
 					}
 					else if (property.equals("getetag"))
@@ -4258,7 +4356,7 @@ public class DavServlet extends HttpServlet
 						}
 						else
 						{
-							generatedXML.writeProperty(null, "getetag", resourceInfo.eTag);
+							generatedXML.writeProperty("D", "getetag", resourceInfo.eTag);
 							// getETagValue(resourceInfo, true));
 						}
 					}
@@ -4270,20 +4368,20 @@ public class DavServlet extends HttpServlet
 						}
 						else
 						{
-							generatedXML.writeProperty(null, "getlastmodified", resourceInfo.httpDate);
+							generatedXML.writeProperty("D", "getlastmodified", resourceInfo.httpDate);
 						}
 					}
 					else if (property.equals("resourcetype"))
 					{
 						if (resourceInfo.collection)
 						{
-							generatedXML.writeElement(null, "resourcetype", XMLWriter.OPENING);
-							generatedXML.writeElement(null, "collection", XMLWriter.NO_CONTENT);
-							generatedXML.writeElement(null, "resourcetype", XMLWriter.CLOSING);
+							generatedXML.writeElement("D", "resourcetype", XMLWriter.OPENING);
+							generatedXML.writeElement("D", "collection", XMLWriter.NO_CONTENT);
+							generatedXML.writeElement("D", "resourcetype", XMLWriter.CLOSING);
 						}
 						else
 						{
-							generatedXML.writeElement(null, "resourcetype", XMLWriter.NO_CONTENT);
+							generatedXML.writeElement("D", "resourcetype", XMLWriter.NO_CONTENT);
 						}
 						// iscollection is an MS property. Contribute uses it but seems to be
 						// able to get along without it
@@ -4294,16 +4392,16 @@ public class DavServlet extends HttpServlet
 					}
 					else if (property.equals("source"))
 					{
-						generatedXML.writeProperty(null, "source", "");
+						generatedXML.writeProperty("D", "source", "");
 					}
 					else if (property.equals("supportedlock"))
 					{
-						supportedLocks = "<lockentry>" + "<lockscope><exclusive/></lockscope>" + "<locktype><write/></locktype>"
-								+ "</lockentry>" + "<lockentry>" + "<lockscope><shared/></lockscope>"
-								+ "<locktype><write/></locktype>" + "</lockentry>";
-						generatedXML.writeElement(null, "supportedlock", XMLWriter.OPENING);
+						supportedLocks = "<D:lockentry>" + "<D:lockscope><D:exclusive/></D:lockscope>" + "<D:locktype><D:write/></D:locktype>"
+								+ "</D:lockentry>" + "<D:lockentry>" + "<D:lockscope><D:shared/></D:lockscope>"
+								+ "<D:locktype><D:write/></D:locktype>" + "</D:lockentry>";
+						generatedXML.writeElement("D", "supportedlock", XMLWriter.OPENING);
 						generatedXML.writeText(supportedLocks);
-						generatedXML.writeElement(null, "supportedlock", XMLWriter.CLOSING);
+						generatedXML.writeElement("D", "supportedlock", XMLWriter.CLOSING);
 					}
 					else if (property.equals("lockdiscovery"))
 					{
@@ -4315,11 +4413,11 @@ public class DavServlet extends HttpServlet
 					}
 				}
 
-				generatedXML.writeElement(null, "prop", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 				generatedXML.writeText(status);
-				generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "propstat", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.CLOSING);
 
 				Enumeration propertiesNotFoundList = propertiesNotFound.elements();
 
@@ -4328,26 +4426,26 @@ public class DavServlet extends HttpServlet
 					status = new String("HTTP/1.1 " + SakaidavStatus.SC_NOT_FOUND + " "
 							+ SakaidavStatus.getStatusText(SakaidavStatus.SC_NOT_FOUND));
 
-					generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
-					generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
+					generatedXML.writeElement("D", "propstat", XMLWriter.OPENING);
+					generatedXML.writeElement("D", "prop", XMLWriter.OPENING);
 
 					while (propertiesNotFoundList.hasMoreElements())
 					{
-						generatedXML.writeElement(null, (String) propertiesNotFoundList.nextElement(), XMLWriter.NO_CONTENT);
+						generatedXML.writeElement("D", (String) propertiesNotFoundList.nextElement(), XMLWriter.NO_CONTENT);
 					}
 
-					generatedXML.writeElement(null, "prop", XMLWriter.CLOSING);
-					generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+					generatedXML.writeElement("D", "prop", XMLWriter.CLOSING);
+					generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 					generatedXML.writeText(status);
-					generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
-					generatedXML.writeElement(null, "propstat", XMLWriter.CLOSING);
+					generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
+					generatedXML.writeElement("D", "propstat", XMLWriter.CLOSING);
 
 				}
 				break;
 
 		}
 
-		generatedXML.writeElement(null, "response", XMLWriter.CLOSING);
+		generatedXML.writeElement("D", "response", XMLWriter.CLOSING);
 
 	}
 
@@ -4378,11 +4476,11 @@ public class DavServlet extends HttpServlet
 
 		if (lock == null) return;
 
-		generatedXML.writeElement(null, "response", XMLWriter.OPENING);
+		generatedXML.writeElement("D", "response", XMLWriter.OPENING);
 		String status = new String("HTTP/1.1 " + SakaidavStatus.SC_OK + " " + SakaidavStatus.getStatusText(SakaidavStatus.SC_OK));
 
 		// Generating href element
-		generatedXML.writeElement(null, "href", XMLWriter.OPENING);
+		generatedXML.writeElement("D", "href", XMLWriter.OPENING);
 
 		String absoluteUri = req.getRequestURI();
 		String relativePath = getRelativePath(req);
@@ -4391,7 +4489,7 @@ public class DavServlet extends HttpServlet
 
 		generatedXML.writeText(rewriteUrl(normalize(absoluteUri + toAppend)));
 
-		generatedXML.writeElement(null, "href", XMLWriter.CLOSING);
+		generatedXML.writeElement("D", "href", XMLWriter.CLOSING);
 
 		String resourceName = justName(path);
 
@@ -4400,62 +4498,62 @@ public class DavServlet extends HttpServlet
 
 			case FIND_ALL_PROP:
 
-				generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
-				generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.OPENING);
 
-				generatedXML.writeProperty(null, "creationdate", getISOCreationDate(lock.creationDate.getTime()));
-				generatedXML.writeElement(null, "displayname", XMLWriter.OPENING);
+				generatedXML.writeProperty("D", "creationdate", getISOCreationDate(lock.creationDate.getTime()));
+				generatedXML.writeElement("D", "displayname", XMLWriter.OPENING);
 				generatedXML.writeData(resourceName);
-				generatedXML.writeElement(null, "displayname", XMLWriter.CLOSING);
-				generatedXML.writeProperty(null, "getcontentlanguage", Locale.getDefault().toString());
-				generatedXML.writeProperty(null, "getlastmodified", dateFormats()[0].format(lock.creationDate));
-				generatedXML.writeProperty(null, "getcontentlength", String.valueOf(0));
-				generatedXML.writeProperty(null, "getcontenttype", "");
-				generatedXML.writeProperty(null, "getetag", "");
-				generatedXML.writeElement(null, "resourcetype", XMLWriter.OPENING);
-				generatedXML.writeElement(null, "lock-null", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "resourcetype", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "displayname", XMLWriter.CLOSING);
+				generatedXML.writeProperty("D", "getcontentlanguage", Locale.getDefault().toString());
+				generatedXML.writeProperty("D", "getlastmodified", dateFormats()[0].format(lock.creationDate));
+				generatedXML.writeProperty("D", "getcontentlength", String.valueOf(0));
+				generatedXML.writeProperty("D", "getcontenttype", "");
+				generatedXML.writeProperty("D", "getetag", "");
+				generatedXML.writeElement("D", "resourcetype", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "lock-null", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "resourcetype", XMLWriter.CLOSING);
 
-				generatedXML.writeProperty(null, "source", "");
+				generatedXML.writeProperty("D", "source", "");
 
-				String supportedLocks = "<lockentry>" + "<lockscope><exclusive/></lockscope>" + "<locktype><write/></locktype>"
-						+ "</lockentry>" + "<lockentry>" + "<lockscope><shared/></lockscope>" + "<locktype><write/></locktype>"
-						+ "</lockentry>";
-				generatedXML.writeElement(null, "supportedlock", XMLWriter.OPENING);
+				String supportedLocks = "<D:lockentry>" + "<D:lockscope><D:exclusive/></D:lockscope>" + "<D:locktype><D:write/></D:locktype>"
+						+ "</D:lockentry>" + "<D:lockentry>" + "<D:lockscope><D:shared/></D:lockscope>" + "<D:locktype><D:write/></D:locktype>"
+						+ "</D:lockentry>";
+				generatedXML.writeElement("D", "supportedlock", XMLWriter.OPENING);
 				generatedXML.writeText(supportedLocks);
-				generatedXML.writeElement(null, "supportedlock", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "supportedlock", XMLWriter.CLOSING);
 
 				generateLockDiscovery(path, generatedXML);
 
-				generatedXML.writeElement(null, "prop", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 				generatedXML.writeText(status);
-				generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "propstat", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.CLOSING);
 
 				break;
 
 			case FIND_PROPERTY_NAMES:
 
-				generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
-				generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.OPENING);
 
-				generatedXML.writeElement(null, "creationdate", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "displayname", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "getcontentlanguage", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "getcontentlength", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "getcontenttype", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "getetag", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "getlastmodified", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "resourcetype", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "source", XMLWriter.NO_CONTENT);
-				generatedXML.writeElement(null, "lockdiscovery", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "creationdate", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "displayname", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "getcontentlanguage", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "getcontentlength", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "getcontenttype", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "getetag", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "getlastmodified", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "resourcetype", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "source", XMLWriter.NO_CONTENT);
+				generatedXML.writeElement("D", "lockdiscovery", XMLWriter.NO_CONTENT);
 
-				generatedXML.writeElement(null, "prop", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 				generatedXML.writeText(status);
-				generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "propstat", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.CLOSING);
 
 				break;
 
@@ -4465,8 +4563,8 @@ public class DavServlet extends HttpServlet
 
 				// Parse the list of properties
 
-				generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
-				generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.OPENING);
 
 				Enumeration properties = propertiesVector.elements();
 
@@ -4477,52 +4575,52 @@ public class DavServlet extends HttpServlet
 
 					if (property.equals("creationdate"))
 					{
-						generatedXML.writeProperty(null, "creationdate", getISOCreationDate(lock.creationDate.getTime()));
+						generatedXML.writeProperty("D", "creationdate", getISOCreationDate(lock.creationDate.getTime()));
 					}
 					else if (property.equals("displayname"))
 					{
-						generatedXML.writeElement(null, "displayname", XMLWriter.OPENING);
+						generatedXML.writeElement("D", "displayname", XMLWriter.OPENING);
 						generatedXML.writeData(resourceName);
-						generatedXML.writeElement(null, "displayname", XMLWriter.CLOSING);
+						generatedXML.writeElement("D", "displayname", XMLWriter.CLOSING);
 					}
 					else if (property.equals("getcontentlanguage"))
 					{
-						generatedXML.writeProperty(null, "getcontentlanguage", Locale.getDefault().toString());
+						generatedXML.writeProperty("D", "getcontentlanguage", Locale.getDefault().toString());
 					}
 					else if (property.equals("getcontentlength"))
 					{
-						generatedXML.writeProperty(null, "getcontentlength", (String.valueOf(0)));
+						generatedXML.writeProperty("D", "getcontentlength", (String.valueOf(0)));
 					}
 					else if (property.equals("getcontenttype"))
 					{
-						generatedXML.writeProperty(null, "getcontenttype", "");
+						generatedXML.writeProperty("D", "getcontenttype", "");
 					}
 					else if (property.equals("getetag"))
 					{
-						generatedXML.writeProperty(null, "getetag", "");
+						generatedXML.writeProperty("D", "getetag", "");
 					}
 					else if (property.equals("getlastmodified"))
 					{
-						generatedXML.writeProperty(null, "getlastmodified", dateFormats()[0].format(lock.creationDate));
+						generatedXML.writeProperty("D", "getlastmodified", dateFormats()[0].format(lock.creationDate));
 					}
 					else if (property.equals("resourcetype"))
 					{
-						generatedXML.writeElement(null, "resourcetype", XMLWriter.OPENING);
-						generatedXML.writeElement(null, "lock-null", XMLWriter.NO_CONTENT);
-						generatedXML.writeElement(null, "resourcetype", XMLWriter.CLOSING);
+						generatedXML.writeElement("D", "resourcetype", XMLWriter.OPENING);
+						generatedXML.writeElement("D", "lock-null", XMLWriter.NO_CONTENT);
+						generatedXML.writeElement("D", "resourcetype", XMLWriter.CLOSING);
 					}
 					else if (property.equals("source"))
 					{
-						generatedXML.writeProperty(null, "source", "");
+						generatedXML.writeProperty("D", "source", "");
 					}
 					else if (property.equals("supportedlock"))
 					{
-						supportedLocks = "<lockentry>" + "<lockscope><exclusive/></lockscope>" + "<locktype><write/></locktype>"
-								+ "</lockentry>" + "<lockentry>" + "<lockscope><shared/></lockscope>"
-								+ "<locktype><write/></locktype>" + "</lockentry>";
-						generatedXML.writeElement(null, "supportedlock", XMLWriter.OPENING);
+						supportedLocks = "<D:lockentry>" + "<D:lockscope><D:exclusive/></D:lockscope>" + "<D:locktype><D:write/></D:locktype>"
+								+ "</D:lockentry>" + "<D:lockentry>" + "<D:lockscope><D:shared/></D:lockscope>"
+								+ "<D:locktype><D:write/></D:locktype>" + "</D:lockentry>";
+						generatedXML.writeElement("D", "supportedlock", XMLWriter.OPENING);
 						generatedXML.writeText(supportedLocks);
-						generatedXML.writeElement(null, "supportedlock", XMLWriter.CLOSING);
+						generatedXML.writeElement("D", "supportedlock", XMLWriter.CLOSING);
 					}
 					else if (property.equals("lockdiscovery"))
 					{
@@ -4535,11 +4633,11 @@ public class DavServlet extends HttpServlet
 
 				}
 
-				generatedXML.writeElement(null, "prop", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "prop", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 				generatedXML.writeText(status);
-				generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
-				generatedXML.writeElement(null, "propstat", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "propstat", XMLWriter.CLOSING);
 
 				Enumeration propertiesNotFoundList = propertiesNotFound.elements();
 
@@ -4549,19 +4647,19 @@ public class DavServlet extends HttpServlet
 					status = new String("HTTP/1.1 " + SakaidavStatus.SC_NOT_FOUND + " "
 							+ SakaidavStatus.getStatusText(SakaidavStatus.SC_NOT_FOUND));
 
-					generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
-					generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
+					generatedXML.writeElement("D", "propstat", XMLWriter.OPENING);
+					generatedXML.writeElement("D", "prop", XMLWriter.OPENING);
 
 					while (propertiesNotFoundList.hasMoreElements())
 					{
-						generatedXML.writeElement(null, (String) propertiesNotFoundList.nextElement(), XMLWriter.NO_CONTENT);
+						generatedXML.writeElement("D", (String) propertiesNotFoundList.nextElement(), XMLWriter.NO_CONTENT);
 					}
 
-					generatedXML.writeElement(null, "prop", XMLWriter.CLOSING);
-					generatedXML.writeElement(null, "status", XMLWriter.OPENING);
+					generatedXML.writeElement("D", "prop", XMLWriter.CLOSING);
+					generatedXML.writeElement("D", "status", XMLWriter.OPENING);
 					generatedXML.writeText(status);
-					generatedXML.writeElement(null, "status", XMLWriter.CLOSING);
-					generatedXML.writeElement(null, "propstat", XMLWriter.CLOSING);
+					generatedXML.writeElement("D", "status", XMLWriter.CLOSING);
+					generatedXML.writeElement("D", "propstat", XMLWriter.CLOSING);
 
 				}
 
@@ -4569,7 +4667,7 @@ public class DavServlet extends HttpServlet
 
 		}
 
-		generatedXML.writeElement(null, "response", XMLWriter.CLOSING);
+		generatedXML.writeElement("D", "response", XMLWriter.CLOSING);
 
 	}
 
@@ -4593,7 +4691,7 @@ public class DavServlet extends HttpServlet
 		if (resourceLock != null)
 		{
 			wroteStart = true;
-			generatedXML.writeElement(null, "lockdiscovery", XMLWriter.OPENING);
+			generatedXML.writeElement("D", "lockdiscovery", XMLWriter.OPENING);
 			resourceLock.toXML(generatedXML);
 		}
 
@@ -4605,7 +4703,7 @@ public class DavServlet extends HttpServlet
 				if (!wroteStart)
 				{
 					wroteStart = true;
-					generatedXML.writeElement(null, "lockdiscovery", XMLWriter.OPENING);
+					generatedXML.writeElement("D", "lockdiscovery", XMLWriter.OPENING);
 				}
 				currentLock.toXML(generatedXML);
 			}
@@ -4613,7 +4711,7 @@ public class DavServlet extends HttpServlet
 
 		if (wroteStart)
 		{
-			generatedXML.writeElement(null, "lockdiscovery", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "lockdiscovery", XMLWriter.CLOSING);
 		}
 		else
 		{
@@ -4745,17 +4843,17 @@ public class DavServlet extends HttpServlet
 		public void toXML(XMLWriter generatedXML, boolean showToken)
 		{
 
-			generatedXML.writeElement(null, "activelock", XMLWriter.OPENING);
+			generatedXML.writeElement("D", "activelock", XMLWriter.OPENING);
 
-			generatedXML.writeElement(null, "locktype", XMLWriter.OPENING);
-			generatedXML.writeElement(null, type, XMLWriter.NO_CONTENT);
-			generatedXML.writeElement(null, "locktype", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "locktype", XMLWriter.OPENING);
+			generatedXML.writeElement("D", type, XMLWriter.NO_CONTENT);
+			generatedXML.writeElement("D", "locktype", XMLWriter.CLOSING);
 
-			generatedXML.writeElement(null, "lockscope", XMLWriter.OPENING);
-			generatedXML.writeElement(null, scope, XMLWriter.NO_CONTENT);
-			generatedXML.writeElement(null, "lockscope", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "lockscope", XMLWriter.OPENING);
+			generatedXML.writeElement("D", scope, XMLWriter.NO_CONTENT);
+			generatedXML.writeElement("D", "lockscope", XMLWriter.CLOSING);
 
-			generatedXML.writeElement(null, "depth", XMLWriter.OPENING);
+			generatedXML.writeElement("D", "depth", XMLWriter.OPENING);
 			if (depth == INFINITY)
 			{
 				generatedXML.writeText("Infinity");
@@ -4764,37 +4862,37 @@ public class DavServlet extends HttpServlet
 			{
 				generatedXML.writeText("0");
 			}
-			generatedXML.writeElement(null, "depth", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "depth", XMLWriter.CLOSING);
 
-			generatedXML.writeElement(null, "owner", XMLWriter.OPENING);
+			generatedXML.writeElement("D", "owner", XMLWriter.OPENING);
 			generatedXML.writeText(owner);
-			generatedXML.writeElement(null, "owner", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "owner", XMLWriter.CLOSING);
 
-			generatedXML.writeElement(null, "timeout", XMLWriter.OPENING);
+			generatedXML.writeElement("D", "timeout", XMLWriter.OPENING);
 			long timeout = (expiresAt - System.currentTimeMillis()) / 1000;
 			generatedXML.writeText("Second-" + timeout);
-			generatedXML.writeElement(null, "timeout", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "timeout", XMLWriter.CLOSING);
 
-			generatedXML.writeElement(null, "locktoken", XMLWriter.OPENING);
+			generatedXML.writeElement("D", "locktoken", XMLWriter.OPENING);
 			if (showToken)
 			{
 				Enumeration tokensList = tokens.elements();
 				while (tokensList.hasMoreElements())
 				{
-					generatedXML.writeElement(null, "href", XMLWriter.OPENING);
+					generatedXML.writeElement("D", "href", XMLWriter.OPENING);
 					generatedXML.writeText("opaquelocktoken:" + tokensList.nextElement());
-					generatedXML.writeElement(null, "href", XMLWriter.CLOSING);
+					generatedXML.writeElement("D", "href", XMLWriter.CLOSING);
 				}
 			}
 			else
 			{
-				generatedXML.writeElement(null, "href", XMLWriter.OPENING);
+				generatedXML.writeElement("D", "href", XMLWriter.OPENING);
 				generatedXML.writeText("opaquelocktoken:dummytoken");
-				generatedXML.writeElement(null, "href", XMLWriter.CLOSING);
+				generatedXML.writeElement("D", "href", XMLWriter.CLOSING);
 			}
-			generatedXML.writeElement(null, "locktoken", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "locktoken", XMLWriter.CLOSING);
 
-			generatedXML.writeElement(null, "activelock", XMLWriter.CLOSING);
+			generatedXML.writeElement("D", "activelock", XMLWriter.CLOSING);
 
 		}
 
