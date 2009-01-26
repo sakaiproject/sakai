@@ -636,7 +636,7 @@ public class SiteAddParticipantHandler {
 						
 					if (u != null)
 					{
-						M_log.info("found user with eid " + u.getEid());
+						M_log.debug("found user with eid " + u.getEid());
 						if (site != null && site.getUserRole(u.getId()) != null) {
 							// user already exists in the site, cannot be added
 							// again
@@ -720,7 +720,7 @@ public class SiteAddParticipantHandler {
 								pList.add(participant);
 							}
 						} catch (UserNotDefinedException e) {
-							M_log.info("no user with eid: " + nonOfficialAccount);
+							M_log.debug("no user with eid: " + nonOfficialAccount);
 							
 							/*
 							 * The account may exist with a different eid
@@ -728,7 +728,7 @@ public class SiteAddParticipantHandler {
 							User u = null;
 							Collection<User> usersWithEmail = UserDirectoryService.findUsersByEmail(nonOfficialAccount);
 							if(usersWithEmail != null) {
-								M_log.info("found a collection of matching email users:  " + usersWithEmail.size());
+								M_log.debug("found a collection of matching email users:  " + usersWithEmail.size());
 								if(usersWithEmail.size() == 0) {
 									// If the collection is empty, we didn't find any users with this email address
 									M_log.info("Unable to find users with email " + nonOfficialAccount);
@@ -760,7 +760,7 @@ public class SiteAddParticipantHandler {
 							// -ggolden
 							participant.active = true;
 							} else  {
-								M_log.info("adding: " + u.getDisplayName() + ", " + u.getEid());
+								M_log.debug("adding: " + u.getDisplayName() + ", " + u.getEid());
 								participant.name = u.getDisplayName();
 								participant.uniqname = u.getEid();
 								participant.active = true;
