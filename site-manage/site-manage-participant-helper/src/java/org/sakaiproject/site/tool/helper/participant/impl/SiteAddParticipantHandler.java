@@ -669,12 +669,14 @@ public class SiteAddParticipantHandler {
 			String[] nonOfficialAccountArray = nonOfficialAccounts.split("\r\n");
 			for (i = 0; i < nonOfficialAccountArray.length; i++) {
 				String nonOfficialAccount = StringUtil.trimToNull(nonOfficialAccountArray[i].replaceAll("[ \t\r\n]", ""));
-
+				
 				// remove the trailing dots
 				while (nonOfficialAccount != null && nonOfficialAccount.endsWith(".")) {
 					nonOfficialAccount = nonOfficialAccount.substring(0,
 							nonOfficialAccount.length() - 1);
 				}
+				//this may be updated to an existing sakai user
+				String userEid = nonOfficialAccount;
 
 				if (nonOfficialAccount != null && nonOfficialAccount.length() > 0) {
 					String[] parts = nonOfficialAccount.split(at);
@@ -718,6 +720,31 @@ public class SiteAddParticipantHandler {
 								pList.add(participant);
 							}
 						} catch (UserNotDefinedException e) {
+							M_log.info("no user with eid: " + nonOfficialAccount);
+							
+							/*
+							 * The account may exist with a different eid
+							 */
+							User u = null;
+							Collection<User> usersWithEmail = UserDirectoryService.findUsersByEmail(nonOfficialAccount);
+							if(usersWithEmail != null) {
+								M_log.info("found a collection of matching email users:  " + usersWithEmail.size());
+								if(usersWithEmail.size() == 0) {
+									// If the collection is empty, we didn't find any users with this email address
+									M_log.info("Unable to find users with email " + nonOfficialAccount);
+								} else if (usersWithEmail.size() == 1) {
+									// We found one user with this email address.  Use it.
+									u = (User)usersWithEmail.iterator().next();
+								} else if (usersWithEmail.size() > 1) {
+									// If we have multiple users with this email address, pick one and log this error condition
+									// TODO Should we not pick a user?  Throw an exception?
+									M_log.warn("Found multiple user with email " + nonOfficialAccount);
+									u = (User)usersWithEmail.iterator().next();
+								}
+							}
+							
+							if (u == null) {
+							
 							// if the nonOfficialAccount user is not in the system
 							// yet
 							participant.name = nonOfficialAccount;
@@ -732,13 +759,20 @@ public class SiteAddParticipantHandler {
 							// to?
 							// -ggolden
 							participant.active = true;
+							} else  {
+								M_log.info("adding: " + u.getDisplayName() + ", " + u.getEid());
+								participant.name = u.getDisplayName();
+								participant.uniqname = u.getEid();
+								participant.active = true;
+								userEid = u.getEid();
+							}
 							pList.add(participant);
 						}
 						
 						// update the userRoleTable
-						if (!getUsers().contains(nonOfficialAccount))
+						if (!getUsers().contains(userEid))
 						{
-							userRoleEntries.add(new UserRoleEntry(nonOfficialAccount, ""));
+							userRoleEntries.add(new UserRoleEntry(userEid, ""));
 						}
 					}
 				} // if
