@@ -75,6 +75,9 @@ $(document).ready(function() {
 				#if($showOptions)
 				<li><span><a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options").trim()</a></span></li>
 				#end
+				#if($showDropboxOptions)
+				<li><span><a href="#toolLinkParam("ResourcesAction" "doDropboxOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options").trim()</a></span></li>
+				#end
 			</ul>
 	#end 
 	#if ($alertMessage)

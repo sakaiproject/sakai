@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
@@ -106,6 +107,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -490,6 +492,14 @@ public class ResourcesAction
 	protected static final int DEFAULT_PAGE_SIZE = 50;
 	
 	public static final String DELIM = "@";
+	
+	public static final String DROPBOX_NOTIFICATIONS_PROPERTY = "dropbox_notifications_property";
+	public static final String DROPBOX_NOTIFICATIONS_PARAMETER_NAME = "dropbox_notification";
+	
+	public static final String DROPBOX_NOTIFICATIONS_NONE = "no-dropbox-emails";
+	public static final String DROPBOX_NOTIFICATIONS_ALL = "all-dropbox-emails";
+	
+	public static final String DROPBOX_NOTIFICATIONS_DEFAULT_VALUE = DROPBOX_NOTIFICATIONS_NONE;
 
 	/** The default number of members for a collection at which this tool should refuse to expand the collection. Used only if value can't be read from config service. */
 	protected static final int EXPANDABLE_FOLDER_SIZE_LIMIT = 256;
@@ -541,6 +551,8 @@ public class ResourcesAction
 	/************** the edit context *****************************************/
 
 	private static final String MODE_DELETE_FINISH = "deleteFinish";
+	
+	private static final String MODE_DROPBOX_OPTIONS = "dropboxOptions";
 
 	public  static final String MODE_HELPER = "helper";
 	
@@ -791,6 +803,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
 
 	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
+	
+	private static final String TEMPLATE_DROPBOX_OPTIONS = "content/sakai_dropbox_options";
 
 	private static final String TEMPLATE_MORE = "content/chef_resources_more";
 
@@ -4305,23 +4319,29 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			catch (PermissionException e) {}
 		}
 		
-		if(!dropboxMode && atHome && SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+		if(atHome && SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
 		{
-			if(!inMyWorkspace )
+			if(dropboxMode)
 			{
-				context.put("showPermissions", Boolean.TRUE.toString());
-				//buildListMenu(portlet, context, data, state);
+				context.put("showDropboxOptions", Boolean.TRUE.toString());
 			}
-			
-			String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
-			Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
-			String siteId = ref.getContext();
-			Map<String,Boolean> statusMap = registry.getMapOfResourceTypesForContext(siteId);
-			if(statusMap != null && ! statusMap.isEmpty())
+			else
 			{
-				context.put("showOptions", Boolean.TRUE.toString());
+				if(!inMyWorkspace )
+				{
+					context.put("showPermissions", Boolean.TRUE.toString());
+					//buildListMenu(portlet, context, data, state);
+				}
+				
+				String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+				Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
+				String siteId = ref.getContext();
+				Map<String,Boolean> statusMap = registry.getMapOfResourceTypesForContext(siteId);
+				if(statusMap != null && ! statusMap.isEmpty())
+				{
+					context.put("showOptions", Boolean.TRUE.toString());
+				}
 			}
-
 		}
 		
 		context.put("atHome", Boolean.toString(atHome));
@@ -4735,6 +4755,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			template = buildOptionsPanelContext (portlet, context, data, state);
 		}
+		else if (mode.equals (MODE_DROPBOX_OPTIONS))
+		{
+			template = buildDropboxOptionsPanelContext (portlet, context, data, state);
+		}
 		else if (mode.equals (MODE_REORDER))
 		{
 			template = buildReorderContext (portlet, context, data, state);
@@ -4801,6 +4825,117 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}	// buildOptionsPanelContext
 
+	/**
+	*  Setup for customization
+	**/
+	public String buildDropboxOptionsPanelContext( VelocityPortlet portlet,
+											Context context,
+											RunData data,
+											SessionState state)
+	{
+		context.put("tlang",trb);
+		String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+		Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
+		String siteId = ref.getContext();
+
+		context.put("siteId", siteId);
+		context.put("form-submit", BUTTON + "doUpdateDropboxOptions");
+		context.put("form-cancel", BUTTON + "doCancelDropboxOptions");
+		String[] args = { SiteService.getSiteDisplay(siteId) };
+		context.put("title", trb.getFormattedMessage("title.options", args));
+
+		String dropboxNotifications = getDropboxNotificationsProperty();
+		context.put("value_dropbox_instructor_notifications", dropboxNotifications);
+		context.put("value_dropbox_instructor_notifications_none", DROPBOX_NOTIFICATIONS_NONE);
+		context.put("value_dropbox_instructor_notifications_all", DROPBOX_NOTIFICATIONS_ALL);
+		context.put("name_dropbox_instructor_notifications", DROPBOX_NOTIFICATIONS_PARAMETER_NAME);
+		
+		return TEMPLATE_DROPBOX_OPTIONS;
+
+	}	// buildDropboxOptionsPanelContext
+	
+	protected String getDropboxNotificationsProperty()
+	{
+		Placement placement = ToolManager.getCurrentPlacement();
+		Properties props = placement.getPlacementConfig();
+		String dropboxNotifications = props.getProperty(DROPBOX_NOTIFICATIONS_PROPERTY);
+		if(dropboxNotifications == null)
+		{
+			dropboxNotifications = DROPBOX_NOTIFICATIONS_DEFAULT_VALUE;
+		}
+
+		logger.debug(this + ".getDropboxNotificationsProperty() dropboxNotifications == " + dropboxNotifications);
+
+		return dropboxNotifications;
+	}
+	
+	/**
+	 * Handle a request to set options.
+	 */
+	public void doDropboxOptions(RunData runData)
+	{
+		// ignore if not allowed
+		if (!allowedToOptions())
+		{
+			return;
+			//msg = "you do not have permission to set options for this Worksite.";
+		}
+
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState (((JetspeedRunData) runData).getJs_peid ());
+
+		// go into options mode
+		state.setAttribute(STATE_MODE, MODE_DROPBOX_OPTIONS);
+
+	} // doOptions
+
+
+
+	/**
+	* Read user inputs from options form and update accordingly
+	*/
+	public void doUpdateDropboxOptions(RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+		
+		String siteId = params.getString("siteId");
+		if(siteId == null || siteId.trim().equals(""))
+		{
+			String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+			Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
+			siteId = ref.getContext();
+		}
+
+		String dropboxNotifications = params.getString(DROPBOX_NOTIFICATIONS_PARAMETER_NAME);
+		if(dropboxNotifications == null)
+		{
+			dropboxNotifications = DROPBOX_NOTIFICATIONS_DEFAULT_VALUE;
+		}
+
+		Placement placement = ToolManager.getCurrentPlacement();
+		Properties props = placement.getPlacementConfig();
+		props.setProperty(DROPBOX_NOTIFICATIONS_PROPERTY, dropboxNotifications);
+		placement.save();
+		
+		state.setAttribute(STATE_MODE, MODE_LIST);
+
+	}
+	
+	/**
+	 * cancel out of options mode
+	 */
+	public void doCancelDropboxOptions(RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		state.setAttribute(STATE_MODE, MODE_LIST);
+		
+	}
+	
 	/**
 	 * Build the context to establish a custom-ordering of resources/folders within a folder.
 	 */
@@ -5528,16 +5663,25 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				// %%STATE_MODE_RESOURCES%%
 				if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 				{
-	   				boolean notification = params.getBoolean("notify_dropbox");
-	  				if(notification)
-	   				{
-	   					noti = NotificationService.NOTI_REQUIRED;
-	   				}
-	   				else
-	   				{
-	   					// set noti to none if in dropbox mode
-	   					noti = NotificationService.NOTI_NONE;
-	   				}
+					boolean notification = false;
+				
+					if(item.userIsMaintainer())	// if the user is a site maintainer
+					{
+						notification = params.getBoolean("notify_dropbox");
+		  				if(notification)
+		   				{
+		   					noti = NotificationService.NOTI_REQUIRED;
+		   				}
+					}
+					else
+					{
+						String notifyDropbox = getDropboxNotificationsProperty();
+						if(DROPBOX_NOTIFICATIONS_ALL.equals(notifyDropbox))
+						{
+							noti = NotificationService.NOTI_OPTIONAL;
+						}
+					}
+					logger.debug(this + ".doCompleteCreateWizard() noti == " + noti);
 				}
 				else
 				{

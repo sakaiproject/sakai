@@ -18,16 +18,14 @@
 		</p>
 		#if ($hasNotificationDialog)
 			#if($item.isDropbox())
-				<p class="act">
-					<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
-					<label for="notify_dropbox">
-						#if($model.userIsMaintainer())
+				#if($model.userIsMaintainer())
+					<p class="act">
+						<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
+						<label for="notify_dropbox">
 							$tlang.getString("notify.student")
-						#else
-							$tlang.getString("notify.instructor")
-						#end
-					</label>
-				</p>
+						</label>
+					</p>
+				#end
 			#elseif($item.isUserSite())
 			#else
 				<p class="shorttext">
