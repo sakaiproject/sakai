@@ -89,6 +89,10 @@
 	  #end
    <!--le--> 
   #end
+  
+  #if (${searchModel.getCensoredResultCount()} > 0) 
+  	<span>${searchModel.searchFoundCensored} </span> 
+  #end
      </div>
 		  <div id="tagsTab" class="tabOff" >
 		  <div id="aboutTabs" >
