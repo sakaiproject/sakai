@@ -397,25 +397,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	private final static String FORM_ICON_URL = "iconUrl";
 
-	/** site info edit form variables */
-	private final static String FORM_SITEINFO_TITLE = "siteinfo_title";
-
-	private final static String FORM_SITEINFO_TERM = "siteinfo_term";
-
-	private final static String FORM_SITEINFO_DESCRIPTION = "siteinfo_description";
-
-	private final static String FORM_SITEINFO_SHORT_DESCRIPTION = "siteinfo_short_description";
-
-	private final static String FORM_SITEINFO_SKIN = "siteinfo_skin";
-
-	private final static String FORM_SITEINFO_INCLUDE = "siteinfo_include";
-
-	private final static String FORM_SITEINFO_ICON_URL = "siteinfo_icon_url";
-
-	private final static String FORM_SITEINFO_CONTACT_NAME = "siteinfo_contact_name";
-
-	private final static String FORM_SITEINFO_CONTACT_EMAIL = "siteinfo_contact_email";
-
 	private final static String FORM_WILL_NOTIFY = "form_will_notify";
 
 	/** Context action */
@@ -1984,49 +1965,39 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			siteProperties = site.getProperties();
 
-			context.put("title", state.getAttribute(FORM_SITEINFO_TITLE));
+			context.put("title", siteInfo.title);
 			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, site.getType())));
 			context.put("type", site.getType());
 			context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
 
-			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
+			siteType = siteInfo.site_type;
 			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				
 				// whether to show course skin selection choices or not
-				courseSkinSelection(context, state, site, null);
+				courseSkinSelection(context, state, site, siteInfo);
 
 				setTermListForContext(context, state, true); // true->only future terms
 
-				if (state.getAttribute(FORM_SITEINFO_TERM) == null) {
+				if (siteInfo.term == null) {
 					String currentTerm = site.getProperties().getProperty(
 							PROP_SITE_TERM);
 					if (currentTerm != null) {
-						state.setAttribute(FORM_SITEINFO_TERM, currentTerm);
+						siteInfo.term = currentTerm;
 					}
 				}
-				setSelectedTermForContext(context, state, FORM_SITEINFO_TERM);
+				context.put("selectedTerm", siteInfo.term);
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
-
-				if (state.getAttribute(FORM_SITEINFO_ICON_URL) == null
-						&& StringUtil.trimToNull(site.getIconUrl()) != null) {
-					state.setAttribute(FORM_SITEINFO_ICON_URL, site
-							.getIconUrl());
-				}
-				if (state.getAttribute(FORM_SITEINFO_ICON_URL) != null) {
-					context.put("iconUrl", state
-							.getAttribute(FORM_SITEINFO_ICON_URL));
+				
+				if (siteInfo.iconUrl != null) {
+					context.put("iconUrl", siteInfo.iconUrl);
 				}
 			}
-			context.put("description", state
-					.getAttribute(FORM_SITEINFO_DESCRIPTION));
-			context.put("short_description", state
-					.getAttribute(FORM_SITEINFO_SHORT_DESCRIPTION));
-			context.put("form_site_contact_name", state
-					.getAttribute(FORM_SITEINFO_CONTACT_NAME));
-			context.put("form_site_contact_email", state
-					.getAttribute(FORM_SITEINFO_CONTACT_EMAIL));
+			context.put("description", siteInfo.description);
+			context.put("short_description", siteInfo.short_description);
+			context.put("form_site_contact_name", siteInfo.site_contact_name);
+			context.put("form_site_contact_email", siteInfo.site_contact_email);
 
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
@@ -2040,7 +2011,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
-				context.put("siteTerm", state.getAttribute(FORM_SITEINFO_TERM));
+				context.put("siteTerm", siteInfo.term);
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
 			}
@@ -2974,18 +2945,12 @@ public class SiteAction extends PagedResourceActionII {
 		// The setting defaults to be false.
 		context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
 		context.put("skins", state.getAttribute(STATE_ICONS));
-		if (state.getAttribute(FORM_SITEINFO_SKIN) != null) {
-			context.put("selectedIcon", state.getAttribute(FORM_SITEINFO_SKIN));
-		} else 
+		if (siteInfo != null && StringUtil.trimToNull(siteInfo.getIconUrl()) != null) 
 		{
-			if (site != null && site.getIconUrl() != null) 
-			{
-				context.put("selectedIcon", site.getIconUrl());
-			}
-			else if (siteInfo != null && StringUtil.trimToNull(siteInfo.getIconUrl()) != null) 
-			{
-				context.put("selectedIcon", siteInfo.getIconUrl());
-			}
+			context.put("selectedIcon", siteInfo.getIconUrl());
+		} else if (site != null && site.getIconUrl() != null) 
+		{
+			context.put("selectedIcon", site.getIconUrl());
 		}
 	}
 
@@ -5460,13 +5425,6 @@ public class SiteAction extends PagedResourceActionII {
 			state.removeAttribute(STATE_MESSAGE);
 			removeEditToolState(state);
 		} else if (currentIndex.equals("13") || currentIndex.equals("14")) {
-			// clean state attributes
-			state.removeAttribute(FORM_SITEINFO_TITLE);
-			state.removeAttribute(FORM_SITEINFO_DESCRIPTION);
-			state.removeAttribute(FORM_SITEINFO_SHORT_DESCRIPTION);
-			state.removeAttribute(FORM_SITEINFO_SKIN);
-			state.removeAttribute(FORM_SITEINFO_INCLUDE);
-			state.removeAttribute(FORM_SITEINFO_ICON_URL);
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if (currentIndex.equals("15")) {
 			params = data.getParameters();
@@ -5982,46 +5940,7 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		Site Site = getStateSite(state);
-		ResourceProperties siteProperties = Site.getProperties();
-		state.setAttribute(FORM_SITEINFO_TITLE, Site.getTitle());
-
-		String site_type = (String) state.getAttribute(STATE_SITE_TYPE);
-		if (site_type != null && !site_type.equalsIgnoreCase("myworkspace")) {
-			state.setAttribute(FORM_SITEINFO_INCLUDE, Boolean.valueOf(
-					Site.isPubView()).toString());
-		}
-		state.setAttribute(FORM_SITEINFO_DESCRIPTION, Site.getDescription());
-		state.setAttribute(FORM_SITEINFO_SHORT_DESCRIPTION, Site
-				.getShortDescription());
-		state.setAttribute(FORM_SITEINFO_SKIN, Site.getIconUrl());
-		if (Site.getIconUrl() != null) {
-			state.setAttribute(FORM_SITEINFO_SKIN, Site.getIconUrl());
-		}
-
-		// site contact information
-		String contactName = siteProperties.getProperty(PROP_SITE_CONTACT_NAME);
-		String contactEmail = siteProperties
-				.getProperty(PROP_SITE_CONTACT_EMAIL);
-		if (contactName == null && contactEmail == null) {
-			String creatorId = siteProperties
-					.getProperty(ResourceProperties.PROP_CREATOR);
-			try {
-				User u = UserDirectoryService.getUser(creatorId);
-				String email = u.getEmail();
-				if (email != null) {
-					contactEmail = u.getEmail();
-				}
-				contactName = u.getDisplayName();
-			} catch (UserNotDefinedException e) {
-			}
-		}
-		if (contactName != null) {
-			state.setAttribute(FORM_SITEINFO_CONTACT_NAME, contactName);
-		}
-		if (contactEmail != null) {
-			state.setAttribute(FORM_SITEINFO_CONTACT_EMAIL, contactEmail);
-		}
+		sitePropertiesIntoState(state);
 
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "13");
@@ -6128,15 +6047,6 @@ public class SiteAction extends PagedResourceActionII {
 			} catch (PermissionException e) {
 				// TODO:
 			}
-
-			// clean state attributes
-			state.removeAttribute(FORM_SITEINFO_TITLE);
-			state.removeAttribute(FORM_SITEINFO_DESCRIPTION);
-			state.removeAttribute(FORM_SITEINFO_SHORT_DESCRIPTION);
-			state.removeAttribute(FORM_SITEINFO_SKIN);
-			state.removeAttribute(FORM_SITEINFO_INCLUDE);
-			state.removeAttribute(FORM_SITEINFO_CONTACT_NAME);
-			state.removeAttribute(FORM_SITEINFO_CONTACT_EMAIL);
 
 			// back to site info view
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
@@ -7837,10 +7747,22 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 		}
 		siteInfo.site_type = (String) state.getAttribute(STATE_SITE_TYPE);
-
-		if (params.getString("title") != null) {
-			siteInfo.title = params.getString("title");
-		}
+		
+		Site Site = getStateSite(state);
+        if (siteTitleEditable(state, Site.getType())) 	 
+        { 	 
+			// site titel is editable and could not be null 	 
+			String title = StringUtil.trimToNull(params.getString("title")); 	 
+			siteInfo.title = params.getString("title");	 
+			if (title == null) { 	 
+				addAlert(state, rb.getString("java.specify") + " "); 	 
+			} 	 
+			// check for site title length 	 
+			else if (title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT) 	 
+			{ 	 
+				addAlert(state, rb.getString("site_group_title_length_limit_1") + SiteConstants.SITE_GROUP_TITLE_LIMIT + " " + rb.getString("site_group_title_length_limit_2")); 	 
+			}
+        }
 		if (params.getString("description") != null) {
 			StringBuilder alertMsg = new StringBuilder();
 			String description = params.getString("description");
@@ -7849,6 +7771,23 @@ public class SiteAction extends PagedResourceActionII {
 		if (params.getString("short_description") != null) {
 			siteInfo.short_description = params.getString("short_description");
 		}
+        String skin = params.getString("skin"); 	 
+        if (skin != null) { 	 
+                // if there is a skin input for course site 	 
+                skin = StringUtil.trimToNull(skin);
+                siteInfo.iconUrl = skin; 	 
+        } else { 	 
+                // if ther is a icon input for non-course site 	 
+                String icon = StringUtil.trimToNull(params.getString("icon")); 	 
+                if (icon != null) { 	 
+                        if (icon.endsWith(PROTOCOL_STRING)) { 	 
+                                addAlert(state, rb.getString("alert.protocol")); 	 
+                        } 	 
+                        siteInfo.iconUrl = icon; 	 
+                } else { 	 
+                	siteInfo.iconUrl = "";
+                } 	 
+        } 	 
 		if (params.getString("additional") != null) {
 			siteInfo.additional = params.getString("additional");
 		}
@@ -7916,12 +7855,6 @@ public class SiteAction extends PagedResourceActionII {
 		
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 		
-		// check for site title length
-		if (siteInfo.title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT)
-		{
-			addAlert(state, rb.getString("site_group_title_length_limit_1") + SiteConstants.SITE_GROUP_TITLE_LIMIT + " " + rb.getString("site_group_title_length_limit_2"));
-		}
-
 	} // updateSiteInfo
 
 	/**
@@ -9016,6 +8949,7 @@ public class SiteAction extends PagedResourceActionII {
 	private void sitePropertiesIntoState(SessionState state) {
 		try {
 			Site site = getStateSite(state);
+			ResourceProperties siteProperties = site.getProperties();
 			SiteInfo siteInfo = new SiteInfo();
 			if (site != null)
 			{
@@ -9029,7 +8963,38 @@ public class SiteAction extends PagedResourceActionII {
 				siteInfo.published = site.isPublished();
 				siteInfo.include = site.isPubView();
 				siteInfo.short_description = site.getShortDescription();
+				siteInfo.site_type = site.getType();
+				
+				// site contact information
+				String contactName = siteProperties.getProperty(PROP_SITE_CONTACT_NAME);
+				String contactEmail = siteProperties.getProperty(PROP_SITE_CONTACT_EMAIL);
+				if (contactName == null && contactEmail == null) {
+					String creatorId = siteProperties.getProperty(ResourceProperties.PROP_CREATOR);
+					try {
+						User u = UserDirectoryService.getUser(creatorId);
+						String email = u.getEmail();
+						if (email != null) {
+							contactEmail = u.getEmail();
+						}
+						contactName = u.getDisplayName();
+					} catch (UserNotDefinedException e) 
+					{
+					}
+				}
+				if (contactName != null) {
+					siteInfo.site_contact_name = contactName;
+				}
+				if (contactEmail != null) {
+					siteInfo.site_contact_email = contactEmail;
+				}
 			}
+			
+			// term information
+			String term = site.getProperties().getProperty(PROP_SITE_TERM);
+			if (term != null) {
+				siteInfo.term = term;
+			}
+			
 			siteInfo.additional = "";
 			state.setAttribute(STATE_SITE_TYPE, siteInfo.site_type);
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
@@ -9844,6 +9809,8 @@ public class SiteAction extends PagedResourceActionII {
 		public String site_contact_name = NULL_STRING; // site contact name
 
 		public String site_contact_email = NULL_STRING; // site contact email
+		
+		public String term = NULL_STRING; // academic term
 
 		public String getSiteId() {
 			return site_id;
@@ -9903,6 +9870,14 @@ public class SiteAction extends PagedResourceActionII {
 
 		public String getUrlAlias() {
 			return url_alias;
+		}
+		
+		public String getTerm() {
+			return term;
+		}
+		
+		public void setTerm(String term) {
+			this.term = term;
 		}
 
 	} // SiteInfo
