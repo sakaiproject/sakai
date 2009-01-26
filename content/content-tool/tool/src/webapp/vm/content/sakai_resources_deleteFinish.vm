@@ -41,7 +41,7 @@
 							$member.size
 						</td>
 						<td headers="created">
-							$member.createdBy
+							$validator.escapeHtml($member.createdBy)
 						</td>
 						<td headers="last">
 							$member.modifiedTime
