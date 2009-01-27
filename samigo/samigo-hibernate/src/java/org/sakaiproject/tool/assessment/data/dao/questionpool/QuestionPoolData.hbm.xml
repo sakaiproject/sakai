@@ -24,7 +24,7 @@
     <property name="rubric" type="string" length="4000" column="RUBRIC" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="false" />
     <property name="intellectualPropertyId" type="long" column="INTELLECTUALPROPERTYID" not-null="false" />
-	<set name="questionPoolItems" table="SAM_QUESTIONPOOLITEM_T" cascade="all" lazy="false" batch-size="20" fetch="subselect">
+	<set name="questionPoolItems" table="SAM_QUESTIONPOOLITEM_T" cascade="all" inverse="true" lazy="false" batch-size="20" fetch="subselect">
       <key column="QUESTIONPOOLID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData" />
     </set>
