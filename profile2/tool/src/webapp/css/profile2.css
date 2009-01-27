@@ -312,19 +312,30 @@
 	margin-bottom: 12px;
 }
 
-.profileFormButtons {
+.profileFormButtons,
+.modalWindowButtons {
 	margin-top:8px;
+}
+
+.profileFormButtons {
 	text-align:center;
 }
 
-.profileFormButtons input {
+.profileFormButtons input,
+.modalWindowButtons input {
 	margin-left: 6px;
 	margin-right: 6px;
 }
 
-.profileFormButtons input[type="submit"] {
-	color: #09c;
+.profileFormButtons input[type="submit"],
+.modalWindowButtons input[type="submit"] {
+	color: rgb(34, 119, 221);
 }
+
+.disabled {
+	color: #5D5D5D !important;
+}
+
 
 .statusForm {
 	-moz-border-radius: 5px;
@@ -458,34 +469,74 @@
 }
 
 
-.friendsListActions {
+
+/* search result styles */
+.searchResultActions {
 	width: 120px;
 	float:right;
 	border:1px solid yellow;
 	font-size: 90%;
+	padding: 0;
 }
 
-.searchAddFriend, .searchConfirmFriend, .searchRemoveFriend {
-	font-size: 70%;
-	padding-left: 24px;
-	padding-bottom: 4px;
-	padding-top: 4px; 
-	padding-right: 2px;
+
+.searchResultItems ul {
+	margin-bottom: 0;
+	margin-top: 0;
+	margin-left: 0;
+	list-style-type:none !important;
+}
+
+.searchResultItems li {
+	border-bottom-style: solid;
+	border-bottom-color: #09c;
+	border-bottom-width: thin;
+	padding-top: 2px;
+	margin-left: -40px;
+	padding-left: 5px;
+	list-style-type: none !important;
+	vertical-align: top;
+}
+
+.searchResultItems li a {
+	text-decoration: none !important;
+	display:block; /* makes whole li clickable */
+}
+
+.searchResultItems li:hover {
+	background-color: #D1ECF6;
+}
+
+.searchResultItems li#selected {
+	background-color: #D1ECF6;
+}
+
+
+
+
+
+
+
+.iconAdd, .iconRemove {
+	width:18px;
+	height:18px;
 	background-repeat: no-repeat;
 	background-position: 4px center;
+	margin: 0;
+	padding: 0;
+	vertical-align: middle;
 }
 
-.searchAddFriend {
+.iconAdd {
 	background-image: url("/library/image/silk/user_add.png");
 }
-.searchConfirmFriend {
-	background-image: url("/library/image/silk/user_add.png");
-}
-.searchRemoveFriend {
+
+.iconRemove {
 	background-image: url("/library/image/silk/user_delete.png");
 }
 
-.searchFriendLabel {
+
+.connectionStatus {
 	color: #5D5D5D;
 	font-size: 90%;
 }
@@ -494,6 +545,7 @@
 .rssLink {
 	margin: 0;
 	padding: 0;
+	float: right;
 }
 
 .rssLink img {
@@ -520,7 +572,6 @@ h2 {
 .resultsHeader {
 	font-weight: normal;
 }
-
 
 
 

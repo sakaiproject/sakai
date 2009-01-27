@@ -438,7 +438,8 @@ public class ViewProfile extends BasePage {
 			addFriendLink.setEnabled(false);
 		} else if (friendRequestFromThisPerson) {
 			//TODO (confirm pending friend request link)
-			//could be done by setting the content off the addFriendWindow. Change it to a generic modal window perhaps?)
+			//could be done by setting the content off the addFriendWindow.
+			//will need to rename some links to make more generic and set the onClick and setContent in here for link and window
 			addFriendLabel.setModel(new ResourceModel("text.friend.pending"));
     		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
 			addFriendLink.setEnabled(false);

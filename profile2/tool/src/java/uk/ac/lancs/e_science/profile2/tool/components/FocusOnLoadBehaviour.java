@@ -5,6 +5,7 @@ import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 
 //http://cwiki.apache.org/confluence/display/WICKET/Request+Focus+on+a+Specific+Form+Component
+
 public class FocusOnLoadBehaviour extends AbstractBehavior {
     
 	private static final long serialVersionUID = 1L;
@@ -32,8 +33,9 @@ public class FocusOnLoadBehaviour extends AbstractBehavior {
 
 
 /* OR
-public class FocusOnLoadBehavior extends AbstractBehavior
+public class FocusOnLoadBehaviour extends AbstractBehavior
 {
+	private static final long serialVersionUID = 1L;
 	@Override
 	public void bind(Component component) {
 		super.bind(component);

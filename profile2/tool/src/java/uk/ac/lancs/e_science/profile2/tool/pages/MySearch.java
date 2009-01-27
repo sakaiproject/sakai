@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
@@ -32,12 +33,10 @@ import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
+import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
 import uk.ac.lancs.e_science.profile2.tool.models.Search;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
-import uk.ac.lancs.e_science.profile2.tool.pages.windows.ConfirmFriend;
-import uk.ac.lancs.e_science.profile2.tool.pages.windows.IgnoreFriend;
-import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
 
 
 public class MySearch extends BasePage {
@@ -233,215 +232,102 @@ public class MySearch extends BasePage {
 		    	
 		    	/* ACTIONS */
 		    	
-		    	//CONNECTION MODAL WINDOWS
-				final ModalWindow addConnectionWindow = new ModalWindow("result-addConnectionWindow");
-				final ModalWindow confirmConnectionWindow = new ModalWindow("result-confirmConnectionWindow");
-				final ModalWindow ignoreConnectionWindow = new ModalWindow("result-ignoreConnectionWindow");
-				final ModalWindow removeConnectionWindow = new ModalWindow("result-removeConnectionWindow");
-
-				//CONNECTION STATUS LABEL
-				final Label connectionStatusLabel = new Label("result-connectionStatus");
-				connectionStatusLabel.setOutputMarkupId(true);
-				item.add(connectionStatusLabel);
-				
-				//ADD CONNECTION LINK + LABEL
-				final AjaxLink addConnectionLink = new AjaxLink("result-addConnectionLink") {
-		    		public void onClick(AjaxRequestTarget target) {
-		    			addConnectionWindow.show(target);
-					}
-				};
-				final Label addConnectionLabel = new Label("result-addConnectionLabel");
-				addConnectionLink.add(addConnectionLabel);
-				addConnectionLink.setOutputMarkupId(true);
-				item.add(addConnectionLink);
-
-		    					
-				//CONFIRM CONNECTION LINK + LABEL
-				final AjaxLink confirmConnectionLink = new AjaxLink("result-confirmConnectionLink") {
-		    		public void onClick(AjaxRequestTarget target) {
-		    			confirmConnectionWindow.show(target);
-					}
-				};
-				final Label confirmConnectionLabel = new Label("result-confirmConnectionLabel");
-				confirmConnectionLink.add(confirmConnectionLabel);
-				confirmConnectionLink.setOutputMarkupId(true);
-				item.add(confirmConnectionLink);
-
-				
-				//IGNORE CONNECTION LINK + LABEL
-				final AjaxLink ignoreConnectionLink = new AjaxLink("result-ignoreConnectionLink") {
-		    		public void onClick(AjaxRequestTarget target) {
-		    			ignoreConnectionWindow.show(target);
-					}
-				};
-				final Label ignoreConnectionLabel = new Label("result-ignoreConnectionLabel");
-				ignoreConnectionLink.add(ignoreConnectionLabel);
-				ignoreConnectionLink.setOutputMarkupId(true);
-				item.add(ignoreConnectionLink);	
-
-				
-				//REMOVE CONNECTION LINK + LABEL
-				final AjaxLink removeConnectionLink = new AjaxLink("result-removeConnectionLink") {
-		    		public void onClick(AjaxRequestTarget target) {
-		    			removeConnectionWindow.show(target);
-					}
-				};
-				final Label removeConnectionLabel = new Label("result-removeConnectionLabel");
-				removeConnectionLink.add(removeConnectionLabel);
-				removeConnectionLink.setOutputMarkupId(true);
-				item.add(removeConnectionLink);	
-
-				
-				
-				
-				//setup state of this User-SearchResult pair
+		    	//setup state of this User-result pair
 		    	boolean friend = searchResult.isFriend();
 		    	boolean friendRequestToThisPerson = searchResult.isFriendRequestToThisPerson();
 				boolean friendRequestFromThisPerson = searchResult.isFriendRequestFromThisPerson();
+				boolean isFriendsListVisible = searchResult.isFriendsListVisible();
 		    	
+		    	//ADD FRIEND MODAL WINDOW
+				final ModalWindow connectionWindow = new ModalWindow("result-connectionWindow");
+		    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, basePage, currentUserUuid, userUuid)); 
+
+		    	//ADD FRIEND LINK
+		    	WebMarkupContainer c1 = new WebMarkupContainer("result-item1");
+		    	c1.setOutputMarkupId(true);
+		    	
+		    	final AjaxLink connectionLink = new AjaxLink("result-connectionLink") {
+					private static final long serialVersionUID = 1L;
+					public void onClick(AjaxRequestTarget target) {
+						
+						//target.prependJavascript("fixWindowVertical();"); 
+						connectionWindow.show(target);
+						//target.appendJavascript("Wicket.Window.get().window.style.width='800px';");
+						target.appendJavascript("fixWindowVertical();"); 
+
+
+					}
+				};
+				final Label connectionLabel = new Label("result-connectionLabel");
+				connectionLink.add(connectionLabel);
 				
-				//setup link/label and windows
+		    	//setup 'add friend' link
 				if(friend) {
-					
-					//set label to 'you are friends'
-					connectionStatusLabel.setModel(new ResourceModel("text.friend.confirmed"));
-					//hide add&confirm
-					addConnectionLink.setVisible(false);
-					confirmConnectionLink.setVisible(false);
-					//allow remove
-					removeConnectionLabel.setModel(new ResourceModel("link.friend.remove"));
-					removeConnectionWindow.setContent(new RemoveFriend(removeConnectionWindow.getContentId(), removeConnectionWindow, basePage, currentUserUuid, userUuid)); 
-
-				
+					connectionLabel.setModel(new ResourceModel("text.friend.confirmed"));
+					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+					connectionLink.setEnabled(false);
 				} else if (friendRequestToThisPerson) {
-					
-					//set label to 'Friend requested'
-					connectionStatusLabel.setModel(new ResourceModel("text.friend.requested"));
-					//hide add&confirm
-					addConnectionLink.setVisible(false);
-					confirmConnectionLink.setVisible(false);
-					//allow remove
-					removeConnectionLabel.setModel(new ResourceModel("link.friend.request.cancel"));
-					removeConnectionWindow.setContent(new RemoveFriend(removeConnectionWindow.getContentId(), removeConnectionWindow, basePage, currentUserUuid, userUuid)); 
-
+					connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+					connectionLink.setEnabled(false);					
 				} else if (friendRequestFromThisPerson) {
-					
-					//set label to pending
-					connectionStatusLabel.setModel(new ResourceModel("text.friend.pending"));
-					//hide add
-					addConnectionLink.setVisible(false);
-					//allow confirm and ignore
-					confirmConnectionLabel.setModel(new ResourceModel("link.friend.request.confirm"));
-					confirmConnectionWindow.setContent(new ConfirmFriend(confirmConnectionWindow.getContentId(), confirmConnectionWindow, basePage, currentUserUuid, userUuid)); 
-					ignoreConnectionLabel.setModel(new ResourceModel("link.friend.request.ignore"));
-					ignoreConnectionWindow.setContent(new IgnoreFriend(ignoreConnectionWindow.getContentId(), ignoreConnectionWindow, basePage, currentUserUuid, userUuid)); 
-
-					
+					connectionLabel.setModel(new ResourceModel("text.friend.pending"));
+					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+					connectionLink.setEnabled(false);
 				}  else {
-					//hide label
-					connectionStatusLabel.setVisible(false);
-					//hide confirm & remove
-					confirmConnectionLink.setVisible(false);
-					removeConnectionLink.setVisible(false);
-					//allow add
-					addConnectionLabel.setModel(new ResourceModel("link.friend.add"));
-					addConnectionWindow.setContent(new AddFriend(addConnectionWindow.getContentId(), addConnectionWindow, basePage, currentUserUuid, userUuid)); 
-
+					connectionLabel.setModel(new ResourceModel("link.friend.add"));
 				}
+				connectionLink.setOutputMarkupId(true);
+				c1.add(connectionLink);
+				item.add(c1);
+				
+				//VIEW FRIENDS LINK
+				WebMarkupContainer c2 = new WebMarkupContainer("result-item2");
+		    	c2.setOutputMarkupId(true);
+		    	
+		    	final AjaxLink viewFriendsLink = new AjaxLink("result-viewFriendsLink") {
+					private static final long serialVersionUID = 1L;
+					public void onClick(AjaxRequestTarget target) {
+		    			//
+					}
+				};
+				final Label viewFriendsLabel = new Label("result-viewFriendsLabel", new ResourceModel("link.view.friends"));
+				viewFriendsLink.add(viewFriendsLabel);
+				
+				//hide if not allowed
+				if(!isFriendsListVisible) {
+					viewFriendsLink.setEnabled(false);
+					c2.setVisible(false);
+				}
+				viewFriendsLink.setOutputMarkupId(true);
+				c2.add(viewFriendsLink);
+				item.add(c2);
 				
 				
-				
-				//ADD CONNECTION MODAL WINDOW HANDLER 
-				addConnectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+				// ADD FRIEND MODAL WINDOW HANDLER 
+				connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 					private static final long serialVersionUID = 1L;
 
 					public void onClose(AjaxRequestTarget target){
-		            	if(basePage.isFriendRequestedResult()) { 
+						
+						
+		            	//if(basePage.isFriendRequestedResult()) { 
 		            		//update main label
-		            		connectionStatusLabel.setModel(new ResourceModel("text.friend.requested"));
+		            		//connectionStatusLabel.setModel(new ResourceModel("text.friend.requested"));
 		            		//remove add link
-		            		addConnectionLink.setVisible(false);
+		            		//addConnectionLink.setVisible(false);
 		            		//show remove link
-		            		removeConnectionLink.setVisible(true);
+		            		//removeConnectionLink.setVisible(true);
 		            		
 		            		//repaint affected components
-		            		target.addComponent(connectionStatusLabel);
-		            		target.addComponent(addConnectionLink);
-		            		target.addComponent(removeConnectionLink);
-		            	}
+		            		//target.addComponent(connectionStatusLabel);
+		            		//target.addComponent(addConnectionLink);
+		            		//target.addComponent(removeConnectionLink);
+		            	//}
 		            }
 		        });
+				item.add(connectionWindow);
 				
-				//CONFIRM CONNECTION MODAL WINDOW HANDLER 
-				confirmConnectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-					private static final long serialVersionUID = 1L;
-					
-					public void onClose(AjaxRequestTarget target){
-		            	if(basePage.isFriendConfirmedResult()){ 
-		            		//update main label
-		            		connectionStatusLabel.setModel(new ResourceModel("text.friend.confirmed"));
-		            		//remove confirm link
-		            		confirmConnectionLink.setVisible(false);
-		            		//show remove link
-		            		removeConnectionLink.setVisible(true);
-		            		
-		            		//repaint affected components
-		            		target.addComponent(connectionStatusLabel);
-		            		target.addComponent(confirmConnectionLink);
-		            		target.addComponent(removeConnectionLink);
-		            	}
-		            }
-		        });
-				
-				//IGNORE CONNECTION MODAL WINDOW HANDLER 
-				ignoreConnectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-					private static final long serialVersionUID = 1L;
-					
-					public void onClose(AjaxRequestTarget target){
-						if(basePage.isFriendRemovedResult()){ 
-		            		//remove main label
-		            		connectionStatusLabel.setVisible(false);
-		            		//remove ignore link
-		            		ignoreConnectionLink.setVisible(false);
-		            		//show add link
-		            		addConnectionLink.setVisible(true);
-		            		
-		            		//repaint affected components
-		            		target.addComponent(connectionStatusLabel);
-		            		target.addComponent(ignoreConnectionLink);
-		            		target.addComponent(addConnectionLink);
-		            	}
-		            }
-		        });
-				
-				
-				//REMOVE CONNECTION MODAL WINDOW HANDLER 
-				removeConnectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-					private static final long serialVersionUID = 1L;
-					
-					public void onClose(AjaxRequestTarget target){
-						if(basePage.isFriendRemovedResult()){ 
-		            		//remove main label
-		            		connectionStatusLabel.setVisible(false);
-		            		//remove ignore link
-		            		ignoreConnectionLink.setVisible(false);
-		            		//show add link
-		            		addConnectionLink.setVisible(true);
-		            		
-		            		//repaint affected components
-		            		target.addComponent(connectionStatusLabel);
-		            		target.addComponent(ignoreConnectionLink);
-		            		target.addComponent(addConnectionLink);
-		            	}
-		            }
-		        });
-				
-				item.add(addConnectionWindow);
-				item.add(confirmConnectionWindow);
-				item.add(ignoreConnectionWindow);
-				item.add(removeConnectionWindow);
-				
-	    
 		    }
 		};
 		resultsContainer.add(resultsListView);

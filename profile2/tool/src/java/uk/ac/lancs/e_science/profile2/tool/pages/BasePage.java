@@ -15,6 +15,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 
@@ -33,8 +34,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	private boolean friendConfirmedResult;
 	private boolean friendRemovedResult;
 	
-	private static final String RSS_IMG = "/library/image/feed.png";
-
 	
 	public BasePage() {
     	
@@ -122,7 +121,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(searchLink);
 				
 		//rss link
-		ContextImage icon = new ContextImage("icon",new Model(RSS_IMG));
+		ContextImage icon = new ContextImage("icon",new Model(ProfileImageManager.RSS_IMG));
 		Link rssLink = new Link("rssLink") {
 			public void onClick() {
 			}
@@ -190,7 +189,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 		response.renderCSSReference("css/profile2.css");
-
+		response.renderJavascriptReference("javascript/profile2.js");
 		
 	}
 	
@@ -250,7 +249,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	public void setFriendRemovedResult(boolean friendRemovedResult) {
 		this.friendRemovedResult = friendRemovedResult;
 	}
-	
+
 	
 	
 	

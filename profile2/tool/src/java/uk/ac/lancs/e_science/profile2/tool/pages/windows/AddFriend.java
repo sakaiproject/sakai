@@ -1,18 +1,21 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.windows;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
 import uk.ac.lancs.e_science.profile2.tool.pages.BasePage;
 
 public class AddFriend extends Panel {
@@ -31,18 +34,18 @@ public class AddFriend extends Panel {
         profile = ProfileApplication.get().getProfile();
         
         //get friendName
-        String friendName = sakaiProxy.getUserDisplayName(userY);
+        final String friendName = sakaiProxy.getUserDisplayName(userY);
                 
         //window setup
 		window.setTitle(new StringResourceModel("title.friend.add", null, new Object[]{ friendName } )); 
 		window.setInitialHeight(100);
 		window.setInitialWidth(400);
 		
-        //text (model set later)
-        Label text = new Label("text", new StringResourceModel("text.friend.add", null, new Object[]{ friendName } ));
+        //text
+		final Label text = new Label("text", new StringResourceModel("text.friend.add", null, new Object[]{ friendName } ));
         text.setEscapeModelStrings(false);
+        text.setOutputMarkupId(true);
         add(text);
-        
                    
         //setup form		
 		Form form = new Form("form");
@@ -52,8 +55,20 @@ public class AddFriend extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.add"), form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
-				 /* THIS NEEDS TO GO IN ONSUBMIT, IE DO CHECKING HERE  - and update text label */
-		        //already friends/pending
+				/* double checking */
+				
+				//friend?
+				//boolean friend = profile.isUserXFriendOfUserY(userX, userY);
+				boolean friend=true;
+				if(friend) {
+					text.setModel(new StringResourceModel("error.friend.already", null, new Object[]{ friendName } ));
+					this.setEnabled(false);
+					this.add(new AttributeModifier("class", true, new Model("disabled")));
+					target.addComponent(text);
+					target.addComponent(this);
+					return;
+				}
+				
 				/*
 				boolean friend = false;
 				boolean friendRequestToThisPerson = false;
@@ -93,6 +108,7 @@ public class AddFriend extends Panel {
 				
 				
 				//if ok, request friend
+				/*
 				if(profile.requestFriend(userX, userY)) {
 					basePage.setFriendRequestedResult(true);
 				} else {
@@ -100,9 +116,11 @@ public class AddFriend extends Panel {
 					basePage.setFriendRequestedResult(false);
 					target.appendJavascript("alert('Failed to add friend. Check the system logs.');");
 				}
-				window.close(target);
+				*/
+				//window.close(target);
             }
 		};
+		submitButton.add(new FocusOnLoadBehaviour());
 		form.add(submitButton);
 		
         
