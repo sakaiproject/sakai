@@ -30,11 +30,23 @@
 	
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			#if($model.isDropbox())
-				#if($model.userIsMaintainer())
+				#if($model.userIsMaintainer() || $dropboxNotificationAllowed)
 					<p class="act">
 						<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
 						<label for="notify_dropbox">
-							$tlang.getString("notify.student")
+							#if($model.isCourseSite())
+								#if($model.userIsMaintainer())
+									$tlang.getString("notify.student")
+								#else
+									$tlang.getString("notify.instructor")
+								#end
+							#else
+								#if($model.userIsMaintainer())
+									$tlang.getString("notify.access")
+								#else
+									$tlang.getString("notify.maintain")
+								#end
+							#end
 						</label>
 					</p>
 				#end

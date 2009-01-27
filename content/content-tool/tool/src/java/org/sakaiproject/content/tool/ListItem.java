@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -349,6 +350,7 @@ public class ListItem
 	protected boolean isHot = false;
 	protected boolean isSortable = false;
 	protected boolean isTooBig = false;
+	protected boolean isCourseSite = false;
 	protected String size = "";
 	protected String sizzle = "";
 	protected String createdBy;
@@ -518,6 +520,18 @@ public class ListItem
 			{
 				// ignore
 			}
+			
+			String context = m_reference.getContext();
+			Site site = getSiteObject(context);
+			if(site != null)
+			{
+				String siteType = site.getType();
+				String courseSiteType = ServerConfigurationService.getString("courseSiteType");
+				if(siteType != null && courseSiteType!= null && courseSiteType.equals(siteType))
+				{
+					this.isCourseSite = true;
+				}
+			}			
 		}
 		
 		this.permissions = new TreeSet<ContentPermissions>();
@@ -1006,6 +1020,8 @@ public class ListItem
 		{
 			this.isDropbox = parent.isDropbox;
 		}
+		
+		this.isCourseSite = parent.isCourseSite();
 		
 		Time now = TimeService.newTime();
 		User creator = UserDirectoryService.getCurrentUser();
@@ -3669,6 +3685,22 @@ public class ListItem
 	 */
 	public void setLastChange(Time lastChange) {
 		this.lastChange = lastChange;
+	}
+
+	/**
+	 * @return the isCourseSite
+	 */
+	public boolean isCourseSite() 
+	{
+		return isCourseSite;
+	}
+
+	/**
+	 * @param isCourseSite the isCourseSite to set
+	 */
+	public void setCourseSite(boolean isCourseSite) 
+	{
+		this.isCourseSite = isCourseSite;
 	}
 	
 }

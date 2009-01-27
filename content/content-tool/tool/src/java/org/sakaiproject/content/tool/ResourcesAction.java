@@ -496,8 +496,9 @@ public class ResourcesAction
 	public static final String DROPBOX_NOTIFICATIONS_PROPERTY = "dropbox_notifications_property";
 	public static final String DROPBOX_NOTIFICATIONS_PARAMETER_NAME = "dropbox_notification";
 	
-	public static final String DROPBOX_NOTIFICATIONS_NONE = "no-dropbox-emails";
-	public static final String DROPBOX_NOTIFICATIONS_ALL = "all-dropbox-emails";
+	public static final String DROPBOX_NOTIFICATIONS_NONE = "dropbox-emails-none";
+	public static final String DROPBOX_NOTIFICATIONS_ALLOW = "dropbox-emails-allowed";
+	public static final String DROPBOX_NOTIFICATIONS_ALWAYS = "dropbox-emails-always";
 	
 	public static final String DROPBOX_NOTIFICATIONS_DEFAULT_VALUE = DROPBOX_NOTIFICATIONS_NONE;
 
@@ -4173,6 +4174,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			// not show the public option or notification when in dropbox mode
 			context.put("dropboxMode", Boolean.TRUE);
+			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
+			context.put("dropboxNotificationAllowed", Boolean.valueOf(DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
 		}
 		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
@@ -4847,7 +4850,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String dropboxNotifications = getDropboxNotificationsProperty();
 		context.put("value_dropbox_instructor_notifications", dropboxNotifications);
 		context.put("value_dropbox_instructor_notifications_none", DROPBOX_NOTIFICATIONS_NONE);
-		context.put("value_dropbox_instructor_notifications_all", DROPBOX_NOTIFICATIONS_ALL);
+		context.put("value_dropbox_instructor_notifications_allow", DROPBOX_NOTIFICATIONS_ALLOW);
+		context.put("value_dropbox_instructor_notifications_always", DROPBOX_NOTIFICATIONS_ALWAYS);
 		context.put("name_dropbox_instructor_notifications", DROPBOX_NOTIFICATIONS_PARAMETER_NAME);
 		
 		return TEMPLATE_DROPBOX_OPTIONS;
@@ -5676,9 +5680,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					else
 					{
 						String notifyDropbox = getDropboxNotificationsProperty();
-						if(DROPBOX_NOTIFICATIONS_ALL.equals(notifyDropbox))
+						if(DROPBOX_NOTIFICATIONS_ALWAYS.equals(notifyDropbox))
 						{
 							noti = NotificationService.NOTI_OPTIONAL;
+						}
+						else if(DROPBOX_NOTIFICATIONS_ALLOW.equals(notifyDropbox))
+						{
+							notification = params.getBoolean("notify_dropbox");
+			  				if(notification)
+			   				{
+			   					noti = NotificationService.NOTI_OPTIONAL;
+			   				}
 						}
 					}
 					logger.debug(this + ".doCompleteCreateWizard() noti == " + noti);
@@ -6758,16 +6770,33 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			// %%STATE_MODE_RESOURCES%%
 			if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 			{
-   				boolean notification = params.getBoolean("notify_dropbox");
-  				if(notification)
-   				{
-   					noti = NotificationService.NOTI_REQUIRED;
-   				}
-   				else
-   				{
-   					// set noti to none if in dropbox mode
-   					noti = NotificationService.NOTI_NONE;
-   				}
+				boolean notification = false;
+				
+				if(item.userIsMaintainer())	// if the user is a site maintainer
+				{
+					notification = params.getBoolean("notify_dropbox");
+	  				if(notification)
+	   				{
+	   					noti = NotificationService.NOTI_REQUIRED;
+	   				}
+				}
+				else
+				{
+					String notifyDropbox = getDropboxNotificationsProperty();
+					if(DROPBOX_NOTIFICATIONS_ALWAYS.equals(notifyDropbox))
+					{
+						noti = NotificationService.NOTI_OPTIONAL;
+					}
+					else if(DROPBOX_NOTIFICATIONS_ALLOW.equals(notifyDropbox))
+					{
+						notification = params.getBoolean("notify_dropbox");
+		  				if(notification)
+		   				{
+		   					noti = NotificationService.NOTI_OPTIONAL;
+		   				}
+					}
+				}
+				logger.debug(this + ".doReviseProperties() noti == " + noti);
 			}
 			else
 			{

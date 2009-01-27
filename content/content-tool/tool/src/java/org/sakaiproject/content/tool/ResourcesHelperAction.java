@@ -173,6 +173,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		//Reference reference = (Reference) toolSession.getAttribute(ResourceToolAction.COLLECTION_REFERENCE);
 		String typeId = pipe.getAction().getTypeId();
 
+		ListItem parent = new ListItem(pipe.getContentEntity());
+		if(parent.isDropbox)
+		{
+			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
+			context.put("dropboxNotificationAllowed", Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
+		}
+		
 		if(ResourceType.TYPE_TEXT.equals(typeId))
 		{
 			template = CREATE_TEXT_TEMPLATE;
@@ -355,6 +362,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			context.put("availability_is_enabled", Boolean.TRUE);
 		}
 		
+		if(model.isDropbox)
+		{
+			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
+			context.put("dropboxNotificationAllowed", Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
+		}
 		
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
@@ -439,6 +451,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ListItem item = new ListItem(pipe.getContentEntity());
 		item.setPubviewPossible(! preventPublicDisplay);
 		
+		if(item.isDropbox)
+		{
+			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
+			context.put("dropboxNotificationAllowed", Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
+		}
+		
 		context.put("item", item);
 		
 		return REPLACE_CONTENT_TEMPLATE;
@@ -472,6 +490,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			{
 				context.put("hasNotificationDialog", typedef.hasNotificationDialog());
 			}
+		}
+		
+		if(item.isDropbox)
+		{
+			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
+			context.put("dropboxNotificationAllowed", Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
 		}
 		
 		context.put("pipe", pipe);
@@ -571,6 +595,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			context.put("availability_is_enabled", Boolean.TRUE);
 		}
 		
+		if(model.isDropbox)
+		{
+			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
+			context.put("dropboxNotificationAllowed", Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
+		}
 		
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
@@ -632,22 +661,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String resourceType = pipe.getAction().getTypeId();
 		String mimetype = pipe.getMimeType();
 		
+		ListItem item = new ListItem(pipe.getContentEntity());
 		// notification
-		int noti = NotificationService.NOTI_NONE;
+		int noti = determineNotificationPriority(params, item.isDropbox, item.userIsMaintainer());
 
-		// read the notification options
-		String notification = params.getString("notify");
-		if ("r".equals(notification))
-		{
-			noti = NotificationService.NOTI_REQUIRED;
-		}
-		else if ("o".equals(notification))
-		{
-			noti = NotificationService.NOTI_OPTIONAL;
-		}
-		// boolean notification = params.getBoolean("notify_dropbox");
-
-		
 		pipe.setRevisedMimeType(pipe.getMimeType());
 		if(ResourceType.TYPE_TEXT.equals(resourceType) || ResourceType.MIME_TYPE_TEXT.equals(mimetype))
 		{
@@ -886,7 +903,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				
 			ListItem newFile = new ListItem(pipe.getContentEntity());
 			// notification
-			int noti = determineNotificationPriority(params, newFile);
+			int noti = determineNotificationPriority(params, newFile.isDropbox, newFile.userIsMaintainer());
 			newFile.setNotification(noti);
 			
 			pipe.setRevisedListItem(newFile);
@@ -1000,7 +1017,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
 			// notification
-			int noti = determineNotificationPriority(params, newFile);
+			int noti = determineNotificationPriority(params, newFile.isDropbox, newFile.userIsMaintainer());
 			newFile.setNotification(noti);
 			
 			//alerts.addAll(newFile.checkRequiredProperties());
@@ -1055,15 +1072,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	 * @param newFile
 	 * @return
 	 */
-	protected int determineNotificationPriority(ParameterParser params, ListItem newFile) 
+	protected int determineNotificationPriority(ParameterParser params, boolean contextIsDropbox, boolean userIsMaintainer) 
 	{
 		int noti = NotificationService.NOTI_NONE;
 		// %%STATE_MODE_RESOURCES%%
-		if (newFile.isDropbox())
+		if (contextIsDropbox)
 		{
 			boolean notification = false;
 			
-			if(newFile.userIsMaintainer())	// if the user is a site maintainer
+			if(userIsMaintainer)	// if the user is a site maintainer
 			{
 				notification = params.getBoolean("notify_dropbox");
 				if(notification)
@@ -1074,9 +1091,17 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			else
 			{
 				String notifyDropbox = getDropboxNotificationsProperty();
-				if(ResourcesAction.DROPBOX_NOTIFICATIONS_ALL.equals(notifyDropbox))
+				if(ResourcesAction.DROPBOX_NOTIFICATIONS_ALWAYS.equals(notifyDropbox))
 				{
 					noti = NotificationService.NOTI_OPTIONAL;
+				}
+				else if(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(notifyDropbox))
+				{
+					notification = params.getBoolean("notify_dropbox");
+	  				if(notification)
+	   				{
+	   					noti = NotificationService.NOTI_OPTIONAL;
+	   				}
 				}
 			}
 			logger.debug(this + ".doAddUrls() noti == " + noti);
@@ -1231,7 +1256,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				newFile.captureProperties(params, ListItem.DOT + i);
 				
 				// notification
-				int noti = determineNotificationPriority(params, newFile);
+				int noti = determineNotificationPriority(params, newFile.isDropbox, newFile.userIsMaintainer());
 				newFile.setNotification(noti);
 				// allAlerts.addAll(newFile.checkRequiredProperties());
 				

@@ -37,8 +37,11 @@
 		</h4>
 		
 		<p class="checkbox  indnt2">
-			<input type="radio" name="$!name_dropbox_instructor_notifications" id="sendnotif" value="$!value_dropbox_instructor_notifications_all" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_all))checked="checked" #end />
-			<label for="sendnotif">$tlang.getString('receive.confirm.dropbox.email.all')</label>
+			<input type="radio" name="$!name_dropbox_instructor_notifications" id="sendnotif" value="$!value_dropbox_instructor_notifications_always" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_always))checked="checked" #end />
+			<label for="sendnotif">$tlang.getString('receive.confirm.dropbox.email.always')</label>
+			<br/>
+			<input type="radio" name="$!name_dropbox_instructor_notifications" id="sendnotif" value="$!value_dropbox_instructor_notifications_allow" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_allow))checked="checked" #end />
+			<label for="sendnotif">$tlang.getString('receive.confirm.dropbox.email.allow')</label>
 			<br/>
 			<input type="radio" name="$!name_dropbox_instructor_notifications" id="notsendnotif" value="$!value_dropbox_instructor_notifications_none" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_none))checked="checked" #end />
 			<label for="notsendnotif">$tlang.getString('receive.confirm.dropbox.email.none')</label>
