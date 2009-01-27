@@ -472,5 +472,19 @@
 		<event eventId="wiki.revise" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
+	
+    
+    <!-- yaft -->
+    <tool 
+        toolId="sakai.yaft"
+        selected="true">
+        <event eventId="yaft.message.created" selected="true"/>
+        <event eventId="yaft.message.deleted" selected="true"/>
+        <event eventId="yaft.discussion.created" selected="true"/>
+        <event eventId="yaft.discussion.deleted" selected="true"/>
+        <event eventId="yaft.forum.created" selected="true"/>
+        <event eventId="yaft.forum.deleted" selected="true"/>
+        <eventParserTip for="contextId" separator="/" index="2"/>
+    </tool>
 
 </toolEventsDef>
