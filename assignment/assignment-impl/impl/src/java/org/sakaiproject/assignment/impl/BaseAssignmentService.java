@@ -8781,7 +8781,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					if (studentMap.containsKey(userId))
 					{
 						// return student score from Gradebook
-						return g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId);
+						try
+						{
+							return g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId);
+						}
+						catch (Exception e)
+						{
+							M_log.warn(this + " BaseAssignmentSubmission getGrade getAssignmentScoreString from GradebookService " + e.getMessage() + " context=" + m_context + " assignment id=" + m_assignment + " userId=" + userId + " gAssignmentName=" + gAssignmentName); 
+						}
 					}
 				}
 			}

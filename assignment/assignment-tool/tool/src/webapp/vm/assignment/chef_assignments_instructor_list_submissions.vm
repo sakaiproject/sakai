@@ -463,7 +463,9 @@
 							</td>
 							#if ($withGrade)
 								<td headers="grade">
-									$submission.getGradeDisplay()
+									#if($!submission)
+										$submission.getGradeDisplay()
+									#end
 								</td>
 							#end	
 							#if ($allowReviewService && $assignment.getContent().AllowReviewService)
