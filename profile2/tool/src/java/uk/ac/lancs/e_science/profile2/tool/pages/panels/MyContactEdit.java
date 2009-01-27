@@ -22,7 +22,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehavior;
+import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehaviour;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
@@ -74,7 +74,7 @@ public class MyContactEdit extends Panel {
         final FeedbackLabel emailFeedback = new FeedbackLabel("emailFeedback", email, new ResourceModel("error.email.invalid"));
         emailFeedback.setOutputMarkupId(true);
         emailContainer.add(emailFeedback);
-        email.add(new ComponentVisualErrorBehavior("onblur", emailFeedback));
+        email.add(new ComponentVisualErrorBehaviour("onblur", emailFeedback));
         
 		form.add(emailContainer);
 		

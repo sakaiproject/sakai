@@ -19,7 +19,7 @@ import org.apache.wicket.model.Model;
  * Tested with Wicket 1.3.4
  * @author Daan, StuQ.nl
  */
-public class ComponentVisualErrorBehavior extends AjaxFormComponentUpdatingBehavior {
+public class ComponentVisualErrorBehaviour extends AjaxFormComponentUpdatingBehavior {
 
     /** Field updateComponent holds the component that must be updated when validation is done.*/
     private Component updateComponent = null;
@@ -31,7 +31,7 @@ public class ComponentVisualErrorBehavior extends AjaxFormComponentUpdatingBehav
      * @param updateComponent is the {@link Component} that must be updated (for example the {@link FeedbackLabel}
      *        containing the error message for this {@link FormComponent})  
      */
-    public ComponentVisualErrorBehavior(String event, Component updateComponent) {
+    public ComponentVisualErrorBehaviour(String event, Component updateComponent) {
         super(event);
         this.updateComponent=updateComponent;
     }
