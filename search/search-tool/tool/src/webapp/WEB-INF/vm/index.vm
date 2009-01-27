@@ -66,6 +66,10 @@
   #if ( ${searchModel.hasError()} ) 
 		  	<div class=\"alertMessage\" >${searchModel.errorMessage}</div>
   #else
+  #if (${searchModel.getCensoredResultCount()} > 0) 
+  	<div class="searchItemsUnavailable">${searchModel.searchFoundCensored}</div> 
+  #end
+
  	   <!--ls--> 
    #foreach ( $result in ${searchModel.results} ) 
 	        <!--is-->
@@ -90,9 +94,6 @@
    <!--le--> 
   #end
   
-  #if (${searchModel.getCensoredResultCount()} > 0) 
-  	<span>${searchModel.searchFoundCensored} </span> 
-  #end
      </div>
 		  <div id="tagsTab" class="tabOff" >
 		  <div id="aboutTabs" >
