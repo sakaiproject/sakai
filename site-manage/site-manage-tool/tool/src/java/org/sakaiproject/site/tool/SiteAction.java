@@ -6574,21 +6574,19 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			
 			// alerts after clicking Continue but not Back
-			if (forward) {
-				if (StringUtil.trimToNull(siteInfo.title) == null) {
-					addAlert(state, rb.getString("java.reqfields"));
-					state.setAttribute(STATE_TEMPLATE_INDEX, "2");
-					return;
-				}
-			} else {
+			if (!forward) {
 				// removing previously selected template site
-					state.removeAttribute(STATE_TEMPLATE_SITE);				
+				state.removeAttribute(STATE_TEMPLATE_SITE);				
 			}
 			
 			updateSiteAttributes(state);
 
 			if (state.getAttribute(STATE_MESSAGE) == null) {
 				updateCurrentStep(state, forward);
+			}
+			else
+			{
+				state.setAttribute(STATE_TEMPLATE_INDEX, "2");
 			}
 
 			break;
@@ -7747,14 +7745,14 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 		}
 		siteInfo.site_type = (String) state.getAttribute(STATE_SITE_TYPE);
-		
-		Site Site = getStateSite(state);
-        if (siteTitleEditable(state, Site.getType())) 	 
+		// title
+        if (siteTitleEditable(state, siteInfo.site_type) && params.getString("title") != null) 	 
         { 	 
-			// site titel is editable and could not be null 	 
-			String title = StringUtil.trimToNull(params.getString("title")); 	 
-			siteInfo.title = params.getString("title");	 
-			if (title == null) { 	 
+			// site titel is editable and could not be null
+        	String title = StringUtil.trimToNull(params.getString("title"));
+        	siteInfo.title = title;
+			
+        	if (title == null) { 	 
 				addAlert(state, rb.getString("java.specify") + " "); 	 
 			} 	 
 			// check for site title length 	 
@@ -8949,10 +8947,10 @@ public class SiteAction extends PagedResourceActionII {
 	private void sitePropertiesIntoState(SessionState state) {
 		try {
 			Site site = getStateSite(state);
-			ResourceProperties siteProperties = site.getProperties();
 			SiteInfo siteInfo = new SiteInfo();
 			if (site != null)
 			{
+				ResourceProperties siteProperties = site.getProperties();
 				// set from site attributes
 				siteInfo.title = site.getTitle();
 				siteInfo.description = site.getDescription();
@@ -8964,6 +8962,11 @@ public class SiteAction extends PagedResourceActionII {
 				siteInfo.include = site.isPubView();
 				siteInfo.short_description = site.getShortDescription();
 				siteInfo.site_type = site.getType();
+				// term information
+				String term = siteProperties.getProperty(PROP_SITE_TERM);
+				if (term != null) {
+					siteInfo.term = term;
+				}
 				
 				// site contact information
 				String contactName = siteProperties.getProperty(PROP_SITE_CONTACT_NAME);
@@ -8987,12 +8990,6 @@ public class SiteAction extends PagedResourceActionII {
 				if (contactEmail != null) {
 					siteInfo.site_contact_email = contactEmail;
 				}
-			}
-			
-			// term information
-			String term = site.getProperties().getProperty(PROP_SITE_TERM);
-			if (term != null) {
-				siteInfo.term = term;
 			}
 			
 			siteInfo.additional = "";
