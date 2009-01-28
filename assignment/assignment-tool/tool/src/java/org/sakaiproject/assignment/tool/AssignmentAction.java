@@ -10410,40 +10410,15 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			if (grade != null && state.getAttribute(STATE_MESSAGE) == null)
 			{
-				// get the user list
-				List userSubmissions = new Vector();
-				if (state.getAttribute(USER_SUBMISSIONS) != null)
-				{
-					userSubmissions = (List) state.getAttribute(USER_SUBMISSIONS);
-				}
+				// get the submission list
+				List submissions = AssignmentService.getSubmissions(a);
 				
-				// constructor a new UserSubmissions list
-				List userSubmissionsNew = new Vector();
-				
-				for (int i = 0; i<userSubmissions.size(); i++)
+				for (int i = 0; i<submissions.size(); i++)
 				{
-					// get the UserSubmission object
-					UserSubmission us = (UserSubmission) userSubmissions.get(i);
+					// get the submission object
+					AssignmentSubmission submission = (AssignmentSubmission) submissions.get(i);
 					
-					User u = us.getUser();
-					AssignmentSubmission submission = us.getSubmission();
-					
-					// check whether there is a submission associated
-					if (submission == null)
-					{
-						AssignmentSubmissionEdit s = AssignmentService.addSubmission((String) state.getAttribute(STATE_CONTEXT_STRING), assignmentId, u.getId());
-						// submitted by without submit time
-						s.setSubmitted(true);
-						s.setGrade(grade);
-						s.setGraded(true);
-						s.setAssignment(a);
-						AssignmentService.commitEdit(s);
-						
-						// update the UserSubmission list by adding newly created Submission object
-						AssignmentSubmission sub = AssignmentService.getSubmission(s.getReference());
-						userSubmissionsNew.add(new UserSubmission(u, sub));
-					}
-					else if (StringUtil.trimToNull(submission.getGrade()) == null)
+					if (StringUtil.trimToNull(submission.getGrade()) == null)
 					{
 						// update the grades for those existing non-submissions
 						AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(submission.getReference());
@@ -10451,8 +10426,6 @@ public class AssignmentAction extends PagedResourceActionII
 						sEdit.setSubmitted(true);
 						sEdit.setGraded(true);
 						AssignmentService.commitEdit(sEdit);
-						
-						userSubmissionsNew.add(new UserSubmission(u, AssignmentService.getSubmission(sEdit.getReference())));
 					}
 					else if (StringUtil.trimToNull(submission.getGrade()) != null && !submission.getGraded())
 					{
@@ -10460,17 +10433,8 @@ public class AssignmentAction extends PagedResourceActionII
 						AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(submission.getReference());
 						sEdit.setGraded(true);
 						AssignmentService.commitEdit(sEdit);
-						
-						userSubmissionsNew.add(new UserSubmission(u, AssignmentService.getSubmission(sEdit.getReference())));
-					}
-					else
-					{
-						// no change for this user
-						userSubmissionsNew.add(us);
 					}
 				}
-				
-				state.setAttribute(USER_SUBMISSIONS, userSubmissionsNew);
 			}
 			
 		}
@@ -10478,7 +10442,6 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			M_log.warn(this + ":setDefaultNoSubmissionScore " + e.getMessage());
 		}
-		
 		
 	}
 	
