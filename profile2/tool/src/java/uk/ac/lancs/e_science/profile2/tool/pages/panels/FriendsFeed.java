@@ -2,6 +2,8 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
@@ -23,6 +25,7 @@ import uk.ac.lancs.e_science.profile2.tool.dataproviders.FriendsFeedDataProvider
 import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
 import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.MySearch;
+import uk.ac.lancs.e_science.profile2.tool.pages.ViewFriends;
 import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 
 
@@ -51,7 +54,14 @@ public class FriendsFeed extends Panel {
 		profile = ProfileApplication.get().getProfile();
 
 		//heading	
-		Label heading = new Label("heading", new ResourceModel("heading.feed.my.friends"));
+		Label heading = new Label("heading");
+		
+		if(viewingUserId.equals(ownerUserId)) {
+			heading.setModel(new ResourceModel("heading.feed.my.friends"));
+		} else {
+			String displayName = sakaiProxy.getUserDisplayName(ownerUserId);
+			heading.setModel(new StringResourceModel("heading.feed.view.friends", null, new Object[]{ displayName } ));
+		}
 		add(heading);
 		
 		
@@ -105,10 +115,10 @@ public class FriendsFeed extends Panel {
 				}
 		    	
 		    	//name link - the list is already cleaned by FriendsFeedDataProvider so we can safely link without worrying about privacy restrictions
-		    	Link friendLink = new Link("friendLink") {
+		    	AjaxLink friendLink = new AjaxLink("friendLink") {
 					private static final long serialVersionUID = 1L;
-		    		public void onClick() {
-		    			//link to own profile if link will point to self
+					public void onClick(AjaxRequestTarget target) {
+						//link to own profile if link will point to self
 		    			if(viewingUserId.equals(friendId)) {
 							setResponsePage(new MyProfile());
 						} else {
@@ -136,11 +146,10 @@ public class FriendsFeed extends Panel {
 		
 		
 		/* VIEW ALL FRIENDS LINK */
-    	Link viewFriendsLink = new Link("viewFriendsLink") {
-			
+    	AjaxLink viewFriendsLink = new AjaxLink("viewFriendsLink") {
 			private static final long serialVersionUID = 1L;
 
-			public void onClick() {
+			public void onClick(AjaxRequestTarget target) {
 				//this could come from a bookmarkablelink, but this works for now
 				if(numFriends == 0) {
 					setResponsePage(new MySearch());
@@ -149,7 +158,7 @@ public class FriendsFeed extends Panel {
 					if(viewingUserId.equals(ownerUserId)) {
 						setResponsePage(new MyFriends());
 					} else {
-						//setResponsePage(new ViewFriends());
+						setResponsePage(new ViewFriends(ownerUserId));
 					}
 				}
 			}

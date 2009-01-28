@@ -213,6 +213,7 @@ public class MySearch extends BasePage {
 						if(userUuid.equals(currentUserUuid)) {
 							setResponsePage(new MyProfile());
 						} else {
+							//gets it from the model because we set the model later
 							setResponsePage(new ViewProfile((String)getModelObject()));
 						}
 					}
@@ -287,8 +288,7 @@ public class MySearch extends BasePage {
 		    	final AjaxLink viewFriendsLink = new AjaxLink("result-viewFriendsLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
-		    			//
-						target.appendJavascript("alert('This doesnt do anything yet');");
+						setResponsePage(new ViewFriends(userUuid));
 					}
 				};
 				final Label viewFriendsLabel = new Label("result-viewFriendsLabel", new ResourceModel("link.view.friends"));

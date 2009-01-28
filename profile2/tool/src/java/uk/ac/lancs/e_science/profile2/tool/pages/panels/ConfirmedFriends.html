@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+<wicket:panel>	
+	
+	<div wicket:id="confirmedFriendsHeading" class="itemHeader">[Friends]</div>	
+		<!-- <div wicket:id="numConfirmedFriends" class="resultsHeader">26 friends</div>-->
+	
+	<div class="friendsList" wicket:id="confirmedFriendsContainer">
+		
+		<div wicket:id="results-list" class="friendsListItem">
+			<div class="friendsListPhoto">
+				<img wicket:id="result-photo"/>
+			</div>
+	    	
+	    	<div class="friendsListInfo">
+	    		<a href="#" wicket:id="result-profileLink"><span wicket:id="result-name" class="friendsListInfoName">[name]</span></a>
+	    	</div>
+	    	<div class="searchResultActions">
+	    		<ul class="searchResultItems">
+	    			<li><a href="blah">item1</a></li>
+	    			<li><a href="blah">item2</a></li>
+	    			<!-- 
+	    			<li wicket:id="result-connectionContainer"><a wicket:id="result-connectionLink"><span wicket:id="result-connectionLabel">add as a friend</span></a></li>
+	    			<li wicket:id="result-friendsContainer"><a wicket:id="result-viewFriendsLink"><span wicket:id="result-viewFriendsLabel">view friends</span></a></li>
+	    			-->
+	    		</ul>
+	    	</div>
+	    	
+			<!-- <div wicket:id="result-connectionWindow"></div>	-->
+	  	</div>
+	</div>
+
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

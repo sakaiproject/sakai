@@ -277,6 +277,19 @@ public interface Profile {
 	 */
 	public List<String> getFriendsOfUserXVisibleByUserY(final String userX, final String userY);
 	
+	/**
+	 * Get a list of confirmed friends for a given user, that are visible by that user 
+	 * (depending on their privacy settings)
+	 * 
+	 * - First Calls getConfirmedFriendUserIdsForUser() for userId first,
+	 * - Then checks privacy status of each person. If all ok, add to the final list that is returned.
+	 * 
+	 * @param userId		uuid of the user to retrieve the list of friends for
+	 */
+	public List<String> getVisibleFriendsOfUser(final String userId);
+	
+	
+	
 	
 	/**
 	 * Should this user show up in searches by the given user?
