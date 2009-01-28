@@ -2,6 +2,7 @@ package uk.ac.lancs.e_science.profile2.api.exception;
 
 public class ProfilePrototypeNotDefinedException extends RuntimeException {
 		
+	private static final long serialVersionUID = 1L;
 	private final transient String message;
 	
 	public ProfilePrototypeNotDefinedException(final String message){
