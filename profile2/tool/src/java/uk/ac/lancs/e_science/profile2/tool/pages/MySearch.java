@@ -33,8 +33,8 @@ import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
-import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
+import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 import uk.ac.lancs.e_science.profile2.tool.models.Search;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
 
@@ -49,8 +49,8 @@ public class MySearch extends BasePage {
 		
 		if(log.isDebugEnabled()) log.debug("MySearch()");
 		
-		//get basePage
-		final BasePage basePage = getBasePage();
+		//setup model to store the actions in the modal windows
+		final FriendAction friendActionModel = new FriendAction();
 		
 		//get current user
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -194,6 +194,8 @@ public class MySearch extends BasePage {
 		    	if(photo != null && photo.length > 0){
 		    		
 					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+						private static final long serialVersionUID = 1L;
+
 						protected byte[] getImageData() {
 							return photo;
 						}
@@ -207,6 +209,7 @@ public class MySearch extends BasePage {
 		    	
 		    	//name and link to profile (if allowed or no link)
 		    	Link profileLink = new Link("result-profileLink") {
+					private static final long serialVersionUID = 1L;
 
 					public void onClick() {
 						//if user found themself, go to own profile, else show other profile
@@ -241,7 +244,7 @@ public class MySearch extends BasePage {
 		    	
 		    	//ADD FRIEND MODAL WINDOW
 				final ModalWindow connectionWindow = new ModalWindow("result-connectionWindow");
-		    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, basePage, currentUserUuid, userUuid)); 
+		    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
 
 		    	//ADD FRIEND LINK
 		    	WebMarkupContainer c1 = new WebMarkupContainer("result-connectionContainer");
@@ -310,7 +313,7 @@ public class MySearch extends BasePage {
 
 					public void onClose(AjaxRequestTarget target){
 						
-		            	if(basePage.isFriendRequestedResult()) { 
+		            	if(friendActionModel.isRequested()) { 
 		            		connectionLabel.setModel(new ResourceModel("text.friend.requested"));
 							connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 							connectionLink.setEnabled(false);

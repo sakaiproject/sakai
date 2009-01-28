@@ -25,6 +25,7 @@ import uk.ac.lancs.e_science.profile2.api.exception.ProfileIllegalAccessExceptio
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrototypeNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 import uk.ac.lancs.e_science.profile2.tool.components.BlankPanel;
+import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
 
@@ -39,8 +40,8 @@ public class ViewProfile extends BasePage {
 		
 		if(log.isDebugEnabled()) log.debug("ViewProfile()");
 
-		//get basePage
-		final BasePage basePage = getBasePage();
+		//setup model to store the actions in the modal windows
+		final FriendAction friendActionModel = new FriendAction();
 		
 		//get current user Id
 		String currentUserId = sakaiProxy.getCurrentUserId();
@@ -416,11 +417,13 @@ public class ViewProfile extends BasePage {
 		
 		//ADD FRIEND MODAL WINDOW
 		final ModalWindow addFriendWindow = new ModalWindow("addFriendWindow");
-		addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, basePage, currentUserId, userUuid)); 
+		addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserId, userUuid)); 
 
 		//FRIEND LINK/STATUS
 		final AjaxLink addFriendLink = new AjaxLink("addFriendLink") {
-    		public void onClick(AjaxRequestTarget target) {
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) {
     			addFriendWindow.show(target);
 			}
 		};
@@ -455,7 +458,7 @@ public class ViewProfile extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			public void onClose(AjaxRequestTarget target){
-            	if(basePage.isFriendRequestedResult()) { 
+            	if(friendActionModel.isRequested()) { 
             		//friend was successfully requested, update label and link
             		addFriendLabel.setModel(new ResourceModel("text.friend.requested"));
             		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));

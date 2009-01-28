@@ -30,11 +30,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	protected transient SakaiProxy sakaiProxy;
 	protected transient Profile profile;
 	
-	private boolean friendRequestedResult;
-	private boolean friendConfirmedResult;
-	private boolean friendRemovedResult;
-	
-	
 	public BasePage() {
     	
 		//super();
@@ -224,32 +219,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	}
 
 	
-	/* MODAL WINDOW HANDLERS */
-	
-	public boolean isFriendRequestedResult() {
-		return friendRequestedResult;
-	}
-
-	public void setFriendRequestedResult(boolean friendRequestedResult) {
-		this.friendRequestedResult = friendRequestedResult;
-	}
-
-	public boolean isFriendConfirmedResult() {
-		return friendConfirmedResult;
-	}
-
-	public void setFriendConfirmedResult(boolean friendConfirmedResult) {
-		this.friendConfirmedResult = friendConfirmedResult;
-	}
-
-	public boolean isFriendRemovedResult() {
-		return friendRemovedResult;
-	}
-
-	public void setFriendRemovedResult(boolean friendRemovedResult) {
-		this.friendRemovedResult = friendRemovedResult;
-	}
-
 	
 	
 	

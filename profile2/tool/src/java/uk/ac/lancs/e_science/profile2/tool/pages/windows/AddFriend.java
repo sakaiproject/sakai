@@ -16,7 +16,7 @@ import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
-import uk.ac.lancs.e_science.profile2.tool.pages.BasePage;
+import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 
 public class AddFriend extends Panel {
 
@@ -26,7 +26,7 @@ public class AddFriend extends Panel {
 	private transient Profile profile;
 
 	
-	public AddFriend(String id, final ModalWindow window, final BasePage basePage, final String userX, final String userY){
+	public AddFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY){
         super(id);
 
         //get API's
@@ -91,7 +91,7 @@ public class AddFriend extends Panel {
 				
 				//if ok, request friend
 				if(profile.requestFriend(userX, userY)) {
-					basePage.setFriendRequestedResult(true);
+					friendActionModel.setRequested(true);
 					window.close(target);
 				} else {
 					text.setModel(new StringResourceModel("error.friend.add.failed", null, new Object[]{ friendName } ));
@@ -113,7 +113,7 @@ public class AddFriend extends Panel {
             private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-            	basePage.setFriendRequestedResult(false);
+				friendActionModel.setRequested(false);
             	window.close(target);
             }
         };
