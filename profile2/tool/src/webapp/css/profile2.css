@@ -403,7 +403,11 @@
 	margin-top: 0;
 	font-size: 60%;
 	text-align: left;
+	max-width: 50px;
 	overflow: hidden;
+	color: #3355BB;
+	text-decoration: underline;
+	cursor: pointer;
 }
 
 

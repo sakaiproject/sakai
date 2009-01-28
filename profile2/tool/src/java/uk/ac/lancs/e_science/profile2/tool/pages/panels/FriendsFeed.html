@@ -11,34 +11,11 @@
 	
 	<div class="sideBoxHeading" wicket:id="heading">[My friends]</div>
  	<div class="sideBoxContent">
- 		<!-- datagrid in here -->
- 		<!--
- 		<table border="0" cellpadding="4" id="friendsFeed">
-			<tbody>
-				<tr>
-       				<td class="friendsFeedItem">
-         				<img src="images/no_image.gif">
-         				<div class="friendsFeedItemCaption">Joes Bloggs</div>
-       				</td>
-       				<td class="friendsFeedItem">
-         				<img src="images/no_image.gif">
-         				<div class="friendsFeedItemCaption">Steve Swinsburg</div>
-       				</td>
-       				<td class="friendsFeedItem">
-         				<img src="images/no_image.gif">
-         				<div class="friendsFeedItemCaption">Christopher Collins</div>
-       				</td>
-     			</tr>
-     			
-     			
-			</tbody>
-		</table>
-		-->
+ 		
 		<div class="sideBoxLabels">
 			<span class="sideBoxItemCount" wicket:id="numFriendsLabel">500 friends</span>
 		 	<a class="sideBoxMoreLink" wicket:id="viewFriendsLink"><span wicket:id="viewFriendsLabel">[viewFriendsLabel]</span></a>
 		</div>
-		
 		
 		<table border="0" cellpadding="8" id="friendsFeed">
 			<tbody>
@@ -46,7 +23,7 @@
 					<td wicket:id="cols" class="friendsFeedItem">
 						<div wicket:id="friendsFeedItem">
 							<img wicket:id="friendPhoto" />
-							<a wicket:id="friendLink" class="friendsFeedItemCaption"><span wicket:id="friendName">Joes Bloggs</span></a>
+							<div wicket:id="friendLink" class="friendsFeedItemCaption"><span wicket:id="friendName">Joes Bloggs</span></div>
 						</div>
 			  		</td>
 			 	</tr>
