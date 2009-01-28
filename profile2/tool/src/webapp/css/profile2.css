@@ -317,7 +317,8 @@
 	margin-top:8px;
 }
 
-.profileFormButtons {
+.profileFormButtons,
+.modalWindowButtons {
 	text-align:center;
 }
 

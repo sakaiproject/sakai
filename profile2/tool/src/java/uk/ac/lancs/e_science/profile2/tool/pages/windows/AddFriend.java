@@ -53,15 +53,15 @@ public class AddFriend extends Panel {
 		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.add"), form) {
+			private static final long serialVersionUID = 1L;
+
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
 				/* double checking */
 				
 				//friend?
-				//boolean friend = profile.isUserXFriendOfUserY(userX, userY);
-				boolean friend=true;
-				if(friend) {
-					text.setModel(new StringResourceModel("error.friend.already", null, new Object[]{ friendName } ));
+				if(profile.isUserXFriendOfUserY(userX, userY)) {
+					text.setModel(new StringResourceModel("error.friend.already.confirmed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);
@@ -69,55 +69,39 @@ public class AddFriend extends Panel {
 					return;
 				}
 				
-				/*
-				boolean friend = false;
-				boolean friendRequestToThisPerson = false;
-				boolean friendRequestFromThisPerson = false;
-
-				//friend?
-				friend = profile.isUserXFriendOfUserY(userX, userY);
-
-				//if not friend, has a friend request already been made to this person?
-				if(!friend) {
-					friendRequestToThisPerson = profile.isFriendRequestPending(userX, userY);
+				//has a friend request already been made to this person?
+				if(profile.isFriendRequestPending(userX, userY)) {
+					text.setModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
+					this.setEnabled(false);
+					this.add(new AttributeModifier("class", true, new Model("disabled")));
+					target.addComponent(text);
+					target.addComponent(this);
+					return;
 				}
 				
-				//if not friend and no friend request to this person, has a friend request been made from this person to the current user?
-				if(!friend && !friendRequestToThisPerson) {
-					friendRequestFromThisPerson = profile.isFriendRequestPending(userY, userX);
+				//has a friend request been made from this person to the current user?
+				if(profile.isFriendRequestPending(userY, userX)) {
+					text.setModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
+					this.setEnabled(false);
+					this.add(new AttributeModifier("class", true, new Model("disabled")));
+					target.addComponent(text);
+					target.addComponent(this);
+					return;
 				}
-		        
-				//set text appropriately - disable submit if required
-				if(friend) {
-			        text.setModel(new StringResourceModel("text.friend.already", null, new Object[]{ friendName } ));
-			        submitButton.setVisible(false);
-				} else if (friendRequestToThisPerson || friendRequestFromThisPerson) {
-			        text.setModel(new StringResourceModel("text.friend.already.pending", null, new Object[]{ friendName } ));
-			        submitButton.setVisible(false);
-				} else {
-			        //ok
-				}
-				*/
-				
-				
-				
-				
-				
-				
-				
-				
 				
 				//if ok, request friend
-				/*
 				if(profile.requestFriend(userX, userY)) {
 					basePage.setFriendRequestedResult(true);
+					window.close(target);
 				} else {
-					//it failed, the logs will say why but we need to UI stuff here.
-					basePage.setFriendRequestedResult(false);
-					target.appendJavascript("alert('Failed to add friend. Check the system logs.');");
+					text.setModel(new StringResourceModel("error.friend.add.failed", null, new Object[]{ friendName } ));
+					this.setEnabled(false);
+					this.add(new AttributeModifier("class", true, new Model("disabled")));
+					target.addComponent(text);
+					target.addComponent(this);
+					return;
 				}
-				*/
-				//window.close(target);
+				
             }
 		};
 		submitButton.add(new FocusOnLoadBehaviour());
@@ -126,7 +110,9 @@ public class AddFriend extends Panel {
         
 		//cancel button
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            private static final long serialVersionUID = 1L;
+
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
             	basePage.setFriendRequestedResult(false);
             	window.close(target);
             }

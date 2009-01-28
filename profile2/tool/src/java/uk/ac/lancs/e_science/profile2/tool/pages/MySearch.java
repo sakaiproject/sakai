@@ -243,22 +243,21 @@ public class MySearch extends BasePage {
 		    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, basePage, currentUserUuid, userUuid)); 
 
 		    	//ADD FRIEND LINK
-		    	WebMarkupContainer c1 = new WebMarkupContainer("result-item1");
+		    	WebMarkupContainer c1 = new WebMarkupContainer("result-connectionContainer");
 		    	c1.setOutputMarkupId(true);
 		    	
 		    	final AjaxLink connectionLink = new AjaxLink("result-connectionLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
-						//target.prependJavascript("fixWindowVertical();"); 
-						connectionWindow.show(target);
 						//target.appendJavascript("Wicket.Window.get().window.style.width='800px';");
+						connectionWindow.show(target);
 						target.appendJavascript("fixWindowVertical();"); 
-
 
 					}
 				};
 				final Label connectionLabel = new Label("result-connectionLabel");
+				connectionLabel.setOutputMarkupId(true);
 				connectionLink.add(connectionLabel);
 				
 		    	//setup 'add friend' link
@@ -282,13 +281,14 @@ public class MySearch extends BasePage {
 				item.add(c1);
 				
 				//VIEW FRIENDS LINK
-				WebMarkupContainer c2 = new WebMarkupContainer("result-item2");
+				WebMarkupContainer c2 = new WebMarkupContainer("result-friendsContainer");
 		    	c2.setOutputMarkupId(true);
 		    	
 		    	final AjaxLink viewFriendsLink = new AjaxLink("result-viewFriendsLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 		    			//
+						target.appendJavascript("alert('This doesnt do anything yet');");
 					}
 				};
 				final Label viewFriendsLabel = new Label("result-viewFriendsLabel", new ResourceModel("link.view.friends"));
@@ -310,20 +310,17 @@ public class MySearch extends BasePage {
 
 					public void onClose(AjaxRequestTarget target){
 						
-						
-		            	//if(basePage.isFriendRequestedResult()) { 
-		            		//update main label
-		            		//connectionStatusLabel.setModel(new ResourceModel("text.friend.requested"));
-		            		//remove add link
-		            		//addConnectionLink.setVisible(false);
-		            		//show remove link
-		            		//removeConnectionLink.setVisible(true);
+		            	if(basePage.isFriendRequestedResult()) { 
+		            		connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+							connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+							connectionLink.setEnabled(false);
 		            		
-		            		//repaint affected components
-		            		//target.addComponent(connectionStatusLabel);
-		            		//target.addComponent(addConnectionLink);
-		            		//target.addComponent(removeConnectionLink);
-		            	//}
+							//TODO: recalculate if we can see this person's friend list and show the link if so
+		            		
+		            		//repaint
+		            		target.addComponent(connectionLabel);
+		            		target.addComponent(connectionLink);
+		            	}
 		            }
 		        });
 				item.add(connectionWindow);
