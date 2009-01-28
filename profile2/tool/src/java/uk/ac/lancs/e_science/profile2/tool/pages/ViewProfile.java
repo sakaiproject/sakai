@@ -24,6 +24,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileIllegalAccessException;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrototypeNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
+import uk.ac.lancs.e_science.profile2.tool.components.BlankPanel;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
 
@@ -451,7 +452,9 @@ public class ViewProfile extends BasePage {
 		
 		//ADD FRIEND MODAL WINDOW HANDLER 
 		addFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-            public void onClose(AjaxRequestTarget target){
+			private static final long serialVersionUID = 1L;
+
+			public void onClose(AjaxRequestTarget target){
             	if(basePage.isFriendRequestedResult()) { 
             		//friend was successfully requested, update label and link
             		addFriendLabel.setModel(new ResourceModel("text.friend.requested"));
@@ -477,7 +480,8 @@ public class ViewProfile extends BasePage {
 		if(isFriendsListVisible) {
 			friendsFeed = new FriendsFeed("friendsFeed", userUuid, currentUserId);
 		} else {
-			friendsFeed = new Panel("friendsFeed");
+			friendsFeed = new BlankPanel("friendsFeed");
+			friendsFeed.setVisible(false);
 		}
 		friendsFeed.setOutputMarkupId(true);
 		

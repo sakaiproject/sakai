@@ -318,7 +318,6 @@ public class MySearch extends BasePage {
 							//TODO: recalculate if we can see this person's friend list and show the link if so
 		            		
 		            		//repaint
-		            		target.addComponent(connectionLabel);
 		            		target.addComponent(connectionLink);
 		            	}
 		            }
