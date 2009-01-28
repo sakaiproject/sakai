@@ -4845,7 +4845,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("form-submit", BUTTON + "doUpdateDropboxOptions");
 		context.put("form-cancel", BUTTON + "doCancelDropboxOptions");
 		String[] args = { SiteService.getSiteDisplay(siteId) };
-		context.put("title", trb.getFormattedMessage("title.options", args));
+		context.put("title", trb.getFormattedMessage("title.dropbox.options", args));
 
 		String dropboxNotifications = getDropboxNotificationsProperty();
 		context.put("value_dropbox_instructor_notifications", dropboxNotifications);
