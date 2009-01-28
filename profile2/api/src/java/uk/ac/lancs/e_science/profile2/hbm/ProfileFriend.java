@@ -17,11 +17,14 @@ public class ProfileFriend implements Serializable {
 	private boolean confirmed;
 	private Date confirmedDate;
 
+	/* 
+	 * Empty constructor
+	 */
 	public ProfileFriend(){
 	}
 	
 	/*
-	 * create a friend object in one go
+	 * Constructor to create a ProfileFriend in one go
 	 */
 	public ProfileFriend(String userUuid, String friendUuid, int relationship, Date requestedDate, boolean confirmed, Date confirmedDate){
 		this.userUuid = userUuid;
@@ -33,7 +36,7 @@ public class ProfileFriend implements Serializable {
 	}
 	
 	/*
-	 * 'Friend Request' constructor
+	 * Constrctuor that should be used when requesting a friend as it has preinitialised values
 	 */
 	public ProfileFriend(String userUuid, String friendUuid, int relationship){
 		this.userUuid = userUuid;

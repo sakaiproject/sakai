@@ -17,7 +17,9 @@ public class ProfilePrivacy implements Serializable {
 	private int search;
 	private int myFriends;
 	
-
+	/* 
+	 * Empty constructor
+	 */
 	public ProfilePrivacy(){
 	}
 	
@@ -33,7 +35,7 @@ public class ProfilePrivacy implements Serializable {
 		this.personalInfo = personalInfo;
 		this.showBirthYear = showBirthYear;
 		this.search = search;
-		this.setMyFriends(myFriends);
+		this.myFriends = myFriends;
 	}
 
 	public String getUserUuid() {
@@ -97,7 +99,6 @@ public class ProfilePrivacy implements Serializable {
 	public int getSearch() {
 		return search;
 	}
-
 
 	public void setSearch(int search) {
 		this.search = search;

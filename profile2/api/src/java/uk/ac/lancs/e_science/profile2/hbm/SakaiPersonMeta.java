@@ -12,11 +12,16 @@ public class SakaiPersonMeta implements Serializable {
 	private String property;
 	private String value;
 	
+	/* 
+	 * Empty constructor
+	 */
 	public SakaiPersonMeta() {
 	}
 
 	
-	
+	/* 
+	 * Constructor to create a Meta object in one go
+	 */
 	public SakaiPersonMeta(long userUuid, String property, String value) {
 		super();
 		this.userUuid = userUuid;

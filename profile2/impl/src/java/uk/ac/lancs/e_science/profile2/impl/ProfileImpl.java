@@ -28,6 +28,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileFriendsManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
@@ -50,12 +51,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String[] DAY_OF_WEEK_MAPPINGS = { "", "Sunday", "Monday",
 		"Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 	
-	
-	/*
-	 * Eventually may come from the database. For now, only FRIEND is used.
-	 */
-	private final int RELATIONSHIP_FRIEND = 1;
-	private final int RELATIONSHIP_COLLEAGUE = 2;
 	
 	private static final String QUERY_GET_FRIENDS_FOR_USER = "getFriendsForUser";
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser";
@@ -319,7 +314,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		try {
 			//make a ProfileFriend object with 'Friend Request' constructor
-			ProfileFriend profileFriend = new ProfileFriend(userId, friendId, RELATIONSHIP_FRIEND);
+			ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileFriendsManager.RELATIONSHIP_FRIEND);
 			getHibernateTemplate().save(profileFriend);
 			log.info("User: " + userId + " requested friend: " + friendId);
 			return true;
@@ -854,7 +849,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			String userXFriend = (String)i.next();
 			boolean friend = false;
 			
-			//if in list, they are friends
+			//if in list, userY and this particular person are also friends
 			if(userYFriends.contains(userXFriend)) {
 				friend = true;
 			}
@@ -867,10 +862,33 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		
 		return returnList;
-		
 	}
 
 	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getVisibleFriendsOfUser(final String userId)
+	 */
+	public List<String> getVisibleFriendsOfUser(final String userId) {
+		
+		//get friend list
+		List<String> userFriends = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userId));
+		
+		//setup return list
+		List<String> returnList = new ArrayList<String>();
+		
+		//iterate over friends list to see if they are visible
+		for(Iterator<String> i = userFriends.iterator(); i.hasNext();){
+			String friendId = (String)i.next();
+			
+			//if profile is visible, add them to the list that is to be returned
+			if(isUserXProfileVisibleByUserY(friendId, userId, true)) {
+				returnList.add(friendId);
+			}
+			
+		}
+		
+		return returnList;
+	}
 	
 	
 	/**
