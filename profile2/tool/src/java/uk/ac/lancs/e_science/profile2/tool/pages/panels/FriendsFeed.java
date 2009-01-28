@@ -21,6 +21,7 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.dataproviders.FriendsFeedDataProvider;
 import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
+import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.MySearch;
 import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 
@@ -107,7 +108,13 @@ public class FriendsFeed extends Panel {
 		    	Link friendLink = new Link("friendLink") {
 					private static final long serialVersionUID = 1L;
 		    		public void onClick() {
-						setResponsePage(new ViewProfile(friendId));
+		    			//link to own profile if link will point to self
+		    			if(viewingUserId.equals(friendId)) {
+							setResponsePage(new MyProfile());
+						} else {
+							setResponsePage(new ViewProfile(friendId));
+						}
+						
 					}
 				};
 		    	Label friendLinkLabel = new Label("friendName", displayName);
@@ -154,7 +161,8 @@ public class FriendsFeed extends Panel {
 		
 		/* TESTS FOR THE ABOVE to change labels and links */
 		if(numFriends == 0) {
-			numFriendsLabel.setVisible(false);
+			numFriendsLabel.setModel(new ResourceModel("text.friend.feed.num.none"));
+			//numFriendsLabel.setVisible(false);
 			//if own FriendsFeed, show search link, otherwise hide
 			if(viewingUserId.equals(ownerUserId)) {
 				viewFriendsLabel.setModel(new ResourceModel("link.friend.feed.search"));
@@ -162,10 +170,10 @@ public class FriendsFeed extends Panel {
 				viewFriendsLink.setVisible(false);
 			}
 		} else if (numFriends == 1) {
-			numFriendsLabel.setModel(new ResourceModel("link.friend.feed.num.one"));
+			numFriendsLabel.setModel(new ResourceModel("text.friend.feed.num.one"));
 			viewFriendsLink.setVisible(false);
 		} else {
-			numFriendsLabel.setModel(new StringResourceModel("link.friend.feed.num.many", null, new Object[]{ numFriends }));
+			numFriendsLabel.setModel(new StringResourceModel("text.friend.feed.num.many", null, new Object[]{ numFriends }));
 			viewFriendsLabel.setModel(new ResourceModel("link.friend.feed.view"));
 		}
 		
