@@ -170,6 +170,8 @@ public class SearchBeanImpl implements SearchBean
 	
 	private String currentUser;
 
+	private List<SearchOutputItem> outputItems;
+	
 	// Empty constructor to aid in testing.
 	 
 	public SearchBeanImpl(String siteId, SearchService ss, String search,ToolManager tm) {
@@ -827,14 +829,16 @@ public class SearchBeanImpl implements SearchBean
 	 */
 	public List<SearchOutputItem> getResults()
 	{
-		List<SearchOutputItem> l = new ArrayList<SearchOutputItem>();
+		if (outputItems == null) {
+			
+		outputItems = new ArrayList<SearchOutputItem>();
 		SearchList sl = search();
 		for (Iterator i = sl.iterator(); i.hasNext();)
 		{
 			final SearchResult sr = (SearchResult) i.next();
 			
 			if (!sr.isCensored()) {
-				l.add(new SearchOutputItem()
+				outputItems.add(new SearchOutputItem()
 				{
 
 					public String getSearchResult()
@@ -940,7 +944,9 @@ public class SearchBeanImpl implements SearchBean
 			}
 		
 		}
-		return l;
+		}
+		
+		return outputItems;
 	}
 
 	/*
@@ -1149,8 +1155,12 @@ public class SearchBeanImpl implements SearchBean
 
 		
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.tool.api.SearchBean#getCensoredResultCount()
+	 */
 	public int getCensoredResultCount() {
+		getResults();
 		return censoredResults;
 	}
 }
