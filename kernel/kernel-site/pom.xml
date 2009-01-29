@@ -4,13 +4,13 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <name>Sakai Kernel Site Skin</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>kernel-site</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://www.sakaiproject.org/</url>
