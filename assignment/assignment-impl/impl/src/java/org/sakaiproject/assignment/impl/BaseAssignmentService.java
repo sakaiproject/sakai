@@ -4985,6 +4985,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								p.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
 							}
 							
+							// remove the link btw assignment and announcement item. One can announce the open date afterwards
+							p.removeProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+							p.removeProperty("new_assignment_open_date_announced");
+							p.removeProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID);
+							
+							// remove the link btw assignment and calendar item. One can add the due date to calendar afterwards
+							p.removeProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+							p.removeProperty("new_assignment_due_date_scheduled");
+							p.removeProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+							
 							// update live properties
 							addLiveProperties(p);
 							// complete the edit
