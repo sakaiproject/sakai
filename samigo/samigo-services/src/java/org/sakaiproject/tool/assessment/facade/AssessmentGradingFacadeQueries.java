@@ -79,6 +79,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public List getTotalScores(final String publishedId, String which) {
+	  return getTotalScores(publishedId, which, true);
+  }
+
+  public List getTotalScores(final String publishedId, String which, final boolean getSubmittedOnly) {
     try {
       // sectionSet of publishedAssessment is defined as lazy loading in
       // Hibernate OR map, so we need to initialize them. Unfortunately our
@@ -99,12 +103,26 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-      		Query q = session.createQuery(
-      				"from AssessmentGradingData a where a.publishedAssessmentId=? " +
-      				"and (a.forGrade=? or a.gradedBy is not null or a.gradedDate is not null) " +
-      				"order by a.agentId ASC, a.finalScore DESC, a.submittedDate DESC");
-      		q.setLong(0, Long.parseLong(publishedId));
-      		q.setBoolean(1, true);
+      		Query q = null;
+      		if (getSubmittedOnly) {
+      			q = session.createQuery(
+      					"from AssessmentGradingData a where a.publishedAssessmentId=? " +
+      					"and a.forGrade=? " +
+      					"order by a.agentId ASC, a.finalScore DESC, a.submittedDate DESC");
+      			q.setLong(0, Long.parseLong(publishedId));
+          		q.setBoolean(1, true);
+      		}
+      		else {
+      			q = session.createQuery(
+          				"from AssessmentGradingData a where a.publishedAssessmentId=? " +
+          				"and (a.forGrade=? or (a.forGrade=? and a.status=?)) " +
+          				"order by a.agentId ASC, a.finalScore DESC, a.submittedDate DESC");
+      		
+      			q.setLong(0, Long.parseLong(publishedId));
+      			q.setBoolean(1, true);
+      			q.setBoolean(2, false);
+      			q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+      		}
       		return q.list();
       	};
       };
@@ -116,17 +134,30 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
       // last submission
       if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
-    	    final HibernateCallback hcb2 = new HibernateCallback(){
-    	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    	    		Query q = session.createQuery(
+    	  final HibernateCallback hcb2 = new HibernateCallback(){
+    		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    	    	Query q = null;
+	      		if (getSubmittedOnly) {
+	    			q = session.createQuery(
+	    					"from AssessmentGradingData a where a.publishedAssessmentId=? " +
+	    					"and a.forGrade=? " +
+	    					"order by a.agentId ASC, a.submittedDate DESC");
+	    			q.setLong(0, Long.parseLong(publishedId));
+	          		q.setBoolean(1, true);
+	      		}
+	      		else {
+	      			q = session.createQuery(
     	    				"from AssessmentGradingData a where a.publishedAssessmentId=? " +
-    	    				"and (a.forGrade=? or a.gradedBy is not null or a.gradedDate is not null) " +
+    	    				"and (a.forGrade=? or (a.forGrade=? and a.status=?)) " +
     	    				"order by a.agentId ASC, a.submittedDate DESC");
-    	      		q.setLong(0, Long.parseLong(publishedId));
-    	      		q.setBoolean(1, true);
-    	    		return q.list();
-    	    	};
+	      			q.setLong(0, Long.parseLong(publishedId));
+	      			q.setBoolean(1, true);
+	      			q.setBoolean(2, false);
+	      			q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+	      		}
+	    		return q.list();
     	    };
+    	  };
     	    list = getHibernateTemplate().executeFind(hcb2);
 
 //    	  list = getHibernateTemplate().find(
@@ -303,11 +334,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+      		// I am debating should I use (a.forGrade=false and a.status=NO_SUBMISSION)
+      		// or attemptDate is not null
       		Query q = session.createQuery("from AssessmentGradingData a where a.publishedAssessmentId=? " +
-      				"and a.agentId=? and a.gradedBy is null and a.gradedDate is null " +
+      				"and a.agentId=? and a.forGrade=? and a.status<>? " +
       				"order by a.submittedDate DESC");
       		q.setLong(0, publishedId.longValue());
       		q.setString(1, agentId);
+      		q.setBoolean(2, false);
+    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
       		return q.list();
       	};
       };
@@ -774,14 +809,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
     AssessmentGradingData ag = null;
-
+    // don't pick the assessmentGradingData that is created by instructor entering comments/scores
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(
-    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc");
+    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? and a.status<>? order by a.submittedDate desc");
     		q.setLong(0, publishedAssessmentId.longValue());
     		q.setString(1, agentIdString);
     		q.setBoolean(2, false);
+    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
     		return q.list();
     	};
     };
@@ -2215,11 +2251,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 		    		Query q = session.createQuery(
 		    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? " +
-		    				"and a.forGrade=? and a.gradedBy is not null and a.gradedDate is not null " +
+		    				"and a.forGrade=? and a.status=? " +
 		    				"order by a.submittedDate desc");
 		    		q.setLong(0, data.getPublishedAssessmentId().longValue());
 		    		q.setString(1, data.getAgentId());
 		    		q.setBoolean(2, false);
+		    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
 		    		return q.list();
 		    	};
 		    };

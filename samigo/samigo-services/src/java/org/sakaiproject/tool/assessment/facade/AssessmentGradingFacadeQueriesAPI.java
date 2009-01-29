@@ -44,6 +44,8 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public List getTotalScores(String publishedId, String which);
 
+  public List getTotalScores(String publishedId, String which, boolean getSubmittedOnly);
+  
   public List getAllSubmissions(String publishedId);
   
   public List getAllAssessmentGradingData(Long publishedId);

@@ -85,7 +85,21 @@ public class GradingService
     }
     return results;
   }
-
+  
+  public ArrayList getTotalScores(String publishedId, String which, boolean getSubmittedOnly)
+  {
+    ArrayList results = null;
+    try {
+      results =
+        new ArrayList(PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getTotalScores(publishedId,
+             which, getSubmittedOnly));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
+  
  /**
   * Get all submissions for a published assessment from the back end.
   */

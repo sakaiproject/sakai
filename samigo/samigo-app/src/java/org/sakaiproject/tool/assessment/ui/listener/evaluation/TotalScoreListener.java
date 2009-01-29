@@ -539,7 +539,12 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
             ((HistogramScoresBean) ContextUtil.lookupBean("histogramScores")).setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
         }
       }
-      allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions());
+      
+      EvaluationModelIfc model = p.getEvaluationModel();
+      // If the assessment is set to anonymous grading, we don't want to get assessmentGrading records which has not
+      // submitted by students but has been updated by grader (ie, forGrade != true, lastGradedBy and lastGradedDate is not null) 
+      boolean getSubmittedOnly = model.getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING);
+      allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions(), getSubmittedOnly);
       bean.setAssessmentGradingList(allscores);
     }
     getFilteredList(bean, allscores, scores, students_not_submitted, useridMap);

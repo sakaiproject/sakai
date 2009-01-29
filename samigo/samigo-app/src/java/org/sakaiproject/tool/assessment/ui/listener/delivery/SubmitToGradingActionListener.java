@@ -325,13 +325,14 @@ public class SubmitToGradingActionListener implements ActionListener {
 		adata.setIsLate(isLate(publishedAssessment));
 		adata.setForGrade(Boolean.valueOf(delivery.getForGrade()));
 		
-		// If this assessment grading data is created by grader (grader update something in TotalScores page before the student start the assessment),
-		// when the student saves his answers, we update the status back to 0 and remove the grading info.
-		if (AssessmentGradingIfc.NO_SUBMISSION.equals(adata.getStatus()) 
-				&& (adata.getGradedBy() != null || adata.getGradedDate() != null)) {
+		// If this assessment grading data has been updated (comments or adj. score) by grader and then republic and allow student to resubmit
+		// when the student submit his answers, we update the status back to 0 and remove the grading entry/info.
+		if (AssessmentGradingIfc.NEED_RESUBMIT.equals(adata.getStatus())) {
 			adata.setStatus(Integer.valueOf(0));
 			adata.setGradedBy(null);
 			adata.setGradedDate(null);
+			adata.setComments(null);
+			adata.setTotalOverrideScore(Float.valueOf(0f));
 		}
 	
 		log.debug("*** 2b. before storingGrades, did all the removes and adds "
