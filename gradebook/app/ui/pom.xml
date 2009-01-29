@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>gradebook-base</artifactId>
+    <artifactId>sakai-gradebook-app</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>2.7.0-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-gradebook-app-ui</artifactId>
