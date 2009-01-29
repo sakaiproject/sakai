@@ -571,8 +571,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	// the string marks the protocol part in url
 	private static final String PROTOCOL_STRING = "://";
-
-	private static final String TOOL_ID_SUMMARY_CALENDAR = "sakai.summary.calendar";
 	
 	// the string for course site type
 	private static final String STATE_COURSE_SITE_TYPE = "state_course_site_type";
@@ -599,39 +597,96 @@ public class SiteAction extends PagedResourceActionII {
 	private String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute_";
 	private String CONFIG_TOOL_ATTRIBUTE_DEFAULT = "wsetup.config.tool.attribute.default_";
 	
+	// home tool id
+	private static final String TOOL_ID_HOME = "home";
+	// synoptic tool ids
+	private static final String TOOL_ID_SUMMARY_CALENDAR = "sakai.summary.calendar";
+	private static final String TOOL_ID_SYNOPTIC_ANNOUNCEMENT = "sakai.synoptic.announcement";
+	private static final String TOOL_ID_SYNOPTIC_CHAT = "sakai.synoptic.chat";
+	private static final String TOOL_ID_SYNOPTIC_MESSAGECENTER = "sakai.synoptic.messagecenter";
+	// map of synoptic tool and the related tool ids
+	private final static Map<String, List<String>> SYNOPTIC_TOOL_ID_MAP;
+	static
+	{
+		SYNOPTIC_TOOL_ID_MAP = new HashMap<String, List<String>>();
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SUMMARY_CALENDAR, new ArrayList(Arrays.asList("sakai.schedule")));
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_ANNOUNCEMENT, new ArrayList(Arrays.asList("sakai.announcements")));
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_CHAT, new ArrayList(Arrays.asList("sakai.chat")));
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_MESSAGECENTER, new ArrayList(Arrays.asList("sakai.messages", "sakai.forums", "sakai.messagecenter")));
+	}
+	// Map of synoptic tool titles
+	private final static Map<String, String> SYNOPTIC_TOOL_TITLE_MAP;
+	static
+	{
+		SYNOPTIC_TOOL_TITLE_MAP = new HashMap<String, String>();
+		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SUMMARY_CALENDAR, rb.getString("java.reccal"));
+		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_ANNOUNCEMENT, rb.getString("java.recann"));
+		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_CHAT, rb.getString("java.recent"));
+		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_MESSAGECENTER, rb.getString("java.recmsg"));
+	}
+	
 	/**
-	 * what is the main tool id within Home page?
+	 * what are the tool ids within Home page?
 	 * @param state
 	 * @param siteType
 	 * @return
 	 */
-	private String getHomeToolId(SessionState state)
+	private List<String> getHomeToolIds(SessionState state)
 	{
-		String rv = "";
+		List<String> rv = new Vector<String>();
 		
-		String siteType = state.getAttribute(STATE_SITE_TYPE) != null? (String) state.getAttribute(STATE_SITE_TYPE):"";
-		Set categories = new HashSet();
-		categories.add(siteType);
-		Set toolRegistrationList = ToolManager.findTools(categories, null);
-		
-		if (siteType.equalsIgnoreCase("myworkspace"))
-		{
-			// first try with the myworkspace information tool
-			if (ToolManager.getTool("sakai.iframe.myworkspace") != null)
-				rv = "sakai.iframe.myworkspace";
-			
-			if (rv.equals(""))
-			{
-				// try again with MOTD tool
-				if (ToolManager.getTool("sakai.motd") != null)
-					rv = "sakai.motd";
-			}
+		// get the tool ids from configuration files
+		if (ServerConfigurationService.getStrings("wsetup.home.toolids") != null) {
+			rv = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.home.toolids")));
 		}
-		else
+		
+		// if not defined in the configuration file, set default by site type
+		if (rv.isEmpty())
 		{
-			// try the site information tool
-			if (ToolManager.getTool("sakai.iframe.site") != null)
-				rv = "sakai.iframe.site";
+			String siteType = state.getAttribute(STATE_SITE_TYPE) != null? (String) state.getAttribute(STATE_SITE_TYPE):"";
+			Set categories = new HashSet();
+			categories.add(siteType);
+			Set toolRegistrationList = ToolManager.findTools(categories, null);
+			
+			if (siteType.equalsIgnoreCase("myworkspace"))
+			{
+				// first try with MOTD tool
+				if (ToolManager.getTool("sakai.motd") != null)
+					rv.add("sakai.motd");
+				
+				if (rv.isEmpty())
+				{
+					// then try with the myworkspace information tool
+					if (ToolManager.getTool("sakai.iframe.myworkspace") != null)
+						rv.add("sakai.iframe.myworkspace");
+				}
+			}
+			else
+			{
+				// try the site information tool
+				if (ToolManager.getTool("sakai.iframe.site") != null)
+					rv.add("sakai.iframe.site");
+			}
+			
+			// synoptical tools
+			if (ToolManager.getTool(TOOL_ID_SUMMARY_CALENDAR) != null)
+			{
+				rv.add(TOOL_ID_SUMMARY_CALENDAR);
+			}
+			
+			if (ToolManager.getTool(TOOL_ID_SYNOPTIC_ANNOUNCEMENT) != null)
+			{
+				rv.add(TOOL_ID_SYNOPTIC_ANNOUNCEMENT);
+			}
+			
+			if (ToolManager.getTool(TOOL_ID_SYNOPTIC_CHAT) != null)
+			{
+				rv.add(TOOL_ID_SYNOPTIC_CHAT);
+			}
+			if (ToolManager.getTool(TOOL_ID_SYNOPTIC_MESSAGECENTER) != null)
+			{
+				rv.add(TOOL_ID_SYNOPTIC_MESSAGECENTER);
+			}
 		}
 		return rv;
 	}
@@ -1366,13 +1421,12 @@ public class SiteAction extends PagedResourceActionII {
 			
 			List requiredTools = ServerConfigurationService.getToolsRequired(type);
 			// look for legacy "home" tool
-			context.put("defaultTools", replaceHomeToolId(state, requiredTools));
+			context.put("defaultTools", requiredTools);
 
 			toolRegistrationSelectedList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			// If this is the first time through, check for tools
 			// which should be selected by default.
 			List defaultSelectedTools = ServerConfigurationService.getDefaultTools(type);
-			defaultSelectedTools = replaceHomeToolId(state, defaultSelectedTools);
 			if (toolRegistrationSelectedList == null) {
 				toolRegistrationSelectedList = new Vector(defaultSelectedTools);
 			}
@@ -1402,9 +1456,10 @@ public class SiteAction extends PagedResourceActionII {
 			Boolean checkHome = (Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED);
 			if (checkHome == null) {
 				if ((defaultSelectedTools != null)
-						&& defaultSelectedTools.contains(getHomeToolId(state))) {
+						&& defaultSelectedTools.contains(TOOL_ID_HOME)) {
 					checkHome = Boolean.TRUE;
 				}
+				state.setAttribute(STATE_TOOL_HOME_SELECTED, checkHome);
 			}
 			context.put("check_home", checkHome);
 			
@@ -1441,7 +1496,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("backIndex", "2");	// back to new site information page
 			}
 
-			context.put("homeToolId", getHomeToolId(state));
+			context.put("homeToolId", TOOL_ID_HOME);
 			
 			return (String) getContext(data).get("template") + TEMPLATE[3];
 		case 5:
@@ -2230,7 +2285,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("oldSelectedTools", state
 					.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
 
-			context.put("homeToolId", getHomeToolId(state));
+			context.put("homeToolId", TOOL_ID_HOME);
 			
 			return (String) getContext(data).get("template") + TEMPLATE[26];
 		case 27:
@@ -2884,26 +2939,6 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("size", new Integer(providerSectionList.size() - 1));
 		}
 	}
-
-	/**
-	 * just in case there is still a notion of "home" for Home tool
-	 * change it to more proper home tool id
-	 * @param state
-	 * @param toolIdList
-	 * @return
-	 */
-	private List replaceHomeToolId(SessionState state, List toolIdList) {
-		if (toolIdList != null)
-		{
-			if (toolIdList.contains("home"))
-				toolIdList.remove("home");
-		
-			String homeToolId = getHomeToolId(state);
-			if (!toolIdList.contains(homeToolId))
-				toolIdList.add(homeToolId);
-		}
-		return toolIdList;
-	} // replaceHomeToolId
 
 	/**
 	 * whether the PageOrderHelper is allowed to be shown in this site type
@@ -5591,7 +5626,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private String findOriginalToolId(SessionState state, String toolId) {
 		// treat home tool differently
-		if (toolId.equals(getHomeToolId(state)))
+		if (toolId.equals(TOOL_ID_HOME))
 		{
 			return toolId;
 		}
@@ -7897,6 +7932,8 @@ public class SiteAction extends PagedResourceActionII {
 
 	private void addSynopticTool(SitePage page, String toolId,
 			String toolTitle, String layoutHint) {
+		page.setLayout(SitePage.LAYOUT_DOUBLE_COL);
+		
 		// Add synoptic announcements tool
 		ToolConfiguration tool = page.addTool();
 		Tool reg = ToolManager.getTool(toolId);
@@ -7925,16 +7962,9 @@ public class SiteAction extends PagedResourceActionII {
 		boolean homeInWSetupPageList = false;
 
 		List chosenList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-		// if features were selected, diff wSetupPageList and chosenList to get
-		// page adds and removes
-		// boolean values for adding synoptic views
-		boolean hasAnnouncement = false;
-		boolean hasSchedule = false;
-		boolean hasChat = false;
-		boolean hasDiscussion = false;
+
 		boolean hasEmail = false;
 		boolean hasSiteInfo = false;
-		boolean hasMessageCenter = false;
 		
 		// tools to be imported from other sites?
 		Hashtable importTools = null;
@@ -7943,7 +7973,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		
 		// Home tool chosen?
-		if (chosenList.contains(getHomeToolId(state))) {
+		if (chosenList.contains(TOOL_ID_HOME)) {
 			// add home tool later
 			hasHome = true;
 		}
@@ -7997,17 +8027,7 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					}
 				}
-			} else if (choice.equals("sakai.announcements")) {
-				hasAnnouncement = true;
-			} else if (choice.equals("sakai.schedule")) {
-				hasSchedule = true;
-			} else if (choice.equals("sakai.chat")) {
-				hasChat = true;
-			} else if (choice.equals("sakai.discussion")) {
-				hasDiscussion = true;
-			}  else if (choice.equals("sakai.messages") || choice.equals("sakai.forums") || choice.equals("sakai.messagecenter")) {
-				hasMessageCenter = true;
-			}  else if (choice.equals("sakai.siteinfo")) {
+			}else if (choice.equals("sakai.siteinfo")) {
 				hasSiteInfo = true;
 			}
 			
@@ -8015,97 +8035,20 @@ public class SiteAction extends PagedResourceActionII {
 
 		// see if Home and/or Help in the wSetupPageList (can just check title
 		// here, because we checked patterns before adding to the list)
-		for (ListIterator i = wSetupPageList.listIterator(); !homeInWSetupPageList && i.hasNext();) {
+		String homePageId = null;
+		for (ListIterator i = wSetupPageList.listIterator(); i.hasNext();) {
 			wSetupPage = (WorksiteSetupPage) i.next();
-			if (wSetupPage.getToolId().equals(getHomeToolId(state))) {
+			if (isHomeTool(wSetupPage.getPageTitle())) {
 				homeInWSetupPageList = true;
+				homePageId = wSetupPage.getPageId();
+				break;
 			}
 		}
 
 		if (hasHome) {
-			SitePage page = null;
-			// Were the synoptic views of Announcement, Discussioin, Chat
-			// existing before the editing
-			boolean hadAnnouncement = false, hadDiscussion = false, hadChat = false, hadSchedule = false, hadMessageCenter = false;
-
-			if (homeInWSetupPageList) {
-				if (!SiteService.isUserSite(site.getId())) {
-					// for non-myworkspace site, if Home is chosen and Home is
-					// in the wSetupPageList, remove synoptic tools
-					WorksiteSetupPage homePage = new WorksiteSetupPage();
-					for (ListIterator i = wSetupPageList.listIterator(); i
-							.hasNext();) {
-						WorksiteSetupPage comparePage = (WorksiteSetupPage) i
-								.next();
-						if ((comparePage.getToolId()).equals(getHomeToolId(state))) {
-							homePage = comparePage;
-						}
-					}
-					page = site.getPage(homePage.getPageId());
-					List toolList = page.getTools();
-					List removeToolList = new Vector();
-					// get those synoptic tools
-					for (ListIterator iToolList = toolList.listIterator(); iToolList
-							.hasNext();) {
-						ToolConfiguration tool = (ToolConfiguration) iToolList
-								.next();
-						Tool t = tool.getTool();
-						if (t!= null)
-						{ 
-							if (t.getId().equals("sakai.synoptic.announcement")) {
-								hadAnnouncement = true;
-								if (!hasAnnouncement) {
-									removeToolList.add(tool);// if Announcement
-									// tool isn't
-									// selected, remove
-									// the synotic
-									// Announcement
-								}
-							}
-							else if (t.getId().equals(TOOL_ID_SUMMARY_CALENDAR)) {
-								hadSchedule = true;
-								if (!hasSchedule || !notStealthOrHiddenTool(TOOL_ID_SUMMARY_CALENDAR)) {
-									// if Schedule tool isn't selected, or the summary calendar tool is stealthed or hidden, remove the synotic Schedule
-									removeToolList.add(tool);
-								}
-							}
-							else if (t.getId().equals("sakai.synoptic.discussion")) {
-								hadDiscussion = true;
-								if (!hasDiscussion) {
-									removeToolList.add(tool);// if Discussion
-									// tool isn't
-									// selected, remove
-									// the synoptic
-									// Discussion
-								}
-							}
-							else if (t.getId().equals("sakai.synoptic.chat")) {
-								hadChat = true;
-								if (!hasChat) {
-									removeToolList.add(tool);// if Chat tool
-									// isn't selected,
-									// remove the
-									// synoptic Chat
-								}
-							}
-							else if (t.getId().equals("sakai.synoptic.messagecenter")) {
-								hadMessageCenter = true;
-								if (!hasMessageCenter) {
-									removeToolList.add(tool);// if Messages and/or Forums tools
-									// isn't selected,
-									// remove the
-									// synoptic Message Center tool
-								}
-							}
-						}
-					}
-					// remove those synoptic tools
-					for (ListIterator rToolList = removeToolList.listIterator(); rToolList
-							.hasNext();) {
-						page.removeTool((ToolConfiguration) rToolList.next());
-					}
-				}
-			} else {
+			SitePage page = site.getPage(homePageId);
+			
+			if (!homeInWSetupPageList) {
 				// if Home is chosen and Home is not in wSetupPageList, add Home
 				// to site and wSetupPageList
 				page = site.addPage();
@@ -8114,56 +8057,74 @@ public class SiteAction extends PagedResourceActionII {
 
 				wSetupHome.pageId = page.getId();
 				wSetupHome.pageTitle = page.getTitle();
-				wSetupHome.toolId = getHomeToolId(state);
+				wSetupHome.toolId = TOOL_ID_HOME;
 				wSetupPageList.add(wSetupHome);
-
-				// Add worksite information tool
-				ToolConfiguration tool = page.addTool();
-				Tool reg = ToolManager.getTool(SITE_INFORMATION_TOOL);
-				tool.setTool(SITE_INFORMATION_TOOL, reg);
-				tool.setTitle(reg != null?reg.getTitle():"");
-				tool.setLayoutHints("0,0");
 			}
+			// the list tools on the home page
+			List<ToolConfiguration> toolList = page.getTools();
+			// get tool id set for Home page from configuration
+			List<String> homeToolIds = getHomeToolIds(state);
 
-			if (!SiteService.isUserSite(site.getId())) {
-				// add synoptical tools to home tool in non-myworkspace site
-				try {
-					if (hasAnnouncement && !hadAnnouncement) {
-						// Add synoptic announcements tool
-						addSynopticTool(page, "sakai.synoptic.announcement", rb
-								.getString("java.recann"), "0,1");
+			// count
+			int nonSynopticToolIndex=0, synopticToolIndex = 0;
+			
+			for (String homeToolId: homeToolIds)
+			{
+				if (!SYNOPTIC_TOOL_ID_MAP.containsKey(homeToolId))
+				{
+					if (!pageHasToolId(toolList, homeToolId))
+					{
+						// not a synoptic tool and is not in Home page yet, just add it
+						ToolConfiguration tool = page.addTool();
+						Tool reg = ToolManager.getTool(homeToolId);
+						if (reg != null)
+						{
+							tool.setTool(homeToolId, reg);
+							tool.setTitle(reg.getTitle() != null?reg.getTitle():"");
+							tool.setLayoutHints("0," + nonSynopticToolIndex++);
+						}
 					}
-					if (hasDiscussion && !hadDiscussion) {
-						// Add synoptic discussion tool
-						addSynopticTool(page, "sakai.synoptic.discussion", rb
-								.getString("java.recdisc"), "1,1");
-					}
-					if (hasChat && !hadChat) {
-						// Add synoptic chat tool
-						addSynopticTool(page, "sakai.synoptic.chat", rb
-								.getString("java.recent"), "2,1");
-					}
-					if (hasSchedule && !hadSchedule) {
-						// Add synoptic schedule tool if not stealth or hidden
-						if (notStealthOrHiddenTool(TOOL_ID_SUMMARY_CALENDAR))
-						addSynopticTool(page, TOOL_ID_SUMMARY_CALENDAR, rb
-								.getString("java.reccal"), "3,1");
-					}
-					if (hasMessageCenter && !hadMessageCenter) {
-						// Add synoptic Message Center
-						addSynopticTool(page, "sakai.synoptic.messagecenter", rb
-								.getString("java.recmsg"), "4,1");
-					}
-					if (hasAnnouncement || hasDiscussion || hasChat
-							|| hasSchedule || hasMessageCenter) {
-						page.setLayout(SitePage.LAYOUT_DOUBLE_COL);
-					} else {
-						page.setLayout(SitePage.LAYOUT_SINGLE_COL);
-					}
-
-				} catch (Exception e) {
-					M_log.warn(this + ".saveFeatures: " + e.getMessage() + " site id = " + site.getId(), e);
 				}
+				else
+				{
+					// synoptic tool 
+					List<String> parentToolList = (List<String>) SYNOPTIC_TOOL_ID_MAP.get(homeToolId);
+					List chosenListClone = new Vector();
+					chosenListClone.addAll(chosenList);
+					boolean hasAnyParentToolId = chosenListClone.removeAll(parentToolList);
+					
+					//first check whether the parent tool is available in site but its parent tool is no longer selected
+					if (pageHasToolId(toolList, homeToolId) && !hasAnyParentToolId)
+					{
+						for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext();) 
+						{
+							ToolConfiguration tConf= (ToolConfiguration) iToolList.next();
+							if (tConf.getTool().getId().equals(homeToolId))
+							{
+								page.removeTool((ToolConfiguration) tConf);
+								break;
+							}
+						}
+					}
+					
+					// then add those synoptic tools which wasn't there before
+					if (!pageHasToolId(toolList, homeToolId) && hasAnyParentToolId)
+					{
+						try
+						{
+							addSynopticTool(page, homeToolId, SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId), synopticToolIndex++ + ",1");
+						} catch (Exception e) {
+							M_log.warn(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
+						}
+					}
+					
+				}
+			}
+			
+			if (page.getTools().size() == 1)
+			{
+				// only use one column layout
+				page.setLayout(SitePage.LAYOUT_SINGLE_COL);
 			}
 		} // add Home
 
@@ -8174,7 +8135,7 @@ public class SiteAction extends PagedResourceActionII {
 			WorksiteSetupPage removePage = new WorksiteSetupPage();
 			for (ListIterator i = wSetupPageList.listIterator(); i.hasNext();) {
 				WorksiteSetupPage comparePage = (WorksiteSetupPage) i.next();
-				if (comparePage.getToolId().equals(getHomeToolId(state))) {
+				if (comparePage.getToolId().equals(TOOL_ID_HOME)) {
 					removePage = comparePage;
 				}
 			}
@@ -8347,7 +8308,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (pageList != null && pageList.size() != 0) {
 					for (ListIterator i = pageList.listIterator(); i.hasNext();) {
 						SitePage page = (SitePage) i.next();
-						if (pageHasToolId(page.getTools(), getHomeToolId(state)))
+						if (pageHasToolId(page.getTools(), TOOL_ID_HOME))
 						{
 							homePage = page;
 							break;
@@ -8488,7 +8449,7 @@ public class SiteAction extends PagedResourceActionII {
 			for (int i = 0; i < l.size(); i++) {
 				String toolId = (String) l.get(i);
 
-				if (toolId.equals(getHomeToolId(state))) {
+				if (toolId.equals(TOOL_ID_HOME)) {
 					homeSelected = true;
 					idsSelected.add(toolId);
 				} else
@@ -9021,8 +8982,8 @@ public class SiteAction extends PagedResourceActionII {
 		int count = pageToolList.size();
 		
 		// check Home tool first
-		if (pageHasToolId(pageToolList, getHomeToolId(state))) 
-			return getHomeToolId(state);
+		if (isHomeTool(page.getTitle()))
+			return TOOL_ID_HOME;
 
 		// Other than Home page, no other page is allowed to have more than one tool within. Otherwise, WSetup/Site Info tool won't handle it
 		if (count != 1)
@@ -9115,7 +9076,7 @@ public class SiteAction extends PagedResourceActionII {
 				// collect the pages consistent with Worksite Setup patterns
 				wSetupTool = pageMatchesPattern(state, page);
 				if (wSetupTool != null) {
-					if (wSetupTool.equals(getHomeToolId(state)))
+					if (isHomeTool(page.getTitle()))
 					{
 						check_home = true;
 					}
@@ -9221,7 +9182,7 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_TOOL_HOME_SELECTED) != null
 				&& ((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED))
 						.booleanValue()) {
-			rv.add(getHomeToolId(state));
+			rv.add(TOOL_ID_HOME);
 		}
 
 		// look for null site type
@@ -9450,7 +9411,7 @@ public class SiteAction extends PagedResourceActionII {
 		for (int i = 0; i < selectedTools.size(); i++) 
 		{
 			String id = (String) selectedTools.get(i);
-			if (id.equalsIgnoreCase(getHomeToolId(state))) {
+			if (id.equalsIgnoreCase(TOOL_ID_HOME)) {
 				has_home = true;
 			} else if (id.equalsIgnoreCase("sakai.mailbox")) {
 				if ( updateConfigVariables ) {
@@ -11177,6 +11138,16 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_SITE_MODE);
 		state.removeAttribute(STATE_TEMPLATE_INDEX);
 		state.removeAttribute(STATE_INITIALIZED);
+	}
+	
+	/**
+	 * whether this tool title is of Home tool title
+	 * @param toolTitle
+	 * @return
+	 */
+	private boolean isHomeTool(String toolTitle)
+	{
+		return TOOL_ID_HOME.equalsIgnoreCase(toolTitle) || rb.getString("java.home").equalsIgnoreCase(toolTitle);
 	}
 
  }
