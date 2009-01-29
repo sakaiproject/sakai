@@ -42,6 +42,10 @@
     margin-top:0;
     margin-bottom:0;
     padding:0;
+    /* alternatively, 
+    display:block;
+   	margin:auto;
+   	*/
     /* end of centreing the image */
 }
 
@@ -386,28 +390,37 @@
 /* friends feed styles */
 #friendsFeed {
 	display: block;
+	border: none;
+	margin: auto;
 }
 	
 .friendsFeedItem {
 	vertical-align: top;
-	width: 60px;
-	max-width: 60px;
+	width: 55px;
+	max-width: 55px;
 	overflow: hidden;
+	margin: 1px;
 }
 	
 .friendsFeedItem img {
 	max-width: 50px;
+	/* centre the image inside this cell */
+	display:block;
+   	margin:auto;
+   	/* end centreing */
+   	cursor: pointer;
 }
 
 .friendsFeedItemCaption {
 	margin-top: 0;
 	font-size: 60%;
 	text-align: left;
-	max-width: 50px;
+	width: 60px;
+	max-width: 60px;
 	overflow: hidden;
 	color: #3355BB;
-	text-decoration: underline;
 	cursor: pointer;
+	padding-left: 2px;
 }
 
 

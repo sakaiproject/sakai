@@ -277,12 +277,16 @@ public class MySearch extends BasePage {
 					connectionLabel.setModel(new ResourceModel("text.friend.pending"));
 					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 					connectionLink.setEnabled(false);
-				}  else {
+				} else if (userUuid.equals(currentUserUuid)) {
+					connectionLink.setEnabled(false);
+					c1.setVisible(false);
+				} else {
 					connectionLabel.setModel(new ResourceModel("link.friend.add"));
 				}
 				connectionLink.setOutputMarkupId(true);
 				c1.add(connectionLink);
 				item.add(c1);
+				
 				
 				//VIEW FRIENDS LINK
 				WebMarkupContainer c2 = new WebMarkupContainer("result-friendsContainer");
@@ -291,7 +295,12 @@ public class MySearch extends BasePage {
 		    	final AjaxLink viewFriendsLink = new AjaxLink("result-viewFriendsLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
-						setResponsePage(new ViewFriends(userUuid));
+						//if user found themself, go to MyFriends, else, ViewFriends
+						if(userUuid.equals(currentUserUuid)) {
+							setResponsePage(new MyFriends());
+						} else {
+							setResponsePage(new ViewFriends(userUuid));
+						}
 					}
 				};
 				final Label viewFriendsLabel = new Label("result-viewFriendsLabel", new ResourceModel("link.view.friends"));

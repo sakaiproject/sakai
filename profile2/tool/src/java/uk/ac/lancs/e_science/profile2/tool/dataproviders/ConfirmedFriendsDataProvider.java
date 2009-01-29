@@ -15,7 +15,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfileFriendsManager;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 
 /*
- * MyFriendsDataProvider.java
+ * ConfirmedFriendsDataProvider.java
  * Steve Swinsburg
  * s.swinsburg@lancaster.ac.uk
  * January 2009

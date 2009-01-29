@@ -23,20 +23,20 @@ import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
+import uk.ac.lancs.e_science.profile2.tool.dataproviders.RequestedFriendsDataProvider;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
 
-public class ConfirmedFriends extends Panel {
+public class RequestedFriends extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(ConfirmedFriends.class);
+	private transient Logger log = Logger.getLogger(RequestedFriends.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile; 
-	private int numConfirmedFriends = 0;
+	private int numRequestedFriends = 0;
 	
-	public ConfirmedFriends(final String id, final String userX) {
+	public RequestedFriends(final String id, final String userX) {
 		super(id);
 		
 		//get SakaiProxy
@@ -47,48 +47,35 @@ public class ConfirmedFriends extends Panel {
 			
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
+	
+		//get our list of friend requests as an IDataProvider
+		RequestedFriendsDataProvider provider = new RequestedFriendsDataProvider(userX);
 		
-		//get id of user viewing this page (will be the same if user is viewing own list, different if viewing someone else's)
-		final String userY = sakaiProxy.getCurrentUserId();
+		//init number of requests
+		numRequestedFriends = provider.size();
 		
-		//get our list of confirmed friends as an IDataProvider
-		//this provider takes care of cleaning the list so what we return is always safe to print
-		//ie the privacy settings for each user is already taken care of
-		ConfirmedFriendsDataProvider provider = new ConfirmedFriendsDataProvider(userX, userY);
-		
-		//init number of friends
-		numConfirmedFriends = provider.size();
-		
-		//model so we can update the number of friends
-		IModel numConfirmedFriendsModel = new Model() {
+		//model so we can update the number of requests
+		IModel numRequestedFriendsModel = new Model() {
 			private static final long serialVersionUID = 1L;
 
 			public Object getObject() {
-				return numConfirmedFriends;
+				return numRequestedFriends;
 			} 
 		};
 		
 		//heading
-		final WebMarkupContainer confirmedFriendsHeading = new WebMarkupContainer("confirmedFriendsHeading");
-		Label confirmedFriendsLabel = new Label("confirmedFriendsLabel");
-		//if viewing own list, "my friends", else, "their name's friends"
-		if(userX.equals(userY)) {
-			confirmedFriendsLabel.setModel(new ResourceModel("heading.friends.my"));
-		} else {
-			String displayName = sakaiProxy.getUserDisplayName(userX);
-			confirmedFriendsLabel.setModel(new StringResourceModel("heading.friends.view", null, new Object[]{ displayName } ));
-		}
-		confirmedFriendsHeading.add(confirmedFriendsLabel);
-		confirmedFriendsHeading.add(new Label("confirmedFriendsNumber", numConfirmedFriendsModel));
-		confirmedFriendsHeading.setOutputMarkupId(true);
-		add(confirmedFriendsHeading);
+		final WebMarkupContainer requestedFriendsHeading = new WebMarkupContainer("requestedFriendsHeading");
+		requestedFriendsHeading.add(new Label("requestedFriendsLabel", new ResourceModel("heading.friend.requests")));
+		requestedFriendsHeading.add(new Label("requestedFriendsNumber", numRequestedFriendsModel));
+		requestedFriendsHeading.setOutputMarkupId(true);
+		add(requestedFriendsHeading);
 		
 		//container which wraps list
-		final WebMarkupContainer confirmedFriendsContainer = new WebMarkupContainer("confirmedFriendsContainer");
-		confirmedFriendsContainer.setOutputMarkupId(true);
+		final WebMarkupContainer requestedFriendsContainer = new WebMarkupContainer("requestedFriendsContainer");
+		requestedFriendsContainer.setOutputMarkupId(true);
 		
 		//search results
-		DataView confirmedFriendsDataView = new DataView("results-list", provider) {
+		DataView requestedFriendsDataView = new DataView("results-list", provider) {
 			private static final long serialVersionUID = 1L;
 
 			protected void populateItem(final Item item) {
@@ -97,6 +84,7 @@ public class ConfirmedFriends extends Panel {
 		    	final String friendId = (String)item.getModelObject();
 		    			    	
 		    	//setup basic values
+		    	/*
 		    	String displayName = sakaiProxy.getUserDisplayName(friendId);
 		    	final byte[] photo = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 		    			    	
@@ -127,9 +115,9 @@ public class ConfirmedFriends extends Panel {
 				};
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);
-		    	
+		    	*/
 		    	/* ACTIONS */
-		    	
+		    	/*
 		    	//REMOVE FRIEND MODAL WINDOW
 				final ModalWindow removeFriendWindow = new ModalWindow("removeFriendWindow");
 				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, friendActionModel, userX, friendId)); 
@@ -164,7 +152,7 @@ public class ConfirmedFriends extends Panel {
 		            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
 		            		
 		            		//update label
-		            		target.addComponent(confirmedFriendsHeading);
+		            		target.addComponent(numConfirmedFriendsContainer);
 		            		
 		            		//if none left, hide whole thing
 		            		if(numConfirmedFriends==0) {
@@ -177,21 +165,22 @@ public class ConfirmedFriends extends Panel {
 		            }
 		        });
 				item.add(removeFriendWindow);
-				
+				*/
 				item.setOutputMarkupId(true);
 				
 		    }
 			
 		};
-		confirmedFriendsDataView.setOutputMarkupId(true);
-		confirmedFriendsContainer.add(confirmedFriendsDataView);
+		requestedFriendsDataView.setOutputMarkupId(true);
+		requestedFriendsContainer.add(requestedFriendsDataView);
 
 		//add results container
-		add(confirmedFriendsContainer);
+		add(requestedFriendsContainer);
 		
-		//initially, if no friends, hide container
-		if(numConfirmedFriends == 0) {
-			confirmedFriendsContainer.setVisible(false);
+		//initially, if no requests, hide container
+		if(numRequestedFriends == 0) {
+			requestedFriendsHeading.setVisible(false);
+			requestedFriendsContainer.setVisible(false);
 		}
 		
 	}
