@@ -250,29 +250,30 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser()
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser(final String userId)
 	 */
-	public List<Friend> getFriendRequestsForUser(final String userId) {
+	public List<String> getFriendRequestsForUser(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in getFriendsForUser");
+	  		throw new IllegalArgumentException("Null Argument in getFriendRequestsForUser");
 	  	}
 		
-		List<Friend> requests = new ArrayList();
+		List<String> requests = new ArrayList<String>();
 		
-		//get friends of this user and map it automatically to the Friend object
+		//get friends of this user [and map it automatically to the Friend object]
+		//updated: now just returns a List of Strings
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
 	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setResultTransformer(Transformers.aliasToBean(Friend.class));
+	  			//q.setResultTransformer(Transformers.aliasToBean(Friend.class));
 	  			
 	  			return q.list();
 	  		}
 	  	};
 	  	
-	  	requests = (List<Friend>) getHibernateTemplate().executeFind(hcb);
+	  	requests = (List<String>) getHibernateTemplate().executeFind(hcb);
 	  	
 	  	return requests;
 	}

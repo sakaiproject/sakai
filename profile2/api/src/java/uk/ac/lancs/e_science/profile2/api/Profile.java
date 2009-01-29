@@ -53,6 +53,7 @@ public interface Profile {
 	 *
 	 * @param userId		uuid of the user to retrieve the list of friends for
 	 * @param limit			number of records to return or 0 for unlimited
+	 * @deprecated
 	 */
 	public List<Friend> getFriendsForUser(String userId, int limit);
 	
@@ -62,7 +63,7 @@ public interface Profile {
 	 *
 	 * @param userId		uuid of the user to retrieve the list of friends for
 	 */
-	public List<Friend> getFriendRequestsForUser(String userId);
+	public List<String> getFriendRequestsForUser(final String userId);
 	
 	/**
 	 * Get a list of confirmed friends for a given user. Uses a native SQL query so we can use unions
