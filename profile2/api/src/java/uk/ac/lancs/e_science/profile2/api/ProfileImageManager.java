@@ -11,12 +11,13 @@ public class ProfileImageManager {
 	//one side will be scaled to this if larger. 
 	public static final int MAX_THUMBNAIL_IMAGE_XY = 100; 	
     
-	//default image if none available or access is denied
-	public static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
-	
-	public static final String RSS_IMG = "/library/image/feed.png";
-
 	//directories in content hosting that these images live in
 	public static final int PROFILE_IMAGE_MAIN = 1;		
 	public static final int PROFILE_IMAGE_THUMBNAIL = 2;
+	
+	//default images for certain things
+	public static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
+	public static final String RSS_IMG = "/library/image/silk/feed.png";
+	public static final String REMOVE_IMG = "/library/image/silk/cross.png";
+	
 }

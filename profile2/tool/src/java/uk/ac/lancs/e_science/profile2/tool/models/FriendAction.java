@@ -15,7 +15,7 @@ public class FriendAction implements Serializable {
 	
 	private boolean requested;
 	private boolean confirmed;
-	private boolean remove;
+	private boolean removed;
 	
 	public boolean isRequested() {
 		return requested;
@@ -29,11 +29,11 @@ public class FriendAction implements Serializable {
 	public void setConfirmed(boolean confirmed) {
 		this.confirmed = confirmed;
 	}
-	public boolean isRemove() {
-		return remove;
+	public boolean isRemoved() {
+		return removed;
 	}
-	public void setRemove(boolean remove) {
-		this.remove = remove;
+	public void setRemoved(boolean removed) {
+		this.removed = removed;
 	}
 	
 	/*
