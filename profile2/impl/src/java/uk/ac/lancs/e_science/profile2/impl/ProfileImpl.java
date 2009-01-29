@@ -900,37 +900,37 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: no record, returning default visibility");
+    		if (log.isDebugEnabled()) { log.debug("SEARCH VISIBILITY: no record, returning default visibility");}
     		return ProfilePrivacyManager.DEFAULT_SEARCH_VISIBILITY;
     	}
     	
     	//if userX is userY (ie they found themself in a search)
     	if(userY.equals(userX)) {
-    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: user is current user");
+    		if (log.isDebugEnabled()) { log.debug("SEARCH VISIBILITY: user is current user");}
     		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
     	if(profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
-    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: only me");
+    		if (log.isDebugEnabled()) { log.debug("SEARCH VISIBILITY: only me");}
     		return false;
     	}
     	
     	//if friend and set to friends only
     	if(friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
-    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: only friends and is friend");
+    		if (log.isDebugEnabled()) { log.debug("SEARCH VISIBILITY: only friends and is friend");}
     		return true;
     	}
     	
     	//if not friend and set to friends only
     	if(!friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
-    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: only friends and not friend");
+    		if (log.isDebugEnabled()) { log.debug("SEARCH VISIBILITY: only friends and not friend");}
     		return false;
     	}
     	
     	//if everyone is allowed
     	if(profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
-    		if (log.isDebugEnabled()) log.debug("SEARCH VISIBILITY: everyone");
+    		if (log.isDebugEnabled()) { log.debug("SEARCH VISIBILITY: everyone");}
     		return true;
     	}
     	
