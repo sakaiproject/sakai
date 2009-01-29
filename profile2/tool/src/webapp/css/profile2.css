@@ -484,6 +484,10 @@
 	padding: 0;
 }
 
+.searchResultActionIcon {
+	float:right;
+	margin-left: 2px;
+}
 
 .searchResultItems ul {
 	margin-bottom: 0;
@@ -572,6 +576,7 @@ h2 {
 	font-weight: bold;
 	border-bottom: thin solid #5D5D5D;
 	margin-bottom: 4px;
+	width: 500px;
 }
 
 .resultsHeader {

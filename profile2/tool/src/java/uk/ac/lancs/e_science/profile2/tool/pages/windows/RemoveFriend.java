@@ -18,19 +18,19 @@ import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 
-public class AddFriend extends Panel {
+public class RemoveFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(AddFriend.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile;
-	
+
 	/*
 	 * userX is the current user
 	 * userY is the user to remove
 	 */
 	
-	public AddFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY){
+	public RemoveFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY){
         super(id);
 
         //get API's
@@ -41,12 +41,12 @@ public class AddFriend extends Panel {
         final String friendName = sakaiProxy.getUserDisplayName(userY);
                 
         //window setup
-		window.setTitle(new StringResourceModel("title.friend.add", null, new Object[]{ friendName } )); 
+		window.setTitle(new ResourceModel("title.friend.remove")); 
 		window.setInitialHeight(100);
 		window.setInitialWidth(400);
 		
         //text
-		final Label text = new Label("text", new StringResourceModel("text.friend.add", null, new Object[]{ friendName } ));
+		final Label text = new Label("text", new StringResourceModel("text.friend.remove", null, new Object[]{ friendName } ));
         text.setEscapeModelStrings(false);
         text.setOutputMarkupId(true);
         add(text);
@@ -56,16 +56,18 @@ public class AddFriend extends Panel {
 		form.setOutputMarkupId(true);
 		
 		//submit button
-		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.add"), form) {
+		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.remove"), form) {
 			private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
 				/* double checking */
 				
-				//friend?
-				if(profile.isUserXFriendOfUserY(userX, userY)) {
-					text.setModel(new StringResourceModel("error.friend.already.confirmed", null, new Object[]{ friendName } ));
+				//must be friend in order to remove them
+				boolean friend = profile.isUserXFriendOfUserY(userX, userY);
+				
+				if(!friend) {
+					text.setModel(new StringResourceModel("error.friend.not.friend", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);
@@ -73,32 +75,13 @@ public class AddFriend extends Panel {
 					return;
 				}
 				
-				//has a friend request already been made to this person?
-				if(profile.isFriendRequestPending(userX, userY)) {
-					text.setModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", true, new Model("disabled")));
-					target.addComponent(text);
-					target.addComponent(this);
-					return;
-				}
 				
-				//has a friend request been made from this person to the current user?
-				if(profile.isFriendRequestPending(userY, userX)) {
-					text.setModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
-					this.setEnabled(false);
-					this.add(new AttributeModifier("class", true, new Model("disabled")));
-					target.addComponent(text);
-					target.addComponent(this);
-					return;
-				}
-				
-				//if ok, request friend
-				if(profile.requestFriend(userX, userY)) {
-					friendActionModel.setRequested(true);
+				//if ok, remove friend
+				if(profile.removeFriend(userX, userY)) {
+					friendActionModel.setRemoved(true);
 					window.close(target);
 				} else {
-					text.setModel(new StringResourceModel("error.friend.add.failed", null, new Object[]{ friendName } ));
+					text.setModel(new StringResourceModel("error.friend.remove.failed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);
@@ -117,7 +100,7 @@ public class AddFriend extends Panel {
             private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				friendActionModel.setRequested(false);
+				friendActionModel.setRemoved(false);
             	window.close(target);
             }
         };
