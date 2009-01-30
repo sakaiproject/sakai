@@ -87,23 +87,34 @@ public interface Profile {
 	public boolean requestFriend(String userId, String friendId);
 	
 	/**
-	 * Check if there is a pending request between
+	 * Check if there is a pending request from fromUser to toUser
 	 *
-	 * @param userId		uuid of the user that made the friend request
-	 * @param friendId		uuid of the user that userId made the request to
+	 * @param fromUser		uuid of the user that made the friend request
+	 * @param toUser		uuid of the user that userId made the request to
 	 */
-	public boolean isFriendRequestPending(String userId, String friendId);
+	public boolean isFriendRequestPending(String fromUser, String toUser);
 	
 	/**
-	 * Confirm that toUser is a friend of fromUser (from a pending friend request)
+	 * Confirm friend request from fromUser to toUser
 	 *
 	 * @param fromUser		uuid of the user that made the original friend request
 	 * @param toUser		uuid of the user that received the friend request
 	 * 
-	 * Note that fromUser will ALWAYS be the one making the friend request, and toUser
-	 * will ALWAYS be the one who receives the request.
+	 * Note that fromUser will ALWAYS be the one making the friend request, 
+	 * and toUser will ALWAYS be the one who receives the request.
 	 */
-	public boolean confirmFriend(String fromUser, String toUser);
+	public boolean confirmFriendRequest(String fromUser, String toUser);
+	
+	/**
+	 * Ignore a friend request from fromUser to toUser
+	 *
+	 * @param fromUser		uuid of the user that made the original friend request
+	 * @param toUser		uuid of the user that received the friend request and wants to ignore it
+	 * 
+	 * Note that fromUser will ALWAYS be the one that made the friend request, 
+	 * and toUser will ALWAYS be the one who receives the request.
+	 */
+	public boolean ignoreFriendRequest(String fromUser, String toUser);
 	
 	/**
 	 * Remove a friend connection

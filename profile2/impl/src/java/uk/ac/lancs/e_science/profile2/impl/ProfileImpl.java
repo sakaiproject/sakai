@@ -327,33 +327,33 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isFriendRequestPending(String userId, String friendId)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isFriendRequestPending(String fromUser, String toUser)
 	 */	
-	public boolean isFriendRequestPending(String userId, String friendId) {
+	public boolean isFriendRequestPending(String fromUser, String toUser) {
 		
-		ProfileFriend profileFriend = getPendingFriendRequest(userId, friendId);
+		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
 
 		if(profileFriend == null) {
-			log.warn("No pending friend request from userId: " + userId + " to friendId: " + friendId + " found.");
+			log.warn("No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
 			return false;
 		}
 		return true;
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriend(final String fromUser, final String toUser)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriendRequest(final String fromUser, final String toUser)
 	 */
-	public boolean confirmFriend(final String fromUser, final String toUser) {
+	public boolean confirmFriendRequest(final String fromUser, final String toUser) {
 		
 		if(fromUser == null || toUser == null){
-	  		throw new IllegalArgumentException("Null Argument in confirmFriend");
+	  		throw new IllegalArgumentException("Null Argument in confirmFriendRequest");
 	  	}
 		
 		//get pending ProfileFriend object request for the given details
 		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
 
 		if(profileFriend == null) {
-			log.warn("confirmFriend() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
+			log.warn("confirmFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
 			return false;
 		}
 		
@@ -367,7 +367,38 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			log.info("User: " + fromUser + " confirmed friend request from: " + toUser);
 			return true;
 		} catch (Exception e) {
-			log.error("confirmFriend() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("confirmFriendRequest() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	
+	}
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#ignoreFriendRequest(final String fromUser, final String toUser)
+	 */
+	public boolean ignoreFriendRequest(final String fromUser, final String toUser) {
+		
+		if(fromUser == null || toUser == null){
+	  		throw new IllegalArgumentException("Null Argument in ignoreFriendRequest");
+	  	}
+		
+		//get pending ProfileFriend object request for the given details
+		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
+
+		if(profileFriend == null) {
+			log.warn("ignoreFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
+			return false;
+		}
+		
+	  	
+		//delete
+		try {
+			getHibernateTemplate().delete(profileFriend);
+			log.info("User: " + fromUser + " ignored friend request from: " + toUser);
+			return true;
+		} catch (Exception e) {
+			log.error("ignoreFriendRequest() failed. " + e.getClass() + ": " + e.getMessage());
 			return false;
 		}
 	
