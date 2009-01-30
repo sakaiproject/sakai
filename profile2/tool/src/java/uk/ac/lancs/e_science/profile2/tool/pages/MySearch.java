@@ -381,12 +381,16 @@ public class MySearch extends BasePage {
 					//search both UDB and Sakaiperson for matches.
 					results = new ArrayList<SearchResult>(profile.findUsersByNameOrEmail(searchText, currentUserUuid));
 	
+					int numResults = results.size();
 					//text
-					if(results.isEmpty()) {
+					if(numResults == 0) {
 						numSearchResults.setModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
+					} else if (numResults == 1) {
+						numSearchResults.setModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
+						resultsContainer.setVisible(true);
 					} else {
-						numSearchResults.setModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ results.size(), searchText } ));
+						numSearchResults.setModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
 					}
 					
@@ -430,16 +434,24 @@ public class MySearch extends BasePage {
 					search.setSearchName("");
 					
 					//search SakaiPerson for matches
-					results = new ArrayList(profile.findUsersByInterest(searchText, currentUserUuid));
+					results = new ArrayList<SearchResult>(profile.findUsersByInterest(searchText, currentUserUuid));
 					
+					
+					int numResults = results.size();
 					//text
-					if(results.isEmpty()) {
+					if(numResults == 0) {
 						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
+					} else if (numResults == 1) {
+						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
+						resultsContainer.setVisible(true);
 					} else {
-						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ results.size(), searchText } ));
+						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
 					}
+					
+					
+					
 					
 					//repaint components
 					target.addComponent(sbnNameField);

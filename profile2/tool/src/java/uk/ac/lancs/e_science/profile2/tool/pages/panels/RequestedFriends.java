@@ -17,7 +17,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
@@ -25,8 +24,10 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.dataproviders.RequestedFriendsDataProvider;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
+import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
 import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
-import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
+import uk.ac.lancs.e_science.profile2.tool.pages.windows.ConfirmFriend;
+import uk.ac.lancs.e_science.profile2.tool.pages.windows.IgnoreFriend;
 
 public class RequestedFriends extends Panel {
 	
@@ -36,7 +37,7 @@ public class RequestedFriends extends Panel {
 	private transient Profile profile; 
 	private int numRequestedFriends = 0;
 	
-	public RequestedFriends(final String id, final String userX) {
+	public RequestedFriends(final String id, final MyFriends parent, final String userId) {
 		super(id);
 		
 		//get SakaiProxy
@@ -45,11 +46,12 @@ public class RequestedFriends extends Panel {
 		//get Profile
 		profile = ProfileApplication.get().getProfile();
 			
+		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
 	
 		//get our list of friend requests as an IDataProvider
-		RequestedFriendsDataProvider provider = new RequestedFriendsDataProvider(userX);
+		RequestedFriendsDataProvider provider = new RequestedFriendsDataProvider(userId);
 		
 		//init number of requests
 		numRequestedFriends = provider.size();
@@ -84,10 +86,21 @@ public class RequestedFriends extends Panel {
 		    	final String friendId = (String)item.getModelObject();
 		    			    	
 		    	//setup basic values
-		    	/*
+		    	
 		    	String displayName = sakaiProxy.getUserDisplayName(friendId);
-		    	final byte[] photo = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
-		    			    	
+		    	
+		    	final byte[] photo;
+	    		
+		    	//is profile and profile image allowed to be viewed by this user?
+		    	//PERHAPS WE SHOULD ALWAYS SHOW PHOTOS WHEN REQUESTS COME THROUGH? but not link profiles unless allowed.
+				final boolean isProfileAllowed = profile.isUserXProfileVisibleByUserY(friendId, userId, false);
+				
+		    	if(isProfileAllowed) {
+		    		photo = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+		    	} else {
+		    		photo = null;
+		    	}
+		    	    	
 		    	//photo/default photo
 		    	if(photo != null && photo.length > 0){
 		    		
@@ -115,57 +128,109 @@ public class RequestedFriends extends Panel {
 				};
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);
-		    	*/
+		    	
 		    	/* ACTIONS */
-		    	/*
-		    	//REMOVE FRIEND MODAL WINDOW
-				final ModalWindow removeFriendWindow = new ModalWindow("removeFriendWindow");
-				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, friendActionModel, userX, friendId)); 
+		    	
+		    	//CONFIRM FRIEND MODAL WINDOW
+				final ModalWindow confirmFriendWindow = new ModalWindow("confirmFriendWindow");
+				confirmFriendWindow.setContent(new ConfirmFriend(confirmFriendWindow.getContentId(), confirmFriendWindow, friendActionModel, userId, friendId)); 
 				
-				//REMOVE FRIEND LINK
-		    	final AjaxLink removeFriendLink = new AjaxLink("removeFriendLink") {
+				//IGNORE FRIEND MODAL WINDOW
+				final ModalWindow ignoreFriendWindow = new ModalWindow("ignoreFriendWindow");
+				ignoreFriendWindow.setContent(new IgnoreFriend(ignoreFriendWindow.getContentId(), ignoreFriendWindow, friendActionModel, userId, friendId)); 
+				
+				
+				
+				//IGNORE FRIEND LINK
+		    	final AjaxLink ignoreFriendLink = new AjaxLink("ignoreFriendLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
-						//target.appendJavascript("Wicket.Window.get().window.style.width='800px';");
-						removeFriendWindow.show(target);
+						ignoreFriendWindow.show(target);
 						target.appendJavascript("fixWindowVertical();"); 
 
 					}
 				};
-				ContextImage removeFriendIcon = new ContextImage("removeFriendIcon",new Model(ProfileImageManager.REMOVE_IMG));
-				removeFriendLink.add(removeFriendIcon);
-				removeFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.removefriend")));
-				removeFriendLink.add(removeFriendIcon);
-				item.add(removeFriendLink);
+				ContextImage ignoreFriendIcon = new ContextImage("ignoreFriendIcon",new Model(ProfileImageManager.CANCEL_IMG));
+				ignoreFriendLink.add(ignoreFriendIcon);
+				ignoreFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.ignorefriend")));
+				item.add(ignoreFriendLink);
 				
-				// REMOVE FRIEND MODAL WINDOW HANDLER 
-				removeFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+				//CONFIRM FRIEND LINK
+		    	final AjaxLink confirmFriendLink = new AjaxLink("confirmFriendLink") {
+					private static final long serialVersionUID = 1L;
+					public void onClick(AjaxRequestTarget target) {
+						
+						confirmFriendWindow.show(target);
+						target.appendJavascript("fixWindowVertical();"); 
+
+					}
+				};
+				ContextImage confirmFriendIcon = new ContextImage("confirmFriendIcon",new Model(ProfileImageManager.ACCEPT_IMG));
+				confirmFriendLink.add(confirmFriendIcon);
+				confirmFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.confirmfriend")));
+				item.add(confirmFriendLink);
+
+				
+				
+				
+				
+				// CONFIRM FRIEND MODAL WINDOW HANDLER 
+				confirmFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 					private static final long serialVersionUID = 1L;
 					public void onClose(AjaxRequestTarget target){
-		            	if(friendActionModel.isRemoved()) { 
+		            	if(friendActionModel.isConfirmed()) { 
 		            		
-		            		//decrement number of friends
-		            		numConfirmedFriends--;
+		            		//decrement number of requests
+		            		numRequestedFriends--;
 		            		
 		            		//remove friend item from display
 		            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
 		            		
 		            		//update label
-		            		target.addComponent(numConfirmedFriendsContainer);
+		            		target.addComponent(requestedFriendsHeading);
 		            		
-		            		//if none left, hide whole thing
-		            		if(numConfirmedFriends==0) {
-		            			target.appendJavascript("$('#" + confirmedFriendsContainer.getMarkupId() + "').fadeOut();");
-		            			//confirmedFriendsContainer.setVisible(false);
-		            			//target.addComponent(confirmedFriendsContainer);
+		            		//TODO repaint confirmed friends panel by calling method in MyFriends to repaint it for us
+		            		parent.updateConfirmedFriends(target, userId);
+		            		
+		            		//if none left, hide everything
+		            		if(numRequestedFriends==0) {
+		            			target.appendJavascript("$('#" + requestedFriendsHeading.getMarkupId() + "').fadeOut();");
+		            			target.appendJavascript("$('#" + requestedFriendsContainer.getMarkupId() + "').fadeOut();");
 		            		}
 		            		
 		            	}
 		            }
 		        });
-				item.add(removeFriendWindow);
-				*/
+				item.add(confirmFriendWindow);
+				
+				// IGNORE FRIEND MODAL WINDOW HANDLER 
+				ignoreFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+					private static final long serialVersionUID = 1L;
+					public void onClose(AjaxRequestTarget target){
+		            	if(friendActionModel.isIgnored()) { 
+		            		
+		            		//decrement number of requests
+		            		numRequestedFriends--;
+		            		
+		            		//remove friend item from display
+		            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
+		            		
+		            		//update label
+		            		target.addComponent(requestedFriendsHeading);
+		            				            		
+		            		//if none left, hide everything
+		            		if(numRequestedFriends==0) {
+		            			target.appendJavascript("$('#" + requestedFriendsHeading.getMarkupId() + "').fadeOut();");
+		            			target.appendJavascript("$('#" + requestedFriendsContainer.getMarkupId() + "').fadeOut();");
+		            		}
+		            		
+		            	}
+		            }
+		        });
+				item.add(ignoreFriendWindow);
+				
+				
 				item.setOutputMarkupId(true);
 				
 		    }
@@ -177,10 +242,9 @@ public class RequestedFriends extends Panel {
 		//add results container
 		add(requestedFriendsContainer);
 		
-		//initially, if no requests, hide container
+		//initially, if no requests, hide everything
 		if(numRequestedFriends == 0) {
-			requestedFriendsHeading.setVisible(false);
-			requestedFriendsContainer.setVisible(false);
+			this.setVisible(false);
 		}
 		
 	}

@@ -16,6 +16,7 @@ public class FriendAction implements Serializable {
 	private boolean requested;
 	private boolean confirmed;
 	private boolean removed;
+	private boolean ignored;
 	
 	public boolean isRequested() {
 		return requested;
@@ -36,6 +37,12 @@ public class FriendAction implements Serializable {
 		this.removed = removed;
 	}
 	
+	public void setIgnored(boolean ignored) {
+		this.ignored = ignored;
+	}
+	public boolean isIgnored() {
+		return ignored;
+	}
 	/*
 	 * Default constructor
 	 */

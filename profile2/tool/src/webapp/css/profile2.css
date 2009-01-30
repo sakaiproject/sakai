@@ -290,6 +290,7 @@
 	width: 120px;
 	float: left;
 	color: #5D5D5D;
+	/*color: #444444;*/
 	vertical-align: top;
 	font-weight: normal;
 }
@@ -330,7 +331,24 @@
 .modalWindowButtons input {
 	margin-left: 6px;
 	margin-right: 6px;
+	
+	/*
+	background-color:#348DD3;
+	border-color:#A3C8E9 #4379C0 #4379C0 #A3C8E9;
+	border-style:solid;
+	border-width:1px;
+	color:#FFFFFF;
+	*/
 }
+	
+.grayed {
+	background-color:#EEEEEE;
+	border-color:#E5E5E5 #AAAAAA #AAAAAA #E5E5E5;
+	border-style:solid;
+	border-width:1px;
+	color:#666666;
+}
+	
 
 .profileFormButtons input[type="submit"],
 .modalWindowButtons input[type="submit"] {
@@ -354,7 +372,7 @@
 
 .formInputField {
 	padding-left: 2px;
-	border: 1px solid #aaa;
+	border: 1px solid #AAAAAA;
 	margin: .2em;
 }
 
@@ -423,15 +441,20 @@
 	padding-left: 2px;
 }
 
+.friendsFeedItemCaption:hover {
+	color: #33f;
+}
+
 
 /* friends list styles */
 .friendsList {
-	border: 1px solid red;
+	/*border: 1px solid red;*/
+	margin-bottom: 12px;
 }
 
 .friendsListItem {
 	display:block;
-	border: 1px solid green;
+	border: 1px solid #c6d8e4;
 	width: 500px;
 	height: 120px;
 	padding-top: 5px;
@@ -439,13 +462,22 @@
 	padding-right: 5px;
 	padding-bottom: 5px;
 }
+.friendsListItem:hover {
+	/*background-color: #ffc;*/
+	/*background-color: #FFFFE6;*/
+	
+	
+	border: 1px solid #d0d0df;
+	background-color: #fafdff; 
+}
+
 
 .friendsListPhoto {
 	float:left;
 	max-width: 100px;
 	max-height: 100px;
 	overflow: hidden;
-	border:1px solid red;
+	/*border:1px solid red;*/
 }
 
 .friendsListPhoto img {
@@ -456,14 +488,13 @@
 	so we get more of the middle of the picture.
 	
 	 */
-	
 	max-width: 90px; 
 }
 
 .friendsListInfo {
 	margin-left: 5px;
 	float:left;
-	border:1px solid blue;
+	/*border:1px solid blue;*/
 	vertical-align: top;
 }
 
@@ -481,7 +512,7 @@
 }
 
 .friendsListInfoStatusDate {
-	display:block;
+	display:inline;
 	color: #5D5D5D;
 	font-size: 90%;
 }
@@ -492,7 +523,7 @@
 .searchResultActions {
 	width: 120px;
 	float:right;
-	border:1px solid yellow;
+	/*border:1px solid yellow;*/
 	font-size: 90%;
 	padding: 0;
 }
@@ -588,7 +619,7 @@ h2 {
 	font-size: 100%;
 	font-weight: bold;
 	border-bottom: thin solid #5D5D5D;
-	margin-bottom: 4px;
+	margin-bottom: 8px;
 	width: 500px;
 }
 

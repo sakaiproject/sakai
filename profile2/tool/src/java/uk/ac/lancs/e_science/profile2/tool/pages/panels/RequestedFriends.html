@@ -14,25 +14,25 @@
 		<span wicket:id="requestedFriendsNumber">[36]</span>
 	</div>	
 	
-	
 	<div class="friendsList" wicket:id="requestedFriendsContainer">
 		
 		<div wicket:id="results-list" class="friendsListItem">
 			<div class="friendsListPhoto">
-				<!-- <img wicket:id="result-photo"/>-->
+				<img wicket:id="result-photo"/>
 			</div>
 	    	
 	    	<div class="friendsListInfo">
-	    		<!-- <a href="#" wicket:id="result-profileLink"><span wicket:id="result-name" class="friendsListInfoName">[name]</span></a>-->
+	    		<a href="#" wicket:id="result-profileLink"><span wicket:id="result-name" class="friendsListInfoName">[name]</span></a>
 	    	</div>
 	    	<div class="searchResultActions">
-	    		<!-- <a wicket:id="removeFriendLink" class="searchResultActionIcon"><img wicket:id="removeFriendIcon" /></a>-->
+	    		<a wicket:id="confirmFriendLink" class="searchResultActionIcon"><img wicket:id="confirmFriendIcon" /></a>
+	    		<a wicket:id="ignoreFriendLink" class="searchResultActionIcon"><img wicket:id="ignoreFriendIcon" /></a>
 	    	</div>
 	    	
-			<!-- <div wicket:id="removeFriendWindow"></div>-->
+			<div wicket:id="confirmFriendWindow"></div>
+			<div wicket:id="ignoreFriendWindow"></div>
 	  	</div>
 	</div>
-
 
 </wicket:panel>
 	

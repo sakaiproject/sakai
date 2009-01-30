@@ -2,10 +2,9 @@
 <registration>
 	<tool id="sakai.profile2.tool" 
 		title="Profile2" 
-		description="Profile Tool v2">
+		description="Edit your Profile, search for people with common interests and view their profiles">
 
       	<category name="myworkspace" />
-      	<category name="project" />
 
 		<configuration name="functions.require" /> 
 		

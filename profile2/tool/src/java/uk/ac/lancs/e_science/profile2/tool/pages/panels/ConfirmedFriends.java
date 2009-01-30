@@ -25,6 +25,7 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
+import uk.ac.lancs.e_science.profile2.tool.pages.MySearch;
 import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
 
@@ -83,11 +84,31 @@ public class ConfirmedFriends extends Panel {
 		confirmedFriendsHeading.setOutputMarkupId(true);
 		add(confirmedFriendsHeading);
 		
+		//no friends message (only show if viewing own list)
+		/*
+		final WebMarkupContainer noFriendsContainer = new WebMarkupContainer("noFriendsContainer");
+		noFriendsContainer.setOutputMarkupId(true);
+		
+		final Link noFriendsLink = new Link("noFriendsLink", new ResourceModel("link.friend.search")) {
+			private static final long serialVersionUID = 1L;
+
+			public void onClick() {
+				setResponsePage(new MySearch());
+			}
+
+		};
+		noFriendsContainer.add(noFriendsLink);
+		noFriendsContainer.setVisible(false);
+		add(noFriendsContainer);
+		*/
+		
+		
+		
 		//container which wraps list
 		final WebMarkupContainer confirmedFriendsContainer = new WebMarkupContainer("confirmedFriendsContainer");
 		confirmedFriendsContainer.setOutputMarkupId(true);
 		
-		//search results
+		//results
 		DataView confirmedFriendsDataView = new DataView("results-list", provider) {
 			private static final long serialVersionUID = 1L;
 
@@ -168,8 +189,14 @@ public class ConfirmedFriends extends Panel {
 		            		//if none left, hide whole thing
 		            		if(numConfirmedFriends==0) {
 		            			target.appendJavascript("$('#" + confirmedFriendsContainer.getMarkupId() + "').fadeOut();");
-		            			//confirmedFriendsContainer.setVisible(false);
-		            			//target.addComponent(confirmedFriendsContainer);
+		            			
+		            			/*
+		            			if(userX.equals(userY)) {
+		            				noFriendsContainer.setVisible(true);
+		            				target.addComponent(noFriendsContainer);
+		            			}
+		            			*/
+		            			
 		            		}
 		            		
 		            	}
@@ -188,11 +215,19 @@ public class ConfirmedFriends extends Panel {
 		//add results container
 		add(confirmedFriendsContainer);
 		
+		
+		
+		
 		//initially, if no friends, hide container
 		if(numConfirmedFriends == 0) {
 			confirmedFriendsContainer.setVisible(false);
+			
 		}
 		
+		
+		
+		
+
 	}
 	
 }
