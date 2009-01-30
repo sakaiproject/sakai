@@ -23,7 +23,16 @@ public class Assessment extends AbstractImportable {
 	private List multiAnswerQuestions;
 	private List trueFalseQuestions;
 	private List orderingQuestions;
+	private List attachments;
 	
+	public List getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List attachments) {
+		this.attachments = attachments;
+	}
+
 	public String getDescription() {
 		return description;
 	}
