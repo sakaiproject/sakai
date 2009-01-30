@@ -15,7 +15,7 @@ import uk.ac.lancs.e_science.profile2.tool.pages.errors.SessionExpiredPage;
 
 public class ProfileApplication extends WebApplication {    
     
-	private transient Logger logger = Logger.getLogger(ProfileApplication.class);
+	private transient Logger log = Logger.getLogger(ProfileApplication.class);
 	
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile;
@@ -54,7 +54,7 @@ public class ProfileApplication extends WebApplication {
 	}
 	
 	//setup homepage		
-	public Class getHomePage() {
+	public Class<Dispatcher> getHomePage() {
 		return Dispatcher.class;
 	}
 	

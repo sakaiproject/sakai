@@ -11,7 +11,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.protocol.http.RequestLogger;
+import org.apache.wicket.util.lang.Bytes;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
@@ -135,8 +135,7 @@ public class ChangeProfilePicture extends Panel{
 		};
 		
 		//get the max upload size from Sakai
-		//form.setMaxSize(Bytes.megabytes(sakaiProxy.getMaxProfilePictureSize()));	
-
+		form.setMaxSize(Bytes.megabytes(sakaiProxy.getMaxProfilePictureSize()));	
 		form.setOutputMarkupId(true);
 		form.setMultiPart(true);
        

@@ -27,8 +27,8 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyStatusPanel extends Panel {
 	
+	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyStatusPanel.class);
-	
     private transient SakaiProxy sakaiProxy;
     private transient Profile profile;
     private transient ProfileStatus profileStatus;
@@ -70,6 +70,8 @@ public class MyStatusPanel extends Panel {
 		
 		//setup model for status message
 		LoadableDetachableModel statusMessageModel = new LoadableDetachableModel() {
+			private static final long serialVersionUID = 1L;
+			
 			private String message = "";
 			
 			protected Object load() {
@@ -85,6 +87,7 @@ public class MyStatusPanel extends Panel {
 		
 		//setup model for status date
 		LoadableDetachableModel statusDateModel = new LoadableDetachableModel() {
+			private static final long serialVersionUID = 1L;
 			
 			private Date date;
 			private String dateStr = "";
@@ -92,7 +95,7 @@ public class MyStatusPanel extends Panel {
 			protected Object load() {
 				date = profile.getUserStatusDate(userId);
 				if(date == null) {
-					log.warn("No status date for: " + userId );
+					log.warn("No status date for: " + userId);
 				} else {
 					//transform the date
 					dateStr = profile.convertDateForStatus(date);
@@ -123,6 +126,8 @@ public class MyStatusPanel extends Panel {
 		
 		//status update link
 		AjaxFallbackLink statusClearLink = new AjaxFallbackLink("statusClearLink") {
+			private static final long serialVersionUID = 1L;
+
 			public void onClick(AjaxRequestTarget target) {
 				//clear status, hide and repaint
 				if(profile.clearUserStatus(userId)) {
@@ -161,6 +166,8 @@ public class MyStatusPanel extends Panel {
         
         //submit button
 		AjaxButton submitButton = new AjaxButton("submit") {
+			private static final long serialVersionUID = 1L;
+
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
 				//get the backing model

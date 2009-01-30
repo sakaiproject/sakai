@@ -484,7 +484,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		final Date oldestStatusDate = cal.getTime(); 
 
 		//System.out.println("oldest time is: " + cal.getTimeInMillis());
-		
 				
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -653,6 +652,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			}
 			
 		} 
+		//no final else, we want it blank.
 
 		return message;
 	}
