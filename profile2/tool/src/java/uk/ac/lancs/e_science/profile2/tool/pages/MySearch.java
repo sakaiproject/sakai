@@ -373,13 +373,13 @@ public class MySearch extends BasePage {
 					//get search field
 					String searchText = search.getSearchName();
 					
-					if(log.isDebugEnabled()) log.debug("MySearch() search.getSearchName(): " + searchText);
+					if(log.isDebugEnabled()) { log.debug("MySearch() search.getSearchName(): " + searchText);}
 					
 					//clear the interest search field in model and repaint to clear value
 					search.setSearchInterest("");
 					
 					//search both UDB and Sakaiperson for matches.
-					results = new ArrayList(profile.findUsersByNameOrEmail(searchText, currentUserUuid));
+					results = new ArrayList<SearchResult>(profile.findUsersByNameOrEmail(searchText, currentUserUuid));
 	
 					//text
 					if(results.isEmpty()) {

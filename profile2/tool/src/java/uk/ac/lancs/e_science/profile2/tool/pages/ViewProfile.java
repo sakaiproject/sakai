@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -45,6 +46,14 @@ public class ViewProfile extends BasePage {
 		
 		//get current user Id
 		String currentUserId = sakaiProxy.getCurrentUserId();
+		
+		System.out.println(currentUserId + userUuid);
+		
+		/*double check, if somehow got to own ViewPage, redirect to MyProfile */
+		if(userUuid.equals(currentUserId)) {
+			log.warn("ViewProfile: user " + userUuid + " accessed ViewProfile for self. Redirecting...");
+			throw new RestartResponseException(new MyProfile());
+		}
 		
 		//init
 		boolean friend = false;
