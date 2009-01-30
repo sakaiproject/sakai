@@ -145,10 +145,9 @@ public class ConfirmedFriends extends Panel {
 
 					}
 				};
-				ContextImage removeFriendIcon = new ContextImage("removeFriendIcon",new Model(ProfileImageManager.REMOVE_IMG));
+				ContextImage removeFriendIcon = new ContextImage("removeFriendIcon",new Model(ProfileImageManager.DELETE_IMG));
 				removeFriendLink.add(removeFriendIcon);
 				removeFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.removefriend")));
-				removeFriendLink.add(removeFriendIcon);
 				item.add(removeFriendLink);
 				
 				// REMOVE FRIEND MODAL WINDOW HANDLER 
