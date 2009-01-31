@@ -34,12 +34,18 @@ import org.hibernate.collection.PersistentSet;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.UserPermissionManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -68,8 +74,21 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private MessageForumsTypeManager typeManager;
 
     private UserPermissionManager userPermissionManager;
+    
+    private SiteService siteService;
 
-    public void init() {
+    private ServerConfigurationService serverConfigurationService;
+    
+    public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void init() {
        LOG.info("init()");
         ;
     }
@@ -128,12 +147,19 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
     
     public Area getDiscussionArea(String contextId) {
+    	return getDiscussionArea(contextId, false);
+    }
+
+
+	public Area getDiscussionArea(String contextId, boolean populateDefaults) {
+    	LOG.debug("getDiscussionArea(" + contextId +")");
     	if (contextId == null) {
     		return getDiscusionArea();
     	}
     	Area area = this.getAreaByContextIdAndTypeId(contextId, typeManager.getDiscussionForumType());
     	
     	if (area == null) {
+    		LOG.info("setting up a new Discussion Area for " + contextId);
     		area = createArea(typeManager.getDiscussionForumType(), contextId);
     		area.setName(getResourceBundleString(FORUMS_TITLE));
             area.setEnabled(Boolean.TRUE);
@@ -142,11 +168,38 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setModerated(Boolean.FALSE);
             area.setSendEmailOut(Boolean.TRUE);
             saveArea(area);
+            //if set populate the default Forum and topic
+            if  (serverConfigurationService.getBoolean("forums.setDefault.forum", true) && populateDefaults) {
+            	setAreaDefaultElements(area);
+            }
+            
     	}
     	
     	return area;
+	}
+    private void setAreaDefaultElements(Area area) {
+    	LOG.info("setAreaDefaultElements(" + area.getId() + ")");
+    	DiscussionForum forum = forumManager.createDiscussionForum();
+    	forum.setArea(area);
+    	String siteTitle = null;
+    	try {
+			Site site = siteService.getSite(area.getContextId());
+			siteTitle = site.getTitle();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	forum.setTitle(getResourceBundleString("default_forum", new Object[]{(Object)siteTitle}));
+    	forum.setDraft(false);
+    	forum.setModerated(area.getModerated());
+    	forumManager.saveDiscussionForum(forum);
+    	DiscussionTopic topic = forumManager.createDiscussionForumTopic(forum);
+    	topic.setTitle(getResourceBundleString("default_topic"));
+    	forumManager.saveDiscussionForumTopic(topic, false);
+    	
     }
-
+    
     public boolean isPrivateAreaEnabled() {
         return getPrivateArea().getEnabled().booleanValue();
     }
@@ -257,6 +310,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
         return (Area) getHibernateTemplate().execute(hcb);
     }
+    
+    
 
     public Area getAreaByType(final String typeId) {
       final String currentUser = getCurrentUser();
@@ -299,6 +354,16 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     public String getResourceBundleString(String key) 
     {
     	final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
-        return rb.getString(key);
-    }	
+    	return rb.getString(key);
+    }
+    
+    private String getResourceBundleString(String key, Object[] replacementValues) 
+    {
+    	final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
+    	return rb.getFormattedMessage(key, replacementValues);
+    	
+    	
+    }
+
+    
 }

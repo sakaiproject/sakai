@@ -411,10 +411,15 @@ public class DiscussionForumTool
   {
     LOG.debug("getForums()");
 
+    
+    
     if (forums == null || forums.size() < 1)
     {
       try 
-      { 
+      {
+    	//ensure the area is initialized
+    	Area area = areaManager.getDiscussionArea(ToolManager.getCurrentPlacement().getContext(), true);
+    	  
     	assignments = new ArrayList(); 
     	SelectItem item = new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)); 
     	assignments.add(item); 

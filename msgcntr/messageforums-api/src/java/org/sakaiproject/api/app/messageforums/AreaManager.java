@@ -90,6 +90,8 @@ public interface AreaManager
 	/**
 	 * Get the discussion are for this site
 	 * @return
+	 * 
+	 * @deprecated rather use getDiscussionArea(String)
 	 */
 	public Area getDiscusionArea();
 	
@@ -100,6 +102,13 @@ public interface AreaManager
 	 */
 	public Area getDiscussionArea(final String contextId);
 	
+	/**
+	 * Get a new area for a context, if it doesn't exist it will be created and optionaly populated with default topics
+	 * @param contextId
+	 * @param populateDefaults
+	 * @return the area
+	 */
+	public Area getDiscussionArea(final String contextId, boolean populateDefaults);
 	/**
 	 * @param key
 	 * @return

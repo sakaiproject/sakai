@@ -216,7 +216,13 @@
 		        </property>
 		        <property name="forumManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
-		        </property>		       
+		        </property>
+		        <property name="siteService">
+		        	<ref bean="org.sakaiproject.site.api.SiteService" />
+		        </property>	
+		        <property name="serverConfigurationService">
+		        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		        </property>	       
             </bean>            
         </property>
          <property name="transactionAttributes">
