@@ -11152,7 +11152,7 @@ public class SiteAction extends PagedResourceActionII {
 
 	public boolean displaySiteAlias() {
 		if (ServerConfigurationService.getBoolean("wsetup.disable.siteAlias", true)) {
-			return false
+			return false;
 		}
 		return true;
 	}
