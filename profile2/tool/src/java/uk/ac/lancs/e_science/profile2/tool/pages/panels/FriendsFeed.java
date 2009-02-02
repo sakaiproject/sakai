@@ -77,17 +77,14 @@ public class FriendsFeed extends Panel {
 			@Override
 			protected void populateEmptyItem(Item item)
 			{
-				WebMarkupContainer c = new WebMarkupContainer("friendsFeedItem");
-				c.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-				Link friendLink = new Link("friendLink") {
+				Link friendItem = new Link("friendsFeedItem") {
 					private static final long serialVersionUID = 1L;
-
 					public void onClick() {}
 				};
-				friendLink.add(new Label("friendName","empty"));
-				c.add(friendLink);
-				item.add(c);
-				c.setVisible(false);
+				friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+				friendItem.add(new Label("friendName","empty"));
+				item.add(friendItem);
+				friendItem.setVisible(false);
 			}
 			
 			protected void populateItem(Item item)
@@ -98,24 +95,8 @@ public class FriendsFeed extends Panel {
 				String displayName = sakaiProxy.getUserDisplayName(friendId);
 		    	final byte[] imageBytes = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 			
-		    	WebMarkupContainer c = new WebMarkupContainer("friendsFeedItem");
-		    	
-		    	//photo
-		    	if(imageBytes != null && imageBytes.length > 0){
-					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
-						private static final long serialVersionUID = 1L;
-
-						protected byte[] getImageData() {
-							return imageBytes;
-						}
-					};
-					c.add(new Image("friendPhoto",photoResource));
-				} else {
-					c.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-				}
-		    	
-		    	//name link - the list is already cleaned by FriendsFeedDataProvider so we can safely link without worrying about privacy restrictions
-		    	AjaxLink friendLink = new AjaxLink("friendLink") {
+		    	//link - the list is already cleaned by FriendsFeedDataProvider so we can safely link without worrying about privacy restrictions
+		    	AjaxLink friendItem = new AjaxLink("friendsFeedItem") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						//link to own profile if link will point to self
@@ -127,11 +108,26 @@ public class FriendsFeed extends Panel {
 						
 					}
 				};
+				
+				//photo
+		    	if(imageBytes != null && imageBytes.length > 0){
+					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+						private static final long serialVersionUID = 1L;
+
+						protected byte[] getImageData() {
+							return imageBytes;
+						}
+					};
+					friendItem.add(new Image("friendPhoto",photoResource));
+				} else {
+					friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+				}
+		    	
+				//name (will be linked also)
 		    	Label friendLinkLabel = new Label("friendName", displayName);
-		    	friendLink.add(friendLinkLabel);
-		    	c.add(friendLink);
+		    	friendItem.add(friendLinkLabel);
 		
-		    	item.add(c);
+		    	item.add(friendItem);
 		    	
 			}
 		};
@@ -139,8 +135,8 @@ public class FriendsFeed extends Panel {
 		dataView.setColumns(3);
 		add(dataView);
 		
-		/* NUM FRIENDS LABEL */
-		final int numFriends = profile.getConfirmedFriendUserIdsForUser(ownerUserId).size();
+		/* NUM FRIENDS LABEL (can't just use provider as it only ever returns 6, unless we modify it to return a slice somehow. */
+		final int numFriends = profile.countConfirmedFriendUserIdsForUser(ownerUserId);
 		Label numFriendsLabel = new Label("numFriendsLabel");
 		add(numFriendsLabel);
 		

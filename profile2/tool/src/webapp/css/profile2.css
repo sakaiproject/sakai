@@ -69,7 +69,7 @@ div#footer {
 }
 
 #myPhoto img {
-	max-width: 200px;
+	width: 100%; /*ie fix to make image resize inside container*/
 	background-color: transparent;
 	text-align:center;
 }
@@ -214,8 +214,8 @@ h2 {
 /* sideBox styles */
 .sideBox {
 	margin-top: 4px;
-	border-top: thin solid #09c;
-	border-right: thin solid #d0d0df;
+	border-top: 1px solid #09c;
+	border-right: 1px solid #d0d0df;
 	
 }
 
@@ -420,6 +420,7 @@ h2 {
 	display: block;
 	border: none;
 	margin: auto;
+	padding:auto;
 }
 	
 .friendsFeedItem {
@@ -428,11 +429,11 @@ h2 {
 	max-width: 55px;
 	overflow: hidden;
 	margin: 1px;
-	/*border: 1px solid red;*/
+	text-align: center;
 }
 	
 .friendsFeedItem img {
-	max-width: 50px;
+	width: 100%; /*ie fix to make image resize inside container*/
 	/* centre the image inside this cell */
 	display:block;
    	margin:auto;
@@ -440,16 +441,13 @@ h2 {
    	cursor: pointer;
 }
 
+
 .friendsFeedItemCaption {
 	margin-top: 0;
 	font-size: 60%;
-	text-align: left;
-	width: 60px;
-	max-width: 60px;
 	overflow: hidden;
 	color: #3355BB;
 	cursor: pointer;
-	padding-left: 2px;
 	/*border: 1px solid green;*/
 }
 
@@ -462,11 +460,14 @@ h2 {
 .friendsList {
 	/*border: 1px solid red;*/
 	margin-bottom: 12px;
+	border-left: 1px solid #d0d0df;
+	border-right: 1px solid #d0d0df;
+	border-top: 1px solid #d0d0df;
 }
 
 .friendsListItem {
 	display:block;
-	border: 1px solid #c6d8e4;
+	border-bottom: 1px solid #d0d0df;
 	width: 500px;
 	height: 120px;
 	padding-top: 5px;
@@ -477,19 +478,15 @@ h2 {
 .friendsListItem:hover {
 	/*background-color: #ffc;*/
 	/*background-color: #FFFFE6;*/
-	
-	
-	border: 1px solid #d0d0df;
-	background-color: #fafdff; 
+	/*background-color: #fafdff; */
+	background-color: #FFFFE6;
 }
 
 
 .friendsListPhoto {
 	float:left;
 	max-width: 100px;
-	max-height: 100px;
 	overflow: hidden;
-	/*border:1px solid red;*/
 }
 
 .friendsListPhoto img {
@@ -500,7 +497,8 @@ h2 {
 	so we get more of the middle of the picture.
 	
 	 */
-	max-width: 90px; 
+	max-width: 100px; 
+	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
 }
 
 .friendsListInfo {
