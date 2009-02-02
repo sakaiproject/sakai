@@ -204,9 +204,11 @@ public abstract class ZipFileParser implements ImportFileParser {
 		if (pathAndFilename.charAt(0) == '/') {
 			pathAndFilename = pathAndFilename.substring(1);
 		}
+		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+		docBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder docBuilder;
 		try {
-			docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			docBuilder = docBuilderFactory.newDocumentBuilder();
 			entry = (ZipEntry) zipStream.getNextEntry();
 		    while (entry != null) {
 		    	entryName = entry.getName();
