@@ -11150,4 +11150,11 @@ public class SiteAction extends PagedResourceActionII {
 		return TOOL_ID_HOME.equalsIgnoreCase(toolTitle) || rb.getString("java.home").equalsIgnoreCase(toolTitle);
 	}
 
+	public boolean displaySiteAlias() {
+		if (ServerConfigurationService.getBoolean("wsetup.disable.siteAlias", true)) {
+			return false
+		}
+		return true;
+	}
+	
  }
