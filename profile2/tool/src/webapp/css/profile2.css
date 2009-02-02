@@ -329,7 +329,7 @@ h2 {
 
 .profileFormButtons,
 .modalWindowButtons {
-	margin-top:8px;
+	margin-top: 20px;
 }
 
 .profileFormButtons,
@@ -637,7 +637,34 @@ h2 {
 }
 
 
+/* modal window styles (also modalWindowButtons above) */
+.modalWindowWrapper {
+	display: block;
+	position: relative;
+	left: 5px;
+	top: 5px;
+	width: 450px; /* must be smaller than the actual modal window */
+	height: 120px;
+}
+.modalWindowImage {
+	position:absolute;
+	top: 0;
+	left:0;
+	max-width: 100px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
+}
 
-	
+
+
+.modalWindowMain {
+	position: relative;
+	top: 0;
+	left: 120px;
+	width: 300px;
+}
+
+.modalWindowText {
+	margin-top: 20px;
+}
 
 		

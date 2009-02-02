@@ -244,7 +244,7 @@ public class MySearch extends BasePage {
 		    	
 		    	//ADD FRIEND MODAL WINDOW
 				final ModalWindow connectionWindow = new ModalWindow("result-connectionWindow");
-		    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
+		    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid, photo)); 
 
 		    	//ADD FRIEND LINK
 		    	WebMarkupContainer c1 = new WebMarkupContainer("result-connectionContainer");

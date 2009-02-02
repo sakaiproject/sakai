@@ -426,7 +426,6 @@ public class ViewProfile extends BasePage {
 		
 		//ADD FRIEND MODAL WINDOW
 		final ModalWindow addFriendWindow = new ModalWindow("addFriendWindow");
-		addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserId, userUuid)); 
 
 		//FRIEND LINK/STATUS
 		final AjaxLink addFriendLink = new AjaxLink("addFriendLink") {
@@ -458,6 +457,7 @@ public class ViewProfile extends BasePage {
 			addFriendLink.setEnabled(false);
 		}  else {
 			addFriendLabel.setModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
+			addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserId, userUuid, profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL))); 
 		}
 		sideLinks.add(addFriendLink);
 		
