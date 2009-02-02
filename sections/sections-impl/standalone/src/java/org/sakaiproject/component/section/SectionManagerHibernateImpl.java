@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +45,6 @@ import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -75,7 +75,6 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	static final String CATEGORY_BUNDLE = "org.sakaiproject.component.section.CourseSectionCategories";
 
 	// Fields configured via dep. injection
-	protected IdManager uuidManager;
     protected Authn authn;
     protected Context context;
 
@@ -355,7 +354,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
                 	CourseSection section = getSection(sectionUuid, session);
                 	User user = getUserFromSiteParticipation(siteContext, userUid, session);
                 	EnrollmentRecordImpl enr = new EnrollmentRecordImpl(section, null, user);
-                	enr.setUuid(uuidManager.createUuid());
+                	enr.setUuid(UUID.randomUUID().toString());
                 	session.save(enr);
                 	return enr;
                 } else {
@@ -406,7 +405,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
                 	
                 	// Add the new enrollment
                 	EnrollmentRecordImpl enr = new EnrollmentRecordImpl(newSection, null, user);
-                	enr.setUuid(uuidManager.createUuid());
+                	enr.setUuid(UUID.randomUUID().toString());
                 	session.save(enr);
                 	
                 	// Remove the old enrollment
@@ -462,7 +461,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	}
             	
             	EnrollmentRecordImpl enrollment = new EnrollmentRecordImpl(section, null, user);
-            	enrollment.setUuid(uuidManager.createUuid());
+            	enrollment.setUuid(UUID.randomUUID().toString());
             	session.save(enrollment);
             	return enrollment;
             }
@@ -487,7 +486,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             		}
             	}
             	TeachingAssistantRecordImpl ta = new TeachingAssistantRecordImpl(section, user);
-            	ta.setUuid(uuidManager.createUuid());
+            	ta.setUuid(UUID.randomUUID().toString());
             	session.save(ta);
             	return ta;
             }
@@ -572,11 +571,11 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     	throws HibernateException {
     	if(role.isTeachingAssistant()) {
     		TeachingAssistantRecordImpl membership = new TeachingAssistantRecordImpl(section, user);
-    		membership.setUuid(uuidManager.createUuid());
+    		membership.setUuid(UUID.randomUUID().toString());
     		session.save(membership);
     	} else if(role.isStudent()) {
     		EnrollmentRecordImpl membership = new EnrollmentRecordImpl(section, null, user);
-    		membership.setUuid(uuidManager.createUuid());
+    		membership.setUuid(UUID.randomUUID().toString());
     		session.save(membership);
     	} else {
     		throw new MembershipException("You can not add an instructor as a section member");
@@ -660,7 +659,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
     		final Time endTime, final boolean monday,
     		final boolean tuesday, final boolean wednesday, final boolean thursday,
     		final boolean friday, final boolean saturday, final boolean sunday) {
-    	final String uuid = uuidManager.createUuid();
+    	final String uuid = UUID.randomUUID().toString();
         if(log.isDebugEnabled()) log.debug("Creating section with uuid = " + uuid);
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -668,7 +667,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	if(course == null) {
             		throw new MembershipException("Course uuid = " + courseUuid + "does not exist");
             	}
-            	String uuid = uuidManager.createUuid();
+            	String uuid = UUID.randomUUID().toString();
             	CourseSectionImpl section = new CourseSectionImpl(course, title, uuid, category, maxEnrollments, location, startTime,
             			endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
             	session.save(section);
@@ -699,7 +698,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
             	if(course == null) {
             		throw new MembershipException("Course uuid = " + courseUuid + "does not exist");
             	}
-            	String uuid = uuidManager.createUuid();
+            	String uuid = UUID.randomUUID().toString();
             	CourseSectionImpl section = new CourseSectionImpl(course, title, uuid, category, maxEnrollments, meetingEntities);
             	session.save(section);
                 return section;
@@ -911,10 +910,6 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         this.authn = authn;
     }
 
-	public void setUuidManager(IdManager uuidManager) {
-		this.uuidManager = uuidManager;
-	}
-	
 	public void setContext(Context context) {
 		this.context = context;
 	}

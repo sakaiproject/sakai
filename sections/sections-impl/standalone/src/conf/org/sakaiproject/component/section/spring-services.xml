@@ -9,6 +9,4 @@
         class="org.sakaiproject.component.section.facade.impl.standalone.AuthzStandaloneImpl">
             <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
     </bean>
-    <bean id="org.sakaiproject.id.api.IdManager"
-        class="org.sakaiproject.id.impl.UuidV4IdComponent"/>
 </beans>

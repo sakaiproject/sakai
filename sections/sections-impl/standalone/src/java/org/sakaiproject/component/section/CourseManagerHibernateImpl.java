@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -50,8 +51,6 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 
 	private static final Log log = LogFactory.getLog(CourseManagerHibernateImpl.class);
 
-	protected IdManager uuidManager;
-
 	public Course createCourse(final String siteContext, final String title,
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,
 			final boolean externallyManaged) {
@@ -66,7 +65,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
         		course.setSelfSwitchingAllowed(selfSwitchingAllowed);
         		course.setSiteContext(siteContext);
         		course.setTitle(title);
-        		course.setUuid(uuidManager.createUuid());
+        		course.setUuid(UUID.randomUUID().toString());
         		session.save(course);
         		return course;
 			};
@@ -91,7 +90,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
 				InstructorRecordImpl pr = new InstructorRecordImpl(course, user);
-				pr.setUuid(uuidManager.createUuid());
+				pr.setUuid(UUID.randomUUID().toString());
 				session.save(pr);
 				return pr;
 			}
@@ -103,7 +102,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
 				EnrollmentRecordImpl enr = new EnrollmentRecordImpl(course, "enrolled", user);
-				enr.setUuid(uuidManager.createUuid());
+				enr.setUuid(UUID.randomUUID().toString());
 				session.save(enr);
 				return enr;
 			}
@@ -115,7 +114,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
 				TeachingAssistantRecordImpl ta = new TeachingAssistantRecordImpl(course, user);
-				ta.setUuid(uuidManager.createUuid());
+				ta.setUuid(UUID.randomUUID().toString());
 				session.save(ta);
 				return ta;
 			}
@@ -189,12 +188,5 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 
 		return (Set)getHibernateTemplate().execute(hc);
 	}
-
-	// Dependency injection
-
-	public void setUuidManager(IdManager uuidManager) {
-		this.uuidManager = uuidManager;
-	}
-
 }
 

@@ -14,9 +14,6 @@
         <property name="target">
             <bean class="org.sakaiproject.component.section.CourseManagerHibernateImpl">
                 <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
-                <property name="uuidManager">
-                    <ref bean="org.sakaiproject.id.api.IdManager"/>
-                </property>
             </bean>
         </property>
     </bean>
@@ -31,9 +28,6 @@
                 <property name="context">
                     <ref bean="org.sakaiproject.section.api.facade.manager.Context"/>
                 </property>
-        		<property name="uuidManager">
-        			<ref bean="org.sakaiproject.id.api.IdManager"/>
-        		</property>
             </bean>
         </property>
 	</bean>

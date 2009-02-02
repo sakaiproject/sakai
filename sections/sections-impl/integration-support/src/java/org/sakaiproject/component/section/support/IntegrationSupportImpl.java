@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -31,7 +32,6 @@ import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -55,7 +55,6 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 	private CourseManager courseManager;
 	private SectionManager sectionManager;
 	private UserManager userManager;
-	private IdManager uuidManager;
 	
 	public Course createCourse(String siteContext, String title, boolean externallyManaged,
 			boolean selfRegistrationAllowed, boolean selfSwitchingAllowed) {
@@ -102,17 +101,17 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 		ParticipationRecord record = null;
 		if(role.isInstructor()) {
 			InstructorRecordImpl ir = new InstructorRecordImpl(course, user);
-			ir.setUuid(uuidManager.createUuid());
+			ir.setUuid(UUID.randomUUID().toString());
 			getHibernateTemplate().save(ir);
 			record = ir;
 		} else if(role.isTeachingAssistant()) {
 			TeachingAssistantRecordImpl tar = new TeachingAssistantRecordImpl(course, user);
-			tar.setUuid(uuidManager.createUuid());
+			tar.setUuid(UUID.randomUUID().toString());
 			getHibernateTemplate().save(tar);
 			record = tar;
 		} else if(role.isStudent()) {
 			EnrollmentRecordImpl sr = new EnrollmentRecordImpl(course, null, user);
-			sr.setUuid(uuidManager.createUuid());
+			sr.setUuid(UUID.randomUUID().toString());
 			getHibernateTemplate().save(sr);
 			record = sr;
 		} else {
@@ -165,10 +164,6 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 
 	public void setUserManager(UserManager userManager) {
 		this.userManager = userManager;
-	}
-
-	public void setUuidManager(IdManager uuidManager) {
-		this.uuidManager = uuidManager;
 	}
 }
 
