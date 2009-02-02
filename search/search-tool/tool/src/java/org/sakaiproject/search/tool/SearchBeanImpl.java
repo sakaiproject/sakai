@@ -934,6 +934,10 @@ public class SearchBeanImpl implements SearchBean
 							return true;
 					}
 
+					public boolean hasPortalUrl() {
+						return sr.hasPortalUrl();
+					}
+
 
 
 		

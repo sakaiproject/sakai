@@ -76,7 +76,11 @@
 	        <div class="searchItem" > 
 			#if (${result.isVisible()})
 	        <span class="searchTool">${result.tool}:</span>
-	        <a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
+	 	     #if (${result.hasPortalUrl()})
+	        	<a href="${result.url}" target="_top" class="searchTopLink" >${result.title}</a>
+	        #else
+	        	<a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
+	        #end
 			      <div class="searchItemBody" >${result.searchResult}</div>
 			      <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
 			    #if($searchModel.isScope('MINE'))

@@ -32,6 +32,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
@@ -99,8 +101,12 @@ public class SearchListImpl implements SearchList
 				{
 					final int thisHit = counter;
 					counter++;
-					return filter.filter(new SearchResultImpl(h, thisHit,
-							query, analyzer,searchIndexBuilder,searchService));
+					SearchResult result =  new SearchResultImpl(h, thisHit,
+							query, analyzer,searchIndexBuilder,searchService);
+					String url = checkUrl(result.getReference());
+					if (url != null)
+						result.setUrl(url);
+					return filter.filter(result);
 				}
 				catch (IOException e)
 				{
@@ -113,8 +119,28 @@ public class SearchListImpl implements SearchList
 			{
 				throw new UnsupportedOperationException("Not Implemented");
 			}
+			
+			/**
+			 * Check the results url before returning
+			 * @param reference
+			 * @return
+			 */
+			private String checkUrl(String reference) {
+				if (searchIndexBuilder != null) {
+					EntityContentProducer ecp = searchIndexBuilder.newEntityContentProducer(reference);
+					if (ecp == null )
+						return null;
+
+
+					if (PortalUrlEnabledProducer.class.isAssignableFrom(ecp.getClass()))
+						return ecp.getUrl(reference);
+				}
+				return null;
+			}
 
 		};
+		
+		
 	}
 
 	public int size()

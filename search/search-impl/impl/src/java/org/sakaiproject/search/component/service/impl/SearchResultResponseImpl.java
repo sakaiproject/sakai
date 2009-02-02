@@ -40,6 +40,7 @@ import org.apache.lucene.search.highlight.Scorer;
 import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
@@ -63,7 +64,7 @@ public class SearchResultResponseImpl implements SearchResult
 
 	private Analyzer analyzer = null;
 
-
+	private String url;
 	private SearchIndexBuilder searchIndexBuilder;
 
 	private SearchService searchService;
@@ -155,9 +156,13 @@ public class SearchResultResponseImpl implements SearchResult
 		return hm;
 	}
 
+	
 	public String getUrl()
 	{
-		return (String) attributes.get("url"); //$NON-NLS-1$
+		if (url == null)
+			url = (String) attributes.get("url"); //$NON-NLS-1$
+		
+		return url;
 	}
 
 	public String getTitle()
@@ -241,6 +246,23 @@ public class SearchResultResponseImpl implements SearchResult
 		return (String) attributes.get("site");
 	}
 	public boolean isCensored() {
+		return false;
+	}
+	public void setUrl(String newUrl) {
+		url = newUrl;
+		
+	}
+	public boolean hasPortalUrl() {
+		log.info("hasPortalUrl(" + getReference());
+		EntityContentProducer sep = searchIndexBuilder
+		.newEntityContentProducer(getReference());
+		if (sep != null) {
+			log.info("got ECP for " + getReference());
+			if (PortalUrlEnabledProducer.class.isAssignableFrom(sep.getClass())) {
+				log.info("has portalURL!");
+				return true;
+			}
+		}
 		return false;
 	}
 

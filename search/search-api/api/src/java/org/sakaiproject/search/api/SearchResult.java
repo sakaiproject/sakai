@@ -122,5 +122,18 @@ public interface SearchResult
 
 	void toXMLString(StringBuilder sb);
 	
+	
+	/**
+	 * Set the Url - needed for tols that generate portal urls
+	 * @param newUrl
+	 */
+	void setUrl(String newUrl);
+	
+	/**
+	 * This result has a ULR that displays within the portal
+	 * @return
+	 */
+	boolean hasPortalUrl();
+	
 
 }

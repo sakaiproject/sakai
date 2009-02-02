@@ -216,6 +216,16 @@ public class SearchSecurityFilter implements SearchItemFilter
 			return true;
 		}
 
+		public void setUrl(String newUrl) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public boolean hasPortalUrl() {
+			log.debug("hasPortalUrl(" + getReference());
+			return false;
+		}
+
 	}
 
 	/**

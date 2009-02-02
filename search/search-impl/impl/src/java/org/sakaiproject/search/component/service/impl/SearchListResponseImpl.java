@@ -34,6 +34,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
@@ -136,12 +138,35 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 				{
 					log.debug("Iterator Getting item " + thisHit);
 				}
-				return filter.filter((SearchResult) resultsList.get(thisHit));
+				SearchResult ret =(SearchResult) resultsList.get(thisHit);
+				String url = checkUrl(ret.getReference());
+				if (url != null)
+					ret.setUrl(url);
+				return filter.filter(ret);
 			}
 
 			public void remove()
 			{
 				throw new UnsupportedOperationException("Not Implemented");
+			}
+			
+			/**
+			 * Check the results url before returning
+			 * @param reference
+			 * @return
+			 */
+			private String checkUrl(String reference) {
+				log.debug("checkUrl(" + reference);
+				if (searchIndexBuilder != null) {
+					EntityContentProducer ecp = searchIndexBuilder.newEntityContentProducer(reference);
+					if (ecp == null )
+						return null;
+
+
+					if (PortalUrlEnabledProducer.class.isAssignableFrom(ecp.getClass()))
+						return ecp.getUrl(reference);
+				}
+				return null;
 			}
 
 		};
@@ -234,7 +259,11 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 
 	public Object get(int arg0)
 	{
-		return filter.filter((SearchResult) resultsList.get(arg0));
+		SearchResult sr = (SearchResult) resultsList.get(arg0);
+		String url = checkUrl(sr.getReference());
+		if (url != null)
+			sr.setUrl(url);
+		return filter.filter(sr);
 	}
 
 	public Object set(int arg0, Object arg1)
@@ -424,6 +453,24 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 
 		}
 
+	}
+	
+	/**
+	 * Check the results url before returning
+	 * @param reference
+	 * @return
+	 */
+	private String checkUrl(String reference) {
+		if (searchIndexBuilder != null) {
+			EntityContentProducer ecp = searchIndexBuilder.newEntityContentProducer(reference);
+			if (ecp == null )
+				return null;
+
+			;
+			if (PortalUrlEnabledProducer.class.isAssignableFrom(ecp.getClass()))
+				return ecp.getUrl(reference);
+		}
+		return null;
 	}
 
 }

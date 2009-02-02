@@ -59,5 +59,11 @@ public interface SearchOutputItem
 	 * @return
 	 */
 	boolean isVisible();
+	
+	/**
+	 * This item has a proper portal view url
+	 * @return
+	 */
+	boolean hasPortalUrl();
 
 }
