@@ -288,15 +288,60 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 function assignmentReleased(myForm, releasedChanged) {
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
 	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
+	var categoryDDEl = getTheElement(myForm + ':selectCategory');
 
 	if (releasedCheckboxEl.checked == false) {
 		countedCheckboxEl.checked = false;
 		countedCheckboxEl.disabled = true;
 	} else if (releasedCheckboxEl.checked == true) {
-		countedCheckboxEl.disabled = false;
-		if (releasedChanged)
-			countedCheckboxEl.checked = true;
+		if (undefined != categoryDDEl)
+		{
+			if (categoryDDEl.options[categoryDDEl.selectedIndex].value != "unassigned")
+			{
+				countedCheckboxEl.disabled = false;
+				if (releasedChanged)
+					countedCheckboxEl.checked = true;
+			}
+		}
+		else
+		{
+			countedCheckboxEl.disabled = false;
+			if (releasedChanged)
+				countedCheckboxEl.checked = true;
+		}
 	}
+}
+
+// if categories are enabled, we don't want to be able to check the calculate box 
+// for unassigned items.  This function will ensure this happens in the UI
+function categorySelected(myForm)
+{
+	var categoryDDEl = getTheElement(myForm + ':selectCategory');
+	var countedCheckboxEl = getTheElement(myForm + ':countAssignment');
+	var releasedCheckboxEl =  getTheElement(myForm + ':released');
+	if (undefined != categoryDDEl)
+	{
+		if (categoryDDEl.options[categoryDDEl.selectedIndex].value == "unassigned")
+		{
+			countedCheckboxEl.checked = false;
+			countedCheckboxEl.disabled = true;
+		}
+		else
+		{
+			if (undefined != releasedCheckboxEl)
+			{
+				if (releasedCheckboxEl.checked == true)
+				{
+					countedCheckboxEl.disabled = false;
+				}
+			}
+			else
+			{
+				countedCheckboxEl.disabled = false;
+			}
+		}
+	}
+	return;
 }
 
 // if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.
