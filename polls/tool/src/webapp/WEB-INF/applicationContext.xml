@@ -92,7 +92,8 @@
   	<property name="templateNames"	value="Messages" />
   </bean>
 
-    <!-- added to propogate errors -->
+
+<!-- added to propogate errors -->
 	<!--  <bean id="redirectOnLevel1Error" class="uk.org.ponder.springutil.BooleanFactory">
 		<property name="value" value="false" />
 	</bean>

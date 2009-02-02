@@ -147,21 +147,6 @@ DefaultView,NavigationCaseReporter {
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker checker) {
-
-		
-		  //process any messages
-		if (tml.size() > 0) {
-		    	for (int i = 0; i < tml.size(); i ++ ) {
-		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
-		    		if (tml.messageAt(i).args != null ) {	    		
-		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode(),(String[])tml.messageAt(i).args[0]);
-		    		} else {
-		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode());
-		    		}
-		    		
-		    	}
-			}
-		
 		
 		voteBean.setPoll(null);
 		voteBean.voteCollection = null;
@@ -402,10 +387,10 @@ DefaultView,NavigationCaseReporter {
 		if (SecurityService.isSuperUser() )
 			return true;
 
-		if (SecurityService.unlock(pollListManager.PERMISSION_EDIT_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
+		if (SecurityService.unlock(PollListManager.PERMISSION_EDIT_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
 			return true;
 
-		if (SecurityService.unlock(pollListManager.PERMISSION_EDIT_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
+		if (SecurityService.unlock(PollListManager.PERMISSION_EDIT_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
 			return true;
 
 		return false;
@@ -414,10 +399,10 @@ DefaultView,NavigationCaseReporter {
 	private boolean pollCanDelete(Poll poll) {
 		if (SecurityService.isSuperUser() )
 			return true;
-		if (SecurityService.unlock(pollListManager.PERMISSION_DELETE_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
+		if (SecurityService.unlock(PollListManager.PERMISSION_DELETE_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
 			return true;
 
-		if (SecurityService.unlock(pollListManager.PERMISSION_DELETE_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId())) 
+		if (SecurityService.unlock(PollListManager.PERMISSION_DELETE_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId())) 
 			return true;
 
 		return false;
