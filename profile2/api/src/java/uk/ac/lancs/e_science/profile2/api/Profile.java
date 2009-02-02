@@ -77,6 +77,13 @@ public interface Profile {
 	 */
 	public List<String> getConfirmedFriendUserIdsForUser(final String userId);
 	
+	/**
+	 * Similar to getConfirmedFriendUserIdsForUser but returns an int of the count of results
+	 * 
+	 * @param userId		uuid of the user to retrieve the list of friends for
+	 */
+	public int countConfirmedFriendUserIdsForUser(final String userId);
+	
 	
 	/**
 	 * Make a request for friendId to be a friend of userId

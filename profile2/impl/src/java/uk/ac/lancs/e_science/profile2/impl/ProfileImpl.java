@@ -55,6 +55,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String QUERY_GET_FRIENDS_FOR_USER = "getFriendsForUser";
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser";
 	private static final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser";
+	private static final String QUERY_COUNT_CONFIRMED_FRIEND_USERIDS_FOR_USER = "countConfirmedFriendUserIdsForUser";
 	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest";
 	private static final String QUERY_GET_FRIEND_RECORD = "getFriendRecord";
 	private static final String QUERY_GET_USER_STATUS = "getUserStatus";
@@ -298,8 +299,21 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
 	
 	  	return userUuids;
-	
 	}
+	
+	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#countConfirmedFriendUserIdsForUser(String userId)
+	 */	
+	public int countConfirmedFriendUserIdsForUser(final String userId) {
+		
+		//this should operhaps be a count(*) query but since we need to use unions, hmm.
+		List<String> userUuids = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userId));
+		int count = userUuids.size();
+	
+	  	return count;
+	}
+	
 	
 	
 	
