@@ -1,38 +1,57 @@
 /* Profile2 styles */
 
+#pageWrapper { 
+	width: 750px;
+	position: relative;
+	left: 5px;
+	top: 5px;
+	min-height: 400px; /*iframe will be tiny if there is no content in their profile */
+	margin-bottom: 100px;
+}
 
 #leftPanel {
-	float: left;
-	width: 200px;
+	position:absolute;
+	top: 0;
+	left:0;
+	width:200px;
 }
 
 #mainPanel {
-	margin-left:215px;
-	margin-right:215px;
-	padding:8px;
+	position: relative;
+	top: 0;
+	left: 200px;
 	width: 500px;
+	padding-left: 20px;
 }
 
 #rightPanel {
-	float:right;
-	width:200px;
-	padding:8px;
+	position:absolute;
+	width: 50px;
+	left: 700px;
+	top: 0;
 }
+
+div#footer {
+	width: 750px;
+	clear: both;
+	position: relative;
+}
+
+
 #fullWidth {
 	float:left;
 	margin-left: 5px;
-	margin-right: 215px;
+	margin-right: 165px;
 	padding: 8px;
 }
 
 #leftPanel, #rightPanel, #mainPanel, #fullWidth { 
-	padding-bottom: 32767px;
-	margin-bottom: -32767px;
+	/*padding-bottom: 32767px;
+	margin-bottom: -32767px;*/
+
 }
-#pageWrapper { 
-	margin-top: 5px;
-	overflow:hidden;
-}
+
+
 
 #myPhoto {
 	max-width: 200px;
@@ -110,26 +129,13 @@
 	background-color: #ffff77;
 }
 
-/* when component is created, this should go in there and have a unique class name */
-.closeButton {
-	float:right;
-	clear: none;
-	text-align: right;
-}
-.closeButton:hover {
-	background-color: #ffcccc;
-}
 
 
-.instruction {
-	color: #5D5D5D;
-}
 
 .unreadMessagesCount {
 	padding-left: 4px;
 	font-weight: bold;
 }
-
 
 
 
@@ -159,8 +165,15 @@
 .right {
 	float:right;
 }
-
-
+.instruction {
+	color: #5D5D5D;
+}
+.clear {
+	clear:both;
+}
+h2 {
+	margin-top: 0;
+}
 
 
 /* sideLink styles */
@@ -252,10 +265,9 @@
 
 /* mainSection styles */
 .mainSection {
-	margin-top: 10px;
+	padding-bottom: 10px;
 	display: block;
 }
-
 
 .mainSectionHeading {
 	display:block;
@@ -263,17 +275,15 @@
 	border-bottom: thin solid #09c;
 	margin-bottom: 0;
 	padding-bottom: 0;
+	width: 100%;
 }
 
 .mainSectionContent {
 	padding-top: 5px;
-	width: 420px;
-	
+	padding-right: 80px; /* keep it in a block and out of the edit button's way */
 }
 
 .mainSectionContentForm {
-	padding-top: 5px;
-	width: 500px;
 }
 
 
@@ -418,6 +428,7 @@
 	max-width: 55px;
 	overflow: hidden;
 	margin: 1px;
+	/*border: 1px solid red;*/
 }
 	
 .friendsFeedItem img {
@@ -439,6 +450,7 @@
 	color: #3355BB;
 	cursor: pointer;
 	padding-left: 2px;
+	/*border: 1px solid green;*/
 }
 
 .friendsFeedItemCaption:hover {
@@ -598,16 +610,15 @@
 .rssLink {
 	margin: 0;
 	padding: 0;
-	float: right;
+	/*float: right;*/
+	display: inline;
 }
 
 .rssLink img {
 	vertical-align: middle;
 }
 
-h2 {
-	margin-top: 0;
-}
+
 
 /* overrides cluetip's text color */
 #cluetip-inner {

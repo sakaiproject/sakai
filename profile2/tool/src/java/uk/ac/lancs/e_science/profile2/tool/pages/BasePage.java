@@ -64,7 +64,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(myFriendsLink);
 		
 		
-		
+		/*
 		//messages link
     	Link myMessagesLink = new Link("myMessagesLink") {
 			public void onClick() {
@@ -95,7 +95,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myPhotosLink.add(new Label("myPhotosLabel",new ResourceModel("link.my.photos")));
 		add(myPhotosLink);
 		myPhotosLink.setVisible(false);
-
+	*/
 	
 		//privacy link
     	Link myPrivacyLink = new Link("myPrivacyLink") {
@@ -116,6 +116,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(searchLink);
 				
 		//rss link
+		/*
 		ContextImage icon = new ContextImage("icon",new Model(ProfileImageManager.RSS_IMG));
 		Link rssLink = new Link("rssLink") {
 			public void onClick() {
@@ -125,6 +126,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		rssLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.rss")));
 		icon.setVisible(true);
 		add(rssLink);
+		*/
 		
     }
 	
