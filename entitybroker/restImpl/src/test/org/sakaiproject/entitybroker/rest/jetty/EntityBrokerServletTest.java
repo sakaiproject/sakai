@@ -125,9 +125,9 @@ public class EntityBrokerServletTest {
         }
         this.request.setURI(uri);
         try {
-            this.response.parse(tester.getResponses(request.generate()));
+            this.response.parse(this.tester.getResponses(this.request.generate()));
         } catch (Exception e) {
-            fail("Could not parse the response to the request ("+uri+"): " + e.getMessage());
+            fail("Could not parse the response to the request ("+uri+"): " + e);
         }
         prepareRequest(); // reset the request
     }
