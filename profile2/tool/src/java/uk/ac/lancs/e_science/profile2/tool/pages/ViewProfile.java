@@ -46,9 +46,7 @@ public class ViewProfile extends BasePage {
 		
 		//get current user Id
 		String currentUserId = sakaiProxy.getCurrentUserId();
-		
-		System.out.println(currentUserId + userUuid);
-		
+				
 		/*double check, if somehow got to own ViewPage, redirect to MyProfile */
 		if(userUuid.equals(currentUserId)) {
 			log.warn("ViewProfile: user " + userUuid + " accessed ViewProfile for self. Redirecting...");

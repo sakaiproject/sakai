@@ -86,7 +86,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		} catch (Exception e) {
-			log.error("Couldn't get SakaiPerson for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+			log.error("SakaiProxy.getSakaiPerson(): Couldn't get SakaiPerson for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return sakaiPerson;
 	}
@@ -99,7 +99,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.getPrototype();
 		} catch (Exception e) {
-			log.error("Couldn't get SakaiPerson prototype: " + e.getClass() + " : " + e.getMessage());
+			log.error("SakaiProxy.getSakaiPersonPrototype(): Couldn't get SakaiPerson prototype: " + e.getClass() + " : " + e.getMessage());
 		}
 		return sakaiPerson;
 	}
@@ -112,7 +112,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			sakaiPerson = sakaiPersonManager.create(userId, sakaiPersonManager.getUserMutableType());
 		} catch (Exception e) {
-			log.error("Couldn't create SakaiPerson: " + e.getClass() + " : " + e.getMessage());
+			log.error("SakaiProxy.createSakaiPerson(): Couldn't create SakaiPerson: " + e.getClass() + " : " + e.getMessage());
 		}
 		return sakaiPerson;
 	}
@@ -124,13 +124,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		//the save is void, so unless it throws an exception, its ok (?)
 		//I'd prefer a return value from sakaiPersonManager. this wraps it.
 		
-		System.out.println("saving...");
-		
 		try {
 			sakaiPersonManager.save(sakaiPerson);
 			return true;
 		} catch (Exception e) {
-			log.error("Couldn't update SakaiPerson: " + e.getClass() + " : " + e.getMessage());
+			log.error("SakaiProxy.updateSakaiPerson(): Couldn't update SakaiPerson: " + e.getClass() + " : " + e.getMessage());
 		}
 		return false;
 	}
@@ -198,7 +196,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		String fullResourceId = "/private/profileImages/" + userId + "/" + type + "/" + idManager.createUuid();
 		
-		
 		return fullResourceId;
 		
 	}
@@ -227,17 +224,17 @@ public class SakaiProxyImpl implements SakaiProxy {
 			}
 			catch (IdUsedException e){
 				contentHostingService.cancelResource(resource);
-				log.error("saveFile(): id= " + fullResourceId + " is in use : " + e.getClass() + " : " + e.getMessage());
+				log.error("SakaiProxy.saveFile(): id= " + fullResourceId + " is in use : " + e.getClass() + " : " + e.getMessage());
 				result = false;
 			}
 			catch (Exception e){
 				contentHostingService.cancelResource(resource);
-				log.error("saveFile(): failed: " + e.getClass() + " : " + e.getMessage());
+				log.error("SakaiProxy.saveFile(): failed: " + e.getClass() + " : " + e.getMessage());
 				result = false;
 			}
 			
 		} catch (Exception e) {
-			log.error("saveFile():" + e.getClass() + ":" + e.getMessage());
+			log.error("SakaiProxy.saveFile():" + e.getClass() + ":" + e.getMessage());
 			result = false;
 		} finally {
 			disableSecurityAdvisor();
@@ -264,7 +261,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				log.error("SakaiProxy.getResource() failed for resourceId: " + resourceId + " : " + e.getClass() + " : " + e.getMessage());
 			}
 		} catch (Exception e) {
-			log.error("getResource():" + e.getClass() + ":" + e.getMessage());
+			log.error("SakaiProxy.getResource():" + e.getClass() + ":" + e.getMessage());
 		}
 		finally	{
 			disableSecurityAdvisor();

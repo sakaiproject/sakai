@@ -5,7 +5,6 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -23,6 +22,7 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyInterestsEdit extends Panel {
 	
+	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyInterestsEdit.class);
 	
 	public MyInterestsEdit(final String id, final UserProfile userProfile) {
@@ -81,6 +81,8 @@ public class MyInterestsEdit extends Panel {
 		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
+			private static final long serialVersionUID = 1L;
+
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//save() form, show message, then load display panel
 				if(save(form)) {
@@ -104,8 +106,9 @@ public class MyInterestsEdit extends Panel {
         
 		//cancel button
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
-            	//System.out.println("cancel clicked");
+			private static final long serialVersionUID = 1L;
+
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
             	Component newPanel = new MyInterestsDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
@@ -137,8 +140,6 @@ public class MyInterestsEdit extends Panel {
 	//called when the form is to be saved
 	private boolean save(Form form) {
 		
-       // System.out.println(getModelObject());
-
 		//get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();
 		

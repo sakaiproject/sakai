@@ -5,7 +5,6 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -29,9 +28,8 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyContactEdit extends Panel {
 	
+	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyInfoEdit.class);
-	
-	
 	private WebMarkupContainer formFeedback;
 
 	
@@ -134,8 +132,9 @@ public class MyContactEdit extends Panel {
         
 		//cancel button
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
-            	//System.out.println("cancel clicked");
+			private static final long serialVersionUID = 1L;
+
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
             	Component newPanel = new MyContactDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
@@ -159,8 +158,6 @@ public class MyContactEdit extends Panel {
 	//called when the form is to be saved
 	private boolean save(Form form) {
 		
-        //System.out.println(getModelObject());
-
 		//get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();
 		

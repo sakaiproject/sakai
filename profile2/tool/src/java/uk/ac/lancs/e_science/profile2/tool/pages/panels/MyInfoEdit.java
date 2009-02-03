@@ -96,8 +96,9 @@ public class MyInfoEdit extends Panel {
         
 		//cancel button
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
-            	//System.out.println("cancel clicked");
+			private static final long serialVersionUID = 1L;
+
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
             	Component newPanel = new MyInfoDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
@@ -128,7 +129,6 @@ public class MyInfoEdit extends Panel {
 	//called when the form is to be saved
 	private boolean save(Form form) {
 		
-        //System.out.println(getModelObject());
 
 		//get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();

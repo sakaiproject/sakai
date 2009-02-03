@@ -56,15 +56,15 @@ public class ChangeProfilePicture extends Panel{
 								
 				
 				if (upload == null) {
-					log.error("upload was null.");
+					log.error("Profile.ChangeProfilePicture.onSubmit: upload was null.");
 					error(new StringResourceModel("error.no.file.uploaded", this, null).getString());
 				    return;
 				} else if (upload.getSize() == 0) {
-				    log.error("upload was empty.");
+				    log.error("Profile.ChangeProfilePicture.onSubmit: upload was empty.");
 					error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
 					return;
 				} else if (!profile.checkContentTypeForProfileImage(upload.getContentType())) {
-					log.error("invalid file type uploaded for profile picture");
+					log.error("Profile.ChangeProfilePicture.onSubmit: invalid file type uploaded for profile picture");
 					error(new StringResourceModel("error.invalid.image.type", this, null).getString());
 				    return;
 				} else {
@@ -85,12 +85,10 @@ public class ChangeProfilePicture extends Panel{
 					 
 					//create resource ID
 					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_MAIN, fileName);
-
-					System.out.println("mainResourceId:" + mainResourceId);
+					log.debug("Profile.ChangeProfilePicture.onSubmit mainResourceId: " + mainResourceId);
 					
 					//save, if error, log and return.
 					if(!sakaiProxy.saveFile(mainResourceId, userId, fileName, mimeType, imageBytes)) {
-						log.error("Saving main profile image failed");
 						error(new StringResourceModel("error.file.save.failed", this, null).getString());
 					    return;
 					}
@@ -103,12 +101,10 @@ public class ChangeProfilePicture extends Panel{
 					 
 					//create resource ID
 					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fileName);
-
-					System.out.println("thumbnailResourceId:" + thumbnailResourceId);
+					log.debug("Profile.ChangeProfilePicture.onSubmit thumbnailResourceId: " + thumbnailResourceId);
 					
 					//save, if error, log and return.
 					if(!sakaiProxy.saveFile(thumbnailResourceId, userId, fileName, mimeType, imageBytes)) {
-						log.error("Saving thumbnail profile image failed");
 						error(new StringResourceModel("error.file.save.failed", this, null).getString());
 					    return;
 					}
@@ -118,15 +114,11 @@ public class ChangeProfilePicture extends Panel{
 					 */
 					//save
 					if(profile.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
-						log.info("Updated profile image");
 						setResponsePage(new MyProfile()); //to refresh the image data
 					} else {
-						log.error("Profile image update failed");
 						error(new StringResourceModel("error.file.save.failed", this, null).getString());
 						return;
 					}
-					
-					
 					
 					//if ok, log it
 					log.info("User " + userId + " successfully changed profile picture.");
