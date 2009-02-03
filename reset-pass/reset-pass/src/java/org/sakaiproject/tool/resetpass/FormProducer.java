@@ -8,7 +8,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -58,6 +59,11 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 	  public void setTargettedMessageList(TargettedMessageList tml) {
 		    this.tml = tml;
 	  }
+  
+	private ToolManager toolManager;
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
 	
 	/* (non-Javadoc)
 	 * @see uk.org.ponder.rsf.view.ComponentProducer#fillComponents(uk.org.ponder.rsf.components.UIContainer, uk.org.ponder.rsf.viewstate.ViewParameters, uk.org.ponder.rsf.view.ComponentChecker)
@@ -81,12 +87,18 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 		    	}
 		    }
 		}
-		
-		
-		
-		String[] args = new String[1];
-		args[0]=serverConfigurationService.getString("ui.service", "Sakai Bassed Service");
-		UIVerbatim.make(tofill,"main",messageLocator.getMessage("mainText", args));
+		// Get the instructions from the tool placement.
+		Placement placement = toolManager.getCurrentPlacement();
+		if (placement != null) {
+			String instuctions = placement.getConfig().getProperty("instructions");
+			if (instuctions != null && instuctions.length() > 0) {
+				UIVerbatim.make(tofill, "instructions", instuctions);
+			}
+		} else {
+			String[] args = new String[1];
+			args[0]=serverConfigurationService.getString("ui.service", "Sakai Based Service");
+			UIVerbatim.make(tofill,"main",messageLocator.getMessage("mainText", args));
+		}
 		UIForm form = UIForm.make(tofill,"form");
 		UIInput.make(form,"input","#{userBean.email}");
 		UICommand.make(form,"submit",UIMessage.make("postForm"),"#{formHandler.processAction}");

@@ -3,7 +3,8 @@
 <registration>
 	<tool id="sakai.resetpass"
 		title="Reset Password"
-		description="For reseting guest passwords">
-
+		description="For resetting guest passwords">
+	
+        <configuration name="instructions" value="" />
 	</tool>	
 </registration>

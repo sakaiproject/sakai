@@ -28,6 +28,8 @@
 		<property name="serverConfigurationService"
 			ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="messageLocator" ref="messageLocator" />
+		<property name="toolManager"
+			ref="org.sakaiproject.tool.api.ToolManager"/>
 
 	</bean>
 	<bean id="confirmProducer"
