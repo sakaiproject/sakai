@@ -153,7 +153,7 @@ public class ConfirmedFriends extends Panel {
 		    	
 		    	//REMOVE FRIEND MODAL WINDOW
 				final ModalWindow removeFriendWindow = new ModalWindow("removeFriendWindow");
-				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, friendActionModel, userX, friendId)); 
+				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, friendActionModel, userX, friendId, photo)); 
 				
 				//REMOVE FRIEND LINK
 		    	final AjaxLink removeFriendLink = new AjaxLink("removeFriendLink") {

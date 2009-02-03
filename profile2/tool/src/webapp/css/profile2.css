@@ -274,6 +274,7 @@ h2 {
 	font-weight: bold;
 	border-bottom: thin solid #09c;
 	margin-bottom: 0;
+	margin-top: 8px;
 	padding-bottom: 0;
 	width: 100%;
 }
@@ -327,7 +328,15 @@ h2 {
 	margin-bottom: 12px;
 }
 
-.profileFormButtons,
+.statusForm {
+	padding: 4px;
+	margin-bottom: 4px;
+}
+
+.profileFormButtons {
+	margin-top: 10px;
+}
+
 .modalWindowButtons {
 	margin-top: 20px;
 }
@@ -432,8 +441,9 @@ h2 {
 	text-align: center;
 }
 	
-.friendsFeedItem img {
-	width: 100%; /*ie fix to make image resize inside container*/
+.friendsFeedPhoto {
+	max-width: 55px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
 	/* centre the image inside this cell */
 	display:block;
    	margin:auto;
@@ -442,7 +452,7 @@ h2 {
 }
 
 
-.friendsFeedItemCaption {
+.friendsFeedCaption {
 	margin-top: 0;
 	font-size: 60%;
 	overflow: hidden;
@@ -475,6 +485,8 @@ h2 {
 	padding-right: 5px;
 	padding-bottom: 5px;
 }
+
+
 .friendsListItem:hover {
 	/*background-color: #ffc;*/
 	/*background-color: #FFFFE6;*/
@@ -486,20 +498,11 @@ h2 {
 .friendsListPhoto {
 	float:left;
 	max-width: 100px;
-	overflow: hidden;
+	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
+	border: 1px solid #666666;
+	padding: 2px;
 }
 
-.friendsListPhoto img {
-	/* constrain the width but the height is variable so the image stays proportional,
-	however it will still be cropped via parent class overflow property
-	
-	TODO - position the image a few pixels off to the left and a few pixels above the container
-	so we get more of the middle of the picture.
-	
-	 */
-	max-width: 100px; 
-	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
-}
 
 .friendsListInfo {
 	margin-left: 5px;
@@ -647,11 +650,13 @@ h2 {
 	height: 120px;
 }
 .modalWindowImage {
-	position:absolute;
+	position: absolute;
 	top: 0;
-	left:0;
+	left: 0;
 	max-width: 100px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
+	border: 1px solid #666666;
+	padding: 2px;
 }
 
 
@@ -664,7 +669,9 @@ h2 {
 }
 
 .modalWindowText {
-	margin-top: 20px;
+	margin-top: 5px;
 }
+
+
 
 		

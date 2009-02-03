@@ -50,7 +50,6 @@ public class AddFriend extends Panel {
 		window.setInitialWidth(500);
 		window.setResizable(false);
 		
-		
 		//image (already set just need to use it/use default)
     	if(image != null && image.length > 0){
 			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){

@@ -133,11 +133,11 @@ public class RequestedFriends extends Panel {
 		    	
 		    	//CONFIRM FRIEND MODAL WINDOW
 				final ModalWindow confirmFriendWindow = new ModalWindow("confirmFriendWindow");
-				confirmFriendWindow.setContent(new ConfirmFriend(confirmFriendWindow.getContentId(), confirmFriendWindow, friendActionModel, userId, friendId)); 
+				confirmFriendWindow.setContent(new ConfirmFriend(confirmFriendWindow.getContentId(), confirmFriendWindow, friendActionModel, userId, friendId, photo)); 
 				
 				//IGNORE FRIEND MODAL WINDOW
 				final ModalWindow ignoreFriendWindow = new ModalWindow("ignoreFriendWindow");
-				ignoreFriendWindow.setContent(new IgnoreFriend(ignoreFriendWindow.getContentId(), ignoreFriendWindow, friendActionModel, userId, friendId)); 
+				ignoreFriendWindow.setContent(new IgnoreFriend(ignoreFriendWindow.getContentId(), ignoreFriendWindow, friendActionModel, userId, friendId, photo)); 
 				
 				
 				

@@ -7,12 +7,16 @@ import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
@@ -30,7 +34,7 @@ public class ConfirmFriend extends Panel {
 	 * userY is the user who's friend request we are accepting
 	 */
 	
-	public ConfirmFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY){
+	public ConfirmFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY, final byte[] image){
         super(id);
 
         //get API's
@@ -42,8 +46,22 @@ public class ConfirmFriend extends Panel {
                 
         //window setup
 		window.setTitle(new StringResourceModel("title.friend.confirm", null, new Object[]{ friendName } )); 
-		window.setInitialHeight(100);
-		window.setInitialWidth(400);
+		window.setInitialHeight(150);
+		window.setInitialWidth(500);
+		window.setResizable(false);
+		
+		//image (already set just need to use it/use default)
+    	if(image != null && image.length > 0){
+			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+				private static final long serialVersionUID = 1L;
+				protected byte[] getImageData() {
+					return image;
+				}
+			};
+			add(new Image("image",photoResource));
+		} else {
+			add(new ContextImage("image",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+		}
 		
         //text
 		final Label text = new Label("text", new StringResourceModel("text.friend.confirm", null, new Object[]{ friendName } ));
