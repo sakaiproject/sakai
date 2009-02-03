@@ -9,7 +9,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
-import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -17,7 +16,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.image.ContextImage;
-import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -45,6 +44,7 @@ public class MySearch extends BasePage {
 	private transient Logger log = Logger.getLogger(MySearch.class);
 	private transient Search search;
 	private List<SearchResult> results = new ArrayList<SearchResult>();
+
 	
 	public MySearch() {
 		
@@ -169,7 +169,9 @@ public class MySearch extends BasePage {
 		
 		//search results
 		ListView resultsListView = new ListView("results-list", resultsModel) {
-		    protected void populateItem(ListItem item) {
+			private static final long serialVersionUID = 1L;
+
+			protected void populateItem(ListItem item) {
 		        
 		    	//get SearchResult object
 		    	//this contains info like if they are a friend and if their profile is visible etc
@@ -177,7 +179,7 @@ public class MySearch extends BasePage {
 		    	
 		    	//get userUuid
 		    	final String userUuid = searchResult.getUserUuid();
-		    	
+		    			    	
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
 		    	final byte[] photo;
@@ -191,6 +193,10 @@ public class MySearch extends BasePage {
 		    		photo = null;
 		    	}
 		    	
+		    	System.out.println("displayName: " + displayName);
+		    	System.out.println("photo hash: " + photo);
+
+		    	
 		    	//photo (if allowed or default)
 		    	if(photo != null && photo.length > 0){
 		    		
@@ -202,10 +208,13 @@ public class MySearch extends BasePage {
 						}
 					};
 				
-					item.add(new Image("result-photo",photoResource));
+					item.add(new NonCachingImage("result-photo",photoResource));
 				} else {
 					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
+		    	
+		    	
+		    	
 		    	
 		    	
 		    	//name and link to profile (if allowed or no link)
@@ -336,6 +345,7 @@ public class MySearch extends BasePage {
 		            }
 		        });
 				item.add(connectionWindow);
+				
 				
 		    }
 		};
