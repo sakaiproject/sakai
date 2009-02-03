@@ -1,7 +1,6 @@
 package uk.ac.lancs.e_science.profile2.tool;
 
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.WebApplication;
 
@@ -15,7 +14,7 @@ import uk.ac.lancs.e_science.profile2.tool.pages.errors.SessionExpiredPage;
 
 public class ProfileApplication extends WebApplication {    
     
-	private transient Logger log = Logger.getLogger(ProfileApplication.class);
+	//private transient Logger log = Logger.getLogger(ProfileApplication.class);
 	
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile;
@@ -23,16 +22,15 @@ public class ProfileApplication extends WebApplication {
 	
 	protected void init(){
 		
-		
-		//addComponentInstantiationListener(new SpringComponentInjector(this));
 		getResourceSettings().setThrowExceptionOnMissingResource(true);
-		//getDebugSettings().setAjaxDebugModeEnabled(log.isDebugEnabled());	
 		
 		/* if Session expires, show this error instead */
 		getApplicationSettings().setPageExpiredErrorPage(SessionExpiredPage.class);
 		
-		/* if internal error occurr, show this page */
+		/* if internal error occur, show this page */
 		getApplicationSettings().setInternalErrorPage(InternalErrorPage.class);
+		
+		//TODO on requestcycle.onruntimeexception you can redirect to your error page passing in the exception so we can make a more Sakai-like error page
 		
 		//super.init();
 		//if(logger.isDebugEnabled()) logger.debug("init()");
@@ -45,8 +43,6 @@ public class ProfileApplication extends WebApplication {
 		getMarkupSettings().setDefaultBeforeDisabledLink(null);
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 
-		
-		
 		
 	}
 	

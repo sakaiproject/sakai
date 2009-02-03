@@ -56,6 +56,7 @@ public class MyProfile extends BasePage {
 			}
 		} 
 		
+		
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
 	
@@ -101,6 +102,8 @@ public class MyProfile extends BasePage {
 		if(profileImageBytes != null && profileImageBytes.length > 0){
 		
 			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+				private static final long serialVersionUID = 1L;
+
 				protected byte[] getImageData() {
 					return profileImageBytes;
 				}
@@ -115,12 +118,13 @@ public class MyProfile extends BasePage {
 		//change picture panel
 		changePicture = new ChangeProfilePicture("changePicture", userProfile);
 		changePicture.setOutputMarkupPlaceholderTag(true);
-		final String changePictureMarkupId = changePicture.getMarkupId();
 		changePicture.setVisible(false);
 		add(changePicture);
 		
 		//change profile image button
 		AjaxFallbackLink changePictureLink = new AjaxFallbackLink("changePictureLink", new ResourceModel("link.change.profile.picture")) {
+			private static final long serialVersionUID = 1L;
+
 			public void onClick(AjaxRequestTarget target) {
 				
 				//add the full changePicture component to the page dynamically

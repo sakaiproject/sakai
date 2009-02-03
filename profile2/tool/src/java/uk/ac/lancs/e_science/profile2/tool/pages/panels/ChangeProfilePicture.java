@@ -26,7 +26,8 @@ import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
 
 public class ChangeProfilePicture extends Panel{
     
-    private FileUploadField uploadField;
+	private static final long serialVersionUID = 1L;
+	private FileUploadField uploadField;
     private transient SakaiProxy sakaiProxy;
     private transient Profile profile;
 	private transient Logger log = Logger.getLogger(ChangeProfilePicture.class);
@@ -42,6 +43,8 @@ public class ChangeProfilePicture extends Panel{
 		   
         //setup form	
 		Form form = new Form("form") {
+			private static final long serialVersionUID = 1L;
+
 			public void onSubmit(){
 				
 				//get userid and sakaiperson for this user

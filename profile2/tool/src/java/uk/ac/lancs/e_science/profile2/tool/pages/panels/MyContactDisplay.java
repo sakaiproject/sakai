@@ -15,6 +15,7 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyContactDisplay extends Panel {
 	
+	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyInfoDisplay.class);
 	
 	private String nickname = null;
