@@ -23,32 +23,41 @@ package org.sakaiproject.emailtemplateservice.model;
 
 public class RenderedTemplate extends EmailTemplate {
 
-   private String renderedSubject;
-   private String renderedMessage;
+	private String renderedSubject;
+	private String renderedMessage;
+	private String renderedHtmlMessage;
 
-   public RenderedTemplate(EmailTemplate template) {
-      this.setId(template.getId());
-      this.setSubject(template.getSubject());
-      this.setMessage(template.getMessage());
-      this.setKey(template.getKey());
-      this.setLocale(template.getLocale());
+	public RenderedTemplate(EmailTemplate template) {
+		this.setId(template.getId());
+		this.setSubject(template.getSubject());
+		this.setMessage(template.getMessage());
+		this.setKey(template.getKey());
+		this.setLocale(template.getLocale());
 
-   }
+	}
 
-   public String getRenderedMessage() {
-      return renderedMessage;
-   }
+	public String getRenderedMessage() {
+		return renderedMessage;
+	}
 
-   public void setRenderedMessage(String renderedMessage) {
-      this.renderedMessage = renderedMessage;
-   }
+	public void setRenderedMessage(String renderedMessage) {
+		this.renderedMessage = renderedMessage;
+	}
 
-   public String getRenderedSubject() {
-      return renderedSubject;
-   }
+	public String getRenderedSubject() {
+		return renderedSubject;
+	}
 
-   public void setRenderedSubject(String renderedSubject) {
-      this.renderedSubject = renderedSubject;
-   }
+	public void setRenderedSubject(String renderedSubject) {
+		this.renderedSubject = renderedSubject;
+	}
+
+	public String getRenderedHtmlMessage() {
+		return renderedHtmlMessage;
+	}
+
+	public void setRenderedHtmlMessage(String renderedHtmlMessage) {
+		this.renderedHtmlMessage = renderedHtmlMessage;
+	}
 
 }

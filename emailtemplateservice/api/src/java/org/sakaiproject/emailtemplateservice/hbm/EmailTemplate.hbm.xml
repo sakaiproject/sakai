@@ -24,6 +24,10 @@
         <property name="message" type="text">
             <column name="MESSAGE" not-null="true" />
         </property>
+        <!-- the email template message in html-->
+        <property name="htmlMessge" type="text">
+            <column name="HTMLMESSAGE" not-null="false" />
+        </property>
         <property name="key" type="java.lang.String" index="email_templ_key">
         	<column name="TEMPLATE_KEY" not-null="true" length="255"/>
         </property>

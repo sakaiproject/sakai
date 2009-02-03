@@ -122,7 +122,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
       ret.setRenderedSubject(this.processText(ret.getSubject(), replacementValues));
       ret.setRenderedMessage(this.processText(ret.getMessage(), replacementValues));
-
+      ret.setRenderedHtmlMessage(this.processText(ret.getHtmlMessge(), replacementValues));
       return ret;
    }
 
