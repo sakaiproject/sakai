@@ -21,7 +21,7 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>sakai.request</filter-name>
-		<servlet-name>sakai.profile2.tool</servlet-name>
+		<servlet-name>sakai.profile2</servlet-name>
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
@@ -29,7 +29,7 @@
 	
 	<!-- 
 	<filter>
-		<filter-name>sakai.profile2.tool</filter-name>
+		<filter-name>sakai.profile2</filter-name>
  		<filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
 		<init-param>
 			<param-name>applicationClassName</param-name>
@@ -40,15 +40,15 @@
 
 	<!-- 
  	<filter-mapping>
-  		<filter-name>sakai.profile2.tool</filter-name>
-		<url-pattern>/sakai-profile2-tool/*</url-pattern>
+  		<filter-name>sakai.profile2</filter-name>
+		<url-pattern>/sakai-profile2/*</url-pattern>
  	</filter-mapping>
  	-->
  	
  	<!-- Change the 'applicationBean' param value to the name of your application as
   		listed under the applicationContext.xml -->
   	<servlet>
-	    <servlet-name>sakai.profile2.tool</servlet-name>
+	    <servlet-name>sakai.profile2</servlet-name>
 	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
 	    
 	    <init-param>
@@ -63,8 +63,8 @@
  	
  	<!-- Wicket likes to have a url-pattern mapping even though Sakai doesn't use it. -->
 	<servlet-mapping>
-		<servlet-name>sakai.profile2.tool</servlet-name>
-		<url-pattern>/sakai-profile2-tool/*</url-pattern>		
+		<servlet-name>sakai.profile2</servlet-name>
+		<url-pattern>/sakai-profile2/*</url-pattern>		
 	</servlet-mapping>
  	
 	<context-param>
