@@ -193,10 +193,6 @@ public class MySearch extends BasePage {
 		    		photo = null;
 		    	}
 		    	
-		    	System.out.println("displayName: " + displayName);
-		    	System.out.println("photo hash: " + photo);
-
-		    	
 		    	//photo (if allowed or default)
 		    	if(photo != null && photo.length > 0){
 		    		
@@ -208,6 +204,7 @@ public class MySearch extends BasePage {
 						}
 					};
 				
+					//so it always refreshes between searches
 					item.add(new NonCachingImage("result-photo",photoResource));
 				} else {
 					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
