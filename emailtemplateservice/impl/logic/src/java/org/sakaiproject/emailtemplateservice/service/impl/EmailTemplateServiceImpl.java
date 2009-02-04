@@ -77,12 +77,26 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
 
    public EmailTemplate getEmailTemplateById(Long id) {
-      if (id == null) {
-         throw new IllegalArgumentException("id cannot be null or empty");
-      }
-      EmailTemplate et = dao.findById(EmailTemplate.class, id);
-      return et;
+	   if (id == null) {
+		   throw new IllegalArgumentException("id cannot be null or empty");
+	   }
+	   EmailTemplate et = dao.findById(EmailTemplate.class, id);
+	   return et;
    }
+
+   private EmailService emailService;
+
+   public void setEmailService(EmailService emailService) {
+	   this.emailService = emailService;
+   }
+
+   private UserDirectoryService userDirectoryService;
+   public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+	   this.userDirectoryService = userDirectoryService;
+   }
+
+
+   
 
    public EmailTemplate getEmailTemplate(String key, Locale locale) {
       if (key == null || "".equals(key)) {
@@ -129,7 +143,9 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
       ret.setRenderedSubject(this.processText(ret.getSubject(), replacementValues));
       ret.setRenderedMessage(this.processText(ret.getMessage(), replacementValues));
-      ret.setRenderedHtmlMessage(this.processText(ret.getHtmlMessage(), replacementValues));
+      //HTML component might be null
+      if (ret.getHtmlMessage() != null)
+    	  ret.setRenderedHtmlMessage(this.processText(ret.getHtmlMessage(), replacementValues));
       return ret;
    }
 
@@ -260,8 +276,7 @@ private final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======
 private final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";
 private final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
 private final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
-private EmailService emailService;
-private UserDirectoryService userDirectoryService;
+
 
 public void sendRenderedMessages(String key, List<String> userReferences,
 		Map<String, String> replacementValues, String fromEmail, String fromName) {
@@ -280,25 +295,29 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				
 				StringBuilder message = new StringBuilder();
 				message.append(MIME_ADVISORY);
+				if (rt.getRenderedMessage() != null) {
+					message.append(BOUNDARY_LINE);
+					message.append("Content-Type: text/plain ; charset=iso-8859-1\n");
+					message.append(rt.getRenderedMessage());
+				}
 				if (rt.getRenderedHtmlMessage() != null) {
 					//append the HML part
 					message.append(BOUNDARY_LINE);
-					message.append("Content-Type: text/html\n\n");
+					message.append("Content-Type: text/html ; charset=iso-8859-1\n");
 					message.append(rt.getRenderedHtmlMessage());
 				}
-				if (rt.getRenderedMessage() != null) {
-					message.append(BOUNDARY_LINE);
-					message.append("Content-Type: text/plain\n\n");
-					message.append(rt.getRenderedMessage());
-				}
+			
 				message.append(TERMINATION_LINE);
 				
 				//we need to manualy contruct the hraders
 				List<String> headers = new ArrayList<String>();
 				headers.add("From: \"" + fromName + "\"<" + fromEmail + ">" );
 				headers.add("Subject: " + rt.getSubject());
-				
-				emailService.sendToUsers(toAddress, headers, message.toString());
+				headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
+				headers.add("Mime-Version: 1.0");
+				String body = message.toString();
+				log.info("message body " + body);
+				emailService.sendToUsers(toAddress, headers, body);
 				
 	}
 				

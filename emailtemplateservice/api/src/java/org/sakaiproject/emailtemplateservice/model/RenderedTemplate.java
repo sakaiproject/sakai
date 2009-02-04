@@ -33,6 +33,7 @@ public class RenderedTemplate extends EmailTemplate {
 		this.setMessage(template.getMessage());
 		this.setKey(template.getKey());
 		this.setLocale(template.getLocale());
+		this.setHtmlMessage(template.getHtmlMessage());
 
 	}
 
