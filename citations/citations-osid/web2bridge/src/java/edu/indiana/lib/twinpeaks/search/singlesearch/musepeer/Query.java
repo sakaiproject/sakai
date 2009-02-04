@@ -303,9 +303,7 @@ public class Query extends HttpTransactionQueryBase
      * Start an asynchronous query (no results are returned) to set things up
      * for a subsequent PROGRESS (status) command
      */
-		setParameter("start", "1");
-   	setParameter("firstRetrievedRecord", "1");
-		setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
+    setParameter("limitsMaxPerSource", getPageSize());
 		setParameter("limitsMaxPerPage",   "0");
     /*
      * Formatting
@@ -355,12 +353,14 @@ public class Query extends HttpTransactionQueryBase
     /*
      * Record, page, host requirements
      */
-    _log.debug("PAGE: " + page + " page, first record: " + start + ", page size: " + pageSize);
+    _log.debug("PAGE: start = " + start
+                +     ", first = " + start
+                +     ", total = " + total
+                +     ", pageSize = " + pageSize);
 
 		setParameter("start", start);
 		setParameter("firstRetrievedRecord", start);
-		setParameter("totalRecords", total);
-		setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
+  	setParameter("limitsMaxPerSource", String.valueOf(pageSize));
 		setParameter("limitsMaxPerPage", String.valueOf(pageSize));
     /*
      * Formatting
@@ -373,11 +373,12 @@ public class Query extends HttpTransactionQueryBase
 	 * @param firstRecord First record to retrieve
 	 * @param pageSize The number of results we want
 	 */
-	private void doMoreCommand(int firstRecord, int pageSize)
+	private void doMoreCommand(int firstRecord, int pageSize, int totalRemaining)
 	{
     String    start = Integer.toString(firstRecord);
+    String    first = Integer.toString(firstRecord - Math.min(pageSize, totalRemaining)); // pageSize);
     String    total = Integer.toString(firstRecord - 1);
-    String    first = Integer.toString(firstRecord - pageSize);
+    String    limit = Integer.toString(Math.min(pageSize, totalRemaining));
 
 		_log.debug("MORE: using result set name \"" + getResultSetName() + "\"");
 		_log.debug("MORE: queryStatement = " + getSearchString());
@@ -401,13 +402,17 @@ public class Query extends HttpTransactionQueryBase
     /*
      * Record, page, host requirements
      */
-    _log.debug("MORE: start = " + start +  ", total = " + total);
+    _log.debug("MORE: start = " + start
+                +     ", first = " + first
+                +     ", total = " + total
+                +     ", pageSize = " + pageSize
+                +     ", remaining = " + totalRemaining
+                +     ", page limit = " + limit);
 
 		setParameter("start", start);
     setParameter("firstRetrievedRecord", first);
-  	setParameter("totalRecords", total);
-    setParameter("limitsMaxPerSource", RECORDS_PER_TARGET);
-  	setParameter("limitsMaxPerPage", String.valueOf(pageSize));
+    setParameter("limitsMaxPerSource", limit);
+  	setParameter("limitsMaxPerPage", limit);
     /*
      * Formatting
      */
@@ -419,17 +424,17 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	private void doResultsCommand() throws SearchException
 	{
-    int pageSize  = Integer.parseInt(getPageSize());
- 		int start     = getSessionContext().getInt("startRecord");
+ 		int start           = getSessionContext().getInt("startRecord");
+    int pageSize        = Integer.parseInt(getPageSize());
+    int totalRemaining  = StatusUtils.getAllRemainingHits(getSessionContext());
+
+
+    _log.debug(pageSize + " VS " + totalRemaining);
     /*
      * The first page of results?
      */
     if (start == 1)
     {
-      int totalRemaining = StatusUtils.getAllRemainingHits(getSessionContext());
-
-      _log.debug(pageSize + " VS " + totalRemaining);
-
       /*
        * Reduce requested page size to match the remaining result count and
        * fetch the results ...
@@ -445,7 +450,7 @@ public class Query extends HttpTransactionQueryBase
      * The normal case, use MORE to pick up the results
      */
 	  clearParameters();
-	  doMoreCommand(start, pageSize);
+	  doMoreCommand(start, pageSize, totalRemaining);
 
     submit();
     validateResponse("MORE");
@@ -716,12 +721,14 @@ public class Query extends HttpTransactionQueryBase
          * To try and exit the "check status" loop earlier, we consider this
          * target complete if we've already found enough result records ...
          */
+/*
         _log.debug("**** " + target + ": " + total + " vs " + pageSize);
         if (total >= pageSize)
         {
           status = "100";
           _log.debug("**** "  + target + " complete");
         }
+*/
 			}
       /*
        * Is this search complete?
@@ -768,6 +775,8 @@ public class Query extends HttpTransactionQueryBase
 
   private String getPageSize()
   {
+    return "30";
+/*******************************************************************************
     int targets   = StatusUtils.getActiveTargetCount(getSessionContext());
     int pageSize  = targets * MINIMUM_PAGESIZE;
 
@@ -776,6 +785,7 @@ public class Query extends HttpTransactionQueryBase
       pageSize = MINIMUM_PAGESIZE;
     }
     return String.valueOf(pageSize);
+*******************************************************************************/
   }
 
 	/**
