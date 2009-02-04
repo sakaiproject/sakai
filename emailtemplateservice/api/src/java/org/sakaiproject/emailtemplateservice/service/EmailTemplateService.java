@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
+import org.sakaiproject.emailtemplateservice.model.EmailTemplateLocaleUsers;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 
 public interface EmailTemplateService {
@@ -102,4 +103,21 @@ public interface EmailTemplateService {
     */
    public EmailTemplate getEmailTemplateById(Long id);
 
+   /**
+    * Utility method for getting templates for many users messages to many users
+    * @param templateId
+    * @param user references e.g. "/user/admin"
+    * @return
+    */
+   public Map<EmailTemplateLocaleUsers, RenderedTemplate> getRenderedTemplates(String key, List<String> userReferences, Map<String, String> replacementValues); 
+   
+   
+   /**
+    * Utility method that will construct the Mesages and send them
+    * @param key template key
+    * @param userReferences list of user references (e.g /user/admin)
+    * @param replacementValues
+    */
+   public void sendRenderedMessages(String key, List<String> userReferences, Map<String, String> replacementValues, String from, String fromName);
+   
 }

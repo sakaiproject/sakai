@@ -21,17 +21,23 @@
 
 package org.sakaiproject.emailtemplateservice.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
+import org.sakaiproject.emailtemplateservice.model.EmailTemplateLocaleUsers;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.util.TextTemplateLogicUtils;
@@ -43,6 +49,7 @@ import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 public class EmailTemplateServiceImpl implements EmailTemplateService {
 
@@ -122,7 +129,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
       ret.setRenderedSubject(this.processText(ret.getSubject(), replacementValues));
       ret.setRenderedMessage(this.processText(ret.getMessage(), replacementValues));
-      ret.setRenderedHtmlMessage(this.processText(ret.getHtmlMessge(), replacementValues));
+      ret.setRenderedHtmlMessage(this.processText(ret.getHtmlMessage(), replacementValues));
       return ret;
    }
 
@@ -207,5 +214,110 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
       }
       return rv;
    }
+
+
+public Map<EmailTemplateLocaleUsers, RenderedTemplate> getRenderedTemplates(
+		String key, List<String> userReferences, Map<String, String> replacementValues) {
+	
+	List<Locale> foundLocales = new ArrayList<Locale>();
+	Map<Locale, EmailTemplateLocaleUsers> mapStore = new HashMap<Locale, EmailTemplateLocaleUsers>();
+	
+	for (int i = 0; i < userReferences.size(); i++) {
+		String userReference = userReferences.get(i);
+		String userId = developerHelperService.getUserIdFromRef(userReference);
+        Locale loc = getUserLocale(userId);
+        //have we found this locale?
+        if (! foundLocales.contains(loc)) {
+        	//create a new EmailTemplateLocalUser
+        	EmailTemplateLocaleUsers etlu = new EmailTemplateLocaleUsers();
+        	etlu.setLocale(loc);
+        	etlu.addUser(userReference);
+        	mapStore.put(loc, etlu);
+        } else {
+        	EmailTemplateLocaleUsers etlu = mapStore.get(loc);
+        	etlu.setLocale(loc);
+        	etlu.addUser(userReference);
+        	mapStore.put(loc, etlu);
+        }
+	}
+	
+	Map<EmailTemplateLocaleUsers, RenderedTemplate> ret = new HashMap<EmailTemplateLocaleUsers, RenderedTemplate>();
+	
+	//now for each locale we need a rendered template
+	Set<Entry<Locale, EmailTemplateLocaleUsers>> es = mapStore.entrySet();
+	Iterator<Entry<Locale, EmailTemplateLocaleUsers>> it = es.iterator();
+	while (it.hasNext()) {
+		Entry<Locale, EmailTemplateLocaleUsers> entry = it.next();
+		Locale loc = entry.getKey();
+		RenderedTemplate rt = this.getRenderedTemplate(key, loc, replacementValues);
+		ret.put(entry.getValue(), rt);
+		
+	}
+	return ret;
+}
+
+private final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
+private final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";
+private final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
+private final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
+private EmailService emailService;
+private UserDirectoryService userDirectoryService;
+
+public void sendRenderedMessages(String key, List<String> userReferences,
+		Map<String, String> replacementValues, String fromEmail, String fromName) {
+
+	Map<EmailTemplateLocaleUsers, RenderedTemplate> tMap = this.getRenderedTemplates(key, userReferences, replacementValues);
+	Set<Entry<EmailTemplateLocaleUsers, RenderedTemplate>> set = tMap.entrySet();
+	Iterator<Entry<EmailTemplateLocaleUsers, RenderedTemplate>> it = set.iterator();
+	
+	while (it.hasNext()) {
+	
+			
+				Entry<EmailTemplateLocaleUsers, RenderedTemplate> entry = it.next();
+				RenderedTemplate rt = entry.getValue();
+				EmailTemplateLocaleUsers etlu = entry.getKey();
+				List<User> toAddress = getUsersEmail(etlu.getUserIds());
+				
+				StringBuilder message = new StringBuilder();
+				message.append(MIME_ADVISORY);
+				if (rt.getRenderedHtmlMessage() != null) {
+					//append the HML part
+					message.append(BOUNDARY_LINE);
+					message.append("Content-Type: text/html\n\n");
+					message.append(rt.getRenderedHtmlMessage());
+				}
+				if (rt.getRenderedMessage() != null) {
+					message.append(BOUNDARY_LINE);
+					message.append("Content-Type: text/plain\n\n");
+					message.append(rt.getRenderedMessage());
+				}
+				message.append(TERMINATION_LINE);
+				
+				//we need to manualy contruct the hraders
+				List<String> headers = new ArrayList<String>();
+				headers.add("From: \"" + fromName + "\"<" + fromEmail + ">" );
+				headers.add("Subject: " + rt.getSubject());
+				
+				emailService.sendToUsers(toAddress, headers, message.toString());
+				
+	}
+				
+	
+	
+	
+}
+
+
+private List<User> getUsersEmail(List<String> userIds) {
+	//we have a group of referenc
+	List<String> ids = new ArrayList<String>(); 
+	
+	for (int i = 0; i < userIds.size(); i++) {
+		String userReference = userIds.get(i);
+		String userId = developerHelperService.getUserIdFromRef(userReference);
+		ids.add(userId);
+	}
+	return userDirectoryService.getUsers(ids);
+}
 
 }

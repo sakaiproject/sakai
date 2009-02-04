@@ -45,7 +45,7 @@ public class EmailTemplate implements java.io.Serializable {
 
    private String message;
 
-   private String htmlMessge;
+   private String htmlMessage;
    
 
 
@@ -145,12 +145,12 @@ private String defaultType;
    }
 
 
-   public String getHtmlMessge() {
-	   return htmlMessge;
+   public String getHtmlMessage() {
+	   return htmlMessage;
    }
 
-   public void setHtmlMessge(String htmlMessge) {
-	   this.htmlMessge = htmlMessge;
+   public void setHtmlMessage(String htmlMessge) {
+	   this.htmlMessage = htmlMessge;
    }
 
 }
