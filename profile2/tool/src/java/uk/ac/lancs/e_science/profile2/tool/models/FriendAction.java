@@ -2,12 +2,14 @@ package uk.ac.lancs.e_science.profile2.tool.models;
 
 import java.io.Serializable;
 
-/* FriendAction.java
- * 
- * This is a model to store the actions like adding friends/removing friends etc.
+/**
+ * Simple model to back the action behind adding/removeing/confirming/ignoring friend requests
  * Given to the modal windows, they then set the attributes and the calling page knows what to do based on these attributes.
+ 
+ * To be used ONLY by the tool.
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
-
 
 public class FriendAction implements Serializable {
 
@@ -43,7 +45,8 @@ public class FriendAction implements Serializable {
 	public boolean isIgnored() {
 		return ignored;
 	}
-	/*
+	
+	/**
 	 * Default constructor
 	 */
 	public FriendAction() {

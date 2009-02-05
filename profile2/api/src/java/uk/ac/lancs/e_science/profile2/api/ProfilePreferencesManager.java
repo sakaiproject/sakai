@@ -13,6 +13,6 @@ public class ProfilePreferencesManager {
 
 	//these values are used when creating a default privacy record for a user
 	public static final int DEFAULT_EMAIL_SETTING = EMAIL_OPTION_ALL;
-	
+	public static final boolean DEFAULT_TWITTER_SETTING = false;
 	
 }

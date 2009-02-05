@@ -414,6 +414,12 @@ h2 {
     font-weight: bold;
 }
 
+.formSectionHeading {
+	font-weight: bold;
+	padding-left: 0;
+	margin-top: 12px;
+}
+
 
 /* Style for wicket's feedback message panel */
 .alertMessage ul {

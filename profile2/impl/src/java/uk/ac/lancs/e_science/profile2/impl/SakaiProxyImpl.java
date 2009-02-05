@@ -30,10 +30,17 @@ import org.sakaiproject.util.FormattedText;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 
-
+/**
+ * This is the Implementation of the helper API used by the Profile2 tool only. 
+ * 
+ * DO NOT USE THIS YOURSELF
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
 public class SakaiProxyImpl implements SakaiProxy {
 
-	private transient Logger log = Logger.getLogger(SakaiProxyImpl.class);
+	private transient final Logger log = Logger.getLogger(SakaiProxyImpl.class);
     	
 	public String getCurrentSiteId(){
 		return toolManager.getCurrentPlacement().getContext();

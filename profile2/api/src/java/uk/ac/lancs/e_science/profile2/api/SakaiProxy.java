@@ -4,7 +4,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-
+/**
+ * This is a helper API used by the Profile2 tool only. 
+ * 
+ * DO NOT IMPLEMENT THIS YOURSELF
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
 public interface SakaiProxy {
 	
 	public static final int FIRST_RECORD = 0;		

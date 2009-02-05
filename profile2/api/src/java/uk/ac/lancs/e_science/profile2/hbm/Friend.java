@@ -3,7 +3,7 @@ package uk.ac.lancs.e_science.profile2.hbm;
 import java.io.Serializable;
 import java.util.Date;
 
-/*
+/**
  * Friend.java
  * 
  * This is a model for storing information about a friend of a user. 

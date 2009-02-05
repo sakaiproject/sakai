@@ -25,7 +25,6 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
-import uk.ac.lancs.e_science.profile2.tool.pages.MySearch;
 import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
 

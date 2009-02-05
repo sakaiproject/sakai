@@ -27,9 +27,13 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileFriendsManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
@@ -72,6 +76,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail";
 	private static final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest";
 	private static final String QUERY_LIST_ALL_SAKAI_PERSONS = "listAllSakaiPersons";
+	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord";
 	
 	//Hibernate object fields
 	private static final String USER_UUID = "userUuid";
@@ -723,7 +728,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public ProfilePrivacy getPrivacyRecordForUser(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile..getPrivacyRecordForUser");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getPrivacyRecordForUser");
 	  	}
 		
 		HibernateCallback hcb = new HibernateCallback() {
@@ -749,7 +754,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			log.info("Updated privacy record for user: " + profilePrivacy.getUserUuid());
 			return true;
 		} catch (Exception e) {
-			log.error("Profile..savePrivacyRecordForUser() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.savePrivacyRecordForUser() failed. " + e.getClass() + ": " + e.getMessage());
 			return false;
 		}
 		
@@ -880,7 +885,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsOfUserXVisibleByUserY(final String userX, final String userY)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsOfUserXVisibleByUserY(String userX, String userY)
 	 */
 	public List<String> getFriendsOfUserXVisibleByUserY(final String userX, final String userY) {
 		
@@ -1273,28 +1278,112 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPreferencesRecord(final String userId)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPreferencesRecord(String userId)
 	 */
 	public ProfilePreferences createDefaultPreferencesRecord(final String userId) {
-		return null;
+		
+		//see ProfilePreferences for this constructor and what it all means
+		ProfilePreferences profilePreferences = new ProfilePreferences(
+				userId,
+				ProfilePreferencesManager.DEFAULT_EMAIL_SETTING,
+				ProfilePreferencesManager.DEFAULT_TWITTER_SETTING);
+		
+		//save
+		try {
+			getHibernateTemplate().save(profilePreferences);
+			log.info("Created default preferences record for user: " + userId);
+			return profilePreferences;
+		} catch (Exception e) {
+			log.error("Profile.createDefaultPreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage());
+			return null;
+		}
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getPreferencesRecordForUser(final String userId)
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getPreferencesRecordForUser(String userId)
 	 */
 	public ProfilePreferences getPreferencesRecordForUser(final String userId) {
-		return  null;
+		
+		if(userId == null){
+	  		throw new IllegalArgumentException("Null Argument in Profile.getPreferencesRecordForUser");
+	  	}
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_PREFERENCES_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfilePreferences) getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
 	 * @see uk.ac.lancs.e_science.profile2.api.Profile#savePreferencesRecord(ProfilePreferences profilePreferences)
 	 */
 	public boolean savePreferencesRecord(ProfilePreferences profilePreferences) {
-		return false;
+		try {
+			getHibernateTemplate().update(profilePreferences);
+			log.info("Updated preferences record for user: " + profilePreferences.getUserUuid());
+			return true;
+		} catch (Exception e) {
+			log.error("Profile.savePreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
 	}
 	
 	
 	
+	/**
+	 * Check if twitter integration is enabled for a user
+	 *
+	 * @param userId	uuid of the user
+	 */
+	public boolean isTwitterIntegrationEnabled(final String userId) {
+		
+		ProfilePreferences profilePreferences = getPreferencesRecordForUser(userId);
+		if(profilePreferences == null) {
+			return false;
+		}
+		
+		if(profilePreferences.isTwitterEnabled()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Send a message to twitter
+	 *
+	 * @param userId	uuid of the user
+	 * @param message	the message
+	 */
+	public void sendMessageToTwitter(final String userId, final String message) {
+		
+		ProfilePreferences profilePreferences = getPreferencesRecordForUser(userId);
+		
+		if(profilePreferences == null) {
+			return;
+		}
+		
+		String username = profilePreferences.getTwitterUsername();
+		String password = profilePreferences.getTwitterPassword();
+		
+		//FIXME do this is a separate thread?
+		
+		Twitter twitter = new Twitter(username, password);
+
+		try {
+			twitter.update("Updating Twitter from my own Java code!");
+			log.info("Twitter status updated for: " + userId);
+		} catch (TwitterException e) {
+			e.printStackTrace();
+		}
+
+	}
 	
 	
 	

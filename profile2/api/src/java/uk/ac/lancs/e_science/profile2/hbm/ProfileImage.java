@@ -12,13 +12,13 @@ public class ProfileImage implements Serializable {
 	private String thumbnailResource;
 	private boolean current;
 	
-	/* 
+	/**
 	 * Empty constructor
 	 */
 	public ProfileImage() {
 	}
 
-	/* 
+	/** 
 	 * Constructor to create a ProfileImage record in one go
 	 */
 	public ProfileImage(String userUuid, String mainResource, String thumbnailResource, boolean current) {

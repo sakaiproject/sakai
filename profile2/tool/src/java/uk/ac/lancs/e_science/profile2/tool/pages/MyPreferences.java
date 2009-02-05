@@ -9,11 +9,14 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -23,6 +26,10 @@ import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePreferencesNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
+import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehaviour;
+import uk.ac.lancs.e_science.profile2.tool.components.EnablingCheckBox;
+import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
 
@@ -30,9 +37,8 @@ import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
 public class MyPreferences extends BasePage {
 
 	private transient Logger log = Logger.getLogger(MyPreferences.class);
-
 	private transient ProfilePreferences profilePreferences;
-		
+
 	public MyPreferences() {
 		
 		//get current user
@@ -62,14 +68,12 @@ public class MyPreferences extends BasePage {
 		add(formFeedback);
 		
 		
-		
 		//create model
 		CompoundPropertyModel preferencesModel = new CompoundPropertyModel(profilePreferences);
 		
 		//setup form		
 		Form form = new Form("form", preferencesModel);
 		form.setOutputMarkupId(true);
-		
 		
 		//setup LinkedHashMap of email options
 		final LinkedHashMap<String, String> emailSettings = new LinkedHashMap<String, String>();
@@ -87,12 +91,14 @@ public class MyPreferences extends BasePage {
 		};
 	
 		//email settings
+		form.add(new Label("emailSectionHeading", new ResourceModel("heading.section.email")));
+		//tooltip
+		form.add(new IconWithClueTip("emailToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.preferences.email.tooltip")));
+		
 		WebMarkupContainer emailContainer = new WebMarkupContainer("emailContainer");
 		emailContainer.add(new Label("emailLabel", new ResourceModel("preferences.email")));
-		DropDownChoice emailChoice = new DropDownChoice("profile", emailSettingsModel, new HashMapChoiceRenderer(emailSettings));             
+		DropDownChoice emailChoice = new DropDownChoice("email", emailSettingsModel, new HashMapChoiceRenderer(emailSettings));             
 		emailContainer.add(emailChoice);
-		//tooltip
-		emailContainer.add(new IconWithClueTip("profileToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.preferences.email.tooltip")));
 		form.add(emailContainer);
 		//updater
 		emailChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -102,44 +108,139 @@ public class MyPreferences extends BasePage {
         });
 		
 		//twitter settings
-		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
-		twitterContainer.add(new Label("twitterLabel", new ResourceModel("preferences.twitter")));
-		TextField twitterUsername = new TextField("twitterUsername", new PropertyModel(preferencesModel, "twitterUsername"));        
-		TextField twitterPassword = new TextField("twitterPassword", new PropertyModel(preferencesModel, "twitterPassword"));        
-		emailContainer.add(twitterUsername);
-		emailContainer.add(twitterPassword);
+		form.add(new Label("twitterSectionHeading", new ResourceModel("heading.section.twitter")));
 		//tooltip
-		twitterContainer.add(new IconWithClueTip("twitterToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.preferences.twitter.tooltip")));
-		form.add(twitterContainer);
+		form.add(new IconWithClueTip("twitterToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.preferences.twitter.tooltip")));
+		
+		//username
+		WebMarkupContainer twitterUsernameContainer = new WebMarkupContainer("twitterUsernameContainer");
+		twitterUsernameContainer.add(new Label("twitterUsernameLabel", new ResourceModel("twitter.username")));
+		final TextField twitterUsername = new TextField("twitterUsername", new PropertyModel(preferencesModel, "twitterUsername"));        
+		twitterUsername.setOutputMarkupId(true);
+		twitterUsername.setRequired(false);
+		twitterUsernameContainer.add(twitterUsername);
+			
 		//updater
 		twitterUsername.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
+		form.add(twitterUsernameContainer);
+
+		
+		//password
+		WebMarkupContainer twitterPasswordContainer = new WebMarkupContainer("twitterPasswordContainer");
+		twitterPasswordContainer.add(new Label("twitterPasswordLabel", new ResourceModel("twitter.password")));
+		final PasswordTextField twitterPassword = new PasswordTextField("twitterPassword", new PropertyModel(preferencesModel, "twitterPassword"));        
+		twitterPassword.setOutputMarkupId(true);
+		twitterPassword.setRequired(false);
+		twitterPassword.setResetPassword(false);
+		twitterPasswordContainer.add(twitterPassword);
+		
+		//updater
 		twitterPassword.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
+		form.add(twitterPasswordContainer);
+
 		
+		//checkbox (needs to update above components)
+		WebMarkupContainer twitterEnabledContainer = new WebMarkupContainer("twitterEnabledContainer");
+		twitterEnabledContainer.add(new Label("twitterEnabledLabel", new ResourceModel("twitter.enabled")));
+		final EnablingCheckBox twitterEnabled = new EnablingCheckBox("twitterEnabled", new PropertyModel(preferencesModel, "twitterEnabled")) {
+			protected void onUpdate(AjaxRequestTarget target) { 
+				if(isChecked()) {
+					//enable fields
+					twitterUsername.setEnabled(true);
+					twitterPassword.setEnabled(true);
+					
+					//make them required
+					twitterUsername.setRequired(true);
+					twitterPassword.setRequired(true);
+					
+				} else {
+					//disable fields
+					twitterUsername.setEnabled(false);
+					twitterPassword.setEnabled(false);
+					
+					//make them not required
+					twitterUsername.setRequired(false);
+					twitterPassword.setRequired(false);
+				}
+				
+				//repaint
+				target.addComponent(twitterUsername);
+				target.addComponent(twitterPassword);
+			}
+		};
+		twitterEnabledContainer.add(twitterEnabled);
+		form.add(twitterEnabledContainer);
+		//updater
+		twitterEnabled.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
 		
+		// set initial required/enabled states on the twitter fields
+		if(profilePreferences.isTwitterEnabled()) {
+			twitterUsername.setEnabled(true);
+			twitterPassword.setEnabled(true);
+			twitterUsername.setRequired(true);
+			twitterPassword.setRequired(true);
+		} else {
+			twitterUsername.setEnabled(false);
+			twitterPassword.setEnabled(false);
+			twitterUsername.setRequired(false);
+			twitterPassword.setRequired(false);
+		}
 		
 		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.settings"), form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				//save() form, show feedback. perhaps redirect back to main page after a short while?
-				if(save(form)){
-					formFeedback.setModel(new ResourceModel("success.privacy.save.ok"));
+				
+				//get the backing model
+				ProfilePreferences profilePreferences = (ProfilePreferences) form.getModelObject();
+
+				//special case. if twitterEnabled is disabled, make sure the fields are cleared
+				//else validate ourselves
+				if(!profilePreferences.isTwitterEnabled()) {
+					profilePreferences.setTwitterUsername(null);
+					profilePreferences.setTwitterPassword(null);
+				} 
+				
+				if(profilePreferences.isTwitterEnabled()) {
+					twitterUsername.validate();
+					twitterPassword.validate();
+					if(!twitterUsername.isValid() || !twitterPassword.isValid()) {
+						formFeedback.setModel(new ResourceModel("error.twitter.details.required"));
+						formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
+						target.addComponent(formFeedback);
+						return;
+					}
+				}
+						
+				
+				if(profile.savePreferencesRecord(profilePreferences)) {
+					log.info("Saved ProfilePreferences for: " + profilePreferences.getUserUuid());
+					formFeedback.setModel(new ResourceModel("success.preferences.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 				} else {
-					formFeedback.setModel(new ResourceModel("error.privacy.save.failed"));
+					log.info("Couldn't save ProfilePreferences for: " + profilePreferences.getUserUuid());
+					formFeedback.setModel(new ResourceModel("error.preferences.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
-				}
+				}	
+				
 				target.addComponent(formFeedback);
             }
+			
+			
 		};
+		submitButton.setDefaultFormProcessing(false);
 		form.add(submitButton);
 		
         
@@ -160,26 +261,6 @@ public class MyPreferences extends BasePage {
  
         
 		
-	}
-	
-	
-	//called when the form is to be saved
-	private boolean save(Form form) {
-		
-		//get the backing model - its elems have been updated with the form params
-		ProfilePreferences profilePreferences = (ProfilePreferences) form.getModelObject();
-
-		/*
-		if(profile.savePrivacyRecord(profilePrivacy)) {
-			log.info("Saved ProfilePrivacy for: " + profilePrivacy.getUserUuid());
-			return true;
-		} else {
-			log.info("Couldn't save ProfilePrivacy for: " + profilePrivacy.getUserUuid());
-			return false;
-		}
-		*/
-		return true;
-	
 	}
 	
 }

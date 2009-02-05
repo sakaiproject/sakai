@@ -2,7 +2,7 @@ package uk.ac.lancs.e_science.profile2.hbm;
 
 import java.io.Serializable;
 
-/*
+/**
  * SearchResult.java
  * 
  * This is a model for storing information returned from a search about a user
@@ -16,7 +16,7 @@ import java.io.Serializable;
  * But, when this data is being consumed, we also need the information about their friend status, privacy settings etc,
  * so this wraps that up so its already available.
  * 
- * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
 
 

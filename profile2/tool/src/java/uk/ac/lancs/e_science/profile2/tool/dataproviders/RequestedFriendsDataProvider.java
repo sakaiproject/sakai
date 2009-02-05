@@ -13,7 +13,7 @@ import org.apache.wicket.model.Model;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 
-/*
+/**
  * RequestedFriendsDataProvider.java
  * Steve Swinsburg
  * s.swinsburg@lancaster.ac.uk

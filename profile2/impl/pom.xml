@@ -54,6 +54,13 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
+		
+		<!--  twitter4j dependency -->
+		<dependency>
+			<groupId>net.homeip.yusuke</groupId>
+			<artifactId>twitter4j</artifactId>
+			<version>${twitter4j.version}</version>
+		</dependency>
 
 		<!--  Sakai dependencies -->
 		<dependency>
@@ -154,6 +161,7 @@
       		<scope>provided</scope>
     	</dependency> 
 		
+  	
   	
   	</dependencies>
 

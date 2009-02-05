@@ -14,13 +14,13 @@ public class ProfileStatus implements Serializable {
 	private Date dateAdded;
 	//private int cleared; //maybe to hold value if the status has been cleared
 	
-	/*
+	/**
 	 * Empty constructor
 	 */
 	public ProfileStatus(){
 	}
 	
-	/* 
+	/** 
 	 * Constructor to create a status object in one go
 	 */
 	public ProfileStatus(String userUuid, String message, Date dateAdded){

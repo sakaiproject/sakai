@@ -10,7 +10,7 @@ import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 
 /**
- * This is the API to be used by the Profile2 tool. 
+ * This is the internal API to be used by the Profile2 tool. 
  * 
  * DO NOT IMPLEMENT THIS YOURSELF, use the ProfileManager instead (todo)
  * 
@@ -467,5 +467,20 @@ public interface Profile {
 	 * @param profilePreferences	the record for the user
 	 */
 	public boolean savePreferencesRecord(ProfilePreferences profilePreferences);
+	
+	/**
+	 * Check if twitter integration is enabled for a user
+	 *
+	 * @param userId	uuid of the user
+	 */
+	public boolean isTwitterIntegrationEnabled(final String userId);
+	
+	/**
+	 * Send a message to twitter
+	 *
+	 * @param userId	uuid of the user
+	 * @param message	the message
+	 */
+	public void sendMessageToTwitter(final String userId, final String message);
 	
 }

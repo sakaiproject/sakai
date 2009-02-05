@@ -40,8 +40,8 @@
 	</bean>	
 	
 	<!-- Add Spring Bean definition for the ProfileEntityProvider -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider"
-			class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl">
+	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileInfoEntityProvider"
+			class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileInfoEntityProviderImpl">
 	</bean>
 
 
@@ -56,6 +56,7 @@
 	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileFriend.hbm.xml</value>
 	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileImage.hbm.xml</value>
 	       	<value>uk/ac/lancs/e_science/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
+	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfilePreferences.hbm.xml</value>
 	      </list>
 	    </property>
 

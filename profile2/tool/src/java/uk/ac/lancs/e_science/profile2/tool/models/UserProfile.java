@@ -3,8 +3,14 @@ package uk.ac.lancs.e_science.profile2.tool.models;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Model for profile information to be used ONLY by the tool.
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ */
 public class UserProfile implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private String userId;
 	private String nickname;
 	private String birthday;
@@ -16,7 +22,6 @@ public class UserProfile implements Serializable {
 	private String department;
 	private String school;
 	private String room;
-	//private byte[] picture;
 	private String homepage;
 	private String workphone;
 	private String homephone;
@@ -100,14 +105,7 @@ public class UserProfile implements Serializable {
 	public void setRoom(String room) {
 		this.room = room;
 	}
-	/*
-	public byte[] getPicture() {
-		return picture;
-	}
-	public void setPicture(byte[] picture) {
-		this.picture = picture;
-	}
-	*/
+	
 	public String getHomepage() {
 		return homepage;
 	}
@@ -174,7 +172,7 @@ public class UserProfile implements Serializable {
 
 
 
-	/* for the form feedback, to get around a bug in Wicket where it needs a backing model */
+	/* for the form feedback, to get around a weird thing in Wicket where it needs a backing model for the FeedbackLabel component */
 	private String emailFeedback;
 	private String fileFeedback;
 
@@ -190,6 +188,13 @@ public class UserProfile implements Serializable {
 	}
 	public void setFileFeedback(String fileFeedback) {
 		this.fileFeedback = fileFeedback;
+	}
+	
+	/**
+	 * Default constructor
+	 */
+	public UserProfile() {
+	
 	}
 	
 	

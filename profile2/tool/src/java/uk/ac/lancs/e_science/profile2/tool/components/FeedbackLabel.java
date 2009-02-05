@@ -38,7 +38,9 @@ import org.apache.wicket.model.Model;
  */
 public class FeedbackLabel extends Label {
 
-    /** Field component holds a reference to the {@link Component} this FeedbackLabel belongs to 
+	private static final long serialVersionUID = 1L;
+
+	/** Field component holds a reference to the {@link Component} this FeedbackLabel belongs to 
      * Generally this is a FormComponent like a TextField, but can also be the Form itself. 
      * Using the form itself is useful for collecting errors that come from the Form and not from a FormComponent,
      * like upload too large etc. */

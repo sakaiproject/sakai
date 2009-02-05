@@ -2,6 +2,12 @@ package uk.ac.lancs.e_science.profile2.tool.models;
 
 import java.io.Serializable;
 
+/**
+ * Simple model to back a search.
+ * To be used ONLY by the tool.
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ */
 public class Search implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -44,7 +50,12 @@ public class Search implements Serializable {
 	}
 
 	
+	/**
+	 * Default constructor
+	 */
+	public Search() {
 	
+	}
 	
 	
 

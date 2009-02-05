@@ -172,12 +172,6 @@ public class MyStatusPanel extends Panel {
 				//get the backing model
 				ProfileStatus profileStatus = (ProfileStatus) form.getModelObject();
 				
-				//get SakaiProxy API
-				sakaiProxy = ProfileApplication.get().getSakaiProxy();
-				
-				//get Profile API
-				profile = ProfileApplication.get().getProfile();
-				
 				//get userId from sakaiProxy
 				String userId = sakaiProxy.getCurrentUserId();
 				
@@ -190,8 +184,10 @@ public class MyStatusPanel extends Panel {
 				}
 
 				//save status from userProfile
-				if(profile.setUserStatus(userId, profileStatus.getMessage())) {
+				if(profile.setUserStatus(userId, statusMessage)) {
 					log.info("Saved status for: " + userId);
+					
+					updateTwitter(userId, statusMessage);
 					
 					// make status panel container visible and repaint
 					statusContainer.setVisible(true);
@@ -212,5 +208,14 @@ public class MyStatusPanel extends Panel {
 	}
 	
 
+	public void updateTwitter(String userId, String message) {
+		
+		boolean isTwitterEnabled = profile.isTwitterIntegrationEnabled(userId);
+		
+		if(isTwitterEnabled) {
+			profile.sendMessageToTwitter(userId, message);
+		}
+		
+	}
 	
 }

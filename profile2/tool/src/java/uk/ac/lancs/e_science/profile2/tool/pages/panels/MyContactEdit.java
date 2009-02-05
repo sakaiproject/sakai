@@ -73,7 +73,6 @@ public class MyContactEdit extends Panel {
         emailFeedback.setOutputMarkupId(true);
         emailContainer.add(emailFeedback);
         email.add(new ComponentVisualErrorBehaviour("onblur", emailFeedback));
-        
 		form.add(emailContainer);
 		
 		//homepage

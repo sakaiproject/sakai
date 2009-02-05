@@ -17,13 +17,13 @@ public class ProfilePrivacy implements Serializable {
 	private int search;
 	private int myFriends;
 	
-	/* 
+	/** 
 	 * Empty constructor
 	 */
 	public ProfilePrivacy(){
 	}
 	
-	/*
+	/**
 	 * Constructor to allow creation of object in one go (ie for new entries when a profile is first created)
 	 */
 	public ProfilePrivacy(String userUuid, int profile, int basicInfo, int contactInfo, int personalInfo, boolean showBirthYear, int search, int myFriends) {
