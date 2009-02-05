@@ -890,6 +890,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	if (parsedAssignmentName.length > 1) {
         		String [] parsedPointsPossible = parsedAssignmentName[1].split("\\]");
         		pointsPossibleAsString = parsedPointsPossible[0].trim();
+        		try{
+        			Double ppaS = new Double(pointsPossibleAsString);
+        			ppaS = new Double(FacesUtil.getRoundDown(ppaS.doubleValue(), 2));
+        			if(ppaS <= 0)
+        				pointsPossibleAsString = null;
+        		}catch(Exception e){
+        			pointsPossibleAsString = null;
+        		}
         	}
         	
         	// probably last column but not sure, so continue
