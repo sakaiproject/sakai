@@ -1,21 +1,17 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 import org.apache.log4j.Logger;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 
@@ -114,6 +110,15 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		searchLink.add(new Label("searchLabel",new ResourceModel("link.search")));
 		add(searchLink);
+		
+		//preferences link
+    	Link preferencesLink = new Link("preferencesLink") {
+			public void onClick() {
+				setResponsePage(new MyPreferences());
+			}
+		};
+		preferencesLink.add(new Label("preferencesLabel",new ResourceModel("link.preferences")));
+		add(preferencesLink);
 				
 		//rss link
 		/*

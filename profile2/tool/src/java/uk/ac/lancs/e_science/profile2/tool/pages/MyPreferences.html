@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+<wicket:extend>
+	
+	<div id="pageWrapper">
+	
+		<!-- 
+		<div id="leftPanel">
+	    
+	    </div>
+		-->
+		
+		<div id="fullWidth">
+            
+            <div class="mainSectionContentForm">
+            
+	            <div wicket:id="heading" class="itemHeader">[Preferences]</div>
+	            
+	            <form wicket:id="form" class="profileForm">
+					<table class="profileContent">
+						
+						<!-- email settings -->
+						<tr wicket:id="emailContainer">
+							<td class="label" wicket:id="emailLabel">[emailLabel]</td>
+							<td class="content"><select wicket:id="email"></select></td>
+							<td class="toolTip"><span wicket:id="emailToolTip">[emailToolTip]</span></td>
+						</tr>
+						
+						<!-- Twitter integration -->
+						<tr wicket:id="twitterContainer">
+							<td class="label" wicket:id="twitterLabel">[twitterLabel]</td>
+							<td class="content">
+								<input type="text" wicket:id="twitterUsername" class="formInputField"/><br />
+								<input type="text" wicket:id="twitterPassword" class="formInputField"/>
+							</td>
+							<td class="toolTip"><span wicket:id="twitterToolTip">[twitterToolTip]</span></td>
+						</tr>
+						
+											
+						
+					</table>
+					
+					<input type="submit" wicket:id="submit" value="Save" />
+			
+					
+				</form>	
+				
+				<div wicket:id="formFeedback">[formFeedback]</div>
+			
+			</div>
+		
+		</div>
+		
+		<!-- <div id="rightPanel"></div> -->
+	
+	
+	</div>
+	
+	<!--  general MyPrivacy scripting -->
+	<script type="text/javascript">
+
+		//init
+		$(document).ready(function(){ 
+			//resize iframe
+			setMainFrameHeight(window.name);
+
+		});
+
+		$(document).ready(function() {
+			$('.sakai-wicket-iconwithtooltip').cluetip({
+				local: true,
+				showTitle: false,
+				attribute: 'rel',
+				cursor: 'pointer',
+				cluetipClass: 'jtip',
+				arrows: true,
+				hoverIntent: true
+			});	
+			
+		});
+
+	</script>
+	
+</wicket:extend>
+</body>
+</html>
+

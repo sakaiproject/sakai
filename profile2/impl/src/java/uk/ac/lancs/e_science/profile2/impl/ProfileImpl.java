@@ -35,6 +35,7 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
+import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
@@ -42,10 +43,17 @@ import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
-
+/**
+ * This is the Profile2 API to be used by the Profile2 tool only. 
+ * 
+ * DO NOT USE THIS YOURSELF, use the ProfileManager instead (todo)
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
 public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
-	private transient Logger log = Logger.getLogger(ProfileImpl.class);
+	private transient final Logger log = Logger.getLogger(ProfileImpl.class);
 	
 	//surely this is in the Calendar API somewhere
 	private static final String[] DAY_OF_WEEK_MAPPINGS = { "", "Sunday", "Monday",
@@ -1264,8 +1272,26 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPreferencesRecord(final String userId)
+	 */
+	public ProfilePreferences createDefaultPreferencesRecord(final String userId) {
+		return null;
+	}
 	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getPreferencesRecordForUser(final String userId)
+	 */
+	public ProfilePreferences getPreferencesRecordForUser(final String userId) {
+		return  null;
+	}
 	
+	/**
+	 * @see uk.ac.lancs.e_science.profile2.api.Profile#savePreferencesRecord(ProfilePreferences profilePreferences)
+	 */
+	public boolean savePreferencesRecord(ProfilePreferences profilePreferences) {
+		return false;
+	}
 	
 	
 	
@@ -1552,7 +1578,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			
 			//if already have a current ProfileImage record, skip to next user
 			if(hasProfileImage(userUuid)) {
-				log.info("Profile2 conversion util: valid record already exists for " + userUuid + ". Skipping...");
+				log.info("Profile2 conversion util: valid ProfileImage record already exists for " + userUuid + ". Skipping...");
 				continue;
 			}
 

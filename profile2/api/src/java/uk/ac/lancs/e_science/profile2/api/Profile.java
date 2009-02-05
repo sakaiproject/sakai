@@ -4,10 +4,19 @@ import java.util.Date;
 import java.util.List;
 
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
+import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 
+/**
+ * This is the API to be used by the Profile2 tool. 
+ * 
+ * DO NOT IMPLEMENT THIS YOURSELF, use the ProfileManager instead (todo)
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
 
 public interface Profile {
 
@@ -436,4 +445,27 @@ public interface Profile {
 	 * @return boolean		true if it exists/false if not
 	 */
 	public boolean hasProfileImage(String userId);
+	
+	
+	/**
+	 * Create a default preferences record for the user
+	 *
+	 * @param userId		uuid of the user to create the record for
+	 */
+	public ProfilePreferences createDefaultPreferencesRecord(final String userId);
+	
+	/**
+	 * Retrieve the preferences record from the database for this user
+	 *
+	 * @param userId	uuid of the user to retrieve the record for
+	 */
+	public ProfilePreferences getPreferencesRecordForUser(final String userId);
+	
+	/**
+	 * Save the preferences record to the database
+	 *
+	 * @param profilePreferences	the record for the user
+	 */
+	public boolean savePreferencesRecord(ProfilePreferences profilePreferences);
+	
 }
