@@ -168,48 +168,37 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		}
 
 		// Now build up the message text.
-		buf.append(rb.getString("An_announcement_has_been"));
 		if (AnnouncementService.SECURE_ANNC_ADD.equals(event.getEvent()))
 		{
-			buf.append(" " + rb.getString("added"));
+			buf.append(rb.getFormattedMessage("noti.header.add", new Object[]{title,ServerConfigurationService.getString("ui.service", "Sakai"),ServerConfigurationService.getPortalUrl(), siteId}));
+
 		}
 		else
 		{
-			buf.append(" " + rb.getString("updated"));
+			buf.append(rb.getFormattedMessage("noti.header.update", new Object[]{title,ServerConfigurationService.getString("ui.service", "Sakai"),ServerConfigurationService.getPortalUrl(), siteId}));
+
 		}
-		buf.append(" " + rb.getString("in_the") + " \"");
-		buf.append(title);
-		buf.append("\" " + rb.getString("site_at"));
-		buf.append(" " + ServerConfigurationService.getString("ui.service", "Sakai"));
-		buf.append(" (<a href=\"");
-		buf.append(ServerConfigurationService.getPortalUrl());
-		buf.append("/site/");
-		buf.append(siteId);
-		buf.append("\">");
-		buf.append(ServerConfigurationService.getPortalUrl());
-		buf.append("/site/");
-		buf.append(siteId);
-		buf.append("</a>)");
 		buf.append(newline);
 		buf.append(newline);
 		buf.append(newline);
-		buf.append(rb.getString("Subject") + ": ");
+		buf.append(rb.getString("Subject"));
 		buf.append(hdr.getSubject());
+		//buf.append(rb.getString("Subject") + ": "); buf.append(hdr.getSubject());
 		buf.append(newline);
 		buf.append(newline);
-		buf.append(rb.getString("From") + ": ");
+		buf.append(rb.getString("From"));
 		buf.append(hdr.getFrom().getDisplayName());
 		buf.append(newline);
 		buf.append(newline);
-		buf.append(rb.getString("Date") + ": ");
+		buf.append(rb.getString("Date"));
 		buf.append(hdr.getDate().toStringLocalFull());
 		buf.append(newline);
 		buf.append(newline);
-		buf.append(rb.getString("Group") + ": ");
+		buf.append(rb.getString("Group"));
 		buf.append(getAnnouncementGroup(msg));
 		buf.append(newline);
 		buf.append(newline);
-		buf.append(rb.getString("Message") + ": ");
+		buf.append(rb.getString("Message"));
 		buf.append(newline);
 		buf.append(newline);
 		buf.append(msg.getBody());
@@ -306,15 +295,9 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	protected String getTag(String title, boolean shouldUseHtml)
 	{
 		if (shouldUseHtml) {
-			return ("<hr/><br/>" + rb.getString("this") + " "
-					+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
-					+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
-					+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + "<br/>" + rb.getString("youcan") + "<br/>");
+			return rb.getFormattedMessage("noti.tag.html", new Object[]{ServerConfigurationService.getString("ui.service", "Sakai"), ServerConfigurationService.getPortalUrl(), title});
 		} else {
-			return (rb.getString("separator") + "\n" + rb.getString("this") + " "
-					+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
-					+ ") " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + "\n" + rb.getString("youcan")
-					+ "\n");
+			return rb.getFormattedMessage("noti.tag", new Object[]{ServerConfigurationService.getString("ui.service", "Sakai"), ServerConfigurationService.getPortalUrl(), title});
 		}
 	}
 
@@ -347,7 +330,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		}
 
 		// use the message's subject
-		return "[ " + title + " - " + rb.getString("Announcement") + " ]   " + hdr.getSubject();
+		return rb.getFormattedMessage("noti.subj", new Object[]{title, hdr.getSubject()});
 	}
 	
 	/**
