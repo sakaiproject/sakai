@@ -193,10 +193,15 @@ public class Query extends HttpTransactionQueryBase
 			doProgressCommand();
 			submit();
       /*
-       * Try to wait for a complete set of responses
+       * Wait for a complete set of responses.  If not found, wait:
+       *
+       *     8 seconds (one source)
+       *    20 seconds (at most)
+       *
+       * The times are set via the math.min() and Thread.sleep() calls below.
        */
 		  sleepCount = 0;
-		  sleepLimit = 5 + (getTargetCount() * 3);
+		  sleepLimit = 5 + Math.min((getTargetCount() * 3), 20);
 
 		  done = setStatus(getResponseDocument());
       while (!done && (sleepCount++ < sleepLimit))
@@ -721,14 +726,12 @@ public class Query extends HttpTransactionQueryBase
          * To try and exit the "check status" loop earlier, we consider this
          * target complete if we've already found enough result records ...
          */
-/*
         _log.debug("**** " + target + ": " + total + " vs " + pageSize);
         if (total >= pageSize)
         {
           status = "100";
-          _log.debug("**** "  + target + " complete");
+          _log.debug("**** marking "  + target + " \"early complete\"");
         }
-*/
 			}
       /*
        * Is this search complete?
