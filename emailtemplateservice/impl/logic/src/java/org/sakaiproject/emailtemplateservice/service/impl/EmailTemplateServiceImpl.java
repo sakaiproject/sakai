@@ -246,13 +246,16 @@ public Map<EmailTemplateLocaleUsers, RenderedTemplate> getRenderedTemplates(
         if (! foundLocales.contains(loc)) {
         	//create a new EmailTemplateLocalUser
         	EmailTemplateLocaleUsers etlu = new EmailTemplateLocaleUsers();
+        	log.debug("adding users " + userReference + " to new object");
         	etlu.setLocale(loc);
         	etlu.addUser(userReference);
         	mapStore.put(loc, etlu);
+        	foundLocales.add(loc);
         } else {
         	EmailTemplateLocaleUsers etlu = mapStore.get(loc);
-        	etlu.setLocale(loc);
+        	log.debug("adding users " + userReference + " to existing object");
         	etlu.addUser(userReference);
+        	mapStore.remove(loc);
         	mapStore.put(loc, etlu);
         }
 	}
@@ -292,7 +295,7 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				RenderedTemplate rt = entry.getValue();
 				EmailTemplateLocaleUsers etlu = entry.getKey();
 				List<User> toAddress = getUsersEmail(etlu.getUserIds());
-				
+				log.info("sending template " + key + " for locale " + etlu.getLocale().toString() + " to " + toAddress.size() + " users");
 				StringBuilder message = new StringBuilder();
 				message.append(MIME_ADVISORY);
 				if (rt.getRenderedMessage() != null) {
@@ -316,7 +319,7 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
 				headers.add("Mime-Version: 1.0");
 				String body = message.toString();
-				log.info("message body " + body);
+				log.debug("message body " + body);
 				emailService.sendToUsers(toAddress, headers, body);
 				
 	}
