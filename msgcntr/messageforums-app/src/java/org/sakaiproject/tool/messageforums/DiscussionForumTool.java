@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIData;
+import javax.faces.component.UIInput;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -683,6 +684,19 @@ public class DiscussionForumTool
     areaManager.saveArea(template.getArea());
     
     return gotoMain();
+  }
+
+
+  public String processActionCancelTemplateSettings()
+  {
+    LOG.debug("processActionTemplateSettings()");
+    // SAK-14073 -- Cleanout values after cancelling.
+    FacesContext context = FacesContext.getCurrentInstance();
+    UIInput component = (UIInput) context.getViewRoot().findComponent("revise:moderated");
+    if (component != null) {
+      component.setSubmittedValue(null);
+    }
+  return gotoMain();
   }
 
   /**

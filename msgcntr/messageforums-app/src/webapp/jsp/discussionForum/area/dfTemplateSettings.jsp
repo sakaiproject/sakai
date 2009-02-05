@@ -45,8 +45,8 @@
                            accesskey="s" 
 						   styleClass="active"/>
 <%--          <h:commandButton action="#{ForumTool.processActionRestoreDefaultTemplate}" value="Restore Defaults" rendered="#{ForumTool.editMode}"/>--%>
-          <h:commandButton immediate="true" 
-                           action="#{ForumTool.processActionHome}" 
+          <h:commandButton immediate="true"
+                           action="#{ForumTool.processActionCancelTemplateSettings}" 
                            value="#{msgs.cdfm_button_bar_cancel}"
                            accesskey="x" />
        </div>
