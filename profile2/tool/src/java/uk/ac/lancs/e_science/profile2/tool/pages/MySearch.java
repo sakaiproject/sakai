@@ -29,6 +29,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
@@ -369,7 +370,6 @@ public class MySearch extends BasePage {
 		 * 
 		 */
 		
-		//sbn submit
 		AjaxFallbackButton sbnSubmitButton = new AjaxFallbackButton("sbnSubmit", new ResourceModel("button.search.byname"), sbnForm) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//need to show the busyindicator here TODO
@@ -390,12 +390,17 @@ public class MySearch extends BasePage {
 					results = new ArrayList<SearchResult>(profile.findUsersByNameOrEmail(searchText, currentUserUuid));
 	
 					int numResults = results.size();
+					int maxResults = ProfileUtilityManager.MAX_SEARCH_RESULTS;
+					
 					//text
 					if(numResults == 0) {
 						numSearchResults.setModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
 					} else if (numResults == 1) {
 						numSearchResults.setModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
+						resultsContainer.setVisible(true);
+					} else if (numResults >= maxResults) {
+						numSearchResults.setModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
 						resultsContainer.setVisible(true);
 					} else {
 						numSearchResults.setModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
@@ -424,7 +429,6 @@ public class MySearch extends BasePage {
 		 * 
 		 */
 		
-		//sbn submit
 		AjaxFallbackButton sbiSubmitButton = new AjaxFallbackButton("sbiSubmit", new ResourceModel("button.search.byinterest"), sbiForm) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//need to show the busyindicator here TODO
@@ -443,15 +447,19 @@ public class MySearch extends BasePage {
 					
 					//search SakaiPerson for matches
 					results = new ArrayList<SearchResult>(profile.findUsersByInterest(searchText, currentUserUuid));
-					
-					
+										
 					int numResults = results.size();
+					int maxResults = ProfileUtilityManager.MAX_SEARCH_RESULTS;
+
 					//text
 					if(numResults == 0) {
 						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
 					} else if (numResults == 1) {
 						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
+						resultsContainer.setVisible(true);
+					} else if (numResults >= maxResults) {
+						numSearchResults.setModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
 						resultsContainer.setVisible(true);
 					} else {
 						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));

@@ -6,6 +6,7 @@ public class ProfileUtilityManager {
 	public static final String DEFAULT_DATE_FORMAT = "dd MMMM yyyy"; 
 	public static final String DEFAULT_DATE_FORMAT_HIDE_YEAR = "dd MMMM"; 
 
-	
+	//max number of search result items before its limited
+	public static final int MAX_SEARCH_RESULTS = 3;
 	
 }

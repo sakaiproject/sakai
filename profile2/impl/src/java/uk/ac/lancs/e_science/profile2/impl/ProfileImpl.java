@@ -36,6 +36,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
@@ -817,6 +818,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//perform search (uses private method to wrap the two searches into one)
 		List<String> userUuids = new ArrayList<String>(findUsersByNameOrEmail(search));
 
+		//restrict to only return the max number. UI will print message
+		int maxResults = ProfileUtilityManager.MAX_SEARCH_RESULTS;
+		if(userUuids.size() >= maxResults) {
+			userUuids = userUuids.subList(0, maxResults);
+		}
+		
 		//format into SearchResult records (based on friend status, privacy status etc)
 		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(userUuids, userId));
 		
@@ -833,6 +840,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//perform search (uses private method to wrap the search)
 		List<String> userUuids = new ArrayList<String>(findSakaiPersonsByInterest(search));
+		
+		//restrict to only return the max number. UI will print message
+		int maxResults = ProfileUtilityManager.MAX_SEARCH_RESULTS;
+		if(userUuids.size() >= maxResults) {
+			userUuids = userUuids.subList(0, maxResults);
+		}
 		
 		//format into SearchResult records (based on friend status, privacy status etc)
 		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(userUuids, userId));
