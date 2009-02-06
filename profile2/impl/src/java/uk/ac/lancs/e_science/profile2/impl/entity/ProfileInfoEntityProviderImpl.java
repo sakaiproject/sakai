@@ -12,6 +12,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileManager;
 import uk.ac.lancs.e_science.profile2.api.entity.ProfileInfoEntityProvider;
 import uk.ac.lancs.e_science.profile2.api.entity.model.ProfileInfo;
 
@@ -27,6 +28,11 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
 	}
+	private ProfileManager profileManager;
+	public void setProfileManager(ProfileManager profileManager) {
+		this.profileManager = profileManager;
+	}
+
 	
 	
 	public String getEntityPrefix() {
@@ -38,20 +44,25 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 		return true;
 	}
 
+	/**
+	 * This is my working case where I will establish how EB need sto work for the privacy setings etc. they are wrapped in
+	 * ProfileManagerImpl.
+	 * 
+	 * THIS IS ONLY CALLED WHEN WE NEED TO CREATE A NEW PROFILE OBJECT. ie same as in myProfile
+	 */
 	public String createEntity(EntityReference ref, Object entity) {
-	    //create a new ProfileInfo entity and save it
-		ProfileInfo profileInfo = (ProfileInfo) entity;
+	    //get incoming entity
+		ProfileInfo incoming = (ProfileInfo) entity;
+		//check it's got at least a userId
+		if(incoming.getUserId() == null) {
+			throw new IllegalArgumentException("The profile.userId must be set in order to create a profile");
+		}
 		
+		//get current userId
+		String currentUserId = developerHelperService.getUserIdFromRef(developerHelperService.getCurrentUserReference());
 		
-	      /*
-	      BlogWowEntry incoming = (BlogWowEntry) entity;
-	      if (incoming.getBlog() == null || incoming.getBlog().getId() == null) {
-	         throw new IllegalArgumentException("The blog.id must be set in order to create an entry");
-	      }
-	      if (incoming.getTitle() == null || incoming.getText() == null || incoming.getPrivacySetting() == null) {
-	         throw new IllegalArgumentException("The title, text, and privacySetting fields are required when creating an entry");
-	      }
-	      String userId = developerHelperService.getUserIdFromRef(developerHelperService.getCurrentUserReference());
+		//get profile for the incoming userId but only bits that are visible by currentUserId
+		ProfileInfo profileInfo = profileManager.getProfileForUserXVisibleByUserY(incoming.getUserId(), currentUserId);
 	      BlogWowBlog blog = blogLogic.getBlogById(incoming.getBlog().getId());
 	      BlogWowEntry entry = new BlogWowEntry(blog, userId, incoming.getTitle(), incoming.getText(), incoming.getPrivacySetting(), new Date());
 	      entryLogic.saveEntry(entry, null);
@@ -77,13 +88,13 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 		if (userUuid == null) {
 			return new ProfileInfo();
 		}
-		//get a Sakaiperson and map it to a ProfileInfo object
-		//ProfileInfo profileInfo = entryLogic.getEntryById(entryId, null);
-	      //if (entry == null) {
-	       //  throw new IllegalArgumentException("No blog entry found with this id: " + entryId);
-	      //}
-	     // return entry;
-		return null;
+		
+		//get a ProfileInfo object
+		ProfileInfo profileInfo = profileManager.getProfile(userUuid);
+		if (profileInfo == null) {
+			throw new IllegalArgumentException("No profile found with this id: " + userUuid);
+		}
+	    return profileInfo;
 	}
 
 	public void deleteEntity(EntityReference ref) {

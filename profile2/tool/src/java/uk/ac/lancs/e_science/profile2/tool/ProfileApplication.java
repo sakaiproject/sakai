@@ -44,6 +44,33 @@ public class ProfileApplication extends WebApplication {
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 
 		
+		  /*
+         * In the following code example we will create a Jasypt byte 
+         * encryptor by hand, but in real world we can get it from Spring, 
+         * configure it via Web PBE configuration... whatever we want to. 
+         */
+		/*
+        StandardPBEByteEncryptor encryptor = new StandardPBEByteEncryptor();
+        encryptor.setAlgorithm("PBEWithMD5AndDES");
+        encryptor.setPassword("jasypt");
+        FixedStringSaltGenerator generator = new FixedStringSaltGenerator();
+        generator.setSalt("wicketwicketwicketwicketwicket");
+        encryptor.setSaltGenerator(generator);
+        */
+        /*
+         * Create the Jasypt Crypt Factory with the desired encryptor,
+         * which will return org.jasypt.wicket.JasyptCrypt objects implementing
+         * the org.apache.wicket.util.crypt.ICrypt interface.
+         */
+		/*
+        ICryptFactory jasyptCryptFactory = new JasyptCryptFactory(encryptor);
+        */
+        /*
+         * Set the Jasypt Crypt Factory into the application configuration.
+         */
+		/*
+        getSecuritySettings().setCryptFactory(jasyptCryptFactory);
+		*/
 	}
 	
 	public ProfileApplication() {

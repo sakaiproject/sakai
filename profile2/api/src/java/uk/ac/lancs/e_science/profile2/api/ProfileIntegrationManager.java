@@ -1,5 +1,13 @@
 package uk.ac.lancs.e_science.profile2.api;
 
+/**
+ * Simple API for managing some integration stuff with Profile2
+ * 
+ * DO NOT IMPLEMENT THIS YOURSELF
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
 public interface ProfileIntegrationManager {
 
 	/**

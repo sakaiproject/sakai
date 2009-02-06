@@ -1390,11 +1390,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 					twitter.update(message);
 					log.info("Twitter status updated for: " + userId);
 				}
-				catch (TwitterException e) {
-					e.printStackTrace();
-				}
-				catch (Exception e){
-					e.printStackTrace();
+				catch (Exception e) {
+					log.error("Profile.sendMessageToTwitter() failed. " + e.getClass() + ": " + e.getMessage());
 				}
 			}
 		}

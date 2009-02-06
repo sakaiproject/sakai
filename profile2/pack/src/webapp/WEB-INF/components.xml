@@ -19,8 +19,18 @@
 	
 	<!--  ProfileIntegrationManager -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager" class="uk.ac.lancs.e_science.profile2.impl.ProfileIntegrationManagerImpl" />
-    	
-	<!--  Setup the Profile IMPL as a DAO with Hibernate  -->
+    
+    <!--  ProfileManager -->
+	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileManager" class="uk.ac.lancs.e_science.profile2.impl.ProfileManagerImpl" />
+    
+    
+    <!-- EntityBroker spring bean definitions -->
+	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileInfoEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileInfoEntityProviderImpl">
+		<property name="profileManager" ref="uk.ac.lancs.e_science.profile2.api.ProfileManager" />
+	</bean>
+	
+    
+	<!--  Setup the Profile IMPL as a DAO with Hibernate and give it the other beans as well  -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileDAO"
     	class="uk.ac.lancs.e_science.profile2.impl.ProfileImpl"
     	singleton="true"
@@ -43,11 +53,6 @@
 		</property>
 	</bean>	
 	
-	<!-- Add Spring Bean definition for the ProfileEntityProvider -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileInfoEntityProvider"
-			class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileInfoEntityProviderImpl">
-	</bean>
-
 
 	<!-- Add our HBM files to the Sakai global session factory -->
 	<bean id="uk.ac.lancs.e_science.profile2.hbm.HBMMappingList"
