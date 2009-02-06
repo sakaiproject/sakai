@@ -61,6 +61,18 @@
 			<artifactId>twitter4j</artifactId>
 			<version>${twitter4j.version}</version>
 		</dependency>
+		
+		<!--  encryption/decryption dependency -->
+		<dependency>
+      		<groupId>org.jasypt</groupId>
+      		<artifactId>jasypt</artifactId>
+      		<version>${jasypt.version}</version>
+    	</dependency>
+    	<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>${icu4j.version}</version>
+		</dependency>
 
 		<!--  Sakai dependencies -->
 		<dependency>

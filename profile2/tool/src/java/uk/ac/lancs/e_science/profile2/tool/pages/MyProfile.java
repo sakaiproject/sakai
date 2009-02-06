@@ -62,7 +62,8 @@ public class MyProfile extends BasePage {
 	
 		String userDisplayName = sakaiPerson.getDisplayName();
 		if(userDisplayName == null) {
-			log.info("userDisplayName for " + userId + " was null in SakaiPerson. Using UDP value.");
+			//it's always null as it doesn't get set in there!
+			//log.info("userDisplayName for " + userId + " was null in SakaiPerson. Using UDP value.");
 			userDisplayName = sakaiProxy.getUserDisplayName(userId);
 		}
 		

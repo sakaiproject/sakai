@@ -17,6 +17,9 @@
 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
 	</bean>
 	
+	<!--  ProfileIntegrationManager -->
+	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager" class="uk.ac.lancs.e_science.profile2.impl.ProfileIntegrationManagerImpl" />
+    	
 	<!--  Setup the Profile IMPL as a DAO with Hibernate  -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileDAO"
     	class="uk.ac.lancs.e_science.profile2.impl.ProfileImpl"
@@ -24,6 +27,7 @@
     	init-method="init">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
+		<property name="integrationManager" ref="uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager" />
 	</bean>
 	
 	

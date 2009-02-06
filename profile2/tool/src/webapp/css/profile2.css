@@ -69,7 +69,8 @@ div#footer {
 }
 
 #myPhoto img {
-	width: 100%; /*ie fix to make image resize inside container*/
+	max-width: 200px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 200 ) + "px"); /* ie6 max-width hack */
 	background-color: transparent;
 	text-align:center;
 }

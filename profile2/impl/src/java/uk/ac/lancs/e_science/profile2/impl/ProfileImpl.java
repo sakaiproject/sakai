@@ -23,16 +23,17 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
+import org.jasypt.util.text.BasicTextEncryptor;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileFriendsManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
@@ -1361,40 +1362,68 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	 * @param userId	uuid of the user
 	 * @param message	the message
 	 */
-	public void sendMessageToTwitter(final String userId, final String message) {
+	public void sendMessageToTwitter(final String userId, final String message){
+		//setup class thread to call later
+		class TwitterUpdater implements Runnable{
+			private Thread runner;
+			private String username;
+			private String password;
+			private String message;
+
+			public TwitterUpdater(String username, String password, String message) {
+				this.username=username;
+				this.password=password;
+				this.message=message;
+				
+				runner = new Thread(this,"Profile2 TwitterUpdater thread");
+				runner.start();
+			}
+			
+
+			//do it!
+			public synchronized void run() {
+				
+				Twitter twitter = new Twitter(username, password);
+
+				try {
+					twitter.setSource(integrationManager.getTwitterSource());
+					twitter.update(message);
+					log.info("Twitter status updated for: " + userId);
+				}
+				catch (TwitterException e) {
+					e.printStackTrace();
+				}
+				catch (Exception e){
+					e.printStackTrace();
+				}
+			}
+		}
 		
+		//get preferences for this user
 		ProfilePreferences profilePreferences = getPreferencesRecordForUser(userId);
 		
 		if(profilePreferences == null) {
 			return;
 		}
-		
+		//get details
 		String username = profilePreferences.getTwitterUsername();
-		String password = profilePreferences.getTwitterPassword();
+		String password = decrypt(profilePreferences.getTwitterPassword());
 		
-		//FIXME do this is a separate thread?
+		//instantiate class to send the data
+		new TwitterUpdater(username, password, message);
 		
-		Twitter twitter = new Twitter(username, password);
-
-		try {
-			twitter.update("Updating Twitter from my own Java code!");
-			log.info("Twitter status updated for: " + userId);
-		} catch (TwitterException e) {
-			e.printStackTrace();
-		}
-
 	}
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
+	//move this and the encryption methods stuck in the tool to a API somethere, but I don't really want it exposed.
+	private String decrypt(final String encryptedText) {
+		
+		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+		textEncryptor.setPassword(ProfileIntegrationManager.BASIC_ENCRYPTION_KEY);
+		return(textEncryptor.decrypt(encryptedText));
+		
+	}
 	
 	
 	
@@ -1746,6 +1775,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		this.sakaiProxy = sakaiProxy;
 	}
 
+	//setup ProfileIntegrationManager API
+	private ProfileIntegrationManager integrationManager;
+	public void setIntegrationManager(ProfileIntegrationManager integrationManager) {
+		this.integrationManager = integrationManager;
+	}
 
 	
 

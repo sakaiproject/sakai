@@ -9,27 +9,24 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
-import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.jasypt.util.text.BasicTextEncryptor;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePreferencesNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
-import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehaviour;
 import uk.ac.lancs.e_science.profile2.tool.components.EnablingCheckBox;
-import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
-import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
 
@@ -67,6 +64,11 @@ public class MyPreferences extends BasePage {
 		final String formFeedbackId = formFeedback.getMarkupId();
 		add(formFeedback);
 		
+		//decrypt the password
+		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+		textEncryptor.setPassword(ProfileIntegrationManager.BASIC_ENCRYPTION_KEY);
+		profilePreferences.setTwitterPassword(textEncryptor.decrypt(profilePreferences.getTwitterPassword()));
+		
 		
 		//create model
 		CompoundPropertyModel preferencesModel = new CompoundPropertyModel(profilePreferences);
@@ -76,6 +78,7 @@ public class MyPreferences extends BasePage {
 		form.setOutputMarkupId(true);
 		
 		//setup LinkedHashMap of email options
+		/*
 		final LinkedHashMap<String, String> emailSettings = new LinkedHashMap<String, String>();
 		emailSettings.put("0", new StringResourceModel("email.option.all", this,null).getString());
 		emailSettings.put("1", new StringResourceModel("email.option.requestsonly", this,null).getString());
@@ -106,6 +109,7 @@ public class MyPreferences extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
+        */
 		
 		//twitter settings
 		form.add(new Label("twitterSectionHeading", new ResourceModel("heading.section.twitter")));
@@ -222,6 +226,12 @@ public class MyPreferences extends BasePage {
 						target.addComponent(formFeedback);
 						return;
 					}
+					
+					//encrypt the password
+					BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+					textEncryptor.setPassword(ProfileIntegrationManager.BASIC_ENCRYPTION_KEY);
+					profilePreferences.setTwitterPassword(textEncryptor.encrypt(profilePreferences.getTwitterPassword()));
+					
 				}
 						
 				
