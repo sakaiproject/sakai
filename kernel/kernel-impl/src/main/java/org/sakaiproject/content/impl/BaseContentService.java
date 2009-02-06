@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-// import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
@@ -659,7 +658,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// Get resource bundle
 			String resourceClass = m_serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 			String resourceBundle = m_serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-			ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+			rb = new Resource().getLoader(resourceClass, resourceBundle);
 			
 			m_relativeAccessPoint = REFERENCE_ROOT;
 
@@ -8713,11 +8712,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	protected static final String RESOURCECLASS = "resource.class.content";
 	protected static final String RESOURCEBUNDLE = "resource.bundle.content";
 	private ResourceLoader rb = null;
-	// private static ResourceBundle rb = ResourceBundle.getBundle("content");
-	
-	// protected static final String PROP_MEMBER_DROPBOX_DESCRIPTION = rb.getString("use1");
-
-	// protected static final String PROP_SITE_DROPBOX_DESCRIPTION = rb.getString("use2");
 
 	protected static final String DROPBOX_ID = " Drop Box";
 
