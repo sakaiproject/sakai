@@ -61,7 +61,7 @@ public class Day implements Serializable {
 
 	public String getDateAsString() {
 		if(date == null) return "";
-		SimpleDateFormat formatter = new SimpleDateFormat(CalendarBean.DATE_FORMAT);
+		SimpleDateFormat formatter = new SimpleDateFormat(CalendarBean.DATE_LINK_FORMAT);
 		return formatter.format(date);
 	}
 

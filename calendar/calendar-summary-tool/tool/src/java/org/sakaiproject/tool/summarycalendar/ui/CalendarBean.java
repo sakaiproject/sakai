@@ -78,6 +78,7 @@ public class CalendarBean {
 	public static final String 						PRIORITY_MEDIUM			= "priority_medium";
 	public static final String 						PRIORITY_LOW			= "priority_low";
 	public static final String						DATE_FORMAT				= "MMMMM dd, yyyy";
+	public static final String                                              DATE_LINK_FORMAT                        = "yyyy-MM-dd";
 	private static final String 					imgLocation				= "../../../library/image/sakai/";
 	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
 	
@@ -492,7 +493,7 @@ public class CalendarBean {
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			Map paramMap = context.getRequestParameterMap();
 			String dateStr = (String) paramMap.get("selectedDay");
-			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
+			DateFormat df = new SimpleDateFormat(DATE_LINK_FORMAT);
 			selectedDay = df.parse(dateStr);
 			selectedEventRef = null;
 			updateEventList = true;
