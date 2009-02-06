@@ -630,6 +630,7 @@ public class Query extends HttpTransactionQueryBase
 		int       targetCount = nodeList.getLength();
 		int       active			= 0;
 		int       total 			= 0;
+		int       totalHits   = 0;
 		int       complete    = 0;
 
 		/*
@@ -710,27 +711,31 @@ public class Query extends HttpTransactionQueryBase
        */
       if (hits > 0)
       {
-   			total	+= estimate;
+        totalHits += hits;
+   			total	    += estimate;
       }
 			/*
 			 * This search target is active only if there are records available
 			 */
 			if ((estimate > 0) && (hits > 0))
 			{
-			  int pageSize = Math.min(targetCount * MINIMUM_PAGESIZE,
-			                                        MAXIMUM_PAGESIZE);
+			  int pageSize = Integer.parseInt(getPageSize());
 
 				map.put("STATUS", "ACTIVE");
 				active++;
         /*
-         * To try and exit the "check status" loop earlier, we consider this
-         * target complete if we've already found enough result records ...
+         * Try and exit the "check status" loop early: we consider this
+         * target complete if:
+         *
+         * -- It has hits
+         * -- We've already found enough result records (from all targets) to
+         *    fill our "page"
          */
-        _log.debug("**** " + target + ": " + total + " vs " + pageSize);
-        if (total >= pageSize)
+        _log.debug("**** " + target + ": " + totalHits + " hit(s) vs page size " + pageSize);
+        if (totalHits >= pageSize)
         {
           status = "100";
-          _log.debug("**** marking "  + target + " \"early complete\"");
+          _log.debug("**** Marking "  + target + " \"complete due to hit count\"");
         }
 			}
       /*
