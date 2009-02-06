@@ -14,6 +14,11 @@
         </locale-config>
     </application>
 
+	<!-- Sortout Ajax -->
+	<lifecycle>
+		<phase-listener>org.sakaiproject.tool.messageforums.jsf.AjaxPhaseListener</phase-listener>
+	</lifecycle>
+
     <!-- =================== Custom JSF Tags ============== -->
 
     <!-- hide division button bar -->

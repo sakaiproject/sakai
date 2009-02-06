@@ -211,7 +211,7 @@ function mySetMainFrameHeight(id)
 
 function doAjax(messageId, topicId, self){
  	$(self).attr('src', '/library/image/sakai/spinner.gif');
-	$.ajax({ type: "GET", url: "dfAjax", data: "action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
+	$.ajax({ type: "GET", url: document.forms[0].action , data: "ajax=true&action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
       success: function(msg){
          if(msg.match(/SUCCESS/)){
      		setTimeout(function(){
