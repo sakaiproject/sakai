@@ -15,6 +15,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
@@ -34,7 +35,7 @@ public class MyProfile extends BasePage {
 
 	public MyProfile()   {
 		
-		if(log.isDebugEnabled()) log.debug("MyProfile()");
+		log.debug("MyProfile()");
 		
 		//add the feedback panel for any error messages
 		FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
@@ -43,6 +44,9 @@ public class MyProfile extends BasePage {
 
 		//get current user
 		String userId = sakaiProxy.getCurrentUserId();
+		
+		//post view event
+		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_VIEW_OWN, userId, false);
 
 		//get SakaiPerson for this user
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
@@ -54,6 +58,8 @@ public class MyProfile extends BasePage {
 			if(sakaiPerson == null) {
 				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userId);
 			}
+			//post create event
+			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_NEW, userId, true);
 		} 
 		
 		
@@ -74,12 +80,9 @@ public class MyProfile extends BasePage {
 		}
 		
 		//create instance of the UserProfile class
+		//we then pass the userProfile in the constructor to the child panels
 		UserProfile userProfile = new UserProfile();
-		
-		//configure userProfile as the model for our page
-		//we then pass the userProfileModel in the constructor to the child panels
-		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
-		
+				
 		//get rest of values from SakaiPerson and set into UserProfile
 		userProfile.setUserId(userId);
 		userProfile.setNickname(sakaiPerson.getNickname());
@@ -165,7 +168,7 @@ public class MyProfile extends BasePage {
 		myInterestsDisplay.setOutputMarkupId(true);
 		add(myInterestsDisplay);
 		
-		//quick links panel
+		//my quick links panel
 		
 		
 		//friends feed panel for self

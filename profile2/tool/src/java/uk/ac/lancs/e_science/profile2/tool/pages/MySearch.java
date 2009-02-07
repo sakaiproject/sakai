@@ -381,7 +381,7 @@ public class MySearch extends BasePage {
 					//get search field
 					String searchText = search.getSearchName();
 					
-					if(log.isDebugEnabled()) { log.debug("MySearch() search.getSearchName(): " + searchText);}
+					log.debug("MySearch() search.getSearchName(): " + searchText);
 					
 					//clear the interest search field in model and repaint to clear value
 					search.setSearchInterest("");
@@ -399,13 +399,16 @@ public class MySearch extends BasePage {
 					} else if (numResults == 1) {
 						numSearchResults.setModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
-					} else if (numResults >= maxResults) {
+					} else if (numResults == maxResults) {
 						numSearchResults.setModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
 						resultsContainer.setVisible(true);
 					} else {
 						numSearchResults.setModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
 					}
+					
+					//post view event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_SEARCH_BY_NAME, currentUserUuid, false);
 					
 					//repaint components
 					target.addComponent(sbiInterestField);
@@ -458,7 +461,7 @@ public class MySearch extends BasePage {
 					} else if (numResults == 1) {
 						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
-					} else if (numResults >= maxResults) {
+					} else if (numResults == maxResults) {
 						numSearchResults.setModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
 						resultsContainer.setVisible(true);
 					} else {
@@ -466,8 +469,8 @@ public class MySearch extends BasePage {
 						resultsContainer.setVisible(true);
 					}
 					
-					
-					
+					//post view event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_SEARCH_BY_INTEREST, currentUserUuid, false);
 					
 					//repaint components
 					target.addComponent(sbnNameField);

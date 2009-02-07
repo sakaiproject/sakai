@@ -16,7 +16,8 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.SiteService;
@@ -25,7 +26,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.FormattedText;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
@@ -168,11 +168,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return sites;
 	}
 
-	public String cleanString(String input) {
-		//this could do something with the error messages in the StringBuilder...SS
-		return(FormattedText.processFormattedText(input, new StringBuilder()));
-	}
-
 	
 	/**
 	 * Setup a security advisor.
@@ -296,13 +291,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.SakaiProxy#listAllSakaiPersons()
-	 */
-	public List<String> listAllSakaiPersons() {
-		return null;
+	 * @see uk.ac.lancs.e_science.profile2.api.SakaiProxy#postEvent(String event,String reference,boolean modify)
+	 */	
+	public void postEvent(String event,String reference,boolean modify) {
+		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
 	}
-	
-	
 	
 	
 	
@@ -347,6 +340,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private IdManager idManager;
 	public void setIdManager(IdManager idManager) {
 		this.idManager = idManager;
+	}
+	
+	private EventTrackingService eventTrackingService;
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
 	}
 
 	public void init() {
