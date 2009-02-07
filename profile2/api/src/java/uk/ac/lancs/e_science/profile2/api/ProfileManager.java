@@ -23,7 +23,7 @@ public interface ProfileManager {
 	public ProfileInfo getProfileForUserXVisibleByUserY(String userX, String userY);
 
 	//get profile of self
-	public ProfileInfo getOwnProfile();
+	//public ProfileInfo getOwnProfile();
 	
 	
 }

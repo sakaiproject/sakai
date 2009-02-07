@@ -29,7 +29,6 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import twitter4j.Twitter;
-import twitter4j.TwitterException;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileFriendsManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
@@ -1397,7 +1396,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			public synchronized void run() {
 				
 				Twitter twitter = new Twitter(username, password);
-
+				
 				try {
 					twitter.setSource(integrationManager.getTwitterSource());
 					twitter.update(message);

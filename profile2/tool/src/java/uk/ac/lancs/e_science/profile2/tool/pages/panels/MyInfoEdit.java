@@ -31,13 +31,18 @@ public class MyInfoEdit extends Panel {
 	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyInfoEdit.class);
 	private WebMarkupContainer formFeedback;
+    private transient SakaiProxy sakaiProxy;
+
 	
 	public MyInfoEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
-		//this panel stuff
+		//get SakaiProxy API
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		
+		//this panel
 		final Component thisPanel = this;
-				
+		
 		//create model
 		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
 		
@@ -74,6 +79,11 @@ public class MyInfoEdit extends Panel {
 				//save() form, show message, then load display panel
 
 				if(save(form)) {
+					
+					//post update event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_INFO_UPDATE, userProfile.getUserId(), true);
+					
+					//repaint panel
 					Component newPanel = new MyInfoDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);

@@ -19,6 +19,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
@@ -187,6 +188,10 @@ public class MyStatusPanel extends Panel {
 				if(profile.setUserStatus(userId, statusMessage)) {
 					log.info("Saved status for: " + userId);
 					
+					//post update event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_STATUS_UPDATE, userId, true);
+
+					//update twitter if set
 					updateTwitter(userId, statusMessage);
 					
 					// make status panel container visible and repaint
@@ -214,6 +219,10 @@ public class MyStatusPanel extends Panel {
 		
 		if(isTwitterEnabled) {
 			profile.sendMessageToTwitter(userId, message);
+			
+			//post update event
+			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_TWITTER_UPDATE, userId, true);
+
 		}
 		
 	}

@@ -45,9 +45,6 @@ public class MyProfile extends BasePage {
 		//get current user
 		String userId = sakaiProxy.getCurrentUserId();
 		
-		//post view event
-		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_VIEW_OWN, userId, false);
-
 		//get SakaiPerson for this user
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 		//if null, create one (and a privacy record)
@@ -62,7 +59,9 @@ public class MyProfile extends BasePage {
 			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_NEW, userId, true);
 		} 
 		
-		
+		//post view event
+		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_VIEW_OWN, userId, false);
+
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
 	

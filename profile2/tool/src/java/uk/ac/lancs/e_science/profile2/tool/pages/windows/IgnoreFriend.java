@@ -17,6 +17,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
@@ -31,7 +32,7 @@ public class IgnoreFriend extends Panel {
 
 	/*
 	 * userX is the current user
-	 * userY is the user to ignore
+	 * userY is the user who's request we are ignoring
 	 */
 	
 	public IgnoreFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY, final byte[] image){
@@ -97,6 +98,10 @@ public class IgnoreFriend extends Panel {
 				//if ok, cancel request
 				if(profile.ignoreFriendRequest(userY, userX)) {
 					friendActionModel.setIgnored(true);
+					
+					//post event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_IGNORE, userY, true);
+					
 					window.close(target);
 				} else {
 					text.setModel(new StringResourceModel("error.friend.ignore.failed", null, new Object[]{ friendName } ));

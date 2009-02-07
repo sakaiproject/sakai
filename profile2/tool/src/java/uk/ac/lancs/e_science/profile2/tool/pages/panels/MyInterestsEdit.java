@@ -16,6 +16,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
@@ -24,11 +25,15 @@ public class MyInterestsEdit extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyInterestsEdit.class);
+    private transient SakaiProxy sakaiProxy;
 	
 	public MyInterestsEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
-		//this panel stuff
+		//get SakaiProxy API
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		
+		//this panel
 		final Component thisPanel = this;
 				
 		//create model
@@ -86,6 +91,11 @@ public class MyInterestsEdit extends Panel {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//save() form, show message, then load display panel
 				if(save(form)) {
+
+					//post update event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_INTERESTS_UPDATE, userProfile.getUserId(), true);
+					
+					//repaint panel
 					Component newPanel = new MyInterestsDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
@@ -96,7 +106,7 @@ public class MyInterestsEdit extends Panel {
 					}
 				
 				} else {
-					String js = "alert('crap!');";
+					String js = "alert('Failed to save information. Contact your system administrator.');";
 					target.prependJavascript(js);
 				}
             }

@@ -4,6 +4,7 @@ package uk.ac.lancs.e_science.profile2.tool.pages;
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.panel.Panel;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileFriendsIllegalAccessException;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ConfirmedFriends;
 
@@ -13,7 +14,7 @@ public class ViewFriends extends BasePage {
 	
 	public ViewFriends(final String userId) {
 		
-		if(log.isDebugEnabled()) log.debug("ViewFriends()");
+		log.debug("ViewFriends()");
 		
 		//get user viewing this page
 		final String currentUserId = sakaiProxy.getCurrentUserId();
@@ -31,6 +32,10 @@ public class ViewFriends extends BasePage {
 		Panel confirmedFriends = new ConfirmedFriends("confirmedFriends", userId);
 		confirmedFriends.setOutputMarkupId(true);
 		add(confirmedFriends);
+		
+		//post view event
+		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIENDS_VIEW_OTHER, userId, false);
+		
 	}
 	
 }

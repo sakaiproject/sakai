@@ -21,6 +21,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrivacyNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
@@ -35,11 +36,10 @@ public class MyPrivacy extends BasePage {
 		
 	public MyPrivacy() {
 		
-		if(log.isDebugEnabled()) log.debug("MyPrivacy()");
-		
+		log.debug("MyPrivacy()");
 
 		//get current user
-		String userId = sakaiProxy.getCurrentUserId();
+		final String userId = sakaiProxy.getCurrentUserId();
 
 		//get the privacy object for this user from the database
 		profilePrivacy = profile.getPrivacyRecordForUser(userId);
@@ -52,6 +52,9 @@ public class MyPrivacy extends BasePage {
 			if(profilePrivacy == null) {
 				throw new ProfilePrivacyNotDefinedException("Couldn't create default privacy record for " + userId);
 			}
+			
+			//post create event
+			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PRIVACY_NEW, userId, true);
 			
 		}
 		
@@ -231,6 +234,10 @@ public class MyPrivacy extends BasePage {
 				if(save(form)){
 					formFeedback.setModel(new ResourceModel("success.privacy.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+					
+					//post update event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PRIVACY_UPDATE, userId, true);
+
 				} else {
 					formFeedback.setModel(new ResourceModel("error.privacy.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	

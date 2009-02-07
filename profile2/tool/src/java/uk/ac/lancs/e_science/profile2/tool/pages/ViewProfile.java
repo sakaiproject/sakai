@@ -39,7 +39,7 @@ public class ViewProfile extends BasePage {
 	
 	public ViewProfile(String userUuid)   {
 		
-		if(log.isDebugEnabled()) log.debug("ViewProfile()");
+		log.debug("ViewProfile()");
 
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();

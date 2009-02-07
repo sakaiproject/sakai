@@ -24,6 +24,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.jasypt.util.text.BasicTextEncryptor;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePreferencesNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.tool.components.EnablingCheckBox;
@@ -39,7 +40,7 @@ public class MyPreferences extends BasePage {
 	public MyPreferences() {
 		
 		//get current user
-		String userId = sakaiProxy.getCurrentUserId();
+		final String userId = sakaiProxy.getCurrentUserId();
 
 		//get the preferences object for this user from the database
 		profilePreferences = profile.getPreferencesRecordForUser(userId);
@@ -52,6 +53,9 @@ public class MyPreferences extends BasePage {
 			if(profilePreferences == null) {
 				throw new ProfilePreferencesNotDefinedException("Couldn't create default preferences record for " + userId);
 			}
+			
+			//post create event
+			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_NEW, userId, true);
 			
 		}
 		
@@ -239,6 +243,10 @@ public class MyPreferences extends BasePage {
 					log.info("Saved ProfilePreferences for: " + profilePreferences.getUserUuid());
 					formFeedback.setModel(new ResourceModel("success.preferences.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+					
+					//post update event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_UPDATE, userId, true);
+					
 				} else {
 					log.info("Couldn't save ProfilePreferences for: " + profilePreferences.getUserUuid());
 					formFeedback.setModel(new ResourceModel("error.preferences.save.failed"));

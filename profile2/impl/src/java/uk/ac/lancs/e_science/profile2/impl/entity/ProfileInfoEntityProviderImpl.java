@@ -60,7 +60,7 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 		
 		//get current userId
 		String currentUserId = developerHelperService.getUserIdFromRef(developerHelperService.getCurrentUserReference());
-		
+		/*
 		//get profile for the incoming userId but only bits that are visible by currentUserId
 		ProfileInfo profileInfo = profileManager.getProfileForUserXVisibleByUserY(incoming.getUserId(), currentUserId);
 	      BlogWowBlog blog = blogLogic.getBlogById(incoming.getBlog().getId());
@@ -69,7 +69,9 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 	      return entry.getId();
 	      */
 		
-		return profileInfo.getUserId();
+		//return profileInfo.getUserId();
+		
+		return null;
 	}
 	
 	public Object getSampleEntity() {
@@ -90,11 +92,12 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 		}
 		
 		//get a ProfileInfo object
-		ProfileInfo profileInfo = profileManager.getProfile(userUuid);
-		if (profileInfo == null) {
-			throw new IllegalArgumentException("No profile found with this id: " + userUuid);
-		}
-	    return profileInfo;
+		//ProfileInfo profileInfo = profileManager.getProfile(userUuid);
+		//if (profileInfo == null) {
+		//	throw new IllegalArgumentException("No profile found with this id: " + userUuid);
+		//}
+	    //return profileInfo;
+		return null;
 	}
 
 	public void deleteEntity(EntityReference ref) {

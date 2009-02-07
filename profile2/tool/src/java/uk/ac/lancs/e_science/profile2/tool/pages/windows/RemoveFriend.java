@@ -17,6 +17,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
@@ -97,6 +98,10 @@ public class RemoveFriend extends Panel {
 				//if ok, remove friend
 				if(profile.removeFriend(userX, userY)) {
 					friendActionModel.setRemoved(true);
+					
+					//post event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_REMOVE, userY, true);
+					
 					window.close(target);
 				} else {
 					text.setModel(new StringResourceModel("error.friend.remove.failed", null, new Object[]{ friendName } ));

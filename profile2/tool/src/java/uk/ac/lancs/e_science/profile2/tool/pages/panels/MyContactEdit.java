@@ -19,6 +19,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehaviour;
@@ -31,12 +32,15 @@ public class MyContactEdit extends Panel {
 	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyInfoEdit.class);
 	private WebMarkupContainer formFeedback;
+    private transient SakaiProxy sakaiProxy;
 
-	
 	public MyContactEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
-		//this panel stuff
+		//get SakaiProxy API
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		
+		//this panel
 		final Component thisPanel = this;
 				
 		//create model
@@ -109,6 +113,11 @@ public class MyContactEdit extends Panel {
 				//save() form, show message, then load display panel
 
 				if(save(form)) {
+					
+					//post update event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_CONTACT_UPDATE, userProfile.getUserId(), true);
+					
+					//repaint panel
 					Component newPanel = new MyContactDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
@@ -119,7 +128,7 @@ public class MyContactEdit extends Panel {
 					}
 				
 				} else {
-					String js = "alert('crap!');";
+					String js = "alert('Failed to save information. Contact your system administrator.');";
 					target.prependJavascript(js);
 				}
 				

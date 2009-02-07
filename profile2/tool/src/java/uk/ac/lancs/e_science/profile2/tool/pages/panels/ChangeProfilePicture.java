@@ -15,6 +15,7 @@ import org.apache.wicket.util.lang.Bytes;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
@@ -114,14 +115,21 @@ public class ChangeProfilePicture extends Panel{
 					 */
 					//save
 					if(profile.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
-						setResponsePage(new MyProfile()); //to refresh the image data
+						
+						//log it
+						log.info("User " + userId + " successfully changed profile picture.");
+						
+						//post update event
+						sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_IMAGE_CHANGE, userId, true);
+						
+						//refresh image data
+						setResponsePage(new MyProfile());
 					} else {
 						error(new StringResourceModel("error.file.save.failed", this, null).getString());
 						return;
 					}
 					
-					//if ok, log it
-					log.info("User " + userId + " successfully changed profile picture.");
+					
 				}
 				
 				

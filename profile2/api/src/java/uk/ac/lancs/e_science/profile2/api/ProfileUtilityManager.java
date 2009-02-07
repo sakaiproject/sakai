@@ -10,11 +10,15 @@ public class ProfileUtilityManager {
 	public static final int MAX_SEARCH_RESULTS = 3;
 	
 	//event constants
+	//this is so granular so we can get good reports on what and how much is being used 
 	public static final String EVENT_PROFILE_VIEW_OWN = "profile.view.own";
 	public static final String EVENT_PROFILE_VIEW_OTHER = "profile.view.other";
-	public static final String EVENT_PROFILE_UPDATE = "profile.update";
 	public static final String EVENT_PROFILE_IMAGE_CHANGE = "profile.image.change";
 	public static final String EVENT_PROFILE_NEW = "profile.new";
+		
+	public static final String EVENT_PROFILE_INFO_UPDATE = "profile.info.update";
+	public static final String EVENT_PROFILE_CONTACT_UPDATE = "profile.contact.update";
+	public static final String EVENT_PROFILE_INTERESTS_UPDATE = "profile.interests.update";
 	
 	public static final String EVENT_FRIEND_REQUEST = "profile.friend.request";
 	public static final String EVENT_FRIEND_CONFIRM = "profile.friend.confirm";
@@ -34,5 +38,6 @@ public class ProfileUtilityManager {
 	public static final String EVENT_PREFERENCES_UPDATE = "profile.prefs.update";
 
 	public static final String EVENT_STATUS_UPDATE = "profile.status.update";
+	public static final String EVENT_TWITTER_UPDATE = "profile.twitter.update";
 
 }
