@@ -3,7 +3,6 @@ package uk.ac.lancs.e_science.profile2.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -15,6 +14,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -111,7 +111,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return sakaiPerson;
 	}
 	
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public SakaiPerson createSakaiPerson(String userId) {
 		
 		SakaiPerson sakaiPerson = null;
@@ -126,7 +128,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 
 	
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson) {
 		//the save is void, so unless it throws an exception, its ok (?)
 		//I'd prefer a return value from sakaiPersonManager. this wraps it.
@@ -141,33 +145,34 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getSakaiConfigurationParameterAsString(String parameter, String defaultValue) {
 		return(ServerConfigurationService.getString(parameter, defaultValue));
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public int getSakaiConfigurationParameterAsInt(String parameter, int defaultValue) {
 		return ServerConfigurationService.getInt(parameter, defaultValue);
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public boolean getSakaiConfigurationParameterAsBoolean(String parameter, boolean defaultValue) {
 		return ServerConfigurationService.getBoolean(parameter, defaultValue);
 	}
 
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public int getMaxProfilePictureSize() {
 		return getSakaiConfigurationParameterAsInt("profile.picture.max", ProfileImageManager.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
 	}
 	
-	public LinkedHashMap<String, String> getSiteListForUser(int limitSites) {
-		LinkedHashMap sites = new LinkedHashMap();
-		//we need a good method to get a site for a specific user. screw the session
-		sites.put("site1", "test site 1");
-		sites.put("site2", "test site 2");
-		
-		return sites;
-	}
-
 	
 	/**
 	 * Setup a security advisor.
@@ -183,12 +188,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * Remove our security advisor.
 	 */
-	public void disableSecurityAdvisor(){
+	private void disableSecurityAdvisor(){
 		securityService.popAdvisor();
 	}
 
 	
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getProfileImageResourcePath(String userId, int type, String fileName) {
 		
 		//this needs to come from a sakai property perhaps?
@@ -202,6 +209,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 	}
 	
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData) {
 		
 		ContentResourceEdit resource = null;
@@ -246,7 +257,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public byte[] getResource(String resourceId) {
 		
 		byte[] data = null;
@@ -272,8 +285,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.SakaiProxy#findUsersByNameOrEmailFromUserDirectory(String search)
-	 */
+ 	* {@inheritDoc}
+ 	*/
 	public List<String> searchUsers(String search) {
 		
 		List<String> userUuids = new ArrayList<String>();
@@ -291,11 +304,33 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.SakaiProxy#postEvent(String event,String reference,boolean modify)
-	 */	
+ 	* {@inheritDoc}
+ 	*/
 	public void postEvent(String event,String reference,boolean modify) {
 		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
 	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public void sendEmail(final String userId, final String subject, final String message) {
+		
+		//get email address of the user
+		String email = getUserEmail(userId);
+		if("".equals(email)) {
+			//log 
+			log.error("Profile.sendEmail() failed. No email for userId: " + userId);
+		}
+		
+		//setup then do in thread.
+		
+		
+		
+	}
+	
+	
+	
+	
 	
 	
 	
@@ -345,6 +380,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private EventTrackingService eventTrackingService;
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.eventTrackingService = eventTrackingService;
+	}
+	
+	private EmailService emailService;
+	public void setEmailService(EmailService emailService) {
+		this.emailService = emailService;
 	}
 
 	public void init() {

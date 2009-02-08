@@ -172,7 +172,12 @@
       		<version>${entitybroker.version}</version>
       		<scope>provided</scope>
     	</dependency> 
-		
+		<dependency>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-email-api</artifactId>
+     		<version>${sakai.version}</version>
+			<scope>provided</scope>
+   		</dependency>
   	
   	
   	</dependencies>

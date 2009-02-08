@@ -1425,7 +1425,20 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	//move this and the encryption methods stuck in the tool to a API somethere, but I don't really want it exposed.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//TODO move this and the encryption methods stuck in the tool to a API somewhere, but I don't really want it exposed.
+	//perhaps the encrypt method should be in this API as well and always bound to the object, ie on the pwd field in Preferences gets and saves
+	//so it's never exposed
 	private String decrypt(final String encryptedText) {
 		
 		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
@@ -1433,18 +1446,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		return(textEncryptor.decrypt(encryptedText));
 		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	//private method to query SakaiPerson for matches

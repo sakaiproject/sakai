@@ -44,9 +44,7 @@ public interface SakaiProxy {
 	public String getSakaiConfigurationParameterAsString(String parameter, String defaultValue);
 	public int getSakaiConfigurationParameterAsInt(String parameter, int defaultValue);
 	public boolean getSakaiConfigurationParameterAsBoolean(String parameter, boolean defaultValue);
-	
-	public LinkedHashMap<String,String> getSiteListForUser(int limitSites);
-			
+				
 	public String getProfileImageResourcePath(String userId, int type, String fileName);
 	
 	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData);
@@ -73,8 +71,18 @@ public interface SakaiProxy {
 	 * @param modify		true if something changed, false if just access
 	 * 
 	 * NOTE: ideally, we could have the context in here which would be the person who performed the event
-	 * rather than having to crossmatch it with a session
+	 * rather than having to crossmatch it with a session.
+	 * In most if not all of these events, the reference is the userId of the person who had the event performed on them
+	 * since a user profile is not site specific.
 	 */
 	public void postEvent(String event,String reference,boolean modify);
 
+	/**
+	 * Send an email message
+	 * 
+	 * @param userId	userId to send the message to
+	 * @param subject	subject of message
+	 * @param message	contents of message
+	 */
+	public void sendEmail(String userId, String subject, String message);
 }
