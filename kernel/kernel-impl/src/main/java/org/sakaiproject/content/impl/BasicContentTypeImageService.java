@@ -217,7 +217,7 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 				}
 				
 				// Debug
-				System.out.println(entry.getKey() + " : " + entry.getValue());
+				M_log.debug(entry.getKey() + " : " + entry.getValue());
 			}
 		}
 		
