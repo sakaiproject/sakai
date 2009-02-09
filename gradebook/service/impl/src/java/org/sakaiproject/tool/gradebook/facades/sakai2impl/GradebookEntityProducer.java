@@ -68,7 +68,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		// Only create Gradebook storage if the Gradebook tool is actually
 		// part of the new site.
 		if (toolPlacement && !gradebookFrameworkService.isGradebookDefined(context)) {
-			if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
+			if (log.isDebugEnabled()) log.debug("Gradebook being added to context " + context);
 			gradebookFrameworkService.addGradebook(context, context);
 		}
 	}
@@ -76,7 +76,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 	public void contextUpdated(String context, boolean toolPlacement) {
 		if (toolPlacement) {
 			if (!gradebookFrameworkService.isGradebookDefined(context)) {
-				if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
+				if (log.isDebugEnabled()) log.debug("Gradebook being added to context " + context);
 				gradebookFrameworkService.addGradebook(context, context);
 			}
 		} else {
@@ -84,14 +84,14 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 				// We've been directed to leave Gradebook data in place when
 				// the tool is removed from a site, just in case the site
 				// owner changes their mind later.
-				if (log.isInfoEnabled()) log.info("Gradebook removed from context " + context + " but associated data will remain until context deletion");
+				if (log.isDebugEnabled()) log.debug("Gradebook removed from context " + context + " but associated data will remain until context deletion");
 			}
 		}
 	}
 
 	public void contextDeleted(String context, boolean toolPlacement) {
 		if (gradebookFrameworkService.isGradebookDefined(context)) {
-			if (log.isInfoEnabled()) log.info("Gradebook being deleted from context " + context);
+			if (log.isDebugEnabled()) log.debug("Gradebook being deleted from context " + context);
 			try {
 				gradebookFrameworkService.deleteGradebook(context);
 			} catch (GradebookNotFoundException e) {

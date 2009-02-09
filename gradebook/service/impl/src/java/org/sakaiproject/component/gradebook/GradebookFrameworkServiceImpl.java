@@ -62,7 +62,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
             log.warn("You can not add a gradebook with uid=" + uid + ".  That gradebook already exists.");
             throw new GradebookExistsException("You can not add a gradebook with uid=" + uid + ".  That gradebook already exists.");
         }
-        if (log.isInfoEnabled()) log.info("Adding gradebook uid=" + uid + " by userUid=" + getUserUid());
+        if (log.isDebugEnabled()) log.debug("Adding gradebook uid=" + uid + " by userUid=" + getUserUid());
 
         createDefaultLetterGradeMapping(getHardDefaultLetterMapping());
         
@@ -247,7 +247,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 
 	public void deleteGradebook(final String uid)
 		throws GradebookNotFoundException {
-        if (log.isInfoEnabled()) log.info("Deleting gradebook uid=" + uid + " by userUid=" + getUserUid());
+        if (log.isDebugEnabled()) log.debug("Deleting gradebook uid=" + uid + " by userUid=" + getUserUid());
         final Long gradebookId = getGradebook(uid).getId();
 
         // Worse of both worlds code ahead. We've been quick-marched
