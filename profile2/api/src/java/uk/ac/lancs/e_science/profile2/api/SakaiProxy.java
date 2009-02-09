@@ -1,6 +1,5 @@
 package uk.ac.lancs.e_science.profile2.api;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -13,11 +12,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
  *
  */
 public interface SakaiProxy {
-	
-	public static final int FIRST_RECORD = 0;		
-	public static final int MAX_RECORDS = 99;
-	
-	
+
 	
 	public String getCurrentSiteId();
 	
@@ -85,4 +80,38 @@ public interface SakaiProxy {
 	 * @param message	contents of message
 	 */
 	public void sendEmail(String userId, String subject, String message);
+	
+	
+	/**
+	 * Get the name of this Sakai installation (ie Sakai@Lancs)
+	 * @return
+	 */
+	public String getServiceName();
+	
+	/**
+	 * Get the DNS name of this Sakai server (ie sakai.lancs.ac.uk)
+	 * @return
+	 */
+	public String getServerName();
+	
+	/**
+	 * Updates a user's email address
+	 * If the user is a provided user (ie from LDAP) this will probably fail
+	 * so only internal accounts can be updated. That's ok since LDAP accounts will always 
+	 * have an email address associated with tehm (most likely ;)
+	 * 
+	 * @param userId	uuid of the user
+	 * @param email	
+	 */
+	public void updateEmailForUser(String userId, String email);
+	
+	
+	public String getPortalUrl();
+	
+	public String getCurrentPageId();
+	
+	public String getCurrentToolId();
+	
+	public String getDirectUrl(String toolString);
+
 }

@@ -7,7 +7,11 @@ public class ProfileUtilityManager {
 	public static final String DEFAULT_DATE_FORMAT_HIDE_YEAR = "dd MMMM"; 
 
 	//max number of search result items before its limited
-	public static final int MAX_SEARCH_RESULTS = 3;
+	public static final int MAX_SEARCH_RESULTS = 30;
+	
+	//record limits used in searchUsers (could we combine with above?)
+	public static final int FIRST_RECORD = 0;		
+	public static final int MAX_RECORDS = 99;
 	
 	//event constants
 	//this is so granular so we can get good reports on what and how much is being used 

@@ -2,10 +2,12 @@ package uk.ac.lancs.e_science.profile2.tool;
 
 
 import org.apache.wicket.Application;
+import org.apache.wicket.SharedResources;
 import org.apache.wicket.protocol.http.WebApplication;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
+import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
 import uk.ac.lancs.e_science.profile2.tool.pages.errors.InternalErrorPage;
 import uk.ac.lancs.e_science.profile2.tool.pages.errors.SessionExpiredPage;
 
@@ -43,6 +45,8 @@ public class ProfileApplication extends WebApplication {
 		getMarkupSettings().setDefaultBeforeDisabledLink(null);
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 
+		SharedResources sharedResources = getSharedResources(); 
+	    sharedResources.putClassAlias(MyFriends.class, "myfriends"); 
 		
 		  /*
          * In the following code example we will create a Jasypt byte 

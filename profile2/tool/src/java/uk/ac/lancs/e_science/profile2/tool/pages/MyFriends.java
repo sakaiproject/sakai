@@ -2,13 +2,11 @@ package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
 import org.apache.log4j.Logger;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ConfirmedFriends;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.RequestedFriends;
 
 public class MyFriends extends BasePage {
@@ -22,7 +20,7 @@ public class MyFriends extends BasePage {
 	public MyFriends() {
 		
 		log.debug("MyFriends()");
-		
+				
 		//get current user
 		final String userId = sakaiProxy.getCurrentUserId();
 

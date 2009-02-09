@@ -187,6 +187,10 @@ public class MyContactEdit extends Panel {
 
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );
+			
+			//try to update their email address in their account
+			sakaiProxy.updateEmailForUser(userId, userProfile.getEmail());
+						
 			return true;
 		} else {
 			log.info("Couldn't save SakaiPerson for: " + userId);

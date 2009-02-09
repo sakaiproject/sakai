@@ -17,6 +17,7 @@
 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 	</bean>
 	
 	<!--  ProfileIntegrationManager -->

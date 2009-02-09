@@ -22,6 +22,7 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
+import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
 
 public class AddFriend extends Panel {
 
@@ -44,7 +45,7 @@ public class AddFriend extends Panel {
         
         //get friendName
         final String friendName = sakaiProxy.getUserDisplayName(userY);
-                
+        
         //window setup
 		window.setTitle(new StringResourceModel("title.friend.add", null, new Object[]{ friendName } )); 
 		window.setInitialHeight(150);
@@ -74,7 +75,7 @@ public class AddFriend extends Panel {
         //setup form		
 		Form form = new Form("form");
 		form.setOutputMarkupId(true);
-		
+				
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.friend.add"), form) {
 			private static final long serialVersionUID = 1L;
@@ -113,12 +114,27 @@ public class AddFriend extends Panel {
 					return;
 				}
 				
+				
+				
 				//if ok, request friend
 				if(profile.requestFriend(userX, userY)) {
 					friendActionModel.setRequested(true);
 					
 					//post event
 					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_REQUEST, userY, true);
+					
+					//get name of this user
+			        final String currentUserName = sakaiProxy.getUserDisplayName(userX);
+			        final String serviceName = sakaiProxy.getServiceName();
+			        final String url = sakaiProxy.getDirectUrl((String) urlFor(MyFriends.class, null));
+
+					//send email
+					String subject = new StringResourceModel("email.friend.request.subject", null, new Object[]{ currentUserName, serviceName } ).getObject().toString();
+					StringBuffer message = new StringBuffer();
+					message.append(new StringResourceModel("email.friend.request.message", null, new Object[]{ currentUserName, serviceName, url, new ResourceModel("email.friend.request.link")} ).getObject().toString());
+					message.append(new StringResourceModel("email.friend.footer", this, null).getString());
+
+					sakaiProxy.sendEmail(userY, subject, message.toString());
 					
 					window.close(target);
 				} else {

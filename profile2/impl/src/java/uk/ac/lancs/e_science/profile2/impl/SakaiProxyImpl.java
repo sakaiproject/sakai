@@ -1,6 +1,7 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -10,7 +11,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -21,13 +22,17 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 
 /**
@@ -149,21 +154,21 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public String getSakaiConfigurationParameterAsString(String parameter, String defaultValue) {
-		return(ServerConfigurationService.getString(parameter, defaultValue));
+		return(serverConfigurationService.getString(parameter, defaultValue));
 	}
 	
 	/**
  	* {@inheritDoc}
  	*/
 	public int getSakaiConfigurationParameterAsInt(String parameter, int defaultValue) {
-		return ServerConfigurationService.getInt(parameter, defaultValue);
+		return serverConfigurationService.getInt(parameter, defaultValue);
 	}
 	
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean getSakaiConfigurationParameterAsBoolean(String parameter, boolean defaultValue) {
-		return ServerConfigurationService.getBoolean(parameter, defaultValue);
+		return serverConfigurationService.getBoolean(parameter, defaultValue);
 	}
 
 	/**
@@ -292,7 +297,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		List<String> userUuids = new ArrayList<String>();
 		
 		//search for users
-		List<User> results = new ArrayList<User>(userDirectoryService.searchUsers(search, SakaiProxy.FIRST_RECORD, SakaiProxy.MAX_RECORDS));
+		List<User> results = new ArrayList<User>(userDirectoryService.searchUsers(search, ProfileUtilityManager.FIRST_RECORD, ProfileUtilityManager.MAX_RECORDS));
 		
 		for(Iterator<User> i = results.iterator(); i.hasNext();){
 			User user = (User)i.next();
@@ -315,19 +320,144 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public void sendEmail(final String userId, final String subject, final String message) {
 		
-		//get email address of the user
-		String email = getUserEmail(userId);
-		if("".equals(email)) {
-			//log 
-			log.error("Profile.sendEmail() failed. No email for userId: " + userId);
+		class EmailSender implements Runnable{
+			private Thread runner;
+			private String emailTo;
+			private String emailFrom;
+			private String subject;
+			private String message;
+
+			public EmailSender(String emailTo, String emailFrom, String subject, String message) {
+				this.emailTo = emailTo;
+				this.emailFrom = emailFrom;
+				this.subject = subject;
+				this.message = message;
+				runner = new Thread(this,"Profile2 EmailSender thread");
+				runner.start();
+			}
+
+			//do it!
+			public synchronized void run() {
+				try {
+					StringBuffer emailText = new StringBuffer();
+					emailText.append("<html><body>");
+					emailText.append(message);
+					emailText.append("</body></html>");
+
+					List<String> additionalHeaders = new ArrayList<String>();
+					additionalHeaders.add("Content-Type: text/html; charset=ISO-8859-1");
+				
+					//do it
+					emailService.send(emailFrom, emailTo, subject, emailText.toString(), emailTo, emailFrom, additionalHeaders);
+					
+					log.info("Email sent to: " + userId);
+				} catch (Exception e) {
+					log.error("SakaiProxy.sendEmail() failed for userId: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+				}
+				
+			}
 		}
 		
-		//setup then do in thread.
+		//get email address of the user
+		String emailTo = getUserEmail(userId);
+		if("".equals(emailTo)) {
+			//log 
+			log.error("SakaiProxy.sendEmail() failed. No email for userId: " + userId);
+			return;
+		}
 		
+		//get address to send the message from
+		String emailFrom = "no-reply@" + getServerName();
 		
+		//instantiate class to send the email
+		new EmailSender(emailTo, emailFrom, subject, message);
 		
 	}
+
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getServerName() {
+		return serverConfigurationService.getServerName();
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getServiceName() {
+		return getSakaiConfigurationParameterAsString("ui.service", "Sakai");
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public void updateEmailForUser(String userId, String email) {
+		
+		/* this should probably check if a user is allowed to do this first.
+		 * LDAP users can't */
+		try {
+			UserEdit userEdit = null;
+			userEdit = userDirectoryService.editUser(userId);
+			userEdit.setEmail(email);
+			userDirectoryService.commitEdit(userEdit);
+			
+			log.info("User email updated for: " + userId);
+		}
+		catch (Exception e) {  
+			log.error("Profile.updateEmailForUser() failed for userId: " + userId);
+		}
+	}
+
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getPortalUrl() {
+		return serverConfigurationService.getServerUrl() + "/portal";
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getCurrentPageId() {
+		Placement placement = toolManager.getCurrentPlacement();
+		
+		if(placement instanceof ToolConfiguration) {
+			return ((ToolConfiguration) placement).getPageId();
+		}
+		return null;
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getCurrentToolId(){
+		return toolManager.getCurrentPlacement().getId();
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getDirectUrl(String string){
+		String portalUrl = getPortalUrl();
+		String pageId = getCurrentPageId();
+		String siteId = getCurrentSiteId();
+		String toolId = getCurrentToolId();
+				
+		try {
+			String url = portalUrl
+						+ "/site/" + siteId
+						+ "/page/" + pageId
+						+ "?toolstate-" + toolId + "="
+							+ URLEncoder.encode(string,"UTF-8");
+		
+			return url;
+		}
+		catch(Exception e) {
+			log.error("SakaiProxy.getDirectUrl():" + e.getClass() + ":" + e.getMessage());
+			return null;
+		}
+	}
 	
 	
 	
@@ -385,6 +515,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private EmailService emailService;
 	public void setEmailService(EmailService emailService) {
 		this.emailService = emailService;
+	}
+	
+	private ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 	public void init() {
