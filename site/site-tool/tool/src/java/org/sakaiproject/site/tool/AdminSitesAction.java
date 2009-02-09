@@ -23,6 +23,7 @@ package org.sakaiproject.site.tool;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -689,6 +690,12 @@ public class AdminSitesAction extends PagedResourceActionII
 	 */
 	private List findNonHelperTools()
 	{
+		class ToolTitleComparator implements Comparator{
+			public int compare(Object tool0, Object tool1) {
+				return ((Tool)tool0).getTitle().compareTo( ((Tool)tool1).getTitle() );
+			}
+		}
+		
 		// get all tools
 		Set all = ToolManager.findTools(null, null);
 
@@ -703,7 +710,9 @@ public class AdminSitesAction extends PagedResourceActionII
 		// make a list for sorting
 		List features = new Vector();
 		features.addAll(all);
-		Collections.sort(features);
+		//Collections.sort(features);
+		Collections.sort(features, new ToolTitleComparator());
+
 
 		return features;
 	}
