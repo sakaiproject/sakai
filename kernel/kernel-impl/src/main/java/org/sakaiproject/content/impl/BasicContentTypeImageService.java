@@ -389,7 +389,7 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 		}
 
 		// if not there, use the DEFAULT_FILE
-		if (image == null) image = DEFAULT_FILE;
+		if (image == null || image.indexOf("missing key:") != -1) image = DEFAULT_FILE;
 
 		return image;
 
@@ -413,7 +413,7 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 		}
 		
 		// if not there, use the content type as the name
-		if (name == null) name = contentType;
+		if (name == null  || name.indexOf("missing key:") != -1) name = contentType;
 
 		return name;
 
