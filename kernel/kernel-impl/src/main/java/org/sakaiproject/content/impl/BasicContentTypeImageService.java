@@ -220,7 +220,10 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 				M_log.debug(entry.getKey() + " : " + entry.getValue());
 			}
 		}
-		
+		else {
+			M_log.warn("init(): Resource loader failed to load content type extensions bundle");
+		}
+			
 //		try
 //		{
 //			// M_log.info("init()");
