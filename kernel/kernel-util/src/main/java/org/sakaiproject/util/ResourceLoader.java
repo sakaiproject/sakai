@@ -322,6 +322,22 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	}
 
 	/**
+	 ** Returns true if the given key is defined, otherwise false
+	 **/
+	public boolean getIsValid( String key )
+	{
+		try
+		{
+			String value = getBundle().getString(key);
+			return value != null;
+		}
+		catch (MissingResourceException e)
+		{
+			return false;
+		}
+	} 
+	
+	/**
 	 * Return string value for specified property in current locale specific ResourceBundle
 	 * 
 	 * @param key

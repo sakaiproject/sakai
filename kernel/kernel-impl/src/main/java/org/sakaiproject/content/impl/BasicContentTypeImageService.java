@@ -382,14 +382,13 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	{
 		String image = null;
 		
-		if(contentType != null)
+		if(contentType != null && m_contentTypeImages.getIsValid( contentType.toLowerCase() ) )
 		{
 			image = m_contentTypeImages.getString(contentType.toLowerCase());
-			// image = m_contentTypeImages.getProperty(contentType.toLowerCase());
 		}
 
 		// if not there, use the DEFAULT_FILE
-		if (image == null || image.indexOf("missing key:") != -1) image = DEFAULT_FILE;
+		if (image == null ) image = DEFAULT_FILE;
 
 		return image;
 
