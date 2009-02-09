@@ -443,7 +443,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	}
 
 	private void saveScores() throws StaleObjectModificationException {
-        if (logger.isInfoEnabled()) logger.info("saveScores " + assignmentId);
+        if (logger.isDebugEnabled()) logger.debug("saveScores " + assignmentId);
 		
         Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, updatedGradeRecords, updatedComments);
 

@@ -97,7 +97,7 @@ public class GradebookBean extends InitializableBean {
             if(gradebook == null)
             	throw new IllegalStateException("Gradebook gradebook == null!");
             newGradebookId = gradebook.getId();
-            if (logger.isInfoEnabled()) logger.info("setGradebookUid gradebookUid=" + newGradebookUid + ", gradebookId=" + newGradebookId);
+            if (logger.isDebugEnabled()) logger.debug("setGradebookUid gradebookUid=" + newGradebookUid + ", gradebookId=" + newGradebookId);
         }
         this.gradebookUid = newGradebookUid;
         setGradebookId(newGradebookId);
@@ -106,7 +106,7 @@ public class GradebookBean extends InitializableBean {
     private final void refreshFromRequest() {
         String requestUid = contextManagementService.getGradebookUid(FacesContext.getCurrentInstance().getExternalContext().getRequest());
         if ((requestUid != null) && (!requestUid.equals(gradebookUid))) {
-            if (logger.isInfoEnabled()) logger.info("resetting gradebookUid from " + gradebookUid);
+            if (logger.isDebugEnabled()) logger.debug("resetting gradebookUid from " + gradebookUid);
             setGradebookUid(requestUid);
         }
     }
