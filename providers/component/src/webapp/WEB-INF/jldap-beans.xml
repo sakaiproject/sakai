@@ -82,6 +82,15 @@
 		<!-- property name="operationTimeout">
 			<value>5000</value>
 		</property -->
+		
+		<!-- Optional. Control depth of all searches. Possible values:
+			0 - LDAPConnection.SCOPE_BASE - base object only
+			1 - LDAPConnection.SCOPE_ONE - immediate children of base object
+			2 - LDAPConnection.SCOPE_SUB - recursive 
+			Defaults to JLDAPDirectoryProvider.DEFAULT_SEARCH_SCOPE (2) -->
+		<!-- property name="searchScope">
+			<value>2</value>
+		</property -->
 
 		<!-- Optional. User entry cache ttl in millis. Defaults
 			to JLDAPDirectoryProvider.DEFAULT_CACHE_TTL (300000)-->

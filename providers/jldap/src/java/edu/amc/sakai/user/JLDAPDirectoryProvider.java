@@ -69,6 +69,11 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 
 	/** Default referral following behavior */
 	public static final boolean DEFAULT_IS_FOLLOW_REFERRALS = false;
+	
+	/** Default search scope for filters executed by 
+	 * {@link #searchDirectory(String, LDAPConnection, LdapEntryMapper, String[], String, int)}
+	 */
+	public static final int DEFAULT_SEARCH_SCOPE = LDAPConnection.SCOPE_SUB;
 
 	/** Default LDAP user entry cache TTL */
 	public static final long DEFAULT_CACHE_TTL = 5 * 60 * 1000;
@@ -138,6 +143,8 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * <code>LDAPConstraints.setTimeLimit(int)<code>.
 	 */
 	private int operationTimeout = DEFAULT_OPERATION_TIMEOUT_MILLIS;
+	
+	private int searchScope = DEFAULT_SEARCH_SCOPE;
 
 	/** 
 	 * User entry attribute mappings. Keys are logical attr names,
@@ -924,12 +931,13 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 						searchBaseDn + "][filter = " + filter + 
 						"][return attribs = " + 
 						Arrays.toString(searchResultPhysicalAttributeNames) + 
-						"][max results = " + maxResults + "]");
+						"][max results = " + maxResults + "]" +
+						"][search scope = " + searchScope + "]");
 			}
 
 			LDAPSearchResults searchResults = 
 				conn.search(searchBaseDn, 
-						LDAPConnection.SCOPE_SUB, 
+						searchScope, 
 						filter, 
 						searchResultPhysicalAttributeNames, 
 						false, 
@@ -1557,6 +1565,38 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public void setAuthenticateWithProviderFirst(
 			boolean authenticateWithProviderFirst) {
 		this.authenticateWithProviderFirst = authenticateWithProviderFirst;
+	}
+	
+	/**
+	 * Access the configured search scope for all filters executed by
+	 * {@link #searchDirectory(String, LDAPConnection, LdapEntryMapper, String[], String, int)}. 
+	 * int value corresponds to a constant in {@link LDAPConnection}:
+	 * SCOPE_BASE = 0, SCOPE_ONE = 1, SCOPE_SUB = 2. Defaults to
+	 * {@link #DEFAULT_SEARCH_SCOPE}.
+	 * 
+	 */
+	public int getSearchScope() {
+		return searchScope;
+	}
+	
+	/**
+	 * Set the configured search scope for all filters executed by
+	 * {@link #searchDirectory(String, LDAPConnection, LdapEntryMapper, String[], String, int)}.
+	 * Validated
+	 * 
+	 * @param searchScope
+	 * @throws IllegalArgumentException if given scope value is invalid
+	 */
+	public void setSearchScope(int searchScope) throws IllegalArgumentException {
+		switch ( searchScope ) {
+			case LDAPConnection.SCOPE_BASE :
+			case LDAPConnection.SCOPE_ONE :
+			case LDAPConnection.SCOPE_SUB :
+				this.searchScope = searchScope;
+				return;
+			default :
+				throw new IllegalArgumentException("Invalid search scope [" + searchScope +"]");
+		}
 	}
 	
 }
