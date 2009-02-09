@@ -210,7 +210,7 @@ FCKConfig.MaxUndoLevels = 15 ;
 FCKConfig.DisableObjectResizing = false ;
 FCKConfig.DisableFFTableHandles = true ;
 
-FCKConfig.LinkDlgHideTarget	= true ;
+FCKConfig.LinkDlgHideTarget	= false ;
 FCKConfig.LinkDlgHideAdvanced	= false ;
 
 FCKConfig.ImageDlgHideLink	= true ;
