@@ -59,8 +59,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import sun.util.logging.resources.logging;
-
 public class CommonCartridgeFileParser extends IMSFileParser {
 	private static final String CC_SCHEMA_NAME = "IMS Common Cartridge";
 	
