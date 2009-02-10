@@ -41,6 +41,8 @@ import org.sakaiproject.news.api.NewsItemEnclosure;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import com.sun.syndication.feed.synd.SyndEnclosure;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -88,6 +90,8 @@ public class BasicNewsChannel implements NewsChannel
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BasicNewsService.class);
 	
+	private ResourceLoader rl = new ResourceLoader("news-impl");
+
 	
 	/**
 	 * Construct.
@@ -121,14 +125,21 @@ public class BasicNewsChannel implements NewsChannel
 	{
 		SyndFeed feed = null;
 
-		ResourceLoader rl = new ResourceLoader("news-impl");
-
 		try
 		{
+			// if feedUrl is on this sakai server, add session parameter
+			if ( source.startsWith( ServerConfigurationService.getServerUrl() ) )
+			{
+				String sessionId = SessionManager.getCurrentSession().getId();
+				if ( source.indexOf("?")!= -1 )
+					source = source+"&session="+sessionId;
+				else
+					source = source+"?session="+sessionId;
+			}
+			
 			URL feedUrl = new URL(source);
 			FeedFetcher feedFetcher = new HttpURLFeedFetcher();
 			feed = feedFetcher.retrieveFeed(feedUrl);
-		    
 		}
 		catch (MalformedURLException e)
 		{
