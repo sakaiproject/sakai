@@ -51,9 +51,6 @@ import org.apache.xerces.util.DOMUtil;
 
 
 
-
-
-
 public class ETSUserNotificationProviderImpl implements UserNotificationProvider {
 	
 	private static Log M_log = LogFactory.getLog(ETSUserNotificationProviderImpl.class);
