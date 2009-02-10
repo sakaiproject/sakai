@@ -89,6 +89,14 @@ public interface SakaiProxy {
 	public String getServiceName();
 	
 	/**
+	 * Gets the portalUrl configuration parameter (ie http://sakai.lancs.ac.uk/portal)
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public String getPortalUrl();
+	
+	/**
 	 * Get the DNS name of this Sakai server (ie sakai.lancs.ac.uk)
 	 * @return
 	 */
@@ -106,13 +114,13 @@ public interface SakaiProxy {
 	public void updateEmailForUser(String userId, String email);
 	
 	
-	public String getPortalUrl();
-	
-	public String getCurrentPageId();
-	
-	public String getCurrentToolId();
-	
-	public String getDirectUrl(String toolString);
+	/**
+	 * Creates a direct URL to a user's profile page on their My Workspace
+	 * Any other parameters supplied in string are appended and encoded.
+	 * @param toolString
+	 * @return
+	 */
+	public String getDirectUrlToUserProfile(String userId, String extraParams);
 	
 	/**
 	 * Check if a user is allowed to update their email address in their Account

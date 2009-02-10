@@ -19,11 +19,11 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -382,6 +382,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getServerName();
 	}
 	
+	public String getPortalUrl() {
+		return serverConfigurationService.getPortalUrl();
+	}
+	
 	/**
  	* {@inheritDoc}
  	*/
@@ -412,16 +416,56 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getPortalUrl() {
-		return serverConfigurationService.getServerUrl() + "/portal";
-	}
+
 	
 	/**
  	* {@inheritDoc}
  	*/
+	public String getDirectUrlToUserProfile(final String userId, final String extraParams) {
+		String portalUrl = getPortalUrl();
+		
+		String siteId = getUserMyWorkspace(userId);
+		
+		ToolConfiguration toolConfig = getFirstInstanceOfTool(siteId, ProfileUtilityManager.TOOL_ID);
+		if(toolConfig == null) {
+			log.error("Profile.getDirectUrlToUserProfile() failed for userId: " + userId);
+			return null;
+		}
+		
+		String pageId = toolConfig.getPageId();
+		String placementId = toolConfig.getId();
+				
+		try {
+			StringBuilder url = new StringBuilder();
+			url.append(portalUrl);
+			url.append("/site/");
+			url.append(siteId);
+			url.append("/page/");
+			url.append(pageId);
+			url.append("?toolstate-");
+			url.append(placementId);
+			url.append("=");
+			url.append(URLEncoder.encode(extraParams,"UTF-8"));
+		
+			return url.toString();
+		}
+		catch(Exception e) {
+			log.error("SakaiProxy.getDirectUrl():" + e.getClass() + ":" + e.getMessage());
+			return null;
+		}
+		
+	}
+
+	
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isEmailUpdateAllowed(String userId) {
+		return userDirectoryService.allowUpdateUserEmail(userId);
+	}
+
+	/*
 	public String getCurrentPageId() {
 		Placement placement = toolManager.getCurrentPlacement();
 		
@@ -431,16 +475,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return null;
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getCurrentToolId(){
+	
+	private String getCurrentToolId(){
 		return toolManager.getCurrentPlacement().getId();
 	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
+		
 	public String getDirectUrl(String string){
 		String portalUrl = getPortalUrl();
 		String pageId = getCurrentPageId();
@@ -461,16 +500,42 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return null;
 		}
 	}
+	*/
+	
+	
+	
+	
+	
+	
 	
 	/**
- 	* {@inheritDoc}
- 	*/
-	public boolean isEmailUpdateAllowed(String userId) {
-		return userDirectoryService.allowUpdateUserEmail(userId);
+	 * Gets the siteId of the given user's My Workspace
+	 * Generally ~userId but may not be
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	private String getUserMyWorkspace(String userId) {
+		return siteService.getUserSiteId(userId);
 	}
-
 	
-	
+		
+	/**
+	 * Gets the ToolConfiguration of a page in a site containing a given tool
+	 * 
+	 * @param siteId	siteId
+	 * @param toolId	toolId ie sakai.profile2
+	 * @return
+	 */
+	private ToolConfiguration getFirstInstanceOfTool(String siteId, String toolId) {
+		try {
+			return siteService.getSite(siteId).getToolForCommonId(toolId);
+		}
+		catch (IdUnusedException e){
+			log.error("Profile.getFirstInstanceOfTool() failed for siteId: " + siteId + " and toolId: " + toolId);
+			return null;
+		}
+	}
 	
 	
 	

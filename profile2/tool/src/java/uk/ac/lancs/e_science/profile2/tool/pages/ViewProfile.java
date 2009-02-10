@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -18,6 +19,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.protocol.http.RequestUtils;
+import org.apache.wicket.util.value.ValueMap;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
@@ -493,8 +496,14 @@ public class ViewProfile extends BasePage {
 	
 	}
 	
-	
-	
+	/**
+	 * This constructor is called if we have a pageParameters object containing the userUuid as an id parameter
+	 * Just redirects to normal ViewProfile(String userUuid)
+	 * @param parameters
+	 */
+	public ViewProfile(PageParameters parameters) {
+		this(parameters.getString("id"));
+	}
 	
 	
 	
