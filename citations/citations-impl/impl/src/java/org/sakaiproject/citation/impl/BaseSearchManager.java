@@ -524,7 +524,7 @@ public class BaseSearchManager implements SearchManager, Observer
         public void setLastPage(boolean lastPage)
         {
 	        this.m_lastPage = lastPage;
-	        
+
         }
 
 		/* (non-Javadoc)
@@ -816,13 +816,13 @@ public class BaseSearchManager implements SearchManager, Observer
 		public void setSearchThread(Thread searchThread) {
 			m_searchThread = searchThread;
 		}
-		
+
 		public void resetSearch()
 		{
 			this.m_pageOrder.clear();
-			
+
 			this.m_searchResults.clear();
-			
+
 		}
 
 	}
@@ -1651,10 +1651,10 @@ public class BaseSearchManager implements SearchManager, Observer
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.citation.api.SearchDatabaseHierarchy#getNumMaxSearchableDb()
 		 */
-		public int getNumMaxSearchableDb() 
+		public int getNumMaxSearchableDb()
 		{
 		  int number = m_configService.getSiteConfigMaximumSearchableDBs();
-		  
+
 		  m_log.debug("getNumMaxSearchableDb() returns " + number);
 			return number;
 		}
@@ -1693,7 +1693,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		public Repository getRepository()
 		{
 			Repository repository = null;
-			
+
 			// get a RepositoryManager
 			RepositoryManager repositoryManager = null;
 			try
@@ -2150,9 +2150,9 @@ public class BaseSearchManager implements SearchManager, Observer
 	    						re.getMessage().equals( OsidException.OPERATION_FAILED ) )
 	    				{
 	    					search.setLastPage(true);
-	    					
+
 	    	    			search.resetSearch();
-	    					
+
 
 	    					// search is over, all assets that have been retrieved have been
 	    					// optionally check searchStatus Properties for further details or information to present in UI
@@ -2184,7 +2184,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	    				re.getMessage().equals( METASEARCH_ERROR ) )
 	    		{
 	    			search.setLastPage(true);
-	    			
+
 	    			// search is over, all assets that have been retrieved have been
 	    			// optionally check searchStatus Properties for further details or information to present in UI
 	    			String message = getSearchStatusMessage(repository);
@@ -2459,7 +2459,7 @@ public class BaseSearchManager implements SearchManager, Observer
     }
     catch (Exception exception)
     {
-      m_log.warn("Failed to load "
+      m_log.info("Failed to load "
               +  databaseXmlReference
               +  " (no changes made): "
               +  exception);
