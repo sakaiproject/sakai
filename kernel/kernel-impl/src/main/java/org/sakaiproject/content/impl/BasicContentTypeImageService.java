@@ -69,9 +69,15 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	protected Properties m_contentTypes = null;
 
 	protected SortedMap<String, SortedSet<String>> m_mimetypes = null;
+	
+	/** Default file extension for unknown types. */
+	protected static final String DEFAULT_EXTENSION = "";
 
-	/** Default file name for unknown types. */
-	protected static final String DEFAULT_FILE = "/sakai/generic.gif";
+	/** Default image file for unknown types. */
+	protected static final String DEFAULT_IMAGE = "/sakai/generic.gif";
+	
+	/** Default file display name for unknown types. */
+	protected static final String DEFAULT_DISPLAY_NAME = "unknown";
 
 	/** Default content type for unknown extensions. */
 	protected static final String UNKNOWN_TYPE = "application/octet-stream";
@@ -383,15 +389,12 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	 */
 	public String getContentTypeImage(String contentType)
 	{
-		String image = null;
+		String image = DEFAULT_IMAGE;
 		
-		if(contentType != null && m_contentTypeImages.getIsValid( contentType.toLowerCase() ) )
+		if (contentType != null && m_contentTypeImages.getIsValid(contentType.toLowerCase()))
 		{
 			image = m_contentTypeImages.getString(contentType.toLowerCase());
 		}
-
-		// if not there, use the DEFAULT_FILE
-		if (image == null ) image = DEFAULT_FILE;
 
 		return image;
 
@@ -406,21 +409,17 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	 */
 	public String getContentTypeDisplayName(String contentType)
 	{
-		String name = contentType;
+		String name = DEFAULT_DISPLAY_NAME;
 		
-		if(contentType != null)
+		if (contentType != null && m_contentTypeDisplayNames.getIsValid(contentType.toLowerCase())) 
 		{
 			name = m_contentTypeDisplayNames.getString(contentType.toLowerCase());
-			// name = m_contentTypeDisplayNames.getProperty(contentType.toLowerCase());
 		}
 		
-		// if not there, use the content type as the name
-		if (name == null  || name.indexOf("missing key:") != -1) name = contentType;
-
 		return name;
 
 	} // getContentTypeDisplayName
-
+	
 	/**
 	 * Get the file extension value of the content type.
 	 * 
@@ -430,19 +429,15 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	 */
 	public String getContentTypeExtension(String contentType)
 	{
-		String extension = m_contentTypeExtensions.getString(contentType.toLowerCase());
-		// String extension = m_contentTypeExtensions.getProperty(contentType.toLowerCase());
-
-		// if not there, use empty String
-		if (extension == null)
+		String extension = DEFAULT_EXTENSION;
+		
+		if (contentType != null && m_contentTypeExtensions.getIsValid(contentType.toLowerCase()))
 		{
-			extension = "";
-		}
-		else
-		{
+			extension = m_contentTypeExtensions.getString(contentType.toLowerCase());
+			
 			if (extension.indexOf(" ") != -1)
 			{
-				// there might be more than one extension for this MIME type, get one listed first
+				// possibility of multiple extensions for this MIME type, get one listed first
 				extension = extension.substring(0, extension.indexOf(" "));
 			}
 		}
@@ -450,6 +445,29 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 		return extension;
 
 	} // getContentTypeExtension
+	
+//	public String getContentTypeExtension(String contentType)
+//	{
+//		String extension = m_contentTypeExtensions.getString(contentType.toLowerCase());
+		// String extension = m_contentTypeExtensions.getProperty(contentType.toLowerCase());
+
+		// if not there, use empty String
+//		if (extension == null)
+//		{
+//			extension = "";
+//		}
+//		else
+//		{
+//			if (extension.indexOf(" ") != -1)
+//			{
+				// there might be more than one extension for this MIME type, get one listed first
+//				extension = extension.substring(0, extension.indexOf(" "));
+//			}
+//		}
+
+//		return extension;
+
+//	} // getContentTypeExtension
 
 	/**
 	 * Get the content type string that is used for this file extension.
