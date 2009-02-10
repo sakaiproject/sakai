@@ -394,8 +394,11 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public void updateEmailForUser(String userId, String email) {
 		
-		/* this should probably check if a user is allowed to do this first.
-		 * LDAP users can't */
+		//are they allowed to update their email?
+		if(!isEmailUpdateAllowed(userId)) {
+			return;
+		}
+		
 		try {
 			UserEdit userEdit = null;
 			userEdit = userDirectoryService.editUser(userId);
@@ -459,8 +462,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 	
-	
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isEmailUpdateAllowed(String userId) {
+		return userDirectoryService.allowUpdateUserEmail(userId);
+	}
+
 	
 	
 	

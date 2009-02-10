@@ -65,18 +65,9 @@ public class MyProfile extends BasePage {
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
 	
-		String userDisplayName = sakaiPerson.getDisplayName();
-		if(userDisplayName == null) {
-			//it's always null as it doesn't get set in there!
-			//log.info("userDisplayName for " + userId + " was null in SakaiPerson. Using UDP value.");
-			userDisplayName = sakaiProxy.getUserDisplayName(userId);
-		}
-		
-		String userEmail = sakaiPerson.getMail();
-		if(userEmail == null) {
-			log.info("userEmail for " + userId + " was null in SakaiPerson. Using UDP value.");
-			userEmail = sakaiProxy.getUserEmail(userId);
-		}
+		//thse must come from Account to keep it all in sync
+		String userDisplayName = sakaiProxy.getUserDisplayName(userId);
+		String userEmail = sakaiProxy.getUserEmail(userId);
 		
 		//create instance of the UserProfile class
 		//we then pass the userProfile in the constructor to the child panels

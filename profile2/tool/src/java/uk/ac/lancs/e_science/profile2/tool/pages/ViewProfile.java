@@ -99,11 +99,7 @@ public class ViewProfile extends BasePage {
 		
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
-		String userDisplayName = sakaiPerson.getDisplayName();
-		if(userDisplayName == null) {
-			log.info("userDisplayName for " + userUuid + " was null in SakaiPerson. Using UDP value.");
-			userDisplayName = sakaiProxy.getUserDisplayName(userUuid);
-		}
+		String userDisplayName = sakaiProxy.getUserDisplayName(userUuid);
 		
 		
 		/* PROFILE IMAGE */
@@ -243,12 +239,7 @@ public class ViewProfile extends BasePage {
 		contactInfoContainer.setOutputMarkupId(true);
 		
 		//get info
-		String email = sakaiPerson.getMail();
-		if(email == null) {
-			log.info("email for " + userUuid + " was null in SakaiPerson. Using UDP value.");
-			email = sakaiProxy.getUserEmail(userUuid);
-		}
-		
+		String email = sakaiProxy.getUserEmail(userUuid); //must come from SakaiProxy
 		String homepage = sakaiPerson.getLabeledURI();
 		String workphone = sakaiPerson.getTelephoneNumber();
 		String homephone = sakaiPerson.getHomePhone();

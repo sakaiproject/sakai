@@ -113,5 +113,14 @@ public interface SakaiProxy {
 	public String getCurrentToolId();
 	
 	public String getDirectUrl(String toolString);
+	
+	/**
+	 * Check if a user is allowed to update their email address in their Account
+	 * ie could come from LDAP so updates not allowed
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public boolean isEmailUpdateAllowed(String userId);
 
 }

@@ -42,7 +42,10 @@ public class MyContactEdit extends Panel {
 		
 		//this panel
 		final Component thisPanel = this;
-				
+			
+		//get userId
+		final String userId = userProfile.getUserId();
+		
 		//create model
 		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
 		
@@ -70,7 +73,16 @@ public class MyContactEdit extends Panel {
 		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
 		TextField email = new TextField("email", new PropertyModel(userProfile, "email"));
 		email.add(EmailAddressValidator.getInstance());
+		//readonly view
+		Label emailReadOnly = new Label("emailReadOnly", new PropertyModel(userProfile, "email"));
+		
+		if(sakaiProxy.isEmailUpdateAllowed(userId)) {
+			emailReadOnly.setVisible(false);
+		} else {
+			email.setVisible(false);
+		}
 		emailContainer.add(email);
+		emailContainer.add(emailReadOnly);
 		
 		//email feedback
         final FeedbackLabel emailFeedback = new FeedbackLabel("emailFeedback", email, new ResourceModel("error.email.invalid"));
@@ -179,7 +191,7 @@ public class MyContactEdit extends Panel {
 		//this WILL fail if there is no sakaiPerson for the user however this should have been caught already
 		//as a new Sakaiperson for a user is created in MyProfile if they don't have one.
 		
-		sakaiPerson.setMail(userProfile.getEmail()); //email
+		//sakaiPerson.setMail(userProfile.getEmail()); //email
 		sakaiPerson.setLabeledURI(userProfile.getHomepage()); //homepage
 		sakaiPerson.setTelephoneNumber(userProfile.getWorkphone()); //workphone
 		sakaiPerson.setHomePhone(userProfile.getHomephone()); //homephone
@@ -189,6 +201,7 @@ public class MyContactEdit extends Panel {
 			log.info("Saved SakaiPerson for: " + userId );
 			
 			//try to update their email address in their account
+			//takes care of the necessary checks
 			sakaiProxy.updateEmailForUser(userId, userProfile.getEmail());
 						
 			return true;
