@@ -164,36 +164,10 @@ public class QuestionPoolBean implements Serializable
 
   public QuestionPoolDataModel getQpools()
   {
-	  
-        // daisyf note:
-        // #1 - buildTree() returns all branches immediate under the root as well as
-        // individual branches, e.g. you will get a branch 1 with its subsidiary 1.1 & 1.2 attached
-        // and branch 2 with its subsidiary 2.1 & 2.2 attached. Plus all 4 secondary branches 1.1, 
-        // 1.2, 1.3 and 1.4, each with their subsidiaries attached to them. 
-	    //buildTree();
-
-        // #2 - tree.sortByProperty sort ALL the branches regardless of their level based on 
-        // this.getSortProperty(). I am not sure what tree.getSortProperty() is used for.
-        // tree.sortByProperty(this.getSortProperty(),this.getSortAscending()); 
-
-        // #3 - tree.getSortedObjects() doesn't sort, it just return a list of QuestionPoolFacade
-        // Think of it as all the nodes in the trees. You can drill down each node using methods 
-        // provided by the tree to get to the children nodes.
-	    /*
-        Collection objects = tree.getSortedObjects();
-
-        // #4 - construct the sortedList, pools need to be sorted one level at a time so the hierachical
-        // structure can be maintained. Here, we start from root = 0, 
-        if (objects!=null){
-          ArrayList sortedList = sortPoolByLevel(new Long("0"), objects, getSortProperty(), getSortAscending());
-          //printTree(sortedList);
- 
-          ListDataModel model = new ListDataModel((List) sortedList);
-          QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
-	  	  return qpDataModel;
-		}
-        else return null;
-        */
+	  if (qpDataModel == null) {
+		  buildTree();
+		  setQpDataModelByLevel();
+	  }
 	  log.debug("getQpools");
 	  return qpDataModel;
   }

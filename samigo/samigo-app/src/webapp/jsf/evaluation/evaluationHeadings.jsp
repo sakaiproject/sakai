@@ -33,8 +33,9 @@ $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
     <h:outputText value=" #{generalMessages.separator} "  rendered="#{authorization.adminQuestionPool}"/>
-    <h:commandLink title="#{generalMessages.t_questionPool}" action="poolList" immediate="true"  rendered="#{authorization.adminQuestionPool}">
+    <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true"  rendered="#{authorization.adminQuestionPool}">
       <h:outputText value="#{generalMessages.questionPool}" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
     </h:commandLink>
   </h:panelGroup>
 </p>
