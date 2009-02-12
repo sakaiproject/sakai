@@ -53,6 +53,8 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -71,6 +73,7 @@ import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
+import org.sakaiproject.sitestats.impl.event.EventRegistryServiceImpl;
 import org.sakaiproject.sitestats.impl.event.EventUtil;
 import org.sakaiproject.sitestats.impl.event.ToolInfoImpl;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
@@ -97,7 +100,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 																					|| org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("presence.events.log", false);
 	private boolean                     enableSiteActivity						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("enableSiteActivity@org.sakaiproject.sitestats.api.StatsManager", true);
 	private boolean 				    visitsInfoAvailable						= enableSiteVisits; //org.sakaiproject.component.cover.ServerConfigurationService.getBoolean( "display.users.present", true);
-	private boolean						enableServerWideStats				= false;
+	private boolean						enableServerWideStats					= false;
 	private String						chartBackgroundColor					= "white";
 	private boolean						chartIn3D								= true;
 	private float						chartTransparency						= 0.80f;
@@ -118,6 +121,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private ServerConfigurationService	M_scs;
 	private ToolManager					M_tm;
 	private TimeService					M_ts;
+	private MemoryService				M_ms;
+	
+	/** Caching */
+	private Cache						cachePrefsData							= null;
+	
 	
 
 	// ################################################################
@@ -230,6 +238,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		this.M_ts = timeService; 
 	}
 
+	public void setMemoryService(MemoryService memoryService) {
+		this.M_ms = memoryService;
+	}
+
 	
 	// ################################################################
 	// Spring init/destroy methods
@@ -237,6 +249,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public void init(){
 		// Checks whether Event.getContext is implemented in Event (from Event API)
 		checkForEventContextSupport();
+		
+		// Initialize cache
+		cachePrefsData = M_ms.newCache(PrefsData.class.getName());
 		
 		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
 							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
@@ -258,35 +273,40 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Criteria c = session.createCriteria(PrefsImpl.class)
-							.add(Expression.eq("siteId", siteId));
-					try{
-						Prefs prefs = (Prefs) c.uniqueResult();
-						return prefs;
-					}catch(Exception e){
-						LOG.warn("Exception in getPreferences() ",e);
-						return null;
-					}
-				}
-			};
-			Prefs prefs = (Prefs) getHibernateTemplate().execute(hcb);
 			PrefsData prefsdata = null;
-			if(prefs == null){
-				// get default list
-				prefsdata = new PrefsDataImpl();
-				prefsdata.setToolEventsDef(M_ers.getEventRegistry());
+			if(cachePrefsData.containsKey(siteId)){
+				prefsdata = (PrefsData) cachePrefsData.get(siteId);
 			}else{
-				try{
-					// parse from stored preferences
-					prefsdata = parseSitePrefs(new StringBufferInputStream(prefs.getPrefs()));
-				}catch(Exception e){
-					// something failed, use default
-					LOG.warn("Exception in parseSitePrefs() ",e);
+				HibernateCallback hcb = new HibernateCallback() {
+					public Object doInHibernate(Session session) throws HibernateException, SQLException {
+						Criteria c = session.createCriteria(PrefsImpl.class)
+								.add(Expression.eq("siteId", siteId));
+						try{
+							Prefs prefs = (Prefs) c.uniqueResult();
+							return prefs;
+						}catch(Exception e){
+							LOG.warn("Exception in getPreferences() ",e);
+							return null;
+						}
+					}
+				};
+				Prefs prefs = (Prefs) getHibernateTemplate().execute(hcb);
+				if(prefs == null){
+					// get default list
 					prefsdata = new PrefsDataImpl();
 					prefsdata.setToolEventsDef(M_ers.getEventRegistry());
+				}else{
+					try{
+						// parse from stored preferences
+						prefsdata = parseSitePrefs(new StringBufferInputStream(prefs.getPrefs()));
+					}catch(Exception e){
+						// something failed, use default
+						LOG.warn("Exception in parseSitePrefs() ",e);
+						prefsdata = new PrefsDataImpl();
+						prefsdata.setToolEventsDef(M_ers.getEventRegistry());
+					}
 				}
+				cachePrefsData.put(siteId, prefsdata);
 			}
 			
 			if(prefsdata.isUseAllTools()) {
@@ -325,6 +345,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
+			cachePrefsData.put(siteId, prefsdata);
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Transaction tx = null;

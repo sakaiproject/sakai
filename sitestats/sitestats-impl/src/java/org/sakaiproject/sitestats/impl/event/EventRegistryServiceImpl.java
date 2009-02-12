@@ -28,7 +28,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class EventRegistryServiceImpl implements EventRegistry, EventRegistryService {
 	/** Static fields */
 	private static Log					LOG							= LogFactory.getLog(EventRegistryServiceImpl.class);
-	private static final String			CACHENAME					= "org.sakaiproject.sitestats.api.event.EventRegistryService";
+	private static final String			CACHENAME					= EventRegistryServiceImpl.class.getName();
 	private static final String			CACHENAME_EVENTREGISTRY		= "eventRegistry";
 	private static ResourceLoader		msgs						= new ResourceLoader("Messages");
 

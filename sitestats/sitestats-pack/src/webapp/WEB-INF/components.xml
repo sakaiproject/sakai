@@ -66,6 +66,7 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 		<!-- Hibernate related -->
 		<property name="sessionFactory" ref="#{sitestats.db}SitestatsSessionFactory" />
 	</bean>
