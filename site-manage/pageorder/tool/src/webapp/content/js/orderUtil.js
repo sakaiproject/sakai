@@ -113,7 +113,7 @@ function showEditPage(clickedLink) {
 	$(li).find(".item_label_box").hide();
 	$(li).find(".item_control_box").hide();
 	$(li).find(".item_edit_box").fadeIn('normal');
-	$(li).removeClass("sortable_item");
+	//$(li).removeClass("sortable_item");
 	$(li).addClass("editable_item");
 	$(li).unbind();
 	resetFrame();
