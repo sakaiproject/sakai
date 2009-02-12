@@ -138,6 +138,7 @@ public class Query extends SruQueryBase implements Constants
 			/*
 			 * Set up the initial search
 			 */
+  		clearParameters();
   		postNewSearch();
 	    submit();
 
@@ -160,6 +161,7 @@ public class Query extends SruQueryBase implements Constants
 		   */
 	    if (isNewPage())
       {
+        clearParameters();
         doNewPage();
         submit();
 
@@ -250,8 +252,6 @@ public class Query extends SruQueryBase implements Constants
     /*
      * searchRetrieve parameters
      */
-		clearParameters();
-
     sruPostVersion(CS_SRU_VERSION);
 
     sruPostSearchRetrieve();
@@ -350,8 +350,6 @@ public class Query extends SruQueryBase implements Constants
     /*
      * searchRetrieve parameters
      */
-    clearParameters();
-
     sruPostVersion(CS_SRU_VERSION);
 
     sruPostSearchRetrieve();
