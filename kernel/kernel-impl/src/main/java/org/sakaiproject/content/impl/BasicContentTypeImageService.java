@@ -77,7 +77,7 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	protected static final String DEFAULT_IMAGE = "/sakai/generic.gif";
 	
 	/** Default file display name for unknown types. */
-	protected static final String DEFAULT_DISPLAY_NAME = "unknown";
+	protected static final String DEFAULT_DISPLAY_NAME = "Unknown";
 
 	/** Default content type for unknown extensions. */
 	protected static final String UNKNOWN_TYPE = "application/octet-stream";
@@ -409,11 +409,16 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	 */
 	public String getContentTypeDisplayName(String contentType)
 	{
-		String name = DEFAULT_DISPLAY_NAME;
+		String name = m_contentTypeDisplayNames.getString("contenttype.name.default");
 		
 		if (contentType != null && m_contentTypeDisplayNames.getIsValid(contentType.toLowerCase())) 
 		{
 			name = m_contentTypeDisplayNames.getString(contentType.toLowerCase());
+		}
+		
+		if (name == null || name.equals(""))
+		{
+			name = DEFAULT_DISPLAY_NAME;
 		}
 		
 		return name;
