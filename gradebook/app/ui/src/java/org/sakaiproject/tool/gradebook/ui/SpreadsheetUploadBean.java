@@ -120,7 +120,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             EnrollmentRecord enr;
             enr = (EnrollmentRecord)iter.next();
             if(logger.isDebugEnabled()) logger.debug("displayid "+enr.getUser().getDisplayId() + "  userid "+enr.getUser().getUserUid());
-            rosterMap.put(enr.getUser().getDisplayId(),enr.getUser());
+            rosterMap.put(enr.getUser().getDisplayId().toLowerCase(),enr.getUser());
         }
         
         selectedCategory = AssignmentBean.UNASSIGNED_CATEGORY;
@@ -1687,7 +1687,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             try {
                 if(logger.isDebugEnabled()) logger.debug("getuser name for "+ rowcontent.get(0));
                 //userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
-                userId = (String) rowcontent.get(0);
+                userId = ((String) rowcontent.get(0)).toLowerCase();
                 
                	userDisplayName = ((User)rosterMap.get(userId)).getDisplayName();
                	userUid = ((User)rosterMap.get(userId)).getUserUid();
