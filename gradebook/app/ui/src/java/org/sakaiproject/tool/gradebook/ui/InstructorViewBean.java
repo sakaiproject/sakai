@@ -144,7 +144,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 */
 	public String getReturnToPageButtonName() {
 		String pageTitle;
-		if (returnToPage.equals(ASSIGN_DETAILS_PAGE))
+		if (ASSIGN_DETAILS_PAGE.equals(returnToPage))
 			pageTitle = getLocalizedString("assignment_details_page_title");
 		else
 			pageTitle = getLocalizedString("roster_page_title");
