@@ -27,4 +27,9 @@ public interface EventStat extends Stat {
 	public String getEventId();
 	/** Set the the event Id (eg. 'content.read') this record refers to. */
 	public void setEventId(String eventId);
+	
+	/** Get the the tool Id (eg. 'sakai.chat') this record refers to. */
+	public String getToolId();
+	/** Set the the tool Id (eg. 'sakai.chat') this record refers to. */
+	public void setToolId(String toolId);
 }

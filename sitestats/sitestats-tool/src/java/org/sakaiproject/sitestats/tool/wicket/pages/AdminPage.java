@@ -123,7 +123,7 @@ public class AdminPage extends BasePage {
 		});
 		
 		// Table
-		add(new SakaiDataTable("table", columns, dataProvider));
+		add(new SakaiDataTable("table", columns, dataProvider, true));
 	}
 	
 }

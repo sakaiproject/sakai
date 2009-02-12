@@ -10,7 +10,7 @@
     </head>
 	<body>
 		<wicket:extend>
-		    <div style="width: 100%; text-align: center;">
+		    <div style="width: 99%; text-align: center;">
 		      <img wicket:id="image"></img>
 		    </div>
 		    <form wicket:id="form">
@@ -19,5 +19,10 @@
 			    </p>
 			</form>
 		</wicket:extend>
+		<script type="text/javascript">
+		  jQuery(document).ready(function(){
+		    setTimeout('setMainFrameHeightNoScroll(window.name, 1000)', 500);
+		  });
+		</script>
 	</body>
 </html>

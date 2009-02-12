@@ -16,13 +16,12 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
 import org.apache.wicket.session.ISessionStore;
 import org.apache.wicket.settings.IExceptionSettings;
-import org.apache.wicket.settings.IExceptionSettings.UnexpectedExceptionDisplay;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.locator.ResourceStreamLocator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
-import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage2;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -44,11 +43,11 @@ public class SiteStatsApplication extends WebApplication {
 		getDebugSettings().setAjaxDebugModeEnabled(debug);
 
 		// Home page
-		mountBookmarkablePage("/home", OverviewPage.class);
+		mountBookmarkablePage("/home", OverviewPage2.class);
 
 		// On wicket session timeout, redirect to main page
-		getApplicationSettings().setPageExpiredErrorPage(OverviewPage.class);
-		getApplicationSettings().setAccessDeniedPage(OverviewPage.class);
+		getApplicationSettings().setPageExpiredErrorPage(OverviewPage2.class);
+		getApplicationSettings().setAccessDeniedPage(OverviewPage2.class);
 
 		// Debugging
 		debug = ServerConfigurationService.getBoolean("sitestats.debug", false);
@@ -67,7 +66,7 @@ public class SiteStatsApplication extends WebApplication {
 
 	@SuppressWarnings("unchecked")
 	public Class getHomePage() {
-		return OverviewPage.class;
+		return OverviewPage2.class;
 	}
 
 	public SakaiFacade getFacade() {

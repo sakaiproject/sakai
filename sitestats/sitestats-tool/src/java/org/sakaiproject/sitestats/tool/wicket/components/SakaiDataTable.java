@@ -25,9 +25,10 @@ public class SakaiDataTable extends DataTable {
 	 *            number of rows per page
 	 */
 	public SakaiDataTable(String id, final List/* <IColumn> */columns,
-			ISortableDataProvider dataProvider)
+			ISortableDataProvider dataProvider,
+			boolean pageable)
 	{
-		this(id, (IColumn[])columns.toArray(new IColumn[columns.size()]), dataProvider, 20);
+		this(id, (IColumn[])columns.toArray(new IColumn[columns.size()]), dataProvider, 20, pageable);
 	}
 
 	/**
@@ -43,10 +44,12 @@ public class SakaiDataTable extends DataTable {
 	 *            number of rows per page
 	 */
 	public SakaiDataTable(String id, final IColumn[] columns, ISortableDataProvider dataProvider,
-			int rowsPerPage)
+			int rowsPerPage, boolean pageable)
 	{
 		super(id, columns, dataProvider, rowsPerPage);
-		addTopToolbar(new SakaiNavigationToolBar(this));
+		if(pageable) {
+			addTopToolbar(new SakaiNavigationToolBar(this));
+		}
 		addTopToolbar(new HeadersToolbar(this, dataProvider));
 		addBottomToolbar(new NoRecordsToolbar(this, new ResourceModel("no_data")));
 	}

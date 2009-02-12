@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.Resource;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.NonCachingImage;
@@ -44,6 +45,12 @@ public abstract class MaximizedImagePage extends BasePage {
 		}else{
 			redirectToInterceptPage(new NotAuthorizedPage());
 		}
+	}
+
+	@Override
+	public void renderHead(IHeaderResponse response) {
+		response.renderJavascriptReference("/library/js/jquery.js");
+		response.renderOnDomReadyJavascript("setMainFrameHeightNoScroll(window.name, 750);");
 	}
 	
 	public abstract BufferedImage getBufferedMaximizedImage();

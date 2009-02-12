@@ -11,7 +11,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.pages.AdminPage;
-import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage2;
 import org.sakaiproject.sitestats.tool.wicket.pages.PreferencesPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
 
@@ -94,7 +94,7 @@ public class Menu extends Panel {
 			!AdminPage.class.equals(currentPageClass)		
 			&&
 			(facade.getStatsManager().isEnableSiteVisits() || facade.getStatsManager().isEnableSiteActivity());
-		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage.class, pageParameters, !siteDisplayVisible /*overviewVisible && !adminPageVisible*/);
+		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage2.class, pageParameters, !siteDisplayVisible /*overviewVisible && !adminPageVisible*/);
 		overview.setVisible(overviewVisible);
 		add(overview);
 

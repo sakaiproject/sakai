@@ -3,7 +3,9 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -12,15 +14,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -123,7 +120,6 @@ public class ReportDataPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		response.renderJavascriptReference("/library/js/jquery.js");
-		response.renderJavascriptReference("/sakai-sitestats-tool/script/common.js");
 		super.renderHead(response);
 	}
 	
@@ -195,7 +191,11 @@ public class ReportDataPage extends BasePage {
 		}			
 		
 		// Report: table
-		SakaiDataTable reportTable = new SakaiDataTable("table", getTableColumns(), dataProvider);
+		SakaiDataTable reportTable = new SakaiDataTable(
+				"table", 
+				getTableColumns(facade, getReportParams(), true), 
+				dataProvider, 
+				true);
 		reportTable.setVisible(
 				ReportManager.HOW_PRESENTATION_TABLE.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
 				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
@@ -276,13 +276,15 @@ public class ReportDataPage extends BasePage {
 	}
 	
 	@SuppressWarnings("serial")
-	private List<IColumn> getTableColumns() {
+	public static List<IColumn> getTableColumns(
+			final SakaiFacade facade, final ReportParams reportParams, final boolean columnsSortable
+		) {
 		List<IColumn> columns = new ArrayList<IColumn>();
 		final Map<String,ToolInfo> eventIdToolMap = facade.getEventRegistryService().getEventIdToolMap();
 		
 		// site
-		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_SITE)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_site"), ReportsDataProvider.COL_SITE, ReportsDataProvider.COL_SITE) {
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_SITE)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_site"), columnsSortable ? ReportsDataProvider.COL_SITE : null, ReportsDataProvider.COL_SITE) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
 					final String site = ((Stat) model.getObject()).getSiteId();
@@ -301,8 +303,8 @@ public class ReportDataPage extends BasePage {
 			});
 		}
 		// user
-		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_USER)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_id"), ReportsDataProvider.COL_USERID, ReportsDataProvider.COL_USERID) {
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_USER)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_id"), columnsSortable ? ReportsDataProvider.COL_USERID : null, ReportsDataProvider.COL_USERID) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
 					final String userId = ((Stat) model.getObject()).getUserId();
@@ -323,7 +325,7 @@ public class ReportDataPage extends BasePage {
 					item.add(new Label(componentId, name));
 				}
 			});
-			columns.add(new PropertyColumn(new ResourceModel("th_user"), ReportsDataProvider.COL_USERNAME, ReportsDataProvider.COL_USERNAME) {
+			columns.add(new PropertyColumn(new ResourceModel("th_user"), columnsSortable ? ReportsDataProvider.COL_USERNAME : null, ReportsDataProvider.COL_USERNAME) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
 					final String userId = ((Stat) model.getObject()).getUserId();
@@ -348,8 +350,8 @@ public class ReportDataPage extends BasePage {
 			});
 		}
 		// event
-		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_EVENT)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_event"), ReportsDataProvider.COL_EVENT, ReportsDataProvider.COL_EVENT) {
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_EVENT)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_event"), columnsSortable ? ReportsDataProvider.COL_EVENT : null, ReportsDataProvider.COL_EVENT) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
 					final String eventId = ((EventStat) model.getObject()).getEventId();
@@ -372,9 +374,29 @@ public class ReportDataPage extends BasePage {
 				}
 			});
 		}
+		// tool
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOOL)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_tool"), columnsSortable ? ReportsDataProvider.COL_TOOL : null, ReportsDataProvider.COL_TOOL) {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					final String toolId = ((EventStat) model.getObject()).getToolId();
+					String toolName = "";
+					if(!"".equals(toolId)){
+						toolName = facade.getEventRegistryService().getToolName(toolId);
+					}
+					Label toolLabel = new Label(componentId, toolName);
+					String toolIconClass = "toolIcon";
+					String toolIconPath = "url(" + facade.getEventRegistryService().getToolIcon(toolId) + ")";
+					toolLabel.add(new AttributeModifier("class", true, new Model(toolIconClass)));
+					toolLabel.add(new AttributeModifier("style", true, new Model("background-image: "+toolIconPath)));
+					toolLabel.add(new AttributeModifier("title", true, new Model(toolName)));
+					item.add(toolLabel);
+				}
+			});
+		}
 		// resource
-		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_RESOURCE)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_resource"), ReportsDataProvider.COL_RESOURCE, ReportsDataProvider.COL_RESOURCE) {
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_resource"), columnsSortable ? ReportsDataProvider.COL_RESOURCE : null, ReportsDataProvider.COL_RESOURCE) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
 					final String ref = ((ResourceStat) model.getObject()).getResourceRef();
@@ -394,8 +416,8 @@ public class ReportDataPage extends BasePage {
 			});
 		}
 		// resource action
-		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_action"), ReportsDataProvider.COL_ACTION, ReportsDataProvider.COL_ACTION) {
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE_ACTION)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_action"), columnsSortable ? ReportsDataProvider.COL_ACTION : null, ReportsDataProvider.COL_ACTION) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
 					final String refAction = ((ResourceStat) model.getObject()).getResourceAction();
@@ -410,14 +432,40 @@ public class ReportDataPage extends BasePage {
 				}
 			});
 		}
-		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_DATE)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_date"), ReportsDataProvider.COL_DATE, ReportsDataProvider.COL_DATE));
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATE)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_date"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE));
 		}
-		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_LASTDATE)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_lastdate"), ReportsDataProvider.COL_DATE, ReportsDataProvider.COL_DATE));
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATEMONTH)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_date"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE) {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					final Date date = ((Stat) model.getObject()).getDate();
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+					item.add(new Label(componentId, sdf.format(date)));
+				}
+			});
 		}
-		if(facade.getReportManager().isReportColumnAvailable(getReportDef().getReportParams(), StatsManager.T_TOTAL)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_total"), ReportsDataProvider.COL_TOTAL, "count"));
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATEYEAR)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_date"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE) {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					final Date date = ((Stat) model.getObject()).getDate();
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+					item.add(new Label(componentId, sdf.format(date)));
+				}
+			});
+		}
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_LASTDATE)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_lastdate"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE));
+		}
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOTAL)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_total"), columnsSortable ? ReportsDataProvider.COL_TOTAL : null, "count"));
+		}
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_VISITS)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_visits"), columnsSortable ? ReportsDataProvider.COL_VISITS : null, "totalVisits"));
+		}
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_UNIQUEVISITS)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_uniquevisitors"), columnsSortable ? ReportsDataProvider.COL_UNIQUEVISITS : null, "totalUnique"));
 		}
 		return columns;
 	}

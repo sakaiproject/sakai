@@ -18,27 +18,8 @@
  **********************************************************************************/
 package org.sakaiproject.sitestats.api;
 
-import java.util.Date;
 
-public interface SiteVisits {
-	/** Get the db row id. */
-	public long getId();
-	
-	/** Set the db row id. */
-	public void setId(long id);
-	
-	/** Get the context (site id) this record refers to. */
-	public String getSiteId();
-	
-	/** Set the context (site id) this record refers to. */
-	public void setSiteId(String siteId);
-	
-	/** Get the date this record refers to. */
-	public Date getDate();
-	
-	/** Set the date this record refers to. */
-	public void setDate(Date date);
-
+public interface SiteVisits extends Stat {
 	/** Get the total visits for this context and date. */
 	public long getTotalVisits();
 	

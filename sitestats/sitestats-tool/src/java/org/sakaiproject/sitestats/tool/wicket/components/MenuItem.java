@@ -14,27 +14,41 @@ import org.apache.wicket.model.Model;
  * @author Nuno Fernandes
  */
 public class MenuItem extends Panel {
-	private static final long	serialVersionUID	= 1L;
+	private static final long		serialVersionUID	= 1L;
+	private boolean					first				= false;
+	private Class					itemPageClass		= null;
+	private WebMarkupContainer		menuItemLinkHolder;
+	private BookmarkablePageLink	menuItemLink;
+	private Label					menuLinkText;
+	private Label					menuItemLabel;
 
 	public MenuItem(String id, IModel itemText, Class itemPageClass, PageParameters pageParameters, boolean first) {
 		super(id);
+		this.first = first;
+		this.itemPageClass = itemPageClass;
 
 		// link version
-		WebMarkupContainer menuItemLinkHolder = new WebMarkupContainer("menuItemLinkHolder");
-		final BookmarkablePageLink menuItemLink = new BookmarkablePageLink("menuItemLink", itemPageClass, pageParameters);
-		final Label menuLinkText = new Label("menuLinkText", itemText);
+		menuItemLinkHolder = new WebMarkupContainer("menuItemLinkHolder");
+		menuItemLink = new BookmarkablePageLink("menuItemLink", itemPageClass, pageParameters);
+		menuLinkText = new Label("menuLinkText", itemText);
 		menuLinkText.setRenderBodyOnly(true);
 		menuItemLink.add(menuLinkText);
 		menuItemLinkHolder.add(menuItemLink);
 		add(menuItemLinkHolder);
 
 		// span version
-		final Label menuItemLabel = new Label("menuItemLabel", itemText);
+		menuItemLabel = new Label("menuItemLabel", itemText);
 		menuItemLabel.setRenderBodyOnly(true);
 		add(menuItemLabel);
 		
-		// determine current page
-		Class currentPageClass = getRequestCycle().getResponsePageClass();
+		if(first) {
+			add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
+		}
+	}
+	
+	@Override
+	protected void onBeforeRender() {
+		Class currentPageClass = getPage().getClass();
 		if(itemPageClass.equals(currentPageClass)) {
 			if(first) {
 				menuItemLinkHolder.setVisible(false);
@@ -46,9 +60,6 @@ public class MenuItem extends Panel {
 			menuItemLinkHolder.setVisible(true);
 			menuItemLabel.setVisible(false);
 		}
-		
-		if(first) {
-			add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
-		}
+		super.onBeforeRender();
 	}
 }

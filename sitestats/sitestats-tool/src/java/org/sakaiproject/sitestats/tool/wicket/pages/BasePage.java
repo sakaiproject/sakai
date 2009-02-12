@@ -19,7 +19,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	private static final long		serialVersionUID	= 1L;
 	protected static final String	HEADSCRIPTS			= "/library/js/headscripts.js";
-	protected static final String	BODY_ONLOAD_ADDTL	= "setMainFrameHeight( window.name )";
+	protected static final String	COMMONSCRIPT		= "/sakai-sitestats-tool/script/common.js";
+	protected static final String	BODY_ONLOAD_ADDTL	= "setMainFrameHeightNoScroll(window.name, 0, 400)";
 	protected static final String	LAST_PAGE			= "lastSiteStatsPage";
 
 	@SpringBean
@@ -39,6 +40,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		// include sakai headscripts and resize iframe on load
 		response.renderJavascriptReference(HEADSCRIPTS);
+		response.renderJavascriptReference(COMMONSCRIPT);		
 		response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
 
 		// include (this) tool style (CSS)

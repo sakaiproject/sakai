@@ -1,9 +1,14 @@
 
 function setMainFrameHeightNoScroll(id){
-	setMainFrameHeightNoScroll(id, 0);
+	setMainFrameHeightNoScroll(id, 0, 0);
 }
 
 function setMainFrameHeightNoScroll(id, minHeight)
+{
+	setMainFrameHeightNoScroll(id, minHeight, 0);
+}
+
+function setMainFrameHeightNoScroll(id, minHeight, additionalHeight)
 {
 
 	// run the script only if this window's name matches the id parameter
@@ -51,19 +56,22 @@ function setMainFrameHeightNoScroll(id, minHeight)
 
 	// here we fudge to get a little bigger
 	//gsilver: changing this from 50 to 10, and adding extra bottom padding to the portletBody
-	var newHeight = height + 10;
+	var newHeight = height + 15;
 	
 	// Force minimum height if specified
 	if(minHeight != 0 && newHeight < minHeight){
 		newHeight = minHeight;
 	}
+	
+	// Add additional height if specified
+	if(additionalHeight && additionalHeight != 0) {
+		newHeight = newHeight + additionalHeight;
+	}
 
 	// no need to be smaller than...
-	//if (height < 200) height = 200;
-	objToResize.height=newHeight + 5 + "px";
+	objToResize.height=newHeight  + 5 + "px";
 
-
-	var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
+	//var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
 	// window.status = s;
 	// alert(s);
 	}

@@ -55,6 +55,7 @@ public interface ChartService {
 	 * @param render3d Render a 3D chart?
 	 * @param transparency Set chart transparency (accept values between 0.0 and 1.0)
 	 * @param itemLabelsVisible Render labels on top of bars
+	 * @param timePeriod For TimeSeries charts, this indicates the time period unit: {@link StatsManager#CHARTTIMESERIES_DAY}, {@link StatsManager#CHARTTIMESERIES_WEEKDAY}, {@link StatsManager#CHARTTIMESERIES_MONTH}, {@link StatsManager#CHARTTIMESERIES_YEAR}
 	 * @return The chart in a BufferedImage object.
 	 * @see StatsManager
 	 * @see org.jfree.data.general.Dataset
@@ -63,7 +64,7 @@ public interface ChartService {
 			String siteId, Object dataset, String chartType,
 			int width, int height,
 			boolean render3d, float transparency,
-			boolean itemLabelsVisible);   
+			boolean itemLabelsVisible, String timePeriod);   
 	
 	/**
 	 * Generate a generic chart based on an existing report definition with report data.

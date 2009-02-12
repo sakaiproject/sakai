@@ -61,42 +61,42 @@ public class SiteVisitsImpl implements SiteVisits, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.SiteVisits#getId()
+	 * @see org.sakaiproject.sitestats.api.Stat#getId()
 	 */
 	public long getId() {
 		return id;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.SiteVisits#setId(long)
+	 * @see org.sakaiproject.sitestats.api.Stat#setId(long)
 	 */
 	public void setId(long id) {
 		this.id = id;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.SiteVisits#getSiteId()
+	 * @see org.sakaiproject.sitestats.api.Stat#getSiteId()
 	 */
 	public String getSiteId() {
 		return siteId;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.SiteVisits#setSiteId(java.lang.String)
+	 * @see org.sakaiproject.sitestats.api.Stat#setSiteId(java.lang.String)
 	 */
 	public void setSiteId(String siteId) {
 		this.siteId = siteId;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.SiteVisits#getDate()
+	 * @see org.sakaiproject.sitestats.api.Stat#getDate()
 	 */
 	public Date getDate() {
 		return date;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.SiteVisits#setDate(java.util.Date)
+	 * @see org.sakaiproject.sitestats.api.Stat#setDate(java.util.Date)
 	 */
 	public void setDate(Date date) {
 		this.date = date;
@@ -128,6 +128,33 @@ public class SiteVisitsImpl implements SiteVisits, Serializable {
 	 */
 	public void setTotalUnique(long totalUnique) {
 		this.totalUnique = totalUnique;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.Stat#getCount()
+	 */
+	public long getCount() {
+		return getTotalVisits();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.Stat#getUserId()
+	 */
+	public String getUserId() {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.Stat#setCount(long)
+	 */
+	public void setCount(long count) {
+		setTotalVisits(count);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.Stat#setUserId(java.lang.String)
+	 */
+	public void setUserId(String userId) {		
 	}
 
 }

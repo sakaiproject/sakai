@@ -21,6 +21,7 @@ package org.sakaiproject.sitestats.api;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
@@ -52,22 +53,36 @@ public interface StatsManager {
 	public static final String			CHARTTYPE_BAR				= "bar";
 	public static final String			CHARTTYPE_PIE				= "pie";
 	public static final String			CHARTTYPE_TIMESERIES		= "timeseries";
+	public static final String			CHARTTYPE_TIMESERIESBAR		= "timeseriesbar";
+	public static final String			CHARTTIMESERIES_DAY			= "byday";
+	public static final String			CHARTTIMESERIES_WEEKDAY		= "byweekday";
+	public static final String			CHARTTIMESERIES_MONTH		= "bymonth";
+	public static final String			CHARTTIMESERIES_YEAR		= "byyear";
 	public static final String			RESOURCES_DIR				= "/group/";
 	public static final String			DROPBOX_DIR					= "/group-user/";
 	public static final String			ATTACHMENTS_DIR				= "/attachment/";
 	public static final int				Q_TYPE_EVENT				= 0;
 	public static final int				Q_TYPE_RESOURCE				= 1;
+	public static final int				Q_TYPE_VISITSTOTALS			= 2;
+	public static final int				Q_TYPE_ACTIVITYTOTALS		= 3;
 	public static final String			T_NONE						= "none";
 	public static final String			T_SITE						= "site";
 	public static final String			T_USER						= "user";
 	public static final String			T_EVENT						= "event";
+	public static final String			T_TOOL						= "tool";
 	public static final String			T_RESOURCE					= "resource";
 	public static final String			T_RESOURCE_ACTION			= "resource-action";
 	public static final String			T_DATE						= "date";
+	public static final String			T_DATEMONTH					= "month";
+	public static final String			T_DATEYEAR					= "year";
 	public static final String			T_LASTDATE					= "last-date";
 	public static final String			T_TOTAL						= "total";
+	public static final String			T_VISITS					= "visits";
+	public static final String			T_UNIQUEVISITS				= "unique-visits";
 	public static final List<String>	TOTALSBY_EVENT_DEFAULT		= Arrays.asList(T_USER, T_EVENT, T_DATE);
 	public static final List<String>	TOTALSBY_RESOURCE_DEFAULT	= Arrays.asList(T_USER, T_RESOURCE, T_RESOURCE_ACTION, T_DATE);
+	public static final List<String>	TOTALSBY_VISITSTOTALS_DEFAULT	= Arrays.asList(T_DATE);
+	public static final List<String>	TOTALSBY_ACTIVITYTOTALS_DEFAULT	= Arrays.asList(T_DATE);
 	
 	// ################################################################
 	// Spring bean methods
@@ -383,11 +398,39 @@ public interface StatsManager {
 	public long getTotalSiteUniqueVisits(String siteId);
 	
 	/**
-	 * Get total site users (active and inactive).
+	 * Get total site users (active).
 	 * @param siteId Site identifier
 	 * @return Total users
 	 */
 	public int getTotalSiteUsers(String siteId);
+	
+	/**
+	 * Get site users (active).
+	 * @param siteId Site identifier
+	 * @return Users id list
+	 */
+	public Set<String> getSiteUsers(String siteId);
+	
+	/**
+	 * Get users with at least one visit in site.
+	 * @param siteId Site identifier
+	 * @return Users id list
+	 */
+	public Set<String> getUsersWithVisits(String siteId);
+
+	/**
+	 * Get visits/unique visits totals statistics.
+	 * @param siteId The site ID (can be null)
+	 * @param iDate The initial date (can be null)
+	 * @param fDate The final date (can be null)
+	 * @param page The PagePosition subset of items to return (can be null)
+	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_VISITSTOTALS_DEFAULT}, {@link #T_DATE})
+	 * @param sortBy Column to sort by (can be null) (see {@link #T_VISITS}, {@link #T_UNIQUEVISITS}, {@link #T_DATE})
+	 * @param sortAscending Sort ascending?
+	 * @param maxResults Maximum number of results (specify 0 (zero) for no limitation)
+	 * @return a list of {@link SiteVisits} objects
+	 */
+	public List<Stat> getVisitsTotalsStats(String siteId, Date iDate, Date fDate, PagingPosition page, List<String> totalsBy, String sortBy, boolean sortAscending, int maxResults);
 
 
 	// ################################################################
@@ -469,6 +512,20 @@ public interface StatsManager {
 	 */
 	public long getTotalSiteActivity(String siteId, List<String> events);
 	
+	/**
+	 * Get activity totals statistics.
+	 * @param siteId The site ID (can be null)
+	 * @param events List of events to get statistics for (see {@link #getPreferences(String, boolean)}, {@link EventRegistryService}) (can be null) 
+	 * @param iDate The initial date (can be null)
+	 * @param fDate The final date (can be null)
+	 * @param page The PagePosition subset of items to return (can be null)
+	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_ACTIVITYTOTALS_DEFAULT}, {@link #T_EVENT}, {@link #T_DATE})
+	 * @param sortBy Column to sort by (can be null) (see {@link #T_EVENT}, {@link #T_TOTAL}, {@link #T_DATE})
+	 * @param sortAscending Sort ascending?
+	 * @param maxResults Maximum number of results (specify 0 (zero) for no limitation)
+	 * @return a list of {@link Stat} objects
+	 */
+	public List<Stat> getActivityTotalsStats(String siteId, List<String> events, Date iDate, Date fDate, PagingPosition page, List<String> totalsBy, String sortBy, boolean sortAscending, int maxResults);
 
 	// ################################################################
 	// Utility methods
@@ -478,4 +535,5 @@ public interface StatsManager {
 	
 	/** Checks whether Event.getContext is implemented in Event (from Event API) */
 	public boolean isEventContextSupported();
+	
 }

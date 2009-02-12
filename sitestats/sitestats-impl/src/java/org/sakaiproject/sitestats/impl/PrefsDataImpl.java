@@ -9,6 +9,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.EventRegistry;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 
 
@@ -18,7 +19,11 @@ public class PrefsDataImpl implements PrefsData, Serializable {
 	/** Stats Manager object */
 	private transient StatsManager	sm									= (StatsManager) ComponentManager.get(StatsManager.class.getName());
 
+	/** EventRegistry object */
+	private transient EventRegistry	er									= (EventRegistry) ComponentManager.get(EventRegistry.class.getName());
+
 	private List<ToolInfo>			toolEventsDef						= new ArrayList<ToolInfo>();
+	private boolean					useAllTools							= false;
 	private boolean					listToolEventsOnlyAvailableInSite	= true;
 	private boolean					chartIn3D							= sm.isChartIn3D();
 	private float					chartTransparency					= sm.getChartTransparency();
@@ -27,8 +32,7 @@ public class PrefsDataImpl implements PrefsData, Serializable {
 	
 	public PrefsDataImpl(){
 		toolEventsDef = new ArrayList<ToolInfo>();
-		listToolEventsOnlyAvailableInSite = true;
-		
+		listToolEventsOnlyAvailableInSite = true;		
 	}
 
 	public List<ToolInfo> getToolEventsDef() {
@@ -53,7 +57,7 @@ public class PrefsDataImpl implements PrefsData, Serializable {
 	}
 
 	public void setToolEventsDef(List<ToolInfo> toolEventsDef) {
-		this.toolEventsDef = toolEventsDef;
+		this.toolEventsDef = toolEventsDef;		
 	}
 	
 	public boolean isListToolEventsOnlyAvailableInSite(){
@@ -62,6 +66,14 @@ public class PrefsDataImpl implements PrefsData, Serializable {
 	
 	public void setListToolEventsOnlyAvailableInSite(boolean listToolEventsOnlyAvailableInSite){
 		this.listToolEventsOnlyAvailableInSite = listToolEventsOnlyAvailableInSite;
+	}
+	
+	public void setUseAllTools(boolean value) {
+		this.useAllTools = value;
+	}
+	
+	public boolean isUseAllTools() {
+		return useAllTools;
 	}
 	
 	public void setChartIn3D(boolean value){
@@ -101,6 +113,7 @@ public class PrefsDataImpl implements PrefsData, Serializable {
 		buff.append(" chartIn3D=\""+ isChartIn3D() +"\" ");
 		buff.append(" chartTransparency=\""+ getChartTransparency() +"\" ");
 		buff.append(" itemLabelsVisible=\""+ isItemLabelsVisible() +"\" ");
+		buff.append(" useAllTools=\""+ isUseAllTools() +"\" ");
 		buff.append(">");		
 
 		buff.append("	<toolEventsDef>");

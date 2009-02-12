@@ -152,7 +152,6 @@ public class ReportsEditPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		response.renderJavascriptReference("/library/js/jquery.js");
-		response.renderJavascriptReference("/sakai-sitestats-tool/script/common.js");
 		response.renderJavascriptReference("/sakai-sitestats-tool/script/reports.js");
 		super.renderHead(response);
 	}

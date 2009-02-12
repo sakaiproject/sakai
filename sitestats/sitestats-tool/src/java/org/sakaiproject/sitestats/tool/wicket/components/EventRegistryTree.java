@@ -96,13 +96,21 @@ public class EventRegistryTree extends Panel {
 				row.add(new ExternalImage("image", "images/silk/icons/application_side_boxes.png"));
 				row.add(new Label("label", new Model(ti.getToolName())));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));
-				toolCheckBox.add(new AttributeModifier("onclick", true, new Model("selectUnselectEvents(this); updateToolSelection('.tool_"+toolId+"');")));
+				AttributeModifier onclick = new AttributeModifier("onclick", true, new Model("selectUnselectEvents(this); updateToolSelection('.tool_"+toolId+"');"));
+				toolCheckBox.add(onclick);
 				row.add(toolCheckBox);
 				listItem.add(row);
 				
 				EventRegistryTree nested = new EventRegistryTree("nested", ti.getEvents(), toolId);
 				nested.add(new AttributeModifier("class", true, new Model(toolId)));
                 listItem.add(nested);
+                
+                if(ti.getEvents() == null || ti.getEvents().isEmpty()) {
+                	navCollapse.setVisible(false);
+                	navExpand.setVisible(false);
+                	nested.setVisible(false);
+                	toolCheckBox.remove(onclick);
+                }
                 
 			}else if(modelObject instanceof EventInfo){
 				EventInfo ei = (EventInfo) modelObject;

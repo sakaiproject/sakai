@@ -38,6 +38,7 @@ public class ReportParams implements Serializable {
 	private String				howChartSource			= StatsManager.T_EVENT;
 	private String				howChartCategorySource	= StatsManager.T_NONE;
 	private String				howChartSeriesSource	= StatsManager.T_TOTAL;
+	private String				howChartSeriesPeriod	= StatsManager.CHARTTIMESERIES_DAY;
 	
 	
 	public ReportParams(){		
@@ -187,12 +188,12 @@ public class ReportParams implements Serializable {
 		this.whatToolIds.add(whatToolId);
 	}
 
-	/** Get the what type selection (see {@link ReportManager#WHEN_ALL}, {@link ReportManager#WHEN_LAST30DAYS}, {@link ReportManager#WHEN_LAST7DAYS}, {@link ReportManager#WHEN_CUSTOM}). */
+	/** Get the what type selection (see {@link ReportManager#WHEN_ALL}, {@link ReportManager#WHEN_LAST30DAYS}, {@link ReportManager#WHEN_LAST7DAYS}, {@link ReportManager#WHEN_LAST365DAYS}, {@link ReportManager#WHEN_CUSTOM}). */
 	public String getWhen() {
 		return when;
 	}
 
-	/** Set the what type selection (see {@link ReportManager#WHEN_ALL}, {@link ReportManager#WHEN_LAST30DAYS}, {@link ReportManager#WHEN_LAST7DAYS}, {@link ReportManager#WHEN_CUSTOM}). */
+	/** Set the what type selection (see {@link ReportManager#WHEN_ALL}, {@link ReportManager#WHEN_LAST30DAYS}, {@link ReportManager#WHEN_LAST7DAYS}, {@link ReportManager#WHEN_LAST365DAYS}, {@link ReportManager#WHEN_CUSTOM}). */
 	public void setWhen(String when) {
 		this.when = when;
 	}
@@ -343,48 +344,58 @@ public class ReportParams implements Serializable {
 		this.howPresentationMode = howPresentationMode;
 	}
 
-	/** Get chart type (see {@link StatsManager#CHARTTYPE_BAR}, {@link StatsManager#CHARTTYPE_LINE}, {@link StatsManager#CHARTTYPE_PIE}, {@link StatsManager#CHARTTYPE_TIMESERIES}). */
+	/** Get chart type (see {@link StatsManager#CHARTTYPE_BAR}, {@link StatsManager#CHARTTYPE_LINE}, {@link StatsManager#CHARTTYPE_PIE}, {@link StatsManager#CHARTTYPE_TIMESERIES}, {@link StatsManager#CHARTTYPE_TIMESERIESBAR}). */
 	public String getHowChartType() {
 		return howChartType;
 	}
 
-	/** Set chart type (see {@link StatsManager#CHARTTYPE_BAR}, {@link StatsManager#CHARTTYPE_LINE}, {@link StatsManager#CHARTTYPE_PIE}, {@link StatsManager#CHARTTYPE_TIMESERIES). */
+	/** Set chart type (see {@link StatsManager#CHARTTYPE_BAR}, {@link StatsManager#CHARTTYPE_LINE}, {@link StatsManager#CHARTTYPE_PIE}, {@link StatsManager#CHARTTYPE_TIMESERIES}, {@link StatsManager#CHARTTYPE_TIMESERIESBAR}). */
 	public void setHowChartType(String howChartType) {
 		this.howChartType = howChartType;
 	}
 
-	/** Get the chart data source (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	/** Get the chart data source (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL}). */
 	public String getHowChartSource() {
 		return howChartSource;
 	}
 
-	/** Set the chart data source (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	/** Set the chart data source (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL}). */
 	public void setHowChartSource(String howChartSource) {
 		this.howChartSource = howChartSource;
 	}
 
-	/** Get the chart category that will group the date source (can be null or {@link StatsManager#T_NONE}) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	/** Get the chart category that will group the date source (can be null or {@link StatsManager#T_NONE}) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL}). */
 	public String getHowChartCategorySource() {
 		return howChartCategorySource;
 	}
 
-	/** Set the chart category that will group the data source (can be null or {@link StatsManager#T_NONE}) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	/** Set the chart category that will group the data source (can be null or {@link StatsManager#T_NONE}) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL}). */
 	public void setHowChartCategorySource(String howChartCategorySource) {
 		this.howChartCategorySource = howChartCategorySource;
 	}
 
-	/** Get the field chart series will be generated from (only applies to TimeSeries charts) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	/** Get the field chart series will be generated from (only applies to TimeSeries charts) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL}). */
 	public String getHowChartSeriesSource() {
 		return howChartSeriesSource;
 	}
 
-	/** Get the field chart series will be generated from (only applies to TimeSeries charts) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL). */
+	/** Get the field chart series will be generated from (only applies to TimeSeries charts) (see {@link StatsManager#T_USER}, {@link StatsManager#T_EVENT}, {@link StatsManager#T_RESOURCE}, {@link StatsManager#T_RESOURCE_ACTION}, {@link StatsManager#T_DATE}, {@link StatsManager#T_LASTDATE}, {@link StatsManager#T_TOTAL}). */
 	public void setHowChartSeriesSource(String howChartSeriesSource) {
 		this.howChartSeriesSource = howChartSeriesSource;
 	}
-	
-	
 
+	/** Set the date grouping type for time series chart (only applies to TimeSeries charts) (see {@link StatsManager#CHARTTIMESERIES_DAY}, {@link StatsManager#CHARTTIMESERIES_WEEKDAY}, {@link StatsManager#CHARTTIMESERIES_MONTH}, {@link StatsManager#CHARTTIMESERIES_YEAR}). */
+	public void setHowChartSeriesPeriod(String howChartSeriesPeriod) {
+		this.howChartSeriesPeriod = howChartSeriesPeriod;
+	}
+
+	/** Get the date grouping type for time series chart (only applies to TimeSeries charts) (see {@link StatsManager#CHARTTIMESERIES_DAY}, {@link StatsManager#CHARTTIMESERIES_WEEKDAY}, {@link StatsManager#CHARTTIMESERIES_MONTH}, {@link StatsManager#CHARTTIMESERIES_YEAR}). */
+	public String getHowChartSeriesPeriod() {
+		return howChartSeriesPeriod;
+	}
+
+	
+	
 	private List<String> fixedHowTotalsBy(List<String> list) {
 		List<String> fixedList = new ArrayList<String>();
 		if(list == null || list.isEmpty()) {
@@ -397,12 +408,20 @@ public class ReportParams implements Serializable {
 		}else{
 			// remove columns that shouldn't be selected
 			for(String t : list) {
-				if(t.equals(StatsManager.T_EVENT)) {
+				if(t.equals(StatsManager.T_EVENT) || t.equals(StatsManager.T_TOOL)) {
 					if(!getWhat().equals(ReportManager.WHAT_RESOURCES)){
 						fixedList.add(t);
 					}
 				}else if(t.equals(StatsManager.T_RESOURCE) || t.equals(StatsManager.T_RESOURCE_ACTION)) {
 					if(getWhat().equals(ReportManager.WHAT_RESOURCES)){
+						fixedList.add(t);
+					}
+				}else if(t.equals(StatsManager.T_USER)) {
+					if(!getWhat().equals(ReportManager.WHAT_VISITS_TOTALS) && !getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)){
+						fixedList.add(t);
+					}
+				}else if(t.equals(StatsManager.T_VISITS) || t.equals(StatsManager.T_UNIQUEVISITS)) {
+					if(getWhat().equals(ReportManager.WHAT_EVENTS) || getWhat().equals(ReportManager.WHAT_VISITS_TOTALS)){
 						fixedList.add(t);
 					}
 				}else{
@@ -415,12 +434,20 @@ public class ReportParams implements Serializable {
 	
 	private String fixedHowSortBy(String sort) {
 		if(sort != null) {
-			if(sort.equals(StatsManager.T_EVENT)) {
+			if(sort.equals(StatsManager.T_EVENT) || sort.equals(StatsManager.T_TOOL)) {
 				if(!getWhat().equals(ReportManager.WHAT_RESOURCES)){
 					return sort;
 				}
 			}else if(sort.equals(StatsManager.T_RESOURCE) || sort.equals(StatsManager.T_RESOURCE_ACTION)) {
 				if(getWhat().equals(ReportManager.WHAT_RESOURCES)){
+					return sort;
+				}
+			}else if(sort.equals(StatsManager.T_USER)) {
+				if(!getWhat().equals(ReportManager.WHAT_VISITS_TOTALS) && !getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)){
+					return sort;
+				}
+			}else if(sort.equals(StatsManager.T_VISITS) || sort.equals(StatsManager.T_UNIQUEVISITS)) {
+				if(getWhat().equals(ReportManager.WHAT_EVENTS) || getWhat().equals(ReportManager.WHAT_VISITS_TOTALS)){
 					return sort;
 				}
 			}else if(!StatsManager.T_TOTAL.equals(sort) && !getHowTotalsBy().contains(sort)) {
@@ -485,7 +512,16 @@ public class ReportParams implements Serializable {
 		if(hasChart) {
 			str.append(memberToString("howChartType", getHowChartType(), true));
 			str.append(memberToString("howChartSource", getHowChartSource(), true));
-			str.append(memberToString("howChartCategorySource", getHowChartCategorySource(), false));
+			if(StatsManager.CHARTTYPE_BAR.equals(getHowChartType())
+				|| StatsManager.CHARTTYPE_LINE.equals(getHowChartType())
+				|| StatsManager.CHARTTYPE_PIE.equals(getHowChartType())) {
+				str.append(memberToString("howChartCategorySource", getHowChartCategorySource(), false));
+			}
+			if(StatsManager.CHARTTYPE_TIMESERIES.equals(getHowChartType())
+					|| StatsManager.CHARTTYPE_TIMESERIESBAR.equals(getHowChartType())) {
+					str.append(memberToString("howChartSeriesSource", getHowChartSeriesSource(), true));
+					str.append(memberToString("howChartSeriesPeriod", getHowChartSeriesPeriod(), false));
+			}
 		}
 		
 		str.append('}');

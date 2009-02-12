@@ -53,6 +53,7 @@ public class DigesterUtil {
 	    digester.addBeanPropertySetter("prefs/chartIn3D", "setChartIn3D" );
 	    digester.addBeanPropertySetter("prefs/chartTransparency", "setChartTransparency" );
 	    digester.addBeanPropertySetter("prefs/itemLabelsVisible", "setItemLabelsVisible" );
+	    digester.addBeanPropertySetter("prefs/useAllTools", "setUseAllTools" );
 	    
 	    // toolEventsDef
 	    digester = configureToolEventsDefDigester("prefs/", digester);

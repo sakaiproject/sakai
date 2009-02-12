@@ -20,8 +20,6 @@
             <form wicket:id="preferencesForm" name="prefsForm">
     
 		        <span wicket:id="messages"></span>
-		    
-		        <div id="preferences" style="width: 100%">
 		        
 		            <table class="sectionContainerNav" style="width: 100%;">
 		                <tbody>
@@ -47,10 +45,12 @@
 		                                </h4>
 		                                <p class="instruction">
 		                                    <wicket:message key="instructions_prefs_sep_chart">[instructions_prefs_sep_chart]</wicket:message>
-		                                </p>                                                    
+		                                </p>
+                                        <!--
 		                                <input wicket:id="chartIn3D" type="checkbox" />
 		                                <wicket:message key="prefs_3dCharts">[prefs_3dCharts]</wicket:message>
 		                                <br/>
+		                                -->
 		                                <input wicket:id="itemLabelsVisible" type="checkbox" />
 		                                <wicket:message key="prefs_itemLabelsVisible">[prefs_itemLabelsVisible]</wicket:message>
 		                                <p/>
@@ -72,7 +72,11 @@
 		                            <p class="instruction">
 		                                <wicket:message key="instructions_prefs_activity_tools">[instructions_prefs_activity_tools]</wicket:message>
 		                            </p>                                                    
-		                            <div wicket:id="eventRegistryTree" class="eventTree"></div>
+		                            <div>
+                                        <input wicket:id="useAllTools" type="checkbox" />
+                                        <wicket:message key="prefs_useAllTools">[prefs_useAllTools]</wicket:message>
+                                    </div>
+                                    <div wicket:id="eventRegistryTree" class="eventTree"></div>
 		                            
 		                        </td>
 		                    </tr>
@@ -84,8 +88,6 @@
 		                <input type="submit" wicket:id="update" wicket:message="value:update" class="active"/>
 		                <input type="submit" wicket:id="cancel" wicket:message="value:cancel"/>
 		            </p>
-		
-		        </div>
 		    
 		    </form>
 		    

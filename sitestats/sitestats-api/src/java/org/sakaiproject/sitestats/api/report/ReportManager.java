@@ -13,6 +13,7 @@ public interface ReportManager {
 	public static final String	WHO_ALL						= "who-all";
 	public static final String	WHO_NONE					= "who-none";
 	public static final String	WHEN_CUSTOM					= "when-custom";
+	public static final String	WHEN_LAST365DAYS			= "when-last365days";
 	public static final String	WHEN_LAST30DAYS				= "when-last30days";
 	public static final String	WHEN_LAST7DAYS				= "when-last7days";
 	public static final String	WHEN_ALL					= "when-all";
@@ -27,6 +28,8 @@ public interface ReportManager {
 	public static final String	WHAT_EVENTS_ALLTOOLS		= "all";
 	public static final String	WHAT_EVENTS					= "what-events";
 	public static final String	WHAT_VISITS					= "what-visits";
+	public static final String	WHAT_VISITS_TOTALS			= "what-visits-totals";
+	public static final String	WHAT_ACTIVITY_TOTALS		= "what-activity-totals";
 	public static final String	HOW_TOTALSBY				= "how-totalsby";
 	public static final String	HOW_SORT_DEFAULT			= "default";
 	public static final String	HOW_PRESENTATION_TABLE		= "how-presentation-table";

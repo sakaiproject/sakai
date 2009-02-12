@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -24,7 +24,6 @@ import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.components.CSSFeedbackPanel;
 import org.sakaiproject.sitestats.tool.wicket.components.EventRegistryTree;
-import org.sakaiproject.sitestats.tool.wicket.components.Menu;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 
 /**
@@ -74,7 +73,7 @@ public class PreferencesPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		response.renderJavascriptReference("/library/js/jquery.js");
-		response.renderJavascriptReference("/sakai-sitestats-tool/script/common.js");
+		response.renderOnDomReadyJavascript("toggleCheckboxAll();");
 		super.renderHead(response);
 	}
 	
@@ -98,8 +97,8 @@ public class PreferencesPage extends BasePage {
 		boolean chartPrefsVisible = facade.getStatsManager().isEnableSiteVisits() || facade.getStatsManager().isEnableSiteActivity();
 		chartPrefs.setVisible(chartPrefsVisible);
 		form.add(chartPrefs);
-		CheckBox chartIn3D = new CheckBox("chartIn3D");
-		chartPrefs.add(chartIn3D);
+		//CheckBox chartIn3D = new CheckBox("chartIn3D");
+		//chartPrefs.add(chartIn3D);
 		CheckBox itemLabelsVisible = new CheckBox("itemLabelsVisible");
 		chartPrefs.add(itemLabelsVisible);
 		chartTransparencyChoices = new ArrayList<String>();
@@ -118,6 +117,11 @@ public class PreferencesPage extends BasePage {
 		
 		
 		// Section: Activity Definition
+		CheckBox useAllTools = new CheckBox("useAllTools");
+		useAllTools.add(new SimpleAttributeModifier("onchange", "toggleCheckboxAll();"));
+		useAllTools.setOutputMarkupId(true);
+		useAllTools.setMarkupId("useAllTools");
+		form.add(useAllTools);
 		eventRegistryTree = new EventRegistryTree("eventRegistryTree", getPrefsdata().getToolEventsDef()) {
 			@Override
 			public boolean isToolSuported(final ToolInfo toolInfo) {
@@ -172,7 +176,11 @@ public class PreferencesPage extends BasePage {
 	}
 
 	private void savePreferences() {
-		getPrefsdata().setToolEventsDef((List<ToolInfo>) eventRegistryTree.getEventRegistry());
+		if(isUseAllTools()) {
+			getPrefsdata().setToolEventsDef(facade.getEventRegistryService().getEventRegistry(siteId, isListToolEventsOnlyAvailableInSite()));
+		}else{
+			getPrefsdata().setToolEventsDef((List<ToolInfo>) eventRegistryTree.getEventRegistry());
+		}
 		boolean opOk = facade.getStatsManager().setPreferences(siteId, getPrefsdata());		
 		if(opOk){
 			info((String) new ResourceModel("prefs_updated").getObject());
@@ -195,6 +203,14 @@ public class PreferencesPage extends BasePage {
 
 	public boolean isChartIn3D() {
 		return getPrefsdata().isChartIn3D();
+	}
+	
+	public void setUseAllTools(boolean useAllTools) {
+		prefsdata.setUseAllTools(useAllTools);
+	}
+
+	public boolean isUseAllTools() {
+		return getPrefsdata().isUseAllTools();
 	}
 
 	public void setItemLabelsVisible(boolean itemLabelsVisible) {

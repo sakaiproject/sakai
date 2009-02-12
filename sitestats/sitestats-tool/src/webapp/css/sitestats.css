@@ -1,4 +1,267 @@
-/* Positioning */
+/** (NEW) Overview page */
+
+/** WIDGET *************** */
+/** STAT WIDGET: Top */
+.widget {
+    width: 99.5%;
+    height: auto;
+    margin: 0 auto 20px auto;
+    padding: 0;
+    background: #FAFAFA;
+    clear: both;
+    border: 1px solid #DDD;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    behavior: url(/sakai-sitestats-tool/script/border-radius.htc);
+}
+.widget .top {
+    width: auto;
+    height: 100%;
+    min-height: 60px;
+    margin: 10px 10px 10px 0px;
+    padding: 0;
+    /*display: -moz-inline-box;*/
+    display: inline-block;
+    text-align: center;
+}
+.widget .header {
+    min-width: 40px;
+    max-width: 150px;
+    width: auto;
+    width: expression(this . clientWidth <   102 ?   "100px" :   this . clientWidth > 152 ?   "150px" :   "auto");
+    height: 60px;
+    padding: 0;
+    text-align: center;
+    float: left;
+    line-height: 13px;
+    margin: 0 auto;
+}
+.widget .header img {
+    margin: 0 auto;
+    text-align: center;
+}
+.widget .header .title {
+    font-size: 14px;
+    font-weight: bold;
+    width: 100px;
+    margin: 0 auto;
+}
+.widget .header .bottom {
+    padding-top: 5px;
+    width: 100px;
+}
+.widget .header .bottom a {
+    font-size: 10px;
+    color: #777;
+    text-decoration: none !important;
+    outline: none !important;
+}
+.widget .header .bottom a:hover,
+.widget .header .bottom a:hover .showText {
+    text-decoration: underline !important;
+}
+
+/** STAT WIDGET: Mini panels */
+.widget .ministatContainer {
+    margin-left: 100px;
+}
+.widget .ministat {
+    min-width: 60px;
+    max-width: 120px;
+    width: auto;
+    width: expression(this.clientWidth<62 ? "60px" :   this.clientWidth>122 ? "120px" : "auto");
+    /*height: 60px;*/
+    min-height: 60px;
+    max-height: 60px;
+    height: auto;
+    height: expression(this.clientHeight<62 ? "60px" : "auto");
+    padding: 0 10px;
+    border-left: 1px solid #CCC;
+    text-align: center;
+    float: left;
+}
+.widget .load {
+    text-align: center;
+    vertical-align: middle;
+}
+.widget .load img {
+    margin-top: 20px;
+}
+.widget .wider {
+    max-width: 250px !important;
+    width: expression(this . clientWidth >   252 ?   "250px" :   "auto") !important;
+}
+.widget .ministat .value {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    min-height: 30px; height: auto;
+    height: expression(this.clientHeight<32 ? "30px" : "auto");
+}
+.widget .ministat .valueText {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    min-height: 30px;
+    cursor: help;
+}
+.widget .ministat .secvalue {
+    font-size: 10px;
+    color: #777;
+    padding-left: 2px;
+}
+.widget .ministat em {
+    line-height: 13px !important;
+}
+.widget .ministat .label {
+    font-size: 12px;
+    font-style:normal;
+    color: #777;
+}
+.widget .ministat a {
+    text-decoration: none !important;
+    color: #777;
+    line-height: 13px !important;
+}
+.widget .ministat a.extlink,
+.widget .ministat a.extlink span {
+	/*color: #000 !important;*/
+}
+.widget .ministat a:hover {
+    text-decoration: underline !important;
+}
+
+/** STAT WIDGET: Content */
+.widget .middle {
+    width: auto;
+    padding: 0 0 0px 0;
+    margin: 1px;
+    display: none;
+    text-align: left;
+}
+* html .widget .middle {
+    margin: 0px 0px 12px 1px;
+    border-bottom: 1px solid #DDD;
+}
+.widget .middle .filters {
+    margin: 10px 0;
+}
+.widget .middle .tabContents {
+    padding: 5px 10px 10px 10px;
+    background: #FFF;
+    height: auto;
+}
+.widget .middle .tabContents .tableTd,
+.widget .middle .tabContents .chartTd {
+	padding: 0;
+    vertical-align: top;
+    width: 50%;
+}
+.widget .middle .tabContents .chartTd {
+    height: 200px;
+    width: 60%;
+    /*width: 400px;*/
+    padding-right: 10px;
+}
+.widget .middle .tabContents .tableTd {
+    width: 40%;
+    padding: 1px 0 0 0;
+}
+.widget .middle .tabContents .table {
+    margin: 0;
+}
+.widget .middle .tabContents .showAll {
+    padding-top: 10px;
+    text-align: center;
+}
+.widget .middle .tabContents select {
+    margin: 0.1em 0.3em 0.1em 0;
+    border:1px solid #888888;
+}
+
+
+/** WIDGET TABS ***************** */
+/** TABS: General settings */
+ul.tabnav {
+    margin: 0;
+    font-size: 11px;
+    font-family: verdana, arial, sans-serif;
+    border-bottom: 1px solid #DDDFE1;
+    list-style-type: none;
+    padding: 3px 10px 3px 10px; /* third number with respect to padding-top (X) below in {ul.tabnav li.tabsel a} */
+    position: relative;  
+}
+ul.tabnav li {
+    display: inline;
+    white-space: nowrap;
+    margin: 0;
+    float: none;
+    width: auto;
+}
+/** TABS: Selected tab */
+ul.tabnav li.tabsel {
+    border-bottom: 1px solid #fff;
+    background-color: #fff;
+}
+ul.tabnav li.tabsel a {
+    background-color: #fff;
+    color: #000;
+    position: relative;
+    top: 0px; /* with respect to border width */
+    padding-top: 3px; /* with respect to padding (X) above {ul.tabnav} and below {ul.tabnav li a} */
+    font-weight: bold;
+    border: 1px solid #DDDFE1;
+    border-bottom: 1px solid #fff;
+}
+/** TABS: All tabs */
+ul.tabnav li a {
+    padding: 3px 7px; /* first number with respect to padding-top (X) above {ul.tabnav li.tabsel a} */
+    background-color: #eee;
+    color: #666;
+    margin-right: 0px;
+    text-decoration: none !important;
+    border: 1px solid #DDDFE1; /* usually matches border color specified in #tabnav */
+    -moz-border-radius-topleft:4px;
+    -moz-border-radius-topright:4px;
+    -webkit-border-top-left-radius:4px;
+    -webkit-border-top-right-radius:4px;
+    behavior:url(border-radius.htc);
+    border-top-left-radius:4px;
+    border-top-right-radius:4px;
+}
+/** TABS: Tab hover effect */
+ul.tabnav a:hover {
+    background: #fff;
+    color: #333;
+}
+/** TABS: Ajax Indicator */
+ul.tabnav li .wicket-ajax-indicator img{
+  /*float: right;
+  padding: 0 2px;*/
+  margin: -5px 0 0 4px;
+}
+/** TABS: Content */
+.tabContents {
+    background-color: #fff;
+}
+.tabContents .fake {
+    width: 30px;
+    text-align: center;
+    vertical-align: middle;
+    background-color: #fff;
+    /*margin: 10px auto 0 auto;*/
+    height: 20px;
+}
+
+
+/** Positioning: Common */
+.halfSize {
+    vertical-align: top;
+    text-align: left;
+    width: 50%;
+}
+
+/** OLD OVERVIEW PAGE: Positioning */
+/*
 .halfSize {
 	vertical-align: top;
 	text-align: left;
@@ -34,33 +297,29 @@
 .top {
 	vertical-align: top;
 }
-
 .left1 {
 	vertical-align: top;
 	text-align: left;
 	width: 80%;
 }
-
 .right1 {
 	vertical-align: top;
 	text-align: right;
 	width: 20%;
-	/*width: 160px;*/
 }
-
 .left30 {
 	vertical-align: top;
 	text-align: left;
 	width: 30%;
 }
-
 .left70 {
 	vertical-align: top;
 	text-align: left;
 	width: 70%;
 }
+*/
 
-/* Hidden report */
+/** Hidden report */
 .hiddenReport {
     background-color: #F8F8F8;	
 }
@@ -77,9 +336,9 @@
 }
 
 
-/* Summary Header separator */
+/** Summary Header separator */
 .summaryHeader {
-	border-bottom: 2px solid rgb(221,223,225);
+	border-bottom: 2px solid #DDDFE1;
 	color: #333;
 	margin: 5px 0 0 0;
 	padding: 5px 0 1px 2px;
@@ -97,7 +356,7 @@
 }
 
 
-/* Form */
+/** Form */
 .formContainer {
     padding-left: 2px;
     margin: 0;
@@ -130,9 +389,9 @@ table.formContainer  {
 }
 
 
-/* Summary Table */
+/** Summary Table */
 .summaryTable {
-	border: 1px dashed #cccccc;
+	/*border: 1px dashed #cccccc;*/
 	text-align: left;
 	/*margin-top: 20px;*/
 	width: 100%;
@@ -176,14 +435,14 @@ label.indnt1 {
 }
  
  
-/* Ajax loading */
+/** Ajax loading */
 .ajaxLoading {
 	background: #ffffff url(../images/ajaxload.gif) no-repeat;
 	color: window;
 }
 
 
-/* Tool/Event tree nodes in preferences (for Tomahawk tree2) */
+/** Tool/Event tree nodes in preferences (for Tomahawk tree2) */
 .nodeToolSelected,.nodeEventSelected  {
 	/*font-weight: bold;*/
 }
@@ -216,7 +475,7 @@ label.indnt1 {
 }
 
 
-/* Wicket table sorting indicator */
+/** Wicket table sorting indicator */
 .wicket_orderUp a span {
     background-image: url('/library/image/sakai/sortascending.gif');
     background-repeat: no-repeat;
@@ -230,3 +489,81 @@ label.indnt1 {
     padding-right: 16px;
 }
 
+
+/** Simple charts */
+.simpleChart {
+    position: relative;
+    display: inline-block;
+    height: 15px;
+    /*width: 200px;
+    margin: 5px;*/
+    width: 100%;
+    border: 1px solid #777;
+    text-align: center;
+    vertical-align: middle;
+    font-family:Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000;
+}
+.barLeft  {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    margin: 1px;
+    height: 13px;
+    background-color: #00A5E3;
+    z-index: 1;
+}
+.barRight  {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    height: 13px;
+    background-color: #9BBD02/*#0286C7*/;
+    z-index: 1;
+}
+.valueCenter {
+    position: absolute;
+    top: 1px;
+    left: 2%;
+    width: 98%;  
+    height: 100%;
+    z-index: 2;
+}
+.valueLeft {
+    position: absolute;
+    top: 1px;
+    left: 5px;
+    width: auto;
+    height: 100%;
+    z-index: 2;
+}
+.valueRight {
+    position: absolute;
+    top: 1px;
+    right: 5px;
+    width: auto;
+    height: 100%;
+    z-index: 2;
+}
+.legendLeft {
+    font-family:Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000;
+  position: absolute;
+  left: 5px;
+  text-align: left;
+  width: 49%;
+}
+.legendRight {
+    font-family:Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000;
+  position: absolute;
+  right: 5px;
+  text-align: right;
+  width: 49%;
+}

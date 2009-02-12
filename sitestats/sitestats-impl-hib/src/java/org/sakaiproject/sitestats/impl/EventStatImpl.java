@@ -33,6 +33,7 @@ public class EventStatImpl implements EventStat, Serializable {
 	private String	siteId;
 	private String	userId;
 	private String	eventId;
+	private String	toolId;
 	private long	count;
 	private Date	date;
 	
@@ -117,6 +118,20 @@ public class EventStatImpl implements EventStat, Serializable {
 	 */
 	public void setEventId(String eventId) {
 		this.eventId = eventId;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.EventStat#getToolId()
+	 */
+	public String getToolId() {
+		return toolId;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.EventStat#setToolId(java.lang.String)
+	 */
+	public void setToolId(String toolId) {
+		this.toolId = toolId;
 	}
 
 	/*

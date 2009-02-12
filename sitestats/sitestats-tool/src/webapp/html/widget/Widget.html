@@ -1,0 +1,91 @@
+<html xmlns:wicket>
+<wicket:head>
+    <script type="text/javascript">
+    function showMoreLess(middle, more, less) {
+        var display = jQuery(middle).css('display');
+        var isVisible = !display || display != 'none';
+        if(!isVisible) {
+        	   setMainFrameHeightNoScroll(window.name, 0, 400);
+        	   // Load by ajax only for the first time (remaining action will only be hide/show)
+        	   if(jQuery(middle + ' .loaded').length == 0) {
+        		   jQuery(middle + ' .tabsel a').click();
+        		   jQuery(middle).append('<span class="loaded" style="display: none"></span>');
+        	   }
+        }
+        jQuery(middle).slideToggle('300', function() {
+            setMainFrameHeightNoScroll(window.name, 0, 100);
+        });
+        jQuery(more).toggle();
+        jQuery(less).toggle();        
+    }    
+    function truncate(selector, length) {
+        jQuery(selector).each(function(){
+	        var hardLimit = length - 4;
+	        var limit = hardLimit;
+	        var text = jQuery(this).html();
+	        var textSize = text.length;
+	        var insideTag = text.indexOf('<');
+	        var truncated = '';
+	        if( (insideTag == -1 && textSize > hardLimit)
+	            || (insideTag > 0 && insideTag > hardLimit) ) {
+	          var original = text;
+	          if(insideTag == -1) {
+	            truncated = text.substring(0, limit) + '...';
+	          }else{
+	            original = text.substring(0, insideTag);
+	            truncated = text.substring(0, limit) + '...' + text.substring(insideTag) + ' ';
+	          }          
+	          jQuery(this).html(truncated);
+	          jQuery(this).attr('title', jQuery(this).attr('title') + ' ' + original);
+	        }
+        });
+    }
+    jQuery(document).ready(function(){
+    	//truncate('.valueText', 22);
+        jQuery('.alpha').ifixpng();
+    });
+    </script>
+</wicket:head>
+<wicket:panel>
+
+  <div class="widget">
+    <div class="top">
+      <div class="header">
+        <img wicket:id="icon" class="alpha"/>
+        <div wicket:id="title" class="title">[title]</div>
+        <div class="bottom">
+          <a wicket:id="showMore" href="#">
+            <div class="showText">
+                <wicket:message key="overview_show_more">[show more]</wicket:message>
+            </div>
+            <img src="/library/image//sakai/arrowDown.gif" alt="[ + ]" wicket:message="title:overview_show_more"/>
+          </a>
+          <a wicket:id="showLess" href="#" style="display: none">
+            <img src="/library/image//sakai/arrowUp.gif" alt="[ - ]" wicket:message="title:overview_show_less"/>
+            <div class="showText">
+                <wicket:message key="overview_show_less">[show less]</wicket:message>
+            </div>            
+          </a>
+        </div>
+      </div>
+      <div wicket:id="ministatContainer" class="ministatContainer"></div>
+      <wicket:fragment wicket:id="ministatFragment">
+	      <div wicket:id="ministat" class="ministat">
+	        <div wicket:id="value">
+	           <span wicket:id="valueLabel">931</span><span wicket:id="secvalue" class="secvalue">89%</span>
+	        </div>
+	        <a wicket:id="report">
+	          <span wicket:id="label" class="label">Visits</span>
+	        </a>
+	      </div>
+      </wicket:fragment>
+    </div>
+    
+    <div wicket:id="middle" class="middle">
+        <span wicket:id="widgetTabs"></span>
+    </div>
+  </div>
+  
+</wicket:panel>
+</html>
+  

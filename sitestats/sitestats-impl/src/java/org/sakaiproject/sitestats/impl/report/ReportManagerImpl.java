@@ -174,8 +174,13 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		List<Stat> data = null;
 		if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
 			data = M_sm.getResourceStats(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
-		}else{
+		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)
+				|| reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
 			data = M_sm.getEventStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS_TOTALS)){
+			data = M_sm.getVisitsTotalsStats(rpp.siteId, rpp.iDate, rpp.fDate, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)){
+			data = M_sm.getActivityTotalsStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		}
 		
 		// add missing info in report and its parameters
@@ -220,7 +225,14 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 							rpp.events.add(iE.next().getEventId());
 					}
 				}
-			}else rpp.events.addAll(params.getWhatEventIds());
+			}else{
+				List<String> eventIds = params.getWhatEventIds();
+				if(eventIds == null) {
+					rpp.events = eventIds;
+				}else{
+					rpp.events.addAll(params.getWhatEventIds());
+				}
+			}
 
 		}else if(params.getWhat().equals(ReportManager.WHAT_RESOURCES)){
 			rpp.resourceIds = null;
@@ -262,6 +274,13 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			c.set(Calendar.MINUTE, 00);
 			c.set(Calendar.SECOND, 00);
 			c.add(Calendar.DATE, -29);
+			rpp.iDate = c.getTime();
+		}else if(params.getWhen().equals(ReportManager.WHEN_LAST365DAYS)){
+			Calendar c = Calendar.getInstance();
+			c.set(Calendar.HOUR_OF_DAY, 00);
+			c.set(Calendar.MINUTE, 00);
+			c.set(Calendar.SECOND, 00);
+			c.add(Calendar.DATE, -364);
 			rpp.iDate = c.getTime();
 		}
 		params.setWhenFrom(rpp.iDate);
@@ -340,6 +359,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		}else if(column.equals(StatsManager.T_EVENT)) {
 			return totalsBy.contains(StatsManager.T_EVENT) && !ReportManager.WHO_NONE.equals(params.getWho());
 			
+		}else if(column.equals(StatsManager.T_TOOL)) {
+			return totalsBy.contains(StatsManager.T_TOOL) && !ReportManager.WHO_NONE.equals(params.getWho());
+			
 		}else if(column.equals(StatsManager.T_RESOURCE)) {
 			return totalsBy.contains(StatsManager.T_RESOURCE) && !ReportManager.WHO_NONE.equals(params.getWho());
 			
@@ -349,11 +371,24 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		}else if(column.equals(StatsManager.T_DATE)) {
 			return totalsBy.contains(StatsManager.T_DATE) && !ReportManager.WHO_NONE.equals(params.getWho());
 			
+		}else if(column.equals(StatsManager.T_DATEMONTH)) {
+			return totalsBy.contains(StatsManager.T_DATEMONTH) && !ReportManager.WHO_NONE.equals(params.getWho());
+			
+		}else if(column.equals(StatsManager.T_DATEYEAR)) {
+			return totalsBy.contains(StatsManager.T_DATEYEAR) && !ReportManager.WHO_NONE.equals(params.getWho());
+			
 		}else if(column.equals(StatsManager.T_LASTDATE)) {
 			return totalsBy.contains(StatsManager.T_LASTDATE) && !ReportManager.WHO_NONE.equals(params.getWho());
 			
 		}else if(column.equals(StatsManager.T_TOTAL)) {
-			return !ReportManager.WHO_NONE.equals(params.getWho());
+			return !ReportManager.WHO_NONE.equals(params.getWho()) && !ReportManager.WHAT_VISITS_TOTALS.equals(params.getWhat())
+				&& !totalsBy.contains(StatsManager.T_VISITS) && !totalsBy.contains(StatsManager.T_UNIQUEVISITS);
+			
+		}else if(column.equals(StatsManager.T_VISITS)) {
+			return totalsBy.contains(StatsManager.T_VISITS);
+			
+		}else if(column.equals(StatsManager.T_UNIQUEVISITS)) {
+			return totalsBy.contains(StatsManager.T_UNIQUEVISITS);
 			
 		}else{
 			LOG.warn("isReportColumnAvailable(): invalid column: "+column);
@@ -981,23 +1016,31 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportActivityBasedOn(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportActivityBasedOn(Report report) {
-			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
+			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)
+				|| report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS_TOTALS))
 				return msgs.getString("report_what_visits");
-			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
+			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)
+				|| report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)){
 				StringBuilder buff = new StringBuilder();
 				buff.append(msgs.getString("report_what_events"));
-				if(report.getReportDefinition().getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL)){
-					buff.append(" (");
-					buff.append(msgs.getString("report_what_events_bytool"));
-					buff.append(")");
-				}else{
-					buff.append(" (");
-					buff.append(msgs.getString("report_what_events_byevent"));
-					buff.append(")");
+				String eventSelType = report.getReportDefinition().getReportParams().getWhatEventSelType();
+				if(eventSelType != null) {
+					if(eventSelType.equals(ReportManager.WHAT_EVENTS_BYTOOL)){
+						buff.append(" (");
+						buff.append(msgs.getString("report_what_events_bytool"));
+						buff.append(")");
+					}else{
+						buff.append(" (");
+						buff.append(msgs.getString("report_what_events_byevent"));
+						buff.append(")");
+					}
 				}
 				return buff.toString();
-			}else 
+			}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)) { 
 				return msgs.getString("report_what_resources");
+			}else{
+				return msgs.getString("report_what_events");
+			}			
 		}
 		
 		/* (non-Javadoc)

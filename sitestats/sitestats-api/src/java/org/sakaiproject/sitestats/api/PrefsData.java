@@ -16,6 +16,9 @@ public interface PrefsData {
 	public void setChartIn3D(boolean value);	
 	public boolean isChartIn3D();
 	
+	public void setUseAllTools(boolean value);	
+	public boolean isUseAllTools();
+	
 	public void setChartTransparency(float value);
 	public void setChartTransparency(String value);
 	public float getChartTransparency();

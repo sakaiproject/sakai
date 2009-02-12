@@ -10,9 +10,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Resource;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -37,7 +35,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	private AbstractDefaultAjaxBehavior chartRenderAjaxBehavior				= null;
 	
 	private Form						form								= null;
-	private boolean						autoDetermineChartSizeByAjax 			= false;
+	private boolean						autoDetermineChartSizeByAjax 		= false;
 	private int							selectedWidth						= 400;
 	private int							selectedHeight						= 200;
 	private int							maxWidth							= 800;
@@ -68,10 +66,10 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		chartRenderAjaxBehavior = new AbstractDefaultAjaxBehavior() {
 			@Override
 			protected void respond(AjaxRequestTarget target) {
-				System.out.println("chartRenderAjaxBehavior.Responding for "+ getId());
+				//System.out.println("chartRenderAjaxBehavior.Responding for "+ getId());
 				renderImage(target, true);
 			}
-
+			
 			@Override
 			public boolean isEnabled(Component component) {
 				return state < 2;
@@ -166,7 +164,8 @@ public abstract class AjaxLazyLoadImage extends Panel {
 					setResponsePage(new MaximizedImagePage(returnPage, returnClass) {
 						@Override
 						public BufferedImage getBufferedMaximizedImage() {
-							return AjaxLazyLoadImage.this.getBufferedImage(maxWidth, 2 * maxWidth / 3);
+							int _width = (int) ((int) maxWidth * 0.98);
+							return AjaxLazyLoadImage.this.getBufferedImage(_width, 2 * _width / 3);
 						}						
 					});
 				}
@@ -210,7 +209,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		AbstractDefaultAjaxBehavior determineChartSizeBehavior = new AbstractDefaultAjaxBehavior() {
 			@Override
 			protected void respond(AjaxRequestTarget target) {
-				System.out.println("determineChartSizeBehavior.Responding for "+ getId());
+				//System.out.println("determineChartSizeBehavior.Responding for "+ getId());
 				// parse desired image size
 				Request req = RequestCycle.get().getRequest();
 				try{

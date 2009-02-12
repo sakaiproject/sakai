@@ -1,3 +1,12 @@
+function toggleCheckboxAll() {
+	if(jQuery('#useAllTools').attr('checked')) {
+		jQuery('.eventTree').hide();
+	}else{
+		jQuery('.eventTree').show();
+		setMainFrameHeightNoScroll( window.name );
+	}
+}
+
 function selectUnselectEvents(obj) {
 	if(obj.checked) {
 		jQuery(obj).parent().parent().find('span :checkbox').attr('checked','checked');
@@ -5,8 +14,6 @@ function selectUnselectEvents(obj) {
 		jQuery(obj).parent().parent().find('span :checkbox').removeAttr('checked');
 	}
 }
-
-
 
 function updateAllToolsSelection() {
 	updateToolSelection('.tool');
