@@ -11,12 +11,11 @@
 	<description></description>
 
 	<packaging>war</packaging>
-	<version>${tool.version}</version>
 	
 	<parent>
 		<groupId>uk.ac.lancs.e_science</groupId>
 		<artifactId>profile2-base</artifactId>
-	    <version>${tool.version}</version>
+	    <version>1.1-SNAPSHOT</version>
 	    <relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -71,44 +70,37 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-component-api</artifactId>
-			<version>${sakai.version}</version>
 			<scope>provided</scope>
     	</dependency>
     	<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-site-api</artifactId>
-			<version>${sakai.version}</version>
 			<scope>provided</scope>
     	</dependency>
     	<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-tool-api</artifactId>
-			<version>${sakai.version}</version>
 			<scope>provided</scope>
     	</dependency>
     	<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-user-api</artifactId>
-			<version>${sakai.version}</version>
 			<scope>provided</scope>
     	</dependency>
     	
     	<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>
-			<version>${sakai.version}</version>
 			<scope>provided</scope>
     	</dependency>
     	<dependency>
       		<groupId>org.sakaiproject</groupId>
       		<artifactId>sakai-common-manager-api</artifactId>
-      		<version>${sakai.version}</version>
       		<scope>provided</scope>
     	</dependency>
 	    <dependency>
 	      	<groupId>org.sakaiproject</groupId>
 	      	<artifactId>sakai-common-type-api</artifactId>
-	      	<version>${sakai.version}</version>
 	      	<scope>provided</scope>
 	    </dependency>
 		
