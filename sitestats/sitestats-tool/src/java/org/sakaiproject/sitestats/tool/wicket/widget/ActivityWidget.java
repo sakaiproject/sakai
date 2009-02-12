@@ -369,12 +369,6 @@ public class ActivityWidget extends Panel {
 			
 			@Override
 			public ReportDef getReportDefinition() {
-				/*ReportDef rd = getCommonReportDefition();
-				ReportParams rp = rd.getReportParams();
-				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
-				rp.setHowChartType(StatsManager.CHARTTYPE_PIE);
-				rp.setHowChartSource(StatsManager.T_TOOL);
-				return rd;*/
 				return getCommonReportDefition();
 			}
 		};
@@ -504,6 +498,8 @@ public class ActivityWidget extends Panel {
 				rp.setHowSortBy(StatsManager.T_TOTAL);
 				rp.setHowChartType(StatsManager.CHARTTYPE_PIE);
 				rp.setHowChartSource(StatsManager.T_USER);
+				rp.setHowLimitedMaxResults(true);
+				rp.setHowMaxResults(MAX_TABLE_ROWS);
 				r.setReportParams(rp);
 				return r;
 			}
@@ -592,6 +588,7 @@ public class ActivityWidget extends Panel {
 				rp.setHowSortBy(StatsManager.T_TOTAL);
 				rp.setHowChartType(StatsManager.CHARTTYPE_PIE);
 				rp.setHowChartSource(StatsManager.T_TOOL);
+				rp.setHowLimitedMaxResults(true);
 				r.setReportParams(rp);
 				return r;
 			}
@@ -638,7 +635,6 @@ public class ActivityWidget extends Panel {
 				rp.setHowChartSource(StatsManager.T_TOOL);
 				r.setReportParams(rp);
 				
-				LOG.info(rp.toString());
 				return r;
 			}					
 		};

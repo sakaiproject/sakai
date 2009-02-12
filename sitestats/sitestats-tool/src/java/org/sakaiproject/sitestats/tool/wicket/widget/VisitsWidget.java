@@ -433,6 +433,8 @@ public class VisitsWidget extends Panel {
 				totalsBy.add(StatsManager.T_USER);
 				rp.setHowTotalsBy(totalsBy);
 				rp.setHowSortBy(StatsManager.T_TOTAL);
+				rp.setHowLimitedMaxResults(true);
+				rp.setHowMaxResults(MAX_TABLE_ROWS);
 				r.setReportParams(rp);
 				return r;
 			}

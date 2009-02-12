@@ -46,6 +46,7 @@ import org.sakaiproject.sitestats.tool.wicket.providers.ReportsDataProvider;
 public abstract class WidgetTabTemplate extends Panel {
 	private static final long		serialVersionUID		= 1L;
 	private static Log				LOG						= LogFactory.getLog(WidgetTabTemplate.class);
+	public final static int			MAX_TABLE_ROWS			= 5;
 	public final static Integer		FILTER_DATE				= Integer.valueOf(0);
 	public final static Integer		FILTER_ROLE				= Integer.valueOf(1);
 	public final static Integer		FILTER_USER				= Integer.valueOf(2);
@@ -217,7 +218,7 @@ public abstract class WidgetTabTemplate extends Panel {
 					tableDataProvider, false
 					);
 		}
-		table.setRowsPerPage(5);
+		table.setRowsPerPage(MAX_TABLE_ROWS);
 		table.setOutputMarkupId(true);
 		tableTd.add(table);
 	}
@@ -379,9 +380,6 @@ public abstract class WidgetTabTemplate extends Panel {
 		if(renderTable) {
 			if(useChartReportDefinitionForTable()) {
 				chartDataProvider.setReportDef(getChartReportDefinition());
-				for(Stat s : chartDataProvider.getReport().getReportData()) {
-					LOG.info(s);
-				}
 			}else{
 				tableDataProvider.setReportDef(getTableReportDefinition());
 			}

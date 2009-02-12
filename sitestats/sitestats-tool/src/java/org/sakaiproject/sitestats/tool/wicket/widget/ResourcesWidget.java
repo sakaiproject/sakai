@@ -525,7 +525,6 @@ public class ResourcesWidget extends Panel {
 				}
 				r.setReportParams(rp);
 				
-				LOG.info(rp.toString());
 				return r;
 			}					
 		};
@@ -554,7 +553,9 @@ public class ResourcesWidget extends Panel {
 				rp.setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
 				rp.setHowSort(true);
 				rp.setHowSortBy(StatsManager.T_TOTAL);
-				rp.setHowSortAscending(false);		
+				rp.setHowSortAscending(false);	
+				rp.setHowLimitedMaxResults(true);
+				rp.setHowMaxResults(MAX_TABLE_ROWS);	
 				r.setReportParams(rp);
 				return r;
 			}
@@ -617,7 +618,6 @@ public class ResourcesWidget extends Panel {
 				rp.setHowChartSource(StatsManager.T_USER);
 				r.setReportParams(rp);
 				
-				LOG.info(rp.toString());
 				return r;
 			}					
 		};
@@ -647,6 +647,8 @@ public class ResourcesWidget extends Panel {
 				rp.setHowSort(true);
 				rp.setHowSortBy(StatsManager.T_TOTAL);
 				rp.setHowSortAscending(false);
+				rp.setHowLimitedMaxResults(true);
+				rp.setHowMaxResults(MAX_TABLE_ROWS);
 				r.setReportParams(rp);
 				return r;
 			}
@@ -709,7 +711,6 @@ public class ResourcesWidget extends Panel {
 				}*/
 				r.setReportParams(rp);
 				
-				LOG.info(rp.toString());
 				return r;
 			}					
 		};
