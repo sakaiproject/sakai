@@ -6,7 +6,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage2;
+import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 
 
 /**
@@ -20,7 +20,7 @@ public class SiteLinkPanel extends Panel {
 		final String siteId = ((Site) model.getObject()).getId();
 		final String siteTitle = ((Site) model.getObject()).getTitle();
 		PageParameters param = new PageParameters("siteId=" + siteId);
-		BookmarkablePageLink link = new BookmarkablePageLink("link", OverviewPage2.class, param);
+		BookmarkablePageLink link = new BookmarkablePageLink("link", OverviewPage.class, param);
 		link.add(new Label("label", siteTitle));
 		add(link);
 	}

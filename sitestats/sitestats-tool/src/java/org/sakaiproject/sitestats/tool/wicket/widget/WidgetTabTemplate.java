@@ -38,7 +38,7 @@ import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
 import org.sakaiproject.sitestats.tool.wicket.components.IndicatingAjaxDropDownChoice;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
-import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage2;
+import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportDataPage;
 import org.sakaiproject.sitestats.tool.wicket.providers.ReportsDataProvider;
 
@@ -122,7 +122,7 @@ public abstract class WidgetTabTemplate extends Panel {
 
 	private void renderChart() {
 		WebMarkupContainer chartTd = new WebMarkupContainer("chartTd");
-		chart = new AjaxLazyLoadImage("chart", OverviewPage2.class) {
+		chart = new AjaxLazyLoadImage("chart", OverviewPage.class) {
 			@Override
 			public BufferedImage getBufferedImage() {
 				return getChartImage(chartWidth, 200);

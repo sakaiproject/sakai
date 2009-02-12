@@ -21,7 +21,7 @@ import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.locator.ResourceStreamLocator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
-import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage2;
+import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -43,11 +43,11 @@ public class SiteStatsApplication extends WebApplication {
 		getDebugSettings().setAjaxDebugModeEnabled(debug);
 
 		// Home page
-		mountBookmarkablePage("/home", OverviewPage2.class);
+		mountBookmarkablePage("/home", OverviewPage.class);
 
 		// On wicket session timeout, redirect to main page
-		getApplicationSettings().setPageExpiredErrorPage(OverviewPage2.class);
-		getApplicationSettings().setAccessDeniedPage(OverviewPage2.class);
+		getApplicationSettings().setPageExpiredErrorPage(OverviewPage.class);
+		getApplicationSettings().setAccessDeniedPage(OverviewPage.class);
 
 		// Debugging
 		debug = ServerConfigurationService.getBoolean("sitestats.debug", false);
@@ -66,7 +66,7 @@ public class SiteStatsApplication extends WebApplication {
 
 	@SuppressWarnings("unchecked")
 	public Class getHomePage() {
-		return OverviewPage2.class;
+		return OverviewPage.class;
 	}
 
 	public SakaiFacade getFacade() {

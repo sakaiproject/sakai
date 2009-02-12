@@ -15,7 +15,7 @@ import org.sakaiproject.sitestats.tool.wicket.widget.VisitsWidget;
 /**
  * @author Nuno Fernandes
  */
-public class OverviewPage2 extends BasePage {
+public class OverviewPage extends BasePage {
 	private static final long			serialVersionUID	= 1L;
 
 	/** Inject Sakai facade */
@@ -26,11 +26,11 @@ public class OverviewPage2 extends BasePage {
 	private String						siteId;
 	
 	
-	public OverviewPage2() {
+	public OverviewPage() {
 		this(null);
 	}
 
-	public OverviewPage2(PageParameters pageParameters) {
+	public OverviewPage(PageParameters pageParameters) {
 		realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
