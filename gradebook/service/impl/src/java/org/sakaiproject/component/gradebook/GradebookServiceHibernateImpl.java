@@ -2457,6 +2457,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	if (log.isDebugEnabled()) log.debug("returning " + assignmentScore);
   	
   	//TODO: when ungraded items is considered, change column to ungraded-grade 
+  	//its possible that the assignment score is null
+  	if (assignmentScore == null)
+  		return null;
   	
   	return new Double(assignmentScore).toString();
   }
