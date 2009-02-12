@@ -25,6 +25,7 @@ import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.tinyurl.api.TinyUrlService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -49,9 +50,9 @@ import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 /**
- * This is the Profile2 API to be used by the Profile2 tool only. 
+ * This is the Profile2 API Implementation to be used by the Profile2 tool only. 
  * 
- * DO NOT USE THIS YOURSELF, use the ProfileManager instead (todo)
+ * DO NOT USE THIS YOURSELF, use the ProfileService instead (todo)
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
@@ -88,8 +89,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#checkContentTypeForProfileImage()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean checkContentTypeForProfileImage(String contentType) {
 		
 		ArrayList<String> allowedTypes = new ArrayList<String>();
@@ -106,8 +107,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#scaleImage()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public byte[] scaleImage (byte[] imageData, int maxSize) {
 	
 	    log.debug("Scaling image...");
@@ -174,8 +175,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertDateToString()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public String convertDateToString(Date date, String format) {
 		
 		if(date == null || "".equals(format)) {
@@ -193,8 +194,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertStringToDate()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public Date convertStringToDate(String dateStr, String format) {
 		
 		if("".equals(dateStr) || "".equals(format)) {
@@ -221,8 +222,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public List<Friend> getFriendsForUser(final String userId, final int limit) {
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendsForUser()");
@@ -262,8 +263,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsForUser(final String userId)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public List<String> getFriendRequestsForUser(final String userId) {
 		
 		if(userId == null){
@@ -291,8 +292,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getConfirmedFriendUserIdsForUser(String userId)
-	 */	
+ 	 * {@inheritDoc}
+ 	 */
 	public List<String> getConfirmedFriendUserIdsForUser(final String userId) {
 		
 		List<String> userUuids = new ArrayList<String>();
@@ -314,8 +315,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#countConfirmedFriendUserIdsForUser(String userId)
-	 */	
+ 	 * {@inheritDoc}
+ 	 */	
 	public int countConfirmedFriendUserIdsForUser(final String userId) {
 		
 		//this should operhaps be a count(*) query but since we need to use unions, hmm.
@@ -329,8 +330,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#requestFriend(String userId, String friendId)
-	 */	
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean requestFriend(String userId, String friendId) {
 		if(userId == null || friendId == null){
 	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendsForUser");
@@ -352,8 +353,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isFriendRequestPending(String fromUser, String toUser)
-	 */	
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean isFriendRequestPending(String fromUser, String toUser) {
 		
 		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
@@ -366,8 +367,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#confirmFriendRequest(final String fromUser, final String toUser)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean confirmFriendRequest(final String fromUser, final String toUser) {
 		
 		if(fromUser == null || toUser == null){
@@ -398,10 +399,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	}
 	
-	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#ignoreFriendRequest(final String fromUser, final String toUser)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean ignoreFriendRequest(final String fromUser, final String toUser) {
 		
 		if(fromUser == null || toUser == null){
@@ -430,8 +430,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#removeFriend(String userId, String friendId)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean removeFriend(String userId, String friendId) {
 		
 		if(userId == null || friendId == null){
@@ -484,8 +484,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUnreadMessagesCount()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public int getUnreadMessagesCount(String userId) {
 		int unreadMessages = 0;
 		return unreadMessages;
@@ -495,8 +495,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatus()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public ProfileStatus getUserStatus(final String userId) {
 		
 		if(userId == null){
@@ -523,8 +523,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatusMessage()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public String getUserStatusMessage(String userId) {
 		
 		if(userId == null){
@@ -539,8 +539,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getUserStatusDate()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public Date getUserStatusDate(String userId) {
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null Argument in Profile.getUserStatusDate");
@@ -554,10 +554,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#setUserStatus()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean setUserStatus(String userId, String status) {
 		
 		//validate userId here - TODO
@@ -579,8 +578,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#clearUserStatus()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean clearUserStatus(String userId) {
 		
 		//validate userId here - TODO
@@ -608,8 +607,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#convertDateForStatus()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public String convertDateForStatus(Date date) {
 		
 		//current time (can also specify timezome and local here, see API)
@@ -685,8 +684,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#truncateAndPadStringToSize()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public String truncateAndPadStringToSize(String string, int size) {
 		
 		String returnStr = string.substring(0, size);
@@ -696,8 +695,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPrivacyRecord()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
 		
 		//see ProfilePrivacy for this constructor and what it all means
@@ -724,8 +723,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getPrivacyRecordForUser()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public ProfilePrivacy getPrivacyRecordForUser(final String userId) {
 		
 		if(userId == null){
@@ -746,8 +745,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#savePrivacyRecord()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean savePrivacyRecord(ProfilePrivacy profilePrivacy) {
 
 		try {
@@ -763,8 +762,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#addNewProfileImage()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean addNewProfileImage(String userId, String mainResource, String thumbnailResource) {
 		
 		//first get the current ProfileImage records
@@ -799,19 +798,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 
 
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#findUsersByNameOrEmail(String search, String userId)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public List<SearchResult> findUsersByNameOrEmail(String search, String userId) {
 		
 		//perform search (uses private method to wrap the two searches into one)
@@ -833,8 +822,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#findUsersByNameOrEmail(String search, String userId)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public List<SearchResult> findUsersByInterest(String search, String userId) {
 		
 		//perform search (uses private method to wrap the search)
@@ -855,8 +844,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#listAllSakaiPersons()
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public List<String> listAllSakaiPersons() {
 		
 		List<String> userUuids = new ArrayList<String>();
@@ -881,8 +870,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserXFriendOfUserY(String userX, String userY)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean isUserXFriendOfUserY(String userX, String userY) {
 		
 		//get friends of current user
@@ -898,8 +887,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getFriendsOfUserXVisibleByUserY(String userX, String userY)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public List<String> getFriendsOfUserXVisibleByUserY(final String userX, final String userY) {
 		
 		//get userX friend list
@@ -933,8 +922,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getVisibleFriendsOfUser(final String userId)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public List<String> getVisibleFriendsOfUser(final String userId) {
 		
 		//get friend list
@@ -959,8 +948,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserVisibleInSearchesByCurrentUser(String userX, String userY, boolean friend)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean isUserXVisibleInSearchesByUserY(String userX, String userY, boolean friend) {
 				
 		//get ProfilePrivacy record for user
@@ -1011,8 +1000,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserProfileVisibleByCurrentUser(String userX, String userY, boolean friend)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean isUserXProfileVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		
@@ -1056,8 +1045,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isBasicInfoVisibleByCurrentUser(String userX, String userY, boolean friend)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean isUserXBasicInfoVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//get privacy record for this user
@@ -1105,8 +1094,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isContactInfoVisibleByCurrentUser(String userX, String userY, boolean friend)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean isUserXContactInfoVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//get privacy record for this user
@@ -1145,8 +1134,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserXPersonalInfoVisibleByUserY(String userX, String userY, boolean friend)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean isUserXPersonalInfoVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//get privacy record for this user
@@ -1185,8 +1174,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isUserXFriendsListVisibleByUserY(String userX, String userY, boolean friend)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean isUserXFriendsListVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//get privacy record for this user
@@ -1227,8 +1216,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#isBirthYearVisible(String userId)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean isBirthYearVisible(String userId) {
 		
 		//get privacy record for this user
@@ -1246,8 +1235,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getCurrentProfileImageForUser(String userId, int imageType)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public byte[] getCurrentProfileImageForUser(String userId, int imageType) {
 		
 		byte[] image = null;
@@ -1275,8 +1264,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#hasProfileImage(String userId)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean hasProfileImage(String userId) {
 		
 		//get record from db
@@ -1291,8 +1280,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#createDefaultPreferencesRecord(String userId)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public ProfilePreferences createDefaultPreferencesRecord(final String userId) {
 		
 		//see ProfilePreferences for this constructor and what it all means
@@ -1313,8 +1302,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#getPreferencesRecordForUser(String userId)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public ProfilePreferences getPreferencesRecordForUser(final String userId) {
 		
 		if(userId == null){
@@ -1334,8 +1323,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * @see uk.ac.lancs.e_science.profile2.api.Profile#savePreferencesRecord(ProfilePreferences profilePreferences)
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean savePreferencesRecord(ProfilePreferences profilePreferences) {
 		try {
 			getHibernateTemplate().update(profilePreferences);
@@ -1350,10 +1339,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	/**
-	 * Check if twitter integration is enabled for a user
-	 *
-	 * @param userId	uuid of the user
-	 */
+ 	* {@inheritDoc}
+ 	*/
 	public boolean isTwitterIntegrationEnabled(final String userId) {
 		
 		ProfilePreferences profilePreferences = getPreferencesRecordForUser(userId);
@@ -1369,11 +1356,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
-	 * Send a message to twitter
-	 *
-	 * @param userId	uuid of the user
-	 * @param message	the message
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public void sendMessageToTwitter(final String userId, final String message){
 		//setup class thread to call later
 		class TwitterUpdater implements Runnable{
@@ -1423,7 +1407,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 	}
 	
-	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String generateTinyUrl(final String url) {
+		return tinyUrlService.generateTinyUrl(url);
+	}
 	
 	
 	
@@ -1790,8 +1779,13 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public void setIntegrationManager(ProfileIntegrationManager integrationManager) {
 		this.integrationManager = integrationManager;
 	}
-
 	
-
+	//setup TinyUrlService API
+	private TinyUrlService tinyUrlService;
+	public void setTinyUrlService(TinyUrlService tinyUrlService) {
+		this.tinyUrlService = tinyUrlService;
+	}
+	
+	
 	
 }

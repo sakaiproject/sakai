@@ -15,6 +15,9 @@ public class ProfileUtilityManager {
 	
 	public static final String TOOL_ID = "sakai.profile2";
 	
+	//email constants
+	public static final String EMAIL_NEWLINE = "<br />\n";
+	
 	//event constants
 	//this is so granular so we can get good reports on what and how much is being used 
 	public static final String EVENT_PROFILE_VIEW_OWN = "profile.view.own";

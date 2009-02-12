@@ -30,6 +30,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Validator;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
@@ -318,18 +320,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
-	public void sendEmail(final String userId, final String subject, final String message) {
+	public void sendEmail(final String userId, final String subject, String message) {
 		
 		class EmailSender implements Runnable{
 			private Thread runner;
-			private String emailTo;
-			private String emailFrom;
+			private String userId;
 			private String subject;
 			private String message;
+			
+			public final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
+			public final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";
+			public final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
+			public final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
+			public final String PLAIN_TEXT_HEADERS= "Content-Type: text/plain\n\n";
+			public final String HTML_HEADERS = "Content-Type: text/html; charset=ISO-8859-1\n\n";
+			public final String HTML_END = "\n  </body>\n</html>\n";
 
-			public EmailSender(String emailTo, String emailFrom, String subject, String message) {
-				this.emailTo = emailTo;
-				this.emailFrom = emailFrom;
+			public EmailSender(String userId, String subject, String message) {
+				this.userId = userId;
 				this.subject = subject;
 				this.message = message;
 				runner = new Thread(this,"Profile2 EmailSender thread");
@@ -339,39 +347,95 @@ public class SakaiProxyImpl implements SakaiProxy {
 			//do it!
 			public synchronized void run() {
 				try {
-					StringBuffer emailText = new StringBuffer();
-					emailText.append("<html><body>");
-					emailText.append(message);
-					emailText.append("</body></html>");
 
-					List<String> additionalHeaders = new ArrayList<String>();
-					additionalHeaders.add("Content-Type: text/html; charset=ISO-8859-1");
-				
+					//get User to send to
+					User user = userDirectoryService.getUser(userId);
+					
+					if (StringUtil.trimToNull(user.getEmail()) == null){
+						log.error("SakaiProxy.sendEmail() failed. No email for userId: " + userId);
+						return;
+					}
+					
+					List<User> receivers = new ArrayList<User>();
+					receivers.add(user);
+					
 					//do it
-					emailService.send(emailFrom, emailTo, subject, emailText.toString(), emailTo, emailFrom, additionalHeaders);
+					emailService.sendToUsers(receivers, getHeaders(user.getEmail(), subject), formatMessage(subject, message));
+
 					
 					log.info("Email sent to: " + userId);
 				} catch (Exception e) {
 					log.error("SakaiProxy.sendEmail() failed for userId: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 				}
-				
 			}
+			
+			/** helper methods for formatting the message */
+			private String formatMessage(String subject, String message) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(MIME_ADVISORY);
+				sb.append(BOUNDARY_LINE);
+				sb.append(PLAIN_TEXT_HEADERS);
+				sb.append(Validator.escapeHtmlFormattedText(message));
+				sb.append(BOUNDARY_LINE);
+				sb.append(HTML_HEADERS);
+				sb.append(htmlPreamble(subject));
+				sb.append(message);
+				sb.append(HTML_END);
+				sb.append(TERMINATION_LINE);
+				
+				return sb.toString();
+			}
+			
+			private String htmlPreamble(String subject) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n");
+				sb.append("\"http://www.w3.org/TR/html4/loose.dtd\">\n");
+				sb.append("<html>\n");
+				sb.append("<head><title>");
+				sb.append(subject);
+				sb.append("</title></head>\n");
+				sb.append("<body>\n");
+				
+				return sb.toString();
+			}
+			
+			private List<String> getHeaders(String emailTo, String subject){
+				List<String> headers = new ArrayList<String>();
+				headers.add("MIME-Version: 1.0");
+				headers.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
+				headers.add(formatSubject(subject));
+				headers.add(getFrom());
+				if (StringUtil.trimToNull(emailTo) != null) {
+					headers.add("To: " + emailTo);
+				}
+				
+				return headers;
+			}
+			
+			private String getFrom(){
+				StringBuilder sb = new StringBuilder();
+				sb.append("From: ");
+				sb.append(getServiceName());
+				sb.append(" <no-reply@");
+				sb.append(getServerName());
+				sb.append(">");
+				
+				return sb.toString();
+			}
+			
+			private String formatSubject(String subject) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("Subject: ");
+				sb.append(subject);
+				
+				return sb.toString();
+			}
+			
+			
 		}
 		
-		//get email address of the user
-		String emailTo = getUserEmail(userId);
-		if("".equals(emailTo)) {
-			//log 
-			log.error("SakaiProxy.sendEmail() failed. No email for userId: " + userId);
-			return;
-		}
-		
-		//get address to send the message from
-		String emailFrom = "no-reply@" + getServerName();
-		
-		//instantiate class to send the email
-		new EmailSender(emailTo, emailFrom, subject, message);
-		
+		//instantiate class to format, then send the mail
+		new EmailSender(userId, subject, message);
 	}
 
 	
@@ -465,6 +529,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return userDirectoryService.allowUpdateUserEmail(userId);
 	}
 
+	
+	
+	
+	
+	
+	
 	/*
 	public String getCurrentPageId() {
 		Placement placement = toolManager.getCurrentPlacement();

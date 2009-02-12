@@ -12,12 +12,13 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.entity.ProfileInfoEntityProvider;
 import uk.ac.lancs.e_science.profile2.api.entity.model.ProfileInfo;
 
 /**
  * Provider for profile info entities
+ * Makes calls to the Profile API and SakaiProxy
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
@@ -28,11 +29,6 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
 	}
-	private ProfileManager profileManager;
-	public void setProfileManager(ProfileManager profileManager) {
-		this.profileManager = profileManager;
-	}
-
 	
 	
 	public String getEntityPrefix() {
@@ -45,8 +41,7 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 	}
 
 	/**
-	 * This is my working case where I will establish how EB need sto work for the privacy setings etc. they are wrapped in
-	 * ProfileManagerImpl.
+	 * This is my working case where I will establish how EB need sto work for the privacy setings etc. 
 	 * 
 	 * THIS IS ONLY CALLED WHEN WE NEED TO CREATE A NEW PROFILE OBJECT. ie same as in myProfile
 	 */
@@ -61,7 +56,6 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 		//get current userId
 		String currentUserId = developerHelperService.getUserIdFromRef(developerHelperService.getCurrentUserReference());
 		/*
-		//get profile for the incoming userId but only bits that are visible by currentUserId
 		ProfileInfo profileInfo = profileManager.getProfileForUserXVisibleByUserY(incoming.getUserId(), currentUserId);
 	      BlogWowBlog blog = blogLogic.getBlogById(incoming.getBlog().getId());
 	      BlogWowEntry entry = new BlogWowEntry(blog, userId, incoming.getTitle(), incoming.getText(), incoming.getPrivacySetting(), new Date());
@@ -91,8 +85,14 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 			return new ProfileInfo();
 		}
 		
-		//get a ProfileInfo object
-		//ProfileInfo profileInfo = profileManager.getProfile(userUuid);
+		//get current userId
+		String currentUserId = developerHelperService.getUserIdFromRef(developerHelperService.getCurrentUserReference());
+		
+		//get a ProfileInfo object for the given user visible by the current user
+		//ProfileInfo profileInfo = profileService.getProfileForUserXVisibleByUserY(userUuid, currentUserId);
+		
+		
+		
 		//if (profileInfo == null) {
 		//	throw new IllegalArgumentException("No profile found with this id: " + userUuid);
 		//}

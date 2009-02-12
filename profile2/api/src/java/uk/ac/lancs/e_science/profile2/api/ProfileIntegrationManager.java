@@ -27,7 +27,7 @@ public interface ProfileIntegrationManager {
 	 * http://bugs.sakaiproject.org/confluence/display/PROFILE/Profile2
 	 */
 	public static final String TWITTER_UPDATE_SOURCE_PROPERTY = "profile2.integration.twitter.source";
-	public static final String TWITTER_UPDATE_SOURCE_DEFAULT = "Sakai";
+	public static final String TWITTER_UPDATE_SOURCE_DEFAULT = "profile2";
 	
 	
 	/**

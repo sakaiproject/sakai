@@ -106,23 +106,41 @@ public class ConfirmFriend extends Panel {
 					
 					//now they are friends, is userX allowed to view userY's profile? (required for link)
 					boolean isProfileAllowed = profile.isUserXProfileVisibleByUserY(userY, userX, true);
-			        final String currentUserName = sakaiProxy.getUserDisplayName(userX);
+			       
+					final String currentUserName = sakaiProxy.getUserDisplayName(userX);
 			        final String serviceName = sakaiProxy.getServiceName();
 			        final String portalUrl = sakaiProxy.getPortalUrl();
 			        
-					//setup email
-					String subject = new StringResourceModel("email.friend.confirm.subject", null, new Object[]{ currentUserName, serviceName } ).getObject().toString();
-					StringBuffer message = new StringBuffer();
-					message.append(new StringResourceModel("email.friend.confirm.message", null, new Object[]{ currentUserName, serviceName }).getObject().toString());
-					if(isProfileAllowed) {
-						//url needs to go to userY's (ie other user) myworkspace and wicket takes them to their ViewProfile page for userX
-				        String linkUrl = sakaiProxy.getDirectUrlToUserProfile(userY, urlFor(ViewProfile.class, new PageParameters("id=" + userX)).toString());
-						message.append(new StringResourceModel("email.friend.confirm.link", null, new Object[]{ currentUserName, linkUrl } ).getObject().toString());
-						message.append(new StringResourceModel("email.friend.confirm.link.paste", null, new Object[]{ linkUrl } ).getObject().toString());
+					//subject
+					final String subject = new StringResourceModel("email.friend.confirm.subject", null, new Object[]{ currentUserName, serviceName } ).getObject().toString();
 					
+					//email newline
+					final String newline = ProfileUtilityManager.EMAIL_NEWLINE;
+					
+					//message
+					StringBuilder message = new StringBuilder();
+					message.append(new StringResourceModel("email.friend.confirm.message", null, new Object[]{ currentUserName, serviceName }).getObject().toString());
+					
+					if(isProfileAllowed) {
+						//url needs to go to userY's (ie other user) myworkspace and then Wicket takes them to their ViewProfile page for userX
+				        String url = sakaiProxy.getDirectUrlToUserProfile(userY, urlFor(ViewProfile.class, new PageParameters("id=" + userX)).toString());
+				        //tinyurl
+				        final String tinyUrl = profile.generateTinyUrl(url);
+				        //add the rest since we are allowed to view their profile
+				        message.append(newline);
+						message.append(newline);
+				        message.append(new StringResourceModel("email.friend.confirm.link", null, new Object[]{ currentUserName} ).getObject().toString());
+				        message.append(newline);
+						message.append(new StringResourceModel("email.friend.confirm.link.href", null, new Object[]{ tinyUrl }).getObject().toString());
 					}
-					message.append(new StringResourceModel("email.friend.footer.login", null, new Object[]{ serviceName, portalUrl } ).getObject().toString());
-					message.append(new StringResourceModel("email.friend.footer", this, null).getString());
+					//standard footer
+					message.append(newline);
+					message.append(newline);
+					message.append(new StringResourceModel("email.footer.1", this, null).getString());
+					message.append(newline);
+					message.append(new StringResourceModel("email.footer.2", null, new Object[]{ serviceName, portalUrl } ).getObject().toString());
+					message.append(newline);
+					message.append(new StringResourceModel("email.footer.3", this, null).getString());
 					
 
 					sakaiProxy.sendEmail(userY, subject, message.toString());

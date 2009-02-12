@@ -20,16 +20,18 @@
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 	</bean>
 	
-	<!--  ProfileIntegrationManager -->
+	<!--  ProfileIntegrationManager bean -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager" class="uk.ac.lancs.e_science.profile2.impl.ProfileIntegrationManagerImpl" />
-    
-    <!--  ProfileManager -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileManager" class="uk.ac.lancs.e_science.profile2.impl.ProfileManagerImpl" />
+       
+    <!--  ProfileService bean  -->
+	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileService" class="uk.ac.lancs.e_science.profile2.impl.ProfileServiceImpl">
+		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
+		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+	</bean>
     
     
     <!-- EntityBroker spring bean definitions -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileInfoEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileInfoEntityProviderImpl">
-		<property name="profileManager" ref="uk.ac.lancs.e_science.profile2.api.ProfileManager" />
 	</bean>
 	
     
@@ -41,6 +43,7 @@
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
 		<property name="integrationManager" ref="uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager" />
+		<property name="tinyUrlService"><ref bean="org.sakaiproject.tinyurl.api.TinyUrlService"/></property>
 	</bean>
 	
 	

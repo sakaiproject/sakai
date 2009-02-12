@@ -483,4 +483,11 @@ public interface Profile {
 	 */
 	public void sendMessageToTwitter(final String userId, final String message);
 	
+	/**
+	 * Generate a tiny URL for the supplied URL
+	 * 
+	 * @param url
+	 * @return
+	 */
+	public String generateTinyUrl(final String url);
 }

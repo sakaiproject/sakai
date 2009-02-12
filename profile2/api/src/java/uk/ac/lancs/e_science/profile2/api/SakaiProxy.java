@@ -12,7 +12,6 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
  *
  */
 public interface SakaiProxy {
-
 	
 	public String getCurrentSiteId();
 	
@@ -73,13 +72,14 @@ public interface SakaiProxy {
 	public void postEvent(String event,String reference,boolean modify);
 
 	/**
-	 * Send an email message
+	 * Send an email message. The message should be ready to go as is. The message will be formatted with
+	 * mime boundaries, html escaped then sent.
 	 * 
 	 * @param userId	userId to send the message to
 	 * @param subject	subject of message
-	 * @param message	contents of message
+	 * @param message	complete with newlines and any links.
 	 */
-	public void sendEmail(String userId, String subject, String message);
+	public void sendEmail(String userId, String subject,String message);
 	
 	
 	/**
