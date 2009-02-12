@@ -5413,7 +5413,10 @@ public class DiscussionForumTool
     	{
     		membershipItems = uiPermissionsManager.getTopicItemsSet(selectedTopic.getTopic());
     	}
-    	if (membershipItems == null || membershipItems.size() == 0 && (selectedForum != null && selectedForum.getForum() != null)) {
+    	if (membershipItems == null || membershipItems.size() == 0
+					&& (selectedForum != null && selectedForum.getForum() != null)
+					&& uiPermissionsManager != null)
+			{
     			membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
     	}
     } 
