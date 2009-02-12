@@ -25,19 +25,12 @@
 		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 
-		<h:panelGroup rendered="#{PrivateMessagesTool.messages}">
-			<sakai:tool_bar>
-				<h:panelGroup rendered="#{! PrivateMessagesTool.dispError}" >
-        			<sakai:tool_bar_item value="#{msgs.pvt_compose}" action="#{PrivateMessagesTool.processPvtMsgCompose}" />
-					<f:verbatim><span>| &nbsp; </span></f:verbatim>
-					<h:outputText value=" " />
-        			<sakai:tool_bar_item value=" #{msgs.pvt_newfolder}" action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"  />
-					<f:verbatim><span>| &nbsp; </span></f:verbatim>
- 				</h:panelGroup>
- 				
- 				<sakai:tool_bar_item value=" #{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}" />
+
+			<sakai:tool_bar  rendered="#{PrivateMessagesTool.messages}">
+  			<sakai:tool_bar_item value="#{msgs.pvt_compose}" action="#{PrivateMessagesTool.processPvtMsgCompose}"  rendered="#{! PrivateMessagesTool.dispError}" />
+  			<sakai:tool_bar_item value=" #{msgs.pvt_newfolder}" action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}"  rendered="#{! PrivateMessagesTool.dispError}" />
+ 			<sakai:tool_bar_item value=" #{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}" />
  			</sakai:tool_bar>
- 		</h:panelGroup>
  		
 			<h:panelGrid columns="2" summary="layout" width="100%"
 				styleClass="navPanel  specialLink" >

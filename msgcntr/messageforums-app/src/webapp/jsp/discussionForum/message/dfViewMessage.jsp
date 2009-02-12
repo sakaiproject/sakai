@@ -88,8 +88,10 @@
 	  <h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />
 	
 		<sakai:tool_bar rendered="#{!ForumTool.deleteMsg && !ForumTool.selectedMessage.message.deleted}">
+<%--		
 			<h:panelGrid columns="2" width="100%" summary="layout">
 				<h:panelGroup styleClass="specialLink">
+--%>				
 					<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_msg}" action="#{ForumTool.processDfMsgReplyMsg}" 
 		  				rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedMessage.msgApproved && !ForumTool.selectedTopic.locked}">
 		  				<h:graphicImage value="/../../library/image/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
@@ -118,8 +120,10 @@
 			  			<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 		  			</h:commandLink>
+<%--
 			  	</h:panelGroup>
 			  	<h:panelGroup styleClass="specialLink" style="text-align:right;float:right;">
+--%>
 			  		<h:commandLink title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 
 		  							rendered="#{ForumTool.allowedToDenyMsg}">
 			  			<h:graphicImage value="/../../library/image/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
@@ -136,8 +140,10 @@
 		  				<h:graphicImage value="/../../library/image/silk/tick.png" alt="#{msgs.cdfm_button_bar_approve}" />
 			  			<h:outputText value=" #{msgs.cdfm_button_bar_approve}" />
 			  		</h:commandLink>
+<%--
 			  	</h:panelGroup>
 		  	</h:panelGrid>
+--%>		  	
   		</sakai:tool_bar>
 
 	<f:verbatim><div class="hierItemBlock" style="padding-bottom:0"></f:verbatim>
