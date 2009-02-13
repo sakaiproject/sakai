@@ -457,6 +457,10 @@ label.indnt1 {
 	font-style: italic;
 	color: #555555;
 }
+.eventTree ul {
+	padding-left: 0;
+	margin-left: 0;
+}
 .eventTree li {
     list-style: none;	
 }

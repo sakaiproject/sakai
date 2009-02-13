@@ -17,7 +17,7 @@
             </h2>
             
             
-            <form wicket:id="preferencesForm" name="prefsForm">
+            <form wicket:id="prefsForm" name="prefsForm">
     
 		        <span wicket:id="messages"></span>
 		        
@@ -36,7 +36,7 @@
 		                            <input wicket:id="listToolEventsOnlyAvailableInSite" type="checkbox" />
 		                            <wicket:message key="prefs_listToolEventsOnlyAvailableInSite">[prefs_listToolEventsOnlyAvailableInSite]</wicket:message>
 		                            
-		                            <br/>
+		                            <p/>
 		                            
 		                            <!-- Chart -->
 		                            <span wicket:id="chartPrefs">
@@ -76,7 +76,7 @@
                                         <input wicket:id="useAllTools" type="checkbox" />
                                         <wicket:message key="prefs_useAllTools">[prefs_useAllTools]</wicket:message>
                                     </div>
-                                    <div wicket:id="eventRegistryTree" class="eventTree"></div>
+                                    <div wicket:id="eventRegistryTree" class="eventTree" style="display:none"></div>
 		                            
 		                        </td>
 		                    </tr>

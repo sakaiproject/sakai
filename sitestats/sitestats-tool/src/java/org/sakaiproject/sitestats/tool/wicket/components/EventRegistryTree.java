@@ -22,8 +22,8 @@ import org.sakaiproject.sitestats.api.event.ToolInfo;
 public class EventRegistryTree extends Panel {
 	private static final long	serialVersionUID	= 1L;
 
-	private List<?>		eventRegistry		= null;
-	private Rows		rows 				= null;
+	private WebMarkupContainer	ul					= null;
+	private Rows				rows 				= null;
 
 	public EventRegistryTree(String id, List<?> eventRegistry) {
 		this(id, eventRegistry, null);
@@ -31,15 +31,16 @@ public class EventRegistryTree extends Panel {
 	
 	public EventRegistryTree(String id, List<?> eventRegistry, String toolId) {
 		super(id);
-		this.eventRegistry = eventRegistry;
-		WebMarkupContainer ul = new WebMarkupContainer("ul");
+		ul = new WebMarkupContainer("ul");
 		if(toolId != null) {
-			ul.add(new AttributeModifier("style", true, new Model("padding: 0 0 0 20px;")));
+			ul.add(new AttributeModifier("style", true, new Model("padding: 0 0 0 20px; display: none;")));
+			ul.add(new AttributeModifier("class", true, new Model("events")));
 		}else{
 			ul.add(new AttributeModifier("style", true, new Model("padding: 0px;")));
+			ul.add(new AttributeModifier("class", true, new Model("tools")));
 		}
 		add(ul);
-		rows = new Rows("rows", eventRegistry, toolId);
+		rows = new Rows("row", eventRegistry, toolId);
 		ul.add(rows);
 	}
 
@@ -58,7 +59,7 @@ public class EventRegistryTree extends Panel {
 		return true;
 	}
 
-	private static class Rows extends ListView {
+	private class Rows extends ListView {
 		private String		currentToolId		= null;
 		/**
 		 * Construct.
@@ -81,29 +82,33 @@ public class EventRegistryTree extends Panel {
 				final ToolInfo ti = (ToolInfo) modelObject;
 				final String toolId = ti.getToolId().replace('.', '_');
                 
-				WebMarkupContainer row = new WebMarkupContainer("row");
-				row.add(new AttributeModifier("class", true, new Model("tool tool_"+toolId)));
+				listItem.setOutputMarkupId(true);
+				listItem.setMarkupId(toolId);
+				listItem.add(new AttributeModifier("class", true, new Model("tool")));
+				
+				// nested list: events
+				EventRegistryTree nested = new EventRegistryTree("nested", ti.getEvents(), toolId);
+				nested.add(new AttributeModifier("class", true, new Model(toolId)));
+				nested.setOutputMarkupId(true);
+				nested.setRenderBodyOnly(true);
+				listItem.add(nested);
+				
 				// navigating images
 				ExternalImage navCollapse = new ExternalImage("navCollapse", "images/nav-minus.gif");
-				row.add(navCollapse);
+				listItem.add(navCollapse);
 				ExternalImage navExpand = new ExternalImage("navExpand", "images/nav-plus.gif");
-				row.add(navExpand);
-				navCollapse.add(new AttributeModifier("onclick", true, new Model("jQuery('."+toolId+"').hide(); jQuery('#"+navExpand.getMarkupId()+"').show(); setMainFrameHeightNoScroll( window.name ); jQuery(this).hide(); return false;")));
-				navExpand.add(new AttributeModifier("onclick", true, new Model("jQuery('."+toolId+"').show(); jQuery('#"+navCollapse.getMarkupId()+"').show(); setMainFrameHeightNoScroll( window.name ); jQuery(this).hide(); return false;")));
+				listItem.add(navExpand);
+				navCollapse.add(new AttributeModifier("onclick", true, new Model("jQuery(this).parent().find('.events').hide(); jQuery('#"+navExpand.getMarkupId()+"').show(); setMainFrameHeightNoScroll( window.name ); jQuery(this).hide(); return false;")));
+				navExpand.add(new AttributeModifier("onclick", true, new Model("jQuery(this).parent().find('.events').show(); jQuery('#"+navCollapse.getMarkupId()+"').show(); setMainFrameHeightNoScroll( window.name ); jQuery(this).hide(); return false;")));
 				navCollapse.add(new AttributeModifier("style", true, new Model("display: none")));
 								
 				// image, label, checkbox
-				row.add(new ExternalImage("image", "images/silk/icons/application_side_boxes.png"));
-				row.add(new Label("label", new Model(ti.getToolName())));
+				listItem.add(new ExternalImage("image", "images/silk/icons/application_side_boxes.png"));
+				listItem.add(new Label("label", new Model(ti.getToolName())));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));
-				AttributeModifier onclick = new AttributeModifier("onclick", true, new Model("selectUnselectEvents(this); updateToolSelection('.tool_"+toolId+"');"));
+				AttributeModifier onclick = new AttributeModifier("onclick", true, new Model("selectUnselectEvents(this); updateToolSelection('#"+toolId+"');"));
 				toolCheckBox.add(onclick);
-				row.add(toolCheckBox);
-				listItem.add(row);
-				
-				EventRegistryTree nested = new EventRegistryTree("nested", ti.getEvents(), toolId);
-				nested.add(new AttributeModifier("class", true, new Model(toolId)));
-                listItem.add(nested);
+				listItem.add(toolCheckBox);
                 
                 if(ti.getEvents() == null || ti.getEvents().isEmpty()) {
                 	navCollapse.setVisible(false);
@@ -115,33 +120,29 @@ public class EventRegistryTree extends Panel {
 			}else if(modelObject instanceof EventInfo){
 				EventInfo ei = (EventInfo) modelObject;
                 
-				WebMarkupContainer row = new WebMarkupContainer("row");
-				row.add(new ExternalImage("navCollapse", "images/line-last.gif"));
-				row.add(new ExternalImage("navExpand", "images/nav-plus.gif").setVisible(false));
-				row.add(new ExternalImage("image", "images/silk/icons/bullet_feed.png"));
-				row.add(new Label("label", new Model(ei.getEventName())));
+				listItem.add(new ExternalImage("navCollapse", "images/line-last.gif"));
+				listItem.add(new ExternalImage("navExpand", "images/nav-plus.gif").setVisible(false));
+				listItem.add(new ExternalImage("image", "images/silk/icons/bullet_feed.png"));
+				listItem.add(new Label("label", new Model(ei.getEventName())));
 				CheckBox eventCheckBox = new CheckBox("checkbox", new PropertyModel(ei, "selected"));
-				eventCheckBox.add(new AttributeModifier("onclick", true, new Model("updateToolSelection('.tool_"+currentToolId+"');")));
-				row.add(eventCheckBox);
-				listItem.add(row);
+				eventCheckBox.add(new AttributeModifier("onclick", true, new Model("updateToolSelection('#"+currentToolId+"');")));
+				listItem.add(eventCheckBox);
 				
 				WebMarkupContainer nested = new WebMarkupContainer("nested");
 				nested.setVisible(false);
-                listItem.add(nested);
+				listItem.add(nested);
                 
 			}else{
-				WebMarkupContainer row = new WebMarkupContainer("row");
-				row.setVisible(false);
-				row.add(new ExternalImage("navCollapse", "images/line-last.gif"));
-				row.add(new ExternalImage("navExpand", "images/nav-plus.gif").setVisible(false));
-				row.add(new ExternalImage("image", "images/silk/icons/bullet_feed.png").setVisible(false));
-				row.add(new Label("label").setVisible(false));
-				row.add(new CheckBox("checkbox", new Model(Boolean.FALSE)).setVisible(false));
-				listItem.add(row);
+				listItem.setVisible(false);
+				listItem.add(new ExternalImage("navCollapse", "images/line-last.gif"));
+				listItem.add(new ExternalImage("navExpand", "images/nav-plus.gif").setVisible(false));
+				listItem.add(new ExternalImage("image", "images/silk/icons/bullet_feed.png").setVisible(false));
+				listItem.add(new Label("label").setVisible(false));
+				listItem.add(new CheckBox("checkbox", new Model(Boolean.FALSE)).setVisible(false));
 				
 				WebMarkupContainer nested = new WebMarkupContainer("nested");
 				nested.setVisible(false);
-                listItem.add(nested);
+				listItem.add(nested);
 			}
 		}
 	}

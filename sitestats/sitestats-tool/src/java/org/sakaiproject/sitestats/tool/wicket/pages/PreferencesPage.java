@@ -73,7 +73,8 @@ public class PreferencesPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderJavascriptReference("/library/js/jquery.js");
+		//response.renderJavascriptReference("/library/js/jquery.js");
+		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery-1.3.1.min.js");
 		response.renderOnDomReadyJavascript("toggleCheckboxAll();");
 	}
 	
@@ -81,7 +82,9 @@ public class PreferencesPage extends BasePage {
 	private void renderBody() {
 		add(new Menus("menu", siteId));
 		
-		Form form = new Form("preferencesForm");
+		Form form = new Form("prefsForm");
+		form.setOutputMarkupId(true);
+		form.setMarkupId("prefsForm");
 		add(form);
 		feedback = new CSSFeedbackPanel("messages");
 		form.add(feedback);
@@ -118,7 +121,7 @@ public class PreferencesPage extends BasePage {
 		
 		// Section: Activity Definition
 		CheckBox useAllTools = new CheckBox("useAllTools");
-		useAllTools.add(new SimpleAttributeModifier("onchange", "toggleCheckboxAll();"));
+		useAllTools.add(new SimpleAttributeModifier("onclick", "toggleCheckboxAll();"));
 		useAllTools.setOutputMarkupId(true);
 		useAllTools.setMarkupId("useAllTools");
 		form.add(useAllTools);

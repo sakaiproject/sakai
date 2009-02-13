@@ -41,8 +41,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		// include sakai headscripts and resize iframe on load
 		response.renderJavascriptReference(HEADSCRIPTS);
 		response.renderJavascriptReference(COMMONSCRIPT);		
-		//response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
-		response.renderOnDomReadyJavascript(BODY_ONLOAD_ADDTL);
+		response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
+		//response.renderOnDomReadyJavascript(BODY_ONLOAD_ADDTL);
 
 		// include (this) tool style (CSS)
 		response.renderCSSReference("/sakai-sitestats-tool/css/sitestats.css");

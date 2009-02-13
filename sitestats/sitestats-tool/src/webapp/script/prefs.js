@@ -9,9 +9,9 @@ function toggleCheckboxAll() {
 
 function selectUnselectEvents(obj) {
 	if(obj.checked) {
-		jQuery(obj).parent().parent().find('span :checkbox').attr('checked','checked');
+		jQuery(obj).parent().find('ul li :checkbox').attr('checked','checked');
 	}else{
-		jQuery(obj).parent().parent().find('span :checkbox').removeAttr('checked');
+		jQuery(obj).parent().find('ul li :checkbox').removeAttr('checked');
 	}
 }
 
@@ -19,16 +19,16 @@ function updateAllToolsSelection() {
 	updateToolSelection('.tool');
 }
 
-function updateToolSelection(toolClass) {
-	jQuery(toolClass).each(function(i){
+function updateToolSelection(selector) {
+	jQuery(selector).each(function(i){
 		jQuery(this).children('span').removeClass();
 		
 		// tool class
-		if(jQuery(this).parent().find('span :checkbox').length == jQuery(this).parent().find('span :checked').length) {
+		if(jQuery(this).find('ul li :checkbox').length == jQuery(this).find('ul li :checked').length) {
 			jQuery(this).children('span').addClass('nodeToolSelected');
 			jQuery(this).children(':checkbox').attr('checked','checked');
 			  
-		}else if(jQuery(this).parent().find('span :checked').length == 0) {
+		}else if(jQuery(this).find('ul li :checked').length == 0) {
 			jQuery(this).children('span').addClass('nodeToolUnselected');
 			jQuery(this).children(':checkbox').removeAttr('checked');
 			
@@ -38,12 +38,12 @@ function updateToolSelection(toolClass) {
 		}
 		
 		// event class
-		jQuery(this).parent().find('span').each(function(i){
+		jQuery(this).find('ul li').each(function(i){
 			jQuery(this).find('span').removeClass();
 			if(jQuery(this).find(':checkbox').attr('checked')) {
-				jQuery(this).find('li span').addClass('nodeEventSelected');
+				jQuery(this).find('span').addClass('nodeEventSelected');
 			}else{
-				jQuery(this).find('li span').addClass('nodeEventUnselected');
+				jQuery(this).find('span').addClass('nodeEventUnselected');
 			}
 		});
 	});
