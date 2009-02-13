@@ -3,7 +3,7 @@ package uk.ac.lancs.e_science.profile2.impl;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.api.entity.model.ProfileInfo;
+import uk.ac.lancs.e_science.profile2.api.entity.model.ProfileEntity;
 /**
  * This ProfileService to be implemented by external tools
  * 

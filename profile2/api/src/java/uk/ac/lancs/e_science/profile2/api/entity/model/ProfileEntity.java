@@ -7,7 +7,7 @@ package uk.ac.lancs.e_science.profile2.api.entity.model;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileInfo {
+public class ProfileEntity {
 	
 	private String userId;
 	private String nickname;
@@ -15,7 +15,7 @@ public class ProfileInfo {
 	/**
 	 * Default constructor
 	 */
-	public ProfileInfo() {
+	public ProfileEntity() {
 	}
 
 

@@ -13,16 +13,16 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
-import uk.ac.lancs.e_science.profile2.api.entity.ProfileInfoEntityProvider;
-import uk.ac.lancs.e_science.profile2.api.entity.model.ProfileInfo;
+import uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider;
+import uk.ac.lancs.e_science.profile2.api.entity.model.ProfileEntity;
 
 /**
- * Provider for profile info entities
+ * Provider for profile entities
  * Makes calls to the Profile API and SakaiProxy
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
-public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful  {
+public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful  {
 	
 	//get API's
 	private DeveloperHelperService developerHelperService;
@@ -47,7 +47,7 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 	 */
 	public String createEntity(EntityReference ref, Object entity) {
 	    //get incoming entity
-		ProfileInfo incoming = (ProfileInfo) entity;
+		ProfileEntity incoming = (ProfileEntity) entity;
 		//check it's got at least a userId
 		if(incoming.getUserId() == null) {
 			throw new IllegalArgumentException("The profile.userId must be set in order to create a profile");
@@ -69,7 +69,7 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 	}
 	
 	public Object getSampleEntity() {
-		return new ProfileInfo();
+		return new ProfileEntity();
 	}
 	
 
@@ -82,7 +82,7 @@ public class ProfileInfoEntityProviderImpl implements ProfileInfoEntityProvider,
 	public Object getEntity(EntityReference ref) {
 		String userUuid = ref.getId();
 		if (userUuid == null) {
-			return new ProfileInfo();
+			return new ProfileEntity();
 		}
 		
 		//get current userId

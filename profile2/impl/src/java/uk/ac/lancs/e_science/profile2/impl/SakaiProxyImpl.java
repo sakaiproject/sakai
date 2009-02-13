@@ -48,15 +48,24 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private transient final Logger log = Logger.getLogger(SakaiProxyImpl.class);
-    	
+    
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getCurrentSiteId(){
 		return toolManager.getCurrentPlacement().getContext();
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getCurrentUserId() {
 		return sessionManager.getCurrentSessionUserId();
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getUserEid(String userId){
 		String eid = null;
 		try {
@@ -67,6 +76,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return eid;
 	}
 
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getUserDisplayName(String userId) {
 	   String name = null;
 		try {
@@ -77,6 +89,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return name;
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getUserEmail(String userId) {
 	   String email = null;
 		try {
@@ -87,12 +102,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return email;
 	}
 	
-	public boolean isUserAdmin(String userId) {
-		return securityService.isSuperUser(userId);
-	}
-	
-	//we use SakaiProxy to get us the SakaiPerson object for a given user
-	//then we use the SakaiPerson object to get attributes about the person.
+		
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public SakaiPerson getSakaiPerson(String userId) {
 		
 		SakaiPerson sakaiPerson = null;
@@ -105,7 +118,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return sakaiPerson;
 	}
 	
-	//this is not persistable so should only be used for temporary views. use createSakaiPerson if need persistable object for saving a profile.
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public SakaiPerson getSakaiPersonPrototype() {
 		
 		SakaiPerson sakaiPerson = null;
@@ -152,63 +167,22 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getSakaiConfigurationParameterAsString(String parameter, String defaultValue) {
-		return(serverConfigurationService.getString(parameter, defaultValue));
-	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public int getSakaiConfigurationParameterAsInt(String parameter, int defaultValue) {
-		return serverConfigurationService.getInt(parameter, defaultValue);
-	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public boolean getSakaiConfigurationParameterAsBoolean(String parameter, boolean defaultValue) {
-		return serverConfigurationService.getBoolean(parameter, defaultValue);
-	}
-
 	/**
  	* {@inheritDoc}
  	*/
 	public int getMaxProfilePictureSize() {
-		return getSakaiConfigurationParameterAsInt("profile.picture.max", ProfileImageManager.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
+		return serverConfigurationService.getInt("profile.picture.max", ProfileImageManager.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
 	}
 	
-	
-	/**
-	 * Setup a security advisor.
-	 */
-	private void enableSecurityAdvisor() {
-		securityService.pushAdvisor(new SecurityAdvisor(){
-			public SecurityAdvice isAllowed(String userId, String function, String reference){
-				  return SecurityAdvice.ALLOWED;
-			}
-		});
-	}
-
-	/**
-	 * Remove our security advisor.
-	 */
-	private void disableSecurityAdvisor(){
-		securityService.popAdvisor();
-	}
-
 	
 	/**
  	* {@inheritDoc}
  	*/
-	public String getProfileImageResourcePath(String userId, int type, String fileName) {
+	public String getProfileImageResourcePath(String userId, int type) {
 		
 		//this needs to come from a sakai property perhaps?
 		//may break on windows unless use File.separator?
-		
-		//String fullResourceId = "/private/profileImages/" + userId + "/" + type + "/" + fileName;
 		
 		String fullResourceId = "/private/profileImages/" + userId + "/" + type + "/" + idManager.createUuid();
 		
@@ -454,7 +428,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public String getServiceName() {
-		return getSakaiConfigurationParameterAsString("ui.service", "Sakai");
+		return serverConfigurationService.getString("ui.service", "Sakai");
 	}
 	
 	/**
@@ -530,53 +504,38 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	
-	
-	
-	
-	
-	
-	/*
-	public String getCurrentPageId() {
-		Placement placement = toolManager.getCurrentPlacement();
-		
-		if(placement instanceof ToolConfiguration) {
-			return ((ToolConfiguration) placement).getPageId();
-		}
-		return null;
-	}
-	
-	
-	private String getCurrentToolId(){
-		return toolManager.getCurrentPlacement().getId();
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isProfileConversionEnabled() {
+		return serverConfigurationService.getBoolean("profile.convert", false);
 	}
 		
-	public String getDirectUrl(String string){
-		String portalUrl = getPortalUrl();
-		String pageId = getCurrentPageId();
-		String siteId = getCurrentSiteId();
-		String toolId = getCurrentToolId();
-				
-		try {
-			String url = portalUrl
-						+ "/site/" + siteId
-						+ "/page/" + pageId
-						+ "?toolstate-" + toolId + "="
-							+ URLEncoder.encode(string,"UTF-8");
-		
-			return url;
-		}
-		catch(Exception e) {
-			log.error("SakaiProxy.getDirectUrl():" + e.getClass() + ":" + e.getMessage());
-			return null;
-		}
+	
+	
+	
+	
+	
+	
+	// PRIVATE METHODS FOR SAKAIPROXY
+	
+	/**
+	 * Setup a security advisor for this transaction
+	 */
+	private void enableSecurityAdvisor() {
+		securityService.pushAdvisor(new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference){
+				  return SecurityAdvice.ALLOWED;
+			}
+		});
 	}
-	*/
-	
-	
-	
-	
-	
-	
+
+	/**
+	 * Remove security advisor from the stack
+	 */
+	private void disableSecurityAdvisor(){
+		securityService.popAdvisor();
+	}
 	
 	/**
 	 * Gets the siteId of the given user's My Workspace
@@ -588,7 +547,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private String getUserMyWorkspace(String userId) {
 		return siteService.getUserSiteId(userId);
 	}
-	
 		
 	/**
 	 * Gets the ToolConfiguration of a page in a site containing a given tool
@@ -609,7 +567,23 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	
 	
-	//setup Sakai API's
+	
+	
+	
+	
+	
+	/**
+	 * init
+	 */
+	public void init() {
+		log.debug("Profile2 SakaiProxy init()");
+	}
+
+	
+	
+	
+	// SETUP SAKAI API'S
+	
 	private ToolManager toolManager;
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
@@ -664,12 +638,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
-
-	public void init() {
-		log.debug("Profile2 SakaiProxy init()");
-	}
-
-	
 
 	
 }

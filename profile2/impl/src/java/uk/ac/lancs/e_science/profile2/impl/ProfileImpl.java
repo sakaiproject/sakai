@@ -1717,7 +1717,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		log.info("Profile2: init()");
 		
 		//do we need to run the conversion utility?
-		if(sakaiProxy.getSakaiConfigurationParameterAsBoolean("profile.convert", false)) {
+		if(sakaiProxy.isProfileConversionEnabled()) {
 			convertProfile();
 		}
 	}
@@ -1773,7 +1773,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			byte[] imageMain = scaleImage(image, ProfileImageManager.MAX_IMAGE_XY);
 			
 			//create resource ID
-			String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN, fileName);
+			String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN);
 			log.info("Profile2 conversion util: mainResourceId: " + mainResourceId);
 			
 			//save, if error, log and return.
@@ -1789,7 +1789,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			byte[] imageThumbnail = scaleImage(image, ProfileImageManager.MAX_THUMBNAIL_IMAGE_XY);
 			 
 			//create resource ID
-			String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fileName);
+			String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 
 			log.info("Profile2 conversion util: thumbnailResourceId:" + thumbnailResourceId);
 			

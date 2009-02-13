@@ -85,7 +85,7 @@ public class ChangeProfilePicture extends Panel{
 					imageBytes = profile.scaleImage(imageBytes, ProfileImageManager.MAX_IMAGE_XY);
 					 
 					//create resource ID
-					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_MAIN, fileName);
+					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_MAIN);
 					log.debug("Profile.ChangeProfilePicture.onSubmit mainResourceId: " + mainResourceId);
 					
 					//save, if error, log and return.
@@ -101,7 +101,7 @@ public class ChangeProfilePicture extends Panel{
 					imageBytes = profile.scaleImage(imageBytes, ProfileImageManager.MAX_THUMBNAIL_IMAGE_XY);
 					 
 					//create resource ID
-					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fileName);
+					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 					log.debug("Profile.ChangeProfilePicture.onSubmit thumbnailResourceId: " + thumbnailResourceId);
 					
 					//save, if error, log and return.
@@ -138,18 +138,20 @@ public class ChangeProfilePicture extends Panel{
 		};
 		
 		//get the max upload size from Sakai
-		form.setMaxSize(Bytes.megabytes(sakaiProxy.getMaxProfilePictureSize()));	
+		int maxSize = sakaiProxy.getMaxProfilePictureSize();
+		
+		//setup form
+		form.setMaxSize(Bytes.megabytes(maxSize));	
 		form.setOutputMarkupId(true);
 		form.setMultiPart(true);
-       
         
-        //close button
+        //close button component
         CloseButton closeButton = new CloseButton("closeButton", this);
         closeButton.setOutputMarkupId(true);
 		form.add(closeButton);
       
         //text
-		Label textSelectImage = new Label("textSelectImage", new ResourceModel("text.upload.image.file"));
+		Label textSelectImage = new Label("textSelectImage", new StringResourceModel("text.upload.image.file", null, new Object[]{ maxSize } ));
 		form.add(textSelectImage);
 		
 		//feedback

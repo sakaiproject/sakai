@@ -13,34 +13,92 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
  */
 public interface SakaiProxy {
 	
+	/**
+	 * Get current siteid
+	 * @return
+	 */
 	public String getCurrentSiteId();
 	
+	/**
+	 * Get current user
+	 * @return
+	 */
 	public String getCurrentUserId();
 	
+	/**
+	 * Convert internal userid to eid (jsmith26)
+	 * @return
+	 */
 	public String getUserEid(String userId);
 
+	/**
+	 * Get displayname of a given userid
+	 * @return
+	 */
 	public String getUserDisplayName(String userId);
 	
+	/**
+	 * Get email address for a given userid
+	 * @return
+	 */
 	public String getUserEmail(String userId);
 	
-	public boolean isUserAdmin(String userId);
-	
+	/**
+	 * Get a SakaiPerson for a user
+	 * @param userId
+	 * @return
+	 */
 	public SakaiPerson getSakaiPerson(String userId);
 	
+	/**
+	 * Get a SakaiPerson prototype if they don't have a profile.
+	 * <p>This is not persistable so should only be used for temporary views.
+	 * Use createSakaiPerson if need persistable object for saving a profile.
+	 * @param userId
+	 * @return
+	 */
 	public SakaiPerson getSakaiPersonPrototype();
 	
+	/**
+	 * Create a new persistable SakaiPerson object for a user
+	 * @param userId
+	 * @return
+	 */
 	public SakaiPerson createSakaiPerson(String userId);
 
+	/**
+	 * Update a SakaiPerson object in the db
+	 * @param sakaiPerson
+	 * @return
+	 */
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson);
-			
+	
+	/**
+	 * Get the maximum filesize that can be uploaded (profile.picture.max=2)
+	 * @return
+	 */
 	public int getMaxProfilePictureSize();
 	
-	public String getSakaiConfigurationParameterAsString(String parameter, String defaultValue);
-	public int getSakaiConfigurationParameterAsInt(String parameter, int defaultValue);
-	public boolean getSakaiConfigurationParameterAsBoolean(String parameter, boolean defaultValue);
-				
-	public String getProfileImageResourcePath(String userId, int type, String fileName);
+	/**
+	 * Get the location for a profileImage given the user and type
+	 * 
+	 * @param userId
+	 * @param type
+	 * @param fileName
+	 * @return
+	 */
+	public String getProfileImageResourcePath(String userId, int type);
 	
+	/**
+	 * Save a file to CHS
+	 * 
+	 * @param fullResourceId
+	 * @param userId
+	 * @param fileName
+	 * @param mimeType
+	 * @param fileData
+	 * @return
+	 */
 	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData);
 		
 	/**
@@ -130,5 +188,12 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isEmailUpdateAllowed(String userId);
+	
+	/**
+	 * Is the profile.convert flag set in sakai.properties?
+	 * 
+	 * @return
+	 */
+	public boolean isProfileConversionEnabled();
 
 }
