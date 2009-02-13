@@ -1,7 +1,7 @@
 package org.sakaiproject.sitestats.tool.wicket.components;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractToolbar;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxNavigationToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -10,7 +10,7 @@ import org.apache.wicket.model.Model;
 /**
  * @author Nuno Fernandes
  */
-public class SakaiNavigationToolBar extends AbstractToolbar
+public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 {
 	private static final long serialVersionUID = 1L;
 
@@ -27,13 +27,12 @@ public class SakaiNavigationToolBar extends AbstractToolbar
 		super(table);
 		this.table = table;
 
-		WebMarkupContainer span = new WebMarkupContainer("span");
-		add(span);
+		WebMarkupContainer span = (WebMarkupContainer) get("span");
 		span.add(new AttributeModifier("colspan", true, new Model(
 			String.valueOf(table.getColumns().length))));
 
-		span.add(newPagingNavigator("navigator", table));
-		span.add(newNavigatorLabel("navigatorLabel", table));
+		span.get("navigator").replaceWith(newPagingNavigator("navigator", table));
+		span.get("navigatorLabel").replaceWith(newNavigatorLabel("navigatorLabel", table));
 	}
 
 

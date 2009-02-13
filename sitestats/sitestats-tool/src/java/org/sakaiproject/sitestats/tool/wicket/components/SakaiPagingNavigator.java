@@ -3,6 +3,9 @@ package org.sakaiproject.sitestats.tool.wicket.components;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationIncrementLink;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationLink;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -10,20 +13,16 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.markup.html.navigation.paging.IPagingLabelProvider;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigation;
-import org.apache.wicket.markup.html.navigation.paging.PagingNavigationIncrementLink;
-import org.apache.wicket.markup.html.navigation.paging.PagingNavigationLink;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class SakaiPagingNavigator extends Panel {
+public class SakaiPagingNavigator extends AjaxPagingNavigator {
 
 	private static final long serialVersionUID = 1L;
 
 	/** The navigation bar to be printed, e.g. 1 | 2 | 3 etc. */
 	private PagingNavigation pagingNavigation;
 
-	private final IPageable pageable;
 	private final IPagingLabelProvider labelProvider;
 
 	/**
@@ -52,42 +51,26 @@ public class SakaiPagingNavigator extends Panel {
 	public SakaiPagingNavigator(final String id, final IPageable pageable,
 		final IPagingLabelProvider labelProvider)
 	{
-		super(id);
+		super(id, pageable, labelProvider);
 
-		this.pageable = pageable;
 		this.labelProvider = labelProvider;
 
-	}
-
-
-	/**
-	 * {@link IPageable} this navigator is linked with
-	 * 
-	 * @return {@link IPageable} instance
-	 */
-	public final IPageable getPageable()
-	{
-		return pageable;
 	}
 
 	protected void onBeforeRender()
 	{
 		if (get("first") == null)
 		{
-			// Get the navigation bar and add it to the hierarchy
-			//pagingNavigation = newNavigation(pageable, labelProvider);
-			//add(pagingNavigation);
-
 			setModel(new CompoundPropertyModel(this));
 			
 			// Get the row number selector
-			add(newRowNumberSelector(pageable));
+			add(newRowNumberSelector(getPageable()));
 
 			// Add additional page links
-			add(newPagingNavigationLink("first", pageable, 0));
-			add(newPagingNavigationIncrementLink("prev", pageable, -1));
-			add(newPagingNavigationIncrementLink("next", pageable, 1));
-			add(newPagingNavigationLink("last", pageable, -1));
+			add(newPagingNavigationLink("first", getPageable(), 0));
+			add(newPagingNavigationIncrementLink("prev", getPageable(), -1));
+			add(newPagingNavigationIncrementLink("next", getPageable(), 1));
+			add(newPagingNavigationLink("last", getPageable(), -1));
 		}
 		super.onBeforeRender();
 	}
@@ -106,7 +89,7 @@ public class SakaiPagingNavigator extends Panel {
 	 */
 	protected Link newPagingNavigationIncrementLink(String id, IPageable pageable, int increment)
 	{
-		return new PagingNavigationIncrementLink(id, pageable, increment);
+		return new AjaxPagingNavigationIncrementLink(id, pageable, increment);
 	}
 
 	/**
@@ -123,7 +106,7 @@ public class SakaiPagingNavigator extends Panel {
 	 */
 	protected Link newPagingNavigationLink(String id, IPageable pageable, int pageNumber)
 	{
-		return new PagingNavigationLink(id, pageable, pageNumber);
+		return new AjaxPagingNavigationLink(id, pageable, pageNumber);
 	}
 	
 	protected DropDownChoice newRowNumberSelector(final IPageable pageable)
@@ -170,10 +153,10 @@ public class SakaiPagingNavigator extends Panel {
 	}
 	
 	public String getRowNumberSelector() {	
-		return String.valueOf(((DataTable) pageable).getRowsPerPage());
+		return String.valueOf(((DataTable) getPageable()).getRowsPerPage());
 	}
 	public void setRowNumberSelector(String value) {
-		((DataTable) pageable).setRowsPerPage(Integer.valueOf(value));
+		((DataTable) getPageable()).setRowsPerPage(Integer.valueOf(value));
 	}
 
 	/**
@@ -189,15 +172,5 @@ public class SakaiPagingNavigator extends Panel {
 		final IPagingLabelProvider labelProvider)
 	{
 		return new PagingNavigation("navigation", pageable, labelProvider);
-	}
-
-	/**
-	 * Gets the pageable navigation component for configuration purposes.
-	 * 
-	 * @return the associated pageable navigation.
-	 */
-	public final PagingNavigation getPagingNavigation()
-	{
-		return pagingNavigation;
 	}
 }
