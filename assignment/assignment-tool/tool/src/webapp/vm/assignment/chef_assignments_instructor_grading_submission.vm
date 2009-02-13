@@ -204,6 +204,7 @@ function handleEnterKeyPress(ev)
 					</tr>
 				#end			
 		</table>
+		## show or hide assignment instruction and attachment
 			#if ($assignment_expand_flag)
 				<p class="discTria">
 					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='hide_instruction';document.gradeForm.submit();return false;">
@@ -217,6 +218,46 @@ function handleEnterKeyPress(ev)
 					$tlang.getString("gen.assinf")
 				</p>	
 			#end
+			#if ($assignment_expand_flag)
+					#if ($assignment.getContent().getInstructions().length()>0)
+						<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())</div>
+					#else
+					#end
+					## attachments of assignment
+					<h4>$tlang.getString("gen.addres2")</h4>
+					#set ($size = 0)
+					#set ($attachments = $assignment.getContent().Attachments)
+					#set ($props = false)
+					#foreach ($attachment in $attachments) 
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							#set ($size = $size + 1)
+						#end
+					#end
+					#if ($size == 0)
+						<p class="instruction">$tlang.getString("gen.noatt")</p>
+					#else
+						<ul class="attachList indnt1">
+							#foreach ($attachment in $attachments) 
+								#set ($props = false)
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									<li>
+										#if ($props.getBooleanProperty($props.NamePropIsCollection))
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+										#else
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+										#end
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+											($props.getPropertyFormatted($props.NamePropContentLength))
+										#end
+									</li>
+								#end
+							#end
+						</ul>
+					#end	
+				#end	## show the assignment content
 			## model answer
 			#if($allowViewModelAnswer)
 			<h4  id="toggleModel" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('modelAnswer')</h4>
@@ -302,48 +343,6 @@ function handleEnterKeyPress(ev)
 					</ul>
 				</div>
 			#end
-
-			#if ($assignment_expand_flag)
-				#if ($assignment.getContent().getInstructions().length()>0)
-					<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())</div>
-				#else
-				#end
-				
-				## attachments of assignment
-				<h4>$tlang.getString("gen.addres2")</h4>
-				#set ($size = 0)
-				#set ($attachments = $assignment.getContent().Attachments)
-				#set ($props = false)
-				#foreach ($attachment in $attachments) 
-					#set ($props = $attachment.Properties) 
-					#if ($!props)
-						#set ($size = $size + 1)
-					#end
-				#end
-				#if ($size == 0)
-					<p class="instruction">$tlang.getString("gen.noatt")</p>
-				#else
-					<ul class="attachList indnt1">
-						#foreach ($attachment in $attachments) 
-							#set ($props = false)
-							#set ($props = $attachment.Properties) 
-							#if ($!props)
-								<li>
-									#if ($props.getBooleanProperty($props.NamePropIsCollection))
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-									#else
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-									#end
-									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-									#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-										($props.getPropertyFormatted($props.NamePropContentLength))
-									#end
-								</li>
-							#end
-						#end
-					</ul>
-				#end	
-			#end	## show the assignment content
 			<h3>$tlang.getString("gen.subm")</h3>
 				#if ($submissionType == 4)
 					## if this is non-electronic submission
