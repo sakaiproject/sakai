@@ -74,10 +74,6 @@
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
-    
-    <listener>
-		<listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
-	</listener>
 
     <servlet>
         <servlet-name>sakai.postem</servlet-name>

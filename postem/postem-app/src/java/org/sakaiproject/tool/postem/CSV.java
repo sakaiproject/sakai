@@ -29,7 +29,7 @@ import java.util.zip.DataFormatException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import org.apache.myfaces.util.MessageUtils;
+import org.apache.myfaces.shared_impl.util.MessageUtils;
 
 public class CSV {
 

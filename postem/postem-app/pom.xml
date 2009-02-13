@@ -30,14 +30,14 @@
                   <artifactId>sakai-jsf-myfaces-tool</artifactId>
                   <version>2.7.0-SNAPSHOT</version>
                   <exclusions>
-                    <!-- since postem doesnt work with the latest myfaces we have to replace the library -->
-                    <exclusion>
-                      <groupId>org.apache.myfaces.core</groupId>
-                      <artifactId>myfaces-api</artifactId>
+                  <!-- exclude this to avoid the collision btw RI and tomahawk -->
+                  <exclusion>
+                        <groupId>jsf</groupId>
+                        <artifactId>jsf-api</artifactId>
                     </exclusion>
                     <exclusion>
-                      <groupId>org.apache.myfaces.core</groupId>
-                      <artifactId>myfaces-impl</artifactId>
+                        <groupId>jsf</groupId>
+                        <artifactId>jsf-impl</artifactId>
                     </exclusion>
                   </exclusions>
                   <type>pom</type>
@@ -61,15 +61,6 @@
                         <groupId>jsf</groupId>
                         <artifactId>jsf-impl</artifactId>
                     </exclusion>
-                    <!-- since postem doesnt work with the latest myfaces we have to replace the library -->
-                    <exclusion>
-                      <groupId>org.apache.myfaces.core</groupId>
-                      <artifactId>myfaces-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                      <groupId>org.apache.myfaces.core</groupId>
-                      <artifactId>myfaces-impl</artifactId>
-                    </exclusion>
                   </exclusions>
                   <type>pom</type>
                 </dependency>
@@ -80,10 +71,14 @@
   <dependencies>
     <!-- postem requires and older version of myfaces -->
     <dependency>
-      <groupId>myfaces</groupId>
-      <artifactId>myfaces</artifactId>
-      <version>1.0.9</version>
-      <scope>compile</scope>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-api</artifactId>
+      <version>1.1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-impl</artifactId>
+      <version>1.1.5</version>
     </dependency>
 
     <dependency>
