@@ -90,16 +90,20 @@ public class UploadFilter implements Filter {
 		if (repositoryPath != null)
 			upload.setRepositoryPath(repositoryPath);
 
+		upload.setHeaderEncoding("UTF-8");
+		
 		try {
 			List list = upload.parseRequest(httpRequest);
 			final Map map = new HashMap();
 			for (int i = 0; i < list.size(); i++) {
 				FileItem item = (FileItem) list.get(i);
-				String str = item.getString();
-				if (item.isFormField())
+				
+				if (item.isFormField()) {
+				    String str = item.getString("UTF-8");
 					map.put(item.getFieldName(), new String[] { str });
-				else
+				} else {
 					httpRequest.setAttribute(item.getFieldName(), item);
+				}
 			}
 
 			chain.doFilter(new HttpServletRequestWrapper(httpRequest) {
