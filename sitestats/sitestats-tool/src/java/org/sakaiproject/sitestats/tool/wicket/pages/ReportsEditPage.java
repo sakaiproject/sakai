@@ -151,9 +151,21 @@ public class ReportsEditPage extends BasePage {
 
 	@Override
 	public void renderHead(IHeaderResponse response) {
-		response.renderJavascriptReference("/library/js/jquery.js");
-		response.renderJavascriptReference("/sakai-sitestats-tool/script/reports.js");
 		super.renderHead(response);
+		//response.renderJavascriptReference("/library/js/jquery.js");
+		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery-1.3.1.min.js");
+		response.renderJavascriptReference("/sakai-sitestats-tool/script/reports.js");
+		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery.ifixpng2.js");
+		StringBuilder onDomReady = new StringBuilder();
+		onDomReady.append("checkWhatSelection();");
+		onDomReady.append("checkWhenSelection();");
+        onDomReady.append("checkWhoSelection();");
+        onDomReady.append("checkHowSelection();");
+        onDomReady.append("checkReportDetails();");
+        onDomReady.append("checkHowChartSelection();");
+		onDomReady.append("jQuery.ifixpng('/sakai-sitestats-tool/images/transparent.gif'); ");
+		onDomReady.append("jQuery('img').ifixpng();");
+		response.renderOnDomReadyJavascript(onDomReady.toString());
 	}
 	
 	private void renderBody() {

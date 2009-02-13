@@ -72,9 +72,9 @@ public class PreferencesPage extends BasePage {
 
 	@Override
 	public void renderHead(IHeaderResponse response) {
+		super.renderHead(response);
 		response.renderJavascriptReference("/library/js/jquery.js");
 		response.renderOnDomReadyJavascript("toggleCheckboxAll();");
-		super.renderHead(response);
 	}
 	
 	@SuppressWarnings("serial")

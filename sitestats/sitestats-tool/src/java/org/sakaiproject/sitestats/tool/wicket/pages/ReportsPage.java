@@ -59,8 +59,14 @@ public class ReportsPage extends BasePage {
 
 	@Override
 	public void renderHead(IHeaderResponse response) {
-		response.renderJavascriptReference("/library/js/jquery.js");
 		super.renderHead(response);
+		//response.renderJavascriptReference("/library/js/jquery.js");
+		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery-1.3.1.min.js");
+		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery.ifixpng2.js");
+		StringBuilder onDomReady = new StringBuilder();
+		onDomReady.append("jQuery.ifixpng('/sakai-sitestats-tool/images/transparent.gif');");
+		onDomReady.append("jQuery('img').ifixpng();");
+		response.renderOnDomReadyJavascript(onDomReady.toString());
 	}
 	
 	private void renderBody() {	

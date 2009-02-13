@@ -17,31 +17,8 @@
         });
         jQuery(more).toggle();
         jQuery(less).toggle();        
-    }    
-    function truncate(selector, length) {
-        jQuery(selector).each(function(){
-	        var hardLimit = length - 4;
-	        var limit = hardLimit;
-	        var text = jQuery(this).html();
-	        var textSize = text.length;
-	        var insideTag = text.indexOf('<');
-	        var truncated = '';
-	        if( (insideTag == -1 && textSize > hardLimit)
-	            || (insideTag > 0 && insideTag > hardLimit) ) {
-	          var original = text;
-	          if(insideTag == -1) {
-	            truncated = text.substring(0, limit) + '...';
-	          }else{
-	            original = text.substring(0, insideTag);
-	            truncated = text.substring(0, limit) + '...' + text.substring(insideTag) + ' ';
-	          }          
-	          jQuery(this).html(truncated);
-	          jQuery(this).attr('title', jQuery(this).attr('title') + ' ' + original);
-	        }
-        });
     }
     jQuery(document).ready(function(){
-    	//truncate('.valueText', 22);
         jQuery('.alpha').ifixpng();
     });
     </script>
