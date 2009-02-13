@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -50,6 +51,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -91,6 +93,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private FopFactory				fopFactory		= FopFactory.newInstance();
 	private Templates				cachedXmlFoXSLT	= null;
 	private static final String		XML_FO_XSL_FILE	= "xmlReportToFo.xsl";
+	
+	/** Date formatters. */
+	private SimpleDateFormat		dateMonthFrmt 	= new SimpleDateFormat("yyyy-MM");
+	private SimpleDateFormat		dateYearFrmt  	= new SimpleDateFormat("yyyy");
 
 	/** Spring bean members */
 
@@ -536,6 +542,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_id"));
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_user"));
 		}
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOOL)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_tool"));
+		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_event"));
 		}
@@ -545,7 +554,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_action"));
 		}
-		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)
+			|| isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEMONTH)
+			|| isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEYEAR)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_date"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
@@ -553,6 +564,12 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
 			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_total"));
+		}
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_VISITS)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_visits"));
+		}
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
+			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_uniquevisitors"));
 		}
 
 		// Fill the spreadsheet cells
@@ -588,6 +605,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				row.createCell((short) ix++).setCellValue(userEid);
 				row.createCell((short) ix++).setCellValue(userName);
 			}
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOOL)) {
+				EventStat es = (EventStat) se;
+				row.createCell((short) ix++).setCellValue(M_ers.getToolName(es.getToolId()));
+			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
 				EventStat es = (EventStat) se;
 				row.createCell((short) ix++).setCellValue(M_ers.getEventName(es.getEventId()));
@@ -603,11 +624,25 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
 				row.createCell((short) ix++).setCellValue(se.getDate().toString());				
 			}
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEMONTH)) {
+				row.createCell((short) ix++).setCellValue(dateMonthFrmt.format(se.getDate()));			
+			}
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEYEAR)) {
+				row.createCell((short) ix++).setCellValue(dateYearFrmt.format(se.getDate()));			
+			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
 				row.createCell((short) ix++).setCellValue(se.getDate().toString());				
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
 				row.createCell((short) ix++).setCellValue(se.getCount());				
+			}
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_VISITS)) {
+				SiteVisits sv = (SiteVisits) se;
+				row.createCell((short) ix++).setCellValue(sv.getTotalVisits());				
+			}
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
+				SiteVisits sv = (SiteVisits) se;
+				row.createCell((short) ix++).setCellValue(sv.getTotalUnique());				
 			}
 		}
 		return wb.getBytes();
@@ -626,6 +661,13 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			appendQuoted(sb, msgs.getString("th_id"));
 			sb.append(",");
 			appendQuoted(sb, msgs.getString("th_user"));
+			isFirst = false;
+		}
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOOL)) {
+			if(!isFirst) {
+				sb.append(",");
+			}
+			appendQuoted(sb, msgs.getString("th_tool"));
 			isFirst = false;
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
@@ -649,7 +691,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			appendQuoted(sb, msgs.getString("th_action"));
 			isFirst = false;
 		}
-		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)
+			|| isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEMONTH)
+			|| isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEYEAR)) {
 			if(!isFirst) {
 				sb.append(",");
 			}
@@ -670,13 +714,27 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			appendQuoted(sb, msgs.getString("th_total"));
 			isFirst = false;
 		}
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_VISITS)) {
+			if(!isFirst) {
+				sb.append(",");
+			}
+			appendQuoted(sb, msgs.getString("th_visits"));
+			isFirst = false;
+		}
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
+			if(!isFirst) {
+				sb.append(",");
+			}
+			appendQuoted(sb, msgs.getString("th_uniquevisitors"));
+			isFirst = false;
+		}
 		sb.append("\n");
 
 		// Add the data
-		isFirst = true;
 		Iterator<Stat> i = statsObjects.iterator();
 		while (i.hasNext()){
 			Stat se = i.next();
+			isFirst = true;
 			// user
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_USER)) {
 				String userId = se.getUserId();
@@ -706,6 +764,15 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				appendQuoted(sb, userEid);
 				sb.append(",");
 				appendQuoted(sb, userName);
+				isFirst = false;
+			}
+			// tool
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOOL)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
+				EventStat es = (EventStat) se;
+				appendQuoted(sb, M_ers.getToolName(es.getToolId()));
 				isFirst = false;
 			}
 			// event
@@ -743,6 +810,22 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				appendQuoted(sb, se.getDate().toString());
 				isFirst = false;
 			}
+			// date (year-month)
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEMONTH)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
+				appendQuoted(sb, dateMonthFrmt.format(se.getDate()));
+				isFirst = false;
+			}
+			// date (year)
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEYEAR)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
+				appendQuoted(sb, dateYearFrmt.format(se.getDate()));
+				isFirst = false;
+			}
 			// last date
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
 				if(!isFirst) {
@@ -757,6 +840,24 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					sb.append(",");
 				}
 				appendQuoted(sb, Long.toString(se.getCount()));
+				isFirst = false;
+			}
+			// visits
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_VISITS)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
+				SiteVisits sv = (SiteVisits) se;
+				appendQuoted(sb, Long.toString(sv.getTotalVisits()));
+				isFirst = false;
+			}
+			// unique visitors
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
+				SiteVisits sv = (SiteVisits) se;
+				appendQuoted(sb, Long.toString(sv.getTotalUnique()));
 				isFirst = false;
 			}
 			sb.append("\n");

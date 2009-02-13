@@ -17,6 +17,7 @@ public class LibraryURIResolver implements URIResolver {
 	private Log					LOG					= LogFactory.getLog(LibraryURIResolver.class);
 	private final static String	LIBRARY_HANDLER		= "library://";
 	private final static String	SITESTATS_HANDLER	= "sitestats://";
+	private final static String	SITESTATS_WEBAPP	= "sakai-sitestats-tool";
 	private String				libraryRoot			= null;
 	private String				sitestatsRoot		= null;
 	
@@ -36,6 +37,10 @@ public class LibraryURIResolver implements URIResolver {
 			}
 			if(href.startsWith(SITESTATS_HANDLER)){
 				resource = href.substring(SITESTATS_HANDLER.length()); // chop off the sitestats://
+				String webappStartDir = File.separatorChar + SITESTATS_WEBAPP;
+				if(resource.startsWith(webappStartDir)) {
+					resource = resource.substring(webappStartDir.length());
+				}
 				fullResource = sitestatsRoot + resource;
 			}
 			FileInputStream fis = null;
@@ -91,7 +96,7 @@ public class LibraryURIResolver implements URIResolver {
 	        buff.append(File.separatorChar);
 	        buff.append("webapps");
 	        buff.append(File.separatorChar);
-	        buff.append("sakai-sitestats-tool");
+	        buff.append(SITESTATS_WEBAPP);
 	        buff.append(File.separatorChar);
 	        path = buff.toString();
 		}catch(Exception e) {

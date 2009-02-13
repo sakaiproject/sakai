@@ -2,6 +2,7 @@ package org.sakaiproject.sitestats.impl.report.fop;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.chart.ChartService;
@@ -31,6 +33,10 @@ import org.xml.sax.SAXException;
 public class ReportXMLReader extends AbstractObjectReader {	
 	/** Resource bundle */
 	private ResourceLoader			msgs		= new ResourceLoader("Messages");
+	
+	/** Date formatters. */
+	private SimpleDateFormat		dateMonthFrmt = new SimpleDateFormat("yyyy-MM");
+	private SimpleDateFormat		dateYearFrmt  = new SimpleDateFormat("yyyy");
 	
 	/** Sakai services */
 	private TimeService				M_ts		= (TimeService) ComponentManager.get(TimeService.class.getName());
@@ -182,10 +188,13 @@ public class ReportXMLReader extends AbstractObjectReader {
         handler.element("th_user", msgs.getString("th_user"));
         handler.element("th_resource", msgs.getString("th_resource"));
         handler.element("th_action", msgs.getString("th_action"));
+        handler.element("th_tool", msgs.getString("th_tool"));	
         handler.element("th_event", msgs.getString("th_event"));	
         handler.element("th_date", msgs.getString("th_date"));
         handler.element("th_lastdate", msgs.getString("th_date"));
         handler.element("th_total", msgs.getString("th_total"));
+        handler.element("th_visits", msgs.getString("th_visits"));
+        handler.element("th_uniquevisitors", msgs.getString("th_uniquevisitors"));
         
         handler.endElement("datarowheader");
 	}
@@ -198,12 +207,15 @@ public class ReportXMLReader extends AbstractObjectReader {
         handler.element("who", params.getWho());
 		handler.element("showSite", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_SITE)));
 		handler.element("showUser", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_USER)));
+		handler.element("showTool", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_TOOL)));
         handler.element("showEvent", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_EVENT)));
         handler.element("showResource", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_RESOURCE)));
         handler.element("showResourceAction", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_RESOURCE_ACTION)));
-        handler.element("showDate", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_DATE)));
+        handler.element("showDate", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_DATE) || M_rm.isReportColumnAvailable(params, StatsManager.T_DATEMONTH) || M_rm.isReportColumnAvailable(params, StatsManager.T_DATEYEAR)));
         handler.element("showLastDate", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_LASTDATE)));
         handler.element("showTotal", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_TOTAL)));
+        handler.element("showTotalVisits", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_VISITS)));
+        handler.element("showTotalUnique", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_UNIQUEVISITS)));
 	}
 
 	private void generateReportChart(Report report) throws SAXException {
@@ -238,12 +250,15 @@ public class ReportXMLReader extends AbstractObjectReader {
 		
         boolean showSite = M_rm.isReportColumnAvailable(params, StatsManager.T_SITE);
         boolean showUser = M_rm.isReportColumnAvailable(params, StatsManager.T_USER);
+        boolean showTool = M_rm.isReportColumnAvailable(params, StatsManager.T_TOOL);
         boolean showEvent = M_rm.isReportColumnAvailable(params, StatsManager.T_EVENT);
         boolean showResource = M_rm.isReportColumnAvailable(params, StatsManager.T_RESOURCE);
         boolean showResourceAction = M_rm.isReportColumnAvailable(params, StatsManager.T_RESOURCE_ACTION);
-        boolean showDate = M_rm.isReportColumnAvailable(params, StatsManager.T_DATE);
+        boolean showDate = M_rm.isReportColumnAvailable(params, StatsManager.T_DATE) || M_rm.isReportColumnAvailable(params, StatsManager.T_DATEMONTH) || M_rm.isReportColumnAvailable(params, StatsManager.T_DATEYEAR);
         boolean showLastDate = M_rm.isReportColumnAvailable(params, StatsManager.T_LASTDATE);
-        boolean showTotal = M_rm.isReportColumnAvailable(params, StatsManager.T_TOTAL);        
+        boolean showTotal = M_rm.isReportColumnAvailable(params, StatsManager.T_TOTAL);
+        boolean showTotalVisits = M_rm.isReportColumnAvailable(params, StatsManager.T_VISITS);
+        boolean showTotalUnique = M_rm.isReportColumnAvailable(params, StatsManager.T_UNIQUEVISITS);
 
         Iterator<Stat> i = data.iterator();
         while(i.hasNext()){
@@ -290,17 +305,24 @@ public class ReportXMLReader extends AbstractObjectReader {
 	            handler.element("userid", userId);
 	            handler.element("username", userName);
             }
+            if(showTool) {
+            	EventStat es = (EventStat) cs;
+            	String toolId = es.getToolId();
+            	handler.element("tool", M_ers.getToolName(toolId == null? "" : toolId));
+            	handler.element("showToolIcon", "true");
+            	handler.element("toolicon", "sitestats://" + M_ers.getToolIcon(toolId));            	
+            }
             if(showEvent) {
             	EventStat es = (EventStat) cs;
             	String eventRef = es.getEventId();
             	handler.element("event", M_ers.getEventName(eventRef == null? "" : eventRef));
             	ToolInfo toolInfo = eventIdToolMap.get(eventRef);
-            	if(toolInfo != null) {
-            		handler.element("showToolIcon", "true");
+            	if(toolInfo != null && !showTool) {
+            		handler.element("showToolEventIcon", "true");
             		String toolId = toolInfo.getToolId();
-            		handler.element("toolicon", "sitestats://" + M_ers.getToolIcon(toolId));
+            		handler.element("tooleventicon", "sitestats://" + M_ers.getToolIcon(toolId));
             	}else{
-            		handler.element("showToolIcon", "false");
+            		handler.element("showToolEventIcon", "false");
             	}
             }
             if(showResource) {
@@ -316,7 +338,13 @@ public class ReportXMLReader extends AbstractObjectReader {
             }
             if(showDate) {
             	java.util.Date date = cs.getDate();
-	            handler.element("date", date == null? "" :M_ts.newTime(date.getTime()).toStringLocalDate());	            
+            	if(M_rm.isReportColumnAvailable(params, StatsManager.T_DATE)) {
+            		handler.element("date", date == null? "" :M_ts.newTime(date.getTime()).toStringLocalDate());
+            	}else if(M_rm.isReportColumnAvailable(params, StatsManager.T_DATEMONTH)) {
+            		handler.element("date", date == null? "" :dateMonthFrmt.format(date));
+            	}else if(M_rm.isReportColumnAvailable(params, StatsManager.T_DATEYEAR)) {
+            		handler.element("date", date == null? "" :dateYearFrmt.format(date));
+            	}
             }
             if(showLastDate) {
             	java.util.Date date = cs.getDate();
@@ -324,6 +352,14 @@ public class ReportXMLReader extends AbstractObjectReader {
             }
             if(showTotal) {
 	            handler.element("total", String.valueOf(cs.getCount()));
+            }
+            if(showTotalVisits) {
+            	SiteVisits ss = (SiteVisits) cs;
+	            handler.element("totalVisits", String.valueOf(ss.getTotalVisits()));
+            }
+            if(showTotalUnique) {
+            	SiteVisits ss = (SiteVisits) cs;
+	            handler.element("totalUnique", String.valueOf(ss.getTotalUnique()));
             }
             
             handler.endElement("datarow");
