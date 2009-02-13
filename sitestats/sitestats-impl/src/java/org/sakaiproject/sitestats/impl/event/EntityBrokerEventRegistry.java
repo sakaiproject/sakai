@@ -25,7 +25,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class EntityBrokerEventRegistry implements EventRegistry, EntityProviderListener<Statisticable> {
 	private static Log				LOG						= LogFactory.getLog(EntityBrokerEventRegistry.class);
-	private static final String		CACHENAME				= "org.sakaiproject.sitestats.api.event.EntityBrokerRegistryService";
+	private static final String		CACHENAME				= EntityBrokerEventRegistry.class.getName();
 
 	/** Event Registry members */
 	private List<ToolInfo>			eventRegistry			= new ArrayList<ToolInfo>();
