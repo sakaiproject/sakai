@@ -94,30 +94,31 @@ public abstract class WidgetTabTemplate extends Panel {
 	
 	@Override
 	protected void onBeforeRender() {
-		if(!tabTemplateRendered) {
-			// update data
-			setModel(new CompoundPropertyModel(this));
+		// update data
+		setModel(new CompoundPropertyModel(this));
 			
-			// get report data
-			ReportDef chartRD = getChartReportDefinition();
-			ReportDef tableRD = getTableReportDefinition();
-			if(chartRD != null) {
-				renderChart = true;
-				chartDataProvider = new ReportsDataProvider(getPrefsdata(), chartRD, false);
-			}
-			if(tableRD != null) {
-				renderTable = true;
-				if(!useChartReportDefinitionForTable()) {
-					tableDataProvider = new ReportsDataProvider(getPrefsdata(), tableRD, false);
-				}
-			}
+		removeAll();
 			
-			// render data
-			renderFilters();
-			renderChart();
-			renderTable();
-			tabTemplateRendered = true;
+		// get report data
+		ReportDef chartRD = getChartReportDefinition();
+		ReportDef tableRD = getTableReportDefinition();
+		if(chartRD != null) {
+			renderChart = true;
+			chartDataProvider = new ReportsDataProvider(getPrefsdata(), chartRD, false);
 		}
+		if(tableRD != null) {
+			renderTable = true;
+			if(!useChartReportDefinitionForTable()) {
+				tableDataProvider = new ReportsDataProvider(getPrefsdata(), tableRD, false);
+			}
+		}
+		
+		// render data
+		renderFilters();
+		renderChart();
+		renderTable();
+		tabTemplateRendered = true;
+		
 		super.onBeforeRender();
 	}
 

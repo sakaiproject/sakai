@@ -11,6 +11,7 @@ import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
@@ -23,6 +24,7 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadFragment;
 import org.sakaiproject.sitestats.tool.wicket.components.ExternalImage;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
+import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportDataPage;
 
 /**
@@ -46,11 +48,17 @@ public class Widget extends Panel {
 		this.title = title;
 		this.widgetMiniStats = widgetMiniStats;
 		this.tabs = widgetTabs;
-		renderWidget();
 	}
 	
-	private void renderWidget() {	
+	@Override
+	protected void onBeforeRender() {
+		renderWidget();
+		super.onBeforeRender();
+	}
+	
+	private void renderWidget() {
 		setRenderBodyOnly(true);
+		removeAll();
 		
 		// Icon
 		add(new ExternalImage("icon", iconUrl));

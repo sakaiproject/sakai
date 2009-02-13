@@ -12,13 +12,12 @@ import org.apache.commons.betwixt.expression.Context;
 import org.apache.commons.betwixt.io.BeanReader;
 import org.apache.commons.betwixt.io.BeanWriter;
 import org.apache.commons.betwixt.strategy.DefaultObjectStringConverter;
-import org.apache.commons.betwixt.strategy.PropertySuppressionStrategy;
 import org.apache.commons.betwixt.strategy.ValueSuppressionStrategy;
 import org.apache.commons.digester.Digester;
+import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportParams;
-import org.sakaiproject.sitestats.impl.PrefsDataImpl;
 
 public class DigesterUtil {
 
@@ -47,7 +46,7 @@ public class DigesterUtil {
 
 	public static Digester configurePrefsDigester(Digester digester) {        
 	    // prefs root
-	    digester.addObjectCreate("prefs", PrefsDataImpl.class );
+	    digester.addObjectCreate("prefs", PrefsData.class );
 	    digester.addSetProperties("prefs" );
 	    digester.addBeanPropertySetter("prefs/listToolEventsOnlyAvailableInSite", "setListToolEventsOnlyAvailableInSite" );
 	    digester.addBeanPropertySetter("prefs/chartIn3D", "setChartIn3D" );

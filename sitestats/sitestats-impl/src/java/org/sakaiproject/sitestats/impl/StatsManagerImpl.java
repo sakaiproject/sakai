@@ -292,8 +292,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				};
 				Prefs prefs = (Prefs) getHibernateTemplate().execute(hcb);
 				if(prefs == null){
-					// get default list
-					prefsdata = new PrefsDataImpl();
+					// get default settings
+					prefsdata = new PrefsData();
+					prefsdata.setChartIn3D(isChartIn3D());
+					prefsdata.setChartTransparency(getChartTransparency());
+					prefsdata.setItemLabelsVisible(isItemLabelsVisible());
 					prefsdata.setToolEventsDef(M_ers.getEventRegistry());
 				}else{
 					try{
@@ -302,7 +305,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}catch(Exception e){
 						// something failed, use default
 						LOG.warn("Exception in parseSitePrefs() ",e);
-						prefsdata = new PrefsDataImpl();
+						prefsdata = new PrefsData();
 						prefsdata.setToolEventsDef(M_ers.getEventRegistry());
 					}
 				}
