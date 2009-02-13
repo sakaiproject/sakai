@@ -39,7 +39,7 @@
                 
                 <!-- REPORT DETAILS -->
                 <span wicket:id="reportDetailsTop">
-                    <div class="summaryHeader">
+                    <h4 class="summaryHeader">
                             <img src="images/silk/icons/information.png" border="0" alt="Report details"/>
                             <wicket:message key="report_details">[report_details]</wicket:message>
                             <span class="summaryInstruction">
@@ -48,7 +48,7 @@
                             <span wicket:id="reportDetailsShow" class="itemAction reportDetailsShow">
                                 <a href="#" onclick="jQuery('.fakeReportDetails').hide();jQuery('.reportDetails').slideDown(function(){jQuery('.reportDetailsShow').hide(); setMainFrameHeightNoScroll(window.name);}); return false" class="itemAction" style="margin:0; padding:0;"><wicket:message key="report_details_show">[report_details_show]</wicket:message></a>
                             </span>
-                    </div>
+                    </h4>
                 <div wicket:id="fakeReportDetails" class="fakeReportDetails" style="margin-bottom: 20px;"></div>
                 </span>
                 <span wicket:id="reportDetails" class="reportDetails">
@@ -90,13 +90,13 @@
                 
                 
                 <!-- WHAT? -->
-		        <div class="summaryHeader">
+		        <h4 class="summaryHeader">
 		          <img src="images/silk/icons/application_view_tile.png" border="0" alt="What?"/>
 		          <wicket:message key="report_what">[report_what]</wicket:message>
                   <span class="summaryInstruction">
                       <wicket:message key="report_what_instructions">[report_what_instructions]</wicket:message>
                   </span>
-		        </div>
+		        </h4>
                 <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
 				        <tr>
 				            <!-- Activity -->                        
@@ -158,13 +158,13 @@
 
                 
                 <!-- WHEN? -->
-                <div class="summaryHeader">
+                <h4 class="summaryHeader">
                     <img src="images/silk/icons/date.png" border="0" alt="When?"/>
                     <wicket:message key="report_when">[report_when]</wicket:message>
 	                <span class="summaryInstruction">
 	                    <wicket:message key="report_when_instructions">[report_when_instructions]</wicket:message>
 	                </span>
-                </div>
+                </h4>
                 <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
                     <tr>
                         <td class="lbl">
@@ -195,13 +195,13 @@
                 
                 <!-- WHO? -->
                 <span id="whoSection">
-                <div class="summaryHeader">
+                <h4 class="summaryHeader">
                     <img src="images/silk/icons/user_suit.png" border="0" alt="Who?"/>
                     <wicket:message key="report_who">[report_who]</wicket:message>
                     <span class="summaryInstruction">
                         <wicket:message key="report_who_instructions">[report_who_instructions]</wicket:message>
                     </span>
-                </div>
+                </h4>
                 <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
                     <tr>
                         <td class="lbl">
@@ -246,13 +246,13 @@
                 
                 
                 <!-- HOW? -->
-                <div class="summaryHeader">
+                <h4 class="summaryHeader">
                     <img src="images/silk/icons/chart_bar_edit.png" border="0" alt="When?"/>
                     <wicket:message key="report_how">[report_how]</wicket:message>
                     <span class="summaryInstruction">
                         <wicket:message key="report_how_instructions">[report_how_instructions]</wicket:message>
                     </span> 
-                </div>
+                </h4>
                 <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
                     <tr wicket:id="siteContainer">
                         <td class="lbl">
