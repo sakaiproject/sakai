@@ -31,7 +31,7 @@ import uk.org.ponder.beanutil.BeanLocator;
 
 public class PollBeanLocator implements BeanLocator {
 	public static final String NEW_PREFIX = "new ";
-	public static String NEW_1 = NEW_PREFIX + "1";
+	public static final String NEW_1 = NEW_PREFIX + "1";
 	private Map delivered = new HashMap();
 
 	private PollListManager pollListManager;

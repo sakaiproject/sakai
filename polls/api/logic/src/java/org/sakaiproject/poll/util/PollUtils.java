@@ -2,9 +2,9 @@ package org.sakaiproject.poll.util;
 
 public class PollUtils {
 
-    public static String ENDING_P_SPACE_TAGS = "<p>&nbsp;</p>";
-    public static String STARTING_P_TAG = "<p>";
-    public static String ENDING_P_TAG = "</p>";
+    public static final String ENDING_P_SPACE_TAGS = "<p>&nbsp;</p>";
+    public static final String STARTING_P_TAG = "<p>";
+    public static final String ENDING_P_TAG = "</p>";
 
     /**
      * Attempts to remove all unnecessary P tags from html strings

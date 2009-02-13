@@ -63,7 +63,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         this.pollVoteManager = pollVoteManager;
     }
 
-    public static String PREFIX = "poll";
+    public static final String PREFIX = "poll";
     public String getEntityPrefix() {
         return PREFIX;
     }

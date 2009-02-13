@@ -48,7 +48,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         this.pollListManager = pollListManager;
     }
 
-    public static String PREFIX = "poll-option";
+    public static final String PREFIX = "poll-option";
     public String getEntityPrefix() {
         return PREFIX;
     }
