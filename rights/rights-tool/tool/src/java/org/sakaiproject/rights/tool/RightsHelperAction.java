@@ -25,6 +25,7 @@ import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 
 public class RightsHelperAction extends VelocityPortletPaneledAction
 {
-	
-	
+
+	private static final long serialVersionUID = 1L;
+
 }

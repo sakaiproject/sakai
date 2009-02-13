@@ -59,6 +59,6 @@ public interface Copyright
 	 * @param stack
 	 * @return
 	 */
-	public Element toXml(Document doc, Stack stack);
+	public Element toXml(Document doc, Stack<Object> stack);
 	
 }	// interface Copyright

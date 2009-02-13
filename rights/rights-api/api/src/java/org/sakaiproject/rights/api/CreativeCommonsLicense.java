@@ -54,7 +54,7 @@ public interface CreativeCommonsLicense
 	/**
 	 * @return
 	 */
-	public Collection getPermissions();
+	public Collection<Permission> getPermissions();
 	
 	/**
 	 * @param permission
@@ -75,7 +75,7 @@ public interface CreativeCommonsLicense
 	/**
 	 * @param permissions
 	 */
-	public void setPermissions(Collection permissions);
+	public void setPermissions(Collection<Object> permissions);
 
 	/*****************************************************
 	 * Prohibitions
@@ -89,7 +89,7 @@ public interface CreativeCommonsLicense
 	/**
 	 * @return
 	 */
-	public Collection getProhibitions();
+	public Collection<Prohibition> getProhibitions();
 	
 	/**
 	 * @param prohibition
@@ -104,12 +104,12 @@ public interface CreativeCommonsLicense
 	/**
 	 * @param prohibitions
 	 */
-	public void removeProhibitions(Collection prohibitions);
+	public void removeProhibitions(Collection<Object> prohibitions);
 	
 	/**
 	 * @param prohibitions
 	 */
-	public void setProhibitions(Collection prohibitions);
+	public void setProhibitions(Collection<Object> prohibitions);
 	
 	/*****************************************************
 	 * Prohibitions
@@ -123,7 +123,7 @@ public interface CreativeCommonsLicense
 	/**
 	 * @return
 	 */
-	public Collection getRequirements();
+	public Collection<Requirement> getRequirements();
 
 	/**
 	 * @param requirement
@@ -138,12 +138,12 @@ public interface CreativeCommonsLicense
 	/**
 	 * @param requirements
 	 */
-	public void removeRequirements(Collection requirements);
+	public void removeRequirements(Collection<Object> requirements);
 	
 	/**
 	 * @param requirements
 	 */
-	public void setRequirements(Collection requirements);
+	public void setRequirements(Collection<Object> requirements);
 	
 	/**
 	 *	Permissions describe rights granted by the license.  Three kinds of permissions may be granted:
@@ -190,6 +190,13 @@ public interface CreativeCommonsLicense
 			return rv;
 		}
 
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		public int hashCode() {
+			return this.toString().hashCode();
+		}
+		
 		/**
 		 * @param permitted
 		 * @return
@@ -253,6 +260,13 @@ public interface CreativeCommonsLicense
 			return rv;
 		}
 
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		public int hashCode() {
+			return this.toString().hashCode();
+		}
+		
 		/**
 		 * @param prohibited
 		 * @return
@@ -315,6 +329,13 @@ public interface CreativeCommonsLicense
 			return rv;
 		}
 
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		public int hashCode() {
+			return this.toString().hashCode();
+		}
+		
 		/**
 		 * @param required
 		 * @return
@@ -346,6 +367,6 @@ public interface CreativeCommonsLicense
 	 * @param stack
 	 * @return
 	 */
-	public Element toXml(Document doc, Stack stack);
+	public Element toXml(Document doc, Stack<Object> stack);
 	
 }	// interface CreativeCommonsLicense

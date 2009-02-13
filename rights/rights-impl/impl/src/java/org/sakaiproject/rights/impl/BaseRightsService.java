@@ -23,17 +23,12 @@ package org.sakaiproject.rights.impl;
 
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
-import java.util.Vector;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.rights.api.Copyright;
@@ -51,7 +46,7 @@ import org.w3c.dom.Element;
 
 public abstract class BaseRightsService implements RightsService 
 {
-	public class BasicCopyright implements Copyright 
+	public static class BasicCopyright implements Copyright 
 	{
 
 		protected String m_id;
@@ -101,7 +96,7 @@ public abstract class BaseRightsService implements RightsService
 			m_year = year;
 		}
 
-		public Element toXml(Document doc, Stack stack) 
+		public Element toXml(Document doc, Stack<Object> stack) 
 		{
 			// TODO Auto-generated method stub
 			return null;
@@ -109,18 +104,18 @@ public abstract class BaseRightsService implements RightsService
 
 	}	// class BasicCopyright
 
-	public class BasicCreativeCommonsLicense implements CreativeCommonsLicense
+	public static class BasicCreativeCommonsLicense implements CreativeCommonsLicense
 	{
 		protected String m_id;
-		protected Set m_permissions = new TreeSet();
-		protected Set m_prohibitions = new TreeSet();
-		protected Set m_requirements = new TreeSet();
+		protected Set<Permission> m_permissions = new TreeSet<Permission>();
+		protected Set<Prohibition> m_prohibitions = new TreeSet<Prohibition>();
+		protected Set<Requirement> m_requirements = new TreeSet<Requirement>();
 
 		public void addPermission(Permission permission) 
 		{
 			if(m_permissions == null)
 			{
-				m_permissions = new TreeSet();
+				m_permissions = new TreeSet<Permission>();
 			}
 			m_permissions.add(permission);
 		}
@@ -139,7 +134,7 @@ public abstract class BaseRightsService implements RightsService
 		{
 			if(m_prohibitions == null)
 			{
-				m_prohibitions = new TreeSet();
+				m_prohibitions = new TreeSet<Prohibition>();
 			}
 			m_prohibitions.add(prohibition);
 		}
@@ -158,7 +153,7 @@ public abstract class BaseRightsService implements RightsService
 		{
 			if(m_requirements == null)
 			{
-				m_requirements = new TreeSet();
+				m_requirements = new TreeSet<Requirement>();
 			}
 			m_requirements.add(requirement);
 		}
@@ -179,17 +174,17 @@ public abstract class BaseRightsService implements RightsService
 			return null;
 		}
 
-		public Collection getPermissions() 
+		public Collection<Permission> getPermissions() 
 		{
 			return m_permissions;
 		}
 
-		public Collection getProhibitions() 
+		public Collection<Prohibition> getProhibitions() 
 		{
 			return m_prohibitions;
 		}
 
-		public Collection getRequirements() 
+		public Collection<Requirement> getRequirements() 
 		{
 			return m_requirements;
 		}
@@ -224,15 +219,13 @@ public abstract class BaseRightsService implements RightsService
 			}
 		}
 
-		public void removeProhibitions(Collection prohibitions) 
+		public void removeProhibitions(Collection<Object> prohibitions) 
 		{
 			if(prohibitions != null)
 			{
-				Iterator it = prohibitions.iterator();
-				while(it.hasNext())
+				for (Object obj : prohibitions)
 				{
 					Prohibition p = null;
-					Object obj = it.next();
 					if(obj instanceof Prohibition)
 					{
 						p = (Prohibition) obj;
@@ -249,21 +242,19 @@ public abstract class BaseRightsService implements RightsService
 			}
 		}
 
-		public void removeRequirements(Collection requirements) 
+		public void removeRequirements(Collection<Object> requirements) 
 		{
 			if(this.m_requirements == null)
 			{
-				this.m_requirements = new TreeSet();
+				this.m_requirements = new TreeSet<Requirement>();
 			}
 			this.m_requirements.clear();
 			
 			if(requirements != null)
 			{
-				Iterator it = requirements.iterator();
-				while(it.hasNext())
+				for (Object obj : requirements)
 				{
 					Requirement r = null;
-					Object obj = it.next();
 					if(obj instanceof Requirement)
 					{
 						r = (Requirement) obj;
@@ -280,21 +271,19 @@ public abstract class BaseRightsService implements RightsService
 			}
 		}
 		
-		public void setPermissions(Collection permissions) 
+		public void setPermissions(Collection<Object> permissions) 
 		{
 			if(this.m_permissions == null)
 			{
-				this.m_permissions = new TreeSet();
+				this.m_permissions = new TreeSet<Permission>();
 			}
 			this.m_permissions.clear();
 			
 			if(permissions != null)
 			{
-				Iterator it = permissions.iterator();
-				while(it.hasNext())
+				for (Object obj : permissions)
 				{
 					Permission p = null;
-					Object obj = it.next();
 					if(obj instanceof Permission)
 					{
 						p = (Permission) obj;
@@ -311,21 +300,19 @@ public abstract class BaseRightsService implements RightsService
 			}
 		}
 
-		public void setProhibitions(Collection prohibitions) 
+		public void setProhibitions(Collection<Object> prohibitions) 
 		{
 			if(this.m_prohibitions == null)
 			{
-				this.m_prohibitions = new TreeSet();
+				this.m_prohibitions = new TreeSet<Prohibition>();
 			}
 			this.m_prohibitions.clear();
 			
 			if(prohibitions != null)
 			{
-				Iterator it = prohibitions.iterator();
-				while(it.hasNext())
+				for (Object obj : prohibitions)
 				{
 					Prohibition p = null;
-					Object obj = it.next();
 					if(obj instanceof Prohibition)
 					{
 						p = (Prohibition) obj;
@@ -342,13 +329,13 @@ public abstract class BaseRightsService implements RightsService
 			}
 		}
 
-		public void setRequirements(Collection requirements) 
+		public void setRequirements(Collection<Object> requirements) 
 		{
 			// TODO Auto-generated method stub
 			
 		}
 
-		public Element toXml(Document doc, Stack stack) 
+		public Element toXml(Document doc, Stack<Object> stack) 
 		{
 			// TODO Auto-generated method stub
 			return null;
@@ -360,9 +347,9 @@ public abstract class BaseRightsService implements RightsService
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BasicRightsAssignment implements RightsAssignment
+	public static class BasicRightsAssignment implements RightsAssignment
 	{
-		protected Map m_licenses = new Hashtable();
+		protected Map<String, CreativeCommonsLicense> m_licenses = new Hashtable<String, CreativeCommonsLicense>();
 		protected Copyright m_copyright;
 		protected String m_entityRef = null;
 		protected String m_id;
@@ -379,7 +366,7 @@ public abstract class BaseRightsService implements RightsService
 		{
 			if(m_licenses == null)
 			{
-				m_licenses = new Hashtable();
+				m_licenses = new Hashtable<String, CreativeCommonsLicense>();
 			}
 			m_licenses.put(license.getIdentifier(), license);
 		}
@@ -399,7 +386,7 @@ public abstract class BaseRightsService implements RightsService
 			return m_entityRef;
 		}
 
-		public Collection getLicenses() 
+		public Collection<CreativeCommonsLicense> getLicenses() 
 		{
 			return m_licenses.values();
 		}
@@ -429,12 +416,12 @@ public abstract class BaseRightsService implements RightsService
 			m_copyright = copyright;
 		}
 
-		public void setLicenses(Collection licenses) 
+		public void setLicenses(Collection<CreativeCommonsLicense> licenses) 
 		{
 			
 		}
 
-		public Element toXml(Document doc, Stack stack) 
+		public Element toXml(Document doc, Stack<Object> stack) 
 		{
 			// TODO Auto-generated method stub
 			return null;

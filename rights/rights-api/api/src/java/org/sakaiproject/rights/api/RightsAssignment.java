@@ -38,12 +38,12 @@ public interface RightsAssignment
 
 	public boolean hasLicense();
 	public int countLicenses();
-	public Collection getLicenses();
+	public Collection<CreativeCommonsLicense> getLicenses();
 
 	public void setCopyright(Copyright copyright);
 	
 	public void addLicense(CreativeCommonsLicense license);
-	public void setLicenses(Collection licenses);
+	public void setLicenses(Collection<CreativeCommonsLicense> licenses);
 
 }	// interface RightsAssignment
 

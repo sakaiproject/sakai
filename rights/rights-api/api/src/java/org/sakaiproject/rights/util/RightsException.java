@@ -24,4 +24,6 @@ package org.sakaiproject.rights.util;
 public class RightsException extends Exception 
 {
 
+	private static final long serialVersionUID = 1L;
+
 }

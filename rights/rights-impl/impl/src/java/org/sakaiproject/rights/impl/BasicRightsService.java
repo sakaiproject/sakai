@@ -26,13 +26,10 @@ import java.util.Map;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.rights.impl.BaseRightsService;
-import org.sakaiproject.rights.impl.BaseRightsService.BasicRightsAssignment;
-import org.sakaiproject.rights.impl.BaseRightsService.Storage;
 import org.sakaiproject.rights.api.Copyright;
 import org.sakaiproject.rights.api.CreativeCommonsLicense;
 import org.sakaiproject.rights.api.RightsAssignment;
 import org.sakaiproject.rights.api.RightsPolicy;
-import org.sakaiproject.rights.api.RightsService;
 
 public class BasicRightsService extends BaseRightsService 
 {
@@ -40,17 +37,17 @@ public class BasicRightsService extends BaseRightsService
 	 * Storage implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	protected class BasicStorage implements Storage
+	protected static class BasicStorage implements Storage
 	{
-		protected Map m_copyrights;
-		protected Map m_licenses;
-		protected Map m_rightsAssignments;
+		protected Map<String, Copyright> m_copyrights;
+		protected Map<String, CreativeCommonsLicense> m_licenses;
+		protected Map<String, RightsAssignment> m_rightsAssignments;
 		
 		public BasicStorage()
 		{
-			m_copyrights = new Hashtable();
-			m_licenses = new Hashtable();
-			m_rightsAssignments = new Hashtable();
+			m_copyrights = new Hashtable<String, Copyright>();
+			m_licenses = new Hashtable<String, CreativeCommonsLicense>();
+			m_rightsAssignments = new Hashtable<String, RightsAssignment>();
 		}
 
 		public void close() 
@@ -76,7 +73,7 @@ public class BasicRightsService extends BaseRightsService
 
 		public Copyright getCopyright(String copyrightId) throws IdUnusedException
 		{
-			Copyright copyright = (Copyright) m_copyrights.get(copyrightId);
+			Copyright copyright = m_copyrights.get(copyrightId);
 			if(copyright == null)
 			{
 				throw new IdUnusedException(copyrightId);
@@ -86,7 +83,7 @@ public class BasicRightsService extends BaseRightsService
 
 		public CreativeCommonsLicense getLicense(String licenseId) throws IdUnusedException
 		{
-			CreativeCommonsLicense license = (CreativeCommonsLicense) m_licenses.get(licenseId);
+			CreativeCommonsLicense license = m_licenses.get(licenseId);
 			if(license == null)
 			{
 				throw new IdUnusedException(licenseId);
@@ -96,7 +93,7 @@ public class BasicRightsService extends BaseRightsService
 
 		public RightsAssignment getRightsAssignment(String entityRef) throws IdUnusedException
 		{
-			RightsAssignment rights = (RightsAssignment) m_rightsAssignments.get(entityRef);
+			RightsAssignment rights = m_rightsAssignments.get(entityRef);
 			if(rights == null)
 			{
 				throw new IdUnusedException(entityRef);

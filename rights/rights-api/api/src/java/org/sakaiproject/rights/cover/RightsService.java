@@ -25,7 +25,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 
 public class RightsService implements org.sakaiproject.rights.api.RightsService 
 {
-	protected static org.sakaiproject.rights.api.RightsService m_instance = null;
+	static org.sakaiproject.rights.api.RightsService m_instance = null;
 	
 	/**
 	 * Access the component instance: special cover only method.
