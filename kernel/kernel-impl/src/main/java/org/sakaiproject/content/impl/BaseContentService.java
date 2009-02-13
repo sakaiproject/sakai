@@ -6500,7 +6500,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public Entity getEntity(Reference ref)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		Entity rv = null;
 
@@ -6570,7 +6570,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public String getEntityUrl(Reference ref)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		return getUrl(convertIdToUserEid(ref.getId()));
 	}
@@ -6581,7 +6581,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 		
 		// form a key for thread-local caching
 		String threadLocalKey = "getEntityAuthzGroups@" + userId + "@" + ref.getReference();
@@ -7457,7 +7457,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public String getEntityDescription(Reference ref)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		String rv = "Content: " + ref.getId();
 
@@ -7497,7 +7497,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public ResourceProperties getEntityResourceProperties(Reference ref)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		ResourceProperties props = null;
 

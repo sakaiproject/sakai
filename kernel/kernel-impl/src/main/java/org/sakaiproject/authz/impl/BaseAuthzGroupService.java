@@ -1084,7 +1084,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		Collection rv = new Vector();
 
