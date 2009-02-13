@@ -18,6 +18,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
@@ -123,41 +124,45 @@ public class AddFriend extends Panel {
 					//post event
 					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_REQUEST, userY, true);
 					
-					//get some info
-			        final String currentUserName = sakaiProxy.getUserDisplayName(userX);
-			        final String serviceName = sakaiProxy.getServiceName();
-			        final String portalUrl = sakaiProxy.getPortalUrl();
-
-					//url needs to go to userY's (ie other user) myworkspace and wicket takes them to their MyFriends page
-			        final String url = sakaiProxy.getDirectUrlToUserProfile(userY, urlFor(MyFriends.class, null).toString());
-
-			        //tinyUrl
-			        final String tinyUrl = profile.generateTinyUrl(url);
-			        
-					//subject
-					final String subject = new StringResourceModel("email.friend.request.subject", null, new Object[]{ currentUserName, serviceName } ).getObject().toString();
-					
-					//email newline
-					final String newline = ProfileUtilityManager.EMAIL_NEWLINE;
-					
-					//message
-					StringBuilder message = new StringBuilder();
-					message.append(new StringResourceModel("email.friend.request.message", null, new Object[]{ currentUserName, serviceName }).getObject().toString());
-					message.append(newline);
-					message.append(newline);
-					message.append(new StringResourceModel("email.friend.request.link", null, new Object[]{ currentUserName }).getObject().toString());
-					message.append(newline);
-					message.append(new StringResourceModel("email.friend.request.link.href", null, new Object[]{ tinyUrl }).getObject().toString());
-					message.append(newline);
-					message.append(newline);
-					message.append(new StringResourceModel("email.footer.1", this, null).getString());
-					message.append(newline);
-					message.append(new StringResourceModel("email.footer.2", null, new Object[]{ serviceName, portalUrl } ).getObject().toString());
-					message.append(newline);
-					message.append(new StringResourceModel("email.footer.3", this, null).getString());
-
-					//send email (this method will format it properly, then send it)
-					sakaiProxy.sendEmail(userY, subject, message.toString());
+					//if email is enabled for this message type, send email
+					if(profile.isEmailEnabledForThisMessageType(userY, ProfilePreferencesManager.EMAIL_NOTIFICATION_REQUEST)) {
+						
+						//get some info
+				        final String currentUserName = sakaiProxy.getUserDisplayName(userX);
+				        final String serviceName = sakaiProxy.getServiceName();
+				        final String portalUrl = sakaiProxy.getPortalUrl();
+	
+						//url needs to go to userY's (ie other user) myworkspace and wicket takes them to their MyFriends page
+				        final String url = sakaiProxy.getDirectUrlToUserProfile(userY, urlFor(MyFriends.class, null).toString());
+	
+				        //tinyUrl
+				        final String tinyUrl = profile.generateTinyUrl(url);
+				        
+						//subject
+						final String subject = new StringResourceModel("email.friend.request.subject", null, new Object[]{ currentUserName, serviceName } ).getObject().toString();
+						
+						//email newline
+						final String newline = ProfileUtilityManager.EMAIL_NEWLINE;
+						
+						//message
+						StringBuilder message = new StringBuilder();
+						message.append(new StringResourceModel("email.friend.request.message", null, new Object[]{ currentUserName, serviceName }).getObject().toString());
+						message.append(newline);
+						message.append(newline);
+						message.append(new StringResourceModel("email.friend.request.link", null, new Object[]{ currentUserName }).getObject().toString());
+						message.append(newline);
+						message.append(new StringResourceModel("email.friend.request.link.href", null, new Object[]{ tinyUrl }).getObject().toString());
+						message.append(newline);
+						message.append(newline);
+						message.append(new StringResourceModel("email.footer.1", this, null).getString());
+						message.append(newline);
+						message.append(new StringResourceModel("email.footer.2", null, new Object[]{ serviceName, portalUrl } ).getObject().toString());
+						message.append(newline);
+						message.append(new StringResourceModel("email.footer.3", this, null).getString());
+	
+						//send email (this method will format it properly, then send it)
+						sakaiProxy.sendEmail(userY, subject, message.toString());
+					}
 					
 					window.close(target);
 				} else {

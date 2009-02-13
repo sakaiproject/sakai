@@ -82,7 +82,6 @@ public class MyPreferences extends BasePage {
 		form.setOutputMarkupId(true);
 		
 		//setup LinkedHashMap of email options
-
 		final LinkedHashMap<String, String> emailSettings = new LinkedHashMap<String, String>();
 		emailSettings.put("0", new StringResourceModel("email.option.all", this,null).getString());
 		emailSettings.put("1", new StringResourceModel("email.option.requestsonly", this,null).getString());

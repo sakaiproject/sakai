@@ -490,4 +490,13 @@ public interface Profile {
 	 * @return
 	 */
 	public String generateTinyUrl(final String url);
+	
+	/**
+	 * Is this type of notification to be sent as an email to the given user?
+	 * 
+	 * @param userId 	uuid of user
+	 * @param messageType type of message
+	 * @return
+	 */
+	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType);
 }

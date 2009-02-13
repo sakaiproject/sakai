@@ -1415,8 +1415,56 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	
-	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType) {
+		
+		//get preferences record for this user
+    	ProfilePreferences profilePreferences = this.getPreferencesRecordForUser(userId);
+    	
+    	//if none, return whatever the flag is set as by default
+    	if(profilePreferences == null) {
+    		return ProfilePreferencesManager.DEFAULT_EMAIL_NOTIFICATION_SETTING;
+    	}
+    	
+    	//if all, messageType not considered, true
+    	if(profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_ALL) {
+    		return true;
+    	}
+    	
+    	//if none, messageType not considered, false
+    	if(profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_NONE) {
+    		return false;
+    	}
+    	
+    	//if its a request and set to only requests, true
+    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_REQUEST && profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_REQUESTS_ONLY) {
+    		return true;
+    	}
+    	
+    	//if its a request and set to only confirms, false
+    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_REQUEST && profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_CONFIRMS_ONLY) {
+    		return false;
+    	}
+    	
+    	//if its a confirm and set to only confirms, true
+    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_CONFIRM && profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_CONFIRMS_ONLY) {
+    		return true;
+    	}
+    	
+    	//if its a confirm and set to only requests, false
+    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_CONFIRM && profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_REQUESTS_ONLY) {
+    		return false;
+    	}
+    	    	
+    	//uncaught rule, return false
+    	log.error("Profile.isEmailEnabledForThisMessageType. Uncaught rule. userId: " + userId + ", emailPref: " + profilePreferences.getEmail() + ", messageType: " + messageType);
+
+    	return false;
+		
+	}
+
 	
 	
 	
