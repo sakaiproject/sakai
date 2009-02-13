@@ -510,7 +510,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public boolean isProfileConversionEnabled() {
 		return serverConfigurationService.getBoolean("profile.convert", false);
 	}
-		
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getTwitterSource() {
+		return serverConfigurationService.getString("profile2.integration.twitter.source", "profile2");
+	}
 	
 	
 	

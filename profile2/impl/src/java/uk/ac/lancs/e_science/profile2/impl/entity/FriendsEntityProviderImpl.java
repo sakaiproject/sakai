@@ -11,6 +11,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
+import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.entity.FriendsEntityProvider;
 import uk.ac.lancs.e_science.profile2.api.entity.model.FriendsEntity;
 
@@ -83,9 +84,16 @@ public class FriendsEntityProviderImpl implements FriendsEntityProvider, CoreEnt
 	}
 	
 	
+	// GET API'S
+	
 	private DeveloperHelperService developerHelperService;
 	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
+	}
+	
+	private Profile profile;
+	public void setProfile(Profile profile) {
+		this.profile = profile;
 	}
 	
 	

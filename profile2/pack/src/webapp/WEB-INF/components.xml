@@ -19,9 +19,6 @@
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 	</bean>
 	
-	<!--  ProfileIntegrationManager bean -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager" class="uk.ac.lancs.e_science.profile2.impl.ProfileIntegrationManagerImpl" />
-       
         
 	<!--  Setup the Profile IMPL as a DAO with Hibernate and give it the other beans as well  -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileDAO"
@@ -30,7 +27,6 @@
     	init-method="init">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
-		<property name="integrationManager" ref="uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager" />
 		<property name="tinyUrlService"><ref bean="org.sakaiproject.tinyurl.api.TinyUrlService"/></property>
 	</bean>
 	
@@ -57,7 +53,9 @@
     <!-- EntityBroker beans -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl"></bean>
 	
-	<bean id="uk.ac.lancs.e_science.profile2.api.entity.FriendsEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.FriendsEntityProviderImpl"></bean>
+	<bean id="uk.ac.lancs.e_science.profile2.api.entity.FriendsEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.FriendsEntityProviderImpl">
+		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+	</bean>
 	
 
 	<!-- Add our HBM files to the Sakai global session factory -->

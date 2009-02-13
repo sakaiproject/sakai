@@ -1382,7 +1382,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				Twitter twitter = new Twitter(username, password);
 				
 				try {
-					twitter.setSource(integrationManager.getTwitterSource());
+					twitter.setSource(sakaiProxy.getTwitterSource());
 					twitter.update(message);
 					log.info("Twitter status updated for: " + userId);
 				}
@@ -1407,6 +1407,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 	}
 	
+		
 	/**
  	 * {@inheritDoc}
  	 */

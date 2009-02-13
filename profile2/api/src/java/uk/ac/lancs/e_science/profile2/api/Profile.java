@@ -10,9 +10,9 @@ import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 
 /**
- * This is the internal API to be used by the Profile2 tool. 
+ * This is the internal API to be used by the Profile2 tool and entities only. 
  * 
- * DO NOT IMPLEMENT THIS YOURSELF, use the ProfileManager instead (todo)
+ * DO NOT IMPLEMENT THIS YOURSELF, use the ProfileService instead (todo)
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *

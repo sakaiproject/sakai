@@ -195,5 +195,15 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isProfileConversionEnabled();
+	
+	
+	/**
+	 * 
+	 * Get the profile2.integration.twitter.source parameter
+	 *
+	 * See here:
+	 * http://bugs.sakaiproject.org/confluence/display/PROFILE/Profile2
+	 */
+	public String getTwitterSource();
 
 }
