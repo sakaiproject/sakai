@@ -1646,7 +1646,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public String getEntityDescription(Reference ref)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		String rv = "User: " + ref.getReference();
 
@@ -1687,7 +1687,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		Collection rv = new Vector();
 
