@@ -1038,9 +1038,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   {
   	try
   	{
-      String tempString = contentHostingService.getResource(id).getUrl(true);
-      String newString = org.sakaiproject.util.Web.escapeUrl(tempString);  		
-  		return newString; 
+      String tempString = contentHostingService.getResource(id).getUrl(false);
+      //url escaping the sting can break it
+      //String newString = org.sakaiproject.util.Web.escapeUrl(tempString);  		
+  		return tempString; 
   	}
   	catch(Exception e)
   	{
