@@ -18,7 +18,7 @@ public class EmailTemplateLocator implements WriteableBeanLocator {
    private static Log log = LogFactory.getLog(EmailTemplateLocator.class);
 
    public static final String NEW_PREFIX = "new ";
-   public static String NEW_1 = NEW_PREFIX + "1";
+   public static final String NEW_1 = NEW_PREFIX + "1";
    private Map delivered = new HashMap();
 
    private EmailTemplateService emailTemplateService;

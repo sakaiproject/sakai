@@ -19,7 +19,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 public class MainViewProducer implements ViewComponentProducer, DefaultView {
 
-	public static String VIEW_ID = "main";
+	public static final String VIEW_ID = "main";
 	
 	public String getViewID() {
 		// TODO Auto-generated method stub
