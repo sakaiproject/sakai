@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Stack;
+import java.util.ArrayList;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -74,6 +75,9 @@ public class Poll implements Entity  {
         cal.add(Calendar.DAY_OF_MONTH, 7);
         this.voteClose = cal.getTime();
         this.displayResult = "open";
+
+		this.options = new ArrayList();
+		this.votes = new ArrayList();
     }
 
     /**

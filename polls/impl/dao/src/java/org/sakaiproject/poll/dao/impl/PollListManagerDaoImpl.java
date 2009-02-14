@@ -42,6 +42,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -60,7 +61,9 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollListManager {
+
+
+public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollListManager,EntityTransferrer {
 
     // use commons logger
     private static Log log = LogFactory.getLog(PollListManagerDaoImpl.class);
@@ -512,6 +515,76 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
         // TODO Auto-generated method stub
         return null;
     }
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public String[] myToolIds()
+		{
+			String[] toolIds = { "sakai.poll"};
+			return toolIds;
+		}
+
+
+		public void transferCopyEntities(String fromContext, String toContext, List resourceIds, boolean condition){
+			transferCopyEntities(fromContext, toContext, resourceIds);
+		}
+
+		public void transferCopyEntities(String fromContext, String toContext, List resourceIds){
+			try{
+				Iterator fromPolls = findAllPolls(fromContext).iterator();
+				while (fromPolls.hasNext()){
+					Poll fromPoll = (Poll) fromPolls.next();
+					Poll fromPollV = getPollWithVotes(fromPoll.getPollId());
+					Poll toPoll = (Poll) new Poll();
+					toPoll.setOwner(fromPollV.getOwner());
+					toPoll.setSiteId(toContext);
+			        toPoll.setCreationDate(fromPollV.getCreationDate());
+			        toPoll.setText(fromPollV.getText());
+			        toPoll.setMinOptions(fromPollV.getMinOptions());
+			        toPoll.setMaxOptions(fromPollV.getMaxOptions());
+			        toPoll.setVoteOpen(fromPollV.getVoteOpen());		       
+			        toPoll.setVoteClose(fromPollV.getVoteClose());		       
+			        toPoll.setDisplayResult(fromPollV.getDisplayResult());
+			        toPoll.setLimitVoting(fromPollV.getLimitVoting());
+			        toPoll.setDetails(fromPollV.getDetails());
+			        
+			        //Guardamos toPoll para que se puedan ir añandiéndole las opciones y los votos
+			        savePoll(toPoll);
+			        
+			        //Añadimos las opciones
+			        List options = getOptionsForPoll(fromPoll);
+			        if (options!=null){
+				        Iterator fromOptions = options.iterator();
+				        while (fromOptions.hasNext()){
+				        	Option fromOption = (Option) fromOptions.next();
+				        	Option toOption = (Option) new Option();
+				        	toOption.setOptionText(fromOption.getOptionText());
+				        	toOption.setStatus(fromOption.getStatus());
+				        	toOption.setPollId(toPoll.getPollId());
+				        	saveOption(toOption);
+				        	
+				        	toPoll.addOption(toOption);
+				        }
+			        }
+
+			        //Añadimos los votos
+			        List votes = fromPollV.getVotes();
+			        if (votes!=null){
+			        	Iterator fromVotes = votes.iterator();
+			        	while (fromVotes.hasNext()){
+			        		toPoll.addVote((Vote)fromVotes.next());
+			        	}
+			        }
+	
+			        //Actualizamos toPoll
+			        savePoll(toPoll);
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+
 
     protected String[] split(String source, String splitter) {
         // hold the results as we find them
