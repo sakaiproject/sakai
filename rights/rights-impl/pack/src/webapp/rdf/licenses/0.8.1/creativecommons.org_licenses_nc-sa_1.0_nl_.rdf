@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:cc='http://creativecommons.org/ns#'
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcq='http://purl.org/dc/terms/'
+>
+  <cc:License rdf:about="http://creativecommons.org/licenses/nc-sa/1.0/nl/">
+    <cc:legalcode rdf:resource="http://creativecommons.org/licenses/nc-sa/1.0/nl/legalcode"/>
+    <cc:deprecatedOn rdf:datatype="http://www.w3.org/2001/XMLSchema-datatypes#date">2004-05-25</cc:deprecatedOn>
+    <cc:jurisdiction rdf:resource="http://creativecommons.org/international/nl/"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#ShareAlike"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:prohibits rdf:resource="http://creativecommons.org/ns#CommercialUse"/>
+    <dc:creator rdf:resource="http://creativecommons.org"/>
+    <dc:source rdf:resource="http://creativecommons.org/licenses/nc-sa/1.0/"/>
+    <dc:title xml:lang="af">NieKommersieel-InsgelyksDeel</dc:title>
+    <dc:title xml:lang="hu">Ne add el! - Így add tovább!</dc:title>
+    <dc:title xml:lang="gl">NonComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="ca">NoComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="hr">Nekomercijalno-Dijeli pod istim uvjetima</dc:title>
+    <dc:title xml:lang="nso">E sego ya Kgwebo-Mohlakanelwa</dc:title>
+    <dc:title xml:lang="it-ch">NonCommerciale-StessaLicenza</dc:title>
+    <dc:title xml:lang="fr">Pas d'Utilisation Commerciale - Partage des Conditions Initiales à l'Identique</dc:title>
+    <dc:title xml:lang="sv">IckeKommersiell-DelaLika</dc:title>
+    <dc:title xml:lang="de-at">NichtKommerziell-Weitergabe unter gleichen Bedingungen</dc:title>
+    <dc:title xml:lang="de">NichtKommerziell-Weitergabe unter gleichen Bedingungen</dc:title>
+    <dc:title xml:lang="st">NonCommercial-ShareAlike</dc:title>
+    <dc:title xml:lang="fr-lu">Pas d'Utilisation Commerciale - Partage des Conditions Initiales à l'Identique</dc:title>
+    <dc:title xml:lang="es-cl">NoComercial-LicenciarIgual</dc:title>
+    <dc:title xml:lang="eu">EzKomertziala-PartekatuBerdin</dc:title>
+    <dc:title xml:lang="sl">Nekomercialno-Deljenje pod enakimi pogoji</dc:title>
+    <dc:title xml:lang="pl">Użycie niekomercyjne-Na tych samych warunkach</dc:title>
+    <dc:title xml:lang="ms">BukanKomersial-PerkongsianSerupa</dc:title>
+    <dc:title xml:lang="mk">Некомерцијално-СподелиПодИстиУслови</dc:title>
+    <dc:title xml:lang="nl">NietCommercieel-GelijkDelen</dc:title>
+    <dc:title xml:lang="es-mx">No Comercial-Licenciamiento Recíproco</dc:title>
+    <dc:title xml:lang="en">NonCommercial-ShareAlike</dc:title>
+    <dc:title xml:lang="da">IkkeKommerciel–DelPåSammeVilkår</dc:title>
+    <dc:title xml:lang="fr-ch">Pas d'Utilisation Commerciale - Partage des Conditions Initiales à l'Identique</dc:title>
+    <dc:title xml:lang="fr-ca">Pas d'Utilisation Commerciale - Partage des Conditions Initiales à l'Identique</dc:title>
+    <dc:title xml:lang="bg">Некомерсиално-Споделяне на споделеното</dc:title>
+    <dc:title xml:lang="es-co">NoComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="en-ca">NonCommercial-ShareAlike</dc:title>
+    <dc:title xml:lang="en-us">NonCommercial-ShareAlike</dc:title>
+    <dc:title xml:lang="de-ch">NichtKommerziell-Weitergabe unter gleichen Bedingungen</dc:title>
+    <dc:title xml:lang="ja">非営利 - 継承</dc:title>
+    <dc:title xml:lang="es">NoComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="pt-pt">Uso Não-Comercial-Partilha nos termos da mesma licença</dc:title>
+    <dc:title xml:lang="it">NonCommerciale-StessaLicenza</dc:title>
+    <dc:title xml:lang="es-pe">NoComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="es-ar">NoComercial-CompartirDerivadasIgual</dc:title>
+    <dc:title xml:lang="eo">Nekomerca-distribui samrajte</dc:title>
+    <dc:title xml:lang="he">שימוש לא מסחרי-שיתוף זהה</dc:title>
+    <dc:title xml:lang="fi">Epäkaupallinen-Tarttuva</dc:title>
+    <dc:title xml:lang="ko">비영리-동일조건변경허락</dc:title>
+    <dc:title xml:lang="zh">非商业性使用-相同方式共享</dc:title>
+    <dc:title xml:lang="zu">Ungayisebenziseli Ezentengiselwano-Zihlanganyeleni</dc:title>
+    <dc:title xml:lang="zh-tw">非商業性-相同方式分享</dc:title>
+    <dc:title xml:lang="pt">Uso Não-Comercial-Compartilhamento pela mesma licença</dc:title>
+    <dc:title xml:lang="en-gb">NonCommercial-ShareAlike</dc:title>
+    <dcq:hasVersion>1.0</dcq:hasVersion>
+  </cc:License>
+</rdf:RDF>

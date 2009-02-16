@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:cc='http://creativecommons.org/ns#'
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcq='http://purl.org/dc/terms/'
+>
+  <cc:License rdf:about="http://creativecommons.org/licenses/devnations/2.0/">
+    <cc:deprecatedOn rdf:datatype="http://www.w3.org/2001/XMLSchema-datatypes#date">2007-06-04</cc:deprecatedOn>
+    <dc:creator rdf:resource="http://creativecommons.org"/>
+    <cc:legalcode rdf:resource="http://creativecommons.org/licenses/devnations/2.0/legalcode"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:prohibits rdf:resource="http://creativecommons.org/ns#HighIncomeNationUse"/>
+    <dc:title xml:lang="pt-pt">Nações em Desenvolvimento</dc:title>
+    <dc:title xml:lang="ja">発展途上国</dc:title>
+    <dc:title xml:lang="ko">Developing Nations</dc:title>
+    <dc:title xml:lang="zu">Izizwe Ezisathuthuka</dc:title>
+    <dc:title xml:lang="pl">Państwa rozwijające się</dc:title>
+    <dc:title xml:lang="es-co">Naciones en desarrollo</dc:title>
+    <dc:title xml:lang="fr-ca">Pays en Voie de Développement</dc:title>
+    <dc:title xml:lang="es-pe">Naciones en desarrollo</dc:title>
+    <dc:title xml:lang="sv">Utvecklingsländer</dc:title>
+    <dc:title xml:lang="fi">Kehitysmaa</dc:title>
+    <dc:title xml:lang="zh-tw">開發中國家</dc:title>
+    <dc:title xml:lang="hr">Zemlje u razvoju</dc:title>
+    <dc:title xml:lang="fr-lu">Pays en Voie de Développement</dc:title>
+    <dc:title xml:lang="en">Developing Nations</dc:title>
+    <dc:title xml:lang="af">Ontwikkelende Nasies</dc:title>
+    <dc:title xml:lang="fr">Pays en Voie de Développement</dc:title>
+    <dc:title xml:lang="pt">Nações em Desenvolvimento</dc:title>
+    <dc:title xml:lang="de-ch">Entwicklungsländer</dc:title>
+    <dc:title xml:lang="en-gb">Developing Nations</dc:title>
+    <dc:title xml:lang="ca">Nacions en desenvolupament</dc:title>
+    <dc:title xml:lang="zh">发展中国家</dc:title>
+    <dc:title xml:lang="it">Developing Nations</dc:title>
+    <dc:title xml:lang="bg">Развиващи се нации</dc:title>
+    <dc:title xml:lang="sl">Narodi v razvoju</dc:title>
+    <dc:title xml:lang="gl">Developing Nations</dc:title>
+    <dc:title xml:lang="de">Entwicklungsländer</dc:title>
+    <dc:title xml:lang="mk">Земји во развој</dc:title>
+    <dc:title xml:lang="es">Naciones en desarrollo</dc:title>
+    <dc:title xml:lang="he">מדינות מתפתחות</dc:title>
+    <dc:title xml:lang="eo">Ne riĉaj landoj</dc:title>
+    <dc:title xml:lang="es-ar">Naciones en Desarrollo</dc:title>
+    <dc:title xml:lang="it-ch">Developing Nations</dc:title>
+    <dc:title xml:lang="fr-ch">Pays en Voie de Développement</dc:title>
+    <dc:title xml:lang="en-ca">Developing Nations</dc:title>
+    <dc:title xml:lang="ms">Negara-Negara Membangun</dc:title>
+    <dc:title xml:lang="de-at">Entwicklungsländer</dc:title>
+    <dc:title xml:lang="hu">Fejlődő országok</dc:title>
+    <dc:title xml:lang="nso">Dinaga tše Hlabologago</dc:title>
+    <dc:title xml:lang="da">Udviklingslande</dc:title>
+    <dc:title xml:lang="es-cl">Países en Desarrollo</dc:title>
+    <dc:title xml:lang="eu">Garapen bidean diren herrialdeak</dc:title>
+    <dc:title xml:lang="en-us">Developing Nations</dc:title>
+    <dc:title xml:lang="st">Developing Nations</dc:title>
+    <dc:title xml:lang="nl">Developing Nations</dc:title>
+    <dc:title xml:lang="es-mx">Naciones en desarrollo</dc:title>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <dcq:hasVersion>2.0</dcq:hasVersion>
+  </cc:License>
+</rdf:RDF>

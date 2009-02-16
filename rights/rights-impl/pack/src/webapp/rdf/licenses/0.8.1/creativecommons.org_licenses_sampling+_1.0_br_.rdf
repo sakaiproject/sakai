@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:cc='http://creativecommons.org/ns#'
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcq='http://purl.org/dc/terms/'
+>
+  <cc:License rdf:about="http://creativecommons.org/licenses/sampling+/1.0/br/">
+    <dcq:hasVersion>1.0</dcq:hasVersion>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <dc:source rdf:resource="http://creativecommons.org/licenses/sampling+/1.0/"/>
+    <dc:title xml:lang="fi">Sämpläys plus</dc:title>
+    <dc:title xml:lang="it"><![CDATA[<span lang="en">Sampling Plus</span>]]></dc:title>
+    <dc:title xml:lang="es-cl">Sampling Plus</dc:title>
+    <dc:title xml:lang="es-pe">Sampling Plus</dc:title>
+    <dc:title xml:lang="de-at">Sampling Plus</dc:title>
+    <dc:title xml:lang="fr">Sampling Plus</dc:title>
+    <dc:title xml:lang="it-ch"><![CDATA[<span lang="en">Sampling Plus</span>]]></dc:title>
+    <dc:title xml:lang="st">Sampling Plus</dc:title>
+    <dc:title xml:lang="de-ch">Sampling Plus</dc:title>
+    <dc:title xml:lang="sl">Sampling Plus</dc:title>
+    <dc:title xml:lang="eo">Specimeno Plus</dc:title>
+    <dc:title xml:lang="en-us">Sampling Plus</dc:title>
+    <dc:title xml:lang="ms">Mengambil contoh tambah</dc:title>
+    <dc:title xml:lang="gl">Sampling Plus</dc:title>
+    <dc:title xml:lang="en">Sampling Plus</dc:title>
+    <dc:title xml:lang="he">דגימה פלוס</dc:title>
+    <dc:title xml:lang="nso">Sampole ya Tlaleletšo</dc:title>
+    <dc:title xml:lang="ko">Sampling Plus</dc:title>
+    <dc:title xml:lang="es-co">Sampling Plus</dc:title>
+    <dc:title xml:lang="nl">Sampling Plus</dc:title>
+    <dc:title xml:lang="hr">Sempliranje plus</dc:title>
+    <dc:title xml:lang="fr-ch">Sampling Plus</dc:title>
+    <dc:title xml:lang="de">Sampling Plus</dc:title>
+    <dc:title xml:lang="pl">Sampling Plus</dc:title>
+    <dc:title xml:lang="en-gb">Sampling Plus</dc:title>
+    <dc:title xml:lang="hu">Sampling Plus</dc:title>
+    <dc:title xml:lang="es">Sampling Plus</dc:title>
+    <dc:title xml:lang="zh-tw">特別取樣</dc:title>
+    <dc:title xml:lang="ca">Sampling Plus</dc:title>
+    <dc:title xml:lang="mk">Семплирање плус</dc:title>
+    <dc:title xml:lang="eu">Sampling Plus</dc:title>
+    <dc:title xml:lang="pt">Recombinação Plus</dc:title>
+    <dc:title xml:lang="es-mx">Sampling Plus</dc:title>
+    <dc:title xml:lang="fr-lu">Sampling Plus</dc:title>
+    <dc:title xml:lang="en-ca">Sampling Plus</dc:title>
+    <dc:title xml:lang="af">Voorsmaak Plus</dc:title>
+    <dc:title xml:lang="zu">Ukuthatha Isampula Nokunye</dc:title>
+    <dc:title xml:lang="fr-ca">Sampling Plus</dc:title>
+    <dc:title xml:lang="pt-pt">Sampling Plus</dc:title>
+    <dc:title xml:lang="bg">Семплиране плюс</dc:title>
+    <dc:title xml:lang="ja">サンプリング・プラス</dc:title>
+    <dc:title xml:lang="da">Sampling Plus</dc:title>
+    <dc:title xml:lang="zh">取样使用加强版</dc:title>
+    <dc:title xml:lang="sv">Sampling Plus</dc:title>
+    <dc:title xml:lang="es-ar">Sampling Plus</dc:title>
+    <cc:legalcode rdf:resource="http://creativecommons.org/licenses/sampling+/1.0/br/legalcode"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Sharing"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <dc:creator rdf:resource="http://creativecommons.org"/>
+    <cc:jurisdiction rdf:resource="http://creativecommons.org/international/br/"/>
+  </cc:License>
+</rdf:RDF>

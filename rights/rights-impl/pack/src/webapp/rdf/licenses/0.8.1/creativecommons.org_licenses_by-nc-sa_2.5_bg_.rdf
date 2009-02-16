@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:cc='http://creativecommons.org/ns#'
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcq='http://purl.org/dc/terms/'
+>
+  <cc:License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/bg/">
+    <dc:creator rdf:resource="http://creativecommons.org"/>
+    <dc:source rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.5/"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#ShareAlike"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <dcq:hasVersion>2.5</dcq:hasVersion>
+    <cc:legalcode rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.5/bg/legalcode"/>
+    <cc:prohibits rdf:resource="http://creativecommons.org/ns#CommercialUse"/>
+    <cc:jurisdiction rdf:resource="http://creativecommons.org/international/bg/"/>
+    <dc:title xml:lang="es-mx">Atribución-No Comercial-Licenciamiento Recíproco</dc:title>
+    <dc:title xml:lang="en">Attribution-NonCommercial-ShareAlike</dc:title>
+    <dc:title xml:lang="nl">Naamsvermelding-NietCommercieel-GelijkDelen</dc:title>
+    <dc:title xml:lang="es-cl">Atribución-NoComercial-LicenciarIgual</dc:title>
+    <dc:title xml:lang="eu">Aitortu-EzKomertziala-PartekatuBerdin</dc:title>
+    <dc:title xml:lang="es">Reconocimiento-NoComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="nso">Tsebagatšo - E sego ya Kgwebo - Mohlakanelwa</dc:title>
+    <dc:title xml:lang="fr-ch">Paternité - Pas d'Utilisation Commerciale - Partage des Conditions Initiales à l'Identique</dc:title>
+    <dc:title xml:lang="fi">Nimeä-Epäkaupallinen-Tarttuva</dc:title>
+    <dc:title xml:lang="sv">Erkännande-IckeKommersiell-DelaLika</dc:title>
+    <dc:title xml:lang="en-gb">Attribution-NonCommercial-ShareAlike</dc:title>
+    <dc:title xml:lang="fr-lu">Paternité - Pas d'Utilisation Commerciale - Partage des Conditions Initiales à l'Identique</dc:title>
+    <dc:title xml:lang="de">Namensnennung-NichtKommerziell-Weitergabe unter gleichen Bedingungen</dc:title>
+    <dc:title xml:lang="mk">НаведиИзвор-Некомерцијално-СподелиПодИстиУслови</dc:title>
+    <dc:title xml:lang="fr-ca">Paternité - Pas d'Utilisation Commerciale - Partage des Conditions Initiales à l'Identique</dc:title>
+    <dc:title xml:lang="eo">Atribuo-nekomerca-distribui samrajte</dc:title>
+    <dc:title xml:lang="de-ch">Namensnennung-NichtKommerziell-Weitergabe unter gleichen Bedingungen</dc:title>
+    <dc:title xml:lang="sl">Priznanje avtorstva-Nekomercialno-Deljenje pod enakimi pogoji</dc:title>
+    <dc:title xml:lang="ca">Reconeixement-NoComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="zh">署名-非商业性使用-相同方式共享</dc:title>
+    <dc:title xml:lang="it">Attribuzione - Non commerciale - Condividi allo stesso modo</dc:title>
+    <dc:title xml:lang="zh-tw">姓名標示-非商業性-相同方式分享</dc:title>
+    <dc:title xml:lang="ja">表示 - 非営利 - 継承</dc:title>
+    <dc:title xml:lang="zu">Qaphela Umnikazi-Ungayisebenziseli Ezentengiselwano-Yihlanganyeleni</dc:title>
+    <dc:title xml:lang="af">Erkenning-Niekommersieel-InsgelyksDeel</dc:title>
+    <dc:title xml:lang="it-ch">Attribuzione - Non commerciale - Condividi allo stesso modo</dc:title>
+    <dc:title xml:lang="pt-pt">Atribuição-Uso Não-Comercial-Partilha nos termos da mesma licença</dc:title>
+    <dc:title xml:lang="ko">저작자표시-비영리-동일조건변경허락</dc:title>
+    <dc:title xml:lang="es-ar">Atribución-NoComercial-CompartirDerivadasIgual</dc:title>
+    <dc:title xml:lang="he">ייחוס-שימוש לא מסחרי-שיתוף זהה</dc:title>
+    <dc:title xml:lang="pt">Atribuição-Uso Não-Comercial-Compatilhamento pela mesma licença</dc:title>
+    <dc:title xml:lang="en-us">Attribution-NonCommercial-ShareAlike</dc:title>
+    <dc:title xml:lang="hr">Imenovanje-Nekomercijalno-Dijeli pod istim uvjetima</dc:title>
+    <dc:title xml:lang="da">Navngivelse-IkkeKommerciel–DelPåSammeVilkår</dc:title>
+    <dc:title xml:lang="ms">Pengiktirafan-BukanKomersial-PerkongsianSerupa</dc:title>
+    <dc:title xml:lang="pl">Uznanie autorstwa-Użycie niekomercyjne-Na tych samych warunkach</dc:title>
+    <dc:title xml:lang="hu">Nevezd meg! - Ne add el! - Így add tovább!</dc:title>
+    <dc:title xml:lang="st">Attribution-NonCommercial-ShareAlike</dc:title>
+    <dc:title xml:lang="fr">Paternité - Pas d'Utilisation Commerciale - Partage des Conditions Initiales à l'Identique</dc:title>
+    <dc:title xml:lang="gl">Recoñecemento-NonComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="es-pe">Reconocimiento-NoComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="es-co">Reconocimiento-NoComercial-CompartirIgual</dc:title>
+    <dc:title xml:lang="de-at">Namensnennung-NichtKommerziell-Weitergabe unter gleichen Bedingungen</dc:title>
+    <dc:title xml:lang="en-ca">Attribution-NonCommercial-ShareAlike</dc:title>
+    <dc:title xml:lang="bg">Признание-Некомерсиално-Споделяне на споделеното</dc:title>
+  </cc:License>
+</rdf:RDF>

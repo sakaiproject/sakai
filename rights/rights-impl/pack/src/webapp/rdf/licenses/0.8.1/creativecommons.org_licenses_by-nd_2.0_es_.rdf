@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:cc='http://creativecommons.org/ns#'
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcq='http://purl.org/dc/terms/'
+>
+  <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.0/es/">
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <dc:source rdf:resource="http://creativecommons.org/licenses/by-nd/2.0/"/>
+    <dcq:hasVersion>2.0</dcq:hasVersion>
+    <dc:creator rdf:resource="http://creativecommons.org"/>
+    <cc:jurisdiction rdf:resource="http://creativecommons.org/international/es/"/>
+    <cc:legalcode rdf:resource="http://creativecommons.org/licenses/by-nd/2.0/es/legalcode"/>
+    <dc:title xml:lang="fi">Nimeä-Ei muutoksia</dc:title>
+    <dc:title xml:lang="fr">Paternité - Pas de Modification</dc:title>
+    <dc:title xml:lang="ja">表示 - 改変禁止</dc:title>
+    <dc:title xml:lang="ca">Reconeixement-SenseObraDerivada</dc:title>
+    <dc:title xml:lang="de-at">Namensnennung-KeineBearbeitung</dc:title>
+    <dc:title xml:lang="pt">Atribuição-Não a obras Derivadas</dc:title>
+    <dc:title xml:lang="es">Reconocimiento-SinObraDerivada</dc:title>
+    <dc:title xml:lang="zh-tw">姓名標示-禁止改作</dc:title>
+    <dc:title xml:lang="bg">Признание-Без производни</dc:title>
+    <dc:title xml:lang="hr">Imenovanje-Bez prerada</dc:title>
+    <dc:title xml:lang="mk">НаведиИзвор-БезИзведениДела</dc:title>
+    <dc:title xml:lang="it">Attribuzione - Non opere derivate</dc:title>
+    <dc:title xml:lang="en-gb">Attribution-NoDerivs</dc:title>
+    <dc:title xml:lang="hu">Nevezd meg! - Ne változtasd!</dc:title>
+    <dc:title xml:lang="en-ca">Attribution-NoDerivs</dc:title>
+    <dc:title xml:lang="es-ar">Atribución-SinDerivadas</dc:title>
+    <dc:title xml:lang="he">ייחוס-איסור יצירות נגזרות</dc:title>
+    <dc:title xml:lang="pl">Uznanie autorstwa-Bez utworów zależnych</dc:title>
+    <dc:title xml:lang="es-pe">Reconocimiento-SinObraDerivada</dc:title>
+    <dc:title xml:lang="gl">Recoñecemento-SenObraDerivada</dc:title>
+    <dc:title xml:lang="da">Navngivelse-IngenBearbejdelse</dc:title>
+    <dc:title xml:lang="eo">Atribuo-neniu derivaĵo</dc:title>
+    <dc:title xml:lang="st">Attribution-NoDerivs</dc:title>
+    <dc:title xml:lang="fr-ca">Paternité - Pas de Modification</dc:title>
+    <dc:title xml:lang="af">Erkenning-GeenAfleidings</dc:title>
+    <dc:title xml:lang="sv">Erkännande-IngaBearbetningar</dc:title>
+    <dc:title xml:lang="fr-ch">Paternité - Pas de Modification</dc:title>
+    <dc:title xml:lang="zh">署名-禁止演绎</dc:title>
+    <dc:title xml:lang="ko">저작자표시-변경금지</dc:title>
+    <dc:title xml:lang="es-co">Reconocimiento-SinObraDerivada</dc:title>
+    <dc:title xml:lang="pt-pt">Atribuição-Proibição de realização de Obras Derivadas</dc:title>
+    <dc:title xml:lang="sl">Priznanje avtorstva-Brez predelav</dc:title>
+    <dc:title xml:lang="zu">Qaphela Umnikazi-Ungasuseli lutho kulokhu</dc:title>
+    <dc:title xml:lang="de-ch">Namensnennung-KeineBearbeitung</dc:title>
+    <dc:title xml:lang="en-us">Attribution-NoDerivs</dc:title>
+    <dc:title xml:lang="ms">Pengiktirafan-TiadaTerbitan</dc:title>
+    <dc:title xml:lang="es-cl">Atribución-SinDerivadas</dc:title>
+    <dc:title xml:lang="es-mx">Atribución-No Derivadas</dc:title>
+    <dc:title xml:lang="nso">Tsebagatšo - Tše sa Fetolwego</dc:title>
+    <dc:title xml:lang="de">Namensnennung-KeineBearbeitung</dc:title>
+    <dc:title xml:lang="eu">Aitortu-LanEratorririkGabe</dc:title>
+    <dc:title xml:lang="fr-lu">Paternité - Pas de Modification</dc:title>
+    <dc:title xml:lang="nl">Naamsvermelding-GeenAfgeleideWerken</dc:title>
+    <dc:title xml:lang="it-ch">Attribuzione - Non opere derivate</dc:title>
+    <dc:title xml:lang="en">Attribution-NoDerivs</dc:title>
+    <dcq:isReplacedBy rdf:resource="http://creativecommons.org/licenses/by-nd/2.1/es/"/>
+  </cc:License>
+</rdf:RDF>

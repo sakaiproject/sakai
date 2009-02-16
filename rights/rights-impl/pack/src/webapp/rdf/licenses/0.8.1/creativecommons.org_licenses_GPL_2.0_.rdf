@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:cc='http://creativecommons.org/ns#'
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcq='http://purl.org/dc/terms/'
+>
+  <cc:License rdf:about="http://creativecommons.org/licenses/GPL/2.0/">
+    <dc:creator rdf:resource="http://fsf.org"/>
+    <dc:title xml:lang="ko">GPL</dc:title>
+    <dc:title xml:lang="gl">GPL</dc:title>
+    <dc:title xml:lang="mk">ГПЛ</dc:title>
+    <dc:title xml:lang="da">GPL</dc:title>
+    <dc:title xml:lang="es">GPL</dc:title>
+    <dc:title xml:lang="es-ar">GPL</dc:title>
+    <dc:title xml:lang="fr">GPL</dc:title>
+    <dc:title xml:lang="hr">GPL</dc:title>
+    <dc:title xml:lang="af">APL</dc:title>
+    <dc:title xml:lang="de-at">GPL</dc:title>
+    <dc:title xml:lang="zu">GPL</dc:title>
+    <dc:title xml:lang="ms">GPL (Lesen Awam Am)</dc:title>
+    <dc:title xml:lang="nl">GPL</dc:title>
+    <dc:title xml:lang="zh">GPL</dc:title>
+    <dc:title xml:lang="de">GPL</dc:title>
+    <dc:title xml:lang="pt">GPL</dc:title>
+    <dc:title xml:lang="en-us">GPL</dc:title>
+    <dc:title xml:lang="en-ca">GPL</dc:title>
+    <dc:title xml:lang="fi">GPL</dc:title>
+    <dc:title xml:lang="he">GPL</dc:title>
+    <dc:title xml:lang="sl">GPL</dc:title>
+    <dc:title xml:lang="pl">GPL</dc:title>
+    <dc:title xml:lang="hu">GPL</dc:title>
+    <dc:title xml:lang="en">GPL</dc:title>
+    <dc:title xml:lang="de-ch">GPL</dc:title>
+    <dc:title xml:lang="eu">GPL</dc:title>
+    <dc:title xml:lang="eo">GPL</dc:title>
+    <dc:title xml:lang="nso">GPL</dc:title>
+    <dc:title xml:lang="en-gb">GPL</dc:title>
+    <dc:title xml:lang="st">GPL</dc:title>
+    <dc:title xml:lang="es-co">GPL</dc:title>
+    <dc:title xml:lang="es-pe">GPL</dc:title>
+    <dc:title xml:lang="it"><![CDATA[<abbr title="Gnu is not Unix">Gnu</abbr>-<abbr title="General public license">Gpl</abbr>]]></dc:title>
+    <dc:title xml:lang="fr-ch">GPL</dc:title>
+    <dc:title xml:lang="pt-pt">GPL</dc:title>
+    <dc:title xml:lang="ca">GPL</dc:title>
+    <dc:title xml:lang="fr-lu">GPL</dc:title>
+    <dc:title xml:lang="sv">GPL</dc:title>
+    <dc:title xml:lang="ja">GPL</dc:title>
+    <dc:title xml:lang="es-cl">GPL</dc:title>
+    <dc:title xml:lang="it-ch"><![CDATA[<abbr title="Gnu is not Unix">Gnu</abbr>-<abbr title="General public license">Gpl</abbr>]]></dc:title>
+    <dc:title xml:lang="es-mx">GPL</dc:title>
+    <dc:title xml:lang="bg">GPL</dc:title>
+    <dc:title xml:lang="zh-tw">通用公共授權條款 (GPL)</dc:title>
+    <dc:title xml:lang="fr-ca">GPL</dc:title>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#ShareAlike"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#SourceCode"/>
+    <dcq:hasVersion>2.0</dcq:hasVersion>
+    <cc:legalcode rdf:resource="http://creativecommons.org/licenses/GPL/2.0/legalcode"/>
+  </cc:License>
+</rdf:RDF>

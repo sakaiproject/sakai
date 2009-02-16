@@ -22,11 +22,8 @@
 package org.sakaiproject.rights.api;
 
 import java.util.Collection;
-import java.util.Stack;
-
-import org.sakaiproject.rights.util.RightsException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Creative Commons Licenses are described by their characteristics, which come in three types:
@@ -41,6 +38,29 @@ public interface CreativeCommonsLicense
 	public String getIdentifier();
 	
 	public String getUri();
+	public void setUri(String uri);
+	
+	public String getLegalcode();
+	public void setLegalcode(String url);
+	
+	public String getTitle();
+	public String getDescription();
+	
+	public String getCreator();
+	public void setCreator(String creator);
+	
+	public String getVersion();
+	public void setVersion(String version);
+	
+	public String getJurisdiction();
+	public void setJurisdiction(String jurisdiction);
+	
+	public String getSource();
+	public void setSource(String source);
+	
+	public String getReplacedBy();
+	public void setReplacedBy(String replacement);
+	public boolean isReplaced();
 	
 	/*****************************************************
 	 * Permissions
@@ -54,29 +74,18 @@ public interface CreativeCommonsLicense
 	/**
 	 * @return
 	 */
-	public Collection<Permission> getPermissions();
-	
-	/**
-	 * @param permission
-	 * @throws RightsException 
-	 */
-	public void addPermission(String permission) throws RightsException;
+	public Collection<String> getPermissions();
 	
 	/**
 	 * @param permission
 	 */
-	public void addPermission(Permission permission);
-	
-	/**
-	 * @param permission
-	 */
-	public void removePermission(String permission);
+	public void addPermission(String permission);
 	
 	/**
 	 * @param permissions
 	 */
-	public void setPermissions(Collection<Object> permissions);
-
+	public void addPermissions(Set<String> permissions);
+	
 	/*****************************************************
 	 * Prohibitions
 	 *****************************************************/
@@ -89,30 +98,20 @@ public interface CreativeCommonsLicense
 	/**
 	 * @return
 	 */
-	public Collection<Prohibition> getProhibitions();
+	public Collection<String> getProhibitions();
 	
 	/**
 	 * @param prohibition
 	 */
-	public void addProhibition(String prohibition) throws RightsException;
+	public void addProhibition(String prohibition);
 	
 	/**
 	 * @param prohibition
 	 */
-	public void addProhibition(Prohibition prohibition);
-	
-	/**
-	 * @param prohibitions
-	 */
-	public void removeProhibitions(Collection<Object> prohibitions);
-	
-	/**
-	 * @param prohibitions
-	 */
-	public void setProhibitions(Collection<Object> prohibitions);
+	public void addProhibitions(Set<String> prohibitions);
 	
 	/*****************************************************
-	 * Prohibitions
+	 * Requirements
 	 *****************************************************/
 	
 	/**
@@ -123,250 +122,34 @@ public interface CreativeCommonsLicense
 	/**
 	 * @return
 	 */
-	public Collection<Requirement> getRequirements();
-
-	/**
-	 * @param requirement
-	 */
-	public void addRequirement(String requirement) throws RightsException;
+	public Collection<String> getRequirements();
 	
 	/**
 	 * @param requirement
 	 */
-	public void addRequirement(Requirement requirement);
+	public void addRequirement(String requirement);
+
+	/**
+	 * @param requirement
+	 */
+	public void addRequirements(Set<String> requirements);
+
+	/*****************************************************
+	 * Descriptions
+	 *****************************************************/
 	
-	/**
-	 * @param requirements
-	 */
-	public void removeRequirements(Collection<Object> requirements);
+	public void addDescriptions(Map<String, String> descriptions);
+
+	public Map<String, String> getDescriptions();
+
+	/*****************************************************
+	 * Titles
+	 *****************************************************/
 	
-	/**
-	 * @param requirements
-	 */
-	public void setRequirements(Collection<Object> requirements);
-	
-	/**
-	 *	Permissions describe rights granted by the license.  Three kinds of permissions may be granted:
-	 *	
-	 *		Reproduction
-	 *		    the work may be reproduced
-	 *		Distribution
-	 *	    	the work (and, if authorized, derivative works) may be distributed, publicly displayed, and publicly performed
-	 *		DerivativeWorks
-	 *		    derivative works may be created and reproduced
-	 */
-	public class Permission
-	{
-		protected final String m_id;
+	public void addTitles(Map<String, String> titles);
 
-		/**
-		 * @param id
-		 */
-		private Permission(String id)
-		{
-			m_id = id;
-		}
+	public Map<String, String> getTitles();
 
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		public String toString()
-		{
-			return m_id;
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
-		public boolean equals(Object obj)
-		{
-			boolean rv = false;
-			
-			if(obj instanceof Permission)
-			{
-				rv = ((Permission) obj).toString().equals(this.toString());
-			}
-			
-			return rv;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#hashCode()
-		 */
-		public int hashCode() {
-			return this.toString().hashCode();
-		}
-		
-		/**
-		 * @param permitted
-		 * @return
-		 */
-		public static Permission fromString(String permitted)
-		{
-			if (REPRODUCTION.m_id.equals(permitted)) return REPRODUCTION;
-			if (DISTRIBUTION.m_id.equals(permitted)) return DISTRIBUTION;
-			if (DERIVATIVE_WORKS.m_id.equals(permitted)) return DERIVATIVE_WORKS;
-			return null;
-		}
-
-		/** the work may be reproduced */
-		public static final Permission REPRODUCTION = new Permission("Reproduction");
-		
-		/** the work (and, if authorized, derivative works) may be distributed, publicly displayed, and publicly performed */
-		public static final Permission DISTRIBUTION = new Permission("Distribution");
-		
-		/** derivative works may be created and reproduced */
-		public static final Permission DERIVATIVE_WORKS = new Permission("DerivativeWorks");
-	}
-
-	/**
-	 * Prohibitions describe things prohibited by the license:
-	 *	
-	 *		CommercialUse
-	 *	    	rights may be exercised for commercial purposes unless CommercialUse is prohibited
-	 */
-	public class Prohibition
-	{
-		protected final String m_id;
-
-		/**
-		 * @param id
-		 */
-		private Prohibition(String id)
-		{
-			m_id = id;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		public String toString()
-		{
-			return m_id;
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
-		public boolean equals(Object obj)
-		{
-			boolean rv = false;
-			
-			if(obj instanceof Prohibition)
-			{
-				rv = ((Prohibition) obj).toString().equals(this.toString());
-			}
-			
-			return rv;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#hashCode()
-		 */
-		public int hashCode() {
-			return this.toString().hashCode();
-		}
-		
-		/**
-		 * @param prohibited
-		 * @return
-		 */
-		public static Prohibition fromString(String prohibited)
-		{
-			if (COMMERCIAL_USE.m_id.equals(prohibited)) return COMMERCIAL_USE;
-			return null;
-		}
-
-		/** rights may be exercised for commercial purposes unless CommercialUse is prohibited */
-		public static final Prohibition COMMERCIAL_USE = new Prohibition("CommercialUse");
-		
-	}
-	
-	/**
-	 *	Requirements describe restrictions imposed by the license:
-	 *	
-	 *		Notice
-	 *		    copyright and license notices must be kept intact
-	 *		Attribution
-	 *		    credit must be given to copyright holder and/or author
-	 *		ShareAlike
-	 *		    derivative works must be licensed under the same terms as the original work
-	 *		SourceCode
-	 *		    source code (the preferred form for making modifications) must be provided for all derivative works 
-	 */
-	public class Requirement
-	{
-		protected final String m_id;
-
-		/**
-		 * @param id
-		 */
-		private Requirement(String id)
-		{
-			m_id = id;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		public String toString()
-		{
-			return m_id;
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
-		public boolean equals(Object obj)
-		{
-			boolean rv = false;
-			
-			if(obj instanceof Requirement)
-			{
-				rv = ((Requirement) obj).toString().equals(this.toString());
-			}
-			
-			return rv;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#hashCode()
-		 */
-		public int hashCode() {
-			return this.toString().hashCode();
-		}
-		
-		/**
-		 * @param required
-		 * @return
-		 */
-		public static Requirement fromString(String required)
-		{
-			if (NOTICE.m_id.equals(required)) return NOTICE;
-			if (ATTRIBUTION.m_id.equals(required)) return ATTRIBUTION;
-			if (SHARE_ALIKE.m_id.equals(required)) return SHARE_ALIKE;
-			if (SOURCE_CODE.m_id.equals(required)) return SOURCE_CODE;
-			return null;
-		}
-
-		/** copyright and license notices must be kept intact */
-		public static final Requirement NOTICE = new Requirement("Notice");
-		
-		/** credit must be given to copyright holder and/or author */
-		public static final Requirement ATTRIBUTION = new Requirement("Attribution");
-		
-		/** derivative works must be licensed under the same terms as the original work */
-		public static final Requirement SHARE_ALIKE = new Requirement("ShareAlike");
-		
-		/** source code (the preferred form for making modifications) must be provided for all derivative works */
-		public static final Requirement SOURCE_CODE = new Requirement("SourceCode");
-	}
-
-	/**
-	 * @param doc
-	 * @param stack
-	 * @return
-	 */
-	public Element toXml(Document doc, Stack<Object> stack);
+	public String toJSON();
 	
 }	// interface CreativeCommonsLicense

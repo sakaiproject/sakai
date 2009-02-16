@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:cc='http://creativecommons.org/ns#'
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:dc='http://purl.org/dc/elements/1.1/'
+  xmlns:dcq='http://purl.org/dc/terms/'
+>
+  <cc:License rdf:about="http://creativecommons.org/licenses/nc-sampling+/1.0/">
+    <cc:legalcode rdf:resource="http://creativecommons.org/licenses/nc-sampling+/1.0/legalcode"/>
+    <dc:title xml:lang="gl">NonComercial Sampling Plus</dc:title>
+    <dc:title xml:lang="fr-ch">NonCommercial Sampling Plus</dc:title>
+    <dc:title xml:lang="es-pe">Sampling Plus No Comercial</dc:title>
+    <dc:title xml:lang="en-gb">Non-Commercial Sampling Plus</dc:title>
+    <dc:title xml:lang="eo">Nekomerca Specimeno Plus</dc:title>
+    <dc:title xml:lang="bg">Некомерсиално Семплиране плюс</dc:title>
+    <dc:title xml:lang="ko">비영리 Sampling Plus</dc:title>
+    <dc:title xml:lang="he">שימוש לא מסחרי בדגימה פלוס</dc:title>
+    <dc:title xml:lang="en-ca">NonCommercial Sampling Plus</dc:title>
+    <dc:title xml:lang="pl">Użycie niekomercyne-Sampling Plus</dc:title>
+    <dc:title xml:lang="ms">BukanKomersial Mengambil Cuba Tambah</dc:title>
+    <dc:title xml:lang="es-co">Sampling Plus No Comercial</dc:title>
+    <dc:title xml:lang="fr-lu">NonCommercial Sampling Plus</dc:title>
+    <dc:title xml:lang="nso">Sampole ya Tlaleletšo e Sego ya Kgwebo</dc:title>
+    <dc:title xml:lang="da">IkkeKommerciel Sampling Plus</dc:title>
+    <dc:title xml:lang="es-mx">Sampling Plus No Comercial</dc:title>
+    <dc:title xml:lang="pt-pt">Uso Não-Comercial para Sampling Plus</dc:title>
+    <dc:title xml:lang="hu">Ne add el! Sampling Plus</dc:title>
+    <dc:title xml:lang="pt">Uso Não-Comercial para Recombinação Plus</dc:title>
+    <dc:title xml:lang="sl">Nekomercialno Sampling Plus</dc:title>
+    <dc:title xml:lang="en-us">NonCommercial Sampling Plus</dc:title>
+    <dc:title xml:lang="it-ch">Sampling Plus NonCommerciale</dc:title>
+    <dc:title xml:lang="ca">SamplingPlus NoComercial</dc:title>
+    <dc:title xml:lang="en">NonCommercial Sampling Plus</dc:title>
+    <dc:title xml:lang="fi">Epäkaupallinen sämpläys plus</dc:title>
+    <dc:title xml:lang="de">NichtKommerzielle Sampling Plus</dc:title>
+    <dc:title xml:lang="mk">Некомерцијално Семплирање плус</dc:title>
+    <dc:title xml:lang="zu">Ungayisebenziseli Ezentengiselwano-Ukuthatha Isampula Nokunye</dc:title>
+    <dc:title xml:lang="es-ar">Sampling Plus NoComercial</dc:title>
+    <dc:title xml:lang="sv">IckeKommersiell Sampling Plus</dc:title>
+    <dc:title xml:lang="nl">NonCommercial Sampling Plus</dc:title>
+    <dc:title xml:lang="it">Sampling Plus NonCommerciale</dc:title>
+    <dc:title xml:lang="de-at">NichtKommerzielle Sampling Plus</dc:title>
+    <dc:title xml:lang="zh-tw">非商業性特別取樣</dc:title>
+    <dc:title xml:lang="fr">NonCommercial Sampling Plus</dc:title>
+    <dc:title xml:lang="es-cl">Sampling Plus No Comercial</dc:title>
+    <dc:title xml:lang="ja">非営利サンプリング・プラス</dc:title>
+    <dc:title xml:lang="hr">Nekompercijalno sempliranje plus</dc:title>
+    <dc:title xml:lang="de-ch">NichtKommerzielle Sampling Plus</dc:title>
+    <dc:title xml:lang="es">Sampling Plus No Comercial</dc:title>
+    <dc:title xml:lang="eu">Sampling Plus Ez Komertziala</dc:title>
+    <dc:title xml:lang="fr-ca">NonCommercial Sampling Plus</dc:title>
+    <dc:title xml:lang="af">NieKommersiële Voorsmaak Plus</dc:title>
+    <dc:title xml:lang="st">NonCommercial Sampling Plus</dc:title>
+    <dc:title xml:lang="zh">非商业性取样使用加强版</dc:title>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:prohibits rdf:resource="http://creativecommons.org/ns#CommercialUse"/>
+    <dc:creator rdf:resource="http://creativecommons.org"/>
+    <dcq:hasVersion>1.0</dcq:hasVersion>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+  </cc:License>
+</rdf:RDF>
