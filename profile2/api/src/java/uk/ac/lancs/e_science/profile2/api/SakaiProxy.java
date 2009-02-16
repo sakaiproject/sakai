@@ -181,13 +181,16 @@ public interface SakaiProxy {
 	public String getDirectUrlToUserProfile(String userId, String extraParams);
 	
 	/**
-	 * Check if a user is allowed to update their email address in their Account
-	 * ie could come from LDAP so updates not allowed
+	 * Check if a user is allowed to update their account. The User could come from LDAP
+	 * so updates not allowed. This will check if any updates are allowed.
+	 * 
+	 * Note userDirectoryService.allowUpdateUserEmail etc are NOT the right methods to use
+	 * as they don't check if account updates are allowed, just if the user doing the update is allowed.
 	 * 
 	 * @param userId
 	 * @return
 	 */
-	public boolean isEmailUpdateAllowed(String userId);
+	public boolean isAccountUpdateAllowed(String userId);
 	
 	/**
 	 * Is the profile.convert flag set in sakai.properties?

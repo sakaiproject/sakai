@@ -76,7 +76,7 @@ public class MyContactEdit extends Panel {
 		//readonly view
 		Label emailReadOnly = new Label("emailReadOnly", new PropertyModel(userProfile, "email"));
 		
-		if(sakaiProxy.isEmailUpdateAllowed(userId)) {
+		if(sakaiProxy.isAccountUpdateAllowed(userId)) {
 			emailReadOnly.setVisible(false);
 		} else {
 			email.setVisible(false);
@@ -200,9 +200,10 @@ public class MyContactEdit extends Panel {
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );
 			
-			//try to update their email address in their account
-			//takes care of the necessary checks
-			sakaiProxy.updateEmailForUser(userId, userProfile.getEmail());
+			//update their email address in their account if allowed
+			if(sakaiProxy.isAccountUpdateAllowed(userId)) {
+				sakaiProxy.updateEmailForUser(userId, userProfile.getEmail());
+			}
 						
 			return true;
 		} else {

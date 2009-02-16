@@ -436,11 +436,6 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public void updateEmailForUser(String userId, String email) {
 		
-		//are they allowed to update their email?
-		if(!isEmailUpdateAllowed(userId)) {
-			return;
-		}
-		
 		try {
 			UserEdit userEdit = null;
 			userEdit = userDirectoryService.editUser(userId);
@@ -450,7 +445,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			log.info("User email updated for: " + userId);
 		}
 		catch (Exception e) {  
-			log.error("Profile.updateEmailForUser() failed for userId: " + userId);
+			log.error("SakaiProxy.updateEmailForUser() failed for userId: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 	}
 
@@ -466,7 +461,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		ToolConfiguration toolConfig = getFirstInstanceOfTool(siteId, ProfileUtilityManager.TOOL_ID);
 		if(toolConfig == null) {
-			log.error("Profile.getDirectUrlToUserProfile() failed for userId: " + userId);
+			log.error("SakaiProxy.getDirectUrlToUserProfile() failed for userId: " + userId);
 			return null;
 		}
 		
@@ -499,8 +494,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
-	public boolean isEmailUpdateAllowed(String userId) {
-		return userDirectoryService.allowUpdateUserEmail(userId);
+	public boolean isAccountUpdateAllowed(String userId) {
+		try {
+			UserEdit edit = userDirectoryService.editUser(userId);
+			userDirectoryService.cancelEdit(edit);
+			return true;
+		}
+		catch (Exception e) {
+			log.info("SakaiProxy.isAccountUpdateAllowed() false for userId: " + userId);
+			return false;
+		}
 	}
 
 	
@@ -566,7 +569,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return siteService.getSite(siteId).getToolForCommonId(toolId);
 		}
 		catch (IdUnusedException e){
-			log.error("Profile.getFirstInstanceOfTool() failed for siteId: " + siteId + " and toolId: " + toolId);
+			log.error("SakaiProxy.getFirstInstanceOfTool() failed for siteId: " + siteId + " and toolId: " + toolId);
 			return null;
 		}
 	}
