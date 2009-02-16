@@ -47,8 +47,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -87,7 +85,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private EntityManager					M_em;
 	private UsageSessionService				M_uss;
 	private EventTrackingService			M_ets;
-	private MemoryService					M_ms;
 
 	/** Collect Thread and Semaphore */
 	private Thread							collectThread;
@@ -106,9 +103,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, ToolInfo>			eventIdToolMap						= null;
 	
 	private final ReentrantLock				lock								= new ReentrantLock();
-	
-	/** Caching */
-	private Cache							cache								= null;
 
 
 	
@@ -174,10 +168,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public void setUsageSessionService(UsageSessionService uss){
 		this.M_uss = uss;
 	}
-
-	public void setMemoryService(MemoryService memoryService) {
-		this.M_ms = memoryService;
-	}
 	
 	public void init(){
 		// get all registered events
@@ -186,8 +176,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		registeredEvents.add(StatsManager.SITEVISIT_EVENTID);
 		// get eventId -> ToolInfo map
 		eventIdToolMap = M_ers.getEventIdToolMap();
-		// add caching
-		cache = M_ms.newCache(StatsUpdateManager.class.getName());
 		
 		logger.info("init(): - collect thread enabled: " + collectThreadEnabled);
 		if(collectThreadEnabled) {
@@ -625,37 +613,31 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			EventStat eUpdate = i.next();
 			String eExistingSiteId = null;
 			EventStat eExisting = null;
-			KeySiteDateEventUser cacheKey = new KeySiteDateEventUser(eUpdate.getSiteId(), eUpdate.getDate(), eUpdate.getEventId(), eUpdate.getUserId());
 			try{
-				Object cached = cache.get(cacheKey);
-				if(cached != null) {
-					eExisting = (EventStat) cached;
-				}else{
-					Criteria c = session.createCriteria(EventStatImpl.class);
-					c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-					c.add(Expression.eq("eventId", eUpdate.getEventId()));
-					c.add(Expression.eq("userId", eUpdate.getUserId()));
-					c.add(Expression.eq("date", eUpdate.getDate()));
+				Criteria c = session.createCriteria(EventStatImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("eventId", eUpdate.getEventId()));
+				c.add(Expression.eq("userId", eUpdate.getUserId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (EventStat) c.uniqueResult();
+				}catch(HibernateException ex){
 					try{
-						eExisting = (EventStat) c.uniqueResult();
-					}catch(HibernateException ex){
-						try{
-							List events = c.list();
-							if ((events!=null) && (events.size()>0)){
-								LOG.debug("More than 1 result when unique result expected.", ex);
-								eExisting = (EventStat) c.list().get(0);
-							}else{
-								LOG.debug("No result found", ex);
-								eExisting = null;
-							}
-						}catch(Exception ex3){
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (EventStat) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
 							eExisting = null;
 						}
-					}catch(Exception ex2){
-						LOG.debug("Probably ddbb error when loading data at java object", ex2);
-						System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-						
+					}catch(Exception ex3){
+						eExisting = null;
 					}
+				}catch(Exception ex2){
+					LOG.debug("Probably ddbb error when loading data at java object", ex2);
+					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
+					
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -667,10 +649,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				//If something happens, skip the event processing
 				ex.printStackTrace();
 			}
-			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0)) {
-				session.saveOrUpdate(eExisting);
-				cache.put(cacheKey, eExisting);
-			}
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+					session.saveOrUpdate(eExisting);
 		}
 	}
 
@@ -681,38 +661,32 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			ResourceStat eUpdate = i.next();
 			ResourceStat eExisting = null;
 			String eExistingSiteId = null;
-			KeySiteDateResourceActionUser cacheKey = new KeySiteDateResourceActionUser(eUpdate.getSiteId(), eUpdate.getDate(), eUpdate.getResourceRef(), eUpdate.getResourceAction(), eUpdate.getUserId());
 			try{
-				Object cached = cache.get(cacheKey);
-				if(cached != null) {
-					eExisting = (ResourceStat) cached;
-				}else{
-					Criteria c = session.createCriteria(ResourceStatImpl.class);
-					c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-					c.add(Expression.eq("resourceRef", eUpdate.getResourceRef()));
-					c.add(Expression.eq("resourceAction", eUpdate.getResourceAction()));
-					c.add(Expression.eq("userId", eUpdate.getUserId()));
-					c.add(Expression.eq("date", eUpdate.getDate()));
+				Criteria c = session.createCriteria(ResourceStatImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("resourceRef", eUpdate.getResourceRef()));
+				c.add(Expression.eq("resourceAction", eUpdate.getResourceAction()));
+				c.add(Expression.eq("userId", eUpdate.getUserId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (ResourceStat) c.uniqueResult();
+				}catch(HibernateException ex){
 					try{
-						eExisting = (ResourceStat) c.uniqueResult();
-					}catch(HibernateException ex){
-						try{
-							List events = c.list();
-							if ((events!=null) && (events.size()>0)){
-								LOG.debug("More than 1 result when unique result expected.", ex);
-								eExisting = (ResourceStat) c.list().get(0);
-							}else{
-								LOG.debug("No result found", ex);
-								eExisting = null;
-							}
-						}catch(Exception ex3){
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (ResourceStat) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
 							eExisting = null;
 						}
-					}catch(Exception ex2){
-						LOG.debug("Probably ddbb error when loading data at java object", ex2);
-						System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-						
+					}catch(Exception ex3){
+						eExisting = null;
 					}
+				}catch(Exception ex2){
+					LOG.debug("Probably ddbb error when loading data at java object", ex2);
+					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
+					
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -723,10 +697,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0)) {
-				session.saveOrUpdate(eExisting);
-				cache.put(cacheKey, eExisting);
-			}
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+					session.saveOrUpdate(eExisting);
 		}
 	}
 	
@@ -737,36 +709,30 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			SiteActivity eUpdate = i.next();
 			SiteActivity eExisting = null;
 			String eExistingSiteId = null;
-			KeySiteDateEvent cacheKey = new KeySiteDateEvent(eUpdate.getSiteId(), eUpdate.getDate(), eUpdate.getEventId());
 			try{
-				Object cached = cache.get(cacheKey);
-				if(cached != null) {
-					eExisting = (SiteActivity) cached;
-				}else{
-					Criteria c = session.createCriteria(SiteActivityImpl.class);
-					c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-					c.add(Expression.eq("eventId", eUpdate.getEventId()));
-					c.add(Expression.eq("date", eUpdate.getDate()));
+				Criteria c = session.createCriteria(SiteActivityImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("eventId", eUpdate.getEventId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (SiteActivity) c.uniqueResult();
+				}catch(HibernateException ex){
 					try{
-						eExisting = (SiteActivity) c.uniqueResult();
-					}catch(HibernateException ex){
-						try{
-							List events = c.list();
-							if ((events!=null) && (events.size()>0)){
-								LOG.debug("More than 1 result when unique result expected.", ex);
-								eExisting = (SiteActivity) c.list().get(0);
-							}else{
-								LOG.debug("No result found", ex);
-								eExisting = null;
-							}
-						}catch(Exception ex3){
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (SiteActivity) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
 							eExisting = null;
 						}
-					}catch(Exception ex2){
-						LOG.debug("Probably ddbb error when loading data at java object", ex2);
-						System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-						
+					}catch(Exception ex3){
+						eExisting = null;
 					}
+				}catch(Exception ex2){
+					LOG.debug("Probably ddbb error when loading data at java object", ex2);
+					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
+					
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -778,10 +744,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				e.printStackTrace();
 			}
 			
-			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0)) {
-				session.saveOrUpdate(eExisting);
-				cache.put(cacheKey, eExisting);
-			}
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+					session.saveOrUpdate(eExisting);
 		}
 	}
 	
@@ -792,35 +756,29 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			SiteVisits eUpdate = i.next();
 			SiteVisits eExisting = null;
 			String eExistingSiteId = null;
-			KeySiteDate cacheKey = new KeySiteDate(eUpdate.getSiteId(), eUpdate.getDate());
 			try{
-				Object cached = cache.get(cacheKey);
-				if(cached != null) {
-					eExisting = (SiteVisits) cached;
-				}else{
-					Criteria c = session.createCriteria(SiteVisitsImpl.class);
-					c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-					c.add(Expression.eq("date", eUpdate.getDate()));
+				Criteria c = session.createCriteria(SiteVisitsImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (SiteVisits) c.uniqueResult();
+				}catch(HibernateException ex){
 					try{
-						eExisting = (SiteVisits) c.uniqueResult();
-					}catch(HibernateException ex){
-						try{
-							List events = c.list();
-							if ((events!=null) && (events.size()>0)){
-								LOG.debug("More than 1 result when unique result expected.", ex);
-								eExisting = (SiteVisits) c.list().get(0);
-							}else{
-								LOG.debug("No result found", ex);
-								eExisting = null;
-							}
-						}catch(Exception ex3){
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (SiteVisits) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
 							eExisting = null;
 						}
-					}catch(Exception ex2){
-						LOG.debug("Probably ddbb error when loading data at java object", ex2);
-						System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-						
+					}catch(Exception ex3){
+						eExisting = null;
 					}
+				}catch(Exception ex2){
+					LOG.debug("Probably ddbb error when loading data at java object", ex2);
+					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
+					
 				}
 				if(eExisting == null){
 					eExisting = eUpdate;
@@ -829,14 +787,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}
 				Integer mapUV = map.get(new UniqueVisitsKey(eExisting.getSiteId(), eExisting.getDate()));
 				eExisting.setTotalUnique(mapUV == null? 1 : mapUV.longValue());
+	
 				eExistingSiteId = eExisting.getSiteId();
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0)) {
-				session.saveOrUpdate(eExisting);
-				cache.put(cacheKey, eExisting);
-			}
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+					session.saveOrUpdate(eExisting);
 		}
 	}
 	
@@ -941,9 +898,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		String eventId = e.getEvent();
 		
 		// get contextId (siteId) from new Event.getContext() method, if available
-		// (only if non 'pres.begin' => chat also logs 'pres.begin => must be processed below)
-		if(M_sm.isEventContextSupported()
-			&& !StatsManager.SITEVISIT_EVENTID.equals(eventId)) {
+		if(M_sm.isEventContextSupported()) {
 			String contextId = null;
 			try{
 				contextId = (String) e.getClass().getMethod("getContext", null).invoke(e, null);
@@ -974,11 +929,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)) {
 						int index = Integer.parseInt(parserTip.getIndex());
 						return eventRef.split(parserTip.getSeparator())[index];
-					}else {
+          }else {
 						LOG.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
 						// try with most common syntax (/abc/cde/SITE_ID/...)
 						//return eventRef.split("/")[3];
-					}
+          }
 				}
 			}catch(Exception ex){
 				LOG.warn("Unable to parse contextId from event: " + eventId + " | " + eventRef, ex);
@@ -1050,113 +1005,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			c.set(Calendar.SECOND, 0);
 			c.set(Calendar.MILLISECOND, 0);
 			return c.getTime();
-		}
-	}
-	
-	private static class KeySiteDate {
-		public String siteId;
-		public Date date;
-		
-		public KeySiteDate(String siteId, Date date){
-			this.siteId = siteId;
-			this.date = resetToDay(date);
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if(o instanceof KeySiteDate) {
-				KeySiteDate u = (KeySiteDate) o;
-				return siteId.equals(u.siteId) && date.equals(u.date);
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return siteId.hashCode() + date.hashCode();
-		}
-		
-		private Date resetToDay(Date date){
-			Calendar c = Calendar.getInstance();
-			c.setTime(date);
-			c.set(Calendar.HOUR_OF_DAY, 0);
-			c.set(Calendar.MINUTE, 0);
-			c.set(Calendar.SECOND, 0);
-			c.set(Calendar.MILLISECOND, 0);
-			return c.getTime();
-		}
-	}
-	
-	private static class KeySiteDateEvent extends KeySiteDate {
-		public String eventId;
-		
-		public KeySiteDateEvent(String siteId, Date date, String eventId){
-			super(siteId, date);
-			this.eventId = eventId;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if(o instanceof KeySiteDateEvent) {
-				KeySiteDateEvent u = (KeySiteDateEvent) o;
-				return siteId.equals(u.siteId) && date.equals(u.date) && eventId.equals(u.eventId);
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return siteId.hashCode() + date.hashCode() + eventId.hashCode();
-		}
-	}
-	
-	private static class KeySiteDateEventUser extends KeySiteDateEvent {
-		public String userId;
-		
-		public KeySiteDateEventUser(String siteId, Date date, String eventId, String userId){
-			super(siteId, date, eventId);
-			this.userId = userId;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if(o instanceof KeySiteDateEventUser) {
-				KeySiteDateEventUser u = (KeySiteDateEventUser) o;
-				return siteId.equals(u.siteId) && date.equals(u.date) && eventId.equals(u.eventId) && userId.equals(u.userId);
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return siteId.hashCode() + date.hashCode() + eventId.hashCode() + userId.hashCode();
-		}
-	}
-	
-	private static class KeySiteDateResourceActionUser extends KeySiteDate {
-		public String resource;
-		public String action;
-		public String userId;
-		
-		public KeySiteDateResourceActionUser(String siteId, Date date, String resource, String action, String userId){
-			super(siteId, date);
-			this.resource = resource;
-			this.action = action;
-			this.userId = userId;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if(o instanceof KeySiteDateResourceActionUser) {
-				KeySiteDateResourceActionUser u = (KeySiteDateResourceActionUser) o;
-				return siteId.equals(u.siteId) && date.equals(u.date) && resource.equals(u.resource) && action.equals(u.action) && userId.equals(u.userId);
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return siteId.hashCode() + date.hashCode() + resource.hashCode() + action.hashCode() + userId.hashCode();
 		}
 	}
 }

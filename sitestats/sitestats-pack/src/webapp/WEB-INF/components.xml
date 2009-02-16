@@ -214,7 +214,6 @@
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 	</bean>
 	<!-- Transaction proxy: StatsUpdateManager -->
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManagerTransactionProxyFactoryBean"
