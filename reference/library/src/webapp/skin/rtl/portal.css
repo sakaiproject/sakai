@@ -727,7 +727,9 @@ below they are contextually defined depending on the column as an example,as you
 	margin:0;
 	border:none;
 	vertical-align: middle;
-	width:16px !important
+	width:18px !important;
+	height:18px
+
 }
 
 .portletTitle .title{
@@ -772,11 +774,14 @@ below they are contextually defined depending on the column as an example,as you
 .portletTitle .action img{
 	margin: 0;
 	vertical-align: middle;
-	width: 16px !important;
+	width:18px !important;
+	
+	height:18px
 }
 
 .portletTitle .action a{
 	background: url(images/help.gif) center right no-repeat;
+	border:1px solid #b71
 }
 
 .portletTitle .action a:hover{

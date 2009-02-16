@@ -472,18 +472,27 @@ below they are contextually defined depending on the column as an example,as you
 	overflow:hidden;
 }
 
+
 .portletTitle .title img{
 	margin: 0;
-	border:none;
-/*	vertical-align: text-bottom;*/
+	vertical-align: text-bottom;
 	width: 18px;
-	height: 16px;
+	border:none;
+	height: 18px;
 }
 
+.portletTitle .title a{
+	background: url(images/reload.gif) center left no-repeat;
+	text-decoration: none !important;
+	border:1px solid #fff;
+	height:1.5em;
+	outline:none	
+}
+
+
 .portletTitle .title{
-	padding: 2px 4px 6px 4px;
+	padding: 2px 4px 6px 0;
 	height: 1em;
-	font-size: 100%;
 	float: left;
 	color: #000;
 }
@@ -494,14 +503,9 @@ below they are contextually defined depending on the column as an example,as you
 	padding: 0;
 	color: #555;
 	font-weight: bold;
-	font-size: 1em;
+	font-size: 1.2em;
 }
 
-.portletTitle .title a{
-	background: url(images/reload.gif) center left no-repeat;
-	text-decoration: none;
-	
-}
 
 .portletTitle .title a:hover{
 	background: url(images/reload_h.gif) center left no-repeat;
@@ -515,14 +519,20 @@ below they are contextually defined depending on the column as an example,as you
 
 .portletTitle .action img{
 	margin: 0;
-	border:none;
 	vertical-align: text-bottom;
-	width: 16px !important;
+	width: 18px;
+	border:none;
+	height: 18px;
 }
 
 .portletTitle .action a{
 	background: url(images/help.gif) center right no-repeat;
-		text-decoration: none;
+	text-align: left;
+	padding:0 1em;
+	text-decoration: none !important;
+	width:1em;
+	height:1.5em;
+	outline:none
 }
 
 .portletTitle .action a:hover{
