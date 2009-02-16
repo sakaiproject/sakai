@@ -21,9 +21,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.jasypt.util.text.BasicTextEncryptor;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePreferencesNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
@@ -68,12 +66,7 @@ public class MyPreferences extends BasePage {
 		final String formFeedbackId = formFeedback.getMarkupId();
 		add(formFeedback);
 		
-		//decrypt the password
-		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-		textEncryptor.setPassword(ProfileIntegrationManager.BASIC_ENCRYPTION_KEY);
-		profilePreferences.setTwitterPassword(textEncryptor.decrypt(profilePreferences.getTwitterPassword()));
-		
-		
+				
 		//create model
 		CompoundPropertyModel preferencesModel = new CompoundPropertyModel(profilePreferences);
 		
@@ -136,15 +129,15 @@ public class MyPreferences extends BasePage {
 		form.add(twitterUsernameContainer);
 
 		
-		//password
+		//password (already decrypted in the object)
 		WebMarkupContainer twitterPasswordContainer = new WebMarkupContainer("twitterPasswordContainer");
 		twitterPasswordContainer.add(new Label("twitterPasswordLabel", new ResourceModel("twitter.password")));
-		final PasswordTextField twitterPassword = new PasswordTextField("twitterPassword", new PropertyModel(preferencesModel, "twitterPassword"));        
+		final PasswordTextField twitterPassword = new PasswordTextField("twitterPassword", new PropertyModel(preferencesModel, "twitterPasswordDecrypted"));        
 		twitterPassword.setOutputMarkupId(true);
 		twitterPassword.setRequired(false);
 		twitterPassword.setResetPassword(false);
 		twitterPasswordContainer.add(twitterPassword);
-		
+				
 		//updater
 		twitterPassword.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
@@ -217,7 +210,7 @@ public class MyPreferences extends BasePage {
 				//else validate ourselves
 				if(!profilePreferences.isTwitterEnabled()) {
 					profilePreferences.setTwitterUsername(null);
-					profilePreferences.setTwitterPassword(null);
+					profilePreferences.setTwitterPasswordDecrypted(null);
 				} 
 				
 				if(profilePreferences.isTwitterEnabled()) {
@@ -230,11 +223,7 @@ public class MyPreferences extends BasePage {
 						return;
 					}
 					
-					//encrypt the password
-					BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-					textEncryptor.setPassword(ProfileIntegrationManager.BASIC_ENCRYPTION_KEY);
-					profilePreferences.setTwitterPassword(textEncryptor.encrypt(profilePreferences.getTwitterPassword()));
-					
+					//password is encrypted before its saved, automatically
 				}
 						
 				

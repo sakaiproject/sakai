@@ -33,7 +33,6 @@ import twitter4j.Twitter;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileFriendsManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileIntegrationManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
@@ -64,6 +63,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	//surely this is in the Calendar API somewhere
 	private static final String[] DAY_OF_WEEK_MAPPINGS = { "", "Sunday", "Monday",
 		"Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+	
+	/**
+	 * the user's password needs to be decrypted and sent to Twitter for updates
+	 * so we can't just one-way encrypt it. 
+	 */
+	private static final String BASIC_ENCRYPTION_KEY = "AbrA_ca-DabRa.123";
 	
 	
 	private static final String QUERY_GET_FRIENDS_FOR_USER = "getFriendsForUser";
@@ -1310,6 +1315,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  		throw new IllegalArgumentException("Null Argument in Profile.getPreferencesRecordForUser");
 	  	}
 		
+		ProfilePreferences prefs = null;
+		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_PREFERENCES_RECORD);
@@ -1319,16 +1326,30 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			}
 		};
 	
-		return (ProfilePreferences) getHibernateTemplate().execute(hcb);
+		prefs = (ProfilePreferences) getHibernateTemplate().execute(hcb);
+		
+		if(prefs == null) {
+			return null;
+		}
+		
+		//decrypt password and set into field
+		prefs.setTwitterPasswordDecrypted(decrypt(prefs.getTwitterPasswordEncrypted()));
+		
+		return prefs;
+		
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean savePreferencesRecord(ProfilePreferences profilePreferences) {
+	public boolean savePreferencesRecord(ProfilePreferences prefs) {
+		
+		//encrypt and set
+		prefs.setTwitterPasswordEncrypted(encrypt(prefs.getTwitterPasswordDecrypted()));
+		
 		try {
-			getHibernateTemplate().update(profilePreferences);
-			log.info("Updated preferences record for user: " + profilePreferences.getUserUuid());
+			getHibernateTemplate().update(prefs);
+			log.info("Updated preferences record for user: " + prefs.getUserUuid());
 			return true;
 		} catch (Exception e) {
 			log.error("Profile.savePreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage());
@@ -1400,7 +1421,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		//get details
 		String username = profilePreferences.getTwitterUsername();
-		String password = decrypt(profilePreferences.getTwitterPassword());
+		String password = profilePreferences.getTwitterPasswordDecrypted();
 		
 		//instantiate class to send the data
 		new TwitterUpdater(username, password, message);
@@ -1422,7 +1443,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType) {
 		
 		//get preferences record for this user
-    	ProfilePreferences profilePreferences = this.getPreferencesRecordForUser(userId);
+    	ProfilePreferences profilePreferences = getPreferencesRecordForUser(userId);
     	
     	//if none, return whatever the flag is set as by default
     	if(profilePreferences == null) {
@@ -1474,16 +1495,22 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 	
-	//TODO move this and the encryption methods stuck in the tool to a API somewhere, but I don't really want it exposed.
-	//perhaps the encrypt method should be in this API as well and always bound to the object, ie on the pwd field in Preferences gets and saves
-	//so it's never exposed
+	//these encrypt/decrypt methods are bound always to the method before its saved or returned
 	private String decrypt(final String encryptedText) {
 		
 		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-		textEncryptor.setPassword(ProfileIntegrationManager.BASIC_ENCRYPTION_KEY);
+		textEncryptor.setPassword(BASIC_ENCRYPTION_KEY);
 		return(textEncryptor.decrypt(encryptedText));
 		
 	}
+	
+	private String encrypt(final String plainText) {
+		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+		textEncryptor.setPassword(BASIC_ENCRYPTION_KEY);
+		return(textEncryptor.encrypt(plainText));
+		
+	}
+	
 	
 	
 	//private method to query SakaiPerson for matches
@@ -1823,11 +1850,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		this.sakaiProxy = sakaiProxy;
 	}
 
-	//setup ProfileIntegrationManager API
-	private ProfileIntegrationManager integrationManager;
-	public void setIntegrationManager(ProfileIntegrationManager integrationManager) {
-		this.integrationManager = integrationManager;
-	}
 	
 	//setup TinyUrlService API
 	private TinyUrlService tinyUrlService;

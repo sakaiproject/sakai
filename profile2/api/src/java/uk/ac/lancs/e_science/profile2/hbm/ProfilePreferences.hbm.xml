@@ -15,7 +15,7 @@
 		<property name="email" column="EMAIL" not-null="true" />
 		<property name="twitterEnabled" column="TWITTER_ENABLED" not-null="true"/>
 	    <property name="twitterUsername" column="TWITTER_USERNAME" not-null="false" />
-		<property name="twitterPassword" column="TWITTER_PASSWORD" not-null="false" />
+		<property name="twitterPasswordEncrypted" column="TWITTER_PASSWORD" not-null="false" />
 	   
   	</class>
 

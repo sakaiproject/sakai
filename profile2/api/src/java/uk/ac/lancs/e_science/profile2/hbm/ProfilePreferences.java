@@ -12,8 +12,10 @@ public class ProfilePreferences implements Serializable {
 	private int email;
 	private boolean twitterEnabled;
 	private String twitterUsername;
-	private String twitterPassword;
+	private String twitterPasswordEncrypted;
+	private String twitterPasswordDecrypted;
 
+	
 	/** 
 	 * Empty constructor
 	 */
@@ -66,22 +68,27 @@ public class ProfilePreferences implements Serializable {
 	}
 
 
-	public String getTwitterPassword() {
-		return twitterPassword;
+	public String getTwitterPasswordEncrypted() {
+		return twitterPasswordEncrypted;
 	}
 
-
-	public void setTwitterPassword(String twitterPassword) {
-		this.twitterPassword = twitterPassword;
+	public void setTwitterPasswordEncrypted(String twitterPasswordEncrypted) {
+		this.twitterPasswordEncrypted = twitterPasswordEncrypted;
 	}
 
+	public String getTwitterPasswordDecrypted() {
+		return twitterPasswordDecrypted;
+	}
 
-	
+	public void setTwitterPasswordDecrypted(String twitterPasswordDecrypted) {
+		this.twitterPasswordDecrypted = twitterPasswordDecrypted;
+	}
+
 	
 	
 	/**
 	 * for the form feedback, to get around a weird thing in Wicket where it needs a backing model for the FeedbackLabel component 
-	 * since this is used directly by the Preferences page
+	 * since this model is used directly by the Preferences page
 	 */
 	private String twitterUsernameFeedback;
 	private String twitterPasswordFeedback;
