@@ -6,8 +6,34 @@
     $(document).ready(function(){
         setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     });
+    
+    function showAllowResubmission()
+    {
+					document.getElementById('allowResubmission_shown').style.display="inline";
+    	document.getElementById('allowResubmission_hidden').style.display="none";
+    	resizeFrame('grow');
+    }
+    
+    function hideAllowResubmission()
+    {
+					document.getElementById('allowResubmission_shown').style.display="none";
+    	document.getElementById('allowResubmission_hidden').style.display="inline";
+    }
+    
+    function toggleSelectAll(caller, elementName)
+    {
+					var newValue = caller.checked;
+					var elements = document.getElementsByName(elementName);
+			
+					if(elements)
+					{
+						for(var i = 0; i < elements.length; i++)
+						{
+							elements[i].checked = newValue;
+						}
+					}
+   	}
 </script>
-
 
 <div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 	<ul class="navIntraTool actionToolBar" role="menu">
@@ -297,13 +323,83 @@
 					</ul>
 				</div>
 			#end
-			## show all submissions
-
-
+			<div id="allowResubmission_hidden" #if ($!showAllowResubmission)style="display:none"#else style="display:block"#end>
+				<p class="discTria">
+					<a href="#" onclick="javascript:showAllowResubmission();">
+					<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("allowResubmission.show")" border="0" width="13" height="13" align="top" /></a>
+						$tlang.getString("allowResubmission.label")
+				</p>
+			</div>
+			<div id="allowResubmission_shown" #if ($!showAllowResubmission)style="display:block"#else style="display:none"#end>
+				<p class="discTria">
+					<a href="#" onclick="javascript:hideAllowResubmission();">
+					<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("allowResubmission.hide")" border="0" width="13" height="13" align="top" /></a>
+						$tlang.getString("allowResubmission.label")
+				</p>
+			 <p class="instruction">
+			  $tlang.getString("allowResubmission.instruction")
+			 </p>
+			 ##show it only for those assignments not of type non-electronic submission
+						<p class="shorttext" id="allowResubmitNumber">
+							<label for="allowResubmitNumber">
+								$tlang.getString("allow.resubmit.number")
+							</label>
+							<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
+								#foreach ($i in [-1..10])
+									<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
+										#if($i==-1)
+											$tlang.getString("allow.resubmit.number.unlimited")
+										#else
+											$i
+										#end
+									</option>
+								#end
+							</select>
+						</p>
+						<p class="shorttext" id="allowResubmitTime" style="$!resubmitStyle">
+							## only show date selection when allowed to resubmit
+							<label for="$name_ResubmitMonth">
+								$tlang.getString("gen.acesubunt")
+							</label>
+							#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
+							$tlang.getString("gen.at") 
+							<select name="$name_ResubmitHour" id="$name_ResubmitHour">
+								#foreach ($i in [1..12])
+									#if ($i == $value_ResubmitHour)
+										<option value="$i" selected="selected">$i</option>
+									#else
+										<option value="$i">$i</option>
+									#end
+								#end
+							</select>
+							<select name="$name_ResubmitMin" id="$name_ResubmitMin">
+								#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+									<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+								#end
+							</select>
+							<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM">
+								#foreach ($i in ["AM", "PM"])
+									#if ($i == $value_ResubmitAMPM)
+										<option value="$i" selected="selected">$i</option>
+									#else
+										<option value="$i">$i</option>
+									#end
+								#end
+							</select>
+							## for save the resubmission choice
+							<div class="act">
+								<input type="submit" class="active" name="eventSubmit_doSave_resubmission_option" value="$tlang.getString("update")" accesskey="s" />
+							</div>
+						</p>
+			</div>
+			## show all submission
 			<table class="listHier lines nolines" cellpadding="0" cellspacing="0" summary="$tlang.getString("gen.viewassliststudentsummary")">
-				<tr> 
+				<tr>
+					<th id="selectResubmit">
+						<input type="checkbox" name="toggleAllSelectAllowResubmit" value="" id="toggleAllSelectAllowResubmit" onclick="javascript:toggleSelectAll(this, 'selectedAllowResubmit')" />
+					</th> 
 					<th id="attachment" class="attach">
-						&nbsp;
+						<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" />
 					</th>
 					<th id="studentname">
 						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;"   title="$tlang.getString("gen.sorbylas")">
@@ -387,29 +483,32 @@
 					#set($submission = $userSubmission.Submission)
 					#set($siteUser=false)
 					#set($siteUser = $userSubmission.User)
+					#set($submitterId = $!siteUser.getId())
 					#set($submitterName=$!siteUser.sortName)
-					#set($submitterId=$!siteUser.getDisplayId())
-					#if ($!submitterId)
+					#set($submitterDisplayId=$!siteUser.getDisplayId())
+					#if ($!submitterDisplayId)
 						##attach the displayId
-						#set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
+						#set($submitterName=$submitterName.concat(" (").concat($submitterDisplayId).concat(")"))
 					#end
 					#set($submitTime=false)
 					#set($returnedTime=false)
 					#if ($!submission)## && $submission.submitted) 
 						#set($returnedTime = $submission.getTimeReturned())
 						#set($submitTime = $submission.getTimeSubmitted())
-						<tr> 
+						<tr>
+							<td headers="allowResubmit" class="screenOnly">
+								#set($userId = $!siteUser)
+								<input type="checkbox" name="selectedAllowResubmit" value="$!submitterId" id="check_$submitterId" />
+							</td>
 							<td headers="attachment" class="attach">
-								#set ($attachments = $!submission.SubmittedAttachments)
-								#set ($size = 0)
+							 #set($size=0)
 								#set ($props = false)
-								#if (!$!attachments.isEmpty())
-									#set ($attachment = $attachments.next())
+								#foreach ($attachment in $submission.SubmittedAttachments) 
 									#set ($props = $attachment.Properties) 
 									#if ($!props)
 										#set ($size = $size + 1)
 									#end
-								#end 
+								#end
 								#if ($size > 0)
 									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" />
 								#end
@@ -511,7 +610,6 @@
 							<td headers="gradereleased">
 								&nbsp;
 							</td>
-						</tr>
 					#end
 				#end
 			</table>
