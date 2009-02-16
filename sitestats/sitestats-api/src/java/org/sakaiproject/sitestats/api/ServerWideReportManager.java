@@ -1,6 +1,5 @@
 package org.sakaiproject.sitestats.api;
 
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 public interface ServerWideReportManager
@@ -82,6 +81,6 @@ public interface ServerWideReportManager
      */
     public List<ServerWideStatsRecord> getToolCount ();    
     
-    public BufferedImage generateReportChart(String reportType, int width, int height);
+    public byte[] generateReportChart(String reportType, int width, int height);
 	
 }

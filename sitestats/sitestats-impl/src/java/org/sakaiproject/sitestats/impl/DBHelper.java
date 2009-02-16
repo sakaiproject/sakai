@@ -1,11 +1,8 @@
 package org.sakaiproject.sitestats.impl;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,8 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.sitestats.impl.event.FileEventRegistry;
-import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;

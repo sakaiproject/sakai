@@ -22,6 +22,8 @@ import org.apache.wicket.util.resource.locator.ResourceStreamLocator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.PreferencesPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
 import org.sakaiproject.util.ResourceLoader;
 
 

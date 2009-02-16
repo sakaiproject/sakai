@@ -11,10 +11,10 @@ import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.StatelessLink;
 import org.apache.wicket.markup.html.list.Loop;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -24,7 +24,6 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadFragment;
 import org.sakaiproject.sitestats.tool.wicket.components.ExternalImage;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
-import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportDataPage;
 
 /**
@@ -151,7 +150,7 @@ public class Widget extends Panel {
 				
 				// Link
 				final ReportDef reportDefinition = ms.getReportDefinition();
-				Link link = new Link("report") {
+				Link link = new StatelessLink("report") {
 					private static final long	serialVersionUID	= 1L;
 					@Override
 					public void onClick() {
@@ -165,7 +164,7 @@ public class Widget extends Panel {
 				}else if(ms instanceof WidgetMiniStatLink){
 					WidgetMiniStatLink msl = (WidgetMiniStatLink) ms;
 					final Page page = msl.getPageLink();
-					link = new Link("report") {
+					link = new StatelessLink("report") {
 						private static final long	serialVersionUID	= 1L;
 						@Override
 						public void onClick() {

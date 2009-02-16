@@ -35,7 +35,6 @@ public class ReportsPage extends BasePage {
 
 	private String					realSiteId;
 	private String					siteId;
-	private String					siteTitle;
 
 	
 	public ReportsPage() {		

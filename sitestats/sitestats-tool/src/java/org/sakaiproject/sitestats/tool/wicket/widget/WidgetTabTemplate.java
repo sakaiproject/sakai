@@ -1,6 +1,5 @@
 package org.sakaiproject.sitestats.tool.wicket.widget;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -18,6 +17,7 @@ import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.StatelessLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -26,7 +26,6 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
@@ -125,17 +124,19 @@ public abstract class WidgetTabTemplate extends Panel {
 	private void renderChart() {
 		WebMarkupContainer chartTd = new WebMarkupContainer("chartTd");
 		chart = new AjaxLazyLoadImage("chart", OverviewPage.class) {
+			private static final long	serialVersionUID	= 1L;
+
 			@Override
-			public BufferedImage getBufferedImage() {
+			public byte[] getImageData() {
 				return getChartImage(chartWidth, 200);
 			}
 
 			@Override
-			public BufferedImage getBufferedImage(int width, int height) {
+			public byte[] getImageData(int width, int height) {
 				return getChartImage(width, height);
 			}
 			
-			private BufferedImage getChartImage(int width, int height) {
+			private byte[] getChartImage(int width, int height) {
 				PrefsData prefsData = facade.getStatsManager().getPreferences(siteId, false);
 				int _width = (width <= 0) ? 350 : width;
 				int _height = (height <= 0) ? 200: height;
@@ -165,7 +166,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		}else if(renderTable && !renderChart) {
 			tableTd.add(new SimpleAttributeModifier("colspan", "2"));
 		}
-		tableLink = new Link("link") {
+		tableLink = new StatelessLink("link") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public void onClick() {
@@ -233,6 +234,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				ReportManager.WHEN_LAST30DAYS, ReportManager.WHEN_LAST7DAYS
 				);
 		IChoiceRenderer dateFilterRenderer = new IChoiceRenderer() {
+			private static final long	serialVersionUID	= 1L;
 			public Object getDisplayValue(Object object) {
 				if(ReportManager.WHEN_ALL.equals(object)) {
 					return new ResourceModel("overview_filter_date_all").getObject();
@@ -280,6 +282,7 @@ public abstract class WidgetTabTemplate extends Panel {
 			LOG.warn("Site does not exist: " + siteId);
 		}
 		IChoiceRenderer roleFilterRenderer = new IChoiceRenderer() {
+			private static final long	serialVersionUID	= 1L;
 			public Object getDisplayValue(Object object) {
 				if(ReportManager.WHO_ALL.equals(object)) {
 					return new ResourceModel("overview_filter_role_all").getObject();
@@ -309,6 +312,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		toolFilterOptions.add(ReportManager.WHAT_EVENTS_ALLTOOLS);
 		toolFilterOptions.addAll(getToolIds());
 		IChoiceRenderer toolFilterRenderer = new IChoiceRenderer() {
+			private static final long	serialVersionUID	= 1L;
 			public Object getDisplayValue(Object object) {
 				if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(object)) {
 					return new ResourceModel("overview_filter_tool_all").getObject();
@@ -340,6 +344,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				ReportManager.WHAT_RESOURCES_ACTION_REVS, ReportManager.WHAT_RESOURCES_ACTION_DEL
 		);
 		IChoiceRenderer resactionFilterRenderer = new IChoiceRenderer() {
+			private static final long	serialVersionUID	= 1L;
 			public Object getDisplayValue(Object object) {
 				if(object == null || "".equals(object)) {
 					return new ResourceModel("overview_filter_resaction_all").getObject();
@@ -356,6 +361,7 @@ public abstract class WidgetTabTemplate extends Panel {
 			}
 		};
 		IndicatingAjaxDropDownChoice resactionFilter = new IndicatingAjaxDropDownChoice("resactionFilter", resactionFilterOptions, resactionFilterRenderer) {
+			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected CharSequence getDefaultChoice(Object selected) {
 				return "";

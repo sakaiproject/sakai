@@ -10,6 +10,8 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -18,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -419,7 +423,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 	
-	public BufferedImage generateReportChart(String reportType, int width, int height)
+	public byte[] generateReportChart(String reportType, int width, int height)
 	{
 
 		if(reportType.equals(StatsManager.MONTHLY_LOGIN_REPORT)){
@@ -782,7 +786,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	}	
 	
 	
-	private BufferedImage createMonthlyLoginChart (int width, int height)
+	private byte[] createMonthlyLoginChart (int width, int height)
 	{
 		IntervalXYDataset dataset1 = getMonthlyLoginsDataSet ();
 		IntervalXYDataset dataset2 = getMonthlyUniqueLoginsDataSet ();
@@ -876,11 +880,18 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		// set anti alias
 		chart.setAntiAlias (true);
 
-		return chart.createBufferedImage (width, height);
+		BufferedImage img = chart.createBufferedImage (width, height);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 
 
-	private BufferedImage createWeeklyLoginChart (int width, int height)
+	private byte[] createWeeklyLoginChart (int width, int height)
 	{
 		IntervalXYDataset dataset1 = getWeeklyLoginsDataSet ();
         IntervalXYDataset dataset2 = getWeeklySiteUserDataSet ();
@@ -959,10 +970,17 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		// set anti alias
 		chart.setAntiAlias (true);
 
-		return chart.createBufferedImage (width, height);
+		BufferedImage img = chart.createBufferedImage (width, height);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 
-	private BufferedImage createDailyLoginChart (int width, int height)
+	private byte[] createDailyLoginChart (int width, int height)
 	{
 		IntervalXYDataset dataset1 = getDailyLoginsDataSet ();
         IntervalXYDataset dataset2 = getDailySiteUserDataSet ();
@@ -1048,10 +1066,17 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		// set anti alias
 		chart.setAntiAlias (true);
 
-		return chart.createBufferedImage (width, height);
+		BufferedImage img = chart.createBufferedImage (width, height);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 
-	private BufferedImage generateStackedAreaChart (CategoryDataset dataset, int width, int height)
+	private byte[] generateStackedAreaChart (CategoryDataset dataset, int width, int height)
 	{
 		JFreeChart chart = ChartFactory.createStackedAreaChart (null, // chart title
 				null, // domain axis label
@@ -1102,10 +1127,17 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
         domainAxis.setLowerMargin(0.0);
         domainAxis.setUpperMargin(0.0);
 
-		return chart.createBufferedImage (width, height);
+        BufferedImage img = chart.createBufferedImage (width, height);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 
-	private BufferedImage generateBoxAndWhiskerChart (BoxAndWhiskerCategoryDataset dataset, int width, int height)
+	private byte[] generateBoxAndWhiskerChart (BoxAndWhiskerCategoryDataset dataset, int width, int height)
 	{
 		JFreeChart chart = ChartFactory.createBoxAndWhiskerChart (null, null,
 				null, dataset, false);
@@ -1134,10 +1166,17 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		domainAxis.setLowerMargin (0.0);
 		domainAxis.setUpperMargin (0.0);
 
-		return chart.createBufferedImage (width, height);
+		BufferedImage img = chart.createBufferedImage (width, height);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 
-	private BufferedImage generateLayeredBarChart (CategoryDataset dataset, int width, int height)
+	private byte[] generateLayeredBarChart (CategoryDataset dataset, int width, int height)
 	{
 		JFreeChart chart = ChartFactory.createBarChart (null, // chart title
 				null, // domain axis label
@@ -1189,10 +1228,17 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		domainAxis.setLowerMargin (0.0);
 		domainAxis.setUpperMargin (0.0);
 
-		return chart.createBufferedImage (width, height);
+		BufferedImage img = chart.createBufferedImage (width, height);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 
-	private BufferedImage createToolAnalysisChart (int width, int height)
+	private byte[] createToolAnalysisChart (int width, int height)
 	{
 		CategoryDataset dataset = getToolAnalysisDataSet ();
 		
@@ -1251,10 +1297,17 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
         renderer.setItemMargin (0);
         renderer.setSeriesPaint (0, Color.BLUE);
         
-		return chart.createBufferedImage (width, height);
+        BufferedImage img = chart.createBufferedImage (width, height);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 
-	private BufferedImage generateNoDataChart(int width, int height) {
+	private byte[] generateNoDataChart(int width, int height) {
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = img.createGraphics();
 		
@@ -1270,7 +1323,13 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		int noDataHeight = fm.getHeight();
 		g2d.setColor(parseColor("#555555"));
 		g2d.drawString(noData, width/2 - noDataWidth/2, height/2 - noDataHeight/2 + 2);		
-		return img;
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 	
 

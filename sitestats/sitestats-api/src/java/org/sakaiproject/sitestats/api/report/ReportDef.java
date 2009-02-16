@@ -21,8 +21,6 @@ package org.sakaiproject.sitestats.api.report;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.sakaiproject.sitestats.api.report.ReportParams;
-
 
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>

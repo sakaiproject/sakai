@@ -1,7 +1,5 @@
 package org.sakaiproject.sitestats.tool.wicket.components;
 
-import java.awt.image.BufferedImage;
-
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -27,11 +25,11 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.version.undo.Change;
 import org.sakaiproject.sitestats.tool.wicket.pages.MaximizedImagePage;
 
-@SuppressWarnings("serial")
 public abstract class AjaxLazyLoadImage extends Panel {
+	private static final long			serialVersionUID					= 1L;
 	private SubmitLink					link								= null;
 	private Page						returnPage							= null;
-	private Class						returnClass							= null;
+	private Class<?>					returnClass							= null;
 	private AbstractDefaultAjaxBehavior chartRenderAjaxBehavior				= null;
 	
 	private Form						form								= null;
@@ -47,7 +45,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	// 2:ajax replacement completed
 	private byte state = 0;
 	
-	public AjaxLazyLoadImage(final String id, final Class returnClass) {
+	public AjaxLazyLoadImage(final String id, final Class<?> returnClass) {
 		super(id);
 		this.returnClass = returnClass;
 		init();
@@ -58,12 +56,13 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		this.returnPage = returnPage;
 		init();
 	}
-	
 	private void init() {
 		setOutputMarkupId(true);	
 		
 		// render chart by ajax, uppon request
 		chartRenderAjaxBehavior = new AbstractDefaultAjaxBehavior() {
+			private static final long	serialVersionUID	= 1L;
+
 			@Override
 			protected void respond(AjaxRequestTarget target) {
 				//System.out.println("chartRenderAjaxBehavior.Responding for "+ getId());
@@ -123,9 +122,9 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		link.removeAll();
 		Image img = null;
 		if(!autoDetermineChartSizeByAjax) {
-			img = createImage("content", getBufferedImage());
+			img = createImage("content", getImageData());
 		}else{
-			img = createImage("content", getBufferedImage(selectedWidth, selectedHeight));
+			img = createImage("content", getImageData(selectedWidth, selectedHeight));
 		}
 		img.add(new SimpleAttributeModifier("style", "display: none; margin: 0 auto;"));
 		link.add(img);
@@ -152,20 +151,22 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		return indicator;
 	}
 
-	public abstract BufferedImage getBufferedImage();
+	public abstract byte[] getImageData();
 
-	public abstract BufferedImage getBufferedImage(int width, int height);
+	public abstract byte[] getImageData(int width, int height);
 
 	private SubmitLink createMaximizedLink(final String id) {
 		SubmitLink link = new SubmitLink(id, form) {
+			private static final long	serialVersionUID	= 1L;
+
 			@Override
 			public void onSubmit() {
 				if(returnPage != null || returnClass != null) {
 					setResponsePage(new MaximizedImagePage(returnPage, returnClass) {
 						@Override
-						public BufferedImage getBufferedMaximizedImage() {
+						public byte[] getMaximizedImageData() {
 							int _width = (int) ((int) maxWidth * 0.98);
-							return AjaxLazyLoadImage.this.getBufferedImage(_width, 2 * _width / 3);
+							return AjaxLazyLoadImage.this.getImageData(_width, 2 * _width / 3);
 						}						
 					});
 				}
@@ -176,15 +177,18 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		return link;
 	}
 	
-	private Image createImage(final String id, final BufferedImage bufferedImage) {
+	private Image createImage(final String id, final byte[] imageData) {
 		NonCachingImage chartImage = new NonCachingImage(id) {
+			private static final long	serialVersionUID	= 1L;
+
 			@Override
 			protected Resource getImageResource() {
 				return new DynamicImageResource() {
+					private static final long	serialVersionUID	= 1L;
 
 					@Override
 					protected byte[] getImageData() {
-						return toImageData(bufferedImage);
+						return imageData;
 					}
 
 					@Override
@@ -207,6 +211,8 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	public void setAutoDetermineChartSizeByAjax(final String jquerySelectorForContainer) {
 		autoDetermineChartSizeByAjax = true;
 		AbstractDefaultAjaxBehavior determineChartSizeBehavior = new AbstractDefaultAjaxBehavior() {
+			private static final long	serialVersionUID	= 1L;
+
 			@Override
 			protected void respond(AjaxRequestTarget target) {
 				//System.out.println("determineChartSizeBehavior.Responding for "+ getId());

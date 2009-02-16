@@ -1,6 +1,5 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,12 +92,12 @@ public class ServerWidePage extends BasePage {
 		// chart
 		reportChart = new AjaxLazyLoadImage("reportChart", getPage()) {
 			@Override
-			public BufferedImage getBufferedImage() {
+			public byte[] getImageData() {
 				return getChartImage(selectedWidth, selectedHeight);
 			}
 
 			@Override
-			public BufferedImage getBufferedImage(int width, int height) {
+			public byte[] getImageData(int width, int height) {
 				return getChartImage(width, height);
 			}
 		};
@@ -127,13 +126,12 @@ public class ServerWidePage extends BasePage {
 		return report;
 	}
 	
-	private BufferedImage getChartImage(int width, int height) {
+	private byte[] getChartImage(int width, int height) {
 		int _width = (width <= 0) ? 350 : width;
 		int _height = (height <= 0) ? 200: height;
-		BufferedImage img = facade.getServerWideReportManager().generateReportChart(
+		return facade.getServerWideReportManager().generateReportChart(
 			report.getSelectedView(), _width, _height
-		);
-		return img;
+			);
 	}
 	
 	@SuppressWarnings("serial")

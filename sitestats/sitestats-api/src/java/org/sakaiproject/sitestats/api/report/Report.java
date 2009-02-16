@@ -1,10 +1,11 @@
 package org.sakaiproject.sitestats.api.report;
 
+import java.util.Date;
 import java.util.List;
 
+import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.Stat;
-import org.sakaiproject.time.api.Time;
 
 
 public interface Report {
@@ -22,11 +23,11 @@ public interface Report {
 	public void setReportDefinition(ReportDef reportDef);
 	
 	/** Get the time the report was generated. */
-	public Time getReportGenerationDate();
+	public Date getReportGenerationDate();
 	
 	/** Get the localized date the report was generated. */
 	public String getLocalizedReportGenerationDate();
 
 	/** Set the localized date the report was generated. */
-	public void setReportGenerationDate(Time reportGenerationDate);
+	public void setReportGenerationDate(Date reportGenerationDate);
 }

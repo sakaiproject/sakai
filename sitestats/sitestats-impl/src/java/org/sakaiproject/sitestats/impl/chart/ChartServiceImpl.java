@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,6 +16,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -111,7 +115,7 @@ public class ChartServiceImpl implements ChartService {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.chart.ChartService#generateVisitsChart(java.lang.String, java.lang.String, int, int, boolean, float, boolean)
 	 */
-	public BufferedImage generateVisitsChart(
+	public byte[] generateVisitsChart(
 			String siteId, String viewType,
 			int width, int height, 
 			boolean render3d, float transparency, boolean itemLabelsVisible) {
@@ -136,7 +140,7 @@ public class ChartServiceImpl implements ChartService {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.chart.ChartService#generateActivityChart(java.lang.String, java.lang.String, java.lang.String, int, int, boolean, float, boolean)
 	 */
-	public BufferedImage generateActivityChart(
+	public byte[] generateActivityChart(
 			String siteId, String viewType, String chartType, 
 			int width, int height, 
 			boolean render3d, float transparency, boolean itemLabelsVisible) {
@@ -174,7 +178,7 @@ public class ChartServiceImpl implements ChartService {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.chart.ChartService#generateChart(java.lang.String, java.lang.Object, java.lang.String, int, int, boolean, float, boolean, java.lang.String)
 	 */
-	public BufferedImage generateChart(
+	public byte[] generateChart(
 			String siteId, Object dataset, String chartType,
 			int width, int height,
 			boolean render3d, float transparency,
@@ -224,7 +228,7 @@ public class ChartServiceImpl implements ChartService {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.chart.ChartService#generateChart(org.sakaiproject.sitestats.api.report.ReportDef, int, int, boolean, float, boolean)
 	 */
-	public BufferedImage generateChart(
+	public byte[] generateChart(
 			Report report, 
 			int width, int height,
 			boolean render3d, float transparency,
@@ -305,7 +309,7 @@ public class ChartServiceImpl implements ChartService {
 	// ######################################################################################
 	// Chart Generation methods
 	// ######################################################################################
-	private BufferedImage generateBarChart(
+	private byte[] generateBarChart(
 			String siteId, CategoryDataset dataset, int width, int height,
 			boolean render3d, float transparency,
 			boolean itemLabelsVisible, 
@@ -368,10 +372,16 @@ public class ChartServiceImpl implements ChartService {
 		}
 
 		BufferedImage img = chart.createBufferedImage(width, height);
-		return img;
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 	
-	private BufferedImage generateLineChart(
+	private byte[] generateLineChart(
 			String siteId, CategoryDataset dataset, int width, int height,
 			boolean render3d, float transparency,
 			boolean itemLabelsVisible, 
@@ -426,10 +436,16 @@ public class ChartServiceImpl implements ChartService {
 		}
 
 		BufferedImage img = chart.createBufferedImage(width, height);
-		return img;
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 	
-	private BufferedImage generatePieChart(
+	private byte[] generatePieChart(
 			String siteId, PieDataset dataset, int width, int height,
 			boolean render3d, float transparency,
 			boolean smallFontInDomainAxis) {
@@ -462,10 +478,16 @@ public class ChartServiceImpl implements ChartService {
 		chart.setAntiAlias(true);
 		
 		BufferedImage img = chart.createBufferedImage(width, height);
-		return img;
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 	
-	private BufferedImage generateTimeSeriesChart(
+	private byte[] generateTimeSeriesChart(
 			String siteId, IntervalXYDataset dataset, int width, int height,
 			boolean renderBar, float transparency,
 			boolean itemLabelsVisible, 
@@ -478,7 +500,7 @@ public class ChartServiceImpl implements ChartService {
 				timePeriod, null, null);
 	}
 	
-	private BufferedImage generateTimeSeriesChart(
+	private byte[] generateTimeSeriesChart(
 			String siteId, IntervalXYDataset dataset, int width, int height,
 			boolean renderBar, float transparency,
 			boolean itemLabelsVisible, 
@@ -605,10 +627,16 @@ public class ChartServiceImpl implements ChartService {
 		}
 
 		BufferedImage img = chart.createBufferedImage(width, height);
-		return img;
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 	
-	private BufferedImage generateNoDataChart(int width, int height) {
+	private byte[] generateNoDataChart(int width, int height) {
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = img.createGraphics();
 		
@@ -624,7 +652,13 @@ public class ChartServiceImpl implements ChartService {
 		int noDataHeight = fm.getHeight();
 		g2d.setColor(parseColor("#555555"));
 		g2d.drawString(noData, width/2 - noDataWidth/2, height/2 - noDataHeight/2 + 2);		
-		return img;
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try{
+			ImageIO.write(img, "png", out);
+		}catch(IOException e){
+			LOG.warn("Error occurred while generating SiteStats chart image data", e);
+		}
+		return out.toByteArray();
 	}
 	
 	// ######################################################################################

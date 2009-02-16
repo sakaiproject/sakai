@@ -197,7 +197,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			reportDef.getReportParams().setHowTotalsBy(rpp.totalsBy);
 			report.setReportData(data);
 			report.setReportDefinition(reportDef);
-			report.setReportGenerationDate(M_ts.newTime());
+			report.setReportGenerationDate(new Date());
 		}
 
 		return report;
@@ -1109,8 +1109,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		 */
 		public String getReportGenerationDate(Report report) {
 			if(report.getReportGenerationDate() == null)
-				report.setReportGenerationDate(M_ts.newTime());
-			return report.getReportGenerationDate().toStringLocalFull();
+				report.setReportGenerationDate(new Date());
+			return report.getLocalizedReportGenerationDate();
 		}
 
 		/* (non-Javadoc)

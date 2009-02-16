@@ -1,7 +1,5 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import java.awt.image.BufferedImage;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.Resource;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -54,7 +52,7 @@ public abstract class MaximizedImagePage extends BasePage {
 		response.renderOnDomReadyJavascript("setMainFrameHeightNoScroll(window.name, 750);");
 	}
 	
-	public abstract BufferedImage getBufferedMaximizedImage();
+	public abstract byte[] getMaximizedImageData();
 	
 	@SuppressWarnings("serial")
 	private void renderBody() {
@@ -66,7 +64,7 @@ public abstract class MaximizedImagePage extends BasePage {
 
 					@Override
 					protected byte[] getImageData() {
-						return toImageData(getBufferedMaximizedImage());
+						return getMaximizedImageData();
 					}
 
 					@Override

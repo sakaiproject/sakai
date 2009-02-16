@@ -1,6 +1,5 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -78,7 +77,7 @@ public class ReportDataPage extends BasePage {
 
 	private AbstractDefaultAjaxBehavior	chartSizeBehavior	= null;
 	private AjaxLazyLoadImage			reportChart			= null;
-	private BufferedImage				chartImage			= null;
+	private byte[]						chartImage			= null;
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
 	
@@ -172,12 +171,12 @@ public class ReportDataPage extends BasePage {
 		// Report: chart
 		reportChart = new AjaxLazyLoadImage("reportChart", getPage()) {
 			@Override
-			public BufferedImage getBufferedImage() {
+			public byte[] getImageData() {
 				return getChartImage();
 			}
 
 			@Override
-			public BufferedImage getBufferedImage(int width, int height) {
+			public byte[] getImageData(int width, int height) {
 				return getChartImage(width, height);
 			}		
 		};
@@ -471,14 +470,14 @@ public class ReportDataPage extends BasePage {
 		return columns;
 	}
 	
-	private BufferedImage getChartImage() {
+	private byte[] getChartImage() {
 		if(chartImage == null) {
 			chartImage = getChartImage(selectedWidth, selectedHeight);
 		}
 		return chartImage;
 	}
 	
-	private BufferedImage getChartImage(int width, int height) {
+	private byte[] getChartImage(int width, int height) {
 		PrefsData prefsData = facade.getStatsManager().getPreferences(siteId, false);
 		int _width = (width <= 0) ? 350 : width;
 		int _height = (height <= 0) ? 200: height;
