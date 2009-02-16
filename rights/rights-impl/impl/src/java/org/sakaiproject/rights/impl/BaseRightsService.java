@@ -23,9 +23,10 @@ package org.sakaiproject.rights.impl;
 
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.exception.IdUnusedException;
@@ -37,6 +38,7 @@ import org.sakaiproject.rights.api.CreativeCommonsLicense;
 import org.sakaiproject.rights.api.RightsAssignment;
 import org.sakaiproject.rights.api.SiteRightsPolicy;
 import org.sakaiproject.rights.api.UserRightsPolicy;
+import org.sakaiproject.rights.util.RightsException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -102,6 +104,244 @@ public abstract class BaseRightsService implements RightsService
 
 	}	// class BasicCopyright
 
+	public static class BasicCreativeCommonsLicense implements CreativeCommonsLicense
+	{
+		protected String m_id;
+		protected Set<Permission> m_permissions = new TreeSet<Permission>();
+		protected Set<Prohibition> m_prohibitions = new TreeSet<Prohibition>();
+		protected Set<Requirement> m_requirements = new TreeSet<Requirement>();
+
+		public void addPermission(Permission permission) 
+		{
+			if(m_permissions == null)
+			{
+				m_permissions = new TreeSet<Permission>();
+			}
+			m_permissions.add(permission);
+		}
+
+		public void addPermission(String permission)  throws RightsException
+		{
+			Permission p = Permission.fromString(permission);
+			if(p == null)
+			{
+				throw new RightsException();
+			}
+			addPermission(p);
+		}
+
+		public void addProhibition(Prohibition prohibition) 
+		{
+			if(m_prohibitions == null)
+			{
+				m_prohibitions = new TreeSet<Prohibition>();
+			}
+			m_prohibitions.add(prohibition);
+		}
+
+		public void addProhibition(String prohibition) throws RightsException
+		{
+			Prohibition p = Prohibition.fromString(prohibition);
+			if(p == null)
+			{
+				throw new RightsException();
+			}
+			addProhibition(p);
+		}
+
+		public void addRequirement(Requirement requirement) 
+		{
+			if(m_requirements == null)
+			{
+				m_requirements = new TreeSet<Requirement>();
+			}
+			m_requirements.add(requirement);
+		}
+
+		public void addRequirement(String requirement) throws RightsException 
+		{
+			Requirement r = Requirement.fromString(requirement);
+			if(r == null)
+			{
+				throw new RightsException();
+			}
+			addRequirement(r);
+		}
+
+		public String getIdentifier() 
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public Collection<Permission> getPermissions() 
+		{
+			return m_permissions;
+		}
+
+		public Collection<Prohibition> getProhibitions() 
+		{
+			return m_prohibitions;
+		}
+
+		public Collection<Requirement> getRequirements() 
+		{
+			return m_requirements;
+		}
+
+		public String getUri() 
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public boolean hasPermissions() 
+		{
+			return m_permissions != null && ! m_permissions.isEmpty();
+		}
+
+		public boolean hasProhibitions() 
+		{
+			return m_prohibitions != null && ! m_prohibitions.isEmpty();
+		}
+
+		public boolean hasRequirements() 
+		{
+			return m_requirements != null && ! m_requirements.isEmpty();
+		}
+
+		public void removePermission(String permission) 
+		{
+			Permission p = Permission.fromString(permission);
+			if(p != null)
+			{
+				this.m_permissions.remove(p);
+			}
+		}
+
+		public void removeProhibitions(Collection<Object> prohibitions) 
+		{
+			if(prohibitions != null)
+			{
+				for (Object obj : prohibitions)
+				{
+					Prohibition p = null;
+					if(obj instanceof Prohibition)
+					{
+						p = (Prohibition) obj;
+					}
+					else if(obj instanceof String)
+					{
+						p = Prohibition.fromString((String) obj);
+					}
+					if(p != null)
+					{
+						this.m_prohibitions.remove(p);
+					}
+				}
+			}
+		}
+
+		public void removeRequirements(Collection<Object> requirements) 
+		{
+			if(this.m_requirements == null)
+			{
+				this.m_requirements = new TreeSet<Requirement>();
+			}
+			this.m_requirements.clear();
+			
+			if(requirements != null)
+			{
+				for (Object obj : requirements)
+				{
+					Requirement r = null;
+					if(obj instanceof Requirement)
+					{
+						r = (Requirement) obj;
+					}
+					else if(obj instanceof String)
+					{
+						r = Requirement.fromString((String) obj);
+					}
+					if(r != null)
+					{
+						this.m_requirements.remove(r);
+					}
+				}
+			}
+		}
+		
+		public void setPermissions(Collection<Object> permissions) 
+		{
+			if(this.m_permissions == null)
+			{
+				this.m_permissions = new TreeSet<Permission>();
+			}
+			this.m_permissions.clear();
+			
+			if(permissions != null)
+			{
+				for (Object obj : permissions)
+				{
+					Permission p = null;
+					if(obj instanceof Permission)
+					{
+						p = (Permission) obj;
+					}
+					else if(obj instanceof String)
+					{
+						p = Permission.fromString((String) obj);
+					}
+					if(p != null)
+					{
+						this.m_permissions.add(p);
+					}
+				}
+			}
+		}
+
+		public void setProhibitions(Collection<Object> prohibitions) 
+		{
+			if(this.m_prohibitions == null)
+			{
+				this.m_prohibitions = new TreeSet<Prohibition>();
+			}
+			this.m_prohibitions.clear();
+			
+			if(prohibitions != null)
+			{
+				for (Object obj : prohibitions)
+				{
+					Prohibition p = null;
+					if(obj instanceof Prohibition)
+					{
+						p = (Prohibition) obj;
+					}
+					else if(obj instanceof String)
+					{
+						p = Prohibition.fromString((String) obj);
+					}
+					if(p != null)
+					{
+						this.m_prohibitions.add(p);
+					}
+				}
+			}
+		}
+
+		public void setRequirements(Collection<Object> requirements) 
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		public Element toXml(Document doc, Stack<Object> stack) 
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	}	// class BasicCreativeCommonsLicense
 		
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy

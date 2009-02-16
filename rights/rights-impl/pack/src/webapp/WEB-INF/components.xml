@@ -18,25 +18,4 @@
 -->
   	</bean>
 
-	<bean id="org.sakaiproject.rights.api.CreativeCommonsLicenseManager"
-			class="org.sakaiproject.rights.impl.CreativeCommonsLicenseManagerImpl"
-			init-method="init"
-			singleton="true">
-		<property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
-		
-		<property name="rootFolderReference" value="/content/user/admin/" />
-		<property name="relativeFolderPath" value="creativecommons/" />
-		<property name="versionList">
-			<list>
-				<value>3.0</value>
-				<value>2.5</value>
-				<value>2.1</value>
-				<value>2.0</value>
-				<value>1.0</value>
-			</list>
-		</property>
-		
-	</bean>
 </beans>

@@ -15,6 +15,9 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.rights.api.CreativeCommonsLicense;
 import org.sakaiproject.rights.api.CreativeCommonsLicenseManager;
 import org.sakaiproject.rights.util.RightsException;
@@ -23,6 +26,8 @@ import org.w3c.dom.Element;
 
 public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 {
+	private Log logger = LogFactory.getLog(CreativeCommonsLicenseImpl.class);
+	
 	protected static String baseURL = "http://creativecommons.org/licenses/";
 	protected String uri;
 	protected String source;
@@ -359,7 +364,7 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 				{
 					JSONObject jsonobj = json.getJSONObject(CreativeCommonsLicenseManager.DC_TITLE);
 					
-					for(String key : jsonobj.keySet())
+					for(String key : (Set<String>) jsonobj.keySet())
 					{
 						try
 						{
@@ -376,7 +381,7 @@ public class CreativeCommonsLicenseImpl implements CreativeCommonsLicense
 				{
 					JSONObject jsonobj = json.getJSONObject(CreativeCommonsLicenseManager.DC_DESCRIPTION);
 					
-					for(String key : jsonobj.keySet())
+					for(String key : (Set<String>) jsonobj.keySet())
 					{
 						try
 						{
