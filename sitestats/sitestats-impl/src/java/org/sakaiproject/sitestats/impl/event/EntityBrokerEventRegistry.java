@@ -149,10 +149,10 @@ public class EntityBrokerEventRegistry implements EventRegistry, EntityProviderL
 		String[] entityEventIds = provider.getEventKeys();
 
 		// Build tool for Event Registry (List<ToolInfo>)
-		ToolInfo tool = new ToolInfoImpl(entityToolId);
+		ToolInfo tool = new ToolInfo(entityToolId);
 		tool.setSelected(true);
 		for(String eventId : entityEventIds) {
-			EventInfo event = new EventInfoImpl(eventId);
+			EventInfo event = new EventInfo(eventId);
 			event.setSelected(true);
 			// Add to eventID -> entityProfider_prefix mapping
 			eventIdToEPPrefix.put(eventId, entityPrefix);

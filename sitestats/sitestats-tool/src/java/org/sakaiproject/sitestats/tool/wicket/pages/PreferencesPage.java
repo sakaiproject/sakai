@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Button;
@@ -54,14 +55,14 @@ public class PreferencesPage extends BasePage {
 	}
 
 	public PreferencesPage(PageParameters pageParameters) {
-		realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
+		realSiteId = getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
 		}
 		if(siteId == null){
 			siteId = realSiteId;
 		}
-		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			setModel(new CompoundPropertyModel(this));
 			renderBody();
@@ -97,7 +98,7 @@ public class PreferencesPage extends BasePage {
 		
 		// Section: Chart
 		WebMarkupContainer chartPrefs = new WebMarkupContainer("chartPrefs");
-		boolean chartPrefsVisible = facade.getStatsManager().isEnableSiteVisits() || facade.getStatsManager().isEnableSiteActivity();
+		boolean chartPrefsVisible = getFacade().getStatsManager().isEnableSiteVisits() || getFacade().getStatsManager().isEnableSiteActivity();
 		chartPrefs.setVisible(chartPrefsVisible);
 		form.add(chartPrefs);
 		//CheckBox chartIn3D = new CheckBox("chartIn3D");
@@ -128,10 +129,10 @@ public class PreferencesPage extends BasePage {
 		eventRegistryTree = new EventRegistryTree("eventRegistryTree", getPrefsdata().getToolEventsDef()) {
 			@Override
 			public boolean isToolSuported(final ToolInfo toolInfo) {
-				if(facade.getStatsManager().isEventContextSupported()){
+				if(getFacade().getStatsManager().isEventContextSupported()){
 					return true;
 				}else{
-					List<ToolInfo> siteTools = facade.getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
+					List<ToolInfo> siteTools = getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
 					Iterator<ToolInfo> i = siteTools.iterator();
 					while (i.hasNext()){
 						ToolInfo t = i.next();
@@ -173,18 +174,18 @@ public class PreferencesPage extends BasePage {
 	
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
-			prefsdata = facade.getStatsManager().getPreferences(siteId, true);
+			prefsdata = getFacade().getStatsManager().getPreferences(siteId, true);
 		}
 		return prefsdata;
 	}
 
 	private void savePreferences() {
 		if(isUseAllTools()) {
-			getPrefsdata().setToolEventsDef(facade.getEventRegistryService().getEventRegistry(siteId, isListToolEventsOnlyAvailableInSite()));
+			getPrefsdata().setToolEventsDef(getFacade().getEventRegistryService().getEventRegistry(siteId, isListToolEventsOnlyAvailableInSite()));
 		}else{
 			getPrefsdata().setToolEventsDef((List<ToolInfo>) eventRegistryTree.getEventRegistry());
 		}
-		boolean opOk = facade.getStatsManager().setPreferences(siteId, getPrefsdata());		
+		boolean opOk = getFacade().getStatsManager().setPreferences(siteId, getPrefsdata());		
 		if(opOk){
 			info((String) new ResourceModel("prefs_updated").getObject());
 		}else{
@@ -241,6 +242,13 @@ public class PreferencesPage extends BasePage {
 		long tmp = Math.round(val);
 		// Shift the decimal the correct number of places back to the left.
 		return (double) tmp / factor;
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 }
 

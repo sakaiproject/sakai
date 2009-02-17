@@ -33,8 +33,6 @@ public class ReportDefsProvider implements IDataProvider {
 	@SpringBean
 	private transient SakaiFacade	facade;
 	
-	private transient Collator		collator			= Collator.getInstance();
-
 	private String					siteId;
 	private	int						mode;
 	private boolean 				filterWithToolsInSite;
@@ -58,20 +56,20 @@ public class ReportDefsProvider implements IDataProvider {
 		if(data == null) {
 			switch(mode) {
 				case MODE_MYREPORTS:
-					data = facade.getReportManager().getReportDefinitions(siteId, false, includeHidden);
+					data = getFacade().getReportManager().getReportDefinitions(siteId, false, includeHidden);
 					break;
 				case MODE_PREDEFINED_REPORTS:
-					data = facade.getReportManager().getReportDefinitions(null, false, includeHidden);
+					data = getFacade().getReportManager().getReportDefinitions(null, false, includeHidden);
 					break;
 				case MODE_MY_AND_PREDEFINED_REPORTS:
-					data = facade.getReportManager().getReportDefinitions(siteId, true, includeHidden);
+					data = getFacade().getReportManager().getReportDefinitions(siteId, true, includeHidden);
 					break;
 			}
 			if(filterWithToolsInSite) {
 				data = filterWithToolsInSite(data);
 			}
 			data = fixReportParamsSiteIdForPredefinedReports(data);
-			Collections.sort(data, getReportDefComparator(collator));
+			Collections.sort(data, getReportDefComparator());
 		}		
 		return data;
 	}
@@ -106,7 +104,7 @@ public class ReportDefsProvider implements IDataProvider {
 		List<ReportDef> filtered = new ArrayList<ReportDef>();
 		if(list != null) {
 			try{
-				Site site = facade.getSiteService().getSite(siteId);
+				Site site = getFacade().getSiteService().getSite(siteId);
 				for(ReportDef rd : list){
 					if(canIncludeReport(rd, site)){
 						filtered.add(rd);
@@ -128,7 +126,7 @@ public class ReportDefsProvider implements IDataProvider {
 		
 		if(ReportManager.WHAT_VISITS.equals(reportDef.getReportParams().getWhat())) {
 			// keep visit based reports if site visits are enabled
-			if(facade.getStatsManager().isEnableSiteVisits()) {
+			if(getFacade().getStatsManager().isEnableSiteVisits()) {
 				return true;
 			}
 		}else if(ReportManager.WHAT_RESOURCES.equals(reportDef.getReportParams().getWhat())) {
@@ -142,7 +140,7 @@ public class ReportDefsProvider implements IDataProvider {
 			// at least one tool from the selection must be present
 			if(ReportManager.WHAT_EVENTS_BYEVENTS.equals(reportDef.getReportParams().getWhatEventSelType())) {
 				for(ToolConfiguration tc : siteTools) {
-					Map<String,ToolInfo> map = facade.getEventRegistryService().getEventIdToolMap();
+					Map<String,ToolInfo> map = getFacade().getEventRegistryService().getEventIdToolMap();
 					for(String eventId : reportDef.getReportParams().getWhatEventIds()) {
 						if(tc.getToolId().equals(map.get(eventId).getToolId())) {
 							return true;
@@ -164,9 +162,10 @@ public class ReportDefsProvider implements IDataProvider {
 		return false;
 	}
 	
-	public final Comparator<ReportDef> getReportDefComparator(final Collator collator) {
+	public final Comparator<ReportDef> getReportDefComparator() {
 		return new Comparator<ReportDef>() {
-
+			private final transient Collator		collator			= Collator.getInstance();
+			
 			public int compare(ReportDef o1, ReportDef o2) {
 				String title1 = null;
 				String title2 = null;
@@ -184,5 +183,12 @@ public class ReportDefsProvider implements IDataProvider {
 			}
 			
 		};
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 }

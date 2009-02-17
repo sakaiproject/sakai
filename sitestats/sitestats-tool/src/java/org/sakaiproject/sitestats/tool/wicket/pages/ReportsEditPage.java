@@ -26,6 +26,7 @@ import org.apache.wicket.extensions.markup.html.form.select.Select;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOptions;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -119,7 +120,7 @@ public class ReportsEditPage extends BasePage {
 	}
 	
 	public ReportsEditPage(ReportDefModel reportDef, PageParameters pageParameters, final WebPage returnPage) {
-		realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
+		realSiteId = getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
 			predefined = pageParameters.getBoolean("predefined");
@@ -141,7 +142,7 @@ public class ReportsEditPage extends BasePage {
 		}else{
 			this.returnPage = returnPage;
 		}
-		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			renderBody();
 		}else{
@@ -169,7 +170,7 @@ public class ReportsEditPage extends BasePage {
 	}
 	
 	private void renderBody() {
-		StatsManager statsManager = facade.getStatsManager();
+		StatsManager statsManager = getFacade().getStatsManager();
 		
 		// menu
 		add(new Menus("menu", siteId));
@@ -243,7 +244,7 @@ public class ReportsEditPage extends BasePage {
 						if(predefined) {
 							getReportParams().setSiteId(null);
 						}
-						boolean saved = facade.getReportManager().saveReportDefinition(getReportDef());
+						boolean saved = getFacade().getReportManager().saveReportDefinition(getReportDef());
 						String titleStr = null;
 						if(saved) {
 							if(getReportDef().isTitleLocalized()) {
@@ -268,7 +269,7 @@ public class ReportsEditPage extends BasePage {
 				super.onSubmit();
 			}
 		};
-		saveReport.setVisible(!predefined || (predefined && facade.getStatsAuthz().isSiteStatsAdminPage() && realSiteId.equals(siteId)));
+		saveReport.setVisible(!predefined || (predefined && getFacade().getStatsAuthz().isSiteStatsAdminPage() && realSiteId.equals(siteId)));
 		form.add(saveReport);
 		final Button back = new Button("back") {
 			@Override
@@ -332,7 +333,7 @@ public class ReportsEditPage extends BasePage {
 
 		// set visibility
 		if(predefined) {
-			if(facade.getStatsAuthz().isSiteStatsAdminPage() && realSiteId.equals(siteId)) {
+			if(getFacade().getStatsAuthz().isSiteStatsAdminPage() && realSiteId.equals(siteId)) {
 				reportDetailsTop.setVisible(true);
 				reportDetailsShow.setVisible(false);
 				reportDetails.setVisible(true);
@@ -417,7 +418,7 @@ public class ReportsEditPage extends BasePage {
 		form.add(whatEventIds);
 		
 		// resources selection
-		boolean isSiteStatsAdminTool = facade.getStatsAuthz().isSiteStatsAdminPage();
+		boolean isSiteStatsAdminTool = getFacade().getStatsAuthz().isSiteStatsAdminPage();
 		boolean showDefaultBaseFoldersOnly = isSiteStatsAdminTool && predefined && realSiteId.equals(siteId);
 		CheckBox whatLimitedAction = new CheckBox("reportParams.whatLimitedAction");
 		whatLimitedAction.setMarkupId("whatLimitedAction");
@@ -618,7 +619,7 @@ public class ReportsEditPage extends BasePage {
 		IChoiceRenderer groupsRenderer = new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
 				try{
-					return facade.getSiteService().getSite(siteId).getGroup((String) object).getTitle();
+					return getFacade().getSiteService().getSite(siteId).getGroup((String) object).getTitle();
 				}catch(IdUnusedException e){
 					return (String) object;
 				}
@@ -645,8 +646,8 @@ public class ReportsEditPage extends BasePage {
 
 	@SuppressWarnings("serial")
 	private void renderHowUI(Form form) {		
-		boolean isSiteStatsAdminTool = facade.getStatsAuthz().isSiteStatsAdminPage();
-		boolean renderSiteSelectOption = facade.getStatsAuthz().isSiteStatsAdminPage() && !predefined && realSiteId.equals(siteId);
+		boolean isSiteStatsAdminTool = getFacade().getStatsAuthz().isSiteStatsAdminPage();
+		boolean renderSiteSelectOption = getFacade().getStatsAuthz().isSiteStatsAdminPage() && !predefined && realSiteId.equals(siteId);
 		boolean renderSiteSortOption = isSiteStatsAdminTool && !predefined && realSiteId.equals(siteId);
 		boolean renderSortAscendingOption = isSiteStatsAdminTool && predefined && realSiteId.equals(siteId);
 
@@ -857,7 +858,7 @@ public class ReportsEditPage extends BasePage {
 	@SuppressWarnings("serial")
 	private void addTools(final RepeatingView rv) {
 		List<SelectOption> tools = new ArrayList<SelectOption>();
-		List<ToolInfo> siteTools = facade.getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
+		List<ToolInfo> siteTools = getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
 		Iterator<ToolInfo> i = siteTools.iterator();
 		// add tools
 		while(i.hasNext()){
@@ -883,7 +884,7 @@ public class ReportsEditPage extends BasePage {
 				ToolModel toolModel = (ToolModel) opt.getModel();
 				String toolId = toolModel.getToolId();
 				if(!ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolId)) {
-					String toolIconPath = "background-image: url(" + facade.getEventRegistryService().getToolIcon(toolId) + ");";
+					String toolIconPath = "background-image: url(" + getFacade().getEventRegistryService().getToolIcon(toolId) + ");";
 					String style = "background-position:left center; background-repeat:no-repeat; margin-left:3px; padding-left:20px; "+toolIconPath;
 					return style;
 				}
@@ -900,7 +901,7 @@ public class ReportsEditPage extends BasePage {
 	
 	@SuppressWarnings("serial")
 	private void addEvents(final RepeatingView rv) {
-		List<ToolInfo> siteTools = facade.getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
+		List<ToolInfo> siteTools = getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
 		Collections.sort(siteTools, getToolInfoComparator(collator));
 		// add events
 		Iterator<ToolInfo> i = siteTools.iterator();
@@ -918,7 +919,7 @@ public class ReportsEditPage extends BasePage {
 				WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
 				optgroupItem.setRenderBodyOnly(true);
 				rv.add(optgroupItem);
-				String toolIconPath = "background-image: url(" + facade.getEventRegistryService().getToolIcon(toolInfo.getToolId()) + ");";
+				String toolIconPath = "background-image: url(" + getFacade().getEventRegistryService().getToolIcon(toolInfo.getToolId()) + ");";
 				String style = "background-position:left top; background-repeat:no-repeat; margin-left:3px; padding-left:20px; "+toolIconPath;
 				StylableSelectOptionsGroup group = new StylableSelectOptionsGroup("group", new Model(toolInfo.getToolName()), new Model(style));
 				optgroupItem.add(group);
@@ -947,14 +948,14 @@ public class ReportsEditPage extends BasePage {
 		try{
 			List<SelectOption> users = new ArrayList<SelectOption>();
 			// anonymous access
-			if(facade.getStatsManager().isShowAnonymousAccessEvents()) {
+			if(getFacade().getStatsManager().isShowAnonymousAccessEvents()) {
 				SelectOption anon = new SelectOption("option", new Model("?"));
 				users.add(anon);
 			}
 			// site users
 			Set<String> siteUsers = null;
 			try{
-				siteUsers = facade.getSiteService().getSite(siteId).getUsers();
+				siteUsers = getFacade().getSiteService().getSite(siteId).getUsers();
 			}catch(IdUnusedException e){
 				LOG.warn("Site does not exist: " + siteId);
 				siteUsers = new HashSet<String>();
@@ -980,7 +981,7 @@ public class ReportsEditPage extends BasePage {
 					}else{
 						User u = null;
 						try{
-							u = facade.getUserDirectoryService().getUser(userId);
+							u = getFacade().getUserDirectoryService().getUser(userId);
 						}catch(UserNotDefinedException e){
 							return Web.escapeHtml(userId);
 						}
@@ -1009,7 +1010,7 @@ public class ReportsEditPage extends BasePage {
 	
 	@SuppressWarnings("serial")
 	private void addGroupOptions(final RepeatingView rv) {
-		boolean isSiteStatsAdminTool = facade.getStatsAuthz().isSiteStatsAdminPage();
+		boolean isSiteStatsAdminTool = getFacade().getStatsAuthz().isSiteStatsAdminPage();
 		boolean renderAdminOptions = isSiteStatsAdminTool && !predefined && realSiteId.equals(siteId);
 		
 		List<String> totalsOptions = new ArrayList<String>();
@@ -1078,7 +1079,7 @@ public class ReportsEditPage extends BasePage {
 	private List<String> getGroups() {
 		List<String> groups = new ArrayList<String>();
 		try{
-			Collection<Group> groupCollection = facade.getSiteService().getSite(siteId).getGroups();
+			Collection<Group> groupCollection = getFacade().getSiteService().getSite(siteId).getGroups();
 			Iterator<Group> i = groupCollection.iterator();
 			while(i.hasNext()){
 				Group g = i.next();
@@ -1094,7 +1095,7 @@ public class ReportsEditPage extends BasePage {
 	private List<String> getRoles() {
 		List<String> roles = new ArrayList<String>();
 		try{
-			Set<Role> roleSet = facade.getSiteService().getSite(siteId).getRoles();
+			Set<Role> roleSet = getFacade().getSiteService().getSite(siteId).getRoles();
 			Iterator<Role> i = roleSet.iterator();
 			while(i.hasNext()){
 				Role r = i.next();
@@ -1108,10 +1109,10 @@ public class ReportsEditPage extends BasePage {
 	}
 	
 	private boolean isToolSuported(final ToolInfo toolInfo) {
-		if(facade.getStatsManager().isEventContextSupported()){
+		if(getFacade().getStatsManager().isEventContextSupported()){
 			return true;
 		}else{
-			List<ToolInfo> siteTools = facade.getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
+			List<ToolInfo> siteTools = getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
 			Iterator<ToolInfo> i = siteTools.iterator();
 			while (i.hasNext()){
 				ToolInfo t = i.next();
@@ -1166,7 +1167,7 @@ public class ReportsEditPage extends BasePage {
 
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
-			prefsdata = facade.getStatsManager().getPreferences(siteId, true);
+			prefsdata = getFacade().getStatsManager().getPreferences(siteId, true);
 		}
 		return prefsdata;
 	}
@@ -1174,7 +1175,7 @@ public class ReportsEditPage extends BasePage {
 	private boolean validReportParameters() {
 		Site site = null;
 		try{
-			site = facade.getSiteService().getSite(siteId);
+			site = getFacade().getSiteService().getSite(siteId);
 		}catch(IdUnusedException e){
 			LOG.error("No site with id: "+siteId);
 		}
@@ -1274,6 +1275,13 @@ public class ReportsEditPage extends BasePage {
 
 	public ReportParams getReportParams() {
 		return getReportDef().getReportParams();
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 	
 	/** Subclass of Select that fixes behavior when used with AjaxFormChoiceComponentUpdatingBehavior.*/

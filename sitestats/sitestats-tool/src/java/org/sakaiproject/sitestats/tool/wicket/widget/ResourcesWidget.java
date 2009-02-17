@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -206,7 +207,7 @@ public class ResourcesWidget extends Panel {
 			
 			private void processData() {
 				if(totalDistinctFileReads == -1) {
-					Report r = facade.getReportManager().getReport(getCommonReportDefition(), true);
+					Report r = getFacade().getReportManager().getReport(getCommonReportDefition(), true);
 					try{
 						totalDistinctFileReads = 0;
 						for(Stat s : r.getReportData()) {
@@ -216,7 +217,7 @@ public class ResourcesWidget extends Panel {
 								if(resId.startsWith(prefix)) {
 									resId = resId.substring(prefix.length());
 								}
-								facade.getContentHostingService().getResource(resId);
+								getFacade().getContentHostingService().getResource(resId);
 								totalDistinctFileReads++;
 							}catch(Exception e) {
 								// skip: doesn't exist or is a collection
@@ -245,7 +246,7 @@ public class ResourcesWidget extends Panel {
 			public String getValue() {
 				processData();
 				if(mostOpenedFile != null) {
-					return facade.getStatsManager().getResourceName(mostOpenedFile, false);
+					return getFacade().getStatsManager().getResourceName(mostOpenedFile, false);
 				}else{
 					return "-";
 				}
@@ -259,7 +260,7 @@ public class ResourcesWidget extends Panel {
 			@Override
 			public String getTooltip() {
 				if(mostOpenedFile != null) {
-					return facade.getStatsManager().getResourceName(mostOpenedFile, true);
+					return getFacade().getStatsManager().getResourceName(mostOpenedFile, true);
 				}else{
 					return null;
 				}
@@ -306,7 +307,7 @@ public class ResourcesWidget extends Panel {
 			
 			private void processData() {
 				if(mostOpenedFile == null) {
-					Report r = facade.getReportManager().getReport(getCommonReportDefition(), true);
+					Report r = getFacade().getReportManager().getReport(getCommonReportDefition(), true);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {
@@ -345,7 +346,7 @@ public class ResourcesWidget extends Panel {
 						id = "-";
 					}else{
 						try{
-							id = facade.getUserDirectoryService().getUser(user).getDisplayId();
+							id = getFacade().getUserDirectoryService().getUser(user).getDisplayId();
 						}catch(UserNotDefinedException e1){
 							id = user;
 						}
@@ -371,7 +372,7 @@ public class ResourcesWidget extends Panel {
 						name = (String) new ResourceModel("user_anonymous_access").getObject();
 					}else{
 						try{
-							name = facade.getUserDirectoryService().getUser(user).getDisplayName();
+							name = getFacade().getUserDirectoryService().getUser(user).getDisplayName();
 						}catch(UserNotDefinedException e1){
 							name = (String) new ResourceModel("user_unknown").getObject();
 						}
@@ -423,7 +424,7 @@ public class ResourcesWidget extends Panel {
 			
 			private void processData() {
 				if(user == null) {
-					Report r = facade.getReportManager().getReport(getCommonReportDefition(), true);
+					Report r = getFacade().getReportManager().getReport(getCommonReportDefition(), true);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {
@@ -723,9 +724,16 @@ public class ResourcesWidget extends Panel {
 	
 	// -------------------------------------------------------------------------------
 
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
+	}
+	
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
-			prefsdata = facade.getStatsManager().getPreferences(siteId, true);
+			prefsdata = getFacade().getStatsManager().getPreferences(siteId, true);
 		}
 		return prefsdata;
 	}
@@ -734,8 +742,8 @@ public class ResourcesWidget extends Panel {
 	private int getTotalFiles() {
 		if(totalFiles == -1) {
 			try{
-				String siteCollectionId = facade.getContentHostingService().getSiteCollection(siteId);
-				totalFiles = facade.getContentHostingService().getAllResources(siteCollectionId).size();
+				String siteCollectionId = getFacade().getContentHostingService().getSiteCollection(siteId);
+				totalFiles = getFacade().getContentHostingService().getAllResources(siteCollectionId).size();
 			}catch(Exception e){
 				totalFiles = 0;
 			}		

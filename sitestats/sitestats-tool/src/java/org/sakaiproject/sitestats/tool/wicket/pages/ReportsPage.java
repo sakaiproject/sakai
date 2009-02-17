@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -41,14 +42,14 @@ public class ReportsPage extends BasePage {
 	}
 	
 	public ReportsPage(PageParameters pageParameters) {
-		realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
+		realSiteId = getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
 		}
 		if(siteId == null){
 			siteId = realSiteId;
 		}
-		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			renderBody();
 		}else{
@@ -69,7 +70,7 @@ public class ReportsPage extends BasePage {
 	}
 	
 	private void renderBody() {	
-		boolean isSiteStatsAdminPage = facade.getStatsAuthz().isSiteStatsAdminPage();
+		boolean isSiteStatsAdminPage = getFacade().getStatsAuthz().isSiteStatsAdminPage();
 		boolean isAdministering = isSiteStatsAdminPage && realSiteId.equals(siteId);
 		boolean isFilteringReportsWithToolsInSite = !isAdministering;
 		
@@ -182,7 +183,7 @@ public class ReportsPage extends BasePage {
 			super(id, "reportRowFragment", ReportsPage.this);
 
 			final ReportDef reportDef = (ReportDef) model.getObject();
-			final boolean isSiteStatsAdminPage = facade.getStatsAuthz().isSiteStatsAdminPage();
+			final boolean isSiteStatsAdminPage = getFacade().getStatsAuthz().isSiteStatsAdminPage();
 			final boolean isPredefinedReport = reportDef.getSiteId() == null;
 			
 			// icon
@@ -243,7 +244,7 @@ public class ReportsPage extends BasePage {
 				@Override
 				public void onClick() {
 					reportDef.setHidden(!reportDef.isHidden());
-					facade.getReportManager().saveReportDefinition(reportDef);
+					getFacade().getReportManager().saveReportDefinition(reportDef);
 				}
 			};
 			hideContainer.add(hide);
@@ -276,7 +277,7 @@ public class ReportsPage extends BasePage {
 						reportDef.setSiteId(siteId);
 						reportDef.getReportParams().setSiteId(siteId);
 					}
-					facade.getReportManager().saveReportDefinition(reportDef);
+					getFacade().getReportManager().saveReportDefinition(reportDef);
 				}	
 			};
 			duplicateContainer.add(duplicate);
@@ -289,7 +290,7 @@ public class ReportsPage extends BasePage {
 				private static final long	serialVersionUID	= 1L;
 				@Override
 				public void onClick() {
-					facade.getReportManager().removeReportDefinition(reportDef);
+					getFacade().getReportManager().removeReportDefinition(reportDef);
 				}					
 				@Override
 				protected CharSequence getOnClickScript(CharSequence url) {
@@ -301,6 +302,13 @@ public class ReportsPage extends BasePage {
 		}
 
 		
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 	
 }

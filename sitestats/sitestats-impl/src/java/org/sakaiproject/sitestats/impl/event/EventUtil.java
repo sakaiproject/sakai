@@ -24,7 +24,7 @@ public class EventUtil {
 		Iterator<ToolInfo> i = eventRegistrySubset.iterator();
 		while (i.hasNext()){
 			ToolInfo t = i.next();
-			int ix = fullEventRegistry.indexOf(new ToolInfoImpl(t.getToolId()));
+			int ix = fullEventRegistry.indexOf(new ToolInfo(t.getToolId()));
 			if(ix != -1)
 				t.setAdditionalToolIds(fullEventRegistry.get(ix).getAdditionalToolIds());
 		}

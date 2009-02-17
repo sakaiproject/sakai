@@ -5,6 +5,7 @@ import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.debug.PageView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -23,9 +24,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	protected static final String	BODY_ONLOAD_ADDTL	= "setMainFrameHeightNoScroll(window.name, 0, 400)";
 	protected static final String	LAST_PAGE			= "lastSiteStatsPage";
 
-	@SpringBean
-	private transient SakaiFacade facade;
-	
 	public BasePage(){
 		// Set Sakai Locale
 		ResourceLoader rl = new ResourceLoader();
@@ -46,6 +44,16 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		// include (this) tool style (CSS)
 		response.renderCSSReference("/sakai-sitestats-tool/css/sitestats.css");
+	}
+	
+	@Override
+	protected void onBeforeRender() {
+		/** Component used for debugging pagemaps
+		// WARNING: produce unexpected results - use only for debugging!
+		PageView componentTree = new PageView("componentTree", this);
+		add(componentTree);
+		*/
+		super.onBeforeRender();
 	}
 
 	public String getPortalSkinCSS() {

@@ -9,7 +9,7 @@ import org.xml.sax.Attributes;
 public class EventParserTipFactoryImpl implements EventParserTipFactory, ObjectCreationFactory {
 
 	public EventParserTip createEventParserTip() {
-		return new EventParserTipImpl();
+		return new EventParserTip();
 	}
 	
 	public Object createObject(Attributes attributes) throws Exception {
@@ -20,7 +20,7 @@ public class EventParserTipFactoryImpl implements EventParserTipFactory, ObjectC
 		if(_for == null){ throw new Exception("Mandatory 'for' attribute not present on eventParserTip tag."); }
 		if(_separator == null){ throw new Exception("Mandatory 'separator' attribute not present on eventParserTip tag."); }
 		if(_index == null){ throw new Exception("Mandatory 'index' attribute not present on eventParserTip tag."); }
-		EventParserTip e = new EventParserTipImpl(_for, _separator, _index);
+		EventParserTip e = new EventParserTip(_for, _separator, _index);
 		return e;
 	}
 

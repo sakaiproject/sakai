@@ -1,6 +1,7 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -31,14 +32,14 @@ public class OverviewPage extends BasePage {
 	}
 
 	public OverviewPage(PageParameters pageParameters) {
-		realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
+		realSiteId = getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
 		}
 		if(siteId == null){
 			siteId = realSiteId;
 		}
-		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			renderBody();
 		}else{
@@ -62,7 +63,7 @@ public class OverviewPage extends BasePage {
 		add(new Menus("menu", siteId));
 		
 		// SiteStats services
-		StatsManager statsManager = facade.getStatsManager();
+		StatsManager statsManager = getFacade().getStatsManager();
 		
 		// Last job run
 		add(new LastJobRun("lastJobRun", siteId));
@@ -88,7 +89,7 @@ public class OverviewPage extends BasePage {
 		// Resources
 		boolean resourcesVisible = false;
 		try{
-			resourcesVisible = (facade.getSiteService().getSite(siteId).getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null);
+			resourcesVisible = (getFacade().getSiteService().getSite(siteId).getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null);
 		}catch(Exception e) {
 			resourcesVisible = false;
 		}
@@ -97,6 +98,13 @@ public class OverviewPage extends BasePage {
 		}else{
 			add(new WebMarkupContainer("resourcesWidget").setRenderBodyOnly(true));
 		}
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 }
 

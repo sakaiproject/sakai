@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -93,7 +94,7 @@ public class ActivityWidget extends Panel {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public String getValue() {
-				return Long.toString(facade.getStatsManager().getTotalSiteActivity(siteId, getPrefsdata().getToolEventsStringList()));
+				return Long.toString(getFacade().getStatsManager().getTotalSiteActivity(siteId, getPrefsdata().getToolEventsStringList()));
 			}
 			@Override
 			public String getSecondValue() {
@@ -153,7 +154,7 @@ public class ActivityWidget extends Panel {
 			public String getValue() {
 				processData();
 				if(mostActiveTool != null) {
-					return facade.getEventRegistryService().getToolName(mostActiveTool);
+					return getFacade().getEventRegistryService().getToolName(mostActiveTool);
 				}else{
 					return "-";
 				}
@@ -168,7 +169,7 @@ public class ActivityWidget extends Panel {
 			@Override
 			public String getTooltip() {
 				if(mostActiveTool != null) {
-					return facade.getEventRegistryService().getToolName(mostActiveTool);
+					return getFacade().getEventRegistryService().getToolName(mostActiveTool);
 				}else{
 					return null;
 				}
@@ -221,7 +222,7 @@ public class ActivityWidget extends Panel {
 					rp.setHowSort(true);
 					rp.setHowSortBy(StatsManager.T_TOTAL);
 					rp.setHowSortAscending(false);
-					Report r = facade.getReportManager().getReport(rd, true);
+					Report r = getFacade().getReportManager().getReport(rd, true);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {
@@ -272,7 +273,7 @@ public class ActivityWidget extends Panel {
 						id = "-";
 					}else{
 						try{
-							id = facade.getUserDirectoryService().getUser(mostActiveUser).getDisplayId();
+							id = getFacade().getUserDirectoryService().getUser(mostActiveUser).getDisplayId();
 						}catch(UserNotDefinedException e1){
 							id = mostActiveUser;
 						}
@@ -299,7 +300,7 @@ public class ActivityWidget extends Panel {
 						name = (String) new ResourceModel("user_anonymous_access").getObject();
 					}else{
 						try{
-							name = facade.getUserDirectoryService().getUser(mostActiveUser).getDisplayName();
+							name = getFacade().getUserDirectoryService().getUser(mostActiveUser).getDisplayName();
 						}catch(UserNotDefinedException e1){
 							name = (String) new ResourceModel("user_unknown").getObject();
 						}
@@ -349,7 +350,7 @@ public class ActivityWidget extends Panel {
 			
 			private void processData() {
 				if(mostActiveUser == null) {
-					Report r = facade.getReportManager().getReport(getCommonReportDefition(), true);
+					Report r = getFacade().getReportManager().getReport(getCommonReportDefition(), true);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {
@@ -646,10 +647,17 @@ public class ActivityWidget extends Panel {
 	
 	
 	// -------------------------------------------------------------------------------
-
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
+	}
+	
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
-			prefsdata = facade.getStatsManager().getPreferences(siteId, true);
+			prefsdata = getFacade().getStatsManager().getPreferences(siteId, true);
 		}
 		return prefsdata;
 	}

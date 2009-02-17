@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.tool.wicket.models;
 
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.report.ReportDef;
@@ -27,6 +28,7 @@ public class ReportDefModel extends LoadableDetachableModel {
 		super(reportDef);
 		this.id = reportDef.getId();
 		this.siteId = reportDef.getSiteId();
+		this.reportSiteId = reportDef.getReportParams().getSiteId();
 	}
 	
 	public ReportDefModel(long id) {
@@ -43,10 +45,14 @@ public class ReportDefModel extends LoadableDetachableModel {
 		ReportDef reportDef = null;		
 		if(id == 0) {
 			reportDef = new ReportDef();
-			reportDef.setSiteId(siteId);
+			reportDef.setSiteId(getSiteId());
 			reportDef.setReportParams(new ReportParams(reportSiteId));
 		}else{
-			reportDef = facade.getReportManager().getReportDefinition(id); 
+			reportDef = getFacade().getReportManager().getReportDefinition(id); 
+			if(reportDef.getSiteId() == null && reportDef.getReportParams().getSiteId() == null) {
+				// fix siteId for predefined reports
+				reportDef.getReportParams().setSiteId(getSiteId());
+			}
 		}
 		return reportDef;
 	}
@@ -55,4 +61,17 @@ public class ReportDefModel extends LoadableDetachableModel {
 	public void detach() {
 	}
 	
+	private String getSiteId() {
+		if(siteId == null) {
+			siteId = reportSiteId;
+		}
+		return siteId;
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
+	}
 }

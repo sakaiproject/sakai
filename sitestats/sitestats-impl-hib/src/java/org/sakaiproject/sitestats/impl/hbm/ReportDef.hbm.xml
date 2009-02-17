@@ -5,7 +5,7 @@
 <hibernate-mapping>
 	<class name="org.sakaiproject.sitestats.api.report.ReportDef"
 		table="SST_REPORTS"
-		lazy="true">
+		lazy="false">
 		<id name="id" type="long" column="ID" unsaved-value="0">
 			<generator class="native">
 				<param name="sequence">SST_REPORTS_ID</param>

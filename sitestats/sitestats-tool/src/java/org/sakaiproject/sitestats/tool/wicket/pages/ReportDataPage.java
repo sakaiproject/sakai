@@ -17,6 +17,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -91,7 +92,7 @@ public class ReportDataPage extends BasePage {
 
 	public ReportDataPage(final ReportDefModel reportDef, final PageParameters pageParameters, final WebPage returnPage) {
 		this.reportDefModel = reportDef;
-		realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
+		realSiteId = getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
 			inPrintVersion = pageParameters.getBoolean("printVersion");
@@ -104,7 +105,7 @@ public class ReportDataPage extends BasePage {
 		}else{
 			this.returnPage = returnPage;
 		}
-		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			if(reportDef != null && getReportDef() != null && getReportDef().getReportParams() != null) {
 				renderBody();
@@ -193,7 +194,7 @@ public class ReportDataPage extends BasePage {
 		// Report: table
 		SakaiDataTable reportTable = new SakaiDataTable(
 				"table", 
-				getTableColumns(facade, getReportParams(), true), 
+				getTableColumns(getFacade(), getReportParams(), true), 
 				dataProvider, 
 				true);
 		reportTable.setVisible(
@@ -478,10 +479,10 @@ public class ReportDataPage extends BasePage {
 	}
 	
 	private byte[] getChartImage(int width, int height) {
-		PrefsData prefsData = facade.getStatsManager().getPreferences(siteId, false);
+		PrefsData prefsData = getFacade().getStatsManager().getPreferences(siteId, false);
 		int _width = (width <= 0) ? 350 : width;
 		int _height = (height <= 0) ? 200: height;
-		return facade.getChartService().generateChart(
+		return getFacade().getChartService().generateChart(
 					report, _width, _height,
 					prefsData.isChartIn3D(), prefsData.getChartTransparency(),
 					prefsData.isItemLabelsVisible()
@@ -511,7 +512,7 @@ public class ReportDataPage extends BasePage {
 		// append site
 		exportFileName.append(" (");
 		try{
-			exportFileName.append((facade.getSiteService().getSite(siteId)).getTitle());
+			exportFileName.append((getFacade().getSiteService().getSite(siteId)).getTitle());
 		}catch(IdUnusedException e){
 			exportFileName.append(siteId);
 		}
@@ -521,7 +522,7 @@ public class ReportDataPage extends BasePage {
 
 	protected void exportXls() {
 		String fileName = getExportFileName();
-		byte[] hssfWorkbookBytes = facade.getReportManager().getReportAsExcel(report, fileName);
+		byte[] hssfWorkbookBytes = getFacade().getReportManager().getReportAsExcel(report, fileName);
 		
 		RequestCycle.get().setRequestTarget(EmptyRequestTarget.getInstance());
 		WebResponse response = (WebResponse) getResponse();
@@ -549,7 +550,7 @@ public class ReportDataPage extends BasePage {
 
 	protected void exportCsv() {
 		String fileName = getExportFileName();
-		String csvString = facade.getReportManager().getReportAsCsv(report);
+		String csvString = getFacade().getReportManager().getReportAsCsv(report);
 		
 		RequestCycle.get().setRequestTarget(EmptyRequestTarget.getInstance());
 		WebResponse response = (WebResponse) getResponse();
@@ -577,7 +578,7 @@ public class ReportDataPage extends BasePage {
 
 	protected void exportPdf() {
 		String fileName = getExportFileName();
-		byte[] pdf = facade.getReportManager().getReportAsPDF(report);
+		byte[] pdf = getFacade().getReportManager().getReportAsPDF(report);
 
 		RequestCycle.get().setRequestTarget(EmptyRequestTarget.getInstance());
 		WebResponse response = (WebResponse) getResponse();
@@ -602,10 +603,17 @@ public class ReportDataPage extends BasePage {
 			}
 		}
 	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
+	}
 
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
-			prefsdata = facade.getStatsManager().getPreferences(siteId, true);
+			prefsdata = getFacade().getStatsManager().getPreferences(siteId, true);
 		}
 		return prefsdata;
 	}
@@ -630,51 +638,51 @@ public class ReportDataPage extends BasePage {
 	// Report results: SUMMARY 
 	// ######################################################################################	
 	public String getReportDescription() {
-		return facade.getReportManager().getReportFormattedParams().getReportDescription(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportDescription(report);
 	}
 	
 	public String getReportSite() {
-		return facade.getReportManager().getReportFormattedParams().getReportSite(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportSite(report);
 	}
 	
 	public String getReportGenerationDate() {
-		return facade.getReportManager().getReportFormattedParams().getReportGenerationDate(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportGenerationDate(report);
 	}
 	
 	public String getReportActivityBasedOn() {
-		return facade.getReportManager().getReportFormattedParams().getReportActivityBasedOn(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportActivityBasedOn(report);
 	}
 	
 	public String getReportActivitySelectionTitle() {
-		return facade.getReportManager().getReportFormattedParams().getReportActivitySelectionTitle(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportActivitySelectionTitle(report);
 	}
 	
 	public String getReportActivitySelection() {
-		return facade.getReportManager().getReportFormattedParams().getReportActivitySelection(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportActivitySelection(report);
 	}
 	
 	public String getReportResourceActionTitle() {
-		return facade.getReportManager().getReportFormattedParams().getReportResourceActionTitle(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportResourceActionTitle(report);
 	}
 	
 	public String getReportResourceAction() {
-		return facade.getReportManager().getReportFormattedParams().getReportResourceAction(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportResourceAction(report);
 	}
 	
 	public String getReportTimePeriod() {
-		return facade.getReportManager().getReportFormattedParams().getReportTimePeriod(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportTimePeriod(report);
 	}
 	
 	public String getReportUserSelectionType() {
-		return facade.getReportManager().getReportFormattedParams().getReportUserSelectionType(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportUserSelectionType(report);
 	}
 	
 	public String getReportUserSelectionTitle() {
-		return facade.getReportManager().getReportFormattedParams().getReportUserSelectionTitle(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportUserSelectionTitle(report);
 	}
 	
 	public String getReportUserSelection() {
-		return facade.getReportManager().getReportFormattedParams().getReportUserSelection(report);
+		return getFacade().getReportManager().getReportFormattedParams().getReportUserSelection(report);
 	}
 	
 }

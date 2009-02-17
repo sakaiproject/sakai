@@ -6,18 +6,17 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.ObjectCreationFactory;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.ToolFactory;
-import org.sakaiproject.sitestats.impl.event.ToolInfoImpl;
 import org.xml.sax.Attributes;
 
 
 public class ToolFactoryImpl implements ToolFactory, ObjectCreationFactory {
 
 	public ToolInfo createTool(String toolId) {
-		return new ToolInfoImpl(toolId);
+		return new ToolInfo(toolId);
 	}
 	
 	public ToolInfo createTool(String toolId, List<String> additionalToolIds) {
-		return new ToolInfoImpl(toolId, additionalToolIds);
+		return new ToolInfo(toolId, additionalToolIds);
 	}
 	
 	public Object createObject(Attributes attributes) throws Exception {
@@ -26,7 +25,7 @@ public class ToolFactoryImpl implements ToolFactory, ObjectCreationFactory {
 		String additionalToolIds = attributes.getValue("additionalToolIds");
 
 		if(toolId == null){ throw new Exception("Mandatory toolId attribute not present on tool tag."); }
-		ToolInfo toolInfo = new ToolInfoImpl(toolId.trim());
+		ToolInfo toolInfo = new ToolInfo(toolId.trim());
 		toolInfo.setSelected(Boolean.parseBoolean(selected));
 		if(additionalToolIds != null) {
 			toolInfo.setAdditionalToolIdsStr(additionalToolIds);

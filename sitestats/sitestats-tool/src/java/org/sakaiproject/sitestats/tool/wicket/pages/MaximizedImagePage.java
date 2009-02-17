@@ -2,6 +2,7 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.Resource;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -34,8 +35,8 @@ public abstract class MaximizedImagePage extends BasePage {
 	}
 	
 	private void init(final Page returnPage, final Class returnClass) {
-		String siteId = facade.getToolManager().getCurrentPlacement().getContext();
-		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		String siteId = getFacade().getToolManager().getCurrentPlacement().getContext();
+		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			this.returnPage = returnPage;
 			this.returnClass = returnClass;
@@ -97,6 +98,13 @@ public abstract class MaximizedImagePage extends BasePage {
 		};
 		back.setDefaultFormProcessing(true);
 		form.add(back);
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 }
 

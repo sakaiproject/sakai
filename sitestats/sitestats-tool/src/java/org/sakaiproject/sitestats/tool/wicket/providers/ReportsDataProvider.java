@@ -44,8 +44,6 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	@SpringBean
 	private transient SakaiFacade	facade;
 	
-	private transient Collator		collator			= Collator.getInstance();
-
 	private boolean					log					= true;
 	private PrefsData				prefsData;
 	private ReportDef				reportDef;
@@ -91,7 +89,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	
 	public Report getReport() {
 		if(report == null) {
-			report = facade.getReportManager().getReport(getReportDef(), prefsData.isListToolEventsOnlyAvailableInSite(), null);
+			report = getFacade().getReportManager().getReport(getReportDef(), prefsData.isListToolEventsOnlyAvailableInSite(), null);
 			if(log && report != null) {
 				LOG.info("Site statistics report generated: "+report.getReportDefinition().toString(false));
 			}
@@ -114,17 +112,18 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	}	
 
 	public void sortReport() {
-		Collections.sort(report.getReportData(), getReportDataComparator(getSort().getProperty(), getSort().isAscending(), collator, facade.getStatsManager(), facade.getEventRegistryService(), facade.getUserDirectoryService()));
+		Collections.sort(report.getReportData(), getReportDataComparator(getSort().getProperty(), getSort().isAscending(), getFacade().getStatsManager(), getFacade().getEventRegistryService(), getFacade().getUserDirectoryService()));
 	}
 	
-	public final Comparator<Stat> getReportDataComparator(final String fieldName, final boolean sortAscending, final Collator collator,
+	public final Comparator<Stat> getReportDataComparator(final String fieldName, final boolean sortAscending, 
 			final StatsManager SST_sm, final EventRegistryService SST_ers, final UserDirectoryService M_uds) {
 		return new Comparator<Stat>() {
-
+			private final transient Collator collator	= Collator.getInstance();
+			
 			public int compare(Stat r1, Stat r2) {
 				if(fieldName.equals(COL_SITE)){
-					String s1 = facade.getSiteService().getSiteDisplay(r1.getSiteId()).toLowerCase();
-					String s2 = facade.getSiteService().getSiteDisplay(r2.getSiteId()).toLowerCase();
+					String s1 = getFacade().getSiteService().getSiteDisplay(r1.getSiteId()).toLowerCase();
+					String s2 = getFacade().getSiteService().getSiteDisplay(r2.getSiteId()).toLowerCase();
 					int res = collator.compare(s1, s2);
 					if(sortAscending)
 						return res;
@@ -227,6 +226,13 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 				return 0;
 			}
 		};
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 
 }

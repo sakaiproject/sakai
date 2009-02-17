@@ -176,7 +176,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		ReportProcessedParams rpp = processReportParams(reportDef.getReportParams(), restrictToToolsInSite, pagingPosition);
 
 		// generate report
-		Report report = new ReportImpl();
+		Report report = new Report();
 		List<Stat> data = null;
 		if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
 			data = M_sm.getResourceStats(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);

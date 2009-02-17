@@ -4,13 +4,12 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.ObjectCreationFactory;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.parser.EventFactory;
-import org.sakaiproject.sitestats.impl.event.EventInfoImpl;
 import org.xml.sax.Attributes;
 
 
 public class EventFactoryImpl implements EventFactory, ObjectCreationFactory {
 	public EventInfo createEvent(String eventId) {
-		return new EventInfoImpl(eventId);
+		return new EventInfo(eventId);
 	}
 
 	public Object createObject(Attributes attributes) throws Exception {
@@ -21,7 +20,7 @@ public class EventFactoryImpl implements EventFactory, ObjectCreationFactory {
 		if(eventId == null){
 			throw new Exception("Mandatory eventId attribute not present on event tag.");
 		}
-		EventInfo eventInfo = new EventInfoImpl(eventId);
+		EventInfo eventInfo = new EventInfo(eventId);
 		eventInfo.setSelected(Boolean.parseBoolean(selected));	
 		eventInfo.setAnonymous(Boolean.parseBoolean(anonymous));	
 		return eventInfo;

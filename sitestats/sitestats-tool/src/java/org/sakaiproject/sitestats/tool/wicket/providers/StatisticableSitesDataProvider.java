@@ -22,7 +22,7 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 	public final static String		SITE_TYPE_ALL		= "all";
 	
 	@SpringBean
-	private transient SakaiFacade facade;
+	private transient SakaiFacade 	facade;
 	
 	private String					siteType			= SITE_TYPE_ALL;
 
@@ -40,7 +40,7 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 		PagingPosition pp = new PagingPosition(start, end);
 
 		String type = SITE_TYPE_ALL.equals(getSiteType()) ? null : getSiteType();
-		return facade.getSiteService().getSites(SelectionType.NON_USER, type, getSearchKeyword(), null, getSSSortType(), pp).iterator();
+		return getFacade().getSiteService().getSites(SelectionType.NON_USER, type, getSearchKeyword(), null, getSSSortType(), pp).iterator();
 	}
 	
 	private SortType getSSSortType() {
@@ -75,7 +75,7 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 
 	public int size() {
 		String type = SITE_TYPE_ALL.equals(getSiteType()) ? null : getSiteType();
-		return facade.getSiteService().countSites(SelectionType.NON_USER, type, getSearchKeyword(), null);
+		return getFacade().getSiteService().countSites(SelectionType.NON_USER, type, getSearchKeyword(), null);
 	}
 
 	public void setSiteType(String siteType) {
@@ -84,6 +84,13 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 
 	public String getSiteType() {
 		return siteType;
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 
 }

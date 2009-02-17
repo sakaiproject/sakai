@@ -12,6 +12,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -66,7 +67,7 @@ public abstract class WidgetTabTemplate extends Panel {
 	private boolean					renderChart				= false;
 	private boolean					renderTable				= false;
 	private boolean					tabTemplateRendered		= false;
-	private Set<Role> 				roles					= null;
+	private transient Set<Role> 	roles					= null;
 	
 	private String					dateFilter				= ReportManager.WHEN_LAST7DAYS;
 	private String					roleFilter				= ReportManager.WHO_ALL;
@@ -137,10 +138,10 @@ public abstract class WidgetTabTemplate extends Panel {
 			}
 			
 			private byte[] getChartImage(int width, int height) {
-				PrefsData prefsData = facade.getStatsManager().getPreferences(siteId, false);
+				PrefsData prefsData = getFacade().getStatsManager().getPreferences(siteId, false);
 				int _width = (width <= 0) ? 350 : width;
 				int _height = (height <= 0) ? 200: height;
-				return facade.getChartService().generateChart(
+				return getFacade().getChartService().generateChart(
 							chartDataProvider.getReport(), _width, _height,
 							prefsData.isChartIn3D(), prefsData.getChartTransparency(),
 							prefsData.isItemLabelsVisible()
@@ -209,14 +210,14 @@ public abstract class WidgetTabTemplate extends Panel {
 		if(useChartReportDefinitionForTable()) {
 			table = new SakaiDataTable(
 					"table", 
-					ReportDataPage.getTableColumns(facade, getChartReportDefinition().getReportParams(), false), 
+					ReportDataPage.getTableColumns(getFacade(), getChartReportDefinition().getReportParams(), false), 
 					chartDataProvider, false
 					);
 			
 		}else{
 			table = new SakaiDataTable(
 					"table", 
-					ReportDataPage.getTableColumns(facade, getTableReportDefinition().getReportParams(), false), 
+					ReportDataPage.getTableColumns(getFacade(), getTableReportDefinition().getReportParams(), false), 
 					tableDataProvider, false
 					);
 		}
@@ -271,7 +272,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		List<String> roleFilterOptions = new ArrayList<String>();
 		roleFilterOptions.add(ReportManager.WHO_ALL);
 		try{
-			Site site = facade.getSiteService().getSite(siteId);
+			Site site = getFacade().getSiteService().getSite(siteId);
 			roles = site.getRoles();
 			Iterator<Role> i = roles.iterator();
 			while(i.hasNext()){
@@ -317,7 +318,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(object)) {
 					return new ResourceModel("overview_filter_tool_all").getObject();
 				}else{
-					return facade.getEventRegistryService().getToolName((String) object);
+					return getFacade().getEventRegistryService().getToolName((String) object);
 				}
 			}
 			public String getIdValue(Object object, int index) {
@@ -408,10 +409,10 @@ public abstract class WidgetTabTemplate extends Panel {
 	}
 	
 	private boolean isToolSuported(final ToolInfo toolInfo) {
-		if(facade.getStatsManager().isEventContextSupported()){
+		if(getFacade().getStatsManager().isEventContextSupported()){
 			return true;
 		}else{
-			List<ToolInfo> siteTools = facade.getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
+			List<ToolInfo> siteTools = getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
 			Iterator<ToolInfo> i = siteTools.iterator();
 			while (i.hasNext()){
 				ToolInfo t = i.next();
@@ -432,7 +433,7 @@ public abstract class WidgetTabTemplate extends Panel {
 	
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
-			prefsdata = facade.getStatsManager().getPreferences(siteId, false);
+			prefsdata = getFacade().getStatsManager().getPreferences(siteId, false);
 		}
 		return prefsdata;
 	}
@@ -491,4 +492,12 @@ public abstract class WidgetTabTemplate extends Panel {
 	public String getResactionFilter() {
 		return resactionFilter;
 	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
+	}
+	
 }

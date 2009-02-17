@@ -62,7 +62,6 @@ public class SiteStatsApplication extends WebApplication {
 		    getDebugSettings().setOutputMarkupContainerClassName(true);
 		    getMarkupSettings().setStripWicketTags(false);
 			getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_EXCEPTION_PAGE);
-
 		}
 	}
 

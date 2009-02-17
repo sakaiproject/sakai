@@ -18,8 +18,8 @@
  **********************************************************************************/
 package org.sakaiproject.sitestats.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringBufferInputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -74,7 +74,6 @@ import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.impl.event.EventUtil;
-import org.sakaiproject.sitestats.impl.event.ToolInfoImpl;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -300,7 +299,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				}else{
 					try{
 						// parse from stored preferences
-						prefsdata = parseSitePrefs(new StringBufferInputStream(prefs.getPrefs()));
+						prefsdata = parseSitePrefs(new ByteArrayInputStream(prefs.getPrefs().getBytes()));
 					}catch(Exception e){
 						// something failed, use default
 						LOG.warn("Exception in parseSitePrefs() ",e);
@@ -379,14 +378,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getSiteUsers(java.lang.String)
 	 */
 	public Set<String> getSiteUsers(String siteId) {
-		//List<String> siteUserIds = new ArrayList<String>();
 		try{
-			//siteUserIds.addAll(M_ss.getSite(siteId).getUsers());
+			if(siteId == null) {
+				siteId = M_tm.getCurrentPlacement().getContext();
+			}
 			return M_ss.getSite(siteId).getUsers();
 		}catch(IdUnusedException e){
 			LOG.warn("Inexistent site for site id: "+siteId, e);
 		}
-		//return siteUserIds;
 		return null;
 	}
 	
@@ -1113,7 +1112,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 								results.set(eventStatListIndex, c);
 							}
 						}else{
-							siteUserIds.remove((Object) iter.next());
+							if(siteUserIds != null) {
+								siteUserIds.remove((Object) iter.next());
+							}
 						}
 					}
 				}
@@ -1476,8 +1477,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 							}
 							results.add(c);
 						}else{
-							// siteUserIds.remove((String)s[1]);
-							siteUserIds.remove((Object) iter.next());
+							if(siteUserIds != null) {
+								siteUserIds.remove((Object) iter.next());
+							}
 						}
 					}
 				}
@@ -2854,7 +2856,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 									toolidSABT.put(toolId, existing);
 								}else{
 									// add new tool count
-									int ix = allTools.indexOf(new ToolInfoImpl(toolId));
+									int ix = allTools.indexOf(new ToolInfo(toolId));
 									c.setTool(allTools.get(ix));
 									toolidSABT.put(toolId, c);
 								}
