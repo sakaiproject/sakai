@@ -50,6 +50,8 @@
 .widget .header .bottom {
     padding-top: 5px;
     width: 100px;
+    max-width: 100px;
+    width: expression(this . clientWidth <   102 ?   "100px" :   this . clientWidth > 102 ?   "100px" :   "auto");
 }
 .widget .header .bottom a {
     font-size: 10px;
