@@ -79,17 +79,6 @@ public class SiteStatsApplication extends WebApplication {
 	}
 
 	@Override
-	protected ISessionStore newSessionStore() {
-		// SecondLevelCacheSessionStore causes problems with Ajax requests;
-		// => use HttpSessionStore instead.
-		return new HttpSessionStore(this);
-	}
-	@Override
-	public Session newSession(Request request, Response response) {
-		// TODO Auto-generated method stub
-		return super.newSession(request, response);
-	}
-	@Override
 	public RequestCycle newRequestCycle(Request request, Response response) {
 		if(!debug) {
 			return new WebRequestCycle(this, (WebRequest)request, (WebResponse)response) {
