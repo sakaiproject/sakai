@@ -122,7 +122,7 @@ public class Iso8601DateFormat
     if(iso8601String == null)
     {
       throw new Iso8601FormatException(
-        "illegal String iso8601TimeInterval argument: " + iso8601String);
+        "illegal String iso8601TimeInterval argument: iso8601String == null");
     }
 
     iso8601String = iso8601String.toUpperCase();

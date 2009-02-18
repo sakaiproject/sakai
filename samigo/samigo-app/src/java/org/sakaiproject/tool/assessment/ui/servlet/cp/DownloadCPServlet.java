@@ -155,13 +155,13 @@ public class DownloadCPServlet extends HttpServlet {
 				throw e;
 			} finally {
 
-				if (bufInputStream != null) {
+				//if (bufInputStream != null) {
 					try {
 						bufInputStream.close();
 					} catch (IOException e) {
 						log.error(e.getMessage());
 					}
-				}
+				//}
 				if (zos != null) {
 					try {
 						zos.closeEntry();

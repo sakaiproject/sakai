@@ -450,8 +450,9 @@ public class PublishedAssessmentService extends AssessmentService{
             if (answer != null) {
             	answer.setScore(item.getScore());
             	answer.setDiscount(item.getDiscount());
+            	map.put(answer.getId(), answer);
             }
-            map.put(answer.getId(), answer);
+            
 	  }  
         }
       }

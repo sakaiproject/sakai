@@ -83,12 +83,15 @@ public class BeginAssessmentProducer implements ViewComponentProducer,
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker checker) {
     BeginAssessmentViewParameters params = null;
-    if (viewparams != null)
+    String alias = "";
+    if (viewparams != null){
       params = (BeginAssessmentViewParameters) viewparams;
-    else
+      alias = params.pubReference;
+    }
+    else{
       log.warn("Something bad... we have no viewparams");
-    
-    String alias = params.pubReference;
+    }
+
 
     //Begin cut and past (with small deviations) from existing LoginServlet that currently does
     //the job of url aliased assessment delivery in Samigo, some of this could possibly be removed

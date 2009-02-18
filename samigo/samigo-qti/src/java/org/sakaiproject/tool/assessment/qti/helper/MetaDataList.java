@@ -213,8 +213,8 @@ public class MetaDataList
       String meta = (String) metadataList.get(i);
       //log.debug( "meta = "+ meta);
       StringTokenizer st = new StringTokenizer(meta, "|");
-      String key = null;
-      String value = null;
+      String key = "";
+      String value = "";
       if (st.hasMoreTokens())
       {
         key = st.nextToken().trim();

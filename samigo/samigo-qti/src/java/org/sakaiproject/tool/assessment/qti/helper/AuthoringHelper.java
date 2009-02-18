@@ -740,8 +740,7 @@ public class AuthoringHelper
  	catch (Exception e)
  	{
  		log.error(e.getMessage(), e);
- 		Tree tree = null;
- 		questionPoolService.deletePool(questionpool.getQuestionPoolId(), AgentFacade.getAgentString(), tree);		
+ 		questionPoolService.deletePool(questionpool.getQuestionPoolId(), AgentFacade.getAgentString(), null);		
  		throw new RuntimeException(e);		
  	}
    }

@@ -57,15 +57,15 @@ public class AssessmentGradingComparatorByScoreAndUniqueIdentifier implements
 					return agentEid0.compareTo(agentEid1);
 				} catch (Exception e) {
 					if (agentEid0==null && agentEid1==null) {
-						log.warn("Cannot get users: " + agentEid0 + " and " + agentEid1);
+						log.warn("agentEid0==null && agentEid1==null");
 						return 0;
 					}
 					else if (agentEid0==null) {
-						log.warn("Cannot get user: " + agentEid0);
+						log.warn("agentEid0 == null");
 						return -1;
 					}
 					else if (agentEid1==null) {
-						log.warn("Cannot get user: " + agentEid1);
+						log.warn("agentEid1 == null");
 						return 1;
 					}
 					else {

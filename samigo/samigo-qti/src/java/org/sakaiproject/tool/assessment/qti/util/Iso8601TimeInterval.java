@@ -123,7 +123,7 @@ public class Iso8601TimeInterval
     if(iso8601TimeInterval == null)
     {
       throw new Iso8601FormatException(
-        "illegal String iso8601TimeInterval argument: " + iso8601TimeInterval);
+        "illegal String iso8601TimeInterval argument:  iso8601TimeInterval ==null");
     }
 
     iso8601TimeInterval = iso8601TimeInterval.toUpperCase();

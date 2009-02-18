@@ -44,7 +44,15 @@ public class SectionImpl implements Section {
   private Type sectionType;
   private Set itemSet;
 
-  public SectionImpl() {
+  public Set getItemSet() {
+	return itemSet;
+}
+
+public void setItemSet(Set itemSet) {
+	this.itemSet = itemSet;
+}
+
+public SectionImpl() {
   }
 
   public Id getId() {

@@ -377,7 +377,7 @@ public class AuthoringXml
 
       if ( (aIndex != -1) && (size != 0))
       {
-        newAttribute = (Attr) newElementList.set(0, newAttribute);
+        newAttribute = (Attr) newElementList.set(0, null);
         if (newAttribute != null)
         {
           newAttribute.setValue(value);

@@ -156,7 +156,7 @@ public class PathInfo
     if(basePathToSecurity == null)
     {
       throw new IllegalArgumentException(
-        "illegal String basePathToSecurity argument: " + basePathToSecurity);
+        "illegal String basePathToSecurity argument: basePathToSecurity == null");
     }
 
     synchronized(this.basePathToSecurity)
@@ -200,7 +200,7 @@ public class PathInfo
     if(basePathToSettings == null)
     {
       throw new IllegalArgumentException(
-        "illegal String basePathToSettings argument: " + basePathToSettings);
+        "illegal String basePathToSettings argument:  basePathToSettings== null");
     }
 
     synchronized(this.basePathToSettings)

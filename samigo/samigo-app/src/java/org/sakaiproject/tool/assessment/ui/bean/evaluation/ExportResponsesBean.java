@@ -368,10 +368,13 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 						else {
 							cell = createCell(row, colPos++, null);
 						}
-						if (data instanceof Double) {
-							cell.setCellValue(((Double)data).doubleValue());
-						} else {
-							cell.setCellValue(data.toString());
+						
+						if (cell != null) {
+							if (data instanceof Double) {
+								cell.setCellValue(((Double)data).doubleValue());
+							} else {
+								cell.setCellValue(data.toString());
+							}
 						}
 					}
 				}

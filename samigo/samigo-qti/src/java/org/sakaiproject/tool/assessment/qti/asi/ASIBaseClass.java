@@ -395,9 +395,12 @@ public abstract class ASIBaseClass
    *
    *
    * @param basePath
+   * not used for now, commenting it out
    *
    * @return
    */
+  
+  /*
   protected ArrayList selectSections(String basePath)
   {
     if(log.isDebugEnabled())
@@ -437,6 +440,8 @@ public abstract class ASIBaseClass
 
     return sections;
   }
+  
+  */
 
   /**
    *
@@ -444,8 +449,10 @@ public abstract class ASIBaseClass
    * @param basePath
    * @param selectElement
    *
+   * not used, commenting it out for now
    * @return
    */
+  /*
   protected List processSelectElement(String basePath, Element selectElement)
   {
     if(log.isDebugEnabled())
@@ -475,6 +482,7 @@ public abstract class ASIBaseClass
     // We are not supporting object bank for sections at this time.
     return null;
   }
+  */
 
   /**
    *

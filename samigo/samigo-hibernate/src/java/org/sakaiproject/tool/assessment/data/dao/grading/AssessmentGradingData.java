@@ -193,7 +193,7 @@ public class AssessmentGradingData
 			  this.totalAutoScore = totalAutoScore;
 		  }
 	  }else{
-		  this.totalAutoScore = totalAutoScore;
+		  this.totalAutoScore =  null ;
 	  }
   }
 

@@ -31,7 +31,14 @@ import java.util.ArrayList;
 public class QualifierImpl implements Qualifier {
   private Id id;
   private QualifierIterator childrenIter;
-  private QualifierIterator parentIter;
+  public QualifierIterator getChildrenIter() {
+	return childrenIter;
+}
+
+public void setChildrenIter(QualifierIterator childrenIter) {
+	this.childrenIter = childrenIter;
+}
+private QualifierIterator parentIter;
   private String referenceName;
   private String description;
   private Type qualifierType;
