@@ -465,7 +465,14 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					// get/add the gradebook assignment associated with the forum settings
 					GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
 			        ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-					String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+                    String gradebookUid = null;
+                    // if this code is called from a quartz job, like SIS, then getCurrentPlacement() will return null.
+                    // so just use the fromContext which gives the site id.
+                    if (ToolManager.getCurrentPlacement() != null)
+                       gradebookUid = ToolManager.getCurrentPlacement().getContext();
+                    else
+                       gradebookUid = fromContext;
+					
 					
 					if (gradebookService.isGradebookDefined(gradebookUid))
 					{
