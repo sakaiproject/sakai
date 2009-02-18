@@ -1,6 +1,7 @@
 package org.sakaiproject.sitestats.tool.wicket;
 
 import org.apache.wicket.settings.IExceptionSettings;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.wicket.pages.AdminPage;
 
 

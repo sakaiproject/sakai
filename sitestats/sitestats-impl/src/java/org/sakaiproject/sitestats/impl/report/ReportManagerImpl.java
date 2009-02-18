@@ -43,6 +43,7 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -109,6 +110,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private ContentHostingService	M_chs;
 	private ToolManager				M_tm;
 	private TimeService				M_ts;
+	private EventTrackingService	M_ets;
 	
 
 	// ################################################################
@@ -146,6 +148,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		this.M_ts = timeService; 
 	}
 	
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.M_ets = eventTrackingService;
+	}
+	
 
 	// ################################################################
 	// Interface implementation
@@ -154,7 +160,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(org.sakaiproject.sitestats.api.report.ReportDef, boolean)
 	 */
 	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite) {
-		return getReport(reportDef, restrictToToolsInSite, null);
+		return getReport(reportDef, restrictToToolsInSite, null, true);
 	}
 	
 	/* (non-Javadoc)
@@ -170,9 +176,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(org.sakaiproject.sitestats.api.report.ReportDef, boolean, org.sakaiproject.javax.PagingPosition)
+	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(org.sakaiproject.sitestats.api.report.ReportDef, boolean, org.sakaiproject.javax.PagingPosition, boolean)
 	 */
-	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition pagingPosition) {
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition pagingPosition, boolean log) {
 		ReportProcessedParams rpp = processReportParams(reportDef.getReportParams(), restrictToToolsInSite, pagingPosition);
 
 		// generate report
@@ -198,6 +204,13 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			report.setReportData(data);
 			report.setReportDefinition(reportDef);
 			report.setReportGenerationDate(new Date());
+			if(log && reportDef.getId() != 0) {
+				String siteId = reportDef.getSiteId();
+				if(siteId == null) {
+					siteId = reportDef.getReportParams().getSiteId();
+				}
+				M_sm.logEvent(reportDef, StatsManager.LOG_ACTION_VIEW, siteId, true);
+			}
 		}
 
 		return report;
@@ -431,6 +444,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		if(reportDef.getSiteId() == null && !M_sa.isSiteStatsAdminPage()) {
 			return false;
 		}
+		boolean isNew = reportDef.getId() == 0;
 		try{
 			if(reportDef.getCreatedBy() == null) {
 				reportDef.setCreatedBy(M_uds.getCurrentUser().getId());
@@ -464,7 +478,15 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				return Boolean.TRUE;
 			}
 		};
-		return (Boolean) getHibernateTemplate().execute(hcb);
+		Boolean success = (Boolean) getHibernateTemplate().execute(hcb);
+		if(success) {
+			String siteId = reportDef.getSiteId();
+			if(siteId == null) {
+				siteId = reportDef.getReportParams().getSiteId();
+			}
+			M_sm.logEvent(reportDef, isNew ? StatsManager.LOG_ACTION_NEW : StatsManager.LOG_ACTION_EDIT, siteId, false);
+		}
+		return success;
 	}
 	
 	/* (non-Javadoc)
@@ -486,7 +508,15 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				return Boolean.TRUE;
 			}
 		};
-		return (Boolean) getHibernateTemplate().execute(hcb);
+		Boolean success = (Boolean) getHibernateTemplate().execute(hcb);
+		if(success) {
+			String siteId = reportDef.getSiteId();
+			if(siteId == null) {
+				siteId = reportDef.getReportParams().getSiteId();
+			}
+			M_sm.logEvent(reportDef, StatsManager.LOG_ACTION_DELETE, siteId, false);
+		}
+		return success;
 	}
 	
 	/* (non-Javadoc)

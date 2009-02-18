@@ -36,6 +36,13 @@ public interface StatsManager {
 	public final static String			RESOURCE_EVENTID_PREFIX		= "content.";
 	public final static String			SITESTATS_TOOLID			= "sakai.sitestats";
 	public final static String			SITESTATS_ADMIN_TOOLID		= "sakai.sitestats.admin";
+	public final static String			LOG_APP						= "sitestats";
+	public final static String			LOG_OBJ_REPORTDEF			= "report";
+	public final static String			LOG_OBJ_PREFSDATA			= "prefs";
+	public final static String			LOG_ACTION_NEW				= "new";
+	public final static String			LOG_ACTION_EDIT				= "edit";
+	public final static String			LOG_ACTION_VIEW				= "view";
+	public final static String			LOG_ACTION_DELETE			= "delete";
 	public final static String			RESOURCES_TOOLID			= "sakai.resources";
 	public final static String			DROPBOX_TOOLID				= "sakai.dropbox";
 	public final static String			PARSERTIP_FOR_CONTEXTID		= "contextId";
@@ -535,5 +542,11 @@ public interface StatsManager {
 	
 	/** Checks whether Event.getContext is implemented in Event (from Event API) */
 	public boolean isEventContextSupported();
+	
+	/** Logs an event using EventTrackingService. */
+	public void logEvent(Object object, String logAction);
+	
+	/** Logs an event using EventTrackingService. */
+	public void logEvent(Object object, String logAction, String siteId, boolean oncePerSession);
 	
 }

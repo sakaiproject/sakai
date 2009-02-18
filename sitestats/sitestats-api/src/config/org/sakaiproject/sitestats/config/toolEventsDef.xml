@@ -499,5 +499,18 @@
         <event eventId="yaft.forum.deleted" selected="true"/>
         <eventParserTip for="contextId" separator="/" index="2"/>
     </tool>
+    
+    <!-- sitestats -->
+    <tool 
+        toolId="sakai.sitestats"
+        selected="false">
+        <event eventId="sitestats.view" selected="false"/>
+        <event eventId="sitestats.report.new" selected="false"/>
+        <event eventId="sitestats.report.edit" selected="false"/>
+        <event eventId="sitestats.report.delete" selected="false"/>
+        <event eventId="sitestats.report.view" selected="false"/>
+        <event eventId="sitestats.prefs.edit" selected="false"/>
+        <eventParserTip for="contextId" separator="/" index="2"/>
+    </tool>
 
 </toolEventsDef>

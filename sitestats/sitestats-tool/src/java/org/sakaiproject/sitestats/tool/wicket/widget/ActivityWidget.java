@@ -222,7 +222,7 @@ public class ActivityWidget extends Panel {
 					rp.setHowSort(true);
 					rp.setHowSortBy(StatsManager.T_TOTAL);
 					rp.setHowSortAscending(false);
-					Report r = getFacade().getReportManager().getReport(rd, true);
+					Report r = getFacade().getReportManager().getReport(rd, true, null, false);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {
@@ -350,7 +350,7 @@ public class ActivityWidget extends Panel {
 			
 			private void processData() {
 				if(mostActiveUser == null) {
-					Report r = getFacade().getReportManager().getReport(getCommonReportDefition(), true);
+					Report r = getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {

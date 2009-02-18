@@ -67,6 +67,8 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<!-- Hibernate related -->
 		<property name="sessionFactory" ref="#{sitestats.db}SitestatsSessionFactory" />
 	</bean>

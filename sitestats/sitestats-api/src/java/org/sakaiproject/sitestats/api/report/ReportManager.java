@@ -45,9 +45,10 @@ public interface ReportManager {
 	 * @param params Object containing specific report parameters (see {@link ReportDef})
 	 * @param restrictToToolsInSite Whether to limit report to events from tools available in site
 	 * @param page Paging information (see {@link PagingPosition})
+	 * @param log If true, an event will be logged
 	 * @return The report (see {@link Report})
 	 */
-	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition page);
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition page, boolean log);
 	
 	/**
 	 * Get row count for a report based on supplied parameters (paged results).

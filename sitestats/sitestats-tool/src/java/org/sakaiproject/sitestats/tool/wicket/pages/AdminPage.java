@@ -17,6 +17,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.components.AdminMenu;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
@@ -44,6 +45,7 @@ public class AdminPage extends BasePage {
 		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
 		if(allowed){
 			renderBody();
+			getFacade().getStatsManager().logEvent("admin", StatsManager.LOG_ACTION_VIEW, siteId, true);
 		}else{
 			redirectToInterceptPage(new NotAuthorizedPage());
 		}

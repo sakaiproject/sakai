@@ -89,7 +89,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	
 	public Report getReport() {
 		if(report == null) {
-			report = getFacade().getReportManager().getReport(getReportDef(), prefsData.isListToolEventsOnlyAvailableInSite(), null);
+			report = getFacade().getReportManager().getReport(getReportDef(), prefsData.isListToolEventsOnlyAvailableInSite(), null, log);
 			if(log && report != null) {
 				LOG.info("Site statistics report generated: "+report.getReportDefinition().toString(false));
 			}

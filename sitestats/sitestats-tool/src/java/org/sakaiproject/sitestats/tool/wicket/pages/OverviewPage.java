@@ -42,6 +42,7 @@ public class OverviewPage extends BasePage {
 		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			renderBody();
+			getFacade().getStatsManager().logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
 		}else{
 			setResponsePage(NotAuthorizedPage.class);
 		}

@@ -20,6 +20,7 @@ package org.sakaiproject.sitestats.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -51,6 +52,8 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
@@ -73,9 +76,11 @@ import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
+import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.impl.event.EventUtil;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -120,6 +125,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private ToolManager					M_tm;
 	private TimeService					M_ts;
 	private MemoryService				M_ms;
+	private SessionManager				M_sm;
+	private EventTrackingService		M_ets;
 	
 	/** Caching */
 	private Cache						cachePrefsData							= null;
@@ -238,6 +245,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 
 	public void setMemoryService(MemoryService memoryService) {
 		this.M_ms = memoryService;
+	}
+	
+	public void setSessionManager(SessionManager sessionManager) {
+		this.M_sm = sessionManager;
+	}
+	
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.M_ets = eventTrackingService;
 	}
 
 	
@@ -370,7 +385,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}
 				}
 			};
-			return ((Boolean) getHibernateTemplate().execute(hcb)).booleanValue();
+			Boolean success = ((Boolean) getHibernateTemplate().execute(hcb)).booleanValue();
+			if(success) {
+				logEvent(prefsdata, LOG_ACTION_EDIT, siteId, false);
+			}
+			return success.booleanValue();
 		}
 	}
 	
@@ -3006,8 +3025,103 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return date;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#isEventContextSupported()
+	 */
 	public boolean isEventContextSupported() {
 		return isEventContextSupported;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#logEvent(java.lang.Object, java.lang.String)
+	 */
+	public void logEvent(Object object, String logAction) {
+		logEvent(object, logAction, M_tm.getCurrentPlacement().getContext(), false);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#logEvent(java.lang.Object, java.lang.String, java.lang.String, boolean)
+	 */
+	public void logEvent(Object object, String logAction, String siteId, boolean oncePerSession) {
+		boolean log = true;
+		
+		// event: common
+		StringBuilder event = new StringBuilder();
+		event.append(LOG_APP);
+		
+		// ref: common
+		StringBuilder ref = new StringBuilder();
+		ref.append("/site/");
+		ref.append(siteId);
+		
+		// event, ref: object specific
+		if(object != null) {
+			if(object instanceof PrefsData) {
+				event.append('.');
+				event.append(LOG_OBJ_PREFSDATA);
+				ref.append('/');
+				ref.append(LOG_OBJ_PREFSDATA);
+			}else if(object instanceof ReportDef) {
+				event.append('.');
+				event.append(LOG_OBJ_REPORTDEF);
+				ref.append('/');
+				ref.append(LOG_OBJ_REPORTDEF);
+				ref.append('/');
+				ref.append(((ReportDef) object).getId());
+			}else if(object instanceof String) {
+				String str = ((String) object).toLowerCase();
+				event.append('.');
+				event.append(str);
+				ref.append('/');
+				ref.append(str);
+			}else if(object instanceof Class<?>) {
+				String className = ((Class<?>) object).getSimpleName().toLowerCase();
+				event.append('.');
+				event.append(className);
+				ref.append('/');
+				ref.append(className);
+			}else{
+				String className = object.getClass().getSimpleName().toLowerCase();
+				event.append('.');
+				event.append(className);
+				ref.append('/');
+				ref.append(className);
+				try{
+					Object id = object.getClass().getMethod("getId", (Class[]) null).invoke(object, (Object[]) null);
+					ref.append('/');
+					ref.append(id);
+				}catch(Exception e) {
+					// do nothing, there is no getId() method on object argument
+				}
+			}
+		}
+		event.append('.');
+		event.append(logAction);
+		
+		// if only once per session, check if already logged
+		if(oncePerSession) {
+			String sessionValue = (String) M_sm.getCurrentSession().getAttribute(event.toString() + ref.toString());
+			log = sessionValue == null || sessionValue.equals("");
+		}
+		// log...
+		if(log) {
+			boolean modify = LOG_ACTION_NEW.equals(logAction) || LOG_ACTION_EDIT.equals(logAction) || LOG_ACTION_DELETE.equals(logAction);
+			Event e = null;
+			try{
+				// Sakai >= 2.6
+				// Invoke: newEvent(String event, String resource, String context, boolean modify, int priority)
+				Method m = M_ets.getClass().getMethod("newEvent", new Class[]{String.class, String.class, String.class, boolean.class, int.class});
+				e = (Event) m.invoke(M_ets, new Object[] { event.toString(), ref.toString(), siteId, modify, NotificationService.NOTI_OPTIONAL });
+			}catch(Exception ex) {
+				// Sakai < 2.6
+				// Invoke: newEvent(String event, String resource, boolean modify)
+				e = M_ets.newEvent(event.toString(), ref.toString(), modify);
+			}
+			M_ets.post(e);
+			if(oncePerSession) {
+				M_sm.getCurrentSession().setAttribute(event.toString() + ref.toString(), "true");
+			}
+		}
 	}
 	
 	private void checkForEventContextSupport() {
