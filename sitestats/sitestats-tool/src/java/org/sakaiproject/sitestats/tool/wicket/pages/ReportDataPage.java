@@ -14,7 +14,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.injection.web.InjectorHolder;
@@ -76,7 +75,6 @@ public class ReportDataPage extends BasePage {
 	private PrefsData					prefsdata;
 	private WebPage						returnPage;
 
-	private AbstractDefaultAjaxBehavior	chartSizeBehavior	= null;
 	private AjaxLazyLoadImage			reportChart			= null;
 	private byte[]						chartImage			= null;
 	private int							selectedWidth		= 0;
@@ -196,7 +194,10 @@ public class ReportDataPage extends BasePage {
 				"table", 
 				getTableColumns(getFacade(), getReportParams(), true), 
 				dataProvider, 
-				true);
+				!inPrintVersion);
+		if(inPrintVersion) {
+			reportTable.setRowsPerPage(Integer.MAX_VALUE);
+		}
 		reportTable.setVisible(
 				ReportManager.HOW_PRESENTATION_TABLE.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
 				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
