@@ -226,16 +226,21 @@ public class VisitsWidget extends Panel {
 			
 			@Override
 			public String getValue() {
-				Set<String> _siteUsers = getSiteUsers();
-				_siteUsers.retainAll(getUsersWithVisits());
-				return String.valueOf(_siteUsers.size());
+				int enrUsersWithVisits = 0;
+				Set<String> enrUsers = getSiteUsers();
+				Set<String> usersWithVisits = getUsersWithVisits();
+				for(String enru : enrUsers) {
+					if(usersWithVisits.contains(enru)) {
+						enrUsersWithVisits++;
+					}
+				}
+				return String.valueOf(enrUsersWithVisits);
 			}
 			@Override
 			public String getSecondValue() {
-				Set<String> _siteUsers = getSiteUsers();
-				_siteUsers.retainAll(getUsersWithVisits());
 				int totalUsersInSite = getSiteUsers().size();
-				double percentage = totalUsersInSite==0 ? 0 : round(100 * _siteUsers.size() / totalUsersInSite, 0);
+				int totalEnrUsersWithVisits = Integer.parseInt(getValue());
+				double percentage = totalUsersInSite==0 ? 0 : round(100 * totalEnrUsersWithVisits / totalUsersInSite, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			@Override
@@ -281,16 +286,21 @@ public class VisitsWidget extends Panel {
 			
 			@Override
 			public String getValue() {
-				Set<String> _siteUsers = getSiteUsers();
-				_siteUsers.removeAll(getUsersWithVisits());
-				return String.valueOf(_siteUsers.size());
+				int enrUsersWithoutVisits = 0;
+				Set<String> enrUsers = getSiteUsers();
+				Set<String> usersWithVisits = getUsersWithVisits();
+				for(String enru : enrUsers) {
+					if(!usersWithVisits.contains(enru)) {
+						enrUsersWithoutVisits++;
+					}
+				}
+				return String.valueOf(enrUsersWithoutVisits);
 			}
 			@Override
 			public String getSecondValue() {
-				Set<String> _siteUsers = getSiteUsers();
-				_siteUsers.removeAll(getUsersWithVisits());
 				int totalUsersInSite = getSiteUsers().size();
-				double percentage = totalUsersInSite==0 ? 0 : round(100 * _siteUsers.size() / totalUsersInSite, 0);
+				int totalEnrUsersWithoutVisits = Integer.parseInt(getValue());
+				double percentage = totalUsersInSite==0 ? 0 : round(100 * totalEnrUsersWithoutVisits / totalUsersInSite, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			@Override
