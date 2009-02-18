@@ -40,7 +40,7 @@ public class DBHelper extends HibernateDaoSupport {
 			updateIndexes();
 		
 			// preload default reports, if needed
-			preloadDefaultReports();
+			//preloadDefaultReports();
 		}
 	}
 	
