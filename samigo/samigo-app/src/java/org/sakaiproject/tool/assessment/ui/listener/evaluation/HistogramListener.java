@@ -119,7 +119,7 @@ public class HistogramListener
     
     String publishedId = totalBean.getPublishedId();
 
-    if (publishedId == "0")
+    if ("0".equals(publishedId))
     {
 	publishedId = (String) ContextUtil.lookupParam("publishedId");
     }

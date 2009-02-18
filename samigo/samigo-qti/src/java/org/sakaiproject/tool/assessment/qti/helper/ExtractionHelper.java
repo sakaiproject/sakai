@@ -347,9 +347,9 @@ public class ExtractionHelper
    */
   private boolean isOKtransform(String transform)
   {
-    return (transform == this.ASSESSMENT_TRANSFORM ||
-            transform == this.SECTION_TRANSFORM ||
-            transform == this.ITEM_TRANSFORM) ? true : false;
+    return (ASSESSMENT_TRANSFORM.equals(transform)) ||
+            SECTION_TRANSFORM.equals(transform) ||
+            ITEM_TRANSFORM.equals(transform) ? true : false;
   }
 
   /**
