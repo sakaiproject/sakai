@@ -1,116 +1,270 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.7.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>pack-demo</artifactId>
-  <packaging>pom</packaging>
-  <name>Sakai Pack Demo</name>
-  <version>2.7.0-SNAPSHOT</version>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <properties>
-    <sakai.plugin.version>2.2</sakai.plugin.version>
-    <sakai.tomcat.version>5.5.26</sakai.tomcat.version>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>tomcat.tomcat</groupId>
-      <artifactId>tomcat</artifactId>
-      <version>${sakai.tomcat.version}</version>
-      <type>zip</type>
-    </dependency>
-  </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>pack-demo-clean</id>
-            <phase>install</phase>
-            <configuration>
-              <tasks>
-<!-- clear the deploy area -->
-                <delete dir="${basedir}/target/unpack"/>
-                <delete dir="${basedir}/target/pack"/>
-<!-- expand the tomcat zip from the repo into the target -->
-                <unzip src="${settings.localRepository}/tomcat/tomcat/tomcat/${sakai.tomcat.version}/tomcat-${sakai.tomcat.version}.zip" dest="${basedir}/target/unpack" overwrite="true"/>
-                <move file="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}" tofile="${basedir}/target/pack" overwrite="true"/>
-                <delete dir="${basedir}/target/unpack"/>
-                <echo>Executing cd ../;mvn -Dmaven.tomcat.home=${basedir}/target/pack -Dmaven.test.skip=true clean install sakai:deploy</echo>
-                <exec dir="../" executable="mvn" failonerror="true">
-                  <arg value="-Dmaven.tomcat.home=${basedir}/target/pack"/>
-                  <arg value="-Dmaven.test.skip=true"/>
-                  <arg value="clean"/>
-                  <arg value="install"/>
-                  <arg value="sakai:deploy"/>
-                </exec>
-<!-- add in demo stuff -->
-                <copy file="${basedir}/../reference/demo/sakai.properties" tofile="${basedir}/target/pack/sakai/sakai.properties"/>
-                <copy todir="${basedir}/target/pack/sakai/db">
-                  <fileset dir="${basedir}/../reference/demo/db">
-                    <include name="**/sakai.db.*"/>
-                  </fileset>
-                </copy>
-                <copy file="${basedir}/../reference/demo/readme.txt" tofile="${basedir}/target/pack/demo_readme.txt"/>
-                <copy file="${basedir}/../reference/docs/readme.txt" tofile="${basedir}/target/pack/sakai_readme.txt"/>
-                <copy todir="${basedir}/target/pack/licenses/">
-                  <fileset dir="${basedir}/../reference/licenses">
-                    <exclude name="CVS/**"/>
-                  </fileset>
-                </copy>
-                <copy file="${basedir}/../reference/demo/start-sakai.bat" tofile="${basedir}/target/pack/start-sakai.bat"/>
-                <copy file="${basedir}/../reference/demo/start-sakai.sh" tofile="${basedir}/target/pack/start-sakai.sh"/>
-                <copy file="${basedir}/../reference/demo/stop-sakai.bat" tofile="${basedir}/target/pack/stop-sakai.bat"/>
-                <copy file="${basedir}/../reference/demo/stop-sakai.sh" tofile="${basedir}/target/pack/stop-sakai.sh"/>
-<!-- Replace the favorite icon from tomcat -->
-                <copy file="${basedir}/../reference/library/src/webapp/icon/favicon.ico" tofile="${basedir}/target/pack/webapps/ROOT/favicon.ico" overwrite="true"/>
-                <copy file="${basedir}/../reference/library/src/webapp/icon/apple-touch-icon.png" tofile="${basedir}/target/pack/webapps/ROOT/apple-touch-icon.png" overwrite="true"/>
-                <copy file="${basedir}/../ECLv2.txt" tofile="${basedir}/target/pack/ECLv2.txt" overwrite="true"/>
-<!-- custom Tomcat mods -->
-                <copy file="${basedir}/../reference/demo/index.html" tofile="${basedir}/target/pack/webapps/ROOT/index.html"/>
-                <copy overwrite="true" file="${basedir}/target/pack/conf/server.xml" tofile="${basedir}/target/pack/conf/server-orig.xml"/>
-                <copy overwrite="true" file="${basedir}/target/pack/conf/server-orig.xml" tofile="${basedir}/target/pack/conf/server.xml">
-                  <filterset begintoken="maxHttpHeaderSize" endtoken="&quot;8192&quot;" recurse="false">
-                    <filter token="=" value="maxHttpHeaderSize=&quot;8192&quot; URIEncoding=&quot;UTF-8&quot;"/>
-                  </filterset>
-                </copy>
-<!-- makes all ".sh" files readable and executable for anyone on a UNIX system  -->
-                <chmod dir="${basedir}/target/pack/" perm="ugo+rx" includes="**/*.sh"/>
-<!-- zip it -->
-                <delete file="sakai-demo-${sakai.version}.zip"/>
-                <zip destfile="sakai-demo-${sakai.version}.zip" compress="yes">
-                  <zipfileset dir="${basedir}/target/pack/" prefix="sakai-demo-${sakai.version}"/>
-                </zip>
-                <echo>* * * sakai-demo-${sakai.version}.zip</echo>
-<!-- tar it -->
-                <delete file="sakai-demo-${sakai.version}.tar.gz"/>
-                <tar destfile="sakai-demo-${sakai.version}.tar.gz" longfile="gnu" compression="gzip">
-                  <tarfileset dir="${basedir}/target/pack/" mode="755" prefix="sakai-demo-${sakai.version}">
-                    <include name="**/*.sh"/>
-                  </tarfileset>
-                  <tarfileset dir="${basedir}/target/pack/" prefix="sakai-demo-${sakai.version}">
-                    <exclude name="**/*.sh"/>
-                  </tarfileset>
-                </tar>
-                <echo>* * * sakai-demo-${sakai.version}.tar.gz</echo>
-                <delete dir="${basedir}/target/pack/"/>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>2.7.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>pack-demo</artifactId>
+	<packaging>pom</packaging>
+	<name>Sakai Pack Demo</name>
+	<version>2.7.0-SNAPSHOT</version>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<properties>
+		<sakai.plugin.version>2.2</sakai.plugin.version>
+		<sakai.tomcat.version>5.5.26</sakai.tomcat.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>tomcat.tomcat</groupId>
+			<artifactId>tomcat</artifactId>
+			<version>${sakai.tomcat.version}</version>
+			<type>zip</type>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>pack-demo-clean</id>
+						<phase>install</phase>
+						<configuration>
+							<tasks>
+								<!-- Clear the deploy area -->
+								<delete dir="${basedir}/target/unpack" />
+								<delete dir="${basedir}/target/pack" />
+								<delete dir="${basedir}/target/pack-stage/" />
+								
+								<!-- Expand the Tomcat zip from the repo into the target -->
+								<unzip
+									src="${settings.localRepository}/tomcat/tomcat/tomcat/${sakai.tomcat.version}/tomcat-${sakai.tomcat.version}.zip"
+									dest="${basedir}/target/unpack" 
+									overwrite="true" />
+								
+								<!-- BIN artifact generation restored; don't move Tomcat yet -->
+								<!--
+								<move
+									file="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}"
+									tofile="${basedir}/target/pack" 
+									overwrite="true" />
+									
+								<delete dir="${basedir}/target/unpack" />
+								-->
+								
+								<echo>
+									Executing cd ../;mvn
+									-Dmaven.tomcat.home=${basedir}/target/pack
+									-Dmaven.test.skip=true clean install
+									sakai:deploy
+								</echo>
+								
+								<exec dir="../" executable="mvn" failonerror="true">
+									<arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
+									<arg value="-Dmaven.test.skip=true" />
+									<arg value="-Dkeystore=${keystore}" />
+									<arg value="-Dalias=${alias}" />
+									<arg value="-Dstorepass=${storepass}" />
+									<arg value="clean" />
+									<arg value="install" />
+									<arg value="sakai:deploy" />
+								</exec>
+								
+								<!-- Third-party licenses -->
+								<copy todir="${basedir}/target/pack/licenses/">
+									<fileset dir="${basedir}/../reference/licenses">
+										<exclude name=".svn/**" />
+										<exclude name="CVS/**" />
+									</fileset>
+								</copy>
+								
+								<!-- ECL licenses -->
+								<copy file="${basedir}/../ECLv2.txt" 
+									tofile="${basedir}/target/pack/ECLv2.txt" 
+									overwrite="true" />
+
+								<!-- GENERATE SAKAI BIN ARTIFACTS -->
+								
+								<!-- zip it -->
+								<delete file="sakai-bin-${sakai.version}.zip" />
+								
+								<zip destfile="sakai-bin-${sakai.version}.zip" compress="yes">
+									<zipfileset dir="${basedir}/target/pack/" prefix="sakai-bin-${sakai.version}" />
+								</zip>
+								
+								<echo>
+									* * * sakai-bin-${sakai.version}.zip
+								</echo>
+
+								<!-- tar it -->
+								<delete file="sakai-bin-${sakai.version}.tar.gz" />
+								
+								<tar destfile="sakai-bin-${sakai.version}.tar.gz" longfile="gnu" compression="gzip">
+									<tarfileset dir="${basedir}/target/pack/" mode="755" prefix="sakai-bin-${sakai.version}">
+										<include name="**/*.sh" />
+									</tarfileset>
+									<tarfileset dir="${basedir}/target/pack/" prefix="sakai-bin-${sakai.version}">
+										<exclude name="**/*.sh" />
+									</tarfileset>
+								</tar>
+								
+								<echo>
+									* * * sakai-bin-${sakai.version}.tar.gz
+								</echo>
+
+								<!-- Move BIN artifacts to /pack-stage -->
+								<move file="${basedir}/target/pack" 
+									tofile="${basedir}/target/pack-stage" 
+									overwrite="true" />
+								
+								<!-- GENERATE SAKAI DEMO ARTIFACTS -->
+								
+								<!-- Move Tomcat to /pack -->
+								<move file="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}"
+									tofile="${basedir}/target/pack" 
+									overwrite="true" />
+									
+								<delete dir="${basedir}/target/unpack" />
+
+								<!-- ? -->
+								<copy todir="${basedir}/target/pack">
+									<fileset dir="${basedir}/target/pack-stage">
+										<include name="**/*" />
+									</fileset>
+								</copy>
+								
+								<!-- sakai.properties -->
+								<copy file="${basedir}/../config/configuration/bundles/src/bundle/org/sakaiproject/config/bundle/demo.sakai.properties"
+									tofile="${basedir}/target/pack/sakai/sakai.properties" />
+								<!--
+									<copy file="${basedir}/../reference/demo/sakai.properties" 
+										tofile="${basedir}/target/pack/sakai/sakai.properties"/>
+								-->
+								
+								<!-- sakai.db.properties -->
+								<copy todir="${basedir}/target/pack/sakai/db">
+									<fileset dir="${basedir}/../reference/demo/db">
+										<include name="**/sakai.db.*" />
+									</fileset>
+								</copy>
+								
+								<!-- Readmes -->
+								<copy file="${basedir}/../reference/demo/readme.txt"
+									tofile="${basedir}/target/pack/demo_readme.txt" />
+									
+								<copy file="${basedir}/../reference/docs/readme.txt"
+									tofile="${basedir}/target/pack/sakai_readme.txt" />
+									
+								<!-- ECL License (done already) -->
+								<!--
+								<copy file="${basedir}/../ECLv2.txt"
+									tofile="${basedir}/target/pack/ECLv2.txt" 
+									overwrite="true" />
+								-->
+								
+								<!-- Third-party licenses (done already) -->
+								<!--
+								<copy todir="${basedir}/target/pack/licenses/">
+									<fileset dir="${basedir}/../reference/licenses">
+										<exclude name="CVS/**" />
+									</fileset>
+								</copy>
+								-->
+								
+								<!-- Start/stop .bat/.sh -->
+								<copy file="${basedir}/../reference/demo/start-sakai.bat"
+									tofile="${basedir}/target/pack/start-sakai.bat" />
+									
+								<copy file="${basedir}/../reference/demo/start-sakai.sh"
+									tofile="${basedir}/target/pack/start-sakai.sh" />
+									
+								<copy file="${basedir}/../reference/demo/stop-sakai.bat"
+									tofile="${basedir}/target/pack/stop-sakai.bat" />
+									
+								<copy file="${basedir}/../reference/demo/stop-sakai.sh"
+									tofile="${basedir}/target/pack/stop-sakai.sh" />
+									
+								<!-- Replace the Tomcat favicon -->
+								<copy
+									file="${basedir}/../reference/library/src/webapp/icon/favicon.ico"
+									tofile="${basedir}/target/pack/webapps/ROOT/favicon.ico"
+									overwrite="true" />
+								
+								<!-- Apple Touch icon -->
+								<copy file="${basedir}/../reference/library/src/webapp/icon/apple-touch-icon.png"
+									tofile="${basedir}/target/pack/webapps/ROOT/apple-touch-icon.png"
+									overwrite="true" />
+									
+								<!-- Custom Tomcat mods -->
+								<copy file="${basedir}/../reference/demo/index.html"
+									tofile="${basedir}/target/pack/webapps/ROOT/index.html" />
+								
+								<!-- server.xml -->		
+								<copy file="${basedir}/target/pack/conf/server.xml"
+									tofile="${basedir}/target/pack/conf/server-orig.xml" 
+									overwrite="true" />
+								
+								<copy file="${basedir}/target/pack/conf/server-orig.xml"
+									tofile="${basedir}/target/pack/conf/server.xml" 
+									overwrite="true" >
+									<filterset 
+										begintoken="maxHttpHeaderSize" 
+										endtoken="&quot;8192&quot;" 
+										recurse="false">
+										<filter token="="
+											value="maxHttpHeaderSize=&quot;8192&quot; URIEncoding=&quot;UTF-8&quot;" />
+									</filterset>
+								</copy>
+								
+								<!-- Make all ".sh" files readable and executable for anyone on a UNIX system  -->
+								<chmod dir="${basedir}/target/pack/" perm="ugo+rx" includes="**/*.sh" />
+								
+								<!-- zip it -->
+								<delete file="sakai-demo-${sakai.version}.zip" />
+								
+								<zip destfile="sakai-demo-${sakai.version}.zip" compress="yes">
+									<zipfileset dir="${basedir}/target/pack/" prefix="sakai-demo-${sakai.version}" />
+								</zip>
+								
+								<echo>
+									* * *
+									sakai-demo-${sakai.version}.zip
+								</echo>
+								
+								<!-- tar it -->
+								<delete file="sakai-demo-${sakai.version}.tar.gz" />
+								
+								<tar destfile="sakai-demo-${sakai.version}.tar.gz" longfile="gnu" compression="gzip">
+									<tarfileset dir="${basedir}/target/pack/" mode="755" prefix="sakai-demo-${sakai.version}">
+										<include name="**/*.sh" />
+									</tarfileset>
+									<tarfileset dir="${basedir}/target/pack/" prefix="sakai-demo-${sakai.version}">
+										<exclude name="**/*.sh" />
+									</tarfileset>
+								</tar>
+								
+								<echo>
+									* * *
+									sakai-demo-${sakai.version}.tar.gz
+								</echo>
+								
+								<delete dir="${basedir}/target/pack/" />
+								<delete dir="${basedir}/target/pack-stage/" />
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
