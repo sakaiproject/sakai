@@ -130,7 +130,8 @@
 	<!-- ReportManager ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.report.ReportManager"
 		class="org.sakaiproject.sitestats.impl.report.ReportManagerImpl"
-		singleton="true">
+        lazy-init="true"
+		singleton="true" init-method="init" destroy-method="destroy">
 		
 		<!-- Sakai services -->
 		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
@@ -141,6 +142,8 @@
 		<property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
         <!-- Hibernate related -->
         <property name="sessionFactory" ref="#{sitestats.db}SitestatsSessionFactory" />
 	</bean>

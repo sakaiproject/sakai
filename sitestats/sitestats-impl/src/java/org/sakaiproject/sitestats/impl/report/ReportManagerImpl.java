@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -43,11 +45,14 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -85,7 +90,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author Nuno Fernandes
  *
  */
-public class ReportManagerImpl extends HibernateDaoSupport implements ReportManager {
+public class ReportManagerImpl extends HibernateDaoSupport implements ReportManager, Observer {
 	private Log						LOG				= LogFactory.getLog(ReportManagerImpl.class);
 	private static ResourceLoader	msgs			= new ResourceLoader("Messages");
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
@@ -111,6 +116,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private ToolManager				M_tm;
 	private TimeService				M_ts;
 	private EventTrackingService	M_ets;
+	private MemoryService			M_ms;
+	
+	/** Caching */
+	private Cache					cacheReportDef			= null;
 	
 
 	// ################################################################
@@ -150,6 +159,58 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.M_ets = eventTrackingService;
+	}
+
+	public void setMemoryService(MemoryService memoryService) {
+		this.M_ms = memoryService;
+	}
+	
+	public void init(){
+		// Initialize cacheReportDef and event observer for cacheReportDef invalidation across cluster
+		M_ets.addPriorityObserver(this);
+		cacheReportDef = M_ms.newCache(ReportDef.class.getName());
+	}
+	
+	public void destroy(){
+		M_ets.deleteObserver(this);
+	}
+
+	/** EventTrackingService observer for cache invalidation. */
+	public void update(Observable obs, Object o) {
+		if(o instanceof Event){
+			Event e = (Event) o;
+			String prefix = StatsManager.LOG_APP + '.' + StatsManager.LOG_OBJ_REPORTDEF;
+			if(e.getEvent() != null 
+					&& e.getEvent().startsWith(prefix)
+					&& (e.getEvent().endsWith(StatsManager.LOG_ACTION_NEW)
+						|| e.getEvent().endsWith(StatsManager.LOG_ACTION_EDIT)
+						|| e.getEvent().endsWith(StatsManager.LOG_ACTION_DELETE)
+						)
+				) {
+				String[] parts = e.getResource().split("/");
+				String id = parts[4];
+				String siteId = parts[2];
+				
+				// expire report with specified id
+				LOG.debug("Expiring report for id: "+siteId);
+				cacheReportDef.expire(id);
+				
+				// expire list of site reports
+				LOG.debug("Expiring report lists for site: "+siteId);
+				cacheReportDef.expire( new KeyReportDefList(siteId, true, true) );
+				cacheReportDef.expire( new KeyReportDefList(siteId, true, false) );
+				cacheReportDef.expire( new KeyReportDefList(siteId, false, true) );
+				cacheReportDef.expire( new KeyReportDefList(siteId, false, false) );
+
+				// expire list of predefined reports
+				// required as event contains siteId and not null (which identifies predefined reports)
+				LOG.debug("Expiring predefined report lists");
+				cacheReportDef.expire( new KeyReportDefList(null, true, true) );
+				cacheReportDef.expire( new KeyReportDefList(null, true, false) );
+				cacheReportDef.expire( new KeyReportDefList(null, false, true) );
+				cacheReportDef.expire( new KeyReportDefList(null, false, false) );
+			}
+		}
 	}
 	
 
@@ -419,22 +480,29 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportDefinition(long)
 	 */
 	public ReportDef getReportDefinition(final long id) {
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				return session.load(ReportDef.class, Long.valueOf(id));
+		ReportDef reportDef = null;
+		Object cached = cacheReportDef.get(String.valueOf(id));
+		if(cached != null){
+			reportDef = (ReportDef) cached;
+			LOG.debug("Getting report with id "+id+" from cache");
+		}else{
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					return session.load(ReportDef.class, Long.valueOf(id));
+				}
+			};
+			Object o = getHibernateTemplate().execute(hcb);
+			if(o != null) {
+				reportDef = (ReportDef) o;
+				try{
+					reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
+				}catch(Exception e){
+					LOG.warn("getReportDefinition(): unable to parse report parameters.");
+				}
+				cacheReportDef.put(String.valueOf(id), reportDef);
 			}
-		};
-		Object o = getHibernateTemplate().execute(hcb);
-		if(o != null) {
-			ReportDef reportDef = (ReportDef) o;
-			try{
-				reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
-			}catch(Exception e){
-				LOG.warn("getReportDefinition(): unable to parse report parameters.");
-			}
-			return reportDef;
 		}
-		return null;
+		return reportDef;
 	}
 	
 	/* (non-Javadoc)
@@ -523,38 +591,46 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportDefinitions(java.lang.String, boolean, boolean)
 	 */
 	public List<ReportDef> getReportDefinitions(final String siteId, final boolean includedPredefined, final boolean includeHidden) {
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Criteria c = session.createCriteria(ReportDef.class);
-				if(siteId != null) {
-					if(includedPredefined) {
-						c.add(Expression.or(Expression.eq("siteId", siteId), Expression.isNull("siteId")));
+		List<ReportDef> reportDefs = null;
+		KeyReportDefList key = new KeyReportDefList(siteId, includedPredefined, includeHidden);
+		Object cached = cacheReportDef.get(key);
+		if(cached != null) {
+			reportDefs = (List<ReportDef>) cached;
+			LOG.debug("Getting report list from cache for site "+siteId);
+		}else{
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Criteria c = session.createCriteria(ReportDef.class);
+					if(siteId != null) {
+						if(includedPredefined) {
+							c.add(Expression.or(Expression.eq("siteId", siteId), Expression.isNull("siteId")));
+						}else{
+							c.add(Expression.eq("siteId", siteId));
+						}
 					}else{
-						c.add(Expression.eq("siteId", siteId));
+						c.add(Expression.isNull("siteId"));
 					}
-				}else{
-					c.add(Expression.isNull("siteId"));
+					if(!includeHidden) {
+						c.add(Expression.eq("hidden", false));
+					}
+					return c.list();
 				}
-				if(!includeHidden) {
-					c.add(Expression.eq("hidden", false));
+			};
+			Object o = getHibernateTemplate().execute(hcb);
+			if(o != null) {
+				reportDefs = (List<ReportDef>) o;
+				for(ReportDef reportDef : reportDefs) {
+					try{
+						reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
+					}catch(Exception e){
+						LOG.warn("getReportDefinition(): unable to parse report parameters.");
+						reportDef.setReportParams(null);
+					}
 				}
-				return c.list();
+				cacheReportDef.put(key, reportDefs);
 			}
-		};
-		Object o = getHibernateTemplate().execute(hcb);
-		if(o != null) {
-			List<ReportDef> reportDefs = (List<ReportDef>) o;
-			for(ReportDef reportDef : reportDefs) {
-				try{
-					reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
-				}catch(Exception e){
-					LOG.warn("getReportDefinition(): unable to parse report parameters.");
-					reportDef.setReportParams(null);
-				}
-			}
-			return reportDefs;
 		}
-		return null;
+		return reportDefs;
 	}
 
 	/* (non-Javadoc)
@@ -1376,6 +1452,37 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				return buff.toString();
 			}else
 				return null;
+		}
+	}
+	
+	private static class KeyReportDefList {
+		public String siteId;
+		public boolean includedPredefined;
+		public boolean includeHidden;
+		
+		public KeyReportDefList(String siteId, boolean includedPredefined, boolean includeHidden){
+			this.siteId = siteId;
+			this.includedPredefined = includedPredefined;
+			this.includeHidden = includeHidden;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if(o instanceof KeyReportDefList) {
+				KeyReportDefList u = (KeyReportDefList) o;
+				return 
+					((siteId == null && u.siteId == null) || siteId.equals(u.siteId)) 
+					&& includedPredefined==u.includedPredefined 
+					&& includeHidden==u.includeHidden;
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return (siteId!=null?siteId.hashCode():0) 
+				+ (includedPredefined?1:0) 
+				+ (includeHidden?1:0);
 		}
 	}
 }

@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
 import org.apache.commons.digester.Digester;
@@ -95,7 +97,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author Nuno Fernandes
  *
  */
-public class StatsManagerImpl extends HibernateDaoSupport implements StatsManager {
+public class StatsManagerImpl extends HibernateDaoSupport implements StatsManager, Observer {
 	private Log							LOG										= LogFactory.getLog(StatsManagerImpl.class);
 	
 	/** Spring bean members */
@@ -263,11 +265,29 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		// Checks whether Event.getContext is implemented in Event (from Event API)
 		checkForEventContextSupport();
 		
-		// Initialize cache
+		// Initialize cacheReportDef and event observer for preferences invalidation across cluster
+		M_ets.addPriorityObserver(this);
 		cachePrefsData = M_ms.newCache(PrefsData.class.getName());
 		
 		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
 							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
+	}
+	
+	public void destroy(){
+		M_ets.deleteObserver(this);
+	}
+
+	/** EventTrackingService observer for cache invalidation. */
+	public void update(Observable obs, Object o) {
+		if(o instanceof Event){
+			Event e = (Event) o;
+			String event = LOG_APP + '.' + LOG_OBJ_PREFSDATA + '.' + LOG_ACTION_EDIT;
+			if(e.getEvent() != null && e.getEvent().equals(event)) {
+				String siteId = e.getResource().split("/")[2];
+				cachePrefsData.expire(siteId);
+				LOG.debug("Expiring preferences cache for site: "+siteId);
+			}
+		}
 	}
 	
 	private PrefsData parseSitePrefs(InputStream input) throws Exception{
@@ -287,8 +307,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			throw new IllegalArgumentException("Null siteId");
 		}else{
 			PrefsData prefsdata = null;
-			if(cachePrefsData.containsKey(siteId)){
-				prefsdata = (PrefsData) cachePrefsData.get(siteId);
+			Object cached = cachePrefsData.get(siteId);
+			if(cached != null){
+				prefsdata = (PrefsData) cached;
+				LOG.debug("Getting preferences for site "+siteId+" from cache");
 			}else{
 				HibernateCallback hcb = new HibernateCallback() {
 					public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -361,7 +383,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
-			cachePrefsData.put(siteId, prefsdata);
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Transaction tx = null;
