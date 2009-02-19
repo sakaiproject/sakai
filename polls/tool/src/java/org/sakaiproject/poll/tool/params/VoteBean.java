@@ -29,8 +29,8 @@ import org.sakaiproject.poll.model.VoteCollection;
 
 public class VoteBean implements Serializable {
 
-	public VoteCollection voteCollection;
-	public Poll poll;
+	public transient VoteCollection voteCollection;
+	public transient Poll poll;
 	
 	public VoteCollection getVoteCollection(){
 		return voteCollection;
