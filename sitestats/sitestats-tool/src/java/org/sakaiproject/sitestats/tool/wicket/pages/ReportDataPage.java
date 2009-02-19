@@ -351,6 +351,26 @@ public class ReportDataPage extends BasePage {
 				}
 			});
 		}
+		// tool
+		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOOL)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_tool"), columnsSortable ? ReportsDataProvider.COL_TOOL : null, ReportsDataProvider.COL_TOOL) {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					final String toolId = ((EventStat) model.getObject()).getToolId();
+					String toolName = "";
+					if(!"".equals(toolId)){
+						toolName = facade.getEventRegistryService().getToolName(toolId);
+					}
+					Label toolLabel = new Label(componentId, toolName);
+					String toolIconClass = "toolIcon";
+					String toolIconPath = "url(" + facade.getEventRegistryService().getToolIcon(toolId) + ")";
+					toolLabel.add(new AttributeModifier("class", true, new Model(toolIconClass)));
+					toolLabel.add(new AttributeModifier("style", true, new Model("background-image: "+toolIconPath)));
+					toolLabel.add(new AttributeModifier("title", true, new Model(toolName)));
+					item.add(toolLabel);
+				}
+			});
+		}
 		// event
 		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_EVENT)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_event"), columnsSortable ? ReportsDataProvider.COL_EVENT : null, ReportsDataProvider.COL_EVENT) {
@@ -373,26 +393,6 @@ public class ReportDataPage extends BasePage {
 						eventLabel.add(new AttributeModifier("title", true, new Model(toolName)));
 					}
 					item.add(eventLabel);
-				}
-			});
-		}
-		// tool
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOOL)) {
-			columns.add(new PropertyColumn(new ResourceModel("th_tool"), columnsSortable ? ReportsDataProvider.COL_TOOL : null, ReportsDataProvider.COL_TOOL) {
-				@Override
-				public void populateItem(Item item, String componentId, IModel model) {
-					final String toolId = ((EventStat) model.getObject()).getToolId();
-					String toolName = "";
-					if(!"".equals(toolId)){
-						toolName = facade.getEventRegistryService().getToolName(toolId);
-					}
-					Label toolLabel = new Label(componentId, toolName);
-					String toolIconClass = "toolIcon";
-					String toolIconPath = "url(" + facade.getEventRegistryService().getToolIcon(toolId) + ")";
-					toolLabel.add(new AttributeModifier("class", true, new Model(toolIconClass)));
-					toolLabel.add(new AttributeModifier("style", true, new Model("background-image: "+toolIconPath)));
-					toolLabel.add(new AttributeModifier("title", true, new Model(toolName)));
-					item.add(toolLabel);
 				}
 			});
 		}

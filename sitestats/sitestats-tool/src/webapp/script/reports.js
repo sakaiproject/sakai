@@ -1,10 +1,11 @@
 // Option indexes for "How:Totals by" select box
 var TOTALSBY_IX_USER = 0;
-var TOTALSBY_IX_EVENT = 1;
-var TOTALSBY_IX_RESOURCE = 2;
-var TOTALSBY_IX_RESOURCEACTION = 3;
-var TOTALSBY_IX_DATE = 4;
-var TOTALSBY_IX_SITE = 5;
+var TOTALSBY_IX_TOOL = 1;
+var TOTALSBY_IX_EVENT = 2;
+var TOTALSBY_IX_RESOURCE = 3;
+var TOTALSBY_IX_RESOURCEACTION = 4;
+var TOTALSBY_IX_DATE = 5;
+var TOTALSBY_IX_SITE = 6;
 
 function checkWhatSelection() {
 	var what = jQuery('#what').val();
@@ -118,11 +119,17 @@ function checkHowTotalsBySelection() {
 	jQuery('#howTotalsBy option').each(function(i){
 		jQuery(this).removeAttr('disabled');
 	    if(what == 'what-resources'){
-	    	if(i == TOTALSBY_IX_EVENT) {
-	    		// disable Event selection
+	    	if(i == TOTALSBY_IX_TOOL || i == TOTALSBY_IX_EVENT) {
+	    		// disable Tool and Event selection
 	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
 	    	}
-	    }else if(i == TOTALSBY_IX_RESOURCE || i == TOTALSBY_IX_RESOURCEACTION) {
+	    }else if(what == 'what-visits') {
+	    	if(i == TOTALSBY_IX_TOOL || i == TOTALSBY_IX_RESOURCE || i == TOTALSBY_IX_RESOURCEACTION) {
+	    		// disable Tool, Resource and Resource Action selection
+	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
+	    	}
+	    }else // 'what-events' 
+	    	if(i == TOTALSBY_IX_RESOURCE || i == TOTALSBY_IX_RESOURCEACTION) {
     		// disable Resource and Resource Action selection
 	        jQuery(this).removeAttr('selected').attr('disabled','disabled');
 	    }
@@ -139,6 +146,7 @@ function checkHowChartSelection() {
 		jQuery('#chartTypeTr').show();
 	    var chartType = jQuery('#howChartType').val();
 	    var howTotalsByUserSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_USER]).attr('selected');
+	    var howTotalsByToolSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_TOOL]).attr('selected');
 	    var howTotalsByEventSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_EVENT]).attr('selected');
 	    var howTotalsByResourceSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_RESOURCE]).attr('selected');
 	    var howTotalsByResourceActionSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_RESOURCEACTION]).attr('selected');
@@ -158,6 +166,16 @@ function checkHowChartSelection() {
 				var value = jQuery(this).val();
 				if(value == 'user') {
 					if(!howTotalsByUserSelected) {
+						jQuery(this).attr('disabled','disabled');
+						if(jQuery(this).attr('selected')) {
+							jQuery(this).removeAttr('selected');
+						}
+					}else{
+						jQuery(this).removeAttr('disabled');
+					}
+				}
+				if(value == 'tool') {
+					if(!howTotalsByToolSelected) {
 						jQuery(this).attr('disabled','disabled');
 						if(jQuery(this).attr('selected')) {
 							jQuery(this).removeAttr('selected');
@@ -224,6 +242,16 @@ function checkHowChartSelection() {
 				var value = jQuery(this).val();
 				if(value == 'user') {
 					if(!howTotalsByUserSelected) {
+						jQuery(this).attr('disabled','disabled');
+						if(jQuery(this).attr('selected')) {
+							jQuery(this).removeAttr('selected');
+						}
+					}else{
+						jQuery(this).removeAttr('disabled');
+					}
+				}
+				if(value == 'tool') {
+					if(!howTotalsByToolSelected) {
 						jQuery(this).attr('disabled','disabled');
 						if(jQuery(this).attr('selected')) {
 							jQuery(this).removeAttr('selected');

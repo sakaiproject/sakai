@@ -467,7 +467,8 @@ public class ReportsEditPage extends BasePage {
 	private void renderWhenUI(Form form) {
 		List<String> whenOptions = Arrays.asList(
 				ReportManager.WHEN_ALL, ReportManager.WHEN_LAST7DAYS,
-				ReportManager.WHEN_LAST30DAYS, ReportManager.WHEN_CUSTOM
+				ReportManager.WHEN_LAST30DAYS, ReportManager.WHEN_LAST365DAYS,
+				ReportManager.WHEN_CUSTOM
 				);
 		IChoiceRenderer whenChoiceRenderer = new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
@@ -479,6 +480,9 @@ public class ReportsEditPage extends BasePage {
 				}
 				if(ReportManager.WHEN_LAST30DAYS.equals(object)) {
 					return new ResourceModel("report_when_last30days").getObject();
+				}
+				if(ReportManager.WHEN_LAST365DAYS.equals(object)) {
+					return new ResourceModel("report_when_last365days").getObject();
 				}
 				if(ReportManager.WHEN_CUSTOM.equals(object)) {
 					return new ResourceModel("report_when_custom").getObject();
@@ -668,6 +672,9 @@ public class ReportsEditPage extends BasePage {
 					if(StatsManager.T_USER.equals(id)) {
 						return (String) new ResourceModel("report_option_user").getObject();
 					}
+					if(StatsManager.T_TOOL.equals(id)) {
+						return (String) new ResourceModel("report_option_tool").getObject();
+					}
 					if(StatsManager.T_EVENT.equals(id)) {
 						return (String) new ResourceModel("report_option_event").getObject();
 					}
@@ -836,13 +843,13 @@ public class ReportsEditPage extends BasePage {
 		List<String> howChartCategorySourceOptions = null;
 		List<String> howChartSeriesSourceOptions = null;
 		if(renderSiteSortOption) {
-			howChartSourceOptions = Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
-			howChartCategorySourceOptions = Arrays.asList(StatsManager.T_NONE, StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
-			howChartSeriesSourceOptions = Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_TOTAL);
+			howChartSourceOptions = Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_TOOL, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
+			howChartCategorySourceOptions = Arrays.asList(StatsManager.T_NONE, StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_TOOL, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
+			howChartSeriesSourceOptions = Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_TOOL, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_TOTAL);
 		}else{
-			howChartSourceOptions = Arrays.asList(StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
-			howChartCategorySourceOptions = Arrays.asList(StatsManager.T_NONE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
-			howChartSeriesSourceOptions = Arrays.asList(StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_TOTAL);
+			howChartSourceOptions = Arrays.asList(StatsManager.T_USER, StatsManager.T_TOOL, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
+			howChartCategorySourceOptions = Arrays.asList(StatsManager.T_NONE, StatsManager.T_TOOL, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE);
+			howChartSeriesSourceOptions = Arrays.asList(StatsManager.T_USER, StatsManager.T_TOOL, StatsManager.T_EVENT, StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_TOTAL);
 		}
 		DropDownChoice howChartSource = new DropDownChoice("reportParams.howChartSource", howChartSourceOptions, allColumnsChoiceRenderer);
 		howChartSource.setMarkupId("howChartSource");
@@ -1020,6 +1027,7 @@ public class ReportsEditPage extends BasePage {
 		
 		List<String> totalsOptions = new ArrayList<String>();
 		totalsOptions.add(StatsManager.T_USER);
+		totalsOptions.add(StatsManager.T_TOOL);
 		totalsOptions.add(StatsManager.T_EVENT);
 		totalsOptions.add(StatsManager.T_RESOURCE);
 		totalsOptions.add(StatsManager.T_RESOURCE_ACTION);
@@ -1047,6 +1055,9 @@ public class ReportsEditPage extends BasePage {
 				Object object = opt.getModel().getObject();
 				if(StatsManager.T_USER.equals(object)) {
 					return (String) new ResourceModel("report_option_user").getObject();					
+				}
+				if(StatsManager.T_TOOL.equals(object)) {
+					return (String) new ResourceModel("report_option_tool").getObject();
 				}
 				if(StatsManager.T_EVENT.equals(object)) {
 					return (String) new ResourceModel("report_option_event").getObject();
