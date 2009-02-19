@@ -1,3 +1,12 @@
+// Option indexes for "How:Totals by" select box
+var TOTALSBY_IX_USER = 0;
+var TOTALSBY_IX_EVENT = 1;
+var TOTALSBY_IX_RESOURCE = 2;
+var TOTALSBY_IX_RESOURCEACTION = 3;
+var TOTALSBY_IX_DATE = 4;
+var TOTALSBY_IX_MRDATE = 5;
+var TOTALSBY_IX_SITE = 6;
+
 function checkWhatSelection() {
 	var what = jQuery('#what').val();
 	if(what == 'what-visits') {
@@ -120,8 +129,8 @@ function checkHowTotalsBySelection() {
 	    }
 	});	
 	// both date fields are selected, select first only	
-    if( jQuery(jQuery('#howTotalsBy').children()[4]).attr('selected') && jQuery(jQuery('#howTotalsBy').children()[5]).attr('selected') ) {
-    	jQuery(jQuery('#howTotalsBy').children()[5]).removeAttr('selected');
+    if( jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_DATE]).attr('selected') && jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_MRDATE]).attr('selected') ) {
+    	jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_MRDATE]).removeAttr('selected');
     }
 }
 
@@ -134,11 +143,11 @@ function checkHowChartSelection() {
 	}else{
 		jQuery('#chartTypeTr').show();
 	    var chartType = jQuery('#howChartType').val();
-	    var howTotalsByUserSelected = jQuery(jQuery('#howTotalsBy').children()[0]).attr('selected');
-	    var howTotalsByEventSelected = jQuery(jQuery('#howTotalsBy').children()[1]).attr('selected');
-	    var howTotalsByResourceSelected = jQuery(jQuery('#howTotalsBy').children()[2]).attr('selected');
-	    var howTotalsByResourceActionSelected = jQuery(jQuery('#howTotalsBy').children()[3]).attr('selected');
-	    var howTotalsByDateSelected = jQuery(jQuery('#howTotalsBy').children()[4]).attr('selected');
+	    var howTotalsByUserSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_USER]).attr('selected');
+	    var howTotalsByEventSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_EVENT]).attr('selected');
+	    var howTotalsByResourceSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_RESOURCE]).attr('selected');
+	    var howTotalsByResourceActionSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_RESOURCEACTION]).attr('selected');
+	    var howTotalsByDateSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_DATE]).attr('selected');
 	    
 	    if(chartType == 'bar' || chartType == 'pie') {
 			jQuery('#chartDataSourceTr').show();
@@ -204,7 +213,7 @@ function checkHowChartSelection() {
 				}				
 			});
 	    	
-	    }else if(chartType == 'timeseries') {
+	    }else if(chartType == 'timeseries' || chartType == 'timeseriesbar') {
 	    	jQuery('#chartDataSourceTr').hide();
 			jQuery('#chartSeriesSourceTr').show();
 	    	jQuery('#howChartSource option').each(function(i){
@@ -213,9 +222,9 @@ function checkHowChartSelection() {
 	    		}
 	    	});
 	    	// select Date if chart == TimeSeries
-    	    jQuery(jQuery('#howTotalsBy').children()[4]).attr('selected','selected');
-    		if(jQuery(jQuery('#howTotalsBy').children()[5]).attr('selected')) {
-    			jQuery(jQuery('#howTotalsBy').children()[5]).removeAttr('selected');
+    	    jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_DATE]).attr('selected','selected');
+    		if(jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_MRDATE]).attr('selected')) {
+    			jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_MRDATE]).removeAttr('selected');
     		}
 			// disable invalid options in chart series source options
 		    jQuery('#howChartSeriesSource option').each(function(i){

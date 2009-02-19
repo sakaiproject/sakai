@@ -800,7 +800,9 @@ public class ReportsEditPage extends BasePage {
 		form.add(howPresentation);
 
 		// chart type
-		List<String> howChartTypeOptions = Arrays.asList(StatsManager.CHARTTYPE_BAR, /*StatsManager.CHARTTYPE_LINE,*/ StatsManager.CHARTTYPE_PIE, StatsManager.CHARTTYPE_TIMESERIES);
+		List<String> howChartTypeOptions = Arrays.asList(
+				StatsManager.CHARTTYPE_BAR, /*StatsManager.CHARTTYPE_LINE,*/ StatsManager.CHARTTYPE_PIE,
+				StatsManager.CHARTTYPE_TIMESERIES, StatsManager.CHARTTYPE_TIMESERIESBAR);
 		IChoiceRenderer howChartTypeChoiceRenderer = new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
 				if(StatsManager.CHARTTYPE_BAR.equals(object)) {
@@ -814,6 +816,9 @@ public class ReportsEditPage extends BasePage {
 				}
 				if(StatsManager.CHARTTYPE_TIMESERIES.equals(object)) {
 					return new ResourceModel("report_howchart_timeseries").getObject();
+				}
+				if(StatsManager.CHARTTYPE_TIMESERIESBAR.equals(object)) {
+					return new ResourceModel("report_howchart_timeseries_bar").getObject();
 				}
 				return object;
 			}
