@@ -22,6 +22,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.transform.Transformers;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -71,7 +72,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String BASIC_ENCRYPTION_KEY = "AbrA_ca-DabRa.123";
 	
 	
-	private static final String QUERY_GET_FRIENDS_FOR_USER = "getFriendsForUser";
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser";
 	private static final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser";
 	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest";
@@ -224,49 +224,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 
 	
-
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public List<Friend> getFriendsForUser(final String userId, final int limit) {
-		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendsForUser()");
-	  	}
-		
-		List<Friend> friends = new ArrayList<Friend>();
-			
-		//get friends of this user and map it automatically to the Friend object
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			/* returns too much data when getting the photos as well.
-	  			Query q = session.createSQLQuery("select PROFILE_FRIENDS_T.FRIEND_UUID as userUuid, PROFILE_FRIENDS_T.CONFIRMED as confirmed, PROFILE_STATUS_T.MESSAGE as statusMessage, PROFILE_STATUS_T.DATE_ADDED as statusDate, SAKAI_PERSON_T.JPEG_PHOTO as photo from PROFILE_FRIENDS_T left join PROFILE_STATUS_T on PROFILE_FRIENDS_T.FRIEND_UUID=PROFILE_STATUS_T.USER_UUID left join SAKAI_PERSON_T on PROFILE_FRIENDS_T.FRIEND_UUID=SAKAI_PERSON_T.AGENT_UUID where PROFILE_FRIENDS_T.USER_UUID = :userUuid")
-	  				.addScalar("photo", Hibernate.BYTE);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setResultTransformer(Transformers.aliasToBean(Friend.class));
-	  			*/
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIENDS_FOR_USER);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setResultTransformer(Transformers.aliasToBean(Friend.class));
-	  			
-	  			//limit of 0 = unlimited, else set limit
-	  			if(limit > 0) {
-	  				q.setMaxResults(limit);
-	  			}
-	  			
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	friends = (List<Friend>) getHibernateTemplate().executeFind(hcb);
-	  	
-	  	return friends;
-
-	}
-	
-	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -285,6 +242,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  			
 	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("false", Boolean.FALSE);
 	  			//q.setResultTransformer(Transformers.aliasToBean(Friend.class));
 	  			
 	  			return q.list();
@@ -307,8 +265,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
+	  		
 	  			Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("true", Boolean.TRUE);
 	  			return q.list();
 	  		}
 	  	};
@@ -1292,7 +1252,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//see ProfilePreferences for this constructor and what it all means
 		ProfilePreferences profilePreferences = new ProfilePreferences(
 				userId,
-				ProfilePreferencesManager.DEFAULT_EMAIL_SETTING,
+				ProfilePreferencesManager.DEFAULT_EMAIL_REQUEST_SETTING,
+				ProfilePreferencesManager.DEFAULT_EMAIL_CONFIRM_SETTING,
 				ProfilePreferencesManager.DEFAULT_TWITTER_SETTING);
 		
 		//save
@@ -1450,38 +1411,22 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     		return ProfilePreferencesManager.DEFAULT_EMAIL_NOTIFICATION_SETTING;
     	}
     	
-    	//if all, messageType not considered, true
-    	if(profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_ALL) {
+    	
+    	//if its a request and requests enabled, true
+    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_REQUEST && profilePreferences.isRequestEmailEnabled()) {
     		return true;
     	}
     	
-    	//if none, messageType not considered, false
-    	if(profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_NONE) {
-    		return false;
-    	}
-    	
-    	//if its a request and set to only requests, true
-    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_REQUEST && profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_REQUESTS_ONLY) {
+    	//if its a confirm and confirms enabled, true
+    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_CONFIRM && profilePreferences.isConfirmEmailEnabled()) {
     		return true;
     	}
     	
-    	//if its a request and set to only confirms, false
-    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_REQUEST && profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_CONFIRMS_ONLY) {
-    		return false;
-    	}
+    	//add more cases here as need progresses
     	
-    	//if its a confirm and set to only confirms, true
-    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_CONFIRM && profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_CONFIRMS_ONLY) {
-    		return true;
-    	}
-    	
-    	//if its a confirm and set to only requests, false
-    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_CONFIRM && profilePreferences.getEmail() == ProfilePreferencesManager.EMAIL_OPTION_REQUESTS_ONLY) {
-    		return false;
-    	}
     	    	
     	//uncaught rule, return false
-    	log.error("Profile.isEmailEnabledForThisMessageType. Uncaught rule. userId: " + userId + ", emailPref: " + profilePreferences.getEmail() + ", messageType: " + messageType);
+    	log.info("Profile.isEmailEnabledForThisMessageType. False for userId: " + userId + ", messageType: " + messageType);
 
     	return false;
 		

@@ -3,7 +3,6 @@ package uk.ac.lancs.e_science.profile2.api;
 import java.util.Date;
 import java.util.List;
 
-import uk.ac.lancs.e_science.profile2.hbm.Friend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
@@ -52,19 +51,6 @@ public interface Profile {
 	 */
 	public Date convertStringToDate(String dateStr, String format);
 	
-	/**
-	 * Get a list of Friends for a given user. Uses a native SQL query so we can use unions
-	 * Returns: (all those where userId is the user_uuid) & (all those where user is friend_uuid and confirmed=true)
-	 * This will then get all those that the user has confirmed as well as those that they have requested of others
-	 *  but may have not been confirmed yet.
-	 *  
-	 *  If you need this separate, see getFriendRequestsForUser() and getConfirmedFriendUserIdsForUser()
-	 *
-	 * @param userId		uuid of the user to retrieve the list of friends for
-	 * @param limit			number of records to return or 0 for unlimited
-	 * @deprecated
-	 */
-	public List<Friend> getFriendsForUser(String userId, int limit);
 	
 	/**
 	 * Get a list of unconfirmed Friend requests for a given user. Uses a native SQL query
@@ -81,6 +67,7 @@ public interface Profile {
 	 * This only returns userIds, as I havent had a need for getting Friend objects yet (ie more than one param returned)
 	 * If required, simply implement this again, with a modified HBM query to add the extra fields
 	 * and Transform to Friend object.
+	 * ie q.setResultTransformer(Transformers.aliasToBean(Friend.class));
 	 * 
 	 * @param userId		uuid of the user to retrieve the list of friends for
 	 */
