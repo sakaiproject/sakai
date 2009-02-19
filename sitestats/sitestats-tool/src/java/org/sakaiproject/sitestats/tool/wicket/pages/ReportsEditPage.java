@@ -1024,7 +1024,6 @@ public class ReportsEditPage extends BasePage {
 		totalsOptions.add(StatsManager.T_RESOURCE);
 		totalsOptions.add(StatsManager.T_RESOURCE_ACTION);
 		totalsOptions.add(StatsManager.T_DATE);
-		totalsOptions.add(StatsManager.T_LASTDATE);
 		if(renderAdminOptions) {
 			totalsOptions.add(StatsManager.T_SITE);
 		}

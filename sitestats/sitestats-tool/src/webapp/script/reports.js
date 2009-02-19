@@ -4,8 +4,7 @@ var TOTALSBY_IX_EVENT = 1;
 var TOTALSBY_IX_RESOURCE = 2;
 var TOTALSBY_IX_RESOURCEACTION = 3;
 var TOTALSBY_IX_DATE = 4;
-var TOTALSBY_IX_MRDATE = 5;
-var TOTALSBY_IX_SITE = 6;
+var TOTALSBY_IX_SITE = 5;
 
 function checkWhatSelection() {
 	var what = jQuery('#what').val();
@@ -119,19 +118,15 @@ function checkHowTotalsBySelection() {
 	jQuery('#howTotalsBy option').each(function(i){
 		jQuery(this).removeAttr('disabled');
 	    if(what == 'what-resources'){
-	    	if(i == 1) {
+	    	if(i == TOTALSBY_IX_EVENT) {
 	    		// disable Event selection
 	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
 	    	}
-	    }else if(i == 2 || i == 3) {
+	    }else if(i == TOTALSBY_IX_RESOURCE || i == TOTALSBY_IX_RESOURCEACTION) {
     		// disable Resource and Resource Action selection
 	        jQuery(this).removeAttr('selected').attr('disabled','disabled');
 	    }
-	});	
-	// both date fields are selected, select first only	
-    if( jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_DATE]).attr('selected') && jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_MRDATE]).attr('selected') ) {
-    	jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_MRDATE]).removeAttr('selected');
-    }
+	});
 }
 
 function checkHowChartSelection() {
@@ -221,12 +216,9 @@ function checkHowChartSelection() {
 	    			jQuery(this).attr('selected','selected');
 	    		}
 	    	});
-	    	// select Date if chart == TimeSeries
+	    	// select Date if chart is TimeSeries based
     	    jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_DATE]).attr('selected','selected');
-    		if(jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_MRDATE]).attr('selected')) {
-    			jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_MRDATE]).removeAttr('selected');
-    		}
-			// disable invalid options in chart series source options
+    		// disable invalid options in chart series source options
 		    jQuery('#howChartSeriesSource option').each(function(i){
 				jQuery(this).removeAttr('disabled');
 				var value = jQuery(this).val();
