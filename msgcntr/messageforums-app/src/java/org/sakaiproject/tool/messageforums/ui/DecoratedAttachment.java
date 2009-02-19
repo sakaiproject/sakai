@@ -50,8 +50,7 @@ public class DecoratedAttachment
 		MessageForumsMessageManager messageManager = (MessageForumsMessageManager)ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager");
 		if(attachment != null)
 		{
-			String tempUrl = messageManager.getAttachmentUrl(attachment.getAttachmentId());
-			return messageManager.getAttachmentUrl(attachment.getAttachmentId());
+		    return messageManager.getAttachmentRelativeUrl(attachment.getAttachmentId());
 		}
 		else
 			return "";

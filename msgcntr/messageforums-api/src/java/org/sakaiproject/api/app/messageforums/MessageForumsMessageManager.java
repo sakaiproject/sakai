@@ -117,7 +117,19 @@ public interface MessageForumsMessageManager {
     public List findPvtMsgsBySearchText(final String typeUuid, final String searchText,final Date searchFromDate, final Date searchToDate,
         final boolean searchByText, final boolean searchByAuthor,final boolean searchByBody, final boolean searchByLabel,final boolean searchByDate);
     
+    /**
+     * Get a fully qualified URl
+     * @param id
+     * @return
+     */
     public String getAttachmentUrl(String id);
+    
+    /**
+     * Get a relative URL escaped suitable for JSF pages
+     * @param id
+     * @return
+     */
+    public String getAttachmentRelativeUrl(String id);
     
     public boolean currentToolMatch(String toolId);
     

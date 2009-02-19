@@ -1049,6 +1049,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   	}
   	return null;
   }
+  
+  public String getAttachmentRelativeUrl(String id) {
+      try
+      {
+          String tempString = contentHostingService.getResource(id).getUrl(true);
+          String newString = org.sakaiproject.util.Web.escapeUrl(tempString);
+          return newString;
+      }
+      catch(Exception e)
+      {
+          LOG.error("MessageForumsMessageManagerImpl.getAttachmentUrl" + e, e);
+      }
+      return null;
+
+  }
 
 	/**
 	 * Returns true if the tool with the id passed in exists in the
