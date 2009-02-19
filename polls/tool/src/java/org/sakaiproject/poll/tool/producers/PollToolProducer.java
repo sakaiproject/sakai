@@ -170,17 +170,8 @@ DefaultView,NavigationCaseReporter {
 			} 
 		}
 
-		User currentuser = userDirectoryService.getCurrentUser();
-		String currentuserid = currentuser.getEid();
-
-
-
-
 
 		List<Poll> polls = new ArrayList<Poll>();
-
-
-
 
 		String siteId = toolManager.getCurrentPlacement().getContext();
 		if (siteId != null) {

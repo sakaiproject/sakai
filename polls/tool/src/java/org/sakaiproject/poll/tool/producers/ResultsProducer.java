@@ -183,7 +183,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			CollatedVote cv = (CollatedVote)collation.get(i);
 			UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
 			UIVerbatim.make(resultRow,"answer-option",cv.getOptionText());
-			UIOutput.make(resultRow,"answer-count",new Integer(i+1).toString());
+			UIOutput.make(resultRow,"answer-count", Integer.valueOf(i+1).toString());
 			UIOutput.make(resultRow,"answer-numVotes",Long.valueOf(cv.getVotes()).toString());
 			m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
 			double percent = (double)0;
@@ -225,7 +225,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 
 
-	private class CollatedVote {
+	private static class CollatedVote {
 		private Long optionId ;
 		private String optionText;
 		private int votes;

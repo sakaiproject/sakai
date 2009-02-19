@@ -54,8 +54,9 @@ import java.util.ArrayList;
 public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporter {
 
 	public static final String VIEW_ID = "voteThanks";
+
 	private static Log log = LogFactory.getLog(PollVoteProducer.class);
-	private VoteBean voteBean;
+
 	
 	
 	private MessageLocator messageLocator;
@@ -66,9 +67,7 @@ public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporte
 		return VIEW_ID;
 	}
 	
-	  public void setVoteBean(VoteBean vb){
-		  this.voteBean = vb;
-	  }
+
 
 		
 	  public void setMessageLocator(MessageLocator messageLocator) {
@@ -80,7 +79,7 @@ public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporte
 	  
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker arg2) {
-		// TODO Auto-generated method stub
+		log.debug("fillComponents()");
 		
 		VoteCollectionViewParameters params = (VoteCollectionViewParameters) viewparams;
 		

@@ -21,35 +21,26 @@
 
 package org.sakaiproject.poll.tool.validators;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.authz.cover.SecurityService;
-
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.util.UniversalRuntimeException;
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.messageutil.TargettedMessage;
-import uk.org.ponder.messageutil.TargettedMessageList;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
 
 public class VoteValidator implements Validator {
 
     /** Logger for this class and subclasses */
     protected final Log logger = LogFactory.getLog(getClass());
-    private MessageLocator messageLocator;
-    private TargettedMessageList tml = new TargettedMessageList();
     private PollVoteManager pollVoteManager;
     private PollListManager manager;
     
@@ -61,10 +52,6 @@ public class VoteValidator implements Validator {
 	public void setPollVoteManager(PollVoteManager pvm){
 		this.pollVoteManager = pvm;
 	}
-    public void setMessageLocator(MessageLocator messageLocator) {
-  	  
-        this.messageLocator = messageLocator;
-      }
 
     private ToolManager toolManager;
     public void setToolManager(ToolManager toolManager) {

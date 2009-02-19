@@ -42,7 +42,7 @@ public class PollActionResultInterceptor implements ActionResultInterceptor {
 			  PollViewParameters outgoing = (PollViewParameters) result.resultingView;
 		      Poll poll = (Poll) pollBeanLocator.locateBean(PollBeanLocator.NEW_1);
 		      if (poll != null && outgoing.id == null) {
-		        outgoing.id = poll.getId().toString();
+		        outgoing.id = poll.getId();
 		      }
 		    }
 

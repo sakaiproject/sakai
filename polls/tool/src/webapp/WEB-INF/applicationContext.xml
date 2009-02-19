@@ -45,7 +45,6 @@
 			<bean class="org.sakaiproject.poll.tool.validators.VoteValidator">
 				<property name="pollListManager"
 					ref="org.sakaiproject.tool.poll.api.PollListManager" />
-				<property name="messageLocator" ref="messageLocator" />
 				<property name="pollVoteManager"
 					ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
 				<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
@@ -56,10 +55,8 @@
 		<property name="guardedPath" value="option" />
 		<property name="guard">
 			<bean class="org.sakaiproject.poll.tool.validators.OptionValidator">
-				<property name="pollListManager"
-					ref="org.sakaiproject.tool.poll.api.PollListManager" />
-				<property name="messageLocator" ref="messageLocator" />
-				<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+				
+				
 			</bean>
 		</property>
 	</bean>

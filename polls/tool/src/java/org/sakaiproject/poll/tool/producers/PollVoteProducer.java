@@ -247,8 +247,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 		if (actionReturn instanceof VoteCollection) {
 			VoteCollection votes = (VoteCollection) actionReturn;
-			if (votes == null)
-				return;
+			
 			if (votes.getId() != null) {
 				m_log.debug("got a voteCollection with id: " + votes.getId());
 				result.resultingView = new VoteCollectionViewParameters(ConfirmProducer.VIEW_ID, votes.getId());

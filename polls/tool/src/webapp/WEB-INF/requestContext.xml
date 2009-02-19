@@ -80,7 +80,6 @@
 
 	<bean id="confirmProducer"
 		class="org.sakaiproject.poll.tool.producers.ConfirmProducer">
-		<property name="voteBean" ref="voteBean" />
 		<property name="messageLocator" ref="messageLocator" />
 	</bean>
 
