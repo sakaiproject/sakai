@@ -76,5 +76,12 @@
     			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     	</property>
     </bean>
+    
+   	<bean id="org.sakaiproject.sitemanage.api.SiteParticipantProvider"
+			class="org.sakaiproject.sitemanage.impl.SiteParticipantProviderImpl"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
 
 </beans>
