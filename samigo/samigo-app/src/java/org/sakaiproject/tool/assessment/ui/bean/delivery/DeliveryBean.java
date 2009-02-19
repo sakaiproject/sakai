@@ -1782,7 +1782,6 @@ public class DeliveryBean
     		  log.warn(ex1.getMessage());
     	  }
       }
-    }
     if (mediaStream2 != null) {
   	  try
   	  {
@@ -1793,6 +1792,7 @@ public class DeliveryBean
   		  log.warn(ex1.getMessage());
   	  }
     }
+  }
     return mediaByte;
   }
 

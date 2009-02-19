@@ -134,12 +134,11 @@ private static Log log = LogFactory.getLog(RecordingData.class);
   private String cleanOutQuotes(String s)
   {
     StringTokenizer st = new StringTokenizer(s, "\"'");
-    String cleanS = "";
-    while (st.hasMoreTokens())
-    {
-      cleanS += st.nextToken();
+    StringBuilder cleanSbuf = new StringBuilder();
+    while (st.hasMoreTokens()){
+    	cleanSbuf.append(st.nextToken());
     }
-
+    String cleanS = cleanSbuf.toString();    
     return cleanS;
   }
 

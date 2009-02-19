@@ -593,12 +593,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     Connection conn = null;
     ResultSet rs = null;
     PreparedStatement statement = null;
+    PreparedStatement statement0 = null;
     try{
       session = getSessionFactory().openSession();
       conn = session.connection();
       log.debug("****Connection="+conn);
       String query0="select LOCATION from SAM_MEDIA_T where MEDIAID=?";
-      PreparedStatement statement0 = conn.prepareStatement(query0);
+      statement0 = conn.prepareStatement(query0);
       statement0.setLong(1, mediaId.longValue());
       rs =statement0.executeQuery();
       if (rs.next()){
@@ -636,6 +637,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     			e1.printStackTrace();
     		}
     	}
+       	if (statement0 !=null){
+    		try {
+    			statement0.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	}
+
     	if (conn !=null){
     		try {
     			conn.close();
@@ -953,18 +962,45 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     catch(Exception e){
       log.warn(e.getMessage());
     }
+    
     finally{
-      try{
-        if (session !=null) session.close();
-        if (in !=null) in.close();
-        if (conn !=null) conn.close();
-        if (rs != null) rs.close();
-        if (statement != null) statement.close();
-      }
-      catch(Exception ex){
-        log.warn(ex.getMessage());
-      }
+    	if (session !=null){
+    		try {
+    			session.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	}
+    	if (rs !=null){
+    		try {
+    			rs.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	}
+    	if (statement !=null){
+    		try {
+    			statement.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	}
+       	if (in !=null){
+    		try {
+    			in.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	} 
+    	if (conn !=null){
+    		try {
+    			conn.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	} 
     }
+
     return b;
   }
 

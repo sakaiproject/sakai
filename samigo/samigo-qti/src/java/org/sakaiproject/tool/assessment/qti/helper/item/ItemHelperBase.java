@@ -309,9 +309,11 @@ public abstract class ItemHelperBase
    */
   protected String makeItemNodeText(Item itemXml, String xpath)
   {
-    String text = "";
+    //String text = "";
     List nodes = itemXml.selectNodes(xpath);
     Iterator iter = nodes.iterator();
+    
+    StringBuilder textbuf = new StringBuilder();   
     while (iter.hasNext())
     {
       Node node = (Node) iter.next();
@@ -319,9 +321,10 @@ public abstract class ItemHelperBase
       if ( (child != null) && child instanceof CharacterData)
       {
         CharacterData cdi = (CharacterData) child;
-        text = text + " " + cdi.getData();
+        textbuf.append(" " + cdi.getData());
       }
     }
+    String text = textbuf.toString();
     return text;
   }
 

@@ -158,6 +158,7 @@ public class XmlMapper
             String ctype = getTypeAttribute(cnode);
 //            log.debug(cname + "=" + ctype);
 
+            StringBuilder ctextbuf = new StringBuilder();
             // if we have multiple identical entries store them in a List
             if("list".equals(ctype))
             {
@@ -176,9 +177,11 @@ public class XmlMapper
 
 //              list.add(ctext);
               NodeList ccnodes = cnode.getChildNodes();
+                
               for (int n = 0; n < ccnodes.getLength(); n++) {
-                ctext += XmlUtil.getDOMString(ccnodes.item(n));
+                ctextbuf.append(XmlUtil.getDOMString(ccnodes.item(n)));
               }
+              ctext = ctextbuf.toString();		 
               list.add(ctext);
               hNode.put(cname, list);
             }
@@ -187,8 +190,9 @@ public class XmlMapper
               // support for deep copy
               NodeList ccnodes = cnode.getChildNodes();
               for (int n = 0; n < ccnodes.getLength(); n++) {
-                ctext += XmlUtil.getDOMString(ccnodes.item(n));
+                ctextbuf.append(XmlUtil.getDOMString(ccnodes.item(n)));
               }
+              ctext = ctextbuf.toString();		
               hNode.put(cname, ctext);
             }
           }
@@ -219,17 +223,21 @@ public class XmlMapper
    */
   private static String textValue(Node nd)
   {
-    String text = "";
+    
     NodeList nodes = nd.getChildNodes();
+    
+    StringBuilder textbuf = new StringBuilder(); 
+    
     for(int i = 0; i < nodes.getLength(); i++)
     {
       Node cnode = nodes.item(i);
       if(cnode.getNodeType() == Node.TEXT_NODE)
       {
-        text += cnode.getNodeValue();
+        //text += cnode.getNodeValue();
+        textbuf.append(cnode.getNodeValue());
       }
     }
-
+    String text = textbuf.toString();
     return text;
   }
 

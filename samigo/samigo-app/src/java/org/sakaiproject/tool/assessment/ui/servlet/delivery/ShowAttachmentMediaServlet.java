@@ -101,8 +101,8 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	// res.getOutputStream(). see javadoc on this
     res.setContentType(mimeType);
     ServletOutputStream outputStream = res.getOutputStream();
-    BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
-
+    BufferedOutputStream buf_outputStream = null;
+ 
 	ContentResource cr = null;
 	byte[] media = null;
 	try {
@@ -125,6 +125,9 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	BufferedInputStream buf_inputStream = new BufferedInputStream(byteArrayInputStream);
     int count=0;
     try{
+    	
+    	buf_outputStream = new BufferedOutputStream(outputStream);
+
     	int i=0;
     	while ((i=buf_inputStream.read()) != -1){
     		// System.out.print(i);

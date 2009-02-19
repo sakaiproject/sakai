@@ -1569,21 +1569,21 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		 
 		// requires jdk 1.5 for Pattern.quote(), allow metacharacters, such as a+b.
 		 
-		 
-		 String regex_quote = "";
+ 		 StringBuilder regex_quotebuf = new StringBuilder();
 		 
 		 String REGEX = answer.replaceAll("\\*", "|*|");
 		 String[] oneblank = REGEX.split("\\|");
 		 for (int j = 0; j < oneblank.length; j++) {
-		 if ("*".equals(oneblank[j])) {
-		 regex_quote = regex_quote +".+";
-		 }
-		 else {
-		 regex_quote = regex_quote + Pattern.quote(oneblank[j]);
+			 if ("*".equals(oneblank[j])) {
+				 regex_quotebuf.append(".+");
+			 }
+			 else {
+				 regex_quotebuf.append(Pattern.quote(oneblank[j]));
 
-		 }
+			 }
 		 }
 
+		 String regex_quote = regex_quotebuf.toString();
 		 Pattern p;
 		 if (casesensitive){
 		 p = Pattern.compile(regex_quote );

@@ -1582,7 +1582,7 @@ public class ExtractionHelper
 
     HashSet itemTextSet = new HashSet();
     ItemText itemText = new ItemText();
-    String itemTextString = "";
+    //String itemTextString = "";
     List answerFeedbackList = (List) itemMap.get("itemFeedback");
 
     List answerList = new ArrayList();
@@ -1615,6 +1615,10 @@ public class ExtractionHelper
       }
     }
     // loop through all our extracted FIB texts interposing FIB_BLANK_INDICATOR
+    
+    StringBuilder itemTextStringbuf = new StringBuilder();
+     
+    
     for (int i = 0; i < itemTextList.size(); i++)
     {
       String text = XmlUtil.processFormattedText(log, (String) itemTextList.get(i));
@@ -1623,12 +1627,16 @@ public class ExtractionHelper
       {
         continue;
       }
-      itemTextString += text;
+      //itemTextString += text;
+      itemTextStringbuf.append(text);
       if (i < answerList.size())
       {
-        itemTextString += FIB_BLANK_INDICATOR;
+        //itemTextString += FIB_BLANK_INDICATOR;
+        itemTextStringbuf.append(FIB_BLANK_INDICATOR);
       }
     }
+    String itemTextString = itemTextStringbuf.toString();
+    
     itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
     log.debug("itemTextString="+itemTextString);
     itemText.setText(makeFCKAttachment(itemTextString));

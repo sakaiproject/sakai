@@ -102,7 +102,7 @@ public class StringParseUtils
     System.arraycopy(names, 0, tempNames, 0, tempNames.length);
     names = tempNames;
 
-    String s = "";
+    StringBuilder buf = new StringBuilder(); 
 
     for (int i = 0; i < names.length; i++)
     {
@@ -112,10 +112,11 @@ public class StringParseUtils
         {
           break;
         }
-        s += names[i] + " ";
+        buf.append(names[i] + " ");
       } // ifnames
     } //for
 
+    String s = buf.toString();
     s = s.trim();
 
     return s;
@@ -138,10 +139,12 @@ public class StringParseUtils
       return names[0];
     }
 
-    String s = "";
+    //String s = "";
     String lastWord = names[names.length - 1];
     boolean smallFound = false;
 
+    
+    StringBuilder buf = new StringBuilder();
     for (int i = 0; i < names.length; i++)
     {
       if (names[i].length() > 0)
@@ -152,11 +155,12 @@ public class StringParseUtils
         }
         if (smallFound)
         {
-          s += names[i] + " ";
+          buf.append(names[i] + " ");
         } //if
       } // ifnames
     } //for
 
+    String s = buf.toString();
     s = s.trim();
 
     if (s.length() == 0)

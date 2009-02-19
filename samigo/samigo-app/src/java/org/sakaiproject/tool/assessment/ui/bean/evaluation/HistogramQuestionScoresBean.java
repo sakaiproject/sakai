@@ -1081,15 +1081,17 @@ public class HistogramQuestionScoresBean
 	  }
 	  else {
 		  String sep = " | ";
-		  String responses = sep;
+		  StringBuilder responsesbuf = new StringBuilder(sep);
+		  
 		  for (int i=12; i<histogramBars.length; i++) {
 			  if (histogramBars[i].getIsCorrect()) {
-				  responses += "(" + histogramBars[i].getNumStudents() + ")" + sep;
+				  responsesbuf.append("(" + histogramBars[i].getNumStudents() + ")" + sep);
 			  }
 			  else {
-				  responses += histogramBars[i].getNumStudents() + sep;
+				  responsesbuf.append(histogramBars[i].getNumStudents() + sep);
 			  }
 		  }
+		  String responses = responsesbuf.toString();
 		  return responses;
 	  }
   }

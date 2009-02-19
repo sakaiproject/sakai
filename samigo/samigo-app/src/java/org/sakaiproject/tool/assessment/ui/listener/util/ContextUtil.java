@@ -302,12 +302,15 @@ public static ArrayList paramArrayValueLike(String paramPart)
 
   public static String getStringInUnicode(String string)
   {
-    String s="";
+    StringBuilder buf = new StringBuilder();
+     
     char[] charArray = string.toCharArray();
     for (int i=0; i<charArray.length;i++){
 	char ch = charArray[i];
-      s += toUnicode(ch);
+      buf.append(toUnicode(ch));
     }
+    
+    String s = buf.toString();
     log.debug("***unicode="+s);
     return s;
   }

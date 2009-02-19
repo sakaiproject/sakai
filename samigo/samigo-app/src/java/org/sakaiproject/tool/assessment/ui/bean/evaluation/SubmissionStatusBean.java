@@ -306,7 +306,9 @@ public class SubmissionStatusBean
   public String getAgentInitials()
   {
     Collection c = getAgents();
-    String initials = "";
+    
+    
+    StringBuilder initialsbuf = new StringBuilder();
     if (c.isEmpty())
     {
       return "";
@@ -320,7 +322,7 @@ public class SubmissionStatusBean
       {
         AgentResults ar = (AgentResults) it.next();
         String initial = ar.getLastInitial();
-        initials = initials + initial;
+        initialsbuf.append(initial);
       }
       catch (Exception ex)
       {
@@ -329,6 +331,7 @@ public class SubmissionStatusBean
       }
     }
 
+    String initials = initialsbuf.toString();
     return initials.toUpperCase();
   }
 

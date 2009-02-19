@@ -419,16 +419,19 @@ public abstract class AssessmentHelperBase
       return;
     }
 
-    String ipAddresses = "";
     Iterator iter = securedIPAddressSet.iterator();
 
+    StringBuilder ipAddressesbuf = new StringBuilder();
+    
     while (iter.hasNext())
     {
       SecuredIPAddressIfc sip = (SecuredIPAddressIfc) iter.next();
       String ipAddress = sip.getIpAddress();
-      ipAddresses += ipAddress + "\n";
+      //ipAddresses += ipAddress + "\n";
+      ipAddressesbuf.append(ipAddress + "\n");
     }
 
+    String ipAddresses = ipAddressesbuf.toString();
     assessmentXml.setFieldentry("ALLOW_IP", ipAddresses);
 
   }

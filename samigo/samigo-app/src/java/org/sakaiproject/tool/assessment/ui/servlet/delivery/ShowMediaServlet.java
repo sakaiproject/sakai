@@ -139,7 +139,7 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
       FileInputStream inputStream = null;
       BufferedInputStream buf_inputStream = null;
       ServletOutputStream outputStream = res.getOutputStream();
-      BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
+      BufferedOutputStream buf_outputStream = null;
       ByteArrayInputStream byteArrayInputStream = null;
       if (mediaLocation == null || (mediaLocation.trim()).equals("")){
         try{
@@ -149,16 +149,24 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
           log.debug("**** media.length="+media.length);
         }
         catch(Exception e){
-          log.error("****empty media ="+e.getMessage());
+          log.error("****empty media save to DB="+e.getMessage());
         }
       }
       else{
-        inputStream = getFileStream(mediaLocation);
-        buf_inputStream = new BufferedInputStream(inputStream);
+    	  try{
+    		  inputStream = getFileStream(mediaLocation);
+    		  buf_inputStream = new BufferedInputStream(inputStream);
+    	  }
+    	  catch(Exception e){
+    		  log.error("****empty media save to file ="+e.getMessage());
+    	  }
+
       }
 
       int count=0;
       try{
+    	  
+    	  buf_outputStream = new BufferedOutputStream(outputStream);
         int i=0;
         while ((i=buf_inputStream.read()) != -1){
             //System.out.print(i);

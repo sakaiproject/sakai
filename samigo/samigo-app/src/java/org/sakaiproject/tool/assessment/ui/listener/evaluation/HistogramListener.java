@@ -1853,12 +1853,13 @@ public class HistogramListener
 
         String[] tokens = oldmode.split(",");
         String[] roundedtokens =  new String[tokens.length];
-        String newMode = "" ;
+        
+        StringBuilder newModebuf = new StringBuilder();
         for (int j = 0; j < tokens.length; j++) {
            roundedtokens[j] = castingNum(new Double(tokens[j]).doubleValue(), 2);
-           newMode= newMode + ", " + roundedtokens[j];
+           newModebuf.append(", " + roundedtokens[j]);
         }
-
+        String newMode = newModebuf.toString();
         newMode = newMode.substring(2, newMode.length());
         return newMode;
   }

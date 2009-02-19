@@ -546,7 +546,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			urlConn.setRequestProperty("CONTENT-TYPE", getMimeType(audioType));
 			// Send binary POST output.
 			OutputStream outputStream = urlConn.getOutputStream();
-
+			BufferedReader input = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 			try {
 				// System.out.println("**** no. of bytes
 				// recorded="+audioInputStream.available());
@@ -560,21 +560,20 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
 				// Get response data.
 				//String reportStr = res.getString("contentlenw") + ": " + c + " " + res.getString("bytes") + ".\n  ";
-				BufferedReader input = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-				String response = "";
+				
 
 				// need to check that acknowlegement from server matches or
 				// display				  
 				  
 				//StringBuilder reportStrBuf = new StringBuilder(reportStr);
-				StringBuilder responseBuf = new StringBuilder(response);
+				StringBuilder responseBuf = new StringBuilder();
 				String str;
 				while (null != ((str = input.readLine()))) {
 				//	reportStrBuf.append(str);
 					responseBuf.append(str);
 				}
 				//reportStr = reportStrBuf.toString();
-				response = responseBuf.toString();
+				String response = responseBuf.toString();
 				
 				input.close();
 				mediaId = response;
@@ -582,6 +581,16 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				// reportStatus(reportStr + "\n");
 			} catch (Exception ex) {
 				reportStatus(ex.toString());
+			}
+			finally{
+		      	if (input !=null){
+		    		try {
+		    			input.close();
+		    		} catch (Exception e1) {
+		    			e1.printStackTrace();
+		    		}
+		    	} 
+		 
 			}
 		} catch (IOException ex) {
 			reportStatus(ex.toString());

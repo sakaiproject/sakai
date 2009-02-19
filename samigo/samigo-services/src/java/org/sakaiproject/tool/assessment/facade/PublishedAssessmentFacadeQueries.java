@@ -2685,20 +2685,25 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				 }
 			 }			 
 			 Collections.sort(releaseToGroups);
-			 releaseToGroupsAsString = "";
-			 
-			 if (releaseToGroups != null && releaseToGroups.size()!=0 ) {
+			 StringBuilder releaseToGroupsAsStringbuf = new StringBuilder();
+			  
+			  if (releaseToGroups != null && releaseToGroups.size()!=0 ) {
 				 String lastGroup = (String) releaseToGroups.get(releaseToGroups.size()-1);
 				 Iterator releaseToGroupsIter = releaseToGroups.iterator();
 				 while (releaseToGroupsIter.hasNext()) {
 					 String group = (String) releaseToGroupsIter.next();
-					 releaseToGroupsAsString += group;
+					 //releaseToGroupsAsString += group;
+					 releaseToGroupsAsStringbuf.append(group);
 					 if (!group.equals(lastGroup) ) {
-						 releaseToGroupsAsString += ", ";
+						 //releaseToGroupsAsString += ", ";
+						 releaseToGroupsAsStringbuf.append(", ");
+
 					 }
 				 }
 			 }
+			 releaseToGroupsAsString = releaseToGroupsAsStringbuf.toString();
 		 }
+		 
 		 return releaseToGroupsAsString;
 	}
 

@@ -294,11 +294,12 @@ public final class XmlUtil
 
     Document document = null;
     InputStream inputStream = null;
+    BufferedReader in = null;
     try
     {
       if (trim)
       {
-        BufferedReader in = new BufferedReader(new FileReader(path));
+        in = new BufferedReader(new FileReader(path));
 
         StringBuilder buffer = new StringBuilder();
         String s = "";
@@ -338,13 +339,23 @@ public final class XmlUtil
       log.error(e.getMessage(), e);
     }
     finally {
-    	try {
-    		if (inputStream != null) {
+
+    	if (inputStream != null) {
+    		try {
     			inputStream.close();
     		}
-    	} catch (IOException e) {
-    		// tried
+    		catch (IOException e) {
+    			// tried
+    		}
     	}
+    	if (in !=null){
+    		try {
+    			in.close();
+    		} catch (Exception e1) {
+    			e1.printStackTrace();
+    		}
+    	} 
+
     }
 
     return document;
@@ -509,43 +520,54 @@ public final class XmlUtil
    */
   public static String getDOMString(Node node)
   {
-    String domString = "";
+    //String domString = "";
+    
+    StringBuilder domStringbuf = new StringBuilder();
+    
     int type = node.getNodeType();
     switch (type)
     {
       // print the document element
       case Node.DOCUMENT_NODE:
       {
-        domString += "<?xml version=\"1.0\" ?>\n";
-        domString += getDOMString(((Document)node).getDocumentElement());
+        domStringbuf.append("<?xml version=\"1.0\" ?>\n");
+        domStringbuf.append(getDOMString(((Document)node).getDocumentElement()));
         break;
       }
 
       // print element with attributes
       case Node.ELEMENT_NODE:
       {
-        domString += ("<");
-        domString += (node.getNodeName());
+    	domStringbuf.append("<");
+    	domStringbuf.append(node.getNodeName());
         NamedNodeMap attrs = node.getAttributes();
+        
+        
+        
         for (int i = 0; i < attrs.getLength(); i++)
         {
           Node attr = attrs.item(i);
-          domString += (" " + attr.getNodeName().trim() +
+          //domString += (" " + attr.getNodeName().trim() +
+          //              "=\"" + attr.getNodeValue().trim() +
+          //              "\"");
+          
+          domStringbuf.append((" " + attr.getNodeName().trim() +
                         "=\"" + attr.getNodeValue().trim() +
-                        "\"");
+                        "\""));
         }
-        domString += (">");
+        //domString = domStringbuf.toString();
+        domStringbuf.append(">");
 
         NodeList children = node.getChildNodes();
         if (children != null)
         {
           int len = children.getLength();
           for (int i = 0; i < len; i++)
-            domString += getDOMString(children.item(i));
+        	  domStringbuf.append(getDOMString(children.item(i)));
         }
-        domString += ("</");
-        domString += (node.getNodeName());
-        domString += (">\n");
+        domStringbuf.append("</");
+        domStringbuf.append(node.getNodeName());
+        domStringbuf.append(">\n");
 
         break;
       }
@@ -553,9 +575,9 @@ public final class XmlUtil
       // handle entity reference nodes
       case Node.ENTITY_REFERENCE_NODE:
       {
-        domString += ("&");
-        domString += (node.getNodeName().trim());
-        domString += (";");
+    	  domStringbuf.append("&");
+    	  domStringbuf.append(node.getNodeName().trim());
+    	  domStringbuf.append(";");
 
         break;
       }
@@ -563,7 +585,7 @@ public final class XmlUtil
       // print cdata sections
       case Node.CDATA_SECTION_NODE:
       {
-        domString += ("");
+    	  domStringbuf.append("");
         break;
       }
 
@@ -572,22 +594,23 @@ public final class XmlUtil
       {
         String val = node.getNodeValue();
         if (val==null) val = "";
-        domString += (val);//rshastri .trim() removed SAK-1671 
+        domStringbuf.append(val);//rshastri .trim() removed SAK-1671 
         break;
       }
 
       // print processing instruction
       case Node.PROCESSING_INSTRUCTION_NODE:
       {
-        domString += ("");
+    	  domStringbuf.append("");
         break;
       }
     }
 
     if (type == Node.ELEMENT_NODE) {
-      domString +=("\n");
+    	domStringbuf.append("\n");
     }
 
+    String domString = domStringbuf.toString();
     return domString;
   }
   

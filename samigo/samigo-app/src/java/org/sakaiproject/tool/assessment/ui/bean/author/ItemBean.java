@@ -355,15 +355,17 @@ public class ItemBean
    */
   public String getAnswerNumber(int n)
   {
-    String anum = "";
-    // this accomodates REALLY large numbers of answers
+     // this accomodates REALLY large numbers of answers
+    
+    StringBuilder anumbuf = new StringBuilder();
+    
     while (n>25)
     {
-      anum += "X";
+      anumbuf.append("X");
       n -= 25;
     }
-    anum += answerNumbers.substring(n);
-
+    anumbuf.append(answerNumbers.substring(n));
+    String anum = anumbuf.toString();
     return anum;
   }
 

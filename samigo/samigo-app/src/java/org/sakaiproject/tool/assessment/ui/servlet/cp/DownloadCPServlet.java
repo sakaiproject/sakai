@@ -103,7 +103,7 @@ public class DownloadCPServlet extends HttpServlet {
 					+ zipFilename + "\";");
 
 			ServletOutputStream outputStream = null;
-			BufferedInputStream bufInputStream = null;
+			//BufferedInputStream bufInputStream = null;
 			ZipOutputStream zos = null;
 			ZipEntry ze = null;
 
@@ -156,21 +156,18 @@ public class DownloadCPServlet extends HttpServlet {
 				log.error(e.getMessage());
 				throw e;
 			} finally {
-
-				//if (bufInputStream != null) {
-					try {
-						bufInputStream.close();
-					} catch (IOException e) {
-						log.error(e.getMessage());
-					}
-				//}
 				if (zos != null) {
 					try {
 						zos.closeEntry();
+					} catch (IOException e) {
+						log.error(e.getMessage());
+					}
+					try {
 						zos.close();
 					} catch (IOException e) {
 						log.error(e.getMessage());
 					}
+	
 				}
 			}
 		}
