@@ -112,7 +112,7 @@ public class FormHandler {
 			String body = buff.toString();
 			m_log.debug("body: " + body);
 			
-			List headers = new ArrayList();
+			List<String> headers = new ArrayList<String>();
 			headers.add("Precedence: bulk");
 			
 			emailService.send(from,userBean.getUser().getEmail(),messageLocator.getMessage("mailSubject", new Object[]{productionSiteName}),body,
@@ -135,8 +135,8 @@ public class FormHandler {
 	private String getRandPass() {
 		// set password to a random positive number
 		Random generator = new Random(System.currentTimeMillis());
-		Integer num = new Integer(generator.nextInt(Integer.MAX_VALUE));
-		if (num.intValue() < 0) num = new Integer(num.intValue() *-1);
+		Integer num = Integer.valueOf(generator.nextInt(Integer.MAX_VALUE));
+		if (num.intValue() < 0) num = Integer.valueOf(num.intValue() *-1);
 		return num.toString();
 	}
 }
