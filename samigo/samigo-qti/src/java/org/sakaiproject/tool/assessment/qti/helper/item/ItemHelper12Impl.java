@@ -1082,9 +1082,10 @@ public class ItemHelper12Impl extends ItemHelperBase
       for (Iterator it = idsAndResponsesMap.entrySet().iterator(); it.hasNext();) {
     	  Map.Entry entry = (Map.Entry) it.next();
     	  String respIdent = (String)entry.getKey();
+  	      String[] responses = null ;
     	  if ( (respIdent != null) && (respIdent.length() > 0))
     	  {
-    		  String[] responses = (String[])entry.getValue();
+    		  responses = (String[])entry.getValue();
     	  }
 
     	  boolean newElement = true;
