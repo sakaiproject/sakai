@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -322,21 +323,24 @@ public class SaveAssessmentSettings
 
 
   public void updateMetaWithValueMap(AssessmentIfc assessment, HashMap map){
-    //log.info("** map size ="+map.size());
-    if (map!=null && map.keySet()!=null){
-        Iterator iter = map.keySet().iterator();
-        // loop through our valueMap "can edit" & "hasXXX" properties
-        while (iter.hasNext()) {
-          // get label from metadata set
-          String label = (String) iter.next();
-          String value="";
-          if (map.get(label)!=null){
-            value = (String) map.get(label).toString();
-            //log.info("get Label: " + label + ", Value: " + value);
-          }
-          assessment.updateAssessmentMetaData(label, value);
-        }
-    }
+	  //log.info("** map size ="+map.size());
+
+	  if (map!=null){
+		  for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
+			  Map.Entry entry = (Map.Entry) it.next();
+			  String label = (String) entry.getKey();
+			  String value="";
+			  //    if (map.get(label)!=null){
+			  //    value = (String) map.get(label).toString();
+
+			  Object valueo = (String) entry.getValue();
+			  if (valueo !=null) {
+				  value = valueo.toString();
+			  }
+
+			  assessment.updateAssessmentMetaData(label, value);
+		  }
+	  }
   }
 
     public boolean isIpValid(String ipString){

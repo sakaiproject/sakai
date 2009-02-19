@@ -298,10 +298,12 @@ public class HistogramListener
 				  itemScores.putAll(itemScoresMap);
 			  }
 			  else {
-				  Iterator keyiter = itemScoresMap.keySet().iterator();
-				  while (keyiter.hasNext()) {
-					  Long itemId = (Long) keyiter.next();
-					  ArrayList itemScoresList = (ArrayList) itemScoresMap.get(itemId);
+				  
+				  for (Iterator it = itemScoresMap.entrySet().iterator(); it.hasNext();) {
+					  Map.Entry entry = (Map.Entry) it.next();
+					  Long itemId = (Long) entry.getKey();
+					  ArrayList itemScoresList = (ArrayList) entry.getValue();
+
 					  ArrayList filteredItemScoresList = new ArrayList();
 					  Iterator itemScoresIter = itemScoresList.iterator();
 					  // get the Map of all users(keyed on userid) belong to the
@@ -761,16 +763,14 @@ public class HistogramListener
 		}
 
 		responses = numStudentRespondedMap.size();
-		Iterator mapiter = numStudentRespondedMap.keySet().iterator();
-
 		
-		while (mapiter.hasNext()) {
-			Long assessmentGradingId = (Long) mapiter.next();
-			ArrayList resultsForOneStudent = (ArrayList) numStudentRespondedMap
-					.get(assessmentGradingId);
+		for (Iterator it = numStudentRespondedMap.entrySet().iterator(); it.hasNext();) {
+			Map.Entry entry = (Map.Entry) it.next();
+			ArrayList resultsForOneStudent = (ArrayList) entry.getValue();
+
 			boolean hasIncorrect = false;
 			Iterator listiter = resultsForOneStudent.iterator();
-			
+
 			// iterate through the results for one student
 			// for this question (qbean)
 			while (listiter.hasNext()) {
@@ -1182,13 +1182,12 @@ public class HistogramListener
     // correctresponses = # of students who got all answers correct, 
 
     responses = numStudentRespondedMap.size();
-    Iterator mapiter = numStudentRespondedMap.keySet().iterator();
-    while (mapiter.hasNext())
-    {
-      Long assessmentGradingId= (Long)mapiter.next();
-      ArrayList resultsForOneStudent = (ArrayList)numStudentRespondedMap.get(assessmentGradingId);
-      boolean hasIncorrect = false;
-      Iterator listiter = resultsForOneStudent.iterator();
+    
+    for (Iterator it = numStudentRespondedMap.entrySet().iterator(); it.hasNext();) {
+    	Map.Entry entry = (Map.Entry) it.next();
+     	ArrayList resultsForOneStudent = (ArrayList) entry.getValue();
+    	boolean hasIncorrect = false;
+    	Iterator listiter = resultsForOneStudent.iterator();
 
       // numStudentRespondedMap only stores correct answers, so now we need to 
       // check to see if # of  rows in itemgradingdata_t == labels.size() 

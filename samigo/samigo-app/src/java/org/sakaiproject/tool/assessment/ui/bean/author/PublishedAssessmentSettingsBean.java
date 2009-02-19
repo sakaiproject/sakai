@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -815,10 +816,11 @@ public class PublishedAssessmentSettingsBean
 
   public void setValueMap(HashMap newMap) {
 	  HashMap h = new HashMap();
-	  Iterator iter = newMap.keySet().iterator();
-	  while (iter.hasNext()) {
-		  String key = (String) iter.next();
-		  Object o = newMap.get(key);
+
+	  for (Iterator it = newMap.entrySet().iterator(); it.hasNext();) {
+		  Map.Entry entry = (Map.Entry) it.next();
+		  String key = (String) entry.getKey();
+		  Object o = entry.getValue();
 		  if ((key.equals("ASSESSMENT_AUTHORS")))
 			  ;
 		  else {

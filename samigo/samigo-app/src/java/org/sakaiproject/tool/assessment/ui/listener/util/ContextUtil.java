@@ -76,15 +76,15 @@ public class ContextUtil
     Map requestParams = context.getExternalContext().
                         getRequestParameterMap();
 
-    Iterator iter = requestParams.keySet().iterator();
-    while (iter.hasNext())
-    {
-      String currKey = (String) iter.next();
-      if (currKey.endsWith(lookup))
-      {
-        return (String) requestParams.get(currKey);
-      }
-    }
+    for (Iterator it = requestParams.entrySet().iterator(); it.hasNext();) {
+    	   Map.Entry entry = (Map.Entry) it.next();
+    	   String currKey = (String)entry.getKey();
+    	      if (currKey.endsWith(lookup))
+    	      {
+    	        return (String) entry.getValue();
+    	      }
+    	}
+
     return null;
   }
   /**
@@ -163,17 +163,16 @@ public static String paramValueLike(String paramPart)
   Map requestParams = context.getExternalContext().
                       getRequestParameterMap();
 
-  Iterator iter = requestParams.keySet().iterator();
-  while (iter.hasNext())
-  {
-    String currKey = (String) iter.next();
-
-    int location = currKey.indexOf(paramPart);
-    if (location > -1)
-    {
-      return (String) requestParams.get(currKey);
-    }
-  }
+  for (Iterator it = requestParams.entrySet().iterator(); it.hasNext();) {
+	   Map.Entry entry = (Map.Entry) it.next();
+	   String currKey = (String) entry.getKey();
+	    int location = currKey.indexOf(paramPart);
+	    if (location > -1)
+	    {
+	    	return (String) entry.getValue();
+	    }
+	}
+  
   return null;
 }
 
@@ -193,18 +192,17 @@ public static ArrayList paramArrayValueLike(String paramPart)
   Map requestParams = context.getExternalContext().
                       getRequestParameterMap();
   ArrayList list = new ArrayList();
-
-  Iterator iter = requestParams.keySet().iterator();
-  while (iter.hasNext())
-  {
-    String currKey = (String) iter.next();
-
-    int location = currKey.indexOf(paramPart);
-    if (location > -1)
-    {
-      list.add((String) requestParams.get(currKey));
-    }
-  }
+  
+  for (Iterator it = requestParams.entrySet().iterator(); it.hasNext();) {
+	   Map.Entry entry = (Map.Entry) it.next();
+	   String currKey = (String)  entry.getKey();
+	   
+	    int location = currKey.indexOf(paramPart);
+	    if (location > -1)
+	    {
+	      list.add((String) entry.getValue());
+	    }
+	}
   return list;
 
 }

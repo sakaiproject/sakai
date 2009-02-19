@@ -559,18 +559,23 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				outputStream.close();
 
 				// Get response data.
-				String reportStr = res.getString("contentlenw") + ": " + c
-						+ " " + res.getString("bytes") + ".\n  ";
+				//String reportStr = res.getString("contentlenw") + ": " + c + " " + res.getString("bytes") + ".\n  ";
 				BufferedReader input = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				String response = "";
 
 				// need to check that acknowlegement from server matches or
-				// display
+				// display				  
+				  
+				//StringBuilder reportStrBuf = new StringBuilder(reportStr);
+				StringBuilder responseBuf = new StringBuilder(response);
 				String str;
 				while (null != ((str = input.readLine()))) {
-					reportStr += str;
-					response += str;
+				//	reportStrBuf.append(str);
+					responseBuf.append(str);
 				}
+				//reportStr = reportStrBuf.toString();
+				response = responseBuf.toString();
+				
 				input.close();
 				mediaId = response;
 				// mock up doesn't require report, let's comment it out

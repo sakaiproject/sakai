@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -902,22 +903,24 @@ public class AssessmentSettingsBean
   // "can edit" element. However, we only want to have "can edit" elements inside
   // our valueMap, so we need to weed out the metadata
   public void setValueMap(HashMap newMap){
-    HashMap h = new HashMap();
-    Iterator iter = newMap.keySet().iterator();
-    while( iter.hasNext()){
-      String key = (String)iter.next();
-      Object o = newMap.get(key);
-      if ((key.equals("ASSESSMENT_AUTHORS")) ||
-        (key.equals("ASSESSMENT_KEYWORDS")) ||
-        (key.equals("ASSESSMENT_OBJECTIVES")) ||
-        (key.equals("ASSESSMENT_RUBRICS")) ||
-        (key.equals("ASSESSMENT_BGCOLOR")) ||
-        (key.equals("ASSESSMENT_BGIMAGE")));
-      else{
-        h.put(key, o);
-      }
-    }
-    this.values = h ;
+	  HashMap h = new HashMap();
+
+	  for (Iterator it = newMap.entrySet().iterator(); it.hasNext();) {
+		  Map.Entry entry = (Map.Entry) it.next();
+		  String key = (String) entry.getKey();
+		  Object o = entry.getValue();
+
+		  if ((key.equals("ASSESSMENT_AUTHORS")) ||
+				  (key.equals("ASSESSMENT_KEYWORDS")) ||
+				  (key.equals("ASSESSMENT_OBJECTIVES")) ||
+				  (key.equals("ASSESSMENT_RUBRICS")) ||
+				  (key.equals("ASSESSMENT_BGCOLOR")) ||
+				  (key.equals("ASSESSMENT_BGIMAGE")));
+		  else{
+			  h.put(key, o);
+		  }
+	  }
+	  this.values = h ;
   }
 
   public HashMap getValueMap(){

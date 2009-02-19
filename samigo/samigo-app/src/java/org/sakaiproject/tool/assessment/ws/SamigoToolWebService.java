@@ -37,6 +37,7 @@ package org.sakaiproject.tool.assessment.ws;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
@@ -66,20 +67,22 @@ public class SamigoToolWebService {
 
     // converting to Object Array for transmitting through Axis SOAP
     int i = 0;
-    Iterator iter = map.keySet().iterator();
-    while (iter.hasNext()) {
-      String itemid = (String)iter.next();
-      if (map.get(itemid)!=null){
-        ItemFacade a = (ItemFacade) map.get(itemid);
-        String itemtext = a.getText();
-        String idstring = a.getItemIdString();
-        Item item = new Item();
-        item.setItemid(idstring);
-        item.setItemtext(itemtext);
-        item.setUrl(showItem(idstring));
-        itemArray[i]= item;
-        i++;
-      }
+    
+    for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
+    	Map.Entry entry = (Map.Entry) it.next();
+    	String itemid = (String)entry.getKey();
+    	Object value = entry.getValue();
+    	if (value!=null){
+    		ItemFacade a = (ItemFacade) value;
+    		String itemtext = a.getText();
+    		String idstring = a.getItemIdString();
+    		Item item = new Item();
+    		item.setItemid(idstring);
+    		item.setItemtext(itemtext);
+    		item.setUrl(showItem(idstring));
+    		itemArray[i]= item;
+    		i++;
+    	}
     }
 
      return itemArray;

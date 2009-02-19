@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -765,15 +766,14 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		HashMap targets = ptHelper.getTargets();
 		// Fixed for SAK-7251
 		HashMap trimedTargets = new HashMap();
-		Iterator iter = targets.keySet().iterator();
-		String key;
-		String value;
-		while (iter.hasNext()) {
-			key = (String) iter.next();
-			value = (String) targets.get(key);
-			trimedTargets.put(key.trim(), value);
-		}
 
+		for (Iterator it = targets.entrySet().iterator(); it.hasNext();) {
+			   Map.Entry entry = (Map.Entry) it.next();
+			   String key = (String)entry.getKey();
+			   String value = (String)entry.getValue();
+			   trimedTargets.put(key.trim(), value);
+ 			}
+		
 		// 2. get the key of the target selected, it is stored in
 		// accessControl.releaseTo
 		AssessmentAccessControlIfc control = p.getAssessmentAccessControl();

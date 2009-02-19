@@ -104,15 +104,15 @@ public class NavigationMapRenderer extends Renderer
       writer.write("<span class=\"" + style+ "\">");
     }
 
-    Set keySet = map.keySet();
-    Iterator iter = keySet.iterator();
-    String sep = "";
-    while (iter.hasNext()){
-      writer.write(sep);
-      String key = (String) iter.next();
-      String value = (String) map.get(key);
-      writeLink(writer, component, key, value, contextPath, linkStyle);
-      sep = separator;
+    String sep = ""; 
+
+    for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
+    	writer.write(sep);
+    	Map.Entry entry = (Map.Entry) it.next();
+    	String key = (String)entry.getKey();
+    	String value = (String)entry.getValue();
+    	writeLink(writer, component, key, value, contextPath, linkStyle);
+    	sep = separator;
     }
 
     if (style!=null && style.length()!=0)

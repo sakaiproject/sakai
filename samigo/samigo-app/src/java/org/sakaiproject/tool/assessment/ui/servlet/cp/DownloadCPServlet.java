@@ -25,6 +25,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -139,16 +140,17 @@ public class DownloadCPServlet extends HttpServlet {
 
 				// Attachments
 				HashMap contentMap = manifestGenerator.getContentMap();
-				Iterator iter = contentMap.keySet().iterator();
+				
 				String filename = null;
-				while (iter.hasNext()) {
-					filename = (String) iter.next();
-					ze = new ZipEntry(filename.substring(1));
-					zos.putNextEntry(ze);
-					b = (byte[]) contentMap.get(filename);
-					zos.write(b, 0, b.length);
-					zos.closeEntry();
-				}
+				for (Iterator it = contentMap.entrySet().iterator(); it.hasNext();) {
+					   Map.Entry entry = (Map.Entry) it.next();
+					   filename = (String)  entry.getKey();
+						ze = new ZipEntry(filename.substring(1));
+						zos.putNextEntry(ze);
+						b = (byte[]) entry.getValue();
+						zos.write(b, 0, b.length);
+						zos.closeEntry();
+					}
 
 			} catch (IOException e) {
 				log.error(e.getMessage());

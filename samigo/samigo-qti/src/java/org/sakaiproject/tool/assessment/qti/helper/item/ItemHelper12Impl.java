@@ -1078,43 +1078,41 @@ public class ItemHelper12Impl extends ItemHelperBase
     for (int l = 0; l < idsAndResponses.size(); l++)
     {
       Map idsAndResponsesMap = (Map) idsAndResponses.get(l);
-      Set set = idsAndResponsesMap.keySet();
-      Iterator keys = set.iterator();
-      while (keys.hasNext())
-      {
-        String respIdent = (String) keys.next();
-        String[] responses = null;
-        if ( (respIdent != null) && (respIdent.length() > 0))
-        {
-          responses = (String[]) idsAndResponsesMap.get(respIdent);
-        }
+      
+      for (Iterator it = idsAndResponsesMap.entrySet().iterator(); it.hasNext();) {
+    	  Map.Entry entry = (Map.Entry) it.next();
+    	  String respIdent = (String)entry.getKey();
+    	  if ( (respIdent != null) && (respIdent.length() > 0))
+    	  {
+    		  String[] responses = (String[])entry.getValue();
+    	  }
 
-        boolean newElement = true;
-        for (int i = 0; i < finalArray.size(); i++)
-        {
-          Map currentEntry = (Map) finalArray.get(i);
-          Set entrySet = currentEntry.keySet();
-          Iterator entrykeys = entrySet.iterator();
-          while (entrykeys.hasNext())
-          {
-            compareResponse = (String[]) entrykeys.next();
-            if (Arrays.equals(responses, compareResponse))
-            {
-              idList = (ArrayList) currentEntry.get(compareResponse);
-              idList.add(respIdent);
-              newElement = false;
-            }
-          }
-        }
+    	  boolean newElement = true;
+    	  for (int i = 0; i < finalArray.size(); i++)
+    	  {
+    		  Map currentEntry = (Map) finalArray.get(i);
+    		  Set entrySet = currentEntry.keySet();
+    		  Iterator entrykeys = entrySet.iterator();
+    		  while (entrykeys.hasNext())
+    		  {
+    			  compareResponse = (String[]) entrykeys.next();
+    			  if (Arrays.equals(responses, compareResponse))
+    			  {
+    				  idList = (ArrayList) currentEntry.get(compareResponse);
+    				  idList.add(respIdent);
+    				  newElement = false;
+    			  }
+    		  }
+    	  }
 
-        if ( (finalArray.size() == 0) || (newElement))
-        {
-          idList = new ArrayList();
-          idList.add(respIdent);
-          intermediaryMap = new HashMap();
-          intermediaryMap.put(responses, idList);
-          finalArray.add(intermediaryMap);
-        }
+    	  if ( (finalArray.size() == 0) || (newElement))
+    	  {
+    		  idList = new ArrayList();
+    		  idList.add(respIdent);
+    		  intermediaryMap = new HashMap();
+    		  intermediaryMap.put(responses, idList);
+    		  finalArray.add(intermediaryMap);
+    	  }
       }
     }
     return finalArray;
@@ -1143,34 +1141,33 @@ public class ItemHelper12Impl extends ItemHelperBase
         for (int i = 0; i < combinationResponses.size(); i++)
         {
           Map currentEntry = (Map) combinationResponses.get(i);
-          Set entrySet = currentEntry.keySet();
-          Iterator entrykeys = entrySet.iterator();
-          while (entrykeys.hasNext())
-          {
-            String[] responses = (String[]) entrykeys.next();
-            ArrayList idList = (ArrayList) currentEntry.get(responses);
-            if (idList != null && idList.size() > 0)
-            {
-              if (idList.size() == 1)
-              {
-                addFIBRespconditionNotMutuallyExclusive(
-                  itemXml, new Integer(respConditionNo).toString(),
-                  (String) idList.get(0), points, responses);
-                respConditionNo = respConditionNo + 1;
-              }
-              else
-              {
-                for (int k = 0; k < responses.length; k++)
-                {
+                    
+          for (Iterator it = currentEntry.entrySet().iterator(); it.hasNext();) {
+        	  Map.Entry entry = (Map.Entry) it.next();
+        	  String[] responses = (String[]) entry.getKey();
+        	  ArrayList idList = (ArrayList) entry.getValue();
+        	  if (idList != null && idList.size() > 0)
+        	  {
+        		  if (idList.size() == 1)
+        		  {
+        			  addFIBRespconditionNotMutuallyExclusive(
+        					  itemXml, new Integer(respConditionNo).toString(),
+        					  (String) idList.get(0), points, responses);
+        			  respConditionNo = respConditionNo + 1;
+        		  }
+        		  else
+        		  {
+        			  for (int k = 0; k < responses.length; k++)
+        			  {
 
-                  addFIBRespconditionMutuallyExclusive(itemXml,
-                    new Integer(respConditionNo).toString(), idList, points,
-                    responses[k]);
-                  respConditionNo = respConditionNo + 1;
+        				  addFIBRespconditionMutuallyExclusive(itemXml,
+        						  new Integer(respConditionNo).toString(), idList, points,
+        						  responses[k]);
+        				  respConditionNo = respConditionNo + 1;
 
-                }
+        			  }
 
-              }
+        		  }
             }
           }
         }
@@ -1208,18 +1205,18 @@ public class ItemHelper12Impl extends ItemHelperBase
 				int respConditionNo = 1;
 				for (int i = 0; i < combinationResponses.size(); i++) {
 					Map currentEntry = (Map) combinationResponses.get(i);
-					Set entrySet = currentEntry.keySet();
-					Iterator entrykeys = entrySet.iterator();
-					while (entrykeys.hasNext()) {
-						String[] responses = (String[]) entrykeys.next();
-						ArrayList idList = (ArrayList) currentEntry
-								.get(responses);
+
+					for (Iterator it = currentEntry.entrySet().iterator(); it.hasNext();) {
+						Map.Entry entry = (Map.Entry) it.next();
+						String[] responses = (String[])entry.getKey();
+						ArrayList idList = (ArrayList) entry.getValue();
+
 						if (idList != null && idList.size() > 0) {
 							if (idList.size() == 1) {
 								addFINRespconditionNotMutuallyExclusive(
 										itemXml, new Integer(respConditionNo)
-												.toString(), (String) idList
-												.get(0), points, responses);
+										.toString(), (String) idList
+										.get(0), points, responses);
 								respConditionNo = respConditionNo + 1;
 							} else {
 								for (int k = 0; k < responses.length; k++) {
@@ -1227,7 +1224,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 									addFINRespconditionMutuallyExclusive(
 											itemXml,
 											new Integer(respConditionNo)
-													.toString(), idList,
+											.toString(), idList,
 											points, responses[k]);
 									respConditionNo = respConditionNo + 1;
 

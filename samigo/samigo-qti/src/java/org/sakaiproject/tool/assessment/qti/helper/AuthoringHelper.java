@@ -560,7 +560,7 @@ public class AuthoringHelper
           Item itemXml = (Item) itemList.get(itm);
           Map itemMap = exHelper.mapItem(itemXml);
 
-          // lydia debugging
+          /* lydia debugging
           if (itemMap!=null && itemMap.keySet()!=null){
               Iterator iter = itemMap.keySet().iterator();
 
@@ -575,7 +575,7 @@ public class AuthoringHelper
                 
               }
           }
-          // end lydia
+          */ end lydia
 
           ItemFacade item = new ItemFacade();
           if (itemMap != null) {

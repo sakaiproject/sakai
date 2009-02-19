@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -2086,10 +2087,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
    * @param grade
    */
   private void updateSectionScore(HashMap sectionItems, TreeMap sectionScores, Long publishedItemId, float itemScore) {
-	  Iterator keys = sectionItems.keySet().iterator();
-	  while (keys.hasNext()) {
-		  Integer sectionSequence = (Integer) keys.next();
-		  HashMap itemsForSection = (HashMap) sectionItems.get(sectionSequence);
+
+	  for (Iterator it = sectionItems.entrySet().iterator(); it.hasNext();) {
+		  Map.Entry entry = (Map.Entry) it.next();
+		  Object sectionSequence = entry.getKey();
+		  HashMap itemsForSection = (HashMap) entry.getValue();
+
 		  if (itemsForSection.get(publishedItemId)!=null) {
 			  Float score = new Float( ((Float)sectionScores.get(sectionSequence)).floatValue() + itemScore);
 			  sectionScores.put(sectionSequence, score); 

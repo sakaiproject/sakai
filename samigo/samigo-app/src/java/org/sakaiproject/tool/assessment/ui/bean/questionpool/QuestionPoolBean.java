@@ -1938,12 +1938,11 @@ String poolId = ContextUtil.lookupParam("qpid");
 
   public ArrayList sortPoolByLevel(Long level, Collection objects, String sortProperty, boolean sortAscending){
     HashMap map = buildHash(objects);
-    Set keys = map.keySet();
-    Iterator iter = keys.iterator();
-    while(iter.hasNext()){
-      Long parentPoolId = (Long)iter.next();
-      ArrayList poolList = (ArrayList) map.get(parentPoolId); 
-      sortQpoolsByProperty(poolList, sortProperty, sortAscending);
+ 
+    for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
+    	Map.Entry entry = (Map.Entry) it.next();
+    	ArrayList poolList = (ArrayList) entry.getValue();
+    	sortQpoolsByProperty(poolList, sortProperty, sortAscending);
     }
     // poolList in each level has been sorted, now we would put them in the right order
     ArrayList sortedList = new ArrayList();

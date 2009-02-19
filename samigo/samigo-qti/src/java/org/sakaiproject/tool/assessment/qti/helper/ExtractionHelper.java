@@ -1353,7 +1353,7 @@ public class ExtractionHelper
    */
   private void addFeedback(ItemFacade item, Map itemMap, Long typeId)
   {
-    // write the map out
+    /* write the map out for debugging
     Iterator iter = itemMap.keySet().iterator();
     while (iter.hasNext())
     {
@@ -1361,6 +1361,7 @@ public class ExtractionHelper
       Object o = itemMap.get(key);
       log.debug("itemMap: " + key + "=" + itemMap.get(key));
     }
+    */
 
     String correctItemFeedback = XmlUtil.processFormattedText(log, (String) itemMap.get("correctItemFeedback"));
     String incorrectItemFeedback = XmlUtil.processFormattedText(log, (String) itemMap.get("incorrectItemFeedback"));
